@@ -1,5 +1,4 @@
 net/bible/sharedui/search/SearchResultsScreen.kt:190 # expand/collapse, not a toggle (batch 7 A4)
-net/bible/sharedui/reading/WindowTabBar.kt:232 # expand/collapse, not a toggle (batch 7 A4)
-net/bible/sharedui/ai/reading/AgentLogPanel.kt:271 # expand/collapse, not a toggle (batch 7 A4)
+net/bible/sharedui/reading/WindowTabBar.kt:229 # expand/collapse, not a toggle (batch 7 A4)
 net/bible/sharedui/components/AbArrangementSheet.kt:190 # sort-direction swap, not a setting; the label already names the direction (batch 7 A4)
 net/bible/sharedui/ai/AiPromptsScreen.kt:460 # filter-active indicator opens a sheet, not a toggle (batch 7 A4)

@@ -33,6 +33,12 @@ There are multiple ways to choose the document you want to show in the new windo
 A window can be maximised so it takes up the whole screen. Restore it to its original size by pushing the restore-window button in the bottom right of the screen.
 
 A window can be minimised so that is hidden from view. Show the window again by clicking it’s button in the window-button-bar at the bottom of the screen.
+Minimised windows have a dashed outline around their bottom-bar button. In true
+monochrome mode, their text and outline stay black on white (or white on black in
+the dark theme), rather than fading to gray. Bottom-bar buttons have square bottom
+corners; pinned and links windows have more rounded top corners than unpinned
+windows. With automatic pinning enabled, all window buttons use the pinned shape.
+
 Reposition the window by using the ‘Move To’ menu option.
 
 A window has many customisation settings. The most recently used settings appear in the pop-up menu. But you can access all window settings via the ‘All-text-options’ menu item.

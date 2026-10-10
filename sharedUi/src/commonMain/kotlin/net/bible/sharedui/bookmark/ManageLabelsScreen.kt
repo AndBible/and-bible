@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.bookmark
 
+import net.bible.sharedui.theme.LocalAbColors
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -73,7 +75,6 @@ import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
-import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbConfirmDialog
@@ -87,7 +88,6 @@ import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.search.styledTextToAnnotatedString
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
-import net.bible.sharedui.theme.LocalDisplayColorMode
 import androidx.compose.foundation.lazy.rememberLazyListState
 import net.bible.sharedui.components.volumeScrollTarget
 
@@ -308,11 +308,8 @@ private fun LabelItemRow(
     strings: Strings,
 ) {
     val label = row.label
-    // Identity glyph tint: accentArgbFor is what greys it in BW / e-ink, same call the editor
-    // avatar makes (LabelEditScreen.kt:235). The style tag below uses the READER's monochrome
-    // substitutions instead, via bookmarkStyleDecoration -- two different rules on purpose, one for
-    // a workspace accent and one for what the page actually looks like.
-    val glyphTint = Color(accentArgbFor(label.color, LocalDisplayColorMode.current))
+    // Identity and preview markers share the editor resolver: ink in MONO, legacy accent otherwise.
+    val glyphTint = bookmarkMarkerTint(label.color)
     val markerGlyph: @Composable () -> Unit = { iconSlot(label.customIcon, glyphTint) }
     Row(
         modifier = Modifier
@@ -453,7 +450,8 @@ private fun LabelItemRow(
                         // null here: the description lives on the slot's own semantics node (set
                         // above), not on the icon -- one announcement per row, not two.
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = InertIndicatorAlpha),
+                        tint = if (isPureMonochrome()) LocalAbColors.current.monoDisabled
+                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = InertIndicatorAlpha),
                         modifier = Modifier.size(TrailingIconSize),
                     )
                 }
@@ -599,7 +597,8 @@ private fun SearchResultRow(
         Box(
             modifier = Modifier
                 .size(24.dp)
-                .background(AbColor.toComposeColor(row.color), CircleShape),
+                .background(if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+                    else AbColor.toComposeColor(row.color), CircleShape),
         )
 
         Spacer(Modifier.width(12.dp))

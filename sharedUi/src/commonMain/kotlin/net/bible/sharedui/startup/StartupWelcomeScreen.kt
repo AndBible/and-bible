@@ -37,6 +37,8 @@ import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.SettingsBackupRestore
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -49,12 +51,11 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
@@ -64,8 +65,9 @@ import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.startup.StartupWelcomeState
 import net.bible.sharedcore.startup.StartupWelcomeTab
 import net.bible.sharedui.components.AbLoadingIndicator
-import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.volumeVerticalScroll
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * First-run welcome screen. English users get an Easy | Advanced switch: Easy is one recommended
@@ -114,7 +116,10 @@ fun StartupWelcomeScreen(
                 modifier = Modifier.fillMaxWidth().padding(top = 24.dp).heightIn(min = 100.dp),
             ) {
                 if (logo != null) {
-                    Image(painter = logo, contentDescription = null, modifier = Modifier.size(48.dp))
+                    Image(
+                        painter = logo, contentDescription = null, modifier = Modifier.size(48.dp),
+                        colorFilter = if (isPureMonochrome()) ColorFilter.tint(MaterialTheme.colorScheme.onSurface) else null,
+                    )
                     Spacer(Modifier.size(12.dp))
                 }
                 Text(

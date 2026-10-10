@@ -39,6 +39,9 @@ const val NIGHT_WORKSPACE_TINT_FRACTION: Float = 0.30f
  * [DEFAULT_WORKSPACE_COLOR_ARGB], so BOTH count as not set. Accepted side effect: a user who
  * deliberately picks `#444444` gets the untinted default look; in exchange "reset to default"
  * behaves correctly with no migration.
+ * `abColorScheme` and the BibleView payload no longer consult this in NORMAL mode -- there the
+ * default colour is a real seed (theme-style spec 2026-10-10); it still gates COLOR_EINK seeding
+ * and the literal-toolbar path.
  */
 fun isWorkspaceColorSet(workspaceArgb: Int?): Boolean =
     workspaceArgb != null && workspaceArgb != DEFAULT_WORKSPACE_COLOR_ARGB
@@ -57,6 +60,7 @@ fun lerpArgb(fromArgb: Int, toArgb: Int, fraction: Float): Int {
 /**
  * The Compose reading toolbar's container colour (A/B batch 3, F3).
  *
+ * - **MONOCHROME** → [surfaceArgb] always (paper); the workspace colour is ignored.
  * - **Not set** → [surfaceArgb] unchanged, i.e. today's plain Material 3 bar. `accentArgbFor` is
  *   deliberately NOT applied on this path: `AbTheme` already greyscales the whole `ColorScheme` in
  *   BW and COLOR_EINK, and wrapping a scheme role a second time is the mistake palette B banked.
@@ -75,6 +79,7 @@ fun readingToolbarContainerArgb(
     nightMode: Boolean,
     colorMode: DisplayColorMode,
 ): Int {
+    if (colorMode == DisplayColorMode.MONOCHROME) return surfaceArgb
     if (!isWorkspaceColorSet(workspaceArgb)) return surfaceArgb
     val accent = accentArgbFor(workspaceArgb!!, colorMode)
     return if (nightMode) lerpArgb(surfaceArgb, accent, NIGHT_WORKSPACE_TINT_FRACTION) else accent

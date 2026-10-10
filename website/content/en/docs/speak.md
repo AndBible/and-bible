@@ -9,6 +9,24 @@ be superior to the default voices.
 
 The way in which you change the voice differs between devices. Try searching in Settings for `Text-to-Speech > Preferred engine > Install voice data`.
 
+## No sound when speaking
+
+If *AndBible* says that text-to-speech is not working, or that the language is not available,
+the problem is in your device's speech setup. Tap `Open settings` in that message to go to the
+system text-to-speech settings, then:
+
+1. Check which engine is selected as the `Preferred engine`, and play its example sound. If you
+   hear nothing there either, the engine itself is not working.
+2. If no engine is listed, or the selected one does not work, install or enable one: for example
+   the engine that came with your phone (such as Samsung text-to-speech), Google's
+   [Speech Recognition & Synthesis](https://play.google.com/store/apps/details?id=com.google.android.tts),
+   or a free engine from F-Droid such as RHVoice or eSpeak NG. An engine that has been
+   disabled can be enabled again in the system's app settings.
+3. In the engine's settings, download the voice data for the languages you want to hear.
+
+If *AndBible* says that another app is using the audio, stop the other app's playback (or end the
+call) and try again.
+
 ## Speak Settings
 
 The *Speak* dialog can be accessed from:

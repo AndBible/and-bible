@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import net.bible.sharedcore.progress.ReadingProgressScale
 import net.bible.sharedcore.theme.accentArgbFor
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.LocalDisplayColorMode
 
 /**
@@ -83,12 +85,19 @@ data class HeatColors(val background: Color, val content: Color)
 
 /** Neutral "no activity" heat-map cell colour: the theme's `surfaceVariant`. */
 @Composable
-private fun colorEmpty(): Color = MaterialTheme.colorScheme.surfaceVariant
+private fun colorEmpty(): Color =
+    if (isPureMonochrome()) LocalAbColors.current.monoDisabled else MaterialTheme.colorScheme.surfaceVariant
 
 /** [HeatColors] for a no-data cell: theme neutral background, theme content colour. */
 @Composable
 private fun emptyHeatColors(): HeatColors =
     HeatColors(colorEmpty(), MaterialTheme.colorScheme.onSurfaceVariant)
+
+/** Pure monochrome collapses ramps to partial/full; exact values remain in cell labels and details. */
+@Composable
+private fun monoHeatColors(full: Boolean): HeatColors =
+    if (full) HeatColors(MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.surface)
+    else HeatColors(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.onSurface)
 
 /** [HeatColors] for a coloured (non-empty) cell: classic's luminance rule picks the text colour. */
 private fun heatColors(background: Color): HeatColors =
@@ -103,6 +112,7 @@ private fun heatColors(background: Color): HeatColors =
 @Composable
 fun countHeatColors(count: Int, maxCount: Int): HeatColors {
     if (count == 0) return emptyHeatColors()
+    if (isPureMonochrome()) return monoHeatColors(count >= maxCount.coerceAtLeast(10))
     val mode = LocalDisplayColorMode.current
     val effectiveMax = maxCount.coerceAtLeast(10)
     val midCount = ReadingProgressScale.HEAT_MID_COUNT
@@ -124,6 +134,7 @@ fun countHeatColors(count: Int, maxCount: Int): HeatColors {
 @Composable
 fun bookProgressColors(readPercent: Float, effectiveMaxPercent: Float): HeatColors {
     if (readPercent <= 0f) return emptyHeatColors()
+    if (isPureMonochrome()) return monoHeatColors(readPercent >= 1f)
     val mode = LocalDisplayColorMode.current
     val blended = if (readPercent <= 1.0f) {
         lerp(Color(COLOR_COUNT_BOOK_BLUE_LOW), Color(COLOR_COUNT_BOOK_BLUE_HIGH), readPercent)
@@ -141,6 +152,7 @@ fun bookProgressColors(readPercent: Float, effectiveMaxPercent: Float): HeatColo
 @Composable
 fun memorizationColors(level: Int): HeatColors {
     if (level <= 0) return emptyHeatColors()
+    if (isPureMonochrome()) return monoHeatColors(level >= 4)
     val mode = LocalDisplayColorMode.current
     val base = when (level) {
         1 -> COLOR_MEM_LOW
@@ -159,6 +171,7 @@ fun memorizationColors(level: Int): HeatColors {
 @Composable
 fun calendarLevelColor(level: Int): Color {
     if (level <= 0) return colorEmpty()
+    if (isPureMonochrome()) return monoHeatColors(level >= 4).background
     val mode = LocalDisplayColorMode.current
     val base = CALENDAR_LEVEL_COLORS[(level - 1).coerceAtMost(CALENDAR_LEVEL_COLORS.lastIndex)]
     return Color(accentArgbFor(base, mode))
@@ -167,6 +180,7 @@ fun calendarLevelColor(level: Int): Color {
 /** Marker dot colour for a reading-plan/target percentage overlay. */
 @Composable
 fun targetDot(): Color {
+    if (isPureMonochrome()) return MaterialTheme.colorScheme.onSurface
     val mode = LocalDisplayColorMode.current
     return Color(accentArgbFor(COLOR_TARGET_DOT, mode))
 }

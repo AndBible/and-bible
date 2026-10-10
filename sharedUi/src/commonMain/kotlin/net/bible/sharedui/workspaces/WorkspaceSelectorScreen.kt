@@ -41,7 +41,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ButtonDefaults
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -74,7 +75,9 @@ import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * Stateless workspace-selector list editor. Persistence + navigation are hoisted (the host wires
@@ -182,7 +185,8 @@ fun WorkspaceSelectorScreen(
                         // color, so it isn't grayscaled by AbTheme automatically (CategoryPalette idiom):
                         // grays out in BW, stays colored in COLOR_EINK.
                         Surface(
-                            color = Color(accentArgbFor(item.colorArgb, LocalDisplayColorMode.current)),
+                            color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+                            else Color(accentArgbFor(item.colorArgb, LocalDisplayColorMode.current)),
                             shape = CircleShape,
                             modifier = Modifier.size(16.dp),
                         ) {}
@@ -213,7 +217,10 @@ fun WorkspaceSelectorScreen(
             }
             Row(modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                 TextButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(s.dismiss) }
-                TextButton(onClick = onSave, enabled = dirty, modifier = Modifier.weight(1f)) { Text(s.saveAndExit) }
+                TextButton(onClick = onSave, enabled = dirty, modifier = Modifier.weight(1f),
+                    colors = if (isPureMonochrome()) ButtonDefaults.textButtonColors(
+                        disabledContentColor = LocalAbColors.current.monoDisabled,
+                    ) else ButtonDefaults.textButtonColors()) { Text(s.saveAndExit) }
             }
         }
     }
@@ -300,7 +307,7 @@ private fun RowOverflow(
     LaunchedEffect(expanded) { if (!expanded) submenuOpen = false }
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = LocalStrings.current.menu) }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             WorkspaceRowMenuRows(
                 canDelete = canDelete,
                 submenuOpen = submenuOpen,

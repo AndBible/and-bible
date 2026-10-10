@@ -62,7 +62,6 @@ import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
-import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
@@ -133,8 +132,8 @@ fun LabelEditScreen(
     // cause). accentArgbFor keeps BW / e-ink correct. A colour close to the surface now draws a
     // faint glyph — accepted, and informative: a colour that cannot be seen here cannot be seen in
     // the reader either. The large swatch still exists where the colour is actually chosen, in
-    // LabelIdentitySheet.
-    val glyphTint = Color(accentArgbFor(state.color, LocalDisplayColorMode.current))
+    // LabelIdentitySheet. Pure monochrome uses theme ink instead of the stored colour's grey.
+    val glyphTint = bookmarkMarkerTint(state.color)
 
     AbScaffold(title = strings.editLabelTitle, onNavigateUp = onUp, actions = actions) { padding ->
         Column(

@@ -17,11 +17,13 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.isPureMonochrome
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,6 +77,7 @@ fun SpeakTransportBar(
     ownsTopEdge: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
+    val mono = isPureMonochrome()
     val strings = LocalStrings.current
     // Round 13a: the agent panel's container verbatim (AgentLogPanel.kt:171-188) — the two panels
     // stack directly on top of each other in the reading view, so one idiom reads as one family.
@@ -89,11 +92,12 @@ fun SpeakTransportBar(
     // dropping only the corners and the shadow turns two abutting surfaces into one slab with no
     // seam, while dropping the tonal elevation too would put a colour step back where the seam was.
     // `SpeakBarTopEdgeGuardTest` exists to keep that split from being "simplified" away.
+    // MONOCHROME is the exception: opaque paper and an ink divider replace both elevations.
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = if (ownsTopEdge) RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) else RectangleShape,
-        tonalElevation = 3.dp,
-        shadowElevation = if (ownsTopEdge) 8.dp else 0.dp,
+        tonalElevation = if (mono) 0.dp else 3.dp,
+        shadowElevation = if (mono) 0.dp else if (ownsTopEdge) 8.dp else 0.dp,
     ) {
         // The nav-bar inset goes on the INNER Column, not the Surface: the tinted surface and its
         // corners then bleed into the nav-bar strip while the content clears it. Only the bottom
@@ -101,6 +105,7 @@ fun SpeakTransportBar(
         Column(
             Modifier.readingRailInsetPadding(applyNavBarInset)
         ) {
+            if (mono) HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface)
             // Rendered unconditionally (even when statusText is blank), NOT gated by isNotBlank(): classic's
             // statusText is android:lines="1" (speak_transport_widget.xml:27-40, with a placeholder
             // android:text="test") so it ALWAYS occupies exactly one line and the widget's height never

@@ -214,4 +214,7 @@ function onCheckClick(event: Event) {
         color: white;
     }
 }
+
+.pureMonochrome .mark-as-read-icon { border-color: black; }
+.pureMonochrome.night .mark-as-read-icon { border-color: white; }
 </style>

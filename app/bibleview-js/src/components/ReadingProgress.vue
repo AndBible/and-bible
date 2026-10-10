@@ -49,4 +49,9 @@ withDefaults(defineProps<{ text: string | null; bottom?: string }>(), {bottom: '
     border: 1px solid var(--text-color);
   }
 }
+
+@each $theme, $ink, $paper in (".pureMonochrome", black, white), (".pureMonochrome.night", white, black) {
+  #{$theme} .reading-progress { background: $paper; color: $ink; border: 1px solid $ink; border-color: $ink; }
+}
+
 </style>
