@@ -53,22 +53,39 @@ object DatabaseResetter {
         // Sorry, not motivated at this time to investigate this any further if this workaround works.
 
         Thread.sleep(300)
-        // Koin lives across fixtures; its preference snapshot must not outlive the reset DB.
-        // Keep invalidation test-only: real backup restore does not replace documentSyncDb.
         val koin = org.koin.core.context.GlobalContext.getOrNull()
-        val documentSettings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
-        if (documentSettings != null) {
-            kotlinx.coroutines.runBlocking {
-                koin.get<net.bible.sharedcore.platform.OrderedLauncher>().join("document-sync-settings")
-            }
-            val stateField = documentSettings.javaClass.getDeclaredField("state").apply { isAccessible = true }
-            @Suppress("UNCHECKED_CAST")
-            val state = stateField.get(documentSettings) as kotlinx.coroutines.flow.MutableStateFlow<net.bible.android.database.DocumentSyncPreferences?>
-            state.value = null
+        kotlinx.coroutines.runBlocking {
+            // Cancel producers, then wait for their finally blocks and late submissions before draining.
+            val appJob = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
+                ?.coroutineContext?.get(kotlinx.coroutines.Job)
+            val jobs = (scopes_.mapNotNull { it.coroutineContext[kotlinx.coroutines.Job] } +
+                (appJob?.children?.toList() ?: emptyList())).distinct()
+            jobs.forEach { it.cancel() }
+            jobs.forEach { it.join() }
+            val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
+            if (settings == null) DatabaseContainer.reset()
+            else resetDocumentSyncFixture(settings, koin.get()) { DatabaseContainer.reset() }
         }
-        DatabaseContainer.reset()
         DatabaseContainer.forgetReplacesForTest()
         //resetSingleton(DatabaseContainer::class.java, "instance")
+    }
+
+    internal suspend fun resetDocumentSyncFixture(
+        settings: net.bible.service.cloudsync.documents.DocumentSyncSettings,
+        launcher: net.bible.sharedcore.platform.OrderedLauncher,
+        reset: suspend () -> Unit,
+    ) {
+        launcher.join("document-sync-settings")
+        val mutexField = settings.javaClass.getDeclaredField("dbMutex").apply { isAccessible = true }
+        val mutex = mutexField.get(settings) as kotlinx.coroutines.sync.Mutex
+        mutex.lock()
+        try {
+            reset()
+            val field = settings.javaClass.getDeclaredField("state").apply { isAccessible = true }
+            @Suppress("UNCHECKED_CAST")
+            val state = field.get(settings) as kotlinx.coroutines.flow.MutableStateFlow<net.bible.android.database.DocumentSyncPreferences?>
+            state.value = null
+        } finally { mutex.unlock() }
     }
 
     private fun resetSingleton(class_: Class<*>, fieldName: String) {

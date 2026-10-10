@@ -47,11 +47,7 @@ class SyncSettingsServiceImplTest {
     private val settings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
     private val scopes = mutableListOf<CoroutineScope>()
     @After fun tearDown() {
-        kotlinx.coroutines.runBlocking {
-            org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.OrderedLauncher>(net.bible.sharedcore.platform.OrderedLauncher::class.java).join("document-sync-settings")
-        }
-        scopes.forEach { it.coroutineContext[Job]!!.cancel() }
-        DatabaseResetter.resetDatabase()
+        DatabaseResetter.resetDatabase(*scopes.toTypedArray())
     }
 
     private fun impl(): SyncSettingsServiceImpl {

@@ -1,5 +1,6 @@
 package net.bible.service.cloudsync.documents
 
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
@@ -54,6 +55,69 @@ class DocumentSyncSettingsTest {
         processSettings.ensureLoaded()
         assertFalse(processSettings.enabled)
         assertFalse(processSettings.wifiOnly)
+    }
+
+    @Test fun fixtureResetWaitsForInflightLoadAndProducerShutdown() = runBlocking {
+        val started = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val dao = db.documentSyncPreferencesDao()
+        dao.set(DocumentSyncPreferences(enabled = true))
+        val delayedDao = object : net.bible.android.database.DocumentSyncPreferencesDao by dao {
+            override suspend fun get(): DocumentSyncPreferences? {
+                val old = dao.get()
+                started.complete(Unit)
+                release.await()
+                return old
+            }
+        }
+        val settings = DocumentSyncSettings({ delayedDao }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher, get(AppEnvironment::class.java))
+        val load = async(kotlinx.coroutines.Dispatchers.Default) { settings.ensureLoaded() }
+        started.await()
+        val resetStarted = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val reset = async(kotlinx.coroutines.Dispatchers.Default) {
+            resetStarted.complete(Unit)
+            net.bible.test.DatabaseResetter.resetDocumentSyncFixture(settings, launcher) {
+                org.junit.Assert.assertTrue("reset must exclude a suspended old-row load", release.isCompleted)
+                dao.set(DocumentSyncPreferences(enabled = false, wifiOnly = false))
+            }
+        }
+        resetStarted.await()
+        kotlinx.coroutines.delay(100)
+        release.complete(Unit)
+        load.await()
+        reset.await()
+        settings.ensureLoaded()
+        assertFalse(settings.enabled)
+        assertFalse(settings.wifiOnly)
+    }
+
+    @Test fun fixtureResetWaitsForCancelledProducerFinallyWrite() = runBlocking {
+        val processSettings = get<DocumentSyncSettings>(DocumentSyncSettings::class.java)
+        processSettings.ensureLoaded()
+        val producerScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
+        val started = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val finished = kotlinx.coroutines.CompletableDeferred<Unit>()
+        producerScope.launch {
+            try {
+                started.complete(Unit)
+                kotlinx.coroutines.awaitCancellation()
+            } finally {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                    kotlinx.coroutines.delay(100)
+                    processSettings.enabled = true
+                    finished.complete(Unit)
+                }
+            }
+        }
+        started.await()
+        net.bible.test.DatabaseResetter.resetDatabase(producerScope)
+        assertTrue("reset must await producer shutdown", finished.isCompleted)
+        db.documentSyncPreferencesDao().set(DocumentSyncPreferences(enabled = false))
+        processSettings.ensureLoaded()
+        assertFalse(processSettings.enabled)
+        get<OrderedLauncher>(OrderedLauncher::class.java).join("document-sync-settings")
+        assertFalse(db.documentSyncPreferencesDao().get()!!.enabled)
     }
 
     @Test fun loadsExistingEnabledRowOnce() = runBlocking {
