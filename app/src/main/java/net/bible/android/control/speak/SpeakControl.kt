@@ -17,16 +17,17 @@
 
 package net.bible.android.control.speak
 
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.util.formatHoursMinsSecs
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.log.Log
 
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.service.common.AndRuntimeException
-import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.device.speak.TextToSpeechServiceManager
 
@@ -62,10 +63,14 @@ class SpeakControl constructor(
     private val textToSpeechServiceManager: Lazy<TextToSpeechServiceManager>,
     private val windowControl: WindowControl,
     private val platform: SpeakPlatform,
+    private val notifier: UserNotifier,
+    private val strings: CoreStrings,
+    private val settings: AppSettings,
+    private val appScope: AppCoroutineScope,
+    private val advancedSpeakSettings: AdvancedSpeakSettings,
+    private val launcher: OrderedLauncher,
 ) : KoinComponent {
 
-    private val launcher: OrderedLauncher by inject()
-    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     val bookmarkControl: BookmarkControl by inject()
     private var sleepTimer = lazy { Timer("TTS sleep timer") }
     private var timerTask: TimerTask? = null
@@ -198,7 +203,7 @@ class SpeakControl constructor(
                 && range.end.ordinal >= currentVerse.ordinal)) {
             settings.playbackSettings.verseRange = null
             settings.save()
-            UserMessages.toast(R.string.verse_range_mode_disabled, long = true)
+            notifier.showInfo(strings.verseRangeModeDisabled, long = true)
         }
 
     }
@@ -229,13 +234,13 @@ class SpeakControl constructor(
     private fun startSpeakingFromDefault() {
         Log.i(TAG, "startSpeakingFromDefault")
         if (!booksAvailable) {
-            UserMessages.toast(R.string.speak_no_books_available)
+            notifier.showInfo(strings.speakNoBooksAvailable)
             return
         }
         try {
             val page = windowControl.activeWindowPageManager.currentPage
             if(!page.isSpeakable) {
-                UserMessages.toast(R.string.speak_no_books_available)
+                notifier.showInfo(strings.speakNoBooksAvailable)
                 return
             }
             val fromBook = page.currentDocument
@@ -248,7 +253,7 @@ class SpeakControl constructor(
 
         } catch (e: Exception) {
             Log.e(TAG, "Error getting chapters to speak", e)
-            UserMessages.toast(R.string.speak_general_error)
+            notifier.showInfo(strings.speakGeneralError)
             return
         }
     }
@@ -348,13 +353,13 @@ class SpeakControl constructor(
     private fun speakBible() {
         val page = speakPageManager.currentPage
         if(!page.isSpeakable) {
-            UserMessages.toast(R.string.speak_no_books_available)
+            notifier.showInfo(strings.speakNoBooksAvailable)
             return
         }
         val verse = page.singleKey as? Verse
         if (verse == null) {
             Log.e(TAG, "Cannot speak Bible - no valid verse key available")
-            UserMessages.toast(R.string.speak_general_error)
+            notifier.showInfo(strings.speakGeneralError)
             return
         }
         speakBible(verse)
@@ -396,7 +401,7 @@ class SpeakControl constructor(
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Rewind TTS speaking")
             ttsServiceManager.rewind(amount)
-            UserMessages.toast(R.string.rewind)
+            notifier.showInfo(strings.rewind)
         }
     }
 
@@ -404,7 +409,7 @@ class SpeakControl constructor(
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Forward TTS speaking")
             ttsServiceManager.forward(amount)
-            UserMessages.toast(R.string.forward)
+            notifier.showInfo(strings.forward)
         }
     }
 
@@ -422,18 +427,18 @@ class SpeakControl constructor(
             Log.i(TAG, "Pause TTS speaking")
             val tts = ttsServiceManager
             tts.pause(willContinueAfterThis)
-            var pauseToastText = CommonUtils.getResourceString(R.string.pause)
+            var pauseToastText = strings.pause
 
             val completedSeconds = tts.pausedCompletedSeconds
             val totalSeconds = tts.pausedTotalSeconds
 
             if (totalSeconds > 0) {
-                val timeProgress = CommonUtils.getHoursMinsSecs(completedSeconds) + "/" + CommonUtils.getHoursMinsSecs(totalSeconds)
+                val timeProgress = formatHoursMinsSecs(completedSeconds) + "/" + formatHoursMinsSecs(totalSeconds)
                 pauseToastText += "\n" + timeProgress
             }
 
             if (!willContinueAfterThis && toast) {
-                UserMessages.toast(pauseToastText)
+                notifier.showInfo(pauseToastText)
             }
             saveCurrentPosition()
         }
@@ -448,11 +453,11 @@ class SpeakControl constructor(
             key?.getOsisRef()
         }
         if(bookRef != null && osisRef != null) {
-            CommonUtils.settings.setString("lastSpeakBook",bookRef);
-            CommonUtils.settings.setString("lastSpeakRef", osisRef);
+            settings.setString("lastSpeakBook",bookRef);
+            settings.setString("lastSpeakRef", osisRef);
         } else {
-            CommonUtils.settings.removeString("lastSpeakBook");
-            CommonUtils.settings.removeString("lastSpeakRef");
+            settings.removeString("lastSpeakBook");
+            settings.removeString("lastSpeakRef");
         }
     }
 
@@ -461,8 +466,8 @@ class SpeakControl constructor(
     }
 
     fun continueLastPosition() {
-        val bookRef = CommonUtils.settings.getString("lastSpeakBook")
-        val osisRef = CommonUtils.settings.getString("lastSpeakRef")
+        val bookRef = settings.getString("lastSpeakBook")
+        val osisRef = settings.getString("lastSpeakRef")
         Log.i(TAG, "continueLastPosition $bookRef $osisRef")
         if(bookRef != null && osisRef != null) speakAny(bookRef, osisRef)
         else startSpeakingFromDefault()
@@ -499,7 +504,7 @@ class SpeakControl constructor(
             originalSettingsBeforeMemLoop = null
         }
         if(!force) {
-            UserMessages.toast(R.string.stop)
+            notifier.showInfo(strings.stop)
         }
     }
 
@@ -512,7 +517,7 @@ class SpeakControl constructor(
 
     fun getStatusText(showFlag: Int): String {
         return if (!isSpeaking && !isPaused) {
-            "- " + BibleApplication.application.getString(R.string.speak_status_stopped) + " -"
+            "- " + strings.speakStatusStopped + " -"
         } else {
             ttsServiceManager.getStatusText(showFlag)
         }
@@ -522,8 +527,7 @@ class SpeakControl constructor(
         stopTimer()
         if (sleepTimerAmount > 0) {
             Log.i(TAG, "Activating sleep timer")
-            val app = BibleApplication.application
-            UserMessages.toast(app.getString(R.string.sleep_timer_started, sleepTimerAmount))
+            notifier.showInfo(strings.sleepTimerStarted(sleepTimerAmount))
             timerTask = object : TimerTask() {
                 override fun run() {
                     pause(false, false)

@@ -30,8 +30,6 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 /**
  * Classic label formatting from `SpeakTransportWidget.onBookmarkButtonClick` (:190-197). `internal`
@@ -51,12 +49,13 @@ internal fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (
  * (`onButtonClick` :143-177, `onBookmarkButtonClick` :186-214). Koin single (process-lived); the
  * reading-view classic code is unchanged.
  */
-class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
-    private val scope: AppCoroutineScope by inject()
-    private val platform: SpeakPlatform by inject()
-    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
-    private val speakControl: SpeakControl by inject()
-    private val bookmarkControl: BookmarkControl by inject()
+class SpeakTransportServiceImpl(
+    private val scope: AppCoroutineScope,
+    private val platform: SpeakPlatform,
+    private val advancedSpeakSettings: AdvancedSpeakSettings,
+    private val speakControl: SpeakControl,
+    private val bookmarkControl: BookmarkControl,
+) : SpeakTransportService {
 
     /** Cached id → bookmark for [speakFromBookmark]; refreshed by [speakBookmarks]. */
     private var bookmarkCache: Map<String, BookmarkEntities.BaseBookmarkWithNotes> = emptyMap()

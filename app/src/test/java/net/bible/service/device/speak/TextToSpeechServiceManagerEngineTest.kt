@@ -101,7 +101,9 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         })
         // App/settings initialization can resolve the original control's lazy manager before
         // test overrides. A fresh control guarantees that playback uses the fake manager.
-        speakControl = SpeakControl(lazy { GlobalContext.get().get<TextToSpeechServiceManager>() }, windowControl, platform)
+        speakControl = GlobalContext.get().run {
+            SpeakControl(lazy { get<TextToSpeechServiceManager>() }, windowControl, platform, notifier, get(), get(), get(), get(), get())
+        }
     }
 
     @Test fun allLocalesUnsupportedShowsMessageAndStops() {
