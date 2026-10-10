@@ -115,6 +115,27 @@ class EpubBackendStateTest {
     private fun optimizedDirOf(epubDir: File) = File(epubDir, "optimized")
 
     @Test
+    fun cloneKeepsRuntimeClassMetadataKeysAndSharesLiveBackendState() {
+        val state = EpubBackendState(buildEpub("clone"))
+        val original = EpubBackend(state, state.getBookMetaData())
+        val copy = original.clone() as EpubBackend
+        try {
+            org.junit.Assert.assertNotSame(original, copy)
+            org.junit.Assert.assertSame(original.javaClass, copy.javaClass)
+            org.junit.Assert.assertSame(original.bookMetaData, copy.bookMetaData)
+            org.junit.Assert.assertSame(state, copy.state)
+            assertEquals(original.getCardinality(), copy.getCardinality())
+            assertEquals(original.get(0).getOsisRef(), copy.get(0).getOsisRef())
+            state.setLastAccess(123)
+            assertEquals(123L, copy.state.getLastAccess())
+            copy.state.setLastAccess(456)
+            assertEquals(456L, original.state.getLastAccess())
+        } finally {
+            state.close()
+        }
+    }
+
+    @Test
     fun optimizationProducesReadableFragments() {
         val state = EpubBackendState(buildEpub("intact"))
         val keys = state.keys

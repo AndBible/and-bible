@@ -83,6 +83,21 @@ class MySwordBookTest {
     )
 
     @Test
+    fun cloneKeepsRuntimeClassMetadataAndSharesLiveBackendState() {
+        val original = backend(bible())
+        val copy = original.clone() as SqliteBackend
+        org.junit.Assert.assertNotSame(original, copy)
+        org.junit.Assert.assertSame(original.javaClass, copy.javaClass)
+        org.junit.Assert.assertSame(original.bookMetaData, copy.bookMetaData)
+        org.junit.Assert.assertSame(original.state, copy.state)
+        assertEquals(original.getCardinality(), copy.getCardinality())
+        original.state.setLastAccess(123)
+        assertEquals(123L, copy.state.getLastAccess())
+        copy.state.setLastAccess(456)
+        assertEquals(456L, original.state.getLastAccess())
+    }
+
+    @Test
     fun metadataComesFromDetailsTableAndFileName() {
         val md = backend(bible()).bookMetaData
         assertEquals("MySword-kjvx_bbl", md.initials)
