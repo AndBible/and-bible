@@ -65,7 +65,7 @@ class LinkControlStudyPadTest {
     @After
     fun tearDown() { resetDatabase(windowRepository.scope) }
 
-    private fun control() = LinkControl(
+    private fun control() = LinkControl(fakeBookFactory = net.bible.service.download.FakeBookFactory(net.bible.test.testCoreStrings()),
         windowControl, bookmarkControl, GlobalContext.get().get<SearchControl>(),
         testAppSettings(), notifier, Mockito.mock(CoreStrings::class.java), Mockito.mock(LinkPlatform::class.java),
     )
@@ -77,7 +77,7 @@ class LinkControlStudyPadTest {
         assertTrue(opened)
         // NEW opens an ordinary window showing the StudyPad; the reset (UNDEFINED) mode would have used the links window.
         assertTrue(windowRepository.windowList.none { it.isLinksWindow })
-        val padWindow = windowRepository.windowList.single { it.pageManager.currentPage.currentDocument == FakeBookFactory.journalDocument }
+        val padWindow = windowRepository.windowList.single { it.pageManager.currentPage.currentDocument == org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).journalDocument }
         assertTrue(padWindow.pageManager.currentPage.key is StudyPadKey)
     }
 

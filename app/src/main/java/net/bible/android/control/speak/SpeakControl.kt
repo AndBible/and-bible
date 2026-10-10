@@ -69,6 +69,7 @@ class SpeakControl constructor(
     private val appScope: AppCoroutineScope,
     private val advancedSpeakSettings: AdvancedSpeakSettings,
     private val launcher: OrderedLauncher,
+    private val fakeBookFactory: net.bible.service.download.FakeBookFactory,
 ) : KoinComponent {
 
     val bookmarkControl: BookmarkControl by inject()
@@ -376,7 +377,7 @@ class SpeakControl constructor(
                 val verse = (book.getKey(osisRef) as RangedPassage).getVerseAt(0)
                 speakBible(book, verse)
             } else {
-                val key = BookAndKeySerialized.fromJSON(osisRef).bookAndKey
+                val key = BookAndKeySerialized.fromJSON(osisRef).resolve(fakeBookFactory)
                 speakGeneric(key)
             }
         } catch (e: NoSuchKeyException) {

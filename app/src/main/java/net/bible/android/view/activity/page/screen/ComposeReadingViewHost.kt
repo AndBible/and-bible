@@ -594,6 +594,8 @@ sealed interface ReadingDialog {
  * (addendum Ruling E).
  */
 class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinComponent {
+    private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+
     private val windowState: WindowStateServiceImpl by inject()
     private val subscriptions = Subscriptions()
     private val commands: WindowCommands by inject()
@@ -883,7 +885,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     internal fun buildDocumentQuickTabsForHost(scope: DocumentSheetScope): DocumentQuickTabs {
         val books = SwordDocumentFacade.documents +
-            FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
+            fakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
         val mapper = DocRowMapper(downloadControl, books)
         val rows = books.map { mapper.toDocRow(it) }
         // `initials`, NOT `osisID`: DocRow.docId is the book's initials and so is the MRU's key —
@@ -1061,8 +1063,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             is CurrentDictionaryPage -> KeyChooserPage.DICTIONARY
             is CurrentMapPage -> KeyChooserPage.MAP
             is CurrentGeneralBookPage -> when (val doc = page.currentDocument) {
-                FakeBookFactory.journalDocument -> KeyChooserPage.GENERAL_BOOK_STUDY_PAD
-                FakeBookFactory.multiDocument -> KeyChooserPage.GENERAL_BOOK_MULTI_DOCUMENT
+                fakeBookFactory.journalDocument -> KeyChooserPage.GENERAL_BOOK_STUDY_PAD
+                fakeBookFactory.multiDocument -> KeyChooserPage.GENERAL_BOOK_MULTI_DOCUMENT
                 else -> if (doc?.isMyDocument == true) {
                     KeyChooserPage.GENERAL_BOOK_MY_DOCUMENT
                 } else {
@@ -3785,7 +3787,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 list.addAll(BookAndKey(key, book))
             }
         }
-        linkControl.showLink(FakeBookFactory.multiDocument, list)
+        linkControl.showLink(fakeBookFactory.multiDocument, list)
         searchController.closeSheet()
     }
 

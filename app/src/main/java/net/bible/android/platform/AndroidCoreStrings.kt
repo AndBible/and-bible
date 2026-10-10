@@ -16,6 +16,25 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
         else -> throw IllegalArgumentException("Unknown sync category: $category")
     })
 
+    override val storageSpaceWarning: String get() = context.getString(R.string.storage_space_warning)
+    override val errorDownloading: String get() = context.getString(R.string.error_downloading)
+    override val journalDescription: String get() = context.getString(R.string.journal_description)
+    override val studypads: String get() = context.getString(R.string.studypads)
+    override val compareDescription: String get() = context.getString(R.string.compare_description)
+    override val compareAbbreviation: String get() = context.getString(R.string.compare_abbreviation)
+    override val memorizeDescription: String get() = context.getString(R.string.memorize_description)
+    override val memorizeAbbreviation: String get() = context.getString(R.string.memorize_abbreviation)
+    override val multiDescription: String get() = context.getString(R.string.multi_description)
+    override val multiAbbreviation: String get() = context.getString(R.string.multi_abbreviation)
+    override val myNotesDescription: String get() = context.getString(R.string.my_notes_description)
+    override val myNotesAbbreviation: String get() = context.getString(R.string.my_notes_abbreviation)
+    override fun httpStatusText(code: Int): String = context.getString(when (code) {
+        403 -> R.string.http_forbidden
+        404 -> R.string.http_not_found
+        else -> R.string.http_unknown
+    })
+    override fun errorDownloadingStatus(url: String, statusText: String, code: Int): String =
+        context.getString(R.string.error_downloading_status, url, statusText, code)
     override val labelAll: String get() = context.getString(R.string.all)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override fun somethingWithParenthesis(a: String, b: String): String = context.getString(R.string.something_with_parenthesis, a, b)

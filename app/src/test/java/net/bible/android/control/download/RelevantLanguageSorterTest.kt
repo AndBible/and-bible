@@ -17,7 +17,7 @@
 
 package net.bible.android.control.download
 
-import net.bible.service.download.FakeBookFactory.createFakeRepoBook
+import net.bible.service.download.FakeBookFactory
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -49,7 +49,7 @@ class RelevantLanguageSorterTest {
     fun testCompare() {
         Locale.setDefault(Locale.KOREAN)
         val svInstalledLang = Language("sv")
-        val svInstalledBook = createFakeRepoBook("DEF", "Lang=sv", null)
+        val svInstalledBook = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "Lang=sv", null)
         val books: MutableList<Book> = ArrayList()
         books.add(svInstalledBook)
         relevantLanguageSorter = RelevantLanguageSorter(books)

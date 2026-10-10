@@ -201,13 +201,13 @@ class ReadingSearchEntryPointsTest {
      * Books`/`ModDrv=RawGenBook`, `AndBibleEpubModule=1`). `currentPage`'s setter is private, so the
      * documented way to switch pages is `setCurrentDocumentAndKey` on the `CurrentPageManager` itself
      * — exactly the pattern `menuSearchButtonDoesNothingOnANonSearchablePageEvenWhenHosted` above uses
-     * for `FakeBookFactory.myNotesDocument`: `getBookPage` maps the book's category (here GENERAL_BOOK)
+     * for `org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).myNotesDocument`: `getBookPage` maps the book's category (here GENERAL_BOOK)
      * to `currentGeneralBook`. The key is a plain `Verse`, same as every other fixture in this class —
      * nothing under test reads it, only `documentControl.currentDocument`.
      *
      * The book must be registered with `Books.installed()` (same as [indexedFakeBible]'s callers do):
      * `CurrentPageBase.currentDocument`'s getter treats any book NOT found there as removed
-     * (`Book.isRemoved`, `FakeBookFactory.kt:215`) and silently falls back to the category default —
+     * (`Book.isRemoved`, `org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).kt:215`) and silently falls back to the category default —
      * which for a never-installed `GENERAL_BOOK` is `null`, making `documentControl.currentDocument`
      * null and every assertion below fail for a reason that has nothing to do with the fix under test.
      * The caller MUST remove it again (`Books.installed().removeBook(...)`, in a `finally`) — this
@@ -692,10 +692,10 @@ class ReadingSearchEntryPointsTest {
         val pageManager = windowRepository.activeWindow.pageManager
         // `currentPage`'s setter is private; the documented way to switch pages is
         // `setCurrentDocumentAndKey` with a book `getBookPage` maps to the target page —
-        // `FakeBookFactory.myNotesDocument`'s osisID ("Commentaries.MyNote") maps to
+        // `org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).myNotesDocument`'s osisID ("Commentaries.MyNote") maps to
         // `currentMyNotePage` (`CurrentPageManager.kt:244-245`).
         val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
-        pageManager.setCurrentDocumentAndKey(FakeBookFactory.myNotesDocument, verse)
+        pageManager.setCurrentDocumentAndKey(org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).myNotesDocument, verse)
         assertFalse(pageManager.currentPage.isSearchable, "sanity")
 
         val handled = menuCommandHandler().handleMenuRequest(R.id.searchButton)

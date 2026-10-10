@@ -32,6 +32,21 @@ class LinkControlMessagesTest {
         override fun showError(message: String, cause: Throwable?) { shown += message }
     }
     private val strings = object : CoreStrings {
+        override val storageSpaceWarning = "storageSpaceWarning"
+        override val errorDownloading = "errorDownloading"
+        override val journalDescription = "journalDescription"
+        override val studypads = "studypads"
+        override val compareDescription = "compareDescription"
+        override val compareAbbreviation = "compareAbbreviation"
+        override val memorizeDescription = "memorizeDescription"
+        override val memorizeAbbreviation = "memorizeAbbreviation"
+        override val multiDescription = "multiDescription"
+        override val multiAbbreviation = "multiAbbreviation"
+        override val myNotesDescription = "myNotesDescription"
+        override val myNotesAbbreviation = "myNotesAbbreviation"
+        override fun httpStatusText(code: Int) = "http-$code"
+        override fun errorDownloadingStatus(url: String, statusText: String, code: Int) = "$url $statusText $code"
+
         override fun syncCategoryContents(category: String): String = error("unused")
         override val speakNoBooksAvailable = "speakNoBooksAvailable"
         override val speakGeneralError = "speakGeneralError"
@@ -58,7 +73,7 @@ class LinkControlMessagesTest {
         override fun openRoute(route: String) {}
     }
 
-    private fun control() = LinkControl(
+    private fun control() = LinkControl(fakeBookFactory = net.bible.service.download.FakeBookFactory(net.bible.test.testCoreStrings()),
         Mockito.mock(WindowControl::class.java), Mockito.mock(BookmarkControl::class.java), GlobalContext.get().get<SearchControl>(),
         testAppSettings(), notifier, strings, platform,
     )

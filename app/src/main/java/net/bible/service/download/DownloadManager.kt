@@ -16,13 +16,9 @@
  */
 package net.bible.service.download
 
-import net.bible.service.db.blockingDb
 import net.bible.sharedcore.log.Log
-import net.bible.android.activity.R
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.versification.BookInstallWatcher
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.mybible.MyBibleInstaller
 import org.crosswire.common.progress.Progress
@@ -35,7 +31,6 @@ import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.install.Installer
 import org.crosswire.jsword.book.install.sword.HttpsSwordInstaller
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.koin.java.KoinJavaComponent
 import java.util.*
 
 /**
@@ -45,15 +40,18 @@ import java.util.*
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DownloadManager(
-    private val onFailedReposChange: (() -> Unit)?
+    private val settings: net.bible.sharedcore.platform.AppSettings,
+    private val watcher: BookInstallWatcher,
+    private val fileDownloader: GenericFileDownloader,
+    private val onFailedReposChange: (() -> Unit)? = null
 ) {
     val customRepositoryDao get() = DatabaseContainer.instance.repoDb.customRepositoryDao()
     val failedRepos = TreeSet<String>()
 
     private lateinit var installManager: InstallManager
-    fun refreshInstallManager() {
+    suspend fun refreshInstallManager() {
         installManager = InstallManager()
-        for(r in blockingDb { customRepositoryDao.all() }) {
+        for(r in customRepositoryDao.all()) {
             val installer = when(r.type) {
                 "sword-https" -> {
                     HttpsSwordInstaller().apply {
@@ -63,7 +61,7 @@ class DownloadManager(
                     }
                 }
                 "mybible-https" -> {
-                    MyBibleInstaller(r.manifestUrl!!)
+                    MyBibleInstaller(r.manifestUrl!!, fileDownloader)
                 }
                 else -> throw RuntimeException("Invalid repository specification")
             }
@@ -71,9 +69,6 @@ class DownloadManager(
         }
         failedRepos.clear()
         onFailedReposChange?.invoke()
-    }
-    init {
-        refreshInstallManager()
     }
 
     private fun markFailed(repo: String) {
@@ -108,9 +103,9 @@ class DownloadManager(
                     Log.w(TAG, "Reloading book list")
 
                     val indexLastUpdated = installer.indexLastUpdated()!!
-                    if(indexLastUpdated == 0L || indexLastUpdated > CommonUtils.settings.getLong("repo-$repo-updated", 0)) {
+                    if(indexLastUpdated == 0L || indexLastUpdated > settings.getLong("repo-$repo-updated", 0)) {
                         installer.reloadBookList()
-                        CommonUtils.settings.setLong("repo-$repo-updated", indexLastUpdated)
+                        settings.setLong("repo-$repo-updated", indexLastUpdated)
                     }
                 }
                 // Get a list of all the available books
@@ -145,7 +140,7 @@ class DownloadManager(
      * @throws InstallException
      */
     @Throws(BookException::class, InstallException::class)
-    fun installBook(repositoryName: String, book: Book) {
+    suspend fun installBook(repositoryName: String, book: Book) {
         val bookInitials = book.initials
 
         val installer = installManager.getInstaller(repositoryName)!!
@@ -162,7 +157,7 @@ class DownloadManager(
         // InstallWatcher does not know about repository, so let's add it here
         book.putProperty(REPOSITORY_KEY, repositoryName)
         Books.installed().getBook(bookInitials)?.putProperty(REPOSITORY_KEY, repositoryName)
-        blockingDb { recordRepository(KoinJavaComponent.get(BookInstallWatcher::class.java), bookInitials, repositoryName) }
+        recordRepository(watcher, bookInitials, repositoryName)
     }
 
     companion object {

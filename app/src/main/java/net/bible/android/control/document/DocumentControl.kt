@@ -61,6 +61,7 @@ class DeleteDocumentsResult(val skipped: Boolean, val failures: List<Pair<Book, 
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentControl constructor(
+    private val fakeBookFactory: FakeBookFactory,
     private val windowControl: WindowControl,
     private val settings: AppSettings,
     private val notifier: UserNotifier,
@@ -130,7 +131,7 @@ class DocumentControl constructor(
     val commentariesForVerse: List<Book>
         get () {
             val docs = SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedBy { commentaryFilter.test(it) }.toMutableList()
-            docs.addAll(FakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY && !it.hideFromSelector })
+            docs.addAll(fakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY && !it.hideFromSelector })
             return docs
         }
 

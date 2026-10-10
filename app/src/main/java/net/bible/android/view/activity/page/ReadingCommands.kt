@@ -145,6 +145,8 @@ class ReadingCommands(
     private val readingHost: ReadingHostActivity,
     private val hostCallbacks: ReadingCommandsHostCallbacks,
 ) : KoinComponent {
+    private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+
 
     private companion object {
         private const val TAG = "ReadingCommands"
@@ -724,7 +726,7 @@ class ReadingCommands(
             return true
         }
         if (keyStr != null && bookStr != null) {
-            val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr)
+            val book = Books.installed().getBook(bookStr) ?: fakeBookFactory.giveDoesNotExist(bookStr)
             val key = book.getKey(keyStr)
             val ordinal = extras.getInt("ordinal")
             hostActiveWindowPageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, OrdinalRange(ordinal)))

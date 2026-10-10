@@ -46,7 +46,7 @@ class CurrentMyNotePage internal constructor(
         setKey(pageManager.currentBible.getKeyPlus(-1))
     }
 
-    override val currentDocument: Book = FakeBookFactory.myNotesDocument
+    override val currentDocument: Book = fakeBookFactory.myNotesDocument
 
     /** can we enable the main menu search button
      */

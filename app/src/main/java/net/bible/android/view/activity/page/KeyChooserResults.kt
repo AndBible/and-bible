@@ -57,6 +57,8 @@ import org.crosswire.jsword.passage.NoSuchKeyException
  * here has to ask a host or a global.
  */
 object KeyChooserResults {
+    private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+
     private const val TAG = "KeyChooserResults"
 
     /**
@@ -67,7 +69,7 @@ object KeyChooserResults {
      */
     fun applyChosenDocument(pageManager: CurrentPageManager, bookStr: String?) {
         val book = Books.installed().getBook(bookStr)
-            ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
+            ?: fakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
         pageManager.setCurrentDocument(book)
     }
 
@@ -174,11 +176,11 @@ object KeyChooserResults {
 
     private fun resolveGenBookKey(chosen: ChosenKey.GenBookKey): Pair<Book?, Key> {
         chosen.bookAndKeyJson?.let {
-            val bookAndKey = BookAndKeySerialized.fromJSON(it).bookAndKey
+            val bookAndKey = BookAndKeySerialized.fromJSON(it).resolve(fakeBookFactory)
             return bookAndKey.document to bookAndKey
         }
         val book = Books.installed().getBook(chosen.bookInitials)
-            ?: FakeBookFactory.giveDoesNotExist(chosen.bookInitials!!)
+            ?: fakeBookFactory.giveDoesNotExist(chosen.bookInitials!!)
         return book to book.getKey(chosen.osisRef)
     }
 

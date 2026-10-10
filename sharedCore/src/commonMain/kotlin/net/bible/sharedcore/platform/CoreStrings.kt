@@ -4,6 +4,20 @@ package net.bible.sharedcore.platform
 interface CoreStrings {
     /** Resolves the stable sync category name; rejects unknown categories. */
     fun syncCategoryContents(category: String): String
+    val storageSpaceWarning: String
+    val errorDownloading: String
+    val journalDescription: String
+    val studypads: String
+    val compareDescription: String
+    val compareAbbreviation: String
+    val memorizeDescription: String
+    val memorizeAbbreviation: String
+    val multiDescription: String
+    val multiAbbreviation: String
+    val myNotesDescription: String
+    val myNotesAbbreviation: String
+    fun httpStatusText(code: Int): String
+    fun errorDownloadingStatus(url: String, statusText: String, code: Int): String
     val labelAll: String // R.string.all
     val errorOccurred: String // R.string.error_occurred
     fun somethingWithParenthesis(a: String, b: String): String // R.string.something_with_parenthesis: "%1$s (%2$s)"

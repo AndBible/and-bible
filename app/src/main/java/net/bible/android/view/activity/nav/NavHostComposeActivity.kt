@@ -161,7 +161,7 @@ import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DocumentConfiguration
-import net.bible.android.view.activity.download.PseudoBook
+import net.bible.service.download.PseudoBook
 import net.bible.android.view.activity.download.installedDocument
 import net.bible.android.view.activity.bookmark.BookmarkCsvFlow
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
@@ -519,6 +519,8 @@ import net.bible.service.db.blockingDb
  * one that matters for this cluster — `awaitIntent`, which the SAF flows need.
  */
 class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPolicyHost {
+    private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+
     override fun onBibleViewTouched() { composeReadingViewHost?.onBibleViewTouched() }
 
     private val documentFilterService: DocumentFilterService by inject()
@@ -4729,7 +4731,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val label = session.labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return
         try {
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
-                FakeBookFactory.journalDocument,
+                fakeBookFactory.journalDocument,
                 StudyPadKey(label, entryId = firstMatchEntryId?.let { IdType(it) }),
             )
         } catch (e: Exception) {
@@ -6834,7 +6836,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 list.addAll(BookAndKey(key, book))
             }
         }
-        linkControl.showLink(FakeBookFactory.multiDocument, list)
+        linkControl.showLink(fakeBookFactory.multiDocument, list)
     }
 
     // --- EPUB search host baggage (classic EpubSearch/EpubSearchResultsComposeActivity) -----------
@@ -7545,9 +7547,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         downloadSession?.let { return it.controller }
 
         val session = DownloadSession()
-        session.downloadManager = DownloadManager { }
-        session.repoFactory = RepoFactory(session.downloadManager)
-        session.genericFileDownloader = GenericFileDownloader(this) { }
+        session.genericFileDownloader = GenericFileDownloader(
+            lifecycleScope,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java),
+        ) { }
+        session.downloadManager = DownloadManager(
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java),
+            session.genericFileDownloader,
+        ) { }
+        session.repoFactory = RepoFactory(session.downloadManager, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
 
         session.controller = DocumentSelectionController(
             // classic sortLanguages order (RelevantLanguageSorter): rank by the precomputed index.
@@ -7723,7 +7734,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val books = withContext(Dispatchers.Default) {
                 session.downloadManager.refreshInstallManager()
                 val docs = downloadControl.getDownloadableDocuments(session.repoFactory, refresh)
-                if (docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(session.pseudoBooks) else docs
+                if (docs.isNotEmpty()) docs + fakeBookFactory.pseudoDocuments(session.pseudoBooks) else docs
             }
             val rows = withContext(Dispatchers.Default) {
                 val grouping = LanguageGrouping(books.mapNotNull { it.language })
@@ -9199,7 +9210,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = chooseDocumentSession ?: return
         try {
             val books = withContext(Dispatchers.Default) {
-                SwordDocumentFacade.documents + FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
+                SwordDocumentFacade.documents + fakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
             }
             val rows = withContext(Dispatchers.Default) {
                 // The Book -> DocRow mapping (language grouping included) lives in DocRowMapper,

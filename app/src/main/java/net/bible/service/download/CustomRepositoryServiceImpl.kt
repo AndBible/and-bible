@@ -25,8 +25,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import net.bible.android.database.CustomRepository
-import net.bible.service.common.CommonUtils.appendUrl
-import net.bible.service.common.CommonUtils.md5Hash
+import net.bible.service.common.ArchiveUtils.appendUrl
+import net.bible.service.common.ArchiveUtils.md5Hash
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.mybible.MyBibleRepositorySpec
 import net.bible.sharedcore.download.CustomRepositoryData

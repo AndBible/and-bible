@@ -38,7 +38,7 @@ class Repository(
         return downloadManager.getDownloadableBooks(bookFilter, repoName, refresh)
     }
 
-    fun downloadDocument(document: Book) {
+    suspend fun downloadDocument(document: Book) {
         downloadManager.installBook(repoName, document)
     }
 

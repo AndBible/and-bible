@@ -57,7 +57,7 @@ class SpeakControlMessagesTest {
             val control = SpeakControl(
                 lazy { error("TTS must not initialize for an unspeakable page") }, window,
                 FakeSpeakPlatform(FakeSpeakEngine(emptyMap())), notifier, strings, settings,
-                scope, AdvancedSpeakSettings(settings), OrderedLauncher(scope),
+                scope, AdvancedSpeakSettings(settings), OrderedLauncher(scope), net.bible.service.download.FakeBookFactory(strings),
             )
             control.speakAny()
             assertEquals(listOf(strings.speakNoBooksAvailable), infos)

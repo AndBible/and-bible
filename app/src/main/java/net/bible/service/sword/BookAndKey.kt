@@ -42,8 +42,9 @@ class BookAndKeySerialized(
     val ordinalRange: OrdinalRange?,
     val htmlId: String?,
 ) {
-    val bookAndKey: BookAndKey get () {
-        val book = Books.installed().getBook(document) ?: FakeBookFactory.giveDoesNotExist(document)
+
+    fun resolve(fakeBookFactory: FakeBookFactory): BookAndKey {
+        val book = Books.installed().getBook(document) ?: fakeBookFactory.giveDoesNotExist(document)
         var key = book.getKey(key)
         if(key is RangedPassage) {
            key = key.toVerseRange

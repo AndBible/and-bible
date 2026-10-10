@@ -53,6 +53,7 @@ class GeneralSpeakTextProvider(
     settings: AppSettings,
     private val advanced: AdvancedSpeakSettings,
     private val launcher: OrderedLauncher,
+    private val fakeBookFactory: net.bible.service.download.FakeBookFactory,
 ) : SpeakTextProvider {
     private val appSettings = settings
     private data class State(
@@ -482,7 +483,7 @@ class GeneralSpeakTextProvider(
         }
         if(sharedPreferences.getString(PERSIST_KEY) != null) {
             val keyStr = sharedPreferences.getString(PERSIST_KEY, "")!!
-            startKey = try { BookAndKeySerialized.fromJSON(keyStr).bookAndKey } catch (e: Exception) {
+            startKey = try { BookAndKeySerialized.fromJSON(keyStr).resolve(fakeBookFactory) } catch (e: Exception) {
                 Log.e(TAG, "Can't restore state", e)
                 return false
             }

@@ -74,6 +74,7 @@ enum class WindowMode {
 
 
 class LinkControl constructor(
+    private val fakeBookFactory: FakeBookFactory,
     private val windowControl: WindowControl,
 	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
@@ -105,17 +106,17 @@ class LinkControl constructor(
             }
         }
         key.setName(key.joinToString(", ") { (it as BookAndKey).key.getName() })
-        showLink(FakeBookFactory.multiDocument, key)
+        showLink(fakeBookFactory.multiDocument, key)
         return true
     }
 
     fun openCompare(verseRange: VerseRange): Boolean {
-        showLink(FakeBookFactory.compareDocument, verseRange)
+        showLink(fakeBookFactory.compareDocument, verseRange)
         return true
     }
 
     fun openMemorize(verseRange: BookAndKey): Boolean {
-        showLink(FakeBookFactory.memorizeDocument, verseRange)
+        showLink(fakeBookFactory.memorizeDocument, verseRange)
         return true
     }
 
@@ -134,8 +135,8 @@ class LinkControl constructor(
         if (uriAnalyzer.analyze(uriStr)) {
             val key = when (uriAnalyzer.docType) {
                 UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification, book)
-                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key, StrongsKeyType.GREEK)
-                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key, StrongsKeyType.HEBREW)
+                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary(fakeBookFactory), uriAnalyzer.key, StrongsKeyType.GREEK)
+                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary(fakeBookFactory), uriAnalyzer.key, StrongsKeyType.HEBREW)
                 UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
                 UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, book)
                 else -> null
@@ -172,14 +173,14 @@ class LinkControl constructor(
                     for( range in (0 until key.countRanges(RestrictionType.NONE)).map { key.getRangeAt(it, RestrictionType.NONE) }) {
                         keyList.addAll(BookAndKey(range, bookAndKeys.document))
                     }
-                    showLink(FakeBookFactory.multiDocument, keyList)
+                    showLink(fakeBookFactory.multiDocument, keyList)
                 } else {
                     // Pass the full BookAndKey (not just .key) to preserve htmlId for anchor navigation
                     showLink(bookAndKeys.document, bookAndKeys)
                 }
             }
             is BookAndKeyList -> {
-                showLink(FakeBookFactory.multiDocument, bookAndKeys)
+                showLink(fakeBookFactory.multiDocument, bookAndKeys)
             }
         }
 
@@ -197,8 +198,8 @@ class LinkControl constructor(
                 val strongsMatch = Regex("^([GH])0*[0-9]+").find(reference)
                 if (strongsMatch != null) {
                     return when (strongsMatch.groupValues[1]) {
-                        "G" -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, reference, StrongsKeyType.GREEK)
-                        "H" -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, reference, StrongsKeyType.HEBREW)
+                        "G" -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary(fakeBookFactory), reference, StrongsKeyType.GREEK)
+                        "H" -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary(fakeBookFactory), reference, StrongsKeyType.HEBREW)
                         else -> { notifier.showError(strings.documentNotInstalled(initials.orEmpty())); null }
                     }
                 }
@@ -328,7 +329,7 @@ class LinkControl constructor(
 
     @Throws(NoSuchKeyException::class)
     private fun getRobinsonMorphologyKey(key: String): BookAndKeyList {
-        val robinsonBooks = SwordDocumentFacade.defaultRobinsonGreekMorphology
+        val robinsonBooks = SwordDocumentFacade.defaultRobinsonGreekMorphology(fakeBookFactory)
         return bookAndKeyListOf(robinsonBooks.mapNotNull {
             val k = try { it.getKey(key) } catch (e: NoSuchKeyException) { null }
             if(k != null) BookAndKey(k, it) else null
@@ -506,7 +507,7 @@ class LinkControl constructor(
     suspend fun openStudyPad(labelId: IdType, entryId: IdType?, windowMode: WindowMode = this.windowMode): Boolean {
         val label = bookmarkControl.labelById(labelId) ?: return false
         val key = StudyPadKey(label, entryId)
-        showLink(FakeBookFactory.journalDocument, key, windowMode = windowMode)
+        showLink(fakeBookFactory.journalDocument, key, windowMode = windowMode)
         return true
     }
 
@@ -579,7 +580,7 @@ class LinkControl constructor(
 
         val keyList = bookAndKeyListOf(bookAndKeys)
         keyList.setName(text)
-        showLink(FakeBookFactory.multiDocument, keyList)
+        showLink(fakeBookFactory.multiDocument, keyList)
         return true
     }
 

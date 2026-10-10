@@ -43,6 +43,7 @@ import org.crosswire.jsword.index.IndexStatus
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object SwordDocumentFacade {
+
     val bibles: List<Book>
         get() {
             Log.d(TAG, "Getting bibles")
@@ -78,22 +79,22 @@ object SwordDocumentFacade {
             return allDocuments
         }
 
-    private fun getDictionaries(keyName: String, fakeBookName: String, type: FeatureType): List<Book> {
+    private fun getDictionaries(keyName: String, fakeBookName: String, type: FeatureType, fakeBookFactory: FakeBookFactory): List<Book> {
         val bookInitials = CommonUtils.settings.getStringSet(keyName )
         if(bookInitials.isNotEmpty()) {
             return bookInitials.mapNotNull{ Books.installed().getBook(it)}
         }
         val dictionaries = Books.installed().getBooks().filter { it.hasFeature(type) }
         if(dictionaries.isNotEmpty()) return dictionaries
-        return listOf(FakeBookFactory.giveDoesNotExist(fakeBookName, BookCategory.DICTIONARY))
+        return listOf(fakeBookFactory.giveDoesNotExist(fakeBookName, BookCategory.DICTIONARY))
     }
 
-    val defaultRobinsonGreekMorphology: List<Book> get() =
-        getDictionaries("robinson_greek_morphology","Robinson", FeatureType.GREEK_PARSE)
-    val defaultStrongsGreekDictionary: List<Book> get() =
-        getDictionaries("strongs_greek_dictionary", "StrongsGreek", FeatureType.GREEK_DEFINITIONS)
-    val defaultStrongsHebrewDictionary: List<Book> get() =
-        getDictionaries("strongs_hebrew_dictionary", "StrongsHebrew", FeatureType.HEBREW_DEFINITIONS)
+    fun defaultRobinsonGreekMorphology(fakeBookFactory: FakeBookFactory): List<Book> =
+        getDictionaries("robinson_greek_morphology","Robinson", FeatureType.GREEK_PARSE, fakeBookFactory)
+    fun defaultStrongsGreekDictionary(fakeBookFactory: FakeBookFactory): List<Book> =
+        getDictionaries("strongs_greek_dictionary", "StrongsGreek", FeatureType.GREEK_DEFINITIONS, fakeBookFactory)
+    fun defaultStrongsHebrewDictionary(fakeBookFactory: FakeBookFactory): List<Book> =
+        getDictionaries("strongs_hebrew_dictionary", "StrongsHebrew", FeatureType.HEBREW_DEFINITIONS, fakeBookFactory)
 
     val wordLookupDictionaries: List<Book> get() {
         // Get disabled dictionaries (inverse logic - stores what is NOT selected)
@@ -125,7 +126,7 @@ object SwordDocumentFacade {
             SwordBookMetaData.setPartialLoading(true)
             val repoBookDeduplicator = RepoBookDeduplicator()
 
-            val promises = repoFactory.repositories
+            val promises = repoFactory.repositories()
                 .map { async { it.getRepoBooks(refresh) } }
                 .toList()
 

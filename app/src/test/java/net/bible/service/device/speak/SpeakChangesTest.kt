@@ -103,7 +103,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         val dictionary = requireNotNull(Books.installed().getBook("StrongsGreek"))
         val key = dictionary.getKey("00001")
         val ordinal = SwordContentFacade.ordinalRangeFor(dictionary, key).first
-        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get(), GlobalContext.get().get())
+        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get(), GlobalContext.get().get(), GlobalContext.get().get())
         provider.setupReading(BookAndKey(key, dictionary, OrdinalRange(ordinal, ordinal)))
         val (id, command) = nextText(provider, "general")
         assertEquals(TextCommand.TextType.NORMAL, command.type)

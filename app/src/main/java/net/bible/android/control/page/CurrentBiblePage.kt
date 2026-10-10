@@ -183,7 +183,7 @@ class CurrentBiblePage(
         originalKey = null
         val document = entity.document
         Log.i(TAG, "State document:$document")
-        val book = SwordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
+        val book = SwordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) fakeBookFactory.giveDoesNotExist(document) else null
         Log.i(TAG, "Restored document:" + book?.name)
         // bypass setter to avoid automatic notifications
         localSetCurrentDocument(book)

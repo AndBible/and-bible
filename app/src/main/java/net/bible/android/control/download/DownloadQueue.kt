@@ -16,12 +16,11 @@
  */
 package net.bible.android.control.download
 
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.Repository
 import org.crosswire.jsword.book.Book
@@ -36,19 +35,10 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit) {
+class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private val notifier: UserNotifier, private val strings: CoreStrings) {
     private val beingQueued = Collections.synchronizedSet(HashSet<String>())
     private val downloadError = Collections.synchronizedSet(HashSet<String>())
     private val TAG = this.javaClass.simpleName
-
-    private fun httpError(code: Int): String {
-        val httpErrors = mapOf(
-            403 to R.string.http_forbidden,
-            404 to R.string.http_not_found,
-        )
-        val msgId = httpErrors[code] ?: R.string.http_unknown
-        return application.getString(msgId)
-    }
 
     suspend fun addDocumentToDownloadQueue(document: Book, repo: Repository) {
         val repoIdentity = document.repoIdentity
@@ -67,17 +57,17 @@ class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit) {
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
-                    val downloadStatusStr = httpError(e.statusCode)
-                    val errorMessage = application.getString(R.string.error_downloading_status, e.uri.toString(), downloadStatusStr, e.statusCode)
-                    Dialogs.showErrorMsg(errorMessage)
+                    val downloadStatusStr = strings.httpStatusText(e.statusCode)
+                    val errorMessage = strings.errorDownloadingStatus( e.uri.toString(), downloadStatusStr, e.statusCode)
+                    notifier.showError(errorMessage)
                 } catch (e: InstallException) {
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
-                    Dialogs.showErrorMsg(R.string.error_downloading)
+                    notifier.showError(strings.errorDownloading)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error downloading $document", e)
-                    Dialogs.showErrorMsg(R.string.error_occurred, e)
+                    notifier.showError(strings.errorOccurred, e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
                 }

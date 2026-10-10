@@ -72,7 +72,7 @@ class DocumentDownloadProgressCacheTest {
 
         init {
             try {
-                document = FakeBookFactory.createFakeRepoBook(initials, "[KJV]\nDescription=My Test Book", "")
+                document = org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).createFakeRepoBook(initials, "[KJV]\nDescription=My Test Book", "")
             } catch (e: IOException) {
                 e.printStackTrace()
             } catch (e: BookException) {

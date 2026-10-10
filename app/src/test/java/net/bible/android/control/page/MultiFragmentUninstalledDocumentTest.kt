@@ -48,7 +48,7 @@ import org.robolectric.annotation.Config
  * Task 19 (T9 findings-fix batch, phase G): a `BookAndKeyList` is ASSEMBLED, not asked for by the
  * user -- `LinkControl.getRobinsonMorphologyKey` (`LinkControl.kt:329`) builds one `BookAndKey` per
  * document `SwordDocumentFacade.defaultRobinsonGreekMorphology` returns, and that facade falls back
- * to `FakeBookFactory.giveDoesNotExist("Robinson", DICTIONARY)` -- a `Book` that is deliberately never
+ * to `org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).giveDoesNotExist("Robinson", DICTIONARY)` -- a `Book` that is deliberately never
  * registered in `Books.installed()` -- when no real Robinson morphology module is installed. Before
  * this fix, `CurrentGeneralBookPage`'s `BookAndKeyList` arm caught every `OsisError` the same way and
  * rendered `SwordContentFacade.readOsisFragment`'s not-installed error card (with its own download
@@ -77,10 +77,10 @@ class MultiFragmentUninstalledDocumentTest {
      * A book that IS registered in `Books.installed()` but whose backend is `NullBackend`, which
      * unconditionally answers `contains(key) == false` -- so ANY key on it is "not found in document",
      * never "not installed". This is how an installed document contributes a genuinely-missing-key
-     * card, as opposed to `FakeBookFactory.giveDoesNotExist`, which is never registered at all.
+     * card, as opposed to `org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).giveDoesNotExist`, which is never registered at all.
      */
     private fun installedEmptyBook(): Book =
-        FakeBookFactory.createFakeRepoBook(
+        org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).createFakeRepoBook(
             fakeInstalledInitials,
             """[$fakeInstalledInitials]
 Description=$fakeInstalledInitials
@@ -115,7 +115,7 @@ Versification=KJVA""",
      */
     @Test
     fun anUninstalledDocumentDropsOutSilentlyLeavingOnlyTheInstalledFragment() {
-        val robinson = FakeBookFactory.giveDoesNotExist("Robinson", BookCategory.DICTIONARY)
+        val robinson = org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).giveDoesNotExist("Robinson", BookCategory.DICTIONARY)
         assertThat(
             "sanity: Robinson must genuinely be absent from the installed registry, or this test " +
                 "proves nothing",

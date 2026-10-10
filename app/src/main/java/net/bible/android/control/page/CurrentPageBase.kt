@@ -228,7 +228,7 @@ abstract class CurrentPageBase protected constructor(
         }
         if (_currentDocument == null) {
             Log.i(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
-            _currentDocument =  FakeBookFactory.giveDoesNotExist(_currentDocument!!.initials)
+            _currentDocument =  fakeBookFactory.giveDoesNotExist(_currentDocument!!.initials)
         }
         return _currentDocument != null && !_currentDocument!!.doesNotExist
     }
@@ -317,7 +317,7 @@ abstract class CurrentPageBase protected constructor(
         val document = entity.document
         Log.i(TAG, "State document:$document")
         val book = SwordDocumentFacade.getDocumentByInitials(document)
-            ?: if(document != null) FakeBookFactory.giveDoesNotExist(document, BookCategory.GENERAL_BOOK) else null
+            ?: if(document != null) fakeBookFactory.giveDoesNotExist(document, BookCategory.GENERAL_BOOK) else null
         if (book != null) {
             Log.i(TAG, "Restored document: ${book.name} ${book.initials}")
             // bypass setter to avoid automatic notifications
@@ -346,6 +346,8 @@ abstract class CurrentPageBase protected constructor(
     /** Can we sync between windows
      */
     override val isSyncable: Boolean = true
+    protected val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+
     companion object {
         private const val TAG = "CurrentPage"
     }

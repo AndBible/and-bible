@@ -124,7 +124,9 @@ fun buildCoreModule() = module {
     // ResourceProvider interface binding (was ApplicationModule.provideResourceProvider)
     singleOf(::AndroidResourceProvider) { bind<ResourceProvider>() }
     // DownloadControl (was ApplicationModule.provideDownloadControl)
-    single { DownloadControl() }
+    single { net.bible.service.download.FakeBookFactory(get()) }
+    single { DownloadControl(get(), get(), get()) }
+    single<net.bible.service.download.ManifestFetcher> { net.bible.service.download.JvmManifestFetcher() }
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
 
     single { net.bible.android.control.speak.AdvancedSpeakSettings(get()) }
@@ -155,7 +157,7 @@ fun buildCoreModule() = module {
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
     single {
-        DocumentControl(get(), get(), get(), get(), get<AppCoroutineScope>(),
+        DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
             deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
             backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() })
     }
@@ -219,7 +221,7 @@ fun buildCoreModule() = module {
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
-    single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     singleOf(::DocumentBibleBooksFactory)
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)

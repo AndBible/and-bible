@@ -25,6 +25,21 @@ class NavigationControlSortOrderTest {
         override fun setFloat(key: String, value: Float?) = TODO()
     }
     private val strings = object : CoreStrings {
+        override val storageSpaceWarning = "storageSpaceWarning"
+        override val errorDownloading = "errorDownloading"
+        override val journalDescription = "journalDescription"
+        override val studypads = "studypads"
+        override val compareDescription = "compareDescription"
+        override val compareAbbreviation = "compareAbbreviation"
+        override val memorizeDescription = "memorizeDescription"
+        override val memorizeAbbreviation = "memorizeAbbreviation"
+        override val multiDescription = "multiDescription"
+        override val multiAbbreviation = "multiAbbreviation"
+        override val myNotesDescription = "myNotesDescription"
+        override val myNotesAbbreviation = "myNotesAbbreviation"
+        override fun httpStatusText(code: Int) = "http-$code"
+        override fun errorDownloadingStatus(url: String, statusText: String, code: Int) = "$url $statusText $code"
+
         override fun syncCategoryContents(category: String): String = error("unused")
         override val speakNoBooksAvailable = "speakNoBooksAvailable"
         override val speakGeneralError = "speakGeneralError"

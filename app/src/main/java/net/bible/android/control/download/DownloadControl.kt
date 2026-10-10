@@ -18,10 +18,7 @@ package net.bible.android.control.download
 
 import net.bible.sharedcore.log.Log
 import net.bible.android.SharedConstants
-import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils.megabytesFree
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.SwordDocumentFacade
@@ -42,21 +39,21 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadControl
+class DownloadControl(private val notifier: net.bible.sharedcore.platform.UserNotifier, private val strings: net.bible.sharedcore.platform.CoreStrings, private val env: net.bible.sharedcore.platform.AppEnvironment)
 {
     private val _progress = EventSource<DocumentStatus>()
     /** Every per-document install status change: progress from JSword jobs and the queue's outcome (replaces `DocumentDownloadEvent`). */
     val progress: Events<DocumentStatus> get() = _progress
 
-    private val downloadQueue = DownloadQueue(_progress::emit)
+    private val downloadQueue = DownloadQueue(_progress::emit, notifier, strings)
     private val documentDownloadProgressCache = DocumentDownloadProgressCache(_progress::emit)
 
     /** pre-download document checks
      */
     fun checkDownloadOkay(): Boolean {
         var okay = true
-        if (megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-            Dialogs.showErrorMsg(R.string.storage_space_warning)
+        if (env.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+            notifier.showError(strings.storageSpaceWarning)
             okay = false
         }
         return okay

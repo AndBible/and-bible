@@ -16,22 +16,20 @@
  */
 package net.bible.service.download
 
-import net.bible.service.db.blockingDb
 import androidx.annotation.VisibleForTesting
-import net.bible.service.common.CommonUtils
 import net.bible.service.sword.AcceptableBookTypeFilter
 import org.crosswire.jsword.book.Book
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class RepoFactory(private val downloadManager: DownloadManager) {
+class RepoFactory(private val downloadManager: DownloadManager, private val env: net.bible.sharedcore.platform.AppEnvironment) {
     private val andBibleRepo = Repository("AndBible", AcceptableBookTypeFilter(), downloadManager)
     private val andBibleExtraRepo = Repository("AndBible Extra", AcceptableBookTypeFilter(), downloadManager)
     private val andBibleBetaRepo = Repository(
         "AndBible Beta",
         object: AcceptableBookTypeFilter() {
-            override fun test(book: Book): Boolean = CommonUtils.isBeta
+            override fun test(book: Book): Boolean = env.isBeta
         }
         , downloadManager
     )
@@ -48,7 +46,7 @@ class RepoFactory(private val downloadManager: DownloadManager) {
                 // just Calvin Commentaries for now to see how we go
                 //
                 // Cannot include Jasher, Jub, EEnochCharles because they are displayed as page per verse for some reason which looks awful.
-                if(CommonUtils.isBeta) return true
+                if(env.isBeta) return true
                 return super.test(book) &&
                     book.initials == "CalvinCommentaries"
             }
@@ -71,16 +69,16 @@ class RepoFactory(private val downloadManager: DownloadManager) {
 
     private val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)
 
-    private val customRepositories: List<Repository> get() = blockingDb { downloadManager.customRepositoryDao.all() }.map {
+    private suspend fun customRepositories(): List<Repository> = downloadManager.customRepositoryDao.all().map {
         Repository(it.name, AcceptableBookTypeFilter(), downloadManager)
     }
 
-    val repositories get() = normalRepositories + betaRepositories + customRepositories
+    suspend fun repositories() = normalRepositories + betaRepositories + customRepositories()
 
-    fun getRepoForBook(document: Book): Repository {
+    suspend fun getRepoForBook(document: Book): Repository {
         return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY)!!)
     }
 
-    private fun getRepo(repoName: String): Repository =
-        repositories.find { it.repoName == repoName } ?: defaultRepo
+    private suspend fun getRepo(repoName: String): Repository =
+        repositories().find { it.repoName == repoName } ?: defaultRepo
 }

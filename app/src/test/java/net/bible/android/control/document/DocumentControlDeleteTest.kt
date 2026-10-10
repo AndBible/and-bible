@@ -85,7 +85,7 @@ class DocumentControlDeleteTest {
         Mockito.`when`(it.driver).thenReturn(driver)
     }
 
-    private fun control() = DocumentControl(
+    private fun control() = DocumentControl(fakeBookFactory = net.bible.service.download.FakeBookFactory(Mockito.mock(CoreStrings::class.java)),
         windowControl, Mockito.mock(AppSettings::class.java), notifier, Mockito.mock(CoreStrings::class.java),
         appScope, deleteFiles = DocumentFileDeleter { filesDeleted += it.initials }, backupDaoProvider = { dao },
     )

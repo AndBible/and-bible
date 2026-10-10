@@ -632,7 +632,7 @@ class ReadingSearchHostTest {
     fun openingSearchOnADictionaryShowsTheUnavailableMessageAndStaysOutOfSearchMode() {
         val dict = book("HostDict", category = "Lexicons / Dictionaries", modDrv = "RawLD", indexed = true)
         // Must be registered in `Books.installed()` — `CurrentPageBase.currentDocument`'s getter
-        // treats an unregistered book as `isRemoved` (`FakeBookFactory.isRemoved`) and silently
+        // treats an unregistered book as `isRemoved` (`org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).isRemoved`) and silently
         // swaps in whatever real dictionary happens to be installed instead, which is exactly the
         // "dictionary page auto-selects a default document" trap `CachedKeyPageTest` documents.
         Books.installed().addBook(dict)
