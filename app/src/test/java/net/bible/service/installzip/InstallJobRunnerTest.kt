@@ -55,13 +55,29 @@ class InstallJobRunnerTest {
         override suspend fun commitStudyPad(unzipFolder: File) { calls += "studypad" }
     }
     @Test fun decodedUriFallbackRetainsFilename() = runBlocking {
-        val uri = Uri.parse("content://x/document/primary%3ADownload%2Ffoo.zip")
-        assertEquals("primary:Download/foo.zip", uri.lastPathSegment)
-        val source = InstallSource(uri.toString(), null, null, null)
+        val fixtures = listOf(
+            "content://x/document/primary%3ADownload%2Ffoo.zip",
+            "content://x/a space.zip", "content://x/a+b.zip",
+            "content://x/%E2%82%AC.zip", "content://x/bad%", "content://x/bad%2",
+            "content://x/bad%XX.zip", "content://x/foo.zip/?query#fragment",
+        )
+        assertEquals("primary:Download/foo.zip", Uri.parse(fixtures.first()).lastPathSegment)
+        for (text in fixtures) {
+            val source = InstallSource(text, null, null, null)
+            val terminal = InstallJobRunner(InstallInspector { BackupFileType.UNKNOWN }, FakeCommitter())
+                .runJob(source, tmp(), { "data".byteInputStream() }, { false },
+                    { error("not studypad") }, { InstallInspector.SwordZipScan(emptyList(), 1, false, false) },
+                    { false }, {}, { true })
+            assertEquals(text, Uri.parse(text).lastPathSegment, (terminal as InstallPhase.Error).arg)
+        }
+    }
+
+    @Test fun installationFallbackDoesNotReplaceMetadata() = runBlocking {
+        val source = InstallSource("content://x/raw", null, null, null, "primary:Download/foo.zip")
+        assertEquals(null, source.displayName)
         val terminal = InstallJobRunner(InstallInspector { BackupFileType.UNKNOWN }, FakeCommitter())
             .runJob(source, tmp(), { "data".byteInputStream() }, { false },
-                { error("not studypad") }, { InstallInspector.SwordZipScan(emptyList(), 1, false, false) },
-                { false }, {}, { true })
+                { error("not studypad") }, { error("not zip") }, { false }, {}, { true })
         assertEquals("primary:Download/foo.zip", (terminal as InstallPhase.Error).arg)
     }
 

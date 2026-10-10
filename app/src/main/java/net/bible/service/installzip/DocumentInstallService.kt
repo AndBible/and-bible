@@ -227,7 +227,7 @@ class DocumentInstallService : Service() {
     // --- InstallSource / JobDeps wiring (mirrors classic InstallZip's collaborators) ---
 
     private fun buildSource(uri: Uri, action: String?): InstallSource =
-        InstallSource(uri.toString(), action, getDisplayName(uri) ?: uri.lastPathSegment, getMimeType(uri))
+        InstallSource(uri.toString(), action, getDisplayName(uri), getMimeType(uri), uri.lastPathSegment)
 
     /** Mirrors classic `InstallZip.getDisplayName` exactly. */
     private fun getDisplayName(uri: Uri): String? =

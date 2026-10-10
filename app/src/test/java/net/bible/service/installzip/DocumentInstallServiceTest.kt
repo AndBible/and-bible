@@ -64,6 +64,30 @@ import java.util.zip.ZipOutputStream
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DocumentInstallServiceTest {
 
+    @Test fun missingMetadataKeepsProgressTitleNull() = runBlocking {
+        val service = Robolectric.buildService(DocumentInstallService::class.java).get()
+        val uri = Uri.parse("content://x/document/primary%3ADownload%2Ffoo.zip")
+        val method = DocumentInstallService::class.java.getDeclaredMethod("buildSource", Uri::class.java, String::class.java)
+        method.isAccessible = true
+        val source = method.invoke(service, uri, null) as InstallSource
+        assertEquals(null, source.displayName)
+        assertEquals("primary:Download/foo.zip", source.installationName)
+        val controller = InstallServiceController(runnerFactory = { error("unused") }, newJobId = { "metadata" }, onTerminal = { _, _ -> })
+        controller.runOne = { _, _, _, onPhase, _ ->
+            assertEquals(null, controller.jobs.value.single().displayName)
+            onPhase(InstallPhase.Inspecting)
+            assertEquals(null, controller.jobs.value.single().displayName)
+            InstallPhase.Done
+        }
+        val deps = InstallServiceController.JobDeps(
+            acquireDir = File(System.getProperty("java.io.tmpdir"), "metadata-test"),
+            openStream = { error("unused") }, isStudyPadExport = { false },
+            studyPadStats = { error("unused") }, swordZipScan = { error("unused") },
+            epubUpgradeCheck = { false },
+        )
+        assertEquals(InstallOutcome.Ok, controller.enqueue(listOf(source), deps))
+    }
+
     @Before
     fun setUp() {
         SwordBookPath.setDownloadDir(SharedConstants.modulesDir)

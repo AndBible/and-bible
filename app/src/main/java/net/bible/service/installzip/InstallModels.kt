@@ -27,6 +27,8 @@ data class InstallSource(
     val action: String?,       // Intent.ACTION_VIEW / ACTION_SEND / null (picker)
     val displayName: String?,
     val mimeType: String?,
+    /** Decoded platform path name for installation only; never a progress/UI metadata title. */
+    val installationName: String? = null,
 )
 
 enum class InstallError { GENERIC, INVALID_FILE }

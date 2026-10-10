@@ -76,8 +76,7 @@ class InstallJobRunner(
         onPhase: (InstallPhase) -> Unit,
         awaitDecision: suspend (DecisionRequest) -> Boolean,
     ): InstallPhase {
-        val displayName = source.displayName ?: java.net.URI(source.uri).rawPath?.split('/')?.lastOrNull { it.isNotEmpty() }
-            ?.let { java.net.URLDecoder.decode(it.replace("+", "%2B"), "UTF-8") } ?: acquireTo.name
+        val displayName = source.displayName ?: source.installationName ?: decodedLastPathSegment(source.uri) ?: acquireTo.name
 
         onPhase(InstallPhase.Acquiring(0))
         try {
@@ -249,6 +248,54 @@ class InstallJobRunner(
             }
         }
         onProgress(100)
+    }
+
+    /** Split before decoding, as Android Uri does; accept spaces and malformed escapes. */
+    private fun decodedLastPathSegment(uri: String): String? {
+        val schemeEnd = uri.indexOf(':')
+        val pathStart = if (schemeEnd >= 0) {
+            if (!uri.startsWith("/", schemeEnd + 1)) return null // opaque URI
+            schemeEnd + 1
+        } else 0
+        val withoutSuffix = uri.substring(pathStart).substringBefore('#').substringBefore('?')
+        val path = if (withoutSuffix.startsWith("//")) {
+            withoutSuffix.substring(2).substringAfter('/', "")
+        } else withoutSuffix
+        val segment = path.split('/').lastOrNull { it.isNotEmpty() } ?: return null
+        val result = StringBuilder()
+        val bytes = java.io.ByteArrayOutputStream()
+        fun flush() {
+            result.append(bytes.toByteArray().toString(Charsets.UTF_8))
+            bytes.reset()
+        }
+        var i = 0
+        while (i < segment.length) {
+            val character = segment[i++]
+            if (character != '%') {
+                flush()
+                result.append(character)
+                continue
+            }
+            var value = 0
+            for (digitIndex in 0..1) {
+                if (i == segment.length) {
+                    flush()
+                    result.append('\uFFFD')
+                    return result.toString()
+                }
+                val digit = segment[i++].digitToIntOrNull(16)
+                if (digit == null) {
+                    // Android emits replacement, then retains the partially decoded byte.
+                    flush()
+                    result.append('\uFFFD')
+                    break
+                }
+                value = value * 16 + digit
+            }
+            bytes.write(value)
+        }
+        flush()
+        return result.toString()
     }
 
     companion object {
