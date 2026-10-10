@@ -44,7 +44,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.koin.core.context.GlobalContext
@@ -67,8 +67,26 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLog
 
+private val advancedSpeakSettings: AdvancedSpeakSettings get() = GlobalContext.get().get()
+
+private fun captureAdvancedSettings(): () -> Unit {
+    val settings = advancedSpeakSettings
+    val autoBookmark = settings.autoBookmark
+    val synchronize = settings.synchronize
+    val replaceDivineName = settings.replaceDivineName
+    val restoreSettingsFromBookmarks = settings.restoreSettingsFromBookmarks
+    return {
+        settings.autoBookmark = autoBookmark
+        settings.synchronize = synchronize
+        settings.replaceDivineName = replaceDivineName
+        settings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks
+    }
+}
+
+
 @Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class SpeakIntegrationTestBase {
+    private lateinit var restoreAdvancedSettings: () -> Unit
     lateinit var app: TestBibleApplication
     lateinit var bookmarkControl: BookmarkControl
     lateinit var speakControl: SpeakControl
@@ -80,6 +98,7 @@ open class SpeakIntegrationTestBase {
     @Before
     fun setUp() {
         ShadowLog.stream = System.out
+        restoreAdvancedSettings = captureAdvancedSettings()
         app = BibleApplication.application as TestBibleApplication
         // Resolve from Koin, matching production: after the Dagger->Koin field-injection
         // flip (Phase 0, B.2) every production SpeakControl consumer uses `by inject()`
@@ -102,6 +121,7 @@ open class SpeakIntegrationTestBase {
 
     @After
     fun tearDown() {
+        restoreAdvancedSettings()
         DatabaseResetter.resetDatabase()
         // Stop the Koin container so the next test method starts fresh. Koin's global
         // container is started once (guarded on GlobalContext.getOrNull() in
@@ -137,9 +157,9 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
     fun testTogglingSynchronizeWritesTheSetting() {
         // Was testSpeakActivityUpdatesSettings: the checkbox click wrote AdvancedSpeakSettings and
         // the view reflected it. The service's setter is what the Compose Advanced page calls.
-        AdvancedSpeakSettings.synchronize = true
+        advancedSpeakSettings.synchronize = true
         speakSettingsService.setSynchronize(false)
-        assertThat(AdvancedSpeakSettings.synchronize, equalTo(false))
+        assertThat(advancedSpeakSettings.synchronize, equalTo(false))
         assertThat(speakSettingsService.advanced.value.synchronize, equalTo(false))
     }
 }
@@ -156,10 +176,10 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         )
         runBlocking { bookmarkControl.speakLabel() }
-        AdvancedSpeakSettings.reset()
-        AdvancedSpeakSettings.autoBookmark = true
-        AdvancedSpeakSettings.synchronize = true
-        AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
+        advancedSpeakSettings.reset()
+        advancedSpeakSettings.autoBookmark = true
+        advancedSpeakSettings.synchronize = true
+        advancedSpeakSettings.restoreSettingsFromBookmarks = true
         SpeakSettings().save()
 
         mainActivityController.create()
@@ -255,19 +275,22 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 
 @Config(qualifiers = "fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class AbstractSpeakTests {
+    private lateinit var restoreAdvancedSettings: () -> Unit
     lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""
     lateinit var book: SwordBook
 
     @Before
     open fun setup() {
-        AdvancedSpeakSettings.reset()
+        restoreAdvancedSettings = captureAdvancedSettings()
+        advancedSpeakSettings.reset()
         ShadowLog.stream = System.out
         book = Books.installed().getBook("FinRK") as SwordBook
     }
 
     @After
     fun tearDown() {
+        restoreAdvancedSettings()
         DatabaseResetter.resetDatabase()
     }
 
@@ -487,7 +510,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
 
     @Test
     fun testDivinenameInTitle() {
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         val s = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
@@ -501,7 +524,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
 
     @Test
     fun testDivinenameInText() {
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         val s = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
 
@@ -552,7 +575,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         super.setup()
         provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         runBlocking { bookmarkControl.speakLabel() }
-        AdvancedSpeakSettings.autoBookmark = true
+        advancedSpeakSettings.autoBookmark = true
     }
 
     @After
@@ -563,7 +586,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
     @Test
     fun autoBookmarkDisabled() {
-        AdvancedSpeakSettings.autoBookmark = false
+        advancedSpeakSettings.autoBookmark = false
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause()
@@ -753,8 +776,8 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
     @Test
     fun autoBookmarkOnPauseAddLabelAndSettings() {
-        AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
-        AdvancedSpeakSettings.autoBookmark = true
+        advancedSpeakSettings.restoreSettingsFromBookmarks = true
+        advancedSpeakSettings.autoBookmark = true
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
         var dto = BibleBookmarkWithNotes(verseRange, null, true, null)
@@ -787,8 +810,8 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
     @Test
     fun autoBookmarkOnPauseCreateNewSaveSettings() {
-        AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
-        AdvancedSpeakSettings.autoBookmark = true
+        advancedSpeakSettings.restoreSettingsFromBookmarks = true
+        advancedSpeakSettings.autoBookmark = true
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
@@ -921,7 +944,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression3STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         provider.setupReading(book, getVerse("Ezek.34.27"))
 
         val text1 = nextText()
@@ -935,7 +958,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression4STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.35.1"))
         nextText() // title
@@ -947,7 +970,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression5STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.35.4"))
         val text1 = nextText()
@@ -959,7 +982,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgressionESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.34.27"))
 
@@ -976,7 +999,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression2ESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.36.2"))
 
@@ -989,7 +1012,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression3ESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.36.16"))
 
@@ -1003,7 +1026,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgressionAndRepeatPassageESV() {
         // related to issue #314
         book = Books.installed().getBook("ESV2011") as SwordBook
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         provider.settings = SpeakSettings()
         provider.settings.playbackSettings = PlaybackSettings(verseRange = VerseRange(book.versification, getVerse("Rev.1.2"), getVerse("Rev.1.5")))
         provider.setupReading(book, getVerse("Rev.1.5"))
@@ -1038,7 +1061,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgressionFinPR() {
         book = Books.installed().getBook("FinPR") as SwordBook
-        AdvancedSpeakSettings.replaceDivineName = true
+        advancedSpeakSettings.replaceDivineName = true
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = false))
         provider.setupReading(book, getVerse("Ezek.36.38"))
 

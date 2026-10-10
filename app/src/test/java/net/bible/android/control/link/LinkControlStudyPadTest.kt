@@ -47,6 +47,7 @@ class LinkControlStudyPadTest {
     private lateinit var windowRepository: WindowRepository
     private val bookmarkControl: BookmarkControl get() = GlobalContext.get().get()
     private val notifier = object : UserNotifier {
+        override fun showInfo(message: String, long: Boolean) = Unit
         override fun showError(message: String, cause: Throwable?) {}
     }
 

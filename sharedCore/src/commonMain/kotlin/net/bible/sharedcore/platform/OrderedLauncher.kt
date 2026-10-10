@@ -34,6 +34,9 @@ class OrderedLauncher(private val scope: CoroutineScope) {
         job
     }
 
+    /** Waits for the current tail only; later submissions are not included. */
+    suspend fun join(key: Any) { synchronized(lock) { tails[key] }?.join() }
+
     private companion object {
         const val TAG = "OrderedLauncher"
     }

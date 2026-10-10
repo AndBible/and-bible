@@ -28,9 +28,20 @@ import org.robolectric.annotation.Config
 class LinkControlMessagesTest {
     private val shown = mutableListOf<String>()
     private val notifier = object : UserNotifier {
+        override fun showInfo(message: String, long: Boolean) = Unit
         override fun showError(message: String, cause: Throwable?) { shown += message }
     }
     private val strings = object : CoreStrings {
+        override val speakNoBooksAvailable = "speakNoBooksAvailable"
+        override val speakGeneralError = "speakGeneralError"
+        override val verseRangeModeDisabled = "verseRangeModeDisabled"
+        override val rewind = "rewind"
+        override val forward = "forward"
+        override val pause = "pause"
+        override val stop = "stop"
+        override val speakStatusStopped = "speakStatusStopped"
+        override val ttsLangNotAvailable = "ttsLangNotAvailable"
+        override fun sleepTimerStarted(minutes: Int) = "sleep $minutes"
         override val labelAll = "all"
         override val errorOccurred = "error"
         override fun somethingWithParenthesis(a: String, b: String) = "$a ($b)"

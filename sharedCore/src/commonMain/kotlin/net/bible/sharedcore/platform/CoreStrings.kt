@@ -11,4 +11,14 @@ interface CoreStrings {
     fun documentNotInstalled(initials: String): String // R.string.document_not_installed: "Please download '%s'"
     val noIndexedBibleWithStrongsRef: String // R.string.no_indexed_bible_with_strongs_ref
     val wordNotFoundInDictionaries: String // R.string.word_not_found_in_dictionaries
+    val speakNoBooksAvailable: String // R.string.speak_no_books_available
+    val speakGeneralError: String // R.string.speak_general_error
+    val verseRangeModeDisabled: String // R.string.verse_range_mode_disabled
+    val rewind: String // R.string.rewind
+    val forward: String // R.string.forward
+    val pause: String // R.string.pause
+    val stop: String // R.string.stop
+    val speakStatusStopped: String // R.string.speak_status_stopped
+    val ttsLangNotAvailable: String // R.string.tts_lang_not_available
+    fun sleepTimerStarted(minutes: Int): String // R.string.sleep_timer_started
 }

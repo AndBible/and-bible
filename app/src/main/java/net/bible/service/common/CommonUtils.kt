@@ -252,39 +252,6 @@ class Ref<T>(var value: T? = null)
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-object AdvancedSpeakSettings {
-    var autoBookmark: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_autoBookmark", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_autoBookmark", value)
-        }
-
-    var synchronize: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_synchronize", true)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_synchronize", value)
-        }
-
-    var replaceDivineName: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_replaceDivineName", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_replaceDivineName", value)
-        }
-
-    var restoreSettingsFromBookmarks: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_restoreSettingsFromBookmarks", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_restoreSettingsFromBookmarks", value)
-        }
-
-    fun reset() {
-        autoBookmark = false
-        synchronize = true
-        replaceDivineName = false
-        restoreSettingsFromBookmarks = false
-    }
-}
-
 /**
  * Fix batch 1 2.5b: the explicit state [CommonUtils.changeAppIconAndName] must write for one launcher
  * component, or null when the current state already matches. `COMPONENT_ENABLED_STATE_DEFAULT`
@@ -304,7 +271,6 @@ internal fun componentStateToWrite(current: Int, manifestEnabled: Boolean, wantE
 
 object CommonUtils : CommonUtilsBase() {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
-    private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
 
@@ -735,29 +701,7 @@ object CommonUtils : CommonUtilsBase() {
      * @param secs duration
      * @return h:m:s
      */
-    fun getHoursMinsSecs(secs: Long): String {
-        val h = (secs / 3600).toInt()
-        val m = (secs / 60 % 60).toInt()
-        val s = (secs % 60).toInt()
-
-        val hms = StringBuilder()
-        if (h > 0) {
-            hms.append(h).append(COLON)
-        }
-
-        // add padding for 1 digit mins
-        if (m < 10) {
-            hms.append(0)
-        }
-        hms.append(m).append(COLON)
-
-        // add padding for 1 digit secs
-        if (s < 10) {
-            hms.append(0)
-        }
-        hms.append(s)
-        return hms.toString()
-    }
+    fun getHoursMinsSecs(secs: Long): String = net.bible.sharedcore.util.formatHoursMinsSecs(secs)
 
     fun getKeyDescription(key: Key): String = net.bible.service.history.keyDescription(key)
 

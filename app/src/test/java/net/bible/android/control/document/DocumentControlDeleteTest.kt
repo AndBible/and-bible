@@ -50,6 +50,7 @@ class DocumentControlDeleteTest {
         }
     }
     private val notifier = object : UserNotifier {
+        override fun showInfo(message: String, long: Boolean) = Unit
         override fun showError(message: String, cause: Throwable?) { errors += message }
     }
     private val book = Mockito.mock(Book::class.java).also {

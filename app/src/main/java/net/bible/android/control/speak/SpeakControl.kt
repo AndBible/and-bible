@@ -53,7 +53,7 @@ import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -68,6 +68,7 @@ class SpeakControl constructor(
     private val windowControl: WindowControl,
 ) : KoinComponent {
 
+    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     val bookmarkControl: BookmarkControl by inject()
     private var sleepTimer = lazy { Timer("TTS sleep timer") }
     private var timerTask: TimerTask? = null
@@ -138,7 +139,7 @@ class SpeakControl constructor(
             speakKey = event.key
             speakBook = event.book
             // Don't synchronize page during memorization loop — stay in memorize view
-            if (!isMemorizationLoop && (AdvancedSpeakSettings.synchronize || event.forceFollow)) {
+            if (!isMemorizationLoop && (advancedSpeakSettings.synchronize || event.forceFollow)) {
                 val book = speakPageManager.currentPage.currentDocument
                 speakPageManager.setCurrentDocumentAndKey(book, event.key,false)
             }
@@ -298,7 +299,7 @@ class SpeakControl constructor(
         }
 
         prepareForSpeaking()
-        if(AdvancedSpeakSettings.synchronize || force) {
+        if(advancedSpeakSettings.synchronize || force) {
             speakPageManager.setCurrentDocumentAndKey(book, verse,false)
         }
         try {

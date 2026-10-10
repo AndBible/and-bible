@@ -27,7 +27,9 @@ import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.Logger
+import net.bible.android.control.speak.AdvancedSpeakSettings
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.useSaxBuilder
 import net.bible.sharedcore.reading.ShareVersesEntry
@@ -87,7 +89,8 @@ class JSwordError(message: String) : OsisError(message, message)
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-object SwordContentFacade {
+object SwordContentFacade : KoinComponent {
+    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private const val docCacheSize = 25
     private val osisFragmentCache = LruCache<String, Element>(docCacheSize)
     private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
@@ -385,9 +388,9 @@ object SwordContentFacade {
             throw e
         } catch (e: Throwable) {
             if (e is Exception)
-                log.error("Parsing error", e)
+                Log.e(TAG, "Parsing error", e)
             else
-                log.error("Parsing error $e")
+                Log.e(TAG, "Parsing error $e")
             throw JSwordError(application.getString(R.string.error_occurred))
         }
     }
@@ -739,7 +742,7 @@ object SwordContentFacade {
         val frag = data.getOsisFragment(false)
         val doc = frag.document ?: Document(frag)
         val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
-        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code)
+        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code, advancedSpeakSettings)
         osissep.provideSAXEvents(osisHandler)
         (osisHandler as OsisToBibleSpeak).speakCommands
     } catch (e: Exception) {
@@ -845,7 +848,6 @@ object SwordContentFacade {
 
     // set to false for testing
     private var isAndroid = true //CommonUtils.isAndroid();
-    private val log = Logger(SwordContentFacade::class.java.name)
     fun setAndroid(isAndroid: Boolean) {
         this.isAndroid = isAndroid
     }

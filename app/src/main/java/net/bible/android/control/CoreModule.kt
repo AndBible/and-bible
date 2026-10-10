@@ -127,6 +127,9 @@ fun buildCoreModule() = module {
     single { DownloadControl() }
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
 
+    single { net.bible.android.control.speak.AdvancedSpeakSettings(get()) }
+    single<net.bible.android.control.speak.SpeakSettingsStore> { net.bible.android.platform.AndroidSpeakSettingsStore() }
+
     single<AppSettings> { CommonUtils.settings }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }

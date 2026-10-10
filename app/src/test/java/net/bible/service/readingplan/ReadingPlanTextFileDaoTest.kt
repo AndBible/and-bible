@@ -39,6 +39,16 @@ class ReadingPlanTextFileDaoTest {
     }
 
     private val strings = object : CoreStrings {
+        override val speakNoBooksAvailable = "speakNoBooksAvailable"
+        override val speakGeneralError = "speakGeneralError"
+        override val verseRangeModeDisabled = "verseRangeModeDisabled"
+        override val rewind = "rewind"
+        override val forward = "forward"
+        override val pause = "pause"
+        override val stop = "stop"
+        override val speakStatusStopped = "speakStatusStopped"
+        override val ttsLangNotAvailable = "ttsLangNotAvailable"
+        override fun sleepTimerStarted(minutes: Int) = "sleep $minutes"
         override val labelAll = "All"
         override val errorOccurred = "Error"
         override fun somethingWithParenthesis(a: String, b: String) = "$a ($b)"

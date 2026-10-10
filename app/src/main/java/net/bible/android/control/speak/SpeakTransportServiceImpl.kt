@@ -28,7 +28,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNo
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportService
@@ -55,6 +55,7 @@ internal fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (
  * reading-view classic code is unchanged.
  */
 class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
+    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private val speakControl: SpeakControl by inject()
     private val bookmarkControl: BookmarkControl by inject()
 
@@ -138,7 +139,7 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
 
     /** Classic sync side-effect (SpeakTransportWidget :163-167, :206-210). */
     private fun maybeSyncToFront() {
-        if (AdvancedSpeakSettings.synchronize) {
+        if (advancedSpeakSettings.synchronize) {
             val ctx = BibleApplication.application
             // reading-host re-typing T8b: same three flags, the reading host instead of the
             // classic Activity.

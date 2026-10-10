@@ -22,7 +22,7 @@ import android.text.Html
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.*
 import net.bible.service.format.osistohtml.OSISUtil2
 import org.crosswire.jsword.book.OSISUtil
@@ -32,7 +32,7 @@ import java.util.*
 
 val PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph")
 
-class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : DefaultHandler() {
+class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String, private val advancedSpeakSettings: AdvancedSpeakSettings) : DefaultHandler() {
     val speakCommands = SpeakCommandArray()
 
     private enum class TagType {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
@@ -168,7 +168,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
 
         if(currentState.visible) {
             if(divineNameLevel > 0) {
-                if(AdvancedSpeakSettings.replaceDivineName) {
+                if(advancedSpeakSettings.replaceDivineName) {
                     for(i in 0 until divineNameOriginal.size) {
                         if(divineNameOriginal[i].isNotEmpty()) {
                             s = s.replace(divineNameOriginal[i], divineNameReplace[i], false)

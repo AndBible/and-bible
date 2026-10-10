@@ -17,6 +17,8 @@
 
 package net.bible.service.device.speak
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import android.content.res.Resources
 import net.bible.service.db.blockingDb
 import android.os.Build
@@ -39,7 +41,7 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
@@ -50,7 +52,8 @@ class BibleSpeakTextProvider(
     private val bibleTraverser: BibleTraverser,
     private val bookmarkControl: BookmarkControl,
     initialBook: SwordBook
-) : SpeakTextProvider  {
+) : SpeakTextProvider, KoinComponent {
+    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private data class State(val book: SwordBook,
                              val startVerse: Verse,
                              val endVerse: Verse,
@@ -340,7 +343,7 @@ class BibleSpeakTextProvider(
         if(ttsLabel != null) {
             Log.i(TAG, "Bookmark book ${bookmark.book}")
             val playbackSettings = bookmark.playbackSettings?.copy()
-            if(playbackSettings != null && AdvancedSpeakSettings.restoreSettingsFromBookmarks) {
+            if(playbackSettings != null && advancedSpeakSettings.restoreSettingsFromBookmarks) {
                 playbackSettings.bookmarkWasCreated = null
                 playbackSettings.bookId = null
                 settings.playbackSettings = playbackSettings
@@ -380,7 +383,7 @@ class BibleSpeakTextProvider(
     private fun saveBookmark(wasRemoved: Boolean) {
         if (settings.playbackSettings.isMemorizationLoop) return
         val labelList = mutableSetOf<Label>()
-        if(AdvancedSpeakSettings.autoBookmark || wasRemoved) {
+        if(advancedSpeakSettings.autoBookmark || wasRemoved) {
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
             playbackSettings.bookmarkWasCreated = true

@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page.window
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -38,7 +40,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.sharedcore.event.Subscription
@@ -58,7 +60,8 @@ class Window (
     val pageManager: CurrentPageManager,
     val windowRepository: WindowRepository,
     var isLinksWindow: Boolean = entity.isLinksWindow,
-){
+) : KoinComponent {
+    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private var targetLinksWindowId: IdType? = entity.targetLinksWindowId
     var savedEntity = entity.deepCopy()
     var syncGroup = entity.syncGroup
@@ -127,7 +130,7 @@ class Window (
         pageManager.window = this
         speakSubscription = SpeakChanges.changes.subscribe { change ->
             val e = change as? SpeakChange.Progress ?: return@subscribe
-            if(AdvancedSpeakSettings.synchronize || e.forceFollow) return@subscribe // handled in SpeakControl
+            if(advancedSpeakSettings.synchronize || e.forceFollow) return@subscribe // handled in SpeakControl
             val speakKey = (e.key as? BookAndKey)?.key?: e.key
             val bookInitials = e.book.initials
             if (displayedBook != e.book) return@subscribe

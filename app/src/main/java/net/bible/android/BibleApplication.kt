@@ -177,6 +177,8 @@ open class BibleApplication : Application() {
             }
         }
 
+        net.bible.android.database.bookmarks.SpeakSettings.store = GlobalContext.get().get()
+
         // ideally this would be installed before initialiseJSwordFolders but the listener depends on Koin being started
         SwordEnvironmentInitialisation.installJSwordErrorReportListener()
 
