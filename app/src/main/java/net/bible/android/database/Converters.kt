@@ -18,7 +18,6 @@
 package net.bible.android.database
 
 
-import android.util.Base64
 import android.util.Log
 import androidx.room3.ColumnTypeConverter
 import kotlinx.serialization.SerializationException
@@ -38,15 +37,10 @@ import net.bible.service.llm.agent.PermissionMode
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 import java.util.Date
 
 
@@ -159,27 +153,6 @@ class Converters {
     @ColumnTypeConverter
     fun strToPlaybackSettings(s: String?): PlaybackSettings? {
         return if (s != null) PlaybackSettings.fromJson(s) else null
-    }
-
-    @ColumnTypeConverter
-    fun keyToStr(key: Key?): String? {
-        if(key == null) return null
-        val out = ByteArrayOutputStream()
-        val obj = ObjectOutputStream(out)
-        obj.writeObject(key)
-        return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT)
-    }
-
-    @ColumnTypeConverter
-    fun strToKey(s: String?): Key? {
-        if(s == null) return null
-        return try {
-            val inp = ByteArrayInputStream(Base64.decode(s, Base64.DEFAULT))
-            val obj = ObjectInputStream(inp)
-            obj.readObject() as Key
-        } catch (e: Exception) {
-            null
-        }
     }
 
     @ColumnTypeConverter

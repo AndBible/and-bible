@@ -148,9 +148,6 @@ class BookAndKey(
     override fun blur(by: Int, restrict: RestrictionType?, blurDown: Boolean, blurUp: Boolean): Unit =
         throw UnsupportedOperationException()
 
-    companion object {
-        private const val serialVersionUID: Long = 1
-    }
 }
 
 class BookAndKeyList: DefaultKeyList() {
@@ -158,9 +155,6 @@ class BookAndKeyList: DefaultKeyList() {
         return this.joinToString("||") { it.getOsisRef() }
     }
 
-    companion object {
-        private const val serialVersionUID: Long = 1
-    }
 }
 
 fun bookAndKeyListOf(keys: Collection<BookAndKey>): BookAndKeyList {
