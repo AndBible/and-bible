@@ -42,10 +42,15 @@ class SpeakBookmarkOrderingTest : SpeakIntegrationTestBase() {
         assertEquals(5, bookmark!!.verseRange.start.verse)
     }
 
-    private fun suspendedResume(supersede: (TextToSpeechServiceManager) -> Unit) {
+    private fun suspendedResume(loop: Boolean = false, supersede: (TextToSpeechServiceManager) -> Unit) {
         val launcher = GlobalContext.get().get<OrderedLauncher>()
         val verse = (book.getKey("Gen.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
-        speakControl.speakBible(book, verse)
+        if (loop) {
+            net.bible.android.database.bookmarks.SpeakSettings().apply { sleepTimer = 60 }.save()
+            speakControl.speakMemorizationLoop(book, verse, verse)
+        } else {
+            speakControl.speakBible(book, verse)
+        }
         runBlocking { launcher.join(SPEAK_KEY) }
         speakControl.pause()
         runBlocking { launcher.join(SPEAK_KEY) }
@@ -61,7 +66,7 @@ class SpeakBookmarkOrderingTest : SpeakIntegrationTestBase() {
         }
         field.set(manager, suspended)
         try {
-            manager.continueAfterPause()
+            speakControl.continueAfterPause()
             runBlocking { entered.await() }
             supersede(manager)
         } finally {
@@ -69,6 +74,70 @@ class SpeakBookmarkOrderingTest : SpeakIntegrationTestBase() {
             runBlocking { launcher.join(SPEAK_KEY) }
         }
         assertEquals("Superseded load must never apply/start", 0, applied)
+    }
+
+    @Test
+    fun stopDuringSuspendedLoopLoadRestoresSettings() {
+        try {
+            suspendedResume(loop = true) {
+                speakControl.stop()
+                org.junit.Assert.assertFalse("Pending loop resume stop must restore settings",
+                    net.bible.android.database.bookmarks.SpeakSettings.load().playbackSettings.isMemorizationLoop)
+                org.junit.Assert.assertFalse(speakControl.isMemorizationLoop)
+            }
+        } finally {
+            speakControl.stop(force = true)
+            net.bible.android.database.bookmarks.SpeakSettings().save()
+        }
+    }
+
+    @Test
+    fun stopDuringSuspendedLoopLoadRemovesSleepTimer() {
+        try {
+            suspendedResume(loop = true) {
+                org.junit.Assert.assertTrue(speakControl.sleepTimerActive())
+                speakControl.stop()
+                org.junit.Assert.assertFalse("Pending loop resume stop must cancel timer", speakControl.sleepTimerActive())
+            }
+        } finally {
+            speakControl.stop(force = true)
+            net.bible.android.database.bookmarks.SpeakSettings().save()
+        }
+    }
+
+    @Test
+    fun transportStopDuringSuspendedLoadDoesNotResurrectSpeech() {
+        val transport = GlobalContext.get().get<net.bible.android.control.speak.SpeakTransportServiceImpl>()
+        suspendedResume {
+            transport.setTransportVisible(true)
+            transport.stop()
+            org.junit.Assert.assertFalse("Stopped transport keeps its hide behavior", transport.state.value.visible)
+        }
+        org.junit.Assert.assertFalse(GlobalContext.get().get<TextToSpeechServiceManager>().isSpeaking)
+    }
+
+    @Test
+    fun twoSettingsChangesInMemorizationLoopDoNotCreatePhantomBookmark() {
+        val launcher = GlobalContext.get().get<OrderedLauncher>()
+        GlobalContext.get().get<net.bible.android.control.speak.AdvancedSpeakSettings>().autoBookmark = true
+        net.bible.android.database.bookmarks.SpeakSettings().save()
+        val verse = (book.getKey("Gen.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        try {
+            speakControl.speakMemorizationLoop(book, verse, verse)
+            runBlocking { launcher.join(SPEAK_KEY) }
+            for (speed in listOf(173, 183)) {
+                val settings = net.bible.android.database.bookmarks.SpeakSettings.load()
+                settings.playbackSettings = settings.playbackSettings.copy(speed = speed)
+                settings.save(updateBookmark = true)
+                runBlocking { launcher.join(SPEAK_KEY) }
+            }
+            assertEquals("Loop settings changes must not insert an intentionally unsaved bookmark", 0,
+                runBlocking { bookmarkControl.allBibleBookmarks() }.size)
+        } finally {
+            speakControl.stop(force = true)
+            runBlocking { launcher.join(SPEAK_KEY) }
+            net.bible.android.database.bookmarks.SpeakSettings().save()
+        }
     }
 
     @Test

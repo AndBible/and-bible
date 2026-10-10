@@ -490,20 +490,21 @@ class SpeakControl constructor(
             _speakPageManager = null
         }
 
-        if (!force && !isSpeaking && !isPaused) {
+        val wasStopped = !isSpeaking && !isPaused
+        if (!force && wasStopped) {
             ttsServiceManager.invalidatePendingStart()
-            return
+        } else {
+            Log.i(TAG, "Stop TTS speaking")
+            ttsServiceManager.shutdown(willContinueAfter)
+            saveCurrentPosition()
         }
-
-        Log.i(TAG, "Stop TTS speaking")
-        ttsServiceManager.shutdown(willContinueAfter)
-        saveCurrentPosition()
         stopTimer()
         originalSettingsBeforeMemLoop?.let {
-            it.save()
+            // Clear the loop owner before save() synchronously notifies settings listeners.
             originalSettingsBeforeMemLoop = null
+            it.save()
         }
-        if(!force) {
+        if(!force && !wasStopped) {
             notifier.showInfo(strings.stop)
         }
     }

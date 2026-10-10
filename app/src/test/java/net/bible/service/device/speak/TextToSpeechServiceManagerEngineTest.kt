@@ -106,6 +106,62 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         }
     }
 
+    @Test
+    fun queuedReadingPlanPassageDoesNotReplaceCurrentUtterance() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        val launcher = GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>()
+        speakControl.speakKeyListLegacy(book, listOf(book.getKey("Gen.1.1")), true)
+        platform.listener!!.onInit(true)
+        kotlinx.coroutines.runBlocking { launcher.join(SPEAK_KEY) }
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val provider = org.robolectric.util.ReflectionHelpers.getField<LegacySpeakTextProvider>(manager, "legacySpeakTextProvider")
+        platform.listener!!.onUtteranceStart("AND-BIBLE-0")
+        val currentText = provider.getText("AND-BIBLE-0")
+        val queuedBefore = engine.calls.count { it.startsWith("speak:") }
+        speakControl.speakKeyListLegacy(book, listOf(book.getKey("Gen.2.1")), true)
+        kotlinx.coroutines.runBlocking { launcher.join(SPEAK_KEY) }
+        assertEquals("Appending a passage must not queue a new chunk during the current utterance", queuedBefore,
+            engine.calls.count { it.startsWith("speak:") })
+        assertEquals("Appending a passage must retain the current utterance text", currentText, provider.getText("AND-BIBLE-0"))
+        platform.listener!!.onUtteranceDone("AND-BIBLE-0")
+        assertTrue("Completion must advance the queued passage", engine.calls.count { it.startsWith("speak:") } > queuedBefore)
+        speakControl.stop()
+    }
+
+    @Test
+    fun stopBeforeLoopEngineInitRestoresOriginalSettings() {
+        verifyPendingLoopCleanup { assertFalse("Stop must restore non-loop playback settings", net.bible.android.database.bookmarks.SpeakSettings.load().playbackSettings.isMemorizationLoop) }
+    }
+
+    @Test
+    fun stopBeforeLoopEngineInitRemovesSleepTimer() {
+        verifyPendingLoopCleanup { assertFalse("Stop must cancel the sleep timer", speakControl.sleepTimerActive()) }
+    }
+
+    private fun verifyPendingLoopCleanup(assertCleanup: () -> Unit) {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        val original = net.bible.android.database.bookmarks.SpeakSettings().apply { sleepTimer = 60 }
+        original.save()
+        val verse = (book.getKey("Gen.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        try {
+            speakControl.speakMemorizationLoop(book, verse, verse)
+            assertTrue(speakControl.isMemorizationLoop)
+            assertTrue(speakControl.sleepTimerActive())
+            val callback = platform.listener!!
+            speakControl.stop()
+            assertCleanup()
+            assertFalse(speakControl.isMemorizationLoop)
+            callback.onInit(true)
+            kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(SPEAK_KEY) }
+            assertFalse(engine.calls.any { it.startsWith("speak:") })
+        } finally {
+            speakControl.stop(force = true)
+            net.bible.android.database.bookmarks.SpeakSettings().save()
+        }
+    }
+
     @Test fun allLocalesUnsupportedShowsMessageAndStops() {
         val (engine, notifier) = start(emptyMap())
         assertTrue(notifier.errors.contains(testCoreStrings().ttsLangNotAvailable))

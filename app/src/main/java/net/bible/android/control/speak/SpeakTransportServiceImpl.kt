@@ -133,8 +133,9 @@ class SpeakTransportServiceImpl(
     override fun continueAfterPause() = speakControl.continueAfterPause()
 
     override fun stop() {
-        if (speakControl.isStopped) _state.value = _state.value.copy(visible = false)
-        else speakControl.stop()
+        val wasStopped = speakControl.isStopped
+        speakControl.stop()
+        if (wasStopped) _state.value = _state.value.copy(visible = false)
     }
 
     override fun rewind() = speakControl.rewind()

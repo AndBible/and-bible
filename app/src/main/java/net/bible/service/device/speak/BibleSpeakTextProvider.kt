@@ -320,7 +320,7 @@ class BibleSpeakTextProvider(
         target.playbackSettings = playback
         val autoBookmark = advanced.autoBookmark
         // Publish the intended position on the caller; the worker must not resurrect it after stop().
-        bookmark = if (autoBookmark || previous != null) target else null
+        bookmark = if (!playback.isMemorizationLoop && (autoBookmark || previous != null)) target else null
         launcher.launch(SPEAK_KEY) {
             val wasRemoved = removeBookmark(previous)
             saveBookmark(wasRemoved, target, autoBookmark)

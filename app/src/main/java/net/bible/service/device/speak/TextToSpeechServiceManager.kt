@@ -123,6 +123,8 @@ class TextToSpeechServiceManager constructor(
 
     private var temporary = false
     private var pendingGenericKey: BookAndKey? = null
+    // Automated settings resume reports speaking before a replacement engine is ready.
+    private var forceQueueAfterEngineRestart = false
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
@@ -226,7 +228,9 @@ class TextToSpeechServiceManager constructor(
                                 if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
                                 isOk = true
                                 provider.prepareForStartSpeaking()
-                                startSpeaking(forceQueue = true)
+                                val forceQueue = forceQueueAfterEngineRestart
+                                forceQueueAfterEngineRestart = false
+                                startSpeaking(forceQueue = forceQueue)
                                 stopIfPhoneCall()
                             }
                         } else {
@@ -401,7 +405,8 @@ class TextToSpeechServiceManager constructor(
         return if (language == "tr") "TR" else null
     }
 
-    private fun initializeTtsOrStartSpeaking() {
+    private fun initializeTtsOrStartSpeaking(forceQueue: Boolean = false) {
+        forceQueueAfterEngineRestart = forceQueue
         val preferredEnginePackage = platform.preferredEnginePackage
         if (mTts == null) {
             Log.i(TAG, "mTts was null so initialising Tts")
@@ -547,7 +552,7 @@ class TextToSpeechServiceManager constructor(
                     isSpeaking = true
                     fireStateChangeEvent()
                 }
-                initializeTtsOrStartSpeaking()
+                initializeTtsOrStartSpeaking(forceQueue = !reloadBookmark)
             }
         } catch (e: Exception) {
             Log.e(TAG, "TTS Error continuing after Pause", e)
