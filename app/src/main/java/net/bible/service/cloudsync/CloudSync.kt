@@ -17,6 +17,8 @@
 
 package net.bible.service.cloudsync
 
+import net.bible.sharedcore.platform.CoreStrings
+
 import android.content.Intent
 import android.os.Build
 import net.bible.sharedcore.log.Log
@@ -125,6 +127,7 @@ object CloudSync {
     @VisibleForTesting
     fun resetSubscribersForTest() { runningSource = EventSource(); refreshSource = EventSource() }
 
+    private val strings: CoreStrings get() = KoinJavaComponent.get(CoreStrings::class.java)
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     // AppDialogRequest.Options ids for initializeSync's "which way?" question (Task 24 Step 3).
@@ -199,7 +202,7 @@ object CloudSync {
      * [SyncableDatabaseDefinition] -- without building a whole [SyncableDatabaseAccessor].
      */
     internal suspend fun askInitialSyncOperation(activity: ActivityBase, category: SyncableDatabaseDefinition): InitialOperation? {
-        val containsStr = activity.getString(category.contentDescription)
+        val containsStr = strings.syncCategoryContents(category.name)
         val dialogResult = dialogs.await(
             AppDialogRequest.Options(
                 title = activity.getString(R.string.cloud_sync_title),
@@ -224,7 +227,7 @@ object CloudSync {
                 InitialOperation.FETCH_INITIAL -> R.string.are_you_sure_reset_local
                 InitialOperation.CREATE_NEW -> R.string.are_you_sure_reset_cloud
             }
-            val msgString = activity.getString(message, activity.getString(category.contentDescription))
+            val msgString = activity.getString(message, strings.syncCategoryContents(category.name))
             val confirmed = Dialogs.simpleQuestion(activity, msgString)
             if (!confirmed) return null
         }
@@ -360,7 +363,7 @@ object CloudSync {
         if(initialDbVersion > localVersion) {
             tmpFile.delete()
             val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
-            Dialogs.showMsg2(activity, cantFetchString(dbDef.category.contentDescription))
+            Dialogs.showMsg2(activity, cantFetchString(strings.syncCategoryContents(dbDef.category.name)))
             dbDef.category.syncEnabled = false
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > $localVersion")
             throw CancelStartedSync()
@@ -499,7 +502,7 @@ object CloudSync {
                 } catch (e: IOException) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
                 } catch (e: IncompatiblePatchVersion) {
-                    UserMessages.errorNotification(cantFetchString(dbDef.category.contentDescription), showReportButton = false)
+                    UserMessages.errorNotification(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false)
                     dbDef.dao.setConfig("disabledForVersion", dbDef.version().toLong())
                     return@asyncMap
                 } catch (e: Exception) {
@@ -521,9 +524,9 @@ object CloudSync {
         }
     }
 
-    private fun cantFetchString(contentDescriptionId: Int): String {
+    private fun cantFetchString(contentDescription: String): String {
        val s1 = app.getString(R.string.sync_cant_fetch)
-       val s2 = app.getString(R.string.sync_disabling, app.getString(contentDescriptionId))
+       val s2 = app.getString(R.string.sync_disabling, contentDescription)
        val s3 = app.getString(R.string.sync_update_app)
        return "$s1 $s2 $s3"
     }

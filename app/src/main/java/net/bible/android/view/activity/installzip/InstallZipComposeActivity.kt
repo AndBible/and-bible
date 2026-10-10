@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.installzip
 
+import net.bible.service.installzip.InstallError
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -220,9 +221,9 @@ internal fun mapPhaseToUiState(context: Context, phase: InstallPhase, displayNam
         InstallPhase.Cancelled -> InstallUiState.Error(context.getString(R.string.install_zip_canceled))
     }
 
-/** Resolves [InstallPhase.Error]'s `R.string` id (+ optional format arg) to final text. */
+/** Resolves [InstallPhase.Error]'s kind (+ optional format arg) to final text. */
 internal fun resolveErrorMessage(context: Context, error: InstallPhase.Error): String =
-    if (error.arg != null) context.getString(error.messageKey, error.arg) else context.getString(error.messageKey)
+    if (error.arg != null) context.getString(error.kind.messageResource, error.arg) else context.getString(error.kind.messageResource)
 
 /**
  * The app's EXPORTED entry for module files (slice 8 §3.2): a file manager's "open with", the Share sheet or any
@@ -250,4 +251,10 @@ class InstallZipComposeActivity : ComponentActivity() {
             finish()
         }
     }
+}
+
+/** Android-only mapping keeps resource IDs out of install models. */
+private val InstallError.messageResource: Int get() = when (this) {
+    InstallError.GENERIC -> R.string.error_occurred
+    InstallError.INVALID_FILE -> R.string.sqlite_invalid_file
 }

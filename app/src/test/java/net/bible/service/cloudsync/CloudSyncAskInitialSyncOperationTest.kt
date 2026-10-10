@@ -89,7 +89,7 @@ class CloudSyncAskInitialSyncOperationTest {
             ),
             head.options.map { it.label },
         )
-        assertTrue(head.message!!.contains(activity.getString(SyncableDatabaseDefinition.WORKSPACES.contentDescription)))
+        assertTrue(head.message!!.contains(net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")))
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
         assertNull(answer.await())
     }
@@ -106,7 +106,7 @@ class CloudSyncAskInitialSyncOperationTest {
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
         assertEquals(
-            activity.getString(R.string.are_you_sure_reset_local, activity.getString(SyncableDatabaseDefinition.WORKSPACES.contentDescription)),
+            activity.getString(R.string.are_you_sure_reset_local, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
             confirm.message,
         )
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
@@ -139,7 +139,7 @@ class CloudSyncAskInitialSyncOperationTest {
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
         assertEquals(
-            activity.getString(R.string.are_you_sure_reset_cloud, activity.getString(SyncableDatabaseDefinition.WORKSPACES.contentDescription)),
+            activity.getString(R.string.are_you_sure_reset_cloud, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
             confirm.message,
         )
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)

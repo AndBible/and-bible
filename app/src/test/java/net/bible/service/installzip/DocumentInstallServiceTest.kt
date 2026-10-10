@@ -23,6 +23,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import net.bible.android.control.document.DocumentChanges
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
@@ -141,7 +142,7 @@ class DocumentInstallServiceTest {
     /**
      * Regression lock for the reviewed CRITICAL finding on [determineLocalFileType]: it must
      * detect a real SQLite3 header via [CommonUtils.determineFileType] delegation, not fall
-     * through to [BackupControl.AbDbFileType.UNKNOWN] (which would route every
+     * through to [BackupFileType.UNKNOWN] (which would route every
      * `.sqlite3/.mybible/.bblx/.bbli` install to `InstallPlan.Invalid`/Error). The genuine
      * SQLite3 magic is the 16-byte ASCII string "SQLite format 3" followed by a single NUL
      * byte -- a hand-typed literal ending in a visible trailing SPACE character instead looks
@@ -158,10 +159,10 @@ class DocumentInstallServiceTest {
 
             assertNotEquals(
                 "a real SQLite3 header must not be classified as UNKNOWN",
-                BackupControl.AbDbFileType.UNKNOWN,
+                BackupFileType.UNKNOWN,
                 type
             )
-            assertEquals(BackupControl.AbDbFileType.SQLITE3, type)
+            assertEquals(BackupFileType.SQLITE3, type)
         } finally {
             file.delete()
         }

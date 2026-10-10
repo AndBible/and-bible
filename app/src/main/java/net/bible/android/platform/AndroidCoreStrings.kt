@@ -6,6 +6,16 @@ import net.bible.sharedcore.platform.CoreStrings
 
 /** Reads the resource on every access so locale changes take effect. */
 class AndroidCoreStrings(private val context: Context) : CoreStrings {
+    override fun syncCategoryContents(category: String): String = context.getString(when (category) {
+        "READINGPLANS" -> R.string.reading_plans_content
+        "BOOKMARKS" -> R.string.bookmarks_contents
+        "WORKSPACES" -> R.string.workspaces_contents
+        "MYDOCUMENTS" -> R.string.my_documents_contents
+        "AI_SETTINGS" -> R.string.ai_settings_sync_contents
+        "PROGRESS" -> R.string.progress_sync_contents
+        else -> throw IllegalArgumentException("Unknown sync category: $category")
+    })
+
     override val labelAll: String get() = context.getString(R.string.all)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override fun somethingWithParenthesis(a: String, b: String): String = context.getString(R.string.something_with_parenthesis, a, b)

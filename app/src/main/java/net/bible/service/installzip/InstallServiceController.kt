@@ -23,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import net.bible.android.activity.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -164,7 +163,7 @@ class InstallServiceController(
                 // `launch` uncaught on the handler-less SupervisorJob scope (a crash), while
                 // `terminal` stayed at its `Cancelled` default, misreporting a real error as a
                 // user cancellation.
-                InstallPhase.Error(R.string.error_occurred, null)
+                InstallPhase.Error(InstallError.GENERIC, null)
             }
         }
         jobCoroutines[jobId] = job
@@ -191,7 +190,7 @@ class InstallServiceController(
 
     private fun aggregate(terminals: List<InstallPhase>): InstallOutcome {
         val firstError = terminals.filterIsInstance<InstallPhase.Error>().firstOrNull()
-        if (firstError != null) return InstallOutcome.Error(firstError.messageKey, firstError.arg)
+        if (firstError != null) return InstallOutcome.Error(firstError.kind, firstError.arg)
         if (terminals.isNotEmpty() && terminals.all { it is InstallPhase.Cancelled }) return InstallOutcome.Cancelled
         return InstallOutcome.Ok
     }

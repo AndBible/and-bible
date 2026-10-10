@@ -39,6 +39,7 @@ class ReadingPlanTextFileDaoTest {
     }
 
     private val strings = object : CoreStrings {
+        override fun syncCategoryContents(category: String): String = error("unused")
         override val speakNoBooksAvailable = "speakNoBooksAvailable"
         override val speakGeneralError = "speakGeneralError"
         override val verseRangeModeDisabled = "verseRangeModeDisabled"

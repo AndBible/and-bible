@@ -18,7 +18,7 @@
 package net.bible.service.installzip
 
 import net.bible.android.SharedConstants
-import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import java.io.File
 
@@ -34,7 +34,7 @@ import java.io.File
  * stays a pure/testable classifier with no I/O of its own beyond simple [File] existence checks
  * used to compute an optional overwrite-name.
  */
-class InstallInspector(private val determineFileType: suspend (File) -> BackupControl.AbDbFileType) {
+class InstallInspector(private val determineFileType: suspend (File) -> BackupFileType) {
 
     /**
      * Classify [localFile] (already acquired to local storage) into an [InstallPlan].
@@ -76,9 +76,9 @@ class InstallInspector(private val determineFileType: suspend (File) -> BackupCo
         }
 
         return when (determineFileType(localFile)) {
-            BackupControl.AbDbFileType.ZIP -> classifyZip(localFile, displayName, swordZipScan, epubUpgradeCheck)
-            BackupControl.AbDbFileType.SQLITE3 -> classifySqlite(displayName, lowerName)
-            BackupControl.AbDbFileType.UNKNOWN -> InstallPlan.Invalid(displayName)
+            BackupFileType.ZIP -> classifyZip(localFile, displayName, swordZipScan, epubUpgradeCheck)
+            BackupFileType.SQLITE3 -> classifySqlite(displayName, lowerName)
+            BackupFileType.UNKNOWN -> InstallPlan.Invalid(displayName)
         }
     }
 

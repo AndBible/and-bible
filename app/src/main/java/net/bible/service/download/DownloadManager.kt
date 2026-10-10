@@ -23,7 +23,6 @@ import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.mybible.MyBibleInstaller
 import org.crosswire.common.progress.Progress
@@ -98,15 +97,15 @@ class DownloadManager(
             // If we know the name of the installer we can get it directly
             installer = installManager.getInstaller(repo)
             documents = if (installer == null) {
-                log.warn("No installer found for repo $repo, skipping")
+                Log.w(TAG, "No installer found for repo $repo, skipping")
                 markFailed(repo)
                 emptyList()
             } else {
                 // Now we can get the list of books
-                log.debug("getting downloadable books")
+                Log.d(TAG, "getting downloadable books")
 
                 if (refresh || installer.getBooks().size == 0) {
-                    log.warn("Reloading book list")
+                    Log.w(TAG, "Reloading book list")
 
                     val indexLastUpdated = installer.indexLastUpdated()!!
                     if(indexLastUpdated == 0L || indexLastUpdated > CommonUtils.settings.getLong("repo-$repo-updated", 0)) {
@@ -121,17 +120,17 @@ class DownloadManager(
         } catch (e: Exception) {
             markFailed(repo)
             // ignore error because some minor repos are unreliable
-            log.error("Fatal error downloading books from $repo", e)
+            Log.e(TAG, "Fatal error downloading books from $repo", e)
         } catch (oom: OutOfMemoryError) {
             markFailed(repo)
             // eBible repo throws OOM errors on smaller devices
-            log.error("Out of memory error downloading books from $repo")
+            Log.e(TAG, "Out of memory error downloading books from $repo")
         } finally {
             //free memory
             installer?.close()
             System.gc()
         }
-        log.info("number of documents available:" + documents.size)
+        Log.i(TAG, "number of documents available:" + documents.size)
         return documents
     }
 
@@ -178,7 +177,6 @@ class DownloadManager(
 
         const val REPOSITORY_KEY = "SourceRepository"
         const val TAG = "DownloadManager"
-        private val log = Logger(DownloadManager::class.java.name)
     }
 
 }

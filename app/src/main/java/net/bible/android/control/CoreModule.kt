@@ -138,6 +138,7 @@ fun buildCoreModule() = module {
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
     single { BookInstallWatcher(get(), get()) }
     single<UserNotifier> { AndroidUserNotifier() }
+    single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
 

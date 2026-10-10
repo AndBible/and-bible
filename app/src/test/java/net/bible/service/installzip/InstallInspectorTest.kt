@@ -20,7 +20,7 @@ package net.bible.service.installzip
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -33,8 +33,8 @@ import java.io.File
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class InstallInspectorTest {
-    private val zipType: suspend (File) -> BackupControl.AbDbFileType = { BackupControl.AbDbFileType.ZIP }
-    private val sqliteType: suspend (File) -> BackupControl.AbDbFileType = { BackupControl.AbDbFileType.SQLITE3 }
+    private val zipType: suspend (File) -> BackupFileType = { BackupFileType.ZIP }
+    private val sqliteType: suspend (File) -> BackupFileType = { BackupFileType.SQLITE3 }
     private fun scan(existing: List<String> = emptyList(), total: Int = 3, epub: Boolean = false, invalid: Boolean = false) =
         InstallInspector.SwordZipScan(existing, total, epub, invalid)
 
@@ -98,7 +98,7 @@ class InstallInspectorTest {
     }
 
     @Test fun `unknown type is invalid`() = runBlocking {
-        val plan = InstallInspector({ BackupControl.AbDbFileType.UNKNOWN }).inspect(
+        val plan = InstallInspector({ BackupFileType.UNKNOWN }).inspect(
             File("/x/weird.dat"), "weird.dat", null, false, { error("") }, { error("") }, { false })
         assertTrue(plan is InstallPlan.Invalid)
     }

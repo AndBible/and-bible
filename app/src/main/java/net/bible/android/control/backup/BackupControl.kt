@@ -17,6 +17,8 @@
 
 package net.bible.android.control.backup
 
+import net.bible.sharedcore.platform.CoreStrings
+
 import net.bible.android.control.document.DocumentChanges
 import android.app.Activity
 import android.content.Context
@@ -174,6 +176,7 @@ val databaseTitleResIds: Map<String, Int> = mapOf(
 )
 
 object BackupControl {
+    private val strings: CoreStrings get() = KoinJavaComponent.get(CoreStrings::class.java)
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     // AppDialogRequest.Options ids for askIfRestoreOrImport (D8-1).
@@ -707,8 +710,6 @@ object BackupControl {
         saveDbBackupFileViaIntent(callingActivity, backupZipFile)
     }
 
-    enum class AbDbFileType {SQLITE3, ZIP, UNKNOWN}
-
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "application/*" // both new .abdb zip files as well as old monolithing .db files (sqlite3)
@@ -727,7 +728,7 @@ object BackupControl {
         val filetype = determineFileType(uri)
         Log.i(TAG, "Filetype: $filetype")
 
-        return if(filetype == AbDbFileType.SQLITE3) {
+        return if(filetype == BackupFileType.SQLITE3) {
             restoreOldMonolithicDatabaseFromUriWithUI(activity, uri)
         } else {
             restoreDatabaseZipFileInputStreamWithUI(activity, uri)
@@ -857,7 +858,7 @@ object BackupControl {
                         Dialogs.simpleQuestion(
                             activity,
                             activity.getString(R.string.overwrite_something,
-                                getString(category.contentDescription)
+                                strings.syncCategoryContents(category.name)
                             )
                         )
                 })
@@ -957,10 +958,10 @@ object BackupControl {
             " (${bookmarksDbStats(category, backupFile)})"
         } else ""
         val message =
-            context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription) + contents)
+            context.getString(R.string.ask_restore_or_import, strings.syncCategoryContents(category.name) + contents)
         val result = dialogs.await(
             AppDialogRequest.Options(
-                title = context.getString(category.contentDescription),
+                title = strings.syncCategoryContents(category.name),
                 message = message,
                 options = listOf(
                     SettingsItem.Choice(RESTORE_VALUE, context.getString(R.string.restore)),

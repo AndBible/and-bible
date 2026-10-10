@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.settings
 
+import net.bible.sharedcore.platform.CoreStrings
+
 import net.bible.service.db.blockingDb
 import net.bible.service.db.DatabaseContainer
 import android.text.format.Formatter
@@ -84,12 +86,14 @@ class SyncSettingsServiceImpl(
         return result
     }
 
+    private val strings: CoreStrings get() = org.koin.java.KoinJavaComponent.get(CoreStrings::class.java)
+
     private fun categorySummary(cat: SyncableDatabaseDefinition, lastSynchronized: Long?): String {
         val lastSyncStr = lastSynchronized?.let {
             val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
             ".\n\n" + application.getString(R.string.last_updated, sdf.format(Date(it)))
         } ?: ""
-        return "${application.getString(cat.contentDescription)}$lastSyncStr"
+        return "${strings.syncCategoryContents(cat.name)}$lastSyncStr"
     }
 
     private fun build(cloudInfoSummary: String? = null): SyncSettingsSnapshot {

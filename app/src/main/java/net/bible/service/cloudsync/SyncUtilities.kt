@@ -20,7 +20,6 @@ package net.bible.service.cloudsync
 import net.bible.sharedcore.log.Log
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection
-import net.bible.android.activity.R
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LogEntry
 import net.bible.android.database.ReadingPlanDatabase
@@ -51,15 +50,6 @@ enum class SyncableDatabaseDefinition {
         val idField1: String = "id",
         val idField2: String? = null,
     )
-    val contentDescription: Int get() = when(this) {
-        READINGPLANS -> R.string.reading_plans_content
-        BOOKMARKS -> R.string.bookmarks_contents
-        WORKSPACES -> R.string.workspaces_contents
-        MYDOCUMENTS -> R.string.my_documents_contents
-        AI_SETTINGS -> R.string.ai_settings_sync_contents
-        PROGRESS -> R.string.progress_sync_contents
-    }
-
     val filename get() = when(this) {
         BOOKMARKS -> BookmarkDatabase.dbFileName
         READINGPLANS ->ReadingPlanDatabase.dbFileName

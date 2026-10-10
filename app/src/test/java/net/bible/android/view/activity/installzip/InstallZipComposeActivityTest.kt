@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.installzip
 
+import net.bible.service.installzip.InstallError
 import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
@@ -233,7 +234,7 @@ class InstallZipComposeActivityTest {
 
     @Test
     fun error_withoutArg_mapsToResolvedMessage() {
-        val phase = InstallPhase.Error(R.string.error_occurred, null)
+        val phase = InstallPhase.Error(InstallError.GENERIC, null)
         val state = mapPhaseToUiState(context, phase, "module.zip")
         assertEquals(
             InstallUiState.Error(context.getString(R.string.error_occurred)),
@@ -243,7 +244,7 @@ class InstallZipComposeActivityTest {
 
     @Test
     fun error_withArg_mapsToResolvedMessageWithArgSubstituted() {
-        val phase = InstallPhase.Error(R.string.sqlite_invalid_file, "bad.zip")
+        val phase = InstallPhase.Error(InstallError.INVALID_FILE, "bad.zip")
         val state = mapPhaseToUiState(context, phase, "module.zip")
         assertEquals(
             InstallUiState.Error(context.getString(R.string.sqlite_invalid_file, "bad.zip")),

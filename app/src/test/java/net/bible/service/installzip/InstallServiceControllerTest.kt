@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -57,7 +57,7 @@ class InstallServiceControllerTest {
         return { "job-${n.getAndIncrement()}" }
     }
 
-    private fun src(name: String) = InstallSource(Uri.parse("content://x/$name"), null, name, null)
+    private fun src(name: String) = InstallSource("content://x/$name", null, name, null)
 
     private fun deps() = InstallServiceController.JobDeps(
         acquireDir = File(System.getProperty("java.io.tmpdir"), "install-controller-test"),
@@ -158,10 +158,10 @@ class InstallServiceControllerTest {
         val outcome = c.enqueue(listOf(src("a")), deps())
 
         assertTrue(outcome is InstallOutcome.Error)
-        assertEquals(R.string.error_occurred, (outcome as InstallOutcome.Error).messageKey)
+        assertEquals(InstallError.GENERIC, (outcome as InstallOutcome.Error).kind)
         assertTrue(terminalJobId != null)
         assertTrue(terminalPhase is InstallPhase.Error)
-        assertEquals(R.string.error_occurred, (terminalPhase as InstallPhase.Error).messageKey)
+        assertEquals(InstallError.GENERIC, (terminalPhase as InstallPhase.Error).kind)
         assertTrue("no job may linger after an unhandled throwable", c.jobs.value.isEmpty())
     }
 
@@ -190,14 +190,14 @@ class InstallServiceControllerTest {
     @Test fun `aggregate outcome is Error when any job errors even if another succeeds`() = runTest {
         val c = controller()
         c.runOne = { _, source, _, _, _ ->
-            if (source.displayName == "bad") InstallPhase.Error(R.string.error_occurred, "bad")
+            if (source.displayName == "bad") InstallPhase.Error(InstallError.GENERIC, "bad")
             else InstallPhase.Done
         }
 
         val outcome = c.enqueue(listOf(src("good"), src("bad")), deps())
 
         assertTrue(outcome is InstallOutcome.Error)
-        assertEquals(R.string.error_occurred, (outcome as InstallOutcome.Error).messageKey)
+        assertEquals(InstallError.GENERIC, (outcome as InstallOutcome.Error).kind)
         assertEquals("bad", outcome.arg)
     }
 
@@ -258,7 +258,7 @@ class InstallServiceControllerTest {
             override suspend fun commitBackgroundImage(localFile: File, fileName: String) {}
             override suspend fun commitStudyPad(unzipFolder: File) {}
         }
-        val runner = InstallJobRunner(InstallInspector { BackupControl.AbDbFileType.ZIP }, committer)
+        val runner = InstallJobRunner(InstallInspector { BackupFileType.ZIP }, committer)
         val c = InstallServiceController(
             runnerFactory = { runner },
             newJobId = idGen(),

@@ -52,6 +52,30 @@ class SyncSettingsServiceImplTest {
         activityProvider = { error("activity not needed for store-routing tests") },
     )
 
+    @Test fun categoryDescriptionsRetainResourceText() {
+        val strings = net.bible.test.testCoreStrings()
+        val snapshot = impl().snapshot.value
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val ids = mapOf(
+            "BOOKMARKS" to net.bible.android.activity.R.string.bookmarks_contents,
+            "WORKSPACES" to net.bible.android.activity.R.string.workspaces_contents,
+            "READINGPLANS" to net.bible.android.activity.R.string.reading_plans_content,
+            "MYDOCUMENTS" to net.bible.android.activity.R.string.my_documents_contents,
+            "AI_SETTINGS" to net.bible.android.activity.R.string.ai_settings_sync_contents,
+            "PROGRESS" to net.bible.android.activity.R.string.progress_sync_contents,
+        )
+        SyncableDatabaseDefinition.entries.forEach { category ->
+            assertEquals(context.getString(ids.getValue(category.name)), strings.syncCategoryContents(category.name))
+            snapshot.categorySummary["sync_enable_${category.name.lowercase()}"]?.let {
+                assertEquals(strings.syncCategoryContents(category.name), it)
+            }
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class) fun unknownCategoryRejected() {
+        net.bible.test.testCoreStrings().syncCategoryContents("unknown")
+    }
+
     @Test fun serverUrl_valid_persistsToRealShared() {
         val service = impl()
         assertTrue(service.setText("cloud_sync_server_url", "https://example.com"))

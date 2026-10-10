@@ -80,7 +80,7 @@ import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
-import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
@@ -165,16 +165,12 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.IndexOutOfBoundsException
-import java.math.BigInteger
 import java.security.KeyFactory
-import java.security.MessageDigest
 import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.util.concurrent.ArrayBlockingQueue
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -1648,43 +1644,15 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    fun md5Hash(str: String): String {
-        val md = MessageDigest.getInstance("MD5")
-        val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))
-        return String.format("%032x", bigInt)
-    }
+    fun md5Hash(str: String): String = ArchiveUtils.md5Hash(str)
 
-    fun appendUrl(u: String, filename: String): String =
-        if(u.endsWith("/"))
-            "$u$filename"
-        else
-            "$u/$filename"
+    fun appendUrl(u: String, filename: String): String = ArchiveUtils.appendUrl(u, filename)
 
     fun unzipFile(zipFile: File, destinationDir: File, filePrefix: String = "") =
-        unzipInputStream(zipFile.inputStream(), destinationDir, filePrefix)
+        ArchiveUtils.unzipFile(zipFile, destinationDir, filePrefix)
 
-    fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") {
-        val buffer = ByteArray(8192)
-        ZipInputStream(inputStream).use { zIn ->
-            var zipEntry = zIn.nextEntry
-            while (zipEntry != null) {
-                if (!zipEntry.isDirectory) {
-                    val filePath = zipEntry.name.replace('\\', '/')
-                    val file = File(destinationDir, filePrefix + filePath)
-                    Log.i(TAG, "Writing $file")
-                    file.parentFile?.mkdirs()
-                    FileOutputStream(file).use { fOut ->
-                        var count = zIn.read(buffer)
-                        while (count != -1) {
-                            fOut.write(buffer, 0, count)
-                            count = zIn.read(buffer)
-                        }
-                    }
-                }
-                zipEntry = zIn.nextEntry
-            }
-        }
-    }
+    fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") =
+        ArchiveUtils.unzipInputStream(inputStream, destinationDir, filePrefix)
 
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 
@@ -1696,42 +1664,26 @@ object CommonUtils : CommonUtilsBase() {
 
     val tmpFile: File get() = File.createTempFile("andbible-", ".tmp", tmpDir)
 
-    fun gzipFile(sourceFile: File, destinationFile: File) {
-        destinationFile.outputStream().use {
-            GZIPOutputStream(it).use {
-                sourceFile.inputStream().use { input ->
-                    input.copyTo(it)
-                }
-            }
-        }
-    }
+    fun gzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gzipFile(sourceFile, destinationFile)
 
-    fun gunzipFile(sourceFile: File, destinationFile: File) {
-        sourceFile.inputStream().use {
-            GZIPInputStream(it).use {
-                destinationFile.outputStream().use { output ->
-                    it.copyTo(output)
-                }
-            }
-        }
-    }
+    fun gunzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gunzipFile(sourceFile, destinationFile)
 
-    suspend fun determineFileType(uri: Uri): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
+    suspend fun determineFileType(uri: Uri): BackupFileType = withContext(Dispatchers.IO) {
         try {
             application.contentResolver.openInputStream(uri)?.use { inputStream ->
                 val header = ByteArray(16)
                 inputStream.read(header)
                 val headerString = String(header)
                 if (headerString == "SQLite format 3\u0000")
-                    BackupControl.AbDbFileType.SQLITE3
+                    BackupFileType.SQLITE3
                 else if (headerString.startsWith("PK\u0003\u0004")) {
-                    BackupControl.AbDbFileType.ZIP
+                    BackupFileType.ZIP
                 } else
-                    BackupControl.AbDbFileType.UNKNOWN
-            } ?: BackupControl.AbDbFileType.UNKNOWN
+                    BackupFileType.UNKNOWN
+            } ?: BackupFileType.UNKNOWN
         } catch (e: Exception) {
             Log.e(TAG, "Unexpected exception when determining file type", e)
-            BackupControl.AbDbFileType.UNKNOWN
+            BackupFileType.UNKNOWN
         }
     }
 

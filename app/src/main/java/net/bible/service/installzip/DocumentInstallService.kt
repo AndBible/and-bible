@@ -41,6 +41,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import net.bible.android.control.event.UserMessages
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -162,7 +163,7 @@ class DocumentInstallService : Service() {
                 is InstallPhase.Done -> UserMessages.toast(R.string.install_zip_successfull)
                 is InstallPhase.Cancelled -> UserMessages.toast(R.string.install_zip_canceled)
                 is InstallPhase.Error -> {
-                    val toastRes = if (phase.messageKey == R.string.sqlite_invalid_file) R.string.invalid_module
+                    val toastRes = if (phase.kind == InstallError.INVALID_FILE) R.string.invalid_module
                     else R.string.error_occurred
                     UserMessages.toast(toastRes)
                 }
@@ -226,7 +227,7 @@ class DocumentInstallService : Service() {
     // --- InstallSource / JobDeps wiring (mirrors classic InstallZip's collaborators) ---
 
     private fun buildSource(uri: Uri, action: String?): InstallSource =
-        InstallSource(uri, action, getDisplayName(uri), getMimeType(uri))
+        InstallSource(uri.toString(), action, getDisplayName(uri) ?: uri.lastPathSegment, getMimeType(uri))
 
     /** Mirrors classic `InstallZip.getDisplayName` exactly. */
     private fun getDisplayName(uri: Uri): String? =
@@ -249,10 +250,10 @@ class DocumentInstallService : Service() {
     private fun buildDeps(): InstallServiceController.JobDeps = InstallServiceController.JobDeps(
         acquireDir = File(cacheDir, "installzip"),
         openStream = { source ->
-            contentResolver.openInputStream(source.uri) ?: throw FileNotFoundException(source.uri.toString())
+            contentResolver.openInputStream(Uri.parse(source.uri)) ?: throw FileNotFoundException(source.uri)
         },
         isStudyPadExport = { source ->
-            AndBibleBackupManifest.fromUri(source.uri)?.backupType == BackupType.STUDYPAD_EXPORT
+            AndBibleBackupManifest.fromUri(Uri.parse(source.uri))?.backupType == BackupType.STUDYPAD_EXPORT
         },
         studyPadStats = { localFile -> studyPadStatsFor(localFile) },
         swordZipScan = { localFile -> scanSwordZip(localFile) },
@@ -383,7 +384,7 @@ class DocumentInstallService : Service() {
  *  local-file-header signature -- is easy to get subtly wrong, or fragile, if duplicated as a
  *  hand-typed literal with embedded raw control bytes.) `internal` (not `private`) so
  *  [DocumentInstallServiceTest] can drive it directly as a regression lock. */
-internal suspend fun determineLocalFileType(file: File): BackupControl.AbDbFileType =
+internal suspend fun determineLocalFileType(file: File): BackupFileType =
     CommonUtils.determineFileType(Uri.fromFile(file))
 
 /**

@@ -27,7 +27,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -54,10 +54,21 @@ class InstallJobRunnerTest {
         override suspend fun commitBackgroundImage(localFile: File, fileName: String) { calls += "img" }
         override suspend fun commitStudyPad(unzipFolder: File) { calls += "studypad" }
     }
+    @Test fun decodedUriFallbackRetainsFilename() = runBlocking {
+        val uri = Uri.parse("content://x/document/primary%3ADownload%2Ffoo.zip")
+        assertEquals("primary:Download/foo.zip", uri.lastPathSegment)
+        val source = InstallSource(uri.toString(), null, null, null)
+        val terminal = InstallJobRunner(InstallInspector { BackupFileType.UNKNOWN }, FakeCommitter())
+            .runJob(source, tmp(), { "data".byteInputStream() }, { false },
+                { error("not studypad") }, { InstallInspector.SwordZipScan(emptyList(), 1, false, false) },
+                { false }, {}, { true })
+        assertEquals("primary:Download/foo.zip", (terminal as InstallPhase.Error).arg)
+    }
+
     private fun tmp() = File.createTempFile("acq", ".bin").also { it.writeText("data") }
-    private fun runner(c: InstallCommitter) = InstallJobRunner(InstallInspector { BackupControl.AbDbFileType.ZIP }, c)
-    private fun sqliteRunner(c: InstallCommitter) = InstallJobRunner(InstallInspector { BackupControl.AbDbFileType.SQLITE3 }, c)
-    private fun src(name: String, mime: String? = null) = InstallSource(Uri.parse("content://x/$name"), null, name, mime)
+    private fun runner(c: InstallCommitter) = InstallJobRunner(InstallInspector { BackupFileType.ZIP }, c)
+    private fun sqliteRunner(c: InstallCommitter) = InstallJobRunner(InstallInspector { BackupFileType.SQLITE3 }, c)
+    private fun src(name: String, mime: String? = null) = InstallSource("content://x/$name", null, name, mime)
 
     /** Mirrors `InstallInspector.overwriteName`: `SharedConstants.modulesDir/<subDir>/<name>`. */
     private fun overwriteTarget(subDir: String, name: String) = File(File(SharedConstants.modulesDir, subDir), name)
@@ -127,7 +138,7 @@ class InstallJobRunnerTest {
         val terminal = runner(c).runJob(src("j.zip"), tmp(), { "d".byteInputStream() },
             { false }, { error("") }, { InstallInspector.SwordZipScan(emptyList(), 0, false, true) }, { false }, {}, { true })
         assertTrue(terminal is InstallPhase.Error)
-        assertEquals(R.string.sqlite_invalid_file, (terminal as InstallPhase.Error).messageKey)
+        assertEquals(InstallError.INVALID_FILE, (terminal as InstallPhase.Error).kind)
         assertTrue(c.calls.isEmpty())
     }
 
@@ -192,7 +203,7 @@ class InstallJobRunnerTest {
         val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), tmp(), { "d".byteInputStream() },
             { false }, { error("") }, { error("") }, epubUpgradeCheck = { false }, onPhase = { phases += it }, awaitDecision = { true })
         assertTrue(terminal is InstallPhase.Error)
-        assertEquals(R.string.sqlite_invalid_file, (terminal as InstallPhase.Error).messageKey)
+        assertEquals(InstallError.INVALID_FILE, (terminal as InstallPhase.Error).kind)
         // A failed commit must never emit the Committing(100) success side effect (finding 3): a
         // `commitEpub` returning false is a failure just like a thrown exception.
         assertFalse(phases.any { it is InstallPhase.Committing && it.percent == 100 })
@@ -236,18 +247,18 @@ class InstallJobRunnerTest {
         val terminal = runner(c).runJob(src("m.zip"), f, { throw IOException("boom") },
             { false }, { error("") }, { error("") }, { false }, {}, { true })
         assertTrue(terminal is InstallPhase.Error)
-        assertEquals(R.string.error_occurred, (terminal as InstallPhase.Error).messageKey)
+        assertEquals(InstallError.GENERIC, (terminal as InstallPhase.Error).kind)
         assertTrue(c.calls.isEmpty())
         assertFalse(f.exists())
     }
 
     @Test fun `sqlite header gate rejection maps to sqlite_invalid_file`() = runBlocking {
         val c = FakeCommitter(); c.sqliteThrows = true
-        val terminal = InstallJobRunner(InstallInspector { BackupControl.AbDbFileType.SQLITE3 }, c).runJob(
+        val terminal = InstallJobRunner(InstallInspector { BackupFileType.SQLITE3 }, c).runJob(
             src("b.sqlite3"), tmp(), { "d".byteInputStream() },
             { false }, { error("") }, { error("") }, { false }, {}, { true })
         assertTrue(terminal is InstallPhase.Error)
-        assertEquals(R.string.sqlite_invalid_file, (terminal as InstallPhase.Error).messageKey)
+        assertEquals(InstallError.INVALID_FILE, (terminal as InstallPhase.Error).kind)
         assertEquals(listOf("sqlite"), c.calls)
     }
 

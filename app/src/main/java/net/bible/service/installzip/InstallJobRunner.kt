@@ -18,7 +18,6 @@
 package net.bible.service.installzip
 
 import kotlinx.coroutines.ensureActive
-import net.bible.android.activity.R
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -77,13 +76,14 @@ class InstallJobRunner(
         onPhase: (InstallPhase) -> Unit,
         awaitDecision: suspend (DecisionRequest) -> Boolean,
     ): InstallPhase {
-        val displayName = source.displayName ?: source.uri.lastPathSegment ?: acquireTo.name
+        val displayName = source.displayName ?: java.net.URI(source.uri).rawPath?.split('/')?.lastOrNull { it.isNotEmpty() }
+            ?.let { java.net.URLDecoder.decode(it.replace("+", "%2B"), "UTF-8") } ?: acquireTo.name
 
         onPhase(InstallPhase.Acquiring(0))
         try {
             acquire(openStream, acquireTo) { percent -> onPhase(InstallPhase.Acquiring(percent)) }
         } catch (e: IOException) {
-            return InstallPhase.Error(R.string.error_occurred, null).also(onPhase)
+            return InstallPhase.Error(InstallError.GENERIC, null).also(onPhase)
         }
 
         onPhase(InstallPhase.Inspecting)
@@ -94,7 +94,7 @@ class InstallJobRunner(
 
         val terminal = when (plan) {
             is InstallPlan.Invalid ->
-                InstallPhase.Error(R.string.sqlite_invalid_file, plan.filename)
+                InstallPhase.Error(InstallError.INVALID_FILE, plan.filename)
 
             is InstallPlan.SwordZip -> {
                 if (plan.existingFiles.isNotEmpty()) {
@@ -218,11 +218,11 @@ class InstallJobRunner(
 
     /** Maps [InvalidInstallFile] / a `false` commit result / an engine [IOException] to a terminal Error. */
     private suspend fun commitCatching(displayName: String, block: suspend () -> Boolean): InstallPhase = try {
-        if (block()) InstallPhase.Done else InstallPhase.Error(R.string.sqlite_invalid_file, displayName)
+        if (block()) InstallPhase.Done else InstallPhase.Error(InstallError.INVALID_FILE, displayName)
     } catch (e: InvalidInstallFile) {
-        InstallPhase.Error(R.string.sqlite_invalid_file, e.filename)
+        InstallPhase.Error(InstallError.INVALID_FILE, e.filename)
     } catch (e: IOException) {
-        InstallPhase.Error(R.string.error_occurred, null)
+        InstallPhase.Error(InstallError.GENERIC, null)
     }
 
     /** Copies [openStream] to [acquireTo], reporting best-effort percent and honoring cancellation. */
