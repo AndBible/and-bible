@@ -206,6 +206,7 @@ import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.BuildVariant
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.THEME_PALETTE_STYLE_KEY
 import net.bible.service.device.ScreenSettings
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
@@ -6901,8 +6902,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // See SettingsNavGraph's AppSettingsDeps kdoc for why each stays host-side.
 
     /**
-     * Classic's `maybeRecreate` (`SettingsComposeActivity.kt:148-150`). The four keys' effects are
-     * read only at Activity-creation time — the locale through `attachBaseContext`, the three theme
+     * Classic's `maybeRecreate` (`SettingsComposeActivity.kt:148-150`). These keys' effects are
+     * read only at Activity-creation time — the locale through `attachBaseContext`, the theme
      * values once per composition — so nothing observes them reactively and a recreate is what makes
      * the change visible at once.
      *
@@ -7019,6 +7020,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         volumeKeysScrollSummary = getString(R.string.prefs_volume_keys_scroll_summary),
         nightModeTitle = getString(R.string.prefs_night_mode_title),
         nightModeSummary = getString(R.string.prefs_night_mode_summary),
+        themePaletteStyleTitle = getString(R.string.prefs_theme_palette_style_title),
+        themePaletteStyleSummary = getString(R.string.prefs_theme_palette_style_summary),
 
         localeTitle = getString(R.string.prefs_interface_locale_title),
         localeSummary = getString(R.string.prefs_interface_locale_summary),
@@ -9732,6 +9735,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             "locale_pref",
             "night_mode_pref3",
             "display_color_mode",
+            THEME_PALETTE_STYLE_KEY,
             "discrete_mode",
         )
 
