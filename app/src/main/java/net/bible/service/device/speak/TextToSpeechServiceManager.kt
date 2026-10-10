@@ -18,7 +18,6 @@
 package net.bible.service.device.speak
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
@@ -34,6 +33,7 @@ import androidx.annotation.RequiresApi
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -43,7 +43,6 @@ import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.control.event.UserMessages
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
@@ -641,14 +640,15 @@ class TextToSpeechServiceManager constructor(
     private fun openSystemTtsSettings() {
         val context: Context = CurrentActivityHolder.currentActivity ?: application
         val flags = if (context is Activity) 0 else Intent.FLAG_ACTIVITY_NEW_TASK
+        // Exception, not just ActivityNotFoundException: some OEM settings screens are not exported.
         try {
             context.startActivity(Intent(ACTION_TTS_SETTINGS).addFlags(flags))
-        } catch (e: ActivityNotFoundException) {
+        } catch (e: Exception) {
             Log.w(TAG, "No TTS settings screen, opening general settings", e)
             try {
                 context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(flags))
-            } catch (e: ActivityNotFoundException) {
-                Log.e(TAG, "No settings screen at all", e)
+            } catch (e2: Exception) {
+                Log.e(TAG, "No settings screen at all", e2)
             }
         }
     }
