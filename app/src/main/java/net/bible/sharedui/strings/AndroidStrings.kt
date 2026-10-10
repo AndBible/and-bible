@@ -529,7 +529,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun monochromeCellCount(count: Int): String = context.getString(R.string.monochrome_cell_count, count)
     override fun monochromeCellLevel(level: Int): String = context.getString(R.string.monochrome_cell_level, level)
     override fun monochromePercent(percent: Float): String = context.getString(
-        R.string.monochrome_percent, java.text.NumberFormat.getNumberInstance(context.resources.configuration.locales[0]).apply {
+        R.string.monochrome_percent, java.text.NumberFormat.getNumberInstance(
+            androidx.core.os.ConfigurationCompat.getLocales(context.resources.configuration)[0]
+                ?: java.util.Locale.getDefault(),
+        ).apply {
             maximumFractionDigits = 8
         }.format(percent),
     )
