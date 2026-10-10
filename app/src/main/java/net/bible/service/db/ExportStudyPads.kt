@@ -17,6 +17,8 @@
 
 package net.bible.service.db
 
+import net.bible.android.platform.AndroidBackupHost
+
 import androidx.annotation.VisibleForTesting
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection
@@ -197,7 +199,7 @@ suspend fun exportStudyPads(
     val subject = activity.getString(R.string.exported_studypads_subject)
     val message = activity.getString(R.string.exported_studypads_message, CommonUtils.applicationNameMedium)
     BackupControl.saveOrShare(
-        activity = activity,
+        host = AndroidBackupHost { activity },
         file = zipFile,
         fileName = filename,
         subject = subject,

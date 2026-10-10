@@ -17,6 +17,8 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.android.platform.AndroidBackupHost
+
 import android.content.ClipData
 import android.content.Intent
 import android.util.Log
@@ -857,7 +859,7 @@ class BibleJavascriptInterface(
         val titleStr = hostActivity.getString(R.string.export_fileformat, "HTML")
         scope.launch {
             BackupControl.saveOrShare(
-                hostActivity,
+                AndroidBackupHost { hostActivity },
                 targetFile,
                 fileName = "shared.html",
                 shareMimeType = "text/html",

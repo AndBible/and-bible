@@ -20,23 +20,17 @@ package net.bible.android.control.backup
 import net.bible.sharedcore.platform.CoreStrings
 
 import net.bible.android.control.document.DocumentChanges
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.net.Uri
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
-import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
-import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.event.UserMessages
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
@@ -67,7 +61,6 @@ import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
-import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.common.DbType
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.deleteAppDatabase
@@ -128,18 +121,14 @@ const val ZIP_MIMETYPE = "application/zip"
 enum class SaveOrShare {SAVE, SHARE}
 
 /** What to do with the result of the save/share picker (F125). */
-internal enum class PickerOutcome { COPY, CANCELLED, FAILED, DONE }
+internal enum class PickerOutcome { CANCELLED, FAILED, DONE }
 
 /** Interprets the picker result: a cancelled save picker is neither an error nor a success. */
-internal fun pickerOutcome(saveOrShare: SaveOrShare, resultCode: Int, hasUri: Boolean): PickerOutcome =
-    if (saveOrShare == SaveOrShare.SAVE) {
-        when {
-            hasUri -> PickerOutcome.COPY
-            resultCode == Activity.RESULT_CANCELED -> PickerOutcome.CANCELLED
-            else -> PickerOutcome.FAILED
-        }
-    } else if (resultCode == Activity.RESULT_OK || resultCode == Activity.RESULT_CANCELED) PickerOutcome.DONE
-    else PickerOutcome.FAILED
+internal fun pickerOutcome(result: DeliveryResult): PickerOutcome = when (result) {
+    DeliveryResult.CANCELLED -> PickerOutcome.CANCELLED
+    DeliveryResult.FAILED -> PickerOutcome.FAILED
+    DeliveryResult.DELIVERED -> PickerOutcome.DONE
+}
 
 /**
  * Which destination dialog to run. Branches on whether a chooser was SUPPLIED, never on what it
@@ -196,7 +185,7 @@ object BackupControl {
      * private, so `BackupControlTest` can pin the mapping directly without driving the whole export
      * flow (`activity.awaitIntent` etc.).
      */
-    internal suspend fun classicDestinationPrompt(activity: ActivityBase, promptTitle: Int, promptMessage: Int): SaveOrShare? {
+    internal suspend fun classicDestinationPrompt(activity: Context, promptTitle: Int, promptMessage: Int): SaveOrShare? {
         val result = dialogs.await(
             AppDialogRequest.Options(
                 title = activity.getString(promptTitle),
@@ -216,20 +205,20 @@ object BackupControl {
         }
     }
 
-    internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) =
+    internal suspend fun saveDbBackupFileViaIntent(host: BackupHost, file: File) =
         saveOrShare(
-            activity = activity,
+            host = host,
             file = file,
             fileName = DATABASE_BACKUP_NAME,
-            subject = activity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium),
-            message = activity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium),
-            chooserTitle = activity.getString(R.string.send_backup_file),
+            subject = application.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium),
+            message = application.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium),
+            chooserTitle = application.getString(R.string.send_backup_file),
             successMsg = R.string.backup_success2,
             errorMsg = R.string.error_occurred,
         )
 
     public suspend fun saveOrShare(
-        activity: ActivityBase,
+        host: BackupHost,
         file: File,
         fileName: String,
         shareMimeType: String = ZIP_MIMETYPE,
@@ -247,72 +236,33 @@ object BackupControl {
         chooseDestination: (suspend () -> SaveOrShare?)? = null,
     ): Boolean {
         val saveOrShare = resolveDestination(chooseDestination) {
-            classicDestinationPrompt(activity, promptTitle, promptMessage)
+            classicDestinationPrompt(application, promptTitle, promptMessage)
         } ?: return false
 
-        val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
-        val intent = when(saveOrShare) {
-            SaveOrShare.SAVE -> {
-                Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    putExtra(Intent.EXTRA_TITLE, fileName)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    type = saveMimeType
-                }
-            }
-            SaveOrShare.SHARE -> {
-                Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    if(subject != null) putExtra(Intent.EXTRA_SUBJECT, subject)
-                    if(message != null) putExtra(Intent.EXTRA_TEXT, message)
-                    type = shareMimeType
-                }
-            }
-        }
-        val chooserIntent = Intent.createChooser(intent, chooserTitle)
-        val result = activity.awaitIntent(chooserIntent)
-        val destinationUri = result.data?.data
-        val outcome = pickerOutcome(saveOrShare, result.resultCode, destinationUri != null)
-        // F125: a cancelled picker is neither an error nor a success; stay silent.
+        val outcome = pickerOutcome(host.deliver(
+            file.absolutePath, fileName, saveOrShare, shareMimeType, saveMimeType, subject, message, chooserTitle,
+        ))
+        // A cancelled save picker is neither an error nor a success; stay silent.
         if (outcome == PickerOutcome.CANCELLED) return false
-        val ok = if (outcome == PickerOutcome.COPY && destinationUri != null) {
-            withContext(Dispatchers.IO) {
-                val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
-                try {
-                    val out = BibleApplication.application.contentResolver.openOutputStream(destinationUri)!!
-                    val inputStream = FileInputStream(file)
-
-                    var ok = true
-                    try {
-                        out.use {
-                            inputStream.copyTo(out)
-                        }
-                    } catch (ex: IOException) {
-                        Log.e(TAG, ex.message ?: "Error occurred in backuping db")
-                        ok = false
-                    }
-                    ok
-                } finally {
-                    dialogs.dismiss(progressId)
-                }
-            }
-        } else outcome == PickerOutcome.DONE
+        val ok = outcome == PickerOutcome.DONE
 
         withContext(Dispatchers.Main) {
             if (ok) {
                 Log.i(TAG, "Copied database to chosen backup location successfully")
-                if(successMsg != null) Dialogs.showMsg2(activity, successMsg)
+                if(successMsg != null) dialogs.await(AppDialogRequest.Message(
+                    title = null, message = application.getString(successMsg), confirmText = application.getString(R.string.okay),
+                ))
             } else {
                 Log.e(TAG, "Error copying database to chosen location.")
-                ErrorReportControl.showErrorDialog(activity, activity.getString(errorMsg))
+                host.showErrorReport(application.getString(errorMsg), null)
             }
         }
 
         return ok
     }
 
-    private suspend fun restoreOldMonolithicDatabaseFromInputStream(uri: Uri): Boolean {
-        val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+    private suspend fun restoreOldMonolithicDatabaseFromInputStream(host: BackupHost, source: PickedSource): Boolean {
+        val inputStream = host.openInput(source)
         return restoreOldMonolithicDatabase(inputStream)
     }
 
@@ -591,7 +541,7 @@ object BackupControl {
         }
     }
 
-    suspend fun backupModulesViaIntent(callingActivity: ActivityBase)  = withContext(Dispatchers.Main)   {
+    suspend fun backupModulesViaIntent(callingActivity: ActivityBase, host: BackupHost)  = withContext(Dispatchers.Main)   {
         val fileName = MODULE_BACKUP_NAME
         internalDbBackupDir.mkdirs()
         val zipFile = File(internalDbBackupDir, fileName)
@@ -617,7 +567,7 @@ object BackupControl {
         val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
 
         saveOrShare(
-            activity = callingActivity,
+            host = host,
             file = zipFile,
             fileName = fileName,
             subject = subject,
@@ -628,7 +578,7 @@ object BackupControl {
         )
     }
 
-    suspend fun backupApp(callingActivity: ActivityBase) {
+    suspend fun backupApp(callingActivity: ActivityBase, host: BackupHost) {
         internalDbBackupDir.mkdirs()
 
         val app: ApplicationInfo = callingActivity.applicationContext.applicationInfo
@@ -640,7 +590,7 @@ object BackupControl {
         }
 
         saveOrShare(
-            callingActivity,
+            host,
             file = tempFile,
             fileName = "and-bible.apk",
             chooserTitle = getString(R.string.backup_app2),
@@ -704,36 +654,30 @@ object BackupControl {
         return zipFile
     }
 
-    suspend fun startBackupAppDatabase(callingActivity: ActivityBase) = withContext(Dispatchers.IO) {
+    suspend fun startBackupAppDatabase(callingActivity: ActivityBase, host: BackupHost) = withContext(Dispatchers.IO) {
         val backupZipFile = makeDatabaseBackupFile()?: run {
             Dialogs.showMsg2(callingActivity, R.string.error_occurred)
             return@withContext
         }
-        saveDbBackupFileViaIntent(callingActivity, backupZipFile)
+        saveDbBackupFileViaIntent(host, backupZipFile)
     }
 
-    suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "application/*" // both new .abdb zip files as well as old monolithing .db files (sqlite3)
-        val result = activity.awaitIntent(intent)
-        if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data!!
-            try {
-                restoreAppDatabaseFromUriWithUI(activity, uri)
-            } catch (e: Exception) {
-                ErrorReportControl.showErrorDialog(activity, e.message ?: getString(R.string.error_occurred), exception = e)
-            }
+    suspend fun restoreAppDatabaseViaIntent(host: BackupHost) {
+        val source = host.pickBackupFile() ?: return
+        try {
+            restoreAppDatabaseFromSourceWithUI(host, source)
+        } catch (e: Exception) {
+            host.showErrorReport(e.message ?: getString(R.string.error_occurred), e)
         }
     }
 
-    suspend fun restoreAppDatabaseFromUriWithUI(activity: ActivityBase, uri: Uri): Boolean {
-        val filetype = determineFileType(uri)
+    suspend fun restoreAppDatabaseFromSourceWithUI(host: BackupHost, source: PickedSource): Boolean {
+        val filetype = host.sniffFileType(source)
         Log.i(TAG, "Filetype: $filetype")
-
-        return if(filetype == BackupFileType.SQLITE3) {
-            restoreOldMonolithicDatabaseFromUriWithUI(activity, uri)
+        return if (filetype == BackupFileType.SQLITE3) {
+            restoreOldMonolithicDatabaseFromSourceWithUI(host, source)
         } else {
-            restoreDatabaseZipFileInputStreamWithUI(activity, uri)
+            restoreDatabaseZipFileInputStreamWithUI(host, source)
         }
     }
 
@@ -796,8 +740,8 @@ object BackupControl {
     }
 
     private suspend fun restoreDatabaseZipFileInputStreamWithUI(
-        activity: ActivityBase,
-        uri: Uri
+        host: BackupHost,
+        source: PickedSource
     ): Boolean = withContext(Dispatchers.IO) {
         // Task 30 Step 1: no more Hourglass -- progressId tracks whichever Progress (of the several
         // shown across this function) is currently live, so the outer finally always dismisses
@@ -822,7 +766,7 @@ object BackupControl {
             unzipFolder.mkdirs()
 
             try {
-                val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+                val inputStream = host.openInput(source)
                 tmpFile.outputStream().use { inputStream.copyTo(it) }
                 CommonUtils.unzipFile(tmpFile, unzipFolder)
             } catch (e: Exception) {
@@ -846,7 +790,7 @@ object BackupControl {
                 }
                 val selection =
                     if (containedBackups.size > 1)
-                        selectDatabaseSections(activity, containedBackups)
+                        selectDatabaseSections(application, containedBackups)
                     else
                         containedBackups
                 if (selection.isEmpty()) {
@@ -855,11 +799,11 @@ object BackupControl {
                 showProgress()
                 restoreSelectedFiles(selection, unzipFolder, object : RestorePrompts {
                     override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File) =
-                        askIfRestoreOrImport(category, backupFile, activity)
+                        askIfRestoreOrImport(category, backupFile, application)
                     override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition) =
                         Dialogs.simpleQuestion(
-                            activity,
-                            activity.getString(R.string.overwrite_something,
+                            application,
+                            application.getString(R.string.overwrite_something,
                                 strings.syncCategoryContents(category.name)
                             )
                         )
@@ -955,7 +899,7 @@ object BackupControl {
         }
     }
 
-    suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
+    suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: Context): Boolean?  = withContext(Dispatchers.Main) {
         val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
             " (${bookmarksDbStats(category, backupFile)})"
         } else ""
@@ -980,18 +924,21 @@ object BackupControl {
         }
     }
 
-    private suspend fun restoreOldMonolithicDatabaseFromUriWithUI(
-        activity: ActivityBase,
-        uri: Uri
+    private suspend fun restoreOldMonolithicDatabaseFromSourceWithUI(
+        host: BackupHost,
+        source: PickedSource
     ): Boolean {
-        val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
-        if(result2 != Dialogs.Result.OK) return false
+        val result2 = dialogs.await(AppDialogRequest.Message(
+            title = null, message = application.getString(R.string.restore_confirmation),
+            confirmText = application.getString(R.string.okay), dismissText = application.getString(R.string.cancel), cancellable = true,
+        ))
+        if(result2 != AppDialogResult.Ok) return false
         var result: Boolean
         UserMessages.toast(getString(R.string.loading_backup))
         val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
         try {
             withContext(Dispatchers.IO) {
-                result = if (restoreOldMonolithicDatabaseFromInputStream(uri)) {
+                result = if (restoreOldMonolithicDatabaseFromInputStream(host, source)) {
                     Log.i(TAG, "Restored database successfully")
                     Dialogs.showMsg(R.string.restore_success)
                     true
@@ -1185,9 +1132,8 @@ object BackupControl {
         internalDbDir = File(context.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME).parent!!)
     }
 
-    suspend fun restoreFromLocalBackupFile(activity: ActivityBase, file: File) {
-        val uri = Uri.fromFile(file)
-        restoreAppDatabaseFromUriWithUI(activity, uri)
+    suspend fun restoreFromLocalBackupFile(host: BackupHost, file: File) {
+        restoreAppDatabaseFromSourceWithUI(host, PickedSource(file.toURI().toString(), file.name, null))
     }
 
     suspend fun resetDatabase(

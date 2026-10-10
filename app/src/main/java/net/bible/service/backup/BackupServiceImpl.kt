@@ -16,6 +16,8 @@
  */
 package net.bible.service.backup
 
+import net.bible.android.platform.AndroidBackupHost
+
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -92,7 +94,7 @@ internal fun restoreActionsFor(restoreDatabase: Boolean, restoreDocuments: Boole
  * switches rather than classic's two `RadioGroup`s, so more than one can be checked at once; this
  * is the approved, intentional divergence for that model -- see [backupActionsFor]/[restoreActionsFor].
  */
-class BackupServiceImpl(private val activity: ActivityBase) : BackupService {
+class BackupServiceImpl(private val activity: ActivityBase, private val host: net.bible.android.control.backup.BackupHost = AndroidBackupHost { activity }) : BackupService {
 
     override suspend fun load(): BackupState = withContext(Dispatchers.IO) {
         BackupState(
@@ -134,9 +136,9 @@ class BackupServiceImpl(private val activity: ActivityBase) : BackupService {
         )
         for (action in actions) {
             when (action) {
-                BackupAction.App -> BackupControl.backupApp(activity)
-                BackupAction.Database -> BackupControl.startBackupAppDatabase(activity)
-                BackupAction.Documents -> BackupControl.backupModulesViaIntent(activity)
+                BackupAction.App -> BackupControl.backupApp(activity, host)
+                BackupAction.Database -> BackupControl.startBackupAppDatabase(activity, host)
+                BackupAction.Documents -> BackupControl.backupModulesViaIntent(activity, host)
             }
         }
     }
@@ -148,18 +150,18 @@ class BackupServiceImpl(private val activity: ActivityBase) : BackupService {
         )
         for (action in actions) {
             when (action) {
-                RestoreAction.Database -> BackupControl.restoreAppDatabaseViaIntent(activity)
+                RestoreAction.Database -> BackupControl.restoreAppDatabaseViaIntent(host)
                 RestoreAction.Documents -> BackupControl.restoreModulesViaIntent(activity)
             }
         }
     }
 
     override suspend fun exportFile(token: String) {
-        BackupControl.saveDbBackupFileViaIntent(activity, File(CommonUtils.dbBackupPath, token))
+        BackupControl.saveDbBackupFileViaIntent(host, File(CommonUtils.dbBackupPath, token))
     }
 
     override suspend fun restoreFile(token: String) {
-        BackupControl.restoreFromLocalBackupFile(activity, File(CommonUtils.dbBackupPath, token))
+        BackupControl.restoreFromLocalBackupFile(host, File(CommonUtils.dbBackupPath, token))
     }
 
     override suspend fun resetDb(dbFileName: String) {

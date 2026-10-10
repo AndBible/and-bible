@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity
 
+import net.bible.android.platform.AndroidBackupHost
+
 import net.bible.service.db.blockingDb
 import android.app.Activity
 import android.content.Intent
@@ -156,7 +158,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
             CurrentActivityHolder.activate(host)
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data ?: return@launch
-                if (BackupControl.restoreAppDatabaseFromUriWithUI(host, uri)) host.welcomeAfterFlow()
+                if (BackupControl.restoreAppDatabaseFromSourceWithUI(AndroidBackupHost { host }, AndroidBackupHost.fromUri(uri))) host.welcomeAfterFlow()
             }
         }
     }

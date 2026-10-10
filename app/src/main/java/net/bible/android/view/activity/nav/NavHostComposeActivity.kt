@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.nav
 
+import net.bible.android.platform.AndroidBackupHost
+
 import net.bible.android.control.document.DocumentChanges
 import android.app.Activity
 import android.content.ClipData
@@ -3998,7 +4000,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         exitHost = { finish() },
                         setWindowTitle = { title -> setTitle(title) },
                         windowTitle = getString(R.string.backup_and_restore),
-                        controllerFor = { BackupController(BackupServiceImpl(this@NavHostComposeActivity), lifecycleScope) },
+                        controllerFor = { BackupController(BackupServiceImpl(this@NavHostComposeActivity, AndroidBackupHost { this@NavHostComposeActivity }), lifecycleScope) },
                     )
                 }
                 val installZipDeps = remember {
@@ -5825,7 +5827,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             targetFile.writeText(pageWithContent.content ?: "")
             val mimeType = if (ext == "html") "text/html" else "text/markdown"
             BackupControl.saveOrShare(
-                activity = this@NavHostComposeActivity,
+                host = AndroidBackupHost { this@NavHostComposeActivity },
                 file = targetFile,
                 fileName = fileName,
                 shareMimeType = mimeType,
@@ -9400,7 +9402,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Classic `onBackup()` (`:410-412`). */
     private fun onChooseDocumentBackup() {
-        lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@NavHostComposeActivity) }
+        lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@NavHostComposeActivity, AndroidBackupHost { this@NavHostComposeActivity }) }
     }
 
     /** Classic `onInstallZip()` (`:414-421`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
