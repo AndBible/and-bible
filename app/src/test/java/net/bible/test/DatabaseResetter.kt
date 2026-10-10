@@ -53,6 +53,19 @@ object DatabaseResetter {
         // Sorry, not motivated at this time to investigate this any further if this workaround works.
 
         Thread.sleep(300)
+        // Koin lives across fixtures; its preference snapshot must not outlive the reset DB.
+        // Keep invalidation test-only: real backup restore does not replace documentSyncDb.
+        val koin = org.koin.core.context.GlobalContext.getOrNull()
+        val documentSettings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
+        if (documentSettings != null) {
+            kotlinx.coroutines.runBlocking {
+                koin.get<net.bible.sharedcore.platform.OrderedLauncher>().join("document-sync-settings")
+            }
+            val stateField = documentSettings.javaClass.getDeclaredField("state").apply { isAccessible = true }
+            @Suppress("UNCHECKED_CAST")
+            val state = stateField.get(documentSettings) as kotlinx.coroutines.flow.MutableStateFlow<net.bible.android.database.DocumentSyncPreferences?>
+            state.value = null
+        }
         DatabaseContainer.reset()
         DatabaseContainer.forgetReplacesForTest()
         //resetSingleton(DatabaseContainer::class.java, "instance")

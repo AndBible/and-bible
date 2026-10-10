@@ -86,8 +86,15 @@ class UsableBibleGateTest {
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
-    private fun nav(a: NavHostComposeActivity): NavHostController =
-        NavHostComposeActivity::class.java.getDeclaredField("navController").apply { isAccessible = true }.get(a) as NavHostController
+    private fun nav(a: NavHostComposeActivity): NavHostController {
+        val field = NavHostComposeActivity::class.java.getDeclaredField("navController").apply { isAccessible = true }
+        val deadline = System.nanoTime() + 10_000_000_000L
+        while (field.get(a) == null && System.nanoTime() < deadline) {
+            shadowOf(Looper.getMainLooper()).runOneTask()
+            Thread.sleep(10)
+        }
+        return field.get(a) as NavHostController
+    }
 
     private fun bootstrapped(a: NavHostComposeActivity): Boolean =
         NavHostComposeActivity::class.java.getDeclaredField("readingAppBootstrapped").apply { isAccessible = true }.getBoolean(a)
@@ -137,7 +144,11 @@ class UsableBibleGateTest {
      */
     private fun leaveWelcomeLikeAFlow(activity: NavHostComposeActivity) {
         activity.welcomeFlow.leaveFor(NavRoutes.AI_TOOL_INFO)
-        idle()
+        val deadline = System.nanoTime() + 10_000_000_000L
+        while (route(activity) != NavRoutes.AI_TOOL_INFO && System.nanoTime() < deadline) {
+            shadowOf(Looper.getMainLooper()).runOneTask()
+            Thread.sleep(10)
+        }
         assertEquals(NavRoutes.AI_TOOL_INFO, route(activity))
         assertTrue("sanity: the listener armed the re-check", activity.welcomeFlow.awaitingReturn)
     }
@@ -271,6 +282,7 @@ class UsableBibleGateTest {
 
     @Test
     fun aReadingRouteDeliveredLaterWithoutAUsableBibleDoesNotBootstrap() {
+        resetComposeUiDispatcher()
         firstTime = false
         val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,

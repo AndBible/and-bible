@@ -44,6 +44,18 @@ class DocumentSyncSettingsTest {
         net.bible.test.DatabaseResetter.resetDatabase()
     }
 
+    @Test fun databaseFixtureResetInvalidatesProcessSnapshot() = runBlocking {
+        val processSettings = get<DocumentSyncSettings>(DocumentSyncSettings::class.java)
+        processSettings.ensureLoaded()
+        processSettings.enabled = true
+        get<OrderedLauncher>(OrderedLauncher::class.java).join("document-sync-settings")
+        net.bible.test.DatabaseResetter.resetDatabase()
+        db.documentSyncPreferencesDao().set(DocumentSyncPreferences(enabled = false, wifiOnly = false))
+        processSettings.ensureLoaded()
+        assertFalse(processSettings.enabled)
+        assertFalse(processSettings.wifiOnly)
+    }
+
     @Test fun loadsExistingEnabledRowOnce() = runBlocking {
         db.documentSyncPreferencesDao().set(DocumentSyncPreferences(enabled = true))
         val settings = fresh()
