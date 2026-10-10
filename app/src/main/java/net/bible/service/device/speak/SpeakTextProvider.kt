@@ -41,6 +41,8 @@ interface SpeakTextProvider {
     fun persistState()
     fun restoreState(): Boolean
     fun clearPersistedState()
+    suspend fun loadBookmarkState() {}
+
     fun prepareForStartSpeaking()
     fun savePosition(fractionCompleted: Double)
     fun updateSettings(change: SpeakSettingsChange) {}

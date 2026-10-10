@@ -91,12 +91,13 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         configureFreshControl()
         speakControl.speakBible(book, (book.getKey("Rom.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0))
         platform.listener!!.onInit(success)
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         return engine to notifier
     }
 
     private fun configureFreshControl() {
         loadKoinModules(module {
-            single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get(), get()) }
+            single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, kotlinx.coroutines.Dispatchers.Unconfined) }
         })
         // App/settings initialization can resolve the original control's lazy manager before
         // test overrides. A fresh control guarantees that playback uses the fake manager.
@@ -134,11 +135,13 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         val verse = (book.getKey("Rom.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
         speakControl.speakBible(book, verse)
         platform.listener!!.onInit(true)
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         platform.preferredEnginePackage = "changed.engine"
         speakControl.speakBible(book, verse)
         assertEquals(2, platform.creations)
         assertTrue(engine.calls.contains("shutdown"))
         platform.listener!!.onInit(true)
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertTrue(speakControl.isSpeaking)
     }
 
@@ -173,6 +176,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         platform.focusChanges!!(true)
         assertEquals(2, platform.creations)
         platform.listener!!.onInit(true)
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertTrue(speakControl.isSpeaking)
         assertFalse(speakControl.isPaused)
         assertTrue(engine.calls.count { it.startsWith("speak:") } > queuedBefore)

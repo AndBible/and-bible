@@ -238,7 +238,7 @@ open class BookmarkControl constructor(
         }
     }
 
-    private suspend fun updateBookmarkPlaybackSettings(v: Verse, settings: PlaybackSettings) = deferringEffects {
+    suspend fun updateBookmarkPlaybackSettings(v: Verse, settings: PlaybackSettings) = deferringEffects {
         val verse = if (v.verse == 0) Verse(v.versification, v.book, v.chapter, 1) else v
 
         val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabel()).firstOrNull()

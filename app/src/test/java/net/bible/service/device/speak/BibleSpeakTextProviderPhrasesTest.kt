@@ -23,7 +23,7 @@ class BibleSpeakTextProviderPhrasesTest : AbstractSpeakTests() {
         }
         provider = BibleSpeakTextProvider(
             bibleTraverser, bookmarkControl, book, platform, testAppSettings(),
-            AdvancedSpeakSettings(testAppSettings()),
+            AdvancedSpeakSettings(testAppSettings()), net.bible.test.testOrderedLauncher(),
         )
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }

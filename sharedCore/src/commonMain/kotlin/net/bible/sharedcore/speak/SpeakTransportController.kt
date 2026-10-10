@@ -1,6 +1,7 @@
 package net.bible.sharedcore.speak
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.onEach
 class SpeakTransportController(
     private val transport: SpeakTransportService,
     private val settings: SpeakSettingsService,
-    scope: CoroutineScope,
+    private val scope: CoroutineScope,
     private val onConfig: () -> Unit,
 ) {
     private val _state = MutableStateFlow(combineState(transport.state.value, settings.playback.value.speedPercent))
@@ -68,7 +69,7 @@ class SpeakTransportController(
     fun onConfig() = onConfig.invoke()
 
     fun onBookmarkButton() {
-        _dialog.value = SpeakTransportDialog.ChooseSpeakBookmark(transport.speakBookmarks())
+        scope.launch { _dialog.value = SpeakTransportDialog.ChooseSpeakBookmark(transport.speakBookmarks()) }
     }
 
     fun onSpeakBookmarkChosen(id: String) {

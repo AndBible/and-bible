@@ -16,7 +16,8 @@
  */
 package net.bible.android.control.speak
 
-import net.bible.service.db.blockingDb
+import net.bible.sharedcore.platform.AppCoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,6 +52,7 @@ internal fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (
  * reading-view classic code is unchanged.
  */
 class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
+    private val scope: AppCoroutineScope by inject()
     private val platform: SpeakPlatform by inject()
     private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private val speakControl: SpeakControl by inject()
@@ -65,15 +67,22 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
      * [SpeakChanges] handlers that fire on every verse transition. Mirror that:
      * recompute only here (init) and in the [SpeakSettingsChanges] handler below, not in [build].
      */
-    private var bookmarkVisible: Boolean = rawSpeakBookmarks().isNotEmpty()
+    private var bookmarkVisible: Boolean = false
 
     private val _state = MutableStateFlow(build(visible = !speakControl.isStopped))
     override val state: StateFlow<SpeakTransportStateVd> = _state.asStateFlow()
 
     init {
+        refreshBookmarkVisibility()
         // Process lifetime (Koin single): never cancelled.
         SpeakChanges.changes.subscribeOnMain { refresh() }
         SpeakSettingsChanges.changes.subscribeOnMain {
+            refreshBookmarkVisibility()
+        }
+    }
+
+    private fun refreshBookmarkVisibility() {
+        scope.launch {
             bookmarkVisible = rawSpeakBookmarks().isNotEmpty()
             refresh()
         }
@@ -96,15 +105,15 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
     )
 
     // Classic SpeakTransportWidget.speakBookmarks (:179-184)
-    private fun rawSpeakBookmarks(): List<BookmarkEntities.BaseBookmarkWithNotes> {
-        val label = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
-        val bible = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) } // L1-pending(speak)
+    private suspend fun rawSpeakBookmarks(): List<BookmarkEntities.BaseBookmarkWithNotes> {
+        val label = bookmarkControl.speakLabel()
+        val bible = bookmarkControl.getBibleBookmarksWithLabel(label)
             .sortedWith { a, b -> a.verseRange.start.compareTo(b.verseRange.start) }
-        val generic = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-pending(speak)
+        val generic = bookmarkControl.getGenericBookmarksWithLabel(label)
         return bible + generic
     }
 
-    override fun speakBookmarks(): List<SpeakBookmarkRowVd> {
+    override suspend fun speakBookmarks(): List<SpeakBookmarkRowVd> {
         val list = rawSpeakBookmarks()
         bookmarkCache = list.associateBy { it.id.toString() }
         return list.map { SpeakBookmarkRowVd(it.id.toString(), labelOf(it)) }

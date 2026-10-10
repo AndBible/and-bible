@@ -223,7 +223,7 @@ fun buildCoreModule() = module {
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
     single<net.bible.android.control.speak.SpeakPlatform> { net.bible.android.platform.AndroidSpeakPlatform(androidContext()) }
-    singleOf(::TextToSpeechServiceManager)
+    single { TextToSpeechServiceManager(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }) }
 
     // Unscoped @Inject-constructor classes
     factoryOf(::CurrentPageManager)

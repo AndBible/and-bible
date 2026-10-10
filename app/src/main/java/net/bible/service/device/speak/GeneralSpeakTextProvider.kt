@@ -17,7 +17,8 @@
 
 package net.bible.service.device.speak
 
-import net.bible.service.db.blockingDb
+import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.android.control.speak.SPEAK_KEY
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.android.control.speak.SpeakPlatform
 import net.bible.android.control.speak.SpeakPhrases
@@ -33,7 +34,6 @@ import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
-import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.common.getBookAndKey
 import net.bible.service.common.next
@@ -52,6 +52,7 @@ class GeneralSpeakTextProvider(
     private val platform: SpeakPlatform,
     settings: AppSettings,
     private val advanced: AdvancedSpeakSettings,
+    private val launcher: OrderedLauncher,
 ) : SpeakTextProvider {
     private val appSettings = settings
     private data class State(
@@ -98,13 +99,13 @@ class GeneralSpeakTextProvider(
     override fun updateSettings(change: SpeakSettingsChange) {
         this.settings = change.speakSettings
         Log.i(TAG, "SpeakSettings updated: $change")
-        val bookmark = bookmark
+        val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
         if(change.updateBookmark && bookmark != null) {
             // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
             // (of which we will continue playback if unpaused)
 
             val oldPlaybackSettings = bookmark.playbackSettings
-            val newPlaybackSettings = change.speakSettings.playbackSettings
+            val newPlaybackSettings = change.speakSettings.playbackSettings.copy()
             // Let's retain bookId and bookmarkWasCreated
 
             if (oldPlaybackSettings != null) {
@@ -114,7 +115,7 @@ class GeneralSpeakTextProvider(
                 }
             }
             bookmark.playbackSettings = newPlaybackSettings
-            this.bookmark = blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark) } // L1-pending(speak)
+            launcher.launch(SPEAK_KEY) { bookmarkControl.addOrUpdateGenericBookmark(bookmark) }
         }
     }
 
@@ -242,8 +243,19 @@ class GeneralSpeakTextProvider(
 
     private fun updateBookmark() {
         if(stopOrdinal != null) return
-        val wasRemoved = removeBookmark()
-        saveBookmark(wasRemoved)
+        val previous = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
+        val target = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!.start)
+        val playback = settings.playbackSettings.copy()
+        playback.bookId = book.initials
+        playback.bookmarkWasCreated = true
+        target.playbackSettings = playback
+        val autoBookmark = advanced.autoBookmark
+        // Publish the intended position on the caller; the worker must not resurrect it after stop().
+        bookmark = if (autoBookmark || previous != null) target else null
+        launcher.launch(SPEAK_KEY) {
+            val wasRemoved = removeBookmark(previous)
+            saveBookmark(wasRemoved, target, autoBookmark)
+        }
     }
 
     override fun savePosition(fractionCompleted: Double) {}
@@ -260,39 +272,32 @@ class GeneralSpeakTextProvider(
     }
 
     override fun prepareForStartSpeaking() {
-        readBookmark()
+        val loaded = loadedBookmark
+        if (loaded != null) {
+            val playback = loaded.playbackSettings?.copy()
+            if (playback != null && advanced.restoreSettingsFromBookmarks) {
+                playback.bookId = null
+                playback.bookmarkWasCreated = null
+                settings.playbackSettings = playback
+                settings.save()
+            }
+            bookmark = loaded
+        }
         isSpeaking = true
     }
 
-    private fun readBookmark() {
-        if(stopOrdinal == null) {
-            val key = currentKey
+    private var loadedBookmark: GenericBookmarkWithNotes? = null
 
-            val bookmark: GenericBookmarkWithNotes = blockingDb { bookmarkControl.speakBookmarkForKey(key) }?: return // L1-pending(speak)
-            val labelList = blockingDb { bookmarkControl.labelsForBookmark(bookmark) } // L1-pending(speak)
-            val speakLabel = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
-            val ttsLabel = labelList.find { it.id == speakLabel.id }
-
-            if(ttsLabel != null) {
-                Log.i(TAG, "Bookmark book ${bookmark.book}")
-                val playbackSettings = bookmark.playbackSettings?.copy()
-                if(playbackSettings != null && advanced.restoreSettingsFromBookmarks) {
-                    playbackSettings.bookmarkWasCreated = null
-                    playbackSettings.bookId = null
-                    settings.playbackSettings = playbackSettings
-                    settings.save()
-                    Log.i("SpeakBookmark", "Loaded bookmark from $bookmark ${settings.playbackSettings.speed}")
-                }
-                this.bookmark = bookmark
-            }
-        }
+    override suspend fun loadBookmarkState() {
+        val found = if (stopOrdinal == null) bookmarkControl.speakBookmarkForKey(currentKey) else null
+        loadedBookmark = if (found != null && bookmarkControl.labelsForBookmark(found).any { it.id == bookmarkControl.speakLabel().id }) found else null
     }
 
-    private fun removeBookmark(): Boolean {
-        var bookmark: GenericBookmarkWithNotes = this.bookmark ?: return false
+    private suspend fun removeBookmark(previous: GenericBookmarkWithNotes?): Boolean {
+        var bookmark = previous ?: return false
 
-        val labelList = blockingDb { bookmarkControl.labelsForBookmark(bookmark) }.toMutableList() // L1-pending(speak)
-        val speakLabel = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
+        val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
+        val speakLabel = bookmarkControl.speakLabel()
         val ttsLabel = labelList.find { it.id == speakLabel.id }
         var wasRemoved = false
 
@@ -300,36 +305,24 @@ class GeneralSpeakTextProvider(
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
-                bookmark = blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark) } // L1-pending(speak)
-                blockingDb { bookmarkControl.setLabelsForBookmark(bookmark, labelList) } // L1-pending(speak)
+                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
+                bookmarkControl.setLabelsForBookmark(bookmark, labelList)
                 Log.i("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
             else {
-                blockingDb { bookmarkControl.deleteBookmark(bookmark) } // L1-pending(speak)
+                bookmarkControl.deleteBookmark(bookmark)
                 Log.i("SpeakBookmark", "Removed bookmark from $bookmark")
             }
             wasRemoved = true
-            this.bookmark = null
         }
         return wasRemoved
     }
 
-    private fun saveBookmark(wasRemoved: Boolean) {
-        val labelList = mutableSetOf<Label>()
-        if(advanced.autoBookmark || wasRemoved) {
-            val playbackSettings = settings.playbackSettings.copy()
-            playbackSettings.bookId = book.initials
-
-            playbackSettings.bookmarkWasCreated = true
-            var bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!.start)
-            bookmark.playbackSettings = playbackSettings
-            bookmark = blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark) } // L1-pending(speak)
-
-            labelList.add(blockingDb { bookmarkControl.speakLabel() }) // L1-pending(speak)
-
-            blockingDb { bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList()) } // L1-pending(speak)
-            Log.i("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
-            this.bookmark = bookmark
+    private suspend fun saveBookmark(wasRemoved: Boolean, target: GenericBookmarkWithNotes, autoBookmark: Boolean) {
+        if (autoBookmark || wasRemoved) {
+            val saved = bookmarkControl.addOrUpdateGenericBookmark(target)
+            bookmarkControl.setLabelsForBookmark(saved, listOf(bookmarkControl.speakLabel()))
+            if (bookmark === target) bookmark = saved
         }
     }
 

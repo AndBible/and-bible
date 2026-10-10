@@ -17,7 +17,7 @@
 
 package net.bible.android.control.speak
 
-import net.bible.service.db.blockingDb
+import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.log.Log
 
 import net.bible.android.BibleApplication
@@ -64,6 +64,7 @@ class SpeakControl constructor(
     private val platform: SpeakPlatform,
 ) : KoinComponent {
 
+    private val launcher: OrderedLauncher by inject()
     private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     val bookmarkControl: BookmarkControl by inject()
     private var sleepTimer = lazy { Timer("TTS sleep timer") }
@@ -146,7 +147,12 @@ class SpeakControl constructor(
             if (!isPaused && !isSpeaking) {
                 // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
                 if (ev.updateBookmark) {
-                    blockingDb { bookmarkControl.updateBookmarkPlaybackSettings(ev.speakSettings.playbackSettings) } // L1-pending(speak)
+                    val playback = ev.speakSettings.playbackSettings.copy()
+                    val page = windowControl.activeWindowPageManager
+                    if (page.currentPage.documentCategory == net.bible.android.control.page.DocumentCategory.BIBLE) {
+                        val verse = page.currentBible.singleKey
+                        launcher.launch(SPEAK_KEY) { bookmarkControl.updateBookmarkPlaybackSettings(verse, playback) }
+                    }
                 }
             } else if (isSpeaking) {
                 pause(true)
@@ -470,7 +476,7 @@ class SpeakControl constructor(
         if(!ttsServiceManager.initialized) {
             continueLastPosition()
         } else {
-            ttsServiceManager.continueAfterPause()
+            ttsServiceManager.continueAfterPause(reloadBookmark = !automated)
         }
     }
 

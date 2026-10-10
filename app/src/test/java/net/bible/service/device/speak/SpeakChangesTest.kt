@@ -56,8 +56,10 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     fun speakPauseContinueStopEmitTheStatesInOrder() {
         watch()
         speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.pause()
         speakControl.continueAfterPause()
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.stop()
         assertEquals(
             listOf(SpeakPlaybackState.SPEAKING, SpeakPlaybackState.PAUSED, SpeakPlaybackState.SPEAKING, SpeakPlaybackState.SILENT),
@@ -76,7 +78,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
 
     @Test
     fun bibleStartUtteranceEmitsTitleAndTextWithTheirVerseRanges() {
-        val provider = BibleSpeakTextProvider(BibleTraverser(DocumentBibleBooksFactory()), bookmarkControl, book, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get())
+        val provider = BibleSpeakTextProvider(BibleTraverser(DocumentBibleBooksFactory()), bookmarkControl, book, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get(), GlobalContext.get().get())
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakTitles = true))
         provider.setupReading(book, verse("Rom.1.1"))
         watch()
@@ -101,7 +103,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         val dictionary = requireNotNull(Books.installed().getBook("StrongsGreek"))
         val key = dictionary.getKey("00001")
         val ordinal = SwordContentFacade.ordinalRangeFor(dictionary, key).first
-        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get())
+        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get(), GlobalContext.get().get())
         provider.setupReading(BookAndKey(key, dictionary, OrdinalRange(ordinal, ordinal)))
         val (id, command) = nextText(provider, "general")
         assertEquals(TextCommand.TextType.NORMAL, command.type)
@@ -145,6 +147,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     @Test
     fun shutdownWithContinueEmitsTemporaryStop() {
         speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         watch()
         speakControl.stop(willContinueAfter = true)
         assertEquals(listOf(SpeakPlaybackState.TEMPORARY_STOP), states())
@@ -172,6 +175,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     @Test
     fun settingsChangeWhileSpeakingPausesAndContinuesInsideSave() {
         speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         watch()
         val s = SpeakSettings.load()
         s.playbackSettings = s.playbackSettings.copy(speed = s.playbackSettings.speed + 10)
@@ -183,6 +187,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     @Test
     fun settingsChangeFromWorkerPausesAndContinuesBeforeSaveReturns() {
         speakControl.speakBible(book, verse("Rom.1.1"))
+        kotlinx.coroutines.runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         watch()
         val s = SpeakSettings.load()
         s.playbackSettings = s.playbackSettings.copy(speed = s.playbackSettings.speed + 10)

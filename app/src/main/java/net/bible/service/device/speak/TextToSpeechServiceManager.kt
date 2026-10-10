@@ -35,7 +35,6 @@ import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
@@ -48,7 +47,12 @@ import org.crosswire.jsword.passage.Verse
 
 import java.util.ArrayList
 import java.util.Locale
-import net.bible.service.db.blockingDb
+import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.android.control.speak.SPEAK_KEY
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.bible.android.database.mydocument.MyDocumentDao
 
 
 
@@ -81,6 +85,9 @@ class TextToSpeechServiceManager constructor(
     private val strings: CoreStrings,
     private val settings: AppSettings,
     private val advanced: AdvancedSpeakSettings,
+    private val launcher: OrderedLauncher,
+    private val myDocumentDao: () -> MyDocumentDao,
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) {
 
     private var mTts: SpeakEngine? = null
@@ -113,6 +120,7 @@ class TextToSpeechServiceManager constructor(
     private var pauseDueCall = false
 
     private var temporary = false
+    private var pendingGenericKey: BookAndKey? = null
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
@@ -126,6 +134,7 @@ class TextToSpeechServiceManager constructor(
             platform = platform,
             settings = settings,
             advanced = advanced,
+            launcher = launcher,
         )
         generalSpeakTextProvider = GeneralSpeakTextProvider(
             bookmarkControl = bookmarkControl,
@@ -133,6 +142,7 @@ class TextToSpeechServiceManager constructor(
             platform = platform,
             settings = settings,
             advanced = advanced,
+            launcher = launcher,
         )
 
         mSpeakTextProvider = bibleSpeakTextProvider
@@ -157,57 +167,68 @@ class TextToSpeechServiceManager constructor(
                 pendingInit = success
                 return
             }
-            Log.i(TAG, "Tts initialised")
-            var isOk = false
+            val provider = mSpeakTextProvider
+            val genericKey = pendingGenericKey
+            launcher.launch(SPEAK_KEY) {
+                provider.loadBookmarkState()
+                genericKey?.let { key ->
+                    val language = getMyDocumentPageLanguage(key)
+                    localePreferenceList = if (language != null) calculateLocalePreferenceListForCode(language) else calculateLocalePreferenceList(key.document!!)
+                }
+                withContext(mainDispatcher) {
+                    Log.i(TAG, "Tts initialised")
+                    var isOk = false
 
-            val tts = mTts
+                    val tts = mTts
 
-            if (tts != null && success) {
-                Log.i(TAG, "Tts initialisation succeeded")
+                    if (tts != null && success) {
+                        Log.i(TAG, "Tts initialisation succeeded")
 
-                // set speech rate
-                setRate(SpeakSettings.load().playbackSettings.speed)
+                        // set speech rate
+                        setRate(SpeakSettings.load().playbackSettings.speed)
 
-                var localeOK = false
-                var locale: Locale? = null
-                var i = 0
-                while (i < localePreferenceList.size && !localeOK) {
-                    locale = localePreferenceList[i]
-                    Log.i(TAG, "Checking for locale:$locale")
-                    try {
-                        val result = tts.setLanguage(locale)
-                        localeOK = result != SpeakLanguageResult.MISSING_DATA && result != SpeakLanguageResult.NOT_SUPPORTED
-                        if (localeOK) {
-                            Log.i(TAG, "Successful locale:$locale")
-                            currentLocale = locale
+                        var localeOK = false
+                        var locale: Locale? = null
+                        var i = 0
+                        while (i < localePreferenceList.size && !localeOK) {
+                            locale = localePreferenceList[i]
+                            Log.i(TAG, "Checking for locale:$locale")
+                            try {
+                                val result = tts.setLanguage(locale)
+                                localeOK = result != SpeakLanguageResult.MISSING_DATA && result != SpeakLanguageResult.NOT_SUPPORTED
+                                if (localeOK) {
+                                    Log.i(TAG, "Successful locale:$locale")
+                                    currentLocale = locale
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error setting TTS language for locale:$locale", e)
+                                // Continue to next locale in the preference list
+                            }
+                            i++
                         }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error setting TTS language for locale:$locale", e)
-                        // Continue to next locale in the preference list
+
+                        if (!localeOK) {
+                            Log.e(TAG, "TTS missing or not supported")
+                            // Language data is missing or the language is not supported.
+                            if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
+                            showError(strings.ttsLangNotAvailable, Exception("Tts missing or not supported"))
+                        } else {
+                            // The TTS engine has been successfully initialized.
+                            if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
+                            isOk = true
+                            provider.prepareForStartSpeaking()
+                            startSpeaking()
+                            stopIfPhoneCall()
+                        }
+                    } else {
+                        Log.i(TAG, "Tts initialisation failed")
+                        showError(strings.errorOccurred, Exception("Tts Initialisation failed"))
                     }
-                    i++
-                }
 
-                if (!localeOK) {
-                    Log.e(TAG, "TTS missing or not supported")
-                    // Language data is missing or the language is not supported.
-                    if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
-                    showError(strings.ttsLangNotAvailable, Exception("Tts missing or not supported"))
-                } else {
-                    // The TTS engine has been successfully initialized.
-                    if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
-                    isOk = true
-                    mSpeakTextProvider.prepareForStartSpeaking()
-                    startSpeaking()
-                    stopIfPhoneCall()
+                    if (!isOk) {
+                        speakControl.stop(willContinueAfter = false, force = true)
+                    }
                 }
-            } else {
-                Log.i(TAG, "Tts initialisation failed")
-                showError(strings.errorOccurred, Exception("Tts Initialisation failed"))
-            }
-
-            if (!isOk) {
-                speakControl.stop(willContinueAfter = false, force = true)
             }
         }
 
@@ -257,6 +278,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakBible(book: SwordBook, verse: Verse) {
+        pendingGenericKey = null
         switchProvider(bibleSpeakTextProvider)
         clearTtsQueue()
         bibleSpeakTextProvider.setupReading(book, verse)
@@ -266,6 +288,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
+        pendingGenericKey = null
         switchProvider(legacySpeakTextProvider)
         legacySpeakTextProvider.setupReading(book, keyList)
         handleQueue(queue)
@@ -278,13 +301,7 @@ class TextToSpeechServiceManager constructor(
         switchProvider(generalSpeakTextProvider)
         generalSpeakTextProvider.setupReading(key)
 
-        val pageLanguage = getMyDocumentPageLanguage(key)
-        localePreferenceList = if (pageLanguage != null) {
-            calculateLocalePreferenceListForCode(pageLanguage)
-        } else {
-            calculateLocalePreferenceList(key.document!!)
-        }
-
+        pendingGenericKey = key
         initializeTtsOrStartSpeaking()
     }
 
@@ -345,13 +362,13 @@ class TextToSpeechServiceManager constructor(
         return localePreferenceList
     }
 
-    private fun getMyDocumentPageLanguage(key: BookAndKey): String? {
+    private suspend fun getMyDocumentPageLanguage(key: BookAndKey): String? {
         val doc = key.document ?: return null
         if (!doc.isMyDocument) return null
         val documentId = doc.myDocumentId ?: return null
         val pageKey = key.key?.getOsisRef() ?: return null
-        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        return blockingDb { dao.pageByKey(documentId, pageKey) }?.languageCode // L1-pending(speak)
+        val dao = myDocumentDao()
+        return dao.pageByKey(documentId, pageKey)?.languageCode
     }
 
     private fun getDefaultCountryCode(language: String): String? {
@@ -384,7 +401,7 @@ class TextToSpeechServiceManager constructor(
             shutdownTtsEngine()
             initializeTts(preferredEnginePackage)
         } else {
-            startSpeaking()
+            engineListener.onInit(true)
         }
     }
 
@@ -493,13 +510,13 @@ class TextToSpeechServiceManager constructor(
     var initialized = false
 
     @Synchronized
-    fun continueAfterPause() {
+    fun continueAfterPause(reloadBookmark: Boolean = true) {
         try {
             Log.i(TAG, "continue after pause")
             isPaused = false
             clearPauseState()
             // ask TTs to say the text
-            initializeTtsOrStartSpeaking()
+            if (reloadBookmark) initializeTtsOrStartSpeaking() else startSpeaking()
         } catch (e: Exception) {
             Log.e(TAG, "TTS Error continuing after Pause", e)
             mSpeakTextProvider.reset()

@@ -120,6 +120,9 @@ open class SpeakIntegrationTestBase {
         org.koin.core.context.loadKoinModules(org.koin.dsl.module {
             single<net.bible.android.control.speak.SpeakPlatform> { fakePlatform }
         })
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single { TextToSpeechServiceManager(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, Dispatchers.Unconfined) }
+        })
         configureSpeakPlatform()
         speakControl = koin.get()
         windowControl = koin.get()
@@ -205,12 +208,15 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     @Test
     fun testSleeptimer() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")) }.firstOrNull(), nullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
         setSleepTimer(5)
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")) }.firstOrNull(), notNullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(true))
         setSleepTimer(0)
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
     }
 
@@ -227,30 +233,39 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     @Test
     fun testAutobookmark() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.2
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")) }.firstOrNull(), nullValue())
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")) }.firstOrNull(), notNullValue())
 
         speakControl.continueAfterPause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.3
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")) }.firstOrNull(), notNullValue())
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")) }.firstOrNull(), nullValue())
 
         // Check that altering playback settigns are saved also to bookmark (bookmark is also moved when saving)
         changeSpeed(201)
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")) }.firstOrNull(), nullValue())
         var b = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.3"))) }[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(201))
 
         // Test that bookmark is moved properly when paused / stopped
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.4
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")) }.firstOrNull(), nullValue())
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")) }.firstOrNull(), notNullValue())
 
         // Check that altering playback settigns are saved to bookmark when paused
         changeSpeed(202)
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         b = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.4"))) }[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(202))
 
@@ -259,19 +274,24 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         windowControl.windowRepository.firstVisibleWindow!!.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(206)
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         b = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.4"))) }[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(206))
 
 
         // continue...
         speakControl.continueAfterPause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.5
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.stop()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")) }.firstOrNull(), nullValue())
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.5")) }.firstOrNull(), notNullValue())
 
         // Check that altering playback settigns are saved to bookmark when stopped
         changeSpeed(203)
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         b = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.5"))) }[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(203))
 
@@ -279,6 +299,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         windowControl.windowRepository.firstVisibleWindow!!.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(204)
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         b = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.5"))) }[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(203))
     }
@@ -506,7 +527,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings)
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings, GlobalContext.get().get())
         provider.setupReading(book, getVerse("Exod.31.8"))
         val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
         assertThat(cmd.text, startsWith("pöydän varusteineen"))
@@ -550,7 +571,7 @@ class TestPersistence : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings)
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings, GlobalContext.get().get())
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
@@ -585,7 +606,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings)
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings, GlobalContext.get().get())
         runBlocking { bookmarkControl.speakLabel() }
         advancedSpeakSettings.autoBookmark = true
     }
@@ -602,6 +623,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.allBibleBookmarks() }.size, equalTo(0))
     }
 
@@ -619,9 +641,11 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[1]
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkById(dto.id) }, nullValue())
     }
 
@@ -637,13 +661,19 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(0))
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[1]
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkById(dto.id) }, nullValue())
         provider.pause() // does not remove bookmark as it was already there
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
     }
 
@@ -662,20 +692,25 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }, notNullValue())
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(0))
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[1]
         assertThat(dto, notNullValue())
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[1]
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
 
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[1]
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
 
@@ -687,6 +722,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
 
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(range(), equalTo("Ps.14.2"))
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }, notNullValue())
         assertThat(runBlocking { bookmarkControl.labelsForBookmark( bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]) }.size, equalTo(0))
@@ -711,12 +747,14 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
 
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[0], notNullValue())
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[0]
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
 
         verse = getVerse("Ps.14.2")
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -725,17 +763,20 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         // now we save speak bookmark above speak bookmark
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[1], notNullValue())
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[1]
         assertThat(dto.playbackSettings!!.bookmarkWasCreated, equalTo(true))
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
 
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
         assertThat(range(), equalTo("Ps.14.3"))
 
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
 
         verse = getVerse("Ps.14.3")
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[0], notNullValue())
@@ -756,20 +797,25 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }.size, equalTo(0))
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         var dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[0]
         assertThat(dto, notNullValue())
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[0]
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
 
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[0]
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
 
@@ -781,6 +827,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
 
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(range(), equalTo("Ps.14.2"))
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }.size, equalTo(0))
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Ps.14.2")) }, notNullValue())
@@ -802,11 +849,14 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[1]
         assertThat(dto.playbackSettings, notNullValue())
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkById(dto.id) }, nullValue())
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -815,6 +865,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         provider.stop()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         dto = runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(verse) }[0]
         assertThat(dto.playbackSettings, nullValue())
         assertThat(runBlocking { bookmarkControl.labelsForBookmark(dto) }.size, equalTo(1))
@@ -827,6 +878,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         val label = runBlocking { bookmarkControl.speakLabel() }
         val bookmark = runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.get(0)
         assertThat(bookmark.playbackSettings, notNullValue())
@@ -835,7 +887,9 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1))
         // test that it does not add another bookmark if there's already one with same key
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -844,6 +898,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         provider.stop()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1)) // new bookmark with same label has been created
     }
 
@@ -852,6 +907,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         val label = runBlocking { bookmarkControl.speakLabel() }
         val bookmark = runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.get(0)
         //assertThat(bookmark.playbackSettings, notNullValue())
@@ -860,31 +916,38 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1))
         // test that it does not add another bookmark if there's already one with same key
         provider.pause();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1))
 
         // Test that if stopping when paused, bookmark is not created.
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1))
         val bmark = runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.first()
         runBlocking { bookmarkControl.deleteBookmark(bmark) };
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(0))
         provider.stop()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(0))
     }
 
     @Test
     fun autoBookmarkOnStop() {
         provider.setupReading(book, getVerse("Ps.14.2"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         text = nextText()
         provider.stop();
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         val label = runBlocking { bookmarkControl.speakLabel() }
         val bookmark = runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.get(0)
         assertThat(bookmark.verseRange.start.getOsisID(), equalTo("Ps.14.2"))
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1))
         provider.setupReading(book, getVerse("Ps.14.2"))
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY); provider.loadBookmarkState() }
         provider.prepareForStartSpeaking()
         assertThat(runBlocking { bookmarkControl.getBibleBookmarksWithLabel(label) }.size, equalTo(1))
     }
@@ -896,7 +959,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings)
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings, GlobalContext.get().get())
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
@@ -1163,6 +1226,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(range(), equalTo("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
@@ -1176,6 +1240,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(range(), equalTo("Rom.5.19"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
@@ -1199,6 +1264,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
         provider.pause()
+        runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(range(), equalTo("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
