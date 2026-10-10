@@ -94,7 +94,7 @@ class WindowButtonMonochromeStrokeTest {
                 capture { b ->
                     val ink = if (theme) 0xFFFFFF else 0x000000
                     val paper = if (theme) 0x000000 else 0xFFFFFF
-                    val width = px(1.5f)
+                    val width = px(1f)
                     val context = "$buttonMode selected=$selected dark=$theme"
                     // Each edge: walk along it; wherever the outermost pixel is a full-ink dash, the
                     // dash's cross-section must be exactly `width` ink pixels, then paper.

@@ -46,11 +46,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
@@ -140,6 +143,11 @@ private val MinimisedBorderWidth = 1.5.dp
 /** MONO borders: active is heavier than inactive, but not double (2dp read too heavy on e-ink). */
 private val MonoActiveBorderWidth = 1.5.dp
 private val MonoBorderWidth = 1.dp
+/**
+ * MONO minimised dash width. The old centred 1.5dp stroke showed only its inner ~0.75dp (the clip
+ * cut the outer half); 1dp whole-pixel ink keeps that visible weight without the grey fringe.
+ */
+private val MonoMinimisedBorderWidth = 1.dp
 private const val MinimisedAlpha = 0.62f
 /** Minimised outline dash/gap in dp, so they stay legible on high-density e-ink. */
 private val MinimisedDashOn = 4.dp
@@ -267,15 +275,21 @@ fun WindowButton(
                         if (mono) {
                             // Inset by half the stroke so the whole stroke lies inside the clip: a
                             // centred stroke loses its outer half and leaves a grey fractional pixel.
-                            val width = MinimisedBorderWidth.wholePx().toPx()
+                            // No antialiasing: dash ends fall at fractional positions along the
+                            // path (corner arcs), and e-ink must get pure ink or paper.
+                            val width = MonoMinimisedBorderWidth.wholePx().toPx()
+                            val paint = Paint().apply {
+                                color = outlineColor
+                                style = PaintingStyle.Stroke
+                                strokeWidth = width
+                                pathEffect = dash
+                                isAntiAlias = false
+                            }
+                            val outline = cornerShape.createOutline(
+                                Size(size.width - width, size.height - width), layoutDirection, this,
+                            )
                             translate(width / 2, width / 2) {
-                                drawOutline(
-                                    outline = cornerShape.createOutline(
-                                        Size(size.width - width, size.height - width), layoutDirection, this,
-                                    ),
-                                    color = outlineColor,
-                                    style = Stroke(width = width, pathEffect = dash),
-                                )
+                                drawIntoCanvas { it.drawOutline(outline, paint) }
                             }
                         } else {
                             drawOutline(
