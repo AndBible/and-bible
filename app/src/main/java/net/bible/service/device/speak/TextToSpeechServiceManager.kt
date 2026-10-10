@@ -159,6 +159,7 @@ class TextToSpeechServiceManager constructor(
     val pausedCompletedSeconds: Long
         get() = mSpeakTiming.getSecsForChars(mSpeakTextProvider.getSpokenChars())
 
+    private val startGeneration = java.util.concurrent.atomic.AtomicLong()
     private var wasPaused = false
 
     private val engineListener = object : SpeakEngineListener {
@@ -167,15 +168,19 @@ class TextToSpeechServiceManager constructor(
                 pendingInit = success
                 return
             }
+            val generation = startGeneration.get()
             val provider = mSpeakTextProvider
             val genericKey = pendingGenericKey
             launcher.launch(SPEAK_KEY) {
+                if (generation != startGeneration.get()) return@launch
                 provider.loadBookmarkState()
-                genericKey?.let { key ->
+                val genericLocales = genericKey?.let { key ->
                     val language = getMyDocumentPageLanguage(key)
-                    localePreferenceList = if (language != null) calculateLocalePreferenceListForCode(language) else calculateLocalePreferenceList(key.document!!)
+                    if (language != null) calculateLocalePreferenceListForCode(language) else calculateLocalePreferenceList(key.document!!)
                 }
                 withContext(mainDispatcher) {
+                    if (generation != startGeneration.get() || provider !== mSpeakTextProvider) return@withContext
+                    if (genericLocales != null) localePreferenceList = genericLocales
                     Log.i(TAG, "Tts initialised")
                     var isOk = false
 
@@ -217,7 +222,7 @@ class TextToSpeechServiceManager constructor(
                             if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
                             isOk = true
                             provider.prepareForStartSpeaking()
-                            startSpeaking()
+                            startSpeaking(forceQueue = true)
                             stopIfPhoneCall()
                         }
                     } else {
@@ -278,6 +283,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakBible(book: SwordBook, verse: Verse) {
+        startGeneration.incrementAndGet()
         pendingGenericKey = null
         switchProvider(bibleSpeakTextProvider)
         clearTtsQueue()
@@ -288,6 +294,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
+        startGeneration.incrementAndGet()
         pendingGenericKey = null
         switchProvider(legacySpeakTextProvider)
         legacySpeakTextProvider.setupReading(book, keyList)
@@ -298,6 +305,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakGeneric(key: BookAndKey) {
+        startGeneration.incrementAndGet()
         switchProvider(generalSpeakTextProvider)
         generalSpeakTextProvider.setupReading(key)
 
@@ -409,7 +417,13 @@ class TextToSpeechServiceManager constructor(
         try {
             creatingEngine = true
             try {
-                mTts = platform.createEngine(engineListener)
+                val generation = startGeneration.get()
+                val listener = object : SpeakEngineListener by engineListener {
+                    override fun onInit(success: Boolean) {
+                        if (generation == startGeneration.get()) engineListener.onInit(success)
+                    }
+                }
+                mTts = platform.createEngine(listener)
                 configuredEnginePackage = preferredEnginePackage
             } finally {
                 creatingEngine = false
@@ -484,6 +498,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun pause(willContinueAfterThis: Boolean) {
+        startGeneration.incrementAndGet()
         Log.i(TAG, "Pause TTS")
 
         if (isSpeaking) {
@@ -516,7 +531,16 @@ class TextToSpeechServiceManager constructor(
             isPaused = false
             clearPauseState()
             // ask TTs to say the text
-            if (reloadBookmark) initializeTtsOrStartSpeaking() else startSpeaking()
+            if (!reloadBookmark && mTts != null && platform.preferredEnginePackage == configuredEnginePackage) {
+                startSpeaking()
+            } else {
+                if (!reloadBookmark) {
+                    // Keep save()'s synchronous state contract while a changed engine initializes.
+                    isSpeaking = true
+                    fireStateChangeEvent()
+                }
+                initializeTtsOrStartSpeaking()
+            }
         } catch (e: Exception) {
             Log.e(TAG, "TTS Error continuing after Pause", e)
             mSpeakTextProvider.reset()
@@ -528,7 +552,7 @@ class TextToSpeechServiceManager constructor(
         isPaused = false
     }
 
-    private fun startSpeaking() {
+    private fun startSpeaking(forceQueue: Boolean = false) {
         initialized = true
         Log.i(TAG, "about to send some text to TTS")
         if (!platform.requestAudioFocus { gained ->
@@ -540,7 +564,7 @@ class TextToSpeechServiceManager constructor(
             return
         }
 
-        if (!isSpeaking) {
+        if (!isSpeaking || forceQueue) {
             speakNextChunk()
             isSpeaking = true
             isPaused = false
@@ -589,6 +613,7 @@ class TextToSpeechServiceManager constructor(
     }
 
     fun shutdown(willContinueAfter: Boolean = false) {
+        startGeneration.incrementAndGet()
         Log.i(TAG, "Shutdown TTS")
 
         isSpeaking = false

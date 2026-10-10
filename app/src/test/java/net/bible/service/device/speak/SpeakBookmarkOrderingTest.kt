@@ -2,6 +2,7 @@ package net.bible.service.device.speak
 
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.speak.SPEAK_KEY
+import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.sharedcore.platform.OrderedLauncher
 import org.junit.Test
@@ -39,5 +40,70 @@ class SpeakBookmarkOrderingTest : SpeakIntegrationTestBase() {
         val bookmark = runBlocking { bookmarkControl.speakBookmarkForVerse(fifth) }
         assertNotNull("Resume must observe the preceding pause write", bookmark)
         assertEquals(5, bookmark!!.verseRange.start.verse)
+    }
+
+    private fun suspendedResume(supersede: (TextToSpeechServiceManager) -> Unit) {
+        val launcher = GlobalContext.get().get<OrderedLauncher>()
+        val verse = (book.getKey("Gen.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        speakControl.speakBible(book, verse)
+        runBlocking { launcher.join(SPEAK_KEY) }
+        speakControl.pause()
+        runBlocking { launcher.join(SPEAK_KEY) }
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val field = TextToSpeechServiceManager::class.java.getDeclaredField("mSpeakTextProvider").apply { isAccessible = true }
+        val real = field.get(manager) as SpeakTextProvider
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var applied = 0
+        val suspended = object : SpeakTextProvider by real {
+            override suspend fun loadBookmarkState() { entered.complete(Unit); release.await() }
+            override fun prepareForStartSpeaking() { applied++ }
+        }
+        field.set(manager, suspended)
+        try {
+            manager.continueAfterPause()
+            runBlocking { entered.await() }
+            supersede(manager)
+        } finally {
+            release.complete(Unit)
+            runBlocking { launcher.join(SPEAK_KEY) }
+        }
+        assertEquals("Superseded load must never apply/start", 0, applied)
+    }
+
+    @Test
+    fun stopDuringSuspendedLoadDoesNotResurrectSpeech() {
+        suspendedResume { it.shutdown() }
+        org.junit.Assert.assertFalse(GlobalContext.get().get<TextToSpeechServiceManager>().isSpeaking)
+    }
+
+    @Test
+    fun providerSwitchDuringSuspendedLoadDoesNotApplyOldProvider() {
+        suspendedResume { it.speakTextLegacy(book, listOf(book.getKey("Gen.2.1")), false) }
+    }
+
+    @Test
+    fun stopThenNewStartDuringSuspendedLoadDoesNotApplyStoppedRequest() {
+        suspendedResume {
+            it.shutdown()
+            val verse = (book.getKey("Gen.3.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+            it.speakBible(book, verse)
+        }
+    }
+
+    @Test
+    fun settingsSaveReinitializesChangedEnginePreference() {
+        val launcher = GlobalContext.get().get<OrderedLauncher>()
+        val verse = (book.getKey("Gen.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        speakControl.speakBible(book, verse)
+        runBlocking { launcher.join(SPEAK_KEY) }
+        val before = fakePlatform.creations
+        fakePlatform.preferredEnginePackage = "changed.engine"
+        val settings = net.bible.android.database.bookmarks.SpeakSettings.load()
+        settings.playbackSettings = settings.playbackSettings.copy(speed = settings.playbackSettings.speed + 10)
+        settings.save()
+        runBlocking { launcher.join(SPEAK_KEY) }
+        assertEquals("Settings resume must honor changed engine preference", before + 1, fakePlatform.creations)
+        org.junit.Assert.assertTrue(speakControl.isSpeaking)
     }
 }
