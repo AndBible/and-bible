@@ -62,7 +62,7 @@ fun categoryChipColor(colorGroup: Int, base: Color): Color {
 
 // Progress-bar hues (classic green/gold), also e-ink-aware.
 @Composable
-fun readingColor(): Color = Color(accentArgbFor(0xFF4CAF50.toInt(), LocalDisplayColorMode.current))
+fun readingColor(): Color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface else Color(accentArgbFor(0xFF4CAF50.toInt(), LocalDisplayColorMode.current))
 
 @Composable
-fun memorizationColor(): Color = Color(accentArgbFor(0xFFFFD700.toInt(), LocalDisplayColorMode.current))
+fun memorizationColor(): Color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface else Color(accentArgbFor(0xFFFFD700.toInt(), LocalDisplayColorMode.current))

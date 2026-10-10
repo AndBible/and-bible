@@ -17,6 +17,20 @@
 
 package net.bible.sharedui.progress
 
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
@@ -64,6 +78,10 @@ fun AbCalendarHeatmap(
     cellDp: Dp = 14.dp,
     onDayClick: (dayTimestamp: Long) -> Unit = {},
 ) {
+    val mono = isPureMonochrome()
+    val strings = LocalStrings.current
+    var selectedDay by remember(heatmap) { mutableStateOf<Long?>(null) }
+    val ink = MaterialTheme.colorScheme.onSurface
     val scrollState = rememberScrollState()
     LaunchedEffect(heatmap.weeks) { scrollState.scrollTo(scrollState.maxValue) }
 
@@ -75,59 +93,86 @@ fun AbCalendarHeatmap(
     val totalWidth = LabelWidth + step * heatmap.weeks + CellPadding
     val totalHeight = HeaderHeight + step * DAYS_IN_WEEK + CellPadding
 
-    Canvas(
-        modifier = modifier
-            .horizontalScroll(scrollState)
-            .size(width = totalWidth, height = totalHeight)
-            .pointerInput(heatmap, cellDp) {
-                val stepPx = step.toPx()
-                val labelWidthPx = LabelWidth.toPx()
-                val headerHeightPx = HeaderHeight.toPx()
-                detectTapGestures { offset ->
-                    if (offset.x < labelWidthPx || offset.y < headerHeightPx) return@detectTapGestures
-                    val week = ((offset.x - labelWidthPx) / stepPx).toInt()
-                    val day = ((offset.y - headerHeightPx) / stepPx).toInt()
-                    val cell = heatmap.cells.firstOrNull { it.weekIndex == week && it.dayIndex == day }
-                    if (cell != null && cell.count > 0) onDayClick(cell.dayTimestamp)
-                }
-            },
-    ) {
-        val stepPx = step.toPx()
-        val labelWidthPx = LabelWidth.toPx()
-        val headerHeightPx = HeaderHeight.toPx()
-        val cellPx = cellDp.toPx()
-        val cornerPx = CellCorner.toPx()
-        val labelStyle = TextStyle(color = labelColor, fontSize = 10.sp)
+    Column(modifier) {
+        Box(Modifier.horizontalScroll(scrollState).size(totalWidth, totalHeight)) {
+        Canvas(
+            modifier = Modifier
+                .size(width = totalWidth, height = totalHeight)
+                .pointerInput(heatmap, cellDp) {
+                    val stepPx = step.toPx()
+                    val labelWidthPx = LabelWidth.toPx()
+                    val headerHeightPx = HeaderHeight.toPx()
+                    detectTapGestures { offset ->
+                        if (offset.x < labelWidthPx || offset.y < headerHeightPx) return@detectTapGestures
+                        val week = ((offset.x - labelWidthPx) / stepPx).toInt()
+                        val day = ((offset.y - headerHeightPx) / stepPx).toInt()
+                        val cell = heatmap.cells.firstOrNull { it.weekIndex == week && it.dayIndex == day }
+                        if (cell != null && cell.count > 0) onDayClick(cell.dayTimestamp)
+                    }
+                },
+        ) {
+            val stepPx = step.toPx()
+            val labelWidthPx = LabelWidth.toPx()
+            val headerHeightPx = HeaderHeight.toPx()
+            val cellPx = cellDp.toPx()
+            val cornerPx = CellCorner.toPx()
+            val labelStyle = TextStyle(color = labelColor, fontSize = 10.sp)
 
-        heatmap.dayOfWeekLabels.forEachIndexed { day, label ->
-            if (label.isNotEmpty()) {
+            heatmap.dayOfWeekLabels.forEachIndexed { day, label ->
+                if (label.isNotEmpty()) {
+                    drawText(
+                        textMeasurer = textMeasurer,
+                        text = label,
+                        topLeft = Offset(0f, headerHeightPx + day * stepPx),
+                        style = labelStyle,
+                    )
+                }
+            }
+
+            heatmap.monthLabels.forEach { month ->
                 drawText(
                     textMeasurer = textMeasurer,
-                    text = label,
-                    topLeft = Offset(0f, headerHeightPx + day * stepPx),
+                    text = month.name,
+                    topLeft = Offset(labelWidthPx + month.weekIndex * stepPx, 0f),
                     style = labelStyle,
                 )
             }
-        }
 
-        heatmap.monthLabels.forEach { month ->
-            drawText(
-                textMeasurer = textMeasurer,
-                text = month.name,
-                topLeft = Offset(labelWidthPx + month.weekIndex * stepPx, 0f),
-                style = labelStyle,
-            )
+            heatmap.cells.forEach { cell ->
+                val x = labelWidthPx + cell.weekIndex * stepPx
+                val y = headerHeightPx + cell.dayIndex * stepPx
+                val origin = Offset(x, y)
+                drawRoundRect(
+                    color = levelColors[cell.level.coerceIn(0, levelColors.lastIndex)],
+                    topLeft = Offset(x, y),
+                    size = Size(cellPx, cellPx),
+                    cornerRadius = CornerRadius(cornerPx, cornerPx),
+                )
+                if (mono && cell.level in 1..3) drawRoundRect(
+                    color = ink,
+                    topLeft = origin + Offset(0.5.dp.toPx(), 0.5.dp.toPx()),
+                    size = Size(cellPx - 1.dp.toPx(), cellPx - 1.dp.toPx()),
+                    cornerRadius = CornerRadius(cornerPx, cornerPx),
+                    style = Stroke(1.dp.toPx()),
+                )
+            }
         }
-
-        heatmap.cells.forEach { cell ->
-            val x = labelWidthPx + cell.weekIndex * stepPx
-            val y = headerHeightPx + cell.dayIndex * stepPx
-            drawRoundRect(
-                color = levelColors[cell.level.coerceIn(0, levelColors.lastIndex)],
-                topLeft = Offset(x, y),
-                size = Size(cellPx, cellPx),
-                cornerRadius = CornerRadius(cornerPx, cornerPx),
-            )
+        if (mono) heatmap.cells.forEach { cell ->
+            Box(Modifier
+                .offset(x = LabelWidth + step * cell.weekIndex, y = HeaderHeight + step * cell.dayIndex)
+                .size(cellDp)
+                .semantics { contentDescription = strings.monochromeActivityCount(cell.count) }
+                .clickable {
+                    selectedDay = cell.dayTimestamp
+                    if (cell.count > 0) onDayClick(cell.dayTimestamp)
+                })
+        }
+        }
+        if (mono) {
+            Text(strings.monochromeBuckets, style = MaterialTheme.typography.labelSmall)
+            heatmap.cells.firstOrNull { it.dayTimestamp == selectedDay }?.let {
+                Text(strings.monochromeActivityCount(it.count), style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }

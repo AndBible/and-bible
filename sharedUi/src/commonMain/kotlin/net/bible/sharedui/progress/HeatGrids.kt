@@ -17,6 +17,12 @@
 
 package net.bible.sharedui.progress
 
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.monoBorder
+import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +36,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import net.bible.sharedui.theme.LocalAbColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -107,37 +119,46 @@ fun BookHeatGrid(
     onLongClick: ((bookId: String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    UniformCellGrid(items = books, columns = BOOK_GRID_COLUMNS, modifier = modifier) { book, cellModifier ->
-        val cellColors = colors(book)
-        HeatCell(
-            modifier = cellModifier,
-            bgColor = cellColors.background,
-            hasTarget = book.hasTarget,
-            onClick = { onClick(book.bookId) },
-            onLongClick = onLongClick?.let { cb -> { cb(book.bookId) } },
-        ) {
-            Text(
-                text = if (book.isComplete) {
-                    buildAnnotatedString {
-                        append(book.shortName)
-                        append(" ")
-                        withStyle(
-                            SpanStyle(
-                                fontSize = 7.sp,
-                                fontWeight = FontWeight.Bold,
-                                baselineShift = BaselineShift.Superscript,
-                            ),
-                        ) {
-                            append("✓")
+    val mono = isPureMonochrome()
+    var selected by remember(books) { mutableStateOf<String?>(null) }
+    Column(modifier) {
+        UniformCellGrid(items = books, columns = BOOK_GRID_COLUMNS) { book, cellModifier ->
+            val cellColors = colors(book)
+            HeatCell(
+                modifier = if (isPureMonochrome()) cellModifier.semantics {
+                    contentDescription = "${book.shortName}: ${book.readPercent * 100f}%"
+                } else cellModifier,
+                bgColor = cellColors.background,
+                hasTarget = book.hasTarget,
+                onClick = { if (mono) selected = book.bookId; onClick(book.bookId) },
+                onLongClick = onLongClick?.let { cb -> { cb(book.bookId) } },
+            ) {
+                Text(
+                    text = if (book.isComplete) {
+                        buildAnnotatedString {
+                            append(book.shortName)
+                            append(" ")
+                            withStyle(
+                                SpanStyle(
+                                    fontSize = 7.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    baselineShift = BaselineShift.Superscript,
+                                ),
+                            ) {
+                                append("✓")
+                            }
                         }
-                    }
-                } else {
-                    buildAnnotatedString { append(book.shortName) }
-                },
-                color = cellColors.content,
-                fontSize = 11.sp,
-                textAlign = TextAlign.Center,
-            )
+                    } else {
+                        buildAnnotatedString { append(book.shortName) }
+                    },
+                    color = cellColors.content,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+        if (mono) books.firstOrNull { it.bookId == selected }?.let {
+            Text("${it.shortName}: ${it.readPercent * 100f}%")
         }
     }
 }
@@ -156,22 +177,33 @@ fun ChapterHeatGrid(
     onClick: (chapter: Int) -> Unit,
     onLongClick: ((chapter: Int) -> Unit)? = null,
     modifier: Modifier = Modifier,
+    memorization: Boolean = false,
 ) {
-    UniformCellGrid(items = chapters, columns = CHAPTER_GRID_COLUMNS, modifier = modifier) { chapter, cellModifier ->
-        val cellColors = colors(chapter)
-        HeatCell(
-            modifier = cellModifier,
-            bgColor = cellColors.background,
-            hasTarget = chapter.hasTarget,
-            onClick = { onClick(chapter.chapter) },
-            onLongClick = onLongClick?.let { cb -> { cb(chapter.chapter) } },
-        ) {
-            Text(
-                text = "${chapter.chapter}",
-                color = cellColors.content,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
-            )
+    val strings = LocalStrings.current
+    val mono = isPureMonochrome()
+    var selected by remember(chapters) { mutableStateOf<Int?>(null) }
+    Column(modifier) {
+        UniformCellGrid(items = chapters, columns = CHAPTER_GRID_COLUMNS) { chapter, cellModifier ->
+            val cellColors = colors(chapter)
+            HeatCell(
+                modifier = if (isPureMonochrome()) cellModifier.semantics {
+                    contentDescription = "${chapter.chapter}: ${if (memorization) strings.monochromeLevel(chapter.level) else strings.monochromeCount(chapter.count)}"
+                } else cellModifier,
+                bgColor = cellColors.background,
+                hasTarget = chapter.hasTarget,
+                onClick = { if (mono) selected = chapter.chapter; onClick(chapter.chapter) },
+                onLongClick = onLongClick?.let { cb -> { cb(chapter.chapter) } },
+            ) {
+                Text(
+                    text = "${chapter.chapter}",
+                    color = cellColors.content,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+        if (mono) chapters.firstOrNull { it.chapter == selected }?.let {
+            Text("${it.chapter}\n${if (memorization) strings.monochromeLevel(it.level) else strings.monochromeCount(it.count)}")
         }
     }
 }
@@ -194,17 +226,21 @@ private fun HeatCell(
         modifier = modifier
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .background(bgColor, RoundedCornerShape(CellCorner))
+            .monoBorder(RoundedCornerShape(CellCorner))
             .padding(horizontal = 4.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
-        label()
+        if (isPureMonochrome() && bgColor == LocalAbColors.current.monoDisabled) {
+            Box(Modifier.background(MaterialTheme.colorScheme.surface)) { label() }
+        } else label()
         if (hasTarget) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(2.dp)
                     .size(TargetDotSize)
-                    .background(targetDot(), CircleShape),
+                    .background(targetDot(), CircleShape)
+                    .then(if (isPureMonochrome()) Modifier.border(1.dp, MaterialTheme.colorScheme.surface, CircleShape) else Modifier),
             )
         }
     }

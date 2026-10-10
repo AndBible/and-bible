@@ -1,8 +1,1 @@
 # Scenes not yet monochrome-clean. Each fixing commit deletes its line. Must end empty (spec 8.1).
-AbCalendarHeatmap_primary
-AbColorScaleLegend_count
-DailyReading_primary
-GridChoosePassage_book_flat
-ReadingProgress_empty
-ReadingProgress_memorizeOverview
-ReadingProgress_reading

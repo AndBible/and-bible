@@ -167,6 +167,7 @@ private fun MemorizeOverview(
         Spacer(Modifier.height(8.dp))
         ChapterHeatGrid(
             chapters = detail.chapters,
+            memorization = true,
             colors = { memorizationColors(it.level) },
             onClick = onChapterClick,
         )
