@@ -16,6 +16,8 @@
  */
 package net.bible.service.sword
 
+import org.crosswire.common.util.toKLocale
+
 import net.bible.service.common.CommonUtils
 import android.text.TextUtils
 import android.util.LayoutDirection
@@ -558,14 +560,14 @@ object SwordContentFacade {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     try {
-                        val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
+                        val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale?.toKLocale())
                         "$verseRangeName"
                     } finally {
                         BookName.setFullBookName(oldValue)
                     }
                 }
             } else {
-                val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
+                val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale?.toKLocale())
                 "$verseRangeName"
             }
         } else
@@ -710,7 +712,7 @@ object SwordContentFacade {
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             try {
-                "${verseRange.getNameInLocale(null, bookLocale)}"
+                "${verseRange.getNameInLocale(null, bookLocale?.toKLocale())}"
             } finally {
                 BookName.setFullBookName(oldValue)
             }
@@ -719,7 +721,7 @@ object SwordContentFacade {
         // the app-wide BookName.isFullBookName() setting already is. Evaluated right after the
         // synchronized block above (no intervening suspension), so it sees the SAME ambient value
         // getSelectionText would have used had it taken this branch instead.
-        val referenceFull = "${verseRange.getNameInLocale(null, bookLocale)}"
+        val referenceFull = "${verseRange.getNameInLocale(null, bookLocale?.toKLocale())}"
 
         return ShareVersesInput(
             verses = verses,

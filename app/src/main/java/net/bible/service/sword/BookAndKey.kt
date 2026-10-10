@@ -148,19 +148,15 @@ class BookAndKey(
     override fun blur(by: Int, restrict: RestrictionType?, blurDown: Boolean, blurUp: Boolean): Unit =
         throw UnsupportedOperationException()
 
-    companion object {
-        private const val serialVersionUID: Long = 1
-    }
 }
 
-class BookAndKeyList: DefaultKeyList() {
+class BookAndKeyList: DefaultKeyList(), Cloneable {
+    override fun clone(): BookAndKeyList = super<Cloneable>.clone() as BookAndKeyList
+
     override fun getOsisRef(): String {
         return this.joinToString("||") { it.getOsisRef() }
     }
 
-    companion object {
-        private const val serialVersionUID: Long = 1
-    }
 }
 
 fun bookAndKeyListOf(keys: Collection<BookAndKey>): BookAndKeyList {

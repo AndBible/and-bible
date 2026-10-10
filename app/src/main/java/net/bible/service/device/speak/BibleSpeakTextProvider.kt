@@ -17,6 +17,8 @@
 
 package net.bible.service.device.speak
 
+import org.crosswire.common.util.toKLocale
+
 import android.content.res.Resources
 import net.bible.service.db.blockingDb
 import android.os.Build
@@ -136,7 +138,7 @@ class BibleSpeakTextProvider(
         bibleBooks.clear()
 
         for(bibleBook in book.versification.bookIterator) {
-            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale)
+            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale.toKLocale())
             bookName = bookName.replace("1.", localizedResources.getString(R.string.speak_first))
             bookName = bookName.replace("2.", localizedResources.getString(R.string.speak_second))
             bookName = bookName.replace("3.", localizedResources.getString(R.string.speak_third))

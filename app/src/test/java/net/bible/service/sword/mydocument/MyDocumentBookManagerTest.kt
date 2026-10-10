@@ -106,6 +106,33 @@ class MyDocumentBookManagerTest {
     }
 
     @Test
+    fun cloneSharesPopulatedPageCacheButInvalidatesItsOwnCacheIndependently() {
+        val metadata = createMyDocumentMetadata(document)
+        val original = MyDocumentBackend(document.id, metadata)
+        assertEquals(1, original.getCardinality())
+        val copy = original.clone() as MyDocumentBackend
+        org.junit.Assert.assertNotSame(original, copy)
+        assertSame(original.javaClass, copy.javaClass)
+        assertSame(metadata, copy.bookMetaData)
+        assertEquals("page_one", copy.get(0).getOsisRef())
+        val cache = MyDocumentBackend::class.java.getDeclaredField("cachedPages").apply { isAccessible = true }
+        assertNotNull(cache.get(original))
+        assertSame(cache.get(original), cache.get(copy))
+
+        addPage("page_two", "Second page")
+        copy.initState()
+        assertEquals(2, copy.getCardinality())
+        assertEquals(1, original.getCardinality())
+        org.junit.Assert.assertNotSame(cache.get(original), cache.get(copy))
+        addPage("page_three", "Third page")
+        original.initState()
+        assertEquals(3, original.getCardinality())
+        assertEquals(2, copy.getCardinality())
+        assertEquals("page_three", original.get(2).getOsisRef())
+        assertEquals("page_two", copy.get(1).getOsisRef())
+    }
+
+    @Test
     fun registeredDocumentResolvesItsPages() {
         val book = Books.installed().getBook("MyDoc_Test")!!
 

@@ -70,6 +70,8 @@ import org.crosswire.common.util.PropertyMap
 import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.index.BookIndexer
+import org.crosswire.common.util.KLocale
+import org.crosswire.common.util.toKLocale
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import org.koin.android.ext.koin.androidContext
@@ -82,13 +84,13 @@ object MyLocaleProvider: LocaleProvider {
      * Allow hardcoding exceptions for JSword locales, as
      * it does not support all Android locale variants.
      */
-    override fun getUserLocale(): Locale {
-        this.override?.run {return this}
+    override fun getUserLocale(): KLocale {
+        this.override?.run { return this.toKLocale() }
         val default = Locale.getDefault()
         if(default.language == "sr" && default.script == "Latn") {
-            return Locale.forLanguageTag("sr-LT")
+            return KLocale("sr", "LT")
         }
-        return default
+        return default.toKLocale()
     }
 
     var override: Locale? = null

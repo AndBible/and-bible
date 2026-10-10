@@ -83,6 +83,23 @@ class ESwordBookReaderTest {
     )
 
     @Test
+    fun cloneKeepsRuntimeClassMetadataAndSharesLiveBackendState() {
+        val original = backend(bible())
+        val copy = original.clone() as SqliteBackend
+        org.junit.Assert.assertNotSame(original, copy)
+        org.junit.Assert.assertSame(original.javaClass, copy.javaClass)
+        org.junit.Assert.assertSame(original.bookMetaData, copy.bookMetaData)
+        val originalState = original.initState()
+        val copyState = copy.initState()
+        org.junit.Assert.assertSame(originalState, copyState)
+        assertEquals(original.getCardinality(), copy.getCardinality())
+        originalState.setLastAccess(123)
+        assertEquals(123L, copyState.getLastAccess())
+        copyState.setLastAccess(456)
+        assertEquals(456L, originalState.getLastAccess())
+    }
+
+    @Test
     fun metadataComesFromDetailsTable() {
         val md = backend(bible()).bookMetaData
         assertEquals("ESword-esv", md.initials)

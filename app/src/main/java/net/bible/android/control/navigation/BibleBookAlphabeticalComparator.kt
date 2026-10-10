@@ -18,6 +18,7 @@ package net.bible.android.control.navigation
 
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.common.util.lowercase
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import java.util.Comparator
 import java.util.regex.Pattern
