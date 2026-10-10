@@ -59,6 +59,8 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class WindowSourceIdentityTest : KoinComponent {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @Before fun pin() { firstTime = false }
@@ -132,6 +134,7 @@ class WindowSourceIdentityTest : KoinComponent {
 
     @Test fun backReplaysTheVisibleWindowsHistory() {
         val a = host().create().start().resume().visible().get()
+        net.bible.test.awaitReadingGraph(a) { compose.waitForIdle() }
         val window = a.hostWindowRepository.activeWindow
 
         val before = window.pageManager.currentPage.singleKey

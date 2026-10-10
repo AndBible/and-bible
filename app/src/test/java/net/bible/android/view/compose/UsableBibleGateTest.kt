@@ -312,7 +312,7 @@ class UsableBibleGateTest {
         ).also { controllers += it }
         controller.get().usableBibleGate = { usable }
         val activity = controller.create().start().resume().visible().get()
-        idle()
+        net.bible.test.awaitReadingGraph(activity)
         assertEquals(NavRoutes.READING, route(activity))
 
         usable = false

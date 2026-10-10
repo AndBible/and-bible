@@ -57,6 +57,7 @@ class SystemBarPolicyHostTest {
     // Fullscreen must not leak a hidden NAV bar into other destinations; Review Focus 4: it comes back on return.
     @Test fun fullScreenIsReadingOnlyAndSurvivesARoundTrip() {
         val a = host(NavRoutes.READING)
+        net.bible.test.awaitReadingGraph(a)
         a.fullScreen = true
         a.applyIdleSystemUi()
         assertTrue("fullscreen reading hides the nav bar", navHidden(a))
@@ -75,6 +76,7 @@ class SystemBarPolicyHostTest {
     @Config(sdk = [30])
     @Test fun systemBackToFullScreenReadingHidesTheNavBarAgain() {
         val a = host(NavRoutes.READING)
+        net.bible.test.awaitReadingGraph(a)
         a.fullScreen = true
         a.applyIdleSystemUi()
         a.navigateInGraph(NavRoutes.AI_TOOL_INFO); idle()

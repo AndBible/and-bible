@@ -102,6 +102,7 @@ class DailyReadingPassageStaysInHostTest {
         selectAReadingPlan()
         val controller = host().apply { create().start().resume().visible() }
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity)
         idleMain()
         openDay(controller)
         activity.dailyReadingControllerForTest().read(1)
@@ -116,6 +117,7 @@ class DailyReadingPassageStaysInHostTest {
         selectAReadingPlan()
         val controller = host(NavRoutes.dailyReading(plan = PLAN, day = 5)).apply { create().start().resume().visible() }
         val activity = controller.get()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5))
         idleMain()
         openDay(controller)
         activity.dailyReadingControllerForTest().read(1)

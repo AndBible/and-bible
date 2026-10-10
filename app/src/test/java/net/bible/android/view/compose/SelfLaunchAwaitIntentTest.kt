@@ -86,7 +86,7 @@ class SelfLaunchAwaitIntentTest {
                 ApplicationProvider.getApplicationContext(),
                 NavRoutes.READING,
             ),
-        ).setup().get()
+        ).setup().get().also { net.bible.test.awaitReadingGraph(it) }
     }
 
     private fun labelsIntent(activity: NavHostComposeActivity): Intent =

@@ -78,6 +78,7 @@ class AwaitIntentOffMainThreadTest {
     fun anAwaitIntentFromAnIoCoroutineNavigatesOnTheMainThreadInsteadOfCrashing() {
         val controller = host().apply { create().start().resume().visible() }
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity)
         idleMain()
         val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.ASSIGN).toJSON()
         val intent = NavHostComposeActivity.intentFor(activity, NavRoutes.manageLabels(data))

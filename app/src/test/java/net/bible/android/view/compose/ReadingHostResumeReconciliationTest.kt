@@ -75,6 +75,8 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostResumeReconciliationTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var toasts = 0
@@ -99,7 +101,10 @@ class ReadingHostResumeReconciliationTest {
         Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.apply { create().start().resume().visible() }
+        ).also { controllers += it }.apply {
+            create().start().resume().visible()
+            net.bible.test.awaitReadingGraph(get()) { compose.waitForIdle() }
+        }
 
     /** `Window.loadText()` assigns this synchronously; see the class kdoc. */
     private fun displayedKeyOf(window: Window): Any? =

@@ -62,7 +62,7 @@ class ReadingHostHistoryOnExitTest {
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.create().start().resume().visible().get()
+        ).also { controllers += it }.create().start().resume().visible().get().also { net.bible.test.awaitReadingGraph(it) }
     }
 
     private fun historyManager(): HistoryManager = GlobalContext.get().get()

@@ -52,6 +52,8 @@ import kotlin.test.assertNotNull
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostSaveOnPauseTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private val rom81 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Rom.8.1")!!
 
@@ -100,11 +102,13 @@ class ReadingHostSaveOnPauseTest {
 
     @Test
     fun aHostPausedOnAnotherDestinationStillSavesItsRepository() {
-        val controller = host().apply { create().start().resume() }
+        val controller = host().apply { create().start().resume().visible() }
         val activity = controller.get()
         navigateActiveWindowToKjvRomans8(activity)
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         activity.navigateInGraph(NavRoutes.SETTINGS)
-        shadowOf(android.os.Looper.getMainLooper()).idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.SETTINGS) { compose.waitForIdle() }
+        assertEquals(NavRoutes.SETTINGS, activity.currentRouteForTest()?.substringBefore('?'))
 
         controller.pause()
 

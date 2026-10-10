@@ -80,7 +80,7 @@ class ReadingHostBackChainTest {
                 ApplicationProvider.getApplicationContext(),
                 NavRoutes.READING,
             ),
-        ).also { hostControllers += it }.setup().get()
+        ).also { hostControllers += it }.setup().get().also { net.bible.test.awaitReadingGraph(it) }
     }
 
     @Before fun readingViewIsWhatTheUserSees() = ReadingViewVisibility.setVisible(true)

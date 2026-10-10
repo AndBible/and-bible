@@ -63,6 +63,7 @@ class HistoryGoBackLeavesScreenTest {
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible().get()
+        net.bible.test.awaitReadingGraph(activity)
         val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
             .apply { isAccessible = true }.get(activity) as NavHostController
 

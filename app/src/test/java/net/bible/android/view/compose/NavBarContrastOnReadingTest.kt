@@ -71,6 +71,7 @@ class NavBarContrastOnReadingTest {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible()
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity)
         idleMain()
         assertFalse(activity.window.isNavigationBarContrastEnforced, "on reading the scrim must be off")
 
