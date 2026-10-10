@@ -296,7 +296,8 @@ private fun RenderSettingsItem(
             val selectedLabel = item.entries.firstOrNull { it.value == item.selectedValue }?.label
             AbSettingsRow(
                 title = item.title,
-                summary = selectedLabel ?: item.summary,
+                // Disabled choices explain their restriction instead of hiding it behind the value.
+                summary = if (item.enabled) selectedLabel ?: item.summary else item.summary ?: selectedLabel,
                 enabled = item.enabled,
                 onClick = { openListChoice(item.key) },
                 iconKey = item.iconKey,

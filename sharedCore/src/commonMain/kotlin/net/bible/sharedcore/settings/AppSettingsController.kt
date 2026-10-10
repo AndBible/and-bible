@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import net.bible.service.common.DisplayColorMode
+import net.bible.service.common.THEME_PALETTE_STYLE_KEY
 
 /**
  * Navigation keys the host maps to concrete settings screens / actions. Rows whose only job is to
@@ -210,6 +212,16 @@ class AppSettingsController(
                 entries = s.nightModeChoices.entryChoices(),
                 selectedValue = s.nightMode,
                 iconKey = "night_mode_pref3",
+            ),
+            SettingsItem.ListChoiceRow(
+                key = THEME_PALETTE_STYLE_KEY,
+                title = labels.themePaletteStyleTitle,
+                summary = labels.themePaletteStyleSummary,
+                entries = s.themePaletteStyleChoices.entryChoices(),
+                selectedValue = s.themePaletteStyle,
+                iconKey = THEME_PALETTE_STYLE_KEY,
+                // The style only shapes the NORMAL scheme; BW/COLOR_EINK ignore it (spec 2026-10-10).
+                enabled = s.displayColorMode == DisplayColorMode.NORMAL.value,
             ),
             // ---- Display ----
             SettingsItem.Category(

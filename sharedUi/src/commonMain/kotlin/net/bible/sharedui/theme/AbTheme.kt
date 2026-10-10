@@ -25,6 +25,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.theme.accentArgbFor
 
 // Base accents (colored). Adjust hues later; e-ink polish is not chased in Phase 0.
@@ -54,9 +55,9 @@ val LocalIsDarkTheme = staticCompositionLocalOf { false }
  *   (accents in [LocalAbColors] stay colored in COLOR_EINK via [accentArgbFor]).
  * @param disableAnimations exposed to content via [LocalDisableAnimations].
  * @param seedArgb the workspace colour used as the Material 3 seed (A/B batch 4b). `null` — the
- *   default — is the untinted path and returns today's stock scheme, which is why previews, tests
- *   and the Roborazzi harness need no change. `:app` hosts do not pass this by hand; `AbAppTheme`
- *   supplies it.
+ *   default -- is the default workspace colour (`#444444`) in NORMAL. `:app` hosts do not pass
+ *   this by hand; `AbAppTheme` supplies it.
+ * @param paletteStyle the app-wide [ThemePaletteStyle]; `:app` hosts get it from `AbAppTheme`.
  */
 @Composable
 fun AbTheme(
@@ -64,12 +65,13 @@ fun AbTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colorMode: DisplayColorMode = DisplayColorMode.NORMAL,
     disableAnimations: Boolean = false,
+    paletteStyle: ThemePaletteStyle = ThemePaletteStyle.DEFAULT,
     content: @Composable () -> Unit,
 ) {
     // abColorScheme returns the FINAL scheme: seeding and the BW/COLOR_EINK greyscale pass both
     // happen inside it, so this host cannot fall out of step with the BibleView payload builder,
     // which calls the same function. Accents follow accentArgbFor (still coloured in COLOR_EINK).
-    val scheme = abColorScheme(seedArgb, darkTheme, colorMode)
+    val scheme = abColorScheme(seedArgb, darkTheme, colorMode, paletteStyle)
     val accents = AbColors(
         bookmark = Color(accentArgbFor(BookmarkBase.toArgb(), colorMode)),
         activeWindow = Color(accentArgbFor(ActiveWindowBase.toArgb(), colorMode)),

@@ -1784,6 +1784,7 @@ class BibleView(
             seedArgb = currentWorkspaceThemeSeedArgb(),
             dark = nightMode,
             colorMode = CommonUtils.settings.displayColorMode,
+            style = CommonUtils.settings.themePaletteStyle,
         )
         return """
                 bibleView.emit('set_config', {

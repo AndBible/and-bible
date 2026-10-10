@@ -18,6 +18,7 @@ package net.bible.sharedui.theme
 
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -28,14 +29,38 @@ private const val ORANGE = 0xFFFF8000.toInt()
 private const val TEAL = 0xFF008080.toInt()
 
 class ThemeColorsPayloadTest {
+    /** The inconsistency this spec fixes: default colour gave lilac Compose but Vue's own greys. */
     @Test
-    fun `null when no seed`() {
-        assertEquals("null", themeColorsJson(null, false, DisplayColorMode.NORMAL))
+    fun `NORMAL always ships a payload, also for no seed and the default colour`() {
+        listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB).forEach { seed ->
+            assertNotEquals("seed=$seed", "null", themeColorsJson(seed, false, DisplayColorMode.NORMAL))
+        }
     }
 
     @Test
-    fun `null for the not-set sentinel`() {
-        assertEquals("null", themeColorsJson(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL))
+    fun `the default colour's payload is the default scheme's roles`() {
+        val s = abColorScheme(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL)
+        val json = themeColorsJson(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL)
+        assertTrue(json, json.contains("\"primaryContainer\":\"#%06X\"".format(0xFFFFFF and s.primaryContainer.toArgb())))
+        assertTrue(json, json.contains("\"primary\":\"#%06X\"".format(0xFFFFFF and s.primary.toArgb())))
+    }
+
+    @Test
+    fun `the style reaches the payload`() {
+        assertNotEquals(
+            themeColorsJson(ORANGE, false, DisplayColorMode.NORMAL, ThemePaletteStyle.FIDELITY),
+            themeColorsJson(ORANGE, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT),
+        )
+    }
+
+    @Test
+    fun `COLOR_EINK keeps today's rules - null when unset, style ignored when set`() {
+        assertEquals("null", themeColorsJson(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.COLOR_EINK))
+        assertEquals("null", themeColorsJson(null, false, DisplayColorMode.COLOR_EINK))
+        assertEquals(
+            themeColorsJson(ORANGE, false, DisplayColorMode.COLOR_EINK, ThemePaletteStyle.FIDELITY),
+            themeColorsJson(ORANGE, false, DisplayColorMode.COLOR_EINK, ThemePaletteStyle.TONAL_SPOT),
+        )
     }
 
     @Test
@@ -79,18 +104,20 @@ class ThemeColorsPayloadTest {
     fun `the payload's roles are exactly the scheme's roles`() {
         listOf(DisplayColorMode.NORMAL, DisplayColorMode.COLOR_EINK).forEach { mode ->
             listOf(false, true).forEach { dark ->
-                val scheme = abColorScheme(ORANGE, dark, mode)
-                val json = themeColorsJson(ORANGE, dark, mode)
-                listOf(
-                    "primary" to scheme.primary,
-                    "onPrimary" to scheme.onPrimary,
-                    "primaryContainer" to scheme.primaryContainer,
-                    "onPrimaryContainer" to scheme.onPrimaryContainer,
-                    "secondaryContainer" to scheme.secondaryContainer,
-                    "onSecondaryContainer" to scheme.onSecondaryContainer,
-                ).forEach { (name, color) ->
-                    val hex = "#%06X".format(0xFFFFFF and color.toArgb())
-                    assertTrue("$mode/dark=$dark: $name should be $hex in $json", json.contains("\"$name\":\"$hex\""))
+                ThemePaletteStyle.entries.forEach { style ->
+                    val scheme = abColorScheme(ORANGE, dark, mode, style)
+                    val json = themeColorsJson(ORANGE, dark, mode, style)
+                    listOf(
+                        "primary" to scheme.primary,
+                        "onPrimary" to scheme.onPrimary,
+                        "primaryContainer" to scheme.primaryContainer,
+                        "onPrimaryContainer" to scheme.onPrimaryContainer,
+                        "secondaryContainer" to scheme.secondaryContainer,
+                        "onSecondaryContainer" to scheme.onSecondaryContainer,
+                    ).forEach { (name, color) ->
+                        val hex = "#%06X".format(0xFFFFFF and color.toArgb())
+                        assertTrue("$mode/dark=$dark/style=$style: $name should be $hex in $json", json.contains("\"$name\":\"$hex\""))
+                    }
                 }
             }
         }
