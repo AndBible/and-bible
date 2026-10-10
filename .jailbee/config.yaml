@@ -132,6 +132,15 @@ egress_allow:
   # GitHub: HTTPS submodules (jsword, goldens) and release downloads
   - github.com:443
   - release-assets.githubusercontent.com:443
+  # GitHub Actions from the container (read-only `gh run list/view/download`, `gh api`):
+  # REST API, run-log downloads (redirect to *.actions.githubusercontent.com /
+  # Azure blob storage), artifacts, raw/codeload fetches
+  - api.github.com:443
+  - objects.githubusercontent.com:443
+  - raw.githubusercontent.com:443
+  - codeload.github.com:443
+  - "*.actions.githubusercontent.com"
+  - "*.blob.core.windows.net"
   # Website (website/): Python packages for uv, YouTube catalog + thumbnails, shop link check
   - pypi.org:443
   - files.pythonhosted.org:443
