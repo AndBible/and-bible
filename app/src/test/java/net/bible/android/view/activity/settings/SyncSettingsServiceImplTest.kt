@@ -17,10 +17,14 @@
 package net.bible.android.view.activity.settings
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Job
 import net.bible.android.TestBibleApplication
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils
@@ -37,9 +41,9 @@ import org.robolectric.annotation.Config
 
 /**
  * Verifies [SyncSettingsServiceImpl]'s per-key routing to the correct backing store. The
- * activity-bound OAuth methods (`signIn`/`scanDocuments`) are NOT exercised here (they need a real
- * cloud sign-in); the `activityProvider` is a throwing stub, and the scope runs unconfined, and
- * its jobs are cancelled after each test. Document preference writes are drained before DB reset.
+ * OAuth and remote scans are not exercised here. Store routing runs unconfined; the suspended
+ * category read uses a dedicated serial UI dispatcher. All scopes are cancelled after each test,
+ * and document preference writes are drained before DB reset.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
@@ -50,15 +54,65 @@ class SyncSettingsServiceImplTest {
         DatabaseResetter.resetDatabase(*scopes.toTypedArray())
     }
 
-    private fun impl(): SyncSettingsServiceImpl {
+    private fun impl(
+        scope: CoroutineScope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) },
+        documentSettings: DocumentSyncSettings = settings,
+        categories: net.bible.service.cloudsync.SyncSettingsCategories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings),
+    ): SyncSettingsServiceImpl {
+        fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
         val service = SyncSettingsServiceImpl(
-        scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) },
-        // The store-routing methods never touch the Activity; a throwing provider proves that.
-        // `error(...)` returns Nothing, which satisfies the `() -> ActivityBase` type.
-        activityProvider = { error("activity not needed for store-routing tests") },
-    )
+            scope, scope, documentSettings, get(net.bible.service.cloudsync.CloudSync::class.java),
+            get(net.bible.service.cloudsync.CloudAdapterFactory::class.java), categories,
+            get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
+            get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
+            get(net.bible.service.cloudsync.SyncSettingsPlatform::class.java), net.bible.test.testCoreStrings(),
+            get(net.bible.sharedcore.platform.AppEnvironment::class.java), {},
+        )
         kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
         return service
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test fun suspendedCategoryDaoLeavesMainScopeResponsive() {
+        val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+        val dispatcher = executor.asCoroutineDispatcher()
+        kotlinx.coroutines.Dispatchers.setMain(dispatcher)
+        val scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Main).also { scopes.add(it) }
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val dao = object : net.bible.android.database.SyncDao by com.nhaarman.mockitokotlin2.mock() {
+            override suspend fun getLong(keyName: String): Long? {
+                assertEquals(net.bible.service.cloudsync.LAST_SYNCHRONIZED_KEY, keyName)
+                entered.countDown()
+                release.await()
+                return 1234L
+            }
+        }
+        CommonUtils.settings.setBoolean("sync_enable_bookmarks", true)
+        try {
+            val service = impl(scope, categories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings) { dao })
+            assertTrue("refresh reached the category DAO", entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            val mainResponsive = java.util.concurrent.CountDownLatch(1)
+            scope.launch { mainResponsive.countDown() }
+            assertTrue("a suspended category read must not block the UI dispatcher", mainResponsive.await(2, java.util.concurrent.TimeUnit.SECONDS))
+            assertTrue(service.snapshot.value.categorySummary.isEmpty())
+            release.complete(Unit)
+            kotlinx.coroutines.runBlocking {
+                val loaded = kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.categorySummary.isNotEmpty() } }
+                assertEquals(
+                    net.bible.test.testCoreStrings().syncCategoryContents("BOOKMARKS") + ".\n\n" +
+                        net.bible.test.testCoreStrings().syncLastUpdated(net.bible.android.platform.AndroidSyncSettingsPlatform(
+                            androidx.test.core.app.ApplicationProvider.getApplicationContext()).formatSyncTime(1234L)),
+                    loaded.categorySummary.getValue("sync_enable_bookmarks"),
+                )
+            }
+        } finally {
+            release.complete(Unit)
+            scope.cancel()
+            kotlinx.coroutines.Dispatchers.resetMain()
+            dispatcher.close()
+            executor.shutdownNow()
+        }
     }
 
     @Test fun initialRefreshLoadsPersistedDocumentSyncBeforeBuild() = kotlinx.coroutines.runBlocking {
@@ -69,7 +123,7 @@ class SyncSettingsServiceImplTest {
         val fresh = DocumentSyncSettings({ db.documentSyncPreferencesDao() }, { db.cloudListingStateDao() },
             { db.cloudDocumentSyncTimestampDao() }, launcher,
             org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppEnvironment>(net.bible.sharedcore.platform.AppEnvironment::class.java))
-        val service = SyncSettingsServiceImpl(scope, { error("activity not needed") }, fresh)
+        val service = impl(scope, documentSettings = fresh)
         val snapshot = kotlinx.coroutines.withTimeout(10_000) { service.snapshot.first { it.documentsEnabled } }
         assertTrue(snapshot.autoTogglesVisible)
         assertFalse(snapshot.wifiOnly)
@@ -78,7 +132,10 @@ class SyncSettingsServiceImplTest {
 
     @Test fun categoryDescriptionsRetainResourceText() {
         val strings = net.bible.test.testCoreStrings()
-        val snapshot = impl().snapshot.value
+        val service = impl()
+        val snapshot = kotlinx.coroutines.runBlocking {
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.categorySummary.isNotEmpty() } }
+        }
         val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
         val ids = mapOf(
             "BOOKMARKS" to net.bible.android.activity.R.string.bookmarks_contents,

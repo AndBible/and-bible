@@ -4,6 +4,17 @@ package net.bible.sharedcore.platform
 interface CoreStrings {
     /** Resolves the stable sync category name; rejects unknown categories. */
     fun syncCategoryContents(category: String): String
+    val syncIntroduction: String
+    fun syncDriveIntroduction(discrete: Boolean): String
+    fun syncAdapterSummary(adapter: String): String
+    fun syncLastUpdated(time: String): String
+    fun syncCloudInfo(megabytes: String): String
+    val documentSyncNothing: String
+    fun documentSyncUpload(count: Int): String
+    fun documentSyncUploadSize(count: Int, size: String): String
+    fun documentSyncDownload(count: Int): String
+    fun documentSyncDownloadSize(count: Int, size: String): String
+    val documentSyncWifiWaiting: String
     val storageSpaceWarning: String
     val errorDownloading: String
     val journalDescription: String

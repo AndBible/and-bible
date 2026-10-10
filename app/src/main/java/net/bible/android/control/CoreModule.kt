@@ -137,6 +137,14 @@ fun buildCoreModule() = module {
     single { OrderedLauncher(get<AppCoroutineScope>()) }
     single { ProgressJsActions(get()) }
     single { BookmarkJsActions(get(), get()) }
+    single<net.bible.service.cloudsync.SyncSettingsPlatform> { net.bible.android.platform.AndroidSyncSettingsPlatform(androidContext()) }
+    single { net.bible.service.cloudsync.SyncSettingsCategories(get()) }
+    factory { (scope: kotlinx.coroutines.CoroutineScope) ->
+        net.bible.android.view.activity.settings.SyncSettingsServiceImpl(
+            scope, get<AppCoroutineScope>(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
+            { net.bible.service.db.DatabaseContainer.notifyDatabaseRestored() },
+        )
+    }
     single<net.bible.service.cloudsync.CloudAdapterFactory> { net.bible.android.platform.AndroidCloudAdapterFactory(androidContext()) }
     single { net.bible.android.platform.AndroidSyncScheduler(androidContext()) }
     single<net.bible.service.cloudsync.SyncScheduler> { get<net.bible.android.platform.AndroidSyncScheduler>() }

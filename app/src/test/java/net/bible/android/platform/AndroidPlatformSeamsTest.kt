@@ -74,6 +74,25 @@ class AndroidPlatformSeamsTest {
         assertEquals(ctx.getString(R.string.sleep_timer_started, 7), s.sleepTimerStarted(7))
     }
 
+    @Test fun syncSettingsStringsRetainExistingResources() {
+        val ctx = ApplicationProvider.getApplicationContext<Context>()
+        val strings = AndroidCoreStrings(ctx)
+        assertEquals(ctx.getString(R.string.prefs_sync_introduction_summary1), strings.syncIntroduction)
+        listOf(false, true).forEach { discrete ->
+            assertEquals(ctx.getString(R.string.prefs_sync_introduction_summary2, ctx.getString(syncSummaryAppName(discrete))),
+                strings.syncDriveIntroduction(discrete))
+        }
+        assertEquals(ctx.getString(R.string.sync_adapter_summary, "Nextcloud"), strings.syncAdapterSummary("Nextcloud"))
+        assertEquals(ctx.getString(R.string.last_updated, "timestamp"), strings.syncLastUpdated("timestamp"))
+        assertEquals(ctx.getString(R.string.cloud_info_summary, "1.25"), strings.syncCloudInfo("1.25"))
+        assertEquals(ctx.getString(R.string.document_sync_enable_dialog_nothing), strings.documentSyncNothing)
+        assertEquals(ctx.getString(R.string.cloud_doc_summary_upload, 2), strings.documentSyncUpload(2))
+        assertEquals(ctx.getString(R.string.cloud_doc_summary_upload_size, 2, "3 MB"), strings.documentSyncUploadSize(2, "3 MB"))
+        assertEquals(ctx.getString(R.string.cloud_doc_summary_download, 4), strings.documentSyncDownload(4))
+        assertEquals(ctx.getString(R.string.cloud_doc_summary_download_size, 4, "5 MB"), strings.documentSyncDownloadSize(4, "5 MB"))
+        assertEquals(ctx.getString(R.string.cloud_doc_wifi_waiting), strings.documentSyncWifiWaiting)
+    }
+
     @Test fun infoMessagesKeepTheirTextAndDuration() {
         val messages = mutableListOf<UserMessage>()
         val subscription = UserMessages.messages.subscribe { messages += it }

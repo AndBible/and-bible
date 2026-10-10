@@ -618,13 +618,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private val appSettingsService by lazy { AppSettingsServiceImpl() }
 
-    /**
-     * Classic `SyncSettingsComposeActivity`'s own `by lazy` service, constructed EXACTLY as it was:
-     * `activityProvider` must yield an `ActivityBase` (`CloudSync.signIn` demands one, not a
-     * `Context`), and this host is one — so `{ this }` carries over verbatim.
-     */
-    private val syncSettingsService by lazy {
-        SyncSettingsServiceImpl(scope = lifecycleScope, activityProvider = { this })
+    /** Observe snapshots in the host scope; durable sync writes use the injected app scope. */
+    private val syncSettingsService: SyncSettingsServiceImpl by inject {
+        org.koin.core.parameter.parametersOf(lifecycleScope)
     }
 
     /**
@@ -692,8 +688,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * (four JSword `Books.installed()` dictionary scans and ~51 `CommonUtils.settings` reads, each
      * a Room query on the main thread), builds the whole `SettingsScreenState` item tree, needs
      * ~90 `getString` calls for its labels and launches a permanent snapshot collector;
-     * [SyncSettingsController] forces [syncSettingsService]'s eager `build()` (`CloudSync.signedIn`,
-     * the adapter summaries) plus ~35 more `getString`s. Classic paid that only when Settings
+     * [SyncSettingsController] starts [syncSettingsService]'s asynchronous snapshot load
+     * (cloud sign-in, category timestamps and adapter summaries) plus ~35 more `getString`s. Classic paid that only when Settings
      * itself opened, and a `by lazy` behind the deps' `() -> Controller` getter keeps it that way:
      * nothing is built until a settings DESTINATION composes.
      *

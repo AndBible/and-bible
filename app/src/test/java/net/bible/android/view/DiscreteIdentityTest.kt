@@ -28,7 +28,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.noticeLogoRes
 import net.bible.android.view.activity.page.shouldShowBetaNotice
 import net.bible.android.view.activity.page.stableNoticeAppName
-import net.bible.android.view.activity.settings.syncSummaryAppName
+import net.bible.android.platform.syncSummaryAppName
 import net.bible.service.common.incompleteTranslationAppName
 import net.bible.service.sword.shareAdvertAllowed
 import net.bible.android.view.activity.webViewTooOldRequest

@@ -16,6 +16,18 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
         else -> throw IllegalArgumentException("Unknown sync category: $category")
     })
 
+    override val syncIntroduction: String get() = context.getString(R.string.prefs_sync_introduction_summary1)
+    override fun syncDriveIntroduction(discrete: Boolean): String =
+        context.getString(R.string.prefs_sync_introduction_summary2, context.getString(syncSummaryAppName(discrete)))
+    override fun syncAdapterSummary(adapter: String): String = context.getString(R.string.sync_adapter_summary, adapter)
+    override fun syncLastUpdated(time: String): String = context.getString(R.string.last_updated, time)
+    override fun syncCloudInfo(megabytes: String): String = context.getString(R.string.cloud_info_summary, megabytes)
+    override val documentSyncNothing: String get() = context.getString(R.string.document_sync_enable_dialog_nothing)
+    override fun documentSyncUpload(count: Int): String = context.getString(R.string.cloud_doc_summary_upload, count)
+    override fun documentSyncUploadSize(count: Int, size: String): String = context.getString(R.string.cloud_doc_summary_upload_size, count, size)
+    override fun documentSyncDownload(count: Int): String = context.getString(R.string.cloud_doc_summary_download, count)
+    override fun documentSyncDownloadSize(count: Int, size: String): String = context.getString(R.string.cloud_doc_summary_download_size, count, size)
+    override val documentSyncWifiWaiting: String get() = context.getString(R.string.cloud_doc_wifi_waiting)
     override val storageSpaceWarning: String get() = context.getString(R.string.storage_space_warning)
     override val errorDownloading: String get() = context.getString(R.string.error_downloading)
     override val journalDescription: String get() = context.getString(R.string.journal_description)
