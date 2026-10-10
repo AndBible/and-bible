@@ -111,6 +111,68 @@ class DatabaseResetterMainTest {
         } finally { release.complete(Unit) }
     }
 
+    @Test fun throwingMainCallbackBeforeCommitPreventsLateActualReset() {
+        val old = DatabaseContainer.instance
+        val failure = IllegalArgumentException("Main callback failed")
+        val release = CompletableDeferred<Unit>()
+        val finished = java.util.concurrent.CountDownLatch(1)
+        val denied = java.util.concurrent.atomic.AtomicBoolean(false)
+        try {
+            val thrown = assertThrows(IllegalArgumentException::class.java) {
+                DatabaseResetter.runResetBlocking {
+                    withContext(NonCancellable) {
+                        android.os.Handler(android.os.Looper.getMainLooper()).post { throw failure }
+                        release.await()
+                        try { commitReset { DatabaseContainer.reset() } }
+                        catch (e: IllegalStateException) { denied.set(true) }
+                        finally { finished.countDown() }
+                    }
+                }
+            }
+            assertSame(failure, thrown)
+            release.complete(Unit)
+            assertTrue(finished.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            assertTrue("pump failure must abort late commit", denied.get())
+            assertSame(old, DatabaseContainer.instance)
+        } finally { release.complete(Unit) }
+    }
+
+    @Test fun throwingMainCallbackDuringCommittedResetAwaitsActualMonitorRelease() {
+        val old = DatabaseContainer.instance
+        val failure = IllegalArgumentException("Main failed during reset")
+        val held = java.util.concurrent.CountDownLatch(1)
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val holder = Thread {
+            synchronized(DatabaseContainer.Companion) { held.countDown(); release.await() }
+        }.apply { start() }
+        assertTrue(held.await(5, java.util.concurrent.TimeUnit.SECONDS))
+        val releaser = Thread {
+            entered.await(5, java.util.concurrent.TimeUnit.SECONDS)
+            Thread.sleep(250)
+            release.countDown()
+        }.apply { start() }
+        try {
+            val thrown = assertThrows(IllegalArgumentException::class.java) {
+                DatabaseResetter.runResetBlocking {
+                    commitReset {
+                        entered.countDown()
+                        android.os.Handler(android.os.Looper.getMainLooper()).post { throw failure }
+                        DatabaseContainer.reset()
+                    }
+                }
+            }
+            assertSame(failure, thrown)
+            assertEquals("cannot return pump error while reset still waits", 0L, release.count)
+            assertNotSame(old, DatabaseContainer.instance)
+        } finally {
+            release.countDown()
+            holder.join(5_000)
+            releaser.join(5_000)
+            DatabaseResetter.resetDatabase()
+        }
+    }
+
     @Test fun timeoutDoesNotRunResetAfterNonCancellableProducerEventuallyFinishes() {
         val release = CompletableDeferred<Unit>()
         val entered = CompletableDeferred<Unit>()

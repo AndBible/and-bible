@@ -93,6 +93,29 @@ object DatabaseResetter {
             }
             // Already complete: await only propagates an error; it cannot block Main.
             kotlinx.coroutines.runBlocking { cleanup.await() }
+        } catch (failure: Throwable) {
+            if (decision.abortBeforeCommit()) {
+                cleanup.cancel()
+            } else {
+                // A callback/interrupt cannot abandon an irreversible reset. Keep Main available
+                // until it finishes, but report the original pump failure rather than mask it.
+                var interrupted = failure is InterruptedException
+                while (!cleanup.isCompleted) {
+                    try {
+                        if (android.os.Looper.myLooper() === main) {
+                            org.robolectric.Shadows.shadowOf(main).runOneTask()
+                        }
+                        Thread.sleep(1)
+                    } catch (secondary: Throwable) {
+                        if (secondary is InterruptedException) interrupted = true
+                        if (secondary !== failure) failure.addSuppressed(secondary)
+                    }
+                }
+                try { kotlinx.coroutines.runBlocking { cleanup.await() } }
+                catch (secondary: Throwable) { if (secondary !== failure) failure.addSuppressed(secondary) }
+                if (interrupted) Thread.currentThread().interrupt()
+            }
+            throw failure
         } finally { scope.cancel() }
     }
 
