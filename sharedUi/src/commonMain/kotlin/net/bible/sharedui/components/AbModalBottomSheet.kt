@@ -49,6 +49,7 @@ fun AbModalBottomSheet(
         },
     ) {
         MirrorHostSystemBars()
+        if (mono) NoDialogNavigationContrast()
         content()
     }
 }

@@ -61,6 +61,73 @@ class AbAlertDialogTest {
         }
     }
 
+    @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+    @Config(sdk = [35])
+    @Test fun `actual M3 sheet contrast is reversible and never changes host window`() {
+        val mode = mutableStateOf(DisplayColorMode.NORMAL)
+        val shown = mutableStateOf(true)
+        val contrastOverride = mutableStateOf(false)
+        var window: Window? = null
+        var host: Window? = null
+        rule.setContent {
+            val hostView = LocalView.current
+            SideEffect { host = (hostView.context as android.app.Activity).window }
+            AbTheme(darkTheme = true, colorMode = mode.value, disableAnimations = true) {
+                if (shown.value) AbModalBottomSheet(onDismissRequest = {}) {
+                    val view = LocalView.current
+                    SideEffect {
+                        window = generateSequence(view.parent) { it.parent }
+                            .filterIsInstance<DialogWindowProvider>().first().window
+                    }
+                    if (contrastOverride.value) NoDialogNavigationContrast()
+                    Text("Actual sheet")
+                }
+            }
+        }
+        rule.waitForIdle()
+        var sheet = window!!
+        assertNotSame(host, sheet)
+        assertFalse(sheet.isFloating)
+        val originalHostContrast = host!!.isNavigationBarContrastEnforced
+        // Exercise both restoration values on the actual enclosing sheet window, without
+        // changing M3 properties (which legitimately replace that window at mode changes).
+        for (original in listOf(true, false)) {
+            rule.runOnIdle { sheet.isNavigationBarContrastEnforced = original; contrastOverride.value = true }
+            rule.waitForIdle()
+            if (sheet !== window) {
+                assertEquals("replaced window restores its original policy", original, sheet.isNavigationBarContrastEnforced)
+                sheet = window!!
+            }
+            assertFalse(sheet.isNavigationBarContrastEnforced)
+            assertEquals(originalHostContrast, host!!.isNavigationBarContrastEnforced)
+            rule.runOnIdle {
+                sheet.decorView.dispatchConfigurationChanged(android.content.res.Configuration(sheet.context.resources.configuration))
+            }
+            rule.waitForIdle()
+            assertFalse(sheet.isNavigationBarContrastEnforced)
+            rule.runOnIdle { contrastOverride.value = false }
+            rule.waitForIdle()
+            assertEquals(original, sheet.isNavigationBarContrastEnforced)
+        }
+        rule.runOnIdle { sheet.isNavigationBarContrastEnforced = true; mode.value = DisplayColorMode.MONOCHROME }
+        rule.waitForIdle()
+        assertTrue(sheet.isNavigationBarContrastEnforced)
+        sheet = window!!
+        assertFalse(sheet.isNavigationBarContrastEnforced)
+        rule.runOnIdle { mode.value = DisplayColorMode.COLOR_EINK }
+        rule.waitForIdle()
+        assertTrue(sheet.isNavigationBarContrastEnforced)
+        assertTrue(window!!.isNavigationBarContrastEnforced)
+        rule.runOnIdle { mode.value = DisplayColorMode.MONOCHROME }
+        rule.waitForIdle()
+        sheet = window!!
+        assertFalse(sheet.isNavigationBarContrastEnforced)
+        rule.runOnIdle { shown.value = false }
+        rule.waitForIdle()
+        assertTrue(sheet.isNavigationBarContrastEnforced)
+        assertEquals(originalHostContrast, host!!.isNavigationBarContrastEnforced)
+    }
+
     @Test fun `old modes with null text retain Material dialog layout`() {
         val mode = mutableStateOf(DisplayColorMode.NORMAL)
         val wrapped = mutableStateOf(false)
