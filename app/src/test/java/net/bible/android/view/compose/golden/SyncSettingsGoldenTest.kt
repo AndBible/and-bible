@@ -43,6 +43,7 @@ class SyncSettingsGoldenTest {
         override fun disableDocuments() {}
         override fun setDocumentSyncToggle(key: String, value: Boolean) {}
         override fun setText(key: String, value: String) = true
+        override fun forgetCertificate() {}
         override fun setAdapter(value: String) {}
         override suspend fun resetSync() {}
         override fun formatEnableDocumentsMessage(summary: DocSyncSummaryData) =
@@ -56,10 +57,18 @@ class SyncSettingsGoldenTest {
         username: String = "alice",
         password: String = "secret",
         folderPath: String = "AndBible",
+        adapter: String = "NEXT_CLOUD",
+        serverUrlHint: String? = null,
+        httpsOnly: Boolean = false,
+        certificateVisible: Boolean = false,
+        certificateSummary: String = "",
     ) = SyncSettingsSnapshot(
-        adapter = "NEXT_CLOUD",
-        adapterChoices = listOf(Choice2("GOOGLE_DRIVE", "Google Drive"), Choice2("NEXT_CLOUD", "Nextcloud")),
-        adapterSummary = "Sync keeps your data across devices. Provider: Nextcloud",
+        adapter = adapter,
+        adapterChoices = listOf(
+            Choice2("GOOGLE_DRIVE", "Google Drive"), Choice2("NEXT_CLOUD", "Nextcloud"), Choice2("WEBDAV", "WebDAV"),
+        ).filter { adapter == "WEBDAV" || it.value != "WEBDAV" },
+        adapterSummary = "Sync keeps your data across devices. Provider: " +
+            (if (adapter == "WEBDAV") "WebDAV" else "Nextcloud"),
         adapterEnabled = !signedIn,
         cloudInfoSummary = if (signedIn) "Using 12.34 MB in the cloud" else null,
         serverUrl = serverUrl, username = username, password = password, folderPath = folderPath,
@@ -71,6 +80,15 @@ class SyncSettingsGoldenTest {
         documentCategoryVisible = signedIn,
         autoDownload = true, autoUpload = true, autoDelete = false, wifiOnly = true,
         autoTogglesVisible = documentsEnabled, wifiOnlyVisible = documentsEnabled,
+        serverUrlHint = serverUrlHint, httpsOnly = httpsOnly,
+        certificateVisible = certificateVisible, certificateSummary = certificateSummary,
+    )
+
+    /** WebDAV provider, signed out: blank URL (so the hint shows) and a pinned certificate row. */
+    private fun webDavSnap() = snap(
+        signedIn = false, adapter = "WEBDAV", serverUrl = "", username = "", password = "", folderPath = "",
+        serverUrlHint = "Address of the WebDAV folder, e.g. https://nas.local/dav/",
+        httpsOnly = true, certificateVisible = true, certificateSummary = "AB:CD:EF:01:23:45:67:89…",
     )
 
     private fun uiStateFor(snapshot: SyncSettingsSnapshot): SyncSettingsUiState =
@@ -91,6 +109,7 @@ class SyncSettingsGoldenTest {
             onNavigate = {},
             onConfirmReset = {},
             onConfirmEnableDocuments = {},
+            onConfirmForgetCertificate = {},
             onDismissDialog = {},
         )
     }
@@ -98,6 +117,13 @@ class SyncSettingsGoldenTest {
     // heightDp=2400: the full sync list is longer than the default viewport.
     @Test fun signedout_matrix() =
         captureMatrix("SyncSettings", "signedout", heightDp = 2400, content = screen(uiStateFor(snap(signedIn = false))))
+
+    @Test fun webdav_signedout_matrix() =
+        captureMatrix("SyncSettings", "webdav_signedout", heightDp = 2400, content = screen(uiStateFor(webDavSnap())))
+
+    @Test fun webdav_forgetCertificate_dialog() =
+        captureGolden("SyncSettings", "webdav_forgetCertificate", EDGE_MODE, heightDp = 2400,
+            content = screen(uiStateFor(webDavSnap()).copy(dialog = SyncDialog.ForgetCertificate("Forget certificate?"))))
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")

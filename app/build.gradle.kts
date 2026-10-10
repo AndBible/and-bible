@@ -509,12 +509,18 @@ dependencies {
     implementation("commons-httpclient:commons-httpclient:3.1@jar")  // Make sure this is same version as in NextCloud lib
     implementation("org.apache.jackrabbit:jackrabbit-webdav:2.13.5") // Make sure this is same version as in NextCloud lib
 
+    // WebDAV sync (spec 2026-10-09-webdav-sync-design)
+    implementation(libs.ktor.client.okhttp)
+
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
 
     // TESTS
     //testImplementation("com.github.AndBible:robolectric:4.3.1-andbible3")
     testImplementation(libs.robolectric)
+    testImplementation(libs.ktor.client.mock)
+    testImplementation("com.squareup.okhttp3:okhttp-tls:5.2.1")
+    testImplementation("com.squareup.okhttp3:mockwebserver3:5.2.1")
     //testImplementation("org.robolectric:shadows-multidex:4.3.1")
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)

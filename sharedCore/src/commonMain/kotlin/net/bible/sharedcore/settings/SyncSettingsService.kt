@@ -48,6 +48,12 @@ data class SyncSettingsSnapshot(
     val wifiOnly: Boolean,
     val autoTogglesVisible: Boolean,           // documentsEnabled
     val wifiOnlyVisible: Boolean,              // documentsEnabled
+    // -- WebDAV extras (defaults keep other providers unchanged) --
+    val serverUrlHint: String? = null,         // shown as the URL row summary while the URL is blank
+    val httpsOnly: Boolean = false,            // true → a rejected URL gets the "HTTPS required" message
+    val certificateVisible: Boolean = false,   // a TOFU certificate pin exists
+    val certificateEnabled: Boolean = true,    // !signedIn
+    val certificateSummary: String = "",       // shortened pinned fingerprint
 )
 
 /** The 5 syncable-category keys shown, in classic `sync_settings.xml` order (readingplans omitted —
@@ -84,6 +90,7 @@ interface SyncSettingsService {
     fun setDocumentSyncToggle(key: String, value: Boolean)  // sync_documents_auto_* / wifi_only
     fun setText(key: String, value: String): Boolean        // cloud_sync_* (false = URL invalid, not persisted)
     fun setAdapter(value: String)                           // sync_adapter
+    fun forgetCertificate()                                  // webdav_sync_cert → clear the TOFU pin
     suspend fun resetSync()                                 // cloud_sync_reset → CloudSync.signOut()
 
     /** Localized message for the document-sync enable confirmation dialog (needs Android file-size /
@@ -133,6 +140,10 @@ data class SyncSettingsLabels(
     val resetConfirmMessage: String,
     val invalidUrlMessage: String,
     val documentsEnableDialogTitle: String,
+    // WebDAV certificate row / URL validation
+    val certificateTitle: String,
+    val forgetCertificateMessage: String,
+    val httpsRequiredMessage: String,
 ) {
     companion object {
         fun forTest() = SyncSettingsLabels(
@@ -152,6 +163,8 @@ data class SyncSettingsLabels(
             resetConfirmMessage = "Are you sure you want to reset synchronization?",
             invalidUrlMessage = "Invalid URL",
             documentsEnableDialogTitle = "Enable document sync",
+            certificateTitle = "Server certificate", forgetCertificateMessage = "Forget certificate?",
+            httpsRequiredMessage = "HTTPS required",
         )
     }
 }
@@ -162,6 +175,7 @@ sealed interface SyncDialog {
     data class EnableDocuments(val summary: DocSyncSummaryData, val message: String, val title: String) : SyncDialog
     data class ResetConfirm(val message: String) : SyncDialog
     data class UrlError(val message: String) : SyncDialog
+    data class ForgetCertificate(val message: String) : SyncDialog
 }
 
 /** Full UI state: the declarative settings list plus transient blocking/dialog state. */

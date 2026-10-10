@@ -1,7 +1,7 @@
 # Cloud Sync
 
 *AndBible* can synchronize your bookmarks, notes, labels, study pads, and workspaces
-across multiple devices using Google Drive or Nextcloud.
+across multiple devices using Google Drive, Nextcloud or your own WebDAV server.
 
 Sync is automatic — once set up, changes are synchronized in the background
 while the app is open, as well as when opening or exiting the app.
@@ -9,7 +9,7 @@ while the app is open, as well as when opening or exiting the app.
 ## Requirements
 
 - Android 5.1 or newer
-- A Google account (for Google Drive sync) or a Nextcloud server
+- A Google account (for Google Drive sync), a Nextcloud server, or a WebDAV server
 - Internet connection
 
 !!! note
@@ -21,7 +21,7 @@ while the app is open, as well as when opening or exiting the app.
 
 1. Open the top left main menu (☰).
 2. Tap `Sync settings`.
-3. Choose your sync adapter: **Google Drive** (default) or **Nextcloud**.
+3. Choose your sync adapter: **Google Drive** (default), **Nextcloud** or **WebDAV**.
 4. Toggle on the data categories you want to sync (see [What Gets Synced](#what-gets-synced)).
 
 When enabling sync for the first time:
@@ -49,6 +49,59 @@ If using Nextcloud instead of Google Drive:
 2. Enter your Nextcloud server URL, username, and password.
 3. Optionally specify a folder path on the server.
 4. Toggle on the data categories you want to sync.
+
+### Setting Up WebDAV
+
+WebDAV lets you synchronize with your own server, a NAS, or any server that
+supports WebDAV (RFC 4918), without needing an account with a third-party cloud
+service.
+
+1. In Sync settings, change the `Sync adapter` to **WebDAV**.
+2. Enter the server address, username, and password.
+3. Optionally specify a `Sync folder path`, a subfolder on the server under
+    which *AndBible* stores its data. It is created if it does not exist.
+4. Toggle on the data categories you want to sync.
+
+Typical server addresses:
+
+| Server | Address |
+| --- | --- |
+| Nextcloud / ownCloud | `https://HOST/remote.php/dav/files/USERNAME/` |
+| Synology NAS | `https://NAS:5006/` |
+| Apache / nginx | `https://HOST/dav/` |
+| rclone (`rclone serve webdav`) | `https://HOST:PORT/` |
+| Koofr | `https://app.koofr.net/dav/Koofr/` |
+
+!!! note
+
+    Only secure `https://` addresses are accepted; an `http://` address is
+    rejected. Sign-in uses your username and password (the server chooses Basic
+    or Digest authentication automatically).
+
+#### Self-signed certificates
+
+If the server's certificate is not trusted by Android (for example a
+self-signed certificate on a home server), *AndBible* shows an
+**Untrusted server certificate** dialog with the host, subject, issuer,
+validity period, and the SHA-256 fingerprint of the certificate. Compare the
+fingerprint with the one on your server, and choose **Trust this certificate**
+only if they match.
+
+- The trust is remembered for that server address only. Certificates you have
+    installed on the phone as extra certificate authorities are not used. (On
+    Android 6, certificates you installed on the phone may still be accepted by the
+    system; Android excludes them only from Android 7 onwards.)
+- If the server's certificate changes later, sync pauses with a message. The
+    prompt to confirm the new fingerprint appears the next time *AndBible* is opened
+    or syncs in the foreground.
+- Whenever a certificate is trusted for the WebDAV provider, Sync settings shows a
+    **Server certificate** row where you can forget the trusted certificate. The
+    row is disabled while you are signed in.
+
+!!! tip
+
+    The first syncs with some servers can take a little longer, until *AndBible*
+    has learned how the server reports folder changes.
 
 ## What Gets Synced
 

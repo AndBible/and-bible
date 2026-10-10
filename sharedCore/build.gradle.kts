@@ -28,10 +28,14 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.atomicfu)
+            api(libs.ktor.client.core)       // HttpClient / HttpClientEngine appear in WebDavClient's API
+            implementation(libs.ktor.client.auth)
+            implementation(libs.xmlutil.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
         }
     }
 }
