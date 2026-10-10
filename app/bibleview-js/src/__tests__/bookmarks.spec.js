@@ -543,7 +543,7 @@ describe("pure monochrome frame edges", () => {
 });
 
 describe("pure monochrome bookmark DOM", () => {
-    let wrapper, gb, appSettings, config;
+    let wrapper, gb, appSettings, config, renderedBookmarks;
     const bookmark = (id, ordinalRange, offsetRange = null) => ({
         id, ordinalRange, offsetRange, labels: [1], bookInitials: "KJV", notes: null,
         wholeVerse: false, type: "bookmark", editAction: {},
@@ -553,7 +553,7 @@ describe("pure monochrome bookmark DOM", () => {
             ({config, appSettings} = useConfig());
             Object.assign(appSettings, {pureMonochromeMode: true, monochromeMode: true, colorEinkMode: false});
             gb = useGlobalBookmarks(config, ref("bible"));
-            useBookmarks("mono", [1, 3], gb, "KJV", null, true, ref(true), {adjustedColor: c => Color(c)}, config, appSettings);
+            renderedBookmarks = useBookmarks("mono", [1, 3], gb, "KJV", null, true, ref(true), {adjustedColor: c => Color(c)}, config, appSettings);
             return () => h("div", {id: "doc-mono"}, [1, 2, 3].map(ord => h("span", {id: `o-${ord}`}, ["abc", h("em", "def"), "ghi"])));
         }}), {attachTo: document.body});
         gb.updateBookmarkLabels([{id: 1, color: 0xFFFF0000, displayStyle: "HIGHLIGHT", displayStyleWholeVerse: "HIGHLIGHT"}]);
@@ -610,6 +610,46 @@ describe("pure monochrome bookmark DOM", () => {
         gb.updateBookmarks([{...bookmark(1, [1, 1]), notes: null}]);
         await nextTick();
         expect(document.querySelector('#doc-mono svg[data-icon="pen-to-square"]')).toBeNull();
+    });
+    it("actual marker-only custom and note ink follows runtime paint flags without duplicates and clears", async () => {
+        // Foreign-book offsets cannot be highlighted in this KJV document: this must use addMarkers.
+        gb.updateBookmarks([{...bookmark("foreign", [1, 1], [1, 3]), bookInitials: "RVR",
+            notes: "real note", customIcon: "star"}]);
+        await nextTick();
+        expect(renderedBookmarks.styleRanges.value).toEqual([]);
+        expect(renderedBookmarks.markerBookmarks.value.map(b => b.id)).toEqual(["foreign"]);
+        const assertMarker = expected => {
+            const markers = document.querySelectorAll("#doc-mono .bookmark-marker");
+            expect(markers).toHaveLength(1);
+            expect(Color(markers[0].style.color).hex()).toBe(expected);
+            expect(markers[0].querySelectorAll('svg[data-icon="star"]')).toHaveLength(1);
+            expect(markers[0].querySelectorAll('.bookmark-marker-note svg[data-icon="pen-to-square"]')).toHaveLength(1);
+            expect(document.querySelectorAll("#doc-mono .bookmark-marker-note")).toHaveLength(1);
+        };
+        // No bookmark update between these steps: only the marker watcher's paint inputs change.
+        for (const [flags, expected] of [
+            [{nightMode: false}, "#000000"],
+            [{nightMode: true}, "#FFFFFF"],
+            [{pureMonochromeMode: false}, "#000000"],
+            [{pureMonochromeMode: true}, "#FFFFFF"],
+            [{nightMode: false}, "#000000"],
+            [{pureMonochromeMode: false, monochromeMode: false}, "#FF0000"],
+            [{monochromeMode: true, colorEinkMode: true}, "#FF0000"],
+            [{colorEinkMode: false}, "#000000"],
+            [{pureMonochromeMode: true, nightMode: true}, "#FFFFFF"],
+        ]) {
+            Object.assign(appSettings, flags);
+            await nextTick();
+            assertMarker(expected);
+            expect(renderedBookmarks.styleRanges.value).toEqual([]);
+            expect(renderedBookmarks.markerBookmarks.value.map(b => b.id)).toEqual(["foreign"]);
+        }
+        gb.clearBookmarks();
+        await nextTick();
+        expect(renderedBookmarks.markerBookmarks.value).toEqual([]);
+        expect(document.querySelectorAll("#doc-mono .bookmark-marker, #doc-mono .bookmark-marker-note")).toHaveLength(0);
+        expect(wrapper.text()).toBe("abcdefghi".repeat(3));
+        expect(wrapper.findAll("em")).toHaveLength(3);
     });
     it("whole-verse overlap has one frame and cleans up", async () => {
         gb.updateBookmarks([bookmark(1, [1, 2]), bookmark(2, [2, 3])]);
