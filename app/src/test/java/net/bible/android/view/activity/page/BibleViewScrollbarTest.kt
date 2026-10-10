@@ -71,14 +71,19 @@ class BibleViewScrollbarTest {
         val mode = settings.getString("display_color_mode", null)
         val prefs = CommonUtils.realSharedPreferences
         val night = prefs.getBoolean("night_mode_pref", false)
-        settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
-        prefs.edit().putBoolean("night_mode_pref", false).commit()
-        val view = view()
-        try { block(view) }
-        finally {
-            view.window.destroy(destroyView = false)
-            settings.setString("display_color_mode", mode)
-            prefs.edit().putBoolean("night_mode_pref", night).commit()
+        var view: BibleView? = null
+        try {
+            settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
+            prefs.edit().putBoolean("night_mode_pref", false).commit()
+            view = view()
+            block(view)
+        } finally {
+            try {
+                view?.window?.destroy(destroyView = false)
+            } finally {
+                settings.setString("display_color_mode", mode)
+                prefs.edit().putBoolean("night_mode_pref", night).commit()
+            }
         }
     }
 
@@ -87,13 +92,25 @@ class BibleViewScrollbarTest {
         normal.isHorizontalScrollBarEnabled = true
         normal.isScrollbarFadingEnabled = false
         CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
-        val constructed = view()
+        var constructed: BibleView? = null
         try {
+            constructed = view()
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                assertEquals(Color.BLACK, pixel(part(constructed, "mVerticalThumb")!!))
+                assertEquals(Color.WHITE, pixel(part(constructed, "mVerticalTrack")!!))
+                assertEquals(Color.BLACK, pixel(part(constructed, "mHorizontalThumb")!!))
+                assertEquals(Color.WHITE, pixel(part(constructed, "mHorizontalTrack")!!))
+                assertFalse(constructed.isScrollbarFadingEnabled)
+            } else {
+                assertFalse(constructed.isVerticalScrollBarEnabled)
+                assertFalse(constructed.isHorizontalScrollBarEnabled)
+            }
+            val monoView = requireNotNull(constructed)
             for (dark in listOf(false, true)) {
                 CommonUtils.realSharedPreferences.edit().putBoolean("night_mode_pref", dark).commit()
                 normal.updateBackgroundColor()
-                constructed.updateBackgroundColor()
-                for (candidate in listOf(normal, constructed)) {
+                monoView.updateBackgroundColor()
+                for (candidate in listOf(normal, monoView)) {
                     if (android.os.Build.VERSION.SDK_INT >= 29) {
                         assertEquals(if (dark) Color.WHITE else Color.BLACK, pixel(part(candidate, "mVerticalThumb")!!))
                         assertEquals(if (dark) Color.BLACK else Color.WHITE, pixel(part(candidate, "mVerticalTrack")!!))
@@ -108,7 +125,7 @@ class BibleViewScrollbarTest {
             assertFalse(normal.isVerticalScrollBarEnabled)
             assertTrue(normal.isHorizontalScrollBarEnabled)
             assertFalse(normal.isScrollbarFadingEnabled)
-        } finally { constructed.window.destroy(destroyView = false) }
+        } finally { constructed?.window?.destroy(destroyView = false) }
     }
 
     @Test @Config(sdk = [29, 35])
@@ -149,54 +166,57 @@ class BibleViewScrollbarTest {
 
     @Test @Config(sdk = [29, 35])
     fun queuedNativeFadeCannotGrayOrHideMonoScrollbar() = withView { view ->
-        val activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
-        view.setBibleJavascriptInterface(BibleJavascriptInterface(view))
-        BibleView::class.java.getDeclaredField("pageTiltScroller").apply {
-            isAccessible = true
-            set(view, net.bible.android.view.activity.page.screen.PageTiltScroller(view, PageTiltScrollControl()))
-        }
-        activity.setContentView(view)
-        view.layout(0, 0, 100, 100)
-        // Robolectric's WebView provider has no document layout. Supply ONLY scroll metrics;
-        // View's real cache callback, scrollbar geometry and native paint remain untouched.
-        val providerField = WebView::class.java.getDeclaredField("mProvider").apply { isAccessible = true }
-        val provider = providerField.get(view)
-        val providerType = Class.forName("android.webkit.WebViewProvider")
-        val scrollType = Class.forName("android.webkit.WebViewProvider\$ScrollDelegate")
-        val originalScroll = providerType.getMethod("getScrollDelegate").invoke(provider)
-        val scroll = java.lang.reflect.Proxy.newProxyInstance(scrollType.classLoader, arrayOf(scrollType)) { _, method, args ->
-            when (method.name) {
-                "computeVerticalScrollRange" -> 1000
-                "computeVerticalScrollExtent" -> 100
-                "computeVerticalScrollOffset" -> 200
-                else -> method.invoke(originalScroll, *(args ?: emptyArray()))
-            }
-        }
-        val viewType = Class.forName("android.webkit.WebViewProvider\$ViewDelegate")
-        val originalView = providerType.getMethod("getViewDelegate").invoke(provider)
-        val viewDelegate = java.lang.reflect.Proxy.newProxyInstance(viewType.classLoader, arrayOf(viewType)) { _, method, args ->
-            if (method.name == "onDrawVerticalScrollBar") {
-                // The fake provider normally swallows this callback. Real WebView providers
-                // forward to View via PrivateAccess; make that identical super call here.
-                org.robolectric.shadow.api.Shadow.directlyOn<Any?, View>(view, View::class.java, "onDrawVerticalScrollBar",
-                    org.robolectric.util.ReflectionHelpers.ClassParameter.from(Canvas::class.java, args!![0]),
-                    org.robolectric.util.ReflectionHelpers.ClassParameter.from(Drawable::class.java, args[1]),
-                    *args.drop(2).map { org.robolectric.util.ReflectionHelpers.ClassParameter.from(Int::class.javaPrimitiveType, it) }.toTypedArray())
-            } else method.invoke(originalView, *(args ?: emptyArray()))
-        }
-        providerField.set(view, java.lang.reflect.Proxy.newProxyInstance(providerType.classLoader, arrayOf(providerType)) { _, method, args ->
-            when (method.name) {
-                "getScrollDelegate" -> scroll
-                "getViewDelegate" -> viewDelegate
-                else -> method.invoke(provider, *(args ?: emptyArray()))
-            }
-        })
-        val cache = View::class.java.getDeclaredField("mScrollCache").apply { isAccessible = true }.get(view)
-        val state = cache.javaClass.getDeclaredField("state").apply { isAccessible = true }
-        val awaken = View::class.java.getDeclaredMethod("awakenScrollBars", Int::class.javaPrimitiveType, Boolean::class.javaPrimitiveType).apply { isAccessible = true }
-        view.scrollBarDefaultDelayBeforeFade = 20
-        view.scrollBarFadeDuration = 40
+        var activity: android.app.Activity? = null
+        var providerField: java.lang.reflect.Field? = null
+        var provider: Any? = null
         try {
+            activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
+            view.setBibleJavascriptInterface(BibleJavascriptInterface(view))
+            BibleView::class.java.getDeclaredField("pageTiltScroller").apply {
+                isAccessible = true
+                set(view, net.bible.android.view.activity.page.screen.PageTiltScroller(view, PageTiltScrollControl()))
+            }
+            activity.setContentView(view)
+            view.layout(0, 0, 100, 100)
+            // Robolectric's WebView provider has no document layout. Supply ONLY scroll metrics;
+            // View's real cache callback, scrollbar geometry and native paint remain untouched.
+            providerField = WebView::class.java.getDeclaredField("mProvider").apply { isAccessible = true }
+            provider = providerField.get(view)
+            val providerType = Class.forName("android.webkit.WebViewProvider")
+            val scrollType = Class.forName("android.webkit.WebViewProvider\$ScrollDelegate")
+            val originalScroll = providerType.getMethod("getScrollDelegate").invoke(provider)
+            val scroll = java.lang.reflect.Proxy.newProxyInstance(scrollType.classLoader, arrayOf(scrollType)) { _, method, args ->
+                when (method.name) {
+                    "computeVerticalScrollRange" -> 1000
+                    "computeVerticalScrollExtent" -> 100
+                    "computeVerticalScrollOffset" -> 200
+                    else -> method.invoke(originalScroll, *(args ?: emptyArray()))
+                }
+            }
+            val viewType = Class.forName("android.webkit.WebViewProvider\$ViewDelegate")
+            val originalView = providerType.getMethod("getViewDelegate").invoke(provider)
+            val viewDelegate = java.lang.reflect.Proxy.newProxyInstance(viewType.classLoader, arrayOf(viewType)) { _, method, args ->
+                if (method.name == "onDrawVerticalScrollBar") {
+                    // The fake provider normally swallows this callback. Real WebView providers
+                    // forward to View via PrivateAccess; make that identical super call here.
+                    org.robolectric.shadow.api.Shadow.directlyOn<Any?, View>(view, View::class.java, "onDrawVerticalScrollBar",
+                        org.robolectric.util.ReflectionHelpers.ClassParameter.from(Canvas::class.java, args!![0]),
+                        org.robolectric.util.ReflectionHelpers.ClassParameter.from(Drawable::class.java, args[1]),
+                        *args.drop(2).map { org.robolectric.util.ReflectionHelpers.ClassParameter.from(Int::class.javaPrimitiveType, it) }.toTypedArray())
+                } else method.invoke(originalView, *(args ?: emptyArray()))
+            }
+            providerField.set(view, java.lang.reflect.Proxy.newProxyInstance(providerType.classLoader, arrayOf(providerType)) { _, method, args ->
+                when (method.name) {
+                    "getScrollDelegate" -> scroll
+                    "getViewDelegate" -> viewDelegate
+                    else -> method.invoke(provider, *(args ?: emptyArray()))
+                }
+            })
+            val cache = View::class.java.getDeclaredField("mScrollCache").apply { isAccessible = true }.get(view)
+            val state = cache.javaClass.getDeclaredField("state").apply { isAccessible = true }
+            val awaken = View::class.java.getDeclaredMethod("awakenScrollBars", Int::class.javaPrimitiveType, Boolean::class.javaPrimitiveType).apply { isAccessible = true }
+            view.scrollBarDefaultDelayBeforeFade = 20
+            view.scrollBarFadeDuration = 40
             for (alreadyFading in listOf(false, true)) {
                 CommonUtils.settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
                 view.updateBackgroundColor()
@@ -228,9 +248,15 @@ class BibleViewScrollbarTest {
                 }
             }
         } finally {
-            providerField.set(view, provider)
-            (view.parent as? android.view.ViewGroup)?.removeView(view)
-            activity.finish()
+            try {
+                if (providerField != null && provider != null) providerField.set(view, provider)
+            } finally {
+                try {
+                    (view.parent as? android.view.ViewGroup)?.removeView(view)
+                } finally {
+                    activity?.finish()
+                }
+            }
         }
     }
 
