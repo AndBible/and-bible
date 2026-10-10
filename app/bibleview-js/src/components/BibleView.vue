@@ -899,4 +899,12 @@ a {
   }
 }
 
+
+@each $theme, $ink, $paper in (".pureMonochrome", black, white), (".pureMonochrome.night", white, black) {
+  #{$theme} {
+    .pagenumber { background: $paper; color: $ink; border: 1px solid $ink; border-color: $ink; }
+    .scroll-helper-line { opacity: 1; border-top-color: $ink; }
+  }
+}
+
 </style>

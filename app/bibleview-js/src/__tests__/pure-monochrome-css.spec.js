@@ -33,7 +33,7 @@ function cascaded(css, element, property) {
 function stateElement(rootClasses, classes) {
     const root = document.createElement("div");
     root.className = rootClasses;
-    const element = document.createElement("div");
+    const element = document.createElement(classes.includes("button") ? "button" : "div");
     element.className = classes;
     root.appendChild(element);
     return element;
@@ -63,6 +63,59 @@ describe("pure monochrome compiled styles", () => {
         expect(cascaded(css, stateElement("monochrome", "type-text completed"), "animation")).toBe("completionPulse 2s");
         expect(cascaded(css, stateElement("", "settings-popup"), "animation")).toBe("settings-fade 0.15s ease");
     });
+    for (const dark of [false, true]) for (const noAnimation of [false, true]) {
+        const theme = `monochrome pureMonochrome${dark ? " night" : ""}${noAnimation ? " noAnimation" : ""}`;
+        const ink = dark ? "white" : "black";
+        const paper = dark ? "black" : "white";
+        it(`ordinary modal winning paints dark=${dark} noAnimation=${noAnimation}`, () => {
+            const css = rules("../components/modals/ModalDialog.vue");
+            for (const cls of ["modal-content", "modal-header", "modal-body", "modal-footer"]) {
+                const el = stateElement(theme, cls);
+                expect(cascaded(css, el, "background-color")).toBe(paper);
+                expect(cascaded(css, el, "color")).toBe(ink);
+            }
+            const modal = stateElement(theme, "modal-content");
+            expect(cascaded(css, modal, "border-color")).toBe(ink);
+            expect(cascaded(css, modal, "box-shadow")).toBe("none");
+            expect(cascaded(css, modal, "animation")).toBe("none");
+        });
+        it(`bookmark icon and experimental action winning paints dark=${dark} noAnimation=${noAnimation}`, () => {
+            const css = rules("../components/modals/AskBookmarkSettings.vue");
+            for (const cls of ["icon-item", "mode-toggle", "mode-select", "content-textarea", "validation-error", "cancel-button"]) {
+                const el = stateElement(theme, cls);
+                expect(cascaded(css, el, "background")).toBe(paper);
+                expect(cascaded(css, el, "color")).toBe(ink);
+                expect(cascaded(css, el, "border-color")).toBe(ink);
+            }
+            for (const cls of ["icon-item selected", "mode-toggle active", "save-button"]) {
+                const el = stateElement(theme, cls);
+                expect(cascaded(css, el, "background")).toBe(ink);
+                expect(cascaded(css, el, "color")).toBe(paper);
+            }
+            const disabled = stateElement(theme, "save-button");
+            disabled.setAttribute("disabled", "");
+            expect(cascaded(css, disabled, "color")).toBe("#808080");
+            expect(cascaded(css, disabled, "opacity")).toBe("1");
+            expect(cascaded(css, stateElement(theme, "content-textarea has-error"), "box-shadow")).toBe("none");
+            const notice = stateElement(theme, "experimental-notice");
+            const common = rules("../common.scss");
+            expect(cascaded(common, notice, "background")).toBe(paper);
+            expect(cascaded(common, notice, "border-color")).toBe(ink);
+        });
+        it(`reading overlays are opaque independently of animation dark=${dark} noAnimation=${noAnimation}`, () => {
+            for (const [path, cls] of [["../components/BibleView.vue", "pagenumber"], ["../components/ReadingProgress.vue", "reading-progress"]]) {
+                const css = rules(path), el = stateElement(theme, cls);
+                expect(cascaded(css, el, "background")).toBe(paper);
+                expect(cascaded(css, el, "border-color")).toBe(ink);
+            }
+            const css = rules("../components/BibleView.vue");
+            for (const cls of ["helper-line-thin-dotted", "helper-line-thin-solid", "helper-line-thick-solid"]) {
+                const el = stateElement(theme, `scroll-helper-line ${cls}`);
+                expect(cascaded(css, el, "opacity")).toBe("1");
+                expect(cascaded(css, el, "border-top-color")).toBe(ink);
+            }
+        });
+    }
     it("uses ink tokens and a one-pixel frame, inverted at night", () => {
         const css = rules("../common.scss");
         declaration(css, ":root .pureMonochrome", "--primary-color: black");
