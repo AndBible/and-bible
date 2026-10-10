@@ -51,7 +51,7 @@ jetbrains:
 host_mounts:
   - { host: ~/Android/Sdk, container: /home/dev/Android/Sdk, readonly: true }
 
-# Maintainer-only: the ostickethelper config and GPG-encrypted password for
+# Maintainer-only: the ostickethelper config and password file for
 # support.andbible.org (.jailbee/install.d/98-ostickethelper.sh). Not attached
 # by default, so ticket credentials are absent from containers until wanted:
 #   jailbee mount osticket <container>     # before a ticket session
