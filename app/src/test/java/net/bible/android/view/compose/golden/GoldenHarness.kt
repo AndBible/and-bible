@@ -196,7 +196,7 @@ fun captureMatrix(
 
 /** Force audit captures into build output, even when the enclosing task does not record goldens. */
 @OptIn(ExperimentalRoborazziApi::class)
-private fun auditMono(
+internal fun auditMono(
     screen: String,
     state: String,
     heightDp: Int,
