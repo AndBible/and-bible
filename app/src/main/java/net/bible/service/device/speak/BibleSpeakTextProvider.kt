@@ -53,6 +53,7 @@ class BibleSpeakTextProvider(
     private val bookmarkControl: BookmarkControl,
     initialBook: SwordBook
 ) : SpeakTextProvider, KoinComponent {
+    private val speakPlatform: net.bible.android.control.speak.SpeakPlatform get() = getKoin().get()
     private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private data class State(val book: SwordBook,
                              val startVerse: Verse,
@@ -87,7 +88,7 @@ class BibleSpeakTextProvider(
     private var lastVerseWithTitle: Verse? = null
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
-    private val currentCommands = SpeakCommandArray()
+    private val currentCommands = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
 
     private val bibleBooks = HashMap<String, String>()
     private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommandArray>(100)
@@ -103,7 +104,7 @@ class BibleSpeakTextProvider(
         } else {
             verse
         }
-    private var readList = SpeakCommandArray()
+    private var readList = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
     internal var settings = SpeakSettings.load()
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
@@ -172,7 +173,7 @@ class BibleSpeakTextProvider(
     }
 
     private fun getCommandsForVerse(prevVerse: Verse, verse: Verse): SpeakCommandArray {
-        val cmds = SpeakCommandArray()
+        val cmds = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
         val res = localizedResources
         val bookName = bibleBooks[verse.book.osis]
 
@@ -217,7 +218,7 @@ class BibleSpeakTextProvider(
     }
 
     private fun getMoreSpeakCommands(): SpeakCommandArray {
-        val cmds = SpeakCommandArray()
+        val cmds = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
 
         var verse = limitToRange(currentVerse)
         startVerse = verse
@@ -234,7 +235,7 @@ class BibleSpeakTextProvider(
         cmds.addAll(getCommandsForVerse(endVerse, verse))
 
         // If verse does not end in period, add the part before period to the current reading
-        val rest = SpeakCommandArray()
+        val rest = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
 
         while (!cmds.endsSentence) {
             val nextVerse = getNextVerse(verse)

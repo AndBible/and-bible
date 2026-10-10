@@ -17,21 +17,15 @@
 
 package net.bible.service.device.speak
 
-import android.content.Context
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
-import android.media.AudioManager
-import android.os.Build
-import android.provider.Settings
-import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
 import net.bible.sharedcore.log.Log
-import androidx.annotation.RequiresApi
-
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
+import net.bible.android.control.speak.SpeakEngine
+import net.bible.android.control.speak.SpeakEngineListener
+import net.bible.android.control.speak.SpeakLanguageResult
+import net.bible.android.control.speak.SpeakPlatform
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakChanges
@@ -40,8 +34,6 @@ import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.isMyDocument
@@ -82,10 +74,17 @@ class TextToSpeechServiceManager constructor(
     bibleTraverser: BibleTraverser,
     windowControl: WindowControl,
     bookmarkControl: BookmarkControl,
-    val speakControl: SpeakControl
+    val speakControl: SpeakControl,
+    private val platform: SpeakPlatform,
+    private val notifier: UserNotifier,
+    private val strings: CoreStrings,
+    private val settings: AppSettings,
 ) {
 
-    private var mTts: TextToSpeech? = null
+    private var mTts: SpeakEngine? = null
+    // A synchronous engine callback must wait until its returned engine is assigned.
+    private var creatingEngine = false
+    private var pendingInit: Boolean? = null
     private var configuredEnginePackage: String? = null
 
     private var localePreferenceList: MutableList<Locale> = ArrayList()
@@ -112,7 +111,6 @@ class TextToSpeechServiceManager constructor(
     private var pauseDueCall = false
 
     private var temporary = false
-    private var mockedTts = false
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
@@ -145,83 +143,73 @@ class TextToSpeechServiceManager constructor(
 
     private var wasPaused = false
 
-    // Implements TextToSpeech.OnInitListener.
-    private var onInitListener: TextToSpeech.OnInitListener = TextToSpeech.OnInitListener { status ->
-        Log.i(TAG, "Tts initialised")
-        var isOk = false
-
-        val tts = mTts
-
-        // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
-        if (tts != null && status == TextToSpeech.SUCCESS) {
-            Log.i(TAG, "Tts initialisation succeeded")
-
-            // Add earcons
-            tts.addEarcon(EARCON_PRE_FOOTNOTE, application.packageName, R.raw.short_pling) // TODO: change
-            tts.addEarcon(EARCON_POST_FOOTNOTE, application.packageName, R.raw.short_pling_reverse)
-            tts.addEarcon(EARCON_PRE_TITLE, application.packageName, R.raw.pageflip)
-            tts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, application.packageName, R.raw.medium_pling)
-            tts.addEarcon(EARCON_PRE_BOOK_CHANGE, application.packageName, R.raw.long_pling)
-
-            // set speech rate
-            setRate(SpeakSettings.load().playbackSettings.speed)
-
-            var localeOK = false
-            var locale: Locale? = null
-            var i = 0
-            while (i < localePreferenceList.size && !localeOK) {
-                locale = localePreferenceList[i]
-                Log.i(TAG, "Checking for locale:$locale")
-                try {
-                    val result = tts.setLanguage(locale)
-                    localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
-                    if (localeOK) {
-                        Log.i(TAG, "Successful locale:$locale")
-                        currentLocale = locale
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error setting TTS language for locale:$locale", e)
-                    // Continue to next locale in the preference list
-                }
-                i++
+    private val engineListener = object : SpeakEngineListener {
+        override fun onInit(success: Boolean) {
+            if (creatingEngine) {
+                pendingInit = success
+                return
             }
+            Log.i(TAG, "Tts initialised")
+            var isOk = false
 
-            if (!localeOK) {
-                Log.e(TAG, "TTS missing or not supported")
-                // Language data is missing or the language is not supported.
-                if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
-                showError(R.string.tts_lang_not_available, Exception("Tts missing or not supported"))
-            } else {
-                // The TTS engine has been successfully initialized.
-                if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
-                val ok = tts.setOnUtteranceProgressListener(utteranceProgressListener)
-                if (ok == TextToSpeech.ERROR) {
-                    Log.e(TAG, "Error registering utteranceProgressListener")
+            val tts = mTts
+
+            if (tts != null && success) {
+                Log.i(TAG, "Tts initialisation succeeded")
+
+                // set speech rate
+                setRate(SpeakSettings.load().playbackSettings.speed)
+
+                var localeOK = false
+                var locale: Locale? = null
+                var i = 0
+                while (i < localePreferenceList.size && !localeOK) {
+                    locale = localePreferenceList[i]
+                    Log.i(TAG, "Checking for locale:$locale")
+                    try {
+                        val result = tts.setLanguage(locale)
+                        localeOK = result != SpeakLanguageResult.MISSING_DATA && result != SpeakLanguageResult.NOT_SUPPORTED
+                        if (localeOK) {
+                            Log.i(TAG, "Successful locale:$locale")
+                            currentLocale = locale
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error setting TTS language for locale:$locale", e)
+                        // Continue to next locale in the preference list
+                    }
+                    i++
+                }
+
+                if (!localeOK) {
+                    Log.e(TAG, "TTS missing or not supported")
+                    // Language data is missing or the language is not supported.
+                    if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
+                    showError(strings.ttsLangNotAvailable, Exception("Tts missing or not supported"))
                 } else {
+                    // The TTS engine has been successfully initialized.
+                    if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
                     isOk = true
                     mSpeakTextProvider.prepareForStartSpeaking()
                     startSpeaking()
                     stopIfPhoneCall()
                 }
+            } else {
+                Log.i(TAG, "Tts initialisation failed")
+                showError(strings.errorOccurred, Exception("Tts Initialisation failed"))
             }
-        } else {
-            Log.i(TAG, "Tts initialisation failed")
-            showError(R.string.error_occurred, Exception("Tts Initialisation failed"))
+
+            if (!isOk) {
+                speakControl.stop(willContinueAfter = false, force = true)
+            }
         }
 
-        if (!isOk) {
-            speakControl.stop(willContinueAfter = false, force = true)
-        }
-    }
-
-    private val utteranceProgressListener = object : UtteranceProgressListener() {
-        override fun onStart(utteranceId: String) {
+        override fun onUtteranceStart(utteranceId: String) {
             Log.i(TAG, "onStart $utteranceId")
             mSpeakTextProvider.startUtterance(utteranceId)
             mSpeakTiming.started(utteranceId, mSpeakTextProvider.getText(utteranceId).length)
         }
 
-        override fun onDone(utteranceId: String) {
+        override fun onUtteranceDone(utteranceId: String) {
             Log.i(TAG, "onUtteranceCompleted:$utteranceId")
             // pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date
 
@@ -244,7 +232,7 @@ class TextToSpeechServiceManager constructor(
             }
         }
 
-        override fun onError(utteranceId: String) {
+        override fun onUtteranceError(utteranceId: String) {
             Log.i(TAG, "onError $utteranceId")
         }
     }
@@ -355,7 +343,7 @@ class TextToSpeechServiceManager constructor(
         val documentId = doc.myDocumentId ?: return null
         val pageKey = key.key?.getOsisRef() ?: return null
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        return blockingDb { dao.pageByKey(documentId, pageKey) }?.languageCode
+        return blockingDb { dao.pageByKey(documentId, pageKey) }?.languageCode // L1-pending(speak)
     }
 
     private fun getDefaultCountryCode(language: String): String? {
@@ -375,18 +363,8 @@ class TextToSpeechServiceManager constructor(
         return if (language == "tr") "TR" else null
     }
 
-    fun setupMockedTts() {
-        // for tests
-        mockedTts = true
-        onInitListener = TextToSpeech.OnInitListener {
-            mSpeakTextProvider.prepareForStartSpeaking()
-            startSpeaking()
-            stopIfPhoneCall()
-        }
-    }
-
     private fun initializeTtsOrStartSpeaking() {
-        val preferredEnginePackage = getPreferredTtsEnginePackage()
+        val preferredEnginePackage = platform.preferredEnginePackage
         if (mTts == null) {
             Log.i(TAG, "mTts was null so initialising Tts")
             initializeTts(preferredEnginePackage)
@@ -404,31 +382,20 @@ class TextToSpeechServiceManager constructor(
 
     private fun initializeTts(preferredEnginePackage: String?) {
         try {
-            // Initialize text-to-speech. This is an asynchronous operation.
-            // The OnInitListener (second argument) (this class) is called after initialization completes.
-            mTts = if (preferredEnginePackage != null) {
-                TextToSpeech(application.applicationContext, this.onInitListener, preferredEnginePackage)
-            } else {
-                TextToSpeech(application.applicationContext, this.onInitListener)
+            creatingEngine = true
+            try {
+                mTts = platform.createEngine(engineListener)
+                configuredEnginePackage = preferredEnginePackage
+            } finally {
+                creatingEngine = false
             }
-            configuredEnginePackage = preferredEnginePackage
-            if (application.isRunningTests) {
-                this.onInitListener.onInit(TextToSpeech.SUCCESS)
+            pendingInit?.let {
+                pendingInit = null
+                engineListener.onInit(it)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error initialising Tts", e)
-            showError(R.string.error_occurred, e)
-        }
-    }
-
-    private fun getPreferredTtsEnginePackage(): String? {
-        return try {
-            Settings.Secure.getString(application.contentResolver, Settings.Secure.TTS_DEFAULT_SYNTH)
-                ?.trim()
-                ?.takeIf { it.isNotEmpty() }
-        } catch (e: Exception) {
-            Log.w(TAG, "Unable to read preferred TTS engine from system settings", e)
-            null
+            showError(strings.errorOccurred, e)
         }
     }
 
@@ -436,7 +403,7 @@ class TextToSpeechServiceManager constructor(
      * Add event listener to stop on call
      */
     private fun stopIfPhoneCall() {
-        PhoneCallMonitor.ensureMonitoringStarted(::callStateChanged)
+        platform.startPhoneCallMonitoring(::callStateChanged)
     }
 
     @Synchronized
@@ -536,48 +503,16 @@ class TextToSpeechServiceManager constructor(
         isPaused = false
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun getNewAudioFocusRequest() =
-        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .build()
-            )
-            .setOnAudioFocusChangeListener { focusChange ->
-                Log.i(TAG, "Audio focus changed $focusChange")
-                when(focusChange) {
-                    AudioManager.AUDIOFOCUS_GAIN -> {
-                        pauseDueCall = false
-                        callStateChanged(false)
-                    }
-                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                        pauseDueCall = true
-                        callStateChanged(true)
-                    }
-                }
-            }
-            .build()
-
-    var audioFocusRequest: AudioFocusRequest? = null
-    val am = application.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
     private fun startSpeaking() {
         initialized = true
         Log.i(TAG, "about to send some text to TTS")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(audioFocusRequest == null) {
-                val req = getNewAudioFocusRequest()
-                val granted = am.requestAudioFocus(req)
-                if (granted != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    Log.i(TAG, "Could not gain audio focus, not starting")
-                    shutdown()
-                    return
-                } else {
-                    audioFocusRequest = req
-                }
-            }
+        if (!platform.requestAudioFocus { gained ->
+                pauseDueCall = !gained
+                callStateChanged(!gained)
+            }) {
+            Log.i(TAG, "Could not gain audio focus, not starting")
+            shutdown()
+            return
         }
 
         if (!isSpeaking) {
@@ -597,9 +532,7 @@ class TextToSpeechServiceManager constructor(
         for (i in 0 until mSpeakTextProvider.numItemsToTts) {
             utteranceId = UTTERANCE_PREFIX + uniqueUtteranceNo++
             val cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId, i == 0)
-            if (!mockedTts) {
-                cmd.speak(mTts!!, utteranceId)
-            }
+            cmd.speak(mTts!!, utteranceId)
             if(!mSpeakTextProvider.isMoreTextToSpeak()) {
                 break
             }
@@ -617,15 +550,15 @@ class TextToSpeechServiceManager constructor(
         if (isSpeaking) {
             Log.i(TAG, "Flushing speech")
             // flush remaining text
-            mTts?.speak(" ", TextToSpeech.QUEUE_FLUSH, null)
+            mTts?.flush()
         }
 
         mSpeakTextProvider.reset()
         isSpeaking = false
     }
 
-    private fun showError(msgId: Int, e: Exception) {
-        Dialogs.showErrorMsg(msgId)
+    private fun showError(message: String, e: Exception) {
+        notifier.showError(message, e)
     }
 
     fun shutdown(willContinueAfter: Boolean = false) {
@@ -659,12 +592,7 @@ class TextToSpeechServiceManager constructor(
             configuredEnginePackage = null
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(!pauseDueCall) {
-                audioFocusRequest?.also { am.abandonAudioFocusRequest(it) }
-                audioFocusRequest = null
-            }
-        }
+        if (!pauseDueCall) platform.abandonAudioFocus()
     }
 
     private fun fireStateChangeEvent() {
@@ -715,7 +643,7 @@ class TextToSpeechServiceManager constructor(
         val isBible = mSpeakTextProvider === bibleSpeakTextProvider
 
         mSpeakTextProvider.persistState()
-        CommonUtils.settings.apply {
+        settings.apply {
             setString(PERSIST_LOCALE_KEY, currentLocale.toString())
             setBoolean(PERSIST_BIBLE_PROVIDER, isBible)
         }
@@ -725,7 +653,7 @@ class TextToSpeechServiceManager constructor(
         // ensure no relevant current state is overwritten accidentally
         if (!isSpeaking && !isPaused) {
             Log.i(TAG, "Attempting to restore any Persisted Pause state")
-            val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
+            val isBible = settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
             isPaused =
@@ -738,7 +666,7 @@ class TextToSpeechServiceManager constructor(
             Log.i(TAG, "Now pause state is $isPaused")
 
             // restore locale information so tts knows which voice to load when it initialises
-            currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString())!!)
+            currentLocale = Locale(settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString())!!)
             localePreferenceList = ArrayList()
             localePreferenceList.add(currentLocale)
         }
@@ -747,7 +675,7 @@ class TextToSpeechServiceManager constructor(
     private fun clearPauseState() {
         Log.i(TAG, "Clearing Persisted Pause state")
         mSpeakTextProvider.clearPersistedState()
-        CommonUtils.settings.removeString(PERSIST_LOCALE_KEY)
+        settings.removeString(PERSIST_LOCALE_KEY)
     }
 
     private fun setRate(speechRate: Int) {

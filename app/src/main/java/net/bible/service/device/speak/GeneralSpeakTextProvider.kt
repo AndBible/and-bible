@@ -54,6 +54,7 @@ class GeneralSpeakTextProvider(
     private val bookmarkControl: BookmarkControl,
     initialBook: Book
 ) : SpeakTextProvider, KoinComponent {
+    private val speakPlatform: net.bible.android.control.speak.SpeakPlatform get() = getKoin().get()
     private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private data class State(
         val book: Book,
@@ -83,7 +84,7 @@ class GeneralSpeakTextProvider(
     private var lastVerseWithTitle: BookAndKey? = null
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
-    private val currentCommands = SpeakCommandArray()
+    private val currentCommands = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
 
     private lateinit var localizedResources: Resources
 
@@ -91,7 +92,7 @@ class GeneralSpeakTextProvider(
         setupBook(initialBook)
     }
 
-    private var readList = SpeakCommandArray()
+    private var readList = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
     internal var settings = SpeakSettings.load()
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startKey, endKey, currentKey)
@@ -135,7 +136,7 @@ class GeneralSpeakTextProvider(
     }
 
     private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey): SpeakCommandArray {
-        val cmds = SpeakCommandArray()
+        val cmds = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
         val res = localizedResources
 
         if(prevKey.getOsisRef() != key.getOsisRef()) {
@@ -173,7 +174,7 @@ class GeneralSpeakTextProvider(
 
 
     private fun getMoreSpeakCommands(): SpeakCommandArray {
-        val cmds = SpeakCommandArray()
+        val cmds = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
 
         var key = limitToRange(currentKey)
         startKey = key
@@ -186,7 +187,7 @@ class GeneralSpeakTextProvider(
 
         cmds.addAll(getCommandsForKey(endKey, key))
 
-        val rest = SpeakCommandArray()
+        val rest = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
 
         while (!cmds.endsSentence) {
             val nextKey = getNextKey(key)

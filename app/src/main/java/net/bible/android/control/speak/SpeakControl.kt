@@ -17,7 +17,6 @@
 
 package net.bible.android.control.speak
 
-import android.media.AudioManager
 import net.bible.service.db.blockingDb
 import net.bible.sharedcore.log.Log
 
@@ -26,7 +25,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
@@ -46,15 +44,12 @@ import org.crosswire.jsword.passage.VerseRange
 import java.util.*
 
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.control.speak.AdvancedSpeakSettings
-import net.bible.service.device.speak.MediaButtonHandler
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import org.koin.core.component.KoinComponent
@@ -66,6 +61,7 @@ import org.koin.core.component.inject
 class SpeakControl constructor(
     private val textToSpeechServiceManager: Lazy<TextToSpeechServiceManager>,
     private val windowControl: WindowControl,
+    private val platform: SpeakPlatform,
 ) : KoinComponent {
 
     private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
@@ -160,7 +156,7 @@ class SpeakControl constructor(
                 continueAfterPause(true)
             }
         }
-        MediaButtonHandler.initialize(this)
+        platform.attachMediaControls(this)
     }
 
     protected fun finalize() {
@@ -169,7 +165,7 @@ class SpeakControl constructor(
         if(sleepTimer.isInitialized()) {
             sleepTimer.value.cancel()
         }
-        MediaButtonHandler.release()
+        platform.detachMediaControls()
     }
 
     private var speakBook: Book? = null
@@ -410,9 +406,7 @@ class SpeakControl constructor(
         pause(willContinueAfterThis = false, toast = true)
     }
 
-    fun setupMockedTts() {
-        ttsServiceManager.setupMockedTts()
-    }
+
 
     fun pause(willContinueAfterThis: Boolean, toast: Boolean = !willContinueAfterThis) {
         if (!willContinueAfterThis) {
@@ -503,19 +497,7 @@ class SpeakControl constructor(
     }
 
     private fun prepareForSpeaking() {
-        if(CommonUtils.isDiscrete) {
-            GlobalScope.launch {
-                CommonUtils.requestNotificationPermission()
-            }
-        }
-        // ensure volume controls adjust correct stream - not phone which is the default
-        // STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead:
-        // http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
-        CommonUtils.settings.setLong("speak-last-used", System.currentTimeMillis())
-        val activity = CurrentActivityHolder.currentActivity
-        if (activity != null) {
-            activity.volumeControlStream = AudioManager.STREAM_MUSIC
-        }
+        platform.onPrepareForSpeaking()
         enableSleepTimer(SpeakSettings.load().sleepTimer)
     }
 

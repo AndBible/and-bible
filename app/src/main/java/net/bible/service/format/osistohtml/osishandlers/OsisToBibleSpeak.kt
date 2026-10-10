@@ -32,8 +32,8 @@ import java.util.*
 
 val PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph")
 
-class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String, private val advancedSpeakSettings: AdvancedSpeakSettings) : DefaultHandler() {
-    val speakCommands = SpeakCommandArray()
+class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String, private val advancedSpeakSettings: AdvancedSpeakSettings, maxSpeechInputLength: Int) : DefaultHandler() {
+    val speakCommands = SpeakCommandArray(maxSpeechInputLength)
 
     private enum class TagType {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
     private data class StackEntry(val visible: Boolean, val tagType: TagType=TagType.NORMAL)

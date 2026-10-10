@@ -16,18 +16,14 @@
  */
 package net.bible.android.control.speak
 
-import android.content.Intent
 import net.bible.service.db.blockingDb
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
@@ -55,6 +51,7 @@ internal fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (
  * reading-view classic code is unchanged.
  */
 class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
+    private val platform: SpeakPlatform by inject()
     private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private val speakControl: SpeakControl by inject()
     private val bookmarkControl: BookmarkControl by inject()
@@ -140,12 +137,7 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
     /** Classic sync side-effect (SpeakTransportWidget :163-167, :206-210). */
     private fun maybeSyncToFront() {
         if (advancedSpeakSettings.synchronize) {
-            val ctx = BibleApplication.application
-            // reading-host re-typing T8b: same three flags, the reading host instead of the
-            // classic Activity.
-            ctx.startActivity(NavHostComposeActivity.intentFor(ctx, NavRoutes.READING).apply {
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            })
+            platform.bringReadingToFront()
         }
     }
 }

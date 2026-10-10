@@ -90,6 +90,8 @@ class JSwordError(message: String) : OsisError(message, message)
  */
 
 object SwordContentFacade : KoinComponent {
+    // L1 Tasks 17/18 will thread this edge dependency through the content pipeline.
+    private val speakPlatform: net.bible.android.control.speak.SpeakPlatform get() = getKoin().get()
     private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     private const val docCacheSize = 25
     private val osisFragmentCache = LruCache<String, Element>(docCacheSize)
@@ -742,7 +744,7 @@ object SwordContentFacade : KoinComponent {
         val frag = data.getOsisFragment(false)
         val doc = frag.document ?: Document(frag)
         val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
-        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code, advancedSpeakSettings)
+        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code, advancedSpeakSettings, speakPlatform.maxSpeechInputLength)
         osissep.provideSAXEvents(osisHandler)
         (osisHandler as OsisToBibleSpeak).speakCommands
     } catch (e: Exception) {
@@ -753,7 +755,7 @@ object SwordContentFacade : KoinComponent {
     fun getBibleSpeakCommands(settings: SpeakSettings, book: SwordBook, verse: Verse?): SpeakCommandArray {
         val v11nConverter = VersificationConverter()
         val verse_ = v11nConverter.convert(verse, book.versification)
-        val lst = SpeakCommandArray()
+        val lst = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
         if (verse_.verse == 1) {
             lst.addAll(
                 getSpeakCommandsForVerse(
@@ -772,7 +774,7 @@ object SwordContentFacade : KoinComponent {
         if(actualKey is VerseRange) {
             actualKey = actualKey.start
         }
-        val arr = SpeakCommandArray()
+        val arr = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
         arr.addAll(
             getTextWithinOrdinalsAsString(book,
                 actualKey,

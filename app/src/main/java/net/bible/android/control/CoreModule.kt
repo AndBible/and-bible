@@ -218,10 +218,11 @@ fun buildCoreModule() = module {
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
-    single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get()) }
+    single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get(), get()) }
     singleOf(::DocumentBibleBooksFactory)
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
+    single<net.bible.android.control.speak.SpeakPlatform> { net.bible.android.platform.AndroidSpeakPlatform(androidContext()) }
     singleOf(::TextToSpeechServiceManager)
 
     // Unscoped @Inject-constructor classes
