@@ -50,7 +50,10 @@ import org.robolectric.annotation.Config
 class SyncSettingsServiceImplTest {
     private val settings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
     private val scopes = mutableListOf<CoroutineScope>()
+    private val schedulers = mutableListOf<kotlinx.coroutines.test.TestCoroutineScheduler>()
     @After fun tearDown() {
+        scopes.forEach { it.cancel() }
+        schedulers.forEach { it.runCurrent() }
         DatabaseResetter.resetDatabase(*scopes.toTypedArray())
     }
 
@@ -58,10 +61,11 @@ class SyncSettingsServiceImplTest {
         scope: CoroutineScope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) },
         documentSettings: DocumentSyncSettings = settings,
         categories: net.bible.service.cloudsync.SyncSettingsCategories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings),
+        writeScope: CoroutineScope = scope,
     ): SyncSettingsServiceImpl {
         fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
         val service = SyncSettingsServiceImpl(
-            scope, scope, documentSettings, get(net.bible.service.cloudsync.CloudSync::class.java),
+            scope, writeScope, documentSettings, get(net.bible.service.cloudsync.CloudSync::class.java),
             get(net.bible.service.cloudsync.CloudAdapterFactory::class.java), categories,
             get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
             get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
@@ -70,6 +74,74 @@ class SyncSettingsServiceImplTest {
         )
         kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
         return service
+    }
+
+    @Test fun controllerToggleRefreshSeesLoadedMutationBeforeWorkerRuns() = kotlinx.coroutines.runBlocking {
+        settings.ensureLoaded()
+        settings.enabled = true
+        val ui = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+        val worker = kotlinx.coroutines.test.StandardTestDispatcher().also { schedulers.add(it.scheduler) }
+        val writes = CoroutineScope(Job() + worker).also { scopes.add(it) }
+        val service = impl(ui, writeScope = writes)
+        val controller = net.bible.sharedcore.settings.SyncSettingsController(service, ui,
+            net.bible.sharedcore.settings.SyncSettingsLabels.forTest(), {})
+        controller.onSwitch("sync_documents_auto_download", false)
+        assertFalse("loaded toggle must mutate before the controller's refresh", settings.autoDownload)
+        val row = controller.state.value.screen.items.filterIsInstance<net.bible.sharedcore.settings.SettingsItem.SwitchRow>()
+            .first { it.key == "sync_documents_auto_download" }
+        assertFalse("controller must not retain the old checked value", row.checked)
+        controller.onSwitch("sync_enable_documents", false)
+        assertFalse(service.snapshot.value.documentsEnabled)
+        worker.scheduler.runCurrent()
+        assertFalse(settings.enabled)
+    }
+
+    @Test fun coldTogglesWaitForSnapshotThenPublishInSubmissionOrder() = kotlinx.coroutines.runBlocking {
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val prefsDao = object : net.bible.android.database.DocumentSyncPreferencesDao by db.documentSyncPreferencesDao() {
+            override suspend fun get(): net.bible.android.database.DocumentSyncPreferences? {
+                entered.complete(Unit)
+                release.await()
+                return net.bible.android.database.DocumentSyncPreferences(autoDownload = true, wifiOnly = false)
+            }
+        }
+        val ui = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+        val worker = kotlinx.coroutines.test.StandardTestDispatcher().also { schedulers.add(it.scheduler) }
+        val writes = CoroutineScope(Job() + worker).also { scopes.add(it) }
+        val launcher = net.bible.sharedcore.platform.OrderedLauncher(ui)
+        val fresh = DocumentSyncSettings({ prefsDao }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
+        val service = impl(ui, fresh, writeScope = writes)
+        entered.await()
+        service.setDocumentSyncToggle("sync_documents_auto_download", false)
+        service.setDocumentSyncToggle("sync_documents_auto_download", true)
+        service.setDocumentSyncToggle("sync_documents_auto_download", false)
+        release.complete(Unit)
+        worker.scheduler.advanceUntilIdle()
+        launcher.join("document-sync-settings")
+        assertFalse(fresh.autoDownload)
+        assertFalse("cold load must retain unrelated persisted preference", fresh.wifiOnly)
+        assertFalse("mutation must publish after loading even without controller refresh", service.snapshot.value.autoDownload)
+        assertFalse(db.documentSyncPreferencesDao().get()!!.autoDownload)
+    }
+
+    @Test fun rapidLoadedTogglesKeepSubmissionOrderWithDelayedWorker() = kotlinx.coroutines.runBlocking {
+        settings.ensureLoaded()
+        val ui = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+        val worker = kotlinx.coroutines.test.StandardTestDispatcher().also { schedulers.add(it.scheduler) }
+        val writes = CoroutineScope(Job() + worker).also { scopes.add(it) }
+        val service = impl(ui, writeScope = writes)
+        service.setDocumentSyncToggle("sync_documents_wifi_only", false)
+        service.setDocumentSyncToggle("sync_documents_wifi_only", true)
+        service.setDocumentSyncToggle("sync_documents_wifi_only", false)
+        assertFalse("last submitted write is visible without scheduling worker", settings.wifiOnly)
+        worker.scheduler.runCurrent()
+        org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.OrderedLauncher>(
+            net.bible.sharedcore.platform.OrderedLauncher::class.java).join("document-sync-settings")
+        assertFalse(net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao().get()!!.wifiOnly)
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)

@@ -17,6 +17,9 @@
 package net.bible.android.view.activity.settings
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -166,30 +169,35 @@ class SyncSettingsServiceImpl(
         }
     }
 
-    override fun setDocumentsEnabled(summary: DocSyncSummaryData) {
-        writeScope.launch {
-            documentSettings.ensureLoaded()
-            documentSettings.enabled = true
-            starter.start(summary.uploadInitials, summary.downloadInitials)
-        }
-    }
+    private val documentMutationMutex = Mutex()
 
-    override fun disableDocuments() {
-        writeScope.launch {
-            documentSettings.ensureLoaded()
-            documentSettings.enabled = false
-        }
-    }
-
-    override fun setDocumentSyncToggle(key: String, value: Boolean) {
-        writeScope.launch {
-            documentSettings.ensureLoaded()
-            when (key) {
-                "sync_documents_auto_download" -> documentSettings.autoDownload = value
-                "sync_documents_auto_upload" -> documentSettings.autoUpload = value
-                "sync_documents_auto_delete" -> documentSettings.autoDelete = value
-                "sync_documents_wifi_only" -> documentSettings.wifiOnly = value
+    /** Loaded snapshots mutate before the caller refreshes; cold mutations queue across the load. */
+    private fun mutateDocuments(mutation: () -> Unit) {
+        writeScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            documentMutationMutex.withLock {
+                documentSettings.ensureLoaded()
+                mutation()
+                // A cold load may have let the caller's refresh publish before this mutation.
+                refresh()
             }
+        }
+    }
+
+    override fun setDocumentsEnabled(summary: DocSyncSummaryData) = mutateDocuments {
+        documentSettings.enabled = true
+        starter.start(summary.uploadInitials, summary.downloadInitials)
+    }
+
+    override fun disableDocuments() = mutateDocuments {
+        documentSettings.enabled = false
+    }
+
+    override fun setDocumentSyncToggle(key: String, value: Boolean) = mutateDocuments {
+        when (key) {
+            "sync_documents_auto_download" -> documentSettings.autoDownload = value
+            "sync_documents_auto_upload" -> documentSettings.autoUpload = value
+            "sync_documents_auto_delete" -> documentSettings.autoDelete = value
+            "sync_documents_wifi_only" -> documentSettings.wifiOnly = value
         }
     }
 
