@@ -7,3 +7,4 @@ document
 navigation
 link
 speak
+cloudsync

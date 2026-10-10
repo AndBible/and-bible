@@ -50,7 +50,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.URLSpan
 import android.util.LayoutDirection
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.view.Gravity
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -1140,6 +1140,9 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
+            org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+                net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java
+            ).ensureLoaded()
             withContext(Dispatchers.Main) {
                 if (ttsNotificationManager == null) {
                     ttsNotificationManager = TextToSpeechNotificationManager()

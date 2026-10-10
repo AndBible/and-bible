@@ -94,8 +94,8 @@ class BookInstallWatcherStartupTest {
         }
         val scope = AppCoroutineScope()
         watcherListeners().forEach { listeners().remove(it) }
-        val first = BookInstallWatcher(OrderedLauncher(scope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java))
-        val second = BookInstallWatcher(OrderedLauncher(scope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java))
+        val first = BookInstallWatcher(OrderedLauncher(scope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
+        val second = BookInstallWatcher(OrderedLauncher(scope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
         try {
             first.startListening()
             second.startListening()

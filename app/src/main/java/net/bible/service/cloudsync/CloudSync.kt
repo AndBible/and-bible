@@ -63,6 +63,7 @@ class CloudSync(
     private val scheduler: SyncScheduler,
     private val documentSyncStarter: net.bible.sharedcore.cloud.DocumentSyncStarter,
     private val documents: DocumentSyncProvider,
+    private val documentSettings: DocumentSyncSettings,
 ) {
     var adapterId: String
         get() = settings.getString("sync_adapter") ?: adapters.available.first()
@@ -386,6 +387,7 @@ class CloudSync(
     }
 
     internal suspend fun synchronize() = withContext(Dispatchers.IO) {
+        documentSettings.ensureLoaded()
         if(!signedIn) {
             Log.i(TAG, "Not signed in")
             return@withContext
@@ -445,9 +447,9 @@ class CloudSync(
             }
             try {
                 documents.get().runSync(
-                    download = DocumentSyncSettings.autoDownload,
-                    upload = DocumentSyncSettings.autoUpload,
-                    delete = DocumentSyncSettings.autoDelete,
+                    download = documentSettings.autoDownload,
+                    upload = documentSettings.autoUpload,
+                    delete = documentSettings.autoDelete,
                     manual = false,
                 )
             } catch (e: Exception) {

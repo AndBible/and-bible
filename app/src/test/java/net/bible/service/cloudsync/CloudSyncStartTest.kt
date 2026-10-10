@@ -31,6 +31,7 @@ class CloudSyncStartTest {
             override fun displayName(id: String) = id
             override fun create(id: String): CloudAdapter = error("No sign-in in start test")
         }, scheduler, get(DocumentSyncStarter::class.java), DocumentSyncProvider { error("No document operations in start test") },
+        get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java),
     )
 
     @Test

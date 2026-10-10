@@ -33,7 +33,7 @@ import android.os.Looper
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.text.format.Formatter
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
@@ -3312,6 +3312,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // T8d: see [readingReturnDebts] and [onSaveInstanceState].
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         setContent {
+            // Direct settings/download entry points can precede the startup coroutine.
+            // Do not compose synchronous settings consumers until their snapshot is loaded.
+            val uninitialisedStart = doNotInitializeApp
+            val loadedForStart by androidx.compose.runtime.produceState<Boolean?>(null, uninitialisedStart) {
+                // Welcome/restore deliberately leave the DB unopened and have no sync consumers.
+                if (!uninitialisedStart) documentSyncSettings.ensureLoaded()
+                value = uninitialisedStart
+            }
+            if (loadedForStart != uninitialisedStart) return@setContent
             AbAppTheme {
               CompositionLocalProvider(
                 LocalHostSystemBars provides hostSystemBars.value,
@@ -8170,7 +8179,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // glyph this row used to share.
                 icon = { Icon(Icons.Filled.Dns, contentDescription = null) },
             )
-            if (DocumentSyncSettings.enabled) {
+            if (documentSyncSettings.enabled) {
                 AbMenuItem(
                     text = getString(R.string.document_sync_manage_title),
                     // An in-graph hop, not classic's awaitIntent(Screen.CloudDocuments): nav-graph
@@ -8301,10 +8310,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * method reference -- a method reference is the SAME function for every instance and cannot tell
      * "its own" entry from the ref's current one, which is exactly the bug fix round 2 closes.
      */
+    private val documentSyncSettings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
+
     private fun buildCloudDocumentsController(): CloudDocumentsController {
         val entry = CloudDocumentsEntry()
         entry.controller = CloudDocumentsController(
-            syncEnabled = { DocumentSyncSettings.enabled },
+            syncEnabled = { documentSyncSettings.enabled },
             onAction = { action, initials -> handleCloudDocumentsAction(entry.controller, action, initials) },
             onBulkAction = { action, initials -> handleCloudDocumentsBulkAction(entry.controller, action, initials) },
             onSyncNow = { download, upload, delete -> handleCloudDocumentsSyncNowConfirm(entry, download, upload, delete) },
@@ -8343,6 +8354,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private suspend fun cloudDocumentsOpenOrGate(): Boolean {
         val controller = cloudDocumentsController
+        documentSyncSettings.ensureLoaded()
         var signedIn = cloudSync.signedIn
         if (!signedIn) signedIn = cloudSync.signIn() == true
         val items = cloudDocumentsSeedItems()
@@ -8350,9 +8362,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             Toast.makeText(this, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
             return false
         }
-        controller.setShowRemoved(DocumentSyncSettings.showRemovedDocuments)
+        controller.setShowRemoved(documentSyncSettings.showRemovedDocuments)
         controller.setItems(items)
-        if (signedIn && (!DocumentSyncSettings.enabled || items.isEmpty())) cloudDocumentsRefreshFromNetwork()
+        if (signedIn && (!documentSyncSettings.enabled || items.isEmpty())) cloudDocumentsRefreshFromNetwork()
         return true
     }
 
@@ -8365,7 +8377,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * inside this function would recurse through that callback forever.
      */
     private suspend fun cloudDocumentsSeedItems(): List<CloudDocItem> = withContext(Dispatchers.IO) {
-        org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scanCached(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+        documentSyncSettings.ensureLoaded()
+        org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scanCached(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
     }
 
     /**
@@ -8382,7 +8395,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         controller.pushBusy(true)
         try {
             val items = withContext(Dispatchers.IO) {
-                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
             }
             controller.setItems(items)
         } finally {
@@ -8401,7 +8414,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * different controller.
      */
     private fun handleCloudDocumentsShowRemovedChange(controller: CloudDocumentsController, show: Boolean) {
-        DocumentSyncSettings.showRemovedDocuments = show
+        documentSyncSettings.showRemovedDocuments = show
         lifecycleScope.launch {
             controller.pushBusy(true)
             try {
@@ -8433,7 +8446,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         try {
             withContext(Dispatchers.IO) { block() }
             val items = withContext(Dispatchers.IO) {
-                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
             }
             controller.setItems(items)
         } finally {
@@ -8455,17 +8468,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), listOf(initials))
             CloudDocAction.PUSH, CloudDocAction.RESTORE -> DocumentSyncService.start(this, listOf(initials), emptyList())
             CloudDocAction.BLOCK -> {
-                DocumentSyncSettings.blockList.block(initials)
+                documentSyncSettings.blockList.block(initials)
                 controller.setBlocked(initials, true)
             }
             CloudDocAction.UNBLOCK -> {
                 val push = pushOnUnblock(controller.items.value, listOf(initials))
-                DocumentSyncSettings.blockList.unblock(initials)
+                documentSyncSettings.blockList.unblock(initials)
                 controller.setBlocked(initials, false)
                 if (push.isNotEmpty()) DocumentSyncService.start(this, push, emptyList())
             }
             CloudDocAction.REMOVE_CLOUD -> {
-                val enabled = DocumentSyncSettings.enabled
+                val enabled = documentSyncSettings.enabled
                 val message = getString(
                     if (enabled) R.string.cloud_doc_remove_all_confirm else R.string.cloud_doc_remove_cloud_confirm,
                     item.name,
@@ -8496,12 +8509,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             }
             CloudDocAction.UNBLOCK -> {
                 val push = pushOnUnblock(controller.items.value, initials)
-                initials.forEach { DocumentSyncSettings.blockList.unblock(it); controller.setBlocked(it, false) }
+                initials.forEach { documentSyncSettings.blockList.unblock(it); controller.setBlocked(it, false) }
                 if (push.isNotEmpty()) DocumentSyncService.start(this, push, emptyList())
                 controller.clearSelection()
             }
             CloudDocAction.REMOVE_CLOUD -> {
-                val enabled = DocumentSyncSettings.enabled
+                val enabled = documentSyncSettings.enabled
                 val message = resources.getQuantityString(
                     if (enabled) R.plurals.cloud_doc_bulk_remove_all_confirm else R.plurals.cloud_doc_bulk_remove_cloud_confirm,
                     initials.size, initials.size,
@@ -8537,7 +8550,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** F75 -- the confirmed half of [handleCloudDocumentsBulkAction]'s BLOCK branch (classic's direct body). */
     private fun handleCloudDocumentsBlockConfirmed(controller: CloudDocumentsController, initials: List<String>) {
-        initials.forEach { DocumentSyncSettings.blockList.block(it); controller.setBlocked(it, true) }
+        initials.forEach { documentSyncSettings.blockList.block(it); controller.setBlocked(it, true) }
         controller.clearSelection()
     }
 
@@ -8589,7 +8602,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 cloudDocumentsCountLabel(plan.toUninstall.size, null),
         )
         val checked = listOf(
-            DocumentSyncSettings.syncNowDownload, DocumentSyncSettings.syncNowUpload, DocumentSyncSettings.syncNowDelete,
+            documentSyncSettings.syncNowDownload, documentSyncSettings.syncNowUpload, documentSyncSettings.syncNowDelete,
         )
         entry.controller.showSyncNow(labels, checked)
     }
@@ -8603,9 +8616,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun handleCloudDocumentsSyncNowConfirm(entry: CloudDocumentsEntry, download: Boolean, upload: Boolean, delete: Boolean) {
         val plan = entry.lastPlan ?: return
         entry.lastPlan = null
-        DocumentSyncSettings.syncNowDownload = download
-        DocumentSyncSettings.syncNowUpload = upload
-        DocumentSyncSettings.syncNowDelete = delete
+        documentSyncSettings.syncNowDownload = download
+        documentSyncSettings.syncNowUpload = upload
+        documentSyncSettings.syncNowDelete = delete
         DocumentSyncService.start(
             this,
             pushInitials = if (upload) plan.toUpload else emptyList(),

@@ -78,7 +78,21 @@ import kotlin.test.assertTrue
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class CloudDocumentsControllerRebuildIsolationTest {
 
-    @After fun tearDown() = DatabaseResetter.resetDatabase()
+    @org.junit.Before fun loadPreferencesForReflectiveConsumers() = kotlinx.coroutines.runBlocking {
+        // These tests bypass composition and its async snapshot barrier deliberately.
+        org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+            net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java,
+        ).ensureLoaded()
+    }
+
+    @After fun tearDown() {
+        kotlinx.coroutines.runBlocking {
+            org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.OrderedLauncher>(
+                net.bible.sharedcore.platform.OrderedLauncher::class.java,
+            ).join("document-sync-settings")
+        }
+        DatabaseResetter.resetDatabase()
+    }
 
     private fun buildActivity(): NavHostComposeActivity =
         Robolectric.buildActivity(

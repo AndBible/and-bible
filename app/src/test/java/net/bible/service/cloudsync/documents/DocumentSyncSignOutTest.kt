@@ -35,11 +35,13 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DocumentSyncSignOutTest {
+    private val settings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
     @Test
     fun signOutWipesEverything() = runBlocking {
-        DocumentSyncSettings.enabled = true
-        DocumentSyncSettings.watermark = 5000L
-        DocumentSyncSettings.setSyncTimestamp("KJV", 1L)
+        settings.ensureLoaded()
+        settings.enabled = true
+        settings.setWatermark(5000L)
+        settings.setSyncTimestamp("KJV", 1L)
         DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().replaceAll(
             listOf(CachedCloudDocument("KJV", "KJV", "SWORD", "1.0", 10, "en", "BIBLE", "dev", 1L, null, false))
         )
@@ -47,9 +49,9 @@ class DocumentSyncSignOutTest {
         // onSignOut runs a Room transaction over four DAOs: it must finish, not deadlock
         withTimeout(10_000) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).onSignOut() }
 
-        assertFalse(DocumentSyncSettings.enabled)
-        assertEquals(0L, DocumentSyncSettings.watermark)
-        assertNull(DocumentSyncSettings.syncTimestamp("KJV"))
+        assertFalse(settings.enabled)
+        assertEquals(0L, settings.watermark())
+        assertNull(settings.syncTimestamp("KJV"))
         assertTrue(DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().all().isEmpty())
     }
 }

@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.settings
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Job
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.ActivityBase
@@ -37,20 +38,47 @@ import org.robolectric.annotation.Config
 /**
  * Verifies [SyncSettingsServiceImpl]'s per-key routing to the correct backing store. The
  * activity-bound OAuth methods (`signIn`/`scanDocuments`) are NOT exercised here (they need a real
- * cloud sign-in); the `activityProvider` is a throwing stub, and the scope is never advanced, so the
- * fire-and-forget `CloudSync.start()` a category-enable launches is queued but not run.
+ * cloud sign-in); the `activityProvider` is a throwing stub, and the scope runs unconfined, and
+ * its jobs are cancelled after each test. Document preference writes are drained before DB reset.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
 class SyncSettingsServiceImplTest {
-    @After fun tearDown() = DatabaseResetter.resetDatabase()
+    private val settings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
+    private val scopes = mutableListOf<CoroutineScope>()
+    @After fun tearDown() {
+        kotlinx.coroutines.runBlocking {
+            org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.OrderedLauncher>(net.bible.sharedcore.platform.OrderedLauncher::class.java).join("document-sync-settings")
+        }
+        scopes.forEach { it.coroutineContext[Job]!!.cancel() }
+        DatabaseResetter.resetDatabase()
+    }
 
-    private fun impl() = SyncSettingsServiceImpl(
-        scope = CoroutineScope(Job()),
+    private fun impl(): SyncSettingsServiceImpl {
+        val service = SyncSettingsServiceImpl(
+        scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) },
         // The store-routing methods never touch the Activity; a throwing provider proves that.
         // `error(...)` returns Nothing, which satisfies the `() -> ActivityBase` type.
         activityProvider = { error("activity not needed for store-routing tests") },
     )
+        kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
+        return service
+    }
+
+    @Test fun initialRefreshLoadsPersistedDocumentSyncBeforeBuild() = kotlinx.coroutines.runBlocking {
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        db.documentSyncPreferencesDao().set(net.bible.android.database.DocumentSyncPreferences(enabled = true, wifiOnly = false))
+        val scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+        val launcher = net.bible.sharedcore.platform.OrderedLauncher(scope)
+        val fresh = DocumentSyncSettings({ db.documentSyncPreferencesDao() }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppEnvironment>(net.bible.sharedcore.platform.AppEnvironment::class.java))
+        val service = SyncSettingsServiceImpl(scope, { error("activity not needed") }, fresh)
+        val snapshot = kotlinx.coroutines.withTimeout(10_000) { service.snapshot.first { it.documentsEnabled } }
+        assertTrue(snapshot.autoTogglesVisible)
+        assertFalse(snapshot.wifiOnly)
+        assertTrue(fresh.enabled)
+    }
 
     @Test fun categoryDescriptionsRetainResourceText() {
         val strings = net.bible.test.testCoreStrings()
@@ -97,9 +125,9 @@ class SyncSettingsServiceImplTest {
     @Test fun documentToggle_persistsToDocumentSyncSettings() {
         val service = impl()
         service.setDocumentSyncToggle("sync_documents_auto_download", false)
-        assertFalse(DocumentSyncSettings.autoDownload)
+        assertFalse(settings.autoDownload)
         service.setDocumentSyncToggle("sync_documents_wifi_only", false)
-        assertFalse(DocumentSyncSettings.wifiOnly)
+        assertFalse(settings.wifiOnly)
     }
 
     @Test fun categoryEnabled_persistsToSyncableDatabaseDefinition() {

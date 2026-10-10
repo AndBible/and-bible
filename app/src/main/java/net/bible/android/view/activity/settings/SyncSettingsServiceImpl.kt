@@ -65,11 +65,21 @@ import java.util.Locale
 class SyncSettingsServiceImpl(
     private val scope: CoroutineScope,
     private val activityProvider: () -> ActivityBase,
+    private val documentSettings: DocumentSyncSettings = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java),
 ) : SyncSettingsService {
 
-    private val _snapshot = MutableStateFlow(build())
+    private val _snapshot = MutableStateFlow(SyncSettingsSnapshot(
+        adapter = "", adapterChoices = emptyList(), adapterSummary = "", adapterEnabled = false,
+        cloudInfoSummary = null, serverUrl = "", username = "", password = "", folderPath = "",
+        credsVisible = false, credsEnabled = false, resetVisible = false, cloudInfoVisible = false,
+        categoryEnabled = emptyMap(), categorySummary = emptyMap(), documentsEnabled = false,
+        documentCategoryVisible = false, autoDownload = true, autoUpload = true, autoDelete = true,
+        wifiOnly = true, autoTogglesVisible = false, wifiOnlyVisible = false,
+    ))
     override val snapshot: StateFlow<SyncSettingsSnapshot> = _snapshot.asStateFlow()
 
+
+    init { refresh() }
 
     private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     private val prefs get() = CommonUtils.realSharedPreferences
@@ -102,7 +112,7 @@ class SyncSettingsServiceImpl(
         val signedIn = cloudSync.signedIn
         val isCloudSyncEnabled = CommonUtils.isCloudSyncEnabled
         val isGoogleDrive = cloudSync.adapterId == "GOOGLE_DRIVE"
-        val documentsEnabled = DocumentSyncSettings.enabled
+        val documentsEnabled = documentSettings.enabled
         val displayed = SyncCategoryKeys.DISPLAY.map { SyncableDatabaseDefinition.nameToCategory[it.removePrefix("sync_enable_").uppercase()]!! }
         val lastSynchronized = blockingDb { displayed.associateWith { it.lastSynchronized(CommonUtils.settings) } }
         return SyncSettingsSnapshot(
@@ -128,19 +138,20 @@ class SyncSettingsServiceImpl(
             },
             documentsEnabled = documentsEnabled,
             documentCategoryVisible = signedIn,
-            autoDownload = DocumentSyncSettings.autoDownload,
-            autoUpload = DocumentSyncSettings.autoUpload,
-            autoDelete = DocumentSyncSettings.autoDelete,
-            wifiOnly = DocumentSyncSettings.wifiOnly,
+            autoDownload = documentSettings.autoDownload,
+            autoUpload = documentSettings.autoUpload,
+            autoDelete = documentSettings.autoDelete,
+            wifiOnly = documentSettings.wifiOnly,
             autoTogglesVisible = documentsEnabled,
             wifiOnlyVisible = documentsEnabled,
         )
     }
 
     override fun refresh() {
-        _snapshot.value = build()
-        if (CommonUtils.isCloudSyncEnabled && cloudSync.signedIn) {
-            scope.launch {
+        scope.launch {
+            documentSettings.ensureLoaded()
+            _snapshot.value = build()
+            if (CommonUtils.isCloudSyncEnabled && cloudSync.signedIn) {
                 val mb = cloudSync.bytesUsed() / (1024.0 * 1024)
                 _snapshot.value = build(
                     cloudInfoSummary = application.getString(R.string.cloud_info_summary, String.format("%.2f", mb)),
@@ -155,8 +166,9 @@ class SyncSettingsServiceImpl(
     }
 
     override suspend fun scanDocuments(): DocSyncSummaryData {
+        documentSettings.ensureLoaded()
         val items = withContext(Dispatchers.IO) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan() }
-        val summary = computeDocumentSyncSummary(items, DocumentSyncSettings.blockList.all())
+        val summary = computeDocumentSyncSummary(items, documentSettings.blockList.all())
         return DocSyncSummaryData(
             uploadInitials = summary.uploadInitials,
             downloadInitials = summary.downloadInitials,
@@ -182,20 +194,29 @@ class SyncSettingsServiceImpl(
     }
 
     override fun setDocumentsEnabled(summary: DocSyncSummaryData) {
-        DocumentSyncSettings.enabled = true
-        DocumentSyncService.start(application, summary.uploadInitials, summary.downloadInitials)
+        scope.launch {
+            documentSettings.ensureLoaded()
+            documentSettings.enabled = true
+            DocumentSyncService.start(application, summary.uploadInitials, summary.downloadInitials)
+        }
     }
 
     override fun disableDocuments() {
-        DocumentSyncSettings.enabled = false
+        scope.launch {
+            documentSettings.ensureLoaded()
+            documentSettings.enabled = false
+        }
     }
 
     override fun setDocumentSyncToggle(key: String, value: Boolean) {
-        when (key) {
-            "sync_documents_auto_download" -> DocumentSyncSettings.autoDownload = value
-            "sync_documents_auto_upload" -> DocumentSyncSettings.autoUpload = value
-            "sync_documents_auto_delete" -> DocumentSyncSettings.autoDelete = value
-            "sync_documents_wifi_only" -> DocumentSyncSettings.wifiOnly = value
+        scope.launch {
+            documentSettings.ensureLoaded()
+            when (key) {
+                "sync_documents_auto_download" -> documentSettings.autoDownload = value
+                "sync_documents_auto_upload" -> documentSettings.autoUpload = value
+                "sync_documents_auto_delete" -> documentSettings.autoDelete = value
+                "sync_documents_wifi_only" -> documentSettings.wifiOnly = value
+            }
         }
     }
 
@@ -234,7 +255,7 @@ class SyncSettingsServiceImpl(
             )
         }
         var m = parts.joinToString("\n")
-        if (DocumentSyncSettings.wifiOnly && CommonUtils.isMeteredNetwork) {
+        if (documentSettings.wifiOnly && CommonUtils.isMeteredNetwork) {
             m += "\n" + application.getString(R.string.cloud_doc_wifi_waiting)
         }
         return m
