@@ -58,8 +58,6 @@ BackgroundImageChooser_populated
 BackupRestore_withFiles
 BibleSearchSettings_default
 BibleSpeak_primary
-BookmarkStylePreview_all
-BookmarkStylePreview_partial
 Bookmarks_primary
 Bookmarks_searchMode
 Calculator_landscape
