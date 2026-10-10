@@ -213,4 +213,27 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         kotlinx.coroutines.runBlocking { launcher.join(net.bible.android.control.speak.SPEAK_KEY) }
         assertEquals(success, speakControl.isSpeaking)
     }
+
+    @Test
+    fun publicStopBeforeInitRejectsLateSuccess() { verifyStoppedPendingEngine(true) }
+
+    @Test
+    fun publicStopBeforeInitRejectsLateFailure() { verifyStoppedPendingEngine(false) }
+
+    private fun verifyStoppedPendingEngine(success: Boolean) {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        val verse = (book.getKey("Rom.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        speakControl.speakBible(book, verse)
+        val callback = platform.listener!!
+        speakControl.stop()
+        val errorsBefore = notifier.errors.toList()
+        callback.onInit(success)
+        kotlinx.coroutines.runBlocking {
+            GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY)
+        }
+        assertTrue("Canceled request must remain stopped", speakControl.isStopped)
+        assertFalse("Canceled callback must not queue text", engine.calls.any { it.startsWith("speak:") })
+        assertEquals("Canceled callback must not report a stale error", errorsBefore, notifier.errors)
+    }
 }

@@ -621,7 +621,11 @@ class TextToSpeechServiceManager constructor(
     }
 
     @Synchronized
-    fun invalidatePendingStart() { startGeneration.incrementAndGet() }
+    fun invalidatePendingStart() {
+        startGeneration.incrementAndGet()
+        // A real init callback belongs to this engine, not a request generation. Cancel both.
+        shutdownTtsEngine()
+    }
 
     @Synchronized
     fun shutdown(willContinueAfter: Boolean = false) {
