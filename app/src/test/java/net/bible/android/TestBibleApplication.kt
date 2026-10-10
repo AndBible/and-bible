@@ -62,7 +62,14 @@ class TestBibleApplication : BibleApplication() {
     override fun onCreate() {
         // At the start, not in onTerminate: a test may terminate the application mid-way with its activity still live.
         CurrentActivityHolder.forgetActivitiesForTest()
-        super.onCreate()
+        // The production handler is process-global; Robolectric creates an application per test.
+        // Never leave its reporting/delegation chain installed in the shared test JVM.
+        val originalHandler = Thread.getDefaultUncaughtExceptionHandler()
+        try {
+            super.onCreate()
+        } finally {
+            Thread.setDefaultUncaughtExceptionHandler(originalHandler)
+        }
         CommonUtils.initializeApp()
     }
 

@@ -8,6 +8,8 @@ import org.junit.Test
 import org.mockito.Mockito
 
 /** The sort order lives in the injected [AppSettings]; the button text comes from [CoreStrings] and names the OTHER order. */
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(application = net.bible.android.TestBibleApplication::class, sdk = [net.bible.android.TEST_SDK])
 class NavigationControlSortOrderTest {
     private val stored = mutableMapOf<String, String?>()
     private val settings = object : AppSettings {

@@ -8,6 +8,8 @@ import androidx.compose.runtime.snapshots.Snapshot
 import org.crosswire.jsword.book.Books
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,8 +61,6 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -476,6 +476,17 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
+    @Test fun restoringTheToolbarAllowsARealHostAfterRepeatedOverrides() {
+        repeat(2) {
+            withRecordingToolbar { fake ->
+                assertTrue(GlobalContext.get().get<ToolbarStateService>() === fake)
+                host()
+            }
+            assertIs<ToolbarStateServiceImpl>(GlobalContext.get().get<ToolbarStateService>())
+            host()
+        }
+    }
+
     /** Builds a real [ComposeReadingViewHost] against the test [activity] (never `.install()`ed — see the class kdoc). */
     private fun host() = ComposeReadingViewHost(activity)
 
@@ -731,7 +742,16 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
                 )
             }
         } finally {
-            CurrentActivityHolder.deactivate(activity)
+            val lifecycleJob = activity.lifecycleScope.coroutineContext[Job]!!
+            try {
+                // This fixture never creates/destroys its activity. Own its queued picker work explicitly.
+                val children = lifecycleJob.children.toList()
+                children.forEach { it.cancel() }
+                DatabaseResetter.runResetBlocking { children.forEach { it.join() } }
+                assertTrue(lifecycleJob.children.none { !it.isCompleted }, "fixture must finish picker work before releasing its activity")
+            } finally {
+                CurrentActivityHolder.deactivate(activity)
+            }
         }
     }
 
@@ -892,7 +912,12 @@ private fun withRecordingToolbar(block: (RecordingToolbarStateService) -> Unit) 
     } finally {
         // `unloadKoinModules` removes the override but does not restore the replaced CoreModule binding.
         unloadKoinModules(overrideModule)
-        loadKoinModules(module { singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() } })
+        loadKoinModules(module {
+            single<ToolbarStateService> {
+                ToolbarStateServiceImpl(get(), get(), get(), get(), get(),
+                    get<net.bible.service.cloudsync.CloudSync>().runningChanged)
+            }
+        })
         assertTrue(
             GlobalContext.get().get<ToolbarStateService>() is ToolbarStateServiceImpl,
             "must not leak the fake ToolbarStateService binding into later tests",
