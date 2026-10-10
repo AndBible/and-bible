@@ -88,6 +88,10 @@ settings hierarchy described above.
     changed, including Black & white on an Onyx device. Changing Color mode
     does not replace your configured colors; color-selection swatches still
     show those colors. Images are not restricted to black and white.
+    In Monochrome, the reading pane's scrollbars use black and white on
+    Android 10 and newer. On Android 6–9, these scrollbars are hidden because
+    those versions do not provide a supported way to recolor them; scrolling
+    still works normally.
 - **Disable animations:** Turns off smooth scrolling and transition animations.
     Improves responsiveness on e-ink screens and very old devices. This is a
     separate setting; choosing a Color mode does not toggle it.
