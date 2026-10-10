@@ -3204,6 +3204,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            // AndroidX enableEdgeToEdge re-enables nav contrast in a decor child's configuration
+            // callback. Restore our route policy after that dispatch, even if the bar colour stays
+            // unchanged (and onTopBarColourReported therefore does not refresh it).
+            window.decorView.post { refreshSystemBars() }
+        }
         windowStateService.notify(WindowChange.LayoutConfigurationChanged)
     }
 

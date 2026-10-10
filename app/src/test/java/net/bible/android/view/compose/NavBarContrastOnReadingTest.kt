@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import android.content.res.Configuration
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
@@ -63,6 +64,41 @@ class NavBarContrastOnReadingTest {
     }
 
     private fun idleMain() = shadowOf(Looper.getMainLooper()).idle()
+
+    @Test
+    fun decorConfigurationDispatchPreservesRouteContrastPolicy() {
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).also { controllers += it }.create().start().resume().visible()
+        val activity = controller.get()
+        idleMain()
+        assertFalse(activity.window.isNavigationBarContrastEnforced)
+
+        fun rotate(orientation: Int) {
+            val config = Configuration(activity.resources.configuration).apply {
+                this.orientation = orientation
+            }
+            // Activity and decor are separate framework dispatches. Include the real AndroidX
+            // child installed by enableEdgeToEdge, not a fake write to the contrast property.
+            activity.onConfigurationChanged(config)
+            activity.window.decorView.dispatchConfigurationChanged(config)
+            idleMain()
+        }
+
+        rotate(Configuration.ORIENTATION_LANDSCAPE)
+        assertFalse(activity.window.isNavigationBarContrastEnforced, "reading rotation must not restore the scrim")
+
+        activity.navigateInGraph(NavRoutes.SETTINGS)
+        idleMain()
+        rotate(Configuration.ORIENTATION_PORTRAIT)
+        assertTrue(activity.window.isNavigationBarContrastEnforced, "settings rotation keeps contrast enforcement")
+
+        activity.navigateInGraph(NavRoutes.READING)
+        idleMain()
+        rotate(Configuration.ORIENTATION_LANDSCAPE)
+        assertFalse(activity.window.isNavigationBarContrastEnforced, "returning to reading still owns the rotated bar")
+    }
 
     @Test
     fun contrastIsOffOnReadingAndBackOnElsewhere() {
