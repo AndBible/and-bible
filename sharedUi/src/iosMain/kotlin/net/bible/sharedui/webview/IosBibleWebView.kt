@@ -19,7 +19,6 @@ import platform.Foundation.NSURLQueryItem
 import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.setValue
 import platform.Foundation.stringWithContentsOfFile
-import platform.UIKit.UIAccessibilityIdentificationProtocol
 import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationDelegateProtocol
 import platform.WebKit.WKUserScript
@@ -109,8 +108,10 @@ private object IosWebViewHolder {
         webView = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = config)
         webView.navigationDelegate = navDelegate
         // XCUITest sees several WebView-type elements per WKWebView (I0 CI: 3 per pane); the UI tests count
-        // panes by this identifier instead.
-        (webView as UIAccessibilityIdentificationProtocol).setAccessibilityIdentifier("bible-webview-$windowId")
+        // panes by this identifier instead. Set through KVC: Kotlin does not see WKWebView as a
+        // UIAccessibilityIdentificationProtocol, so `as UIAccessibilityIdentificationProtocol` throws
+        // TypeCastException (I0 CI run 38032574023) and the property is not exposed on UIView.
+        webView.setValue("bible-webview-$windowId", forKey = "accessibilityIdentifier")
         webView.inspectable = true   // iOS 16.4+: lets Safari Web Inspector attach to this WKWebView
         load(webView, controller.darkTheme)
         return PaneEntry(webView, handler, navDelegate)
