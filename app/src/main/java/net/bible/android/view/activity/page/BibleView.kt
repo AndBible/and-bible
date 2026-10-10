@@ -26,6 +26,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Looper
@@ -294,6 +296,54 @@ class BibleView(
 
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
+    private var nativeScrollbarState: NativeScrollbarState? = null
+
+    private class NativeScrollbarState(view: WebView) {
+        val vertical = view.isVerticalScrollBarEnabled
+        val horizontal = view.isHorizontalScrollBarEnabled
+        val fading = view.isScrollbarFadingEnabled
+        val drawables = if (Build.VERSION.SDK_INT >= 29) listOf(
+            view.verticalScrollbarThumbDrawable, view.verticalScrollbarTrackDrawable,
+            view.horizontalScrollbarThumbDrawable, view.horizontalScrollbarTrackDrawable,
+        ) else emptyList()
+    }
+
+    /** Public drawable setters start at API 29; older MONO readers hide only the native bars. */
+    private fun updateNativeScrollbars() {
+        if (!CommonUtils.settings.pureMonochromeMode) {
+            val saved = nativeScrollbarState ?: return
+            if (Build.VERSION.SDK_INT >= 29) {
+                verticalScrollbarThumbDrawable = saved.drawables[0]
+                verticalScrollbarTrackDrawable = saved.drawables[1]
+                horizontalScrollbarThumbDrawable = saved.drawables[2]
+                horizontalScrollbarTrackDrawable = saved.drawables[3]
+            }
+            isVerticalScrollBarEnabled = saved.vertical
+            isHorizontalScrollBarEnabled = saved.horizontal
+            isScrollbarFadingEnabled = saved.fading
+            nativeScrollbarState = null
+            return
+        }
+        val saved = nativeScrollbarState ?: NativeScrollbarState(this).also { nativeScrollbarState = it }
+        if (Build.VERSION.SDK_INT < 29) {
+            isVerticalScrollBarEnabled = false
+            isHorizontalScrollBarEnabled = false
+            return
+        }
+        val ink = if (ScreenSettings.nightMode) white else black
+        val paper = if (ScreenSettings.nightMode) black else white
+        fun part(color: Int, original: Drawable?) =
+            object : ColorDrawable(color) {
+                override fun getIntrinsicWidth() = original?.intrinsicWidth ?: -1
+                override fun getIntrinsicHeight() = original?.intrinsicHeight ?: -1
+            }
+        verticalScrollbarThumbDrawable = part(ink, saved.drawables[0])
+        verticalScrollbarTrackDrawable = part(paper, saved.drawables[1])
+        horizontalScrollbarThumbDrawable = part(ink, saved.drawables[2])
+        horizontalScrollbarTrackDrawable = part(paper, saved.drawables[3])
+        // Fading opaque ink into paper would create forbidden gray interiors.
+        isScrollbarFadingEnabled = false
+    }
 
     private var wasAtRightEdge: Boolean = false
     private var wasAtLeftEdge: Boolean = false
@@ -344,6 +394,7 @@ class BibleView(
             defaultFocusHighlightEnabled = false
         }
         setOnLongClickListener(BibleViewLongClickListener())
+        updateNativeScrollbars()
     }
 
     private var step2 = false
@@ -1827,6 +1878,7 @@ class BibleView(
 
     fun updateBackgroundColor() {
         Log.i(TAG, "updateBackgroundColor")
+        updateNativeScrollbars()
         setBackgroundColor(backgroundColor)
     }
 
