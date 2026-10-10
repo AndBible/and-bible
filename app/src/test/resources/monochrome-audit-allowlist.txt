@@ -1,11 +1,6 @@
 # Scenes not yet monochrome-clean. Each fixing commit deletes its line. Must end empty (spec 8.1).
 AbCalendarHeatmap_primary
 AbColorScaleLegend_count
-AbCreateItemSheet_plain
-AbDatePickerDialog_startDate
-AbNoticeDialog_help
-AbNoticeDialog_stableNotice
-AiConnectionSettings_customLanguageSheet
 ChooseDocument_populated
 CloudDocuments_populated
 DailyReading_primary
@@ -15,9 +10,6 @@ GridChoosePassage_book_flat
 ReadingProgress_empty
 ReadingProgress_memorizeOverview
 ReadingProgress_reading
-SettingsEditorSheet_textInput
-StartupWelcome_easy
-StartupWelcome_primary
 WorkspaceQuick_populated
 WorkspaceSelector_populated
 WorkspaceSelector_searchMode

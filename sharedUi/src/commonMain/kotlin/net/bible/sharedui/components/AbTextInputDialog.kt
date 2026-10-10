@@ -20,7 +20,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,12 +32,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.window.DialogProperties
+import net.bible.sharedui.theme.isPureMonochrome
 
 /** Owns the working text; [onValueChange] reports every keystroke so a sheet host can enable its
  *  own confirm affordance. The initial value arrives pre-selected, as classic's EditText.selectAll().
@@ -55,13 +62,34 @@ fun AbTextInputContent(
     var value by remember(initial) {
         mutableStateOf(TextFieldValue(initial, selection = TextRange(0, initial.length)))
     }
+    val mono = isPureMonochrome()
+    val ink = MaterialTheme.colorScheme.onSurface
+    val paper = MaterialTheme.colorScheme.surface
+    val transformation = if (masked) PasswordVisualTransformation() else VisualTransformation.None
+    // M3's translucent selection cannot survive e-ink. Invert only the selected glyphs,
+    // retaining the original selection and the password transformation's offset mapping.
+    val monoTransformation = VisualTransformation { text ->
+        val transformed = transformation.filter(text)
+        val selection = value.selection
+        val start = transformed.offsetMapping.originalToTransformed(selection.min)
+        val end = transformed.offsetMapping.originalToTransformed(selection.max)
+        TransformedText(
+            AnnotatedString.Builder(transformed.text).apply {
+                if (start < end) addStyle(SpanStyle(color = paper), start, end)
+            }.toAnnotatedString(),
+            transformed.offsetMapping,
+        )
+    }
     Column(modifier = modifier) {
         OutlinedTextField(
             value = value,
             onValueChange = { value = it; onValueChange(it.text) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            visualTransformation = if (masked) {
+            colors = if (mono) OutlinedTextFieldDefaults.colors(
+                selectionColors = TextSelectionColors(handleColor = ink, backgroundColor = ink),
+            ) else OutlinedTextFieldDefaults.colors(),
+            visualTransformation = if (mono) monoTransformation else if (masked) {
                 PasswordVisualTransformation()
             } else {
                 VisualTransformation.None

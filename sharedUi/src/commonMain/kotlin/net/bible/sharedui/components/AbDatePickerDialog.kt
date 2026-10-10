@@ -29,6 +29,7 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,6 +40,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.monoBorder
 
 private const val MILLIS_PER_DAY = 86_400_000L
 
@@ -122,6 +125,7 @@ fun AbDatePickerDialog(
     onConfirm: (year: Int, month1to12: Int, day: Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val mono = isPureMonochrome()
     val selectableDates = remember(maxUtcMillis) {
         object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= maxUtcMillis
@@ -131,6 +135,7 @@ fun AbDatePickerDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
+        if (mono) NoDialogDim()
         BoxWithConstraints {
             val state = rememberDatePickerState(
                 initialSelectedDateMillis = initialUtcMillis,
@@ -138,10 +143,10 @@ fun AbDatePickerDialog(
                 initialDisplayMode = if (maxWidth < 360.dp) DisplayMode.Input else DisplayMode.Picker,
             )
             Surface(
-                modifier = Modifier.fillMaxWidth().widthIn(max = 360.dp),
+                modifier = Modifier.fillMaxWidth().widthIn(max = 360.dp).monoBorder(AlertDialogDefaults.shape),
                 shape = AlertDialogDefaults.shape,
-                color = AlertDialogDefaults.containerColor,
-                tonalElevation = AlertDialogDefaults.TonalElevation,
+                color = if (mono) MaterialTheme.colorScheme.surface else AlertDialogDefaults.containerColor,
+                tonalElevation = if (mono) 0.dp else AlertDialogDefaults.TonalElevation,
             ) {
                 Column {
                     DatePicker(state = state, modifier = Modifier.weight(1f, fill = false))

@@ -32,9 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * The two platform drawables a [AppDialogRequest.Notice] can draw — [logo] for
@@ -79,10 +81,11 @@ fun AbNoticeDialog(
     logoPainter: Painter? = null,
     moneyPainter: Painter? = null,
 ) {
+    val logoFilter = if (isPureMonochrome()) ColorFilter.tint(MaterialTheme.colorScheme.onSurface) else null
     AbAlertDialog(
         onDismissRequest = onDismissRequest,
         icon = if (showTitleLogo && logoPainter != null) {
-            { Image(logoPainter, contentDescription = null, modifier = Modifier.size(32.dp)) }
+            { Image(logoPainter, contentDescription = null, modifier = Modifier.size(32.dp), colorFilter = logoFilter) }
         } else null,
         title = if (title != null) { { Text(title) } } else null,
         text = {
@@ -98,6 +101,7 @@ fun AbNoticeDialog(
                                 Image(
                                     logoPainter, contentDescription = null,
                                     modifier = Modifier.align(Alignment.CenterHorizontally).size(96.dp),
+                                    colorFilter = logoFilter,
                                 )
                             }
                         is AppDialogRequest.NoticeBlock.IconLine -> {
