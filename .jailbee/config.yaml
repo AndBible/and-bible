@@ -51,6 +51,19 @@ jetbrains:
 host_mounts:
   - { host: ~/Android/Sdk, container: /home/dev/Android/Sdk, readonly: true }
 
+# Maintainer-only: the ostickethelper config and GPG-encrypted password for
+# support.andbible.org (.jailbee/install.d/98-ostickethelper.sh). Not attached
+# by default, so ticket credentials are absent from containers until wanted:
+#   jailbee mount osticket <container>     # before a ticket session
+#   jailbee unmount osticket <container>   # after it
+# The ticket inbox and temp files stay in .local/osticket/ (work_dir).
+optional_mounts:
+  osticket:
+    host: ~/.config/andbible-osticket
+    container: /home/dev/.osticket
+    readonly: true
+    description: "support.andbible.org credentials for ostickethelper (maintainer only)"
+
 # adb: one host-side adb server serves both host and container clients. The
 # container reaches it over this TCP forward (container 127.0.0.1:5037 ->
 # host 127.0.0.1:5037), which lands on adb's default endpoint, so the container
