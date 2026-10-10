@@ -90,41 +90,44 @@ class SyncService: Service() {
     }
 
     private fun synchronize() {
-        Log.i(TAG, "Synchronize started")
-        val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
-        if (wakeLock.isHeld) {
-            throw RuntimeException("Wakelock already held, double-synchronize")
-        }
-
-        val notification = buildSyncNotification()
-        notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
-
-        try {
-            startForeground(SYNC_NOTIFICATION_ID, notification)
-        } catch (e: Exception) {
-            // Android 14+ may refuse to start a dataSync foreground service, e.g.
-            // ForegroundServiceStartNotAllowedException "Time limit already exhausted
-            // for foreground service type dataSync" once the daily quota is used up.
-            // Don't crash the whole app — just log it and skip this synchronization.
-            Log.e(TAG, "Could not start foreground sync service, skipping synchronization", e)
-            notificationManager.cancel(SYNC_NOTIFICATION_ID)
-            scheduler.complete(false)
-            stopSelf()
-            return
-        }
-        wakeLock.acquire(5*60*1000) // 5 minutes
-
         scope.launch {
-            cloudSync.notifySyncRunning(true)
-            cloudSync.synchronize()
-            cloudSync.waitUntilFinished(true)
-            Log.i(TAG, "Synchronize finished")
-            if(wakeLock.isHeld) {
-                wakeLock.release()
+            var succeeded = false
+            var wakeLock: PowerManager.WakeLock? = null
+            try {
+                Log.i(TAG, "Synchronize started")
+                wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
+                val notification = buildSyncNotification()
+                notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
+                startForeground(SYNC_NOTIFICATION_ID, notification)
+                wakeLock.acquire(5 * 60 * 1000)
+                cloudSync.notifySyncRunning(true)
+                cloudSync.synchronize()
+                cloudSync.waitUntilFinished(true)
+                succeeded = true
+                Log.i(TAG, "Synchronize finished")
+            } catch (e: Exception) {
+                Log.e(TAG, "Synchronization or foreground service entry failed", e)
+            } finally {
+                // Release every owner even if a listener or cleanup operation throws.
+                try {
+                    if (succeeded) recordSyncFinished(settings, cloudSync)
+                    else cloudSync.notifySyncRunning(false)
+                } finally {
+                    try {
+                        wakeLock?.let { if (it.isHeld) it.release() }
+                    } finally {
+                        try {
+                            try {
+                                notificationManager.cancel(SYNC_NOTIFICATION_ID)
+                            } finally {
+                                stop()
+                            }
+                        } finally {
+                            scheduler.complete(succeeded)
+                        }
+                    }
+                }
             }
-            scheduler.complete(true)
-            recordSyncFinished(settings, cloudSync)
-            stop()
         }
     }
     private fun stop() {

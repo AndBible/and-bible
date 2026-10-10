@@ -241,7 +241,7 @@ class CloudSync(
             // If there is already sync folder, let's remove it (and its contents)
             if(preliminarySyncFolderId != null) {
                 Log.i(TAG, "Deleting earlier sync folder $preliminarySyncFolderId")
-                adapter.delete(preliminarySyncFolderId!!)
+                adapter.delete(preliminarySyncFolderId)
             }
 
             return adapter.createNewFolder(syncFolderName).id.also {

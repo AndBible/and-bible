@@ -21,6 +21,8 @@ class CoreModuleVerifyTest {
                 android.content.Context::class,
                 // OrderedLauncher is bound with the AppCoroutineScope explicitly; verify() only sees its declared CoroutineScope parameter.
                 kotlinx.coroutines.CoroutineScope::class,
+                // Toolbar's cloud-running stream is supplied from the resolved CloudSync bean explicitly.
+                net.bible.sharedcore.event.Events::class,
                 // ReadingPlanRepository/ReadingPlanTextFileDao take their platform lookups (DAO, user plan folder, add-on plans) as
                 // lambdas, bound explicitly in the module (L1a: no platform defaults); verify() cannot see into a lambda.
                 Function0::class,

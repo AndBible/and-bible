@@ -157,7 +157,7 @@ fun buildCoreModule() = module {
     singleOf(::WindowControl)
     singleOf(::WindowCommandsImpl) { bind<WindowCommands>() }
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
-    singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() }
+    single { ToolbarStateServiceImpl(get(), get(), get(), get(), get(), get<net.bible.service.cloudsync.CloudSync>().runningChanged) } bind ToolbarStateService::class
     singleOf(::LinkControl)
     single<HistoryPlatform> { AndroidHistoryPlatform() }
     single<LinkPlatform> { AndroidLinkPlatform() }

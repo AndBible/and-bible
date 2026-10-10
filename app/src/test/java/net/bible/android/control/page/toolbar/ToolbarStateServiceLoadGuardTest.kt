@@ -64,6 +64,7 @@ class ToolbarStateServiceLoadGuardTest {
     private inline fun <reified T : Any> neverTouched(): T = ObjenesisHelper.newInstance(T::class.java)
 
     /** The real [WindowStateServiceImpl] the service under test subscribes to; reset in [tearDown]. */
+    private val syncRunning = net.bible.sharedcore.event.EventSource<Boolean>()
     private val windowStateService = WindowStateServiceImpl()
 
     /**
@@ -79,7 +80,6 @@ class ToolbarStateServiceLoadGuardTest {
         PassageChangeMediator.resetSubscribersForTest()
         windowStateService.resetSubscribersForTest()
         WorkspaceChanges.resetSubscribersForTest()
-        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).resetSubscribersForTest()
         SpeakChanges.resetSubscribersForTest()
     }
 
@@ -98,6 +98,7 @@ class ToolbarStateServiceLoadGuardTest {
             neverTouched(),
             neverTouched(),
             windowStateService,
+            syncRunning,
         )
 
         // Without the guard this reaches windowControl.activeWindowPageManager -> activeWindow ->

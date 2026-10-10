@@ -87,6 +87,7 @@ class ToolbarStateServiceImplTest {
             pageControl = pageControl,
             speakControl = koin.get<SpeakControl>(),
             windowStateService = koin.get(),
+            syncRunning = koin.get<CloudSync>().runningChanged,
         )
     }
 

@@ -69,7 +69,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val okay: String get() = context.getString(R.string.okay)
     override val cancel: String get() = context.getString(R.string.cancel)
     override val areYouSure: String get() = context.getString(R.string.are_you_sure)
-    override fun overrideBackup(what: String): String = context.getString(R.string.overrideBackup, what)
+    override fun overrideBackup(contents: String): String = context.getString(R.string.overrideBackup, contents)
     override fun areYouSureResetLocal(what: String): String = context.getString(R.string.are_you_sure_reset_local, what)
     override fun areYouSureResetCloud(what: String): String = context.getString(R.string.are_you_sure_reset_cloud, what)
     override fun syncDisabling(what: String): String = context.getString(R.string.sync_disabling, what)
