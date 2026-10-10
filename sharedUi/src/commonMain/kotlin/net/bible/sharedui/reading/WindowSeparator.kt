@@ -17,10 +17,13 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -73,10 +76,15 @@ fun WindowSeparator(
     isActive: Boolean = false,
     isDragging: Boolean = false,
 ) {
+    val mono = isPureMonochrome()
+    val barThickness = if (mono && isDragging) thickness * 2 else thickness
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
-    val barModifier = if (isVertical) Modifier.fillMaxWidth().height(thickness)
-                       else Modifier.fillMaxHeight().width(thickness)
-    val barColor = when {
+    val barModifier = if (mono && isDragging) {
+        if (isVertical) Modifier.fillMaxWidth().requiredHeight(barThickness)
+        else Modifier.fillMaxHeight().requiredWidth(barThickness)
+    } else if (isVertical) Modifier.fillMaxWidth().height(barThickness)
+                       else Modifier.fillMaxHeight().width(barThickness)
+    val barColor = if (mono) MaterialTheme.colorScheme.onSurface else when {
         isDragging -> MaterialTheme.colorScheme.tertiary
         isActive -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.outlineVariant

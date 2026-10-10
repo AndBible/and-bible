@@ -727,4 +727,35 @@ watch(() => selectedEditAction.mode, (newMode) => {
     }
   }
 }
+
+@each $theme, $ink, $paper in (".pureMonochrome", black, white), (".pureMonochrome.night", white, black) {
+  #{$theme} {
+    .icon-item, .mode-toggle, .mode-select, .content-textarea, .validation-error,
+    .cancel-button, .save-button, .format-button {
+      background: $paper;
+      color: $ink;
+      border-color: $ink;
+      box-shadow: none;
+      transition: none;
+    }
+    .icon-item.selected, .mode-toggle.active, .save-button,
+    .mode-toggle:hover, .format-button:hover, .cancel-button:hover, .save-button:hover:not(:disabled) {
+      background: $ink;
+      color: $paper;
+      border-color: $ink;
+    }
+    .save-button:disabled, .save-button:disabled:hover {
+      background: $paper;
+      color: #808080;
+      border-color: #808080;
+      opacity: 1;
+    }
+    .content-textarea.has-error { border: 2px solid $ink; box-shadow: none; }
+    .content-textarea::placeholder { color: #808080; }
+    .setting-section h3, .mode-selection label, .content-input label,
+    .validation-error svg, .format-help small { color: $ink; }
+    .dialog-buttons { border-top-color: $ink; }
+  }
+}
+
 </style>

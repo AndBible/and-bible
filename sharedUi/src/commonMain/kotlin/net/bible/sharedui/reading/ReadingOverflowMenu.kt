@@ -17,6 +17,11 @@
 
 package net.bible.sharedui.reading
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.ui.unit.dp
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -51,7 +56,14 @@ fun ReadingOverflowMenu(
     modifier: Modifier = Modifier,
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
-    DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, modifier = modifier) {
+    val mono = isPureMonochrome()
+    DropdownMenu(
+        expanded = expanded, onDismissRequest = onDismiss, modifier = modifier,
+        containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
+        tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+        shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+        border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+    ) {
         ReadingOverflowMenuRows(items, onItemClick, icon)
     }
 }

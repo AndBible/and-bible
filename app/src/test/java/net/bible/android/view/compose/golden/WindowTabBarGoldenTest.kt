@@ -149,4 +149,31 @@ class WindowTabBarGoldenTest {
 
     @Test
     fun maximised() = captureGolden("WindowTabBar", "maximised", EDGE_MODE, content = screen(maximisedModel))
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun multiExpanded_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowTabBar", "multiExpanded", mode, content = screen(multiExpandedModel, multiExpandedTopLabel)) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun multiExpandedSynced_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowTabBar", "multiExpandedSynced", mode, content = screen(multiExpandedSyncedModel)) }
+    }
+
+    @Test
+    fun single_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowTabBar", "single", mode, content = screen(singleModel)) }
+    }
+
+    @Test
+    fun multiCollapsed_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowTabBar", "multiCollapsed", mode, content = screen(multiCollapsedModel)) }
+    }
+
+    @Test
+    fun maximised_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowTabBar", "maximised", mode, content = screen(maximisedModel)) }
+    }
 }

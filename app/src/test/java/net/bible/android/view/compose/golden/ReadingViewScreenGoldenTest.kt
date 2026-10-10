@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -116,7 +120,7 @@ class ReadingViewScreenGoldenTest {
     // below the toolbar row) is visible in the captured PNG, same technique as ReadingSplitGoldenTest.
     private val pane: @Composable (String) -> Unit = { id ->
         Box(
-            Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer),
+            Modifier.fillMaxSize().background(if (isPureMonochrome()) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primaryContainer),
             Alignment.Center,
         ) { Text(id) }
     }
@@ -293,7 +297,18 @@ class ReadingViewScreenGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun withRail() = captureGolden(
         "ReadingViewScreen", "withRail", EDGE_MODE,
-        content = screen(
+        content = railScreen(),
+    )
+
+    // Covers the speakBar slot (Batch 12f Task 5): rendered between agentLog and tabBar only when
+    // non-null. Uses the real SpeakTransportBar (its own full mode/RTL matrix is Task 6's golden
+    // test) with a representative playing state, just to prove the slot stacks correctly here.
+    private val speakTransportPlaying = SpeakTransportVd(
+        visible = true, playing = true, stopped = false, statusText = "Reading John 3",
+        speedPercent = 150, bookmarkButtonVisible = true,
+    )
+
+    private fun railScreen(): @Composable () -> Unit = screen(
             fullScreen = false,
             tabBar = { _ ->
                 WindowTabBar(
@@ -306,22 +321,9 @@ class ReadingViewScreenGoldenTest {
                     windowLabel = { it.id },
                 )
             },
-        ),
-    )
+        )
 
-    // Covers the speakBar slot (Batch 12f Task 5): rendered between agentLog and tabBar only when
-    // non-null. Uses the real SpeakTransportBar (its own full mode/RTL matrix is Task 6's golden
-    // test) with a representative playing state, just to prove the slot stacks correctly here.
-    private val speakTransportPlaying = SpeakTransportVd(
-        visible = true, playing = true, stopped = false, statusText = "Reading John 3",
-        speedPercent = 150, bookmarkButtonVisible = true,
-    )
-
-    @Test
-    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
-    fun withSpeakBar() = captureMatrix(
-        "ReadingViewScreen", "withSpeakBar", heightDp = 640,
-        content = screen(
+    private fun speakScreen(): @Composable () -> Unit = screen(
             fullScreen = false,
             speakBar = { _ ->
                 SpeakTransportBar(
@@ -330,7 +332,13 @@ class ReadingViewScreenGoldenTest {
                     onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {},
                 )
             },
-        ),
+        )
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withSpeakBar() = captureMatrix(
+        "ReadingViewScreen", "withSpeakBar", heightDp = 640,
+        content = speakScreen(),
     )
 
     /**
@@ -377,6 +385,68 @@ class ReadingViewScreenGoldenTest {
             },
         ),
     )
+
+
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun toolbarOn_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingViewScreen", "toolbarOn", mode, content = screen(fullScreen = false)) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun fullScreen_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingViewScreen", "fullScreen", mode, content = screen(fullScreen = true)) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withRail_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+        "ReadingViewScreen", "withRail", mode,
+        content = railScreen(),
+    ) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withSpeakBar_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+        "ReadingViewScreen", "withSpeakBar", mode, heightDp = 640,
+        content = speakScreen(),
+    ) }
+    }
+
+    // Empty panes expose the screen's paint; the hook proves the side inset actually arrived.
+    internal fun seededSideNavScreen(proof: SideNavCaptureProof): @Composable () -> Unit = {
+        proof.view = androidx.compose.ui.platform.LocalView.current
+        proof.rightInset = androidx.compose.foundation.layout.WindowInsets.navigationBars
+            .getRight(androidx.compose.ui.platform.LocalDensity.current, androidx.compose.ui.platform.LocalLayoutDirection.current)
+        ReadingViewScreen(
+            layout = layout,
+            toolbar = toolbarState.copy(workspaceColorArgb = 0xFFFF00FF.toInt(), deriveToolbarFromTheme = false),
+            toolbarIcons = icons(), toolbarCallbacks = noopCallbacks, fullScreen = false,
+            onWindowActivated = {}, onSeparatorCommitted = { _, _, _, _ -> },
+            pane = {
+                Box(Modifier.fillMaxSize().onGloballyPositioned { proof.paneRight = it.boundsInWindow().right })
+            },
+            edgeBackground = androidx.compose.ui.graphics.Color(0xFF00FFFF),
+            paneBackground = { androidx.compose.ui.graphics.Color(0xFFFF00FF) },
+        )
+    }
+
+    @OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun seededSideNav_mono() {
+        MONO_MODES.forEach { mode ->
+            val proof = SideNavCaptureProof()
+            captureGolden("ReadingViewScreen", "seededSideNav", mode,
+                captureOptions = listOf(proof), content = seededSideNavScreen(proof))
+        }
+    }
+
 }
 
 /**
@@ -392,3 +462,41 @@ class ReadingViewScreenGoldenTest {
  * arithmetic goes stale with it.
  */
 private const val AGENT_OVERLAY_CANVAS_DP = 800
+
+/** Dispatch only once the real content root and Compose's inset listener have settled. */
+@OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
+internal class SideNavCaptureProof : com.github.takahirom.roborazzi.RoborazziComposeCaptureOption {
+    lateinit var view: android.view.View
+    var rightInset = -1
+    var paneRight = Float.NaN
+
+    override fun beforeCapture() {
+        val looper = org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper())
+        looper.idle()
+        val root = view.rootView.findViewById<android.view.ViewGroup>(android.R.id.content)
+        androidx.core.view.ViewCompat.dispatchApplyWindowInsets(root,
+            androidx.core.view.WindowInsetsCompat.Builder()
+                .setInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars(),
+                    androidx.core.graphics.Insets.of(0, 0, 24, 0))
+                .build())
+        looper.idleFor(java.time.Duration.ofSeconds(1))
+        looper.idle()
+        // Roborazzi captures AndroidComposeView directly inside onActivity. Insets can recompose
+        // here without a ViewRoot traversal; perform the real root measure/layout before reading
+        // onGloballyPositioned bounds, not just another looper idle.
+        root.measure(
+            android.view.View.MeasureSpec.makeMeasureSpec(root.width, android.view.View.MeasureSpec.EXACTLY),
+            android.view.View.MeasureSpec.makeMeasureSpec(root.height, android.view.View.MeasureSpec.EXACTLY),
+        )
+        root.layout(root.left, root.top, root.right, root.bottom)
+        val bitmap = android.graphics.Bitmap.createBitmap(root.width, root.height, android.graphics.Bitmap.Config.ARGB_8888)
+        root.draw(android.graphics.Canvas(bitmap))
+        bitmap.recycle()
+        looper.idle()
+        org.junit.Assert.assertEquals("The golden must exercise a real right navigation inset", 24, rightInset)
+        org.junit.Assert.assertEquals("The pane must stop before the navigation band",
+            (root.width - 24).toFloat(), paneRight, 1f)
+    }
+
+    override fun afterCapture() {}
+}

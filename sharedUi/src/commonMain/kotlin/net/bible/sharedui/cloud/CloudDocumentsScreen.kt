@@ -35,9 +35,10 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.SyncDisabled
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,7 +78,9 @@ import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.isPureMonochrome
 
 @Composable
 fun CloudDocumentsScreen(
@@ -346,7 +349,13 @@ private fun statusBaseArgb(status: CloudDocStatus): Int = when (status) {
 
 @Composable
 private fun statusColor(status: CloudDocStatus): Color =
-    Color(accentArgbFor(statusBaseArgb(status), LocalDisplayColorMode.current))
+    if (isPureMonochrome()) {
+        when (status) {
+            CloudDocStatus.BLOCKED, CloudDocStatus.WONT_SYNC,
+            CloudDocStatus.REMOVED, CloudDocStatus.REMOVED_STILL_INSTALLED -> LocalAbColors.current.monoDisabled
+            else -> MaterialTheme.colorScheme.onSurface
+        }
+    } else Color(accentArgbFor(statusBaseArgb(status), LocalDisplayColorMode.current))
 
 @Composable
 private fun CloudDocRow(
@@ -391,7 +400,7 @@ private fun CloudDocRow(
                 IconButton(onClick = { expanded = true }) {
                     Icon(Icons.Filled.MoreVert, contentDescription = strings.menu)
                 }
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                AbDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                     documentMenuActions(item, syncEnabled).forEach { action ->
                         val kind = actionLabelKind(action, item.localOnly, syncEnabled)
                         AbMenuItem(

@@ -17,6 +17,11 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.monoBorder
+import net.bible.sharedui.theme.monoPaper
+import net.bible.sharedui.theme.monoInk
+import net.bible.sharedui.theme.LocalIsDarkTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -40,14 +45,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.reading.railLabelFontScale
@@ -74,7 +86,21 @@ import net.bible.sharedcore.reading.railLabelFontScale
 enum class WindowButtonMode { Rail, Pane }
 
 private val WindowButtonSize = 40.dp
+/** Floating Pane buttons keep their all-round 8dp corners. */
 private val WindowButtonCorner = 8.dp
+/** Classic rail tab corners: pinned/links windows 6dp, plain windows 1dp, top only. */
+private val RailPinnedTabCorner = 6.dp
+private val RailPlainTabCorner = 1.dp
+
+/**
+ * Classic restore-rail tab shape: rounded top, square bottom. Classic used
+ * `bar_window_button*` (6dp) for `isPinMode || isLinksWindow` and `bar_window_unpinned_button*` (1dp)
+ * otherwise, so the corner radius is the rail's only pinned-ness cue (it draws no pin glyph).
+ */
+private fun railTabShape(isPinned: Boolean, isLinks: Boolean): Shape {
+    val r = if (isPinned || isLinks) RailPinnedTabCorner else RailPlainTabCorner
+    return RoundedCornerShape(topStart = r, topEnd = r, bottomEnd = 0.dp, bottomStart = 0.dp)
+}
 private val BadgeIconSize = 14.dp
 /** Shared inset for the top-end/top-start badges' `Modifier.padding(...)` — also the basis of [RailBadgeRowHeight]. */
 private val BadgeInset = 2.dp
@@ -114,8 +140,18 @@ private val SyncBadgeDigitSize = 8.dp
 private val PinIconSize = 9.5.dp
 private val BorderWidth = 1.dp
 private val MinimisedBorderWidth = 1.5.dp
+/** MONO borders: active is heavier than inactive, but not double (2dp read too heavy on e-ink). */
+private val MonoActiveBorderWidth = 1.5.dp
+private val MonoBorderWidth = 1.dp
+/**
+ * MONO minimised dash width. The old centred 1.5dp stroke showed only its inner ~0.75dp (the clip
+ * cut the outer half); 1dp whole-pixel ink keeps that visible weight without the grey fringe.
+ */
+private val MonoMinimisedBorderWidth = 1.dp
 private const val MinimisedAlpha = 0.62f
-private val DashPattern = floatArrayOf(4f, 3f)
+/** Minimised outline dash/gap in dp, so they stay legible on high-density e-ink. */
+private val MinimisedDashOn = 4.dp
+private val MinimisedDashOff = 3.dp
 
 /** Classic rail `buttonText` size, set at runtime in `WindowButtonWidget.kt:127`. */
 private val RailLabelSize = 13.sp
@@ -155,19 +191,18 @@ private val RailBadgeRowHeight = BadgeIconSize + BadgeInset
  * - [isActive] → [androidx.compose.material3.ColorScheme.primaryContainer] fill (classic
  *   `*_active` drawable); inactive → [androidx.compose.material3.ColorScheme.surfaceVariant]
  *   (classic base drawable).
- * - [isMinimised] → the whole button is drawn at [MinimisedAlpha] (~0.62) alpha plus a dashed
- *   outline in [androidx.compose.material3.ColorScheme.outline] — signalling "known window, not
- *   currently shown", distinct from a merely-inactive button. There's no 1:1 classic analogue (the
- *   classic widget has no such "minimised" concept); this look was chosen for the new Compose split
- *   to read as "temporarily set aside" rather than plain "not selected".
+ * - [isMinimised] → a dp-sized dashed outline signals "known window, not currently shown".
+ *   MONOCHROME keeps full ink content and ink dashes without fading, like classic's pure black/white
+ *   monochrome palette. Other modes draw the whole button at [MinimisedAlpha] (~0.62) alpha with
+ *   [androidx.compose.material3.ColorScheme.outline] dashes, to read as "temporarily set aside"
+ *   rather than plain "not selected".
  * - [isPinned] → **Pane mode only** (`WindowButtonMode.Pane`): classic's `pinMode` `ic_pin` glyph,
  *   start edge under the sync badge — `window_button.xml:97-107`
  *   `Top_toBottomOf="@id/synchronize"`, matching classic's `pinMode.visibility` requiring
  *   `!isRestoreButton` (`WindowButtonWidget.kt:86-95`). Rail mode never draws it — classic instead
- *   conveys a pinned rail window via a different background drawable (`WindowButtonWidget.kt:106-116`,
- *   not yet replicated by this composable) — so a caller passing `isPinned = true` with
- *   `mode = Rail` renders no visible indicator (fix-round-1: an earlier version drew it regardless of
- *   [mode] and it collided with the rail's two-row label).
+ *   conveys pinned/links windows through [railTabShape]: 6dp top corners instead of 1dp, with square
+ *   bottoms (`WindowButtonWidget.kt:106-116`). The rail uses raw `isPinMode`, like classic: auto-pin
+ *   gives all tabs uniform 6dp corners, without a pin glyph colliding with the two-row label.
  * - [isLinks] → a link glyph (classic `docType` force-swapped to `ic_link_black_24dp`); takes the
  *   SAME top-end corner as [leadingIcon] and always wins over it, exactly like classic always
  *   overwriting `docType`'s image when `window.isLinksWindow`.
@@ -204,31 +239,71 @@ fun WindowButton(
     leadingIcon: Painter? = null,
     topLabel: String? = null,
 ) {
+    val mono = isPureMonochrome()
     val colors = MaterialTheme.colorScheme
-    val containerColor = if (isActive) colors.primaryContainer else colors.surfaceVariant
-    val contentColor = if (isActive) colors.onPrimaryContainer else colors.onSurfaceVariant
-    val outlineColor = colors.outline
-    val cornerShape = RoundedCornerShape(WindowButtonCorner)
+    val dark = LocalIsDarkTheme.current
+    val containerColor = if (mono) monoPaper(dark) else if (isActive) colors.primaryContainer else colors.surfaceVariant
+    // MONO keeps minimised content and dashes in ink: disabled grey reads as blur on e-ink.
+    val contentColor = when {
+        mono -> monoInk(dark)
+        isActive -> colors.onPrimaryContainer
+        else -> colors.onSurfaceVariant
+    }
+    val outlineColor = if (mono) monoInk(dark) else colors.outline
+    val cornerShape = when (mode) {
+        WindowButtonMode.Rail -> railTabShape(isPinned, isLinks)
+        WindowButtonMode.Pane -> RoundedCornerShape(WindowButtonCorner)
+    }
+    // MONO strokes snap to whole pixels: a fractional width (1dp = 1.875px on a 300 dpi e-ink panel)
+    // antialiases its inner edge into grey.
+    val density = LocalDensity.current
+    fun Dp.wholePx(): Dp = with(density) { roundToPx().coerceAtLeast(1).toDp() }
 
     Box(
         modifier = modifier
             .size(WindowButtonSize)
-            .alpha(if (isMinimised) MinimisedAlpha else 1f)
+            .alpha(if (isMinimised && !mono) MinimisedAlpha else 1f)
             .clip(cornerShape)
             .background(containerColor)
             .then(
                 if (isMinimised) {
                     Modifier.drawWithContent {
                         drawContent()
-                        drawRoundRect(
-                            color = outlineColor,
-                            cornerRadius = CornerRadius(WindowButtonCorner.toPx(), WindowButtonCorner.toPx()),
-                            style = Stroke(
-                                width = MinimisedBorderWidth.toPx(),
-                                pathEffect = PathEffect.dashPathEffect(DashPattern),
-                            ),
+                        val dash = PathEffect.dashPathEffect(
+                            floatArrayOf(MinimisedDashOn.toPx(), MinimisedDashOff.toPx()),
                         )
+                        if (mono) {
+                            // Inset by half the stroke so the whole stroke lies inside the clip: a
+                            // centred stroke loses its outer half and leaves a grey fractional pixel.
+                            // No antialiasing: dash ends fall at fractional positions along the
+                            // path (corner arcs), and e-ink must get pure ink or paper.
+                            val width = MonoMinimisedBorderWidth.wholePx().toPx()
+                            val paint = Paint().apply {
+                                color = outlineColor
+                                style = PaintingStyle.Stroke
+                                strokeWidth = width
+                                pathEffect = dash
+                                isAntiAlias = false
+                            }
+                            val outline = cornerShape.createOutline(
+                                Size(size.width - width, size.height - width), layoutDirection, this,
+                            )
+                            translate(width / 2, width / 2) {
+                                drawIntoCanvas { it.drawOutline(outline, paint) }
+                            }
+                        } else {
+                            drawOutline(
+                                outline = cornerShape.createOutline(size, layoutDirection, this),
+                                color = outlineColor,
+                                style = Stroke(width = MinimisedBorderWidth.toPx(), pathEffect = dash),
+                            )
+                        }
                     }
+                } else if (mono) {
+                    Modifier.monoBorder(
+                        cornerShape,
+                        (if (isActive) MonoActiveBorderWidth else MonoBorderWidth).wholePx(),
+                    )
                 } else {
                     Modifier.border(BorderWidth, colors.outlineVariant, cornerShape)
                 },
@@ -327,8 +402,8 @@ fun WindowButton(
         // Pane only, fix-round-1: classic's `pinMode.visibility` requires `!isRestoreButton`
         // (`WindowButtonWidget.kt:86-95`) — the pin indicator is a Pane-only badge in classic; the
         // rail instead conveys pinned-ness through a different BACKGROUND drawable
-        // (`bar_window_button*` vs `bar_window_unpinned_button*`, `WindowButtonWidget.kt:106-116`,
-        // not replicated by this composable yet — tracked separately, not part of this task).
+        // (`bar_window_button*` vs `bar_window_unpinned_button*`, `WindowButtonWidget.kt:106-116`),
+        // now replicated by railTabShape's pinned/links vs plain top corners.
         // Position (Pane): start edge, directly under the sync badge — `top = RailBadgeRowHeight`
         // DERIVES that from the badge reservation rather than restating it as a literal, which is
         // the Compose equivalent of classic's `Top_toBottomOf="@id/synchronize"`. This is only a

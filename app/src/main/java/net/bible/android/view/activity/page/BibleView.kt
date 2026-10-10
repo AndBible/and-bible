@@ -298,6 +298,27 @@ class BibleView(
 
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
+    private var nativeScrollbarState: NativeScrollbarState? = null
+
+    private class NativeScrollbarState(view: WebView) {
+        val vertical = view.isVerticalScrollBarEnabled
+        val horizontal = view.isHorizontalScrollBarEnabled
+    }
+
+    /** MONO hides native chrome on every API; retaining the original flags makes exit reversible. */
+    private fun updateNativeScrollbars() {
+        if (!CommonUtils.settings.pureMonochromeMode) {
+            val saved = nativeScrollbarState ?: return
+            isVerticalScrollBarEnabled = saved.vertical
+            isHorizontalScrollBarEnabled = saved.horizontal
+            nativeScrollbarState = null
+            return
+        }
+        if (nativeScrollbarState == null) nativeScrollbarState = NativeScrollbarState(this)
+        isVerticalScrollBarEnabled = false
+        isHorizontalScrollBarEnabled = false
+        // Leave drawables, fading and geometry untouched; autoscroll retains its own range policy.
+    }
 
     private var wasAtRightEdge: Boolean = false
     private var wasAtLeftEdge: Boolean = false
@@ -348,6 +369,7 @@ class BibleView(
             defaultFocusHighlightEnabled = false
         }
         setOnLongClickListener(BibleViewLongClickListener())
+        updateNativeScrollbars()
     }
 
     private var step2 = false
@@ -1781,6 +1803,7 @@ class BibleView(
         val monochromeMode = CommonUtils.settings.monochromeMode
         val einkMode = CommonUtils.settings.einkMode
         val colorEinkMode = CommonUtils.settings.colorEinkMode
+        val pureMonochromeMode = CommonUtils.settings.pureMonochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
@@ -1788,6 +1811,7 @@ class BibleView(
             seedArgb = currentWorkspaceThemeSeedArgb(),
             dark = nightMode,
             colorMode = CommonUtils.settings.displayColorMode,
+            style = CommonUtils.settings.themePaletteStyle,
         )
         return """
                 bibleView.emit('set_config', {
@@ -1810,6 +1834,7 @@ class BibleView(
                         monochromeMode: $monochromeMode,
                         einkMode: $einkMode,
                         colorEinkMode: $colorEinkMode,
+                        pureMonochromeMode: $pureMonochromeMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
@@ -1832,6 +1857,7 @@ class BibleView(
 
     fun updateBackgroundColor() {
         Log.i(TAG, "updateBackgroundColor")
+        updateNativeScrollbars()
         setBackgroundColor(backgroundColor)
     }
 

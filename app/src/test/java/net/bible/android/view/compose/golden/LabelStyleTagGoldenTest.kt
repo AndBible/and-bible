@@ -25,14 +25,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
-import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.bookmark.LabelStyleTag
 import net.bible.sharedui.components.AbColor
-import net.bible.sharedui.theme.LocalDisplayColorMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -59,7 +56,7 @@ class LabelStyleTagGoldenTest {
     @Test fun labelStyleTag_all() = captureMatrix("LabelStyleTag", "all", heightDp = 300) {
         Column {
             BookmarkDisplayStyle.entries.forEach { style ->
-                val glyphTint = Color(accentArgbFor(AbColor.palette[1], LocalDisplayColorMode.current))
+                val glyphTint = net.bible.sharedui.bookmark.bookmarkMarkerTint(AbColor.palette[1])
                 // Left: the selection axis (partial). Right: the whole-verse axis (full). Read the
                 // pair to see that "half" is what says "selection" -- and that MARKER/HIDDEN are
                 // unaffected, having nothing to decorate.
@@ -70,10 +67,7 @@ class LabelStyleTagGoldenTest {
                         colorArgb = AbColor.palette[1],
                         decoratePartially = true,
                     ) {
-                        // Stands in for the ROW's own glyph (ManageLabelsScreen.kt's `glyphTint`),
-                        // not for the style decoration -- accentArgbFor is exactly what's banned
-                        // inside bookmarkStyleDecoration, but here it is the correct precedent to
-                        // follow.
+                        // Same production tint resolver as the list row and editor marker.
                         Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = glyphTint)
                     }
                     Spacer(Modifier.width(12.dp))

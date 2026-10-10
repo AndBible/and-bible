@@ -3,7 +3,8 @@
 #
 # Installed with uv (96-uv) from a pinned commit of Sykero-Software/ostickethelper. It drives the
 # container's Google Chrome (config `browser_channel: chrome`), so no Playwright browser download.
-# Its config, password file and ticket inbox live in .local/osticket/ (gitignored, host-shared).
+# Its config and password file live in the optional mount `osticket` (~/.osticket, see
+# optional_mounts in config.yaml); the ticket inbox stays in .local/osticket/ (gitignored, host-shared).
 # Env: (none) — runs as root in the golden-build container.
 # Installs: /opt/uv-tools/ostickethelper (venv), /usr/local/bin/ostickethelper
 set -euo pipefail

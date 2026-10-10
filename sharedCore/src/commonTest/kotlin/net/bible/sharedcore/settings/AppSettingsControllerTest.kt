@@ -14,7 +14,8 @@ private class FakeAppSettingsService(initial: AppSettingsSnapshot) : AppSettings
     val setWrites = mutableListOf<Pair<String, Set<String>>>()
     var lastInt: Pair<String, Int>? = null
     override fun setBool(key: String, value: Boolean) { boolWrites += key to value }
-    override fun setString(key: String, value: String) {}
+    var lastStringWrite: Pair<String, String>? = null
+    override fun setString(key: String, value: String) { lastStringWrite = key to value }
     override fun setInt(key: String, value: Int) { lastInt = key to value }
     override fun setStringSet(key: String, value: Set<String>) { setWrites += key to value }
     override fun refresh() {}
@@ -27,6 +28,7 @@ class AppSettingsControllerTest {
         betaFeaturesVisible: Boolean = false,
         sdcardPermissionVisible: Boolean = false,
         openLinksVisible: Boolean = false,
+        displayColorMode: String = "normal",
     ) = AppSettingsSnapshot(
         greekDicts = emptySet(), hebrewDicts = emptySet(), greekMorph = emptySet(),
         enabledWordLookupDicts = emptySet(),
@@ -36,17 +38,19 @@ class AppSettingsControllerTest {
         navigateToVerse = false, openLinksInSpecialWindow = true, screenKeepOn = false,
         doubleTapToFullscreen = true, autoFullscreen = false, toolbarButtonActions = "",
         bibleViewSwipeMode = "CHAPTER", disableTwoStepBookmarking = false, volumeKeysScroll = true,
+        themePaletteStyle = "fidelity",
         nightMode = "manual", locale = "", disableClickToEdit = false, notesContentType = "HTML",
         fontSizeMultiplier = 100, hideStatusBar = false, fullScreenHideButtons = true,
         hideWindowButtons = false, hideBibleReferenceOverlay = false, showActiveWindowIndicator = true,
         enabledBibleBookmarkModalButtons = emptySet(), enabledGenBookmarkModalButtons = emptySet(),
         bibleBookmarkModalOptions = emptyList(), genBookmarkModalOptions = emptyList(),
-        displayColorMode = "normal", einkMode = false, disableAnimations = false,
+        displayColorMode = displayColorMode, einkMode = false, disableAnimations = false,
         discreteMode = false, showCalculator = false, calculatorPin = "1234",
         experimentalFeatures = emptySet(), experimentalFeatureOptions = emptyList(),
         enableBluetooth = true, requestSdcardPermission = false, showErrorbox = false,
         toolbarButtonActionChoices = emptyList(), bibleViewSwipeModeChoices = emptyList(),
         nightModeChoices = emptyList(), localeChoices = emptyList(), notesContentTypeChoices = emptyList(),
+        themePaletteStyleChoices = listOf(Choice2("fidelity", "Fidelity (exact color)"), Choice2("tonal_spot", "Tonal spot (soft)")),
         displayColorModeChoices = emptyList(),
         discreteTogglesVisible = discreteTogglesVisible,
         betaFeaturesVisible = betaFeaturesVisible, sdcardPermissionVisible = sdcardPermissionVisible,
@@ -56,6 +60,32 @@ class AppSettingsControllerTest {
     private fun controller(s: AppSettingsService) =
         AppSettingsController(s, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined),
             AppSettingsLabels.forTest(), onNavigate = {})
+
+    private fun themeRow(c: AppSettingsController) =
+        c.state.value.items.single { it.key == "theme_palette_style" } as SettingsItem.ListChoiceRow
+
+    @Test
+    fun themeStyleRowShowsTheStoredValueAndChoices() {
+        val row = themeRow(controller(FakeAppSettingsService(snap())))
+        assertEquals("fidelity", row.selectedValue)
+        assertEquals(listOf("fidelity", "tonal_spot"), row.entries.map { it.value })
+        assertEquals("Theme style", row.title)
+        assertTrue(row.enabled)
+    }
+
+    @Test
+    fun themeStyleRowIsDisabledOutsideNormalColorMode() {
+        listOf("bw", "color_eink").forEach { mode ->
+            assertFalse(themeRow(controller(FakeAppSettingsService(snap(displayColorMode = mode)))).enabled, mode)
+        }
+    }
+
+    @Test
+    fun choosingAThemeStyleWritesTheStringPreference() {
+        val service = FakeAppSettingsService(snap())
+        controller(service).onListChoice("theme_palette_style", "neutral")
+        assertEquals("theme_palette_style" to "neutral", service.lastStringWrite)
+    }
 
     @Test fun dictionariesCategoryHiddenWhenNoBooks() {
         val c = controller(FakeAppSettingsService(snap(hasAnyDictionary = false)))
@@ -140,13 +170,13 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortyOneRowsCarryAnIconKey() {
+    @Test fun fortyTwoRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(41, items.count { it.iconKeyOrNull() != null })
+        assertEquals(42, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -177,6 +207,7 @@ class AppSettingsControllerTest {
             "disable_two_step_bookmarking",
             "volume_keys_scroll",
             "night_mode_pref3",
+            "theme_palette_style",
             "display_category",
             "global_text_display_settings",
             "locale_pref",

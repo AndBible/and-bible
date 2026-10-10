@@ -28,6 +28,7 @@ data class AppSettingsSnapshot(
     val disableTwoStepBookmarking: Boolean,
     val volumeKeysScroll: Boolean,
     val nightMode: String,
+    val themePaletteStyle: String,
     // Display
     val locale: String,
     val disableClickToEdit: Boolean,
@@ -60,6 +61,7 @@ data class AppSettingsSnapshot(
     val toolbarButtonActionChoices: List<Choice2>,
     val bibleViewSwipeModeChoices: List<Choice2>,
     val nightModeChoices: List<Choice2>,               // already swapped for autoModeAvailable by the impl
+    val themePaletteStyleChoices: List<Choice2>,
     val localeChoices: List<Choice2>,
     val notesContentTypeChoices: List<Choice2>,
     val displayColorModeChoices: List<Choice2>,

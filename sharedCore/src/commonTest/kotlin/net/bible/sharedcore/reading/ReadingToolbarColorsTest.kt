@@ -24,6 +24,15 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ReadingToolbarColorsTest {
+    @Test
+    fun monochromeIgnoresTheWorkspaceColourDayAndNight() {
+        val surface = 0xFFFFFFFF.toInt()
+        val orange = 0xFFFF8000.toInt()
+        assertEquals(surface, readingToolbarContainerArgb(orange, surface, nightMode = false, colorMode = DisplayColorMode.MONOCHROME))
+        val darkSurface = 0xFF000000.toInt()
+        assertEquals(darkSurface, readingToolbarContainerArgb(orange, darkSurface, nightMode = true, colorMode = DisplayColorMode.MONOCHROME))
+    }
+
 
     private val lightSurface = 0xFFFFFBFE.toInt()
     private val darkSurface = 0xFF1C1B1F.toInt()

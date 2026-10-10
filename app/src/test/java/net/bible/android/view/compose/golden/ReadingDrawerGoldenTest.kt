@@ -145,4 +145,32 @@ class ReadingDrawerGoldenTest {
                 })
             })
         ))
+
+    @Test
+    fun items_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingDrawer", "items", mode, heightDp = 1800, content = content(state())) }
+    }
+
+    @Test
+    fun syncUnavailable_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingDrawer", "syncUnavailable", mode, heightDp = 1800,
+            content = content(state(includeSync = false))) }
+    }
+
+    @Test
+    fun searchAndSpeakDisabled_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingDrawer", "searchAndSpeakDisabled", mode, heightDp = 1800,
+            content = content(state(searchEnabled = false, speakEnabled = false))) }
+    }
+
+    @Test
+    fun longTitles_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingDrawer", "longTitles", mode, heightDp = 3000, content = content(
+            state().copy(groups = state().groups.map { g ->
+                g.copy(items = g.items.map {
+                    it.copy(label = it.label + " — a very long translated label that must wrap onto several lines")
+                })
+            })
+        )) }
+    }
 }

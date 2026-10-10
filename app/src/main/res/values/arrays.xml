@@ -117,12 +117,36 @@
 	<string-array name="prefs_display_color_mode_names">
 		<item>@string/prefs_display_color_mode_normal</item>
 		<item>@string/prefs_display_color_mode_bw</item>
+		<item>@string/prefs_display_color_mode_monochrome</item>
 		<item>@string/prefs_display_color_mode_color_eink</item>
 	</string-array>
 	<string-array name="prefs_display_color_mode_values">
 		<item>normal</item>
 		<item>bw</item>
+		<item>monochrome</item>
 		<item>color_eink</item>
+	</string-array>
+	<string-array name="prefs_theme_palette_style_names">
+		<item>@string/prefs_theme_palette_style_fidelity</item>
+		<item>@string/prefs_theme_palette_style_tonal_spot</item>
+		<item>@string/prefs_theme_palette_style_content</item>
+		<item>@string/prefs_theme_palette_style_neutral</item>
+		<item>@string/prefs_theme_palette_style_monochrome</item>
+		<item>@string/prefs_theme_palette_style_vibrant</item>
+		<item>@string/prefs_theme_palette_style_expressive</item>
+		<item>@string/prefs_theme_palette_style_rainbow</item>
+		<item>@string/prefs_theme_palette_style_fruit_salad</item>
+	</string-array>
+	<string-array name="prefs_theme_palette_style_values">
+		<item>fidelity</item>
+		<item>tonal_spot</item>
+		<item>content</item>
+		<item>neutral</item>
+		<item>monochrome</item>
+		<item>vibrant</item>
+		<item>expressive</item>
+		<item>rainbow</item>
+		<item>fruit_salad</item>
 	</string-array>
 
 	<!-- Screen colors: automatic night mode, day, night -->

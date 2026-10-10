@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,6 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import net.bible.sharedui.theme.LocalAbColors
+import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * The "create a new item" affordance as a bottom sheet, with the sibling "import instead" action in
@@ -102,6 +106,13 @@ fun AbCreateItemSheetContent(
         Button(
             onClick = { onCreate(current.trim()) },
             enabled = current.isNotBlank(),
+            colors = if (isPureMonochrome()) ButtonDefaults.buttonColors(
+                disabledContainerColor = MaterialTheme.colorScheme.surface,
+                disabledContentColor = LocalAbColors.current.monoDisabled,
+            ) else ButtonDefaults.buttonColors(),
+            border = if (isPureMonochrome() && current.isBlank()) {
+                BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface)
+            } else null,
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
         ) { Text(confirmText) }
         HorizontalDivider(Modifier.padding(vertical = 12.dp))

@@ -21,6 +21,10 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,5 +80,17 @@ fun AbOverflowMenu(
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
     AbActionIcon(Icons.Filled.MoreVert, contentDescription = contentDescription ?: LocalStrings.current.menu) { expanded = true }
-    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) { content { expanded = false } }
+    AbDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) { content { expanded = false } }
+}
+
+/** Shared popup paints; legacy modes retain the exact Material defaults. */
+@Composable
+fun AbDropdownMenu(expanded: Boolean, onDismissRequest: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    val mono = isPureMonochrome()
+    DropdownMenu(
+        expanded = expanded, onDismissRequest = onDismissRequest,
+        tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+        shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+        border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+    ) { content() }
 }
