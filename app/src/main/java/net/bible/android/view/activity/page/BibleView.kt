@@ -334,15 +334,25 @@ class BibleView(
         val paper = if (ScreenSettings.nightMode) black else white
         fun part(color: Int, original: Drawable?) =
             object : ColorDrawable(color) {
+                override fun setAlpha(alpha: Int) { /* MONO ink/paper must remain opaque. */ }
                 override fun getIntrinsicWidth() = original?.intrinsicWidth ?: -1
                 override fun getIntrinsicHeight() = original?.intrinsicHeight ?: -1
             }
         verticalScrollbarThumbDrawable = part(ink, saved.drawables[0])
-        verticalScrollbarTrackDrawable = part(paper, saved.drawables[1])
+        verticalScrollbarTrackDrawable = part(paper, saved.drawables[1] ?: saved.drawables[0])
         horizontalScrollbarThumbDrawable = part(ink, saved.drawables[2])
-        horizontalScrollbarTrackDrawable = part(paper, saved.drawables[3])
+        horizontalScrollbarTrackDrawable = part(paper, saved.drawables[3] ?: saved.drawables[2])
         // Fading opaque ink into paper would create forbidden gray interiors.
         isScrollbarFadingEnabled = false
+    }
+
+    override fun onDrawForeground(canvas: android.graphics.Canvas) {
+        if (Build.VERSION.SDK_INT >= 29 && CommonUtils.settings.pureMonochromeMode) {
+            // An already queued native fader ignores fadeScrollBars and can enter FADING/OFF.
+            // Reset immediately before View paints its scrollbars, without polling or hidden APIs.
+            isScrollbarFadingEnabled = false
+        }
+        super.onDrawForeground(canvas)
     }
 
     private var wasAtRightEdge: Boolean = false
