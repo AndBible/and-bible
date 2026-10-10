@@ -67,6 +67,15 @@ describe("pure monochrome compiled styles", () => {
         const theme = `monochrome pureMonochrome${dark ? " night" : ""}${noAnimation ? " noAnimation" : ""}`;
         const ink = dark ? "white" : "black";
         const paper = dark ? "black" : "white";
+        it(`actual BookmarkModal title overlay has no gradient dark=${dark} noAnimation=${noAnimation}`, () => {
+            const css = rules("../components/modals/BookmarkModal.vue");
+            const overlay = stateElement(theme, "overlay");
+            const title = document.createElement("div");
+            title.className = "bookmark-title";
+            overlay.parentElement.appendChild(title);
+            title.appendChild(overlay);
+            expect(cascaded(css, overlay, "background")).toBe(paper);
+        });
         it(`ordinary modal winning paints dark=${dark} noAnimation=${noAnimation}`, () => {
             const css = rules("../components/modals/ModalDialog.vue");
             for (const cls of ["modal-content", "modal-header", "modal-body", "modal-footer"]) {

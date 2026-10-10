@@ -293,4 +293,12 @@ async function toggleInfo(event: MouseEvent | TouchEvent) {
   width: 20px;
   height: 2em;
 }
+
+// The title's edge cover must match ModalDialog's paper, not the legacy header fade.
+.pureMonochrome .bookmark-title .overlay {
+  background: white;
+}
+.pureMonochrome.night .bookmark-title .overlay {
+  background: black;
+}
 </style>
