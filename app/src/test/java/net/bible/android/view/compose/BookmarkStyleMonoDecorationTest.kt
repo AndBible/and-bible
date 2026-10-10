@@ -113,6 +113,41 @@ class BookmarkStyleMonoDecorationTest {
         }
     }
 
+    private fun checkListMarker(dark: Boolean) {
+        val tints = mutableListOf<Color>()
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(darkTheme = dark, colorMode = DisplayColorMode.MONOCHROME, disableAnimations = true) {
+                    net.bible.sharedui.bookmark.ManageLabelsScreen(
+                        title = "Labels",
+                        rows = listOf(net.bible.sharedcore.bookmark.ManageLabelsRow.Item(
+                            net.bible.sharedcore.bookmark.LabelItem(
+                                "L1", "Study", 0xFF43A9D7.toInt(), false, false, false, "star",
+                                selectionStyle = BookmarkDisplayStyle.UNDERLINE,
+                                wholeVerseStyle = BookmarkDisplayStyle.MARKER,
+                            ), false, false, false, false,
+                        )),
+                        mode = net.bible.sharedcore.bookmark.ManageLabelsMode.ASSIGN,
+                        styleTagsVisible = true, searchText = "",
+                        searchMode = net.bible.sharedcore.bookmark.SearchMode.NAME_START,
+                        onSearch = {}, onSetSearchMode = {}, filters = emptySet(), onToggleFilter = {},
+                        searchModeActive = false, onCloseSearch = {}, onRowClick = {}, onRowLongClick = {},
+                        onToggleChecked = {}, onToggleFavourite = {}, onSetPrimary = {}, onToggleAutoAssign = {},
+                        onUp = {}, actions = {}, searchActions = {},
+                        iconSlot = { _, tint -> tints.add(tint); Box(Modifier.size(24.dp).background(tint)) },
+                    )
+                }
+            }
+        }
+        compose.runOnIdle {
+            kotlin.test.assertTrue(tints.size >= 2, "identity and distinct whole-verse marker axis render")
+            tints.forEach { assertEquals(if (dark) Color.White else Color.Black, it, "list markers must share editor ink") }
+        }
+    }
+
+    @Test fun actual_list_marker_light_uses_ink() = checkListMarker(false)
+    @Test fun actual_list_marker_dark_uses_ink() = checkListMarker(true)
+
     @Test fun actual_editor_marker_light_uses_ink() = checkEditorMarker(false)
     @Test fun actual_editor_marker_dark_uses_ink() = checkEditorMarker(true)
 

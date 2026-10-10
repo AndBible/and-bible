@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.ai
 
+import net.bible.sharedui.theme.LocalAbColors
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -216,7 +218,8 @@ private fun ModelRow(
                 tint = if (model.isDefault) {
                     MaterialTheme.colorScheme.primary
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                    if (isPureMonochrome()) LocalAbColors.current.monoDisabled
+                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                 },
                 modifier = Modifier.size(20.dp),
             )
