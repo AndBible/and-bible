@@ -35,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
+import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.service.common.DisplayColorMode
 
 /**
  * A full-size modal blocking spinner — the Compose, KMP replacement for the Android `Hourglass`
@@ -53,7 +55,7 @@ fun AbLoadingOverlay(message: String? = null, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.4f))
+            .background(if (LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME) Color.Transparent else Color.Black.copy(alpha = 0.4f))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,

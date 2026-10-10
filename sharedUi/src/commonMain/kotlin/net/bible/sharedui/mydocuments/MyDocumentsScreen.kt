@@ -37,7 +37,7 @@ import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -303,7 +303,7 @@ private fun RowOverflow(
     var expanded by remember { mutableStateOf(false) }
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = LocalStrings.current.menu) }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             AbMenuItem(
                 text = s.rename,
                 onClick = { expanded = false; onRename() },

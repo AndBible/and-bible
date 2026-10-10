@@ -35,7 +35,7 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.SyncDisabled
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -400,7 +400,7 @@ private fun CloudDocRow(
                 IconButton(onClick = { expanded = true }) {
                     Icon(Icons.Filled.MoreVert, contentDescription = strings.menu)
                 }
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                AbDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                     documentMenuActions(item, syncEnabled).forEach { action ->
                         val kind = actionLabelKind(action, item.localOnly, syncEnabled)
                         AbMenuItem(

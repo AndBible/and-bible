@@ -35,6 +35,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.runtime.CompositionLocalProvider
+import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.LocalAbColors
+import net.bible.service.common.DisplayColorMode
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -112,52 +118,66 @@ fun AbSwitchRow(
     badge: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
+    val mono = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
+    val disabled = LocalAbColors.current.monoDisabled
+    val foreground = if (mono && !enabled) disabled else LocalContentColor.current
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(
-                if (onLongClick != null) {
-                    Modifier.combinedClickable(
-                        onClick = { if (enabled) onCheckedChange(!checked) },
-                        onLongClick = onLongClick,
-                        enabled = enabled,
-                        role = Role.Switch,
-                    )
-                } else {
-                    Modifier.toggleable(value = checked, onValueChange = onCheckedChange, enabled = enabled, role = Role.Switch)
-                },
+    CompositionLocalProvider(LocalContentColor provides foreground) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .then(
+                    if (onLongClick != null) {
+                        Modifier.combinedClickable(
+                            onClick = { if (enabled) onCheckedChange(!checked) },
+                            onLongClick = onLongClick,
+                            enabled = enabled,
+                            role = Role.Switch,
+                        )
+                    } else {
+                        Modifier.toggleable(value = checked, onValueChange = onCheckedChange, enabled = enabled, role = Role.Switch)
+                    },
+                )
+                .alpha(if (enabled || mono) 1f else DISABLED_ALPHA)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Same conditional-emission shape as iconKey below (and for the same reason): nothing is
+            // emitted for a row without one, so every existing caller renders byte-identical. This slot
+            // exists because a Material ImageVector living in :sharedUi cannot go through
+            // LocalSettingsIcon, which resolves HOST drawables by key.
+            if (leadingIcon != null) {
+                Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { leadingIcon() }
+                Spacer(Modifier.width(16.dp))
+            }
+            if (iconPainter != null) {
+                Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(16.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text(label, style = MaterialTheme.typography.bodyLarge)
+                // A/B batch 4a F2: in the text column, NOT an overlay — the badge participates in
+                // measurement, so it can never cover the summary or the switch.
+                if (badge != null) {
+                    Spacer(Modifier.height(2.dp))
+                    SettingsRowBadgeChip(badge)
+                }
+                if (summary != null) {
+                    Text(summary, style = MaterialTheme.typography.bodySmall, color = if (mono && !enabled) disabled else MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            Spacer(Modifier.width(16.dp))
+            Switch(checked = checked, onCheckedChange = null, enabled = enabled,
+                colors = if (mono) SwitchDefaults.colors(
+                    disabledCheckedThumbColor = disabled,
+                    disabledCheckedTrackColor = MaterialTheme.colorScheme.surface,
+                    disabledCheckedBorderColor = disabled,
+                    disabledUncheckedThumbColor = disabled,
+                    disabledUncheckedTrackColor = MaterialTheme.colorScheme.surface,
+                    disabledUncheckedBorderColor = disabled,
+                ) else SwitchDefaults.colors(),
             )
-            .alpha(if (enabled) 1f else DISABLED_ALPHA)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // Same conditional-emission shape as iconKey below (and for the same reason): nothing is
-        // emitted for a row without one, so every existing caller renders byte-identical. This slot
-        // exists because a Material ImageVector living in :sharedUi cannot go through
-        // LocalSettingsIcon, which resolves HOST drawables by key.
-        if (leadingIcon != null) {
-            Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { leadingIcon() }
-            Spacer(Modifier.width(16.dp))
         }
-        if (iconPainter != null) {
-            Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(24.dp))
-            Spacer(Modifier.width(16.dp))
-        }
-        Column(Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            // A/B batch 4a F2: in the text column, NOT an overlay — the badge participates in
-            // measurement, so it can never cover the summary or the switch.
-            if (badge != null) {
-                Spacer(Modifier.height(2.dp))
-                SettingsRowBadgeChip(badge)
-            }
-            if (summary != null) {
-                Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        Spacer(Modifier.width(16.dp))
-        Switch(checked = checked, onCheckedChange = null, enabled = enabled)
     }
 }
 
@@ -209,53 +229,58 @@ fun AbSettingsRow(
     onLongClick: (() -> Unit)? = null,
     badge: String? = null,
 ) {
+    val mono = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
+    val disabled = LocalAbColors.current.monoDisabled
+    val foreground = if (mono && !enabled) disabled else LocalContentColor.current
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (onLongClick != null) {
-                    Modifier.combinedClickable(enabled = enabled, onClick = onClick, onLongClick = onLongClick)
-                } else {
-                    Modifier.clickable(enabled = enabled, onClick = onClick)
-                },
-            )
-            .rowEnabled(enabled)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // Same conditional-emission shape as iconKey below, and for the same reason as
-        // AbSwitchRow.leadingIcon: nothing is emitted for a row without one, so every existing
-        // caller renders byte-identically. A Material ImageVector living in :sharedUi cannot go
-        // through LocalSettingsIcon, which resolves HOST drawables by key.
-        if (leadingIcon != null) {
-            Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { leadingIcon() }
-            Spacer(Modifier.width(16.dp))
-        }
-        if (iconPainter != null) {
-            Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(24.dp))
-            Spacer(Modifier.width(16.dp))
-        }
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            // A/B batch 4a F2: in the text column, NOT an overlay — the badge participates in
-            // measurement, so it can never cover the summary or any trailing content.
-            if (badge != null) {
-                Spacer(Modifier.height(2.dp))
-                SettingsRowBadgeChip(badge)
-            }
-            if (summary != null) {
-                Text(
-                    summary,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+    CompositionLocalProvider(LocalContentColor provides foreground) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (onLongClick != null) {
+                        Modifier.combinedClickable(enabled = enabled, onClick = onClick, onLongClick = onLongClick)
+                    } else {
+                        Modifier.clickable(enabled = enabled, onClick = onClick)
+                    },
                 )
+                .rowEnabled(enabled || mono)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Same conditional-emission shape as iconKey below, and for the same reason as
+            // AbSwitchRow.leadingIcon: nothing is emitted for a row without one, so every existing
+            // caller renders byte-identically. A Material ImageVector living in :sharedUi cannot go
+            // through LocalSettingsIcon, which resolves HOST drawables by key.
+            if (leadingIcon != null) {
+                Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { leadingIcon() }
+                Spacer(Modifier.width(16.dp))
             }
-        }
-        if (trailing != null) {
-            trailing()
+            if (iconPainter != null) {
+                Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(16.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.bodyLarge)
+                // A/B batch 4a F2: in the text column, NOT an overlay — the badge participates in
+                // measurement, so it can never cover the summary or any trailing content.
+                if (badge != null) {
+                    Spacer(Modifier.height(2.dp))
+                    SettingsRowBadgeChip(badge)
+                }
+                if (summary != null) {
+                    Text(
+                        summary,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (mono && !enabled) disabled else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            if (trailing != null) {
+                trailing()
+            }
         }
     }
 }

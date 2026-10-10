@@ -29,7 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import net.bible.sharedui.components.AbAlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -113,7 +113,7 @@ fun SearchScreen(
                     } else null,
                     leadingIconContentDescription = if (recentTerms.isNotEmpty()) strings.recentSearches else null,
                 )
-                DropdownMenu(
+                AbDropdownMenu(
                     expanded = recentMenuOpen,
                     onDismissRequest = { recentMenuOpen = false },
                 ) {

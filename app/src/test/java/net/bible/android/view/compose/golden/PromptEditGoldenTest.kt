@@ -138,6 +138,11 @@ class PromptEditGoldenTest {
     // heightDp=1200: name/description/template(minLines=5)/category dropdown/5 context chips
     // (17f)/bibleOnly checkbox/text-transformation chip -- the default viewport clips well before
     // the last row.
+    @Test fun readonly_mono_reference() = MONO_MODES.forEach { captureGolden("PromptEdit", "readonly", it, heightDp = 1200, content = screen(promptState.copy(isReadOnly = true, isBuiltIn = true, bibleOnly = true), PromptEditTab.PROMPT)) }
+
+    @Test fun readonly_mono_audit() =
+        auditMono("PromptEdit", "readonly", 1200, emptyList(), screen(promptState.copy(isReadOnly = true, isBuiltIn = true, bibleOnly = true), PromptEditTab.PROMPT))
+
     @Test fun prompt_matrix() =
         captureMatrix("PromptEdit", "prompt", heightDp = 1200, content = screen(promptState, PromptEditTab.PROMPT))
 
