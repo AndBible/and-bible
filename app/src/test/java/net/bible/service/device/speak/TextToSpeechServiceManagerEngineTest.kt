@@ -43,8 +43,14 @@ class FakeSpeakPlatform(private val engine: FakeSpeakEngine, private val autoIni
         if (autoInit) listener.onInit(true)
         return engine
     }
-    override fun requestAudioFocus(onFocusChange: (Boolean) -> Unit) = true
-    override fun abandonAudioFocus() {}
+    var focusGranted = true
+    var focusChanges: ((Boolean) -> Unit)? = null
+    var focusAbandons = 0
+    override fun requestAudioFocus(onFocusChange: (Boolean) -> Unit): Boolean {
+        focusChanges = onFocusChange
+        return focusGranted
+    }
+    override fun abandonAudioFocus() { focusAbandons++ }
     override fun startPhoneCallMonitoring(onCallStateChanged: (Boolean) -> Unit) {}
     override fun onPrepareForSpeaking() {}
     override fun attachMediaControls(control: SpeakControl) {}
@@ -58,8 +64,12 @@ class FakeSpeakPlatform(private val engine: FakeSpeakEngine, private val autoIni
 class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
     private class RecordingNotifier : UserNotifier {
         val errors = mutableListOf<String>()
+        val causes = mutableListOf<Throwable?>()
         override fun showInfo(message: String, long: Boolean) {}
-        override fun showError(message: String, cause: Throwable?) { errors += message }
+        override fun showError(message: String, cause: Throwable?) {
+            errors += message
+            causes += cause
+        }
     }
 
     private lateinit var engine: FakeSpeakEngine
@@ -96,6 +106,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
     @Test fun allLocalesUnsupportedShowsMessageAndStops() {
         val (engine, notifier) = start(emptyMap())
         assertTrue(notifier.errors.contains(testCoreStrings().ttsLangNotAvailable))
+        assertEquals(listOf<Throwable?>(null), notifier.causes)
         assertTrue(speakControl.isStopped)
         assertTrue(engine.calls.contains("stop"))
         assertFalse(engine.calls.any { it.startsWith("speak:") })
@@ -131,9 +142,46 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         assertTrue(speakControl.isSpeaking)
     }
 
+    private fun supportedFinnish() = mapOf(Locale("fi", "FI") to SpeakLanguageResult.AVAILABLE,
+        Locale("fi") to SpeakLanguageResult.AVAILABLE)
+
+    @Test fun deniedAudioFocusStopsWithoutQueuingSpeech() {
+        platform.focusGranted = false
+        start(supportedFinnish())
+        assertTrue(speakControl.isStopped)
+        assertTrue(engine.calls.contains("stop"))
+        assertTrue(engine.calls.contains("shutdown"))
+        assertFalse(engine.calls.any { it.startsWith("speak:") })
+        assertEquals(1, platform.focusAbandons)
+    }
+
+    @Test fun lostAudioFocusPausesAndRetainsFocusRequest() {
+        start(supportedFinnish())
+        assertTrue(speakControl.isSpeaking)
+        platform.focusChanges!!(false)
+        assertTrue(speakControl.isPaused)
+        assertFalse(speakControl.isSpeaking)
+        assertTrue(engine.calls.contains("shutdown"))
+        assertEquals(0, platform.focusAbandons)
+    }
+
+    @Test fun regainedAudioFocusResumesPausedSpeech() {
+        start(supportedFinnish())
+        platform.focusChanges!!(false)
+        assertTrue(speakControl.isPaused)
+        val queuedBefore = engine.calls.count { it.startsWith("speak:") }
+        platform.focusChanges!!(true)
+        assertEquals(2, platform.creations)
+        platform.listener!!.onInit(true)
+        assertTrue(speakControl.isSpeaking)
+        assertFalse(speakControl.isPaused)
+        assertTrue(engine.calls.count { it.startsWith("speak:") } > queuedBefore)
+    }
+
     @Test fun initFailureStops() {
         val (engine, notifier) = start(emptyMap(), success = false)
         assertTrue(notifier.errors.contains(testCoreStrings().errorOccurred))
+        assertEquals(listOf<Throwable?>(null), notifier.causes)
         assertTrue(speakControl.isStopped)
         assertTrue(engine.calls.contains("shutdown"))
     }

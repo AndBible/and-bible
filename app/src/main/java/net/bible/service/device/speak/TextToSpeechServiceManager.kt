@@ -558,7 +558,9 @@ class TextToSpeechServiceManager constructor(
     }
 
     private fun showError(message: String, e: Exception) {
-        notifier.showError(message, e)
+        Log.e(TAG, message, e)
+        // Keep the baseline message-only dialog, without a report-error action.
+        notifier.showError(message)
     }
 
     fun shutdown(willContinueAfter: Boolean = false) {
