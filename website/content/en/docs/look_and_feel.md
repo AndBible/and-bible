@@ -70,12 +70,46 @@ settings hierarchy described above.
 
 ### E-Ink Displays
 
-- **Black & white mode:** Reduces the use of colors throughout the application.
-    Recommended for e-ink displays where color rendering is limited.
-- **Disable animations:** Turns off smooth scrolling and transition animations.
-    Improves responsiveness on e-ink screens and very old devices.
+- **Color mode:** Choose how colors are displayed throughout the application:
 
-These two settings work well together for an optimal e-ink reading experience.
+    - *Normal* – use the configured colors.
+    - *Black & white* – convert colors to grayscale, retaining shades of grey.
+    - *Color e-ink* – use a black-and-white base while keeping bookmark colors,
+        the active-window indicator and helper lines in color. Intended for
+        color e-ink screens.
+    - *Monochrome* – use black ink on white paper, or white ink on black paper
+        in the dark theme. Disabled controls and off states use one solid grey
+        rather than faded shades. Highlighted bookmarks have frames instead of
+        grey background fills. Recommended for e-ink screens where lighter grey
+        levels fade or disappear.
+
+    Monochrome is the default on Onyx devices when no Color mode has been
+    chosen; other devices default to Normal. An existing saved choice is not
+    changed, including Black & white on an Onyx device. Changing Color mode
+    does not replace your configured colors; color-selection swatches still
+    show those colors. Images are not restricted to black and white.
+- **Disable animations:** Turns off smooth scrolling and transition animations.
+    Improves responsiveness on e-ink screens and very old devices. This is a
+    separate setting; choosing a Color mode does not toggle it.
+
+In Monochrome, progress heatmaps use three states instead of a color gradient:
+**grey** means no activity or progress, **outlined** means partial progress or
+an intermediate activity level, and **filled** means full progress or the
+highest level. Ink and paper swap in the dark theme. In reading progress, a
+filled book cell means at least 100% read; in memorization progress, a filled
+cell means level 4/4. For reading
+counts and calendar activity, filled means the highest count bucket, not that
+all reading is complete. The legend explains these three states rather than
+showing a gradual color scale.
+
+Exact values remain available: select a book to see its percentage below the
+book grid. Chapter cells show the read count (for example, `17 x`) or
+memorization level (for example, `3/4`) before you tap to open the chapter.
+Select a calendar day to see its activity count below the heatmap, including
+zero for a day with no activity; days with activity also open the day's history.
+
+Color mode and Disable animations can be used together for an e-ink reading
+experience.
 
 ### Font and Text
 
