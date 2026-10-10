@@ -486,6 +486,7 @@ class SpeakControl constructor(
         }
 
         if (!force && !isSpeaking && !isPaused) {
+            ttsServiceManager.invalidatePendingStart()
             return
         }
 

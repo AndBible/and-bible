@@ -115,7 +115,10 @@ class GeneralSpeakTextProvider(
                 }
             }
             bookmark.playbackSettings = newPlaybackSettings
-            launcher.launch(SPEAK_KEY) { bookmarkControl.addOrUpdateGenericBookmark(bookmark) }
+            launcher.launch(SPEAK_KEY) {
+                bookmark.new = !bookmarkControl.isBookmarkPersisted(bookmark.id)
+                bookmarkControl.addOrUpdateGenericBookmark(bookmark)
+            }
         }
     }
 
@@ -305,6 +308,7 @@ class GeneralSpeakTextProvider(
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
+                bookmark.new = !bookmarkControl.isBookmarkPersisted(bookmark.id)
                 bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
                 bookmarkControl.setLabelsForBookmark(bookmark, labelList)
                 Log.i("SpeakBookmark", "Removed speak label from bookmark $bookmark")

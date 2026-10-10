@@ -189,4 +189,28 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         assertTrue(speakControl.isStopped)
         assertTrue(engine.calls.contains("shutdown"))
     }
+
+    @Test
+    fun latestRequestWaitsForActualEngineSuccess() {
+        verifyPendingEngine(true)
+    }
+
+    @Test
+    fun latestRequestReceivesActualEngineFailure() {
+        verifyPendingEngine(false)
+    }
+
+    private fun verifyPendingEngine(success: Boolean) {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        val verse = (book.getKey("Rom.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        speakControl.speakBible(book, verse)
+        speakControl.speakBible(book, verse)
+        val launcher = GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>()
+        kotlinx.coroutines.runBlocking { launcher.join(net.bible.android.control.speak.SPEAK_KEY) }
+        assertFalse("No synthetic success before the actual callback", speakControl.isSpeaking)
+        platform.listener!!.onInit(success)
+        kotlinx.coroutines.runBlocking { launcher.join(net.bible.android.control.speak.SPEAK_KEY) }
+        assertEquals(success, speakControl.isSpeaking)
+    }
 }

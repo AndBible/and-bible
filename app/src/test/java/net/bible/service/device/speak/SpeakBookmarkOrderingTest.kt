@@ -73,7 +73,7 @@ class SpeakBookmarkOrderingTest : SpeakIntegrationTestBase() {
 
     @Test
     fun stopDuringSuspendedLoadDoesNotResurrectSpeech() {
-        suspendedResume { it.shutdown() }
+        suspendedResume { speakControl.stop() }
         org.junit.Assert.assertFalse(GlobalContext.get().get<TextToSpeechServiceManager>().isSpeaking)
     }
 
@@ -105,5 +105,64 @@ class SpeakBookmarkOrderingTest : SpeakIntegrationTestBase() {
         runBlocking { launcher.join(SPEAK_KEY) }
         assertEquals("Settings resume must honor changed engine preference", before + 1, fakePlatform.creations)
         org.junit.Assert.assertTrue(speakControl.isSpeaking)
+    }
+
+    @Test
+    fun pauseThenSettingsSaveBeforeInsertCompletesUpdatesExistingId() {
+        val launcher = GlobalContext.get().get<OrderedLauncher>()
+        GlobalContext.get().get<net.bible.android.control.speak.AdvancedSpeakSettings>().autoBookmark = true
+        val verse = (book.getKey("Gen.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        speakControl.speakBible(book, verse)
+        runBlocking { launcher.join(SPEAK_KEY) }
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        launcher.launch(SPEAK_KEY) { entered.complete(Unit); release.await() }
+        runBlocking { entered.await() }
+        try {
+            speakControl.pause()
+            val settings = net.bible.android.database.bookmarks.SpeakSettings.load()
+            settings.playbackSettings = settings.playbackSettings.copy(speed = 183)
+            settings.save(updateBookmark = true)
+        } finally {
+            release.complete(Unit)
+            runBlocking { launcher.join(SPEAK_KEY) }
+        }
+        assertEquals(183, runBlocking { bookmarkControl.speakBookmarkForVerse(verse) }!!.playbackSettings!!.speed)
+    }
+
+    @Test
+    fun shutdownWaitsForGuardedApplyThenStopsSpeech() {
+        val launcher = GlobalContext.get().get<OrderedLauncher>()
+        val verse = (book.getKey("Gen.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        speakControl.speakBible(book, verse)
+        runBlocking { launcher.join(SPEAK_KEY) }
+        speakControl.pause()
+        runBlocking { launcher.join(SPEAK_KEY) }
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val field = TextToSpeechServiceManager::class.java.getDeclaredField("mSpeakTextProvider").apply { isAccessible = true }
+        val real = field.get(manager) as SpeakTextProvider
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val stopped = java.util.concurrent.CountDownLatch(1)
+        field.set(manager, object : SpeakTextProvider by real {
+            override fun prepareForStartSpeaking() {
+                entered.countDown()
+                check(release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                real.prepareForStartSpeaking()
+            }
+        })
+        val worker = Thread { manager.shutdown(); stopped.countDown() }
+        try {
+            manager.continueAfterPause()
+            org.junit.Assert.assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            worker.start()
+            org.junit.Assert.assertFalse("Shutdown must serialize with guarded apply", stopped.await(200, java.util.concurrent.TimeUnit.MILLISECONDS))
+        } finally {
+            release.countDown()
+            worker.join(5000)
+            runBlocking { launcher.join(SPEAK_KEY) }
+        }
+        org.junit.Assert.assertTrue(stopped.count == 0L)
+        org.junit.Assert.assertFalse(manager.isSpeaking)
     }
 }

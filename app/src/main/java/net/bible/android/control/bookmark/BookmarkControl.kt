@@ -251,6 +251,9 @@ open class BookmarkControl constructor(
 
     suspend fun allBibleBookmarks(): List<BibleBookmarkWithNotes> = dao.allBookmarks()
 
+    suspend fun isBookmarkPersisted(id: IdType): Boolean =
+        dao.bibleBookmarkById(id) != null || dao.genericBookmarkById(id) != null
+
     suspend fun addOrUpdateBibleBookmark(bookmark: BibleBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BibleBookmarkWithNotes =
         addOrUpdateBookmark(bookmark, labels, updateNotes) as BibleBookmarkWithNotes
 

@@ -92,6 +92,8 @@ class TextToSpeechServiceManager constructor(
 
     private var mTts: SpeakEngine? = null
     // A synchronous engine callback must wait until its returned engine is assigned.
+    private var engineReady = false
+    private var engineIdentity = 0L
     private var creatingEngine = false
     private var pendingInit: Boolean? = null
     private var configuredEnginePackage: String? = null
@@ -168,6 +170,7 @@ class TextToSpeechServiceManager constructor(
                 pendingInit = success
                 return
             }
+            engineReady = success
             val generation = startGeneration.get()
             val provider = mSpeakTextProvider
             val genericKey = pendingGenericKey
@@ -179,59 +182,61 @@ class TextToSpeechServiceManager constructor(
                     if (language != null) calculateLocalePreferenceListForCode(language) else calculateLocalePreferenceList(key.document!!)
                 }
                 withContext(mainDispatcher) {
-                    if (generation != startGeneration.get() || provider !== mSpeakTextProvider) return@withContext
-                    if (genericLocales != null) localePreferenceList = genericLocales
-                    Log.i(TAG, "Tts initialised")
-                    var isOk = false
+                    synchronized(this@TextToSpeechServiceManager) {
+                        if (generation != startGeneration.get() || provider !== mSpeakTextProvider) return@withContext
+                        if (genericLocales != null) localePreferenceList = genericLocales
+                        Log.i(TAG, "Tts initialised")
+                        var isOk = false
 
-                    val tts = mTts
+                        val tts = mTts
 
-                    if (tts != null && success) {
-                        Log.i(TAG, "Tts initialisation succeeded")
+                        if (tts != null && success) {
+                            Log.i(TAG, "Tts initialisation succeeded")
 
-                        // set speech rate
-                        setRate(SpeakSettings.load().playbackSettings.speed)
+                            // set speech rate
+                            setRate(SpeakSettings.load().playbackSettings.speed)
 
-                        var localeOK = false
-                        var locale: Locale? = null
-                        var i = 0
-                        while (i < localePreferenceList.size && !localeOK) {
-                            locale = localePreferenceList[i]
-                            Log.i(TAG, "Checking for locale:$locale")
-                            try {
-                                val result = tts.setLanguage(locale)
-                                localeOK = result != SpeakLanguageResult.MISSING_DATA && result != SpeakLanguageResult.NOT_SUPPORTED
-                                if (localeOK) {
-                                    Log.i(TAG, "Successful locale:$locale")
-                                    currentLocale = locale
+                            var localeOK = false
+                            var locale: Locale? = null
+                            var i = 0
+                            while (i < localePreferenceList.size && !localeOK) {
+                                locale = localePreferenceList[i]
+                                Log.i(TAG, "Checking for locale:$locale")
+                                try {
+                                    val result = tts.setLanguage(locale)
+                                    localeOK = result != SpeakLanguageResult.MISSING_DATA && result != SpeakLanguageResult.NOT_SUPPORTED
+                                    if (localeOK) {
+                                        Log.i(TAG, "Successful locale:$locale")
+                                        currentLocale = locale
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "Error setting TTS language for locale:$locale", e)
+                                    // Continue to next locale in the preference list
                                 }
-                            } catch (e: Exception) {
-                                Log.e(TAG, "Error setting TTS language for locale:$locale", e)
-                                // Continue to next locale in the preference list
+                                i++
                             }
-                            i++
-                        }
 
-                        if (!localeOK) {
-                            Log.e(TAG, "TTS missing or not supported")
-                            // Language data is missing or the language is not supported.
-                            if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
-                            showError(strings.ttsLangNotAvailable, Exception("Tts missing or not supported"))
+                            if (!localeOK) {
+                                Log.e(TAG, "TTS missing or not supported")
+                                // Language data is missing or the language is not supported.
+                                if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
+                                showError(strings.ttsLangNotAvailable, Exception("Tts missing or not supported"))
+                            } else {
+                                // The TTS engine has been successfully initialized.
+                                if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
+                                isOk = true
+                                provider.prepareForStartSpeaking()
+                                startSpeaking(forceQueue = true)
+                                stopIfPhoneCall()
+                            }
                         } else {
-                            // The TTS engine has been successfully initialized.
-                            if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
-                            isOk = true
-                            provider.prepareForStartSpeaking()
-                            startSpeaking(forceQueue = true)
-                            stopIfPhoneCall()
+                            Log.i(TAG, "Tts initialisation failed")
+                            showError(strings.errorOccurred, Exception("Tts Initialisation failed"))
                         }
-                    } else {
-                        Log.i(TAG, "Tts initialisation failed")
-                        showError(strings.errorOccurred, Exception("Tts Initialisation failed"))
-                    }
 
-                    if (!isOk) {
-                        speakControl.stop(willContinueAfter = false, force = true)
+                        if (!isOk) {
+                            speakControl.stop(willContinueAfter = false, force = true)
+                        }
                     }
                 }
             }
@@ -408,7 +413,7 @@ class TextToSpeechServiceManager constructor(
             )
             shutdownTtsEngine()
             initializeTts(preferredEnginePackage)
-        } else {
+        } else if (engineReady) {
             engineListener.onInit(true)
         }
     }
@@ -417,10 +422,13 @@ class TextToSpeechServiceManager constructor(
         try {
             creatingEngine = true
             try {
-                val generation = startGeneration.get()
+                val identity = ++engineIdentity
+                engineReady = false
                 val listener = object : SpeakEngineListener by engineListener {
                     override fun onInit(success: Boolean) {
-                        if (generation == startGeneration.get()) engineListener.onInit(success)
+                        synchronized(this@TextToSpeechServiceManager) {
+                            if (identity == engineIdentity) engineListener.onInit(success)
+                        }
                     }
                 }
                 mTts = platform.createEngine(listener)
@@ -612,6 +620,10 @@ class TextToSpeechServiceManager constructor(
         notifier.showError(message)
     }
 
+    @Synchronized
+    fun invalidatePendingStart() { startGeneration.incrementAndGet() }
+
+    @Synchronized
     fun shutdown(willContinueAfter: Boolean = false) {
         startGeneration.incrementAndGet()
         Log.i(TAG, "Shutdown TTS")
@@ -628,6 +640,8 @@ class TextToSpeechServiceManager constructor(
     }
 
     private fun shutdownTtsEngine() {
+        engineReady = false
+        engineIdentity++
         Log.i(TAG, "Shutdown TTS Engine")
         try {
             // Don't forget to shutdown!
@@ -738,6 +752,7 @@ class TextToSpeechServiceManager constructor(
         return mSpeakTextProvider.getStatusText(showFlag)
     }
 
+    @Synchronized
     fun updateSettings(change: SpeakSettingsChange) {
         mSpeakTextProvider.updateSettings(change)
         setRate(change.speakSettings.playbackSettings.speed)
