@@ -18,8 +18,6 @@ package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -36,6 +34,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -71,8 +71,9 @@ import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.components.AbTopBarTitle
-import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.volumeScrollTarget
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.monoBorder
 
 /**
  * The long-name autosize floor, as a fraction of the long-name line's own [MaterialTheme]
@@ -224,7 +225,7 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
             color = container,
             shape = RoundedCornerShape(6.dp),
             border = if (b.isCurrent) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
-            modifier = Modifier.fillMaxWidth().height(cellHeight),
+            modifier = Modifier.fillMaxWidth().height(cellHeight).monoBorder(RoundedCornerShape(6.dp)),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 if (ui.showLongNames) {

@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.navigation
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -24,13 +25,15 @@ import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.theme.categoryBaseArgb
 import net.bible.sharedcore.theme.categoryChipArgb
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.isPureMonochrome
 
 /** Category color for a [GridButton.colorGroup]; grays out in BW, stays colored in COLOR_EINK.
  *  The palette itself lives in `:sharedCore` ([categoryBaseArgb]) so the tint maths can be swept
  *  over the real table in a unit test rather than over a copy that could drift from it. */
 @Composable
 fun categoryColor(colorGroup: Int): Color =
-    Color(accentArgbFor(categoryBaseArgb(colorGroup), LocalDisplayColorMode.current))
+    if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+    else Color(accentArgbFor(categoryBaseArgb(colorGroup), LocalDisplayColorMode.current))
 
 /**
  * The "Choose passage" grid's inactive chip fill: [base] — the caller passes
@@ -52,6 +55,7 @@ fun categoryColor(colorGroup: Int): Color =
  */
 @Composable
 fun categoryChipColor(colorGroup: Int, base: Color): Color {
+    if (isPureMonochrome()) return MaterialTheme.colorScheme.surface
     val category = categoryColor(colorGroup)
     return remember(category, base) { Color(categoryChipArgb(base.toArgb(), category.toArgb())) }
 }

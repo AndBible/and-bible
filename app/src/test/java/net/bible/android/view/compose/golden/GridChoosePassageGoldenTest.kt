@@ -41,6 +41,22 @@ class GridChoosePassageGoldenTest {
     private fun bookUi(long: Boolean = false, sections: List<List<GridButton>>? = null) =
         GridUi(GridStep.BOOK, "Choose passage (Workspace 1)", 6, showLongNames = long, showProgress = true, showDeutToggle = true, buttons = books, sections = sections, minRows = 11)
 
+    @Test fun grid_monochromeCategoryBoundaries() {
+        captureMatrix("GridChoosePassage", "categoryBoundaries") {
+            GridChoosePassageScreen(bookUi().copy(showProgress = false), opts.copy(showProgress = false), {}, {}, {})
+        }
+        MONO_MODES.forEach { mode ->
+            val image = javax.imageio.ImageIO.read(java.io.File("build/mono-audit/GridChoosePassage_categoryBoundaries_${mode.tag}.png"))
+            val ink = if (mode.dark) 0xFFFFFFFF.toInt() else 0xFF000000.toInt()
+            // An inactive cell must have an ink outline, not disappear into the paper background.
+            org.junit.Assert.assertTrue("Inactive category outline in ${mode.tag}",
+                (66..68).any { y -> (25..35).any { x -> image.getRGB(x, y) == ink } })
+            val paper = if (mode.dark) 0xFF000000.toInt() else 0xFFFFFFFF.toInt()
+            org.junit.Assert.assertEquals("Inactive category fill in ${mode.tag}", paper, image.getRGB(30, 80))
+            org.junit.Assert.assertEquals("Current category fill in ${mode.tag}", ink, image.getRGB(185, 80))
+        }
+    }
+
     @Test fun grid_book_flat() {
         captureMatrix("GridChoosePassage", "book_flat") { GridChoosePassageScreen(bookUi(), opts, {}, {}, {}) }
     }
