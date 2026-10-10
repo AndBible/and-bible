@@ -8,7 +8,7 @@
 # Installs: /opt/uv-tools/ostickethelper (venv), /usr/local/bin/ostickethelper
 set -euo pipefail
 
-OSTICKETHELPER_REV="645aff224c7083fa1d52448953fb6fb225280d50"
+OSTICKETHELPER_REV="e4be27bcf9c928105a5822de22da4a43de5f2e4e"
 
 if ! command -v uv >/dev/null 2>&1; then
   echo "98-ostickethelper: uv not found (96-uv missing?), skipping" >&2
