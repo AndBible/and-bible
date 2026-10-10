@@ -120,13 +120,14 @@ fun BookHeatGrid(
     modifier: Modifier = Modifier,
 ) {
     val mono = isPureMonochrome()
+    val strings = LocalStrings.current
     var selected by remember(books) { mutableStateOf<String?>(null) }
     Column(modifier) {
         UniformCellGrid(items = books, columns = BOOK_GRID_COLUMNS) { book, cellModifier ->
             val cellColors = colors(book)
             HeatCell(
                 modifier = if (isPureMonochrome()) cellModifier.semantics {
-                    contentDescription = "${book.shortName}: ${book.readPercent * 100f}%"
+                    contentDescription = "${book.shortName}: ${strings.monochromePercent(book.readPercent * 100f)}"
                 } else cellModifier,
                 bgColor = cellColors.background,
                 hasTarget = book.hasTarget,
@@ -158,7 +159,7 @@ fun BookHeatGrid(
             }
         }
         if (mono) books.firstOrNull { it.bookId == selected }?.let {
-            Text("${it.shortName}: ${it.readPercent * 100f}%")
+            Text("${it.shortName}: ${strings.monochromePercent(it.readPercent * 100f)}")
         }
     }
 }
@@ -181,7 +182,6 @@ fun ChapterHeatGrid(
 ) {
     val strings = LocalStrings.current
     val mono = isPureMonochrome()
-    var selected by remember(chapters) { mutableStateOf<Int?>(null) }
     Column(modifier) {
         UniformCellGrid(items = chapters, columns = CHAPTER_GRID_COLUMNS) { chapter, cellModifier ->
             val cellColors = colors(chapter)
@@ -191,19 +191,16 @@ fun ChapterHeatGrid(
                 } else cellModifier,
                 bgColor = cellColors.background,
                 hasTarget = chapter.hasTarget,
-                onClick = { if (mono) selected = chapter.chapter; onClick(chapter.chapter) },
+                onClick = { onClick(chapter.chapter) },
                 onLongClick = onLongClick?.let { cb -> { cb(chapter.chapter) } },
             ) {
                 Text(
-                    text = "${chapter.chapter}",
+                    text = if (mono) "${chapter.chapter}\n${if (memorization) strings.monochromeCellLevel(chapter.level) else strings.monochromeCellCount(chapter.count)}" else "${chapter.chapter}",
                     color = cellColors.content,
-                    fontSize = 12.sp,
+                    fontSize = if (mono) 9.sp else 12.sp,
                     textAlign = TextAlign.Center,
                 )
             }
-        }
-        if (mono) chapters.firstOrNull { it.chapter == selected }?.let {
-            Text("${it.chapter}\n${if (memorization) strings.monochromeLevel(it.level) else strings.monochromeCount(it.count)}")
         }
     }
 }

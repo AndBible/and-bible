@@ -74,6 +74,7 @@ import net.bible.sharedui.components.AbTopBarTitle
 import net.bible.sharedui.components.volumeScrollTarget
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.monoBorder
+import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * The long-name autosize floor, as a fraction of the long-name line's own [MaterialTheme]
@@ -304,7 +305,7 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
                     )
                 }
                 if (ui.showProgress && (b.readProgress > 0f || b.memProgress > 0f)) {
-                    ProgressBars(b.readProgress, b.memProgress, Modifier.align(Alignment.BottomStart).fillMaxWidth())
+                    ProgressBars(b.readProgress, b.memProgress, Modifier.align(Alignment.BottomStart).fillMaxWidth(), textColor)
                 }
             }
         }
@@ -312,10 +313,10 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
 }
 
 @Composable
-private fun ProgressBars(reading: Float, memorization: Float, modifier: Modifier) {
+private fun ProgressBars(reading: Float, memorization: Float, modifier: Modifier, foreground: Color) {
     Column(modifier) {
-        if (reading > 0f) Bar(reading, readingColor())
-        if (memorization > 0f) Bar(memorization, memorizationColor())
+        if (reading > 0f) Bar(reading, if (isPureMonochrome()) foreground else readingColor())
+        if (memorization > 0f) Bar(memorization, if (isPureMonochrome()) foreground else memorizationColor())
     }
 }
 

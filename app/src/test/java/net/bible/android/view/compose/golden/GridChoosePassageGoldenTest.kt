@@ -59,6 +59,11 @@ class GridChoosePassageGoldenTest {
 
     @Test fun grid_book_flat() {
         captureMatrix("GridChoosePassage", "book_flat") { GridChoosePassageScreen(bookUi(), opts, {}, {}, {}) }
+        MONO_MODES.forEach { mode ->
+            val image = javax.imageio.ImageIO.read(java.io.File("build/mono-audit/GridChoosePassage_book_flat_${mode.tag}.png"))
+            val paper = if (mode.dark) 0xFF000000.toInt() else 0xFFFFFFFF.toInt()
+            org.junit.Assert.assertEquals("Current Ps memorization bar in ${mode.tag}", paper, image.getRGB(170, 107))
+        }
     }
 
     @Test

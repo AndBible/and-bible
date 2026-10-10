@@ -526,6 +526,13 @@ class AndroidStrings(private val context: Context) : Strings {
     override val readingProgressPercentReadScale: String get() = context.getString(R.string.reading_progress_percent_read_scale)
     override val readingProgressReadCountScale: String get() = context.getString(R.string.reading_progress_read_count_scale)
     override fun monochromeActivityCount(count: Int): String = context.getString(R.string.monochrome_activity_count, count)
+    override fun monochromeCellCount(count: Int): String = context.getString(R.string.monochrome_cell_count, count)
+    override fun monochromeCellLevel(level: Int): String = context.getString(R.string.monochrome_cell_level, level)
+    override fun monochromePercent(percent: Float): String = context.getString(
+        R.string.monochrome_percent, java.text.NumberFormat.getNumberInstance(context.resources.configuration.locales[0]).apply {
+            maximumFractionDigits = 8
+        }.format(percent),
+    )
     override fun monochromeCount(count: Int): String = context.getString(R.string.monochrome_count, count)
     override fun monochromeLevel(level: Int): String = context.getString(R.string.monochrome_level, level)
     override val monochromeBuckets: String get() = context.getString(R.string.monochrome_buckets)

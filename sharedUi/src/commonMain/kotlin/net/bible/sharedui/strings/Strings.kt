@@ -597,6 +597,9 @@ interface Strings {
     val readingProgressPercentReadScale: String             // reading_progress_percent_read_scale
     val readingProgressReadCountScale: String               // reading_progress_read_count_scale
     fun monochromeActivityCount(count: Int): String
+    fun monochromeCellCount(count: Int): String
+    fun monochromeCellLevel(level: Int): String
+    fun monochromePercent(percent: Float): String
     fun monochromeCount(count: Int): String
     fun monochromeLevel(level: Int): String
     val monochromeBuckets: String

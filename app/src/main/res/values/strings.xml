@@ -200,6 +200,9 @@
     <string name="reading_progress_read_count_scale">Read\nCount</string>
     <string name="reading_progress_percent_read_scale">Percent\nRead</string>
     <string name="monochrome_activity_count">Activity count: %d</string>
+    <string name="monochrome_cell_count">%d x</string>
+    <string name="monochrome_cell_level">%d/4</string>
+    <string name="monochrome_percent">%s%%</string>
     <string name="monochrome_count">Count: %d</string>
     <string name="monochrome_level">Level: %d/4</string>
     <string name="monochrome_buckets">Grey: none; outlined: partial; filled: full or highest level. Select an item for exact values.</string>

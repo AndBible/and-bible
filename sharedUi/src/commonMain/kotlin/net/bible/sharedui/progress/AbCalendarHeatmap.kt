@@ -21,7 +21,8 @@ import net.bible.sharedui.theme.isPureMonochrome
 import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -159,7 +160,8 @@ fun AbCalendarHeatmap(
         }
         if (mono) heatmap.cells.forEach { cell ->
             Box(Modifier
-                .offset(x = LabelWidth + step * cell.weekIndex, y = HeaderHeight + step * cell.dayIndex)
+                .align(AbsoluteAlignment.TopLeft)
+                .absoluteOffset(x = LabelWidth + step * cell.weekIndex, y = HeaderHeight + step * cell.dayIndex)
                 .size(cellDp)
                 .semantics { contentDescription = strings.monochromeActivityCount(cell.count) }
                 .clickable {
