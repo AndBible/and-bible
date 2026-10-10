@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page
 
+import org.crosswire.common.util.toKLocale
+
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
@@ -222,7 +224,7 @@ class BibleDocument(
         return super.asHashMap.toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
-            put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, Locale.getDefault())))
+            put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, Locale.getDefault().toKLocale())))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
             put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString()
                 .lowercase(Locale.getDefault()) == "gbf" || !osisFragment.hasChapter))
