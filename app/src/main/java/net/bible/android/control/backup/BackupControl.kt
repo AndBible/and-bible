@@ -358,7 +358,8 @@ class BackupControl(
     }
 
     private fun showMessage(message: String) {
-        dialogs.post(AppDialogRequest.Message(title = null, message = message, confirmText = strings.okay))
+        // The notifier preserves the nonblocking foreground dialog and no-host toast fallback.
+        notifier.showError(message)
     }
 
     private suspend fun confirm(message: String): Boolean = dialogs.await(AppDialogRequest.Confirm(

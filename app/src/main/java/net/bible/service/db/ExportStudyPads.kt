@@ -175,6 +175,7 @@ suspend fun exportStudyPads(
     activity: ActivityBase,
     vararg labels: BookmarkEntities.Label,
     chooseDestination: (suspend () -> SaveOrShare?)? = null,
+    host: net.bible.android.control.backup.BackupHost = AndroidBackupHost { activity },
 ) = withContext(Dispatchers.IO) {
     val exportDbFile = CommonUtils.tmpFile
     writeStudyPadExportDb(exportDbFile, labels.toList())
@@ -199,7 +200,7 @@ suspend fun exportStudyPads(
     val subject = activity.getString(R.string.exported_studypads_subject)
     val message = activity.getString(R.string.exported_studypads_message, CommonUtils.applicationNameMedium)
     org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
-        host = AndroidBackupHost { activity },
+        host = host,
         file = zipFile,
         fileName = filename,
         subject = subject,
