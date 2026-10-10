@@ -596,6 +596,13 @@ interface Strings {
     val readingProgressNewCycleConfirm: String              // reading_progress_new_cycle_confirm
     val readingProgressPercentReadScale: String             // reading_progress_percent_read_scale
     val readingProgressReadCountScale: String               // reading_progress_read_count_scale
+    fun monochromeActivityCount(count: Int): String
+    fun monochromeCellCount(count: Int): String
+    fun monochromeCellLevel(level: Int): String
+    fun monochromePercent(percent: Float): String
+    fun monochromeCount(count: Int): String
+    fun monochromeLevel(level: Int): String
+    val monochromeBuckets: String
     fun readingProgressPercentLabel(pct: Int): String       // reading_progress_percent_label
     fun readingProgressHistoryFor(subject: String): String  // reading_progress_history_for
     val readingProgressHistoryNoEntries: String             // reading_progress_history_no_entries

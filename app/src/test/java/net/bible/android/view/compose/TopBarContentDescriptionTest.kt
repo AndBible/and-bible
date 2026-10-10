@@ -1,18 +1,28 @@
 package net.bible.android.view.compose
 
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import net.bible.android.TEST_SDK
+import net.bible.android.view.compose.golden.goldenToolbarCallbacks
+import net.bible.android.view.compose.golden.goldenToolbarIcons
+import net.bible.service.common.DisplayColorMode
+import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.readingplan.DailyReadingUi
 import net.bible.sharedcore.readingplan.ReadingItem
 import net.bible.sharedcore.readingplan.SpeakState
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbTopAppBar
+import net.bible.sharedui.reading.ReadingToolbar
 import net.bible.sharedui.readingplan.DailyReadingScreen
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.AbTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,6 +38,32 @@ import org.robolectric.annotation.Config
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class TopBarContentDescriptionTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test fun strongsReportsItsStateInLegacyAndMonochromeModes() {
+        val state = mutableStateOf(ToolbarState(
+            pageTitle = "Genesis 1", documentTitle = "KJV", syncRunning = false,
+            showBible = false, showCommentary = false, showStrongs = true, strongsMode = 0,
+            searchable = false, speakable = false, speakStopped = true,
+        ))
+        val mode = mutableStateOf(DisplayColorMode.NORMAL)
+        var label = ""
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = mode.value, disableAnimations = true) {
+                    label = LocalStrings.current.prefsShowStrongsTitle
+                    ReadingToolbar(state.value, goldenToolbarIcons(), goldenToolbarCallbacks())
+                }
+            }
+        }
+        for (colorMode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.MONOCHROME)) {
+            compose.runOnIdle { mode.value = colorMode; state.value = state.value.copy(strongsMode = 0) }
+            compose.onNodeWithContentDescription(label).assertIsOff()
+            for (strongsMode in listOf(1, 2)) {
+                compose.runOnIdle { state.value = state.value.copy(strongsMode = strongsMode) }
+                compose.onNodeWithContentDescription(label).assertIsOn()
+            }
+        }
+    }
 
     @Test fun theBackArrowAndTheOverflowAreLabelled() {
         compose.setContent {

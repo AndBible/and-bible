@@ -45,6 +45,7 @@ import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * The workspace QUICK switch list (spec §4.4): colour dot + name, current row bold and inert.
@@ -107,7 +108,8 @@ fun WorkspaceQuickContent(
                 // grays out in BW, stays colored in COLOR_EINK. Construction copied verbatim from
                 // `WorkspaceSelectorScreen.kt:183-187` so the two screens tint identically.
                 Surface(
-                    color = Color(accentArgbFor(row.colorArgb, colorMode)),
+                    color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+                    else Color(accentArgbFor(row.colorArgb, colorMode)),
                     shape = CircleShape,
                     modifier = Modifier.size(16.dp),
                 ) {}

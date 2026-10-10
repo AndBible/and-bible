@@ -55,6 +55,7 @@ import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbDocumentListRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.isPureMonochrome
 
 /** Multiplatform-safe "%.1f MB" (no java String.format / no NumberFormat). */
 private fun formatSizeMb(mb: Double): String {
@@ -139,8 +140,9 @@ fun DocumentRow(
                                     Icons.Filled.Star,
                                     contentDescription = strings.recommendedDocument,
                                     // accentArgbFor keeps classic's amber in the normal and COLOR_EINK
-                                    // modes and greys it on BW/monochrome, like the download arrow below.
-                                    tint = Color(accentArgbFor(RECOMMENDED_STAR_ARGB, LocalDisplayColorMode.current)),
+                                    // modes and greys it on BW; pure monochrome uses ink.
+                                    tint = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+                                    else Color(accentArgbFor(RECOMMENDED_STAR_ARGB, LocalDisplayColorMode.current)),
                                     modifier = Modifier.size(11.dp),
                                 )
                             }
@@ -251,9 +253,10 @@ private fun InstallAffordance(
             DocInstallStatus.NOT_INSTALLED,
             DocInstallStatus.INSTALL_CANCELLED ->
                 if (downloadMode) {
-                    // Amber accent, grayed on BW/monochrome (kept coloured in normal + COLOR_EINK)
+                    // Amber accent in old modes; pure monochrome uses ink.
                     // via accentArgbFor + LocalDisplayColorMode, like the rest of this file.
-                    val downloadTint = Color(accentArgbFor(0xFFFFC107.toInt(), LocalDisplayColorMode.current))
+                    val downloadTint = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+                    else Color(accentArgbFor(0xFFFFC107.toInt(), LocalDisplayColorMode.current))
                     IconButton(onClick = onDownload) {
                         Icon(
                             Icons.Filled.Download,

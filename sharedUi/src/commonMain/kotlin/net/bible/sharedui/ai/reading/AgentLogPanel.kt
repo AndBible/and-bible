@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.ai.reading
 
+import net.bible.sharedui.theme.monoBorder
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -77,6 +79,7 @@ import net.bible.sharedcore.ai.reading.LogEntryKind
 import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbListChoiceDialog
+import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.strings.LocalStrings
 
@@ -166,6 +169,7 @@ fun AgentLogPanel(
     val density = LocalDensity.current
     Surface(
         modifier = Modifier.fillMaxWidth()
+            .monoBorder(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             .then(if (panelHeightDp != null) Modifier.height(panelHeightDp.dp) else Modifier)
             .onSizeChanged { size ->
                 // Only while collapsed: an expanded panel's height is the dragged value, and
@@ -180,7 +184,7 @@ fun AgentLogPanel(
         // section 4.4 for the four reasons it cannot be one.
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         tonalElevation = 3.dp,
-        shadowElevation = 8.dp,
+        shadowElevation = if (isPureMonochrome()) 0.dp else 8.dp,
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -268,7 +272,7 @@ private fun AgentLogHeader(
         // (agent_log_widget.xml:47-60), and maps collapsed -> ic_expand_less (UP): the panel is
         // bottom-anchored and expanding grows it upward. The five downward-expanding Compose
         // surfaces keep the opposite mapping -- see the plan's global constraints.
-        IconButton(onClick = onToggleExpanded) {
+        IconButton(onClick = onToggleExpanded, modifier = Modifier.toggleStateSemantics(expanded)) {
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandMore else Icons.Filled.ExpandLess,
                 contentDescription = strings.agentLogExpand,
@@ -392,7 +396,8 @@ private fun AgentLogDragHandle(
             modifier = Modifier
                 .size(width = 32.dp, height = 4.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    color = if (isPureMonochrome()) MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     shape = RoundedCornerShape(2.dp),
                 )
         )

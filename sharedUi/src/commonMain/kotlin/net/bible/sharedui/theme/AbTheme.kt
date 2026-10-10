@@ -18,6 +18,8 @@
 package net.bible.sharedui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -58,6 +60,7 @@ val LocalIsDarkTheme = staticCompositionLocalOf { false }
  *   and the Roborazzi harness need no change. `:app` hosts do not pass this by hand; `AbAppTheme`
  *   supplies it.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AbTheme(
     seedArgb: Int? = null,
@@ -70,10 +73,15 @@ fun AbTheme(
     // happen inside it, so this host cannot fall out of step with the BibleView payload builder,
     // which calls the same function. Accents follow accentArgbFor (still coloured in COLOR_EINK).
     val scheme = abColorScheme(seedArgb, darkTheme, colorMode)
-    val accents = AbColors(
+    val mono = colorMode == DisplayColorMode.MONOCHROME
+    val accents = if (mono) {
+        val ink = monoInk(darkTheme)
+        AbColors(bookmark = ink, activeWindow = ink, helperLine = ink, monoDisabled = MonoDisabled)
+    } else AbColors(
         bookmark = Color(accentArgbFor(BookmarkBase.toArgb(), colorMode)),
         activeWindow = Color(accentArgbFor(ActiveWindowBase.toArgb(), colorMode)),
         helperLine = Color(accentArgbFor(HelperLineBase.toArgb(), colorMode)),
+        monoDisabled = scheme.onSurface.copy(alpha = 0.38f),
     )
     CompositionLocalProvider(
         LocalAbColors provides accents,
@@ -81,6 +89,10 @@ fun AbTheme(
         LocalDisplayColorMode provides colorMode,
         LocalIsDarkTheme provides darkTheme,
     ) {
-        MaterialTheme(colorScheme = scheme, content = content)
+        MaterialTheme(colorScheme = scheme) {
+            if (mono) {
+                CompositionLocalProvider(LocalRippleConfiguration provides null, content = content)
+            } else content()
+        }
     }
 }

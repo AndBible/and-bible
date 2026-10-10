@@ -35,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
+import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.service.common.DisplayColorMode
 
 /**
  * A full-size modal blocking spinner — the Compose, KMP replacement for the Android `Hourglass`
@@ -50,10 +52,11 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun AbLoadingOverlay(message: String? = null, modifier: Modifier = Modifier) {
+    val mono = LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.4f))
+            .background(if (mono) Color.Transparent else Color.Black.copy(alpha = 0.4f))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -62,7 +65,8 @@ fun AbLoadingOverlay(message: String? = null, modifier: Modifier = Modifier) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             if (LocalInspectionMode.current) {
-                CircularProgressIndicator(progress = { 0f })
+                // The pure paper track is invisible at zero; show a stable ink arc in previews.
+                CircularProgressIndicator(progress = { if (mono) 0.5f else 0f })
             } else {
                 CircularProgressIndicator()
             }

@@ -32,7 +32,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
+import net.bible.sharedui.components.AbAlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -205,7 +205,7 @@ private fun ProviderFormDialog(
     val uriHandler = LocalUriHandler.current
     var showDeleteConfirm by remember(state.id) { mutableStateOf(false) }
 
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (state.id == null) strings.addProvider else strings.providerEditTitle) },
         text = {

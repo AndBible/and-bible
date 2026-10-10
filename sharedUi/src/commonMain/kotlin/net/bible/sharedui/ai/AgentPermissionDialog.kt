@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import net.bible.sharedui.components.AbAlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,7 +58,7 @@ fun AgentPermissionDialog(
     // module (AgentPermissionRequest lives in :sharedCore) is not valid Kotlin/Native.
     val action = request.actionDescription
 
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(strings.agentPermissionTitle) },
         text = {

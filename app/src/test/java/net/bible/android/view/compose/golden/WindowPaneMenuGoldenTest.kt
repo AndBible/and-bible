@@ -94,15 +94,7 @@ class WindowPaneMenuGoldenTest {
     fun items_rtl() = captureRtl("WindowPaneMenu", "items", content = rootRows())
 
     @Test fun submenu() =
-        captureGolden("WindowPaneMenu", "submenu", EDGE_MODE) {
-            Column {
-                WindowPaneMenuRows(
-                    items = syncSubmenu, showBack = true,
-                    onBack = {}, onEnterSubmenu = {}, onItemClick = {},
-                    icon = { key -> icon(key) },
-                )
-            }
-        }
+        captureGolden("WindowPaneMenu", "submenu", EDGE_MODE, content = submenuContent())
 
     /** Alternating icon/no-icon/icon/no-icon: the clearest possible proof the reserved column aligns. */
     private val alternatingIconItems = listOf(
@@ -113,7 +105,19 @@ class WindowPaneMenuGoldenTest {
     )
 
     @Test fun iconAlignment() =
-        captureGolden("WindowPaneMenu", "iconAlignment", EDGE_MODE) {
+        captureGolden("WindowPaneMenu", "iconAlignment", EDGE_MODE, content = iconAlignmentContent())
+
+    private fun submenuContent(): @androidx.compose.runtime.Composable () -> Unit = {
+            Column {
+                WindowPaneMenuRows(
+                    items = syncSubmenu, showBack = true,
+                    onBack = {}, onEnterSubmenu = {}, onItemClick = {},
+                    icon = { key -> icon(key) },
+                )
+            }
+        }
+
+    private fun iconAlignmentContent(): @androidx.compose.runtime.Composable () -> Unit = {
             Column {
                 WindowPaneMenuRows(
                     items = alternatingIconItems, showBack = false,
@@ -122,4 +126,19 @@ class WindowPaneMenuGoldenTest {
                 )
             }
         }
+
+    @Test
+    fun items_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowPaneMenu", "items", mode, content = rootRows()) }
+    }
+
+    @Test
+    fun submenu_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowPaneMenu", "submenu", mode, content = submenuContent()) }
+    }
+
+    @Test
+    fun iconAlignment_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowPaneMenu", "iconAlignment", mode, content = iconAlignmentContent()) }
+    }
 }

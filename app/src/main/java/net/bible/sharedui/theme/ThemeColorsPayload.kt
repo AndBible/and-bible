@@ -33,11 +33,11 @@ private fun Color.toCssHex(): String = "#%06X".format(0xFFFFFF and toArgb())
  * greyscaled, exactly as it reaches Compose, without this function testing a second condition.
  *
  * Returns the literal `"null"` whenever the result must look exactly like today — no seed, the
- * not-set sentinel, or BW — and the Vue side's `var(…, fallback)` declarations then reproduce the
+ * not-set sentinel, or a grey-base mode (BW, MONOCHROME) — and the Vue side's `var(…, fallback)` declarations then reproduce the
  * current appearance by construction.
  */
 fun themeColorsJson(seedArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): String {
-    if (!isWorkspaceColorSet(seedArgb) || colorMode == DisplayColorMode.BW) return "null"
+    if (!isWorkspaceColorSet(seedArgb) || colorMode.isGreyBase) return "null"
     val s = abColorScheme(seedArgb, dark, colorMode)
     return """{"primary":"${s.primary.toCssHex()}",""" +
         """"onPrimary":"${s.onPrimary.toCssHex()}",""" +

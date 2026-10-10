@@ -97,6 +97,7 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
  *   stock Material 3 scheme, unchanged. This is an identity requirement, not an approximation:
  *   it is what keeps every existing golden and every colourless workspace pixel-identical. (In
  *   NORMAL the greyscale pass is a no-op, so the identity holds exactly.)
+ * - **MONOCHROME** -> two-tone ink/paper scheme, with transparent scrim.
  * - **BW** → the seed is ignored. A hue carries no information on a black-and-white screen, and
  *   seeding would give each workspace *different greys*, i.e. different contrast for the same UI
  *   on exactly the devices where contrast matters most.
@@ -104,8 +105,9 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
  *   `accentArgbFor` already draws: the base scheme greys, the deliberate accents stay coloured.
  */
 fun abColorScheme(seedArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): ColorScheme {
+    if (colorMode == DisplayColorMode.MONOCHROME) return monochromeScheme(dark)
     val stock = if (dark) darkColorScheme() else lightColorScheme()
-    val seeded = if (!isWorkspaceColorSet(seedArgb) || colorMode == DisplayColorMode.BW) {
+    val seeded = if (!isWorkspaceColorSet(seedArgb) || colorMode.isGreyBase) {
         stock
     } else {
         // Named arguments only: the positional list carries six optional role overrides between
@@ -120,4 +122,25 @@ fun abColorScheme(seedArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): C
         )
     }
     return if (colorMode == DisplayColorMode.NORMAL) seeded else seeded.grayscale(colorMode)
+}
+
+/** Every role is ink or paper; selection inverts and sheet/dialog edges replace the scrim. */
+private fun monochromeScheme(dark: Boolean): ColorScheme {
+    val ink = monoInk(dark)
+    val paper = monoPaper(dark)
+    val base = if (dark) darkColorScheme() else lightColorScheme()
+    return base.copy(
+        primary = ink, onPrimary = paper, primaryContainer = ink, onPrimaryContainer = paper,
+        inversePrimary = paper,
+        secondary = ink, onSecondary = paper, secondaryContainer = paper, onSecondaryContainer = ink,
+        tertiary = ink, onTertiary = paper, tertiaryContainer = paper, onTertiaryContainer = ink,
+        background = paper, onBackground = ink,
+        surface = paper, onSurface = ink, surfaceVariant = paper, onSurfaceVariant = ink,
+        surfaceTint = paper, inverseSurface = ink, inverseOnSurface = paper,
+        error = ink, onError = paper, errorContainer = paper, onErrorContainer = ink,
+        outline = ink, outlineVariant = ink, scrim = Color.Transparent,
+        surfaceBright = paper, surfaceDim = paper,
+        surfaceContainer = paper, surfaceContainerHigh = paper, surfaceContainerHighest = paper,
+        surfaceContainerLow = paper, surfaceContainerLowest = paper,
+    )
 }

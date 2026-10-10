@@ -18,7 +18,7 @@
 <template>
   <div
       @click="ambiguousSelection?.handle"
-      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode, colorEink: appSettings.colorEinkMode}"
+      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode, colorEink: appSettings.colorEinkMode, pureMonochrome: appSettings.pureMonochromeMode}"
       :style="topStyle"
       :dir="direction"
   >
@@ -896,6 +896,14 @@ a {
       color: black;
       opacity: 1;
     }
+  }
+}
+
+
+@each $theme, $ink, $paper in (".pureMonochrome", black, white), (".pureMonochrome.night", white, black) {
+  #{$theme} {
+    .pagenumber { background: $paper; color: $ink; border: 1px solid $ink; border-color: $ink; }
+    .scroll-helper-line { opacity: 1; border-top-color: $ink; }
   }
 }
 

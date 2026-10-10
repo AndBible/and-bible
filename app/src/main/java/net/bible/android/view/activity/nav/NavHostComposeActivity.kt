@@ -1756,7 +1756,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         hostSystemBars.value = systemBarController.lastApplied?.let { HostSystemBars(it.statusVisible, it.navVisible) }
         // Fix batch 5 F107: on `reading` the bands beside a side nav bar show the pane colour; the
         // system's translucent contrast scrim on top made them bluish (not even grayscale in mono).
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = !onReading
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = !onReading && !CommonUtils.settings.pureMonochromeMode
     }
 
     private fun showSystemUI(setNavBarColor: Boolean = true) {
@@ -3204,6 +3204,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            // AndroidX enableEdgeToEdge re-enables nav contrast in a decor child's configuration
+            // callback. Restore our route policy after that dispatch, even if the bar colour stays
+            // unchanged (and onTopBarColourReported therefore does not refresh it).
+            window.decorView.post { refreshSystemBars() }
+        }
         windowStateService.notify(WindowChange.LayoutConfigurationChanged)
     }
 

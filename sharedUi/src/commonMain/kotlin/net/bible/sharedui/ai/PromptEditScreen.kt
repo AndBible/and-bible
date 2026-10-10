@@ -43,6 +43,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Tune
+import net.bible.sharedui.components.abCheckboxColors
+import net.bible.sharedui.components.abFilterChipBorder
+import net.bible.sharedui.components.abFilterChipColors
+import net.bible.sharedui.components.abOutlinedTextFieldColors
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.LocalAbColors
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -432,6 +438,7 @@ private fun PromptTabContent(
             onValueChange = onSetName,
             label = { Text(strings.promptNameLabel) },
             enabled = editable,
+            colors = abOutlinedTextFieldColors(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -441,6 +448,7 @@ private fun PromptTabContent(
             onValueChange = onSetDescription,
             label = { Text(strings.promptDescriptionLabel) },
             enabled = editable,
+            colors = abOutlinedTextFieldColors(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -450,6 +458,7 @@ private fun PromptTabContent(
             onValueChange = onSetTemplate,
             label = { Text(strings.promptTemplateLabel) },
             enabled = editable,
+            colors = abOutlinedTextFieldColors(),
             minLines = 5,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -480,6 +489,8 @@ private fun PromptTabContent(
                 val chipSelected = contextId in state.contexts
                 FilterChip(
                     selected = chipSelected,
+                    colors = abFilterChipColors(),
+                    border = abFilterChipBorder(chipEnabled, chipSelected),
                     onClick = { onToggleContext(contextId) },
                     enabled = chipEnabled,
                     leadingIcon = {
@@ -502,6 +513,8 @@ private fun PromptTabContent(
         Spacer(Modifier.height(16.dp))
         FilterChip(
             selected = state.isTextTransformation,
+            colors = abFilterChipColors(),
+            border = abFilterChipBorder(editable, state.isTextTransformation),
             onClick = { onSetTextTransformation(!state.isTextTransformation) },
             enabled = editable,
             leadingIcon = {
@@ -533,14 +546,14 @@ private fun LabeledCheckboxRow(
             .fillMaxWidth()
             .heightIn(min = 48.dp)
             .toggleable(value = checked, enabled = enabled, role = Role.Checkbox, onValueChange = onCheckedChange)
-            .then(if (enabled) Modifier else Modifier.alpha(0.38f))
+            .then(if (enabled || isPureMonochrome()) Modifier else Modifier.alpha(0.38f))
             .padding(vertical = 4.dp),
         verticalArrangement = Arrangement.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = checked, onCheckedChange = null, enabled = enabled)
+            Checkbox(checked = checked, onCheckedChange = null, enabled = enabled, colors = abCheckboxColors())
             Spacer(Modifier.width(8.dp))
-            Text(label)
+            Text(label, color = if (!enabled && isPureMonochrome()) LocalAbColors.current.monoDisabled else androidx.compose.ui.graphics.Color.Unspecified)
         }
         if (summary != null) {
             Text(

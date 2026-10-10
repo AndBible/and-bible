@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -96,7 +95,7 @@ fun <T> AbMultiSelectContent(
 }
 
 /**
- * A generic, portable multiselect chooser: a titled [AlertDialog] with one checkbox row per option
+ * A generic, portable multiselect chooser: a titled [AbAlertDialog] with one checkbox row per option
  * (label = [labelOf]), pre-checked from [selectedIds]. Confirm reports the currently-checked ids via
  * [onConfirm]; Cancel/dismiss reports nothing. Self-contained (commonMain, no Android APIs).
  *
@@ -124,7 +123,7 @@ fun <T> AbMultiSelectDialog(
 ) {
     // Local working copy of the checked set; committed to the host only on Confirm.
     var current by remember(options, selectedIds) { mutableStateOf(selectedIds) }
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {

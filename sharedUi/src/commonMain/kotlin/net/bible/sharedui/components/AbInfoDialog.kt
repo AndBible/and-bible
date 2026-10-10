@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -69,7 +68,7 @@ fun AbInfoDialog(
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val uriHandler = LocalUriHandler.current
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {

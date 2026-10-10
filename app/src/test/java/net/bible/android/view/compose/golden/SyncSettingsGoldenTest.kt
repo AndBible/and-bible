@@ -104,6 +104,11 @@ class SyncSettingsGoldenTest {
     fun signedout_rtl() =
         captureRtl("SyncSettings", "signedout", heightDp = 2400, content = screen(uiStateFor(snap(signedIn = false))))
 
+    @Test fun signedin_mono_audit() = auditMono("SyncSettings", "signedin", 2400, emptyList(), screen(uiStateFor(snap(signedIn = true))))
+    @Test fun loading_mono_audit() = auditMono("SyncSettings", "loading", 2400, emptyList(), screen(uiStateFor(snap()).copy(loading = true)))
+    @Test fun signedin_mono_reference() = MONO_MODES.forEach { captureGolden("SyncSettings", "signedin", it, heightDp = 2400, content = screen(uiStateFor(snap(signedIn = true)))) }
+    @Test fun loading_mono_reference() = MONO_MODES.forEach { captureGolden("SyncSettings", "loading", it, heightDp = 2400, content = screen(uiStateFor(snap()).copy(loading = true))) }
+
     @Test fun signedin_edge() =
         captureGolden("SyncSettings", "signedin", EDGE_MODE, heightDp = 2400, content = screen(uiStateFor(snap(signedIn = true))))
 

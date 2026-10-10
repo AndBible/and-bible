@@ -61,14 +61,42 @@ class AgentLogHeaderStructureGuardTest {
 
     @Test
     fun theCaretIconButtonTogglesExpansion() {
-        // A plain count of `onClick = onToggleExpanded` occurrences (the previous form of this
-        // test) could not tell the caret's wiring apart from the drag handle's *call site* --
-        // `AgentLogDragHandle(onClick = onToggleExpanded)` -- passing at "2" even after the band's
-        // own wiring below was deleted. Assert the caret's exact shape so it is guarded on its own.
+        // Keep this scoped to the caret call: counting callbacks would also match the drag handle's
+        // call site, while this pattern allows the caret's additional semantics modifier.
         assertThat(
-            "the caret IconButton must wire onToggleExpanded directly: IconButton(onClick = onToggleExpanded)",
-            source.contains("IconButton(onClick = onToggleExpanded)"),
+            "the caret IconButton must wire onToggleExpanded and expose its expanded state",
+            caretIconButtonWithToggleSemantics.containsMatchIn(source),
             equalTo(true),
+        )
+    }
+
+    @Test
+    fun caretGuardAcceptsMultilineCallWithAdditionalModifier() {
+        val call = """
+            IconButton(
+                onClick = onToggleExpanded,
+                modifier = Modifier.toggleStateSemantics(expanded),
+            )
+        """.trimIndent()
+
+        assertThat(caretIconButtonWithToggleSemantics.containsMatchIn(call), equalTo(true))
+    }
+
+    @Test
+    fun caretGuardRejectsWrongHandler() {
+        val call = """
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier.toggleStateSemantics(expanded),
+            )
+        """.trimIndent()
+
+        assertThat(caretIconButtonWithToggleSemantics.containsMatchIn(call), equalTo(false))
+    }
+
+    private companion object {
+        val caretIconButtonWithToggleSemantics = Regex(
+            """IconButton\s*\(\s*onClick\s*=\s*onToggleExpanded\s*,\s*modifier\s*=\s*Modifier\.toggleStateSemantics\(expanded\)\s*,?\s*\)""",
         )
     }
 

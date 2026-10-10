@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Check
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.LocalAbColors
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,11 +52,18 @@ import androidx.compose.ui.unit.dp
  * itself `@ReadOnlyComposable`-callable, so annotating this function fails to compile.
  */
 @Composable
-fun abMenuItemColors(): MenuItemColors = MenuDefaults.itemColors(
-    textColor = MaterialTheme.colorScheme.onSurface,
-    leadingIconColor = MaterialTheme.colorScheme.onSurface,
-    trailingIconColor = MaterialTheme.colorScheme.onSurface,
-)
+fun abMenuItemColors(): MenuItemColors {
+    val colors = MenuDefaults.itemColors(
+        textColor = MaterialTheme.colorScheme.onSurface,
+        leadingIconColor = MaterialTheme.colorScheme.onSurface,
+        trailingIconColor = MaterialTheme.colorScheme.onSurface,
+    )
+    return if (isPureMonochrome()) colors.copy(
+        disabledTextColor = LocalAbColors.current.monoDisabled,
+        disabledLeadingIconColor = LocalAbColors.current.monoDisabled,
+        disabledTrailingIconColor = LocalAbColors.current.monoDisabled,
+    ) else colors
+}
 
 /** The leading-icon slot's size, and the width reserved when [AbMenuItem.reserveIconSlot] is set. */
 private val AbMenuIconSize = 24.dp

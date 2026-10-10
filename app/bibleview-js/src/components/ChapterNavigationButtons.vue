@@ -127,4 +127,9 @@ const { strings } = useCommon();
     }
   }
 }
+.pureMonochrome .nav-btn, .pureMonochrome.night .nav-btn {
+  transition: none;
+  &:disabled { opacity: 1; color: #808080; }
+  &:not(:disabled):active { background: transparent; }
+}
 </style>

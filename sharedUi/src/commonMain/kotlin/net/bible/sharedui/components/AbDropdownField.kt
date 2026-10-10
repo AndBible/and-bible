@@ -17,6 +17,10 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenuItem
@@ -70,11 +74,18 @@ fun <T> AbDropdownField(
             readOnly = true,
             enabled = enabled,
             singleLine = true,
+            colors = abOutlinedTextFieldColors(),
             label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
             modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
         )
-        ExposedDropdownMenu(expanded = expanded && enabled, onDismissRequest = { expanded = false }) {
+        val mono = isPureMonochrome()
+        ExposedDropdownMenu(
+            expanded = expanded && enabled, onDismissRequest = { expanded = false },
+            tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+            shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+            border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+        ) {
             options.forEach { opt ->
                 DropdownMenuItem(text = { Text(optionLabel(opt)) }, onClick = { onSelect(opt); expanded = false })
             }

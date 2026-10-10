@@ -223,6 +223,13 @@ async function configureBookmarkSettings() {
   }
 }
 
+.pureMonochrome .ambiguous {
+  background-color: white;
+}
+.pureMonochrome.night .ambiguous {
+  background-color: black;
+}
+
 .bookmark-button {
   cursor: pointer;
   font-size: 25px;

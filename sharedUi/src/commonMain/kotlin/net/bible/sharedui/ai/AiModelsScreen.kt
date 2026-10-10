@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.ai
 
+import net.bible.sharedui.theme.LocalAbColors
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,7 +35,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.AlertDialog
+import net.bible.sharedui.components.AbAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -216,7 +218,8 @@ private fun ModelRow(
                 tint = if (model.isDefault) {
                     MaterialTheme.colorScheme.primary
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                    if (isPureMonochrome()) LocalAbColors.current.monoDisabled
+                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                 },
                 modifier = Modifier.size(20.dp),
             )
@@ -287,7 +290,7 @@ private fun ModelFormDialog(
             ?: id
     }
 
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (state.id == null) strings.addModel else strings.editModelTitle) },
         text = {

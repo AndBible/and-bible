@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.progress
 
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +57,10 @@ fun AbColorScaleLegend(
     stepLabel: (step: Int) -> String,
     modifier: Modifier = Modifier,
 ) {
+    if (isPureMonochrome()) {
+        Text(LocalStrings.current.monochromeBuckets, modifier = modifier, style = MaterialTheme.typography.labelSmall)
+        return
+    }
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,

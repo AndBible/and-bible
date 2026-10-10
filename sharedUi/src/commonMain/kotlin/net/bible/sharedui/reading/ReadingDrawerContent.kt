@@ -17,6 +17,9 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.LocalAbColors
+import net.bible.sharedui.theme.isPureMonochrome
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -168,7 +171,7 @@ private fun DrawerRow(
 ) {
     val contentColor =
         if (enabled) MaterialTheme.colorScheme.onSurface
-        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        else LocalAbColors.current.monoDisabled
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -191,7 +194,8 @@ private fun DrawerRow(
  * [logo] is rendered with [Image], not `Icon`: classic `nav_header_main.xml` shows the app logo in
  * an untinted `ImageView`, and `res/drawable/ic_logo.xml` is a five-colour vector (`#4d4c4c`,
  * `#7b4639`, `#FEBA2A`, `#d97e35`, `#df983b`). `Icon` would flatten it to a single tint colour — a
- * real visual regression — so the logo uses [Image] while the single-colour 24dp [DrawerRow] glyphs
+ * real visual regression outside MONOCHROME. Pure MONOCHROME deliberately tints the logo to ink.
+ * The logo uses [Image] while the single-colour 24dp [DrawerRow] glyphs
  * below keep using `Icon`, tinted to match each row's label colour (including the disabled 0.38-alpha
  * treatment).
  *
@@ -220,7 +224,10 @@ fun ReadingDrawerHeader(appName: String, logo: Painter?) {
             .heightIn(min = DrawerHeaderMinHeight),
     ) {
         if (logo != null) {
-            Image(painter = logo, contentDescription = null, modifier = Modifier.size(48.dp))
+            Image(
+                painter = logo, contentDescription = null, modifier = Modifier.size(48.dp),
+                colorFilter = if (isPureMonochrome()) ColorFilter.tint(MaterialTheme.colorScheme.onSurface) else null,
+            )
             Spacer(Modifier.size(12.dp))
         }
         Text(
