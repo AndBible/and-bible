@@ -1,8 +1,8 @@
 [versions]
 # Toolchain — reference-matched (do not diverge)
 agp = "9.2.1"
-kotlin = "2.3.21"
-ksp = "2.3.9"
+kotlin = "2.4.21"
+ksp = "2.3.12"
 gradle = "9.5.1"                 # informational; the wrapper is the source of truth
 # AndBible libraries — current values, moved verbatim into the catalog
 room3 = "3.0.3"                  # D1.5: Room 3 (androidx.room3) with the bundled SQLite driver
