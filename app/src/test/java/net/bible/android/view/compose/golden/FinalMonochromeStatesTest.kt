@@ -40,10 +40,18 @@ class FinalMonochromeStatesTest {
             AbSwitchRow("Dependent on", true, {}, enabled = false)
         }
     }
-    @Test fun loadingDoesNotDimPaper() = auditMono("FinalStates", "loading", 300, emptyList()) {
-        Box(Modifier.size(320.dp, 300.dp).background(MaterialTheme.colorScheme.surface)) {
-            Text("Underlying content")
-            AbLoadingOverlay()
+    @Test fun loadingDoesNotDimPaper() {
+        auditMono("FinalStates", "loading", 300, emptyList()) {
+            Box(Modifier.size(320.dp, 300.dp).background(MaterialTheme.colorScheme.surface)) {
+                Text("Underlying content")
+                AbLoadingOverlay()
+            }
+        }
+        for (mode in MONO_MODES) {
+            val image = javax.imageio.ImageIO.read(java.io.File("build/mono-audit/FinalStates_loading_${mode.tag}.png"))
+            val ink = if (mode.dark) 0xffffff else 0
+            org.junit.Assert.assertTrue("Loading indicator must actually paint ink at the center, ${mode.tag}",
+                (130 until 170).any { y -> (140 until 180).any { x -> (image.getRGB(x, y) and 0xffffff) == ink } })
         }
     }
 }

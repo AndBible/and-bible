@@ -138,7 +138,12 @@ class PromptEditGoldenTest {
     // heightDp=1200: name/description/template(minLines=5)/category dropdown/5 context chips
     // (17f)/bibleOnly checkbox/text-transformation chip -- the default viewport clips well before
     // the last row.
-    @Test fun readonly_mono_reference() = MONO_MODES.forEach { captureGolden("PromptEdit", "readonly", it, heightDp = 1200, content = screen(promptState.copy(isReadOnly = true, isBuiltIn = true, bibleOnly = true), PromptEditTab.PROMPT)) }
+    // Keep the 320dp contract: a real two-tab built-in transformation with readable field values.
+    // The three-tab read-only/permission path stays covered by readonly_mono_audit below.
+    @Test fun readonly_mono_reference() = MONO_MODES.forEach { captureGolden("PromptEdit", "readonly", it, heightDp = 1200, content = screen(promptState.copy(isReadOnly = true, isBuiltIn = true, bibleOnly = true, isTextTransformation = true, description = "Explain selected text"), PromptEditTab.PROMPT)) }
+
+    @Test fun readonly_permissions_mono_audit() =
+        auditMono("PromptEdit", "readonly_permissions", 1200, emptyList(), screen(promptState.copy(isReadOnly = true, isBuiltIn = true), PromptEditTab.PERMISSIONS))
 
     @Test fun readonly_mono_audit() =
         auditMono("PromptEdit", "readonly", 1200, emptyList(), screen(promptState.copy(isReadOnly = true, isBuiltIn = true, bibleOnly = true), PromptEditTab.PROMPT))
