@@ -19,6 +19,10 @@ interface CoreStrings {
     fun httpStatusText(code: Int): String
     fun errorDownloadingStatus(url: String, statusText: String, code: Int): String
     val labelAll: String // R.string.all
+    val installZipSuccessful: String // R.string.install_zip_successfull
+    val installZipCanceled: String // R.string.install_zip_canceled
+    val invalidModule: String // R.string.invalid_module
+    val sqliteInvalidFile: String // R.string.sqlite_invalid_file
     val errorOccurred: String // R.string.error_occurred
     fun somethingWithParenthesis(a: String, b: String): String // R.string.something_with_parenthesis: "%1$s (%2$s)"
     fun readingPlanDay(day: String): String // R.string.rdg_plan_day: "Day %s"

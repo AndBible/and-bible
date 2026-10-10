@@ -36,6 +36,10 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override fun errorDownloadingStatus(url: String, statusText: String, code: Int): String =
         context.getString(R.string.error_downloading_status, url, statusText, code)
     override val labelAll: String get() = context.getString(R.string.all)
+    override val installZipSuccessful: String get() = context.getString(R.string.install_zip_successfull)
+    override val installZipCanceled: String get() = context.getString(R.string.install_zip_canceled)
+    override val invalidModule: String get() = context.getString(R.string.invalid_module)
+    override val sqliteInvalidFile: String get() = context.getString(R.string.sqlite_invalid_file)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override fun somethingWithParenthesis(a: String, b: String): String = context.getString(R.string.something_with_parenthesis, a, b)
     override fun readingPlanDay(day: String): String = context.getString(R.string.rdg_plan_day, day)

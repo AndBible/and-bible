@@ -17,7 +17,7 @@
 
 package net.bible.service.installzip
 
-import android.net.Uri
+import kotlinx.coroutines.async
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -26,7 +26,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupFileType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -68,12 +67,27 @@ class InstallServiceControllerTest {
         epubUpgradeCheck = { false },
     )
 
-    private fun controller(onTerminal: (JobId, InstallPhase) -> Unit = { _, _ -> }) =
+    private fun kotlinx.coroutines.test.TestScope.controller(onTerminal: (JobId, InstallPhase) -> Unit = { _, _ -> }) =
         InstallServiceController(
             runnerFactory = { error("unused: runOne is faked in these tests") },
             newJobId = idGen(),
             onTerminal = onTerminal,
+            scope = backgroundScope,
         )
+
+    @Test fun injectedScopeControlsWhenWorkerRuns() = runTest {
+        var started = false
+        val c = InstallServiceController(
+            runnerFactory = { error("unused") }, newJobId = idGen(),
+            onTerminal = { _, _ -> }, scope = backgroundScope,
+        )
+        c.runOne = { _, _, _, _, _ -> started = true; InstallPhase.Done }
+        val result = async { c.enqueue(listOf(src("a")), deps()) }
+        testScheduler.runCurrent()
+        assertTrue(started)
+        assertEquals(InstallOutcome.Ok, result.await())
+        assertTrue(c.jobs.value.isEmpty())
+    }
 
     @Test fun `two sources run sequentially and jobs are removed on terminal`() = runTest {
         val log = mutableListOf<String>()
@@ -263,6 +277,7 @@ class InstallServiceControllerTest {
             runnerFactory = { runner },
             newJobId = idGen(),
             onTerminal = { _, _ -> },
+            scope = backgroundScope,
         )
         val realDeps = InstallServiceController.JobDeps(
             acquireDir = acquireDir,

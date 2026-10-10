@@ -38,37 +38,22 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
-import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.backup.BackupFileType
 import net.bible.android.control.event.UserMessages
-import net.bible.android.database.BookmarkDatabase
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.unzipInputStream
-import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.bookmarksDbStats
 import net.bible.service.device.ProgressNotificationManager
-import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
-import net.bible.service.sword.epub.EpubBackend
-import net.bible.service.sword.epub.epubInitials
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookPath
-import org.crosswire.jsword.book.sword.SwordConstants
-import org.crosswire.jsword.book.sword.SwordGenBook
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.platform.CoreStrings
+import org.koin.java.KoinJavaComponent
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.UUID
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 
 private const val NOTIFICATION_ID = 7
 
@@ -110,9 +95,10 @@ class DocumentInstallService : Service() {
          *  bound host UI (Plan B), so both observe the very same [InstallServiceController.jobs]. */
         private val _controller: InstallServiceController by lazy {
             InstallServiceController(
-                runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, AndroidInstallCommitter()) },
+                runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, DefaultInstallCommitter()) },
                 newJobId = { UUID.randomUUID().toString() },
                 onTerminal = { _, phase -> postTerminalEvents(phase) },
+                scope = KoinJavaComponent.get(AppCoroutineScope::class.java),
             )
         }
         val controller: InstallServiceController get() = _controller
@@ -159,16 +145,8 @@ class DocumentInstallService : Service() {
          */
         private fun postTerminalEvents(phase: InstallPhase) {
             DocumentChanges.notifyInstalledChanged()
-            when (phase) {
-                is InstallPhase.Done -> UserMessages.toast(R.string.install_zip_successfull)
-                is InstallPhase.Cancelled -> UserMessages.toast(R.string.install_zip_canceled)
-                is InstallPhase.Error -> {
-                    val toastRes = if (phase.kind == InstallError.INVALID_FILE) R.string.invalid_module
-                    else R.string.error_occurred
-                    UserMessages.toast(toastRes)
-                }
-                else -> {}
-            }
+            val message = terminalEventMessage(phase, KoinJavaComponent.get(CoreStrings::class.java))
+            if (message.isNotEmpty()) UserMessages.toast(message)
         }
     }
 
@@ -259,16 +237,6 @@ class DocumentInstallService : Service() {
         swordZipScan = { localFile -> scanSwordZip(localFile) },
         epubUpgradeCheck = { displayName -> checkEpubUpgrade(displayName) },
     )
-
-    /** Mirrors classic `InstallZip.installStudyPads`'s unzip + stats step, operating on the
-     *  already-acquired local file instead of re-opening the original uri. */
-    private suspend fun studyPadStatsFor(localFile: File): Pair<String, File> {
-        val unzipFolder = File(BackupControl.internalDbBackupDir, "unzip")
-        unzipInputStream(localFile.inputStream(), unzipFolder)
-        val dbFile = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
-        val stats = bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, dbFile)
-        return stats to unzipFolder
-    }
 
     // --- Notifications ---
 
@@ -373,90 +341,4 @@ class DocumentInstallService : Service() {
         }
         stopSelf()
     }
-}
-
-/** File-based counterpart of `CommonUtils.determineFileType(Uri)`, run against the already-
- *  acquired local file so [InstallInspector] never needs to reopen the (possibly single-use)
- *  original uri stream just to sniff the header. Delegates to [CommonUtils.determineFileType]
- *  (wrapping the local [File] as a `file://` [Uri]) rather than re-implementing the magic-byte
- *  sniffing here, so the two can never silently drift apart. (The exact SQLite3/ZIP magic --
- *  a NUL-terminated `"SQLite format 3\u0000"` and the precise `"PK\u0003\u0004"` ZIP
- *  local-file-header signature -- is easy to get subtly wrong, or fragile, if duplicated as a
- *  hand-typed literal with embedded raw control bytes.) `internal` (not `private`) so
- *  [DocumentInstallServiceTest] can drive it directly as a regression lock. */
-internal suspend fun determineLocalFileType(file: File): BackupFileType =
-    CommonUtils.determineFileType(Uri.fromFile(file))
-
-/**
- * Adapts classic `ZipHandler.checkZipFile`'s entry-enumeration + classification to operate on an
- * already-acquired local [File] and return a pure [InstallInspector.SwordZipScan] instead of
- * throwing [net.bible.android.view.activity.installzip.ModulesExists]/[net.bible.android.view.activity.installzip.EpubFile]/
- * [net.bible.android.view.activity.installzip.InvalidModule]. Existing-file paths are plain
- * download-dir-relative paths (classic additionally ran `.canonicalPath` on the relative
- * `File`, which resolves against the JVM's working directory rather than the download dir --
- * not reproduced here, as it only ever fed a display string).
- */
-private fun scanSwordZip(localFile: File): InstallInspector.SwordZipScan {
-    val targetDirectory = SwordBookPath.getSwordDownloadDir()
-    val existingFiles = mutableListOf<String>()
-    val otherFiles = mutableListOf<String>()
-    var modsDirFound = false
-    var modulesFound = false
-    var totalEntries = 0
-
-    ZipInputStream(localFile.inputStream()).use { zin ->
-        var entry: ZipEntry? = try {
-            zin.nextEntry
-        } catch (e: IllegalArgumentException) {
-            null
-        } ?: return InstallInspector.SwordZipScan(emptyList(), 0, isEpub = false, invalid = true)
-
-        while (entry != null) {
-            totalEntries++
-            val name = entry.name.replace('\\', '/')
-            val targetFile = File(targetDirectory, name)
-            if (!entry.isDirectory && targetFile.exists()) {
-                existingFiles.add(targetFile.relativeTo(targetDirectory).path)
-            }
-            when {
-                name.startsWith(SwordConstants.DIR_CONF + "/") && name.endsWith(SwordConstants.EXTENSION_CONF) ->
-                    modsDirFound = true
-                name.startsWith(SwordConstants.DIR_CONF + "/") -> Unit // ignore directory entry
-                name.startsWith(SwordConstants.DIR_DATA + "/") -> modulesFound = true
-                name.startsWith("epub/") || name.startsWith("mysword/") || name.startsWith("mybible/") || name.startsWith("esword/") -> {
-                    modulesFound = true
-                    modsDirFound = true
-                }
-                name == ANDBIBLE_BACKUP_MANIFEST_FILENAME -> Unit
-                else -> otherFiles.add(name)
-            }
-            entry = zin.nextEntry
-        }
-    }
-
-    if (otherFiles.isNotEmpty()) {
-        val isEpub = otherFiles.any { it == "META-INF/container.xml" }
-        return InstallInspector.SwordZipScan(existingFiles, totalEntries, isEpub = isEpub, invalid = !isEpub)
-    }
-    if (!(modsDirFound && modulesFound)) {
-        return InstallInspector.SwordZipScan(existingFiles, totalEntries, isEpub = false, invalid = true)
-    }
-    return InstallInspector.SwordZipScan(existingFiles, totalEntries, isEpub = false, invalid = false)
-}
-
-/**
- * Mirrors classic `InstallZip.installEpub`'s optimizer-version + bookmark-count test: an upgrade
- * confirmation is needed only when the epub is already installed, has genuine bookmarks/notes
- * against it, AND its persisted optimizer version is behind the current one.
- */
-private suspend fun checkEpubUpgrade(displayName: String): Boolean {
-    val dir = File(SharedConstants.modulesDir, "epub/$displayName")
-    if (!dir.exists()) return false
-    val initials = epubInitials(displayName)
-    val book = Books.installed().getBook(initials)
-    val optimizerVersion = ((book as? SwordGenBook)?.backend as? EpubBackend)?.state?.optimizerVersion ?: 1
-    val bookmarkCount = if (DatabaseContainer.ready) {
-        DatabaseContainer.instance.bookmarkDb.bookmarkDao().genericBookmarkCountFor(initials)
-    } else 0
-    return bookmarkCount > 0 && optimizerVersion < EPUB_OPTIMIZER_VERSION
 }

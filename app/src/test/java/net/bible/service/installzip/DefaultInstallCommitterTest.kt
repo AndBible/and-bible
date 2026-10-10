@@ -40,7 +40,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 /**
- * Thin-adapter tests for [AndroidInstallCommitter]. Since every `commit*` here delegates to
+ * Thin-adapter tests for [DefaultInstallCommitter]. Since every `commit*` here delegates to
  * already-tested engine code (see [net.bible.android.control.backup.ModuleBackupRoundTripTest] /
  * `ModuleArchiveExtractionTest` for that coverage), this only exercises: (1) the one genuine
  * bit of logic this file owns -- the SQLite header validity gate -- and (2) one real,
@@ -52,11 +52,14 @@ import java.util.zip.ZipOutputStream
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
-class AndroidInstallCommitterTest {
-    private val committer = AndroidInstallCommitter()
+class DefaultInstallCommitterTest {
+    private val committer = DefaultInstallCommitter()
+
+    private lateinit var originalDownloadDir: File
 
     @Before
     fun setUp() {
+        originalDownloadDir = SwordBookPath.getSwordDownloadDir()
         SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
     }
 
@@ -65,6 +68,7 @@ class AndroidInstallCommitterTest {
         Books.installed().getBook("TestDict")?.let { Books.installed().removeBook(it) }
         File(SharedConstants.modulesDir, "mods.d/testdict.conf").delete()
         File(SharedConstants.modulesDir, "modules/lexdict/rawld/testdict").deleteRecursively()
+        SwordBookPath.setDownloadDir(originalDownloadDir)
     }
 
     /** Build a zip in [CommonUtils.tmpDir] with the given entries, in order. */
@@ -83,7 +87,7 @@ class AndroidInstallCommitterTest {
 
     /**
      * A minimal RawLD dictionary zip (conf + 2 data files) is the simplest genuine SWORD module
-     * fixture (mirrors `ModuleBackupRoundTripTest`). Proves [AndroidInstallCommitter.commitSwordZip]
+     * fixture (mirrors `ModuleBackupRoundTripTest`). Proves [DefaultInstallCommitter.commitSwordZip]
      * really delegates to [net.bible.android.control.backup.BackupControl.extractAndRegisterModuleArchive]
      * end-to-end: the `.conf` lands on disk, the module registers and is readable, and progress
      * reaches 100%.
