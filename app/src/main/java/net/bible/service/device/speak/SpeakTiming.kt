@@ -17,14 +17,14 @@
 package net.bible.service.device.speak
 
 import net.bible.sharedcore.log.Log
-import net.bible.service.common.CommonUtils.settings
+import net.bible.sharedcore.platform.AppSettings
 
 /**
  * The speed and progress of TTS Speech
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class SpeakTiming {
+class SpeakTiming(private val settings: AppSettings) {
     private var lastUtteranceId: String? = null
     private var lastSpeakTextLength = 0
     private var lastSpeakStartTime: Long = 0

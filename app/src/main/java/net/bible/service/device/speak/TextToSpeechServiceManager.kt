@@ -18,6 +18,7 @@
 package net.bible.service.device.speak
 
 import net.bible.sharedcore.log.Log
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.android.control.speak.SpeakEngine
 import net.bible.android.control.speak.SpeakEngineListener
 import net.bible.android.control.speak.SpeakLanguageResult
@@ -79,6 +80,7 @@ class TextToSpeechServiceManager constructor(
     private val notifier: UserNotifier,
     private val strings: CoreStrings,
     private val settings: AppSettings,
+    private val advanced: AdvancedSpeakSettings,
 ) {
 
     private var mTts: SpeakEngine? = null
@@ -98,7 +100,7 @@ class TextToSpeechServiceManager constructor(
 
     private val mSpeakTiming: SpeakTiming
 
-    private val ttsLanguageSupport = TTSLanguageSupport()
+    private val ttsLanguageSupport = TTSLanguageSupport(settings)
     private var uniqueUtteranceNo: Long = 0
 
     // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
@@ -114,22 +116,28 @@ class TextToSpeechServiceManager constructor(
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
-        legacySpeakTextProvider = LegacySpeakTextProvider()
+        legacySpeakTextProvider = LegacySpeakTextProvider(settings)
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
             bibleTraverser = bibleTraverser,
             bookmarkControl = bookmarkControl,
-            initialBook = book
+            initialBook = book,
+            platform = platform,
+            settings = settings,
+            advanced = advanced,
         )
         generalSpeakTextProvider = GeneralSpeakTextProvider(
             bookmarkControl = bookmarkControl,
-            initialBook = book
+            initialBook = book,
+            platform = platform,
+            settings = settings,
+            advanced = advanced,
         )
 
         mSpeakTextProvider = bibleSpeakTextProvider
 
-        mSpeakTiming = SpeakTiming()
+        mSpeakTiming = SpeakTiming(settings)
         restorePauseState()
     }
 

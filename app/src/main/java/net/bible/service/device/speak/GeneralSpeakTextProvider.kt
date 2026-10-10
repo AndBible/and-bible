@@ -17,19 +17,15 @@
 
 package net.bible.service.device.speak
 
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import android.content.res.Resources
 import net.bible.service.db.blockingDb
-import android.os.Build
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.android.control.speak.SpeakPlatform
+import net.bible.android.control.speak.SpeakPhrases
 import net.bible.sharedcore.log.Log
-import net.bible.service.common.CommonUtils
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.service.sword.SwordContentFacade
-import net.bible.android.activity.R
 import org.crosswire.jsword.book.Books
-import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.speak.SpeakSettingsChange
@@ -52,10 +48,12 @@ import kotlin.collections.HashMap
 
 class GeneralSpeakTextProvider(
     private val bookmarkControl: BookmarkControl,
-    initialBook: Book
-) : SpeakTextProvider, KoinComponent {
-    private val speakPlatform: net.bible.android.control.speak.SpeakPlatform get() = getKoin().get()
-    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
+    initialBook: Book,
+    private val platform: SpeakPlatform,
+    settings: AppSettings,
+    private val advanced: AdvancedSpeakSettings,
+) : SpeakTextProvider {
+    private val appSettings = settings
     private data class State(
         val book: Book,
         val startKey: BookAndKey,
@@ -84,15 +82,15 @@ class GeneralSpeakTextProvider(
     private var lastVerseWithTitle: BookAndKey? = null
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
-    private val currentCommands = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
+    private val currentCommands = SpeakCommandArray(platform.maxSpeechInputLength)
 
-    private lateinit var localizedResources: Resources
+    private lateinit var phrases: SpeakPhrases
 
     init {
         setupBook(initialBook)
     }
 
-    private var readList = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
+    private var readList = SpeakCommandArray(platform.maxSpeechInputLength)
     internal var settings = SpeakSettings.load()
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startKey, endKey, currentKey)
@@ -122,7 +120,7 @@ class GeneralSpeakTextProvider(
 
     private fun setupBook(book: Book) {
         this.book = book
-        localizedResources = BibleApplication.application.getLocalizedResources(book.language.code)
+        phrases = platform.phrasesFor(book.language.code)
     }
 
     fun setupReading(key: BookAndKey) {
@@ -136,13 +134,12 @@ class GeneralSpeakTextProvider(
     }
 
     private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey): SpeakCommandArray {
-        val cmds = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
-        val res = localizedResources
+        val cmds = SpeakCommandArray(platform.maxSpeechInputLength)
 
         if(prevKey.getOsisRef() != key.getOsisRef()) {
             if(settings.playbackSettings.speakChapterChanges) {
                 cmds.add(PreChapterChangeCommand(settings))
-                cmds.add(TextCommand("${res.getString(R.string.speak_chapter_changed)} ${key.getName()}. "))
+                cmds.add(TextCommand("${phrases.chapterChanged} ${key.getName()}. "))
                 cmds.add(SilenceCommand())
             }
         }
@@ -174,7 +171,7 @@ class GeneralSpeakTextProvider(
 
 
     private fun getMoreSpeakCommands(): SpeakCommandArray {
-        val cmds = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
+        val cmds = SpeakCommandArray(platform.maxSpeechInputLength)
 
         var key = limitToRange(currentKey)
         startKey = key
@@ -187,7 +184,7 @@ class GeneralSpeakTextProvider(
 
         cmds.addAll(getCommandsForKey(endKey, key))
 
-        val rest = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
+        val rest = SpeakCommandArray(platform.maxSpeechInputLength)
 
         while (!cmds.endsSentence) {
             val nextKey = getNextKey(key)
@@ -215,7 +212,7 @@ class GeneralSpeakTextProvider(
     override fun getStatusText(showFlag: Int): String {
         var result = this.currentState.currentKey.shortName
 
-        if(showFlag and FLAG_SHOW_STATUSITEMS != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if(showFlag and FLAG_SHOW_STATUSITEMS != 0) {
             if(settings.sleepTimer > 0) {
                 result += " ⌛"
             }
@@ -279,7 +276,7 @@ class GeneralSpeakTextProvider(
             if(ttsLabel != null) {
                 Log.i(TAG, "Bookmark book ${bookmark.book}")
                 val playbackSettings = bookmark.playbackSettings?.copy()
-                if(playbackSettings != null && advancedSpeakSettings.restoreSettingsFromBookmarks) {
+                if(playbackSettings != null && advanced.restoreSettingsFromBookmarks) {
                     playbackSettings.bookmarkWasCreated = null
                     playbackSettings.bookId = null
                     settings.playbackSettings = playbackSettings
@@ -319,7 +316,7 @@ class GeneralSpeakTextProvider(
 
     private fun saveBookmark(wasRemoved: Boolean) {
         val labelList = mutableSetOf<Label>()
-        if(advancedSpeakSettings.autoBookmark || wasRemoved) {
+        if(advanced.autoBookmark || wasRemoved) {
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
 
@@ -471,14 +468,14 @@ class GeneralSpeakTextProvider(
     override fun getCurrentlyPlayingBook(): Book = book
 
     override fun persistState() {
-        CommonUtils.settings.apply {
+        appSettings.apply {
             setString(PERSIST_BOOK, book.abbreviation)
             setString(PERSIST_KEY, startKey.serialized)
         }
     }
 
     override fun restoreState(): Boolean {
-        val sharedPreferences = CommonUtils.settings
+        val sharedPreferences = appSettings
         if(sharedPreferences.getString(PERSIST_BOOK) != null) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
             val book = Books.installed().getBook(bookStr)
@@ -500,7 +497,7 @@ class GeneralSpeakTextProvider(
     }
 
     override fun clearPersistedState() {
-        CommonUtils.settings.apply {
+        appSettings.apply {
             removeString(PERSIST_BOOK)
             removeString(PERSIST_KEY)
         }

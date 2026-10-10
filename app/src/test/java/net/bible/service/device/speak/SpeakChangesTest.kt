@@ -76,7 +76,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
 
     @Test
     fun bibleStartUtteranceEmitsTitleAndTextWithTheirVerseRanges() {
-        val provider = BibleSpeakTextProvider(BibleTraverser(DocumentBibleBooksFactory()), bookmarkControl, book)
+        val provider = BibleSpeakTextProvider(BibleTraverser(DocumentBibleBooksFactory()), bookmarkControl, book, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get())
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakTitles = true))
         provider.setupReading(book, verse("Rom.1.1"))
         watch()
@@ -101,7 +101,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         val dictionary = requireNotNull(Books.installed().getBook("StrongsGreek"))
         val key = dictionary.getKey("00001")
         val ordinal = SwordContentFacade.ordinalRangeFor(dictionary, key).first
-        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary)
+        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get())
         provider.setupReading(BookAndKey(key, dictionary, OrdinalRange(ordinal, ordinal)))
         val (id, command) = nextText(provider, "general")
         assertEquals(TextCommand.TextType.NORMAL, command.type)
@@ -122,7 +122,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     @Test
     fun legacyStartUtteranceEmitsCurrentTextThenBookTitleForTheSelectedKey() {
         val key = book.getKey("Rom.1.1")
-        val provider = LegacySpeakTextProvider()
+        val provider = LegacySpeakTextProvider(net.bible.test.testAppSettings())
         provider.setupReading(book, listOf(key))
         val (id, command) = nextText(provider, "legacy")
         watch()

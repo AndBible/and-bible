@@ -16,7 +16,7 @@
  */
 package net.bible.service.device.speak
 
-import net.bible.service.common.CommonUtils.settings
+import net.bible.sharedcore.platform.AppSettings
 import java.util.*
 
 /** maintain a list of languages that are knwn to be supported by the installed TTS engine
@@ -24,7 +24,7 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class TTSLanguageSupport {
+class TTSLanguageSupport(private val settings: AppSettings) {
     fun addSupportedLocale(locale: Locale) {
         if (!isLangKnownToBeSupported(locale.language)) {
             val langCode = locale.language

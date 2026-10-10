@@ -20,7 +20,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.database.bookmarks.SpeakSettings.RewindAmount
 import net.bible.service.common.AndRuntimeException
-import net.bible.service.common.CommonUtils.settings
+import net.bible.sharedcore.platform.AppSettings
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.service.sword.SwordContentFacade.getTextToSpeak
@@ -34,7 +34,7 @@ import java.util.regex.Pattern
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class LegacySpeakTextProvider : SpeakTextProvider {
+class LegacySpeakTextProvider(private val settings: AppSettings) : SpeakTextProvider {
     private var mTextToSpeak: MutableList<String?>? = ArrayList()
     private var nextTextToSpeak: Long = 0
 

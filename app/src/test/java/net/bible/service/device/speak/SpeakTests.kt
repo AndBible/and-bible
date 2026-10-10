@@ -506,7 +506,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings)
         provider.setupReading(book, getVerse("Exod.31.8"))
         val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
         assertThat(cmd.text, startsWith("pöydän varusteineen"))
@@ -550,7 +550,7 @@ class TestPersistence : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings)
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
@@ -585,7 +585,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings)
         runBlocking { bookmarkControl.speakLabel() }
         advancedSpeakSettings.autoBookmark = true
     }
@@ -896,7 +896,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings)
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 

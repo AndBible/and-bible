@@ -96,7 +96,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
 
     private fun configureFreshControl() {
         loadKoinModules(module {
-            single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get()) }
+            single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get(), get()) }
         })
         // App/settings initialization can resolve the original control's lazy manager before
         // test overrides. A fresh control guarantees that playback uses the fake manager.
