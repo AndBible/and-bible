@@ -18,7 +18,6 @@
 package net.bible.sharedui.reading
 
 import net.bible.sharedui.theme.isPureMonochrome
-import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.monoBorder
 import net.bible.sharedui.theme.monoPaper
 import net.bible.sharedui.theme.monoInk
@@ -121,7 +120,9 @@ private val PinIconSize = 9.5.dp
 private val BorderWidth = 1.dp
 private val MinimisedBorderWidth = 1.5.dp
 private const val MinimisedAlpha = 0.62f
-private val DashPattern = floatArrayOf(4f, 3f)
+/** Minimised outline dash/gap in dp, so they stay legible on high-density e-ink. */
+private val MinimisedDashOn = 4.dp
+private val MinimisedDashOff = 3.dp
 
 /** Classic rail `buttonText` size, set at runtime in `WindowButtonWidget.kt:127`. */
 private val RailLabelSize = 13.sp
@@ -161,11 +162,11 @@ private val RailBadgeRowHeight = BadgeIconSize + BadgeInset
  * - [isActive] → [androidx.compose.material3.ColorScheme.primaryContainer] fill (classic
  *   `*_active` drawable); inactive → [androidx.compose.material3.ColorScheme.surfaceVariant]
  *   (classic base drawable).
- * - [isMinimised] → the whole button is drawn at [MinimisedAlpha] (~0.62) alpha plus a dashed
- *   outline in [androidx.compose.material3.ColorScheme.outline] — signalling "known window, not
- *   currently shown", distinct from a merely-inactive button. There's no 1:1 classic analogue (the
- *   classic widget has no such "minimised" concept); this look was chosen for the new Compose split
- *   to read as "temporarily set aside" rather than plain "not selected".
+ * - [isMinimised] → a dp-sized dashed outline signals "known window, not currently shown".
+ *   MONOCHROME keeps full ink content and ink dashes without fading, like classic's pure black/white
+ *   monochrome palette. Other modes draw the whole button at [MinimisedAlpha] (~0.62) alpha with
+ *   [androidx.compose.material3.ColorScheme.outline] dashes, to read as "temporarily set aside"
+ *   rather than plain "not selected".
  * - [isPinned] → **Pane mode only** (`WindowButtonMode.Pane`): classic's `pinMode` `ic_pin` glyph,
  *   start edge under the sync badge — `window_button.xml:97-107`
  *   `Top_toBottomOf="@id/synchronize"`, matching classic's `pinMode.visibility` requiring
@@ -214,13 +215,13 @@ fun WindowButton(
     val colors = MaterialTheme.colorScheme
     val dark = LocalIsDarkTheme.current
     val containerColor = if (mono) monoPaper(dark) else if (isActive) colors.primaryContainer else colors.surfaceVariant
+    // MONO keeps minimised content and dashes in ink: disabled grey reads as blur on e-ink.
     val contentColor = when {
-        mono && isMinimised -> LocalAbColors.current.monoDisabled
         mono -> monoInk(dark)
         isActive -> colors.onPrimaryContainer
         else -> colors.onSurfaceVariant
     }
-    val outlineColor = if (mono && isMinimised) LocalAbColors.current.monoDisabled else colors.outline
+    val outlineColor = if (mono) monoInk(dark) else colors.outline
     val cornerShape = RoundedCornerShape(WindowButtonCorner)
 
     Box(
@@ -238,7 +239,9 @@ fun WindowButton(
                             cornerRadius = CornerRadius(WindowButtonCorner.toPx(), WindowButtonCorner.toPx()),
                             style = Stroke(
                                 width = MinimisedBorderWidth.toPx(),
-                                pathEffect = PathEffect.dashPathEffect(DashPattern),
+                                pathEffect = PathEffect.dashPathEffect(
+                                    floatArrayOf(MinimisedDashOn.toPx(), MinimisedDashOff.toPx()),
+                                ),
                             ),
                         )
                     }
