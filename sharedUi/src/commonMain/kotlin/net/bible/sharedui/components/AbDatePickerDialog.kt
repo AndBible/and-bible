@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import net.bible.sharedui.theme.LocalAbColors
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -126,8 +128,10 @@ fun AbDatePickerDialog(
     onDismiss: () -> Unit,
 ) {
     val mono = isPureMonochrome()
-    val selectableDates = remember(maxUtcMillis) {
+    val selectableDates = remember(maxUtcMillis, mono) {
         object : SelectableDates {
+            override fun isSelectableYear(year: Int): Boolean =
+                !mono || year <= utcMidnightMillisToYmd(maxUtcMillis).first
             override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= maxUtcMillis
         }
     }
@@ -149,7 +153,24 @@ fun AbDatePickerDialog(
                 tonalElevation = if (mono) 0.dp else AlertDialogDefaults.TonalElevation,
             ) {
                 Column {
-                    DatePicker(state = state, modifier = Modifier.weight(1f, fill = false))
+                    val ink = MaterialTheme.colorScheme.onSurface
+                    val paper = MaterialTheme.colorScheme.surface
+                    val disabled = LocalAbColors.current.monoDisabled
+                    DatePicker(
+                        state = state, modifier = Modifier.weight(1f, fill = false),
+                        colors = if (mono) DatePickerDefaults.colors(
+                            disabledDayContentColor = disabled,
+                            disabledYearContentColor = disabled,
+                            selectedDayContentColor = paper,
+                            selectedDayContainerColor = ink,
+                            selectedYearContentColor = paper,
+                            selectedYearContainerColor = ink,
+                            disabledSelectedDayContentColor = disabled,
+                            disabledSelectedDayContainerColor = paper,
+                            disabledSelectedYearContentColor = disabled,
+                            disabledSelectedYearContainerColor = paper,
+                        ) else DatePickerDefaults.colors(),
+                    )
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(end = 8.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.End,

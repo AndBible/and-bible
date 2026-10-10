@@ -33,6 +33,21 @@ class TextInputMonochromeBehaviorTest {
     @Test fun lightSelectionKeepsGlyphsAndReplacesInitialText() = selection(false)
     @Test fun darkSelectionKeepsGlyphsAndReplacesInitialText() = selection(true)
 
+    @Test fun lightPasswordRetainsProtectedSemantics() = password(false)
+    @Test fun darkPasswordRetainsProtectedSemantics() = password(true)
+
+    private fun password(dark: Boolean) {
+        compose.setContent {
+            AbTheme(darkTheme = dark, colorMode = DisplayColorMode.MONOCHROME) {
+                AbTextInputContent(initial = "secret", masked = true, onValueChange = {})
+            }
+        }
+        val node = compose.onNode(androidx.compose.ui.test.hasSetTextAction()).fetchSemanticsNode()
+        assertTrue("masked input must expose Password semantics", node.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Password))
+        assertTrue("password must not offer Copy", !node.config.contains(androidx.compose.ui.semantics.SemanticsActions.CopyText))
+        assertTrue("password must not offer Cut", !node.config.contains(androidx.compose.ui.semantics.SemanticsActions.CutText))
+    }
+
     private fun selection(dark: Boolean) {
         var density = 1f
         var changed = ""

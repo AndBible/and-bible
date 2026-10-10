@@ -41,6 +41,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.window.DialogProperties
+import net.bible.sharedui.theme.LocalAbColors
 import net.bible.sharedui.theme.isPureMonochrome
 
 /** Owns the working text; [onValueChange] reports every keystroke so a sheet host can enable its
@@ -65,11 +66,10 @@ fun AbTextInputContent(
     val mono = isPureMonochrome()
     val ink = MaterialTheme.colorScheme.onSurface
     val paper = MaterialTheme.colorScheme.surface
-    val transformation = if (masked) PasswordVisualTransformation() else VisualTransformation.None
-    // M3's translucent selection cannot survive e-ink. Invert only the selected glyphs,
-    // retaining the original selection and the password transformation's offset mapping.
+    // Invert selected plain-text glyphs without changing the original selection.
+    // Masked inputs must retain PasswordVisualTransformation itself (see below).
     val monoTransformation = VisualTransformation { text ->
-        val transformed = transformation.filter(text)
+        val transformed = VisualTransformation.None.filter(text)
         val selection = value.selection
         val start = transformed.offsetMapping.originalToTransformed(selection.min)
         val end = transformed.offsetMapping.originalToTransformed(selection.max)
@@ -87,9 +87,14 @@ fun AbTextInputContent(
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = if (mono) OutlinedTextFieldDefaults.colors(
-                selectionColors = TextSelectionColors(handleColor = ink, backgroundColor = ink),
+                selectionColors = TextSelectionColors(
+                    handleColor = ink,
+                    // Keep the concrete password transformation: Compose uses its type to block
+                    // Copy/Cut and expose Password semantics. Grey selection keeps masked glyphs readable.
+                    backgroundColor = if (masked) LocalAbColors.current.monoDisabled else ink,
+                ),
             ) else OutlinedTextFieldDefaults.colors(),
-            visualTransformation = if (mono) monoTransformation else if (masked) {
+            visualTransformation = if (mono && !masked) monoTransformation else if (masked) {
                 PasswordVisualTransformation()
             } else {
                 VisualTransformation.None
