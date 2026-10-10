@@ -77,3 +77,21 @@ duplicate older ones. Stage fixes as a batch.
 - A journal is a completion log, not an exactly-once transaction. If a remote write may have succeeded but its journal entry is missing, stop and manually inspect the live GitHub state before any retry; blind reruns can duplicate comments or issues. Use one host operator and preserve reviewed batches.
 - Candidate enrichment must include Priority P1 or P2 and Size as well as the enriched body; do not mark a candidate ready if any are missing.
 - Container tests use fakes and cannot establish that the real GitHub API preserves board selections. Do not interpret a green test suite or the current expected smoke failure as migration approval.
+
+
+## Staging safety contracts
+
+- Taxonomy deletion checks complete live label membership immediately before the
+  host write. Merge sources must be empty after transfer; retired labels must match
+  the reviewed snapshotted members. Added open/closed issue or PR associations
+  block deletion and require restaging. Legacy deletion defaults to empty members.
+- Decision staging validates the actual exported board SINGLE_SELECT fields and
+  option names, including unchanged requested values. Desired migration YAML is
+  not evidence the blocked migration has happened. Missing/incompatible exports
+  refuse staging before any content batch is emitted.
+- `reimplement` must hand off to an enriched P1/P2 candidate with size. `carry_to`
+  requires that target's candidate decision in the same batch, containing the
+  source PR URL; new_issue requires that URL and the verbatim PR description in
+  its original-description details block. PR closure depends on completion of
+  target enrichment and board setup, not just issue creation. No already-candidate
+  shortcut is implemented. Reconcile partial new-issue creation after board failure.
