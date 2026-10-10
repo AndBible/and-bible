@@ -33,8 +33,10 @@ import net.bible.sharedcore.download.CustomRepositoryData
 import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.download.ManifestResult
 import org.crosswire.jsword.book.install.InstallManager
-import org.json.JSONException
-import org.json.JSONObject
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -126,14 +128,16 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher = JvmMani
     private fun readManifest(jsonString: String, existingId: Long): CustomRepository? {
         Log.i(TAG, "readManifest")
         val json = try {
-            JSONObject(jsonString)
-        } catch (e: JSONException) {
+            Json.parseToJsonElement(jsonString)
+        } catch (e: SerializationException) {
             Log.e(TAG, "Error in parsing JSON", e)
+            return null
+        } catch (e: IllegalArgumentException) {
             return null
         }
         var repo: CustomRepository? = null
 
-        val type = try { json.getString("type") } catch (e: JSONException) { null }
+        val type = ((json as? JsonObject)?.get("type") as? JsonPrimitive)?.contentOrNull
 
         if (type == "sword-https") {
             repo = CustomRepository.fromJson(jsonString) ?: return null
