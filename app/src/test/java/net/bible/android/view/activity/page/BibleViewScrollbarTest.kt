@@ -2,7 +2,6 @@ package net.bible.android.view.activity.page
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.webkit.WebView
@@ -23,7 +22,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.lang.ref.WeakReference
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [23, 28, 29, 35])
+@Config(application = TestBibleApplication::class, sdk = [23, 28, 29, 32, 35])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class BibleViewScrollbarTest {
     private fun view(): BibleView {
@@ -54,18 +53,6 @@ class BibleViewScrollbarTest {
         return bar.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(bar) as Drawable?
     }
 
-    private fun pixels(drawable: Drawable?): IntArray {
-        val bitmap = Bitmap.createBitmap(16, 64, Bitmap.Config.ARGB_8888)
-        drawable?.setBounds(0, 0, 16, 64)
-        drawable?.draw(Canvas(bitmap))
-        return IntArray(16 * 64).also {
-            bitmap.getPixels(it, 0, 16, 0, 0, 16, 64)
-            bitmap.recycle()
-        }
-    }
-
-    private fun pixel(drawable: Drawable): Int = pixels(drawable)[32 * 16 + 8]
-
     private inline fun withView(block: (BibleView) -> Unit) {
         val settings = CommonUtils.settings
         val mode = settings.getString("display_color_mode", null)
@@ -87,85 +74,58 @@ class BibleViewScrollbarTest {
         }
     }
 
-    @Test fun constructorMonoAndWithinMonoNightChangePreserveCustomFlagsOnExit() = withView { normal ->
-        normal.isVerticalScrollBarEnabled = false
-        normal.isHorizontalScrollBarEnabled = true
-        normal.isScrollbarFadingEnabled = false
-        CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
-        var constructed: BibleView? = null
-        try {
-            constructed = view()
-            if (android.os.Build.VERSION.SDK_INT >= 29) {
-                assertEquals(Color.BLACK, pixel(part(constructed, "mVerticalThumb")!!))
-                assertEquals(Color.WHITE, pixel(part(constructed, "mVerticalTrack")!!))
-                assertEquals(Color.BLACK, pixel(part(constructed, "mHorizontalThumb")!!))
-                assertEquals(Color.WHITE, pixel(part(constructed, "mHorizontalTrack")!!))
-                assertFalse(constructed.isScrollbarFadingEnabled)
-            } else {
-                assertFalse(constructed.isVerticalScrollBarEnabled)
-                assertFalse(constructed.isHorizontalScrollBarEnabled)
-            }
-            val monoView = requireNotNull(constructed)
-            for (dark in listOf(false, true)) {
+    @Test fun monoHidesBothBarsAndRestoresOriginalStateInEveryOtherMode() = withView { view ->
+        val names = listOf("mVerticalThumb", "mVerticalTrack", "mHorizontalThumb", "mHorizontalTrack")
+        val originals = names.associateWith { part(view, it) }
+        for (vertical in listOf(false, true)) for (horizontal in listOf(false, true)) {
+            for (fading in listOf(false, true)) for (dark in listOf(false, true)) {
                 CommonUtils.realSharedPreferences.edit().putBoolean("night_mode_pref", dark).commit()
-                normal.updateBackgroundColor()
-                monoView.updateBackgroundColor()
-                for (candidate in listOf(normal, monoView)) {
-                    if (android.os.Build.VERSION.SDK_INT >= 29) {
-                        assertEquals(if (dark) Color.WHITE else Color.BLACK, pixel(part(candidate, "mVerticalThumb")!!))
-                        assertEquals(if (dark) Color.BLACK else Color.WHITE, pixel(part(candidate, "mVerticalTrack")!!))
-                    } else {
-                        assertFalse(candidate.isVerticalScrollBarEnabled)
-                        assertFalse(candidate.isHorizontalScrollBarEnabled)
-                    }
+                view.isVerticalScrollBarEnabled = vertical
+                view.isHorizontalScrollBarEnabled = horizontal
+                view.isScrollbarFadingEnabled = fading
+                val geometry = listOf(view.scrollBarSize, view.scrollBarStyle,
+                    view.scrollBarFadeDuration, view.scrollBarDefaultDelayBeforeFade)
+                for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
+                    CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
+                    view.updateBackgroundColor()
+                    // Repeated refreshes must not snapshot the already-hidden flags.
+                    view.updateBackgroundColor()
+                    assertFalse("MONO vertical on API ${android.os.Build.VERSION.SDK_INT}", view.isVerticalScrollBarEnabled)
+                    assertFalse("MONO horizontal on API ${android.os.Build.VERSION.SDK_INT}", view.isHorizontalScrollBarEnabled)
+                    assertEquals("MONO does not force persistent painting", fading, view.isScrollbarFadingEnabled)
+                    for (name in names) assertSame("Drawable untouched in MONO: $name", originals[name], part(view, name))
+                    CommonUtils.settings.setString("display_color_mode", mode.value)
+                    view.updateBackgroundColor()
+                    assertEquals(vertical, view.isVerticalScrollBarEnabled)
+                    assertEquals(horizontal, view.isHorizontalScrollBarEnabled)
+                    assertEquals(fading, view.isScrollbarFadingEnabled)
+                    assertEquals(geometry, listOf(view.scrollBarSize, view.scrollBarStyle,
+                        view.scrollBarFadeDuration, view.scrollBarDefaultDelayBeforeFade))
+                    for (name in names) assertSame("Original object in $mode: $name", originals[name], part(view, name))
                 }
             }
-            CommonUtils.settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
-            normal.updateBackgroundColor()
-            assertFalse(normal.isVerticalScrollBarEnabled)
-            assertTrue(normal.isHorizontalScrollBarEnabled)
-            assertFalse(normal.isScrollbarFadingEnabled)
-        } finally { constructed?.window?.destroy(destroyView = false) }
-    }
-
-    @Test @Config(sdk = [29, 35])
-    fun nullTracksKeepEffectiveThumbDimensionsInMono() = withView { view ->
-        fun sized(width: Int, height: Int) = object : android.graphics.drawable.ColorDrawable(Color.RED) {
-            override fun getIntrinsicWidth() = width
-            override fun getIntrinsicHeight() = height
         }
-        view.scrollBarSize = 4
-        view.verticalScrollbarThumbDrawable = sized(13, 17)
-        view.horizontalScrollbarThumbDrawable = sized(19, 11)
-        view.verticalScrollbarTrackDrawable = null
-        view.horizontalScrollbarTrackDrawable = null
-        val height = View::class.java.getDeclaredMethod("getHorizontalScrollbarHeight").apply { isAccessible = true }
-        assertEquals(13, view.verticalScrollbarWidth)
-        assertEquals(11, height.invoke(view))
-        CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
-        view.updateBackgroundColor()
-        assertEquals(13, view.verticalScrollbarWidth)
-        assertEquals(11, height.invoke(view))
-        CommonUtils.settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
-        view.updateBackgroundColor()
-        assertEquals(13, view.verticalScrollbarWidth)
-        assertEquals(11, height.invoke(view))
-        assertNull(view.verticalScrollbarTrackDrawable)
-        assertNull(view.horizontalScrollbarTrackDrawable)
-        // A PRESENT track with non-positive dimensions selects the configured fallback,
-        // not the thumb's positive dimensions.
-        view.verticalScrollbarTrackDrawable = sized(-1, -1)
-        view.horizontalScrollbarTrackDrawable = sized(-1, -1)
-        assertEquals(4, view.verticalScrollbarWidth)
-        assertEquals(4, height.invoke(view))
-        CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
-        view.updateBackgroundColor()
-        assertEquals(4, view.verticalScrollbarWidth)
-        assertEquals(4, height.invoke(view))
     }
 
-    @Test @Config(sdk = [29, 35])
-    fun queuedNativeFadeCannotGrayOrHideMonoScrollbar() = withView { view ->
+    @Test fun constructorInMonoHidesBothBarsThroughNightChanges() = withView { normal ->
+        CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
+        val mono = view()
+        try {
+            for (dark in listOf(false, true)) {
+                CommonUtils.realSharedPreferences.edit().putBoolean("night_mode_pref", dark).commit()
+                mono.updateBackgroundColor()
+                assertFalse(mono.isVerticalScrollBarEnabled)
+                assertFalse(mono.isHorizontalScrollBarEnabled)
+            }
+            CommonUtils.settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
+            mono.updateBackgroundColor()
+            assertEquals(normal.isVerticalScrollBarEnabled, mono.isVerticalScrollBarEnabled)
+            assertEquals(normal.isHorizontalScrollBarEnabled, mono.isHorizontalScrollBarEnabled)
+            assertEquals(normal.isScrollbarFadingEnabled, mono.isScrollbarFadingEnabled)
+        } finally { mono.window.destroy(destroyView = false) }
+    }
+    @Test @Config(sdk = [29, 32, 35])
+    fun queuedNativeFadeCannotPaintHiddenMonoScrollbar() = withView { view ->
         var activity: android.app.Activity? = null
         var providerField: java.lang.reflect.Field? = null
         var provider: Any? = null
@@ -190,16 +150,19 @@ class BibleViewScrollbarTest {
                     "computeVerticalScrollRange" -> 1000
                     "computeVerticalScrollExtent" -> 100
                     "computeVerticalScrollOffset" -> 200
+                    "computeHorizontalScrollRange" -> 1000
+                    "computeHorizontalScrollExtent" -> 100
+                    "computeHorizontalScrollOffset" -> 200
                     else -> method.invoke(originalScroll, *(args ?: emptyArray()))
                 }
             }
             val viewType = Class.forName("android.webkit.WebViewProvider\$ViewDelegate")
             val originalView = providerType.getMethod("getViewDelegate").invoke(provider)
             val viewDelegate = java.lang.reflect.Proxy.newProxyInstance(viewType.classLoader, arrayOf(viewType)) { _, method, args ->
-                if (method.name == "onDrawVerticalScrollBar") {
+                if (method.name == "onDrawVerticalScrollBar" || method.name == "onDrawHorizontalScrollBar") {
                     // The fake provider normally swallows this callback. Real WebView providers
                     // forward to View via PrivateAccess; make that identical super call here.
-                    org.robolectric.shadow.api.Shadow.directlyOn<Any?, View>(view, View::class.java, "onDrawVerticalScrollBar",
+                    org.robolectric.shadow.api.Shadow.directlyOn<Any?, View>(view, View::class.java, method.name,
                         org.robolectric.util.ReflectionHelpers.ClassParameter.from(Canvas::class.java, args!![0]),
                         org.robolectric.util.ReflectionHelpers.ClassParameter.from(Drawable::class.java, args[1]),
                         *args.drop(2).map { org.robolectric.util.ReflectionHelpers.ClassParameter.from(Int::class.javaPrimitiveType, it) }.toTypedArray())
@@ -215,6 +178,8 @@ class BibleViewScrollbarTest {
             val cache = View::class.java.getDeclaredField("mScrollCache").apply { isAccessible = true }.get(view)
             val state = cache.javaClass.getDeclaredField("state").apply { isAccessible = true }
             val awaken = View::class.java.getDeclaredMethod("awakenScrollBars", Int::class.javaPrimitiveType, Boolean::class.javaPrimitiveType).apply { isAccessible = true }
+            view.isVerticalScrollBarEnabled = true
+            view.isHorizontalScrollBarEnabled = true
             view.scrollBarDefaultDelayBeforeFade = 20
             view.scrollBarFadeDuration = 40
             for (alreadyFading in listOf(false, true)) {
@@ -236,15 +201,17 @@ class BibleViewScrollbarTest {
                     org.robolectric.shadow.api.Shadow.directlyOn<Any?, View>(view, View::class.java, "draw",
                         org.robolectric.util.ReflectionHelpers.ClassParameter.from(Canvas::class.java, Canvas(bitmap)))
                     try {
-                        assertEquals("Native thumb remains ink after queued fade", Color.BLACK, bitmap.getPixel(98, 24))
-                        assertEquals("Native track remains paper", Color.WHITE, bitmap.getPixel(98, 80))
-                        assertEquals("Native cache visible after draw", 1, state.getInt(cache))
+                        assertFalse(view.isVerticalScrollBarEnabled)
+                        assertFalse(view.isHorizontalScrollBarEnabled)
+                        // A provider with both scroll ranges overflowing still cannot paint bars.
+                        // Read actual native View foreground, including a previously queued fade.
+                        for (y in 0 until 100) for (x in 96 until 100) {
+                            assertEquals("No vertical native paint ($x,$y)", 0, bitmap.getPixel(x, y))
+                        }
+                        for (y in 96 until 100) for (x in 0 until 100) {
+                            assertEquals("No horizontal native paint ($x,$y)", 0, bitmap.getPixel(x, y))
+                        }
                     } finally { bitmap.recycle() }
-                }
-                for (name in listOf("mVerticalThumb", "mVerticalTrack", "mHorizontalThumb", "mHorizontalTrack")) {
-                    val drawable = part(view, name)!!
-                    drawable.alpha = 75
-                    assertEquals("Mono part rejects fractional alpha", 255, drawable.alpha)
                 }
             }
         } finally {
@@ -260,67 +227,4 @@ class BibleViewScrollbarTest {
         }
     }
 
-    @Test fun nativeThumbAndTrackUseInkAndPaperAndRestoreOriginals() {
-        val prefs = CommonUtils.realSharedPreferences
-        val savedMode = CommonUtils.settings.getString("display_color_mode", null)
-        val savedNight = prefs.getBoolean("night_mode_pref", false)
-        try {
-            CommonUtils.settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
-            val view = view()
-            // Restore window event subscriptions even if a palette assertion fails.
-            try {
-                val names = listOf("mVerticalThumb", "mVerticalTrack", "mHorizontalThumb", "mHorizontalTrack")
-                val legacy = WebView(RuntimeEnvironment.getApplication())
-                val originals = names.associateWith { part(legacy, it) }
-                val actualOriginals = names.associateWith { part(view, it) }
-                for (name in names) assertArrayEquals("Initial legacy $name", pixels(originals[name]), pixels(actualOriginals[name]))
-                assertEquals(legacy.verticalScrollbarWidth, view.verticalScrollbarWidth)
-                val geometry = listOf(view.scrollBarSize, view.scrollBarStyle, view.scrollBarFadeDuration,
-                    view.scrollBarDefaultDelayBeforeFade, view.verticalScrollbarPosition)
-                for (dark in listOf(false, true)) {
-                    prefs.edit().putBoolean("night_mode_pref", dark).commit()
-                    CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
-                    view.updateBackgroundColor()
-                    if (android.os.Build.VERSION.SDK_INT >= 29) {
-                        assertFalse(view.isScrollbarFadingEnabled)
-                        for (name in names) {
-                            val expected = if (name.endsWith("Thumb") != dark) Color.BLACK else Color.WHITE
-                            assertEquals("$name dark=$dark", expected, pixel(part(view, name)!!))
-                        }
-                    } else {
-                        assertFalse(view.isVerticalScrollBarEnabled)
-                        assertFalse(view.isHorizontalScrollBarEnabled)
-                    }
-                    assertEquals(geometry, listOf(view.scrollBarSize, view.scrollBarStyle, view.scrollBarFadeDuration,
-                        view.scrollBarDefaultDelayBeforeFade, view.verticalScrollbarPosition))
-                    for (mode in listOf(DisplayColorMode.NORMAL, DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
-                        // Re-enter MONO before EACH legacy mode, not just the first one.
-                        CommonUtils.settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
-                        view.updateBackgroundColor()
-                        CommonUtils.settings.setString("display_color_mode", mode.value)
-                        view.updateBackgroundColor()
-                        assertEquals(legacy.isScrollbarFadingEnabled, view.isScrollbarFadingEnabled)
-                        assertEquals(legacy.isVerticalScrollBarEnabled, view.isVerticalScrollBarEnabled)
-                        assertEquals(legacy.isHorizontalScrollBarEnabled, view.isHorizontalScrollBarEnabled)
-                        for (name in names) {
-                            val baseline = originals[name]
-                            val actual = part(view, name)
-                            assertSame("Original object restored $name", actualOriginals[name], actual)
-                            if (actual == null) assertNull(baseline)
-                            else {
-                                assertArrayEquals("Restored $name in $mode", pixels(baseline), pixels(actual))
-                                assertEquals(baseline?.intrinsicWidth ?: -1, actual.intrinsicWidth)
-                                assertEquals(baseline?.intrinsicHeight ?: -1, actual.intrinsicHeight)
-                            }
-                        }
-                    }
-                }
-            } finally {
-                view.window.destroy(destroyView = false)
-            }
-        } finally {
-            CommonUtils.settings.setString("display_color_mode", savedMode)
-            prefs.edit().putBoolean("night_mode_pref", savedNight).commit()
-        }
-    }
 }
