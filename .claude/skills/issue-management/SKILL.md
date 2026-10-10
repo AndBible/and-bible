@@ -7,7 +7,9 @@ description: Use for AndBible issue and project-board work — triaging new issu
 
 Maintainer-only: if `docs/superpowers/tools/triage/` does not exist, stop and say so.
 
-The tracker is `AndBible/and-bible`; the board is org project #5 ("Tuomas' project board"). Design:
+The tracker is `AndBible/and-bible`; the board is the triage org project named by `target_project` in
+`docs/superpowers/triage/board-migration.yaml`; #5 ("Tuomas' project board") is the
+read-only archive, closed after the new board is verified and configured. Design:
 `docs/superpowers/specs/2026-10-10-issue-triage-and-project-board-design.md`. Tools:
 `docs/superpowers/tools/triage/` (operation reference: `batch_schema.md`). Data: `docs/superpowers/triage/`.
 
@@ -18,8 +20,13 @@ The tracker is `AndBible/and-bible`; the board is org project #5 ("Tuomas' proje
 - Priority lives only on the board (Priority field). Never add `Prio:` labels.
 - Labels must be in `triage/taxonomy.yaml`. Never delete a label named by any file under `.github/`.
 - GitHub text is English, short and specific; comments end with `_— issue triage, Oct 2026_` as the final line.
-- Board migration is BLOCKED. Do not run `smoke_board.py` or any migration until there is a separately supported, host-validated strategy for preserving selected values during option replacement. The current GraphQL option input has no `id`; the current smoke test is expected to fail at widening, and that failure does not mean the migration is ready. See the "Unsupported populated-field replacement" section in `docs/superpowers/tools/triage/batch_schema.md` for the implemented guard and operator constraints.
-- The board export needs the Projects permission. If the container token lacks it, ask the maintainer to run `python3 docs/superpowers/tools/triage/github.py board-export > docs/superpowers/triage/snapshot/board.json` on the host.
+- Never write to project #5 (validation refuses it). Board batches name their `project`.
+- The board export needs the Projects permission. If the container token lacks it, ask the maintainer to run `python3 docs/superpowers/tools/triage/github.py board-export --project <target_project> > docs/superpowers/triage/snapshot/board.json` on the host.
+
+For the initial new-board migration, follow Part 2 O2/O5/O6 of the implementation runbook:
+`stage.py board-migration --out batches/002-new-board.json`, then verify the host-applied
+batch against a fresh target export with `stage.py board-verify --batch batches/002-new-board.json`.
+The maintainer sets `target_project` before staging; never guess the project number.
 
 ## Board model
 
@@ -76,7 +83,6 @@ duplicate older ones. Stage fixes as a batch.
 
 - A journal is a completion log, not an exactly-once transaction. If a remote write may have succeeded but its journal entry is missing, stop and manually inspect the live GitHub state before any retry; blind reruns can duplicate comments or issues. Use one host operator and preserve reviewed batches.
 - Candidate enrichment must include Priority P1 or P2 and Size as well as the enriched body; do not mark a candidate ready if any are missing.
-- Container tests use fakes and cannot establish that the real GitHub API preserves board selections. Do not interpret a green test suite or the current expected smoke failure as migration approval.
 
 
 ## Staging safety contracts
@@ -87,7 +93,7 @@ duplicate older ones. Stage fixes as a batch.
   block deletion and require restaging. Legacy deletion defaults to empty members.
 - Decision staging validates the actual exported board SINGLE_SELECT fields and
   option names, including unchanged requested values. Desired migration YAML is
-  not evidence the blocked migration has happened. Missing/incompatible exports
+  not evidence the new-board migration has happened. Missing/incompatible exports
   refuse staging before any content batch is emitted.
 - `reimplement` must hand off to an enriched P1/P2 candidate with size. `carry_to`
   requires that target's candidate decision in the same batch, containing the
