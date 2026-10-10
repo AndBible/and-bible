@@ -140,7 +140,7 @@ class TextToSpeechServiceManager constructor(
             advanced = advanced,
             launcher = launcher,
         )
-        generalSpeakTextProvider = GeneralSpeakTextProvider(fakeBookFactory = org.koin.java.KoinJavaComponent.get(net.bible.service.download.FakeBookFactory::class.java), 
+        generalSpeakTextProvider = GeneralSpeakTextProvider(fakeBookFactory = speakControl.fakeBookFactory,
             bookmarkControl = bookmarkControl,
             initialBook = book,
             platform = platform,

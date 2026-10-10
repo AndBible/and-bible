@@ -69,7 +69,7 @@ class SpeakControl constructor(
     private val appScope: AppCoroutineScope,
     private val advancedSpeakSettings: AdvancedSpeakSettings,
     private val launcher: OrderedLauncher,
-    private val fakeBookFactory: net.bible.service.download.FakeBookFactory,
+    internal val fakeBookFactory: net.bible.service.download.FakeBookFactory,
 ) : KoinComponent {
 
     val bookmarkControl: BookmarkControl by inject()
