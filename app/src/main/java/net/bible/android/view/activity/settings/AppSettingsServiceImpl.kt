@@ -26,6 +26,8 @@ import net.bible.android.activity.R
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.common.THEME_PALETTE_STYLE_KEY
+import net.bible.service.common.ThemePaletteStyle
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.settings.AppSettingsSnapshot
@@ -204,6 +206,7 @@ class AppSettingsServiceImpl(
             disableTwoStepBookmarking = readBool("disable_two_step_bookmarking", false),
             volumeKeysScroll = readBool("volume_keys_scroll", true),
             nightMode = readString("night_mode_pref3", "system"),
+            themePaletteStyle = readString(THEME_PALETTE_STYLE_KEY, ThemePaletteStyle.DEFAULT.value),
             // Display
             locale = readString("locale_pref", ""),
             disableClickToEdit = readBool("disable_click_to_edit", false),
@@ -245,6 +248,7 @@ class AppSettingsServiceImpl(
                 R.array.prefs_bible_view_swipe_mode_descriptions, R.array.prefs_bible_view_swipe_mode_values
             ),
             nightModeChoices = nightModeChoices(),
+            themePaletteStyleChoices = choicesFrom(R.array.prefs_theme_palette_style_names, R.array.prefs_theme_palette_style_values),
             localeChoices = choicesFrom(R.array.prefs_interface_locale_descriptions, R.array.prefs_interface_locale_values),
             notesContentTypeChoices = choicesFrom(R.array.prefs_notes_content_type_entries, R.array.prefs_notes_content_type_values),
             displayColorModeChoices = choicesFrom(R.array.prefs_display_color_mode_names, R.array.prefs_display_color_mode_values),

@@ -41,8 +41,8 @@ import org.robolectric.annotation.GraphicsMode
  * ([ToolbarState.deriveToolbarFromTheme], Task 4).
  *
  * [GoldenHarness]'s own `capture()` (used by [captureGolden]/[captureMatrix]) always wraps its
- * content in an UNSEEDED `AbTheme` (`seedArgb` defaults to `null`) — exactly why every existing
- * golden in this module stays byte-identical to before batch 4b. These tests therefore nest
+ * content in an `AbTheme` with `seedArgb = null`, which renders the default #444444 Fidelity
+ * theme in NORMAL mode, exactly as the app does. These tests therefore nest
  * their OWN `AbTheme(seedArgb = ...)` inside the `content` lambda passed to [captureGolden]; the
  * inner `AbTheme` simply supersedes the harness's outer (unseeded) one for everything inside it,
  * the same way a real host (`AbAppTheme`) supersedes it in the running app.
@@ -171,9 +171,9 @@ class WorkspaceThemeGoldenTest {
     // --- Derived toolbar with NO workspace colour at all (follow-up: derived became the default, --
     // --- 2026-08-01 commit 6aedac195) -------------------------------------------------------------
 
-    // No seedArgb (AbTheme falls back to the stock M3 scheme) AND no workspaceColorArgb -- the case
-    // the maintainer wants rendered pixels for: does the bar come out a light purple (the baseline
-    // M3 palette's primaryContainer) rather than a flat grey/black? Same base toolbarState as
+    // No seedArgb (AbTheme renders the default #444444 Fidelity theme) AND no workspaceColorArgb.
+    // The derived bar uses the default grey primaryContainer rather than the old stock lilac.
+    // Same base toolbarState as
     // toolbar_derived/toolbar_literal (only workspaceColorArgb and deriveToolbarFromTheme differ), so
     // this is a clean "seed present vs. absent" comparison against toolbar_derived, not a
     // simultaneous change of pageTitle/documentTitle/etc.

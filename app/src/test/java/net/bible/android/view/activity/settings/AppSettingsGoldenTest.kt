@@ -73,6 +73,7 @@ class AppSettingsGoldenTest {
         disableTwoStepBookmarking = false,
         volumeKeysScroll = true,
         nightMode = "manual",
+        themePaletteStyle = "fidelity",
         locale = "",
         disableClickToEdit = false,
         notesContentType = "plain_text",
@@ -100,6 +101,7 @@ class AppSettingsGoldenTest {
         toolbarButtonActionChoices = choices("bookmark" to "Bookmark", "share" to "Share", "speak" to "Speak"),
         bibleViewSwipeModeChoices = choices("verse_change" to "Change verse", "day_change" to "Change day"),
         nightModeChoices = choices("manual" to "Manual", "automatic" to "Follow system"),
+        themePaletteStyleChoices = choices("fidelity" to "Fidelity (exact color)", "tonal_spot" to "Tonal spot (soft)"),
         localeChoices = choices("" to "System default", "en" to "English", "fi" to "Finnish"),
         notesContentTypeChoices = choices("plain_text" to "Plain text", "markdown" to "Markdown"),
         displayColorModeChoices = choices("normal" to "Normal", "eink" to "E-ink"),
@@ -165,6 +167,11 @@ class AppSettingsGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun baseline_rtl() =
         captureRtl("AppSettings", "baseline", heightDp = 3600, content = screen(baseSnapshot()))
+
+    /** Edge state: Color mode is not Normal, so the Theme style row is disabled. */
+    @Test fun themeStyleDisabled_edge() =
+        captureGolden("AppSettings", "themeStyleDisabled", EDGE_MODE, heightDp = 3600,
+            content = screen(baseSnapshot().copy(displayColorMode = "bw")))
 
     @Test fun emptydict_edge() =
         captureGolden("AppSettings", "emptydict", EDGE_MODE, heightDp = 3600, content = screen(emptyDictSnapshot()))

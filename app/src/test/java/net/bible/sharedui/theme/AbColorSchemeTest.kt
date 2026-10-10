@@ -5,6 +5,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -12,14 +13,23 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 private const val ORANGE = 0xFFFF8000.toInt()
+private const val BLACK = 0xFF000000.toInt()
+private const val LIGHT_GREY = 0xFFAAAAAA.toInt()
 
 /**
  * `ColorScheme` does not override `equals`, so two structurally identical schemes are not equal.
  * Its `toString()` enumerates every role, which makes it a complete structural comparison — that
- * completeness is the point: the identity test below must cover roles nobody thought to list.
+ * completeness is the point: structural comparisons must cover roles nobody thought to list.
  */
-private fun schemeOf(seed: Int?, dark: Boolean, mode: DisplayColorMode) =
-    abColorScheme(seed, dark, mode).toString()
+private fun schemeOf(
+    seed: Int?, dark: Boolean, mode: DisplayColorMode, style: ThemePaletteStyle = ThemePaletteStyle.DEFAULT,
+) = abColorScheme(seed, dark, mode, style).toString()
+
+/** max-min over the RGB channels: 0 for a pure grey; a few units for Material's warm-tinted neutrals. */
+private fun rgbSpread(argb: Int): Int {
+    val r = (argb shr 16) and 0xFF; val g = (argb shr 8) and 0xFF; val b = argb and 0xFF
+    return maxOf(r, g, b) - minOf(r, g, b)
+}
 
 class AbColorSchemeTest {
     @Test
@@ -48,7 +58,7 @@ class AbColorSchemeTest {
     }
 
     @Test
-    fun `old modes retain all pre Task 2 role values`() {
+    fun `BW and COLOR_EINK retain all pre Task 2 role values`() {
         legacyRoles.forEach { (key, expected) ->
             val (mode, dark, seed) = key.split("|")
             val actual = allRolesOf(abColorScheme(seed.toIntOrNull(), dark.toBoolean(), DisplayColorMode.valueOf(mode)))
@@ -57,22 +67,108 @@ class AbColorSchemeTest {
     }
 
     @Test
-    fun `no seed returns today's stock scheme, role for role`() {
-        assertEquals(lightColorScheme().toString(), schemeOf(null, false, DisplayColorMode.NORMAL))
-        assertEquals(darkColorScheme().toString(), schemeOf(null, true, DisplayColorMode.NORMAL))
+    fun `NORMAL never uses the stock lilac scheme, even with no seed`() {
+        assertNotEquals(lightColorScheme().toString(), schemeOf(null, false, DisplayColorMode.NORMAL))
+        assertNotEquals(darkColorScheme().toString(), schemeOf(null, true, DisplayColorMode.NORMAL))
     }
 
     @Test
-    fun `the default workspace colour is the not-set sentinel`() {
+    fun `in NORMAL a null seed is the default workspace colour`() {
+        ThemePaletteStyle.entries.forEach { style ->
+            listOf(false, true).forEach { dark ->
+                assertEquals(
+                    "$style dark=$dark",
+                    schemeOf(DEFAULT_WORKSPACE_COLOR_ARGB, dark, DisplayColorMode.NORMAL, style),
+                    schemeOf(null, dark, DisplayColorMode.NORMAL, style),
+                )
+            }
+        }
+    }
+
+    /** The reported bug: black came out pink-red and greys teal under TonalSpot. */
+    @Test
+    fun `black and grey seeds stay achromatic under the default style`() {
+        listOf(BLACK, DEFAULT_WORKSPACE_COLOR_ARGB, LIGHT_GREY).forEach { seed ->
+            listOf(false, true).forEach { dark ->
+                val s = abColorScheme(seed, dark, DisplayColorMode.NORMAL)
+                listOf("primary" to s.primary, "primaryContainer" to s.primaryContainer,
+                    "secondaryContainer" to s.secondaryContainer, "surface" to s.surface).forEach { (n, c) ->
+                    assertTrue(
+                        "seed #%06X dark=$dark: $n #%06X has RGB spread %d".format(
+                            0xFFFFFF and seed, 0xFFFFFF and c.toArgb(), rgbSpread(c.toArgb())),
+                        rgbSpread(c.toArgb()) <= 8,
+                    )
+                }
+            }
+        }
+    }
+
+    /** Fidelity's defining property, and what makes the default toolbar classic grey. */
+    @Test
+    fun `Fidelity keeps the seed itself as primaryContainer`() {
+        val s = abColorScheme(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, ThemePaletteStyle.FIDELITY)
+        assertEquals(DEFAULT_WORKSPACE_COLOR_ARGB, s.primaryContainer.toArgb())
+    }
+
+    /** Catches a mapping slip (two enum entries wired to the same PaletteStyle). */
+    @Test
+    fun `every style yields a distinct scheme`() {
+        val schemes = ThemePaletteStyle.entries.associateWith { schemeOf(ORANGE, false, DisplayColorMode.NORMAL, it) }
+        assertEquals(ThemePaletteStyle.entries.size, schemes.values.toSet().size)
+    }
+
+    @Test
+    fun `BW ignores the style`() {
+        val first = schemeOf(ORANGE, false, DisplayColorMode.BW, ThemePaletteStyle.entries.first())
+        ThemePaletteStyle.entries.forEach { assertEquals("$it", first, schemeOf(ORANGE, false, DisplayColorMode.BW, it)) }
+    }
+
+    @Test
+    fun `MONOCHROME ignores the style`() {
+        val first = schemeOf(ORANGE, false, DisplayColorMode.MONOCHROME, ThemePaletteStyle.entries.first())
+        ThemePaletteStyle.entries.forEach { assertEquals("$it", first, schemeOf(ORANGE, false, DisplayColorMode.MONOCHROME, it)) }
+    }
+
+    /** COLOR_EINK stays on TonalSpot: equal contrast for every workspace colour on e-ink. */
+    @Test
+    fun `COLOR_EINK ignores the style and keeps today's TonalSpot-then-grey result`() {
+        val tonal = schemeOf(ORANGE, false, DisplayColorMode.COLOR_EINK, ThemePaletteStyle.TONAL_SPOT)
+        ThemePaletteStyle.entries.forEach { assertEquals("$it", tonal, schemeOf(ORANGE, false, DisplayColorMode.COLOR_EINK, it)) }
+        // unset colour in COLOR_EINK is still the stock scheme, greyscaled
         assertEquals(
-            schemeOf(null, false, DisplayColorMode.NORMAL),
-            schemeOf(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL),
+            schemeOf(null, false, DisplayColorMode.COLOR_EINK),
+            schemeOf(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.COLOR_EINK),
         )
+    }
+
+    /** Independent pre-change contract: set seeds use TonalSpot; unset seeds use stock roles. */
+    @Test
+    fun `COLOR_EINK preserves TonalSpot set-seed roles in light and dark`() {
+        for (dark in listOf(false, true)) {
+            val tonal = abColorScheme(ORANGE, dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
+            for (style in ThemePaletteStyle.entries) {
+                assertLegacyGreyRoles("set dark=$dark style=$style", tonal,
+                    abColorScheme(ORANGE, dark, DisplayColorMode.COLOR_EINK, style))
+            }
+        }
+    }
+
+    @Test
+    fun `COLOR_EINK preserves stock unset-seed roles in light and dark`() {
+        for (dark in listOf(false, true)) {
+            val stock = if (dark) darkColorScheme() else lightColorScheme()
+            for (seed in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
+                for (style in ThemePaletteStyle.entries) {
+                    assertLegacyGreyRoles("unset seed=$seed dark=$dark style=$style", stock,
+                        abColorScheme(seed, dark, DisplayColorMode.COLOR_EINK, style))
+                }
+            }
+        }
     }
 
     @Test
     fun `a seed moves primary towards the seed's hue`() {
-        val seeded = abColorScheme(ORANGE, false, DisplayColorMode.NORMAL)
+        val seeded = abColorScheme(ORANGE, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
         val stock = lightColorScheme()
         assertTrue(
             "seeded primary should be nearer the seed hue than the stock primary is",
@@ -147,6 +243,23 @@ private fun rolesOf(s: androidx.compose.material3.ColorScheme): List<Pair<String
     "surfaceTint" to s.surfaceTint.toArgb(),
 )
 
+/** Legacy integer BT.601 transform, independent of production's grayscale helper. */
+private fun assertLegacyGreyRoles(
+    what: String,
+    base: androidx.compose.material3.ColorScheme,
+    actual: androidx.compose.material3.ColorScheme,
+) {
+    val actualRoles = rolesOf(actual).toMap()
+    for ((name, argb) in rolesOf(base)) {
+        val r = (argb ushr 16) and 0xFF
+        val g = (argb ushr 8) and 0xFF
+        val b = argb and 0xFF
+        val y = (299 * r + 587 * g + 114 * b) / 1000
+        val expected = (argb and 0xFF000000.toInt()) or (y shl 16) or (y shl 8) or y
+        assertEquals("$what role=$name", expected, actualRoles.getValue(name))
+    }
+}
+
 private fun isGrey(argb: Int): Boolean {
     val r = (argb shr 16) and 0xFF
     val g = (argb shr 8) and 0xFF
@@ -219,12 +332,9 @@ private fun allRolesOf(s: androidx.compose.material3.ColorScheme): List<Pair<Str
     "surfaceContainerLowest" to s.surfaceContainerLowest.toArgb(),
 )
 
-// Captured at ec7f2fe19 before production edits; never regenerate to accept drift.
+// Captured at ec7f2fe19 before production edits; never regenerate to accept drift. NORMAL rows were
+// dropped when Theme style made NORMAL style-derived with a default seed (covered by its own tests).
 private val legacyRoles = mapOf(
-    "NORMAL|false|null" to "FF6750A4,FFFFFFFF,FFEADDFF,FF21005D,FFD0BCFF,FF625B71,FFFFFFFF,FFE8DEF8,FF1D192B,FF7D5260,FFFFFFFF,FFFFD8E4,FF31111D,FFFEF7FF,FF1D1B20,FFFEF7FF,FF1D1B20,FFE7E0EC,FF49454F,FF6750A4,FF322F35,FFF5EFF7,FFB3261E,FFFFFFFF,FFF9DEDC,FF410E0B,FF79747E,FFCAC4D0,FF000000,FFFEF7FF,FFDED8E1,FFF3EDF7,FFECE6F0,FFE6E0E9,FFF7F2FA,FFFFFFFF",
-    "NORMAL|false|-32768" to "FF8B4F24,FFFFFFFF,FFFFDCC7,FF6E390E,FFFFB787,FF755846,FFFFFFFF,FFFFDCC7,FF5B4130,FF606134,FFFFFFFF,FFE6E6AD,FF48491F,FFFFF8F5,FF221A15,FFFFF8F5,FF221A15,FFF4DED3,FF52443C,FF8B4F24,FF382E29,FFFFEDE5,FFBA1A1A,FFFFFFFF,FFFFDAD6,FF410002,FF84746A,FFD7C3B8,FF000000,FFFFF8F5,FFE7D7CE,FFFCEBE2,FFF6E5DC,FFF0DFD7,FFFFF1EA,FFFFFFFF",
-    "NORMAL|true|null" to "FFD0BCFF,FF381E72,FF4F378B,FFEADDFF,FF6750A4,FFCCC2DC,FF332D41,FF4A4458,FFE8DEF8,FFEFB8C8,FF492532,FF633B48,FFFFD8E4,FF141218,FFE6E0E9,FF141218,FFE6E0E9,FF49454F,FFCAC4D0,FFD0BCFF,FFE6E0E9,FF322F35,FFF2B8B5,FF601410,FF8C1D18,FFF9DEDC,FF938F99,FF49454F,FF000000,FF3B383E,FF141218,FF211F26,FF2B2930,FF36343B,FF1D1B20,FF0F0D13",
-    "NORMAL|true|-32768" to "FFFFB787,FF502400,FF6E390E,FFFFDCC7,FF8B4F24,FFE5BFA8,FF422B1B,FF5B4130,FFFFDCC7,FFCACA93,FF31320A,FF48491F,FFE6E6AD,FF19120D,FFF0DFD7,FF19120D,FFF0DFD7,FF52443C,FFD7C3B8,FFFFB787,FFF0DFD7,FF382E29,FFFFB4AB,FF690005,FF93000A,FFFFDAD6,FF9F8D83,FF52443C,FF000000,FF413731,FF19120D,FF261E19,FF312823,FF3D332D,FF221A15,FF140D08",
     "BW|false|null" to "FF606060,FFFFFFFF,FFE4E4E4,FF141414,FFC9C9C9,FF5F5F5F,FFFFFFFF,FFE3E3E3,FF1C1C1C,FF606060,FFFFFFFF,FFE5E5E5,FF1B1B1B,FFFAFAFA,FF1C1C1C,FFFAFAFA,FF1C1C1C,FFE3E3E3,FF474747,FF606060,FF303030,FFF1F1F1,FF4F4F4F,FFFFFFFF,FFE5E5E5,FF1C1C1C,FF767676,FFC7C7C7,FF000000,FFFAFAFA,FFDADADA,FFEFEFEF,FFE8E8E8,FFE2E2E2,FFF4F4F4,FFFFFFFF",
     "BW|false|-32768" to "FF606060,FFFFFFFF,FFE4E4E4,FF141414,FFC9C9C9,FF5F5F5F,FFFFFFFF,FFE3E3E3,FF1C1C1C,FF606060,FFFFFFFF,FFE5E5E5,FF1B1B1B,FFFAFAFA,FF1C1C1C,FFFAFAFA,FF1C1C1C,FFE3E3E3,FF474747,FF606060,FF303030,FFF1F1F1,FF4F4F4F,FFFFFFFF,FFE5E5E5,FF1C1C1C,FF767676,FFC7C7C7,FF000000,FFFAFAFA,FFDADADA,FFEFEFEF,FFE8E8E8,FFE2E2E2,FFF4F4F4,FFFFFFFF",
     "BW|true|null" to "FFC9C9C9,FF2F2F2F,FF474747,FFE4E4E4,FF606060,FFC7C7C7,FF313131,FF484848,FFE3E3E3,FFCACACA,FF313131,FF484848,FFE5E5E5,FF131313,FFE2E2E2,FF131313,FFE2E2E2,FF474747,FFC7C7C7,FFC9C9C9,FFE2E2E2,FF303030,FFC9C9C9,FF2A2A2A,FF3D3D3D,FFE5E5E5,FF919191,FF474747,FF000000,FF393939,FF131313,FF202020,FF2A2A2A,FF353535,FF1C1C1C,FF0E0E0E",

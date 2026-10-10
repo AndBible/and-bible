@@ -112,6 +112,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "disable_bible_bookmark_modal_buttons" -> R.drawable.ic_one_tap_bible_24
     "disable_gen_bookmark_modal_buttons" -> R.drawable.ic_one_tap_other_24
     "display_color_mode" -> R.drawable.ic_eink_24dp
+    "theme_palette_style" -> R.drawable.ic_color_settings_24dp
     "eink_mode" -> R.drawable.ic_eink_24dp
     "disable_animations" -> R.drawable.ic_animate_24dp
     "discrete_help" -> R.drawable.ic_warning_red_24dp

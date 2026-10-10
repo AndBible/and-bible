@@ -464,6 +464,8 @@ object CommonUtils : CommonUtilsBase() {
         val colorEinkMode: Boolean get() = displayColorMode == DisplayColorMode.COLOR_EINK
         /** True only for MONOCHROME: pure black & white, stricter than [monochromeMode]. */
         val pureMonochromeMode: Boolean get() = displayColorMode == DisplayColorMode.MONOCHROME
+        val themePaletteStyle: ThemePaletteStyle get() =
+            ThemePaletteStyle.fromValue(getString(THEME_PALETTE_STYLE_KEY, null)) ?: ThemePaletteStyle.DEFAULT
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
         val disableAnimations: Boolean get() = getBoolean("disable_animations", isOnyxDevice)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)

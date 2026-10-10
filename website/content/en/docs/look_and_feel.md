@@ -64,6 +64,11 @@ settings hierarchy described above.
     - *Manual* (default) – toggle dark mode from the three-dot menu.
     - *Automatic* – switch based on time of day.
     - *System* – follow the Android system dark mode setting (Android 10+).
+- **Theme style:** Choose how the app's colors are derived from the
+    workspace color. *Fidelity* (default) uses the chosen color as is;
+    *Tonal spot* gives soft pastel tones; *Neutral* and *Monochrome* are muted
+    or grey; the other styles are more playful. Applies only when **Color
+    mode** is *Normal*.
 - **Format for new bookmark notes:** Choose whether new [notes](notes.md)
     are created with the **HTML** editor or the **Markdown** editor. Existing
     notes keep the format they were created with.
@@ -113,6 +118,10 @@ book grid. Chapter cells show the read count (for example, `17 x`) or
 memorization level (for example, `3/4`) before you tap to open the chapter.
 Select a calendar day to see its activity count below the heatmap, including
 zero for a day with no activity; days with activity also open the day's history.
+
+In the *Black & white*, *Color e-ink* and *Monochrome* color modes the
+**Theme style** setting is not used: the interface stays grey (or black and
+white) so that contrast is the same for every workspace color.
 
 Color mode and Disable animations can be used together for an e-ink reading
 experience.
