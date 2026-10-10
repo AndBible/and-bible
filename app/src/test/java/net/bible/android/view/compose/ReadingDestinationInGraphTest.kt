@@ -306,6 +306,7 @@ class ReadingDestinationInGraphTest {
         )
         try {
             val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
 
             assertNotNull(
                 activity.composeReadingViewHost,
@@ -366,6 +367,7 @@ class ReadingDestinationInGraphTest {
         )
         try {
             val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
             val window = activity.hostWindowRepository.activeWindow
             assertTrue(
                 window.isVisible,
@@ -402,6 +404,7 @@ class ReadingDestinationInGraphTest {
         )
         try {
             val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
             val readingView = assertNotNull(
                 activity.composeReadingViewHost,
                 "the content slot must have composed a reading view for this test to mean anything",

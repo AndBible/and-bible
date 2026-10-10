@@ -109,7 +109,9 @@ class ReadingChooserInGraphResultTest {
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.create().start().resume().visible().get()
+        ).also { controllers += it }.create().start().resume().visible().get().also {
+            net.bible.test.awaitReadingGraph(it) { compose.waitForIdle() }
+        }
     }
 
     /**
