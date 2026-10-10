@@ -150,7 +150,9 @@ class BookAndKey(
 
 }
 
-class BookAndKeyList: DefaultKeyList() {
+class BookAndKeyList: DefaultKeyList(), Cloneable {
+    override fun clone(): BookAndKeyList = super<Cloneable>.clone() as BookAndKeyList
+
     override fun getOsisRef(): String {
         return this.joinToString("||") { it.getOsisRef() }
     }
