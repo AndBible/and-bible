@@ -457,6 +457,9 @@ class MyDocumentBookManagerTest {
             net.bible.android.view.activity.nav.NavHostComposeActivity::class.java, intent)
         val activity = controller.get()
         val other = Any()
+        // Cold-start tests restart Koin; CommonUtils' lazy WindowControl may still be the old one.
+        val currentWindowControl = org.koin.core.context.GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
+        val previousOwner = currentWindowControl.windowRepository
         activity.usableBibleGate = { true }
         var resumeReloads = 0
         var countResumeReloads = false
@@ -482,8 +485,8 @@ class MyDocumentBookManagerTest {
             assertEquals("Gen.1.1", oldKey)
             activity.hostWindowRepository.saveIntoDb(false)
             val owner = net.bible.android.control.page.window.WindowRepository(syncScope)
-            net.bible.service.common.CommonUtils.windowControl.windowRepository = owner
-            assertTrue(net.bible.service.common.CommonUtils.windowControl.windowRepository !== activity.hostWindowRepository)
+            currentWindowControl.windowRepository = owner
+            assertTrue(currentWindowControl.windowRepository !== activity.hostWindowRepository)
             countResumeReloads = true
             controller.resume()
             assertTrue("actual reclaim must reload the workspace", resumeReloads > 0)
@@ -498,6 +501,7 @@ class MyDocumentBookManagerTest {
         } finally {
             sub.cancel()
             controller.pause().stop().destroy()
+            currentWindowControl.windowRepository = previousOwner
             net.bible.sharedcore.reading.ReadingViewVisibility.setActivityVisible(activity, false)
             net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(activity)
             net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(other)
