@@ -24,6 +24,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -119,9 +120,26 @@ class ErrorReportControlTest {
     }
 
     @Test
+    fun aProgressObserverCapturesPublicationBeforeAnImmediateDismissal() = runOnTestMain {
+        val observer = async(
+            context = UnconfinedTestDispatcher(testDispatcher.scheduler),
+            start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED,
+        ) {
+            dialogs.progress.first { it != null }
+        }
+        val id = dialogs.show(AppDialogRequest.Progress(title = null, message = "transient"))
+        dialogs.dismiss(id)
+
+        assertEquals("transient", observer.await()?.request?.let { (it as AppDialogRequest.Progress).message })
+    }
+
+    @Test
     fun selectingReportStartsBugReportReportBug() = runOnTestMain {
         val activity = activity()
-        val progressPublished = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+        val progressPublished = async(
+            context = UnconfinedTestDispatcher(testDispatcher.scheduler),
+            start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED,
+        ) {
             dialogs.progress.first { it != null }
         }
         val answer = async { ErrorReportControl.showErrorDialog(activity, "boom") }
