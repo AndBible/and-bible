@@ -433,7 +433,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   border: 2px solid #ccc;
   border-radius: 8px;
   background: var(--ab-secondary-container, white);
-  color: var(--ab-on-secondary-container, inherit);
+  color: var(--ab-on-secondary-container, black);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
@@ -451,7 +451,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   
   &:hover {
     background: var(--ab-secondary-container, #f8f9fa);
-    color: var(--ab-on-secondary-container, inherit);
+    color: var(--ab-on-secondary-container, black);
     border-color: var(--ab-primary, #007bff);
     
     .night & {
@@ -469,7 +469,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
     .night & {
       background: var(--ab-primary, #1e90ff);
       border-color: var(--ab-primary, #1e90ff);
-      color: var(--ab-on-primary, #ccc);
+      color: var(--ab-on-primary, white);
     }
   }
   
@@ -488,7 +488,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   border: 1px solid #ccc;
   border-radius: 4px;
   background: var(--ab-secondary-container, white);
-  color: var(--ab-on-secondary-container, inherit);
+  color: var(--ab-on-secondary-container, black);
   font-size: 14px;
   
   .night & {
@@ -521,7 +521,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   font-family: inherit;
   font-size: 14px;
   background: var(--ab-secondary-container, white);
-  color: var(--ab-on-secondary-container, inherit);
+  color: var(--ab-on-secondary-container, black);
   
   .night & {
     background: var(--ab-secondary-container, #222);
@@ -607,7 +607,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   border: 1px solid #ccc;
   border-radius: 4px;
   background: var(--ab-secondary-container, white);
-  color: var(--ab-on-secondary-container, inherit);
+  color: var(--ab-on-secondary-container, black);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
@@ -633,7 +633,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   
   &:hover {
     background: var(--ab-secondary-container, #f8f9fa);
-    color: var(--ab-on-secondary-container, inherit);
+    color: var(--ab-on-secondary-container, black);
     border-color: var(--ab-primary, #007bff);
     
     .night & {
@@ -680,7 +680,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   border: 1px solid #ccc;
   border-radius: 4px;
   background: var(--ab-secondary-container, white);
-  color: var(--ab-on-secondary-container, inherit);
+  color: var(--ab-on-secondary-container, black);
   cursor: pointer;
   font-size: 14px;
   
@@ -692,7 +692,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   
   &:hover {
     background: var(--ab-secondary-container, #f5f5f5);
-    color: var(--ab-on-secondary-container, inherit);
+    color: var(--ab-on-secondary-container, black);
     
     .night & {
       background: var(--ab-secondary-container, #444);

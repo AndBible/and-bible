@@ -64,11 +64,11 @@ const EXPECTED_FALLBACKS = {
         {property: "--ab-primary-container", fallback: "#333"},
         {property: "--ab-on-primary-container", fallback: "inherit"},
         {property: "--ab-secondary-container", fallback: "white"},
-        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
         {property: "--ab-secondary-container", fallback: "#222"},
         {property: "--ab-on-secondary-container", fallback: "#ccc"},
         {property: "--ab-secondary-container", fallback: "#f8f9fa"},
-        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
         {property: "--ab-primary", fallback: "#007bff"},
         {property: "--ab-secondary-container", fallback: "#333"},
         {property: "--ab-on-secondary-container", fallback: "#ccc"},
@@ -78,31 +78,31 @@ const EXPECTED_FALLBACKS = {
         {property: "--ab-on-primary", fallback: "white"},
         {property: "--ab-primary", fallback: "#1e90ff"},
         {property: "--ab-primary", fallback: "#1e90ff"},
-        {property: "--ab-on-primary", fallback: "#ccc"},
+        {property: "--ab-on-primary", fallback: "white"},
         {property: "--ab-secondary-container", fallback: "white"},
-        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
         {property: "--ab-secondary-container", fallback: "#222"},
         {property: "--ab-on-secondary-container", fallback: "#ccc"},
         {property: "--ab-secondary-container", fallback: "white"},
-        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
         {property: "--ab-secondary-container", fallback: "#222"},
         {property: "--ab-on-secondary-container", fallback: "#ccc"},
         {property: "--ab-secondary-container", fallback: "white"},
-        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
         {property: "--ab-secondary-container", fallback: "#333"},
         {property: "--ab-on-secondary-container", fallback: "#ccc"},
         {property: "--ab-secondary-container", fallback: "#f8f9fa"},
-        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
         {property: "--ab-primary", fallback: "#007bff"},
         {property: "--ab-secondary-container", fallback: "#444"},
         {property: "--ab-on-secondary-container", fallback: "#ccc"},
         {property: "--ab-primary", fallback: "#1e90ff"},
         {property: "--ab-secondary-container", fallback: "white"},
-        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
         {property: "--ab-secondary-container", fallback: "#333"},
         {property: "--ab-on-secondary-container", fallback: "#ccc"},
         {property: "--ab-secondary-container", fallback: "#f5f5f5"},
-        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
         {property: "--ab-secondary-container", fallback: "#444"},
         {property: "--ab-on-secondary-container", fallback: "#ccc"},
         {property: "--ab-primary", fallback: "#007bff"},
@@ -493,6 +493,49 @@ function declarations(css, selector) {
         .filter(m => m[1].trim().split(/,\s*/).includes(selector))
         .map(m => m[2]).join("\n");
 }
+// Evaluate emitted selector matching and cascade, not CSS-variable substitution.
+// Form controls live under the mode wrapper; tokens inherit from :root.
+function winning(css, classes, mode = "", tag = "button") {
+    css = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@charset[^;]+;/g, "");
+    const wrapper = document.createElement("div");
+    wrapper.className = mode;
+    const element = document.createElement(tag);
+    element.className = classes;
+    wrapper.append(element);
+    document.body.append(wrapper);
+    const result = {};
+    const rank = {};
+    try {
+        for (const [, selectors, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+            for (const selector of selectors.trim().split(/,\s*/)) {
+                if (!element.matches(selector)) continue;
+                // :not() adds its argument specificity, not an extra pseudo-class.
+                const flat = selector.replace(/:not\(([^()]*)\)/g, "$1");
+                const specificity = (flat.match(/#[\w-]+/g) || []).length * 10000
+                    + (flat.match(/\.[\w-]+|:(?!:)[\w-]+/g) || []).length * 100
+                    + (flat.match(/(?:^|\s|>)\s*[a-z][\w-]*/gi) || []).length;
+                for (const [, property, value] of body.matchAll(/([\w-]+):\s*([^;]+);/g)) {
+                    if (rank[property] === undefined || specificity >= rank[property]) {
+                        result[property] = value.trim();
+                        rank[property] = specificity;
+                    }
+                }
+            }
+        }
+        return result;
+    } finally {
+        wrapper.remove();
+    }
+}
+function tokenWinner(css, token, mode) {
+    // Root properties inherit until a matching mode selector overrides them.
+    const root = {};
+    for (const [, selectors, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+        if (!selectors.trim().split(/,\s*/).includes(":root")) continue;
+        for (const [, property, value] of body.matchAll(/([\w-]+):\s*([^;]+);/g)) root[property] = value.trim();
+    }
+    return winning(css, mode, "", "div")[token] ?? root[token];
+}
 describe("bounded theme chrome contrast and geometry", () => {
     it.each([".top-left-corner", ".top-right-corner", ".bottom-left-corner", ".bottom-right-corner"])(
         "paints a rounded 28px active corner at %s without changing e-ink paint", selector => {
@@ -565,5 +608,54 @@ describe("secondary container channel lifecycle", () => {
         expect(document.documentElement.style.getPropertyValue("--ab-secondary-container-rgb")).toBe("");
         applyThemeColors(payload);
         expect(document.documentElement.style.getPropertyValue("--ab-secondary-container-rgb")).toBe("243, 223, 208");
+    });
+});
+
+describe("effective theme chrome cascade", () => {
+    it("keeps night active text white without a payload", () => {
+        expect(winning(componentCss("modals/AskBookmarkSettings.vue"), "mode-toggle active", "night").color)
+            .toBe("var(--ab-on-primary, white)");
+    });
+    it.each(["mode-toggle", "mode-select", "content-textarea", "format-button", "cancel-button"])(
+        "preserves the native day foreground for %s rather than custom window text", control => {
+            expect(winning(componentCss("modals/AskBookmarkSettings.vue"), control).color)
+                .toBe("var(--ab-on-secondary-container, black)");
+        }
+    );
+    it("uses winning matching role pairs in every interactive day/night state", () => {
+        const css = componentCss("modals/AskBookmarkSettings.vue");
+        // matches() cannot synthesize :hover; replace it with a test state class.
+        const states = css.replaceAll(":hover", ".hover");
+        for (const mode of ["", "night"]) {
+            for (const control of ["mode-toggle active", "mode-toggle active hover", "save-button", "save-button hover"]) {
+                const rule = winning(states, control, mode);
+                expect(rule.background).toMatch(/^var\(--ab-primary,/);
+                expect(rule.color).toMatch(/^var\(--ab-on-primary,/);
+            }
+            for (const control of ["mode-toggle", "mode-toggle hover", "mode-select", "content-textarea", "format-button", "format-button hover", "cancel-button", "cancel-button hover"]) {
+                const rule = winning(states, control, mode);
+                expect(rule.background).toMatch(/^var\(--ab-secondary-container,/);
+                expect(rule.color).toMatch(/^var\(--ab-on-secondary-container,/);
+            }
+            const selected = winning(states, "icon-item selected", mode);
+            expect(selected["background-color"]).toMatch(/^var\(--ab-primary-container,/);
+            expect(selected.color).toMatch(/^var\(--ab-on-primary-container,/);
+        }
+    });
+    it.each(Object.entries(EXPECTED_TOKENS))("anchors %s to effective day/night/monochrome selectors", (token, expected) => {
+        const css = compileString(readFileSync(join(__dirname, "../common.scss"), "utf8"), {logger: {warn() {}}}).css;
+        expect(tokenWinner(css, token, "")).toBe(expected.day);
+        expect(tokenWinner(css, token, "night")).toBe(expected.night ?? expected.day);
+        expect(tokenWinner(css, token, "monochrome")).toBe(expected.monochrome);
+        expect(tokenWinner(css, token, "monochrome night")).toBe(expected.monochromeNight);
+    });
+    it.each([".night .save-button", ".night .mode-toggle.active"])("rejects a late winning bad pair on %s", selector => {
+        const css = componentCss("modals/AskBookmarkSettings.vue");
+        const classes = selector.replace(".night ", "").replaceAll(".", " ").trim();
+        const bad = winning(css + `${selector} { background: pink; color: yellow; }`, classes, "night");
+        expect(bad.background).toBe("pink");
+        expect(bad.color).toBe("yellow");
+        expect(bad.background).not.toMatch(/^var\(--ab-primary,/);
+        expect(bad.color).not.toMatch(/^var\(--ab-on-primary,/);
     });
 });
