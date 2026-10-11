@@ -776,22 +776,31 @@ class ReadingSearchEntryPointsTest {
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         )
+        var originalReadingViewHost: ComposeReadingViewHost? = null
+        var readingHost: NavHostComposeActivity? = null
         try {
-            val readingHost = controller.create().start().resume().visible().get()
-            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            val activeReadingHost = controller.create().start().resume().visible().get()
+            readingHost = activeReadingHost
+            net.bible.test.awaitReadingGraph(activeReadingHost) { compose.waitForIdle() }
             val kjv = Books.installed().getBook("KJV") as SwordBook
             val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
-            readingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
-            readingHost.composeReadingViewHost = null
+            activeReadingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
+            originalReadingViewHost = activeReadingHost.composeReadingViewHost
+            activeReadingHost.composeReadingViewHost = null
 
-            val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+            val handled = activeReadingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
 
             assertTrue(handled)
             // F118 (fix batch 6, plan C5): the STD self-launch is handled in the live graph, never by the platform
             // (no second host instance below API 31). KJV has no index here, so the destination is the index prompt.
-            assertNull(shadowOf(readingHost).nextStartedActivityForResult)
-            assertEquals("search/index", readingHost.currentRouteForTest()?.substringBefore('?'))
+            assertNull(shadowOf(activeReadingHost).nextStartedActivityForResult)
+            assertEquals("search/index", activeReadingHost.currentRouteForTest()?.substringBefore('?'))
         } finally {
+            // Restore the detached host so Activity.onDestroy() disposes its subscriptions and scope.
+            if (readingHost != null) {
+                readingHost.composeReadingViewHost = originalReadingViewHost
+                assertSame(originalReadingViewHost, readingHost.composeReadingViewHost, "restore the host Activity owns")
+            }
             controller.close()
             ReadingViewVisibility.setVisible(false)
             ReadingHostPresence.setForeground(null)
