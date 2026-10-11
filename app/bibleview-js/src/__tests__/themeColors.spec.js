@@ -537,20 +537,32 @@ function tokenWinner(css, token, mode) {
     return winning(css, mode, "", "div")[token] ?? root[token];
 }
 describe("bounded theme chrome contrast and geometry", () => {
-    it.each([".top-left-corner", ".top-right-corner", ".bottom-left-corner", ".bottom-right-corner"])(
-        "paints a rounded 28px active corner at %s without changing e-ink paint", selector => {
-            const css = componentCss("BibleView.vue");
-            const rule = declarations(css, selector);
-            expect(rule).toContain("height: 28px");
-            expect(rule).toContain("width: 28px");
-            expect(rule).toContain("border-width: 3px");
-            expect(rule).toContain(`border-${selector.slice(1).replace("-corner", "")}-radius: 12px`);
-            expect(rule).toContain("var(--ab-primary, rgba(0, 0, 255, 0.6))");
-            expect(declarations(css, `.monochrome ${selector}`)).toContain("border-color: black");
-            expect(declarations(css, `.monochrome.night ${selector}`)).toContain("border-color: white");
-            expect(declarations(css, `.colorEink ${selector}`)).toContain("border-color: rgba(0, 0, 255, 0.6)");
-        }
-    );
+    it.each([
+        [".top-left-corner", "100% 100%", ["top", "left"]],
+        [".top-right-corner", "0 100%", ["top", "right"]],
+        [".bottom-left-corner", "100% 0", ["bottom", "left"]],
+        [".bottom-right-corner", "0 0", ["bottom", "right"]],
+    ])("paints a filled 28px active corner at %s without changing e-ink paint", (selector, origin, sides) => {
+        const css = componentCss("BibleView.vue");
+        const rule = declarations(css, selector);
+        expect(rule).toContain("height: 28px");
+        expect(rule).toContain("width: 28px");
+        expect(rule).toContain("border-width: 3px");
+        // The outer corner is square and filled, so no gap is left between the arc and the screen corner.
+        expect(rule).not.toContain("radius");
+        for (const side of sides) expect(rule).toContain(`border-${side}-style: solid`);
+        // The fillet paints the border's own color, so every mode below recolors it too.
+        expect(rule).toContain("border-color: currentColor");
+        expect(rule).toContain("color: var(--ab-primary, rgba(0, 0, 255, 0.6))");
+        const fillet = declarations(css, `${selector}::before`);
+        expect(fillet).toContain("width: 9px");
+        expect(fillet).toContain("height: 9px");
+        for (const side of sides) expect(fillet).toContain(`${side}: 0`);
+        expect(fillet).toContain(`radial-gradient(circle at ${origin}, transparent 8.5px, currentColor 9px)`);
+        expect(declarations(css, `.monochrome ${selector}`)).toMatch(/(^|[^-])color: black/m);
+        expect(declarations(css, `.monochrome.night ${selector}`)).toMatch(/(^|[^-])color: white/m);
+        expect(declarations(css, `.colorEink ${selector}`)).toMatch(/(^|[^-])color: rgba\(0, 0, 255, 0.6\)/m);
+    });
     it.each([["BibleView.vue", ".pagenumber"], ["ReadingProgress.vue", ".reading-progress"]])(
         "pairs the chip roles and restores window text on noAnimation in %s", (file, selector) => {
             const css = componentCss(file);

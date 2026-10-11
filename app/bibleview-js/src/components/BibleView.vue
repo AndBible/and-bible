@@ -544,67 +544,99 @@ $borderDistance: 0;
 $colorEinkAccent: rgba(0, 0, 255, 0.6);
 $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
+// Square, filled outer corner with a concave fillet inside: no gap between the arc and the
+// screen corner. Paint goes through `color` so the fillet (currentColor) follows every mode.
+$cornerFillet: 9px;
+
 .active-window-corner {
   position: fixed;
   z-index: -1;
   height: 28px;
   width: 28px;
   border-width: 3px;
+  border-color: currentColor;
 
   .night & {
-    border-color: var(--ab-primary, rgba(196, 196, 255, 0.8));
+    color: var(--ab-primary, rgba(196, 196, 255, 0.8));
   }
 
-  border-color: var(--ab-primary, rgba(0, 0, 255, 0.6));
+  color: var(--ab-primary, rgba(0, 0, 255, 0.6));
 
   .monochrome & {
-    border-color: black;
+    color: black;
   }
   .monochrome.night & {
-    border-color: white;
+    color: white;
   }
   .colorEink & {
-    border-color: $colorEinkAccent;
+    color: $colorEinkAccent;
   }
   .colorEink.night & {
-    border-color: $colorEinkAccentNight;
+    color: $colorEinkAccentNight;
   }
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: $cornerFillet;
+    height: $cornerFillet;
+  }
+}
+
+@mixin corner-fillet($origin) {
+  background: radial-gradient(circle at $origin, transparent $cornerFillet - 0.5px, currentColor $cornerFillet);
 }
 
 .top-left-corner {
   @extend .active-window-corner;
-  border-top-left-radius: 12px;
   top: $borderDistance;
   left: $borderDistance;
   border-top-style: solid;
   border-left-style: solid;
+  &::before {
+    top: 0;
+    left: 0;
+    @include corner-fillet(100% 100%);
+  }
 }
 
 .top-right-corner {
   @extend .active-window-corner;
-  border-top-right-radius: 12px;
   top: $borderDistance;
   right: $borderDistance;
   border-top-style: solid;
   border-right-style: solid;
+  &::before {
+    top: 0;
+    right: 0;
+    @include corner-fillet(0 100%);
+  }
 }
 
 .bottom-right-corner {
   @extend .active-window-corner;
-  border-bottom-right-radius: 12px;
   bottom: $borderDistance;
   right: $borderDistance;
   border-bottom-style: solid;
   border-right-style: solid;
+  &::before {
+    bottom: 0;
+    right: 0;
+    @include corner-fillet(0 0);
+  }
 }
 
 .bottom-left-corner {
   @extend .active-window-corner;
-  border-bottom-left-radius: 12px;
   bottom: $borderDistance;
   left: $borderDistance;
   border-bottom-style: solid;
   border-left-style: solid;
+  &::before {
+    bottom: 0;
+    left: 0;
+    @include corner-fillet(100% 0);
+  }
 }
 
 .top-margin {
