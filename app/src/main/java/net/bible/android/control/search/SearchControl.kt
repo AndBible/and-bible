@@ -69,6 +69,7 @@ class MultiSearchResultsDto {
 class SearchControl constructor(
     private val documentBibleBooksFactory: DocumentBibleBooksFactory,
     private val windowControl: WindowControl,
+    private val appScope: net.bible.sharedcore.platform.AppCoroutineScope,
     )
 {
     private val isSearchShowingScripture = true
@@ -264,7 +265,7 @@ class SearchControl constructor(
         try {
             // this starts a new thread to do the indexing and returns immediately
             // if index creation is already in progress then nothing will happen
-            SwordDocumentFacade.ensureIndexCreation(book!!)
+            SwordDocumentFacade.ensureIndexCreation(book!!, appScope)
             ok = true
         } catch (e: Exception) {
             Log.e(TAG, "error indexing:" + e.message)

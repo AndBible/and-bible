@@ -16,6 +16,8 @@
  */
 package net.bible.service.sword
 
+import net.bible.service.db.blockingDb
+
 import net.bible.service.common.CommonUtils
 import android.text.TextUtils
 import android.util.LayoutDirection
@@ -421,7 +423,7 @@ object SwordContentFacade : KoinComponent {
 
     fun ordinalRangeFor(book: Book, key: Key): IntRange {
         return if(book.isEpub) {
-            ((book as SwordGenBook).backend as EpubBackend).getOrdinalRange(key)
+            blockingDb { ((book as SwordGenBook).backend as EpubBackend).getOrdinalRange(key) } // L1-pending(sword)
         } else {
             val texts = cachedText(book, key)
             val keys = texts.keys

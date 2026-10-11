@@ -6,6 +6,9 @@ import net.bible.sharedcore.platform.CoreStrings
 
 /** Reads the resource on every access so locale changes take effect. */
 class AndroidCoreStrings(private val context: Context) : CoreStrings {
+    override val namelessTitle: String get() = context.getString(R.string.nameless)
+    override fun processingEpub(title: String): String = context.getString(R.string.processing_epub, title)
+    override fun creatingIndexFor(name: String): String = context.getString(R.string.creating_index_for, name)
     override fun syncCategoryContents(category: String): String = context.getString(when (category) {
         "READINGPLANS" -> R.string.reading_plans_content
         "BOOKMARKS" -> R.string.bookmarks_contents

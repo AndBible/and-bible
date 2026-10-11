@@ -30,6 +30,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -532,19 +534,19 @@ class ReadingCommands(
     internal fun composeStartKeyChooser() {
         val host = composeReadingViewHost
         val sheet = host?.currentKeyChooserPage()?.let { KeyChooserRoute.sheetFor(it) }
-        if (host != null && sheet != null) {
-            // Resolved HERE, once, and handed to the sheet — never resolved again inside it. The
-            // emptiness decision below and the sheet's rows must come from the same list (a
-            // `KeyRow`'s id is an INDEX into it), and a second resolution is expensive on the UI
-            // thread: `EpubBackendState.tocKeys` is not cached at all and rebuilds every `Key` on
-            // each access. `ComposeReadingViewHost.showKeyChooserSheet`'s kdoc has the full note.
-            val keys = host.resolveKeyChooserKeys(sheet.kind)
-            if (host.keyChooserSheetHasRows(sheet.kind, keys)) {
-                host.showKeyChooserSheet(sheet.kind, keys)
-                return
+        val page = pageControl.currentPageManager.currentPage
+        val document = page.currentDocument
+        hostActivity.lifecycleScope.launch {
+            if (host != null && sheet != null) {
+                val keys = withContext(Dispatchers.IO) { host.resolveKeyChooserKeys(sheet.kind) }
+                if (pageControl.currentPageManager.currentPage !== page || page.currentDocument != document || composeReadingViewHost !== host) return@launch
+                if (host.keyChooserSheetHasRows(sheet.kind, keys)) {
+                    host.showKeyChooserSheet(sheet.kind, keys)
+                    return@launch
+                }
             }
+            page.startKeyChooser(hostActivity)
         }
-        pageControl.currentPageManager.currentPage.startKeyChooser(hostActivity)
     }
 
     /**

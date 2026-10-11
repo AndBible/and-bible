@@ -2,6 +2,9 @@ package net.bible.sharedcore.platform
 
 /** Strings domain code needs. One member per resource; grows per batch (spec L1a section 3). */
 interface CoreStrings {
+    val namelessTitle: String
+    fun processingEpub(title: String): String
+    fun creatingIndexFor(name: String): String
     /** Resolves the stable sync category name; rejects unknown categories. */
     fun syncCategoryContents(category: String): String
     val syncIntroduction: String

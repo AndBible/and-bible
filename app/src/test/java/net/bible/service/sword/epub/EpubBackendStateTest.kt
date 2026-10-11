@@ -17,6 +17,12 @@
 
 package net.bible.service.sword.epub
 
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.launch
+import net.bible.android.control.page.contentJson
+import net.bible.test.testCoreStrings
+import net.bible.android.platform.AndroidAppEnvironment
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -46,21 +52,27 @@ import java.io.File
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class EpubBackendStateTest {
     private lateinit var epubRoot: File
+    private lateinit var originalDownloadDir: File
     private val createdDbFilenames = mutableListOf<String>()
 
     @Before
     fun setUp() {
+        originalDownloadDir = SwordBookPath.getSwordDownloadDir()
         SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
         epubRoot = File(SharedConstants.modulesDir, "epub").apply { mkdirs() }
     }
 
     @After
     fun tearDown() {
-        epubRoot.deleteRecursively()
-        // EPUB databases live in internal storage, independent of the epub dir.
-        createdDbFilenames.forEach { application.deleteDatabase(it) }
+        try {
+            epubRoot.deleteRecursively()
+            createdDbFilenames.forEach { application.deleteDatabase(it) }
+        } finally {
+            SwordBookPath.setDownloadDir(originalDownloadDir)
+        }
     }
 
     private fun chapterXhtml(title: String, body: String): String = """
@@ -95,6 +107,7 @@ class EpubBackendStateTest {
                 <dc:language>en</dc:language>
               </metadata>
               <manifest>
+                <item id="toc" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
                 <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
                 <item id="ch2" href="ch2.xhtml" media-type="application/xhtml+xml"/>
               </manifest>
@@ -105,6 +118,14 @@ class EpubBackendStateTest {
             </package>
             """.trimIndent()
         )
+        File(oebps, "toc.ncx").writeText("""
+            <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+              <navMap>
+                <navPoint id="one" playOrder="1"><navLabel><text>Chapter One</text></navLabel><content src="ch1.xhtml"/></navPoint>
+                <navPoint id="two" playOrder="2"><navLabel><text>Chapter Two</text></navLabel><content src="ch2.xhtml"/></navPoint>
+              </navMap>
+            </ncx>
+        """.trimIndent())
         // Plain prose (no bible references) so anchor building does not need module registration.
         File(oebps, "ch1.xhtml").writeText(chapterXhtml("Chapter One", "This is the first chapter with some readable content."))
         File(oebps, "ch2.xhtml").writeText(chapterXhtml("Chapter Two", "This is the second chapter with more readable content."))
@@ -112,23 +133,86 @@ class EpubBackendStateTest {
         return epubDir
     }
 
+    private fun newState(dir: File) = EpubBackendState(dir, strings = testCoreStrings(), env = AndroidAppEnvironment(application))
+
+    @Test
+    fun suspendQueriesReadGeneratedXhtmlAndToc() = runTest {
+        val state = newState(buildEpub("suspend-queries"))
+        // BVA text includes the sentence splitter's separator space (107, not prose length 104).
+        assertEquals(107, state.totalCharacters())
+        assertEquals(107, state.totalCharacters()) // cached read
+        assertEquals(listOf("Chapter One", "Chapter Two"), state.tocKeys().map { it.getName() })
+        assertEquals(state.keys.map { it.getOsisRef() }, state.tocKeys().map { (it as net.bible.service.sword.BookAndKey).key.getOsisRef() })
+    }
+
+    @Test
+    fun indexBuildUsesAppScopeAfterCallerCancellationAndIndexesRealXhtml() = runTest {
+        val state = newState(buildEpub("app-index"))
+        val book = org.crosswire.jsword.book.sword.SwordGenBook(state.getBookMetaData(), EpubBackend(state, state.getBookMetaData()))
+        val books = org.crosswire.jsword.book.Books.installed()
+        val appJob = kotlinx.coroutines.SupervisorJob()
+        val appScope = net.bible.sharedcore.platform.AppCoroutineScope(appJob + kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        val callerJob = kotlinx.coroutines.Job()
+        try {
+            books.addBook(book)
+            kotlinx.coroutines.CoroutineScope(callerJob + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)).launch {
+                net.bible.service.sword.SwordDocumentFacade.ensureIndexCreation(book, appScope)
+                net.bible.service.sword.SwordDocumentFacade.ensureIndexCreation(book, appScope)
+            }
+            callerJob.cancel()
+            assertEquals(org.crosswire.jsword.index.IndexStatus.SCHEDULED, book.indexStatus)
+            advanceUntilIdle()
+            appJob.children.forEach { it.join() }
+            assertEquals(org.crosswire.jsword.index.IndexStatus.DONE, book.indexStatus)
+            val document = net.bible.android.control.page.OsisDocument(
+                net.bible.android.misc.OsisFragment(net.bible.service.sword.SwordContentFacade.readOsisFragment(book, state.keys[1]), state.keys[1], book),
+                book, state.keys[1],
+            )
+            val serialized = document.contentJson()
+            assertTrue(serialized.contains("'readingProgress': ${net.bible.android.control.page.ReadingProgressInfo.forEpub(state.fragmentOffset(state.keys[1]), state.bookOrdinalSpan(), 107).asJson}"))
+            assertTrue(state.fragmentOffset(state.keys[1]) > 0)
+            assertEquals(0, state.fragmentOffset(state.keys.first()))
+            assertEquals(state.keys.first().getOsisRef(), state.getKey("ch1", "")?.getOsisRef())
+            assertEquals(null, state.getKey("absent", ""))
+            val hits = state.search("first")
+            assertEquals(1, hits.size)
+            assertEquals(state.keys.first().getOsisRef(), hits.single().key.key.getOsisRef())
+            assertTrue(hits.single().text.contains("<b>first</b>"))
+            state.buildSearchIndex() // existing index still reports DONE
+            assertEquals(org.crosswire.jsword.index.IndexStatus.DONE, book.indexStatus)
+        } finally {
+            callerJob.cancel()
+            appJob.cancel()
+            books.removeBook(book)
+        }
+    }
+
+    @Test
+    fun failedIndexBuildResetsStatusForRetry() = runTest {
+        val dir = buildEpub("failed-index")
+        val state = newState(dir)
+        optimizedDirOf(dir).listFiles { f -> f.name.endsWith(".xhtml.gz") }!!.first().writeText("not gzip")
+        state.buildSearchIndex()
+        assertEquals(org.crosswire.jsword.index.IndexStatus.UNDONE, state.getBookMetaData().indexStatus)
+    }
+
     private fun optimizedDirOf(epubDir: File) = File(epubDir, "optimized")
 
     @Test
-    fun optimizationProducesReadableFragments() {
-        val state = EpubBackendState(buildEpub("intact"))
+    fun optimizationProducesReadableFragments() = runTest {
+        val state = newState(buildEpub("intact"))
         val keys = state.keys
         assertTrue("expected fragments to be created", keys.isNotEmpty())
         // Every fragment reads back non-empty content.
         assertTrue(keys.all { state.read(it).isNotEmpty() })
         // Whole-book character count is available and positive.
-        assertTrue(state.totalCharacters > 0)
+        assertTrue(state.totalCharacters() > 0)
     }
 
     @Test
     fun readReturnsEmptyInsteadOfThrowingWhenFragmentFileMissing() {
         val epubDir = buildEpub("missing-read")
-        val state = EpubBackendState(epubDir)
+        val state = newState(epubDir)
         val keys = state.keys
         assertTrue(keys.isNotEmpty())
 
@@ -145,10 +229,10 @@ class EpubBackendStateTest {
     }
 
     @Test
-    fun totalCharactersSkipsMissingFragmentInsteadOfCrashing() {
+    fun totalCharactersSkipsMissingFragmentInsteadOfCrashing() = runTest {
         val epubDir = buildEpub("missing-total")
         // Construct without touching totalCharacters, so the count is not yet cached.
-        val state = EpubBackendState(epubDir)
+        val state = newState(epubDir)
         assertTrue(state.keys.size >= 2)
 
         val optimized = optimizedDirOf(epubDir)
@@ -156,7 +240,7 @@ class EpubBackendStateTest {
         assertTrue(fragFiles.first().delete())
 
         // This is the exact call path that crashed on startup in #3364 / #3365.
-        val total = state.totalCharacters
+        val total = state.totalCharacters()
         assertTrue("totalCharacters must survive a missing fragment", total >= 0)
     }
 
@@ -164,13 +248,13 @@ class EpubBackendStateTest {
     @Test
     fun aStaleOptimizedDatabaseWithoutFragmentsIsReoptimized() {
         val epubDir = buildEpub("stale-gz")
-        EpubBackendState(epubDir) // first open: optimizes and writes optimized.sqlite3.gz
+        newState(epubDir) // first open: optimizes and writes optimized.sqlite3.gz
         assertTrue(File(epubDir, "optimized.sqlite3.gz").exists())
         assertTrue(optimizedDirOf(epubDir).deleteRecursively())
         buildEpub("stale-gz") // optimization deletes the source files; a kit EPUB ships them beside the foreign gz
         application.deleteDatabase("epub-${epubInitials("stale-gz")}.sqlite3") // as on a fresh install of the kit file
 
-        val state = EpubBackendState(epubDir)
+        val state = newState(epubDir)
         val keys = state.keys
         assertTrue(keys.isNotEmpty())
         assertTrue("every fragment must read back content", keys.all { state.read(it).isNotEmpty() })
@@ -180,11 +264,11 @@ class EpubBackendStateTest {
     @Test
     fun missingFragmentsWithASurvivingAppDatabaseAreReoptimized() {
         val epubDir = buildEpub("stale-frags")
-        EpubBackendState(epubDir)
+        newState(epubDir)
         assertTrue(optimizedDirOf(epubDir).deleteRecursively())
         buildEpub("stale-frags") // optimization deletes the source files; restore them as the user's copy would have
 
-        val state = EpubBackendState(epubDir)
+        val state = newState(epubDir)
         assertTrue(state.keys.isNotEmpty())
         assertTrue(state.keys.all { state.read(it).isNotEmpty() })
     }
@@ -193,11 +277,11 @@ class EpubBackendStateTest {
     @Test
     fun anIntactOptimizedEpubIsNotReoptimized() {
         val epubDir = buildEpub("intact-reuse")
-        EpubBackendState(epubDir)
+        newState(epubDir)
         val versionFile = File(optimizedDirOf(epubDir), "version.txt")
         val stamp = 1_000_000_000_000L
         assertTrue(versionFile.setLastModified(stamp))
-        EpubBackendState(epubDir)
+        newState(epubDir)
         assertEquals("version.txt rewritten means a second optimization ran", stamp, versionFile.lastModified())
     }
 
@@ -205,11 +289,11 @@ class EpubBackendStateTest {
     @Test
     fun anIntactPre2023EpubWithoutVersionFileOrSourcesIsReused() {
         val epubDir = buildEpub("pre-2023")
-        EpubBackendState(epubDir)
+        newState(epubDir)
         assertTrue(File(optimizedDirOf(epubDir), "version.txt").delete())
         assertFalse(File(epubDir, "OEBPS/ch1.xhtml").exists())
 
-        val state = EpubBackendState(epubDir)
+        val state = newState(epubDir)
         assertTrue(File(epubDir, "optimized.sqlite3.gz").exists())
         assertFalse(File(epubDir, "optimize.lock").exists())
         assertTrue(state.keys.isNotEmpty())

@@ -8944,8 +8944,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * classic's, and this task is a port, not a fix), minus the `ActivityResultKind.GenBookKey` tag,
      * which named the INTENT's shape to `MainBibleActivity`'s dispatcher and has no meaning in-graph.
      */
-    private fun generalBookKeyResult(key: Key?): KeyChooserResult {
-        val doc = chooseGeneralBookPage.currentDocument
+    private fun generalBookKeyResult(key: Key?, doc: Book? = chooseGeneralBookPage.currentDocument): KeyChooserResult {
         return if (key is BookAndKey) {
             KeyChooserResult(bookAndKeyJson = key.serialized)
         } else {
@@ -8968,22 +8967,26 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * A local cannot be cross-wired: each controller keeps the list that was resolved when IT was
      * built.
      */
-    private fun chooseGeneralBookKeyControllerFor(
+    private suspend fun chooseGeneralBookKeyControllerFor(
         onResult: (KeyChooserResult) -> Unit,
     ): ChooseGeneralBookKeyController? {
-        val keys = chooseGeneralBookPage.keyChooserKeys()
+        val page = chooseGeneralBookPage
+        val document = page.currentDocument
+        val currentKey = page.key
+        val keys = withContext(Dispatchers.IO) { page.keyChooserKeys() }
+        if (chooseGeneralBookPage !== page || page.currentDocument != document) throw kotlinx.coroutines.CancellationException("Chooser page changed")
         if (keys.isEmpty()) return null
         return ChooseGeneralBookKeyController(
             loadRows = {
                 keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) }
             },
             currentRow = {
-                chooseGeneralBookPage.key?.let { cur ->
+                currentKey?.let { cur ->
                     keys.indexOf(cur).takeIf { it >= 0 }?.toString()
                 }
             },
             onSelect = { keyId ->
-                onResult(generalBookKeyResult(keys.getOrNull(keyId.toIntOrNull() ?: -1)))
+                onResult(generalBookKeyResult(keys.getOrNull(keyId.toIntOrNull() ?: -1), document))
             },
         )
     }

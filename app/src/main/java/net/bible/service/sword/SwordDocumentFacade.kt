@@ -16,6 +16,10 @@
  */
 package net.bible.service.sword
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import net.bible.sharedcore.platform.AppCoroutineScope
+
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -188,25 +192,33 @@ object SwordDocumentFacade {
      * If an index is in progress then nothing will happen
      */
     @Throws(BookException::class)
-    fun ensureIndexCreation(book: Book) {
+    fun ensureIndexCreation(book: Book, appScope: AppCoroutineScope) {
         Log.d(TAG, "ensureIndexCreation")
         // ensure this isn't just the user re-clicking the Index button
-        if (book.indexStatus != IndexStatus.CREATING && book.indexStatus != IndexStatus.SCHEDULED) {
-            scheduleIndexCreation(book)
+        synchronized(book) {
+            if (book.indexStatus != IndexStatus.CREATING && book.indexStatus != IndexStatus.SCHEDULED) {
+                book.indexStatus = IndexStatus.SCHEDULED
+                scheduleIndexCreation(book, appScope)
+            }
         }
     }
 
-    private fun scheduleIndexCreation(book: Book) {
-        val work = Thread {
-            if(book.isEpub) {
-                book.epubBackend!!.state.buildSearchIndex()
-            } else {
-                val indexManager = IndexManagerFactory.getIndexManager()
-                indexManager.indexPolicy = AndroidIndexPolicy()
-                indexManager.scheduleIndexCreation(book)
+    private fun scheduleIndexCreation(book: Book, appScope: AppCoroutineScope) {
+        appScope.launch {
+            try {
+                if(book.isEpub) {
+                    book.epubBackend!!.state.buildSearchIndex()
+                } else {
+                    val indexManager = IndexManagerFactory.getIndexManager()
+                    indexManager.indexPolicy = AndroidIndexPolicy()
+                    indexManager.scheduleIndexCreation(book)
+                }
+            } catch (e: Exception) {
+                book.indexStatus = IndexStatus.UNDONE
+                if (e is CancellationException) throw e
+                Log.e(TAG, "Index creation failed for ${book.initials}", e)
             }
         }
-        work.start()
     }
 
     private val SUPPORTED_DOCUMENT_TYPES: BookFilter = AcceptableBookTypeFilter()

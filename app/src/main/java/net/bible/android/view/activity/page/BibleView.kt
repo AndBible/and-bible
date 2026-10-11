@@ -77,6 +77,7 @@ import net.bible.service.llm.agent.NoteEditorEntityType
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
+import net.bible.android.control.page.contentJson
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.MemorizeDocument
 import net.bible.android.control.page.ClientAiDocMarker
@@ -611,6 +612,8 @@ class BibleView(
     }
 
     val scope get() = host.lifecycleScope
+    private val epubLinks by lazy { net.bible.sharedcore.platform.OrderedLauncher(scope) }
+    private var documentLoadGeneration = 0L
 
     internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.Main) {
         val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
@@ -1263,7 +1266,7 @@ class BibleView(
                     (if(book is SwordGenBook) {
                         val backend = book.backend
                         if (backend is EpubBackend) {
-                            backend.styleSheets(key)
+                            blockingDb { backend.styleSheets(key) } // L1-edge: WebView shouldInterceptRequest
                         } else null
                     }  else null) ?: return notFound
 
@@ -1395,6 +1398,18 @@ class BibleView(
         .build()
 
 
+    internal fun openEpubLink(book: SwordGenBook, backend: EpubBackend, keyStr: String, idStr: String) {
+        val windowMode = linkControl.windowMode
+        val page = window.pageManager.currentPage
+        epubLinks.launch("epub-links") {
+            val key = withContext(Dispatchers.IO) { backend.getKey(keyStr, idStr) }
+            withContext(Dispatchers.Main) {
+                if (window.bibleView !== this@BibleView || window.pageManager.currentPage !== page || page.currentDocument != book) return@withContext
+                key?.let { linkControl.showLink(book, BookAndKey(it, book, htmlId = idStr), windowMode = windowMode) }
+            }
+        }
+    }
+
     fun openLink(uri: Uri): Boolean = when(uri.scheme) {
         UriConstants.SCHEME_W -> {
             val links = mutableListOf<BibleLink>()
@@ -1420,9 +1435,7 @@ class BibleView(
 
             val book = Books.installed().getBook(bookStr) as SwordGenBook
             val backend = book.backend as EpubBackend
-            val key = backend.getKey(keyStr, idStr)
-
-            key?.let {linkControl.showLink(book, BookAndKey(it, book, htmlId = idStr)) }
+            openEpubLink(book, backend, keyStr, idStr)
             true
         }
         UriConstants.MULTI_REFERENCE -> {
@@ -1654,6 +1667,7 @@ class BibleView(
     )
     {
         val currentPage = window.pageManager.currentPage
+        val generation = ++documentLoadGeneration
 
         // make sure this has been created
         bookmarkControl.labelUnlabelled()
@@ -1690,9 +1704,10 @@ class BibleView(
         }
 
         Log.i(TAG, "Show $initialKey, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
+        var docStr = withContext(Dispatchers.IO) { document.contentJson() }
+        if (generation != documentLoadGeneration || window.bibleView !== this || window.pageManager.currentPage !== currentPage) return
         this.firstDocument = document
         synchronized(documentLoadingLock) {
-            var docStr = document.asJson
             // Ps 119 in KJV is only 70k. Let's give gracefully max 4000k until we give "page too large" error.
             // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
             if(docStr.length > MAX_DOC_STR_LENGTH) {
@@ -2278,7 +2293,7 @@ class BibleView(
             val currentPage = window.pageManager.currentBible
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getDocumentForChapter(newChap)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
             }
         } else if (isCommentary) {
             val currentPage = window.pageManager.currentCommentary
@@ -2293,7 +2308,7 @@ class BibleView(
             firstKey = prevStart
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(prevStart)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
             }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
@@ -2311,7 +2326,7 @@ class BibleView(
 
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(prevKey)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
             }
         }
     }
@@ -2331,7 +2346,7 @@ class BibleView(
 
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getDocumentForChapter(newChap)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
             }
         } else if (isCommentary) {
             val currentPage = window.pageManager.currentCommentary
@@ -2346,7 +2361,7 @@ class BibleView(
             lastKey = nextStart
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(nextStart)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
             }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
@@ -2362,7 +2377,7 @@ class BibleView(
             lastKey = nextKey
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(nextKey)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
             }
         }
     }

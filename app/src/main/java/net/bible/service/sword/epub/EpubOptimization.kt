@@ -19,13 +19,11 @@ package net.bible.service.sword.epub
 
 import net.bible.service.db.blockingDb
 import net.bible.sharedcore.log.Log
-import net.bible.android.activity.R
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubHtmlToFrag
 import net.bible.android.database.StyleSheet
 import net.bible.android.misc.elementToString
 import net.bible.service.installzip.InstallZipProgress
-import net.bible.android.view.activity.page.application
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
 import net.bible.service.sword.SwordContentFacade
@@ -229,11 +227,11 @@ fun EpubBackendState.optimizeEpub() {
     // The database file lives in internal storage and can outlive the (external) epub dir
     // when a module is removed via the failure path. Clear any stale rows from a previous
     // optimization so newly-written fragment files are the only ones referenced.
-    blockingDb { writeDao.clear() }
+    blockingDb { writeDao.clear() } // L1-edge: JSword BookType.getBackend (first open optimizes)
     val start = System.currentTimeMillis()
     for(k in originalIds) {
-        val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: application.getString(R.string.nameless)
-        val s = application.getString(R.string.processing_epub, "${getBookMetaData().name}: $title")
+        val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: strings.namelessTitle
+        val s = strings.processingEpub("${getBookMetaData().name}: $title")
         InstallZipProgress.report(s)
         Log.i(TAG, "${getBookMetaData().name}: optimizing $k")
 
@@ -248,7 +246,7 @@ fun EpubBackendState.optimizeEpub() {
             .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
             .mapNotNull { StyleSheet(k, it.getAttribute("href").value) }.toTypedArray()
 
-        blockingDb {
+        blockingDb { // L1-edge: JSword BookType.getBackend (first open optimizes)
             val ids = writeDao.insert(*fragments.toTypedArray())
             for((id, frag) in ids.zip(fragments)) {
                 frag.id = id
@@ -264,7 +262,7 @@ fun EpubBackendState.optimizeEpub() {
             findIds(frag).mapTo(epubHtmlToFrags) { EpubHtmlToFrag("$k#$it", frag.id) }
             frag.element = null // clear up memory
         }
-        blockingDb { writeDao.insert(*epubHtmlToFrags.toTypedArray()) }
+        blockingDb { writeDao.insert(*epubHtmlToFrags.toTypedArray()) } // L1-edge: JSword BookType.getBackend (first open optimizes)
         fileForOriginalId(k)?.delete()
     }
     versionFile.outputStream().use {

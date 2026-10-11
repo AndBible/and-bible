@@ -18,16 +18,19 @@
 package net.bible.service.sword.epub
 
 import net.bible.service.db.blockingDb
-import net.bible.service.db.deleteAppDatabase
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.service.common.ArchiveUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import net.bible.sharedcore.log.Log
-import net.bible.android.BibleApplication
-import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
-import net.bible.android.activity.R
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubMeta
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
 import net.bible.service.sword.BookAndKey
@@ -64,8 +67,8 @@ val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.o
 
 class KeyAndText(val key: BookAndKey, val text: String)
 
-class EpubBackendState(private val epubDir: File): OpenFileState {
-    constructor(epubDir: File, metadata: SwordBookMetaData): this(epubDir) {
+class EpubBackendState(private val epubDir: File, internal val strings: CoreStrings, private val env: AppEnvironment): OpenFileState {
+    constructor(epubDir: File, metadata: SwordBookMetaData, strings: CoreStrings, env: AppEnvironment): this(epubDir, strings, env) {
         this._metadata = metadata
     }
 
@@ -147,24 +150,26 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             .evaluateFirst(content)?.value
     }
 
-    private fun getFragment(key: Key): EpubFragment? = blockingDb { dao.getFragment(key.getOsisRef().toLong()) }
+    private fun fragmentBlocking(key: Key): EpubFragment? = blockingDb { dao.getFragment(key.getOsisRef().toLong()) } // L1-edge: JSword synchronous Backend contract
+
+    private suspend fun fragment(key: Key): EpubFragment? = dao.getFragment(key.getOsisRef().toLong())
 
     fun fileForOriginalId(id: String): File? = idToFile[id]?.let {File(rootFolder, it) }
 
-    fun styleSheets(key: Key): List<File> {
-        val frag = getFragment(key)?: return emptyList()
+    suspend fun styleSheets(key: Key): List<File> {
+        val frag = fragment(key)?: return emptyList()
         val file = fileForOriginalId(frag.originalId)?: return emptyList()
         val parentFolder = file.parentFile
-        return blockingDb { dao.styleSheets(frag.originalId) }.map { File(parentFolder, it.styleSheetFile).canonicalFile }
+        return dao.styleSheets(frag.originalId).map { File(parentFolder, it.styleSheetFile).canonicalFile }
     }
 
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
         val filePath = idToFile.let { it[fragment.originalId] }
-        val keyName = label ?: filePath?.let { fp -> fileToTitle?.let {it[fp] } } ?: BibleApplication.application.getString(R.string.nameless)
+        val keyName = label ?: filePath?.let { fp -> fileToTitle?.let {it[fp] } } ?: strings.namelessTitle
         return DefaultLeafKeyList(keyName, "${fragment.id}")
     }
 
-    val tocKeys: List<Key> get() {
+    suspend fun tocKeys(): List<Key> {
         // Check if toc is null and return an empty list if it is
         if (toc == null) return emptyList()
 
@@ -188,13 +193,17 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             } else {
                 "$id#$htmlId"
             }
-            val frag = blockingDb { dao.getFragment(keyStr) }
+            val frag = dao.getFragment(keyStr)
             frag?.let { BookAndKey(getKey(it, label = label), book, htmlId = htmlId) }
         }
     }
 
     fun read(key: Key): String {
-        val frag = getFragment(key)?: return ""
+        val frag = fragmentBlocking(key)?: return ""
+        return readFragment(frag)
+    }
+
+    private fun readFragment(frag: EpubFragment): String {
         val sourceFile = File(fragDir, frag.fragFileName)
         if (!sourceFile.exists()) {
             // The fragment database and the optimized fragment files can get out of sync
@@ -222,7 +231,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         xp.compile("//ns:spine/ns:itemref", Filters.element(), null, epubNamespace).evaluate(content)
     }.map { it.getAttribute("idref").value }
 
-    val keys: List<Key> get() = blockingDb { dao.fragments() }.map { getKey(it) }
+    val keys: List<Key> get() = blockingDb { dao.fragments() }.map { getKey(it) } // L1-edge: JSword synchronous Backend contract
 
     internal val fragDir get() = File(epubDir,  "optimized")
     internal val versionFile = File(fragDir, "version.txt")
@@ -236,7 +245,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
     init {
-        val appDbFile = BibleApplication.application.getDatabasePath(appDbFilename)
+        val appDbFile = File(env.databasePath(appDbFilename))
         var epubDbFile = File(epubDir, alternativeEpubDbFilename)
         if(!epubDbFile.exists()) {
             epubDbFile = File(epubDir, epubDbFilename)
@@ -258,10 +267,10 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
-            CommonUtils.gzipFile(appDbFile, epubDbFile)
+            ArchiveUtils.gzipFile(appDbFile, epubDbFile)
         } else {
             if(!appDbFile.exists())  {
-                CommonUtils.gunzipFile(epubDbFile, appDbFile)
+                ArchiveUtils.gunzipFile(epubDbFile, appDbFile)
             }
         }
     }
@@ -279,7 +288,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         search.deleteIndex()
     }
 
-    fun buildSearchIndex() {
+    suspend fun buildSearchIndex() = withContext(Dispatchers.IO) {
         // Not just `return`: an existing index must also be REPORTED as done, so that any caller
         // polling `indexStatus` learns the truth rather than waiting out a timeout.
         //
@@ -292,31 +301,24 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         // item, and nothing in the F43 batch exercises it.
         if (search.isIndexed) {
             getBookMetaData().indexStatus = IndexStatus.DONE
-            return
+            return@withContext
         }
         getBookMetaData().indexStatus = IndexStatus.CREATING
-        // This whole build is wrapped because it runs on a bare `Thread`
-        // (`SwordDocumentFacade.scheduleIndexCreation`) with nothing but the platform's default
-        // uncaught-exception handler behind it. An escaping exception used to leave `indexStatus`
-        // stuck at CREATING — and `ensureIndexCreation` skips the build whenever the status is
-        // CREATING or SCHEDULED, so EVERY retry for the rest of the session became a silent no-op
-        // and the search sheet sat on "Indexing…" forever. Resetting to UNDONE is what makes the
-        // next attempt actually attempt something. `job.done()` is in the `finally` for the same
-        // reason: an abandoned JobManager job keeps a progress row alive with no one to finish it.
+        // Reset failures so the app-owned index job can be retried; always finish its progress row.
         var job: Progress? = null
         try {
-            val jobName = application.getString(R.string.creating_index_for, getBookMetaData().name)
+            val jobName = strings.creatingIndexFor(getBookMetaData().name)
             job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
             job.isNotifyUser = true
             job.beginJob(jobName)
             search.createTable()
-            val frags = blockingDb { dao.fragments() }
+            val frags = dao.fragments()
             job.totalWork = frags.size
             for(i in frags.indices) {
+                currentCoroutineContext().ensureActive()
                 val frag = frags[i]
                 job.work = i
-                val key = getKey(frag)
-                val reader = StringReader(read(key))
+                val reader = StringReader(readFragment(frag))
                 val doc = useSaxBuilder { it.build(reader) }
                 for(bva in useXPathInstance { xp -> xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc) }) {
                     val ordinal = bva.getAttribute("ordinal").value.toInt()
@@ -327,21 +329,19 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         } catch (e: Exception) {
             Log.e(TAG, "buildSearchIndex failed for ${getBookMetaData().initials}", e)
             getBookMetaData().indexStatus = IndexStatus.UNDONE
+            if (e is CancellationException) throw e
         } finally {
             job?.done()
         }
     }
 
-    fun search(search: String): List<KeyAndText> {
+    suspend fun search(search: String): List<KeyAndText> = withContext(Dispatchers.IO) {
         val book = Books.installed().getBook(getBookMetaData().initials)
-        val hits = this.search.search(search)
-        return blockingDb {
-            hits.mapNotNull {
-                val frag = dao.getFragment(it.fragId) ?: return@mapNotNull null
-                val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
-                val text = it.text
-                KeyAndText(key, text)
-            }
+        val hits = this@EpubBackendState.search.search(search)
+        hits.mapNotNull {
+            val frag = dao.getFragment(it.fragId) ?: return@mapNotNull null
+            val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
+            KeyAndText(key, it.text)
         }
     }
 
@@ -383,27 +383,27 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun delete() {
         epubDir.deleteRecursively()
         readDb.close()
-        deleteAppDatabase(appDbFilename)
+        env.deleteDatabase(appDbFilename)
     }
 
-    fun getKey(originalKey: String, htmlId: String): Key? {
-        val frag = blockingDb { dao.getFragment(if(htmlId.isNotEmpty()) "$originalKey#$htmlId" else originalKey) }
+    suspend fun getKey(originalKey: String, htmlId: String): Key? {
+        val frag = dao.getFragment(if(htmlId.isNotEmpty()) "$originalKey#$htmlId" else originalKey)
         return frag?.let {getKey(it)}
     }
 
-    fun getOrdinalRange(key: Key): IntRange {
-        val frag = getFragment(key) ?: return 0..0
+    suspend fun getOrdinalRange(key: Key): IntRange {
+        val frag = fragment(key) ?: return 0..0
         return frag.ordinalStart .. frag.ordinalEnd
     }
 
     /** Total ordinal span of the whole book (anchor ordinals restart per spine item). */
-    val bookOrdinalSpan: Int get() = blockingDb { dao.fragments() }.sumOf { it.ordinalEnd - it.ordinalStart + 1 }
+    suspend fun bookOrdinalSpan(): Int = dao.fragments().sumOf { it.ordinalEnd - it.ordinalStart + 1 }
 
     /** Sum of the ordinal spans of all fragments preceding [key] in book order. */
-    fun fragmentOffset(key: Key): Int {
-        val targetId = getFragment(key)?.id ?: return 0
+    suspend fun fragmentOffset(key: Key): Int {
+        val targetId = fragment(key)?.id ?: return 0
         var offset = 0
-        for (frag in blockingDb { dao.fragments() }.sortedBy { it.id }) {
+        for (frag in dao.fragments().sortedBy { it.id }) {
             if (frag.id == targetId) break
             offset += frag.ordinalEnd - frag.ordinalStart + 1
         }
@@ -415,13 +415,13 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
      * fragment BVA text and cached in the EpubMeta table; subsequent reads are O(1).
      * This avoids forcing a re-optimization of already-installed EPUBs.
      */
-    val totalCharacters: Int get() {
-        blockingDb { dao.getMeta() }?.let { return it.totalCharacters }
+    suspend fun totalCharacters(): Int = withContext(Dispatchers.IO) {
+        dao.getMeta()?.let { return@withContext it.totalCharacters }
         var total = 0
         var failed = false
-        for (frag in blockingDb { dao.fragments() }) {
+        for (frag in dao.fragments()) {
             try {
-                val doc = useSaxBuilder { it.build(StringReader(read(getKey(frag)))) }
+                val doc = useSaxBuilder { it.build(StringReader(readFragment(frag))) }
                 for (bva in useXPathInstance { xp ->
                     xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc)
                 }) {
@@ -436,7 +436,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
         // Only cache the result when every fragment was read successfully; otherwise a
         // transient/repairable inconsistency would freeze an inaccurate count forever.
-        if (!failed) blockingDb { dao.insert(EpubMeta(totalCharacters = total)) }
-        return total
+        if (!failed) dao.insert(EpubMeta(totalCharacters = total))
+        total
     }
 }

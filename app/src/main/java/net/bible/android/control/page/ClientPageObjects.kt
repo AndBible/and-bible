@@ -87,6 +87,16 @@ interface Document {
     val asHashMap: Map<String, Any>
 }
 
+/** Resolve EPUB progress before serializing, without blocking the reading UI. */
+suspend fun Document.contentJson(): String {
+    if (this !is OsisDocument || !book.isEpub) return asJson
+    val progress = book.epubBackend?.let {
+        ReadingProgressInfo.forEpub(it.fragmentOffset(key), it.bookOrdinalSpan(), it.totalCharacters()).asJson
+    } ?: "null"
+    return contentHashMap(book.epubBackend?.getOrdinalRange(key)).toMutableMap().apply { put("readingProgress", progress) }
+        .map { (key, value) -> "'$key': $value" }.joinToString(",", "{", "}")
+}
+
 enum class ErrorSeverity {
     NORMAL, WARNING, ERROR
 }
@@ -131,22 +141,19 @@ open class OsisDocument(
     open val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
     val commentaryRange: CommentaryRangeInfo? = null,
 ): Document {
-    override val asHashMap: Map<String, String> get () {
+    override val asHashMap: Map<String, String> get() = contentHashMap(
+        if (book.bookCategory != BookCategory.BIBLE) SwordContentFacade.ordinalRangeFor(book, key) else null,
+    )
+
+    internal fun contentHashMap(ordRange: IntRange?): Map<String, String> {
         val highlightedOrdinalRange =
             if(highlightRange == null) "null"
             else json.encodeToString(serializer(), listOf(highlightRange.first, highlightRange.last))
-        val ordRange =
-            if(book.bookCategory != BookCategory.BIBLE)
-                SwordContentFacade.ordinalRangeFor(book, key)
-            else null
         val ordinalRange =
             if (ordRange == null) "null"
             else json.encodeToString(serializer(), listOf(ordRange.first, ordRange.last))
 
         val readingProgress: String = when {
-            book.isEpub -> book.epubBackend
-                ?.let { ReadingProgressInfo.forEpub(it.fragmentOffset(key), it.bookOrdinalSpan, it.totalCharacters).asJson }
-                ?: "null"
             book.bookCategory == BookCategory.COMMENTARY && book is SwordBook -> {
                 val vr = when (val k = key) {
                     is VerseRange -> k

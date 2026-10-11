@@ -162,9 +162,9 @@ object GetGenBookKeysTool : Tool {
         }
     }
 
-    private fun collectKeys(book: org.crosswire.jsword.book.Book): List<Key> {
+    private suspend fun collectKeys(book: org.crosswire.jsword.book.Book): List<Key> {
         return if (book.isEpub) {
-            book.epubBackend?.tocKeys ?: emptyList()
+            book.epubBackend?.tocKeys() ?: emptyList()
         } else {
             val keys = mutableListOf<Key>()
             for (key in book.getGlobalKeyList()) {

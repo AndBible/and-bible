@@ -1084,7 +1084,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * [KeyChooserKind.Grid] has no key list at all — it is driven by `GridChoosePassageController` —
      * so it resolves to empty and is excluded from [keyChooserSheetHasRows]'s emptiness rule.
      */
-    internal fun resolveKeyChooserKeys(kind: KeyChooserKind): List<Key> = when (kind) {
+    internal suspend fun resolveKeyChooserKeys(kind: KeyChooserKind): List<Key> = when (kind) {
         KeyChooserKind.Map -> mapPage.keyChooserKeys()
         KeyChooserKind.GeneralBook -> generalBookPage.keyChooserKeys()
         KeyChooserKind.Grid -> emptyList()

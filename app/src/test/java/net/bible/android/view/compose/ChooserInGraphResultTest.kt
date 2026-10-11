@@ -152,6 +152,7 @@ class ChooserInGraphResultTest {
     private fun deps(
         generalBookKeys: List<String> = listOf("Chapter 1", "Chapter 2"),
         mapKeys: List<String> = listOf("Map 1"),
+        generalBookGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null,
         dictionaryDocument: Boolean = true,
         dictionaryRows: List<DictRow>? = listOf(DictRow("0", "aaron")),
     ): ChooserNavDeps {
@@ -167,6 +168,7 @@ class ChooserInGraphResultTest {
             chooseGeneralBookKey = ChooseGeneralBookKeyDeps(
                 title = "General book",
                 controllerFor = { onResult ->
+                    generalBookGate?.await()
                     if (generalBookKeys.isEmpty()) {
                         null
                     } else {
@@ -343,6 +345,42 @@ class ChooserInGraphResultTest {
      * channel-delivering `onResult`, and any regression in deliver-then-pop. Also pins that the
      * window title is set EXACTLY once, on the value the deps carried.
      */
+    @Test
+    fun aPendingGeneralBookChooserDoesNotDeliverAnEmptyFallback() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        try {
+            setGraph(deps(generalBookGate = gate))
+            navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
+            assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, currentRoute)
+            assertEquals(0, generalBookEmptyResults)
+            compose.runOnIdle { gate.complete(Unit) }
+            compose.waitForIdle()
+            assertNotNull(generalBookController)
+            assertEquals(0, generalBookEmptyResults)
+        } finally {
+            gate.cancel()
+        }
+    }
+
+    @Test
+    fun aPoppedPendingGeneralBookChooserCannotPublishRowsOrFallback() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        try {
+            setGraph(deps(generalBookGate = gate))
+            navigateTo(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
+            compose.runOnIdle { navController.popBackStack() }
+            compose.waitForIdle()
+            compose.runOnIdle { gate.complete(Unit) }
+            compose.waitForIdle()
+            assertEquals(NavRoutes.READING, currentRoute)
+            assertEquals(null, generalBookController)
+            assertEquals(0, generalBookEmptyResults)
+            assertEquals(null, keyChooserResults.consume())
+        } finally {
+            gate.cancel()
+        }
+    }
+
     @Test
     fun aGeneralBookKeyChosenInTheGraphReachesTheParentAndPops() {
         setGraph(deps())
