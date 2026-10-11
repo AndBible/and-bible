@@ -5713,7 +5713,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 contentType = contentType,
                 orderNumber = controller.totalCount.value,
             )
-            blockingDb { myDocumentDao.insertPageWithContent(page, content) }
+            MyDocumentBookManager.launcher.launch("mydocument-pages-$docId") {
+                myDocumentDao.insertPageWithContent(page, content)
+            }
             val id = nextLongId()
             myDocumentPagesEntityByLong = myDocumentPagesEntityByLong + (id to page)
             val ct = if (contentType == MyDocumentContentType.HTML) ContentType.HTML else ContentType.MARKDOWN
@@ -5723,26 +5725,26 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** Mirror of classic `applyChanges`: delete removed pages, persist reorders/renames, always
          *  refresh the SWORD book, and post `MyDocumentChange.AiDocPages` for the deletions. */
-        fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>) {
-            val removedPages = deleted.mapNotNull { myDocumentPagesEntityByLong[it] }
-            blockingDb {
+        suspend fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>, pages: Map<Long, MyDocumentPage>) {
+            val removedPages = deleted.mapNotNull { pages[it] }
+            run {
                 removedPages.forEach { p ->
                     myDocumentDao.pageById(p.id)?.let { myDocumentDao.deletePageWithContent(it) }
                 }
             }
             val toUpdate = ArrayList<MyDocumentPage>()
             ordered.forEachIndexed { index, item ->
-                val p = myDocumentPagesEntityByLong[item.id] ?: return@forEachIndexed
+                val p = pages[item.id]?.copy() ?: return@forEachIndexed
                 p.orderNumber = index
                 p.title = item.name
                 if (item.id in changed) { p.updatedAt = System.currentTimeMillis(); toUpdate.add(p) }
             }
-            if (toUpdate.isNotEmpty()) blockingDb { myDocumentDao.updatePages(toUpdate) }
+            if (toUpdate.isNotEmpty()) myDocumentDao.updatePages(toUpdate)
             // Classic always refreshes: new pages are inserted directly to the DB in
             // addPageToList() without going through `changed`, so the SWORD book would otherwise be
             // stale.
             MyDocumentBookManager.refreshDocument(documentInitials)
-            val deletedIds = deleted.mapNotNull { myDocumentPagesEntityByLong[it]?.id }
+            val deletedIds = deleted.mapNotNull { pages[it]?.id }
             if (deletedIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedIds))
         }
 
@@ -5752,8 +5754,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // classic's save-changes prompt, then refresh the SWORD book's key map (a snapshot)
                 // before the caller resolves the returned pageKey against it.
                 myDocumentPagesEntityByLong[id]?.let { page ->
-                    if (controller.dirty.value) controller.save() else MyDocumentBookManager.refreshDocument(documentInitials)
-                    onResult(MyDocumentPagesResult.Selected(documentInitials, page.pageKey))
+                    if (controller.dirty.value) controller.save()
+                    MyDocumentBookManager.launcher.launch("mydocument-pages-$docId") {
+                        MyDocumentBookManager.refreshDocument(documentInitials)
+                        withContext(Dispatchers.Main) {
+                            onResult(MyDocumentPagesResult.Selected(documentInitials, page.pageKey))
+                        }
+                    }
                 }
             },
             onImport = onImport,
@@ -5763,7 +5770,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 addPageToList(name, ct, "")
             },
             onExportSelected = onExportSelected,
-            onSave = { ordered, changed, deleted -> applyChanges(ordered, changed, deleted) },
+            onSave = { ordered, changed, deleted ->
+                val pages = myDocumentPagesEntityByLong.mapValues { it.value.copy() }
+                MyDocumentBookManager.launcher.launch("mydocument-pages-$docId") {
+                    applyChanges(ordered, changed, deleted, pages)
+                }
+            },
         )
 
         lifecycleScope.launch {
@@ -6009,13 +6021,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Mirror of classic `createNewDocument` (`MyDocumentsComposeActivity.kt:198-208`): insert +
      *  register a fresh empty document, then add it to the session's list. */
     private fun createMyDocument(session: MyDocumentsSession, name: String) {
-        val initials = MyDocumentBookManager.generateInitials(name)
-        val newDoc = MyDocument(name = name, initials = initials, orderNumber = session.controller.totalCount.value)
-        blockingDb { myDocumentDao.insert(newDoc) }
-        MyDocumentBookManager.registerDocument(newDoc)
-        val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
-        session.entityByLong = session.entityByLong + (id to newDoc)
-        session.controller.addDocument(MyDocItem(id, initials, name, "", isAiGenerated = false, canDelete = true))
+        MyDocumentBookManager.launcher.launch("mydocument-create") {
+            val initials = MyDocumentBookManager.generateInitials(name)
+            val newDoc = MyDocument(name = name, initials = initials, orderNumber = withContext(Dispatchers.Main) { session.controller.totalCount.value })
+            myDocumentDao.insert(newDoc)
+            withContext(Dispatchers.Main) {
+                MyDocumentBookManager.registerDocument(newDoc)
+                val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
+                session.entityByLong = session.entityByLong + (id to newDoc)
+                session.controller.addDocument(MyDocItem(id, initials, name, "", isAiGenerated = false, canDelete = true))
+            }
+        }
     }
 
     private var pendingMyDocumentExportId: Long? = null
@@ -6081,7 +6097,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private fun importMyDocumentFromFiles(documentName: String, uris: List<Uri>) {
         val session = myDocumentsSession ?: return
-        lifecycleScope.launch(Dispatchers.IO) {
+        MyDocumentBookManager.launcher.launch("mydocument-create") {
             try {
                 data class FileEntry(val fileName: String, val content: String)
 
@@ -6135,9 +6151,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     myDocumentDao.insertPageWithContent(page, entry.content)
                 }
 
-                MyDocumentBookManager.registerDocument(newDocument)
-
                 withContext(Dispatchers.Main) {
+                    MyDocumentBookManager.registerDocument(newDocument)
                     val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
                     session.entityByLong = session.entityByLong + (id to newDocument)
                     session.controller.addDocument(

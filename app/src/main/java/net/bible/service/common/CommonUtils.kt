@@ -1107,7 +1107,11 @@ object CommonUtils : CommonUtilsBase() {
             addManuallyInstalledEpubBooks()
             addManuallyInstalledTtfBooks()
             addManuallyInstalledCsvPromptBooks()
-            MyDocumentBookManager.registerAllDocuments()
+            // Synchronous framework entry points cannot block Main on registration.
+            // Reading startup awaits this queue in initializeAppCoroutine before restoring windows.
+            MyDocumentBookManager.launcher.launch("mydocument-sync") {
+                MyDocumentBookManager.registerAllDocuments()
+            }
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1130,6 +1134,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     suspend fun initializeAppCoroutine() {
+        MyDocumentBookManager.launcher.join("mydocument-sync")
         if(!initialized) {
             try {
                 val pid = android.os.Process.myPid()
@@ -1159,14 +1164,7 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledTtfBooks()
                 addManuallyInstalledCsvPromptBooks()
             }
-            // Must run on the main thread — SwordGenBook and JSword's Activator
-            // are not thread-safe. Running registerAllDocuments() on a background
-            // thread races with workspace restore and can leave the new
-            // SwordGenBook's internal key map null. See MyDocumentBookManager
-            // class kdoc and commit 9d63d1e7c (sync handler fix).
-            withContext(Dispatchers.Main) {
-                MyDocumentBookManager.registerAllDocuments()
-            }
+            MyDocumentBookManager.registerAllDocuments()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.

@@ -39,7 +39,10 @@ import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordGenBook
 import java.util.Locale
-import net.bible.service.db.blockingDb
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.bible.sharedcore.platform.OrderedLauncher
 
 private const val TAG = "MyDocumentBookManager"
 
@@ -84,6 +87,9 @@ sealed interface MyDocumentChange {
  * Handles registration/unregistration with JSword's Books.
  */
 object MyDocumentBookManager {
+    internal var mainDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
+    internal lateinit var launcher: OrderedLauncher
+
     private val registeredBooks = mutableMapOf<String, SwordGenBook>()
 
     /** Special initials for the AI Documents default document */
@@ -105,7 +111,9 @@ object MyDocumentBookManager {
     @VisibleForTesting fun resetSubscribersForTest() { changeSource = EventSource() }
 
     init {
-        DatabaseContainer.myDocumentsSynced.subscribeOnMain { handleSyncEvent(it) }
+        DatabaseContainer.myDocumentsSynced.subscribe { updated ->
+            launcher.launch("mydocument-sync") { handleSyncEvent(updated) }
+        }
     }
 
     /**
@@ -113,16 +121,16 @@ object MyDocumentBookManager {
      * refresh only the BibleView windows that display documents affected by
      * the sync.
      *
-     * Must run on the main thread (it is subscribed with `subscribeOnMain`) because
+     * Registration runs on [mainDispatcher] because
      * SwordGenBook and the JSword Activator are not thread-safe. Running the
      * registration refresh on a background thread causes a race condition where
      * the main thread sees a newly registered book whose internal key map hasn't
      * been activated yet, leading to NPE in getKey().
      *
      * Internal rather than a lambda body so tests can drive it directly instead
-     * of going through the main-dispatched `myDocumentsSynced`.
+     * of going through the ordered `myDocumentsSynced` subscription.
      */
-    internal fun handleSyncEvent(updated: List<LogEntry>) {
+    internal suspend fun handleSyncEvent(updated: List<LogEntry>) {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val affectedInitials = mutableSetOf<String>()
         var refreshAll = false
@@ -144,7 +152,7 @@ object MyDocumentBookManager {
             }
         }
 
-        blockingDb {
+        run {
             if (documentIds.isNotEmpty()) {
                 affectedInitials.addAll(dao.initialsByIds(documentIds))
             }
@@ -155,25 +163,29 @@ object MyDocumentBookManager {
 
         refreshRegistrations()
 
-        val initialsToRefresh = if (refreshAll) registeredInitials else affectedInitials
-        for (initials in initialsToRefresh) {
-            SwordContentFacade.evictBook(initials)
-            changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
+        withContext(mainDispatcher) {
+            val initialsToRefresh = if (refreshAll) registeredInitials else affectedInitials
+            for (initials in initialsToRefresh) {
+                SwordContentFacade.evictBook(initials)
+                changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
+            }
+            Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
         }
-        Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
     }
 
     /**
      * Register all MyDocuments from the database.
      * Called at app startup.
      */
-    fun registerAllDocuments() {
+    suspend fun registerAllDocuments() {
         Log.i(TAG, "Registering all MyDocuments")
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val documents = blockingDb { dao.allDocuments() }
+        val documents = dao.allDocuments()
 
-        for (document in documents) {
-            registerDocument(document)
+        withContext(mainDispatcher) {
+            for (document in documents) {
+                registerDocument(document)
+            }
         }
         Log.i(TAG, "Registered ${documents.size} MyDocuments")
     }
@@ -193,29 +205,31 @@ object MyDocumentBookManager {
      * A document whose name changed cannot be refreshed in place because the
      * name is baked into the SWORD conf, so those are re-created.
      */
-    private fun refreshRegistrations() {
+    private suspend fun refreshRegistrations() {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val documents = blockingDb { dao.allDocuments() }
-        val currentInitials = documents.map { it.initials }.toSet()
+        val documents = dao.allDocuments()
+        withContext(mainDispatcher) {
+            val currentInitials = documents.map { it.initials }.toSet()
 
-        for (initials in registeredBooks.keys.toList()) {
-            if (initials !in currentInitials) {
-                unregisterDocument(initials)
-            }
-        }
-
-        for (document in documents) {
-            val book = registeredBooks[document.initials]
-            when {
-                book == null -> registerDocument(document)
-                book.bookMetaData.name != document.name -> {
-                    unregisterDocument(document.initials)
-                    registerDocument(document)
+            for (initials in registeredBooks.keys.toList()) {
+                if (initials !in currentInitials) {
+                    unregisterDocument(initials)
                 }
-                else -> reactivate(book)
             }
+
+            for (document in documents) {
+                val book = registeredBooks[document.initials]
+                when {
+                    book == null -> registerDocument(document)
+                    book.bookMetaData.name != document.name -> {
+                        unregisterDocument(document.initials)
+                        registerDocument(document)
+                    }
+                    else -> reactivate(book)
+                }
+            }
+            Log.i(TAG, "Refreshed registrations: ${documents.size} MyDocuments")
         }
-        Log.i(TAG, "Refreshed registrations: ${documents.size} MyDocuments")
     }
 
     /**
@@ -285,19 +299,18 @@ object MyDocumentBookManager {
      * Refresh a MyDocument's registration (e.g., after adding/removing pages).
      * This re-creates the book with updated TOC.
      */
-    fun refreshDocument(initials: String) {
-        val book = registeredBooks[initials]
-        if (book != null) {
-            reactivate(book)
-        } else {
-            // Book not registered yet — register it
-            val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-            val document = blockingDb { dao.documentByInitials(initials) } ?: return
-            registerDocument(document)
+    suspend fun refreshDocument(initials: String) {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val document = dao.documentByInitials(initials)
+        withContext(mainDispatcher) {
+            val book = registeredBooks[initials]
+            if (book != null) {
+                reactivate(book)
+            } else {
+                registerDocument(document ?: return@withContext)
+            }
+            changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
         }
-
-        // Notify listeners to invalidate their caches
-        changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
     }
 
     /**
@@ -311,21 +324,21 @@ object MyDocumentBookManager {
      * Generate unique initials for a new MyDocument.
      * Checks Books.installed(), registeredBooks, and the database.
      */
-    fun generateInitials(baseName: String): String {
+    suspend fun generateInitials(baseName: String): String {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val sanitized = baseName
             .replace(Regex("[^a-zA-Z0-9]"), "")
             .take(10)
             .ifEmpty { "MyDoc" }
 
-        // One bridge around the whole search (no per-candidate bridging).
-        return blockingDb {
+        return run {
             var initials = "MyDoc_$sanitized"
             var counter = 1
 
             suspend fun exists(initials: String): Boolean =
-                Books.installed().getBook(initials) != null ||
-                registeredBooks.containsKey(initials) ||
+                withContext(mainDispatcher) {
+                    Books.installed().getBook(initials) != null || registeredBooks.containsKey(initials)
+                } ||
                 dao.documentByInitials(initials) != null
 
             while (exists(initials)) {
@@ -367,7 +380,7 @@ object MyDocumentBookManager {
             orderNumber = 0  // Always first in the list
         )
         dao.insert(aiDocument)
-        registerDocument(aiDocument)
+        withContext(mainDispatcher) { registerDocument(aiDocument) }
 
         // Shift other documents' order numbers
         val otherDocs = dao.allDocuments().filter { it.id != aiDocument.id }
@@ -404,23 +417,14 @@ object MyDocumentBookManager {
      * @param pageId ID of the page to delete
      * @return true if the page was deleted, false if not found
      */
-    fun deleteAIDocumentPage(pageId: IdType): Boolean {
-        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        // For the blocking UI callback; coroutine callers use [deleteAIDocumentPageSuspending].
-        blockingDb { dao.pageById(pageId)?.also { dao.deletePageWithContent(it) } } ?: return false
-        afterAIDocumentPageDeleted(pageId)
-        return true
-    }
-
-    /** [deleteAIDocumentPage] for coroutine callers: the DAO calls run directly, without a blocking bridge. */
-    suspend fun deleteAIDocumentPageSuspending(pageId: IdType): Boolean {
+    suspend fun deleteAIDocumentPage(pageId: IdType): Boolean {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         dao.pageById(pageId)?.also { dao.deletePageWithContent(it) } ?: return false
         afterAIDocumentPageDeleted(pageId)
         return true
     }
 
-    private fun afterAIDocumentPageDeleted(pageId: IdType) {
+    private suspend fun afterAIDocumentPageDeleted(pageId: IdType) {
         refreshDocument(AI_DOCUMENTS_INITIALS)
         notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = listOf(pageId)))
         Log.i(TAG, "Deleted AI document page: $pageId")
@@ -464,30 +468,6 @@ object MyDocumentBookManager {
             dao.update(page)
         }
         dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
-    }
-
-    /**
-     * Create a new page in a document.
-     */
-    fun createPage(documentId: IdType, title: String, contentType: MyDocumentContentType): MyDocumentPage {
-        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val pageId = IdType()
-        val page = MyDocumentPage(
-            id = pageId,
-            documentId = documentId,
-            title = title,
-            pageKey = "page_${pageId}",
-            contentType = contentType,
-            orderNumber = (blockingDb { dao.maxOrderNumber(documentId) } ?: -1) + 1,
-            languageCode = Locale.getDefault().language
-        )
-        blockingDb { dao.insertPageWithContent(page, "") }
-
-        val document = blockingDb { dao.documentById(documentId) }
-        if (document != null) {
-            refreshDocument(document.initials)
-        }
-        return page
     }
 
     /**

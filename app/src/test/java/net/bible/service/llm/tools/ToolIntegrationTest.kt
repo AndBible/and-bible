@@ -67,14 +67,19 @@ class ToolIntegrationTest {
     private val promptId = IdType()
     private val context = AgentContext(promptId = promptId)
 
+    private lateinit var previousMyDocumentDispatcher: kotlinx.coroutines.CoroutineDispatcher
+
     @Before
     fun setUp() {
-        // Ensure clean state
+        previousMyDocumentDispatcher = MyDocumentBookManager.mainDispatcher
+        MyDocumentBookManager.mainDispatcher = kotlinx.coroutines.Dispatchers.Unconfined
     }
 
     @After
     fun tearDown() {
-        resetDatabase()
+        try { resetDatabase() } finally {
+            MyDocumentBookManager.mainDispatcher = previousMyDocumentDispatcher
+        }
     }
 
     // === CreateBookmark + GetBookmarksForVerse ===

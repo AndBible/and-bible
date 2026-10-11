@@ -18,7 +18,11 @@
 package net.bible.android.view.activity.page
 
 import android.os.Bundle
-import android.util.Log
+import net.bible.sharedcore.log.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKeySerialized
@@ -81,19 +85,25 @@ object KeyChooserResults {
      * empty for the rest of the session. Rebuild it and retry once before falling back to opening
      * the document without a key.
      */
-    fun openMyDocumentPage(pageManager: CurrentPageManager, book: Book, pageKey: String) {
+    fun openMyDocumentPage(pageManager: CurrentPageManager, book: Book, pageKey: String, scope: CoroutineScope? = CurrentActivityHolder.currentActivity?.lifecycleScope) {
         val key = try {
             book.getKey(pageKey)
         } catch (e: NoSuchKeyException) {
             Log.w(TAG, "Page key '$pageKey' missing from ${book.initials} key map, rebuilding it", e)
-            MyDocumentBookManager.refreshDocument(book.initials)
-            try {
-                book.getKey(pageKey)
-            } catch (e2: NoSuchKeyException) {
-                Log.e(TAG, "Page key '$pageKey' not found in ${book.initials}, opening book without key", e2)
+            if (scope == null) {
                 pageManager.setCurrentDocument(book)
                 return
             }
+            scope.launch {
+                MyDocumentBookManager.refreshDocument(book.initials)
+                try {
+                    pageManager.setCurrentDocumentAndKey(book, book.getKey(pageKey))
+                } catch (e2: NoSuchKeyException) {
+                    Log.e(TAG, "Page key '$pageKey' not found in ${book.initials}, opening book without key", e2)
+                    pageManager.setCurrentDocument(book)
+                }
+            }
+            return
         }
         pageManager.setCurrentDocumentAndKey(book, key)
     }
@@ -202,7 +212,7 @@ object KeyChooserResults {
      *   produce and it has been applied; false for anything else, so a caller can tell "not mine"
      *   from "applied" rather than assuming.
      */
-    fun apply(pageManager: CurrentPageManager, extras: Bundle?): Boolean {
+    fun apply(pageManager: CurrentPageManager, extras: Bundle?, scope: CoroutineScope? = CurrentActivityHolder.currentActivity?.lifecycleScope): Boolean {
         extras ?: return false
         val chosen = chosenKeyFrom(extras.getString(ActivityResultKind.EXTRA)) { extras.getString(it) }
             ?: return false
@@ -210,7 +220,7 @@ object KeyChooserResults {
             is ChosenKey.Document -> applyChosenDocument(pageManager, chosen.bookInitials)
             is ChosenKey.MyDocumentPage -> {
                 val book = Books.installed().getBook(chosen.documentInitials)
-                if (book != null) openMyDocumentPage(pageManager, book, chosen.pageKey)
+                if (book != null) openMyDocumentPage(pageManager, book, chosen.pageKey, scope)
             }
             is ChosenKey.GenBookKey -> {
                 val (book, key) = resolveGenBookKey(chosen)

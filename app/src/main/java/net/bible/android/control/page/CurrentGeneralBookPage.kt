@@ -215,7 +215,7 @@ class CurrentGeneralBookPage internal constructor(
             if (key == null) context.goBackInHistory()
             return
         }
-        KeyChooserResults.apply(pageManager, result.data?.extras)
+        KeyChooserResults.apply(pageManager, result.data?.extras, context.lifecycleScope)
     }
 
 

@@ -656,7 +656,7 @@ class ReadingCommands(
         if (bookInitials != null && pageKey != null) {
             val book = Books.installed().getBook(bookInitials)
             if (book != null) {
-                KeyChooserResults.openMyDocumentPage(hostActiveWindowPageManager, book, pageKey)
+                KeyChooserResults.openMyDocumentPage(hostActiveWindowPageManager, book, pageKey, hostActivity.lifecycleScope)
                 hostCallbacks.onToolbarStateMayHaveChanged()
             }
         }
@@ -678,7 +678,7 @@ class ReadingCommands(
             if (book != null) {
                 val pageManager = hostActiveWindowPageManager
                 if (pageKey != null) {
-                    KeyChooserResults.openMyDocumentPage(pageManager, book, pageKey)
+                    KeyChooserResults.openMyDocumentPage(pageManager, book, pageKey, hostActivity.lifecycleScope)
                 } else {
                     pageManager.setCurrentDocument(book)
                 }

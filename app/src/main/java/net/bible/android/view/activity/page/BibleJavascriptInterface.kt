@@ -1058,14 +1058,14 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) {
-        scope.launch {
+        MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
             MyDocumentBookManager.savePageContent(IdType(pageId), content, title)
         }
     }
 
     @JavascriptInterface
     fun reloadMyDocumentPage(bookInitials: String) {
-        scope.launch {
+        MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
             MyDocumentBookManager.refreshDocument(bookInitials)
         }
     }
@@ -1087,12 +1087,16 @@ class BibleJavascriptInterface(
             // the triggering [bibleView] (see `ComposeReadingViewHost.showDeleteDocumentPageConfirm`'s
             // kdoc).
             hostCallbacks.composeReadingViewHost()?.showDeleteDocumentPageConfirm {
-                MyDocumentBookManager.deleteAIDocumentPage(id)
-                val window = bibleView.window
-                if (windowControl.isWindowRemovable(window)) {
-                    windowControl.closeWindow(window)
-                } else {
-                    window.pageManager.setCurrentDocument(window.pageManager.currentBible.currentDocument)
+                MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
+                    MyDocumentBookManager.deleteAIDocumentPage(id)
+                    withContext(Dispatchers.Main) {
+                        val window = bibleView.window
+                        if (windowControl.isWindowRemovable(window)) {
+                            windowControl.closeWindow(window)
+                        } else {
+                            window.pageManager.setCurrentDocument(window.pageManager.currentBible.currentDocument)
+                        }
+                    }
                 }
             }
         }

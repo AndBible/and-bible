@@ -71,6 +71,9 @@ class TestBibleApplication : BibleApplication() {
             Thread.setDefaultUncaughtExceptionHandler(originalHandler)
         }
         CommonUtils.initializeApp()
+        net.bible.test.DatabaseResetter.runResetBlocking {
+            MyDocumentBookManager.launcher.join("mydocument-sync")
+        }
     }
 
     /**
