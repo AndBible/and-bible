@@ -1401,10 +1401,11 @@ class BibleView(
     internal fun openEpubLink(book: SwordGenBook, backend: EpubBackend, keyStr: String, idStr: String) {
         val windowMode = linkControl.windowMode
         val page = window.pageManager.currentPage
+        val sourceDocument = page.currentDocument
         epubLinks.launch("epub-links") {
             val key = withContext(Dispatchers.IO) { backend.getKey(keyStr, idStr) }
             withContext(Dispatchers.Main) {
-                if (window.bibleView !== this@BibleView || window.pageManager.currentPage !== page || page.currentDocument != book) return@withContext
+                if (window.bibleView !== this@BibleView || window.pageManager.currentPage !== page || page.currentDocument != sourceDocument) return@withContext
                 key?.let { linkControl.showLink(book, BookAndKey(it, book, htmlId = idStr), windowMode = windowMode) }
             }
         }
@@ -1666,70 +1667,55 @@ class BibleView(
                              htmlId: String? = null,
     )
     {
+        val generation = synchronized(documentLoadingLock) { ++documentLoadGeneration }
         val currentPage = window.pageManager.currentPage
-        val generation = ++documentLoadGeneration
-
-        // make sure this has been created
+        val sourceDocument = currentPage.currentDocument
+        val workspaceId = windowControl.windowRepository.id
+        val location = withContext(Dispatchers.Main) {
+            var loadKey = key
+            var loadAnchor = anchorOrdinal
+            var loadHtmlId = htmlId
+            if (lastUpdated == 0L || updateLocation) {
+                if (currentPage.documentCategory in listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE)) {
+                    loadKey = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
+                } else {
+                    loadAnchor = currentPage.anchorOrdinal
+                    loadHtmlId = currentPage.htmlId
+                }
+            }
+            Triple(loadKey, loadAnchor, loadHtmlId)
+        }
         bookmarkControl.labelUnlabelled()
         bookmarkControl.speakLabel()
         bookmarkControl.paragraphBreakLabel()
-
-        val workspaceId = windowControl.windowRepository.id
-        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        val overridesList = dao.labelOverrides(workspaceId)
-        labelOverridesMap = overridesList.associateBy { it.labelId }
-        bookmarkLabels = bookmarkControl.assignableLabels().map { label ->
-            label.withStyleOverrides(labelOverridesMap[label.id])
-        }
-        refreshFavouriteLabels()
-        initialKey = key
-
-        initialAnchorOrdinal = anchorOrdinal
-        initialHtmlId = htmlId
-
-        if (lastUpdated == 0L || updateLocation) {
-            if (listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
-                initialKey = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
-            } else {
-                initialAnchorOrdinal = currentPage.anchorOrdinal
-                initialHtmlId = currentPage.htmlId
-            }
-        }
-
-        contentVisible = false
-
-        val chapter = (initialKey as? Verse)?.chapter
-        if (chapter != null) {
-            addChapter(chapter)
-        }
-
-        Log.i(TAG, "Show $initialKey, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
+        val overrides = DatabaseContainer.instance.workspaceDb.workspaceDao().labelOverrides(workspaceId).associateBy { it.labelId }
+        val labels = bookmarkControl.assignableLabels().map { it.withStyleOverrides(overrides[it.id]) }
         var docStr = withContext(Dispatchers.IO) { document.contentJson() }
-        if (generation != documentLoadGeneration || window.bibleView !== this || window.pageManager.currentPage !== currentPage) return
-        this.firstDocument = document
-        synchronized(documentLoadingLock) {
-            // Ps 119 in KJV is only 70k. Let's give gracefully max 4000k until we give "page too large" error.
-            // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
-            if(docStr.length > MAX_DOC_STR_LENGTH) {
-                Log.e(TAG, "Page is too large to be shown, showing error instead, ${docStr.length}")
-                val errorDoc = ErrorDocument(host.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
-                docStr = errorDoc.asJson
-                firstDocument = errorDoc
-            }
-
-            latestDocumentStr = docStr
-
-            needsDocument = true
-        }
-
         withContext(Dispatchers.Main) {
-            enableZoomForMap(pageControl.currentPageManager.isMapShown)
-        }
-
-        if(!htmlLoadingOngoing) {
-            withContext(Dispatchers.Main) {
-                replaceDocument()
+            synchronized(documentLoadingLock) {
+                if (generation != documentLoadGeneration || window.bibleView !== this@BibleView ||
+                    window.pageManager.currentPage !== currentPage || currentPage.currentDocument != sourceDocument ||
+                    windowControl.windowRepository.id != workspaceId) return@withContext
+                labelOverridesMap = overrides
+                bookmarkLabels = labels
+                initialKey = location.first
+                initialAnchorOrdinal = location.second
+                initialHtmlId = location.third
+                contentVisible = false
+                (initialKey as? Verse)?.chapter?.let { addChapter(it) }
+                firstDocument = document
+                if (docStr.length > MAX_DOC_STR_LENGTH) {
+                    val errorDoc = ErrorDocument(host.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
+                    docStr = errorDoc.asJson
+                    firstDocument = errorDoc
+                }
+                latestDocumentStr = docStr
+                needsDocument = true
+                enableZoomForMap(pageControl.currentPageManager.isMapShown)
+                if (!htmlLoadingOngoing) replaceDocument()
             }
+            // Refresh has its own bookmark-change replay protocol; do not suspend during state commit.
+            refreshFavouriteLabels()
         }
     }
 

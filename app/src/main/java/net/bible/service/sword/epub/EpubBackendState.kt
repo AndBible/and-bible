@@ -328,6 +328,8 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
             getBookMetaData().indexStatus = IndexStatus.DONE
         } catch (e: Exception) {
             Log.e(TAG, "buildSearchIndex failed for ${getBookMetaData().initials}", e)
+            // Table existence is the completion signal, so never retain an interrupted build.
+            search.deleteIndex()
             getBookMetaData().indexStatus = IndexStatus.UNDONE
             if (e is CancellationException) throw e
         } finally {

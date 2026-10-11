@@ -84,7 +84,7 @@ class EpubBackendStateTest {
     """.trimIndent()
 
     /** Build a minimal two-chapter EPUB directory and return it. */
-    private fun buildEpub(name: String): File {
+    internal fun buildEpub(name: String): File {
         val epubDir = File(epubRoot, name)
         File(epubDir, "META-INF").mkdirs()
         File(epubDir, "META-INF/container.xml").writeText(
@@ -194,6 +194,35 @@ class EpubBackendStateTest {
         optimizedDirOf(dir).listFiles { f -> f.name.endsWith(".xhtml.gz") }!!.first().writeText("not gzip")
         state.buildSearchIndex()
         assertEquals(org.crosswire.jsword.index.IndexStatus.UNDONE, state.getBookMetaData().indexStatus)
+    }
+
+    @Test
+    fun cancelledIndexCannotBeReopenedAsDoneAndRetryIndexesBothChapters() = runTest {
+        val dir = buildEpub("cancel-retry")
+        var buildJob: kotlinx.coroutines.Job? = null
+        var cancel = true
+        val strings = object : net.bible.sharedcore.platform.CoreStrings by testCoreStrings() {
+            override fun creatingIndexFor(name: String): String {
+                if (cancel) buildJob!!.cancel()
+                return name
+            }
+        }
+        val state = EpubBackendState(dir, strings, AndroidAppEnvironment(application))
+        buildJob = launch(start = kotlinx.coroutines.CoroutineStart.LAZY) { state.buildSearchIndex() }
+        try {
+            buildJob.start()
+            buildJob.join()
+            assertFalse(state.isIndexed)
+            val reopened = newState(dir)
+            assertEquals(org.crosswire.jsword.index.IndexStatus.UNDONE, reopened.getBookMetaData().indexStatus)
+            cancel = false
+            state.buildSearchIndex()
+            assertEquals(1, state.search("first").size)
+            assertEquals(1, state.search("second").size)
+            assertEquals(org.crosswire.jsword.index.IndexStatus.DONE, newState(dir).getBookMetaData().indexStatus)
+        } finally {
+            buildJob.cancel()
+        }
     }
 
     private fun optimizedDirOf(epubDir: File) = File(epubDir, "optimized")
