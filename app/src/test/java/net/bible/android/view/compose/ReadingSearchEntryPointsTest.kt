@@ -20,8 +20,14 @@ import android.view.KeyEvent
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ApplicationProvider
 import kotlin.test.assertFailsWith
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.withTimeoutOrNull
+import net.bible.sharedcore.search.BibleSearchService
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
@@ -67,10 +73,7 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import net.bible.android.control.search.SearchIndexServiceImpl
 import net.bible.sharedcore.search.SearchIndexService
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -936,36 +939,42 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
-    /** Runs [block] with a [SearchIndexService] that records `createIndex` instead of building a real index. */
-    private fun withRecordingIndexService(block: () -> Unit) {
-        val fake = object : SearchIndexService {
-            override fun hasIndex(docId: String) = false
-            override fun createIndex(docId: String) {}
-        }
-        val overrideModule = module { single<SearchIndexService> { fake } }
-        loadKoinModules(overrideModule)
-        try {
-            block()
-        } finally {
-            // Same hand re-install as `ReadingSearchHostTest`'s EpubSearchService override.
-            unloadKoinModules(overrideModule)
-            loadKoinModules(module { singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() } })
-        }
-    }
-
     /**
      * Review I1: after the F100 index prompt the automatic search must cover exactly what the submit it
      * replaced would have — the selection PLUS the active (indexed) document (F44/B4) — not just the
      * translation the prompt built. Selection [KJV] (unindexed), active FAKE (indexed).
      */
     @Test fun theAutoRunAfterTheSelectionIndexPromptStillSearchesTheActiveDocument() {
+        val koin = GlobalContext.get()
+        val productionSearch = koin.get<BibleSearchService>()
+        val productionIndex = koin.get<SearchIndexService>()
+        val productionCache = koin.get<SearchResultsCache>()
+        val received = CompletableDeferred<SearchRequest>()
+        // FAKE is deliberately indexed only in metadata: never send its NullBackend to Lucene.
+        val recordingSearch = object : BibleSearchService by productionSearch {
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults {
+                received.complete(request)
+                return MultiSearchResults.EMPTY
+            }
+        }
+        val recordingIndex = object : SearchIndexService {
+            override fun hasIndex(docId: String) = false
+            override fun createIndex(docId: String) {}
+        }
+        val fixtureModule = module {
+            single<BibleSearchService> { recordingSearch }
+            single<SearchIndexService> { recordingIndex }
+            // The actual service invocation, not a process-global cache hit, is the assertion target.
+            single { SearchResultsCache() }
+        }
         val fakeBook = indexedFakeBible("FAKE")
         Books.installed().addBook(fakeBook)
         try {
-            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
-            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
-            CommonUtils.settings.setString("search_selected_translations", "KJV")
-            withRecordingIndexService {
+            loadKoinModules(fixtureModule)
+            try {
+                val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+                windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
+                CommonUtils.settings.setString("search_selected_translations", "KJV")
                 val host = host()
                 host.openSearch()
                 host.searchController.queries.setQuery("lord")
@@ -975,12 +984,40 @@ class ReadingSearchEntryPointsTest {
                 host.searchController.acceptIndexing()
                 host.searchController.onIndexingFinished(true)
 
+                var dispatched: SearchRequest? = null
+                DatabaseResetter.runResetBlocking(timeoutMs = 10_000) {
+                    dispatched = withTimeoutOrNull(5_000) { received.await() }
+                }
+                val actual = assertNotNull(dispatched, "auto-run never dispatched to BibleSearchService within 5 seconds")
+                assertEquals(listOf("KJV", "FAKE"), actual.translationIds, "the actual auto-run must search the active document too")
+                assertEquals("lord", actual.query)
                 val ids = assertNotNull(host.lastSearchRequestForTest, "the build finishing must run the waiting search").translationIds
                 assertEquals(listOf("KJV", "FAKE"), ids, "I1: the active document is searched too, as the submit would have")
+            } finally {
+                try {
+                    // This never-created activity is not closed by a controller: own its pending search.
+                    DatabaseResetter.runResetBlocking {
+                        activity.lifecycleScope.coroutineContext[Job]?.cancelAndJoin()
+                    }
+                } finally {
+                    received.cancel()
+                    unloadKoinModules(fixtureModule)
+                    loadKoinModules(module {
+                        single<BibleSearchService> { productionSearch }
+                        single<SearchIndexService> { productionIndex }
+                        single { productionCache }
+                    })
+                    assertSame(productionSearch, koin.get<BibleSearchService>())
+                    assertSame(productionIndex, koin.get<SearchIndexService>())
+                    assertSame(productionCache, koin.get<SearchResultsCache>())
+                }
             }
         } finally {
-            CommonUtils.settings.removeString("search_selected_translations")
-            Books.installed().removeBook(fakeBook)
+            try {
+                CommonUtils.settings.removeString("search_selected_translations")
+            } finally {
+                Books.installed().removeBook(fakeBook)
+            }
         }
     }
 
