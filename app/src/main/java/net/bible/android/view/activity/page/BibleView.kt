@@ -1691,6 +1691,8 @@ class BibleView(
         val overrides = DatabaseContainer.instance.workspaceDb.workspaceDao().labelOverrides(workspaceId).associateBy { it.labelId }
         val labels = bookmarkControl.assignableLabels().map { it.withStyleOverrides(overrides[it.id]) }
         var docStr = withContext(Dispatchers.IO) { document.contentJson() }
+        // This independent cache replays concurrent bookmark changes; populate before first config.
+        refreshFavouriteLabels()
         withContext(Dispatchers.Main) {
             synchronized(documentLoadingLock) {
                 if (generation != documentLoadGeneration || window.bibleView !== this@BibleView ||
@@ -1714,8 +1716,6 @@ class BibleView(
                 enableZoomForMap(pageControl.currentPageManager.isMapShown)
                 if (!htmlLoadingOngoing) replaceDocument()
             }
-            // Refresh has its own bookmark-change replay protocol; do not suspend during state commit.
-            refreshFavouriteLabels()
         }
     }
 

@@ -136,6 +136,25 @@ class BibleViewEpubLoadRaceTest {
         }
     }
 
+    @Test fun firstReaderConfigurationIncludesPersistedFavouriteLabels() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val label = net.bible.android.database.bookmarks.BookmarkEntities.Label(name = "Persisted favourite", favourite = true)
+        val dao = net.bible.service.db.DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        dao.insert(label)
+        BibleView::class.java.getDeclaredField("htmlLoadingOngoing").apply { isAccessible = true; set(view, false) }
+        val load = launch(Dispatchers.IO) { view.loadDocument(doc("first")) }
+        try {
+            load.join()
+            // The detached real WebView queues its first reader JS; flush then inspect actual evaluation.
+            BibleView::class.java.getDeclaredMethod("flushTasks").apply { isAccessible = true; invoke(view) }
+            val script = org.robolectric.Shadows.shadowOf(view).lastEvaluatedJavascript
+            assertTrue(script.contains("set_config"))
+            assertTrue("First configuration must contain persisted favourites: $script", script.contains("favouriteLabels: [\"${label.id}\"]"))
+        } finally {
+            load.cancel()
+        }
+    }
+
     @Test fun epubUriFromAnotherDocumentOpensTarget() = checkEpubUri(false)
 
     @Test fun epubUriRejectsChangedSourceDocument() = checkEpubUri(true)
