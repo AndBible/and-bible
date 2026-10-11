@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity
 
+import net.bible.android.platform.AndroidBackupHost
+
 import net.bible.service.db.blockingDb
 import android.app.Activity
 import android.content.Intent
@@ -121,8 +123,13 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
      * Internal for `UsableBibleGateTest`, which leaves onto a light stand-in route (Download needs a network).
      */
     internal fun leaveFor(route: String) {
-        host.initialiseLeavingWelcome()
-        host.navigateInGraph(route)
+        host.lifecycleScope.launch {
+            host.initialiseLeavingWelcome()
+            org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+                net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java,
+            ).ensureLoaded()
+            host.navigateInGraph(route)
+        }
     }
 
     private fun onDownload() {
@@ -136,8 +143,13 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
     private fun onEasyStart() = leaveFor(NavRoutes.download(firstDownload = true, downloadRecommended = true))
 
     private fun onImport() {
-        host.initialiseLeavingWelcome()
-        host.openInstallZip()
+        host.lifecycleScope.launch {
+            host.initialiseLeavingWelcome()
+            org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+                net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java,
+            ).ensureLoaded()
+            host.openInstallZip()
+        }
     }
 
     private fun onRestore() {
@@ -146,7 +158,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
             CurrentActivityHolder.activate(host)
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data ?: return@launch
-                if (BackupControl.restoreAppDatabaseFromUriWithUI(host, uri)) host.welcomeAfterFlow()
+                if (org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).restoreAppDatabaseFromSourceWithUI(AndroidBackupHost { host }, AndroidBackupHost.fromUri(uri))) host.welcomeAfterFlow()
             }
         }
     }

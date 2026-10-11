@@ -121,6 +121,8 @@ open class CurrentPageManager constructor(
 
     lateinit var window: Window
 
+    protected val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+
     var currentPage: CurrentPage = currentBible
         private set
 
@@ -175,7 +177,7 @@ open class CurrentPageManager constructor(
             val prevDocInPage = nextPage!!.currentDocument
             val sameDoc = nextDocument == prevDocInPage
 
-            if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
+            if(currentPage.currentDocument == fakeBookFactory.multiDocument && nextPage == currentBible) {
                 currentBible.setCurrentDocument(nextDocument)
                 currentPage = nextPage
                 PassageChangeMediator.onCurrentPageChanged(window)

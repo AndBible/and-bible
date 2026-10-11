@@ -27,6 +27,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.isSyncableDocument
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.sharedcore.cloud.DocumentSyncStarter
@@ -52,6 +53,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class BookInstallWatcherTest {
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
     private val starter = object : DocumentSyncStarter {
+                override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) = Unit
+                override fun stop() = Unit
         override fun pushDocuments(initials: List<String>) {}
     }
 
@@ -66,7 +69,7 @@ class BookInstallWatcherTest {
     private fun runEvents(vararg events: String) = runBlocking {
         val appScope = AppCoroutineScope()
         val launcher = OrderedLauncher(appScope)
-        val watcher = BookInstallWatcher(launcher, starter)
+        val watcher = BookInstallWatcher(launcher, starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
         val firstWriteHeld = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
         val writes = AtomicInteger()
@@ -92,6 +95,73 @@ class BookInstallWatcherTest {
             appScope.coroutineContext[Job]!!.cancel()
         }
         book.initials
+    }
+
+    @Test
+    fun `auto upload loads enabled persisted preferences before checking install`() = runBlocking {
+        val scope = AppCoroutineScope()
+        val launcher = OrderedLauncher(scope)
+        val db = DatabaseContainer.instance.documentSyncDb
+        db.documentSyncPreferencesDao().set(net.bible.android.database.DocumentSyncPreferences(enabled = true, autoUpload = true, wifiOnly = false))
+        val settings = net.bible.service.cloudsync.documents.DocumentSyncSettings(
+            { db.documentSyncPreferencesDao() }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppEnvironment>(net.bible.sharedcore.platform.AppEnvironment::class.java),
+        )
+        val pushed = CompletableDeferred<List<String>>()
+        val recordingStarter = object : DocumentSyncStarter by starter {
+            override fun pushDocuments(initials: List<String>) { pushed.complete(initials) }
+        }
+        val watcher = BookInstallWatcher(launcher, recordingStarter,
+            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), settings)
+        val book = Books.installed().getBooks().first { it.isSyncableDocument }
+        try {
+            watcher.listener.bookAdded(BooksEvent(Books.installed(), book, true))
+            withTimeout(30_000) { launcher.join("book-install-auto-upload") }
+            org.junit.Assert.assertTrue("installation must enqueue auto-upload", pushed.isCompleted)
+            assertEquals(listOf(book.initials), pushed.await())
+            launcher.join("book-install")
+        } finally {
+            scope.coroutineContext[Job]!!.cancel()
+        }
+    }
+
+    @Test
+    fun `deferred auto upload keeps sync install echo suppressed`() = runBlocking {
+        val scope = AppCoroutineScope()
+        val launcher = OrderedLauncher(scope)
+        val db = DatabaseContainer.instance.documentSyncDb
+        db.documentSyncPreferencesDao().set(net.bible.android.database.DocumentSyncPreferences(enabled = true, wifiOnly = false))
+        val settings = net.bible.service.cloudsync.documents.DocumentSyncSettings(
+            { db.documentSyncPreferencesDao() }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppEnvironment>(net.bible.sharedcore.platform.AppEnvironment::class.java),
+        )
+        val sync = org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java)
+        val field = DocumentSync::class.java.getDeclaredField("installingFromSync").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        val installing = field.get(sync) as MutableSet<String>
+        val release = CompletableDeferred<Unit>()
+        val pushed = mutableListOf<String>()
+        val recordingStarter = object : DocumentSyncStarter by starter {
+            override fun pushDocuments(initials: List<String>) { pushed.addAll(initials) }
+        }
+        val watcher = BookInstallWatcher(launcher, recordingStarter, net.bible.service.cloudsync.DocumentSyncProvider { sync }, settings)
+        val book = Books.installed().getBooks().first { it.isSyncableDocument }
+        try {
+            launcher.launch("book-install-auto-upload") { release.await() }
+            installing.add(book.initials)
+            watcher.listener.bookAdded(BooksEvent(Books.installed(), book, true))
+            installing.remove(book.initials)
+            release.complete(Unit)
+            withTimeout(30_000) { launcher.join("book-install-auto-upload") }
+            assertEquals(emptyList<String>(), pushed)
+            launcher.join("book-install")
+        } finally {
+            installing.remove(book.initials)
+            release.complete(Unit)
+            scope.coroutineContext[Job]!!.cancel()
+        }
     }
 
     @Test
@@ -121,7 +191,7 @@ class BookInstallWatcherTest {
     private fun installThenAmend(preexisting: SwordDocumentInfo?, amend: suspend (BookInstallWatcher, Book) -> Unit): SwordDocumentInfo? =
         runBlocking {
             val appScope = AppCoroutineScope()
-            val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter)
+            val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
             val firstWriteHeld = CompletableDeferred<Unit>()
             val release = CompletableDeferred<Unit>()
             val writes = AtomicInteger()
@@ -161,14 +231,14 @@ class BookInstallWatcherTest {
 
     @Test
     fun `cipher key stored after a sync install survives the queued row insert`() {
-        val row = installThenAmend(null) { watcher, book -> DocumentSync.persistCipherKey(watcher, book, "secret") }
+        val row = installThenAmend(null) { watcher, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).persistCipherKey(watcher, book, "secret") }
         assertEquals("secret", row?.cipherKey)
     }
 
     @Test
     fun `cipher key stored after a reinstall survives the delete-and-reinsert`() {
         val old = SwordDocumentInfo("x", "Old", "OLD", "English", "OldRepo", "old-key")
-        val row = installThenAmend(old) { watcher, book -> DocumentSync.persistCipherKey(watcher, book, "new-key") }
+        val row = installThenAmend(old) { watcher, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).persistCipherKey(watcher, book, "new-key") }
         assertEquals("new-key", row?.cipherKey)
     }
 }

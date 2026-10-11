@@ -175,7 +175,7 @@ class WindowControlPageChangeTest {
             set(view, PageTiltScroller(
                 view, PageTiltScrollControl()))
         }
-        view.firstDocument = OsisDocument(OsisFragment(SwordContentFacade.readOsisFragment(book, oldKey), oldKey, book), book, oldKey)
+        view.firstDocument = OsisDocument(OsisFragment(SwordContentFacade.readOsisFragment(book, oldKey, strings = net.bible.test.testCoreStrings()), oldKey, book), book, oldKey)
         val bridge = BibleJavascriptInterface(view)
         val changes = mutableListOf<PageChange>()
         val subscription = PassageChangeMediator.changes.subscribe {

@@ -96,7 +96,9 @@ class StdSelfLaunchInGraphTest {
     private fun composedReadingHost(): NavHostComposeActivity {
         // Pre-create the special labels (see ReadingChooserInGraphResultTest.composedReadingHost).
         GlobalContext.get().get<BookmarkControl>().apply { runBlocking { labelUnlabelled(); speakLabel(); paragraphBreakLabel() } }
-        return host().create().start().resume().visible().get()
+        return host().create().start().resume().visible().get().also {
+            net.bible.test.awaitReadingGraph(it) { compose.waitForIdle() }
+        }
     }
 
     private fun nav(activity: NavHostComposeActivity): NavHostController =

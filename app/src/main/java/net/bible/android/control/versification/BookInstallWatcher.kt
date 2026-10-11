@@ -44,6 +44,8 @@ import org.crosswire.jsword.versification.VersificationsMapper
 class BookInstallWatcher(
     private val launcher: OrderedLauncher,
     private val syncStarter: DocumentSyncStarter,
+    private val documentSync: net.bible.service.cloudsync.DocumentSyncProvider,
+    private val documentSettings: DocumentSyncSettings,
 ) {
     /** For tests only: runs at the start of every backup-db write, inside the ordered launch. */
     @VisibleForTesting
@@ -82,16 +84,22 @@ class BookInstallWatcher(
             // *every* book registered into JSword, including the MyDocument pseudo-books that
             // MyDocumentBookManager registers at startup. Those have no configFile, so packaging
             // them threw an NPE and raised a user-facing error notification (OSTicket 3392).
-            if (book.isSyncableDocument
-                && !DocumentSync.isInstallingFromSync(book.initials)
-                && shouldAutoUpload(
-                    DocumentSyncSettings.enabled,
-                    DocumentSyncSettings.autoUpload,
-                    DocumentSyncSettings.blockList.isBlocked(book.initials),
-                    DocumentSyncSettings.isAutoTransferAllowed,
-                )
-            ) {
-                syncStarter.pushDocuments(listOf(book.initials))
+            // Capture the install origin while JSword is still inside the sync install callback;
+            // the guard may be removed before the deferred preferences load completes.
+            val installedFromSync = book.isSyncableDocument && documentSync.get().isInstallingFromSync(book.initials)
+            launcher.launch("book-install-auto-upload") {
+                documentSettings.ensureLoaded()
+                if (book.isSyncableDocument
+                    && !installedFromSync
+                    && shouldAutoUpload(
+                        documentSettings.enabled,
+                        documentSettings.autoUpload,
+                        documentSettings.blockList.isBlocked(book.initials),
+                        documentSettings.isAutoTransferAllowed,
+                    )
+                ) {
+                    syncStarter.pushDocuments(listOf(book.initials))
+                }
             }
             AndBibleAddons.clearCaches()
             SwordContentFacade.clearCaches()

@@ -78,7 +78,7 @@ class BookmarkJsActionsTest {
             if (level == LogLevel.WARN) warnings += "$tag: $msg"
         }
         val launcher = OrderedLauncher(appScope)
-        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), launcher)
+        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), launcher, net.bible.android.platform.androidSaxTextPolicy())
         actions = BookmarkJsActions(launcher, control)
     }
 

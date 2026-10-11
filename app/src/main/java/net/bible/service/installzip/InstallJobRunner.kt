@@ -18,7 +18,6 @@
 package net.bible.service.installzip
 
 import kotlinx.coroutines.ensureActive
-import net.bible.android.activity.R
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -77,13 +76,13 @@ class InstallJobRunner(
         onPhase: (InstallPhase) -> Unit,
         awaitDecision: suspend (DecisionRequest) -> Boolean,
     ): InstallPhase {
-        val displayName = source.displayName ?: source.uri.lastPathSegment ?: acquireTo.name
+        val displayName = source.displayName ?: source.installationName ?: decodedLastPathSegment(source.uri) ?: acquireTo.name
 
         onPhase(InstallPhase.Acquiring(0))
         try {
             acquire(openStream, acquireTo) { percent -> onPhase(InstallPhase.Acquiring(percent)) }
         } catch (e: IOException) {
-            return InstallPhase.Error(R.string.error_occurred, null).also(onPhase)
+            return InstallPhase.Error(InstallError.GENERIC, null).also(onPhase)
         }
 
         onPhase(InstallPhase.Inspecting)
@@ -94,7 +93,7 @@ class InstallJobRunner(
 
         val terminal = when (plan) {
             is InstallPlan.Invalid ->
-                InstallPhase.Error(R.string.sqlite_invalid_file, plan.filename)
+                InstallPhase.Error(InstallError.INVALID_FILE, plan.filename)
 
             is InstallPlan.SwordZip -> {
                 if (plan.existingFiles.isNotEmpty()) {
@@ -218,11 +217,11 @@ class InstallJobRunner(
 
     /** Maps [InvalidInstallFile] / a `false` commit result / an engine [IOException] to a terminal Error. */
     private suspend fun commitCatching(displayName: String, block: suspend () -> Boolean): InstallPhase = try {
-        if (block()) InstallPhase.Done else InstallPhase.Error(R.string.sqlite_invalid_file, displayName)
+        if (block()) InstallPhase.Done else InstallPhase.Error(InstallError.INVALID_FILE, displayName)
     } catch (e: InvalidInstallFile) {
-        InstallPhase.Error(R.string.sqlite_invalid_file, e.filename)
+        InstallPhase.Error(InstallError.INVALID_FILE, e.filename)
     } catch (e: IOException) {
-        InstallPhase.Error(R.string.error_occurred, null)
+        InstallPhase.Error(InstallError.GENERIC, null)
     }
 
     /** Copies [openStream] to [acquireTo], reporting best-effort percent and honoring cancellation. */
@@ -249,6 +248,54 @@ class InstallJobRunner(
             }
         }
         onProgress(100)
+    }
+
+    /** Split before decoding, as Android Uri does; accept spaces and malformed escapes. */
+    private fun decodedLastPathSegment(uri: String): String? {
+        val schemeEnd = uri.indexOf(':')
+        val pathStart = if (schemeEnd >= 0) {
+            if (!uri.startsWith("/", schemeEnd + 1)) return null // opaque URI
+            schemeEnd + 1
+        } else 0
+        val withoutSuffix = uri.substring(pathStart).substringBefore('#').substringBefore('?')
+        val path = if (withoutSuffix.startsWith("//")) {
+            withoutSuffix.substring(2).substringAfter('/', "")
+        } else withoutSuffix
+        val segment = path.split('/').lastOrNull { it.isNotEmpty() } ?: return null
+        val result = StringBuilder()
+        val bytes = java.io.ByteArrayOutputStream()
+        fun flush() {
+            result.append(bytes.toByteArray().toString(Charsets.UTF_8))
+            bytes.reset()
+        }
+        var i = 0
+        while (i < segment.length) {
+            val character = segment[i++]
+            if (character != '%') {
+                flush()
+                result.append(character)
+                continue
+            }
+            var value = 0
+            for (digitIndex in 0..1) {
+                if (i == segment.length) {
+                    flush()
+                    result.append('\uFFFD')
+                    return result.toString()
+                }
+                val digit = segment[i++].digitToIntOrNull(16)
+                if (digit == null) {
+                    // Android emits replacement, then retains the partially decoded byte.
+                    flush()
+                    result.append('\uFFFD')
+                    break
+                }
+                value = value * 16 + digit
+            }
+            bytes.write(value)
+        }
+        flush()
+        return result.toString()
     }
 
     companion object {

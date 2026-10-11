@@ -17,6 +17,8 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.android.platform.AndroidBackupHost
+
 import android.content.ClipData
 import android.content.Intent
 import android.util.Log
@@ -122,6 +124,7 @@ internal fun refChooserVerseName(verseStr: String?): String {
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) : KoinComponent {
+    private val swordContentFacade: SwordContentFacade by inject()
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     private val progressJsActions: ProgressJsActions by inject()
     private val bookmarkJsActions: BookmarkJsActions by inject()
@@ -324,10 +327,7 @@ class BibleJavascriptInterface(
     fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
         val book = Books.installed().getBook(bookInitials) as SwordGenBook
         val backend = book.backend as EpubBackend
-        val key = backend.getKey(toKeyStr, toId) ?: return
-        scope.launch(Dispatchers.Main) {
-            linkControl.showLink(book, BookAndKey(key, book, htmlId = toId))
-        }
+        bibleView.openEpubLink(book, backend, toKeyStr, toId)
     }
 
     @JavascriptInterface
@@ -489,7 +489,7 @@ class BibleJavascriptInterface(
             val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
             scope.launch(Dispatchers.Main) {
                 hostCallbacks.composeReadingViewHost()?.showShareSheet(
-                    SwordContentFacade.buildShareVersesInput(Selection(bookmark))
+                    swordContentFacade.buildShareVersesInput(Selection(bookmark))
                 )
             }
         }
@@ -504,7 +504,7 @@ class BibleJavascriptInterface(
     fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             hostCallbacks.composeReadingViewHost()?.showShareSheet(
-                SwordContentFacade.buildShareVersesInput(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+                swordContentFacade.buildShareVersesInput(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
             )
         }
     }
@@ -856,8 +856,8 @@ class BibleJavascriptInterface(
 
         val titleStr = hostActivity.getString(R.string.export_fileformat, "HTML")
         scope.launch {
-            BackupControl.saveOrShare(
-                hostActivity,
+            org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
+                AndroidBackupHost { hostActivity },
                 targetFile,
                 fileName = "shared.html",
                 shareMimeType = "text/html",
@@ -1056,14 +1056,14 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) {
-        scope.launch {
+        MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
             MyDocumentBookManager.savePageContent(IdType(pageId), content, title)
         }
     }
 
     @JavascriptInterface
     fun reloadMyDocumentPage(bookInitials: String) {
-        scope.launch {
+        MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
             MyDocumentBookManager.refreshDocument(bookInitials)
         }
     }
@@ -1085,12 +1085,18 @@ class BibleJavascriptInterface(
             // the triggering [bibleView] (see `ComposeReadingViewHost.showDeleteDocumentPageConfirm`'s
             // kdoc).
             hostCallbacks.composeReadingViewHost()?.showDeleteDocumentPageConfirm {
-                MyDocumentBookManager.deleteAIDocumentPage(id)
-                val window = bibleView.window
-                if (windowControl.isWindowRemovable(window)) {
-                    windowControl.closeWindow(window)
-                } else {
-                    window.pageManager.setCurrentDocument(window.pageManager.currentBible.currentDocument)
+                MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
+                    MyDocumentBookManager.deleteAIDocumentPage(id)
+                    withContext(Dispatchers.Main) {
+                        if (hostActivity.isDestroyed || hostActivity.isFinishing ||
+                            !scope.coroutineContext[kotlinx.coroutines.Job]!!.isActive) return@withContext
+                        val window = bibleView.window
+                        if (windowControl.isWindowRemovable(window)) {
+                            windowControl.closeWindow(window)
+                        } else {
+                            window.pageManager.setCurrentDocument(window.pageManager.currentBible.currentDocument)
+                        }
+                    }
                 }
             }
         }

@@ -16,6 +16,7 @@
  */
 package net.bible.service.cloudsync.documents
 
+import org.koin.android.ext.android.inject
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -53,6 +54,7 @@ private const val TAG = "DocumentSyncService"
  * [start]; a single consumer coroutine drains the queue and emits [DocumentSync.runningChanged] edges.
  */
 class DocumentSyncService : Service() {
+    private val documentSync: DocumentSync by inject()
     companion object {
         private const val START = "action_document_sync"
         private const val EXTRA_PUSH = "pushInitials"
@@ -161,7 +163,7 @@ class DocumentSyncService : Service() {
     }
 
     private fun drain() = scope.launch {
-        DocumentSync.notifyRunning(true)
+        documentSync.notifyRunning(true)
         // The start id this drain session is responsible for. Captured while we still own the
         // queue (active == true): a fresh start() arriving after we relinquish advances
         // lastStartId beyond this value, so stopSelfResult(stopId) then returns false and won't
@@ -184,17 +186,17 @@ class DocumentSyncService : Service() {
             // Re-assert running per op, not only at drain start: the Cloud documents screen builds a fresh
             // subscription on every entry, so one attaching mid-drain only learns of the drain from a
             // later `true`. Duplicates are harmless (the consumer is idempotent, the stream loss-free).
-            DocumentSync.notifyRunning(true)
+            documentSync.notifyRunning(true)
             lastDownloadPct = -1
             try {
                 when (op) {
-                    is DocumentSyncOp.Push -> Books.installed().getBook(op.initials)?.let { DocumentSync.pushDocument(it) }
-                    is DocumentSyncOp.Download -> DocumentSync.downloadAndInstall(op.initials) { downloaded, totalBytes ->
+                    is DocumentSyncOp.Push -> Books.installed().getBook(op.initials)?.let { documentSync.pushDocument(it) }
+                    is DocumentSyncOp.Download -> documentSync.downloadAndInstall(op.initials) { downloaded, totalBytes ->
                         updateDownloadProgress(op, current, totalNow, downloaded, totalBytes)
                     }
-                    is DocumentSyncOp.Remove -> DocumentSync.removeFromCloud(op.initials)
-                    is DocumentSyncOp.Purge -> DocumentSync.purgeTombstone(op.initials)
-                    is DocumentSyncOp.Uninstall -> DocumentSync.uninstallLocal(op.initials)
+                    is DocumentSyncOp.Remove -> documentSync.removeFromCloud(op.initials)
+                    is DocumentSyncOp.Purge -> documentSync.purgeTombstone(op.initials)
+                    is DocumentSyncOp.Uninstall -> documentSync.uninstallLocal(op.initials)
                 }
             } catch (e: Exception) {
                 if (isTransientNetworkError(e)) {
@@ -212,8 +214,8 @@ class DocumentSyncService : Service() {
         }
         // Refresh the cloud-listing cache so the management view shows the new state even if it
         // isn't open to run its own scan (e.g. after auto-upload on install).
-        try { DocumentSync.refreshCache() } catch (e: Exception) { Log.e(TAG, "Cache refresh failed", e) }
-        DocumentSync.notifyRunning(false)
+        try { documentSync.refreshCache() } catch (e: Exception) { Log.e(TAG, "Cache refresh failed", e) }
+        documentSync.notifyRunning(false)
         stopSelfSafe(stopId)
     }
 

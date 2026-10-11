@@ -16,7 +16,7 @@
  */
 package net.bible.service.download
 
-import net.bible.service.common.Logger
+import net.bible.sharedcore.log.Log
 import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import java.util.*
@@ -26,7 +26,7 @@ import java.util.*
  */
 class RepoBookDeduplicator {
     private val bookSet: MutableMap<BookKey, Book> = HashMap()
-    private val logger = Logger(this.javaClass.name)
+    private val TAG = this.javaClass.name
     val books: MutableList<Book>
         get() = ArrayList(bookSet.values)
 
@@ -41,7 +41,7 @@ class RepoBookDeduplicator {
                 val latest = getLatest(existing, book)
                 bookSet[bookKey] = latest
             } catch (e: Exception) {
-                logger.error("Error comparing download book versions", e)
+                Log.e(TAG, "Error comparing download book versions", e)
             }
         }
     }
@@ -58,7 +58,7 @@ class RepoBookDeduplicator {
                     bookSet[bookKey] = book
                 }
             } catch (e: Exception) {
-                logger.error("Error comparing download book versions", e)
+                Log.e(TAG, "Error comparing download book versions", e)
             }
         }
     }

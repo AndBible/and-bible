@@ -248,7 +248,7 @@ class DatabaseContainer {
 
         if(needBackup) {
             // Not makeDatabaseBackupFile: with ready cleared it would skip its vacuum and checkpoint anyway.
-            val backupZipFile = withReadyCleared { BackupControl.zipDatabaseFiles() }
+            val backupZipFile = withReadyCleared { org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).zipDatabaseFiles() }
             backupZipFile ?: return
             val versionString = versions.joinToString("-")
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
@@ -518,6 +518,7 @@ class DatabaseContainer {
         fun getDatabaseAccessorFactories(container: DatabaseContainer): List<() -> SyncableDatabaseAccessor<*>> = container.run {
             listOf(
                 { SyncableDatabaseAccessor(
+                    deviceId = CommonUtils.deviceIdentifier,
                     localDb = bookmarkDb,
                     dbFactory = { n -> getBookmarkDb(n) }, _resetLocalDb = { resetBookmarkDb() },
                     localDbFile = application.getDatabasePath(BookmarkDatabase.dbFileName),
@@ -527,6 +528,7 @@ class DatabaseContainer {
                     },
                 ) },
                 { SyncableDatabaseAccessor(
+                    deviceId = CommonUtils.deviceIdentifier,
                     localDb = workspaceDb,
                     dbFactory = { n -> getWorkspaceDb(n) }, _resetLocalDb = { resetWorkspaceDb() },
                     localDbFile = application.getDatabasePath(WorkspaceDatabase.dbFileName),
@@ -536,6 +538,7 @@ class DatabaseContainer {
                     },
                 ) },
                 { SyncableDatabaseAccessor(
+                    deviceId = CommonUtils.deviceIdentifier,
                     localDb = readingPlanDb,
                     dbFactory = { n -> getReadingPlanDb(n) },
                     _resetLocalDb = { resetReadingPlanDb() },
@@ -545,6 +548,7 @@ class DatabaseContainer {
                 )
                 },
                 { SyncableDatabaseAccessor(
+                    deviceId = CommonUtils.deviceIdentifier,
                     localDb = myDocumentDb,
                     dbFactory = { n -> getMyDocumentDb(n) },
                     _resetLocalDb = { resetMyDocumentDb() },
@@ -553,6 +557,7 @@ class DatabaseContainer {
                     _reactToUpdates = { _myDocumentsSynced.emit(it) },
                 ) },
                 { SyncableDatabaseAccessor(
+                    deviceId = CommonUtils.deviceIdentifier,
                     localDb = aiSettingsDb,
                     dbFactory = { n -> getAiSettingsDb(n) },
                     _resetLocalDb = { resetAiSettingsDb() },
@@ -560,6 +565,7 @@ class DatabaseContainer {
                     category = SyncableDatabaseDefinition.AI_SETTINGS,
                 ) },
                 { SyncableDatabaseAccessor(
+                    deviceId = CommonUtils.deviceIdentifier,
                     localDb = progressDb,
                     dbFactory = { n -> getProgressDb(n) },
                     _resetLocalDb = { resetProgressDb() },

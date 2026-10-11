@@ -186,7 +186,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
      */
     private fun handOff() {
         lifecycleScope.launch(Dispatchers.Main) {
-            unlockLockedBiblesIfNoneUsable(this@StartupActivity)
+            unlockLockedBiblesIfNoneUsable(net.bible.service.sword.BookUnlocker { CommonUtils.unlockDocument(this@StartupActivity, it) })
             val route = startRouteForBoot(hasUsableBible())
             if (route == NavRoutes.READING) CommonUtils.initializeAppCoroutine()
             comingFromStartupActivity = true

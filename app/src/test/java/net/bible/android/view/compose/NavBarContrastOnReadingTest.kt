@@ -18,6 +18,7 @@ package net.bible.android.view.compose
 
 import android.content.res.Configuration
 import android.os.Looper
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
@@ -47,6 +48,9 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [35])
 class NavBarContrastOnReadingTest {
+    @get:org.junit.Rule
+    val compose = createEmptyComposeRule()
+
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @Before
@@ -141,6 +145,7 @@ class NavBarContrastOnReadingTest {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible()
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         idleMain()
         assertFalse(activity.window.isNavigationBarContrastEnforced, "on reading the scrim must be off")
 

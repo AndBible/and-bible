@@ -16,105 +16,97 @@
  */
 package net.bible.android.view.activity.settings
 
-import net.bible.service.db.blockingDb
-import net.bible.service.db.DatabaseContainer
-import android.text.format.Formatter
-import android.webkit.URLUtil
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.CloudAdapterFactory
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.service.cloudsync.documents.DocumentSync
-import net.bible.service.cloudsync.documents.DocumentSyncService
+import net.bible.service.cloudsync.SyncSettingsCategories
+import net.bible.service.cloudsync.SyncSettingsPlatform
+import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
-import net.bible.service.cloudsync.documents.DocumentSyncSummary
 import net.bible.service.cloudsync.documents.computeDocumentSyncSummary
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.cloud.DocumentSyncStarter
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.Choice2
 import net.bible.sharedcore.settings.DocSyncSummaryData
 import net.bible.sharedcore.settings.SyncCategoryKeys
 import net.bible.sharedcore.settings.SyncSettingsService
 import net.bible.sharedcore.settings.SyncSettingsSnapshot
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
-/**
- * Android impl of [SyncSettingsService]. Reproduces classic `SyncSettingsFragment`
- * (`SyncSettings.kt`) key-for-key across its FOUR backing stores:
- *  - `cloud_sync_*` creds → `CommonUtils.realSharedPreferences` (classic `SharedPrefsDataStore`).
- *  - `sync_documents_*` → [DocumentSyncSettings] (classic `DocumentSyncPrefsDataStore`).
- *  - `sync_enable_*` → [SyncableDatabaseDefinition] `.syncEnabled` (backed by `CommonUtils.settings`).
- *  - `sync_adapter` → [CloudAdapters.current] (default `PreferenceStore`).
- *
- * The interactive OAuth methods need the current Activity, supplied lazily via [activityProvider]
- * (so this is NOT a global Koin singleton — the host constructs it with `this`). Async work (the
- * cloud bytes-used read, and the post-enable `CloudSync.start()` sequence) runs on [scope].
- */
+/** Snapshot and settings routing; the host supplies its observation and durable-write scopes. */
 class SyncSettingsServiceImpl(
     private val scope: CoroutineScope,
-    private val activityProvider: () -> ActivityBase,
+    private val writeScope: CoroutineScope,
+    private val documentSettings: DocumentSyncSettings,
+    private val cloudSync: CloudSync,
+    private val adapters: CloudAdapterFactory,
+    private val categories: SyncSettingsCategories,
+    private val documents: DocumentSyncProvider,
+    private val starter: DocumentSyncStarter,
+    private val platform: SyncSettingsPlatform,
+    private val strings: CoreStrings,
+    private val environment: AppEnvironment,
+    private val notifyDatabaseRestored: () -> Unit,
 ) : SyncSettingsService {
-
-    private val _snapshot = MutableStateFlow(build())
+    private val _snapshot = MutableStateFlow(SyncSettingsSnapshot(
+        adapter = "", adapterChoices = emptyList(), adapterSummary = "", adapterEnabled = false,
+        cloudInfoSummary = null, serverUrl = "", username = "", password = "", folderPath = "",
+        credsVisible = false, credsEnabled = false, resetVisible = false, cloudInfoVisible = false,
+        categoryEnabled = emptyMap(), categorySummary = emptyMap(), documentsEnabled = false,
+        documentCategoryVisible = false, autoDownload = true, autoUpload = true, autoDelete = true,
+        wifiOnly = true, autoTogglesVisible = false, wifiOnlyVisible = false,
+    ))
     override val snapshot: StateFlow<SyncSettingsSnapshot> = _snapshot.asStateFlow()
 
-    private val prefs get() = CommonUtils.realSharedPreferences
+    init { refresh() }
 
     private fun adapterSummary(): String {
-        val current = CloudAdapters.current
-        val isGoogleDrive = current == CloudAdapters.GOOGLE_DRIVE
-        var result = application.getString(R.string.prefs_sync_introduction_summary1)
-        if (isGoogleDrive) {
-            result += " " + application.getString(
-                R.string.prefs_sync_introduction_summary2,
-                application.getString(syncSummaryAppName(CommonUtils.isDiscrete)),
-            )
-        }
-        result += " " + application.getString(R.string.sync_adapter_summary, current.displayName)
-        return result
+        val current = cloudSync.adapterId
+        var result = strings.syncIntroduction
+        if (current == "GOOGLE_DRIVE") result += " " + strings.syncDriveIntroduction(environment.isDiscrete)
+        return result + " " + strings.syncAdapterSummary(adapters.displayName(current))
     }
 
     private fun categorySummary(cat: SyncableDatabaseDefinition, lastSynchronized: Long?): String {
         val lastSyncStr = lastSynchronized?.let {
-            val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
-            ".\n\n" + application.getString(R.string.last_updated, sdf.format(Date(it)))
+            ".\n\n" + strings.syncLastUpdated(platform.formatSyncTime(it))
         } ?: ""
-        return "${application.getString(cat.contentDescription)}$lastSyncStr"
+        return "${strings.syncCategoryContents(cat.name)}$lastSyncStr"
     }
 
-    private fun build(cloudInfoSummary: String? = null): SyncSettingsSnapshot {
-        val signedIn = CloudSync.signedIn
-        val isCloudSyncEnabled = CommonUtils.isCloudSyncEnabled
-        val isGoogleDrive = CloudAdapters.current == CloudAdapters.GOOGLE_DRIVE
-        val documentsEnabled = DocumentSyncSettings.enabled
+    private suspend fun build(cloudInfoSummary: String? = null): SyncSettingsSnapshot {
+        val signedIn = cloudSync.signedIn
+        val isCloudSyncEnabled = categories.syncEnabled
+        val isGoogleDrive = cloudSync.adapterId == "GOOGLE_DRIVE"
+        val documentsEnabled = documentSettings.enabled
         val displayed = SyncCategoryKeys.DISPLAY.map { SyncableDatabaseDefinition.nameToCategory[it.removePrefix("sync_enable_").uppercase()]!! }
-        val lastSynchronized = blockingDb { displayed.associateWith { it.lastSynchronized() } }
+        val lastSynchronized = displayed.associateWith { categories.lastSynchronized(it) }
         return SyncSettingsSnapshot(
-            adapter = CloudAdapters.current.name,
-            adapterChoices = CloudAdapters.allEnabled.map { Choice2(it.name, it.displayName) },
+            adapter = cloudSync.adapterId,
+            adapterChoices = cloudSync.adapterChoices.map { Choice2(it.value, it.label) },
             adapterSummary = adapterSummary(),
             adapterEnabled = !signedIn,
             cloudInfoSummary = cloudInfoSummary,
-            serverUrl = prefs.getString("cloud_sync_server_url", "") ?: "",
-            username = prefs.getString("cloud_sync_username", "") ?: "",
-            password = prefs.getString("cloud_sync_password", "") ?: "",
-            folderPath = prefs.getString("cloud_sync_folder_path", "") ?: "",
+            serverUrl = platform.credential("cloud_sync_server_url"),
+            username = platform.credential("cloud_sync_username"),
+            password = platform.credential("cloud_sync_password"),
+            folderPath = platform.credential("cloud_sync_folder_path"),
             credsVisible = !isGoogleDrive,
             credsEnabled = !signedIn,
             resetVisible = isCloudSyncEnabled && signedIn,
             cloudInfoVisible = isCloudSyncEnabled && signedIn,
             categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { key ->
-                SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!.syncEnabled
+                categories.enabled(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!)
             },
             categorySummary = SyncCategoryKeys.DISPLAY.associateWith { key ->
                 val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
@@ -122,35 +114,37 @@ class SyncSettingsServiceImpl(
             },
             documentsEnabled = documentsEnabled,
             documentCategoryVisible = signedIn,
-            autoDownload = DocumentSyncSettings.autoDownload,
-            autoUpload = DocumentSyncSettings.autoUpload,
-            autoDelete = DocumentSyncSettings.autoDelete,
-            wifiOnly = DocumentSyncSettings.wifiOnly,
+            autoDownload = documentSettings.autoDownload,
+            autoUpload = documentSettings.autoUpload,
+            autoDelete = documentSettings.autoDelete,
+            wifiOnly = documentSettings.wifiOnly,
             autoTogglesVisible = documentsEnabled,
             wifiOnlyVisible = documentsEnabled,
         )
     }
 
     override fun refresh() {
-        _snapshot.value = build()
-        if (CommonUtils.isCloudSyncEnabled && CloudSync.signedIn) {
-            scope.launch {
-                val mb = CloudSync.bytesUsed() / (1024.0 * 1024)
+        scope.launch {
+            documentSettings.ensureLoaded()
+            _snapshot.value = build()
+            if (categories.syncEnabled && cloudSync.signedIn) {
+                val mb = cloudSync.bytesUsed() / (1024.0 * 1024)
                 _snapshot.value = build(
-                    cloudInfoSummary = application.getString(R.string.cloud_info_summary, String.format("%.2f", mb)),
+                    cloudInfoSummary = strings.syncCloudInfo(String.format("%.2f", mb)),
                 )
             }
         }
     }
 
     override suspend fun signIn(): Boolean {
-        if (CloudSync.signedIn) return true
-        return CloudSync.signIn(activityProvider()) == true
+        if (cloudSync.signedIn) return true
+        return cloudSync.signIn() == true
     }
 
     override suspend fun scanDocuments(): DocSyncSummaryData {
-        val items = withContext(Dispatchers.IO) { DocumentSync.scan() }
-        val summary = computeDocumentSyncSummary(items, DocumentSyncSettings.blockList.all())
+        documentSettings.ensureLoaded()
+        val items = withContext(Dispatchers.IO) { documents.get().scan() }
+        val summary = computeDocumentSyncSummary(items, documentSettings.blockList.all())
         return DocSyncSummaryData(
             uploadInitials = summary.uploadInitials,
             downloadInitials = summary.downloadInitials,
@@ -161,81 +155,88 @@ class SyncSettingsServiceImpl(
 
     override fun setCategoryEnabled(key: String, enabled: Boolean) {
         val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
-        cat.syncEnabled = enabled
+        categories.setEnabled(cat, enabled)
         if (enabled) {
             // Classic setupDrivePref ran the sync-start sequence + broadcast the restore (now `notifyDatabaseRestored`) after
             // sign-in, then recreate()d. We refresh the snapshot instead; the sequence is fire-and-forget.
-            scope.launch {
-                CloudSync.waitUntilFinished()
-                CloudSync.start()
-                CloudSync.waitUntilFinished()
-                DatabaseContainer.notifyDatabaseRestored()
+            writeScope.launch {
+                cloudSync.waitUntilFinished()
+                cloudSync.start()
+                cloudSync.waitUntilFinished()
+                notifyDatabaseRestored()
                 refresh()
             }
         }
     }
 
-    override fun setDocumentsEnabled(summary: DocSyncSummaryData) {
-        DocumentSyncSettings.enabled = true
-        DocumentSyncService.start(application, summary.uploadInitials, summary.downloadInitials)
+    private val documentMutationMutex = Mutex()
+
+    /** Loaded snapshots mutate before the caller refreshes; cold mutations queue across the load. */
+    private fun mutateDocuments(mutation: () -> Unit) {
+        writeScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            documentMutationMutex.withLock {
+                documentSettings.ensureLoaded()
+                mutation()
+                // A cold load may have let the caller's refresh publish before this mutation.
+                refresh()
+            }
+        }
     }
 
-    override fun disableDocuments() {
-        DocumentSyncSettings.enabled = false
+    override fun setDocumentsEnabled(summary: DocSyncSummaryData) = mutateDocuments {
+        documentSettings.enabled = true
+        starter.start(summary.uploadInitials, summary.downloadInitials)
     }
 
-    override fun setDocumentSyncToggle(key: String, value: Boolean) {
+    override fun disableDocuments() = mutateDocuments {
+        documentSettings.enabled = false
+    }
+
+    override fun setDocumentSyncToggle(key: String, value: Boolean) = mutateDocuments {
         when (key) {
-            "sync_documents_auto_download" -> DocumentSyncSettings.autoDownload = value
-            "sync_documents_auto_upload" -> DocumentSyncSettings.autoUpload = value
-            "sync_documents_auto_delete" -> DocumentSyncSettings.autoDelete = value
-            "sync_documents_wifi_only" -> DocumentSyncSettings.wifiOnly = value
+            "sync_documents_auto_download" -> documentSettings.autoDownload = value
+            "sync_documents_auto_upload" -> documentSettings.autoUpload = value
+            "sync_documents_auto_delete" -> documentSettings.autoDelete = value
+            "sync_documents_wifi_only" -> documentSettings.wifiOnly = value
         }
     }
 
     override fun setText(key: String, value: String): Boolean {
         if (key == "cloud_sync_server_url") {
             val isHttpOrHttps = value.startsWith("http://") || value.startsWith("https://")
-            val valid = URLUtil.isValidUrl(value) && isHttpOrHttps && !value.endsWith("/login") && !value.contains(" ")
+            val valid = platform.isValidUrl(value) && isHttpOrHttps && !value.endsWith("/login") && !value.contains(" ")
             if (!valid) return false
         }
-        prefs.edit().putString(key, value).apply()
+        platform.setCredential(key, value)
         return true
     }
 
     override fun setAdapter(value: String) {
-        CloudAdapters.current = CloudAdapters.valueOf(value)
+        cloudSync.adapterId = value
     }
 
     override suspend fun resetSync() {
-        CloudSync.signOut()
+        cloudSync.signOut()
     }
 
     override fun formatEnableDocumentsMessage(summary: DocSyncSummaryData): String {
-        if (summary.isEmpty) return application.getString(R.string.document_sync_enable_dialog_nothing)
+        if (summary.isEmpty) return strings.documentSyncNothing
         val parts = buildList {
             if (summary.uploadCount > 0) add(
                 if (summary.uploadBytes > 0)
-                    application.getString(R.string.cloud_doc_summary_upload_size, summary.uploadCount,
-                        Formatter.formatShortFileSize(application, summary.uploadBytes))
-                else application.getString(R.string.cloud_doc_summary_upload, summary.uploadCount)
+                    strings.documentSyncUploadSize(summary.uploadCount, platform.formatFileSize(summary.uploadBytes))
+                else strings.documentSyncUpload(summary.uploadCount)
             )
             if (summary.downloadCount > 0) add(
                 if (summary.downloadBytes > 0)
-                    application.getString(R.string.cloud_doc_summary_download_size, summary.downloadCount,
-                        Formatter.formatShortFileSize(application, summary.downloadBytes))
-                else application.getString(R.string.cloud_doc_summary_download, summary.downloadCount)
+                    strings.documentSyncDownloadSize(summary.downloadCount, platform.formatFileSize(summary.downloadBytes))
+                else strings.documentSyncDownload(summary.downloadCount)
             )
         }
         var m = parts.joinToString("\n")
-        if (DocumentSyncSettings.wifiOnly && CommonUtils.isMeteredNetwork) {
-            m += "\n" + application.getString(R.string.cloud_doc_wifi_waiting)
+        if (documentSettings.wifiOnly && environment.isMeteredNetwork) {
+            m += "\n" + strings.documentSyncWifiWaiting
         }
         return m
     }
 }
-
-/** Fix batch 6 A6 (surface 10): the app name in the Google Drive sync summary. */
-@androidx.annotation.StringRes
-internal fun syncSummaryAppName(discrete: Boolean): Int =
-    if (discrete) R.string.app_name_calculator else R.string.app_name_medium

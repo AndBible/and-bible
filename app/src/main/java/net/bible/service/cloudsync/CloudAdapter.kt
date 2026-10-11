@@ -18,7 +18,6 @@
 package net.bible.service.cloudsync
 
 import net.bible.android.database.SyncConfiguration
-import net.bible.android.view.activity.base.ActivityBase
 import java.io.File
 import java.io.OutputStream
 
@@ -40,7 +39,7 @@ typealias DownloadProgressListener = (bytesDownloaded: Long) -> Unit
 
 interface CloudAdapter {
     val signedIn: Boolean
-    suspend fun signIn(activity: ActivityBase): Boolean
+    suspend fun signIn(): Boolean
     suspend fun signOut()
     suspend fun get(id: String): CloudFile
     suspend fun listFiles(

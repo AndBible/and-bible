@@ -83,17 +83,25 @@ val VerseRange.abbreviated: String get() = synchronized(BookName::class.java) {
 }
 
 interface Document {
-    val asJson: String get() {
-        return asHashMap.map {(key, value) -> "'$key': $value"}.joinToString(",", "{", "}")
-    }
-    val asHashMap: Map<String, Any>
+    suspend fun contentMap(): Map<String, Any>
 }
+
+/** Value-only DTOs retain synchronous serialization; reader documents require suspension. */
+interface SynchronousDocument : Document {
+    val asJson: String get() = asHashMap.map { (key, value) -> "'$key': $value" }.joinToString(",", "{", "}")
+    val asHashMap: Map<String, Any>
+    override suspend fun contentMap(): Map<String, Any> = asHashMap
+}
+
+/** Resolve app-defined ordinal/progress reads before serializing the reader document. */
+suspend fun Document.contentJson(): String = contentMap()
+    .map { (key, value) -> "'$key': $value" }.joinToString(",", "{", "}")
 
 enum class ErrorSeverity {
     NORMAL, WARNING, ERROR
 }
 
-class ErrorDocument(private val errorMessage: String?, private val severity: ErrorSeverity): Document {
+class ErrorDocument(private val errorMessage: String?, private val severity: ErrorSeverity): SynchronousDocument {
     init {
         if(severity == ErrorSeverity.ERROR) {
             Log.e("ErrorDocument", "ErrorDocument created: ${Log.getStackTraceString(Exception())}")
@@ -133,22 +141,26 @@ open class OsisDocument(
     open val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
     val commentaryRange: CommentaryRangeInfo? = null,
 ): Document {
-    override val asHashMap: Map<String, String> get () {
+    override suspend fun contentMap(): Map<String, String> {
+        val ordinals = if (book.bookCategory != BookCategory.BIBLE)
+            SwordContentFacade.ordinalRangeFor(book, key, strings = org.koin.core.context.GlobalContext.get().get())
+        else null
+        return contentHashMap(ordinals).toMutableMap().apply {
+            book.epubBackend?.let {
+                put("readingProgress", ReadingProgressInfo.forEpub(it.fragmentOffset(key), it.bookOrdinalSpan(), it.totalCharacters()).asJson)
+            }
+        }
+    }
+
+    internal fun contentHashMap(ordRange: IntRange?): Map<String, String> {
         val highlightedOrdinalRange =
             if(highlightRange == null) "null"
             else json.encodeToString(serializer(), listOf(highlightRange.first, highlightRange.last))
-        val ordRange =
-            if(book.bookCategory != BookCategory.BIBLE)
-                SwordContentFacade.ordinalRangeFor(book, key)
-            else null
         val ordinalRange =
             if (ordRange == null) "null"
             else json.encodeToString(serializer(), listOf(ordRange.first, ordRange.last))
 
         val readingProgress: String = when {
-            book.isEpub -> book.epubBackend
-                ?.let { ReadingProgressInfo.forEpub(it.fragmentOffset(key), it.bookOrdinalSpan, it.totalCharacters).asJson }
-                ?: "null"
             book.bookCategory == BookCategory.COMMENTARY && book is SwordBook -> {
                 val vr = when (val k = key) {
                     is VerseRange -> k
@@ -196,8 +208,8 @@ open class OsisDocument(
  * `Math.max(1, chapterNumber)` (`BibleDocument.vue`), so a document that starts at the book intro (chapter 0)
  * shows chapter 1's count; this must use the same chapter or the persisted count never appears on load.
  */
-internal fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
-    blockingDb { ProgressControl.getChapterReadCount(v11n, book, maxOf(1, chapter)) } // L1-pending(page)
+internal suspend fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
+    ProgressControl.getChapterReadCount(v11n, book, maxOf(1, chapter))
 
 class BibleDocument(
     val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
@@ -207,7 +219,7 @@ class BibleDocument(
     val originalKey: Key?,
     override val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
 ): OsisDocument(osisFragment, swordBook, verseRange) {
-    override val asHashMap: Map<String, String> get () {
+    override suspend fun contentMap(): Map<String, String> {
         val bookmarks = bookmarks.map { ClientBibleBookmark(it, swordBook.versification).asJson }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
         // Clicked link etc. had more specific reference
@@ -217,11 +229,11 @@ class BibleDocument(
         } else "null"
         val v11n = swordBook.versification
         val kjvRange = verseRange.toV11n(KJVA)
-        val memorizedOrdinals = blockingDb { ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal) } // L1-pending(page)
+        val memorizedOrdinals = ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
             .map { Verse(KJVA, it).toV11n(v11n).ordinal }
-        val targetOrdinals = blockingDb { ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal) } // L1-pending(page)
+        val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
             .map { Verse(KJVA, it).toV11n(v11n).ordinal }
-        return super.asHashMap.toMutableMap().apply {
+        return super.contentMap().toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
             put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, Locale.getDefault().toKLocale())))
@@ -244,7 +256,7 @@ class MultiFragmentDocument(
     private val osisFragments: List<OsisFragment>,
     private val compare: Boolean = false,
     private val state: String? = null
-): Document {
+): SynchronousDocument {
     private val contentType: String? get() {
         if (compare) return null
         val hasStrongs = osisFragments.any { it.isStrongsDictionary }
@@ -275,7 +287,7 @@ class MemorizeDocument(
     private val memorizedOrdinals: List<Int> = emptyList(),
     private val targetOrdinals: List<Int> = emptyList(),
     private val readingProgressSettingsJson: String = "{}",
-): Document {
+): SynchronousDocument {
     override val asHashMap: Map<String, Any>
         get() = mapOf(
             "id" to wrapString(randomUUID().toString()),
@@ -295,7 +307,7 @@ class MemorizeDocument(
 }
 
 class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
-                      val verseRange: VerseRange): Document
+                      val verseRange: VerseRange): SynchronousDocument
 {
     override val asHashMap: Map<String, Any>
         get() {
@@ -318,7 +330,7 @@ class StudyPadDocument(
     private val bookmarkToLabels: List<BookmarkEntities.BibleBookmarkToLabel>,
     private val genericBookmarkToLabels: List<BookmarkEntities.GenericBookmarkToLabel>,
     private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntryWithText>,
-): Document {
+): SynchronousDocument {
     override val asHashMap: Map<String, Any>
         get() {
             val bookmarks = bookmarks.map { ClientBibleBookmark(it).asJson }
@@ -337,7 +349,7 @@ class StudyPadDocument(
         }
 }
 
-class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val v11n: Versification? = null): Document, KoinComponent {
+class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val v11n: Versification? = null): SynchronousDocument, KoinComponent {
     val bookmarkControl: BookmarkControl by inject()
 
 
@@ -378,7 +390,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
     }
 }
 
-class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNotes): Document, KoinComponent {
+class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNotes): SynchronousDocument, KoinComponent {
     val bookmarkControl: BookmarkControl by inject()
 
 
@@ -456,7 +468,7 @@ data class ClientBookmarkLabel(
 class ClientAiDocMarker(
     private val marker: AiDocMarkerInfo,
     private val v11n: Versification?
-) : Document {
+) : SynchronousDocument {
     override val asHashMap: Map<String, String> get() {
         val startOrdinal = if (v11n != null && marker.kjvOrdinalStart != null) {
             Verse(KJVA, marker.kjvOrdinalStart).toV11n(v11n).ordinal

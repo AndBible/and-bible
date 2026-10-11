@@ -16,9 +16,7 @@
  */
 package net.bible.service.sword.backgroundimage
 
-import android.content.Context
-import android.net.Uri
-import android.provider.OpenableColumns
+import net.bible.service.sword.ContentSource
 import net.bible.sharedcore.log.Log
 import net.bible.android.SharedConstants
 import net.bible.service.common.AndBibleAddons
@@ -38,11 +36,11 @@ private val imageExtensions = setOf("jpg", "jpeg", "png", "webp")
 object BackgroundImageImporter {
     /** Copy [uri] into `modulesDir/background` (unique name), register all image modules, clear
      *  caches. Returns the written [File], or null on failure. Call on `Dispatchers.IO`. */
-    fun copyAndRegister(context: Context, uri: Uri): File? {
+    fun copyAndRegister(source: ContentSource, uri: String): File? {
         return try {
             val outDir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).apply { mkdirs() }
-            val outFile = uniqueFile(outDir, fileName(context, uri))
-            val input = context.contentResolver.openInputStream(uri) ?: return null
+            val outFile = uniqueFile(outDir, fileName(source, uri))
+            val input = source.openInputStream(uri) ?: return null
             input.use { FileOutputStream(outFile).use { output -> it.copyTo(output) } }
             addManuallyInstalledBackgroundImageBooks()
             AndBibleAddons.clearCaches()
@@ -54,14 +52,11 @@ object BackgroundImageImporter {
     }
 
     /** A safe on-disk file name for the picked image: display name with an image extension. */
-    private fun fileName(context: Context, uri: Uri): String {
-        val displayName = context.contentResolver.query(uri, null, null, null, null)?.use {
-            val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (it.moveToFirst() && idx >= 0) it.getString(idx) else null
-        }
+    private fun fileName(source: ContentSource, uri: String): String {
+        val displayName = source.displayName(uri)
         val base = displayName?.takeIf { it.isNotBlank() } ?: "image"
         if (base.substringAfterLast('.', "").lowercase() in imageExtensions) return base
-        val ext = when (context.contentResolver.getType(uri)) {
+        val ext = when (source.mimeType(uri)) {
             "image/png" -> "png"
             "image/webp" -> "webp"
             else -> "jpg"

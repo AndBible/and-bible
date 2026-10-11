@@ -16,7 +16,6 @@
  */
 package net.bible.service.format.osistohtml.osishandlers
 
-import net.bible.service.common.Logger
 import net.bible.service.format.osistohtml.TextWriter
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
@@ -89,10 +88,6 @@ open class OsisSaxHandler : DefaultHandler() {
 
     protected fun reset() {
         writer.reset()
-    }
-
-    companion object {
-        private val log = Logger("OsisSaxHandler")
     }
 
 }

@@ -16,8 +16,6 @@
  */
 package net.bible.service.sword
 
-import androidx.appcompat.app.AppCompatActivity
-import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.Book
 
 /**
@@ -34,12 +32,12 @@ fun hasUsableBible(bibles: List<Book> = SwordDocumentFacade.bibles): Boolean = b
  * usable, ask to unlock each locked one. Suspends while each unlock dialog is up.
  */
 suspend fun unlockLockedBiblesIfNoneUsable(
-    activity: AppCompatActivity,
+    unlocker: BookUnlocker,
     usable: () -> Boolean = { hasUsableBible() },
     bibles: () -> List<Book> = { SwordDocumentFacade.bibles },
 ) {
     if (usable()) return
     for (bible in bibles().filter { it.isLocked }) {
-        CommonUtils.unlockDocument(activity, bible)
+        unlocker.unlock(bible)
     }
 }

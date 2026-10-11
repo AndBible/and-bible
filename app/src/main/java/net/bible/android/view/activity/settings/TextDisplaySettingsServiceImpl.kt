@@ -498,7 +498,7 @@ class TextDisplaySettingsServiceImpl(
 
     override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
         val uriStr = picker() ?: return null
-        val file = withContext(Dispatchers.IO) { BackgroundImageImporter.copyAndRegister(app, Uri.parse(uriStr)) } ?: return null
+        val file = withContext(Dispatchers.IO) { BackgroundImageImporter.copyAndRegister(net.bible.android.platform.AndroidContentSource(app.contentResolver), uriStr) } ?: return null
         AndBibleAddons.clearCaches()
         // find the freshly-registered module whose file == the written file
         val initials = Books.installed().getBooks().firstOrNull { it.isBackgroundImageModule && it.backgroundImageFile == file }?.initials ?: return null

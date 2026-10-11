@@ -79,6 +79,8 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostNonStdResultTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var resyncBaseline = 0
@@ -102,6 +104,7 @@ class ReadingHostNonStdResultTest {
      */
     @Before
     fun theLauncherAliasAlreadyMatchesTheDiscreteModeSetting() {
+        net.bible.android.view.activity.base.firstTime = false
         val pm = ApplicationProvider.getApplicationContext<android.content.Context>().packageManager
         pm.setComponentEnabledSetting(
             ComponentName(BuildConfig.APPLICATION_ID, "net.bible.android.activity.StartupActivity"),
@@ -123,11 +126,15 @@ class ReadingHostNonStdResultTest {
     }
 
     /** A host on the reading route, composed: `.visible()` is what composes the destination. */
-    private fun composedHost(state: Bundle? = null): ActivityController<NavHostComposeActivity> =
+    private fun composedHost(state: Bundle? = null, expectedRoute: String = NavRoutes.READING): ActivityController<NavHostComposeActivity> =
         Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.apply { create(state).start().resume().visible() }
+        ).also { controllers += it }.apply {
+            create(state).start().resume().visible()
+            if (expectedRoute == NavRoutes.READING) net.bible.test.awaitReadingGraph(get()) { compose.waitForIdle() }
+            else net.bible.test.awaitHostRoute(get(), expectedRoute) { compose.waitForIdle() }
+        }
 
     private fun countSynchronizeWindows() {
         resyncBaseline = CommonUtils.windowControl.forceResyncCountForTest
@@ -306,7 +313,7 @@ class ReadingHostNonStdResultTest {
         )
 
         countSynchronizeWindows()
-        val recreated = composedHost(state).get()
+        val recreated = composedHost(state, expectedRoute = NavRoutes.SETTINGS).get()
         recreated.applyReadingReturnDebts(NavRoutes.READING)
 
         assertEquals(

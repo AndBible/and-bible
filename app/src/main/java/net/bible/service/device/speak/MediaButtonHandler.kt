@@ -133,6 +133,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
         })
         subscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
             when (change) {
+                SpeakChange.Status -> Unit
                 is SpeakChange.State -> {
                     val event = change
                     Log.i(TAG, "playback state ${event.speakState}")

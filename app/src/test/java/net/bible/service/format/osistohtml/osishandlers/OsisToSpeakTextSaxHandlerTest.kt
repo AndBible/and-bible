@@ -28,7 +28,7 @@ class OsisToSpeakTextSaxHandlerTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        osisToSpeakTextSaxHandler = OsisToSpeakTextSaxHandler(true)
+        osisToSpeakTextSaxHandler = OsisToSpeakTextSaxHandler(true, net.bible.service.format.SaxTextPolicy.MODERN)
     }
 
     @Test

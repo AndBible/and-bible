@@ -39,7 +39,7 @@ class CrosswireRepoIT {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        val repoFactory = RepoFactory(DownloadManager(null))
+        val repoFactory = RepoFactory(DownloadManager(org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java), GenericFileDownloader(settings = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java), notifier = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java), strings = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java)), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java)).apply { kotlinx.coroutines.runBlocking { refreshInstallManager() } }, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
         crosswireRepo = repoFactory.crosswireRepo
     }
 
@@ -56,7 +56,7 @@ class CrosswireRepoIT {
     }
 
     @Test
-    fun downloadDocument() {
+    fun downloadDocument() = kotlinx.coroutines.runBlocking {
         val repoBooks = crosswireRepo.getRepoBooks(false)
         val kjv = repoBooks.findLast { it.initials == "KJV" }
         print(kjv)
@@ -65,7 +65,7 @@ class CrosswireRepoIT {
     }
 
     @Test
-    fun downloadDocumentsRequiredForTests() {
+    fun downloadDocumentsRequiredForTests() = kotlinx.coroutines.runBlocking {
         // Let's remove ESV until it comes back to crosswire's repository
         //val testBooks = arrayOf("KJV", "ISV", "ESV2011", "FinRK", "FinPR", "FinSTLK2017")
         val testBooks = arrayOf("KJV", "ISV", "FinRK", "FinPR", "FinSTLK2017")

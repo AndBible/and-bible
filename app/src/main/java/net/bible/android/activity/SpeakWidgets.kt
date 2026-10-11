@@ -43,7 +43,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
@@ -80,6 +80,7 @@ class SpeakWidgetManager : KoinComponent {
         const val TAG = "SpeakWidget"
     }
 
+    private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
     val speakControl: SpeakControl by inject()
     val bookmarkControl: BookmarkControl by inject()
     private var bookmarkChanges: Subscription? = null
@@ -111,6 +112,7 @@ class SpeakWidgetManager : KoinComponent {
         }
         subscriptions.add(SpeakChanges.changes.subscribe { change ->
             when (change) {
+                SpeakChange.Status -> updateWidgetTexts()
                 is SpeakChange.Progress -> {
                     val ev = change
                     if (ev.speakCommand is TextCommand) {
@@ -226,7 +228,7 @@ class SpeakWidgetManager : KoinComponent {
         val bibleBookmarks = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) }.sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
         val genBookmarks = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
         val speakBookmarks = bibleBookmarks + genBookmarks
-        if(!AdvancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
+        if(!advancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
         }
         for (b in speakBookmarks){

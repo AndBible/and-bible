@@ -20,10 +20,7 @@ package net.bible.service.installzip
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import net.bible.android.activity.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,20 +37,21 @@ import java.util.concurrent.ConcurrentHashMap
  * pauses on ([InstallPhase.AwaitingDecision]) to external [resolveDecision]/[cancel] calls (a
  * dialog button, a notification action, ...).
  *
- * **Cancellation-safety.** Workers run on a controller-owned [SupervisorJob] scope, entirely
+ * **Cancellation-safety.** Workers run on an injected application-lifetime scope, entirely
  * separate from whatever coroutine calls [enqueue]. So if the caller's coroutine is cancelled
  * (e.g. a Fragment/ViewModel scope torn down while installs are still running), only the
  * *awaiting* of the aggregate [InstallOutcome] stops -- the queued jobs are completely unaffected,
  * keep running to their terminal phase, and [onTerminal] still fires for each. This mirrors how a
- * real Android [android.app.Service] must behave: it must keep installing after the Activity/UI
+ * real foreground install host must behave: it must keep installing after the Activity/UI
  * that started it goes away.
  */
 class InstallServiceController(
     private val runnerFactory: () -> InstallJobRunner,
     private val newJobId: () -> JobId,
     private val onTerminal: (jobId: JobId, phase: InstallPhase) -> Unit,
+    scope: CoroutineScope,
 ) {
-    /** Data the runner needs per job, provided by the Service (Android-bound lambdas). */
+    /** Data the runner needs per job, provided by the platform install host. */
     class JobDeps(
         val acquireDir: File,
         val openStream: suspend (InstallSource) -> InputStream,
@@ -63,8 +61,8 @@ class InstallServiceController(
         val epubUpgradeCheck: suspend (String) -> Boolean,
     )
 
-    /** Owns every worker coroutine; never tied to a caller's context (see class doc). */
-    private val workerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    /** Hosts every worker coroutine; never tied to a caller's context (see class doc). */
+    private val workerScope = scope
 
     private val _jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
     val jobs: StateFlow<List<InstallJobState>> = _jobs.asStateFlow()
@@ -164,7 +162,7 @@ class InstallServiceController(
                 // `launch` uncaught on the handler-less SupervisorJob scope (a crash), while
                 // `terminal` stayed at its `Cancelled` default, misreporting a real error as a
                 // user cancellation.
-                InstallPhase.Error(R.string.error_occurred, null)
+                InstallPhase.Error(InstallError.GENERIC, null)
             }
         }
         jobCoroutines[jobId] = job
@@ -191,7 +189,7 @@ class InstallServiceController(
 
     private fun aggregate(terminals: List<InstallPhase>): InstallOutcome {
         val firstError = terminals.filterIsInstance<InstallPhase.Error>().firstOrNull()
-        if (firstError != null) return InstallOutcome.Error(firstError.messageKey, firstError.arg)
+        if (firstError != null) return InstallOutcome.Error(firstError.kind, firstError.arg)
         if (terminals.isNotEmpty() && terminals.all { it is InstallPhase.Cancelled }) return InstallOutcome.Cancelled
         return InstallOutcome.Ok
     }

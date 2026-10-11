@@ -35,7 +35,7 @@ import java.io.StringReader
  */
 internal fun renderCommentaryFragmentXml(book: Book, key: Key): String? {
     val outputter = XMLOutputter(Format.getRawFormat())
-    val xml = outputter.outputString(SwordContentFacade.readOsisFragment(book, key))
+    val xml = outputter.outputString(SwordContentFacade.readOsisFragment(book, key, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()))
     return if (xml.isBlank() || xml == "<div/>") null else xml
 }
 

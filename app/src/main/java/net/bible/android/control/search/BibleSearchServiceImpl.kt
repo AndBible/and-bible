@@ -47,6 +47,7 @@ import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
  */
 class BibleSearchServiceImpl(
     private val searchControl: SearchControl,
+    private val strings: net.bible.sharedcore.platform.CoreStrings,
 ) : BibleSearchService {
 
     override fun validateIndex(request: SearchRequest): Boolean =
@@ -125,7 +126,7 @@ class BibleSearchServiceImpl(
 
     private fun previewFor(book: SwordBook, key: Key, terms: List<String>, lemmaTerms: List<String>): StyledText =
         try {
-            SearchHighlighter.highlight(SwordContentFacade.readOsisFragment(book, key), terms, lemmaTerms)
+            SearchHighlighter.highlight(SwordContentFacade.readOsisFragment(book, key, strings = strings), terms, lemmaTerms)
         } catch (e: Exception) {
             Log.e(TAG, "Error reading verse preview", e)
             StyledText.plain("")

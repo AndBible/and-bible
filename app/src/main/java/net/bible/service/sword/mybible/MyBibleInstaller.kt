@@ -20,10 +20,10 @@ package net.bible.service.sword.mybible
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import net.bible.android.BibleApplication.Companion.application
+import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.android.SharedConstants
 import net.bible.android.database.repoJson
-import net.bible.service.common.CommonUtils.unzipFile
+import net.bible.service.common.ArchiveUtils.unzipFile
 import net.bible.service.download.GenericFileDownloader
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.AbstractBookList
@@ -64,7 +64,7 @@ class MyBibleRepositorySpec (
     }
 }
 
-class MyBibleInstaller(private val manifestUrl: String): Installer, AbstractBookList() {
+class MyBibleInstaller(private val manifestUrl: String, private val downloader: GenericFileDownloader, private val environment: AppEnvironment): Installer, AbstractBookList() {
     override fun getType(): String  = "mybible-https"
     private val myBibleDir = File(SharedConstants.modulesDir, "mybible")
     private val localManifestFile = File(myBibleDir, "manifest.json")
@@ -90,7 +90,6 @@ class MyBibleInstaller(private val manifestUrl: String): Installer, AbstractBook
     private val fakeDriver = SwordBookDriver.instance()
     private val nullBackend = NullBackend()
 
-    private val downloader = GenericFileDownloader()
     private fun categoryFromFilename(filename: String): String {
         val isCommentary = filename.contains(".commentaries")
         val isDictionary = filename.contains(".dictionaries")
@@ -137,7 +136,7 @@ class MyBibleInstaller(private val manifestUrl: String): Installer, AbstractBook
 
     override fun reloadBookList() {
         val url = URL(manifestUrl)
-        downloader.downloadFileSync(url, localManifestFile, "MyBible manifest")
+        downloader.downloadFileSync(url, localManifestFile, "MyBible manifest") // L1-edge: JSword synchronous Installer.reloadBookList
         spec = readSpec()
     }
 
@@ -158,12 +157,12 @@ class MyBibleInstaller(private val manifestUrl: String): Installer, AbstractBook
 
     override fun install(book: Book, jobId: String?) {
         Log.i(TAG, "Installing MyBible book ${book.initials}, $jobId")
-        val tmpDir = File(application.cacheDir, "mybible")
+        val tmpDir = File(environment.cacheDir, "mybible")
         tmpDir.mkdirs()
         val url = book.myBibleDownloadUrl
         val moduleSpec = moduleSpecs.find { it.download_url == url } ?: throw InstallException("Spec error")
         val tmpFile = File(tmpDir, moduleSpec.file_name)
-        val success = downloader.downloadFileSync(URL(url), tmpFile,
+        val success = downloader.downloadFileSync(URL(url), tmpFile, // L1-edge: JSword synchronous Installer.install
             jobId = jobId,
             description = "MyBible manifest",
             notifyUser = true

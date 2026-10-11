@@ -46,7 +46,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
  * `OptionsMenuItemInterface.openDialog(activity: ActivityBase, …)`,
  * `exportStudyPads(activity: ActivityBase, …)`,
  * `BookmarkCsvFlow.exportBookmarksToCSV(context: ActivityBase, …)`,
- * `BackupControl.backupPopup(activity: ActivityBase)`, `BugReport.reportBug(context_: ActivityBase?, …)` and
+ * `BackupNavigation.backupPopup(activity: ActivityBase)`, `BugReport.reportBug(context_: ActivityBase?, …)` and
  * `CommonUtils.showHelp(callingActivity: ActivityBase, …)`. Wrapping those in a dozen more lambdas would
  * decouple nothing — the callee still needs an Activity. R6a's bundle carries the same member for
  * the same reason, and R7 set the precedent when it gave `ReadingAppBootstrap` a

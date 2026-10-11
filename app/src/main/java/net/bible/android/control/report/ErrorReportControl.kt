@@ -125,7 +125,7 @@ object ErrorReportControl {
                     ErrorDialogResult.REPORT -> BugReport.reportBug(context, exception=exception, useSaved = true, source = "after crash")
                     ErrorDialogResult.CANCEL -> null
                     ErrorDialogResult.BACKUP -> {
-                        BackupControl.backupPopup(context)
+                        net.bible.android.view.activity.backup.BackupNavigation.backupPopup(context)
                         askAgain = true
                     }
                 }

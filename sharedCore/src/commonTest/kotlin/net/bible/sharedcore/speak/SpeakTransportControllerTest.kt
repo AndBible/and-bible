@@ -24,7 +24,7 @@ class SpeakTransportControllerTest {
         override fun forward() { forwarded++ }
         override fun prevVerse() { prev++ }
         override fun nextVerse() { next++ }
-        override fun speakBookmarks() = bookmarks
+        override suspend fun speakBookmarks() = bookmarks
         override fun speakFromBookmark(id: String) { spokeFromId = id }
     }
     private class FakeSettings : SpeakSettingsService {

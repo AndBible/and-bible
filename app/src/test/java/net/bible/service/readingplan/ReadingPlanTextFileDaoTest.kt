@@ -38,7 +38,36 @@ class ReadingPlanTextFileDaoTest {
         override fun openBuiltInPlan(code: String): String? { opened += code; return plans[code] }
     }
 
-    private val strings = object : CoreStrings {
+    private val strings = object : CoreStrings by net.bible.test.testCoreStrings() {
+        override val storageSpaceWarning = "storageSpaceWarning"
+        override val errorDownloading = "errorDownloading"
+        override val journalDescription = "journalDescription"
+        override val studypads = "studypads"
+        override val compareDescription = "compareDescription"
+        override val compareAbbreviation = "compareAbbreviation"
+        override val memorizeDescription = "memorizeDescription"
+        override val memorizeAbbreviation = "memorizeAbbreviation"
+        override val multiDescription = "multiDescription"
+        override val multiAbbreviation = "multiAbbreviation"
+        override val myNotesDescription = "myNotesDescription"
+        override val myNotesAbbreviation = "myNotesAbbreviation"
+        override fun httpStatusText(code: Int) = "http-$code"
+        override fun errorDownloadingStatus(url: String, statusText: String, code: Int) = "$url $statusText $code"
+
+        override fun syncCategoryContents(category: String): String = error("unused")
+        override val speakNoBooksAvailable = "speakNoBooksAvailable"
+        override val speakGeneralError = "speakGeneralError"
+        override val verseRangeModeDisabled = "verseRangeModeDisabled"
+        override val rewind = "rewind"
+        override val forward = "forward"
+        override val pause = "pause"
+        override val stop = "stop"
+        override val speakStatusStopped = "speakStatusStopped"
+        override val installZipSuccessful = "installed"
+        override val installZipCanceled = "canceled"
+        override val invalidModule = "invalid"
+        override val sqliteInvalidFile = "invalid: %s"
+        override fun sleepTimerStarted(minutes: Int) = "sleep $minutes"
         override val labelAll = "All"
         override val errorOccurred = "Error"
         override fun somethingWithParenthesis(a: String, b: String) = "$a ($b)"

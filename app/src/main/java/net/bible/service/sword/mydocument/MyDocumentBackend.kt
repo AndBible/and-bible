@@ -20,6 +20,7 @@ package net.bible.service.sword.mydocument
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
+import net.bible.android.database.mydocument.MyDocumentDao
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
@@ -70,15 +71,14 @@ class MyDocumentOpenFileState(
  */
 class MyDocumentBackend(
     private val documentId: IdType,
-    metadata: SwordBookMetaData
+    metadata: SwordBookMetaData,
+    private val dao: () -> MyDocumentDao = { DatabaseContainer.instance.myDocumentDb.myDocumentDao() }
 ) : AbstractKeyBackend<MyDocumentOpenFileState>(metadata) {
-
-    private val dao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
 
     private var cachedPages: List<MyDocumentPage>? = null
 
     private fun getPages(): List<MyDocumentPage> {
-        return cachedPages ?: blockingDb { dao.pagesForDocument(documentId) }.also { cachedPages = it }
+        return cachedPages ?: blockingDb { dao().pagesForDocument(documentId) }.also { cachedPages = it } // L1-edge: JSword synchronous Backend contract
     }
 
     override fun initState(): MyDocumentOpenFileState {
@@ -130,7 +130,7 @@ class MyDocumentBackend(
         if (key == null) return ""
 
         val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
-        val page = blockingDb { dao.pageByKeyWithContent(documentId, pageKey) }
+        val page = blockingDb { dao().pageByKeyWithContent(documentId, pageKey) } // L1-edge: JSword synchronous Backend contract
 
         if (page == null) {
             Log.w(TAG, "Page not found: $pageKey in document $documentId")

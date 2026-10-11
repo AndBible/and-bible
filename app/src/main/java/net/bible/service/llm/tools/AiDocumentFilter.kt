@@ -38,14 +38,14 @@ object AiDocumentFilter {
     }
 
     fun preferredStrongsGreek(): String? =
-        SwordDocumentFacade.defaultStrongsGreekDictionary
+        SwordDocumentFacade.defaultStrongsGreekDictionary(org.koin.java.KoinJavaComponent.get(net.bible.service.download.FakeBookFactory::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java))
             .firstOrNull { isAllowed(it.initials) }?.initials
 
     fun preferredStrongsHebrew(): String? =
-        SwordDocumentFacade.defaultStrongsHebrewDictionary
+        SwordDocumentFacade.defaultStrongsHebrewDictionary(org.koin.java.KoinJavaComponent.get(net.bible.service.download.FakeBookFactory::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java))
             .firstOrNull { isAllowed(it.initials) }?.initials
 
     fun preferredRobinsonMorphology(): String? =
-        SwordDocumentFacade.defaultRobinsonGreekMorphology
+        SwordDocumentFacade.defaultRobinsonGreekMorphology(org.koin.java.KoinJavaComponent.get(net.bible.service.download.FakeBookFactory::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java))
             .firstOrNull { isAllowed(it.initials) }?.initials
 }

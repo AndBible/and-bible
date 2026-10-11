@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.nav
 
+import net.bible.android.platform.AndroidBackupHost
+
 import net.bible.android.control.document.DocumentChanges
 import android.app.Activity
 import android.content.ClipData
@@ -33,7 +35,7 @@ import android.os.Looper
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.text.format.Formatter
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
@@ -161,7 +163,7 @@ import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DocumentConfiguration
-import net.bible.android.view.activity.download.PseudoBook
+import net.bible.service.download.PseudoBook
 import net.bible.android.view.activity.download.installedDocument
 import net.bible.android.view.activity.bookmark.BookmarkCsvFlow
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
@@ -485,7 +487,7 @@ import net.bible.android.view.activity.navigation.pickGridBook
 import net.bible.android.view.activity.navigation.pickGridChapter
 import net.bible.service.download.hideFromSelector
 import net.bible.service.sword.OsisError
-import net.bible.service.sword.SwordContentFacade.readOsisFragment
+import net.bible.service.sword.SwordContentFacade.Companion.readOsisFragment
 import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
@@ -520,8 +522,14 @@ import net.bible.service.db.blockingDb
  * one that matters for this cluster — `awaitIntent`, which the SAF flows need.
  */
 class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPolicyHost {
+    private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+
     override fun onBibleViewTouched() { composeReadingViewHost?.onBibleViewTouched() }
 
+    private val backupControl: BackupControl by inject()
+    private val backupSettings: net.bible.sharedcore.platform.AppSettings by inject()
+    private val backupEnvironment: net.bible.sharedcore.platform.AppEnvironment by inject()
+    private val coreStrings: net.bible.sharedcore.platform.CoreStrings by inject()
     private val documentFilterService: DocumentFilterService by inject()
     private val toolPermissionService: ToolPermissionService by inject()
     private val llmModelService: LlmModelService by inject()
@@ -611,13 +619,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private val appSettingsService by lazy { AppSettingsServiceImpl() }
 
-    /**
-     * Classic `SyncSettingsComposeActivity`'s own `by lazy` service, constructed EXACTLY as it was:
-     * `activityProvider` must yield an `ActivityBase` (`CloudSync.signIn` demands one, not a
-     * `Context`), and this host is one — so `{ this }` carries over verbatim.
-     */
-    private val syncSettingsService by lazy {
-        SyncSettingsServiceImpl(scope = lifecycleScope, activityProvider = { this })
+    /** Observe snapshots in the host scope; durable sync writes use the injected app scope. */
+    private val syncSettingsService: SyncSettingsServiceImpl by inject {
+        org.koin.core.parameter.parametersOf(lifecycleScope)
     }
 
     /**
@@ -685,8 +689,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * (four JSword `Books.installed()` dictionary scans and ~51 `CommonUtils.settings` reads, each
      * a Room query on the main thread), builds the whole `SettingsScreenState` item tree, needs
      * ~90 `getString` calls for its labels and launches a permanent snapshot collector;
-     * [SyncSettingsController] forces [syncSettingsService]'s eager `build()` (`CloudSync.signedIn`,
-     * the adapter summaries) plus ~35 more `getString`s. Classic paid that only when Settings
+     * [SyncSettingsController] starts [syncSettingsService]'s asynchronous snapshot load
+     * (cloud sign-in, category timestamps and adapter summaries) plus ~35 more `getString`s. Classic paid that only when Settings
      * itself opened, and a `by lazy` behind the deps' `() -> Controller` getter keeps it that way:
      * nothing is built until a settings DESTINATION composes.
      *
@@ -837,6 +841,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /** [onNewIntent]'s body, also run directly for a return-to-reading self-launch (fix batch 5 F110). */
+    private var intentArrival = 0L
+
     private fun applyNewIntent(intent: Intent) {
         // The route check comes FIRST: a route-less new intent must not become this Activity's
         // intent. It no longer THROWS on the next onCreate -- T8b turned that requireNotNull into a
@@ -844,12 +850,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // meaningful intent with a meaningless one, and `savedStartRoute` only pins the START route,
         // not `getIntent()` itself, which `bootstrapIfNeeded` reads `openLink` off.
         val route = intent.getStringExtra(EXTRA_ROUTE)?.let(::gatedReadingRoute) ?: return
+        val arrival = ++intentArrival
         setIntent(intent)
 
         // R7 fix round 1 (review Important 3): reading is reachable HERE too, on a host that
         // started on any other route and so never bootstrapped. This must precede the navigate --
         // the reading destination composes against `windowControl.windowRepository`. `setIntent`
         // above has already run, so the bootstrap reads the NEW intent's extras, as onCreate's does.
+        if (route == NavRoutes.READING && CommonUtils.myDocumentRegistration?.isCompleted == false) {
+            lifecycleScope.launch {
+                CommonUtils.myDocumentRegistration?.join()
+                if (arrival == intentArrival) applyNewIntent(intent)
+            }
+            return
+        }
         if (route == NavRoutes.READING) bootstrapIfNeeded()
 
         // A daily-reading route is applied HOST-SIDE, here, BEFORE the navigate — never by leaving
@@ -1343,21 +1357,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * From [onCreate] it runs BEFORE `setContent`, exactly as classic runs it before the reading
      * view is built: the composition reads `windowControl.windowRepository`.
      */
+    private var bootstrapUiOwed = false
+
+    private fun applyBootstrapUiIfForeground() {
+        if (!bootstrapUiOwed || paused || !ReadingHostPresence.isForeground(this)) return
+        bootstrapUiOwed = false
+        lifecycleScope.launch(Dispatchers.Main) { readingAppBootstrap.showFirstRunNotices() }
+        if (intent.hasExtra("openLink")) {
+            readingAppBootstrap.openDeepLink(Uri.parse(intent.getStringExtra("openLink")))
+        }
+    }
+
     private fun bootstrapIfNeeded() {
         if (readingAppBootstrapped) return
         readingAppBootstrapped = true
-        ReadingHostPresence.setForeground(this)
-        ReadingViewVisibility.setActivityVisible(this, true)
+        if (!paused) {
+            ReadingHostPresence.setForeground(this)
+            ReadingViewVisibility.setActivityVisible(this, true)
+        }
         readingAppBootstrap.prepareData()
         readingAppBootstrap.createWindowRepository()
         readingAppBootstrap.setSoftKeyboardMode()
-        lifecycleScope.launch(Dispatchers.Main) {
-            readingAppBootstrap.showFirstRunNotices()
-        }
-        if(intent.hasExtra("openLink")) {
-            val uri = Uri.parse(intent.getStringExtra("openLink"))
-            readingAppBootstrap.openDeepLink(uri)
-        }
+        bootstrapUiOwed = true
+        applyBootstrapUiIfForeground()
         readingAppBootstrap.registerNetworkCallback()
     }
 
@@ -1939,6 +1961,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
         if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
+        applyBootstrapUiIfForeground()
         applyPendingActivityResult()
     }
 
@@ -2637,7 +2660,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var backupReturn: CompletableDeferred<Unit>? = null
 
     /**
-     * Open Backup & restore in-graph and suspend until the user has left it. `BackupControl.backupPopup`
+     * Open Backup & restore in-graph and suspend until the user has left it. `BackupNavigation.backupPopup`
      * calls this on the nav host; its other callers' `showErrorDialog` loop re-shows its dialog only once
      * this returns. A second request supersedes the first (the first returns).
      *
@@ -2950,7 +2973,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (!readingAppBootstrapped) return@subscribeOnMain
             readingCommands.applyWorkspacesUpdatedViaSync(updated)
         })
-        hostSubscriptions.add(CloudSync.workspaceRefreshRequired.subscribeOnMain {
+        hostSubscriptions.add(cloudSync.workspaceRefreshRequired.subscribeOnMain {
             if (!readingAppBootstrapped) return@subscribeOnMain
             readingCommands.applyWorkspaceRefreshRequired()
         })
@@ -3157,7 +3180,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val flow = welcomeFlow
         lifecycleScope.launch(Dispatchers.Main) {
             CommonUtils.initializeAppCoroutine()
-            unlockLockedBiblesIfNoneUsable(this@NavHostComposeActivity, usable = usableBibleGate)
+            unlockLockedBiblesIfNoneUsable(net.bible.service.sword.BookUnlocker { CommonUtils.unlockDocument(this@NavHostComposeActivity, it) }, usable = usableBibleGate)
             if (!usableBibleGate()) {
                 flow.controller.setProgress(null)
                 flow.controller.refresh()
@@ -3294,7 +3317,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // mode rather than leaving a non-reading start to the manifest by omission.
         applyWindowModeFor(startRoute)
         refreshSystemBars(startRoute)
-        if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         // R8: build [readingCommands] NOW, while this Activity is still CREATED.
         //
         // Its constructor calls `registerForActivityResult` (the reading view's background-image
@@ -3314,9 +3336,31 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // `ReadingHostChromeTest` pins.
         @Suppress("UNUSED_EXPRESSION")
         readingCommands
-        // T8d: see [readingReturnDebts] and [onSaveInstanceState].
+        // Activity-result launchers must register while CREATED; only restoration and
+        // composition wait for the application-owned registration job.
+        if (startRoute == NavRoutes.READING && CommonUtils.myDocumentRegistration?.isCompleted == false) {
+            lifecycleScope.launch {
+                CommonUtils.myDocumentRegistration?.join()
+                finishHostCreation(savedInstanceState, startRoute)
+            }
+        } else {
+            finishHostCreation(savedInstanceState, startRoute)
+        }
+    }
+
+    private fun finishHostCreation(savedInstanceState: Bundle?, startRoute: String) {
+        if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         setContent {
+            // Direct settings/download entry points can precede the startup coroutine.
+            // Do not compose synchronous settings consumers until their snapshot is loaded.
+            val uninitialisedStart = doNotInitializeApp
+            val loadedForStart by androidx.compose.runtime.produceState<Boolean?>(null, uninitialisedStart) {
+                // Welcome/restore deliberately leave the DB unopened and have no sync consumers.
+                if (!uninitialisedStart) documentSyncSettings.ensureLoaded()
+                value = uninitialisedStart
+            }
+            if (loadedForStart != uninitialisedStart) return@setContent
             AbAppTheme {
               CompositionLocalProvider(
                 LocalHostSystemBars provides hostSystemBars.value,
@@ -3994,7 +4038,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         exitHost = { finish() },
                         setWindowTitle = { title -> setTitle(title) },
                         windowTitle = getString(R.string.backup_and_restore),
-                        controllerFor = { BackupController(BackupServiceImpl(this@NavHostComposeActivity), lifecycleScope) },
+                        controllerFor = {
+                            BackupController(BackupServiceImpl(
+                                AndroidBackupHost { this@NavHostComposeActivity },
+                                backupControl, backupSettings, backupEnvironment, coreStrings,
+                            ), lifecycleScope)
+                        },
                     )
                 }
                 val installZipDeps = remember {
@@ -4736,7 +4785,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val label = session.labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return
         try {
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
-                FakeBookFactory.journalDocument,
+                fakeBookFactory.journalDocument,
                 StudyPadKey(label, entryId = firstMatchEntryId?.let { IdType(it) }),
             )
         } catch (e: Exception) {
@@ -5702,7 +5751,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 contentType = contentType,
                 orderNumber = controller.totalCount.value,
             )
-            blockingDb { myDocumentDao.insertPageWithContent(page, content) }
+            MyDocumentBookManager.launcher.launch("mydocument-pages-$docId") {
+                myDocumentDao.insertPageWithContent(page, content)
+            }
             val id = nextLongId()
             myDocumentPagesEntityByLong = myDocumentPagesEntityByLong + (id to page)
             val ct = if (contentType == MyDocumentContentType.HTML) ContentType.HTML else ContentType.MARKDOWN
@@ -5712,26 +5763,26 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** Mirror of classic `applyChanges`: delete removed pages, persist reorders/renames, always
          *  refresh the SWORD book, and post `MyDocumentChange.AiDocPages` for the deletions. */
-        fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>) {
-            val removedPages = deleted.mapNotNull { myDocumentPagesEntityByLong[it] }
-            blockingDb {
+        suspend fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>, pages: Map<Long, MyDocumentPage>) {
+            val removedPages = deleted.mapNotNull { pages[it] }
+            run {
                 removedPages.forEach { p ->
                     myDocumentDao.pageById(p.id)?.let { myDocumentDao.deletePageWithContent(it) }
                 }
             }
             val toUpdate = ArrayList<MyDocumentPage>()
             ordered.forEachIndexed { index, item ->
-                val p = myDocumentPagesEntityByLong[item.id] ?: return@forEachIndexed
+                val p = pages[item.id]?.copy() ?: return@forEachIndexed
                 p.orderNumber = index
                 p.title = item.name
                 if (item.id in changed) { p.updatedAt = System.currentTimeMillis(); toUpdate.add(p) }
             }
-            if (toUpdate.isNotEmpty()) blockingDb { myDocumentDao.updatePages(toUpdate) }
+            if (toUpdate.isNotEmpty()) myDocumentDao.updatePages(toUpdate)
             // Classic always refreshes: new pages are inserted directly to the DB in
             // addPageToList() without going through `changed`, so the SWORD book would otherwise be
             // stale.
             MyDocumentBookManager.refreshDocument(documentInitials)
-            val deletedIds = deleted.mapNotNull { myDocumentPagesEntityByLong[it]?.id }
+            val deletedIds = deleted.mapNotNull { pages[it]?.id }
             if (deletedIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedIds))
         }
 
@@ -5741,8 +5792,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // classic's save-changes prompt, then refresh the SWORD book's key map (a snapshot)
                 // before the caller resolves the returned pageKey against it.
                 myDocumentPagesEntityByLong[id]?.let { page ->
-                    if (controller.dirty.value) controller.save() else MyDocumentBookManager.refreshDocument(documentInitials)
-                    onResult(MyDocumentPagesResult.Selected(documentInitials, page.pageKey))
+                    if (controller.dirty.value) controller.save()
+                    MyDocumentBookManager.launcher.launch("mydocument-pages-$docId") {
+                        MyDocumentBookManager.refreshDocument(documentInitials)
+                        withContext(Dispatchers.Main) {
+                            if (!isDestroyed && !isFinishing) {
+                                onResult(MyDocumentPagesResult.Selected(documentInitials, page.pageKey))
+                            }
+                        }
+                    }
                 }
             },
             onImport = onImport,
@@ -5752,7 +5810,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 addPageToList(name, ct, "")
             },
             onExportSelected = onExportSelected,
-            onSave = { ordered, changed, deleted -> applyChanges(ordered, changed, deleted) },
+            onSave = { ordered, changed, deleted ->
+                val pages = myDocumentPagesEntityByLong.mapValues { it.value.copy() }
+                MyDocumentBookManager.launcher.launch("mydocument-pages-$docId") {
+                    applyChanges(ordered, changed, deleted, pages)
+                }
+            },
         )
 
         lifecycleScope.launch {
@@ -5820,8 +5883,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val targetFile = File(targetDir, fileName)
             targetFile.writeText(pageWithContent.content ?: "")
             val mimeType = if (ext == "html") "text/html" else "text/markdown"
-            BackupControl.saveOrShare(
-                activity = this@NavHostComposeActivity,
+            backupControl.saveOrShare(
+                host = AndroidBackupHost { this@NavHostComposeActivity },
                 file = targetFile,
                 fileName = fileName,
                 shareMimeType = mimeType,
@@ -5998,13 +6061,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Mirror of classic `createNewDocument` (`MyDocumentsComposeActivity.kt:198-208`): insert +
      *  register a fresh empty document, then add it to the session's list. */
     private fun createMyDocument(session: MyDocumentsSession, name: String) {
-        val initials = MyDocumentBookManager.generateInitials(name)
-        val newDoc = MyDocument(name = name, initials = initials, orderNumber = session.controller.totalCount.value)
-        blockingDb { myDocumentDao.insert(newDoc) }
-        MyDocumentBookManager.registerDocument(newDoc)
-        val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
-        session.entityByLong = session.entityByLong + (id to newDoc)
-        session.controller.addDocument(MyDocItem(id, initials, name, "", isAiGenerated = false, canDelete = true))
+        MyDocumentBookManager.launcher.launch("mydocument-create") {
+            val initials = MyDocumentBookManager.generateInitials(name)
+            val newDoc = MyDocument(name = name, initials = initials, orderNumber = withContext(Dispatchers.Main) { session.controller.totalCount.value })
+            myDocumentDao.insert(newDoc)
+            withContext(Dispatchers.Main) {
+                MyDocumentBookManager.registerDocument(newDoc)
+                if (isDestroyed || isFinishing || myDocumentsSession !== session) return@withContext
+                val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
+                session.entityByLong = session.entityByLong + (id to newDoc)
+                session.controller.addDocument(MyDocItem(id, initials, name, "", isAiGenerated = false, canDelete = true))
+            }
+        }
     }
 
     private var pendingMyDocumentExportId: Long? = null
@@ -6070,7 +6138,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private fun importMyDocumentFromFiles(documentName: String, uris: List<Uri>) {
         val session = myDocumentsSession ?: return
-        lifecycleScope.launch(Dispatchers.IO) {
+        MyDocumentBookManager.launcher.launch("mydocument-create") {
             try {
                 data class FileEntry(val fileName: String, val content: String)
 
@@ -6124,9 +6192,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     myDocumentDao.insertPageWithContent(page, entry.content)
                 }
 
-                MyDocumentBookManager.registerDocument(newDocument)
-
                 withContext(Dispatchers.Main) {
+                    MyDocumentBookManager.registerDocument(newDocument)
+                    if (isDestroyed || isFinishing || myDocumentsSession !== session) return@withContext
                     val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
                     session.entityByLong = session.entityByLong + (id to newDocument)
                     session.controller.addDocument(
@@ -6841,7 +6909,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 list.addAll(BookAndKey(key, book))
             }
         }
-        linkControl.showLink(FakeBookFactory.multiDocument, list)
+        linkControl.showLink(fakeBookFactory.multiDocument, list)
     }
 
     // --- EPUB search host baggage (classic EpubSearch/EpubSearchResultsComposeActivity) -----------
@@ -7554,9 +7622,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         downloadSession?.let { return it.controller }
 
         val session = DownloadSession()
-        session.downloadManager = DownloadManager { }
-        session.repoFactory = RepoFactory(session.downloadManager)
-        session.genericFileDownloader = GenericFileDownloader(this) { }
+        session.genericFileDownloader = GenericFileDownloader(
+            lifecycleScope,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java),
+        ) { }
+        session.downloadManager = DownloadManager(
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java),
+            session.genericFileDownloader,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
+        ) { }
+        session.repoFactory = RepoFactory(session.downloadManager, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
 
         session.controller = DocumentSelectionController(
             // classic sortLanguages order (RelevantLanguageSorter): rank by the precomputed index.
@@ -7732,7 +7810,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val books = withContext(Dispatchers.Default) {
                 session.downloadManager.refreshInstallManager()
                 val docs = downloadControl.getDownloadableDocuments(session.repoFactory, refresh)
-                if (docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(session.pseudoBooks) else docs
+                if (docs.isNotEmpty()) docs + fakeBookFactory.pseudoDocuments(session.pseudoBooks) else docs
             }
             val rows = withContext(Dispatchers.Default) {
                 val grouping = LanguageGrouping(books.mapNotNull { it.language })
@@ -8168,7 +8246,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // glyph this row used to share.
                 icon = { Icon(Icons.Filled.Dns, contentDescription = null) },
             )
-            if (DocumentSyncSettings.enabled) {
+            if (documentSyncSettings.enabled) {
                 AbMenuItem(
                     text = getString(R.string.document_sync_manage_title),
                     // An in-graph hop, not classic's awaitIntent(Screen.CloudDocuments): nav-graph
@@ -8299,14 +8377,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * method reference -- a method reference is the SAME function for every instance and cannot tell
      * "its own" entry from the ref's current one, which is exactly the bug fix round 2 closes.
      */
+    private val documentSyncSettings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
+
     private fun buildCloudDocumentsController(): CloudDocumentsController {
         val entry = CloudDocumentsEntry()
         entry.controller = CloudDocumentsController(
-            syncEnabled = { DocumentSyncSettings.enabled },
+            syncEnabled = { documentSyncSettings.enabled },
             onAction = { action, initials -> handleCloudDocumentsAction(entry.controller, action, initials) },
             onBulkAction = { action, initials -> handleCloudDocumentsBulkAction(entry.controller, action, initials) },
             onSyncNow = { download, upload, delete -> handleCloudDocumentsSyncNowConfirm(entry, download, upload, delete) },
-            onRescan = { cloudDocumentsRunSyncAction(entry.controller) { DocumentSync.resetListingCache() } },
+            onRescan = { cloudDocumentsRunSyncAction(entry.controller) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).resetListingCache() } },
             onShowRemovedChange = { show -> handleCloudDocumentsShowRemovedChange(entry.controller, show) },
             onConfirmRemove = { initials -> handleCloudDocumentsRemoveConfirmed(entry.controller, initials) },
             onConfirmPurge = { initials -> handleCloudDocumentsPurgeConfirmed(entry.controller, initials) },
@@ -8341,16 +8421,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private suspend fun cloudDocumentsOpenOrGate(): Boolean {
         val controller = cloudDocumentsController
-        var signedIn = CloudSync.signedIn
-        if (!signedIn) signedIn = CloudSync.signIn(this@NavHostComposeActivity) == true
+        documentSyncSettings.ensureLoaded()
+        var signedIn = cloudSync.signedIn
+        if (!signedIn) signedIn = cloudSync.signIn() == true
         val items = cloudDocumentsSeedItems()
         if (!signedIn && items.isEmpty()) {
             Toast.makeText(this, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
             return false
         }
-        controller.setShowRemoved(DocumentSyncSettings.showRemovedDocuments)
+        controller.setShowRemoved(documentSyncSettings.showRemovedDocuments)
         controller.setItems(items)
-        if (signedIn && (!DocumentSyncSettings.enabled || items.isEmpty())) cloudDocumentsRefreshFromNetwork()
+        if (signedIn && (!documentSyncSettings.enabled || items.isEmpty())) cloudDocumentsRefreshFromNetwork()
         return true
     }
 
@@ -8363,7 +8444,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * inside this function would recurse through that callback forever.
      */
     private suspend fun cloudDocumentsSeedItems(): List<CloudDocItem> = withContext(Dispatchers.IO) {
-        DocumentSync.scanCached(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+        documentSyncSettings.ensureLoaded()
+        org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scanCached(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
     }
 
     /**
@@ -8380,7 +8462,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         controller.pushBusy(true)
         try {
             val items = withContext(Dispatchers.IO) {
-                DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
             }
             controller.setItems(items)
         } finally {
@@ -8399,7 +8481,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * different controller.
      */
     private fun handleCloudDocumentsShowRemovedChange(controller: CloudDocumentsController, show: Boolean) {
-        DocumentSyncSettings.showRemovedDocuments = show
+        documentSyncSettings.showRemovedDocuments = show
         lifecycleScope.launch {
             controller.pushBusy(true)
             try {
@@ -8418,7 +8500,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * exists to skip.
      */
     private fun cloudDocumentsSubscribeProgress(onRunning: (Boolean) -> Unit): () -> Unit =
-        subscribeToDocumentSyncRunning(lifecycleScope, DocumentSync.runningChanged, onRunning)
+        subscribeToDocumentSyncRunning(lifecycleScope, org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).runningChanged, onRunning)
 
     /**
      * Classic `runSyncAction` (`:234-241`), used by [buildCloudDocumentsController]'s `onRescan`.
@@ -8431,7 +8513,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         try {
             withContext(Dispatchers.IO) { block() }
             val items = withContext(Dispatchers.IO) {
-                DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
             }
             controller.setItems(items)
         } finally {
@@ -8453,17 +8535,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), listOf(initials))
             CloudDocAction.PUSH, CloudDocAction.RESTORE -> DocumentSyncService.start(this, listOf(initials), emptyList())
             CloudDocAction.BLOCK -> {
-                DocumentSyncSettings.blockList.block(initials)
+                documentSyncSettings.blockList.block(initials)
                 controller.setBlocked(initials, true)
             }
             CloudDocAction.UNBLOCK -> {
                 val push = pushOnUnblock(controller.items.value, listOf(initials))
-                DocumentSyncSettings.blockList.unblock(initials)
+                documentSyncSettings.blockList.unblock(initials)
                 controller.setBlocked(initials, false)
                 if (push.isNotEmpty()) DocumentSyncService.start(this, push, emptyList())
             }
             CloudDocAction.REMOVE_CLOUD -> {
-                val enabled = DocumentSyncSettings.enabled
+                val enabled = documentSyncSettings.enabled
                 val message = getString(
                     if (enabled) R.string.cloud_doc_remove_all_confirm else R.string.cloud_doc_remove_cloud_confirm,
                     item.name,
@@ -8494,12 +8576,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             }
             CloudDocAction.UNBLOCK -> {
                 val push = pushOnUnblock(controller.items.value, initials)
-                initials.forEach { DocumentSyncSettings.blockList.unblock(it); controller.setBlocked(it, false) }
+                initials.forEach { documentSyncSettings.blockList.unblock(it); controller.setBlocked(it, false) }
                 if (push.isNotEmpty()) DocumentSyncService.start(this, push, emptyList())
                 controller.clearSelection()
             }
             CloudDocAction.REMOVE_CLOUD -> {
-                val enabled = DocumentSyncSettings.enabled
+                val enabled = documentSyncSettings.enabled
                 val message = resources.getQuantityString(
                     if (enabled) R.plurals.cloud_doc_bulk_remove_all_confirm else R.plurals.cloud_doc_bulk_remove_cloud_confirm,
                     initials.size, initials.size,
@@ -8535,7 +8617,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** F75 -- the confirmed half of [handleCloudDocumentsBulkAction]'s BLOCK branch (classic's direct body). */
     private fun handleCloudDocumentsBlockConfirmed(controller: CloudDocumentsController, initials: List<String>) {
-        initials.forEach { DocumentSyncSettings.blockList.block(it); controller.setBlocked(it, true) }
+        initials.forEach { documentSyncSettings.blockList.block(it); controller.setBlocked(it, true) }
         controller.clearSelection()
     }
 
@@ -8557,7 +8639,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         lifecycleScope.launch {
             controller.pushBusy(true)
             val plan = try {
-                withContext(Dispatchers.IO) { DocumentSync.computeSyncPlan(download = true, upload = true, delete = true) }
+                withContext(Dispatchers.IO) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).computeSyncPlan(download = true, upload = true, delete = true) }
             } catch (e: Exception) {
                 Toast.makeText(this@NavHostComposeActivity, R.string.sync_error, Toast.LENGTH_SHORT).show()
                 return@launch
@@ -8587,7 +8669,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 cloudDocumentsCountLabel(plan.toUninstall.size, null),
         )
         val checked = listOf(
-            DocumentSyncSettings.syncNowDownload, DocumentSyncSettings.syncNowUpload, DocumentSyncSettings.syncNowDelete,
+            documentSyncSettings.syncNowDownload, documentSyncSettings.syncNowUpload, documentSyncSettings.syncNowDelete,
         )
         entry.controller.showSyncNow(labels, checked)
     }
@@ -8601,9 +8683,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun handleCloudDocumentsSyncNowConfirm(entry: CloudDocumentsEntry, download: Boolean, upload: Boolean, delete: Boolean) {
         val plan = entry.lastPlan ?: return
         entry.lastPlan = null
-        DocumentSyncSettings.syncNowDownload = download
-        DocumentSyncSettings.syncNowUpload = upload
-        DocumentSyncSettings.syncNowDelete = delete
+        documentSyncSettings.syncNowDownload = download
+        documentSyncSettings.syncNowUpload = upload
+        documentSyncSettings.syncNowDelete = delete
         DocumentSyncService.start(
             this,
             pushInitials = if (upload) plan.toUpload else emptyList(),
@@ -8638,7 +8720,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun CloudDocumentsOverflowMenu() {
         val entry = cloudDocumentsEntry
         AbOverflowMenu(contentDescription = null) { close ->
-            if (CloudSync.signedIn) {
+            if (cloudSync.signedIn) {
                 AbMenuItem(
                     text = getString(R.string.cloud_doc_sync_now),
                     onClick = { close(); cloudDocumentsShowSyncNow(entry) },
@@ -8872,8 +8954,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * classic's, and this task is a port, not a fix), minus the `ActivityResultKind.GenBookKey` tag,
      * which named the INTENT's shape to `MainBibleActivity`'s dispatcher and has no meaning in-graph.
      */
-    private fun generalBookKeyResult(key: Key?): KeyChooserResult {
-        val doc = chooseGeneralBookPage.currentDocument
+    private fun generalBookKeyResult(key: Key?, doc: Book? = chooseGeneralBookPage.currentDocument): KeyChooserResult {
         return if (key is BookAndKey) {
             KeyChooserResult(bookAndKeyJson = key.serialized)
         } else {
@@ -8896,22 +8977,26 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * A local cannot be cross-wired: each controller keeps the list that was resolved when IT was
      * built.
      */
-    private fun chooseGeneralBookKeyControllerFor(
+    private suspend fun chooseGeneralBookKeyControllerFor(
         onResult: (KeyChooserResult) -> Unit,
     ): ChooseGeneralBookKeyController? {
-        val keys = chooseGeneralBookPage.keyChooserKeys()
+        val page = chooseGeneralBookPage
+        val document = page.currentDocument
+        val currentKey = page.key
+        val keys = withContext(Dispatchers.IO) { page.keyChooserKeys() }
+        if (chooseGeneralBookPage !== page || page.currentDocument != document) throw kotlinx.coroutines.CancellationException("Chooser page changed")
         if (keys.isEmpty()) return null
         return ChooseGeneralBookKeyController(
             loadRows = {
                 keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) }
             },
             currentRow = {
-                chooseGeneralBookPage.key?.let { cur ->
+                currentKey?.let { cur ->
                     keys.indexOf(cur).takeIf { it >= 0 }?.toString()
                 }
             },
             onSelect = { keyId ->
-                onResult(generalBookKeyResult(keys.getOrNull(keyId.toIntOrNull() ?: -1)))
+                onResult(generalBookKeyResult(keys.getOrNull(keyId.toIntOrNull() ?: -1), document))
             },
         )
     }
@@ -9026,7 +9111,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val keys = chooseDictionarySession?.keys ?: return@withContext ""
         val key = keys.getOrNull(keyId.toIntOrNull() ?: -1) ?: return@withContext ""
         val book: Book = chooseDictionaryPage.currentDocument ?: return@withContext ""
-        val text = try { readOsisFragment(book, key) } catch (e: OsisError) { e.xml }
+        val text = try { readOsisFragment(book, key, org.koin.core.context.GlobalContext.get().get()) } catch (e: OsisError) { e.xml }
         dictionaryEntrySnippet(text, key.toString())
     }
 
@@ -9208,7 +9293,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = chooseDocumentSession ?: return
         try {
             val books = withContext(Dispatchers.Default) {
-                SwordDocumentFacade.documents + FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
+                SwordDocumentFacade.documents + fakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
             }
             val rows = withContext(Dispatchers.Default) {
                 // The Book -> DocRow mapping (language grouping included) lives in DocRowMapper,
@@ -9385,7 +9470,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Classic `onBackup()` (`:410-412`). */
     private fun onChooseDocumentBackup() {
-        lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@NavHostComposeActivity) }
+        lifecycleScope.launch { backupControl.backupModulesViaIntent(AndroidBackupHost { this@NavHostComposeActivity }) }
     }
 
     /** Classic `onInstallZip()` (`:414-421`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
@@ -9501,6 +9586,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * that is already being destroyed.
      */
     override fun onDestroy() {
+        ReadingViewVisibility.setActivityVisible(this, false)
+        ReadingHostPresence.clearForeground(this)
         workspaceSelectorController?.discardCreated()
         workspaceSelectorController = null
         // R4: the host's own subscriptions, so an Activity recreation (e.g. a
@@ -9654,6 +9741,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
+
+    private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     companion object {
         /** Classic `ReadingProgressComposeActivity.kt:54`'s file-private constant. */
         private const val PREF_READING_PROGRESS_LAST_TAB = "reading_progress_last_tab"

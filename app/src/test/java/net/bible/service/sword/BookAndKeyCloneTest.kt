@@ -19,7 +19,7 @@ class BookAndKeyCloneTest {
         val b = org.crosswire.jsword.passage.Verse(kjv, org.crosswire.jsword.versification.BibleBook.GEN, 1, 2)
         val c = org.crosswire.jsword.passage.Verse(kjv, org.crosswire.jsword.versification.BibleBook.GEN, 1, 3)
         val nested = org.crosswire.jsword.passage.DistinctPassage(kjv).apply { addAll(a) }
-        val book = net.bible.service.download.FakeBookFactory.giveDoesNotExist("CloneBook")
+        val book = net.bible.service.download.FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).giveDoesNotExist("CloneBook")
         val ordinal = net.bible.android.control.page.OrdinalRange(1, 3)
         val original = BookAndKey(nested, book, ordinal = ordinal, htmlId = "anchor")
         assertSame(ordinal, original.ordinal)

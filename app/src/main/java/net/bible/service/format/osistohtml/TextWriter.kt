@@ -16,8 +16,6 @@
  */
 package net.bible.service.format.osistohtml
 
-import net.bible.service.common.Logger
-
 /**
  * Write characters out to a StringBuilder - used while creating html for display
  *
@@ -109,10 +107,6 @@ class TextWriter {
         } else {
             dontWriteRequestCount--
         }
-    }
-
-    companion object {
-        private val log = Logger("HtmlTextWriter")
     }
 
 }

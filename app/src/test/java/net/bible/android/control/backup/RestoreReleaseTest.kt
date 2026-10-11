@@ -78,18 +78,18 @@ class RestoreReleaseTest {
 
     @Test fun aReplaceThatThrowsStillPostsTheReload() {
         val n = countReloads {
-            runCatching { runBlocking { BackupControl.reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
+            runCatching { runBlocking { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
         }
         assertEquals(1, n)
     }
 
     /** Review Focus 3. */
     @Test fun noReplaceMeansNoReloadIsPosted() {
-        assertEquals(0, countReloads { runBlocking { BackupControl.reloadingAfterReplace { /* user cancelled */ } } })
+        assertEquals(0, countReloads { runBlocking { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).reloadingAfterReplace { /* user cancelled */ } } })
     }
 
     @Test fun afterAThrowingRestoreAndItsReloadSavingWorksAgain() {
-        runCatching { runBlocking { BackupControl.reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
+        runCatching { runBlocking { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
         repo.loadFromDb(repo.id) // what databaseRestored triggers on the host
         repo.name = "D"; repo.saveIntoDb(false)
         assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)

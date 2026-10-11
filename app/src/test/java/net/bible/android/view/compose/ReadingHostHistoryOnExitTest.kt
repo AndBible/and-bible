@@ -45,6 +45,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostHistoryOnExitTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
@@ -62,7 +64,7 @@ class ReadingHostHistoryOnExitTest {
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.create().start().resume().visible().get()
+        ).also { controllers += it }.create().start().resume().visible().get().also { net.bible.test.awaitReadingGraph(it) { compose.waitForIdle() } }
     }
 
     private fun historyManager(): HistoryManager = GlobalContext.get().get()

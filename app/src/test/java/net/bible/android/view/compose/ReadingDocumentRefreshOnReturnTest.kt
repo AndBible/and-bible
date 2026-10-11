@@ -73,6 +73,8 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingDocumentRefreshOnReturnTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
@@ -100,7 +102,10 @@ class ReadingDocumentRefreshOnReturnTest {
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
-        ).also { controllers += it }.apply { create().start().resume().visible() }
+        ).also { controllers += it }.apply {
+            create().start().resume().visible()
+            net.bible.test.awaitReadingGraph(get()) { compose.waitForIdle() }
+        }
     }
 
     /** `Window.loadText()` assigns this synchronously; see the class kdoc. */
@@ -185,6 +190,7 @@ class ReadingDocumentRefreshOnReturnTest {
 
         // Away from reading -- the same singleTop self-launch onNewIntent path production uses.
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.download()))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.download()) { compose.waitForIdle() }
         shadowOf(Looper.getMainLooper()).idle()
 
         clearDisplayedKey(window)
@@ -196,6 +202,7 @@ class ReadingDocumentRefreshOnReturnTest {
 
         // Back to reading -- through the REAL listener, with no onResume anywhere in this path.
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING) { compose.waitForIdle() }
         shadowOf(Looper.getMainLooper()).idle()
 
         assertNotNull(
@@ -210,8 +217,10 @@ class ReadingDocumentRefreshOnReturnTest {
         // reload nothing.
         clearDisplayedKey(window)
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.download()))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.download()) { compose.waitForIdle() }
         shadowOf(Looper.getMainLooper()).idle()
         controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING) { compose.waitForIdle() }
         shadowOf(Looper.getMainLooper()).idle()
 
         assertNull(

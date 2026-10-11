@@ -14,83 +14,67 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.service.device.speak
+package net.bible.android.platform
 
-import android.content.Context
-import android.media.AudioManager
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.pm.ResolveInfo
 import android.os.Looper
 import android.provider.Settings
-import android.speech.tts.TextToSpeech
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import net.bible.android.AppDialogControllerResetRule
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.page.window.WindowRepository
-import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.event.UserMessage
+import net.bible.android.control.event.UserMessages
+import net.bible.android.control.speak.SpeakSetupProblem
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
-import net.bible.test.DatabaseResetter
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.passage.RangedPassage
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
-import org.koin.core.context.stopKoin
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowToast
 
 /**
  * A device whose text-to-speech cannot speak must say why and lead to the system TTS settings,
  * not show the generic "An error has occurred" (support case: Galaxy A16, no working engine).
+ * Which problem is reported when is covered by `TextToSpeechServiceManagerEngineTest`.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "fi", application = TestBibleApplication::class, sdk = [TEST_SDK])
-class TtsProblemMessagesTest {
+class AndroidSpeakPlatformProblemsTest {
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
+
     private lateinit var app: TestBibleApplication
-    private lateinit var speakControl: SpeakControl
-    private lateinit var ttsManager: TextToSpeechServiceManager
+    private lateinit var platform: AndroidSpeakPlatform
     private lateinit var activityController: ActivityController<CalculatorComposeActivity>
     private val dialogs: AppDialogController get() = GlobalContext.get().get()
 
     @Before
     fun setUp() {
         app = BibleApplication.application as TestBibleApplication
-        val koin = GlobalContext.get()
-        // Koin is stopped after every test (as in SpeakIntegrationTestBase), so the dialog queue
-        // is cleared here and in tearDown rather than by AppDialogControllerResetRule.
-        dialogs.cancelAll()
-        speakControl = koin.get()
-        ttsManager = koin.get()
-        val windowControl: WindowControl = koin.get()
-        windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowControl.windowRepository.initialize()
+        platform = AndroidSpeakPlatform(app)
         activityController = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
         CurrentActivityHolder.activate(activityController.get())
     }
 
     @After
     fun tearDown() {
-        runCatching { speakControl.stop(force = true) }
         CurrentActivityHolder.deactivate(activityController.get())
         runCatching { activityController.pause().stop().destroy() }
-        dialogs.cancelAll()
-        DatabaseResetter.resetDatabase()
-        if (GlobalContext.getOrNull() != null) stopKoin()
     }
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idle()
@@ -102,24 +86,14 @@ class TtsProblemMessagesTest {
         idle()
     }
 
-    private fun speakRomans() {
-        val book = Books.installed().getBook("FinRK") as SwordBook
-        speakControl.speakBible(book, (book.getKey("Rom.1.1") as RangedPassage).getVerseAt(0))
+    private fun report(problem: SpeakSetupProblem) {
+        platform.reportProblem(problem)
         idle()
     }
 
-    /** Prepares a speak request (as a real "Speak" tap does) whose engine then fails to start. */
-    private fun failEngineInit() {
-        speakControl.setupMockedTts()
-        speakRomans()
-        speakControl.stop(force = true)
-        ttsManager.onTtsInit(TextToSpeech.ERROR)
-    }
-
-    @Test(timeout = 60000)
-    fun engineInitFailureExplainsAndOffersTtsSettings() {
-        failEngineInit()
-        idle()
+    @Test
+    fun engineProblemExplainsAndOffersTtsSettings() {
+        report(SpeakSetupProblem.ENGINE_NOT_AVAILABLE)
 
         val request = pendingMessage()
         assertEquals(app.getString(R.string.tts_engine_not_available), request.message)
@@ -127,32 +101,27 @@ class TtsProblemMessagesTest {
         assertNull("the device's TTS setup is not an AndBible bug: no report button", request.neutralText)
 
         answer(AppDialogResult.Ok)
-        val started = shadowOf(activityController.get()).nextStartedActivity
-        assertEquals("com.android.settings.TTS_SETTINGS", started.action)
+        assertEquals("com.android.settings.TTS_SETTINGS", shadowOf(activityController.get()).nextStartedActivity.action)
     }
 
-    @Test(timeout = 60000)
+    @Test
     fun dismissingTheEngineMessageOpensNothing() {
-        failEngineInit()
-        idle()
+        report(SpeakSetupProblem.ENGINE_NOT_AVAILABLE)
 
         answer(AppDialogResult.Cancel)
         assertNull(shadowOf(activityController.get()).nextStartedActivity)
     }
 
-    @Test(timeout = 60000)
+    @Test
     fun withoutATtsSettingsScreenTheGeneralSettingsOpen() {
         val shadowApp = shadowOf(app)
         shadowApp.checkActivities(true)
         try {
-            failEngineInit()
-            idle()
+            report(SpeakSetupProblem.ENGINE_NOT_AVAILABLE)
             shadowOf(app.packageManager).addResolveInfoForIntent(
-                android.content.Intent(Settings.ACTION_SETTINGS),
-                android.content.pm.ResolveInfo().apply {
-                    activityInfo = android.content.pm.ActivityInfo().apply {
-                        packageName = "com.android.settings"; name = "Settings"
-                    }
+                Intent(Settings.ACTION_SETTINGS),
+                ResolveInfo().apply {
+                    activityInfo = ActivityInfo().apply { packageName = "com.android.settings"; name = "Settings" }
                 },
             )
             answer(AppDialogResult.Ok)
@@ -162,31 +131,29 @@ class TtsProblemMessagesTest {
         }
     }
 
-    @Test(timeout = 60000)
+    @Test
     fun unsupportedLanguageAlsoOffersTtsSettings() {
-        // Robolectric's TextToSpeech supports no language unless one is added, so init succeeds
-        // and every locale in the preference list is refused.
-        speakRomans()
+        report(SpeakSetupProblem.LANGUAGE_NOT_AVAILABLE)
 
         val request = pendingMessage()
         assertEquals(app.getString(R.string.tts_lang_not_available), request.message)
         assertEquals(app.getString(R.string.open_settings), request.confirmText)
 
         answer(AppDialogResult.Ok)
-        assertEquals(
-            "com.android.settings.TTS_SETTINGS",
-            shadowOf(activityController.get()).nextStartedActivity.action,
-        )
+        assertEquals("com.android.settings.TTS_SETTINGS", shadowOf(activityController.get()).nextStartedActivity.action)
     }
 
-    @Test(timeout = 60000)
+    @Test
     fun deniedAudioFocusIsToldNotSilent() {
-        speakControl.setupMockedTts()
-        val am = app.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        shadowOf(am).setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
+        val messages = mutableListOf<UserMessage>()
+        val subscription = UserMessages.messages.subscribe { messages += it }
+        try {
+            report(SpeakSetupProblem.AUDIO_FOCUS_DENIED)
+        } finally {
+            subscription.cancel()
+        }
 
-        speakRomans()
-
-        assertEquals(app.getString(R.string.tts_audio_focus_denied), ShadowToast.getTextOfLatestToast())
+        assertEquals(listOf(UserMessage.Toast(null, R.string.tts_audio_focus_denied, long = true)), messages)
+        assertNull("a toast, not a dialog", dialogs.pending.value)
     }
 }

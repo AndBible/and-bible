@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.content.Context
+import android.os.Looper
 import android.os.PowerManager
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatDelegate
@@ -306,6 +307,7 @@ class ReadingDestinationInGraphTest {
         )
         try {
             val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
 
             assertNotNull(
                 activity.composeReadingViewHost,
@@ -366,6 +368,7 @@ class ReadingDestinationInGraphTest {
         )
         try {
             val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
             val window = activity.hostWindowRepository.activeWindow
             assertTrue(
                 window.isVisible,
@@ -402,6 +405,7 @@ class ReadingDestinationInGraphTest {
         )
         try {
             val activity = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
             val readingView = assertNotNull(
                 activity.composeReadingViewHost,
                 "the content slot must have composed a reading view for this test to mean anything",
@@ -807,6 +811,8 @@ class ReadingDestinationInGraphTest {
         } finally {
             prefs.edit().putBoolean("night_mode_pref", hadNightMode).commit()
             AppCompatDelegate.setDefaultNightMode(previousDefault)
+            // Drain theme-triggered recreation while the owning ActivityController is still alive.
+            shadowOf(Looper.getMainLooper()).idle()
         }
     }
 

@@ -22,7 +22,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.AndBibleAddons
-import net.bible.service.common.CommonUtils.unzipInputStream
+import net.bible.service.common.ArchiveUtils.unzipInputStream
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
@@ -47,8 +47,8 @@ class InvalidInstallFile(val filename: String) : Exception()
  *
  * Implementations MUST delegate the actual extraction/registration to the existing engine
  * (`BackupControl` / `net.bible.service.sword.*`) rather than reimplementing it -- see
- * [AndroidInstallCommitter] for the mapping. Tests for the runner exercise this interface via a
- * fake; [AndroidInstallCommitter] itself is verified by a thin adapter test.
+ * [DefaultInstallCommitter] for the mapping. Tests for the runner exercise this interface via a
+ * fake; [DefaultInstallCommitter] itself is verified by a thin adapter test.
  */
 interface InstallCommitter {
     /** SWORD zip. Reopen the local file per call (engine reads once). */
@@ -80,10 +80,14 @@ interface InstallCommitter {
  * `installEpub`/`installTtf`/`installPromptCsv`/`installBackgroundImage`/`installStudyPads`) for
  * the logic this mirrors -- deliberately not re-implemented here.
  */
-class AndroidInstallCommitter : InstallCommitter {
+class DefaultInstallCommitter(
+    private val backup: BackupControl,
+    private val strings: net.bible.sharedcore.platform.CoreStrings,
+    private val environment: net.bible.sharedcore.platform.AppEnvironment,
+) : InstallCommitter {
 
     override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
-        BackupControl.extractAndRegisterModuleArchive(
+        backup.extractAndRegisterModuleArchive(
             newInputStream = { localFile.inputStream() },
             totalEntries = totalEntries,
             onProgress = { percent -> onProgress(percent) },
@@ -97,7 +101,7 @@ class AndroidInstallCommitter : InstallCommitter {
         }
         dir.mkdirs()
         unzipInputStream(localFile.inputStream(), dir)
-        return addManuallyInstalledEpubBooks()
+        return addManuallyInstalledEpubBooks(strings, environment)
     }
 
     override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) {

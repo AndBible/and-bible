@@ -16,25 +16,20 @@
  */
 package net.bible.android.control.speak
 
-import android.content.Intent
-import net.bible.service.db.blockingDb
+import net.bible.sharedcore.platform.AppCoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.sharedcore.nav.NavRoutes
-import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 /**
  * Classic label formatting from `SpeakTransportWidget.onBookmarkButtonClick` (:190-197). `internal`
@@ -54,9 +49,13 @@ internal fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (
  * (`onButtonClick` :143-177, `onBookmarkButtonClick` :186-214). Koin single (process-lived); the
  * reading-view classic code is unchanged.
  */
-class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
-    private val speakControl: SpeakControl by inject()
-    private val bookmarkControl: BookmarkControl by inject()
+class SpeakTransportServiceImpl(
+    private val scope: AppCoroutineScope,
+    private val platform: SpeakPlatform,
+    private val advancedSpeakSettings: AdvancedSpeakSettings,
+    private val speakControl: SpeakControl,
+    private val bookmarkControl: BookmarkControl,
+) : SpeakTransportService {
 
     /** Cached id → bookmark for [speakFromBookmark]; refreshed by [speakBookmarks]. */
     private var bookmarkCache: Map<String, BookmarkEntities.BaseBookmarkWithNotes> = emptyMap()
@@ -67,15 +66,22 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
      * [SpeakChanges] handlers that fire on every verse transition. Mirror that:
      * recompute only here (init) and in the [SpeakSettingsChanges] handler below, not in [build].
      */
-    private var bookmarkVisible: Boolean = rawSpeakBookmarks().isNotEmpty()
+    private var bookmarkVisible: Boolean = false
 
     private val _state = MutableStateFlow(build(visible = !speakControl.isStopped))
     override val state: StateFlow<SpeakTransportStateVd> = _state.asStateFlow()
 
     init {
+        refreshBookmarkVisibility()
         // Process lifetime (Koin single): never cancelled.
         SpeakChanges.changes.subscribeOnMain { refresh() }
         SpeakSettingsChanges.changes.subscribeOnMain {
+            refreshBookmarkVisibility()
+        }
+    }
+
+    private fun refreshBookmarkVisibility() {
+        scope.launch {
             bookmarkVisible = rawSpeakBookmarks().isNotEmpty()
             refresh()
         }
@@ -98,15 +104,15 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
     )
 
     // Classic SpeakTransportWidget.speakBookmarks (:179-184)
-    private fun rawSpeakBookmarks(): List<BookmarkEntities.BaseBookmarkWithNotes> {
-        val label = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
-        val bible = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) } // L1-pending(speak)
+    private suspend fun rawSpeakBookmarks(): List<BookmarkEntities.BaseBookmarkWithNotes> {
+        val label = bookmarkControl.speakLabel()
+        val bible = bookmarkControl.getBibleBookmarksWithLabel(label)
             .sortedWith { a, b -> a.verseRange.start.compareTo(b.verseRange.start) }
-        val generic = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-pending(speak)
+        val generic = bookmarkControl.getGenericBookmarksWithLabel(label)
         return bible + generic
     }
 
-    override fun speakBookmarks(): List<SpeakBookmarkRowVd> {
+    override suspend fun speakBookmarks(): List<SpeakBookmarkRowVd> {
         val list = rawSpeakBookmarks()
         bookmarkCache = list.associateBy { it.id.toString() }
         return list.map { SpeakBookmarkRowVd(it.id.toString(), labelOf(it)) }
@@ -127,8 +133,9 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
     override fun continueAfterPause() = speakControl.continueAfterPause()
 
     override fun stop() {
-        if (speakControl.isStopped) _state.value = _state.value.copy(visible = false)
-        else speakControl.stop()
+        val wasStopped = speakControl.isStopped
+        speakControl.stop()
+        if (wasStopped) _state.value = _state.value.copy(visible = false)
     }
 
     override fun rewind() = speakControl.rewind()
@@ -138,13 +145,8 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
 
     /** Classic sync side-effect (SpeakTransportWidget :163-167, :206-210). */
     private fun maybeSyncToFront() {
-        if (AdvancedSpeakSettings.synchronize) {
-            val ctx = BibleApplication.application
-            // reading-host re-typing T8b: same three flags, the reading host instead of the
-            // classic Activity.
-            ctx.startActivity(NavHostComposeActivity.intentFor(ctx, NavRoutes.READING).apply {
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            })
+        if (advancedSpeakSettings.synchronize) {
+            platform.bringReadingToFront()
         }
     }
 }

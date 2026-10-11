@@ -32,6 +32,7 @@ import java.io.File
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ZipRestoreDecisionsFirstTest {
+    private val backup by lazy { net.bible.test.testBackupControl() }
     private val app get() = BibleApplication.application
     private val unzipFolder get() = File(app.cacheDir, "zip-restore-test")
     private val selection = listOf(BookmarkDatabase.dbFileName, WorkspaceDatabase.dbFileName)
@@ -95,7 +96,7 @@ class ZipRestoreDecisionsFirstTest {
 
     @Test fun duringTheLastPromptsEveryDatabaseIsOpenAndBothFilesAreRestoredAfter() {
         val p = prompts(lastRestoreOrImport = true)
-        runBlocking { BackupControl.restoreSelectedFiles(selection, unzipFolder, p) }
+        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder, p) }
         assertEquals(2, p.promptsOnLastFile)
         assertTrue("backup-label" in labelNames)
         assertFalse("live-label" in labelNames)
@@ -105,7 +106,7 @@ class ZipRestoreDecisionsFirstTest {
 
     @Test fun cancellingTheLastPromptRestoresOnlyTheFirstFileAndLeavesTheLastUntouched() {
         val p = prompts(lastRestoreOrImport = null)
-        runBlocking { BackupControl.restoreSelectedFiles(selection, unzipFolder, p) }
+        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder, p) }
         assertEquals(1, p.promptsOnLastFile)
         assertFalse("live-label" in labelNames)
         assertTrue("live-ws" in workspaceNames)
@@ -113,7 +114,7 @@ class ZipRestoreDecisionsFirstTest {
 
     @Test fun answeringNoToTheLastOverwriteLeavesTheLastUntouched() {
         val p = prompts(lastRestoreOrImport = true, lastConfirm = false)
-        runBlocking { BackupControl.restoreSelectedFiles(selection, unzipFolder, p) }
+        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder, p) }
         assertEquals(2, p.promptsOnLastFile)
         assertFalse("live-label" in labelNames)
         assertTrue("live-ws" in workspaceNames)
@@ -121,7 +122,7 @@ class ZipRestoreDecisionsFirstTest {
 
     @Test fun importingTheLastFileMergesItAfterTheRestore() {
         val p = prompts(lastRestoreOrImport = false)
-        runBlocking { BackupControl.restoreSelectedFiles(selection, unzipFolder, p) }
+        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder, p) }
         assertFalse("live-label" in labelNames)
         assertTrue("live-ws" in workspaceNames)
         assertTrue("backup-ws" in workspaceNames)

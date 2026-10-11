@@ -20,13 +20,11 @@
 package net.bible.service.cloudsync.documents
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.BibleApplication
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.toMeta
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.roomTransaction
 import net.bible.service.sword.SwordDocumentFacade
@@ -35,7 +33,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.koin.java.KoinJavaComponent
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import net.bible.sharedcore.event.EventSource
@@ -44,8 +41,33 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.Collections
 
-object DocumentSync {
-    private const val TAG = "DocumentSync"
+class DocumentSync(
+    private val env: net.bible.sharedcore.platform.AppEnvironment,
+    private val cloud: net.bible.service.cloudsync.CloudSyncProvider,
+    private val starter: net.bible.sharedcore.cloud.DocumentSyncStarter,
+    private val watcher: BookInstallWatcher,
+    private val documentSettings: DocumentSyncSettings,
+    private val backup: () -> net.bible.android.control.backup.BackupControl,
+) {
+    companion object {
+        private const val TAG = "DocumentSync"
+    /**
+     * Whether [cloudVersion] is strictly newer than [localVersion].
+     *
+     * Equal raw version strings short-circuit to `false` (not newer) *before* attempting a
+     * numeric parse. This matters because JSword's [Version] only accepts `\d+(.\d+){0,3}` and
+     * throws on anything else — and MyBible/MySword/eSword/EPUB documents (exactly the kinds this
+     * feature targets) frequently carry non-numeric or date versions. Without the equality check,
+     * a non-parseable version would always compare as "not newer", which is fine for the equal
+     * case but means a non-numeric version that genuinely differs is treated conservatively as
+     * not-newer (no auto-propagation) rather than guessing an order we cannot reliably determine.
+     */
+        fun versionIsNewer(cloudVersion: String, localVersion: String): Boolean {
+            if (cloudVersion == localVersion) return false
+            return try { Version(cloudVersion) > Version(localVersion) } catch (e: Exception) { false }
+        }
+    }
+
 
     private var runningSource = EventSource<Boolean>()
 
@@ -60,26 +82,11 @@ object DocumentSync {
     @VisibleForTesting
     fun resetSubscribersForTest() { runningSource = EventSource() }
 
-    /**
-     * Whether [cloudVersion] is strictly newer than [localVersion].
-     *
-     * Equal raw version strings short-circuit to `false` (not newer) *before* attempting a
-     * numeric parse. This matters because JSword's [Version] only accepts `\d+(.\d+){0,3}` and
-     * throws on anything else — and MyBible/MySword/eSword/EPUB documents (exactly the kinds this
-     * feature targets) frequently carry non-numeric or date versions. Without the equality check,
-     * a non-parseable version would always compare as "not newer", which is fine for the equal
-     * case but means a non-numeric version that genuinely differs is treated conservatively as
-     * not-newer (no auto-propagation) rather than guessing an order we cannot reliably determine.
-     */
-    fun versionIsNewer(cloudVersion: String, localVersion: String): Boolean {
-        if (cloudVersion == localVersion) return false
-        return try { Version(cloudVersion) > Version(localVersion) } catch (e: Exception) { false }
-    }
-
     private suspend fun store(): DocumentStore? {
-        val adapter = CloudSync.cloudAdapter ?: return null
-        val folderId = CloudSync.documentsSyncFolderId() ?: return null
-        return DocumentStore(adapter, folderId)
+        documentSettings.ensureLoaded()
+        val adapter = cloud.get().cloudAdapter ?: return null
+        val folderId = cloud.get().documentsSyncFolderId() ?: return null
+        return DocumentStore(adapter, folderId, env)
     }
 
     private fun installedSyncableBooks(): List<Book> =
@@ -106,6 +113,7 @@ object DocumentSync {
     )
 
     suspend fun scan(includeDeleted: Boolean = false): List<DocumentStatusItem> {
+        documentSettings.ensureLoaded()
         // Signed in: incrementally refresh the cache from the network (a no-op when signed out).
         // A network failure — most commonly the device being offline — must NOT crash the caller:
         // the management view (CloudDocumentsActivity) and the "enable document sync" flow both call
@@ -131,9 +139,10 @@ object DocumentSync {
      * maxOf guard, so the worst case is a redundant re-list, never a backward step or data loss.)
      */
     suspend fun refreshCache() {
+        documentSettings.ensureLoaded()
         val store = store() ?: return
         val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
-        val watermark = DocumentSyncSettings.watermark
+        val watermark = documentSettings.watermark()
         val listing = store.listChangedDocuments(watermark)
         val merged = mergeCloudListing(
             oldCache = cacheDao.all().map { it.toMeta() },
@@ -144,7 +153,7 @@ object DocumentSync {
             failedCreatedTimes = listing.failedCreatedTimes,
         )
         cacheDao.replaceAll(merged.cache.map { it.toCacheEntity() })
-        DocumentSyncSettings.watermark = merged.watermark
+        documentSettings.setWatermark(merged.watermark)
     }
 
     /**
@@ -153,6 +162,7 @@ object DocumentSync {
      * "re-scan the cloud", not a sign-out. Recovery path for a rare clock-skew silent miss.
      */
     suspend fun resetListingCache() {
+        documentSettings.ensureLoaded()
         DatabaseContainer.instance.documentSyncDb.apply {
             cloudDocumentCacheDao().clear()
             cloudListingStateDao().clear()
@@ -167,10 +177,11 @@ object DocumentSync {
      * listing). Mirrors the DB-sync sign-out, which clears its own per-database sync status.
      */
     suspend fun onSignOut() = withContext(Dispatchers.IO) {
+        documentSettings.ensureLoaded()
+        documentSettings.clearPreferences()
         val db = DatabaseContainer.instance.documentSyncDb
         db.roomTransaction {
             db.cloudDocumentCacheDao().clear()
-            db.documentSyncPreferencesDao().clear()
             db.cloudListingStateDao().clear()
             db.cloudDocumentSyncTimestampDao().clear()
         }
@@ -182,6 +193,7 @@ object DocumentSync {
      * the network in the background.
      */
     suspend fun scanCached(includeDeleted: Boolean = false): List<DocumentStatusItem> {
+        documentSettings.ensureLoaded()
         val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
         val local = installedSyncableBooks().associateBy { it.initials }
         return buildStatusItems(cacheDao.all().map { it.toMeta() }, local, includeDeleted)
@@ -189,6 +201,7 @@ object DocumentSync {
 
     /** Cloud storage used by synced document archives, read from the local listing cache (no network). */
     suspend fun cloudBytesUsed(): Long = withContext(Dispatchers.IO) {
+        documentSettings.ensureLoaded()
         val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
         sumCloudBytes(cacheDao.all().map { it.toMeta() })
     }
@@ -212,10 +225,11 @@ object DocumentSync {
                 installSizeBytes = localInstallSizeBytes(b),
             )
         }
-        return assembleStatusItems(cloudMetas, localDocs, DocumentSyncSettings.blockList.all(), includeDeleted)
+        return assembleStatusItems(cloudMetas, localDocs, documentSettings.blockList.all(), includeDeleted)
     }
 
     suspend fun pushDocument(book: Book) {
+        documentSettings.ensureLoaded()
         // Last line of defence: a queued Push op carries only initials, so a book that cannot be
         // packaged as a module archive must be rejected here too — however the op was enqueued.
         if (!book.isSyncableDocument) {
@@ -231,7 +245,7 @@ object DocumentSync {
         if (existing != null && !versionIsNewer(localVersion, existing.version)) {
             Log.i(TAG, "Cloud has same/newer ${book.initials}; skipping upload"); return
         }
-        val archive = DocumentArchiver.packageDocument(book)
+        val archive = DocumentArchiver.packageDocument(book, env, backup())
         try {
             val cipherKey = DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getBook(book.initials)?.cipherKey
             val meta = DocumentSyncMeta(
@@ -242,12 +256,12 @@ object DocumentSync {
                 size = archive.length(),
                 language = book.language.code,
                 category = book.bookCategory.name,
-                sourceDevice = CommonUtils.deviceIdentifier,
+                sourceDevice = env.deviceIdentifier,
                 timestamp = System.currentTimeMillis(),
                 cipherKey = cipherKey,
             )
             store.uploadDocument(meta, archive)
-            DocumentSyncSettings.setSyncTimestamp(book.initials, meta.timestamp)
+            documentSettings.setSyncTimestamp(book.initials, meta.timestamp)
         } finally { archive.delete() }
     }
 
@@ -266,6 +280,7 @@ object DocumentSync {
      * `totalBytes` is the recorded archive size (`<= 0` when unknown for older uploads).
      */
     suspend fun downloadAndInstall(initials: String, onProgress: ((bytesDownloaded: Long, totalBytes: Long) -> Unit)? = null) {
+        documentSettings.ensureLoaded()
         val store = store() ?: return
         val meta = store.readMeta(initials)?.takeIf { !it.deleted } ?: return
         val archive = store.downloadArchive(initials, meta.version,
@@ -281,9 +296,9 @@ object DocumentSync {
                 Log.w(TAG, "Downloaded $initials size ${archive.length()} != expected ${meta.size}; skipping install")
                 return
             }
-            if (DocumentArchiver.installArchive(archive, initials)) {
+            if (DocumentArchiver.installArchive(archive, initials, backup())) {
                 applyCipherKey(initials, meta.cipherKey)
-                DocumentSyncSettings.setSyncTimestamp(initials, meta.timestamp)
+                documentSettings.setSyncTimestamp(initials, meta.timestamp)
             }
         } finally {
             archive.delete()
@@ -297,10 +312,11 @@ object DocumentSync {
      * in the document's [DocumentSyncMeta] (the user's own private cloud account).
      */
     private suspend fun applyCipherKey(initials: String, cipherKey: String?) {
+        documentSettings.ensureLoaded()
         if (cipherKey == null) return
         val book = Books.installed().getBook(initials) ?: return
         book.unlock(cipherKey)
-        persistCipherKey(KoinJavaComponent.get(BookInstallWatcher::class.java), book, cipherKey)
+        persistCipherKey(watcher, book, cipherKey)
     }
 
     /**
@@ -309,6 +325,7 @@ object DocumentSync {
      * Normally updates that row; inserts one as a fallback if it is missing.
      */
     internal suspend fun persistCipherKey(watcher: BookInstallWatcher, book: Book, cipherKey: String) {
+        documentSettings.ensureLoaded()
         watcher.updateRow(book.initials) { existing ->
             existing?.apply { this.cipherKey = cipherKey }
                 ?: SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "", cipherKey)
@@ -323,13 +340,13 @@ object DocumentSync {
      * enabled/Wi-Fi guards because the user asked for it explicitly.
      */
     suspend fun runSync(download: Boolean, upload: Boolean, delete: Boolean, manual: Boolean) {
-        if (!manual && (!DocumentSyncSettings.enabled || !DocumentSyncSettings.isAutoTransferAllowed)) return
+        documentSettings.ensureLoaded()
+        if (!manual && (!documentSettings.enabled || !documentSettings.isAutoTransferAllowed)) return
         val plan = computeSyncPlan(download, upload, delete)
-        DocumentSyncService.start(
-            BibleApplication.application,
-            pushInitials = plan.toUpload,
-            downloadInitials = plan.toDownload,
-            uninstallInitials = plan.toUninstall,
+        starter.start(
+            push = plan.toUpload,
+            download = plan.toDownload,
+            uninstall = plan.toUninstall,
         )
     }
 
@@ -340,6 +357,7 @@ object DocumentSync {
      * "Sync now" preview calls this with all directions true to show per-direction counts.
      */
     suspend fun computeSyncPlan(download: Boolean, upload: Boolean, delete: Boolean): SyncPlan {
+        documentSettings.ensureLoaded()
         store() ?: return SyncPlan(emptyList(), emptyList(), emptyList(), 0L, 0L)
         // Incrementally refresh the cache (fast no-op when nothing changed), then resolve actions
         // from the freshly-merged full cloud picture held in the cache.
@@ -350,8 +368,8 @@ object DocumentSync {
             CloudDocument(it.initials, it.name, it.documentType, it.version, it.size, it.timestamp, it.deleted)
         }
         val localDocs = local.mapValues { (i, b) -> LocalDocument(i, DocumentArchiver.documentVersion(b)) }
-        val blocked = DocumentSyncSettings.blockList.all()
-        val syncTimestamps = local.keys.mapNotNull { i -> DocumentSyncSettings.syncTimestamp(i)?.let { i to it } }.toMap()
+        val blocked = documentSettings.blockList.all()
+        val syncTimestamps = local.keys.mapNotNull { i -> documentSettings.syncTimestamp(i)?.let { i to it } }.toMap()
         val actions = selectSyncActions(
             resolveDocumentSyncActions(cloudDocs, localDocs, syncTimestamps, blocked, ::versionIsNewer),
             allowDownload = download,
@@ -383,7 +401,8 @@ object DocumentSync {
      * (tombstone-driven). Looks the book up by initials so it can run from the sync-service queue.
      * Honours the last-deletable guard (e.g. never removes the last remaining Bible).
      */
-    fun uninstallLocal(initials: String) {
+    suspend fun uninstallLocal(initials: String) {
+        documentSettings.ensureLoaded()
         val book = installedSyncableBooks().firstOrNull { it.initials == initials } ?: return
         try {
             val decision = decideUninstall(book.canDelete)
@@ -394,12 +413,13 @@ object DocumentSync {
                 Log.i(TAG, "Tombstone for $initials not applied: book is not deletable")
             }
             if (decision.advanceTimestamp) {
-                DocumentSyncSettings.setSyncTimestamp(initials, System.currentTimeMillis())
+                documentSettings.setSyncTimestamp(initials, System.currentTimeMillis())
             }
         } catch (e: Exception) { Log.e(TAG, "Failed uninstalling $initials", e) }
     }
 
     suspend fun removeFromCloud(initials: String) {
+        documentSettings.ensureLoaded()
         val store = store() ?: return
         val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
         // Mark the cache entry as a tombstone up front (before the slow network writes) so the
@@ -418,7 +438,7 @@ object DocumentSync {
             // the fallback just guards against a race where it disappeared.
             val meta = (existing ?: DocumentSyncMeta(
                 initials = initials, name = initials, documentType = DocumentType.SWORD, version = "0.0",
-                size = 0, language = "", sourceDevice = CommonUtils.deviceIdentifier,
+                size = 0, language = "", sourceDevice = env.deviceIdentifier,
                 timestamp = 0,
             )).copy(timestamp = now)
             store.writeTombstone(meta)
@@ -432,7 +452,7 @@ object DocumentSync {
         // on this device — otherwise it would be orphaned (gone from the cloud, no longer synced).
         // With sync OFF (manual "Remove from cloud"), the local copy is kept; it won't be
         // re-downloaded because automatic pull is off.
-        if (DocumentSyncSettings.enabled) {
+        if (documentSettings.enabled) {
             Books.installed().getBook(initials)?.let { book ->
                 // Same last-Bible guard as the propagated uninstall: never delete an undeletable
                 // local document even when the user removed it from the cloud here.
@@ -441,7 +461,7 @@ object DocumentSync {
             }
         }
         // Record this device as already knowing the tombstone so our own next pull is a no-op.
-        DocumentSyncSettings.setSyncTimestamp(initials, now)
+        documentSettings.setSyncTimestamp(initials, now)
     }
 
     /**
@@ -452,6 +472,7 @@ object DocumentSync {
      * action only; bypasses no guards because it touches only this account's cloud store.
      */
     suspend fun purgeTombstone(initials: String) {
+        documentSettings.ensureLoaded()
         val store = store() ?: return
         // Drop the cache entry up front (before the slow network delete) so the management view is
         // correct even if it is closed and reopened mid-operation — scanCached reads the cache.

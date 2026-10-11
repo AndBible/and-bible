@@ -16,11 +16,15 @@
  */
 package net.bible.service.sword
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import net.bible.sharedcore.platform.AppCoroutineScope
+
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
@@ -43,6 +47,7 @@ import org.crosswire.jsword.index.IndexStatus
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object SwordDocumentFacade {
+
     val bibles: List<Book>
         get() {
             Log.d(TAG, "Getting bibles")
@@ -78,26 +83,26 @@ object SwordDocumentFacade {
             return allDocuments
         }
 
-    private fun getDictionaries(keyName: String, fakeBookName: String, type: FeatureType): List<Book> {
-        val bookInitials = CommonUtils.settings.getStringSet(keyName )
+    private fun getDictionaries(keyName: String, fakeBookName: String, type: FeatureType, fakeBookFactory: FakeBookFactory, settings: AppSettings): List<Book> {
+        val bookInitials = settings.getStringSet(keyName )
         if(bookInitials.isNotEmpty()) {
             return bookInitials.mapNotNull{ Books.installed().getBook(it)}
         }
         val dictionaries = Books.installed().getBooks().filter { it.hasFeature(type) }
         if(dictionaries.isNotEmpty()) return dictionaries
-        return listOf(FakeBookFactory.giveDoesNotExist(fakeBookName, BookCategory.DICTIONARY))
+        return listOf(fakeBookFactory.giveDoesNotExist(fakeBookName, BookCategory.DICTIONARY))
     }
 
-    val defaultRobinsonGreekMorphology: List<Book> get() =
-        getDictionaries("robinson_greek_morphology","Robinson", FeatureType.GREEK_PARSE)
-    val defaultStrongsGreekDictionary: List<Book> get() =
-        getDictionaries("strongs_greek_dictionary", "StrongsGreek", FeatureType.GREEK_DEFINITIONS)
-    val defaultStrongsHebrewDictionary: List<Book> get() =
-        getDictionaries("strongs_hebrew_dictionary", "StrongsHebrew", FeatureType.HEBREW_DEFINITIONS)
+    fun defaultRobinsonGreekMorphology(fakeBookFactory: FakeBookFactory, settings: AppSettings): List<Book> =
+        getDictionaries("robinson_greek_morphology","Robinson", FeatureType.GREEK_PARSE, fakeBookFactory, settings)
+    fun defaultStrongsGreekDictionary(fakeBookFactory: FakeBookFactory, settings: AppSettings): List<Book> =
+        getDictionaries("strongs_greek_dictionary", "StrongsGreek", FeatureType.GREEK_DEFINITIONS, fakeBookFactory, settings)
+    fun defaultStrongsHebrewDictionary(fakeBookFactory: FakeBookFactory, settings: AppSettings): List<Book> =
+        getDictionaries("strongs_hebrew_dictionary", "StrongsHebrew", FeatureType.HEBREW_DEFINITIONS, fakeBookFactory, settings)
 
-    val wordLookupDictionaries: List<Book> get() {
+    fun wordLookupDictionaries(settings: AppSettings): List<Book> {
         // Get disabled dictionaries (inverse logic - stores what is NOT selected)
-        val disabledInitials = CommonUtils.settings.getStringSet("disabled_word_lookup_dictionaries")
+        val disabledInitials = settings.getStringSet("disabled_word_lookup_dictionaries")
         // Return all plain dictionaries minus the disabled ones
         return Books.installed().getBooks().filter {
             it.bookCategory == BookCategory.DICTIONARY &&
@@ -125,7 +130,7 @@ object SwordDocumentFacade {
             SwordBookMetaData.setPartialLoading(true)
             val repoBookDeduplicator = RepoBookDeduplicator()
 
-            val promises = repoFactory.repositories
+            val promises = repoFactory.repositories()
                 .map { async { it.getRepoBooks(refresh) } }
                 .toList()
 
@@ -187,25 +192,33 @@ object SwordDocumentFacade {
      * If an index is in progress then nothing will happen
      */
     @Throws(BookException::class)
-    fun ensureIndexCreation(book: Book) {
+    fun ensureIndexCreation(book: Book, appScope: AppCoroutineScope) {
         Log.d(TAG, "ensureIndexCreation")
         // ensure this isn't just the user re-clicking the Index button
-        if (book.indexStatus != IndexStatus.CREATING && book.indexStatus != IndexStatus.SCHEDULED) {
-            scheduleIndexCreation(book)
+        synchronized(book) {
+            if (book.indexStatus != IndexStatus.CREATING && book.indexStatus != IndexStatus.SCHEDULED) {
+                book.indexStatus = IndexStatus.SCHEDULED
+                scheduleIndexCreation(book, appScope)
+            }
         }
     }
 
-    private fun scheduleIndexCreation(book: Book) {
-        val work = Thread {
-            if(book.isEpub) {
-                book.epubBackend!!.state.buildSearchIndex()
-            } else {
-                val indexManager = IndexManagerFactory.getIndexManager()
-                indexManager.indexPolicy = AndroidIndexPolicy()
-                indexManager.scheduleIndexCreation(book)
+    private fun scheduleIndexCreation(book: Book, appScope: AppCoroutineScope) {
+        appScope.launch {
+            try {
+                if(book.isEpub) {
+                    book.epubBackend!!.state.buildSearchIndex()
+                } else {
+                    val indexManager = IndexManagerFactory.getIndexManager()
+                    indexManager.indexPolicy = AndroidIndexPolicy()
+                    indexManager.scheduleIndexCreation(book)
+                }
+            } catch (e: Exception) {
+                book.indexStatus = IndexStatus.UNDONE
+                if (e is CancellationException) throw e
+                Log.e(TAG, "Index creation failed for ${book.initials}", e)
             }
         }
-        work.start()
     }
 
     private val SUPPORTED_DOCUMENT_TYPES: BookFilter = AcceptableBookTypeFilter()

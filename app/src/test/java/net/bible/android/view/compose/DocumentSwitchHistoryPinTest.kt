@@ -80,7 +80,7 @@ class DocumentSwitchHistoryPinTest {
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible().get()
-        idle()
+        net.bible.test.awaitReadingGraph(activity)
         val kjv = assertNotNull(SwordDocumentFacade.getDocumentByInitials("KJV"), "KJV test module missing (~/.sword)")
         val finRk = assertNotNull(SwordDocumentFacade.getDocumentByInitials("FinRK"), "FinRK test module missing (~/.sword)")
         // A fresh manager becomes the live instance on construction. The Koin singleton is not

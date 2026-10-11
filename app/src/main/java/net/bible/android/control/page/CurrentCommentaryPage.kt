@@ -71,7 +71,7 @@ open class CurrentCommentaryPage internal constructor(
 
     override val currentPageContent: Document
         get() {
-            return if(currentDocument == FakeBookFactory.compareDocument) {
+            return if(currentDocument == fakeBookFactory.compareDocument) {
                 val key: VerseRange = when(val origKey = originalVerseRange ?: singleKey) {
                     is VerseRange -> origKey
                     is Verse -> VerseRange(origKey.versification, origKey, origKey)
@@ -80,13 +80,13 @@ open class CurrentCommentaryPage internal constructor(
 
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                     try {
-                        OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
+                        OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification), strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), key, it)
                     } catch (e: OsisError) {
                         null
                     }
                 }.filterNotNull()
                 MultiFragmentDocument(frags, compare=true)
-            } else if (currentDocument == FakeBookFactory.memorizeDocument) {
+            } else if (currentDocument == fakeBookFactory.memorizeDocument) {
                 val bookAndKey = sourceBookAndKey
                     ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
                 val doc = bookAndKey.document
@@ -94,7 +94,7 @@ open class CurrentCommentaryPage internal constructor(
                     ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
                 val texts = ArrayList<Pair<String, String>>()
                 for (verse in verseRange) {
-                    val text = SwordContentFacade.getCanonicalText(doc, verse)
+                    val text = SwordContentFacade.getCanonicalText(doc, verse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy())
                     texts.add(Pair(verse.shortName, text))
                 }
                 val kjvRange = verseRange.toV11n(KJVA)
@@ -218,7 +218,7 @@ open class CurrentCommentaryPage internal constructor(
     }
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
-    override val isSyncable: Boolean get() = currentDocument != FakeBookFactory.memorizeDocument
+    override val isSyncable: Boolean get() = currentDocument != fakeBookFactory.memorizeDocument
 
     // If a passage (that is not just a single verse) is displayed, it is stored here.
     var originalVerseRange: VerseRange? = null
@@ -251,9 +251,9 @@ open class CurrentCommentaryPage internal constructor(
         if(entity == null) return
         val document = entity.document
         val book = when(document) {
-            FakeBookFactory.compareDocument.initials -> FakeBookFactory.compareDocument
-            FakeBookFactory.memorizeDocument.initials -> FakeBookFactory.memorizeDocument
-            else -> SwordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
+            fakeBookFactory.compareDocument.initials -> fakeBookFactory.compareDocument
+            fakeBookFactory.memorizeDocument.initials -> fakeBookFactory.memorizeDocument
+            else -> SwordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) fakeBookFactory.giveDoesNotExist(document) else null
         }
         if(book != null) {
             Log.i(TAG, "Restored document:" + book.name)
@@ -263,7 +263,7 @@ open class CurrentCommentaryPage internal constructor(
             // Otherwise versification will be messed up!
             onlySetCurrentDocument(book)
             anchorOrdinal = entity.anchorOrdinal?.let { OrdinalRange(it) }
-            sourceBookAndKey = entity.sourceBookAndKey?.let { BookAndKeySerialized.fromJSON(it).bookAndKey }
+            sourceBookAndKey = entity.sourceBookAndKey?.let { BookAndKeySerialized.fromJSON(it).resolve(fakeBookFactory) }
         }
     }
 

@@ -12,6 +12,8 @@ enum class SpeakPlaybackState { SPEAKING, PAUSED, SILENT, TEMPORARY_STOP }
 
 /** A speak notification, emitted by [SpeakChanges] on the emitter's thread. */
 sealed interface SpeakChange {
+    /** A freshly resolved live status projection is ready for synchronous UI consumers. */
+    data object Status : SpeakChange
     data class State(val speakState: SpeakPlaybackState) : SpeakChange {
         val isSpeaking: Boolean get() = speakState == SpeakPlaybackState.SPEAKING
         val isPaused: Boolean get() = speakState == SpeakPlaybackState.PAUSED
@@ -35,6 +37,7 @@ object SpeakChanges {
 
     fun notifyState(state: SpeakPlaybackState) = source.emit(SpeakChange.State(state))
     fun notifyProgress(progress: SpeakChange.Progress) = source.emit(progress)
+    fun notifyStatus() = source.emit(SpeakChange.Status)
 
     @VisibleForTesting
     fun resetSubscribersForTest() { source = EventSource() }

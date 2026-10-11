@@ -17,18 +17,21 @@
 
 package net.bible.service.installzip
 
-import android.net.Uri
 import java.io.File
 
 typealias JobId = String
 
 /** Where an archive comes from, captured at enqueue with metadata read cheaply from the URI. */
 data class InstallSource(
-    val uri: Uri,
+    val uri: String,
     val action: String?,       // Intent.ACTION_VIEW / ACTION_SEND / null (picker)
     val displayName: String?,
     val mimeType: String?,
+    /** Decoded platform path name for installation only; never a progress/UI metadata title. */
+    val installationName: String? = null,
 )
+
+enum class InstallError { GENERIC, INVALID_FILE }
 
 enum class SqliteBookType { MYBIBLE, MYSWORD, ESWORD }
 
@@ -62,8 +65,8 @@ sealed class InstallPhase {
     data class AwaitingDecision(val request: DecisionRequest) : InstallPhase()
     data class Committing(val percent: Int) : InstallPhase()
     object Done : InstallPhase()
-    /** [messageKey] is an R.string id; [arg] optional format arg (e.g. filename). */
-    data class Error(val messageKey: Int, val arg: String?) : InstallPhase()
+    /** [arg] is an optional format argument (e.g. filename). */
+    data class Error(val kind: InstallError, val arg: String?) : InstallPhase()
     object Cancelled : InstallPhase()
 }
 
@@ -73,5 +76,5 @@ sealed class InstallOutcome {
     object Ok : InstallOutcome()
     object Cancelled : InstallOutcome()
     object NothingEnqueued : InstallOutcome()
-    data class Error(val messageKey: Int, val arg: String?) : InstallOutcome()
+    data class Error(val kind: InstallError, val arg: String?) : InstallOutcome()
 }

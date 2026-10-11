@@ -177,7 +177,7 @@ class MenuCommandHandler(
                 }
                 R.id.backupMainMenu -> {
                     hostActivity.lifecycleScope.launch(Dispatchers.Main) {
-                        BackupControl.backupPopup(hostActivity)
+                        net.bible.android.view.activity.backup.BackupNavigation.backupPopup(hostActivity)
                     }
                     isHandled = true
                 }

@@ -65,7 +65,7 @@ class ManageLabelsWritesTest {
     @Before fun setUp() {
         previousSink = Log.sinkOverride
         Log.sinkOverride = { level, tag, msg, tr -> if (level == LogLevel.ERROR) errors += "$tag: $msg ${tr ?: ""}" }
-        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), OrderedLauncher(appScope))
+        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), OrderedLauncher(appScope), net.bible.android.platform.androidSaxTextPolicy())
     }
 
     @After fun tearDown() {

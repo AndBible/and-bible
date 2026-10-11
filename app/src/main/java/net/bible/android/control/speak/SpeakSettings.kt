@@ -23,7 +23,6 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import net.bible.android.database.bookmarks.TAG
-import net.bible.service.common.CommonUtils
 
 const val PERSIST_SETTINGS = "SpeakSettings"
 
@@ -44,7 +43,7 @@ object SpeakSettingsChanges {
 
 fun SpeakSettings.save(updateBookmark: Boolean = false) {
     if(SpeakSettings.Companion.currentSettings?.equals(this) != true) {
-        CommonUtils.realSharedPreferences.edit().putString(PERSIST_SETTINGS, toJson()).apply()
+        SpeakSettings.store.save(toJson())
         Log.i(TAG, "SpeakSettings saved! $this")
         val oldSettings = SpeakSettings.Companion.currentSettings
         SpeakSettings.Companion.currentSettings = this.makeCopy()
@@ -56,12 +55,8 @@ fun SpeakSettings.save(updateBookmark: Boolean = false) {
 
 fun SpeakSettings.Companion.load(): SpeakSettings {
     val rv = currentSettings?.makeCopy()?: run {
-        // Excuse of using realSharedPreferences here is that this is loaded early because of widgets. But in practice,
-        // these are persisted to workspace in WindowRepository and loaded from there.
-        // This code could be therefore cleaned up.
-        val sharedPreferences = CommonUtils.realSharedPreferences
-        val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, "")!!)
-        settings }
+        fromJson(store.load() ?: "")
+    }
     Log.i(TAG, "SpeakSettings loaded! $rv")
     return rv
 }

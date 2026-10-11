@@ -70,6 +70,8 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostBridgeRearmTest {
+    @get:org.junit.Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
@@ -143,6 +145,7 @@ class ReadingHostBridgeRearmTest {
     fun aDisposedDestinationStillTurnsTheFlagOffAfterAResume() {
         val controller = hostOn(NavRoutes.READING).apply { create().start().resume().visible() }
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         assertNotNull(activity.composeReadingViewHost, "sanity: the destination composed")
 
         controller.pause()

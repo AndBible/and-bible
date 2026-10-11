@@ -25,20 +25,20 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import net.bible.android.database.CustomRepository
-import net.bible.service.common.CommonUtils.appendUrl
-import net.bible.service.common.CommonUtils.md5Hash
+import net.bible.service.common.ArchiveUtils.appendUrl
+import net.bible.service.common.ArchiveUtils.md5Hash
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.mybible.MyBibleRepositorySpec
 import net.bible.sharedcore.download.CustomRepositoryData
 import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.download.ManifestResult
 import org.crosswire.jsword.book.install.InstallManager
-import org.json.JSONException
-import org.json.JSONObject
-import java.io.IOException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import java.net.MalformedURLException
 import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 
 /**
  * Android-side impl of the [CustomRepositoryService] seam, backed by [CustomRepository]'s Room
@@ -46,7 +46,7 @@ import javax.net.ssl.HttpsURLConnection
  * probe (`tryReadManifest`/`checkCanRead`/`readManifest`) lifted verbatim, minus the UI-only
  * `valid`/`loadingIndicator` toggles the Activity used to flip.
  */
-class CustomRepositoryServiceImpl : CustomRepositoryService {
+class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher = JvmManifestFetcher()) : CustomRepositoryService {
     private val dao get() = DatabaseContainer.instance.repoDb.customRepositoryDao()
 
     override suspend fun list(): List<CustomRepositoryData> = withContext(Dispatchers.IO) {
@@ -118,60 +118,26 @@ class CustomRepositoryServiceImpl : CustomRepositoryService {
         return repo?.let { ManifestResult.Valid(it.toData()) } ?: ManifestResult.Invalid
     }
 
-    private suspend fun checkCanRead(urlStr: String): Boolean {
-        val manifestUrl = try {
-            URL(urlStr)
-        } catch (e: MalformedURLException) {
-            return false
-        }
-
-        return withContext(Dispatchers.IO) {
-            val conn =
-                try {
-                    manifestUrl.openConnection() as HttpsURLConnection
-                } catch (e: IOException) {
-                    return@withContext false
-                }
-            val responseCode = try { conn.responseCode } catch (e: IOException) { null }
-            return@withContext responseCode == 200
-        }
-    }
+    private suspend fun checkCanRead(urlStr: String): Boolean = fetcher.status(urlStr) == 200
 
     private suspend fun tryReadManifest(manifestUrlStr: String, existingId: Long): CustomRepository? {
-        val manifestUrl = try {
-            URL(manifestUrlStr)
-        } catch (e: MalformedURLException) {
-            return null
-        }
-
-        return withContext(Dispatchers.IO) {
-            val conn =
-                try {
-                    manifestUrl.openConnection() as HttpsURLConnection
-                } catch (e: IOException) {
-                    return@withContext null
-                }
-            val responseCode = try { conn.responseCode } catch (e: IOException) { null }
-            return@withContext if (responseCode == 200) {
-                readManifest(conn, existingId)
-            } else {
-                null
-            }
-        }
+        val body = fetcher.body(manifestUrlStr) ?: return null
+        return readManifest(body, existingId)
     }
 
-    private fun readManifest(conn: HttpsURLConnection, existingId: Long): CustomRepository? {
+    private fun readManifest(jsonString: String, existingId: Long): CustomRepository? {
         Log.i(TAG, "readManifest")
-        val jsonString = String(conn.inputStream.readBytes())
         val json = try {
-            JSONObject(jsonString)
-        } catch (e: JSONException) {
+            Json.parseToJsonElement(jsonString)
+        } catch (e: SerializationException) {
             Log.e(TAG, "Error in parsing JSON", e)
+            return null
+        } catch (e: IllegalArgumentException) {
             return null
         }
         var repo: CustomRepository? = null
 
-        val type = try { json.getString("type") } catch (e: JSONException) { null }
+        val type = ((json as? JsonObject)?.get("type") as? JsonPrimitive)?.contentOrNull
 
         if (type == "sword-https") {
             repo = CustomRepository.fromJson(jsonString) ?: return null

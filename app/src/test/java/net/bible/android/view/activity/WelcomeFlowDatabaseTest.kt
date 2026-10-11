@@ -43,7 +43,36 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class WelcomeFlowDatabaseTest {
-    @After fun restore() { DatabaseContainer.ready = true }
+    @After fun restore() {
+        DatabaseContainer.ready = true
+        net.bible.test.DatabaseResetter.resetDatabase()
+    }
+
+    @Test
+    fun coldWelcomeDownloadLoadsPersistedEnabledBeforeOverflowRead() {
+        resetComposeUiDispatcher()
+        val settings = org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+            net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java)
+        kotlinx.coroutines.runBlocking {
+            DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao().set(
+                net.bible.android.database.DocumentSyncPreferences(enabled = true))
+        }
+        val controller = Robolectric.buildActivity(NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME))
+            .apply { create().start().resume().visible() }
+        try {
+            shadowOf(Looper.getMainLooper()).idle()
+            controller.get().welcomeFlow.leaveFor(NavRoutes.download(firstDownload = true))
+            val deadline = System.nanoTime() + 10_000_000_000L
+            while (controller.get().currentRouteForTest() != NavRoutes.DOWNLOAD_PATTERN && System.nanoTime() < deadline) {
+                shadowOf(Looper.getMainLooper()).runOneTask()
+                Thread.sleep(10)
+            }
+            org.junit.Assert.assertEquals(NavRoutes.DOWNLOAD_PATTERN, controller.get().currentRouteForTest())
+            // DownloadOverflowMenu uses this same synchronous read after navigating from Welcome.
+            assertTrue(settings.enabled)
+        } finally { controller.close() }
+    }
 
     @Test
     fun aHostStartedOnWelcomeWithTheDbNotYetReadyOpensItBeforeWelcomeReadsIt() {

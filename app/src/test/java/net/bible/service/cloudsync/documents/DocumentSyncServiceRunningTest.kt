@@ -39,7 +39,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DocumentSyncServiceRunningTest {
-    @After fun tearDown() { DocumentSync.resetSubscribersForTest() }
+    @After fun tearDown() { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).resetSubscribersForTest() }
 
     /**
      * The Cloud documents screen builds a fresh subscription on every entry, so a subscriber that attaches
@@ -51,7 +51,7 @@ class DocumentSyncServiceRunningTest {
         val seen = CopyOnWriteArrayList<Boolean>()
         var service: DocumentSyncService? = null
         val finished = CountDownLatch(1)
-        val subscription = DocumentSync.runningChanged.subscribe {
+        val subscription = org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).runningChanged.subscribe {
             seen += it
             if (!it) finished.countDown()
         }

@@ -11,7 +11,25 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class OrderedLauncherTest {
+    @Test fun joinWaitsForTheTail() = runTest {
+        val scope = TestScope(StandardTestDispatcher(testScheduler))
+        val launcher = OrderedLauncher(scope)
+        val list = mutableListOf<String>()
+        var seen = emptyList<String>()
+        launcher.launch("k") { delay(10); list += "first" }
+        launcher.launch("k") { list += "second" }
+        launch { launcher.join("k"); seen = list.toList() }
+        advanceUntilIdle()
+        assertEquals(listOf("first", "second"), seen)
+        scope.cancel()
+    }
+
+    @Test fun joinOnUnknownKeyReturns() = runTest {
+        OrderedLauncher(this).join("unknown")
+    }
+
     @Test fun sameKeyRunsInSubmissionOrderEvenWhenTheFirstSuspendsLonger() = runTest {
         val l = OrderedLauncher(this)
         val log = mutableListOf<String>()

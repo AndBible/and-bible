@@ -46,6 +46,8 @@ object UserMessages {
     fun toast(@StringRes id: Int, long: Boolean = false) =
         _messages.emit(UserMessage.Toast(null, id, long))
 
+    fun toast(text: String, long: Boolean) = _messages.emit(UserMessage.Toast(text, null, long = long))
+
     fun toast(text: String) = _messages.emit(UserMessage.Toast(text, null, long = false))
 
     fun errorNotification(@StringRes id: Int) =

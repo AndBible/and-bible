@@ -109,7 +109,9 @@ object CreateMyDocumentTool : Tool {
                 sourcePromptId = context.promptId
             )
             dao.insert(document)
-            MyDocumentBookManager.registerDocument(document)
+            kotlinx.coroutines.withContext(MyDocumentBookManager.mainDispatcher) {
+                MyDocumentBookManager.registerDocument(document)
+            }
 
             typedSuccess(Result(
                 id = document.id,

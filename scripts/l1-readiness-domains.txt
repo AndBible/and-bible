@@ -19,6 +19,7 @@ download	android/control/download
 download	service/download
 installzip	service/installzip
 cloudsync	service/cloudsync
+cloudsync	android/view/activity/settings/SyncSettingsServiceImpl.kt
 sword	service/sword
 sword	service/format
 llm	service/llm

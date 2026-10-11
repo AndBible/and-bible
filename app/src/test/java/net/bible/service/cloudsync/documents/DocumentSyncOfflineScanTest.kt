@@ -64,7 +64,7 @@ class DocumentSyncOfflineScanTest {
             createdTimeAtLeast: Long?
         ): List<CloudFile> = throw IOException("NetworkError")
 
-        override suspend fun signIn(activity: ActivityBase): Boolean = throw NotImplementedError()
+        override suspend fun signIn(): Boolean = throw NotImplementedError()
         override suspend fun signOut() = throw NotImplementedError()
         override suspend fun get(id: String): CloudFile = throw NotImplementedError()
         override suspend fun getFolders(parentId: String): List<CloudFile> = throw NotImplementedError()
@@ -81,7 +81,7 @@ class DocumentSyncOfflineScanTest {
     private fun setAdapter(adapter: CloudAdapter?) {
         val field = CloudSync::class.java.getDeclaredField("_adapter")
         field.isAccessible = true
-        field.set(CloudSync, adapter)
+        field.set(org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java), adapter)
     }
 
     @Test
@@ -92,7 +92,7 @@ class DocumentSyncOfflineScanTest {
         setAdapter(OfflineCloudAdapter())
 
         // Before the fix this threw IOException (uncaught -> crash); it must now return the cache.
-        val items = DocumentSync.scan()
+        val items = org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan()
 
         assertTrue("Offline scan must return the cached listing", items.any { it.initials == "KJV" })
         assertEquals("King James Version", items.first { it.initials == "KJV" }.name)

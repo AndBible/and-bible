@@ -17,6 +17,19 @@
 package net.bible.android.view.compose
 
 import androidx.test.core.app.ApplicationProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import java.io.IOException
+import java.io.OutputStream
+import net.bible.android.database.SyncConfiguration
+import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.DownloadProgressListener
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import org.robolectric.android.controller.ActivityController
 import java.io.File
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -66,25 +79,100 @@ import kotlin.test.assertTrue
  * timing games -- the callback closures either capture the right instance or they do not,
  * regardless of how much real time elapses between the two builds.
  *
- * **Why no `advanceUntilIdle`/dispatcher control was needed:** `lifecycleScope.launch { ... }`
+ * **Synchronous callback prefix:** `lifecycleScope.launch { ... }`
  * uses `Dispatchers.Main.immediate` (the default `LifecycleCoroutineScope` context), and a
  * Robolectric test method runs ON the thread `Looper.getMainLooper()` is bound to -- so the
  * coroutine body runs SYNCHRONOUSLY up to its first genuine suspension point the moment `launch` is
  * called, before the triggering call (`controller.setShowRemoved(...)`/`.rescan()`) even returns.
- * Every assertion below reads state set during that synchronous prefix (`pushBusy(true)`, before the
- * suspending network/cache scan), so no idling is needed or attempted.
+ * The Sync-now test additionally holds the real adapter boundary: `withContext(IO)` alone does not
+ * guarantee suspension, since a fast computation can finish before the caller returns.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class CloudDocumentsControllerRebuildIsolationTest {
 
-    @After fun tearDown() = DatabaseResetter.resetDatabase()
+    @org.junit.Before fun loadPreferencesForReflectiveConsumers() = kotlinx.coroutines.runBlocking {
+        // These tests bypass composition and its async snapshot barrier deliberately.
+        org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+            net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java,
+        ).ensureLoaded()
+    }
 
-    private fun buildActivity(): NavHostComposeActivity =
-        Robolectric.buildActivity(
+    private val activities = mutableListOf<ActivityController<NavHostComposeActivity>>()
+    private var heldAdapter: HeldCloudAdapter? = null
+    private var restoreAdapter: (() -> Unit)? = null
+
+    @After fun tearDown() {
+        try {
+            heldAdapter?.release?.complete(Unit)
+            val jobs = activities.map { requireNotNull(it.get().lifecycleScope.coroutineContext[Job]) }
+            try {
+                var closeFailure: Throwable? = null
+                activities.asReversed().forEach {
+                    try { it.destroy() } catch (failure: Throwable) {
+                        val previous = closeFailure
+                        if (previous == null) closeFailure = failure else previous.addSuppressed(failure)
+                    }
+                }
+                closeFailure?.let { throw it }
+            } finally {
+                jobs.forEach { it.cancel() }
+                DatabaseResetter.runResetBlocking(timeoutMs = 10_000) { jobs.forEach { it.join() } }
+                assertTrue(jobs.all { it.isCompleted && it.children.none() }, "owned Activity jobs must finish before DB reset")
+            }
+        } finally {
+            restoreAdapter?.invoke()
+        }
+        DatabaseResetter.runResetBlocking(timeoutMs = 10_000) {
+            org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.OrderedLauncher>(
+                net.bible.sharedcore.platform.OrderedLauncher::class.java,
+            ).join("document-sync-settings")
+        }
+        DatabaseResetter.resetDatabase()
+    }
+
+    private fun buildActivity(): NavHostComposeActivity {
+        val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.cloudDocuments()),
-        ).create().get()
+        )
+        activities += controller
+        return controller.create().get()
+    }
+
+    private fun installHeldAdapter(): HeldCloudAdapter {
+        val cloudSync = org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java)
+        val field = CloudSync::class.java.getDeclaredField("_adapter").apply { isAccessible = true }
+        val original = field.get(cloudSync)
+        restoreAdapter = {
+            field.set(cloudSync, original)
+            assertTrue(field.get(cloudSync) === original, "restore the exact pre-test adapter")
+        }
+        return HeldCloudAdapter().also { heldAdapter = it; field.set(cloudSync, it) }
+    }
+
+    /** Only the external IO boundary is replaced; host and DocumentSync computation stay real. */
+    private class HeldCloudAdapter : CloudAdapter {
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        override val signedIn = true
+        override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> {
+            entered.complete(Unit)
+            release.await()
+            throw IOException("held cloud fixture released")
+        }
+        override suspend fun signIn(): Boolean = error("unexpected signIn")
+        override suspend fun signOut(): Unit = error("unexpected signOut")
+        override suspend fun get(id: String): CloudFile = error("unexpected get")
+        override suspend fun getFolders(parentId: String): List<CloudFile> = error("unexpected getFolders")
+        override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?): Unit = error("unexpected download")
+        override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = error("unexpected createNewFolder")
+        override suspend fun upload(name: String, file: File, parentId: String): CloudFile = error("unexpected upload")
+        override suspend fun delete(id: String): Unit = error("unexpected delete")
+        override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean = error("unexpected isSyncFolderKnown")
+        override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Unit = error("unexpected makeSyncFolderKnown")
+        override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = error("unexpected getConfigs")
+    }
 
     /** `buildCloudDocumentsController` is `private fun buildCloudDocumentsController(): CloudDocumentsController`. */
     private fun buildController(activity: NavHostComposeActivity): CloudDocumentsController {
@@ -176,19 +264,43 @@ class CloudDocumentsControllerRebuildIsolationTest {
      * The Sync-now path -- the third of finding A's three named functions, and the one with no
      * public `CloudDocumentsController` entry point of its own (classic's "Sync now" overflow row
      * calls straight into the host, not through a controller callback). Reflects into the private
-     * `cloudDocumentsShowSyncNow(controller: CloudDocumentsController)` directly.
+     * `cloudDocumentsShowSyncNow(entry: CloudDocumentsEntry)` directly.
      */
     @Test
     fun `showSyncNow for an abandoned entry pushes busy onto the entry that started it, not the next entry`() {
+        assertHeldSyncNowBalances(cancel = false)
+    }
+
+    @Test
+    fun `cancelling held showSyncNow balances only its abandoned entry`() {
+        assertHeldSyncNowBalances(cancel = true)
+    }
+
+    private fun assertHeldSyncNowBalances(cancel: Boolean) {
+        val adapter = installHeldAdapter()
         val activity = buildActivity()
         val first = buildController(activity)
         val firstEntry = currentEntry(activity)
         val second = buildController(activity)
-
+        val lifecycleJob = requireNotNull(activity.lifecycleScope.coroutineContext[Job])
+        val previousJobs = lifecycleJob.children.toSet()
         showSyncNow(activity, firstEntry)
+        val operation = lifecycleJob.children.single { it !in previousJobs }
+        DatabaseResetter.runResetBlocking(timeoutMs = 10_000) { adapter.entered.await() }
 
         assertTrue(first.busy.value, "showSyncNow must push busy onto the controller it was given")
         assertFalse(second.busy.value, "showSyncNow must not leak onto the ref's current (later) controller")
+        assertFalse(adapter.release.isCompleted, "identity is checked while real IO remains held")
+        DatabaseResetter.runResetBlocking(timeoutMs = 10_000) {
+            if (cancel) operation.cancelAndJoin()
+            else {
+                adapter.release.complete(Unit)
+                operation.join()
+            }
+        }
+        assertTrue(operation.isCompleted, "the real operation and its finally must finish")
+        assertFalse(first.busy.value, "showSyncNow must balance busy on its original controller")
+        assertFalse(second.busy.value, "completion must leave the later controller untouched")
     }
 
     /** `private fun cloudDocumentsShowSyncNow(entry: CloudDocumentsEntry)` -- located by name, since its parameter type is private. */

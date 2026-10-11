@@ -69,8 +69,7 @@ class ReadingSearchBackTest {
      * -- null on a never-created host, where the chain would never run and a press would fall through to
      * the dispatcher's default. `firstTime` and
      * [resetComposeUiDispatcher] for the reasons `ReadingHostBackChainTest.host()` and slice 8 D1 give.
-     * The `ComposeReadingViewHost` is still installed directly when the destination has not composed
-     * one, exactly as classic's fixture did.
+     * Await the actual reading destination instead of installing a host while its graph is absent.
      */
     @Before
     fun setUp() {
@@ -86,7 +85,7 @@ class ReadingSearchBackTest {
         val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
         activity.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
 
-        if (activity.composeReadingViewHost == null) activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        net.bible.test.awaitReadingGraph(activity)
     }
 
     @After

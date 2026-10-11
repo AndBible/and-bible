@@ -23,6 +23,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.buildCoreModule
+import net.bible.android.control.speak.AdvancedSpeakSettings
+import net.bible.android.control.speak.SpeakSettingsStore
+import net.bible.android.control.event.UserMessage
+import net.bible.android.control.event.UserMessages
+import net.bible.android.control.speak.PERSIST_SETTINGS
+import net.bible.service.common.CommonUtils
 import net.bible.android.control.coreModule
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
@@ -56,6 +62,65 @@ class AndroidPlatformSeamsTest {
         val s = AndroidCoreStrings(ctx)
         assertEquals(ctx.getString(R.string.all), s.labelAll)
         assertEquals(ctx.getString(R.string.error_occurred), s.errorOccurred)
+        assertEquals(ctx.getString(R.string.speak_no_books_available), s.speakNoBooksAvailable)
+        assertEquals(ctx.getString(R.string.speak_general_error), s.speakGeneralError)
+        assertEquals(ctx.getString(R.string.verse_range_mode_disabled), s.verseRangeModeDisabled)
+        assertEquals(ctx.getString(R.string.rewind), s.rewind)
+        assertEquals(ctx.getString(R.string.forward), s.forward)
+        assertEquals(ctx.getString(R.string.pause), s.pause)
+        assertEquals(ctx.getString(R.string.stop), s.stop)
+        assertEquals(ctx.getString(R.string.speak_status_stopped), s.speakStatusStopped)
+        assertEquals(ctx.getString(R.string.sleep_timer_started, 7), s.sleepTimerStarted(7))
+    }
+
+    @Test fun syncSettingsStringsRetainExistingResources() {
+        val ctx = ApplicationProvider.getApplicationContext<Context>()
+        val strings = AndroidCoreStrings(ctx)
+        assertEquals(ctx.getString(R.string.prefs_sync_introduction_summary1), strings.syncIntroduction)
+        listOf(false, true).forEach { discrete ->
+            assertEquals(ctx.getString(R.string.prefs_sync_introduction_summary2, ctx.getString(syncSummaryAppName(discrete))),
+                strings.syncDriveIntroduction(discrete))
+        }
+        assertEquals(ctx.getString(R.string.sync_adapter_summary, "Nextcloud"), strings.syncAdapterSummary("Nextcloud"))
+        assertEquals(ctx.getString(R.string.last_updated, "timestamp"), strings.syncLastUpdated("timestamp"))
+        assertEquals(ctx.getString(R.string.cloud_info_summary, "1.25"), strings.syncCloudInfo("1.25"))
+        assertEquals(ctx.getString(R.string.document_sync_enable_dialog_nothing), strings.documentSyncNothing)
+        assertEquals(ctx.getString(R.string.cloud_doc_summary_upload, 2), strings.documentSyncUpload(2))
+        assertEquals(ctx.getString(R.string.cloud_doc_summary_upload_size, 2, "3 MB"), strings.documentSyncUploadSize(2, "3 MB"))
+        assertEquals(ctx.getString(R.string.cloud_doc_summary_download, 4), strings.documentSyncDownload(4))
+        assertEquals(ctx.getString(R.string.cloud_doc_summary_download_size, 4, "5 MB"), strings.documentSyncDownloadSize(4, "5 MB"))
+        assertEquals(ctx.getString(R.string.cloud_doc_wifi_waiting), strings.documentSyncWifiWaiting)
+    }
+
+    @Test fun infoMessagesKeepTheirTextAndDuration() {
+        val messages = mutableListOf<UserMessage>()
+        val subscription = UserMessages.messages.subscribe { messages += it }
+        try {
+            val notifier: UserNotifier = AndroidUserNotifier()
+            notifier.showInfo("short")
+            notifier.showInfo("long", long = true)
+            assertEquals(listOf(UserMessage.Toast("short", null, false), UserMessage.Toast("long", null, true)), messages)
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test fun speakSettingsStoreUsesTheOriginalRawPreferenceKey() {
+        val prefs = CommonUtils.realSharedPreferences
+        val existed = prefs.contains(PERSIST_SETTINGS)
+        val previous = prefs.getString(PERSIST_SETTINGS, null)
+        try {
+            prefs.edit().remove(PERSIST_SETTINGS).apply()
+            val store = AndroidSpeakSettingsStore()
+            assertEquals("", store.load())
+            prefs.edit().putString(PERSIST_SETTINGS, "old json").apply()
+            assertEquals("old json", store.load())
+            store.save("new json")
+            assertEquals("new json", prefs.getString(PERSIST_SETTINGS, null))
+        } finally {
+            if (existed) prefs.edit().putString(PERSIST_SETTINGS, previous).apply()
+            else prefs.edit().remove(PERSIST_SETTINGS).apply()
+        }
     }
 
     @Test fun dateFormatsMatchTheFrameworkCallsTheyReplace() {
@@ -89,7 +154,7 @@ class AndroidPlatformSeamsTest {
     }
 
     @Test fun koinResolvesEverySeam() {
-        listOf(AppSettings::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, AppCoroutineScope::class)
+        listOf(AppSettings::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, AppCoroutineScope::class, net.bible.service.sword.ContentSource::class)
             .forEach { assertNotNull(it.simpleName, GlobalContext.get().getOrNull<Any>(it)) }
     }
 
@@ -107,10 +172,10 @@ class AndroidPlatformSeamsTest {
      */
     @Test fun koinBuildsEveryDefinitionL1aAdded() {
         val types = listOf(
-            OrderedLauncher::class, BookInstallWatcher::class, ProgressJsActions::class, BookmarkJsActions::class,
+            AdvancedSpeakSettings::class, SpeakSettingsStore::class, OrderedLauncher::class, BookInstallWatcher::class, ProgressJsActions::class, BookmarkJsActions::class,
             DocumentControl::class, ReadingPlanTextFileDao::class, ReadingPlanRepository::class,
             ReadingPlanSource::class, HistoryPlatform::class, LinkPlatform::class, DocumentSyncStarter::class,
-            AppSettings::class, AppCoroutineScope::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class,
+            AppSettings::class, AppCoroutineScope::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, net.bible.service.sword.ContentSource::class,
         )
         val global = GlobalContext.get()
         val globalBefore = (types + listOf(WindowControl::class, BookmarkControl::class)).associateWith { global.get<Any>(it) }

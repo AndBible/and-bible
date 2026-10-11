@@ -1,5 +1,6 @@
 package net.bible.android.control
 
+import org.koin.android.ext.koin.androidContext
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.speak.SpeakControl
@@ -74,6 +75,74 @@ class CoreModuleResolveTest {
         val bound = koin.get<TextDisplaySettingsService>()
         assertNotNull(concrete)
         assertSame(concrete, bound)
+    }
+
+    @Test
+    fun `cloud engines resolve reciprocal providers and watcher in isolated fresh modules`() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val first = org.koin.dsl.koinApplication {
+            androidContext(context)
+            modules(buildCoreModule())
+        }
+        val second = org.koin.dsl.koinApplication {
+            androidContext(context)
+            modules(buildCoreModule())
+        }
+        try {
+            val backup = first.koin.get<net.bible.android.control.backup.BackupControl>()
+            assertSame(backup, first.koin.get<net.bible.android.control.backup.BackupControl>())
+            assertNotNull(first.koin.get<net.bible.android.control.page.window.WindowControl>())
+            assertNotNull(backup.zipDatabaseFiles())
+            org.junit.Assert.assertNotSame(backup, second.koin.get<net.bible.android.control.backup.BackupControl>())
+            val cloud = first.koin.get<net.bible.service.cloudsync.CloudSync>()
+            val documents = first.koin.get<net.bible.service.cloudsync.documents.DocumentSync>()
+            assertSame(cloud, first.koin.get<net.bible.service.cloudsync.CloudSyncProvider>().get())
+            assertSame(documents, first.koin.get<net.bible.service.cloudsync.DocumentSyncProvider>().get())
+            assertNotNull(first.koin.get<net.bible.android.control.versification.BookInstallWatcher>())
+            assertSame(first.koin.get<net.bible.android.platform.AndroidSyncScheduler>(), first.koin.get<net.bible.service.cloudsync.SyncScheduler>())
+            org.junit.Assert.assertNotSame(cloud, second.koin.get<net.bible.service.cloudsync.CloudSync>())
+            org.junit.Assert.assertNotSame(documents, second.koin.get<net.bible.service.cloudsync.documents.DocumentSync>())
+        } finally {
+            first.close()
+            second.close()
+        }
+    }
+
+    @Test
+    fun `cold backup graph and synchronous zip never open the database container`() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val factory = net.bible.service.db.DatabaseContainer.containerFactory
+        val ready = net.bible.service.db.DatabaseContainer.ready
+        val initialized = net.bible.service.common.CommonUtils.initialized
+        val detached = net.bible.service.db.DatabaseContainer.detachInstanceForTest()
+        val app = org.koin.dsl.koinApplication { androidContext(context); modules(buildCoreModule()) }
+        var opens = 0
+        try {
+            net.bible.service.db.DatabaseContainer.ready = false
+            net.bible.service.common.CommonUtils.initialized = false
+            net.bible.service.db.DatabaseContainer.containerFactory = {
+                opens++
+                error("Cold backup graph must not open a database")
+            }
+            val backup = app.koin.get<net.bible.android.control.backup.BackupControl>()
+            assertNotNull(app.koin.get<net.bible.android.control.page.window.WindowControl>())
+            assertNotNull(app.koin.get<net.bible.service.cloudsync.CloudSync>())
+            assertNotNull(app.koin.get<net.bible.service.cloudsync.documents.DocumentSync>())
+            val zip = backup.zipDatabaseFiles()!!
+            java.util.zip.ZipFile(zip).use { archive ->
+                org.junit.Assert.assertNotNull(archive.getEntry("db/settings.sqlite3"))
+            }
+            org.junit.Assert.assertEquals(0, opens)
+        } finally {
+            app.close()
+            net.bible.service.db.DatabaseContainer.containerFactory = factory
+            net.bible.service.db.DatabaseContainer.ready = ready
+            net.bible.service.common.CommonUtils.initialized = initialized
+            // Restore the exact detached instance, including its live settings writer.
+            net.bible.service.db.DatabaseContainer::class.java.getDeclaredField("_instance").apply {
+                isAccessible = true
+            }.set(null, detached)
+        }
     }
 
     @After

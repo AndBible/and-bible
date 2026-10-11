@@ -100,7 +100,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         controllers.forEach { runCatching { it.get().readingAppBootstrap.stopPeriodicSync() } }
         controllers.forEach { it.close() }
         controllers.clear()
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = false
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
         CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         ReadingHostPresence.setForeground(null)
@@ -190,7 +190,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     fun aWorkspaceRefreshRequiredReloadsTheFirstWorkspace() {
         readingHost()
         countToasts()
-        CloudSync.notifyWorkspaceRefreshRequired()
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired()
         idleMain()
         assertTrue(toasts > 0, "workspaceRefreshRequired must switch to the first workspace, as classic's did")
     }
@@ -249,7 +249,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     @Test
     fun returningToForegroundStartsSync() {
         val activity = readingHost().get()
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         assertNull(syncJobOf(activity), "sanity: no periodic sync before the event")
 
         CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND)
@@ -297,7 +297,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     @Test
     fun aHostWithoutAReadingBootstrapIgnoresTheReadingEvents() {
         val activity = nonReadingHost().get()
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         lastSynchronized = 0L
         val windowSync = CommonUtils.windowControl.windowSync
         lastForceSyncAllField.setLong(windowSync, 0L)
@@ -305,7 +305,7 @@ class ReadingHostSyncAndRestoreEventsTest {
 
         val errors = listOf<() -> Unit>(
             { DatabaseContainer.notifyDatabaseRestored() },
-            { CloudSync.notifyWorkspaceRefreshRequired() },
+            { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired() },
             { DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", IdType()))) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND) },
@@ -329,7 +329,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         val controller = readingHost()
         val activity = controller.get()
         idleMain()
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         controller.pause().stop().destroy()
         controllers.remove(controller)
         lastSynchronized = 0L
@@ -337,7 +337,7 @@ class ReadingHostSyncAndRestoreEventsTest {
 
         val errors = listOf<() -> Unit>(
             { DatabaseContainer.notifyDatabaseRestored() },
-            { CloudSync.notifyWorkspaceRefreshRequired() },
+            { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifyWorkspaceRefreshRequired() },
             { DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", IdType()))) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND) },
             { CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND) },

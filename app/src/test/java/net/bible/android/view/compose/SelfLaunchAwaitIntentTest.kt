@@ -20,6 +20,7 @@ package net.bible.android.view.compose
 import android.app.Activity
 import android.content.Intent
 import androidx.lifecycle.lifecycleScope
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +65,39 @@ import org.robolectric.shadows.ShadowActivity
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
 class SelfLaunchAwaitIntentTest {
+    @get:org.junit.Rule
+    val compose = createEmptyComposeRule()
+
+    private val controllers = mutableListOf<org.robolectric.android.controller.ActivityController<NavHostComposeActivity>>()
+
+    @org.junit.After
+    fun tearDown() {
+        controllers.forEach { it.close() }
+        controllers.clear()
+        net.bible.sharedcore.reading.ReadingHostPresence.setForeground(null)
+        net.bible.sharedcore.reading.ReadingViewVisibility.setVisible(false)
+        net.bible.test.DatabaseResetter.resetDatabase()
+    }
+
+    @Test
+    fun fixtureCleanupDestroysTheHostAndCancelsAwaitingLifecycleWork() {
+        val activity = host()
+        val job = activity.lifecycleScope.launch(Dispatchers.Main) {
+            activity.awaitIntent(labelsIntent(activity))
+        }
+        org.robolectric.shadows.ShadowLooper.idleMainLooper()
+        org.junit.Assert.assertFalse("probe must still await its answer", job.isCompleted)
+        try {
+            tearDown()
+            org.junit.Assert.assertTrue("fixture cleanup must destroy its real host", activity.isDestroyed)
+            org.junit.Assert.assertTrue("destroying the host must cancel its awaiting lifecycle job", job.isCancelled)
+            org.junit.Assert.assertFalse(net.bible.sharedcore.reading.ReadingViewVisibility.isVisible)
+        } finally {
+            // Keep the deliberate RED fixture safe even when cleanup is still missing.
+            controllers.forEach { it.close() }
+            controllers.clear()
+        }
+    }
 
     /**
      * `firstTime` is pinned false first, and that is not incidental: it is a file-level `var` in
@@ -86,7 +120,9 @@ class SelfLaunchAwaitIntentTest {
                 ApplicationProvider.getApplicationContext(),
                 NavRoutes.READING,
             ),
-        ).setup().get()
+        ).also { controllers += it }.setup().get().also {
+            net.bible.test.awaitReadingGraph(it) { compose.waitForIdle() }
+        }
     }
 
     private fun labelsIntent(activity: NavHostComposeActivity): Intent =

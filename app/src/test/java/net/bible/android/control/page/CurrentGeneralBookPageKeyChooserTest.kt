@@ -159,7 +159,7 @@ class CurrentGeneralBookPageKeyChooserTest {
         CommonUtils.windowControl.windowRepository = foreign
 
         val page = generalBookPageOf(activity)
-        page.onlySetCurrentDocument(FakeBookFactory.journalDocument)
+        page.onlySetCurrentDocument(org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).journalDocument)
         page.startKeyChooser(activity)
         drainMain()
 

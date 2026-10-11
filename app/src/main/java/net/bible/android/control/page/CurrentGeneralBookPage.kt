@@ -68,8 +68,8 @@ class CurrentGeneralBookPage internal constructor(
 
     override val documentCategory = DocumentCategory.GENERAL_BOOK
 
-    val isSpecialDoc get() = setOf(FakeBookFactory.journalDocument, FakeBookFactory.multiDocument).contains(currentDocument)
-    val isStudyPad get() = FakeBookFactory.journalDocument == currentDocument
+    val isSpecialDoc get() = setOf(fakeBookFactory.journalDocument, fakeBookFactory.multiDocument).contains(currentDocument)
+    val isStudyPad get() = fakeBookFactory.journalDocument == currentDocument
 
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
@@ -130,7 +130,7 @@ class CurrentGeneralBookPage internal constructor(
         context.lifecycleScope.launch(Dispatchers.Main) {
             val doc = currentDocument
             when {
-                doc == FakeBookFactory.journalDocument -> {
+                doc == fakeBookFactory.journalDocument -> {
                     // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data`
                     // argument is required), and the classic ManageLabelsComposeActivity
                     // ScreenLauncher.targetFor used to resolve it to is gone (nav-graph slices 2+4
@@ -148,7 +148,7 @@ class CurrentGeneralBookPage internal constructor(
                         workspaceSettings.updateFrom(resultData)
                     }
                 }
-                doc == FakeBookFactory.multiDocument ->
+                doc == fakeBookFactory.multiDocument ->
                     awaitChosenKey(context, NavHostComposeActivity.intentFor(context, NavRoutes.chooseDocument()))
                 doc?.isMyDocument == true -> {
                     val docId = doc.myDocumentId
@@ -215,7 +215,7 @@ class CurrentGeneralBookPage internal constructor(
             if (key == null) context.goBackInHistory()
             return
         }
-        KeyChooserResults.apply(pageManager, result.data?.extras)
+        KeyChooserResults.apply(pageManager, result.data?.extras, context.lifecycleScope)
     }
 
 
@@ -258,7 +258,7 @@ class CurrentGeneralBookPage internal constructor(
                                     else -> k
                                 }
                             }
-                            OsisFragment(SwordContentFacade.readOsisFragment(doc, k), k, doc)
+                            OsisFragment(SwordContentFacade.readOsisFragment(doc, k, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), k, doc)
                         } catch (e: OsisError) {
                             if(dropUninstalled && e is DocumentNotFound && Books.installed().getBook(doc.initials) == null) {
                                 Log.i(TAG, "Dropping an uninstalled document from an assembled key: ${doc.initials}")
@@ -291,11 +291,11 @@ class CurrentGeneralBookPage internal constructor(
     override fun next() {
         val key = key
         when (currentDocument) {
-            FakeBookFactory.journalDocument -> {
+            fakeBookFactory.journalDocument -> {
                 val nextLabel = blockingDb { pageManager.bookmarkControl.getNextLabel((key as StudyPadKey).label) } // L1-pending(page)
                 setKey(StudyPadKey(nextLabel))
             }
-            FakeBookFactory.multiDocument -> {}
+            fakeBookFactory.multiDocument -> {}
             else -> {
                 setKey(getKeyPlus(1))
             }
@@ -305,11 +305,11 @@ class CurrentGeneralBookPage internal constructor(
     override fun previous() {
         val key = key
         when (currentDocument) {
-            FakeBookFactory.journalDocument -> {
+            fakeBookFactory.journalDocument -> {
                 val nextLabel = blockingDb { pageManager.bookmarkControl.getPrevLabel((key as StudyPadKey).label) } // L1-pending(page)
                 setKey(StudyPadKey(nextLabel))
             }
-            FakeBookFactory.multiDocument -> {}
+            fakeBookFactory.multiDocument -> {}
             else -> {
                 setKey(getKeyPlus(-1))
             }
@@ -327,18 +327,18 @@ class CurrentGeneralBookPage internal constructor(
 
     override fun restoreFrom(entity: WorkspaceEntities.Page?) {
         when (entity?.document) {
-            FakeBookFactory.journalDocument.initials -> {
+            fakeBookFactory.journalDocument.initials -> {
                 val splitted = entity!!.key?.split(":")?: return
                 if(splitted.size != 2) return
                 val id = splitted[1]
                 val label = blockingDb { pageManager.bookmarkControl.labelById(IdType(id)) } // L1-pending(page)
                 if (label != null) {
                     doSetKey(StudyPadKey(label))
-                    localSetCurrentDocument(FakeBookFactory.journalDocument)
+                    localSetCurrentDocument(fakeBookFactory.journalDocument)
                     anchorOrdinal = entity.anchorOrdinal?.let { OrdinalRange(it) }
                 }
             }
-            FakeBookFactory.multiDocument.initials -> {
+            fakeBookFactory.multiDocument.initials -> {
                 val refs = entity!!.key!!.split("||").map { it.split(":") }.mapNotNull {
                     try {
                         val isUnspecifiedDoc = it[0] == "null"
@@ -359,7 +359,7 @@ class CurrentGeneralBookPage internal constructor(
                     key.addAll(ref)
                 }
                 doSetKey(key)
-                localSetCurrentDocument(FakeBookFactory.multiDocument)
+                localSetCurrentDocument(fakeBookFactory.multiDocument)
             }
             else -> {
                 super.restoreFrom(entity)

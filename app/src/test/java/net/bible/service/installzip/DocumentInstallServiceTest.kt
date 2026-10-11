@@ -23,6 +23,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import net.bible.android.control.document.DocumentChanges
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
@@ -51,11 +52,11 @@ import java.util.zip.ZipOutputStream
  * (with a Robolectric-registered read grant, forwarded exactly as [DocumentInstallService
  * .enqueueIntent] does for a real caller) -> `onStartCommand` -> the shared, real (not faked)
  * [DocumentInstallService.controller] -> a real [InstallJobRunner]/[InstallInspector]/
- * [AndroidInstallCommitter] stack -- reaches a terminal and fires the classic post-install
+ * [DefaultInstallCommitter] stack -- reaches a terminal and fires the classic post-install
  * side effects, without re-testing the state-machine/classification logic itself (that's
  * [InstallJobRunnerTest]/[InstallInspectorTest]/[InstallServiceControllerTest]'s job).
  *
- * The fixture is the exact minimal, hand-fabricated RawLD dictionary zip [AndroidInstallCommitterTest]
+ * The fixture is the exact minimal, hand-fabricated RawLD dictionary zip [DefaultInstallCommitterTest]
  * already proves round-trips through [net.bible.android.control.backup.BackupControl
  * .extractAndRegisterModuleArchive] -- reused here so a genuinely real module registers.
  */
@@ -63,8 +64,35 @@ import java.util.zip.ZipOutputStream
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DocumentInstallServiceTest {
 
+    @Test fun missingMetadataKeepsProgressTitleNull() = runBlocking {
+        val service = Robolectric.buildService(DocumentInstallService::class.java).get()
+        val uri = Uri.parse("content://x/document/primary%3ADownload%2Ffoo.zip")
+        val method = DocumentInstallService::class.java.getDeclaredMethod("buildSource", Uri::class.java, String::class.java)
+        method.isAccessible = true
+        val source = method.invoke(service, uri, null) as InstallSource
+        assertEquals(null, source.displayName)
+        assertEquals("primary:Download/foo.zip", source.installationName)
+        val controller = InstallServiceController(runnerFactory = { error("unused") }, newJobId = { "metadata" }, onTerminal = { _, _ -> }, scope = this)
+        controller.runOne = { _, _, _, onPhase, _ ->
+            assertEquals(null, controller.jobs.value.single().displayName)
+            onPhase(InstallPhase.Inspecting)
+            assertEquals(null, controller.jobs.value.single().displayName)
+            InstallPhase.Done
+        }
+        val deps = InstallServiceController.JobDeps(
+            acquireDir = File(System.getProperty("java.io.tmpdir"), "metadata-test"),
+            openStream = { error("unused") }, isStudyPadExport = { false },
+            studyPadStats = { error("unused") }, swordZipScan = { error("unused") },
+            epubUpgradeCheck = { false },
+        )
+        assertEquals(InstallOutcome.Ok, controller.enqueue(listOf(source), deps))
+    }
+
+    private lateinit var originalDownloadDir: File
+
     @Before
     fun setUp() {
+        originalDownloadDir = SwordBookPath.getSwordDownloadDir()
         SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
     }
 
@@ -73,9 +101,10 @@ class DocumentInstallServiceTest {
         Books.installed().getBook("TestDict")?.let { Books.installed().removeBook(it) }
         File(SharedConstants.modulesDir, "mods.d/testdict.conf").delete()
         File(SharedConstants.modulesDir, "modules/lexdict/rawld/testdict").deleteRecursively()
+        SwordBookPath.setDownloadDir(originalDownloadDir)
     }
 
-    /** Same fixture shape as `AndroidInstallCommitterTest.commitSwordZipExtractsAndRegistersRealModule`
+    /** Same fixture shape as `DefaultInstallCommitterTest.commitSwordZipExtractsAndRegistersRealModule`
      *  (a minimal genuine RawLD dictionary): a `.conf` + 2 data files, zipped. */
     private fun validSwordZipBytes(): ByteArray {
         val conf = """
@@ -133,15 +162,15 @@ class DocumentInstallServiceTest {
         streamSub.cancel()
 
         assertNotNull(
-            "the real AndroidInstallCommitter/BackupControl stack must have registered the module",
+            "the real DefaultInstallCommitter/BackupControl stack must have registered the module",
             Books.installed().getBook("TestDict")
         )
     }
 
     /**
      * Regression lock for the reviewed CRITICAL finding on [determineLocalFileType]: it must
-     * detect a real SQLite3 header via [CommonUtils.determineFileType] delegation, not fall
-     * through to [BackupControl.AbDbFileType.UNKNOWN] (which would route every
+     * detect a real SQLite3 header from the acquired local file, not fall
+     * through to [BackupFileType.UNKNOWN] (which would route every
      * `.sqlite3/.mybible/.bblx/.bbli` install to `InstallPlan.Invalid`/Error). The genuine
      * SQLite3 magic is the 16-byte ASCII string "SQLite format 3" followed by a single NUL
      * byte -- a hand-typed literal ending in a visible trailing SPACE character instead looks
@@ -158,10 +187,10 @@ class DocumentInstallServiceTest {
 
             assertNotEquals(
                 "a real SQLite3 header must not be classified as UNKNOWN",
-                BackupControl.AbDbFileType.UNKNOWN,
+                BackupFileType.UNKNOWN,
                 type
             )
-            assertEquals(BackupControl.AbDbFileType.SQLITE3, type)
+            assertEquals(BackupFileType.SQLITE3, type)
         } finally {
             file.delete()
         }

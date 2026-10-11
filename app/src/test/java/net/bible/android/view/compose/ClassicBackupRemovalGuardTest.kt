@@ -96,10 +96,9 @@ class ClassicBackupRemovalGuardTest {
             code.contains("class BackupActivity"),
         )
         listOf(
-            "object BackupControl",
+            "class BackupControl",
             "enum class SaveOrShare",
             "fun resolveDestination",
-            "val databaseTitleResIds",
             "const val DATABASE_BACKUP_SUFFIX",
         ).forEach { survivor ->
             assertTrue(

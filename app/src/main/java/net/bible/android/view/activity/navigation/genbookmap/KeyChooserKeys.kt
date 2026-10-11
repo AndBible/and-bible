@@ -52,10 +52,10 @@ internal fun CurrentMapPage.keyChooserKeys(): List<Key> = cachedGlobalKeyList ?:
  * which is the one case the activity's `!!` would have crashed on and which now simply means "no
  * rows" — and, for the sheet, "do not open" (spec §4.6 / Task 9 amendment E3).
  */
-internal fun CurrentGeneralBookPage.keyChooserKeys(): List<Key> {
+internal suspend fun CurrentGeneralBookPage.keyChooserKeys(): List<Key> {
     val doc = currentDocument ?: return emptyList()
     return if (doc.isEpub) {
-        ((doc as SwordGenBook).backend as EpubBackend).tocKeys
+        ((doc as SwordGenBook).backend as EpubBackend).tocKeys()
     } else {
         cachedGlobalKeyList ?: emptyList()
     }

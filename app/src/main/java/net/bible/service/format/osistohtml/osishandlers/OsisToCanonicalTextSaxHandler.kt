@@ -16,9 +16,8 @@
  */
 package net.bible.service.format.osistohtml.osishandlers
 
-import android.os.Build
-import android.text.Html
-import net.bible.service.common.Logger
+import net.bible.service.format.SaxTextPolicy
+import net.bible.sharedcore.log.Log
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper.osisIdToVerseNum
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.OSISUtil
@@ -30,7 +29,7 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean = false): OsisSaxHandler() {
+open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean = false, private val textPolicy: SaxTextPolicy): OsisSaxHandler() {
     private var currentVerseNo = 0
     protected var writeContentStack = Stack<CONTENT_STATE>()
 
@@ -55,7 +54,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
 
         // assert
         if (!writeContentStack.isEmpty()) {
-            log.warn("OsisToCanonicalTextSaxHandler context stack should now be empty")
+            Log.w("OsisToCanonicalTextSaxHandler", "OsisToCanonicalTextSaxHandler context stack should now be empty")
         }
     }
 
@@ -143,12 +142,12 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
     override fun characters(buf: CharArray?, offset: Int, len: Int) {
         if (CONTENT_STATE.WRITE == writeContentStack.peek()) {
             var s = String(buf!!, offset, len)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (textPolicy.restoreLeadingSpace) {
                 if (s.length > 0 && s[0] == ' ') {
                     // fromHtml strips leading whitespaces, which is not desirable
                     write(" ")
                 }
-                s = Html.fromHtml(s, 0).toString()
+                s = textPolicy.canonical(s)
             }
             write(s)
         }
@@ -182,7 +181,4 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
         }
     }
 
-    companion object {
-        private val log = Logger("OsisToCanonicalTextSaxHandler")
-    }
 }

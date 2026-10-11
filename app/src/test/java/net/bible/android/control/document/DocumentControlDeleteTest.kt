@@ -50,6 +50,7 @@ class DocumentControlDeleteTest {
         }
     }
     private val notifier = object : UserNotifier {
+        override fun showInfo(message: String, long: Boolean) = Unit
         override fun showError(message: String, cause: Throwable?) { errors += message }
     }
     private val book = Mockito.mock(Book::class.java).also {
@@ -84,7 +85,7 @@ class DocumentControlDeleteTest {
         Mockito.`when`(it.driver).thenReturn(driver)
     }
 
-    private fun control() = DocumentControl(
+    private fun control() = DocumentControl(fakeBookFactory = net.bible.service.download.FakeBookFactory(Mockito.mock(CoreStrings::class.java)),
         windowControl, Mockito.mock(AppSettings::class.java), notifier, Mockito.mock(CoreStrings::class.java),
         appScope, deleteFiles = DocumentFileDeleter { filesDeleted += it.initials }, backupDaoProvider = { dao },
     )

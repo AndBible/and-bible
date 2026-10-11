@@ -81,7 +81,7 @@ class ModuleArchiveExtractionTest {
             "modules/texts/data.dat" to byteArrayOf(1, 2, 3),
         ))
 
-        BackupControl.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ FileInputStream(zip) })
 
         assertFalse(
             "Manifest must not be written into the module directory",
@@ -102,7 +102,7 @@ class ModuleArchiveExtractionTest {
             "modules\\texts\\win\\path.dat" to byteArrayOf(9),
         ))
 
-        BackupControl.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ FileInputStream(zip) })
 
         assertTrue(File(downloadDir, "modules/texts/win/path.dat").exists())
         assertFalse(File(downloadDir, "modules\\texts\\win\\path.dat").exists())
@@ -115,7 +115,7 @@ class ModuleArchiveExtractionTest {
             "modules/a/b/c/d/deep.dat" to byteArrayOf(42),
         ))
 
-        BackupControl.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ FileInputStream(zip) })
 
         assertTrue(File(downloadDir, "modules/a/b/c/d/deep.dat").exists())
     }
@@ -130,7 +130,7 @@ class ModuleArchiveExtractionTest {
             "modules/texts/only-data.dat" to byteArrayOf(7),
         ))
 
-        BackupControl.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ FileInputStream(zip) })
 
         assertTrue(File(downloadDir, "modules/texts/only-data.dat").exists())
     }

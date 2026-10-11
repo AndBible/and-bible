@@ -17,9 +17,8 @@
 
 package net.bible.service.device.speak
 
-import android.os.Build
-import android.os.Bundle
-import android.speech.tts.TextToSpeech
+import net.bible.android.control.speak.SpeakEngine
+import net.bible.android.control.speak.SpeakLanguageResult
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.bookmarks.SpeakSettings
 import java.util.*
@@ -27,15 +26,15 @@ import java.util.*
 const val TAG = "SpeakCommands"
 
 interface SpeakCommand {
-    fun speak(tts: TextToSpeech, utteranceId: String)
+    fun speak(engine: SpeakEngine, utteranceId: String)
 }
 
 class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCommand {
     enum class TextType {NORMAL, TITLE}
     val text: String = text.trim()
 
-    override fun speak(tts: TextToSpeech, utteranceId: String) {
-        tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
+    override fun speak(engine: SpeakEngine, utteranceId: String) {
+        engine.speakText(text, utteranceId)
     }
 
     override fun toString(): String {
@@ -44,23 +43,19 @@ class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCom
 }
 
 abstract class EarconCommand(private val earcon: String, val enabled: Boolean): SpeakCommand {
-    override fun speak(tts: TextToSpeech, utteranceId: String) {
-        val eBundle = Bundle()
-        eBundle.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.2f)
-        eBundle.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
-        if (enabled && !earcon.isEmpty()) {
-            tts.playEarcon(earcon, TextToSpeech.QUEUE_ADD, eBundle, utteranceId)
-        }
-        else {
-            tts.playSilentUtterance(0, TextToSpeech.QUEUE_ADD, utteranceId)
+    override fun speak(engine: SpeakEngine, utteranceId: String) {
+        if (enabled && earcon.isNotEmpty()) {
+            engine.playEarcon(earcon, 0.2f, utteranceId)
+        } else {
+            engine.playSilence(0, utteranceId)
         }
     }
 }
 
 class ChangeLanguageCommand(val language: Locale): SpeakCommand {
-    override fun speak(tts: TextToSpeech, utteranceId: String) {
-        val result = tts.setLanguage(language)
-        if(result != TextToSpeech.LANG_AVAILABLE) {
+    override fun speak(engine: SpeakEngine, utteranceId: String) {
+        val result = engine.setLanguage(language)
+        if(result != SpeakLanguageResult.AVAILABLE) {
             Log.e(TAG, "Language $language not available!")
         }
     }
@@ -81,25 +76,20 @@ class PostFootnoteCommand(speakSettings: SpeakSettings): EarconCommand(
         speakSettings.playbackSettings.speakFootnotes)
 
 open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
-    override fun speak(tts: TextToSpeech, utteranceId: String) {
-        tts.playSilentUtterance(if (enabled) 500 else 0, TextToSpeech.QUEUE_ADD, utteranceId)
+    override fun speak(engine: SpeakEngine, utteranceId: String) {
+        engine.playSilence(if (enabled) 500 else 0, utteranceId)
     }
 }
 
 class ParagraphChangeCommand : SilenceCommand(true)
 
-class SpeakCommandArray: ArrayList<SpeakCommand>() {
-    private val maxLength = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-        TextToSpeech.getMaxSpeechInputLength()
-    } else {
-        4000
-    }
+class SpeakCommandArray(private val maxLength: Int): ArrayList<SpeakCommand>() {
     private val endsWithSentenceBreak = Regex(""".*[.?!。]+[\p{Pf}"']*\W*""", RegexOption.DOT_MATCHES_ALL)
     private val splitIntoTwoSentences = Regex("""(.*)([.?!。]+[\p{Pf}"']*)(\W*.+)""", RegexOption.DOT_MATCHES_ALL)
     private val startsWithDelimiter = Regex("""([。,.?!"':;()，；]+|'s)(\p{Zs}.*|)""", RegexOption.DOT_MATCHES_ALL)
 
     fun copy(): SpeakCommandArray {
-        val cmds = SpeakCommandArray()
+        val cmds = SpeakCommandArray(maxLength)
         cmds.addAll(this)
         return cmds
     }

@@ -167,7 +167,8 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             }
         }
 
-    override suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun signIn(): Boolean = withContext(Dispatchers.IO) {
+        val activity = net.bible.android.view.activity.base.CurrentActivityHolder.currentActivity ?: return@withContext false
         Log.i(TAG, "Starting")
         try {
             account = lastAccount ?: oneTapSignIn(activity).also {lastAccount = it }

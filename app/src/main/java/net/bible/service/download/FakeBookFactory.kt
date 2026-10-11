@@ -16,9 +16,7 @@
  */
 package net.bible.service.download
 
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
-import net.bible.android.view.activity.download.PseudoBook
+import net.bible.service.download.PseudoBook
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -63,7 +61,7 @@ class NullKeyBackend(private val metadata: SwordBookMetaData): AbstractKeyBacken
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-object FakeBookFactory {
+class FakeBookFactory(private val strings: net.bible.sharedcore.platform.CoreStrings) {
     /** create dummy Book object for file available for download from repo
      */
     @Throws(IOException::class, BookException::class)
@@ -132,8 +130,8 @@ object FakeBookFactory {
             }
 
     private val JOURNAL_DUMMY_CONF get() = """[MyStudyPads]
-Description=${application.getString(R.string.journal_description)}
-Abbreviation=${application.getString(R.string.studypads)}
+Description=${strings.journalDescription}
+Abbreviation=${strings.studypads}
 Encoding=UTF-8
 Category=Generic Books
 LCSH=Bible--Commentaries.
@@ -142,8 +140,8 @@ AndBibleSpecial=1
 Versification=KJVA"""
 
     private val COMPARE_DUMMY_CONF get() = """[Compare]
-Description=${application.getString(R.string.compare_description)}
-Abbreviation=${application.getString(R.string.compare_abbreviation)}
+Description=${strings.compareDescription}
+Abbreviation=${strings.compareAbbreviation}
 Category=Commentaries
 Feature=StrongsNumbers
 Encoding=UTF-8
@@ -152,8 +150,8 @@ AndBibleSpecial=1
 Versification=KJVA"""
 
     private val MEMORIZE_DUMMY_CONF get() = """[Memorize]
-Description=${application.getString(R.string.memorize_description)}
-Abbreviation=${application.getString(R.string.memorize_abbreviation)}
+Description=${strings.memorizeDescription}
+Abbreviation=${strings.memorizeAbbreviation}
 Category=Commentaries
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
@@ -162,8 +160,8 @@ HideFromSelector=1
 Versification=KJVA"""
 
     private val MULTI_DUMMY_CONF get() = """[Multi]
-Description=${application.getString(R.string.multi_description)}
-Abbreviation=${application.getString(R.string.multi_abbreviation)}
+Description=${strings.multiDescription}
+Abbreviation=${strings.multiAbbreviation}
 Category=Generic Books
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
@@ -171,8 +169,8 @@ AndBibleSpecial=1
 Versification=KJVA"""
 
     private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
-Description=${application.getString(R.string.my_notes_description)}
-Abbreviation=${application.getString(R.string.my_notes_abbreviation)}
+Description=${strings.myNotesDescription}
+Abbreviation=${strings.myNotesAbbreviation}
 Category=Commentaries
 Feature=StrongsNumbers
 Encoding=UTF-8

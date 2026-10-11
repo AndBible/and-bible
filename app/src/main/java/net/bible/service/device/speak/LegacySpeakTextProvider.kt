@@ -20,10 +20,10 @@ import net.bible.sharedcore.log.Log
 import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.database.bookmarks.SpeakSettings.RewindAmount
 import net.bible.service.common.AndRuntimeException
-import net.bible.service.common.CommonUtils.settings
+import net.bible.sharedcore.platform.AppSettings
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
-import net.bible.service.sword.SwordContentFacade.getTextToSpeak
+import net.bible.service.sword.SwordContentFacade.Companion.getTextToSpeak
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import java.text.BreakIterator
@@ -34,7 +34,7 @@ import java.util.regex.Pattern
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class LegacySpeakTextProvider : SpeakTextProvider {
+class LegacySpeakTextProvider(private val settings: AppSettings, private val strings: net.bible.sharedcore.platform.CoreStrings, private val saxTextPolicy: net.bible.service.format.SaxTextPolicy) : SpeakTextProvider {
     private var mTextToSpeak: MutableList<String?>? = ArrayList()
     private var nextTextToSpeak: Long = 0
 
@@ -57,7 +57,7 @@ class LegacySpeakTextProvider : SpeakTextProvider {
     override val numItemsToTts: Int
         get() = 1
 
-    override fun getStatusText(showFlag: Int): String {
+    override suspend fun getStatusText(showFlag: Int): String {
         return if (keyList != null && keyList!!.size > 0) {
             keyList!![0].getName()
         } else {
@@ -98,7 +98,7 @@ class LegacySpeakTextProvider : SpeakTextProvider {
                 textToSpeak.add(key.getName() + ". ")
 
                 // content
-                textToSpeak.add(getTextToSpeak(book!!, key))
+                textToSpeak.add(getTextToSpeak(book!!, key, strings, saxTextPolicy))
 
                 // add a pause at end to separate passages
                 textToSpeak.add("\n")
@@ -117,7 +117,8 @@ class LegacySpeakTextProvider : SpeakTextProvider {
         return nextTextToSpeak < mTextToSpeak!!.size
     }
 
-    override fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean): SpeakCommand {
+    override suspend fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean, isValid: () -> Boolean): SpeakCommand {
+        if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
         var text = nextTextChunk
 
         // if a pause occurred then skip the first part
@@ -178,7 +179,8 @@ class LegacySpeakTextProvider : SpeakTextProvider {
         reset()
     }
 
-    override fun rewind(amount: RewindAmount?) {
+    override suspend fun rewind(amount: RewindAmount?, isValid: () -> Boolean) {
+        if (!isValid()) return
         // go back to start of current sentence
         var textFraction = getPrevTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken)
 
@@ -202,7 +204,8 @@ class LegacySpeakTextProvider : SpeakTextProvider {
         Log.i(TAG, "Rewind chunk length start position:$fractionOfNextSentenceSpoken")
     }
 
-    override fun forward(amount: RewindAmount?) {
+    override suspend fun forward(amount: RewindAmount?, isValid: () -> Boolean) {
+        if (!isValid()) return
         Log.i(TAG, "Forward nextText:$nextTextToSpeak")
 
         // go back to start of current sentence

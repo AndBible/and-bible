@@ -22,19 +22,64 @@ package net.bible.service.cloudsync.documents
 import net.bible.android.database.CloudDocumentSyncTimestamp
 import net.bible.android.database.CloudListingState
 import net.bible.android.database.DocumentSyncPreferences
-import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.blockingDb
+import net.bible.android.database.DocumentSyncPreferencesDao
+import net.bible.android.database.CloudListingStateDao
+import net.bible.android.database.CloudDocumentSyncTimestampDao
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.sharedcore.log.Log
 
-object DocumentSyncSettings {
-    private val prefsDao get() = DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao()
-    private val listingDao get() = DatabaseContainer.instance.documentSyncDb.cloudListingStateDao()
-    private val tsDao get() = DatabaseContainer.instance.documentSyncDb.cloudDocumentSyncTimestampDao()
+class DocumentSyncSettings(
+    private val prefsDao: () -> DocumentSyncPreferencesDao,
+    private val listingDao: () -> CloudListingStateDao,
+    private val tsDao: () -> CloudDocumentSyncTimestampDao,
+    private val launcher: OrderedLauncher,
+    private val env: AppEnvironment,
+) {
+    private val state = MutableStateFlow<DocumentSyncPreferences?>(null)
+    private val dbMutex = Mutex()
+    private val stateLock = Any()
 
-    private fun prefs(): DocumentSyncPreferences = blockingDb { prefsDao.get() } ?: DocumentSyncPreferences()
+    /** Load once; publication cannot overwrite a concurrent release-mode setter's snapshot. */
+    suspend fun ensureLoaded() {
+        if (state.value != null) return
+        dbMutex.withLock {
+            if (state.value == null) {
+                val loaded = prefsDao().get() ?: DocumentSyncPreferences()
+                synchronized(stateLock) { if (state.value == null) state.value = loaded }
+            }
+        }
+    }
+
+    private fun prefs(): DocumentSyncPreferences = state.value ?: run {
+        val message = "DocumentSyncSettings read before ensureLoaded()"
+        if (env.isDebugMode) throw IllegalStateException(message)
+        Log.e("DocumentSyncSettings", message)
+        DocumentSyncPreferences()
+    }
+
     private fun update(transform: DocumentSyncPreferences.() -> DocumentSyncPreferences) {
-        val updated = prefs().transform()
-        blockingDb { prefsDao.set(updated) }
+        synchronized(stateLock) {
+            val snapshot = prefs().transform()
+            state.value = snapshot
+            launcher.launch("document-sync-settings") {
+                dbMutex.withLock { prefsDao().set(snapshot) }
+            }
+        }
+    }
+
+    /** Sign-out queues behind all preference writes, so no old snapshot can resurrect the row. */
+    suspend fun clearPreferences() {
+        val clear = synchronized(stateLock) {
+            state.value = DocumentSyncPreferences()
+            launcher.launch("document-sync-settings") {
+                dbMutex.withLock { prefsDao().clear() }
+            }
+        }
+        clear.join()
     }
 
     var enabled: Boolean
@@ -79,15 +124,15 @@ object DocumentSyncSettings {
     })
 
     /** Incremental-listing watermark: max observed cloud meta createdTime. 0 ⇒ cold start. */
-    var watermark: Long
-        get() = (blockingDb { listingDao.get() } ?: CloudListingState()).watermark
-        set(value) = blockingDb { listingDao.set(CloudListingState(watermark = value)) }
+    suspend fun watermark(): Long = (listingDao().get() ?: CloudListingState()).watermark
 
-    fun syncTimestamp(initials: String): Long? = blockingDb { tsDao.get(initials) }
+    suspend fun setWatermark(value: Long) = listingDao().set(CloudListingState(watermark = value))
 
-    fun setSyncTimestamp(initials: String, ts: Long) =
-        blockingDb { tsDao.set(CloudDocumentSyncTimestamp(initials, ts)) }
+    suspend fun syncTimestamp(initials: String): Long? = tsDao().get(initials)
+
+    suspend fun setSyncTimestamp(initials: String, ts: Long) =
+        tsDao().set(CloudDocumentSyncTimestamp(initials, ts))
 
     val isAutoTransferAllowed: Boolean
-        get() = !wifiOnly || !CommonUtils.isMeteredNetwork
+        get() = !wifiOnly || !env.isMeteredNetwork
 }

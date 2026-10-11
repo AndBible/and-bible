@@ -23,7 +23,6 @@ import net.bible.sharedcore.log.Log
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
 import net.bible.service.cloudsync.DownloadProgressListener
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import java.io.File
 
@@ -54,6 +53,7 @@ data class ChangedListing(
 class DocumentStore(
     private val adapter: CloudAdapter,
     private val rootFolderId: String,
+    private val env: net.bible.sharedcore.platform.AppEnvironment,
 ) {
     private suspend fun folderFor(initials: String): CloudFile? =
         adapter.getFolders(rootFolderId).firstOrNull { it.name == initials }
@@ -62,7 +62,7 @@ class DocumentStore(
         folderFor(initials)?.id ?: adapter.createNewFolder(initials, rootFolderId).id
 
     private suspend fun downloadMeta(metaFile: CloudFile): DocumentSyncMeta? {
-        val tmp = CommonUtils.tmpFile
+        val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         return try {
             tmp.outputStream().use { adapter.download(metaFile.id, it) }
             DocumentSyncMeta.fromJson(tmp.readText())
@@ -110,7 +110,7 @@ class DocumentStore(
         // delete existing meta.json then upload fresh (acts as the atomic commit point)
         adapter.listFiles(parentsIds = listOf(folderId), name = DOCUMENT_META_FILENAME)
             .forEach { adapter.delete(it.id) }
-        val tmp = CommonUtils.tmpFile
+        val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         try {
             tmp.writeText(meta.toJson())
             adapter.upload(DOCUMENT_META_FILENAME, tmp, folderId)
@@ -139,7 +139,7 @@ class DocumentStore(
         val folderId = folderFor(initials)?.id ?: return null
         val file = adapter.listFiles(parentsIds = listOf(folderId), name = "$version.abmd.zip").firstOrNull()
             ?: return null
-        val tmp = CommonUtils.tmpFile
+        val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         try {
             tmp.outputStream().use { adapter.download(file.id, it, onProgress) }
         } catch (e: Exception) {

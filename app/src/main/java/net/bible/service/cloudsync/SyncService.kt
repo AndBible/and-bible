@@ -17,6 +17,7 @@
 
 package net.bible.service.cloudsync
 
+import org.koin.android.ext.android.inject
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
@@ -39,17 +40,11 @@ private const val SYNC_NOTIFICATION_ID=2
 const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
 private const val WAKELOCK_TAG = "andbible:sync-wakelock"
 
-/**
- * A cloud sync finished: record `globalLastSynchronized` (read by `ReadingAppBootstrap.synchronize`)
- * and then emit `false`. Before event-bus removal phase 3 the host wrote it, and only when a reading host was
- * bootstrapped, so a sync started from sync settings recorded nothing (compose-open-findings).
- */
-internal fun recordSyncFinished(now: Long = System.currentTimeMillis()) {
-    CommonUtils.settings.setLong("globalLastSynchronized", now)
-    CloudSync.notifySyncRunning(false)
-}
-
 class SyncService: Service() {
+    private val cloudSync: CloudSync by inject()
+    private val scheduler: net.bible.android.platform.AndroidSyncScheduler by inject()
+    private val settings: net.bible.sharedcore.platform.AppSettings by inject()
+
     companion object {
         const val START_SERVICE="action_start_service"
     }
@@ -95,39 +90,44 @@ class SyncService: Service() {
     }
 
     private fun synchronize() {
-        Log.i(TAG, "Synchronize started")
-        val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
-        if (wakeLock.isHeld) {
-            throw RuntimeException("Wakelock already held, double-synchronize")
-        }
-
-        val notification = buildSyncNotification()
-        notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
-
-        try {
-            startForeground(SYNC_NOTIFICATION_ID, notification)
-        } catch (e: Exception) {
-            // Android 14+ may refuse to start a dataSync foreground service, e.g.
-            // ForegroundServiceStartNotAllowedException "Time limit already exhausted
-            // for foreground service type dataSync" once the daily quota is used up.
-            // Don't crash the whole app — just log it and skip this synchronization.
-            Log.e(TAG, "Could not start foreground sync service, skipping synchronization", e)
-            notificationManager.cancel(SYNC_NOTIFICATION_ID)
-            stopSelf()
-            return
-        }
-        wakeLock.acquire(5*60*1000) // 5 minutes
-
         scope.launch {
-            CloudSync.notifySyncRunning(true)
-            CloudSync.synchronize()
-            CloudSync.waitUntilFinished(true)
-            Log.i(TAG, "Synchronize finished")
-            if(wakeLock.isHeld) {
-                wakeLock.release()
+            var succeeded = false
+            var wakeLock: PowerManager.WakeLock? = null
+            try {
+                Log.i(TAG, "Synchronize started")
+                wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
+                val notification = buildSyncNotification()
+                notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
+                startForeground(SYNC_NOTIFICATION_ID, notification)
+                wakeLock.acquire(5 * 60 * 1000)
+                cloudSync.notifySyncRunning(true)
+                cloudSync.synchronize()
+                cloudSync.waitUntilFinished(true)
+                succeeded = true
+                Log.i(TAG, "Synchronize finished")
+            } catch (e: Exception) {
+                Log.e(TAG, "Synchronization or foreground service entry failed", e)
+            } finally {
+                // Release every owner even if a listener or cleanup operation throws.
+                try {
+                    if (succeeded) recordSyncFinished(settings, cloudSync)
+                    else cloudSync.notifySyncRunning(false)
+                } finally {
+                    try {
+                        wakeLock?.let { if (it.isHeld) it.release() }
+                    } finally {
+                        try {
+                            try {
+                                notificationManager.cancel(SYNC_NOTIFICATION_ID)
+                            } finally {
+                                stop()
+                            }
+                        } finally {
+                            scheduler.complete(succeeded)
+                        }
+                    }
+                }
             }
-            recordSyncFinished()
-            stop()
         }
     }
     private fun stop() {

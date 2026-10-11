@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.download
 
+import net.bible.service.download.PseudoBook
+
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.control.download.repo
@@ -61,7 +63,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
  * `base/DocumentSelectionBase.kt` by nav-graph slice 8 F7, which deleted that abstract class (zero
  * subclasses): these three top-level declarations outlive it, consumed by
  * `nav/NavHostComposeActivity.kt`, `navigation/DocRowMapper.kt` and
- * `service/download/FakeBookFactory.kt`.
+ * `service/download/fakeBookFactory.kt`.
  */
 @Serializable
 data class DocumentConfiguration(
@@ -84,12 +86,6 @@ data class DocumentConfiguration(
         }
     }
 }
-
-@Serializable
-data class PseudoBook(
-    val id: String,
-    val suggested: String,
-)
 
 val Book.installedDocument get() = Books.installed().getBook(initials)
 

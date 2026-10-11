@@ -20,7 +20,6 @@ package net.bible.service.cloudsync
 import net.bible.sharedcore.log.Log
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection
-import net.bible.android.activity.R
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LogEntry
 import net.bible.android.database.ReadingPlanDatabase
@@ -29,7 +28,9 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.service.common.ArchiveUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.columnNames
 import net.bible.service.db.columnNamesJoined
@@ -51,15 +52,6 @@ enum class SyncableDatabaseDefinition {
         val idField1: String = "id",
         val idField2: String? = null,
     )
-    val contentDescription: Int get() = when(this) {
-        READINGPLANS -> R.string.reading_plans_content
-        BOOKMARKS -> R.string.bookmarks_contents
-        WORKSPACES -> R.string.workspaces_contents
-        MYDOCUMENTS -> R.string.my_documents_contents
-        AI_SETTINGS -> R.string.ai_settings_sync_contents
-        PROGRESS -> R.string.progress_sync_contents
-    }
-
     val filename get() = when(this) {
         BOOKMARKS -> BookmarkDatabase.dbFileName
         READINGPLANS ->ReadingPlanDatabase.dbFileName
@@ -140,12 +132,10 @@ enum class SyncableDatabaseDefinition {
         )
     }
 
-    var syncEnabled
-        get() = CommonUtils.settings.getBoolean("sync_enable_"+ name.lowercase(), false)
-        set(value) = CommonUtils.settings.setBoolean("sync_enable_"+name.lowercase(), value)
-
+    fun isSyncEnabled(settings: AppSettings) = settings.getBoolean("sync_enable_" + name.lowercase(), false)
+    fun setSyncEnabled(settings: AppSettings, value: Boolean) = settings.setBoolean("sync_enable_" + name.lowercase(), value)
     val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
-    suspend fun lastSynchronized(): Long? = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
+    suspend fun lastSynchronized(settings: AppSettings): Long? = if (!isSyncEnabled(settings)) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
         val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS, PROGRESS)
@@ -161,7 +151,7 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
     val localDbFile: File,
     val category: SyncableDatabaseDefinition,
     val _reactToUpdates: ((entries: List<LogEntry>) -> Unit)? = null,
-    val deviceId: String = CommonUtils.deviceIdentifier
+    val deviceId: String
 ) {
     fun resetLocalDb() {
         localDb = _resetLocalDb()
@@ -351,9 +341,9 @@ private suspend fun readPatchData(
  * file of the same schema, gzipped. Null when there is nothing new. The local database attaches the new file as
  * `patch`; ATTACH and `foreign_keys` cannot change inside a transaction, so they come before and after it.
  */
-suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, updateTimestamp: Boolean = true): File? {
+suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, updateTimestamp: Boolean = true): File? {
     val lastPatchWritten = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY)?: 0
-    val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
+    val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", File(env.tmpDir))
 
     val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten, dbDef.deviceId)
     if(amountUpdated == 0L) {
@@ -377,11 +367,11 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, updateTim
         }
     }
 
-    val gzippedOutput = CommonUtils.tmpFile
+    val gzippedOutput = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
     Log.i(TAG, "Saving patch file ${dbDef.categoryName}")
-    CommonUtils.gzipFile(patchDbFile, gzippedOutput)
+    ArchiveUtils.gzipFile(patchDbFile, gzippedOutput)
 
-    if(!CommonUtils.isDebugMode) {
+    if(!env.isDebugMode) {
         patchDbFile.delete()
     }
     if(updateTimestamp) {
@@ -402,11 +392,11 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: F
  * disabled (through SyncConfiguration, inside the same transaction) while the rows are written, so the merge is
  * not logged as a local change. A patch that fails is rolled back completely and the exception rethrown.
  */
-suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, vararg patchFiles: File?) {
+suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: File?) {
     for(gzippedPatchFile in patchFiles.filterNotNull()) {
-        val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
+        val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", File(env.tmpDir))
         Log.i(TAG, "Applying patch file ${patchDbFile.name}")
-        CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
+        ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
         // Let's apply possible migrations first
         createWithSchema(dbDef, patchDbFile)
         dbDef.localDb.useWriterConnectionMarked { db ->
@@ -428,8 +418,14 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, vararg p
                 }
             }
         }
-        if(!CommonUtils.isDebugMode) {
+        if(!env.isDebugMode) {
             patchDbFile.delete()
         }
     }
+}
+
+/** Records completion before notifying consumers. */
+internal fun recordSyncFinished(settings: AppSettings, cloudSync: CloudSync, now: Long = System.currentTimeMillis()) {
+    settings.setLong("globalLastSynchronized", now)
+    cloudSync.notifySyncRunning(false)
 }

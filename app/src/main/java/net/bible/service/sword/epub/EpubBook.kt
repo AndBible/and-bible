@@ -18,14 +18,11 @@
 package net.bible.service.sword.epub
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
-import net.bible.android.activity.R
 import net.bible.android.database.EpubDatabase
 import net.bible.android.database.epubMigrations
 import net.bible.service.db.buildAppDatabase
 import net.bible.service.db.deleteAppDatabase
-import net.bible.android.view.activity.base.Dialogs
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -39,6 +36,9 @@ import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.jdom2.input.JDOMParseException
+import org.koin.java.KoinJavaComponent
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.AppEnvironment
 import java.io.File
 import java.io.IOException
 
@@ -105,27 +105,27 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         state.keys
             .toMutableList()
             .iterator()
-    fun getKey(originalKey: String, htmlId: String): Key? = state.getKey(originalKey, htmlId)
+    suspend fun getKey(originalKey: String, htmlId: String): Key? = state.getKey(originalKey, htmlId)
     override fun get(index: Int): Key = state.get(index)
     override fun indexOf(that: Key?): Int = state.indexOf(that!!)
 
-    val tocKeys: List<Key> get() = state.tocKeys
+    suspend fun tocKeys(): List<Key> = state.tocKeys()
 
     fun getResource(resourcePath: String): File = state.getResource(resourcePath)
-    fun styleSheets(key: Key): List<File> = state.styleSheets(key)
+    suspend fun styleSheets(key: Key): List<File> = state.styleSheets(key)
     override fun readRawContent(state: EpubBackendState, key: Key?): String = state.read(key!!)
     fun delete() = state.delete()
-    fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
-    val bookOrdinalSpan get() = state.bookOrdinalSpan
-    fun fragmentOffset(key: Key) = state.fragmentOffset(key)
-    val totalCharacters get() = state.totalCharacters
+    suspend fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
+    suspend fun bookOrdinalSpan() = state.bookOrdinalSpan()
+    suspend fun fragmentOffset(key: Key) = state.fragmentOffset(key)
+    suspend fun totalCharacters() = state.totalCharacters()
 }
 
 val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyType.TREE) {
     override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book =
         SwordGenBook(sbmd, backend)
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val state = EpubBackendState(File(sbmd.location), sbmd)
+        val state = EpubBackendState(File(sbmd.location), sbmd, KoinJavaComponent.get(CoreStrings::class.java), KoinJavaComponent.get(AppEnvironment::class.java)) // L1-edge: JSword BookType.getBackend constructs the backend
         return EpubBackend(state, sbmd)
     }
 }
@@ -143,7 +143,7 @@ fun deleteEpubModule(epubDir: File) {
     deleteAppDatabase(appDbFilename)
 }
 
-fun addEpubBook(epubDir: File) {
+fun addEpubBook(epubDir: File, strings: CoreStrings, environment: AppEnvironment) {
     if(!(epubDir.canRead() && epubDir.isDirectory)) return
 
     val optimizeLockFile = File(epubDir, "optimize.lock")
@@ -154,7 +154,7 @@ fun addEpubBook(epubDir: File) {
         return
     }
 
-    val state = EpubBackendState(epubDir)
+    val state = EpubBackendState(epubDir, strings, environment)
     val metadata = state.getBookMetaData()
     if(Books.installed().getBook(metadata.initials) != null) return
     val backend = EpubBackend(state, metadata)
@@ -178,7 +178,7 @@ fun addEpubBook(epubDir: File) {
     Books.installed().addBook(book)
 }
 
-fun addManuallyInstalledEpubBooks(): Boolean {
+fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment): Boolean {
     val dir = File(SharedConstants.modulesDir, "epub")
     dir.mkdirs()
     if(!(dir.isDirectory && dir.canRead())) return false
@@ -186,7 +186,7 @@ fun addManuallyInstalledEpubBooks(): Boolean {
 
     for(f in dir.listFiles()!!) {
         try {
-            addEpubBook(f)
+            addEpubBook(f, strings, environment)
         } catch (e: JDOMParseException) {
             Log.e(TAG, "addEpubBook catched JDOMParseException", e)
             deleteEpubModule(f)

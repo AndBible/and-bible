@@ -17,16 +17,10 @@
 package net.bible.service.download
 
 import net.bible.sharedcore.log.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.bible.android.activity.R
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils.getResourceString
-import net.bible.service.common.CommonUtils.settings
 import net.bible.service.common.FileManager.copyFile
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -46,7 +40,10 @@ import javax.net.ssl.HttpsURLConnection
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class GenericFileDownloader(
-    val activity: AppCompatActivity? = null,
+    scope: CoroutineScope? = null,
+    private val settings: net.bible.sharedcore.platform.AppSettings,
+    private val notifier: net.bible.sharedcore.platform.UserNotifier,
+    private val strings: net.bible.sharedcore.platform.CoreStrings,
     private val onErrorsChange: (() -> Unit)? = null
 ) {
     val errors = TreeSet<URI>()
@@ -61,7 +58,7 @@ class GenericFileDownloader(
         onErrorsChange?.invoke()
     }
 
-    val scope = activity?.lifecycleScope?: CoroutineScope(Dispatchers.Main)
+    val scope = scope ?: CoroutineScope(Dispatchers.Main)
 
     fun downloadFileInBackground(source: URL, target: File, description: String) =
         scope.launch(Dispatchers.IO) {
@@ -152,7 +149,7 @@ class GenericFileDownloader(
                 val tempFile = NetUtil.getAsFile(temp)
                 if (!copyFile(tempFile, target)) {
                     Log.e(TAG, "Download Error renaming temp file $tempFile to:$target")
-                    Dialogs.showErrorMsg(getResourceString(R.string.error_occurred))
+                    notifier.showError(strings.errorOccurred)
                     job.cancel()
                 }
             }

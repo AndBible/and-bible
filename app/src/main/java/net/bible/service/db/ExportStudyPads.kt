@@ -17,6 +17,8 @@
 
 package net.bible.service.db
 
+import net.bible.android.platform.AndroidBackupHost
+
 import androidx.annotation.VisibleForTesting
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection
@@ -173,12 +175,13 @@ suspend fun exportStudyPads(
     activity: ActivityBase,
     vararg labels: BookmarkEntities.Label,
     chooseDestination: (suspend () -> SaveOrShare?)? = null,
+    host: net.bible.android.control.backup.BackupHost = AndroidBackupHost { activity },
 ) = withContext(Dispatchers.IO) {
     val exportDbFile = CommonUtils.tmpFile
     writeStudyPadExportDb(exportDbFile, labels.toList())
 
     val filename = if (labels.size > 1) "StudyPads$DATABASE_BACKUP_SUFFIX" else sanitizeFilename(labels.first().name) + DATABASE_BACKUP_SUFFIX
-    val zipFile = File(BackupControl.internalDbBackupDir, filename)
+    val zipFile = File(org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).internalDbBackupDir, filename)
     val manifest = AndBibleBackupManifest(
         backupType = BackupType.STUDYPAD_EXPORT,
         contains = setOf(DbType.BOOKMARKS),
@@ -196,15 +199,15 @@ suspend fun exportStudyPads(
     exportDbFile.delete()
     val subject = activity.getString(R.string.exported_studypads_subject)
     val message = activity.getString(R.string.exported_studypads_message, CommonUtils.applicationNameMedium)
-    BackupControl.saveOrShare(
-        activity = activity,
+    org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
+        host = host,
         file = zipFile,
         fileName = filename,
         subject = subject,
         message = message,
         chooserTitle = activity.getString(R.string.send_export_file),
-        promptTitle = R.string.export_destination_title,
-        promptMessage = R.string.export_destination_message,
+        promptTitle = activity.getString(R.string.export_destination_title),
+        promptMessage = activity.getString(R.string.export_destination_message),
         chooseDestination = chooseDestination,
     )
 }

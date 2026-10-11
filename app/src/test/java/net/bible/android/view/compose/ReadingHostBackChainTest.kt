@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import androidx.test.core.app.ApplicationProvider
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -57,6 +58,9 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class)
 class ReadingHostBackChainTest {
 
+    @get:org.junit.Rule
+    val compose = createEmptyComposeRule()
+
     /**
      * Fix round 1, MINOR: every controller `host()` builds is kept here so [tearDown] can
      * `.close()` it -- the same `hostControllers` pattern `ReadingDestinationInGraphTest.buildHost`
@@ -80,7 +84,9 @@ class ReadingHostBackChainTest {
                 ApplicationProvider.getApplicationContext(),
                 NavRoutes.READING,
             ),
-        ).also { hostControllers += it }.setup().get()
+        ).also { hostControllers += it }.setup().get().also {
+            net.bible.test.awaitReadingGraph(it) { compose.waitForIdle() }
+        }
     }
 
     @Before fun readingViewIsWhatTheUserSees() = ReadingViewVisibility.setVisible(true)

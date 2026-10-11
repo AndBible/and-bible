@@ -17,9 +17,14 @@
 package net.bible.android.view.activity.settings
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Job
 import net.bible.android.TestBibleApplication
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils
@@ -36,21 +41,193 @@ import org.robolectric.annotation.Config
 
 /**
  * Verifies [SyncSettingsServiceImpl]'s per-key routing to the correct backing store. The
- * activity-bound OAuth methods (`signIn`/`scanDocuments`) are NOT exercised here (they need a real
- * cloud sign-in); the `activityProvider` is a throwing stub, and the scope is never advanced, so the
- * fire-and-forget `CloudSync.start()` a category-enable launches is queued but not run.
+ * OAuth and remote scans are not exercised here. Store routing runs unconfined; the suspended
+ * category read uses a dedicated serial UI dispatcher. All scopes are cancelled after each test,
+ * and document preference writes are drained before DB reset.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
 class SyncSettingsServiceImplTest {
-    @After fun tearDown() = DatabaseResetter.resetDatabase()
+    private val settings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
+    private val scopes = mutableListOf<CoroutineScope>()
+    private val schedulers = mutableListOf<kotlinx.coroutines.test.TestCoroutineScheduler>()
+    @After fun tearDown() {
+        scopes.forEach { it.cancel() }
+        schedulers.forEach { it.runCurrent() }
+        DatabaseResetter.resetDatabase(*scopes.toTypedArray())
+    }
 
-    private fun impl() = SyncSettingsServiceImpl(
-        scope = CoroutineScope(Job()),
-        // The store-routing methods never touch the Activity; a throwing provider proves that.
-        // `error(...)` returns Nothing, which satisfies the `() -> ActivityBase` type.
-        activityProvider = { error("activity not needed for store-routing tests") },
-    )
+    private fun impl(
+        scope: CoroutineScope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) },
+        documentSettings: DocumentSyncSettings = settings,
+        categories: net.bible.service.cloudsync.SyncSettingsCategories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings),
+        writeScope: CoroutineScope = scope,
+    ): SyncSettingsServiceImpl {
+        fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
+        val service = SyncSettingsServiceImpl(
+            scope, writeScope, documentSettings, get(net.bible.service.cloudsync.CloudSync::class.java),
+            get(net.bible.service.cloudsync.CloudAdapterFactory::class.java), categories,
+            get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
+            get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
+            get(net.bible.service.cloudsync.SyncSettingsPlatform::class.java), net.bible.test.testCoreStrings(),
+            get(net.bible.sharedcore.platform.AppEnvironment::class.java), {},
+        )
+        kotlinx.coroutines.runBlocking { settings.ensureLoaded() }
+        return service
+    }
+
+    @Test fun controllerToggleRefreshSeesLoadedMutationBeforeWorkerRuns() = kotlinx.coroutines.runBlocking {
+        settings.ensureLoaded()
+        settings.enabled = true
+        val ui = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+        val worker = kotlinx.coroutines.test.StandardTestDispatcher().also { schedulers.add(it.scheduler) }
+        val writes = CoroutineScope(Job() + worker).also { scopes.add(it) }
+        val service = impl(ui, writeScope = writes)
+        val controller = net.bible.sharedcore.settings.SyncSettingsController(service, ui,
+            net.bible.sharedcore.settings.SyncSettingsLabels.forTest(), {})
+        controller.onSwitch("sync_documents_auto_download", false)
+        assertFalse("loaded toggle must mutate before the controller's refresh", settings.autoDownload)
+        val row = controller.state.value.screen.items.filterIsInstance<net.bible.sharedcore.settings.SettingsItem.SwitchRow>()
+            .first { it.key == "sync_documents_auto_download" }
+        assertFalse("controller must not retain the old checked value", row.checked)
+        controller.onSwitch("sync_enable_documents", false)
+        assertFalse(service.snapshot.value.documentsEnabled)
+        worker.scheduler.runCurrent()
+        assertFalse(settings.enabled)
+    }
+
+    @Test fun coldTogglesWaitForSnapshotThenPublishInSubmissionOrder() = kotlinx.coroutines.runBlocking {
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val prefsDao = object : net.bible.android.database.DocumentSyncPreferencesDao by db.documentSyncPreferencesDao() {
+            override suspend fun get(): net.bible.android.database.DocumentSyncPreferences? {
+                entered.complete(Unit)
+                release.await()
+                return net.bible.android.database.DocumentSyncPreferences(autoDownload = true, wifiOnly = false)
+            }
+        }
+        val ui = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+        val worker = kotlinx.coroutines.test.StandardTestDispatcher().also { schedulers.add(it.scheduler) }
+        val writes = CoroutineScope(Job() + worker).also { scopes.add(it) }
+        val launcher = net.bible.sharedcore.platform.OrderedLauncher(ui)
+        val fresh = DocumentSyncSettings({ prefsDao }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
+        val service = impl(ui, fresh, writeScope = writes)
+        entered.await()
+        service.setDocumentSyncToggle("sync_documents_auto_download", false)
+        service.setDocumentSyncToggle("sync_documents_auto_download", true)
+        service.setDocumentSyncToggle("sync_documents_auto_download", false)
+        release.complete(Unit)
+        worker.scheduler.advanceUntilIdle()
+        launcher.join("document-sync-settings")
+        assertFalse(fresh.autoDownload)
+        assertFalse("cold load must retain unrelated persisted preference", fresh.wifiOnly)
+        assertFalse("mutation must publish after loading even without controller refresh", service.snapshot.value.autoDownload)
+        assertFalse(db.documentSyncPreferencesDao().get()!!.autoDownload)
+    }
+
+    @Test fun rapidLoadedTogglesKeepSubmissionOrderWithDelayedWorker() = kotlinx.coroutines.runBlocking {
+        settings.ensureLoaded()
+        val ui = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+        val worker = kotlinx.coroutines.test.StandardTestDispatcher().also { schedulers.add(it.scheduler) }
+        val writes = CoroutineScope(Job() + worker).also { scopes.add(it) }
+        val service = impl(ui, writeScope = writes)
+        service.setDocumentSyncToggle("sync_documents_wifi_only", false)
+        service.setDocumentSyncToggle("sync_documents_wifi_only", true)
+        service.setDocumentSyncToggle("sync_documents_wifi_only", false)
+        assertFalse("last submitted write is visible without scheduling worker", settings.wifiOnly)
+        worker.scheduler.runCurrent()
+        org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.OrderedLauncher>(
+            net.bible.sharedcore.platform.OrderedLauncher::class.java).join("document-sync-settings")
+        assertFalse(net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao().get()!!.wifiOnly)
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test fun suspendedCategoryDaoLeavesMainScopeResponsive() {
+        val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+        val dispatcher = executor.asCoroutineDispatcher()
+        kotlinx.coroutines.Dispatchers.setMain(dispatcher)
+        val scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Main).also { scopes.add(it) }
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val dao = object : net.bible.android.database.SyncDao by com.nhaarman.mockitokotlin2.mock() {
+            override suspend fun getLong(keyName: String): Long? {
+                assertEquals(net.bible.service.cloudsync.LAST_SYNCHRONIZED_KEY, keyName)
+                entered.countDown()
+                release.await()
+                return 1234L
+            }
+        }
+        CommonUtils.settings.setBoolean("sync_enable_bookmarks", true)
+        try {
+            val service = impl(scope, categories = net.bible.service.cloudsync.SyncSettingsCategories(CommonUtils.settings) { dao })
+            assertTrue("refresh reached the category DAO", entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            val mainResponsive = java.util.concurrent.CountDownLatch(1)
+            scope.launch { mainResponsive.countDown() }
+            assertTrue("a suspended category read must not block the UI dispatcher", mainResponsive.await(2, java.util.concurrent.TimeUnit.SECONDS))
+            assertTrue(service.snapshot.value.categorySummary.isEmpty())
+            release.complete(Unit)
+            kotlinx.coroutines.runBlocking {
+                val loaded = kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.categorySummary.isNotEmpty() } }
+                assertEquals(
+                    net.bible.test.testCoreStrings().syncCategoryContents("BOOKMARKS") + ".\n\n" +
+                        net.bible.test.testCoreStrings().syncLastUpdated(net.bible.android.platform.AndroidSyncSettingsPlatform(
+                            androidx.test.core.app.ApplicationProvider.getApplicationContext()).formatSyncTime(1234L)),
+                    loaded.categorySummary.getValue("sync_enable_bookmarks"),
+                )
+            }
+        } finally {
+            release.complete(Unit)
+            scope.cancel()
+            kotlinx.coroutines.Dispatchers.resetMain()
+            dispatcher.close()
+            executor.shutdownNow()
+        }
+    }
+
+    @Test fun initialRefreshLoadsPersistedDocumentSyncBeforeBuild() = kotlinx.coroutines.runBlocking {
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        db.documentSyncPreferencesDao().set(net.bible.android.database.DocumentSyncPreferences(enabled = true, wifiOnly = false))
+        val scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+        val launcher = net.bible.sharedcore.platform.OrderedLauncher(scope)
+        val fresh = DocumentSyncSettings({ db.documentSyncPreferencesDao() }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppEnvironment>(net.bible.sharedcore.platform.AppEnvironment::class.java))
+        val service = impl(scope, documentSettings = fresh)
+        val snapshot = kotlinx.coroutines.withTimeout(10_000) { service.snapshot.first { it.documentsEnabled } }
+        assertTrue(snapshot.autoTogglesVisible)
+        assertFalse(snapshot.wifiOnly)
+        assertTrue(fresh.enabled)
+    }
+
+    @Test fun categoryDescriptionsRetainResourceText() {
+        val strings = net.bible.test.testCoreStrings()
+        val service = impl()
+        val snapshot = kotlinx.coroutines.runBlocking {
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.categorySummary.isNotEmpty() } }
+        }
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val ids = mapOf(
+            "BOOKMARKS" to net.bible.android.activity.R.string.bookmarks_contents,
+            "WORKSPACES" to net.bible.android.activity.R.string.workspaces_contents,
+            "READINGPLANS" to net.bible.android.activity.R.string.reading_plans_content,
+            "MYDOCUMENTS" to net.bible.android.activity.R.string.my_documents_contents,
+            "AI_SETTINGS" to net.bible.android.activity.R.string.ai_settings_sync_contents,
+            "PROGRESS" to net.bible.android.activity.R.string.progress_sync_contents,
+        )
+        SyncableDatabaseDefinition.entries.forEach { category ->
+            assertEquals(context.getString(ids.getValue(category.name)), strings.syncCategoryContents(category.name))
+            snapshot.categorySummary["sync_enable_${category.name.lowercase()}"]?.let {
+                assertEquals(strings.syncCategoryContents(category.name), it)
+            }
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class) fun unknownCategoryRejected() {
+        net.bible.test.testCoreStrings().syncCategoryContents("unknown")
+    }
 
     @Test fun serverUrl_valid_persistsToRealShared() {
         val service = impl()
@@ -73,15 +250,15 @@ class SyncSettingsServiceImplTest {
     @Test fun documentToggle_persistsToDocumentSyncSettings() {
         val service = impl()
         service.setDocumentSyncToggle("sync_documents_auto_download", false)
-        assertFalse(DocumentSyncSettings.autoDownload)
+        assertFalse(settings.autoDownload)
         service.setDocumentSyncToggle("sync_documents_wifi_only", false)
-        assertFalse(DocumentSyncSettings.wifiOnly)
+        assertFalse(settings.wifiOnly)
     }
 
     @Test fun categoryEnabled_persistsToSyncableDatabaseDefinition() {
         val service = impl()
         service.setCategoryEnabled("sync_enable_bookmarks", true)
-        assertTrue(SyncableDatabaseDefinition.BOOKMARKS.syncEnabled)
+        assertTrue(SyncableDatabaseDefinition.BOOKMARKS.isSyncEnabled(CommonUtils.settings))
         assertTrue(CommonUtils.settings.getBoolean("sync_enable_bookmarks", false))
     }
 

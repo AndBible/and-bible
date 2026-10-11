@@ -46,7 +46,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 /**
- * Slice 8 C3 (plan Correction 4): `BackupControl.backupPopup` on the nav host navigates IN-GRAPH and
+ * Slice 8 C3 (plan Correction 4): `BackupNavigation.backupPopup` on the nav host navigates IN-GRAPH and
  * suspends until the Backup entry leaves the back stack. `ErrorReportControl.showErrorDialog`'s loop
  * re-shows its dialog after `backupPopup` returns; an F53-shaped self-launch would return at once
  * (synthetic cancel) and put the dialog back over the Backup screen.
@@ -56,6 +56,19 @@ import org.robolectric.annotation.Config
 class BackupPopupInGraphTest {
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
+
+    private fun awaitReadingGraph(activity: NavHostComposeActivity): NavHostController {
+        // Snapshot loading precedes graph composition; Activity.resume() does not await its IO work.
+        val deadline = System.nanoTime() + 10_000_000_000L
+        while (activity.currentRouteForTest()?.substringBefore('?') != NavRoutes.READING && System.nanoTime() < deadline) {
+            shadowOf(Looper.getMainLooper()).runOneTask()
+            Thread.sleep(10)
+        }
+        assertEquals("startup must finish on Reading before exercising Backup", NavRoutes.READING,
+            activity.currentRouteForTest()?.substringBefore('?'))
+        return NavHostComposeActivity::class.java.getDeclaredField("navController")
+            .apply { isAccessible = true }.get(activity) as NavHostController
+    }
 
     @After
     fun tearDown() {
@@ -68,16 +81,16 @@ class BackupPopupInGraphTest {
 
     @Test
     fun backupPopupOnTheHostNavigatesAndReturnsOnlyWhenBackupIsLeft() {
+        net.bible.test.resetComposeUiDispatcher()
         firstTime = false
         val activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible().get()
-        val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
-            .apply { isAccessible = true }.get(activity) as NavHostController
+        val nav = awaitReadingGraph(activity)
         var returned = false
 
-        activity.lifecycleScope.launch { BackupControl.backupPopup(activity); returned = true }
+        activity.lifecycleScope.launch { net.bible.android.view.activity.backup.BackupNavigation.backupPopup(activity); returned = true }
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
         assertNull("no platform launch: Backup is a destination of this host", shadowOf(activity).nextStartedActivityForResult)
@@ -97,19 +110,19 @@ class BackupPopupInGraphTest {
      */
     @Test
     fun backupPopupWhileBackupIsAlreadyCurrentReturnsAtOnce() {
+        net.bible.test.resetComposeUiDispatcher()
         firstTime = false
         val activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible().get()
-        val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
-            .apply { isAccessible = true }.get(activity) as NavHostController
+        val nav = awaitReadingGraph(activity)
         nav.navigate(NavRoutes.BACKUP)
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
         assertEquals(NavRoutes.BACKUP, nav.currentDestination?.route)
         var returned = false
 
-        activity.lifecycleScope.launch { BackupControl.backupPopup(activity); returned = true }
+        activity.lifecycleScope.launch { net.bible.android.view.activity.backup.BackupNavigation.backupPopup(activity); returned = true }
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
         assertTrue("backupPopup must return at once when Backup is already on screen", returned)

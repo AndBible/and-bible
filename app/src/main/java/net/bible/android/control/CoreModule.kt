@@ -124,37 +124,73 @@ fun buildCoreModule() = module {
     // ResourceProvider interface binding (was ApplicationModule.provideResourceProvider)
     singleOf(::AndroidResourceProvider) { bind<ResourceProvider>() }
     // DownloadControl (was ApplicationModule.provideDownloadControl)
-    single { DownloadControl() }
+    single { net.bible.service.download.FakeBookFactory(get()) }
+    single { DownloadControl(get(), get(), get()) }
+    single<net.bible.service.download.ManifestFetcher> { net.bible.service.download.JvmManifestFetcher() }
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
+
+    single { net.bible.android.control.speak.AdvancedSpeakSettings(get()) }
+    single<net.bible.android.control.speak.SpeakSettingsStore> { net.bible.android.platform.AndroidSpeakSettingsStore() }
 
     single<AppSettings> { CommonUtils.settings }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
     single { ProgressJsActions(get()) }
     single { BookmarkJsActions(get(), get()) }
+    single<net.bible.service.cloudsync.SyncSettingsPlatform> { net.bible.android.platform.AndroidSyncSettingsPlatform(androidContext()) }
+    single { net.bible.service.cloudsync.SyncSettingsCategories(get()) }
+    factory { (scope: kotlinx.coroutines.CoroutineScope) ->
+        net.bible.android.view.activity.settings.SyncSettingsServiceImpl(
+            scope, get<AppCoroutineScope>(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
+            { net.bible.service.db.DatabaseContainer.notifyDatabaseRestored() },
+        )
+    }
+    single<net.bible.service.cloudsync.CloudAdapterFactory> { net.bible.android.platform.AndroidCloudAdapterFactory(androidContext()) }
+    single { net.bible.android.platform.AndroidSyncScheduler(androidContext()) }
+    single<net.bible.service.cloudsync.SyncScheduler> { get<net.bible.android.platform.AndroidSyncScheduler>() }
+    single<net.bible.service.cloudsync.CloudSyncProvider> { net.bible.service.cloudsync.CloudSyncProvider { get() } }
+    single<net.bible.service.cloudsync.DocumentSyncProvider> { net.bible.service.cloudsync.DocumentSyncProvider { get() } }
+    single {
+        net.bible.service.cloudsync.documents.DocumentSyncSettings(
+            { net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao() },
+            { net.bible.service.db.DatabaseContainer.instance.documentSyncDb.cloudListingStateDao() },
+            { net.bible.service.db.DatabaseContainer.instance.documentSyncDb.cloudDocumentSyncTimestampDao() },
+            get(), get(),
+        )
+    }
+    single { net.bible.service.cloudsync.CloudSync(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { net.bible.service.cloudsync.documents.DocumentSync(get(), get(), get(), get(), get(), { get() }) }
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
-    single { BookInstallWatcher(get(), get()) }
+    single { BookInstallWatcher(get(), get(), get(), get()) }
     single<UserNotifier> { AndroidUserNotifier() }
+    single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
+    single<net.bible.service.sword.HtmlToPlainText> {
+        net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }
+    }
+    single<net.bible.service.sword.ContentSource> { net.bible.android.platform.AndroidContentSource(androidContext().contentResolver) }
+    single { net.bible.service.sword.SwordContentFacade(get(), get(), get(), get(), get(), net.bible.android.platform.androidSaxTextPolicy()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
 
     // @ApplicationScope singletons
     singleOf(::BibleTraverser)
     singleOf(::NavigationControl)
+    single { net.bible.android.control.backup.BackupControl(get(), get(), get(), get(), get(), get(), get()) }
     singleOf(::WindowControl)
     singleOf(::WindowCommandsImpl) { bind<WindowCommands>() }
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
-    singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() }
+    single { ToolbarStateServiceImpl(get(), get(), get(), get(), get(), get<net.bible.service.cloudsync.CloudSync>().runningChanged) } bind ToolbarStateService::class
     singleOf(::LinkControl)
     single<HistoryPlatform> { AndroidHistoryPlatform() }
     single<LinkPlatform> { AndroidLinkPlatform() }
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
     single {
-        DocumentControl(get(), get(), get(), get(), get<AppCoroutineScope>(),
+        DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
             deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
             backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() })
     }
+    single { net.bible.android.platform.androidSaxTextPolicy() }
     singleOf(::BookmarkControl)
     singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
     singleOf(::ManageLabelsServiceImpl) { bind<ManageLabelsService>() }
@@ -215,11 +251,12 @@ fun buildCoreModule() = module {
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
-    single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get()) }
+    single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     singleOf(::DocumentBibleBooksFactory)
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
-    singleOf(::TextToSpeechServiceManager)
+    single<net.bible.android.control.speak.SpeakPlatform> { net.bible.android.platform.AndroidSpeakPlatform(androidContext()) }
+    single { TextToSpeechServiceManager(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, get()) }
 
     // Unscoped @Inject-constructor classes
     factoryOf(::CurrentPageManager)

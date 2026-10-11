@@ -18,19 +18,17 @@ package net.bible.service.sword
 
 import org.crosswire.common.util.toKLocale
 
-import net.bible.service.common.CommonUtils
-import android.text.TextUtils
-import android.util.LayoutDirection
+import net.bible.service.db.blockingDb
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.android.control.speak.SpeakPlatform
+
 import net.bible.sharedcore.log.Log
-import android.util.LruCache
-import net.bible.android.BibleApplication.Companion.application
+import androidx.collection.LruCache
 import net.bible.android.MyLocaleProvider
-import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.Logger
-import net.bible.service.common.htmlToSpan
+import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.common.useSaxBuilder
 import net.bible.sharedcore.reading.ShareVersesEntry
 import net.bible.sharedcore.reading.ShareVersesInput
@@ -89,381 +87,448 @@ class JSwordError(message: String) : OsisError(message, message)
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-object SwordContentFacade {
-    private const val docCacheSize = 25
-    private val osisFragmentCache = LruCache<String, Element>(docCacheSize)
-    private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
+class SwordContentFacade(
+    private val strings: CoreStrings,
+    private val environment: AppEnvironment,
+    private val htmlToPlainText: HtmlToPlainText,
+    private val advancedSpeakSettings: AdvancedSpeakSettings,
+    private val speakPlatform: SpeakPlatform,
+    internal val saxTextPolicy: net.bible.service.format.SaxTextPolicy,
+) {
+    companion object {
+        private const val docCacheSize = 25
+        private val osisFragmentCache = LruCache<String, Element>(docCacheSize)
+        private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
 
-    /** top level method to fetch html from the raw document data
-     */
-    fun clearCaches() {
-        osisFragmentCache.evictAll()
-        plainTextCache.evictAll()
-    }
-
-    fun evictBook(initials: String) {
-        val prefix = "$initials-"
-        osisFragmentCache.snapshot().keys
-            .filter { it.startsWith(prefix) }
-            .forEach { osisFragmentCache.remove(it) }
-        plainTextCache.snapshot().keys
-            .filter { it.startsWith(prefix) }
-            .forEach { plainTextCache.remove(it) }
-    }
-
-    private val dashesRe = Regex("""\p{Pd}""")
-    fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
-        val searchRef = searchRef_.replace(dashesRe, "-")
-        val bibleNames = BibleNames.instance()
-
-        fun getKey(): Key? {
-            val k =
-                try { PassageKeyFactory.instance().getKey(v11n, searchRef) }
-                catch (e: Exception) { null }
-            if(k != null &&
-                try {
-                    k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter
-                } catch (e: Exception) {
-                    Log.e(TAG, "k.getRangeAt exception", e)
-                    null
-                } == 0
-            )  {
-                return null
-            }
-            return k
+        /** top level method to fetch html from the raw document data
+         */
+        fun clearCaches() {
+            osisFragmentCache.evictAll()
+            plainTextCache.evictAll()
         }
 
-        val key =
-            synchronized(bibleNames) {
-                val orig = bibleNames.enableFuzzy
-                bibleNames.enableFuzzy = false
-                val k = getKey()
-                bibleNames.enableFuzzy = orig
-                k
-            } ?:
-            if (lang != MyLocaleProvider.getUserLocale().language) {
+        fun evictBook(initials: String) {
+            val prefix = "$initials-"
+            osisFragmentCache.snapshot().keys
+                .filter { it.startsWith(prefix) }
+                .forEach { osisFragmentCache.remove(it) }
+            plainTextCache.snapshot().keys
+                .filter { it.startsWith(prefix) }
+                .forEach { plainTextCache.remove(it) }
+        }
+
+        private val dashesRe = Regex("""\p{Pd}""")
+        fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
+            val searchRef = searchRef_.replace(dashesRe, "-")
+            val bibleNames = BibleNames.instance()
+
+            fun getKey(): Key? {
+                val k =
+                    try { PassageKeyFactory.instance().getKey(v11n, searchRef) }
+                    catch (e: Exception) { null }
+                if(k != null &&
+                    try {
+                        k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter
+                    } catch (e: Exception) {
+                        Log.e(TAG, "k.getRangeAt exception", e)
+                        null
+                    } == 0
+                )  {
+                    return null
+                }
+                return k
+            }
+
+            val key =
                 synchronized(bibleNames) {
-                    MyLocaleProvider.override = Locale(lang)
                     val orig = bibleNames.enableFuzzy
                     bibleNames.enableFuzzy = false
                     val k = getKey()
                     bibleNames.enableFuzzy = orig
-                    MyLocaleProvider.override = null
                     k
-                }
-            } else null
-
-        return key
-    }
-    @Throws(OsisError::class)
-    fun readOsisFragment(book: Book?, key: Key?): Element {
-        val cacheKey = "${book?.initials}-${key?.getOsisRef()}"
-
-        if(book == null || key == null) {
-            Log.e(TAG, "Key or book was null")
-            throw OsisError(application.getString(R.string.error_no_content))
-        }
-
-        osisFragmentCache.get(cacheKey)?.let { return it }
-
-        when {
-            Books.installed().getBook(book.initials) == null -> {
-                Log.w(TAG, "Book may have been uninstalled:$book")
-                val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
-                val errorXml = application.getString(R.string.document_not_installed, link)
-                val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-                throw DocumentNotFound(errorXml, errorMsg)
-            }
-            !bookContainsAnyOf(book, key) -> {
-                Log.w(TAG, "KEY:" + key.getOsisID() + " not found in doc:" + book)
-                throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.getName(), book.initials))
-            }
-        }
-
-        return synchronized(book) {
-            osisFragmentCache.get(cacheKey) ?: let {
-                Log.d(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
-                readXmlTextStandardJSwordMethod(book, key)
-            }.also {
-                osisFragmentCache.put(cacheKey, it)
-                Log.d(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
-            }
-        }
-    }
-
-    private const val TARGET_MAX_LENGTH = 150
-
-    private val regexCache = LruCache<Int, Regex>(1000)
-    private fun getCutRegex(targetLength: Int): Regex =
-        regexCache.get(targetLength)
-            ?: Regex("""(.{$targetLength}\p{Z}\p{L}+\p{Z}+)(\p{L}+\p{Z}.*)""")
-                .also { regexCache.put(targetLength, it) }
-    private fun cutLongSentences(p: String): List<String> {
-        val newPieces = mutableListOf<String>()
-        if (p.length > TARGET_MAX_LENGTH) {
-            val targetLength = p.length/2
-            val re = getCutRegex(targetLength)
-            val m = re.find(p)
-            if(m == null) {
-                newPieces.add(p)
-            }
-            else {
-                for(part in listOf(p.slice(0 until m.range.first) + m.groupValues[1], m.groupValues[2])) {
-                    if (part.length > TARGET_MAX_LENGTH*1.1) {
-                        newPieces.addAll(cutLongSentences(part))
-                    } else {
-                        newPieces.add(part)
+                } ?:
+                if (lang != MyLocaleProvider.getUserLocale().language) {
+                    synchronized(bibleNames) {
+                        MyLocaleProvider.override = Locale(lang)
+                        val orig = bibleNames.enableFuzzy
+                        bibleNames.enableFuzzy = false
+                        val k = getKey()
+                        bibleNames.enableFuzzy = orig
+                        MyLocaleProvider.override = null
+                        k
                     }
+                } else null
+
+            return key
+        }
+        @Throws(OsisError::class)
+        fun readOsisFragment(book: Book?, key: Key?, strings: CoreStrings): Element {
+            val cacheKey = "${book?.initials}-${key?.getOsisRef()}"
+
+            if(book == null || key == null) {
+                Log.e(TAG, "Key or book was null")
+                throw OsisError(strings.errorNoContent)
+            }
+
+            osisFragmentCache.get(cacheKey)?.let { return it }
+
+            when {
+                Books.installed().getBook(book.initials) == null -> {
+                    Log.w(TAG, "Book may have been uninstalled:$book")
+                    val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
+                    val errorXml = strings.documentNotInstalled(link)
+                    val errorMsg = strings.documentNotInstalled(book.initials)
+                    throw DocumentNotFound(errorXml, errorMsg)
+                }
+                !bookContainsAnyOf(book, key) -> {
+                    Log.w(TAG, "KEY:" + key.getOsisID() + " not found in doc:" + book)
+                    throw DocumentNotFound(strings.errorKeyNotInDocument(key.getName(), book.initials))
                 }
             }
-        } else {
-            newPieces.add(p)
-        }
-        return newPieces
-    }
 
-    /*
-       IMPORTANT! This may not be changed ever! If it is changed, non-bible bookmark locations are messed up.
-       Split sentences as well as possible, but avoid splitting bible references.
-
-        before: before sentence ending punctuation marker, we allow 2 digits or non-digit.
-          We want to avoid matching for example "1. John", but we can safely allow
-          "... sentence ending with Matt 12. ..."
-        marker:
-          m1: after marker there can be also ending quotation marker
-          m2: marker could be also dash.
-        after: After sentence there must be a real word starting. Before word can be
-          some punctuations, like quotation marks etc.
-     */
-    private val splitMatch = Regex(""+
-        // group 1: before marker
-        """((\d{2,}|\D)""" +
-        // marker itself
-        """(([.,;:!?。，；]["'\p{Pf}]?\p{Z}+)|(\p{Z}*\p{Pd}\p{Z}*)))"""+
-        // group 6: after marker
-        """(["'¡¿\p{Pi}]?\p{L})"""
-    )
-
-    fun splitSentences(text: String): List<String> {
-        val matches = splitMatch.findAll(text)
-        val pieces = mutableListOf<String>()
-        var lastStartPosition = 0
-        val currentPiece = StringBuilder()
-
-        fun addStr(s: String) {
-            if(s.length > TARGET_MAX_LENGTH) {
-                pieces.addAll(cutLongSentences(s))
-            } else {
-                pieces.add(s)
+            return synchronized(book) {
+                osisFragmentCache.get(cacheKey) ?: let {
+                    Log.d(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+                    readXmlTextStandardJSwordMethod(book, key, strings)
+                }.also {
+                    osisFragmentCache.put(cacheKey, it)
+                    Log.d(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
+                }
             }
         }
 
-        for(m in matches) {
-            currentPiece.append(text.slice(lastStartPosition until m.range.first) + m.groupValues[1])
-            addStr(currentPiece.toString())
-            currentPiece.clear()
-            currentPiece.append(m.groupValues[6])
-            lastStartPosition = m.range.last + 1
-        }
-        currentPiece.append(text.slice(lastStartPosition   until text.length))
-        if (currentPiece.isNotEmpty()) {
-            addStr(currentPiece.toString())
-        }
-        return pieces
-    }
+        private const val TARGET_MAX_LENGTH = 150
 
-    // Detect bible references, like 1 John 2:3-4, 4:5-6:7, 4-5
-    val bibleRefRe = Regex("" +
-        // Beginning of bible reference. 1 John 2:3
-        """(((\d\.?\p{Z}+)?\p{Lu}\p{L}+\.?)\p{Z}+((\d+)(:\d+)?)(\p{Pd}\d+(:\d+)?)?)"""+
-        // Continuation, separated by comma. First: ,4:5-6:7 Second: , 4-5
-        """([,;]?\p{Z}*(\d+:\d+|\d+)(?!\.?\p{Z}*\p{L})(\p{Pd}\d+(:\d+)?)?)*"""
-    )
-    fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
-        val matches = bibleRefRe.findAll(text)
-        val pieces = mutableListOf<Pair<String, Boolean>>()
-        var lastStartPosition = 0
-
-        for(m in matches) {
-            val prevText = text.slice(lastStartPosition until m.range.first)
-            if(prevText.isNotEmpty()) {
-                pieces.add(Pair(prevText, false))
-            }
-            pieces.add(Pair(m.groupValues[0], true))
-            lastStartPosition = m.range.last + 1
-        }
-        val leftover = text.slice(lastStartPosition   until text.length)
-        if (leftover.isNotEmpty()) {
-            pieces.add(Pair(leftover, false))
-        }
-        return pieces
-    }
-
-
-    private val textQuery = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text())
-    private val ns =  Namespace.getNamespace("http://www.w3.org/1999/xhtml")
-
-    // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
-    fun addAnchors(frag: Element, lang: String, isEpub: Boolean = false): Int {
-        var ordinal = 0
-        val startTime = System.currentTimeMillis()
-
-        fun addContent(span: Element, textContent: String) {
-            if(isEpub) {
-                for ((t, isRef) in bibleRefSplit(textContent)) {
-                    if (!isRef) {
-                        span.addContent(Text(t))
-                    } else {
-                        val osisRef = resolveRef(t, lang, KJVA)?.getOsisRef()
-                        if (osisRef == null) {
-                            Log.e(TAG, "Failed parsing ref $t")
-                            span.addContent(Text(t))
+        private val regexCache = LruCache<Int, Regex>(1000)
+        private fun getCutRegex(targetLength: Int): Regex =
+            regexCache.get(targetLength)
+                ?: Regex("""(.{$targetLength}\p{Z}\p{L}+\p{Z}+)(\p{L}+\p{Z}.*)""")
+                    .also { regexCache.put(targetLength, it) }
+        private fun cutLongSentences(p: String): List<String> {
+            val newPieces = mutableListOf<String>()
+            if (p.length > TARGET_MAX_LENGTH) {
+                val targetLength = p.length/2
+                val re = getCutRegex(targetLength)
+                val m = re.find(p)
+                if(m == null) {
+                    newPieces.add(p)
+                }
+                else {
+                    for(part in listOf(p.slice(0 until m.range.first) + m.groupValues[1], m.groupValues[2])) {
+                        if (part.length > TARGET_MAX_LENGTH*1.1) {
+                            newPieces.addAll(cutLongSentences(part))
                         } else {
-                            val refNode = Element("reference", ns)
-                            refNode.addContent(Text(t))
-                            refNode.setAttribute("osisRef", osisRef)
-                            span.addContent(refNode)
+                            newPieces.add(part)
                         }
                     }
                 }
             } else {
-                span.addContent(Text(textContent))
+                newPieces.add(p)
             }
+            return newPieces
         }
 
-        for(content in textQuery.evaluate(frag)) {
-            if(content.text.trim().isEmpty()) continue
-            val parent = content.parentElement
-            val textContents = splitSentences(content.text)
-            if (textContents.isNotEmpty()) {
-                var pos = parent.indexOf(content)
-                content.detach()
-                for (textContent in textContents) {
-                    val bva = Element("BVA", ns) // BibleViewAnchor.vue
-                    bva.setAttribute("ordinal", "${ordinal++}")
-                    addContent(bva, textContent)
-                    parent.addContent(pos++, bva)
+        /*
+           IMPORTANT! This may not be changed ever! If it is changed, non-bible bookmark locations are messed up.
+           Split sentences as well as possible, but avoid splitting bible references.
+
+            before: before sentence ending punctuation marker, we allow 2 digits or non-digit.
+              We want to avoid matching for example "1. John", but we can safely allow
+              "... sentence ending with Matt 12. ..."
+            marker:
+              m1: after marker there can be also ending quotation marker
+              m2: marker could be also dash.
+            after: After sentence there must be a real word starting. Before word can be
+              some punctuations, like quotation marks etc.
+         */
+        private val splitMatch = Regex(""+
+            // group 1: before marker
+            """((\d{2,}|\D)""" +
+            // marker itself
+            """(([.,;:!?。，；]["'\p{Pf}]?\p{Z}+)|(\p{Z}*\p{Pd}\p{Z}*)))"""+
+            // group 6: after marker
+            """(["'¡¿\p{Pi}]?\p{L})"""
+        )
+
+        fun splitSentences(text: String): List<String> {
+            val matches = splitMatch.findAll(text)
+            val pieces = mutableListOf<String>()
+            var lastStartPosition = 0
+            val currentPiece = StringBuilder()
+
+            fun addStr(s: String) {
+                if(s.length > TARGET_MAX_LENGTH) {
+                    pieces.addAll(cutLongSentences(s))
+                } else {
+                    pieces.add(s)
                 }
             }
+
+            for(m in matches) {
+                currentPiece.append(text.slice(lastStartPosition until m.range.first) + m.groupValues[1])
+                addStr(currentPiece.toString())
+                currentPiece.clear()
+                currentPiece.append(m.groupValues[6])
+                lastStartPosition = m.range.last + 1
+            }
+            currentPiece.append(text.slice(lastStartPosition   until text.length))
+            if (currentPiece.isNotEmpty()) {
+                addStr(currentPiece.toString())
+            }
+            return pieces
         }
 
-        val delta = System.currentTimeMillis() - startTime
-        Log.i(TAG, "Parsing took ${delta/1000.0} seconds")
-        return ordinal
-    }
-    @Throws(OsisError::class)
-    private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
-        Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.getOsisRef()}")
-        return try {
-            val data = BookData(book, key)
-            val frag = data.osisFragment
+        // Detect bible references, like 1 John 2:3-4, 4:5-6:7, 4-5
+        val bibleRefRe = Regex("" +
+            // Beginning of bible reference. 1 John 2:3
+            """(((\d\.?\p{Z}+)?\p{Lu}\p{L}+\.?)\p{Z}+((\d+)(:\d+)?)(\p{Pd}\d+(:\d+)?)?)"""+
+            // Continuation, separated by comma. First: ,4:5-6:7 Second: , 4-5
+            """([,;]?\p{Z}*(\d+:\d+|\d+)(?!\.?\p{Z}*\p{L})(\p{Pd}\d+(:\d+)?)?)*"""
+        )
+        fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
+            val matches = bibleRefRe.findAll(text)
+            val pieces = mutableListOf<Pair<String, Boolean>>()
+            var lastStartPosition = 0
 
-            val bookCategory = book.bookCategory
-            if (bookCategory == BookCategory.COMMENTARY && key.getCardinality() == 1) {
-                val verse = frag.getChild("verse")
-                    ?: throw DocumentNotFound(
-                        application.getString(
-                            R.string.error_key_not_in_document2,
-                            key.getName(),
-                            book.initials
+            for(m in matches) {
+                val prevText = text.slice(lastStartPosition until m.range.first)
+                if(prevText.isNotEmpty()) {
+                    pieces.add(Pair(prevText, false))
+                }
+                pieces.add(Pair(m.groupValues[0], true))
+                lastStartPosition = m.range.last + 1
+            }
+            val leftover = text.slice(lastStartPosition   until text.length)
+            if (leftover.isNotEmpty()) {
+                pieces.add(Pair(leftover, false))
+            }
+            return pieces
+        }
+
+
+        private val textQuery = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text())
+        private val ns =  Namespace.getNamespace("http://www.w3.org/1999/xhtml")
+
+        // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
+        fun addAnchors(frag: Element, lang: String, isEpub: Boolean = false): Int {
+            var ordinal = 0
+            val startTime = System.currentTimeMillis()
+
+            fun addContent(span: Element, textContent: String) {
+                if(isEpub) {
+                    for ((t, isRef) in bibleRefSplit(textContent)) {
+                        if (!isRef) {
+                            span.addContent(Text(t))
+                        } else {
+                            val osisRef = resolveRef(t, lang, KJVA)?.getOsisRef()
+                            if (osisRef == null) {
+                                Log.e(TAG, "Failed parsing ref $t")
+                                span.addContent(Text(t))
+                            } else {
+                                val refNode = Element("reference", ns)
+                                refNode.addContent(Text(t))
+                                refNode.setAttribute("osisRef", osisRef)
+                                span.addContent(refNode)
+                            }
+                        }
+                    }
+                } else {
+                    span.addContent(Text(textContent))
+                }
+            }
+
+            for(content in textQuery.evaluate(frag)) {
+                if(content.text.trim().isEmpty()) continue
+                val parent = content.parentElement
+                val textContents = splitSentences(content.text)
+                if (textContents.isNotEmpty()) {
+                    var pos = parent.indexOf(content)
+                    content.detach()
+                    for (textContent in textContents) {
+                        val bva = Element("BVA", ns) // BibleViewAnchor.vue
+                        bva.setAttribute("ordinal", "${ordinal++}")
+                        addContent(bva, textContent)
+                        parent.addContent(pos++, bva)
+                    }
+                }
+            }
+
+            val delta = System.currentTimeMillis() - startTime
+            Log.i(TAG, "Parsing took ${delta/1000.0} seconds")
+            return ordinal
+        }
+        @Throws(OsisError::class)
+        private fun readXmlTextStandardJSwordMethod(book: Book, key: Key, strings: CoreStrings): Element {
+            Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.getOsisRef()}")
+            return try {
+                val data = BookData(book, key)
+                val frag = data.osisFragment
+
+                val bookCategory = book.bookCategory
+                if (bookCategory == BookCategory.COMMENTARY && key.getCardinality() == 1) {
+                    val verse = frag.getChild("verse")
+                        ?: throw DocumentNotFound(
+                            strings.errorKeyNotInDocument(key.getName(), book.initials)
                         )
-                    )
-                val verseContent = verse.content.toList()
-                verse.removeContent()
-                frag.removeContent()
-                frag.addContent(verseContent)
-                addAnchors(frag, book.language.code)
-                frag
-            } else if(bookCategory != BookCategory.BIBLE) {
-                if(!book.isEpub) {
+                    val verseContent = verse.content.toList()
+                    verse.removeContent()
+                    frag.removeContent()
+                    frag.addContent(verseContent)
                     addAnchors(frag, book.language.code)
+                    frag
+                } else if(bookCategory != BookCategory.BIBLE) {
+                    if(!book.isEpub) {
+                        addAnchors(frag, book.language.code)
+                    }
+
+                    frag
+                } else {
+                    frag
                 }
-
-                frag
-            } else {
-                frag
-            }
-        } catch (e: OsisError) {
-            throw e
-        } catch (e: Throwable) {
-            if (e is Exception)
-                log.error("Parsing error", e)
-            else
-                log.error("Parsing error $e")
-            throw JSwordError(application.getString(R.string.error_occurred))
-        }
-    }
-
-    fun getTextWithinOrdinalsAsString(book: Book, key: Key, ordinalRange: IntRange): List<String> {
-        val map = cachedText(book, key)
-        return ordinalRange.mapNotNull { map[it] }
-    }
-
-    private val bvaQuery = XPathFactory.instance().compile(".//ns:BVA", Filters.element(), null, xhtmlNamespace)
-
-    private fun cachedText(book: Book, key: Key): Map<Int, String> = synchronized(this) {
-        val cacheKey = "${book.initials}-${key.getOsisRef()}"
-        plainTextCache.get(cacheKey) ?: run {
-            val frag = try {
-                readOsisFragment(book, key)
             } catch (e: OsisError) {
-                Log.e(TAG, "Could not read fragment", e)
-                return@run emptyMap()
-            }
-            val texts = bvaQuery.evaluate(frag).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
-            plainTextCache.put(cacheKey, texts)
-            texts
-        }
-    }
-
-    fun ordinalRangeFor(book: Book, key: Key): IntRange {
-        return if(book.isEpub) {
-            ((book as SwordGenBook).backend as EpubBackend).getOrdinalRange(key)
-        } else {
-            val texts = cachedText(book, key)
-            val keys = texts.keys
-            if (keys.isEmpty()) return 0..0
-            val first = keys.min()
-            val last = keys.max()
-            first..last
-        }
-    }
-
-    private fun getTextRecursively(element: Element): String {
-        val textBuilder = StringBuilder()
-        for(c in element.content) {
-            if(c is Element) {
-                textBuilder.append(getTextRecursively(c))
-            }
-            if(c is Text) {
-                textBuilder.append(c.text)
+                throw e
+            } catch (e: Throwable) {
+                if (e is Exception)
+                    Log.e(TAG, "Parsing error", e)
+                else
+                    Log.e(TAG, "Parsing error $e")
+                throw JSwordError(strings.errorOccurred)
             }
         }
-        return textBuilder.toString()
-    }
-    /**
-     * Get just the canonical text of one or more book entries without any
-     * markup.
-     *
-     * @param book
-     * the book to use
-     * @param key
-     * a reference, appropriate for the book, of one or more entries
-     */
-    @Throws(NoSuchKeyException::class, BookException::class, OsisError::class)
-    open fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false): String {
-        return try {
-            val data = BookData(book, key)
-            val osissep = data.getSAXEventProvider()
-            val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler(compatibleOffsets)
-            osissep.provideSAXEvents(osisHandler)
-            osisHandler.toString()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting text from book", e)
-            application.getString(R.string.error_occurred)
-        }
-    }
 
+        fun getTextWithinOrdinalsAsString(book: Book, key: Key, ordinalRange: IntRange, strings: CoreStrings): List<String> {
+            val map = cachedText(book, key, strings)
+            return ordinalRange.mapNotNull { map[it] }
+        }
+
+        private val bvaQuery = XPathFactory.instance().compile(".//ns:BVA", Filters.element(), null, xhtmlNamespace)
+
+        private fun cachedText(book: Book, key: Key, strings: CoreStrings): Map<Int, String> = synchronized(this) {
+            val cacheKey = "${book.initials}-${key.getOsisRef()}"
+            plainTextCache.get(cacheKey) ?: run {
+                val frag = try {
+                    readOsisFragment(book, key, strings)
+                } catch (e: OsisError) {
+                    Log.e(TAG, "Could not read fragment", e)
+                    return@run emptyMap()
+                }
+                val texts = bvaQuery.evaluate(frag).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
+                plainTextCache.put(cacheKey, texts)
+                texts
+            }
+        }
+
+        suspend fun ordinalRangeFor(book: Book, key: Key, strings: CoreStrings): IntRange {
+            return if(book.isEpub) {
+                ((book as SwordGenBook).backend as EpubBackend).getOrdinalRange(key)
+            } else {
+                val texts = cachedText(book, key, strings)
+                val keys = texts.keys
+                if (keys.isEmpty()) return 0..0
+                val first = keys.min()
+                val last = keys.max()
+                first..last
+            }
+        }
+
+        private fun getTextRecursively(element: Element): String {
+            val textBuilder = StringBuilder()
+            for(c in element.content) {
+                if(c is Element) {
+                    textBuilder.append(getTextRecursively(c))
+                }
+                if(c is Text) {
+                    textBuilder.append(c.text)
+                }
+            }
+            return textBuilder.toString()
+        }
+        /**
+         * Get just the canonical text of one or more book entries without any
+         * markup.
+         *
+         * @param book
+         * the book to use
+         * @param key
+         * a reference, appropriate for the book, of one or more entries
+         */
+        @Throws(NoSuchKeyException::class, BookException::class, OsisError::class)
+        fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false, strings: CoreStrings, saxTextPolicy: net.bible.service.format.SaxTextPolicy): String {
+            return try {
+                val data = BookData(book, key)
+                val osissep = data.getSAXEventProvider()
+                val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler(compatibleOffsets, saxTextPolicy)
+                osissep.provideSAXEvents(osisHandler)
+                osisHandler.toString()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting text from book", e)
+                strings.errorOccurred
+            }
+        }
+
+        /**
+         * Get text to be spoken without any markup.
+         *
+         * @param book
+         * the book to use
+         * @param key
+         * a reference, appropriate for the book, of one or more entries
+         */
+        fun getTextToSpeak(book: Book, key: Key?, strings: CoreStrings, saxTextPolicy: net.bible.service.format.SaxTextPolicy): String {
+            return try {
+                val data = BookData(book, key)
+                val osissep = data.getSAXEventProvider()
+                val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
+                val osisHandler = OsisToSpeakTextSaxHandler(sayReferences, saxTextPolicy)
+                osissep.provideSAXEvents(osisHandler)
+                osisHandler.toString()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting text from book", e)
+                strings.errorOccurred
+            }
+        }
+
+        @Throws(BookException::class)
+        fun search(bible: Book, searchText: String?): Key {
+            // example of fetching Strongs ref - only works with downloaded indexes!
+            // Book book = getDocumentByInitials("KJV");
+            // Key key1 = book.find("strong:h3068");
+            // System.out.println("h3068 result count:"+key1.getCardinality());
+            Log.i(TAG, "Searching:$bible Search term:$searchText")
+            // This does a standard operator search. See the search
+            // documentation for more examples of how to search
+            val key = bible.find(searchText) //$NON-NLS-1$
+            Log.i(TAG, "There are " + key!!.getCardinality() + " verses containing " + searchText)
+            return key
+        }
+
+        /**
+         * When checking a book contains a chapter SwordBook returns false if verse 0 is not in the chapter so this method compensates for that
+         *
+         * This can be removed if SwordBook.contains is converted to be containsAnyOf as discussed in JS-273
+         */
+        private fun bookContainsAnyOf(book: Book, key: Key): Boolean {
+            try {
+                if (book.contains(key)) {
+                    return true
+                }
+                for (aKey in key) {
+                    if (book.contains(aKey)) {
+                        return true
+                    }
+                }
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                return false
+            } catch (e: NullPointerException) {
+                // JSword RawLDBackend can throw NPE when module data files are not properly initialized
+                return false
+            }
+            return false
+        }
+
+        private const val TAG = "SwordContentFacade"
+
+    }
     /**
      * Gets the user's selected text, with markup options
      *
@@ -505,7 +570,7 @@ object SwordContentFacade {
      * the selected text, with markup according to options
      */
     fun getSelectionText(
-        selection: Selection,
+        selection: ShareSelection,
         showVerseNumbers: Boolean,
         advertiseApp: Boolean,
         showReference: Boolean = true,
@@ -529,9 +594,9 @@ object SwordContentFacade {
             }
         }
 
-        val book = selection.swordBook
+        val book = (Books.installed().getBook(selection.bookInitials) as? SwordBook)
         val verseTexts = selection.verseRange?.map {
-            val rawText = getCanonicalText(book, it, true).trimEnd()
+            val rawText = getCanonicalText(book, it, true, strings, saxTextPolicy).trimEnd()
             VerseAndText(it as Verse, normalizeWhitespace(rawText))
         }?: return ""
         val startOffset = selection.startOffset ?: 0
@@ -547,10 +612,10 @@ object SwordContentFacade {
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
         }
-        val bookLocale = selection.book?.language?.code?.let { Locale(it) }
-        val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
+        val bookLocale = Books.installed().getBook(selection.bookInitials)?.language?.code?.let { Locale(it) }
+        val isRtl = isRtlLanguage(bookLocale?.language)
 
-        val versionText = if (showVersion) (selection.book?.abbreviation) else ""
+        val versionText = if (showVersion) (Books.installed().getBook(selection.bookInitials)?.abbreviation) else ""
         val quotationStart = if (showQuotes) "“" else ""
         val quotationEnd = if (showQuotes) "”" else ""
 
@@ -573,16 +638,13 @@ object SwordContentFacade {
         } else
             ""
 
-        val advertise = if (shareAdvertAllowed(advertiseApp, CommonUtils.isDiscrete)) "\n\n${
-            application.getString(
-                R.string.verse_share_advertise,
-                application.getString(R.string.app_name_long)
-            )
+        val advertise = if (shareAdvertAllowed(advertiseApp, environment.isDiscrete)) "\n\n${
+            strings.verseShareAdvertise
         } (https://andbible.github.io)" else ""
         val notesOrig = selection.notes
         val notes =
             if (showNotes && notesOrig != null)
-                "\n\n" + htmlToSpan(notesOrig)
+                "\n\n" + htmlToPlainText.convert(notesOrig)
             else
                 ""
 
@@ -674,17 +736,17 @@ object SwordContentFacade {
      * [getSelectionText]'s two `abbreviateReference` branches) so the sheet never needs to re-ask
      * JSword when the user flips that switch.
      */
-    fun buildShareVersesInput(selection: Selection): ShareVersesInput {
-        val book = selection.swordBook
+    fun buildShareVersesInput(selection: ShareSelection): ShareVersesInput {
+        val book = (Books.installed().getBook(selection.bookInitials) as? SwordBook)
         val verseRange = selection.verseRange
-        val bookLocale = selection.book?.language?.code?.let { Locale(it) }
+        val bookLocale = Books.installed().getBook(selection.bookInitials)?.language?.code?.let { Locale(it) }
 
         // Batch 6 A6: empty when discrete -- ShareVersesOptions.buildText appends no advert for a blank line.
-        val advertiseText = if (CommonUtils.isDiscrete) "" else "${
-            application.getString(R.string.verse_share_advertise, application.getString(R.string.app_name_long))
+        val advertiseText = if (environment.isDiscrete) "" else "${
+            strings.verseShareAdvertise
         } (https://andbible.github.io)"
         val notesOrig = selection.notes
-        val notesText = if (notesOrig != null) htmlToSpan(notesOrig).toString() else null
+        val notesText = if (notesOrig != null) htmlToPlainText.convert(notesOrig) else null
 
         if (book == null || verseRange == null) {
             return ShareVersesInput(
@@ -696,12 +758,12 @@ object SwordContentFacade {
                 versionAbbreviation = "",
                 notesText = notesText,
                 advertiseText = advertiseText,
-                hasRange = selection.hasRange,
+                hasRange = (selection.startOffset != null && selection.endOffset != null),
             )
         }
 
         val verses = verseRange.map {
-            val rawText = getCanonicalText(book, it, true).trimEnd()
+            val rawText = getCanonicalText(book, it, true, strings, saxTextPolicy).trimEnd()
             ShareVersesEntry((it as Verse).verse, rawText)
         }
 
@@ -729,10 +791,10 @@ object SwordContentFacade {
             endOffset = selection.endOffset,
             referenceAbbreviated = referenceAbbreviated,
             referenceFull = referenceFull,
-            versionAbbreviation = selection.book?.abbreviation ?: "",
+            versionAbbreviation = Books.installed().getBook(selection.bookInitials)?.abbreviation ?: "",
             notesText = notesText,
             advertiseText = advertiseText,
-            hasRange = selection.hasRange,
+            hasRange = (selection.startOffset != null && selection.endOffset != null),
         )
     }
 
@@ -741,7 +803,7 @@ object SwordContentFacade {
         val frag = data.getOsisFragment(false)
         val doc = frag.document ?: Document(frag)
         val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
-        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code)
+        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, speakPlatform.phrasesFor(book.language.code), advancedSpeakSettings, speakPlatform.maxSpeechInputLength, saxTextPolicy)
         osissep.provideSAXEvents(osisHandler)
         (osisHandler as OsisToBibleSpeak).speakCommands
     } catch (e: Exception) {
@@ -752,7 +814,7 @@ object SwordContentFacade {
     fun getBibleSpeakCommands(settings: SpeakSettings, book: SwordBook, verse: Verse?): SpeakCommandArray {
         val v11nConverter = VersificationConverter()
         val verse_ = v11nConverter.convert(verse, book.versification)
-        val lst = SpeakCommandArray()
+        val lst = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
         if (verse_.verse == 1) {
             lst.addAll(
                 getSpeakCommandsForVerse(
@@ -771,11 +833,11 @@ object SwordContentFacade {
         if(actualKey is VerseRange) {
             actualKey = actualKey.start
         }
-        val arr = SpeakCommandArray()
+        val arr = SpeakCommandArray(speakPlatform.maxSpeechInputLength)
         arr.addAll(
             getTextWithinOrdinalsAsString(book,
                 actualKey,
-                key.ordinal!!.start .. key.ordinal.start
+                key.ordinal!!.start .. key.ordinal.start, strings
             )
                 .map {
                     TextCommand(it.replace("\n", " "))
@@ -783,74 +845,7 @@ object SwordContentFacade {
         return arr
     }
 
-    /**
-     * Get text to be spoken without any markup.
-     *
-     * @param book
-     * the book to use
-     * @param key
-     * a reference, appropriate for the book, of one or more entries
-     */
-    fun getTextToSpeak(book: Book, key: Key?): String {
-        return try {
-            val data = BookData(book, key)
-            val osissep = data.getSAXEventProvider()
-            val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
-            val osisHandler = OsisToSpeakTextSaxHandler(sayReferences)
-            osissep.provideSAXEvents(osisHandler)
-            osisHandler.toString()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting text from book", e)
-            application.getString(R.string.error_occurred)
-        }
-    }
 
-    @Throws(BookException::class)
-    fun search(bible: Book, searchText: String?): Key {
-        // example of fetching Strongs ref - only works with downloaded indexes!
-        // Book book = getDocumentByInitials("KJV");
-        // Key key1 = book.find("strong:h3068");
-        // System.out.println("h3068 result count:"+key1.getCardinality());
-        Log.i(TAG, "Searching:$bible Search term:$searchText")
-        // This does a standard operator search. See the search
-        // documentation for more examples of how to search
-        val key = bible.find(searchText) //$NON-NLS-1$
-        Log.i(TAG, "There are " + key!!.getCardinality() + " verses containing " + searchText)
-        return key
-    }
-
-    /**
-     * When checking a book contains a chapter SwordBook returns false if verse 0 is not in the chapter so this method compensates for that
-     *
-     * This can be removed if SwordBook.contains is converted to be containsAnyOf as discussed in JS-273
-     */
-    private fun bookContainsAnyOf(book: Book, key: Key): Boolean {
-        try {
-            if (book.contains(key)) {
-                return true
-            }
-            for (aKey in key) {
-                if (book.contains(aKey)) {
-                    return true
-                }
-            }
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            return false
-        } catch (e: NullPointerException) {
-            // JSword RawLDBackend can throw NPE when module data files are not properly initialized
-            return false
-        }
-        return false
-    }
-
-    private const val TAG = "SwordContentFacade"
-
-    // set to false for testing
-    private var isAndroid = true //CommonUtils.isAndroid();
-    private val log = Logger(SwordContentFacade::class.java.name)
-    fun setAndroid(isAndroid: Boolean) {
-        this.isAndroid = isAndroid
-    }
 }
 
 /**

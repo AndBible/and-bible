@@ -30,7 +30,7 @@ class BookmarkControlSpecialLabelRaceTest {
      * under one lock, so it must report 0.
      */
     @Test fun twoThreadsCreatingTheSameSpecialLabel() = runTest {
-        val bc = BookmarkControl(Mockito.mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), testOrderedLauncher())
+        val bc = BookmarkControl(Mockito.mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
         val failures = AtomicInteger()
         val first = AtomicInteger()
         repeat(300) {

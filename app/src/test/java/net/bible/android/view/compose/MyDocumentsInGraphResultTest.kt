@@ -109,6 +109,9 @@ class MyDocumentsInGraphResultTest {
     /** The controller `MyDocumentPages` built for the most recent entry, captured the way
      *  `BookmarksInGraphResultTest` captures its `manageLabelsController` -- bypasses the real
      *  screen UI so a test can drive `openPage` directly. */
+    private var heldPageResult: (() -> Unit)? = null
+    private var holdPageResult = false
+
     private var pagesController: MyDocumentPagesController? = null
 
     /** The `MyDocuments` arm's own controller, captured the same way, plus what its `onSave` seam
@@ -132,7 +135,10 @@ class MyDocumentsInGraphResultTest {
         myDocumentPages = MyDocumentPagesDeps(
             controllerFor = { _, documentInitials, onResult ->
                 MyDocumentPagesController(
-                    onOpenPage = { id -> onResult(MyDocumentPagesResult.Selected(documentInitials, "page-$id")) },
+                    onOpenPage = { id ->
+                        val deliver = { onResult(MyDocumentPagesResult.Selected(documentInitials, "page-$id")) }
+                        if (holdPageResult) heldPageResult = deliver else deliver()
+                    },
                     onImport = {},
                     onExport = {},
                     onCreatePage = { _, _ -> },
@@ -213,6 +219,25 @@ class MyDocumentsInGraphResultTest {
      * The whole point of the task: a result produced by `MyDocumentPages` while a parent is on the
      * stack must reach that parent and pop, not exit the host.
      */
+    @Test
+    fun heldPageResultCannotPopAReplacementDestinationAfterBack() {
+        holdPageResult = true
+        setGraph()
+        compose.runOnIdle { navController.navigate(myDocumentPagesRoute()) }
+        compose.waitForIdle()
+        compose.runOnIdle { assertNotNull(pagesController).openPage(1L) }
+        compose.runOnIdle {
+            navController.popBackStack()
+            navController.navigate(NavRoutes.myDocuments())
+        }
+        compose.waitForIdle()
+        compose.runOnIdle { assertNotNull(heldPageResult).invoke() }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.myDocuments(), currentRoute)
+        assertTrue(appliedResults.isEmpty())
+        assertEquals(0, channelExitWithResultCalls)
+    }
+
     @Test
     fun aMyDocumentPagesResultProducedInsideTheGraphReachesTheParentAndPops() {
         setGraph()

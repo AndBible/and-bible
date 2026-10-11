@@ -50,7 +50,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.URLSpan
 import android.util.LayoutDirection
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.view.Gravity
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -80,7 +80,7 @@ import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
-import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupFileType
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
@@ -165,16 +165,12 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.IndexOutOfBoundsException
-import java.math.BigInteger
 import java.security.KeyFactory
-import java.security.MessageDigest
 import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.util.concurrent.ArrayBlockingQueue
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -252,39 +248,6 @@ class Ref<T>(var value: T? = null)
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-object AdvancedSpeakSettings {
-    var autoBookmark: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_autoBookmark", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_autoBookmark", value)
-        }
-
-    var synchronize: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_synchronize", true)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_synchronize", value)
-        }
-
-    var replaceDivineName: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_replaceDivineName", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_replaceDivineName", value)
-        }
-
-    var restoreSettingsFromBookmarks: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_restoreSettingsFromBookmarks", false)
-        set(value) {
-            CommonUtils.settings.setBoolean("speak_restoreSettingsFromBookmarks", value)
-        }
-
-    fun reset() {
-        autoBookmark = false
-        synchronize = true
-        replaceDivineName = false
-        restoreSettingsFromBookmarks = false
-    }
-}
-
 /**
  * Fix batch 1 2.5b: the explicit state [CommonUtils.changeAppIconAndName] must write for one launcher
  * component, or null when the current state already matches. `COMPONENT_ENABLED_STATE_DEFAULT`
@@ -304,7 +267,6 @@ internal fun componentStateToWrite(current: Int, manifestEnabled: Boolean, wantE
 
 object CommonUtils : CommonUtilsBase() {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
-    private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
 
@@ -529,7 +491,7 @@ object CommonUtils : CommonUtilsBase() {
         println("isAndroid:$isAndroid")
     }
 
-    fun getShareableDocumentText(selection: Selection): String = SwordContentFacade.getSelectionText(
+    fun getShareableDocumentText(selection: net.bible.service.sword.ShareSelection, facade: SwordContentFacade): String = facade.getSelectionText(
         selection,
         showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
         advertiseApp = settings.getBoolean("share_show_add", true),
@@ -739,29 +701,7 @@ object CommonUtils : CommonUtilsBase() {
      * @param secs duration
      * @return h:m:s
      */
-    fun getHoursMinsSecs(secs: Long): String {
-        val h = (secs / 3600).toInt()
-        val m = (secs / 60 % 60).toInt()
-        val s = (secs % 60).toInt()
-
-        val hms = StringBuilder()
-        if (h > 0) {
-            hms.append(h).append(COLON)
-        }
-
-        // add padding for 1 digit mins
-        if (m < 10) {
-            hms.append(0)
-        }
-        hms.append(m).append(COLON)
-
-        // add padding for 1 digit secs
-        if (s < 10) {
-            hms.append(0)
-        }
-        hms.append(s)
-        return hms.toString()
-    }
+    fun getHoursMinsSecs(secs: Long): String = net.bible.sharedcore.util.formatHoursMinsSecs(secs)
 
     fun getKeyDescription(key: Key): String = net.bible.service.history.keyDescription(key)
 
@@ -793,7 +733,7 @@ object CommonUtils : CommonUtilsBase() {
     private fun forceStopApp() {
         Log.i(TAG, "forceStopApp!")
         scope.launch {
-            CloudSync.waitUntilFinished()
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).waitUntilFinished()
             DatabaseContainer.flushSettingsBeforeExit()
             exitProcess(2)
         }
@@ -1143,6 +1083,9 @@ object CommonUtils : CommonUtilsBase() {
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
+    internal var myDocumentRegistration: kotlinx.coroutines.Job? = null
+        private set
+
     var initialized = false
     private var booksInitialized = false
     val isOnyxDevice get() = Build.BRAND.lowercase() == "onyx"
@@ -1168,10 +1111,14 @@ object CommonUtils : CommonUtilsBase() {
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledESwordBooks()
-            addManuallyInstalledEpubBooks()
+            addManuallyInstalledEpubBooks(net.bible.android.platform.AndroidCoreStrings(application), net.bible.android.platform.AndroidAppEnvironment(application))
             addManuallyInstalledTtfBooks()
             addManuallyInstalledCsvPromptBooks()
-            MyDocumentBookManager.registerAllDocuments()
+            // Synchronous framework entry points cannot block Main on registration.
+            // Reading startup awaits this queue in initializeAppCoroutine before restoring windows.
+            myDocumentRegistration = MyDocumentBookManager.launcher.launch("mydocument-sync") {
+                MyDocumentBookManager.registerAllDocuments()
+            }
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1194,6 +1141,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     suspend fun initializeAppCoroutine() {
+        MyDocumentBookManager.launcher.join("mydocument-sync")
         if(!initialized) {
             try {
                 val pid = android.os.Process.myPid()
@@ -1204,6 +1152,9 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
+            org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+                net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java
+            ).ensureLoaded()
             withContext(Dispatchers.Main) {
                 if (ttsNotificationManager == null) {
                     ttsNotificationManager = TextToSpeechNotificationManager()
@@ -1216,18 +1167,11 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledMyBibleBooks()
                 addManuallyInstalledMySwordBooks()
                 addManuallyInstalledESwordBooks()
-                addManuallyInstalledEpubBooks()
+                addManuallyInstalledEpubBooks(net.bible.android.platform.AndroidCoreStrings(application), net.bible.android.platform.AndroidAppEnvironment(application))
                 addManuallyInstalledTtfBooks()
                 addManuallyInstalledCsvPromptBooks()
             }
-            // Must run on the main thread — SwordGenBook and JSword's Activator
-            // are not thread-safe. Running registerAllDocuments() on a background
-            // thread races with workspace restore and can leave the new
-            // SwordGenBook's internal key map null. See MyDocumentBookManager
-            // class kdoc and commit 9d63d1e7c (sync handler fix).
-            withContext(Dispatchers.Main) {
-                MyDocumentBookManager.registerAllDocuments()
-            }
+            MyDocumentBookManager.registerAllDocuments()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1320,8 +1264,8 @@ object CommonUtils : CommonUtilsBase() {
             fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.BibleBookmarkWithNotes {
                 val v1 = verseRange.toVerseArray()[start.toInt()]
                 val v2 = verseRange.toVerseArray()[end.toInt()]
-                val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
-                val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true).length
+                val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy()).length
+                val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy()).length
                 val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
                 val v = VerseRange(v1.versification, v1, v2)
 
@@ -1629,7 +1573,7 @@ object CommonUtils : CommonUtilsBase() {
     val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
-        else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
+        else SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(CommonUtils.settings) }
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
@@ -1708,43 +1652,15 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    fun md5Hash(str: String): String {
-        val md = MessageDigest.getInstance("MD5")
-        val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))
-        return String.format("%032x", bigInt)
-    }
+    fun md5Hash(str: String): String = ArchiveUtils.md5Hash(str)
 
-    fun appendUrl(u: String, filename: String): String =
-        if(u.endsWith("/"))
-            "$u$filename"
-        else
-            "$u/$filename"
+    fun appendUrl(u: String, filename: String): String = ArchiveUtils.appendUrl(u, filename)
 
     fun unzipFile(zipFile: File, destinationDir: File, filePrefix: String = "") =
-        unzipInputStream(zipFile.inputStream(), destinationDir, filePrefix)
+        ArchiveUtils.unzipFile(zipFile, destinationDir, filePrefix)
 
-    fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") {
-        val buffer = ByteArray(8192)
-        ZipInputStream(inputStream).use { zIn ->
-            var zipEntry = zIn.nextEntry
-            while (zipEntry != null) {
-                if (!zipEntry.isDirectory) {
-                    val filePath = zipEntry.name.replace('\\', '/')
-                    val file = File(destinationDir, filePrefix + filePath)
-                    Log.i(TAG, "Writing $file")
-                    file.parentFile?.mkdirs()
-                    FileOutputStream(file).use { fOut ->
-                        var count = zIn.read(buffer)
-                        while (count != -1) {
-                            fOut.write(buffer, 0, count)
-                            count = zIn.read(buffer)
-                        }
-                    }
-                }
-                zipEntry = zIn.nextEntry
-            }
-        }
-    }
+    fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") =
+        ArchiveUtils.unzipInputStream(inputStream, destinationDir, filePrefix)
 
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 
@@ -1756,42 +1672,26 @@ object CommonUtils : CommonUtilsBase() {
 
     val tmpFile: File get() = File.createTempFile("andbible-", ".tmp", tmpDir)
 
-    fun gzipFile(sourceFile: File, destinationFile: File) {
-        destinationFile.outputStream().use {
-            GZIPOutputStream(it).use {
-                sourceFile.inputStream().use { input ->
-                    input.copyTo(it)
-                }
-            }
-        }
-    }
+    fun gzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gzipFile(sourceFile, destinationFile)
 
-    fun gunzipFile(sourceFile: File, destinationFile: File) {
-        sourceFile.inputStream().use {
-            GZIPInputStream(it).use {
-                destinationFile.outputStream().use { output ->
-                    it.copyTo(output)
-                }
-            }
-        }
-    }
+    fun gunzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gunzipFile(sourceFile, destinationFile)
 
-    suspend fun determineFileType(uri: Uri): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
+    suspend fun determineFileType(uri: Uri): BackupFileType = withContext(Dispatchers.IO) {
         try {
             application.contentResolver.openInputStream(uri)?.use { inputStream ->
                 val header = ByteArray(16)
                 inputStream.read(header)
                 val headerString = String(header)
                 if (headerString == "SQLite format 3\u0000")
-                    BackupControl.AbDbFileType.SQLITE3
+                    BackupFileType.SQLITE3
                 else if (headerString.startsWith("PK\u0003\u0004")) {
-                    BackupControl.AbDbFileType.ZIP
+                    BackupFileType.ZIP
                 } else
-                    BackupControl.AbDbFileType.UNKNOWN
-            } ?: BackupControl.AbDbFileType.UNKNOWN
+                    BackupFileType.UNKNOWN
+            } ?: BackupFileType.UNKNOWN
         } catch (e: Exception) {
             Log.e(TAG, "Unexpected exception when determining file type", e)
-            BackupControl.AbDbFileType.UNKNOWN
+            BackupFileType.UNKNOWN
         }
     }
 
@@ -1944,19 +1844,19 @@ fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
     return rv
 }
 
-fun Book.getBookAndKey(keyStr: String, ordinal: Int? = null): BookAndKey? {
+suspend fun Book.getBookAndKey(keyStr: String, strings: net.bible.sharedcore.platform.CoreStrings, ordinal: Int? = null): BookAndKey? {
     val k = try {getKey(keyStr)} catch (e: NoSuchKeyException) {null} ?: return null
-    return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k).first))
+    return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k, strings).first))
 }
 
-val BookAndKey.prev: BookAndKey get() {
+suspend fun BookAndKey.prev(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey {
     val nextKey: Key = when(this.key) {
         is VerseRange -> {
-            CommonUtils.bibleTraverser.getPrevVerse(this.document as AbstractPassageBook, this.key.end)
+            traverser.getPrevVerse(this.document as AbstractPassageBook, this.key.end)
 
         }
         is Verse -> {
-            CommonUtils.bibleTraverser.getPrevVerse(this.document as AbstractPassageBook, this.key)
+            traverser.getPrevVerse(this.document as AbstractPassageBook, this.key)
         }
         else -> {
             val backend = when(val book = this.document!!) {
@@ -1975,17 +1875,17 @@ val BookAndKey.prev: BookAndKey get() {
     return BookAndKey(
         nextKey,
         this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey).last)
+        OrdinalRange(this.document!!.ordinalRangeFor(nextKey, strings).last)
     )
 }
 
-val BookAndKey.next: BookAndKey get() {
+suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey {
     val nextKey: Key = when(this.key) {
         is VerseRange -> {
-            CommonUtils.bibleTraverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
+            traverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
         }
         is Verse -> {
-            CommonUtils.bibleTraverser.getNextVerse(this.document as AbstractPassageBook, this.key)
+            traverser.getNextVerse(this.document as AbstractPassageBook, this.key)
         }
         else -> {
             val backend = when(val book = this.document!!) {
@@ -2026,11 +1926,11 @@ val BookAndKey.next: BookAndKey get() {
     return BookAndKey(
         nextKey,
         this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey).first)
+        OrdinalRange(this.document!!.ordinalRangeFor(nextKey, strings).first)
     )
 }
 
-fun Book.ordinalRangeFor(key: Key): IntRange = SwordContentFacade.ordinalRangeFor(this, key)
+suspend fun Book.ordinalRangeFor(key: Key, strings: net.bible.sharedcore.platform.CoreStrings): IntRange = SwordContentFacade.ordinalRangeFor(this, key, strings)
 
 val Key.tinyName: String get() =
     if(this is VerseKey<*>)

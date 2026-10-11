@@ -18,6 +18,6 @@ interface SpeakTransportService {
     fun forward()
     fun prevVerse()             // rewind(ONE_VERSE)
     fun nextVerse()             // forward(ONE_VERSE)
-    fun speakBookmarks(): List<SpeakBookmarkRowVd>
+    suspend fun speakBookmarks(): List<SpeakBookmarkRowVd>
     fun speakFromBookmark(id: String)
 }

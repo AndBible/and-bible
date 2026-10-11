@@ -25,15 +25,17 @@ import org.crosswire.jsword.passage.Key
 interface SpeakTextProvider {
     var isSpeaking: Boolean
     val numItemsToTts: Int
-    fun getStatusText(showFlag: Int): String
+    suspend fun getStatusText(showFlag: Int): String
+    suspend fun getStatusTexts(): Map<Int, String> = (0..3).associateWith { getStatusText(it) }
     fun isMoreTextToSpeak(): Boolean
-    fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean = false): SpeakCommand
+    /** Revalidate the manager request immediately before publishing a privately calculated cursor. */
+    suspend fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean = false, isValid: () -> Boolean = { true }): SpeakCommand
     fun getTotalChars(): Long
     fun getSpokenChars(): Long
     fun pause()
     fun stop()
-    fun rewind(amount: SpeakSettings.RewindAmount?)
-    fun forward(amount: SpeakSettings.RewindAmount?)
+    suspend fun rewind(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean = { true })
+    suspend fun forward(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean = { true })
     fun getText(utteranceId: String): String
     fun finishedUtterance(utteranceId: String)
     fun startUtterance(utteranceId: String)
@@ -41,6 +43,8 @@ interface SpeakTextProvider {
     fun persistState()
     fun restoreState(): Boolean
     fun clearPersistedState()
+    suspend fun loadBookmarkState() {}
+
     fun prepareForStartSpeaking()
     fun savePosition(fractionCompleted: Double)
     fun updateSettings(change: SpeakSettingsChange) {}
