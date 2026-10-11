@@ -53,17 +53,17 @@ import net.bible.sharedcore.window.WindowTabBarModel
 
 private val LeadingControlSize = 40.dp
 /**
- * Classic tabs sat almost flush: `window_button.xml`'s `layout_marginStart/End="0.3dip"` left ~0.6dp
- * between neighbours. 1dp keeps that look with a whole-dp gap.
+ * Tabs of one group sit close (a third of the earlier 6dp) so the wide gap between groups reads as
+ * the semantic boundary.
  */
-private val RailEntrySpacing = 1.dp
+private val RailEntrySpacing = 2.dp
 private val GroupSeparatorWidth = 1.dp
 private val GroupSeparatorHeight = 24.dp
 /**
  * Inset on each side of the group divider. With [RailEntrySpacing] on both sides the whole group gap
- * is 2 x (spacing + inset) + width = 5dp, classic `rebuildRestoreButtons()`'s 5dip `Space`.
+ * is 2 x (spacing + inset) + width = 17dp.
  */
-private val GroupSeparatorInset = 1.dp
+private val GroupSeparatorInset = 6.dp
 
 // Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
 // deleted once the Compose reading view replaced what used them. The citations stay as the
