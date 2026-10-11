@@ -961,6 +961,11 @@ class ReadingSearchEntryPointsTest {
             override fun hasIndex(docId: String) = false
             override fun createIndex(docId: String) {}
         }
+        val listeners = org.crosswire.common.progress.JobManager::class.java
+            .getDeclaredField("listeners").apply { isAccessible = true }.get(null) as List<*>
+        var fixtureHost: ComposeReadingViewHost? = null
+        var indexListener: Any? = null
+        var hostJob: Job? = null
         val fixtureModule = module {
             single<BibleSearchService> { recordingSearch }
             single<SearchIndexService> { recordingIndex }
@@ -975,13 +980,20 @@ class ReadingSearchEntryPointsTest {
                 val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
                 windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
                 CommonUtils.settings.setString("search_selected_translations", "KJV")
-                val host = host()
+                val host = host().also { fixtureHost = it }
+                val ownedScope = ComposeReadingViewHost::class.java.getDeclaredField("hostScope")
+                    .apply { isAccessible = true }.get(host) as CoroutineScope
+                hostJob = assertNotNull(ownedScope.coroutineContext[Job])
+                assertTrue(hostJob!!.isActive, "sanity: the real host owns a live scope")
                 host.openSearch()
                 host.searchController.queries.setQuery("lord")
                 host.searchController.submit()
                 assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value, "sanity")
 
                 host.searchController.acceptIndexing()
+                indexListener = assertNotNull(ComposeReadingViewHost::class.java
+                    .getDeclaredField("searchIndexWorkListener").apply { isAccessible = true }.get(host))
+                assertTrue(listeners.any { it === indexListener }, "sanity: this host registered its actual global listener")
                 host.searchController.onIndexingFinished(true)
 
                 var dispatched: SearchRequest? = null
@@ -995,21 +1007,40 @@ class ReadingSearchEntryPointsTest {
                 assertEquals(listOf("KJV", "FAKE"), ids, "I1: the active document is searched too, as the submit would have")
             } finally {
                 try {
-                    // This never-created activity is not closed by a controller: own its pending search.
-                    DatabaseResetter.runResetBlocking {
-                        activity.lifecycleScope.coroutineContext[Job]?.cancelAndJoin()
+                    fixtureHost?.dispose()
+                    indexListener?.let { listener ->
+                        assertFalse(listeners.any { it === listener }, "dispose must detach this host's global index listener")
+                    }
+                    hostJob?.let { job ->
+                        assertTrue(job.isCancelled, "dispose must cancel the separate host scope")
+                        DatabaseResetter.runResetBlocking { job.join() }
                     }
                 } finally {
-                    received.cancel()
-                    unloadKoinModules(fixtureModule)
-                    loadKoinModules(module {
-                        single<BibleSearchService> { productionSearch }
-                        single<SearchIndexService> { productionIndex }
-                        single { productionCache }
-                    })
-                    assertSame(productionSearch, koin.get<BibleSearchService>())
-                    assertSame(productionIndex, koin.get<SearchIndexService>())
-                    assertSame(productionCache, koin.get<SearchResultsCache>())
+                    try {
+                        // Keep mutation/assertion failures from leaking the host or its lifecycle work.
+                        try {
+                            fixtureHost?.dispose()
+                        } finally {
+                            try {
+                                DatabaseResetter.runResetBlocking { hostJob?.join() }
+                            } finally {
+                                DatabaseResetter.runResetBlocking {
+                                    activity.lifecycleScope.coroutineContext[Job]?.cancelAndJoin()
+                                }
+                            }
+                        }
+                    } finally {
+                        received.cancel()
+                        unloadKoinModules(fixtureModule)
+                        loadKoinModules(module {
+                            single<BibleSearchService> { productionSearch }
+                            single<SearchIndexService> { productionIndex }
+                            single { productionCache }
+                        })
+                        assertSame(productionSearch, koin.get<BibleSearchService>())
+                        assertSame(productionIndex, koin.get<SearchIndexService>())
+                        assertSame(productionCache, koin.get<SearchResultsCache>())
+                    }
                 }
             }
         } finally {
