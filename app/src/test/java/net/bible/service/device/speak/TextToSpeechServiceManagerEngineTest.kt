@@ -382,6 +382,154 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         }
     }
 
+    @Test fun pauseOwnsLifecycleDuringHeldForward() = pauseDuringHeldMovement(backwards = false)
+    @Test fun pauseOwnsLifecycleDuringHeldRewind() = pauseDuringHeldMovement(backwards = true)
+
+    private fun pauseDuringHeldMovement(backwards: Boolean) {
+        val manager = prepareGeneric()
+        val advanced = GlobalContext.get().get<AdvancedSpeakSettings>()
+        val oldAutoBookmark = advanced.autoBookmark
+        val settings = GlobalContext.get().get<net.bible.sharedcore.platform.AppSettings>()
+        val hostJob = kotlinx.coroutines.Job()
+        HeldEpub().use { epub ->
+            val states = java.util.Collections.synchronizedList(mutableListOf<SpeakPlaybackState>())
+            val progress = java.util.Collections.synchronizedList(mutableListOf<SpeakChange.Progress>())
+            val sub = SpeakChanges.changes.subscribe {
+                if (it is SpeakChange.State) states += it.speakState
+                if (it is SpeakChange.Progress) progress += it
+            }
+            try {
+                advanced.autoBookmark = true
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                val oldListener = platform.listener!!
+                val first = engine.utteranceIds.first()
+                oldListener.onUtteranceStart(first)
+                joinSpeech()
+                assertTrue(manager.isSpeaking)
+                assertFalse(manager.isPaused)
+                val utterances = engine.utteranceIds.size
+                states.clear()
+                progress.clear()
+                epub.hold.set(true)
+                if (backwards) manager.rewind(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                else manager.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                assertTrue("Real movement must reach the held EPUB ordinal read", epub.entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                assertTrue(manager.isPaused)
+                assertFalse(manager.isSpeaking)
+                kotlinx.coroutines.CoroutineScope(hostJob + kotlinx.coroutines.Dispatchers.Unconfined).launch {
+                    speakControl.pause(willContinueAfterThis = false, toast = false)
+                }
+                hostJob.cancel()
+                val differences = mutableListOf<String>()
+                fun checkPause(condition: Boolean, message: String) { if (!condition) differences += message }
+                val provider = org.robolectric.util.ReflectionHelpers.getField<GeneralSpeakTextProvider>(manager, "generalSpeakTextProvider")
+                checkPause(!provider.isSpeaking, "provider.pause must end the active provider lifecycle")
+                checkPause(settings.getString("SpeakGenBook") == epub.book.abbreviation, "generic pause book must be persisted before read release")
+                checkPause(settings.getString("SpeakGenKey") == epub.key.serialized, "generic pause position must be persisted before read release")
+                checkPause(settings.getString("SpeakLocale") != null, "manager pause locale must be persisted")
+                checkPause(states.toList() == listOf(SpeakPlaybackState.PAUSED), "Pause must publish a new PAUSED event, not retain a prior projection: $states")
+                checkPause(engine.calls.contains("shutdown"), "long Pause must shut down the engine before read release")
+                epub.resume.complete(Unit)
+                joinSpeech()
+                val saved = kotlinx.coroutines.runBlocking { bookmarkControl.getGenericBookmarksWithLabel(bookmarkControl.speakLabel()) }
+                    .filter { it.book?.initials == epub.book.initials }
+                checkPause(saved.size == 1, "application-owned pause bookmark must survive host cancellation: ${saved.size}")
+                checkPause(saved.singleOrNull()?.ordinalStart == epub.key.ordinal!!.start, "pause bookmark must retain active utterance position")
+                checkPause(manager.isPaused && !manager.isSpeaking, "released movement must remain intentionally paused")
+                checkPause((manager.currentlyPlayingKey as net.bible.service.sword.BookAndKey).ordinal!!.start == epub.key.ordinal!!.start,
+                    "obsolete movement must not publish its target cursor")
+                oldListener.onUtteranceStart(first)
+                oldListener.onUtteranceDone(engine.utteranceIds.last())
+                joinSpeech()
+                checkPause(engine.utteranceIds.size == utterances, "obsolete movement/callbacks must not resume audio")
+                checkPause(progress.isEmpty(), "obsolete movement/callbacks must not publish progress")
+                println("HELD_PAUSE backwards=$backwards persisted=${settings.getString("SpeakGenKey")} states=$states bookmarks=${saved.size} engine=${engine.calls.takeLast(3)} differences=$differences")
+                assertEquals(differences.joinToString("\n"), emptyList<String>(), differences)
+            } finally {
+                epub.resume.complete(Unit)
+                hostJob.cancel()
+                sub.cancel()
+                advanced.autoBookmark = oldAutoBookmark
+            }
+        }
+    }
+
+    @Test fun resumeSupersedesHeldPlayingMovement() = supersedeHeldMovement("resume")
+    @Test fun stopSupersedesHeldPlayingMovement() = supersedeHeldMovement("stop")
+    @Test fun replacementSupersedesHeldPlayingMovement() = supersedeHeldMovement("replacement")
+
+    private fun supersedeHeldMovement(action: String) {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            val progress = java.util.Collections.synchronizedList(mutableListOf<SpeakChange.Progress>())
+            val sub = SpeakChanges.changes.subscribe { if (it is SpeakChange.Progress) progress += it }
+            try {
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                platform.listener!!.onUtteranceStart(engine.utteranceIds.first())
+                joinSpeech()
+                val provider = org.robolectric.util.ReflectionHelpers.getField<GeneralSpeakTextProvider>(manager, "generalSpeakTextProvider")
+                progress.clear()
+                epub.hold.set(true)
+                manager.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                assertTrue(epub.entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                when (action) {
+                    "resume" -> manager.continueAfterPause()
+                    "stop" -> manager.shutdown()
+                    "replacement" -> manager.speakGeneric(epub.key)
+                }
+                val cursor = provider.getCurrentlyPlayingKey().ordinal!!.start
+                epub.hold.set(false)
+                epub.resume.complete(Unit)
+                joinSpeech()
+                assertTrue("$action must suppress the obsolete movement's progress", progress.isEmpty())
+                if (action == "stop") {
+                    assertFalse(manager.isSpeaking || manager.isPaused)
+                    assertTrue(engine.calls.contains("shutdown"))
+                    assertEquals(cursor, provider.getCurrentlyPlayingKey().ordinal!!.start)
+                } else {
+                    assertTrue("$action must retain newer playback", manager.isSpeaking)
+                    assertFalse(manager.isPaused)
+                }
+            } finally { epub.resume.complete(Unit); sub.cancel() }
+        }
+    }
+
+    @Test fun repeatedPauseDuringIntentionallyPausedMovementDoesNotRepeatLifecycle() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            val states = java.util.Collections.synchronizedList(mutableListOf<SpeakPlaybackState>())
+            val sub = SpeakChanges.changes.subscribe { if (it is SpeakChange.State) states += it.speakState }
+            try {
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                manager.pause(true)
+                joinSpeech()
+                val before = manager.currentlyPlayingKey
+                val stops = engine.calls.count { it == "stop" }
+                states.clear()
+                epub.hold.set(true)
+                manager.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                assertTrue(epub.entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                manager.pause(false)
+                assertTrue(states.isEmpty())
+                assertFalse(engine.calls.contains("shutdown"))
+                assertEquals(stops, engine.calls.count { it == "stop" })
+                epub.resume.complete(Unit)
+                joinSpeech()
+                assertEquals(before, manager.currentlyPlayingKey)
+                assertTrue(manager.isPaused)
+            } finally { epub.resume.complete(Unit); sub.cancel() }
+        }
+    }
+
     @Test
     fun stoppedBibleRenderCannotPublishCursorOrUtteranceState() {
         engine.languages = supportedFinnish()

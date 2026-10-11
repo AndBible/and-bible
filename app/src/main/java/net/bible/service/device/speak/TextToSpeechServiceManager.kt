@@ -172,6 +172,9 @@ class TextToSpeechServiceManager constructor(
     private val startGeneration = java.util.concurrent.atomic.AtomicLong()
     private var wasPaused = false
     private data class Request(val generation: Long, val engine: Long, val provider: SpeakTextProvider)
+    private data class Movement(val request: Request, val wasSpeaking: Boolean)
+    // Transient stopped flags do not relinquish the active playback lifecycle to an async read.
+    private var movement: Movement? = null
     private fun request() = Request(startGeneration.get(), engineIdentity, mSpeakTextProvider)
     private fun valid(request: Request) = request.generation == startGeneration.get() &&
         request.engine == engineIdentity && request.provider === mSpeakTextProvider
@@ -335,6 +338,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakBible(book: SwordBook, verse: Verse) {
+        movement = null
         startGeneration.incrementAndGet()
         statusTexts = emptyMap()
         pendingGenericKey = null
@@ -347,6 +351,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
+        movement = null
         val retainsQueue = queue && mSpeakTextProvider === legacySpeakTextProvider && isSpeaking && !isPaused &&
             mTts != null && platform.preferredEnginePackage == configuredEnginePackage
         if (!retainsQueue) startGeneration.incrementAndGet()
@@ -361,6 +366,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakGeneric(key: BookAndKey) {
+        movement = null
         startGeneration.incrementAndGet()
         statusTexts = emptyMap()
         switchProvider(generalSpeakTextProvider)
@@ -534,6 +540,7 @@ class TextToSpeechServiceManager constructor(
                 synchronized(this@TextToSpeechServiceManager) {
                     if (!valid(request)) return@synchronized null
                     val paused = isPaused
+                    movement = Movement(request, isSpeaking)
                     uniqueUtteranceNo++
                     acceptedUtterances.clear()
                     isPaused = true
@@ -549,6 +556,7 @@ class TextToSpeechServiceManager constructor(
                 synchronized(this@TextToSpeechServiceManager) {
                     if (!valid(request)) return@withContext
                     isPaused = paused
+                    if (paused) movement = null
                 }
             }
             if (!paused && valid(request)) startSpeaking(request)
@@ -557,10 +565,12 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun pause(willContinueAfterThis: Boolean) {
+        val activeMovement = movement?.let { it.wasSpeaking && valid(it.request) } == true
         startGeneration.incrementAndGet()
+        movement = null
         Log.i(TAG, "Pause TTS")
 
-        if (isSpeaking) {
+        if (isSpeaking || activeMovement) {
             isPaused = true
             isSpeaking = false
 
@@ -585,6 +595,9 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun continueAfterPause(reloadBookmark: Boolean = true) {
+        // Resume supersedes a held movement rather than restoring that movement's transient flags.
+        if (movement?.let { valid(it.request) } == true) startGeneration.incrementAndGet()
+        movement = null
         try {
             Log.i(TAG, "continue after pause")
             isPaused = false
@@ -641,6 +654,7 @@ class TextToSpeechServiceManager constructor(
         val queue = withContext(mainDispatcher) {
             synchronized(this@TextToSpeechServiceManager) {
                 if (!valid(request) || !engineReady) return@synchronized false
+                movement = null
                 initialized = true
                 if (!platform.requestAudioFocus { gained ->
                         pauseDueCall = !gained
@@ -712,6 +726,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun invalidatePendingStart() {
+        movement = null
         startGeneration.incrementAndGet()
         // A real init callback belongs to this engine, not a request generation. Cancel both.
         shutdownTtsEngine()
@@ -719,6 +734,7 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun shutdown(willContinueAfter: Boolean = false) {
+        movement = null
         startGeneration.incrementAndGet()
         statusTexts = emptyMap()
         Log.i(TAG, "Shutdown TTS")
