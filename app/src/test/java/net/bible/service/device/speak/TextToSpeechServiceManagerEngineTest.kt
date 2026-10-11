@@ -97,9 +97,9 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         return engine to notifier
     }
 
-    private fun configureFreshControl() {
+    private fun configureFreshControl(mainDispatcher: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.Unconfined) {
         loadKoinModules(module {
-            single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, net.bible.test.testSwordContentFacade(), kotlinx.coroutines.Dispatchers.Unconfined) }
+            single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, net.bible.test.testSwordContentFacade(), mainDispatcher) }
         })
         // App/settings initialization can resolve the original control's lazy manager before
         // test overrides. A fresh control guarantees that playback uses the fake manager.
@@ -497,6 +497,102 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
                     assertFalse(manager.isPaused)
                 }
             } finally { epub.resume.complete(Unit); sub.cancel() }
+        }
+    }
+
+    private class QueuedMain : kotlinx.coroutines.CoroutineDispatcher() {
+        private val tasks = java.util.concurrent.LinkedBlockingQueue<Runnable>()
+        override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) { tasks.put(block) }
+        fun take(): Runnable = checkNotNull(tasks.poll(3, java.util.concurrent.TimeUnit.SECONDS)) { "Expected Main handoff runnable" }
+        fun drainSpeech() {
+            val joined = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
+                GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(SPEAK_KEY)
+            }
+            try {
+                val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(4)
+                while (!joined.isCompleted && System.nanoTime() < deadline) {
+                    tasks.poll(10, java.util.concurrent.TimeUnit.MILLISECONDS)?.run()
+                }
+                check(joined.isCompleted) { "Speech FIFO did not drain with queued Main" }
+            } finally { joined.cancel() }
+        }
+    }
+
+    @Test fun publicPauseOwnsForwardTailHandoff() = publicMovementTail(backwards = false, stop = false)
+    @Test fun publicPauseOwnsRewindTailHandoff() = publicMovementTail(backwards = true, stop = false)
+    @Test fun publicStopOwnsMovementTailHandoff() = publicMovementTail(backwards = false, stop = true)
+
+    private fun publicMovementTail(backwards: Boolean, stop: Boolean) {
+        val main = QueuedMain()
+        engine.languages = mapOf(Locale.UK to SpeakLanguageResult.AVAILABLE, Locale.ENGLISH to SpeakLanguageResult.AVAILABLE)
+        configureFreshControl(main)
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val advanced = GlobalContext.get().get<AdvancedSpeakSettings>()
+        val oldAutoBookmark = advanced.autoBookmark
+        val settings = GlobalContext.get().get<net.bible.sharedcore.platform.AppSettings>()
+        HeldEpub().use { epub ->
+            val states = java.util.Collections.synchronizedList(mutableListOf<SpeakPlaybackState>())
+            val sub = SpeakChanges.changes.subscribe { if (it is SpeakChange.State) states += it.speakState }
+            var heldStart: Runnable? = null
+            try {
+                advanced.autoBookmark = true
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                main.drainSpeech()
+                platform.listener!!.onUtteranceStart(engine.utteranceIds.first())
+                main.drainSpeech()
+                assertTrue(speakControl.isSpeaking)
+                val utterances = engine.utteranceIds.size
+                states.clear()
+                epub.hold.set(true)
+                if (backwards) speakControl.rewind(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                else speakControl.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                main.take().run() // move entry Main; real ordinal read is next on the Default worker.
+                assertTrue(epub.entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                assertTrue(speakControl.isPaused)
+                epub.hold.set(false)
+                epub.resume.complete(Unit)
+                main.take().run() // refreshStatus publication Main.
+                main.take().run() // final movement flags Main, before playback ownership handoff.
+                heldStart = main.take() // startSpeaking Main is queued but MUST NOT run before public command.
+                val target = manager.currentlyPlayingKey as net.bible.service.sword.BookAndKey
+                val stoppedAtTail = speakControl.isStopped
+                val provider = org.robolectric.util.ReflectionHelpers.getField<GeneralSpeakTextProvider>(manager, "generalSpeakTextProvider")
+                val differences = mutableListOf<String>()
+                fun verify(condition: Boolean, message: String) { if (!condition) differences += message }
+                verify(!stoppedAtTail, "Public isStopped must not classify active movement handoff as stopped")
+                if (stop) speakControl.stop() else speakControl.pause(willContinueAfterThis = false, toast = false)
+                verify(!provider.isSpeaking, "Public command must end provider playback lifecycle")
+                verify(engine.calls.contains("shutdown"), "Public command must shut down engine before startMain")
+                verify(states.toList() == listOf(if (stop) SpeakPlaybackState.SILENT else SpeakPlaybackState.PAUSED),
+                    "Public command must emit its own lifecycle event: $states")
+                if (!stop) {
+                    verify(settings.getString("SpeakGenBook") == epub.book.abbreviation, "Pause must persist generic book")
+                    verify(settings.getString("SpeakGenKey") == target.serialized, "Pause must persist completed movement target")
+                    verify(settings.getString("SpeakLocale") != null, "Pause must persist locale")
+                }
+                heldStart.run()
+                heldStart = null
+                main.drainSpeech()
+                val saved = kotlinx.coroutines.runBlocking { bookmarkControl.getGenericBookmarksWithLabel(bookmarkControl.speakLabel()) }
+                    .filter { it.book?.initials == epub.book.initials }
+                verify(saved.size == 1 && saved.singleOrNull()?.ordinalStart == target.ordinal!!.start,
+                    "Public command must apply app-owned bookmark for completed target")
+                verify(engine.utteranceIds.size == utterances, "Invalidated startMain must not resume or submit utterances")
+                verify(if (stop) speakControl.isStopped else speakControl.isPaused && !speakControl.isSpeaking,
+                    "Public command state must survive draining obsolete startMain")
+                println("PUBLIC_TAIL backwards=$backwards stop=$stop stoppedAtTail=$stoppedAtTail states=$states bookmarks=${saved.size} differences=$differences")
+                assertEquals(differences.joinToString("\n"), emptyList<String>(), differences)
+            } finally {
+                epub.resume.complete(Unit)
+                heldStart?.run()
+                main.drainSpeech()
+                speakControl.stop(force = true)
+                main.drainSpeech()
+                sub.cancel()
+                advanced.autoBookmark = oldAutoBookmark
+            }
         }
     }
 

@@ -555,7 +555,9 @@ class TextToSpeechServiceManager constructor(
             withContext(mainDispatcher) {
                 synchronized(this@TextToSpeechServiceManager) {
                     if (!valid(request)) return@withContext
-                    isPaused = paused
+                    // Public Pause/Stop use these flags before startSpeaking's separate Main
+                    // handoff. Keep active movement eligible until playback takes ownership.
+                    isPaused = paused || movement?.wasSpeaking == true
                     if (paused) movement = null
                 }
             }
