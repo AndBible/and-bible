@@ -1959,8 +1959,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // `onScreenTurnedOn`, and anything either reaches may read `windowControl.windowRepository`.
         val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
-        applyBootstrapUiIfForeground()
         if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
+        applyBootstrapUiIfForeground()
         applyPendingActivityResult()
     }
 

@@ -441,6 +441,74 @@ class MyDocumentBookManagerTest {
     }
 
     @Test
+    fun reclaimedWorkspaceIsReloadedBeforeDeferredDeepLink() = runTest {
+        val savedInitialized = net.bible.service.common.CommonUtils.initialized
+        val queuedScope = kotlinx.coroutines.test.TestScope(kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        MyDocumentBookManager.launcher = OrderedLauncher(queuedScope)
+        net.bible.service.common.CommonUtils.initialized = false
+        val history = org.koin.core.context.GlobalContext.get().get<net.bible.service.history.HistoryManager>()
+        val historyField = net.bible.service.history.HistoryManager::class.java.getDeclaredField("instance").apply { isAccessible = true }
+        val previousHistory = historyField.get(null)
+        historyField.set(null, history)
+        val intent = net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(
+            androidx.test.core.app.ApplicationProvider.getApplicationContext(), net.bible.sharedcore.nav.NavRoutes.READING)
+            .putExtra("openLink", "https://stepbible.org/?q=reference=John.3.16")
+        val controller = org.robolectric.Robolectric.buildActivity(
+            net.bible.android.view.activity.nav.NavHostComposeActivity::class.java, intent)
+        val activity = controller.get()
+        val other = Any()
+        activity.usableBibleGate = { true }
+        var resumeReloads = 0
+        var countResumeReloads = false
+        var restored = false
+        val sub = net.bible.android.control.page.window.WorkspaceChanges.changes.subscribe {
+            if (countResumeReloads) resumeReloads++
+            if (!restored) {
+                val target = activity.hostWindowRepository.activeWindow.targetLinksWindow
+                val bible = net.bible.service.common.CommonUtils.defaultBible
+                target.pageManager.setCurrentDocumentAndKey(bible, bible.getKey("Gen.1.1"), addHistoryItem = false)
+                restored = true
+            }
+        }
+        try {
+            controller.create().start().resume().pause()
+            net.bible.sharedcore.reading.ReadingHostPresence.setForeground(other)
+            testScheduler.advanceUntilIdle()
+            MyDocumentBookManager.launcher.join("mydocument-sync")
+            repeat(20) { if (!restored) org.robolectric.Shadows.shadowOf(Looper.getMainLooper()).runOneTask() }
+            assertTrue(net.bible.sharedcore.reading.ReadingHostPresence.isForeground(other))
+            val window = activity.hostWindowRepository.activeWindow.targetLinksWindow
+            val oldKey = window.pageManager.currentPage.singleKey!!.getOsisRef()
+            assertEquals("Gen.1.1", oldKey)
+            activity.hostWindowRepository.saveIntoDb(false)
+            val owner = net.bible.android.control.page.window.WindowRepository(syncScope)
+            net.bible.service.common.CommonUtils.windowControl.windowRepository = owner
+            assertTrue(net.bible.service.common.CommonUtils.windowControl.windowRepository !== activity.hostWindowRepository)
+            countResumeReloads = true
+            controller.resume()
+            assertTrue("actual reclaim must reload the workspace", resumeReloads > 0)
+            val restoredWindow = activity.hostWindowRepository.activeWindow.targetLinksWindow
+            val depth = 0
+            val recorded = history.getHistory(restoredWindow.id).last() as net.bible.service.history.KeyHistoryItem
+            assertEquals(oldKey, recorded.key.getOsisRef())
+            assertEquals("John.3.16", restoredWindow.pageManager.currentPage.singleKey!!.getOsisRef())
+            assertEquals(depth + 1, history.getHistory(restoredWindow.id).size)
+            controller.pause().resume()
+            assertEquals(depth + 1, history.getHistory(restoredWindow.id).size)
+        } finally {
+            sub.cancel()
+            controller.pause().stop().destroy()
+            net.bible.sharedcore.reading.ReadingViewVisibility.setActivityVisible(activity, false)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(activity)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(other)
+            history.clear()
+            historyField.set(null, previousHistory)
+            queuedScope.cancel()
+            net.bible.service.common.CommonUtils.initialized = savedInitialized
+        }
+    }
+
+    @Test
     fun registeredDocumentResolvesItsPages() = runTest {
         val book = Books.installed().getBook("MyDoc_Test")!!
 
