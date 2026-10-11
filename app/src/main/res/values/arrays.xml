@@ -127,6 +127,7 @@
 		<item>color_eink</item>
 	</string-array>
 	<string-array name="prefs_theme_palette_style_names">
+		<item>@string/prefs_theme_palette_style_tonal_spot_grey</item>
 		<item>@string/prefs_theme_palette_style_fidelity</item>
 		<item>@string/prefs_theme_palette_style_tonal_spot</item>
 		<item>@string/prefs_theme_palette_style_content</item>
@@ -138,6 +139,7 @@
 		<item>@string/prefs_theme_palette_style_fruit_salad</item>
 	</string-array>
 	<string-array name="prefs_theme_palette_style_values">
+		<item>tonal_spot_grey</item>
 		<item>fidelity</item>
 		<item>tonal_spot</item>
 		<item>content</item>
