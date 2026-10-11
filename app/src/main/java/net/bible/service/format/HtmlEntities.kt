@@ -11,6 +11,13 @@ fun decodeHtmlEntities(s: String): String {
             } else out.append(if (c.code in 0x80..0x9f) windowsCodePoints[c.code - 0x80].toChar() else c)
         }
     }
+    val pending = StringBuilder()
+    fun flushText() {
+        // TagSoup ignores all-whitespace scanner chunks before body text starts. Entity/tag
+        // boundaries flush chunks, so a leading thin space survives only beside real text.
+        if (out.isNotEmpty() || pending.any { !isScannerWhitespace(it) }) text(pending.toString())
+        pending.clear()
+    }
     fun paragraph() {
         if (out.isNotEmpty()) {
             if (out.last() != '\n') out.append('\n')
@@ -21,10 +28,12 @@ fun decodeHtmlEntities(s: String): String {
     while (i < s.length) {
         when {
             s.startsWith("<!--", i) -> {
+                flushText()
                 val end = s.indexOf("-->", i + 4)
                 i = if (end < 0) s.length else end + 3
             }
             s[i] == '<' && i + 1 < s.length && (s[i + 1].isLetterOrDigit() || s[i + 1] == '/' || s[i + 1] == '!') -> {
+                flushText()
                 val end = s.indexOf('>', i + 1)
                 if (end < 0) break // TagSoup discards an unfinished tag, e.g. "1 <2".
                 val tag = s.substring(i + 1, end).trim().trimStart('/').takeWhile { it.isLetterOrDigit() }.lowercase()
@@ -35,9 +44,10 @@ fun decodeHtmlEntities(s: String): String {
                 i = end + 1
             }
             s[i] == '&' -> {
+                flushText()
                 val match = entityAtStart.find(s, i)?.takeIf { it.range.first == i }
                 if (match == null) {
-                    text("&")
+                    pending.append("&")
                     i++
                 } else {
                     val name = match.groupValues[1]
@@ -45,10 +55,11 @@ fun decodeHtmlEntities(s: String): String {
                     val code = if (numeric) {
                         if (name.startsWith("#x", ignoreCase = true)) name.substring(2).toIntOrNull(16)
                         else name.substring(1).toIntOrNull()
-                    } else if (name == "phi") 0x03d5 else htmlEntityCodePoints[name] // TagSoup uses the phi symbol, not HTML4's letter.
-                    if (code == null || code !in 1..0x10ffff) text(match.value) else {
-                        // TagSoup drops numeric controls, but maps raw and numeric C1 through Windows-1252.
-                        if (!numeric || code >= 32) text(codePointText(code))
+                    } else htmlEntityCodePoints[name]
+                    if (code == null || code !in 1..0x10ffff) pending.append(match.value) else {
+                        // The scanner drops resolved controls (including named Tab/NewLine).
+                        // Raw and resolved C1 still map through Windows-1252.
+                        if (code >= 32) pending.append(codePointText(code))
                     }
                     i += match.value.length
                 }
@@ -56,17 +67,23 @@ fun decodeHtmlEntities(s: String): String {
             else -> {
                 // The HTML scanner normalizes CR and CRLF to one LF before whitespace collapse.
                 if (s[i] == '\r') {
-                    text("\n")
+                    pending.append("\n")
                     i += if (i + 1 < s.length && s[i + 1] == '\n') 2 else 1
                 } else {
-                    text(s[i].toString())
+                    pending.append(s[i])
                     i++
                 }
             }
         }
     }
+    flushText()
     return out.toString()
 }
+
+// Portable equivalent of the framework parser's whitespace classification; NBSP is not whitespace.
+private fun isScannerWhitespace(c: Char): Boolean = c.code in 9..13 || c.code in 0x1c..0x20 ||
+    c.code == 0x1680 || c.code in 0x2000..0x2006 || c.code in 0x2008..0x200a ||
+    c.code == 0x2028 || c.code == 0x2029 || c.code == 0x205f || c.code == 0x3000
 
 private fun codePointText(code: Int): String = if (code <= 0xffff) code.toChar().toString() else {
     val supplementary = code - 0x10000

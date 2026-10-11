@@ -21,7 +21,6 @@ class HtmlEntitiesDifferentialTest {
     )
 
     @Test fun portableNamedEntitiesRetainCoverageAndMatchFramework() {
-        assertEquals(253, htmlEntityCodePoints.size)
         val differences = htmlEntityCodePoints.mapNotNull { (name, _) ->
             val input = "a&$name;b"
             val expected = Html.fromHtml(input, 0).toString()
@@ -33,6 +32,43 @@ class HtmlEntitiesDifferentialTest {
         for (input in listOf("a&#128512;b", "a&#x1F600;b", "a&unknown;b", "a&AMP;b", "a&#0;b", "a&#13;b")) {
             assertEquals("input $input", Html.fromHtml(input, 0).toString(), decodeHtmlEntities(input))
         }
+    }
+
+    @Test fun fullInstalledFrameworkRepertoireMatchesActualHtml() {
+        // The input inventory belongs to the installed API-33 framework, not our replacement map.
+        Html.fromHtml("initialize schema", 0)
+        val parser = Class.forName("android.text.Html\$HtmlParser")
+        val schema = org.robolectric.util.ReflectionHelpers.getStaticField<Any>(parser, "schema")
+        val entities = org.robolectric.util.ReflectionHelpers.getField<Map<String, Int>>(schema, "theEntities")
+        assertEquals("Installed android-13-robolectric-9030017 schema inventory", 2111, entities.size)
+        val differences = mutableListOf<String>()
+        for (name in entities.keys.sorted()) {
+            for (input in listOf("a&$name;b", "a&$name b", "&$name;")) {
+                val expected = Html.fromHtml(input, 0).toString()
+                val actual = decodeHtmlEntities(input)
+                println("FRAMEWORK_NAMED_ORACLE $name ${java.util.Base64.getEncoder().encodeToString(input.toByteArray())} ${java.util.Base64.getEncoder().encodeToString(expected.toByteArray())}")
+                if (expected != actual) differences += "input=$input expected=$expected actual=$actual"
+            }
+        }
+        for (input in listOf("a&check;b", "a&checkmark;b", "a&ohm;b", "a&b.alpha;b", "a&Tab;b", "a&NewLine;b", "a&phi;b", "a&check.unknown;b")) {
+            val expected = Html.fromHtml(input, 0).toString()
+            val actual = decodeHtmlEntities(input)
+            if (expected != actual) differences += "independent input=$input expected=$expected actual=$actual"
+        }
+        assertEquals(differences.joinToString("\n"), emptyList<String>(), differences)
+    }
+
+    @Test fun namedWhitespaceAndPunctuationFollowScannerBoundaries() {
+        val inputs = listOf("&thinsp;", "&thinsp;a", "&thinsp;&thinsp;a", "a&thinsp;b", "&thinsp;&nbsp;",
+            "\t", "\ta", "&Tab;", "a&Tab;b", "&NewLine;", "a&NewLine;b", "&b.alpha;", "&check.foo;",
+            "&amp;check;", " &thinsp; ", "a&thinsp;", "&emsp;<br>")
+        val differences = inputs.mapNotNull { input ->
+            val expected = Html.fromHtml(input, 0).toString()
+            val actual = decodeHtmlEntities(input)
+            println("SCANNER_ORACLE ${java.util.Base64.getEncoder().encodeToString(input.toByteArray())} ${java.util.Base64.getEncoder().encodeToString(expected.toByteArray())}")
+            if (expected == actual) null else "input=$input expected=$expected actual=$actual"
+        }
+        assertEquals(differences.joinToString("\n"), emptyList<String>(), differences)
     }
 
     @Test fun carriageReturnsAndWindowsCharactersMatchFramework() {

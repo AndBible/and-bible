@@ -35,6 +35,39 @@ class HtmlSaxCharRefTest {
         }
     }
 
+    @Test fun escapedFrameworkEntitiesReachCanonicalAndBibleSpeech() {
+        verifyEscapedFrameworkEntities(SaxTextPolicy.MODERN)
+    }
+
+    @Test @Config(sdk = [23]) fun escapedFrameworkEntitiesKeepLegacyHandlersUnchanged() {
+        verifyEscapedFrameworkEntities(net.bible.android.platform.androidSaxTextPolicy())
+    }
+
+    private fun verifyEscapedFrameworkEntities(policy: SaxTextPolicy) {
+        val differences = mutableListOf<String>()
+        for (name in listOf("check", "checkmark", "ohm", "Afr", "b.alpha", "Tab", "NewLine", "phi")) {
+            val document = SAXBuilder().build(StringReader("<verse osisID=\"Gen.1.1\">a&amp;${name};b</verse>"))
+            val provider = JDOMSAXEventProvider(document)
+            val chunks = mutableListOf<String>()
+            provider.provideSAXEvents(object : DefaultHandler() {
+                override fun characters(ch: CharArray, start: Int, length: Int) { chunks += String(ch, start, length) }
+            })
+            assertEquals("a&$name;b", chunks.joinToString(""))
+            val expected = if (policy == SaxTextPolicy.MODERN) chunks.joinToString("") { Html.fromHtml(it, 0).toString() }
+                else "a&$name;b"
+            println("NAMED_XML_SAX_CAPTURE $policy $name ${java.util.Base64.getEncoder().encodeToString(chunks.joinToString("").toByteArray())} ${java.util.Base64.getEncoder().encodeToString(expected.toByteArray())}")
+            val canonical = OsisToCanonicalTextSaxHandler(textPolicy = policy)
+            provider.provideSAXEvents(canonical)
+            if (canonical.writer.html != "$expected ") differences += "canonical $name expected=$expected actual=${canonical.writer.html}"
+            val speech = OsisToBibleSpeak(SpeakSettings(), SpeakPhrases("1", "2", "3", "4", "5", "book", "chapter"),
+                AdvancedSpeakSettings(net.bible.test.testAppSettings()), 4000, policy)
+            provider.provideSAXEvents(speech)
+            val spoken = (speech.speakCommands.single() as TextCommand).text
+            if (spoken != expected) differences += "speech $name expected=$expected actual=$spoken"
+        }
+        assertEquals(differences.joinToString("\n"), emptyList<String>(), differences)
+    }
+
     @Test fun actualXmlCharacterReferencesReachBothModernHandlers() {
         val differences = mutableListOf<String>()
         for ((reference, captured) in listOf("&#13;" to "a\rb", "&#133;" to "a\u0085b", "&amp;#133;" to "a&#133;b")) {
