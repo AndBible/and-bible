@@ -56,6 +56,11 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val invalidModule: String get() = context.getString(R.string.invalid_module)
     override val sqliteInvalidFile: String get() = context.getString(R.string.sqlite_invalid_file)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
+    override val errorNoContent: String get() = context.getString(R.string.error_no_content)
+    override fun errorKeyNotInDocument(key: String, initials: String): String =
+        context.getString(R.string.error_key_not_in_document2, key, initials)
+    override val verseShareAdvertise: String get() =
+        context.getString(R.string.verse_share_advertise, context.getString(R.string.app_name_long))
     override fun somethingWithParenthesis(a: String, b: String): String = context.getString(R.string.something_with_parenthesis, a, b)
     override fun readingPlanDay(day: String): String = context.getString(R.string.rdg_plan_day, day)
     override val sortByAlphabetical: String get() = context.getString(R.string.sort_by_alphabetical)

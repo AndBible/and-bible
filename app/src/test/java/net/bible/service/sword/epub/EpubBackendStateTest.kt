@@ -165,7 +165,7 @@ class EpubBackendStateTest {
             appJob.children.forEach { it.join() }
             assertEquals(org.crosswire.jsword.index.IndexStatus.DONE, book.indexStatus)
             val document = net.bible.android.control.page.OsisDocument(
-                net.bible.android.misc.OsisFragment(net.bible.service.sword.SwordContentFacade.readOsisFragment(book, state.keys[1]), state.keys[1], book),
+                net.bible.android.misc.OsisFragment(net.bible.service.sword.SwordContentFacade.readOsisFragment(book, state.keys[1], strings = net.bible.test.testCoreStrings()), state.keys[1], book),
                 book, state.keys[1],
             )
             val serialized = document.contentJson()

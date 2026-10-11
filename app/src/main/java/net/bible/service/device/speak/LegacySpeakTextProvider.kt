@@ -23,7 +23,7 @@ import net.bible.service.common.AndRuntimeException
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
-import net.bible.service.sword.SwordContentFacade.getTextToSpeak
+import net.bible.service.sword.SwordContentFacade.Companion.getTextToSpeak
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import java.text.BreakIterator
@@ -34,7 +34,7 @@ import java.util.regex.Pattern
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class LegacySpeakTextProvider(private val settings: AppSettings) : SpeakTextProvider {
+class LegacySpeakTextProvider(private val settings: AppSettings, private val strings: net.bible.sharedcore.platform.CoreStrings) : SpeakTextProvider {
     private var mTextToSpeak: MutableList<String?>? = ArrayList()
     private var nextTextToSpeak: Long = 0
 
@@ -98,7 +98,7 @@ class LegacySpeakTextProvider(private val settings: AppSettings) : SpeakTextProv
                 textToSpeak.add(key.getName() + ". ")
 
                 // content
-                textToSpeak.add(getTextToSpeak(book!!, key))
+                textToSpeak.add(getTextToSpeak(book!!, key, strings))
 
                 // add a pause at end to separate passages
                 textToSpeak.add("\n")

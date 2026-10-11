@@ -52,6 +52,7 @@ class BibleSpeakTextProvider(
     settings: AppSettings,
     private val advanced: AdvancedSpeakSettings,
     private val launcher: OrderedLauncher,
+    private val swordContentFacade: SwordContentFacade,
 ) : SpeakTextProvider {
     private val appSettings = settings
     private data class State(val book: SwordBook,
@@ -298,7 +299,7 @@ class BibleSpeakTextProvider(
         val book_ = book ?: this.book
         var cmds = verseRenderLruCache.get(Pair(book_, verse))
         if(cmds == null) {
-            cmds = SwordContentFacade.getBibleSpeakCommands(settings, book_, verse)
+            cmds = swordContentFacade.getBibleSpeakCommands(settings, book_, verse)
             verseRenderLruCache.put(Pair(book_, verse), cmds)
         }
         return cmds.copy()

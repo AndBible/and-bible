@@ -80,7 +80,7 @@ open class CurrentCommentaryPage internal constructor(
 
                 val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                     try {
-                        OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification)), key, it)
+                        OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification), strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), key, it)
                     } catch (e: OsisError) {
                         null
                     }
@@ -94,7 +94,7 @@ open class CurrentCommentaryPage internal constructor(
                     ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
                 val texts = ArrayList<Pair<String, String>>()
                 for (verse in verseRange) {
-                    val text = SwordContentFacade.getCanonicalText(doc, verse)
+                    val text = SwordContentFacade.getCanonicalText(doc, verse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
                     texts.add(Pair(verse.shortName, text))
                 }
                 val kjvRange = verseRange.toV11n(KJVA)

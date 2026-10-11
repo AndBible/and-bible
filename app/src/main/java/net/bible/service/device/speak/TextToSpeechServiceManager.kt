@@ -87,6 +87,7 @@ class TextToSpeechServiceManager constructor(
     private val advanced: AdvancedSpeakSettings,
     private val launcher: OrderedLauncher,
     private val myDocumentDao: () -> MyDocumentDao,
+    private val swordContentFacade: net.bible.service.sword.SwordContentFacade,
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) {
 
@@ -128,7 +129,7 @@ class TextToSpeechServiceManager constructor(
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
-        legacySpeakTextProvider = LegacySpeakTextProvider(settings)
+        legacySpeakTextProvider = LegacySpeakTextProvider(settings, strings)
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
@@ -139,6 +140,7 @@ class TextToSpeechServiceManager constructor(
             settings = settings,
             advanced = advanced,
             launcher = launcher,
+            swordContentFacade = swordContentFacade,
         )
         generalSpeakTextProvider = GeneralSpeakTextProvider(fakeBookFactory = speakControl.fakeBookFactory,
             bookmarkControl = bookmarkControl,
@@ -147,6 +149,7 @@ class TextToSpeechServiceManager constructor(
             settings = settings,
             advanced = advanced,
             launcher = launcher,
+            swordContentFacade = swordContentFacade,
         )
 
         mSpeakTextProvider = bibleSpeakTextProvider

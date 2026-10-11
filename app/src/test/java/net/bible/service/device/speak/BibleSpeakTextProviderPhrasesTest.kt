@@ -24,7 +24,7 @@ class BibleSpeakTextProviderPhrasesTest : AbstractSpeakTests() {
         provider = BibleSpeakTextProvider(
             bibleTraverser, bookmarkControl, book, platform, testAppSettings(),
             AdvancedSpeakSettings(testAppSettings()), net.bible.test.testOrderedLauncher(),
-        )
+        swordContentFacade = net.bible.test.testSwordContentFacade())
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 

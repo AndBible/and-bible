@@ -198,13 +198,13 @@ fun bibleViewBackgroundColorFor(window: Window): Int {
 
 @Serializable
 class Selection(
-    val bookInitials: String?,
+    override val bookInitials: String?,
     val startOrdinal: Int,
-    val startOffset: Int?,
+    override val startOffset: Int?,
     val endOrdinal: Int,
-    val endOffset: Int?,
+    override val endOffset: Int?,
     val bookmarks: List<IdType>,
-    val notes: String? = null,
+    override val notes: String? = null,
     val text: String = "",
     val osisRef: String? = null,
     val noteEditorEntityType: NoteEditorEntityType? = null,
@@ -214,7 +214,7 @@ class Selection(
     val noteEditorContent: String? = null,
     /** Content type of the editor: "MARKDOWN" or "HTML" */
     val noteEditorContentType: String? = null,
-) : KoinComponent
+) : KoinComponent, net.bible.service.sword.ShareSelection
 {
     constructor(bookmark: BookmarkEntities.BibleBookmarkWithNotes):
         this(
@@ -250,6 +250,7 @@ class Selection(
         )
 
     @Transient val windowControl: WindowControl by inject()
+    @Transient private val swordContentFacade: SwordContentFacade by inject()
 
 
     val hasRange get() = startOffset != null && endOffset != null
@@ -259,7 +260,7 @@ class Selection(
         if(book is SwordBook)
             book as SwordBook? ?: windowControl.defaultBibleDoc(false)
         else null
-    val verseRange: VerseRange? get() {
+    override val verseRange: VerseRange? get() {
         swordBook?: return null
         val v11n = swordBook?.versification ?: KJVA
         return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
@@ -267,7 +268,7 @@ class Selection(
 
     fun copyToClipboard() {
         CommonUtils.copyToClipboard(
-            ClipData.newPlainText(verseRange?.getName(), CommonUtils.getShareableDocumentText(this))
+            ClipData.newPlainText(verseRange?.getName(), CommonUtils.getShareableDocumentText(this, swordContentFacade))
         )
     }
 }
@@ -295,6 +296,7 @@ class BibleView(
 ) : WebView(host.hostContext.applicationContext), DocumentView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
+    private val swordContentFacade: SwordContentFacade by lazy { GlobalContext.get().get() }
     private val bookmarkJsActions: BookmarkJsActions by lazy { GlobalContext.get().get() }
 
     private lateinit var pageTiltScroller: PageTiltScroller
@@ -395,7 +397,7 @@ class BibleView(
             }
             R.id.share_verses -> {
                 val sel = currentSelection ?: return true
-                hostCallbacks.composeReadingViewHost()?.showShareSheet(SwordContentFacade.buildShareVersesInput(sel))
+                hostCallbacks.composeReadingViewHost()?.showShareSheet(swordContentFacade.buildShareVersesInput(sel))
                 return true
             }
             R.id.open_ref -> {

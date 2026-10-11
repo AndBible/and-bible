@@ -487,7 +487,7 @@ object CommonUtils : CommonUtilsBase() {
         println("isAndroid:$isAndroid")
     }
 
-    fun getShareableDocumentText(selection: Selection): String = SwordContentFacade.getSelectionText(
+    fun getShareableDocumentText(selection: net.bible.service.sword.ShareSelection, facade: SwordContentFacade): String = facade.getSelectionText(
         selection,
         showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
         advertiseApp = settings.getBoolean("share_show_add", true),
@@ -1260,8 +1260,8 @@ object CommonUtils : CommonUtilsBase() {
             fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.BibleBookmarkWithNotes {
                 val v1 = verseRange.toVerseArray()[start.toInt()]
                 val v2 = verseRange.toVerseArray()[end.toInt()]
-                val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
-                val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true).length
+                val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()).length
+                val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()).length
                 val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
                 val v = VerseRange(v1.versification, v1, v2)
 
@@ -1926,7 +1926,7 @@ val BookAndKey.next: BookAndKey get() {
     )
 }
 
-fun Book.ordinalRangeFor(key: Key): IntRange = SwordContentFacade.ordinalRangeFor(this, key)
+fun Book.ordinalRangeFor(key: Key): IntRange = SwordContentFacade.ordinalRangeFor(this, key, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
 
 val Key.tinyName: String get() =
     if(this is VerseKey<*>)

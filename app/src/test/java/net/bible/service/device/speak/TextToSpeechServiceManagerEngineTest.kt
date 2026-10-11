@@ -97,7 +97,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
 
     private fun configureFreshControl() {
         loadKoinModules(module {
-            single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, kotlinx.coroutines.Dispatchers.Unconfined) }
+            single { TextToSpeechServiceManager(get(), get(), get(), speakControl, platform, notifier, get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, net.bible.test.testSwordContentFacade(), kotlinx.coroutines.Dispatchers.Unconfined) }
         })
         // App/settings initialization can resolve the original control's lazy manager before
         // test overrides. A fresh control guarantees that playback uses the fake manager.

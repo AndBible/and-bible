@@ -142,7 +142,7 @@ open class OsisDocument(
     val commentaryRange: CommentaryRangeInfo? = null,
 ): Document {
     override val asHashMap: Map<String, String> get() = contentHashMap(
-        if (book.bookCategory != BookCategory.BIBLE) SwordContentFacade.ordinalRangeFor(book, key) else null,
+        if (book.bookCategory != BookCategory.BIBLE) SwordContentFacade.ordinalRangeFor(book, key, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()) else null,
     )
 
     internal fun contentHashMap(ordRange: IntRange?): Map<String, String> {

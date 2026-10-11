@@ -165,6 +165,10 @@ fun buildCoreModule() = module {
     single<UserNotifier> { AndroidUserNotifier() }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
+    single<net.bible.service.sword.HtmlToPlainText> {
+        net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }
+    }
+    single { net.bible.service.sword.SwordContentFacade(get(), get(), get(), get(), get()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
 
     // @ApplicationScope singletons
@@ -250,7 +254,7 @@ fun buildCoreModule() = module {
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
     single<net.bible.android.control.speak.SpeakPlatform> { net.bible.android.platform.AndroidSpeakPlatform(androidContext()) }
-    single { TextToSpeechServiceManager(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }) }
+    single { TextToSpeechServiceManager(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), { net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao() }, get()) }
 
     // Unscoped @Inject-constructor classes
     factoryOf(::CurrentPageManager)

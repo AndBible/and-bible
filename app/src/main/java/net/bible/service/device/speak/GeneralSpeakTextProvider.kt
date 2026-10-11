@@ -54,6 +54,7 @@ class GeneralSpeakTextProvider(
     private val advanced: AdvancedSpeakSettings,
     private val launcher: OrderedLauncher,
     private val fakeBookFactory: net.bible.service.download.FakeBookFactory,
+    private val swordContentFacade: SwordContentFacade,
 ) : SpeakTextProvider {
     private val appSettings = settings
     private data class State(
@@ -236,7 +237,7 @@ class GeneralSpeakTextProvider(
     override fun getText(utteranceId: String): String = currentState.command.toString()
 
     private fun getSpeakCommandsForKey(key: BookAndKey): SpeakCommandArray =
-        SwordContentFacade.getGenBookSpeakCommands(key)
+        swordContentFacade.getGenBookSpeakCommands(key)
 
     override fun pause() {
         reset()

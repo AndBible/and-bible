@@ -170,7 +170,7 @@ abstract class CurrentPageBase protected constructor(
         val currentDocument = currentDocument!!
 
         val frag = synchronized(currentDocument) {
-            val xml = SwordContentFacade.readOsisFragment(currentDocument, key)
+            val xml = SwordContentFacade.readOsisFragment(currentDocument, key, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
             OsisFragment(xml, key, currentDocument)
         }
 

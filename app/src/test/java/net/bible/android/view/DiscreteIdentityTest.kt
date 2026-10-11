@@ -83,7 +83,7 @@ class DiscreteIdentityTest {
         return Selection("ESV2011", range.start.ordinal, 7, range.end.ordinal, 30, emptyList())
     }
 
-    private fun selectionText() = SwordContentFacade.getSelectionText(
+    private fun selectionText() = net.bible.test.testSwordContentFacade().getSelectionText(
         shareSelection(), showVerseNumbers = true, advertiseApp = true,
     )
 
@@ -91,7 +91,7 @@ class DiscreteIdentityTest {
         showVerseNumbers = true, advertiseApp = true, showReference = true, abbreviateReference = true,
         showVersion = true, showNotes = true, showSelectionOnly = true, showEllipsis = true,
         showReferenceAtFront = false, showQuotes = true, separateVersesWithNewlines = false,
-    ).buildText(SwordContentFacade.buildShareVersesInput(shareSelection()))
+    ).buildText(net.bible.test.testSwordContentFacade().buildShareVersesInput(shareSelection()))
 
     // 5
     @Test fun drawerHidesTellAFriendWhenDiscrete() {

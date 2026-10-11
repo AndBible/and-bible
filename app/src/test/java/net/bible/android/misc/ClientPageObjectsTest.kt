@@ -50,7 +50,7 @@ class OsisFragmentIsNewTestamentTest {
     private fun isNewTestament(verseStr: String): Boolean {
         val kjv = Books.installed().getBook("KJV") as SwordBook
         val key = VerseRangeFactory.fromString(kjv.versification, verseStr)
-        val xml = SwordContentFacade.readOsisFragment(kjv, key)
+        val xml = SwordContentFacade.readOsisFragment(kjv, key, strings = net.bible.test.testCoreStrings())
         val fragment = OsisFragment(xml, key, kjv)
         return fragment.toHashMap["isNewTestament"] == "true"
     }

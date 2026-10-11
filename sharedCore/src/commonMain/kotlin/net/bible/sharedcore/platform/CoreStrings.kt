@@ -38,6 +38,9 @@ interface CoreStrings {
     val invalidModule: String // R.string.invalid_module
     val sqliteInvalidFile: String // R.string.sqlite_invalid_file
     val errorOccurred: String // R.string.error_occurred
+    val errorNoContent: String // R.string.error_no_content
+    fun errorKeyNotInDocument(key: String, initials: String): String // R.string.error_key_not_in_document2
+    val verseShareAdvertise: String // R.string.verse_share_advertise, formatted with app_name_long
     fun somethingWithParenthesis(a: String, b: String): String // R.string.something_with_parenthesis: "%1$s (%2$s)"
     fun readingPlanDay(day: String): String // R.string.rdg_plan_day: "Day %s"
     val sortByAlphabetical: String // R.string.sort_by_alphabetical

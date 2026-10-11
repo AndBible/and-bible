@@ -142,7 +142,7 @@ object GetDictionaryEntryTool : Tool {
                     ?: return ToolResult.error("Key not found in dictionary: $key", "KEY_NOT_FOUND")
             }
 
-            val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey)
+            val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
             val linkUrl = when {
                 dictionary.isGreekDef || dictionary.isHebrewDef -> "strongs://$key"
                 else -> "sword://${Uri.encode(dictionaryInitials)}/${Uri.encode(key)}"

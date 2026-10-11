@@ -20,8 +20,7 @@ package net.bible.service.sword
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.misc.elementToString
-import net.bible.android.view.activity.page.Selection
-import net.bible.service.sword.SwordContentFacade.bibleRefSplit
+import net.bible.service.sword.SwordContentFacade.Companion.bibleRefSplit
 import net.bible.sharedcore.reading.ShareVersesOptions
 import net.bible.test.DatabaseResetter
 
@@ -45,6 +44,49 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SwordContentFacadeTest {
+
+    @Test
+    fun missingContentUsesExplicitLiveStrings() {
+        var message = "first no-content message"
+        val strings = object : net.bible.sharedcore.platform.CoreStrings by net.bible.test.testCoreStrings() {
+            override val errorNoContent: String get() = message
+        }
+        for (expected in listOf("first no-content message", "second no-content message")) {
+            message = expected
+            try {
+                SwordContentFacade.readOsisFragment(null, null, strings)
+                org.junit.Assert.fail("Missing content must throw")
+            } catch (error: OsisError) {
+                org.junit.Assert.assertEquals(expected, error.stringMsg)
+            }
+        }
+    }
+
+    @Test
+    fun shareInputUsesInjectedHtmlAndAdvertPortsWithoutAViewSelection() {
+        val strings = object : net.bible.sharedcore.platform.CoreStrings by net.bible.test.testCoreStrings() {
+            override val verseShareAdvertise = "injected advert"
+        }
+        val environment = object : net.bible.sharedcore.platform.AppEnvironment by
+            net.bible.android.platform.AndroidAppEnvironment(net.bible.android.BibleApplication.application) {
+            override val isDiscrete = false
+        }
+        val facade = SwordContentFacade(strings, environment, HtmlToPlainText { "converted:$it" },
+            net.bible.android.control.speak.AdvancedSpeakSettings(net.bible.test.testAppSettings()),
+            org.koin.core.context.GlobalContext.get().get())
+        val selection = object : ShareSelection {
+            override val bookInitials: String? = null
+            override val verseRange: VerseRange? = null
+            override val startOffset = 1
+            override val endOffset = 3
+            override val notes = "<b>note</b>"
+        }
+        val result = facade.buildShareVersesInput(selection)
+        org.junit.Assert.assertEquals("converted:<b>note</b>", result.notesText)
+        org.junit.Assert.assertEquals("injected advert (https://andbible.github.io)", result.advertiseText)
+        org.junit.Assert.assertTrue(result.hasRange)
+        org.junit.Assert.assertTrue(result.verses.isEmpty())
+    }
 
     //@Before
     //@Throws(Exception::class)
@@ -78,7 +120,7 @@ class SwordContentFacadeTest {
         //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Gen 1:1")
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Gen 1:1")
 
-        val html = SwordContentFacade.getCanonicalText(esv, key)
+        val html = SwordContentFacade.getCanonicalText(esv, key, strings = net.bible.test.testCoreStrings())
         assertThat("Wrong canonical text", html, equalTo("In the beginning, God created the heavens and the earth. "))
     }
 
@@ -96,7 +138,7 @@ class SwordContentFacadeTest {
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Matt 18")
 
         val html = try {
-            SwordContentFacade.readOsisFragment(esv, key)
+            SwordContentFacade.readOsisFragment(esv, key, strings = net.bible.test.testCoreStrings())
         } catch (e: JSwordError) {
             "broken"
         }
@@ -111,7 +153,7 @@ class SwordContentFacadeTest {
         val verse = getVerse(esv, "Matt.18.11")
 
         val html = try {
-            SwordContentFacade.readOsisFragment(esv, verse)
+            SwordContentFacade.readOsisFragment(esv, verse, strings = net.bible.test.testCoreStrings())
         } catch (e: Exception) {
             if (e is OsisError) "fixed" else "broken"
         }
@@ -127,7 +169,7 @@ class SwordContentFacadeTest {
             val verse = getVerse(esv, "Matt.18.$i")
 
             val html = try {
-                SwordContentFacade.readOsisFragment(esv, verse)
+                SwordContentFacade.readOsisFragment(esv, verse, strings = net.bible.test.testCoreStrings())
             } catch (e: Exception) {
                 if (e is OsisError) "fixed" else "broken"
             }
@@ -139,7 +181,7 @@ class SwordContentFacadeTest {
     fun testReadNasbIssue2365() {
         val nasb = getBook("NASB")
         val key = VerseRangeFactory.fromString((nasb as SwordBook).versification, "Rev.3.1")
-        val text = SwordContentFacade.getCanonicalText(nasb, key, true)
+        val text = SwordContentFacade.getCanonicalText(nasb, key, true, strings = net.bible.test.testCoreStrings())
         val ref = "“To the angel of the church in Sardis write:  He who has the seven Spirits of God " +
             "and the seven stars, says this: ‘I know your deeds, that you have a name that you are alive, " +
             "but you are dead. "
@@ -148,7 +190,7 @@ class SwordContentFacadeTest {
 
     @Throws(Exception::class)
     private fun getHtml(book: Book, key: Key): String {
-        return elementToString(SwordContentFacade.readOsisFragment(book, key))
+        return elementToString(SwordContentFacade.readOsisFragment(book, key, strings = net.bible.test.testCoreStrings()))
     }
 
     private fun getBook(initials: String): Book {
@@ -387,16 +429,15 @@ class TestShare {
         val verseRange = VerseRangeFactory.fromString(v11n, verseRangeStr)
 
 
-        val sel = Selection(
-            initials,
-            verseRange.start.ordinal,
-            offsetRange.first,
-            verseRange.end.ordinal,
-            offsetRange.last,
-            emptyList()
-        )
+        val sel = object : ShareSelection {
+            override val bookInitials = initials
+            override val verseRange = verseRange
+            override val startOffset = offsetRange.first
+            override val endOffset = offsetRange.last
+            override val notes: String? = null
+        }
 
-        val text = SwordContentFacade.getSelectionText(
+        val text = net.bible.test.testSwordContentFacade().getSelectionText(
             sel,
             showVerseNumbers = showVerseNumbers,
             showSelectionOnly = !showWholeVerse,
@@ -732,7 +773,7 @@ Psa 83:1, ESV2011"""
  * against fixed expected strings.
  *
  * Step 1 wrote these cases comparing the new path's output to the classic `ShareWidget`'s
- * text-building code (`SwordContentFacade.getSelectionText`, still exercised directly by
+ * text-building code (`net.bible.test.testSwordContentFacade().getSelectionText`, still exercised directly by
  * [TestShare] above) LIVE, case by case — every one passed, and one was proven able to fail by a
  * temporary mutation of `SwordContentFacade.buildShareVersesInput` (reverted; see that step's
  * commit for the red output line). Step 3 deleted `ShareWidget` and froze each case's
@@ -770,17 +811,15 @@ class ShareVersesInputCharacterizationTest {
         val v11n = book.versification
         val verseRange = VerseRangeFactory.fromString(v11n, verseRangeStr)
 
-        val sel = Selection(
-            bookInitials = initials,
-            startOrdinal = verseRange.start.ordinal,
-            startOffset = offsetRange.first,
-            endOrdinal = verseRange.end.ordinal,
-            endOffset = offsetRange.last,
-            bookmarks = emptyList(),
-            notes = notes,
-        )
+        val sel = object : ShareSelection {
+            override val bookInitials = initials
+            override val verseRange = verseRange
+            override val startOffset = offsetRange.first
+            override val endOffset = offsetRange.last
+            override val notes = notes
+        }
 
-        val input = SwordContentFacade.buildShareVersesInput(sel)
+        val input = net.bible.test.testSwordContentFacade().buildShareVersesInput(sel)
         val options = ShareVersesOptions(
             showVerseNumbers = showVerseNumbers,
             advertiseApp = advertiseApp,

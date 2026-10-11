@@ -130,7 +130,7 @@ object GetGenBookContentTool : Tool {
             val resolvedKey = book.getKey(args.key)
                 ?: return ToolResult.error("Key not found: ${args.key}", "KEY_NOT_FOUND")
 
-            val fragment = SwordContentFacade.readOsisFragment(book, resolvedKey)
+            val fragment = SwordContentFacade.readOsisFragment(book, resolvedKey, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
             val linkUrl = "sword://${Uri.encode(args.book)}/${Uri.encode(args.key)}"
 
             if (args.format == ContentFormat.XML) {

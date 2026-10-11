@@ -258,7 +258,7 @@ class CurrentGeneralBookPage internal constructor(
                                     else -> k
                                 }
                             }
-                            OsisFragment(SwordContentFacade.readOsisFragment(doc, k), k, doc)
+                            OsisFragment(SwordContentFacade.readOsisFragment(doc, k, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), k, doc)
                         } catch (e: OsisError) {
                             if(dropUninstalled && e is DocumentNotFound && Books.installed().getBook(doc.initials) == null) {
                                 Log.i(TAG, "Dropping an uninstalled document from an assembled key: ${doc.initials}")

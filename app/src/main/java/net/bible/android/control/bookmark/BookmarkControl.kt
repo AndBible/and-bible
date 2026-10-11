@@ -786,10 +786,10 @@ open class BookmarkControl constructor(
 
             if (isWholePage) {
                 // Whole-page bookmark: get full OSIS fragment for rendering
-                b.osisFragment = OsisFragment(SwordContentFacade.readOsisFragment(book, key), key, book)
+                b.osisFragment = OsisFragment(SwordContentFacade.readOsisFragment(book, key, strings = strings), key, book)
                 // For oneliner preview, get text from beginning of page
-                val ordinalRange = SwordContentFacade.ordinalRangeFor(book, key)
-                val allTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange)
+                val ordinalRange = SwordContentFacade.ordinalRangeFor(book, key, strings = strings)
+                val allTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange, strings = strings)
                 // Use first text element as preview
                 b.text = allTexts.firstOrNull()?.take(200)?.trim() ?: ""
                 b.fullText = b.text
@@ -797,7 +797,7 @@ open class BookmarkControl constructor(
                 b.endText = ""
             } else {
                 // Regular bookmark with ordinal range
-                val verseTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, b.ordinalStart!!..b.ordinalEnd!!)
+                val verseTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, b.ordinalStart!!..b.ordinalEnd!!, strings = strings)
                 addText(b, verseTexts, b.wholeVerse)
             }
         } catch (e: OsisError) {
@@ -827,13 +827,13 @@ open class BookmarkControl constructor(
         val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests
         b.osisFragment =
             try {
-                OsisFragment(SwordContentFacade.readOsisFragment(book, b.verseRange.toV11n(book.versification)), b.verseRange, book)
+                OsisFragment(SwordContentFacade.readOsisFragment(book, b.verseRange.toV11n(book.versification), strings = strings), b.verseRange, book)
             }
             catch (e: OsisError) {
                 Log.e(TAG, "Error in getting content from $book for ${b.verseRange}")
                 null
             }
-        val verseTexts = b.verseRange.map {  SwordContentFacade.getCanonicalText(book, it, true) }
+        val verseTexts = b.verseRange.map {  SwordContentFacade.getCanonicalText(book, it, true, strings = strings) }
         val wholeVerse = b.wholeVerse || b.book == null
         addText(b, verseTexts, wholeVerse)
     }

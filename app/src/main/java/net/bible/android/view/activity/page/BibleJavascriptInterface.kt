@@ -124,6 +124,7 @@ internal fun refChooserVerseName(verseStr: String?): String {
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) : KoinComponent {
+    private val swordContentFacade: SwordContentFacade by inject()
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     private val progressJsActions: ProgressJsActions by inject()
     private val bookmarkJsActions: BookmarkJsActions by inject()
@@ -488,7 +489,7 @@ class BibleJavascriptInterface(
             val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
             scope.launch(Dispatchers.Main) {
                 hostCallbacks.composeReadingViewHost()?.showShareSheet(
-                    SwordContentFacade.buildShareVersesInput(Selection(bookmark))
+                    swordContentFacade.buildShareVersesInput(Selection(bookmark))
                 )
             }
         }
@@ -503,7 +504,7 @@ class BibleJavascriptInterface(
     fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             hostCallbacks.composeReadingViewHost()?.showShareSheet(
-                SwordContentFacade.buildShareVersesInput(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+                swordContentFacade.buildShareVersesInput(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
             )
         }
     }

@@ -486,7 +486,7 @@ import net.bible.android.view.activity.navigation.pickGridBook
 import net.bible.android.view.activity.navigation.pickGridChapter
 import net.bible.service.download.hideFromSelector
 import net.bible.service.sword.OsisError
-import net.bible.service.sword.SwordContentFacade.readOsisFragment
+import net.bible.service.sword.SwordContentFacade.Companion.readOsisFragment
 import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
@@ -9101,7 +9101,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val keys = chooseDictionarySession?.keys ?: return@withContext ""
         val key = keys.getOrNull(keyId.toIntOrNull() ?: -1) ?: return@withContext ""
         val book: Book = chooseDictionaryPage.currentDocument ?: return@withContext ""
-        val text = try { readOsisFragment(book, key) } catch (e: OsisError) { e.xml }
+        val text = try { readOsisFragment(book, key, org.koin.core.context.GlobalContext.get().get()) } catch (e: OsisError) { e.xml }
         dictionaryEntrySnippet(text, key.toString())
     }
 

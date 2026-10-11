@@ -21,3 +21,13 @@ fun testBackupControl(): net.bible.android.control.backup.BackupControl {
         testAppSettings(), koin.get(), koin.get(), koin.get(),
     )
 }
+
+fun testSwordContentFacade(): net.bible.service.sword.SwordContentFacade {
+    val koin = org.koin.core.context.GlobalContext.get()
+    val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+    return net.bible.service.sword.SwordContentFacade(
+        testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(context),
+        net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() },
+        koin.get(), koin.get(),
+    )
+}
