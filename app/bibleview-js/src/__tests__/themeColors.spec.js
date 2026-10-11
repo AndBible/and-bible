@@ -659,3 +659,20 @@ describe("effective theme chrome cascade", () => {
         expect(bad.color).not.toMatch(/^var\(--ab-on-primary,/);
     });
 });
+
+describe("malformed runtime channel fields", () => {
+    const valid = {primary: "#FF8000", onPrimary: "#FFFFFF", primaryContainer: "#FFDCC0", onPrimaryContainer: "#2A1800", secondaryContainer: "#F3DFD0", onSecondaryContainer: "#271A10"};
+    it.each([
+        ["primary", "--ab-primary-rgb", "255, 128, 0"],
+        ["secondaryContainer", "--ab-secondary-container-rgb", "243, 223, 208"],
+    ])("removes stale %s channels for non-string runtime values", (field, property, channels) => {
+        for (const value of [null, undefined, 0, 123, false, {}, [], [1, 2, 3]]) {
+            applyThemeColors(valid);
+            expect(document.documentElement.style.getPropertyValue(property)).toBe(channels);
+            applyThemeColors({...valid, [field]: value});
+            expect(document.documentElement.style.getPropertyValue(property)).toBe("");
+            applyThemeColors(valid);
+            expect(document.documentElement.style.getPropertyValue(property)).toBe(channels);
+        }
+    });
+});

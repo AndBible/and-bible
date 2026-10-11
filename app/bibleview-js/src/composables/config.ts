@@ -142,6 +142,8 @@ const THEME_COLOR_PROPERTIES: [keyof ThemeColors, string][] = [
 const ACCENT_CHANNELS_PROPERTY = "--ab-primary-rgb";
 
 function colorChannels(color: string): string | null {
+    // Runtime bridge payloads can violate the TS contract; Color(null) means black.
+    if (typeof color !== "string") return null;
     try {
         return Color(color).rgb().round().array().join(", ");
     } catch {
