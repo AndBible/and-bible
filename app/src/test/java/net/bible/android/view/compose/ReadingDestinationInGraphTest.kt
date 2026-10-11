@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.content.Context
+import android.os.Looper
 import android.os.PowerManager
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatDelegate
@@ -810,6 +811,8 @@ class ReadingDestinationInGraphTest {
         } finally {
             prefs.edit().putBoolean("night_mode_pref", hadNightMode).commit()
             AppCompatDelegate.setDefaultNightMode(previousDefault)
+            // Drain theme-triggered recreation while the owning ActivityController is still alive.
+            shadowOf(Looper.getMainLooper()).idle()
         }
     }
 

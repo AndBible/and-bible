@@ -18,11 +18,12 @@ package net.bible.android.control.report
 
 import net.bible.android.AppDialogControllerResetRule
 import android.app.Activity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -62,6 +63,7 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ErrorReportControlTest {
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
@@ -119,22 +121,23 @@ class ErrorReportControlTest {
     @Test
     fun selectingReportStartsBugReportReportBug() = runOnTestMain {
         val activity = activity()
+        val progressPublished = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            dialogs.progress.first { it != null }
+        }
         val answer = async { ErrorReportControl.showErrorDialog(activity, "boom") }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
-        advanceUntilIdle()
-        // BugReport.reportBug's first observable action (before its real file IO / delay) is
-        // raising an AppDialogRequest.Progress (Task 30 Step 1: dialogs.show(Progress(...)),
-        // no more Hourglass) -- proof the REPORT branch really launched it, without driving the
-        // rest of that (separately tested / out of scope) reporting flow.
-        val progress = dialogs.progress.value!!.request as AppDialogRequest.Progress
+        // Observe the transient progress publication rather than sampling after IO may dismiss it.
+        val shown = requireNotNull(progressPublished.await())
+        val progress = shown.request as AppDialogRequest.Progress
         assertEquals(activity.getString(R.string.please_wait), progress.message)
         // cancelAndJoin (not bare cancel()): the test body itself must observe the cancelled child
         // fully finish -- including its withContext(Dispatchers.Main) cancellation-completion hop --
         // rather than relying on runTest's implicit structured-concurrency wait-for-children, which
         // is what deadlocked before Main stopped being reset mid-test (see testDispatcher above).
         answer.cancelAndJoin()
+        progressPublished.cancelAndJoin()
     }
 
     /**
