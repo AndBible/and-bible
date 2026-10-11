@@ -212,15 +212,20 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
         private val real: net.bible.android.database.EpubDao
         init {
             fixture.setUp()
+            var acquiredState: net.bible.service.sword.epub.EpubBackendState? = null
+            var registered: org.crosswire.jsword.book.sword.SwordGenBook? = null
+            try {
             val dir = fixture.buildEpub("held-speech-ordinal")
             java.io.File(dir, "OEBPS/ch1.xhtml").writeText(
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>One</title></head><body>" +
                     (1..50).joinToString("") { "<p>Sentence $it is readable.</p>" } + "</body></html>")
             state = net.bible.service.sword.epub.EpubBackendState(dir, testCoreStrings(),
                 net.bible.android.platform.AndroidAppEnvironment(app))
+            acquiredState = state
             val metadata = state.getBookMetaData()
             book = org.crosswire.jsword.book.sword.SwordGenBook(metadata, net.bible.service.sword.epub.EpubBackend(state, metadata))
             org.crosswire.jsword.book.Books.installed().addBook(book)
+            registered = book
             net.bible.service.sword.SwordContentFacade.clearCaches()
             val first = state.keys.first()
             val range = kotlinx.coroutines.runBlocking { state.getOrdinalRange(first) }
@@ -239,6 +244,15 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
                     return real.getFragment(id)
                 }
             })
+            } catch (failure: Throwable) {
+                try {
+                    registered?.let { org.crosswire.jsword.book.Books.installed().removeBook(it) }
+                    net.bible.service.sword.SwordContentFacade.clearCaches()
+                } finally {
+                    try { acquiredState?.close() } finally { fixture.tearDown() }
+                }
+                throw failure
+            }
         }
         override fun close() {
             resume.complete(Unit)
@@ -365,6 +379,197 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
                 epub.resume.complete(Unit)
                 rewind?.join(3000)
             }
+        }
+    }
+
+    @Test
+    fun stoppedBibleRenderCannotPublishCursorOrUtteranceState() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val provider = org.robolectric.util.ReflectionHelpers.getField<BibleSpeakTextProvider>(manager, "bibleSpeakTextProvider")
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val verse = (book.getKey("Rom.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0)
+        val cache = org.robolectric.util.ReflectionHelpers.getField<androidx.collection.LruCache<Pair<org.crosswire.jsword.book.sword.SwordBook, org.crosswire.jsword.passage.Verse>, SpeakCommandArray>>(provider, "verseRenderLruCache")
+        org.robolectric.util.ReflectionHelpers.setField(provider, "verseRenderLruCache", object : androidx.collection.LruCache<Pair<org.crosswire.jsword.book.sword.SwordBook, org.crosswire.jsword.passage.Verse>, SpeakCommandArray>(100) {
+            override fun create(key: Pair<org.crosswire.jsword.book.sword.SwordBook, org.crosswire.jsword.passage.Verse>): SpeakCommandArray {
+                entered.countDown()
+                check(release.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                return net.bible.test.testSwordContentFacade().getBibleSpeakCommands(net.bible.android.database.bookmarks.SpeakSettings.load(), key.first, key.second)
+            }
+        })
+        try {
+            manager.speakBible(book, verse)
+            platform.listener!!.onInit(true)
+            assertTrue(entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+            manager.shutdown()
+            release.countDown()
+            joinSpeech()
+            val current = org.robolectric.util.ReflectionHelpers.getField<org.crosswire.jsword.passage.Verse>(provider, "_currentVerse")
+            assertEquals("Stopped Bible render cannot advance private cursor", verse.ordinal, current.ordinal)
+            val states = org.robolectric.util.ReflectionHelpers.getField<Map<String, Any>>(provider, "utteranceState")
+            assertTrue("Stopped Bible render cannot resurrect utterance state", states.isEmpty())
+            assertFalse(engine.calls.any { it.startsWith("speak:") })
+        } finally {
+            release.countDown()
+            try { joinSpeech() } finally {
+                org.robolectric.util.ReflectionHelpers.setField(provider, "verseRenderLruCache", cache)
+                speakControl.stop(force = true)
+                joinSpeech()
+            }
+        }
+    }
+
+    @Test
+    fun legacyCompletionSubmittedBeforeAppendAdvancesExactlyOnce() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        speakControl.speakKeyListLegacy(book, listOf(book.getKey("Gen.1.1")), true)
+        platform.listener!!.onInit(true)
+        joinSpeech()
+        val before = engine.utteranceIds.size
+        val last = engine.utteranceIds.last()
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val launcher = GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>()
+        launcher.launch(SPEAK_KEY) { entered.countDown(); release.await() }
+        try {
+            assertTrue(entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+            platform.listener!!.onUtteranceDone(last)
+            speakControl.speakKeyListLegacy(book, listOf(book.getKey("Gen.2.1")), true)
+            release.complete(Unit)
+            joinSpeech()
+            assertEquals("Retained queue completion must advance exactly one chunk", before + 1, engine.utteranceIds.size)
+        } finally {
+            release.complete(Unit)
+            joinSpeech()
+            speakControl.stop(force = true)
+            joinSpeech()
+        }
+    }
+
+    private fun failLiveOperation(operation: String) {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            val states = java.util.Collections.synchronizedList(mutableListOf<SpeakPlaybackState>())
+            val sub = SpeakChanges.changes.subscribe { if (it is SpeakChange.State) states += it.speakState }
+            try {
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                if (operation != "command") {
+                    platform.listener!!.onInit(true)
+                    joinSpeech()
+                }
+                val actual = org.robolectric.util.ReflectionHelpers.getField<SpeakTextProvider>(manager, "mSpeakTextProvider")
+                val failing = object : SpeakTextProvider by actual {
+                    override suspend fun forward(amount: net.bible.android.database.bookmarks.SpeakSettings.RewindAmount?, isValid: () -> Boolean) {
+                        if (operation == "movement") throw IllegalStateException("live movement failure")
+                        actual.forward(amount, isValid)
+                    }
+                    override suspend fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean, isValid: () -> Boolean): SpeakCommand {
+                        if (operation == "command") throw IllegalStateException("live command failure")
+                        return actual.getNextSpeakCommand(utteranceId, isCurrent, isValid)
+                    }
+                    override suspend fun getStatusTexts(): Map<Int, String> {
+                        if (operation == "status") throw IllegalStateException("live status failure")
+                        return actual.getStatusTexts()
+                    }
+                }
+                org.robolectric.util.ReflectionHelpers.setField(manager, "mSpeakTextProvider", failing)
+                states.clear()
+                if (operation == "command") platform.listener!!.onInit(true)
+                else manager.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                joinSpeech()
+                assertFalse("A live $operation failure must terminate playback coherently", manager.isSpeaking || manager.isPaused)
+                assertEquals(SpeakPlaybackState.SILENT, states.lastOrNull())
+                assertTrue(engine.calls.contains("shutdown"))
+            } finally {
+                sub.cancel()
+                speakControl.stop(force = true)
+                joinSpeech()
+            }
+        }
+    }
+
+    @Test fun liveMovementFailurePublishesCoherentTerminalState() = failLiveOperation("movement")
+    @Test fun liveCommandFailurePublishesCoherentTerminalState() = failLiveOperation("command")
+    @Test fun liveStatusFailurePublishesCoherentTerminalState() = failLiveOperation("status")
+
+    @Test
+    fun restoredPausedBibleHasStatusWithoutEngineStartup() {
+        start(supportedFinnish())
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        manager.pause(true)
+        joinSpeech()
+        val expectedVerse = (manager.currentlyPlayingKey as org.crosswire.jsword.passage.Verse).getName()
+        try {
+            val creations = platform.creations
+            configureFreshControl()
+            val restored = GlobalContext.get().get<TextToSpeechServiceManager>()
+            joinSpeech()
+            assertTrue(restored.isPaused)
+            assertFalse(restored.isSpeaking)
+            assertEquals(creations, platform.creations)
+            assertTrue("Paused reconstruction must resolve Bible status", restored.getStatusText(BibleSpeakTextProvider.FLAG_SHOW_ALL).isNotBlank())
+            assertTrue(restored.getStatusText(BibleSpeakTextProvider.FLAG_SHOW_ALL).startsWith(expectedVerse))
+            assertTrue(restored.getStatusText(BibleSpeakTextProvider.FLAG_SHOW_ALL).contains(book.abbreviation))
+        } finally { speakControl.stop(force = true); manager.shutdown(); joinSpeech() }
+    }
+
+    @Test
+    fun restoredPausedGenericHasLazyStatusWithoutEngineStartup() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            epub.hold.set(false)
+            manager.speakGeneric(epub.key)
+            platform.listener!!.onInit(true)
+            joinSpeech()
+            manager.pause(true)
+            joinSpeech()
+            val creations = platform.creations
+            configureFreshControl()
+            val restored = GlobalContext.get().get<TextToSpeechServiceManager>()
+            joinSpeech()
+            assertTrue(restored.isPaused)
+            assertFalse(restored.isSpeaking)
+            assertEquals(creations, platform.creations)
+            val status = restored.getStatusText(GeneralSpeakTextProvider.FLAG_SHOW_ALL)
+            assertTrue("Paused reconstruction must resolve generic percentage", status.contains("%"))
+            assertTrue(status.contains(epub.book.abbreviation))
+        }
+    }
+
+    @Test
+    fun currentEngineStartCallbacksCannotMoveBackOrRestartTiming() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            val progress = java.util.Collections.synchronizedList(mutableListOf<SpeakChange.Progress>())
+            val sub = SpeakChanges.changes.subscribe { if (it is SpeakChange.Progress) progress += it }
+            try {
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                val first = engine.utteranceIds[0]
+                val second = engine.utteranceIds[1]
+                platform.listener!!.onUtteranceStart(first)
+                platform.listener!!.onUtteranceStart(second)
+                joinSpeech()
+                val count = progress.size
+                val status = manager.getStatusText(GeneralSpeakTextProvider.FLAG_SHOW_ALL)
+                val provider = org.robolectric.util.ReflectionHelpers.getField<GeneralSpeakTextProvider>(manager, "generalSpeakTextProvider")
+                val timing = org.robolectric.util.ReflectionHelpers.getField<SpeakTiming>(manager, "mSpeakTiming")
+                val startedAt = org.robolectric.util.ReflectionHelpers.getField<Long>(timing, "lastSpeakStartTime")
+                platform.listener!!.onUtteranceStart(second)
+                platform.listener!!.onUtteranceStart(first)
+                joinSpeech()
+                assertEquals("Duplicate/delayed start cannot republish old progress", count, progress.size)
+                assertEquals(status, manager.getStatusText(GeneralSpeakTextProvider.FLAG_SHOW_ALL))
+                assertEquals(second, org.robolectric.util.ReflectionHelpers.getField<String>(provider, "currentUtteranceId"))
+                assertEquals(second, org.robolectric.util.ReflectionHelpers.getField<String>(timing, "lastUtteranceId"))
+                assertEquals(startedAt, org.robolectric.util.ReflectionHelpers.getField<Long>(timing, "lastSpeakStartTime"))
+            } finally { sub.cancel() }
         }
     }
 

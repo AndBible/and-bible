@@ -112,6 +112,7 @@ class TextToSpeechServiceManager constructor(
     private val ttsLanguageSupport = TTSLanguageSupport(settings)
     private var uniqueUtteranceNo: Long = 0
     private val acceptedUtterances = mutableSetOf<String>()
+    private var lastStartedUtteranceNo = -1L
 
     // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
     var isSpeaking = false
@@ -175,6 +176,12 @@ class TextToSpeechServiceManager constructor(
     private fun valid(request: Request) = request.generation == startGeneration.get() &&
         request.engine == engineIdentity && request.provider === mSpeakTextProvider
     @Volatile private var statusTexts = emptyMap<Int, String>()
+    init {
+        if (isPaused) {
+            val restored = request()
+            launchRequest(restored) { refreshStatus(restored) }
+        }
+    }
 
     /** Status is a live UI projection, never an ordinal cache; reads happen on the speak FIFO. */
     private suspend fun refreshStatus(request: Request) {
@@ -203,10 +210,10 @@ class TextToSpeechServiceManager constructor(
             val genericKey = pendingGenericKey
             val identity = engineIdentity
             val request = Request(generation, identity, provider)
-            launcher.launch(SPEAK_KEY) {
+            launchRequest(request) {
                 var start = false
                 var forceQueue = false
-                if (!valid(request)) return@launch
+                if (!valid(request)) return@launchRequest
                 provider.loadBookmarkState()
                 val genericLocales = genericKey?.let { key ->
                     val language = getMyDocumentPageLanguage(key)
@@ -278,10 +285,13 @@ class TextToSpeechServiceManager constructor(
 
         override fun onUtteranceStart(utteranceId: String) {
             val request = synchronized(this@TextToSpeechServiceManager) { request() }
-            launcher.launch(SPEAK_KEY) {
+            launchRequest(request) {
                 withContext(mainDispatcher) {
                     synchronized(this@TextToSpeechServiceManager) {
                         if (!valid(request) || !isSpeaking || !acceptedUtterances.contains(utteranceId)) return@withContext
+                        val number = utteranceId.removePrefix(UTTERANCE_PREFIX).toLongOrNull() ?: return@withContext
+                        if (number <= lastStartedUtteranceNo) return@withContext
+                        lastStartedUtteranceNo = number
                         request.provider.startUtterance(utteranceId)
                         mSpeakTiming.started(utteranceId, request.provider.getText(utteranceId).length)
                     }
@@ -292,7 +302,7 @@ class TextToSpeechServiceManager constructor(
 
         override fun onUtteranceDone(utteranceId: String) {
             val request = synchronized(this@TextToSpeechServiceManager) { request() }
-            launcher.launch(SPEAK_KEY) {
+            launchRequest(request) {
                 val advance = withContext(mainDispatcher) {
                     synchronized(this@TextToSpeechServiceManager) {
                         if (!valid(request) || !acceptedUtterances.remove(utteranceId)) return@synchronized false
@@ -337,7 +347,9 @@ class TextToSpeechServiceManager constructor(
 
     @Synchronized
     fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
-        startGeneration.incrementAndGet()
+        val retainsQueue = queue && mSpeakTextProvider === legacySpeakTextProvider && isSpeaking && !isPaused &&
+            mTts != null && platform.preferredEnginePackage == configuredEnginePackage
+        if (!retainsQueue) startGeneration.incrementAndGet()
         statusTexts = emptyMap()
         pendingGenericKey = null
         switchProvider(legacySpeakTextProvider)
@@ -517,7 +529,7 @@ class TextToSpeechServiceManager constructor(
 
     private fun move(amount: SpeakSettings.RewindAmount?, backwards: Boolean) {
         val request = synchronized(this) { request() }
-        launcher.launch(SPEAK_KEY) {
+        launchRequest(request) {
             val paused = withContext(mainDispatcher) {
                 synchronized(this@TextToSpeechServiceManager) {
                     if (!valid(request)) return@synchronized null
@@ -530,7 +542,7 @@ class TextToSpeechServiceManager constructor(
                     if (!paused) request.provider.savePosition(mSpeakTiming.fractionCompleted)
                     paused
                 }
-            } ?: return@launch
+            } ?: return@launchRequest
             if (backwards) request.provider.rewind(amount) { valid(request) } else request.provider.forward(amount) { valid(request) }
             refreshStatus(request)
             withContext(mainDispatcher) {
@@ -602,8 +614,27 @@ class TextToSpeechServiceManager constructor(
         isPaused = false
     }
 
+    /** A live failed read must not leave transport flags in an unannounced transient state. */
+    private fun launchRequest(request: Request, block: suspend () -> Unit) {
+        launcher.launch(SPEAK_KEY) {
+            try {
+                block()
+            } catch (failure: Throwable) {
+                withContext(kotlinx.coroutines.NonCancellable + mainDispatcher) {
+                    synchronized(this@TextToSpeechServiceManager) {
+                        if (valid(request)) {
+                            showError(strings.errorOccurred, failure as? Exception ?: Exception(failure))
+                            shutdown()
+                        }
+                    }
+                }
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
+            }
+        }
+    }
+
     private fun queueStart(request: Request, forceQueue: Boolean = false) {
-        launcher.launch(SPEAK_KEY) { startSpeaking(request, forceQueue) }
+        launchRequest(request) { startSpeaking(request, forceQueue) }
     }
 
     private suspend fun startSpeaking(request: Request, forceQueue: Boolean = false) {
@@ -820,8 +851,8 @@ class TextToSpeechServiceManager constructor(
         mSpeakTextProvider.updateSettings(change)
         setRate(change.speakSettings.playbackSettings.speed)
         val request = request()
-        if (initialized || isPaused) launcher.launch(SPEAK_KEY) {
-            if (!valid(request)) return@launch
+        if (initialized || isPaused) launchRequest(request) {
+            if (!valid(request)) return@launchRequest
             refreshStatus(request)
         }
 
