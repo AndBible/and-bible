@@ -295,9 +295,11 @@ class ReadingAppBootstrapTest {
      */
     @Test
     fun theReadingBootstrapSetsTheVisibilityFlagBeforeDispatchingADeepLink() {
-        val body = codeLinesOf(navHostActivity)
+        val lines = codeLinesOf(navHostActivity)
+        val end = lines.indexOfFirst { it.trim().startsWith("override val hostContext:") }
+        assertTrue("the bootstrap body boundary must survive the comment filter", end >= 0)
+        val body = lines.take(end)
             .dropWhile { !it.contains("private fun bootstrapIfNeeded()") }
-            .takeWhile { !it.trim().startsWith("/** [ReadingHostActivity.hostContext]") }
         val visible = body.indexOfFirst { it.contains("ReadingViewVisibility.setActivityVisible(this, true)") }
         val presence = body.indexOfFirst { it.contains("ReadingHostPresence.setForeground(this)") }
         val dispatch = body.indexOfFirst { it.trim() == "applyBootstrapUiIfForeground()" }
