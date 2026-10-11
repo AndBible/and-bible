@@ -1356,6 +1356,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * From [onCreate] it runs BEFORE `setContent`, exactly as classic runs it before the reading
      * view is built: the composition reads `windowControl.windowRepository`.
      */
+    private var bootstrapUiOwed = false
+
+    private fun applyBootstrapUiIfForeground() {
+        if (!bootstrapUiOwed || paused || !ReadingHostPresence.isForeground(this)) return
+        bootstrapUiOwed = false
+        lifecycleScope.launch(Dispatchers.Main) { readingAppBootstrap.showFirstRunNotices() }
+        if (intent.hasExtra("openLink")) {
+            readingAppBootstrap.openDeepLink(Uri.parse(intent.getStringExtra("openLink")))
+        }
+    }
+
     private fun bootstrapIfNeeded() {
         if (readingAppBootstrapped) return
         readingAppBootstrapped = true
@@ -1366,13 +1377,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         readingAppBootstrap.prepareData()
         readingAppBootstrap.createWindowRepository()
         readingAppBootstrap.setSoftKeyboardMode()
-        lifecycleScope.launch(Dispatchers.Main) {
-            readingAppBootstrap.showFirstRunNotices()
-        }
-        if(intent.hasExtra("openLink")) {
-            val uri = Uri.parse(intent.getStringExtra("openLink"))
-            readingAppBootstrap.openDeepLink(uri)
-        }
+        bootstrapUiOwed = true
+        applyBootstrapUiIfForeground()
         readingAppBootstrap.registerNetworkCallback()
     }
 
@@ -1953,6 +1959,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // `onScreenTurnedOn`, and anything either reaches may read `windowControl.windowRepository`.
         val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
+        applyBootstrapUiIfForeground()
         if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
         applyPendingActivityResult()
     }
