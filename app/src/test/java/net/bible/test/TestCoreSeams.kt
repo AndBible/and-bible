@@ -28,6 +28,6 @@ fun testSwordContentFacade(): net.bible.service.sword.SwordContentFacade {
     return net.bible.service.sword.SwordContentFacade(
         testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(context),
         net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() },
-        koin.get(), koin.get(),
+        koin.get(), koin.get(), net.bible.android.platform.androidSaxTextPolicy(),
     )
 }

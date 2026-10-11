@@ -81,7 +81,7 @@ class BookmarkCsvFlowTest {
     @Before
     fun setUp() {
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher())
+        bookmarkControl = BookmarkControl(mockedWindowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
         flow = BookmarkCsvFlow(bookmarkControl)
         Dispatchers.setMain(testDispatcher)
     }

@@ -90,6 +90,7 @@ open class BookmarkControl constructor(
     private val settings: AppSettings,
     private val strings: CoreStrings,
     private val launcher: OrderedLauncher,
+    private val saxTextPolicy: net.bible.service.format.SaxTextPolicy,
 ) {
     private val _changes = EventSource<BookmarkChange>()
     /** Every bookmark/label/StudyPad change, in emission order, on the emitter's thread. */
@@ -833,7 +834,7 @@ open class BookmarkControl constructor(
                 Log.e(TAG, "Error in getting content from $book for ${b.verseRange}")
                 null
             }
-        val verseTexts = b.verseRange.map {  SwordContentFacade.getCanonicalText(book, it, true, strings = strings) }
+        val verseTexts = b.verseRange.map {  SwordContentFacade.getCanonicalText(book, it, true, strings = strings, saxTextPolicy = saxTextPolicy) }
         val wholeVerse = b.wholeVerse || b.book == null
         addText(b, verseTexts, wholeVerse)
     }

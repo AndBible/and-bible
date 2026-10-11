@@ -34,7 +34,7 @@ import java.util.regex.Pattern
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class LegacySpeakTextProvider(private val settings: AppSettings, private val strings: net.bible.sharedcore.platform.CoreStrings) : SpeakTextProvider {
+class LegacySpeakTextProvider(private val settings: AppSettings, private val strings: net.bible.sharedcore.platform.CoreStrings, private val saxTextPolicy: net.bible.service.format.SaxTextPolicy) : SpeakTextProvider {
     private var mTextToSpeak: MutableList<String?>? = ArrayList()
     private var nextTextToSpeak: Long = 0
 
@@ -98,7 +98,7 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
                 textToSpeak.add(key.getName() + ". ")
 
                 // content
-                textToSpeak.add(getTextToSpeak(book!!, key, strings))
+                textToSpeak.add(getTextToSpeak(book!!, key, strings, saxTextPolicy))
 
                 // add a pause at end to separate passages
                 textToSpeak.add("\n")

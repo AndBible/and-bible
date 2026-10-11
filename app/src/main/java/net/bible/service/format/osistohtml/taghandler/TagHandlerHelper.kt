@@ -16,7 +16,7 @@
  */
 package net.bible.service.format.osistohtml.taghandler
 
-import net.bible.service.common.Logger
+import net.bible.sharedcore.log.Log
 import org.apache.commons.lang3.StringUtils
 import org.xml.sax.Attributes
 
@@ -24,7 +24,6 @@ import org.xml.sax.Attributes
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object TagHandlerHelper {
-    private val log = Logger("TagHandlerHelper")
 
     /** support defaultvalue with attribute fetch
      */
@@ -43,7 +42,7 @@ object TagHandlerHelper {
                 retval = attrValue.toInt()
             }
         } catch (e: Exception) {
-            log.warn("Non numeric but expected integer for $attributeName")
+            Log.w("TagHandlerHelper", "Non numeric but expected integer for $attributeName")
         }
         return retval
     }
@@ -94,7 +93,7 @@ object TagHandlerHelper {
 
     fun printAttributes(attrs: Attributes) {
         for (i in 0 until attrs.length) {
-            log.debug(attrs.getLocalName(i) + ":" + attrs.getValue(i))
+            Log.d("TagHandlerHelper", attrs.getLocalName(i) + ":" + attrs.getValue(i))
         }
     }
 }

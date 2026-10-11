@@ -355,7 +355,7 @@ open class AbstractSpeakTests {
         val windowControl = mock(WindowControl::class.java)
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
-        val bookmarkControl = BookmarkControl(windowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher())
+        val bookmarkControl = BookmarkControl(windowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
     }
 }
 

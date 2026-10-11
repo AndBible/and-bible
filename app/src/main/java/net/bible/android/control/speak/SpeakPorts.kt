@@ -35,6 +35,8 @@ interface SpeakEngineListener {
 data class SpeakPhrases(
     val first: String, val second: String, val third: String, val fourth: String,
     val fifth: String, val bookChanged: String, val chapterChanged: String,
+    val divineNameOriginal: List<String> = emptyList(),
+    val divineNameReplace: List<String> = emptyList(),
 )
 
 interface SpeakPlatform {

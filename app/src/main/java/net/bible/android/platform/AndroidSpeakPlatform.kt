@@ -84,6 +84,8 @@ class AndroidSpeakPlatform(private val context: Context) : SpeakPlatform {
             SpeakPhrases(resources.getString(R.string.speak_first), resources.getString(R.string.speak_second),
                 resources.getString(R.string.speak_third), resources.getString(R.string.speak_fourth),
                 resources.getString(R.string.speak_fifth), resources.getString(R.string.speak_book_changed),
-                resources.getString(R.string.speak_chapter_changed))
+                resources.getString(R.string.speak_chapter_changed),
+                resources.getStringArray(R.array.speak_divinename_original).toList(),
+                resources.getStringArray(R.array.speak_divinename_replace).toList())
         }
 }

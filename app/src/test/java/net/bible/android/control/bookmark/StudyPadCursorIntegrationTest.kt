@@ -68,7 +68,7 @@ class StudyPadCursorIntegrationTest {
         windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowRepository.initialize()
 
-        bookmarkControl = BookmarkControl(windowControl!!, testAppSettings(), testCoreStrings(), testOrderedLauncher())
+        bookmarkControl = BookmarkControl(windowControl!!, testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
     }
 
     @After

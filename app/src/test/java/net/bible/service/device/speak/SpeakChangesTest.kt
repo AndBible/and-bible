@@ -124,7 +124,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     @Test
     fun legacyStartUtteranceEmitsCurrentTextThenBookTitleForTheSelectedKey() {
         val key = book.getKey("Rom.1.1")
-        val provider = LegacySpeakTextProvider(net.bible.test.testAppSettings(), net.bible.test.testCoreStrings())
+        val provider = LegacySpeakTextProvider(net.bible.test.testAppSettings(), net.bible.test.testCoreStrings(), net.bible.android.platform.androidSaxTextPolicy())
         provider.setupReading(book, listOf(key))
         val (id, command) = nextText(provider, "legacy")
         watch()

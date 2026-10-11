@@ -29,7 +29,7 @@ class OsisToCanonicalTextSaxHandlerTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        osisToCanonicalTextSaxHandler = OsisToCanonicalTextSaxHandler()
+        osisToCanonicalTextSaxHandler = OsisToCanonicalTextSaxHandler(textPolicy = net.bible.service.format.SaxTextPolicy.MODERN)
         osisToCanonicalTextSaxHandler!!.startDocument()
     }
 

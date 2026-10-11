@@ -91,6 +91,7 @@ class SwordContentFacade(
     private val htmlToPlainText: HtmlToPlainText,
     private val advancedSpeakSettings: AdvancedSpeakSettings,
     private val speakPlatform: SpeakPlatform,
+    internal val saxTextPolicy: net.bible.service.format.SaxTextPolicy,
 ) {
     companion object {
         private const val docCacheSize = 25
@@ -450,11 +451,11 @@ class SwordContentFacade(
          * a reference, appropriate for the book, of one or more entries
          */
         @Throws(NoSuchKeyException::class, BookException::class, OsisError::class)
-        fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false, strings: CoreStrings): String {
+        fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false, strings: CoreStrings, saxTextPolicy: net.bible.service.format.SaxTextPolicy): String {
             return try {
                 val data = BookData(book, key)
                 val osissep = data.getSAXEventProvider()
-                val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler(compatibleOffsets)
+                val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler(compatibleOffsets, saxTextPolicy)
                 osissep.provideSAXEvents(osisHandler)
                 osisHandler.toString()
             } catch (e: Exception) {
@@ -471,12 +472,12 @@ class SwordContentFacade(
          * @param key
          * a reference, appropriate for the book, of one or more entries
          */
-        fun getTextToSpeak(book: Book, key: Key?, strings: CoreStrings): String {
+        fun getTextToSpeak(book: Book, key: Key?, strings: CoreStrings, saxTextPolicy: net.bible.service.format.SaxTextPolicy): String {
             return try {
                 val data = BookData(book, key)
                 val osissep = data.getSAXEventProvider()
                 val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
-                val osisHandler = OsisToSpeakTextSaxHandler(sayReferences)
+                val osisHandler = OsisToSpeakTextSaxHandler(sayReferences, saxTextPolicy)
                 osissep.provideSAXEvents(osisHandler)
                 osisHandler.toString()
             } catch (e: Exception) {
@@ -593,7 +594,7 @@ class SwordContentFacade(
 
         val book = (Books.installed().getBook(selection.bookInitials) as? SwordBook)
         val verseTexts = selection.verseRange?.map {
-            val rawText = getCanonicalText(book, it, true, strings).trimEnd()
+            val rawText = getCanonicalText(book, it, true, strings, saxTextPolicy).trimEnd()
             VerseAndText(it as Verse, normalizeWhitespace(rawText))
         }?: return ""
         val startOffset = selection.startOffset ?: 0
@@ -760,7 +761,7 @@ class SwordContentFacade(
         }
 
         val verses = verseRange.map {
-            val rawText = getCanonicalText(book, it, true, strings).trimEnd()
+            val rawText = getCanonicalText(book, it, true, strings, saxTextPolicy).trimEnd()
             ShareVersesEntry((it as Verse).verse, rawText)
         }
 
@@ -800,7 +801,7 @@ class SwordContentFacade(
         val frag = data.getOsisFragment(false)
         val doc = frag.document ?: Document(frag)
         val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
-        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code, advancedSpeakSettings, speakPlatform.maxSpeechInputLength)
+        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, speakPlatform.phrasesFor(book.language.code), advancedSpeakSettings, speakPlatform.maxSpeechInputLength, saxTextPolicy)
         osissep.provideSAXEvents(osisHandler)
         (osisHandler as OsisToBibleSpeak).speakCommands
     } catch (e: Exception) {

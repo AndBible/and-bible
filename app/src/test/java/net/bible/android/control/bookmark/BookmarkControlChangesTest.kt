@@ -49,7 +49,7 @@ class BookmarkControlChangesTest {
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
     @Before fun setUp() {
-        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), OrderedLauncher(syncScope))
+        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), OrderedLauncher(syncScope), net.bible.android.platform.androidSaxTextPolicy())
         subscription = control.changes.subscribe { seen += it }
     }
 

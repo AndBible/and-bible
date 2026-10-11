@@ -17,10 +17,8 @@
 
 package net.bible.service.format.osistohtml.osishandlers
 
-import android.os.Build
-import android.text.Html
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
+import net.bible.android.control.speak.SpeakPhrases
+import net.bible.service.format.SaxTextPolicy
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.*
@@ -32,23 +30,17 @@ import java.util.*
 
 val PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph")
 
-class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String, private val advancedSpeakSettings: AdvancedSpeakSettings, maxSpeechInputLength: Int) : DefaultHandler() {
+class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, private val advancedSpeakSettings: AdvancedSpeakSettings, maxSpeechInputLength: Int, private val textPolicy: SaxTextPolicy) : DefaultHandler() {
     val speakCommands = SpeakCommandArray(maxSpeechInputLength)
 
     private enum class TagType {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
     private data class StackEntry(val visible: Boolean, val tagType: TagType=TagType.NORMAL)
     private val elementStack = Stack<StackEntry>()
-    private var divineNameOriginal: Array<String>
-    private var divineNameReplace: Array<String>
+    private val divineNameOriginal = phrases.divineNameOriginal
+    private val divineNameReplace = phrases.divineNameReplace
     private var titleLevel = 0
     private var divineNameLevel = 0
     private var anyTextWritten = false
-
-    init {
-        val res = BibleApplication.application.getLocalizedResources(language)
-        divineNameOriginal = res.getStringArray(R.array.speak_divinename_original)
-        divineNameReplace = res.getStringArray(R.array.speak_divinename_replace)
-    }
 
     override fun startDocument() {
         elementStack.push(StackEntry(true))
@@ -159,12 +151,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String, p
         s = s.replace("`", "'")
         s = s.replace("´", "'")
         s = s.replace("’", "'")
-        s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(s, 0).toString()
-        }
-        else {
-            s.replace("&quot;", "\"")
-        }
+        s = textPolicy.speech(s)
 
         if(currentState.visible) {
             if(divineNameLevel > 0) {

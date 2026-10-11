@@ -130,7 +130,7 @@ class TextToSpeechServiceManager constructor(
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
-        legacySpeakTextProvider = LegacySpeakTextProvider(settings, strings)
+        legacySpeakTextProvider = LegacySpeakTextProvider(settings, strings, swordContentFacade.saxTextPolicy)
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(

@@ -168,7 +168,7 @@ fun buildCoreModule() = module {
     single<net.bible.service.sword.HtmlToPlainText> {
         net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }
     }
-    single { net.bible.service.sword.SwordContentFacade(get(), get(), get(), get(), get()) }
+    single { net.bible.service.sword.SwordContentFacade(get(), get(), get(), get(), get(), net.bible.android.platform.androidSaxTextPolicy()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
 
     // @ApplicationScope singletons
@@ -189,6 +189,7 @@ fun buildCoreModule() = module {
             deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
             backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() })
     }
+    single { net.bible.android.platform.androidSaxTextPolicy() }
     singleOf(::BookmarkControl)
     singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
     singleOf(::ManageLabelsServiceImpl) { bind<ManageLabelsService>() }

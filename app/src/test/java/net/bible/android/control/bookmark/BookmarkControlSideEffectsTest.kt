@@ -78,7 +78,7 @@ class BookmarkControlSideEffectsTest {
     private fun awaitLaunchedSyncBlocks() = runBlocking { syncScope.coroutineContext[Job]!!.children.toList().joinAll() }
 
     @Before fun setUp() {
-        control = BookmarkControl(windowControl, testAppSettings(), testCoreStrings(), OrderedLauncher(syncScope))
+        control = BookmarkControl(windowControl, testAppSettings(), testCoreStrings(), OrderedLauncher(syncScope), net.bible.android.platform.androidSaxTextPolicy())
         subscriptions += control.changes.subscribe { seen += it }
     }
 

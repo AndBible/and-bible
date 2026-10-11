@@ -16,13 +16,14 @@
  */
 package net.bible.service.format.osistohtml.osishandlers
 
+import net.bible.service.format.SaxTextPolicy
 import org.crosswire.jsword.book.OSISUtil
 import org.xml.sax.Attributes
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean) : OsisToCanonicalTextSaxHandler() {
+class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: SaxTextPolicy) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
     private var writingRef = false
     override fun startElement(namespaceURI: String?, sName: String?, qName: String, attrs: Attributes?) {
         val name = getName(sName, qName) // element name

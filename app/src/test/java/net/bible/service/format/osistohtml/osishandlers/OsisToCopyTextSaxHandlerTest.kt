@@ -32,8 +32,8 @@ class OsisToCopyTextSaxHandlerTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        osisToCopyTextSaxHandlerVerseNumbersOff = OsisToCopyTextSaxHandler(false)
-        osisToCopyTextSaxHandlerVerseNumbersOn = OsisToCopyTextSaxHandler(true)
+        osisToCopyTextSaxHandlerVerseNumbersOff = OsisToCopyTextSaxHandler(false, net.bible.service.format.SaxTextPolicy.MODERN)
+        osisToCopyTextSaxHandlerVerseNumbersOn = OsisToCopyTextSaxHandler(true, net.bible.service.format.SaxTextPolicy.MODERN)
 
         osisToCopyTextSaxHandlerVerseNumbersOff.startDocument()
         osisToCopyTextSaxHandlerVerseNumbersOn.startDocument()

@@ -20,6 +20,7 @@ package net.bible.service.format.osistohtml.osishandlers
 
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper
 
+import net.bible.service.format.SaxTextPolicy
 import org.crosswire.jsword.book.OSISUtil
 import org.xml.sax.Attributes
 
@@ -28,7 +29,7 @@ import org.xml.sax.Attributes
  *
  * @author Timmy Braun [tim.bze at gmail dot com] (4/24/2019)
  */
-class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean) : OsisToCanonicalTextSaxHandler() {
+class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean, textPolicy: SaxTextPolicy) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
 
     private var currentChapterNumber: Int = 0
     private var currentVerseNumber: Int = 0

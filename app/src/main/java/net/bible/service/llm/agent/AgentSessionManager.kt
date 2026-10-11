@@ -504,7 +504,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val verseRange = keyToVerseRange(keyToUse)
 
         val selectedText = if (keyToUse != null) {
-            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()) }
+            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy()) }
             catch (e: Exception) { Log.w(TAG, "Could not get canonical text", e); "" }
         } else ""
 

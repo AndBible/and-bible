@@ -73,7 +73,7 @@ class SwordContentFacadeTest {
         }
         val facade = SwordContentFacade(strings, environment, HtmlToPlainText { "converted:$it" },
             net.bible.android.control.speak.AdvancedSpeakSettings(net.bible.test.testAppSettings()),
-            org.koin.core.context.GlobalContext.get().get())
+            org.koin.core.context.GlobalContext.get().get(), net.bible.android.platform.androidSaxTextPolicy())
         val selection = object : ShareSelection {
             override val bookInitials: String? = null
             override val verseRange: VerseRange? = null
@@ -120,7 +120,7 @@ class SwordContentFacadeTest {
         //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Gen 1:1")
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Gen 1:1")
 
-        val html = SwordContentFacade.getCanonicalText(esv, key, strings = net.bible.test.testCoreStrings())
+        val html = SwordContentFacade.getCanonicalText(esv, key, strings = net.bible.test.testCoreStrings(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy())
         assertThat("Wrong canonical text", html, equalTo("In the beginning, God created the heavens and the earth. "))
     }
 
@@ -181,7 +181,7 @@ class SwordContentFacadeTest {
     fun testReadNasbIssue2365() {
         val nasb = getBook("NASB")
         val key = VerseRangeFactory.fromString((nasb as SwordBook).versification, "Rev.3.1")
-        val text = SwordContentFacade.getCanonicalText(nasb, key, true, strings = net.bible.test.testCoreStrings())
+        val text = SwordContentFacade.getCanonicalText(nasb, key, true, strings = net.bible.test.testCoreStrings(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy())
         val ref = "“To the angel of the church in Sardis write:  He who has the seven Spirits of God " +
             "and the seven stars, says this: ‘I know your deeds, that you have a name that you are alive, " +
             "but you are dead. "

@@ -71,7 +71,7 @@ class WindowTest {
     fun setUp() {
         val bibleTraverser = mock(BibleTraverser::class.java)
 
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher())
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
         mockCurrentPageManagerProvider = {
             CurrentPageManager(bibleTraverser, bookmarkControl, windowControl!!)
         }
