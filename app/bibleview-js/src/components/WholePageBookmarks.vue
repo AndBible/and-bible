@@ -110,6 +110,6 @@ defineExpose({visibleBookmarks});
 }
 
 .add-bookmark-button {
-  color: rgba(128, 128, 128, 0.7);
+  color: rgba(var(--accent-rgb-mid), 0.7);
 }
 </style>

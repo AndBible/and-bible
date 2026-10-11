@@ -2,6 +2,7 @@ import {describe, expect, it, beforeEach} from "vitest";
 import {readFileSync, readdirSync} from "fs";
 import {dirname, join, sep} from "path";
 import {fileURLToPath} from "url";
+import {compileString} from "sass";
 import {applyThemeColors} from "@/composables/config";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -17,10 +18,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // because a container role is a background tone and would be nearly invisible drawn as a mark.
 const EXPECTED_FALLBACKS = {
     "../common.scss": [
+        {property: "--ab-primary", fallback: "#474747"},
+        {property: "--ab-primary", fallback: "#d5d5d5"},
         // Round 17c — --primary-color: a FOREGROUND accent used by the memorize components
         {property: "--ab-primary", fallback: "#bdbdbd"},
         // Round 17c — the three tokens, day
         {property: "--ab-primary-rgb", fallback: "0, 0, 0"},
+        {property: "--ab-primary-rgb", fallback: "128, 128, 128"},
+        {property: "--ab-secondary-container-rgb", fallback: "207, 207, 207"},
+        {property: "--ab-on-secondary-container", fallback: "initial"},
         {property: "--ab-primary", fallback: "#666"},
         {property: "--ab-secondary-container", fallback: "#ccc"},
         // Round 17c — the three tokens, .night
@@ -44,6 +50,73 @@ const EXPECTED_FALLBACKS = {
         {property: "--ab-primary-container", fallback: "rgba(69,69,69,1)"},
         // $night-modal-header-foreground-color
         {property: "--ab-on-primary-container", fallback: "#e2e2e2"},
+    ],
+    "../components/BibleView.vue": [
+        {property: "--ab-primary", fallback: "rgba(196, 196, 255, 0.8)"},
+        {property: "--ab-primary", fallback: "rgba(0, 0, 255, 0.6)"},
+        {property: "--ab-on-primary-container", fallback: "#d5d5d5"},
+    ],
+    "../components/modals/AskBookmarkSettings.vue": [
+        {property: "--ab-primary", fallback: "#007bff"},
+        {property: "--ab-primary-container", fallback: "#e7f1ff"},
+        {property: "--ab-on-primary-container", fallback: "inherit"},
+        {property: "--ab-primary", fallback: "#1e90ff"},
+        {property: "--ab-primary-container", fallback: "#333"},
+        {property: "--ab-on-primary-container", fallback: "inherit"},
+        {property: "--ab-secondary-container", fallback: "white"},
+        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-secondary-container", fallback: "#222"},
+        {property: "--ab-on-secondary-container", fallback: "#ccc"},
+        {property: "--ab-secondary-container", fallback: "#f8f9fa"},
+        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-primary", fallback: "#007bff"},
+        {property: "--ab-secondary-container", fallback: "#333"},
+        {property: "--ab-on-secondary-container", fallback: "#ccc"},
+        {property: "--ab-primary", fallback: "#1e90ff"},
+        {property: "--ab-primary", fallback: "#007bff"},
+        {property: "--ab-primary", fallback: "#007bff"},
+        {property: "--ab-on-primary", fallback: "white"},
+        {property: "--ab-primary", fallback: "#1e90ff"},
+        {property: "--ab-primary", fallback: "#1e90ff"},
+        {property: "--ab-on-primary", fallback: "#ccc"},
+        {property: "--ab-secondary-container", fallback: "white"},
+        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-secondary-container", fallback: "#222"},
+        {property: "--ab-on-secondary-container", fallback: "#ccc"},
+        {property: "--ab-secondary-container", fallback: "white"},
+        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-secondary-container", fallback: "#222"},
+        {property: "--ab-on-secondary-container", fallback: "#ccc"},
+        {property: "--ab-secondary-container", fallback: "white"},
+        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-secondary-container", fallback: "#333"},
+        {property: "--ab-on-secondary-container", fallback: "#ccc"},
+        {property: "--ab-secondary-container", fallback: "#f8f9fa"},
+        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-primary", fallback: "#007bff"},
+        {property: "--ab-secondary-container", fallback: "#444"},
+        {property: "--ab-on-secondary-container", fallback: "#ccc"},
+        {property: "--ab-primary", fallback: "#1e90ff"},
+        {property: "--ab-secondary-container", fallback: "white"},
+        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-secondary-container", fallback: "#333"},
+        {property: "--ab-on-secondary-container", fallback: "#ccc"},
+        {property: "--ab-secondary-container", fallback: "#f5f5f5"},
+        {property: "--ab-on-secondary-container", fallback: "inherit"},
+        {property: "--ab-secondary-container", fallback: "#444"},
+        {property: "--ab-on-secondary-container", fallback: "#ccc"},
+        {property: "--ab-primary", fallback: "#007bff"},
+        {property: "--ab-on-primary", fallback: "white"},
+        {property: "--ab-primary", fallback: "#007bff"},
+        {property: "--ab-primary", fallback: "#333"},
+        {property: "--ab-on-primary", fallback: "#ccc"},
+        {property: "--ab-primary", fallback: "#555"},
+        {property: "--ab-primary", fallback: "#0056b3"},
+        {property: "--ab-on-primary", fallback: "white"},
+        {property: "--ab-primary", fallback: "#0056b3"},
+        {property: "--ab-primary", fallback: "#444"},
+        {property: "--ab-on-primary", fallback: "#ccc"},
+        {property: "--ab-primary", fallback: "#0056b3"},
     ],
     "../components/modals/ModalDialog.vue": [
         // .modal-footer — background then its text (day)
@@ -81,13 +154,16 @@ const EXPECTED_FALLBACKS = {
 // `config.ts` is exempt: it is the writer of the properties, not a consumer.
 const NON_CONSUMER_FILES = ["composables/config.ts", "__tests__/themeColors.spec.js"];
 
-// Round 17c. The three tokens through which every file OUTSIDE the EXPECTED_FALLBACKS map reaches a
+// Shared theme tokens through which every file OUTSIDE the EXPECTED_FALLBACKS map reaches a
 // theme role. Recorded here as exact text because jsdom performs no var() substitution — verified:
 // `getComputedStyle(root).getPropertyValue("--a")` on `:root { --a: var(--seed, 0, 0, 0) }` returns
 // the literal string "var(--seed,0,0,0)". A "resolves to…" assertion here could not fail, so the
 // resolved behaviour is verified on the device over CDP instead, and this file guards the text.
 const EXPECTED_TOKENS = {
     "--accent-rgb": {day: "var(--ab-primary-rgb, 0, 0, 0)", night: "var(--ab-primary-rgb, 255, 255, 255)", monochrome: "0, 0, 0", monochromeNight: "255, 255, 255"},
+    "--accent-rgb-mid": {day: "var(--ab-primary-rgb, 128, 128, 128)", monochrome: "128, 128, 128", monochromeNight: "128, 128, 128"},
+    "--chip-rgb": {day: "var(--ab-secondary-container-rgb, 207, 207, 207)", monochrome: "207, 207, 207", monochromeNight: "207, 207, 207"},
+    "--chip-text": {day: "var(--ab-on-secondary-container, initial)", monochrome: "var(--text-color)", monochromeNight: "var(--text-color)"},
     "--accent-mark": {day: "var(--ab-primary, #666)", night: "var(--ab-primary, #999)", monochrome: "black", monochromeNight: "white"},
     "--memorize-mask": {day: "var(--ab-secondary-container, #ccc)", night: "var(--ab-secondary-container, #555)", monochrome: "white", monochromeNight: "black"},
 };
@@ -97,20 +173,68 @@ const EXPECTED_TOKENS = {
 // tone change from also becoming an opacity change. Add a site → add its entry here.
 const EXPECTED_TINTS = {
     "../common.scss": [
-        // .journal-button — the study pad's ⋯ menu, add-entry, edit-notes, indent, delete, drag
         {token: "--accent-rgb", alpha: "0.5"},
-        // .journal-button .night &
         {token: "--accent-rgb", alpha: "0.6"},
-        // .isHighlighted — one or more selected verses (Reference.vue @extends this)
-        {token: "--accent-rgb", alpha: "0.1"},
-        // .isHighlighted .night &
+        {token: "--accent-rgb", alpha: "0.15"},
         {token: "--accent-rgb", alpha: "0.3"},
+        {token: "--accent-rgb", alpha: ".3"},
+        {token: "--accent-rgb", alpha: ".3"},
+        {token: "--accent-rgb", alpha: "0.1"},
+        {token: "--accent-rgb", alpha: ".1"},
+        {token: "--accent-rgb", alpha: "0.15"},
+        {token: "--accent-rgb", alpha: "0.3"},
+        {token: "--accent-rgb", alpha: "0.1"},
+        {token: "--accent-rgb", alpha: "0.3"},
+        {token: "--accent-rgb", alpha: "0.05"},
+        {token: "--accent-rgb", alpha: "0.05"},
+        {token: "--accent-rgb", alpha: "0.2"},
+        {token: "--accent-rgb", alpha: "0.2"},
     ],
     "../editor-common.scss": [
-        // .pell-actionbar — the toolbar's icon colour, which .pell-button inherits
         {token: "--accent-rgb", alpha: "0.6"},
-        // .pell-actionbar .night &
         {token: "--accent-rgb", alpha: "0.5"},
+        {token: "--accent-rgb", alpha: "0.2"},
+        {token: "--accent-rgb", alpha: "0.2"},
+    ],
+    "../components/BibleView.vue": [
+        {token: "--accent-rgb", alpha: "0.15"},
+        {token: "--accent-rgb", alpha: "0.15"},
+        {token: "--accent-rgb", alpha: "0.5"},
+        {token: "--accent-rgb", alpha: "0.5"},
+        {token: "--chip-rgb", alpha: "0.71"},
+    ],
+    "../components/ReadingProgress.vue": [
+        {token: "--chip-rgb", alpha: "0.71"},
+    ],
+    "../components/WholePageBookmarks.vue": [
+        {token: "--accent-rgb-mid", alpha: "0.7"},
+    ],
+    "../components/ChapterNavigationButtons.vue": [
+        {token: "--accent-rgb-mid", alpha: "0.2"},
+    ],
+    "../components/ButtonRow.vue": [
+        {token: "--accent-rgb", alpha: "0.3"},
+        {token: "--accent-rgb", alpha: "0.6"},
+    ],
+    "../components/AmbiguousActionButtons.vue": [
+        {token: "--accent-rgb", alpha: "0.05"},
+        {token: "--accent-rgb", alpha: "0.1"},
+    ],
+    "../components/documents/DocumentActionMenu.vue": [
+        {token: "--accent-rgb", alpha: "0.3"},
+        {token: "--accent-rgb", alpha: "0.6"},
+    ],
+    "../components/documents/StudyPadDocument.vue": [
+        {token: "--accent-rgb", alpha: "0.15"},
+        {token: "--accent-rgb", alpha: "0.3"},
+        {token: "--accent-rgb", alpha: "0.2"},
+        {token: "--accent-rgb", alpha: "0.2"},
+        {token: "--accent-rgb", alpha: "0.2"},
+        {token: "--accent-rgb", alpha: "0.2"},
+    ],
+    "../components/documents/BibleDocument.vue": [
+        {token: "--accent-rgb", alpha: "0.3"},
+        {token: "--accent-rgb", alpha: "0.3"},
     ],
     "../components/memorize/WordScramble.vue": [
         // .preview — the wash behind an unsolved scramble. Day and night were the same alpha over
@@ -149,20 +273,11 @@ const EXPECTED_TINTS = {
     ],
 };
 
-// Round 17c. Which files may consume which token. The tint map above already covers --accent-rgb's
-// alphas; this is what catches a token being used somewhere it was never designed for — an opaque
-// --accent-mark on a text label, say, which rule 1 of the spec (§3) forbids.
-// NOTE (deviation from the task-7 brief, flagged for review): common.scss only DEFINES
-// --memorize-mask (`--memorize-mask: var(--ab-secondary-container, ...)`) — it never
-// consumes it via `var(--memorize-mask)` (unlike --accent-mark, which it both defines
-// and consumes at its `color: var(--accent-mark);` icon-button rule). common.scss's own
-// unscoped `.memorize-word.blurred` rule (still `rgba(0,0,0,0.2)`) is dead CSS: WordBlur.vue
-// is the only place "blurred" is ever combined with "memorize-word", and its scoped style
-// always outranks the unscoped one, so that block never paints. The brief listed "common.scss"
-// as an allowed --memorize-mask consumer, mirroring --accent-mark's entry, but that doesn't
-// hold under the registry test's literal var()-usage definition. Left out here rather than
-// silently forcing a match.
+// Opaque and chip token consumers, alongside the alpha-site registry.
 const TOKEN_CONSUMERS = {
+    "--accent-rgb-mid": ["components/ChapterNavigationButtons.vue", "components/WholePageBookmarks.vue"],
+    "--chip-rgb": ["components/BibleView.vue", "components/ReadingProgress.vue"],
+    "--chip-text": ["components/BibleView.vue", "components/ReadingProgress.vue"],
     "--accent-mark": [
         "common.scss",
         "components/documents/MemorizeDocument.vue",
@@ -173,7 +288,7 @@ const TOKEN_CONSUMERS = {
 };
 
 function extractTints(source) {
-    const re = /rgba\(\s*var\(\s*(--accent-rgb)\s*\)\s*,\s*([0-9.]+)\s*\)/g;
+    const re = /rgba\(\s*var\(\s*(--accent-rgb(?:-mid)?|--chip-rgb)\s*\)\s*,\s*([0-9.]+)\s*\)/g;
     const matches = [];
     let match;
     while ((match = re.exec(source)) !== null) matches.push({token: match[1], alpha: match[2]});
@@ -203,11 +318,20 @@ function sourceFilesUsingAbRoles() {
 // numbers by hand: the file itself is the source of truth for what declarations currently exist,
 // EXPECTED_FALLBACKS above is the source of truth for what each fallback must be.
 function extractVarFallbacks(source) {
-    const re = /var\(\s*(--ab-[a-zA-Z-]+)\s*,\s*((?:[^()]+|\([^()]*\))+)\)/g;
+    const re = /var\(\s*(--ab-[a-zA-Z-]+)\s*,\s*/g;
     const matches = [];
     let match;
     while ((match = re.exec(source)) !== null) {
-        matches.push({property: match[1], fallback: match[2].trim()});
+        const start = re.lastIndex;
+        let end = start;
+        let depth = 1;
+        while (depth && end < source.length) {
+            if (source[end] === "(") depth++;
+            if (source[end] === ")") depth--;
+            end++;
+        }
+        matches.push({property: match[1], fallback: source.slice(start, end - 1).trim()});
+        re.lastIndex = end;
     }
     return matches;
 }
@@ -297,10 +421,12 @@ describe("theme tokens", () => {
     const commonScss = () => readFileSync(join(__dirname, "../common.scss"), "utf8");
 
     it.each(Object.entries(EXPECTED_TOKENS))(
-        "declares %s exactly once for day, night, monochrome and monochrome+night, with the pre-round literal as the fallback",
+        "declares %s with mode-safe literal fallbacks and monochrome overrides",
         (token, expected) => {
             expect(tokenDeclarations(commonScss(), token)).toEqual(
-                [expected.day, expected.night, expected.monochrome, expected.monochromeNight]
+                ( ["--accent-rgb-mid", "--chip-rgb", "--chip-text"].includes(token)
+                    ? [expected.day, expected.monochrome, expected.monochromeNight]
+                    : [expected.day, expected.night, expected.monochrome, expected.monochromeNight])
             );
         }
     );
@@ -325,7 +451,7 @@ describe("theme tokens", () => {
                 .filter(p => /\.(scss|vue|ts|js)$/.test(p))
                 .map(p => p.split(sep).join("/"))
                 .filter(p => p !== "__tests__/themeColors.spec.js")
-                .filter(p => new RegExp(`var\\(\\s*${token}\\s*\\)`).test(readFileSync(join(srcDir, p), "utf8")))
+                .filter(p => new RegExp(`var\\(\\s*${token}\\s*(?:,|\\))`).test(readFileSync(join(srcDir, p), "utf8")))
                 .sort();
             expect(actual).toEqual([...expected].sort());
         }
@@ -348,8 +474,96 @@ describe("alpha-composited tints", () => {
             .filter(p => /\.(scss|vue|ts|js)$/.test(p))
             .map(p => p.split(sep).join("/"))
             .filter(p => p !== "__tests__/themeColors.spec.js")
-            .filter(p => /rgba\(\s*var\(\s*--accent-rgb/.test(readFileSync(join(srcDir, p), "utf8")))
+            .filter(p => /rgba\(\s*var\(\s*--(?:accent-rgb(?:-mid)?|chip-rgb)/.test(readFileSync(join(srcDir, p), "utf8")))
             .sort();
         expect(actual).toEqual(covered);
+    });
+});
+
+// These assertions guard emitted selector declarations, not jsdom's unsupported var resolution.
+// Removing a matching foreground or letting a more-specific night selector mask it breaks contrast.
+function componentCss(file) {
+    const source = readFileSync(join(__dirname, "../components", file), "utf8");
+    const styles = [...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)]
+        .map(m => m[1].replace(/@use[^;]+;/g, "").replace(/@extend ([^;]+);/g, "@extend $1 !optional;")).join("\n");
+    return compileString(styles, {logger: {warn() {}}}).css;
+}
+function declarations(css, selector) {
+    return [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+        .filter(m => m[1].trim().split(/,\s*/).includes(selector))
+        .map(m => m[2]).join("\n");
+}
+describe("bounded theme chrome contrast and geometry", () => {
+    it.each([".top-left-corner", ".top-right-corner", ".bottom-left-corner", ".bottom-right-corner"])(
+        "paints a rounded 28px active corner at %s without changing e-ink paint", selector => {
+            const css = componentCss("BibleView.vue");
+            const rule = declarations(css, selector);
+            expect(rule).toContain("height: 28px");
+            expect(rule).toContain("width: 28px");
+            expect(rule).toContain("border-width: 3px");
+            expect(rule).toContain(`border-${selector.slice(1).replace("-corner", "")}-radius: 12px`);
+            expect(rule).toContain("var(--ab-primary, rgba(0, 0, 255, 0.6))");
+            expect(declarations(css, `.monochrome ${selector}`)).toContain("border-color: black");
+            expect(declarations(css, `.monochrome.night ${selector}`)).toContain("border-color: white");
+            expect(declarations(css, `.colorEink ${selector}`)).toContain("border-color: rgba(0, 0, 255, 0.6)");
+        }
+    );
+    it.each([["BibleView.vue", ".pagenumber"], ["ReadingProgress.vue", ".reading-progress"]])(
+        "pairs the chip roles and restores window text on noAnimation in %s", (file, selector) => {
+            const css = componentCss(file);
+            expect(declarations(css, selector)).toContain("color: var(--chip-text, var(--text-color))");
+            expect(declarations(css, selector)).toContain("background: rgba(var(--chip-rgb), 0.71)");
+            expect(declarations(css, `.noAnimation ${selector}`)).toContain("color: var(--text-color)");
+            expect(declarations(css, `.noAnimation ${selector}`)).toContain("background-color: var(--background-color)");
+        }
+    );
+    it("pairs filled and container controls, including higher-specificity night Save and active rules", () => {
+        const css = componentCss("modals/AskBookmarkSettings.vue");
+        for (const selector of [".mode-toggle.active", ".night .mode-toggle.active", ".save-button", ".night .save-button", ".save-button:hover:not(:disabled)", ".night .save-button:hover:not(:disabled)"]) {
+            const rule = declarations(css, selector);
+            expect(rule).toMatch(/background: var\(--ab-primary,/);
+            expect(rule).toMatch(/color: var\(--ab-on-primary,/);
+        }
+        for (const selector of [".icon-item.selected", ".night .icon-item.selected"]) {
+            const rule = declarations(css, selector);
+            expect(rule).toMatch(/background-color: var\(--ab-primary-container,/);
+            expect(rule).toMatch(/color: var\(--ab-on-primary-container,/);
+        }
+        for (const selector of [".mode-toggle:hover", ".night .mode-toggle:hover", ".format-button:hover", ".night .format-button:hover", ".cancel-button", ".night .cancel-button", ".mode-select", ".content-textarea"]) {
+            const rule = declarations(css, selector);
+            expect(rule).toMatch(/background: var\(--ab-secondary-container,/);
+            expect(rule).toMatch(/color: var\(--ab-on-secondary-container,/);
+        }
+    });
+    it("keeps toggled modal icons on the header's foreground role", () => {
+        const css = componentCss("BibleView.vue");
+        expect(declarations(css, ".modal-action-button.toggled")).toContain("color: var(--ab-on-primary-container, #d5d5d5)");
+        expect(declarations(css, ".monochrome .modal-action-button.toggled")).toContain("color: inherit");
+    });
+});
+
+describe("secondary container channel lifecycle", () => {
+    const payload = {primary: "#FF8000", onPrimary: "#FFFFFF", primaryContainer: "#FFDCC0", onPrimaryContainer: "#2A1800", secondaryContainer: "#F3DFD0", onSecondaryContainer: "#271A10"};
+    beforeEach(() => document.documentElement.removeAttribute("style"));
+    it("derives and updates container channels independently of primary", () => {
+        applyThemeColors(payload);
+        expect(document.documentElement.style.getPropertyValue("--ab-secondary-container-rgb")).toBe("243, 223, 208");
+        applyThemeColors({...payload, secondaryContainer: "#123456"});
+        expect(document.documentElement.style.getPropertyValue("--ab-secondary-container-rgb")).toBe("18, 52, 86");
+        expect(document.documentElement.style.getPropertyValue("--ab-primary-rgb")).toBe("255, 128, 0");
+    });
+    it.each([null, "invalid", "", "rgb(no, channels, here)"])("removes stale container channels for %s", value => {
+        applyThemeColors(payload);
+        expect(document.documentElement.style.getPropertyValue("--ab-secondary-container-rgb")).toBe("243, 223, 208");
+        applyThemeColors(value === null ? null : {...payload, secondaryContainer: value});
+        expect(document.documentElement.style.getPropertyValue("--ab-secondary-container-rgb")).toBe("");
+    });
+    it("recovers after malformed channels and removes stale primary channels too", () => {
+        applyThemeColors(payload);
+        applyThemeColors({...payload, primary: "invalid", secondaryContainer: "invalid"});
+        expect(document.documentElement.style.getPropertyValue("--ab-primary-rgb")).toBe("");
+        expect(document.documentElement.style.getPropertyValue("--ab-secondary-container-rgb")).toBe("");
+        applyThemeColors(payload);
+        expect(document.documentElement.style.getPropertyValue("--ab-secondary-container-rgb")).toBe("243, 223, 208");
     });
 });

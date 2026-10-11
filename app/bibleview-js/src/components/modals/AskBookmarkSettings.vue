@@ -380,8 +380,9 @@ watch(() => selectedEditAction.mode, (newMode) => {
   border-radius: 5px;
   
   &.selected {
-    border-color: #007bff;
-    background-color: #e7f1ff;
+    border-color: var(--ab-primary, #007bff);
+    background-color: var(--ab-primary-container, #e7f1ff);
+    color: var(--ab-on-primary-container, inherit);
   }
   
   .night & {
@@ -389,8 +390,9 @@ watch(() => selectedEditAction.mode, (newMode) => {
     background-color: #222;
     
     &.selected {
-      border-color: #1e90ff;
-      background-color: #333;
+      border-color: var(--ab-primary, #1e90ff);
+      background-color: var(--ab-primary-container, #333);
+      color: var(--ab-on-primary-container, inherit);
     }
   }
 }
@@ -430,7 +432,8 @@ watch(() => selectedEditAction.mode, (newMode) => {
   padding: 12px 8px;
   border: 2px solid #ccc;
   border-radius: 8px;
-  background: white;
+  background: var(--ab-secondary-container, white);
+  color: var(--ab-on-secondary-container, inherit);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
@@ -441,29 +444,32 @@ watch(() => selectedEditAction.mode, (newMode) => {
   min-height: 60px;
   
   .night & {
-    background: #222;
+    background: var(--ab-secondary-container, #222);
     border-color: #555;
-    color: #ccc;
+    color: var(--ab-on-secondary-container, #ccc);
   }
   
   &:hover {
-    background: #f8f9fa;
-    border-color: #007bff;
+    background: var(--ab-secondary-container, #f8f9fa);
+    color: var(--ab-on-secondary-container, inherit);
+    border-color: var(--ab-primary, #007bff);
     
     .night & {
-      background: #333;
-      border-color: #1e90ff;
+      background: var(--ab-secondary-container, #333);
+      color: var(--ab-on-secondary-container, #ccc);
+      border-color: var(--ab-primary, #1e90ff);
     }
   }
   
   &.active {
-    background: #007bff;
-    border-color: #007bff;
-    color: white;
+    background: var(--ab-primary, #007bff);
+    border-color: var(--ab-primary, #007bff);
+    color: var(--ab-on-primary, white);
     
     .night & {
-      background: #1e90ff;
-      border-color: #1e90ff;
+      background: var(--ab-primary, #1e90ff);
+      border-color: var(--ab-primary, #1e90ff);
+      color: var(--ab-on-primary, #ccc);
     }
   }
   
@@ -481,13 +487,14 @@ watch(() => selectedEditAction.mode, (newMode) => {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background: white;
+  background: var(--ab-secondary-container, white);
+  color: var(--ab-on-secondary-container, inherit);
   font-size: 14px;
   
   .night & {
-    background: #222;
+    background: var(--ab-secondary-container, #222);
     border-color: #555;
-    color: #ccc;
+    color: var(--ab-on-secondary-container, #ccc);
   }
 }
 
@@ -513,11 +520,13 @@ watch(() => selectedEditAction.mode, (newMode) => {
   resize: vertical;
   font-family: inherit;
   font-size: 14px;
+  background: var(--ab-secondary-container, white);
+  color: var(--ab-on-secondary-container, inherit);
   
   .night & {
-    background: #222;
+    background: var(--ab-secondary-container, #222);
     border-color: #555;
-    color: #ccc;
+    color: var(--ab-on-secondary-container, #ccc);
   }
   
   &.has-error {
@@ -597,7 +606,8 @@ watch(() => selectedEditAction.mode, (newMode) => {
   padding: 6px 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background: white;
+  background: var(--ab-secondary-container, white);
+  color: var(--ab-on-secondary-container, inherit);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
@@ -611,9 +621,9 @@ watch(() => selectedEditAction.mode, (newMode) => {
   }
 
   .night & {
-    background: #333;
+    background: var(--ab-secondary-container, #333);
     border-color: #555;
-    color: #ccc;
+    color: var(--ab-on-secondary-container, #ccc);
   }
   .monochrome.night & {
     background: black;
@@ -622,12 +632,14 @@ watch(() => selectedEditAction.mode, (newMode) => {
   }
   
   &:hover {
-    background: #f8f9fa;
-    border-color: #007bff;
+    background: var(--ab-secondary-container, #f8f9fa);
+    color: var(--ab-on-secondary-container, inherit);
+    border-color: var(--ab-primary, #007bff);
     
     .night & {
-      background: #444;
-      border-color: #1e90ff;
+      background: var(--ab-secondary-container, #444);
+      color: var(--ab-on-secondary-container, #ccc);
+      border-color: var(--ab-primary, #1e90ff);
     }
   }
   
@@ -667,33 +679,49 @@ watch(() => selectedEditAction.mode, (newMode) => {
   padding: 8px 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background: white;
+  background: var(--ab-secondary-container, white);
+  color: var(--ab-on-secondary-container, inherit);
   cursor: pointer;
   font-size: 14px;
   
   .night & {
-    background: #333;
+    background: var(--ab-secondary-container, #333);
     border-color: #555;
-    color: #ccc;
+    color: var(--ab-on-secondary-container, #ccc);
   }
   
   &:hover {
-    background: #f5f5f5;
+    background: var(--ab-secondary-container, #f5f5f5);
+    color: var(--ab-on-secondary-container, inherit);
     
     .night & {
-      background: #444;
+      background: var(--ab-secondary-container, #444);
+      color: var(--ab-on-secondary-container, #ccc);
     }
   }
 }
 
 .save-button {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
+  background: var(--ab-primary, #007bff);
+  color: var(--ab-on-primary, white);
+  border-color: var(--ab-primary, #007bff);
   
+  // Match the shared night selector specificity without changing unthemed paint.
+  .night & {
+    background: var(--ab-primary, #333);
+    color: var(--ab-on-primary, #ccc);
+    border-color: var(--ab-primary, #555);
+  }
+
   &:hover:not(:disabled) {
-    background: #0056b3;
-    border-color: #0056b3;
+    background: var(--ab-primary, #0056b3);
+    color: var(--ab-on-primary, white);
+    border-color: var(--ab-primary, #0056b3);
+    .night & {
+      background: var(--ab-primary, #444);
+      color: var(--ab-on-primary, #ccc);
+      border-color: var(--ab-primary, #0056b3);
+    }
   }
   
   &:disabled {
@@ -701,6 +729,12 @@ watch(() => selectedEditAction.mode, (newMode) => {
     border-color: #6c757d;
     cursor: not-allowed;
     opacity: 0.65;
+    color: white;
+    .night & {
+      background: #6c757d;
+      border-color: #6c757d;
+      color: #ccc;
+    }
     .monochrome & {
       background: white;
       border-color: black;
@@ -725,6 +759,40 @@ watch(() => selectedEditAction.mode, (newMode) => {
         border-color: white;
       }
     }
+  }
+}
+
+// Direct role consumers must not leak hue into any monochrome variant.
+.monochrome {
+  .icon-item.selected, .mode-toggle, .mode-select, .content-textarea,
+  .format-button, .cancel-button, .save-button:not(:disabled) {
+    background: white;
+    color: black;
+  }
+  .icon-item.selected, .mode-toggle.active, .mode-toggle:hover,
+  .format-button:hover, .save-button:not(:disabled) {
+    border-color: black;
+  }
+  .mode-toggle:hover, .format-button:hover, .cancel-button:hover,
+  .mode-toggle.active, .save-button:not(:disabled), .save-button:hover:not(:disabled) {
+    background: black;
+    color: white;
+  }
+}
+.monochrome.night {
+  .icon-item.selected, .mode-toggle, .mode-select, .content-textarea,
+  .format-button, .cancel-button, .save-button:not(:disabled) {
+    background: black;
+    color: white;
+  }
+  .icon-item.selected, .mode-toggle.active, .mode-toggle:hover,
+  .format-button:hover, .save-button:not(:disabled) {
+    border-color: white;
+  }
+  .mode-toggle:hover, .format-button:hover, .cancel-button:hover,
+  .mode-toggle.active, .save-button:not(:disabled), .save-button:hover:not(:disabled) {
+    background: white;
+    color: black;
   }
 }
 
