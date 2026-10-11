@@ -15,6 +15,10 @@ import org.junit.Test
 private const val ORANGE = 0xFFFF8000.toInt()
 private const val BLACK = 0xFF000000.toInt()
 private const val LIGHT_GREY = 0xFFAAAAAA.toInt()
+private const val WHITE = 0xFFFFFFFF.toInt()
+private const val BLUE = 0xFF1565C0.toInt()   // HCT chroma ~56 >= every TonalSpot chroma: no cap applies
+private const val BROWN = 0xFF8B5A2B.toInt()  // HCT chroma ~31.7 < 36: primary cap applies
+private const val SLATE = 0xFF607D8B.toInt()  // HCT chroma ~11: near-grey with a hint of hue
 
 /**
  * `ColorScheme` does not override `equals`, so two structurally identical schemes are not equal.
@@ -85,25 +89,74 @@ class AbColorSchemeTest {
         }
     }
 
+    private fun visibleRoles(s: androidx.compose.material3.ColorScheme) = listOf(
+        "primary" to s.primary, "primaryContainer" to s.primaryContainer,
+        "secondaryContainer" to s.secondaryContainer, "tertiaryContainer" to s.tertiaryContainer,
+        "surface" to s.surface,
+    )
+
     /** The reported bug: black came out pink-red and greys teal under TonalSpot. */
     @Test
-    fun `black and grey seeds stay achromatic under the default style`() {
-        listOf(BLACK, DEFAULT_WORKSPACE_COLOR_ARGB, LIGHT_GREY).forEach { seed ->
+    fun `black grey and white seeds stay achromatic under the grey-safe default`() {
+        assertEquals(ThemePaletteStyle.TONAL_SPOT_GREY, ThemePaletteStyle.DEFAULT)
+        listOf(BLACK, DEFAULT_WORKSPACE_COLOR_ARGB, LIGHT_GREY, WHITE).forEach { seed ->
             listOf(false, true).forEach { dark ->
-                val s = abColorScheme(seed, dark, DisplayColorMode.NORMAL)
-                listOf("primary" to s.primary, "primaryContainer" to s.primaryContainer,
-                    "secondaryContainer" to s.secondaryContainer, "surface" to s.surface).forEach { (n, c) ->
+                val s = abColorScheme(seed, dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT_GREY)
+                visibleRoles(s).forEach { (n, c) ->
                     assertTrue(
                         "seed #%06X dark=$dark: $n #%06X has RGB spread %d".format(
                             0xFFFFFF and seed, 0xFFFFFF and c.toArgb(), rgbSpread(c.toArgb())),
-                        rgbSpread(c.toArgb()) <= 8,
+                        rgbSpread(c.toArgb()) <= 4,
                     )
                 }
             }
         }
     }
 
-    /** Fidelity's defining property, and what makes the default toolbar classic grey. */
+    /** Pins that the original TonalSpot is kept as is (the grey bug included), not silently fixed. */
+    @Test
+    fun `original TonalSpot still colours a grey seed`() {
+        val s = abColorScheme(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
+        assertTrue(rgbSpread(s.primaryContainer.toArgb()) > 40)
+    }
+
+    /** With seed chroma >= 36 no cap applies, so a colourful workspace looks exactly as before. */
+    @Test
+    fun `grey-safe equals TonalSpot role for role for a saturated seed`() {
+        listOf(false, true).forEach { dark ->
+            assertEquals(
+                "dark=$dark",
+                schemeOf(BLUE, dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT),
+                schemeOf(BLUE, dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT_GREY),
+            )
+        }
+    }
+
+    /** Brown keeps its hue and loses TonalSpot's forced chroma 36 (#87521B, more orange). */
+    @Test
+    fun `grey-safe caps a low-chroma seed but keeps its hue`() {
+        val grey = abColorScheme(BROWN, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT_GREY)
+        val tonal = abColorScheme(BROWN, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
+        assertEquals(0xFF87521B.toInt(), tonal.primary.toArgb())
+        assertNotEquals(tonal.primary.toArgb(), grey.primary.toArgb())
+        assertTrue("hue drift %.1f".format(hueDistance(grey.primary.toArgb(), BROWN)),
+            hueDistance(grey.primary.toArgb(), BROWN) < 10f)
+    }
+
+    /** A near-grey stays muted: its primary is much less saturated than TonalSpot's. */
+    @Test
+    fun `grey-safe keeps a near-grey muted`() {
+        listOf(false, true).forEach { dark ->
+            val grey = abColorScheme(SLATE, dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT_GREY)
+            val tonal = abColorScheme(SLATE, dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
+            assertTrue(
+                "dark=$dark grey-safe spread ${rgbSpread(grey.primary.toArgb())} vs TonalSpot ${rgbSpread(tonal.primary.toArgb())}",
+                rgbSpread(grey.primary.toArgb()) * 2 < rgbSpread(tonal.primary.toArgb()),
+            )
+        }
+    }
+
+    /** Fidelity's defining property: the seed itself is primaryContainer. */
     @Test
     fun `Fidelity keeps the seed itself as primaryContainer`() {
         val s = abColorScheme(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, ThemePaletteStyle.FIDELITY)
@@ -113,8 +166,14 @@ class AbColorSchemeTest {
     /** Catches a mapping slip (two enum entries wired to the same PaletteStyle). */
     @Test
     fun `every style yields a distinct scheme`() {
-        val schemes = ThemePaletteStyle.entries.associateWith { schemeOf(ORANGE, false, DisplayColorMode.NORMAL, it) }
-        assertEquals(ThemePaletteStyle.entries.size, schemes.values.toSet().size)
+        // ORANGE is saturated, where grey-safe equals TonalSpot by design; check grey-safe on a grey seed.
+        val materialStyles = ThemePaletteStyle.entries - ThemePaletteStyle.TONAL_SPOT_GREY
+        val schemes = materialStyles.associateWith { schemeOf(ORANGE, false, DisplayColorMode.NORMAL, it) }
+        assertEquals(materialStyles.size, schemes.values.toSet().size)
+        val greySafe = schemeOf(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT_GREY)
+        materialStyles.forEach {
+            assertNotEquals("$it", schemeOf(DEFAULT_WORKSPACE_COLOR_ARGB, false, DisplayColorMode.NORMAL, it), greySafe)
+        }
     }
 
     @Test

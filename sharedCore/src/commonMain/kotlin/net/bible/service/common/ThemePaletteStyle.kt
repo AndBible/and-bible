@@ -22,11 +22,14 @@ const val THEME_PALETTE_STYLE_KEY = "theme_palette_style"
 
 /**
  * How the app's Material 3 colour scheme is derived from the workspace colour, in
- * [DisplayColorMode.NORMAL] only (BW and COLOR_EINK ignore it). One entry per materialkolor
- * `PaletteStyle`; the mapping lives in `:sharedUi` (`AbColorScheme.kt`), the only module that
- * depends on materialkolor. Declaration order is the order shown in the settings list.
+ * [DisplayColorMode.NORMAL] only (BW, MONOCHROME and COLOR_EINK ignore it). [TONAL_SPOT_GREY] is
+ * AndBible's own; every other entry is one materialkolor `PaletteStyle`. The mapping lives in
+ * `:sharedUi` (`AbColorScheme.kt`), the only module that depends on materialkolor. Declaration
+ * order is the order shown in the settings list.
  */
 enum class ThemePaletteStyle(val value: String) {
+    /** TonalSpot with each palette's chroma capped at the seed's: grey and black stay grey. */
+    TONAL_SPOT_GREY("tonal_spot_grey"),
     FIDELITY("fidelity"),
     TONAL_SPOT("tonal_spot"),
     CONTENT("content"),
@@ -38,7 +41,7 @@ enum class ThemePaletteStyle(val value: String) {
     FRUIT_SALAD("fruit_salad");
 
     companion object {
-        val DEFAULT = FIDELITY
+        val DEFAULT = TONAL_SPOT_GREY
 
         /** Returns null for a null or unrecognized value so callers can apply [DEFAULT]. */
         fun fromValue(v: String?): ThemePaletteStyle? = entries.firstOrNull { it.value == v }

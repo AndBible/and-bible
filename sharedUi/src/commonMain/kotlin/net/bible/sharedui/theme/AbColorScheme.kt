@@ -21,9 +21,15 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.materialkolor.Contrast
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
-import androidx.compose.ui.graphics.toArgb
+import com.materialkolor.hct.Hct
+import com.materialkolor.palettes.TonalPalette
+import com.materialkolor.scheme.DynamicScheme
+import com.materialkolor.scheme.Variant
+import com.materialkolor.toColorScheme
 import net.bible.service.common.DisplayColorMode
 import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
@@ -83,6 +89,7 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
 
 /** materialkolor's style for each user-facing [ThemePaletteStyle]; exhaustive `when`, no else. */
 internal fun ThemePaletteStyle.toPaletteStyle(): PaletteStyle = when (this) {
+    ThemePaletteStyle.TONAL_SPOT_GREY -> PaletteStyle.TonalSpot // base variant; abColorScheme routes it to greySafeTonalSpot
     ThemePaletteStyle.FIDELITY -> PaletteStyle.Fidelity
     ThemePaletteStyle.TONAL_SPOT -> PaletteStyle.TonalSpot
     ThemePaletteStyle.CONTENT -> PaletteStyle.Content
@@ -100,6 +107,32 @@ private fun seeded(seedArgb: Int, dark: Boolean, style: PaletteStyle): ColorSche
     dynamicColorScheme(seedColor = Color(seedArgb), isDark = dark, isAmoled = false, style = style)
 
 /**
+ * materialkolor TonalSpot with every palette's chroma capped at the seed's own HCT chroma.
+ *
+ * TonalSpot keeps only the seed's hue and forces fixed chromas (36/16/24/6/8). An achromatic seed
+ * has an arbitrary hue (0 for black, ~209.5 for the greys), so plain TonalSpot turns black pink and
+ * greys teal, and it over-saturates low-chroma colours (brown -> orange). Capping fixes both while
+ * keeping TonalSpot's normalised tones; for a seed with chroma >= 36 it is identical to TonalSpot.
+ * Mirrors materialkolor's `SchemeTonalSpot` constructor (2.1.1) apart from the caps.
+ */
+private fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
+    val seed = Hct.fromInt(seedArgb)
+    fun palette(hue: Double, tonalSpotChroma: Double) =
+        TonalPalette.fromHueAndChroma(hue, minOf(tonalSpotChroma, seed.chroma))
+    return DynamicScheme(
+        sourceColorHct = seed,
+        variant = Variant.TONAL_SPOT,
+        isDark = dark,
+        contrastLevel = Contrast.Default.value,
+        primaryPalette = palette(seed.hue, 36.0),
+        secondaryPalette = palette(seed.hue, 16.0),
+        tertiaryPalette = palette((seed.hue + 60.0) % 360.0, 24.0),
+        neutralPalette = palette(seed.hue, 6.0),
+        neutralVariantPalette = palette(seed.hue, 8.0),
+    ).toColorScheme(isAmoled = false)
+}
+
+/**
  * The single seed → [ColorScheme] derivation for the whole app (A/B batch 4b).
  *
  * Deliberately NOT `@Composable`: the BibleView `set_config` payload derives the Vue layer's
@@ -114,7 +147,9 @@ private fun seeded(seedArgb: Int, dark: Boolean, style: PaletteStyle): ColorSche
  * call sites must remember to write.
  *
  * - **NORMAL** -> a missing seed uses [DEFAULT_WORKSPACE_COLOR_ARGB], derived with [style].
- *   Goldens and previews with `seedArgb = null` render the default grey theme, exactly as the app does.
+ *   The default style is [ThemePaletteStyle.TONAL_SPOT_GREY] ([greySafeTonalSpot]): TonalSpot's soft
+ *   look without its grey bug; Fidelity (the previous default) was too heavy. Goldens and previews
+ *   with `seedArgb = null` render the default grey theme, exactly as the app does.
  * - **MONOCHROME** -> two-tone ink/paper scheme, with transparent scrim; seed and style ignored.
  * - **BW** -> the seed and style are ignored: the stock scheme is greyscaled so contrast is
  *   consistent across workspaces on black-and-white screens.
@@ -130,7 +165,11 @@ fun abColorScheme(
 ): ColorScheme {
     val stock = if (dark) darkColorScheme() else lightColorScheme()
     return when (colorMode) {
-        DisplayColorMode.NORMAL -> seeded(seedArgb ?: DEFAULT_WORKSPACE_COLOR_ARGB, dark, style.toPaletteStyle())
+        DisplayColorMode.NORMAL -> {
+            val seed = seedArgb ?: DEFAULT_WORKSPACE_COLOR_ARGB
+            if (style == ThemePaletteStyle.TONAL_SPOT_GREY) greySafeTonalSpot(seed, dark)
+            else seeded(seed, dark, style.toPaletteStyle())
+        }
         DisplayColorMode.MONOCHROME -> monochromeScheme(dark)
         DisplayColorMode.BW -> stock.grayscale(colorMode)
         DisplayColorMode.COLOR_EINK ->
