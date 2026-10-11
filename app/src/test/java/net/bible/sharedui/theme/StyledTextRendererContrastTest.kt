@@ -67,7 +67,7 @@ class StyledTextRendererContrastTest {
         }
     }
 
-    @Test fun defaultFidelityHighlightIsReadableInLightAndDark() = assertReadable(
+    @Test fun defaultStyleHighlightIsReadableInLightAndDark() = assertReadable(
         listOf(false, true).map { Case(null, it, ThemePaletteStyle.DEFAULT) },
     )
 

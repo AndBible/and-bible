@@ -215,6 +215,7 @@ golden:
     - openjdk-17-jdk      # satisfies jvmToolchain(17), see above
     - android-tools-adb   # adb client; the server runs on the host
     - xz-utils            # `xz` for .jailbee/install.d/95-typst.sh (tar -xJf)
+    - ffmpeg              # teaser/short videos: frames rendered with Chrome (97-playwright) -> mp4
     # Shared libraries of Playwright's headless Chromium (.jailbee/install.d/97-playwright.sh)
     - libasound2t64
     - libatk-bridge2.0-0t64

@@ -540,8 +540,6 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
   pointer-events: none;
 }
 
-$dayAlpha: 0.07;
-$nightAlpha: 0.3;
 $borderDistance: 0;
 $colorEinkAccent: rgba(0, 0, 255, 0.6);
 $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
@@ -549,15 +547,15 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 .active-window-corner {
   position: fixed;
   z-index: -1;
-  height: 20px;
-  width: 20px;
-  border-width: 2.5px;
+  height: 28px;
+  width: 28px;
+  border-width: 3px;
 
   .night & {
-    border-color: rgba(196, 196, 255, 0.8);
+    border-color: var(--ab-primary, rgba(196, 196, 255, 0.8));
   }
 
-  border-color: rgba(0, 0, 255, 0.6);
+  border-color: var(--ab-primary, rgba(0, 0, 255, 0.6));
 
   .monochrome & {
     border-color: black;
@@ -575,6 +573,7 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
 .top-left-corner {
   @extend .active-window-corner;
+  border-top-left-radius: 12px;
   top: $borderDistance;
   left: $borderDistance;
   border-top-style: solid;
@@ -583,6 +582,7 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
 .top-right-corner {
   @extend .active-window-corner;
+  border-top-right-radius: 12px;
   top: $borderDistance;
   right: $borderDistance;
   border-top-style: solid;
@@ -591,6 +591,7 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
 .bottom-right-corner {
   @extend .active-window-corner;
+  border-bottom-right-radius: 12px;
   bottom: $borderDistance;
   right: $borderDistance;
   border-bottom-style: solid;
@@ -599,40 +600,11 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
 .bottom-left-corner {
   @extend .active-window-corner;
+  border-bottom-left-radius: 12px;
   bottom: $borderDistance;
   left: $borderDistance;
   border-bottom-style: solid;
   border-left-style: solid;
-}
-
-.active-window-indicator {
-  position: fixed;
-  z-index: -1;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-style: solid;
-  border-width: 15px;
-
-  .night & {
-    border-color: rgba(255, 255, 255, $nightAlpha);
-  }
-
-  border-color: rgba(0, 0, 0, $dayAlpha);
-
-  .monochrome & {
-    border-color: black;
-  }
-  .monochrome.night & {
-    border-color: white;
-  }
-  .colorEink & {
-    border-color: $colorEinkAccent;
-  }
-  .colorEink.night & {
-    border-color: $colorEinkAccentNight;
-  }
 }
 
 .top-margin {
@@ -643,18 +615,18 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
   right: 0;
 
  .night & {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(var(--accent-rgb), 0.15);
   }
 
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(var(--accent-rgb), 0.15);
 
   .noAnimation & {
     background-color: unset;
-    border-bottom: 1px dashed rgba(0, 0, 0, 0.5);
+    border-bottom: 1px dashed rgba(var(--accent-rgb), 0.5);
     font-smooth: never;
   }
   .night.noAnimation & {
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+    border-bottom: 1px dashed rgba(var(--accent-rgb), 0.5);
   }
   // Accent blue at lower alpha (cannot reuse $colorEinkAccent — different alpha)
   .colorEink & {
@@ -709,7 +681,10 @@ a {
   font-size: 120%;
   line-height: 0.5em; // make sure this does not increase modal title height
   &.toggled {
-    color: #d5d5d5;
+    color: var(--ab-on-primary-container, #d5d5d5);
+    .monochrome & {
+      color: inherit;
+    }
   }
 
   &.right {
@@ -777,10 +752,11 @@ a {
   height: 0.5cm;
   font-size: 70%;
   font-weight: bold;
-  color: var(--text-color);
-  background: rgba(207, 207, 207, 0.71);
+  color: var(--chip-text, var(--text-color));
+  background: rgba(var(--chip-rgb), 0.71);
   .noAnimation & {
     background-color: var(--background-color);
+    color: var(--text-color);
     border-width: 1px;
     border-style: solid;
     border-color: var(--text-color);

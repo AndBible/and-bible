@@ -3,11 +3,14 @@ package net.bible.android.view.compose
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.test.core.app.ApplicationProvider
+import net.bible.android.activity.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.common.ThemePaletteStyle
 import net.bible.sharedcore.settings.AppSettingsController
 import net.bible.sharedcore.settings.AppSettingsLabels
 import net.bible.sharedcore.settings.AppSettingsService
@@ -19,6 +22,7 @@ import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.theme.AbTheme
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +35,15 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class ThemeStyleRowExplanationTest {
     @get:Rule val compose = createComposeRule()
+
+    /** arrays.xml is what the settings row offers; it must list every style, in enum order. */
+    @Test fun settingsArraysMatchTheStyleEnum() {
+        val res = ApplicationProvider.getApplicationContext<android.content.Context>().resources
+        assertEquals(ThemePaletteStyle.entries.map { it.value },
+            res.getStringArray(R.array.prefs_theme_palette_style_values).toList())
+        assertEquals(ThemePaletteStyle.entries.size,
+            res.getStringArray(R.array.prefs_theme_palette_style_names).size)
+    }
 
     private fun dictOptions(vararg pairs: Pair<String, String>) = pairs.map { DictOption(it.first, it.second) }
     private fun choices(vararg pairs: Pair<String, String>) = pairs.map { Choice2(it.first, it.second) }
@@ -58,7 +71,7 @@ class ThemeStyleRowExplanationTest {
         disableTwoStepBookmarking = false,
         volumeKeysScroll = true,
         nightMode = "manual",
-        themePaletteStyle = "fidelity",
+        themePaletteStyle = "tonal_spot_grey",
         locale = "",
         disableClickToEdit = false,
         notesContentType = "plain_text",
@@ -86,7 +99,11 @@ class ThemeStyleRowExplanationTest {
         toolbarButtonActionChoices = choices("bookmark" to "Bookmark", "share" to "Share", "speak" to "Speak"),
         bibleViewSwipeModeChoices = choices("verse_change" to "Change verse", "day_change" to "Change day"),
         nightModeChoices = choices("manual" to "Manual", "automatic" to "Follow system"),
-        themePaletteStyleChoices = choices("fidelity" to "Fidelity (exact color)", "tonal_spot" to "Tonal spot (soft)"),
+        themePaletteStyleChoices = choices(
+            "tonal_spot_grey" to "Tonal spot (soft, keeps grey)",
+            "fidelity" to "Fidelity (exact color)",
+            "tonal_spot" to "Tonal spot (original)",
+        ),
         localeChoices = choices("" to "System default", "en" to "English", "fi" to "Finnish"),
         notesContentTypeChoices = choices("plain_text" to "Plain text", "markdown" to "Markdown"),
         displayColorModeChoices = choices("normal" to "Normal", "eink" to "E-ink"),
@@ -123,13 +140,13 @@ class ThemeStyleRowExplanationTest {
         }
     }
 
-    @Test fun blackAndWhiteShowsDisabledExplanationForValidFidelitySelection() {
+    @Test fun blackAndWhiteShowsDisabledExplanationForValidDefaultSelection() {
         show(DisplayColorMode.BW)
         compose.onNodeWithText("Theme style").assertIsNotEnabled()
         compose.onNodeWithText("Applies only when Color mode is Normal.", substring = true).assertExists()
     }
 
-    @Test fun colorEinkShowsDisabledExplanationForValidFidelitySelection() {
+    @Test fun colorEinkShowsDisabledExplanationForValidDefaultSelection() {
         show(DisplayColorMode.COLOR_EINK)
         compose.onNodeWithText("Theme style").assertIsNotEnabled()
         compose.onNodeWithText("Applies only when Color mode is Normal.", substring = true).assertExists()
@@ -137,7 +154,7 @@ class ThemeStyleRowExplanationTest {
 
     @Test fun normalModeKeepsSelectedLabelInsteadOfExplanation() {
         show(DisplayColorMode.NORMAL)
-        compose.onNodeWithText("Fidelity (exact color)").assertExists()
+        compose.onNodeWithText("Tonal spot (soft, keeps grey)").assertExists()
         compose.onNodeWithText("Applies only when Color mode is Normal.", substring = true).assertDoesNotExist()
     }
 }

@@ -38,7 +38,7 @@ class AppSettingsControllerTest {
         navigateToVerse = false, openLinksInSpecialWindow = true, screenKeepOn = false,
         doubleTapToFullscreen = true, autoFullscreen = false, toolbarButtonActions = "",
         bibleViewSwipeMode = "CHAPTER", disableTwoStepBookmarking = false, volumeKeysScroll = true,
-        themePaletteStyle = "fidelity",
+        themePaletteStyle = "tonal_spot_grey",
         nightMode = "manual", locale = "", disableClickToEdit = false, notesContentType = "HTML",
         fontSizeMultiplier = 100, hideStatusBar = false, fullScreenHideButtons = true,
         hideWindowButtons = false, hideBibleReferenceOverlay = false, showActiveWindowIndicator = true,
@@ -50,7 +50,11 @@ class AppSettingsControllerTest {
         enableBluetooth = true, requestSdcardPermission = false, showErrorbox = false,
         toolbarButtonActionChoices = emptyList(), bibleViewSwipeModeChoices = emptyList(),
         nightModeChoices = emptyList(), localeChoices = emptyList(), notesContentTypeChoices = emptyList(),
-        themePaletteStyleChoices = listOf(Choice2("fidelity", "Fidelity (exact color)"), Choice2("tonal_spot", "Tonal spot (soft)")),
+        themePaletteStyleChoices = listOf(
+            Choice2("tonal_spot_grey", "Tonal spot (soft, keeps grey)"),
+            Choice2("fidelity", "Fidelity (exact color)"),
+            Choice2("tonal_spot", "Tonal spot (original)"),
+        ),
         displayColorModeChoices = emptyList(),
         discreteTogglesVisible = discreteTogglesVisible,
         betaFeaturesVisible = betaFeaturesVisible, sdcardPermissionVisible = sdcardPermissionVisible,
@@ -67,8 +71,8 @@ class AppSettingsControllerTest {
     @Test
     fun themeStyleRowShowsTheStoredValueAndChoices() {
         val row = themeRow(controller(FakeAppSettingsService(snap())))
-        assertEquals("fidelity", row.selectedValue)
-        assertEquals(listOf("fidelity", "tonal_spot"), row.entries.map { it.value })
+        assertEquals("tonal_spot_grey", row.selectedValue)
+        assertEquals(listOf("tonal_spot_grey", "fidelity", "tonal_spot"), row.entries.map { it.value })
         assertEquals("Theme style", row.title)
         assertTrue(row.enabled)
     }

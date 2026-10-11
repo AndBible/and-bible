@@ -351,12 +351,12 @@ $cursorColor: rgb(0, 161, 0);
   padding-top: 0;
 
   border-style: dashed;
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: rgba(var(--accent-rgb), 0.15);
   .monochrome & {
     border-color: black;
   }
   .night & {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(var(--accent-rgb), 0.3);
   }
   .monochrome.night & {
     border-color: white;
@@ -374,14 +374,14 @@ $cursorColor: rgb(0, 161, 0);
 
 <style lang="scss">
 .drag-ghost {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(var(--accent-rgb), 0.2);
 
   .monochrome & {
     background: transparent;
     outline: 2px solid black;
   }
   .night & {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(var(--accent-rgb), 0.2);
   }
   .monochrome.night & {
     background: transparent;
@@ -390,14 +390,14 @@ $cursorColor: rgb(0, 161, 0);
 }
 
 .drag-chosen {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(var(--accent-rgb), 0.2);
 
   .monochrome & {
     background: transparent;
     outline: 2px solid black;
   }
   .night & {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(var(--accent-rgb), 0.2);
   }
   .monochrome.night & {
     background: transparent;

@@ -52,9 +52,18 @@ import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedcore.window.WindowTabBarModel
 
 private val LeadingControlSize = 40.dp
-private val RailEntrySpacing = 6.dp
+/**
+ * Classic tabs sat almost flush: `window_button.xml`'s `layout_marginStart/End="0.3dip"` left ~0.6dp
+ * between neighbours. 1dp keeps that look with a whole-dp gap.
+ */
+private val RailEntrySpacing = 1.dp
 private val GroupSeparatorWidth = 1.dp
 private val GroupSeparatorHeight = 24.dp
+/**
+ * Inset on each side of the group divider. With [RailEntrySpacing] on both sides the whole group gap
+ * is 2 x (spacing + inset) + width = 5dp, classic `rebuildRestoreButtons()`'s 5dip `Space`.
+ */
+private val GroupSeparatorInset = 1.dp
 
 // Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
 // deleted once the Compose reading view replaced what used them. The citations stay as the
@@ -247,7 +256,7 @@ private fun RailIconButton(icon: ImageVector, description: String?, onClick: () 
 private fun GroupSeparatorDivider(modifier: Modifier = Modifier) {
     Box(
         modifier
-            .padding(horizontal = 2.dp)
+            .padding(horizontal = GroupSeparatorInset)
             .width(GroupSeparatorWidth)
             .height(GroupSeparatorHeight)
             .background(MaterialTheme.colorScheme.outlineVariant),
