@@ -19,14 +19,17 @@ class ThemePaletteStyleTest {
     }
 
     @Test
-    fun defaultIsFidelity() = assertEquals(ThemePaletteStyle.FIDELITY, ThemePaletteStyle.DEFAULT)
+    fun defaultIsGreySafeTonalSpotAndListedFirst() {
+        assertEquals(ThemePaletteStyle.TONAL_SPOT_GREY, ThemePaletteStyle.DEFAULT)
+        assertEquals(ThemePaletteStyle.DEFAULT, ThemePaletteStyle.entries.first())
+    }
 
     @Test
     fun storedValuesArePinned() {
         // These strings are persisted in user preferences and in arrays.xml; renaming one silently
         // resets every user who chose it.
         assertEquals(
-            listOf("fidelity", "tonal_spot", "content", "neutral", "monochrome",
+            listOf("tonal_spot_grey", "fidelity", "tonal_spot", "content", "neutral", "monochrome",
                 "vibrant", "expressive", "rainbow", "fruit_salad"),
             ThemePaletteStyle.entries.map { it.value },
         )

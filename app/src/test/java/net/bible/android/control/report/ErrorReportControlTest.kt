@@ -21,6 +21,10 @@ import android.app.Activity
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -120,21 +124,23 @@ class ErrorReportControlTest {
     fun selectingReportStartsBugReportReportBug() = runOnTestMain {
         val activity = activity()
         val answer = async { ErrorReportControl.showErrorDialog(activity, "boom") }
-        advanceUntilIdle()
-        val head = dialogs.pending.value!!.request as AppDialogRequest.Options
-        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
-        advanceUntilIdle()
-        // BugReport.reportBug's first observable action (before its real file IO / delay) is
-        // raising an AppDialogRequest.Progress (Task 30 Step 1: dialogs.show(Progress(...)),
-        // no more Hourglass) -- proof the REPORT branch really launched it, without driving the
-        // rest of that (separately tested / out of scope) reporting flow.
-        val progress = dialogs.progress.value!!.request as AppDialogRequest.Progress
-        assertEquals(activity.getString(R.string.please_wait), progress.message)
-        // cancelAndJoin (not bare cancel()): the test body itself must observe the cancelled child
-        // fully finish -- including its withContext(Dispatchers.Main) cancellation-completion hop --
-        // rather than relying on runTest's implicit structured-concurrency wait-for-children, which
-        // is what deadlocked before Main stopped being reset mid-test (see testDispatcher above).
-        answer.cancelAndJoin()
+        try {
+            advanceUntilIdle()
+            val head = dialogs.pending.value!!.request as AppDialogRequest.Options
+            dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
+            // useSaved skips the IO work, so Progress may disappear before the test observes it.
+            // The email confirmation remains pending and proves the REPORT branch reached reportBug.
+            // Bound the wait in real time: IO is not driven by runTest's virtual clock.
+            val confirmation = withContext(Dispatchers.Default) {
+                withTimeout(5.seconds) {
+                    dialogs.pending.filterNotNull().first { it.request is AppDialogRequest.Confirm }
+                }
+            }.request as AppDialogRequest.Confirm
+            assertEquals(activity.getString(R.string.bug_report_email_text), confirmation.message)
+        } finally {
+            // Finish cancellation while Main is still bound to the test scheduler, even on failure.
+            answer.cancelAndJoin()
+        }
     }
 
     /**
