@@ -41,7 +41,7 @@ class DownloadQueueTest {
         whenever(book.initials).thenReturn("QueueFixture")
         val installer = mock<Installer>()
         doThrow(DownloadException(URI(url), 404)).whenever(installer).install(any(), any())
-        val manager = DownloadManager(org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java), GenericFileDownloader(settings = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java), notifier = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java), strings = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java)))
+        val manager = DownloadManager(org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java), GenericFileDownloader(settings = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java), notifier = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java), strings = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java)), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
         val installers = InstallManager().apply { addInstaller("Fixture", installer) }
         DownloadManager::class.java.getDeclaredField("installManager").apply {
             isAccessible = true

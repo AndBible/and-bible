@@ -53,7 +53,7 @@ import java.util.zip.ZipOutputStream
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DefaultInstallCommitterTest {
-    private val committer = DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java))
+    private val committer = DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
 
     private lateinit var originalDownloadDir: File
 

@@ -1107,7 +1107,7 @@ object CommonUtils : CommonUtilsBase() {
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledESwordBooks()
-            addManuallyInstalledEpubBooks()
+            addManuallyInstalledEpubBooks(net.bible.android.platform.AndroidCoreStrings(application), net.bible.android.platform.AndroidAppEnvironment(application))
             addManuallyInstalledTtfBooks()
             addManuallyInstalledCsvPromptBooks()
             // Synchronous framework entry points cannot block Main on registration.
@@ -1163,7 +1163,7 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledMyBibleBooks()
                 addManuallyInstalledMySwordBooks()
                 addManuallyInstalledESwordBooks()
-                addManuallyInstalledEpubBooks()
+                addManuallyInstalledEpubBooks(net.bible.android.platform.AndroidCoreStrings(application), net.bible.android.platform.AndroidAppEnvironment(application))
                 addManuallyInstalledTtfBooks()
                 addManuallyInstalledCsvPromptBooks()
             }

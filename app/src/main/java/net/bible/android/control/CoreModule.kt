@@ -168,6 +168,7 @@ fun buildCoreModule() = module {
     single<net.bible.service.sword.HtmlToPlainText> {
         net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }
     }
+    single<net.bible.service.sword.ContentSource> { net.bible.android.platform.AndroidContentSource(androidContext().contentResolver) }
     single { net.bible.service.sword.SwordContentFacade(get(), get(), get(), get(), get(), net.bible.android.platform.androidSaxTextPolicy()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
 

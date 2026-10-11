@@ -80,7 +80,11 @@ interface InstallCommitter {
  * `installEpub`/`installTtf`/`installPromptCsv`/`installBackgroundImage`/`installStudyPads`) for
  * the logic this mirrors -- deliberately not re-implemented here.
  */
-class DefaultInstallCommitter(private val backup: BackupControl) : InstallCommitter {
+class DefaultInstallCommitter(
+    private val backup: BackupControl,
+    private val strings: net.bible.sharedcore.platform.CoreStrings,
+    private val environment: net.bible.sharedcore.platform.AppEnvironment,
+) : InstallCommitter {
 
     override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
         backup.extractAndRegisterModuleArchive(
@@ -97,7 +101,7 @@ class DefaultInstallCommitter(private val backup: BackupControl) : InstallCommit
         }
         dir.mkdirs()
         unzipInputStream(localFile.inputStream(), dir)
-        return addManuallyInstalledEpubBooks()
+        return addManuallyInstalledEpubBooks(strings, environment)
     }
 
     override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) {

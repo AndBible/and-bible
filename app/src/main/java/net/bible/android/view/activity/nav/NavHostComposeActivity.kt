@@ -3179,7 +3179,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val flow = welcomeFlow
         lifecycleScope.launch(Dispatchers.Main) {
             CommonUtils.initializeAppCoroutine()
-            unlockLockedBiblesIfNoneUsable(this@NavHostComposeActivity, usable = usableBibleGate)
+            unlockLockedBiblesIfNoneUsable(net.bible.service.sword.BookUnlocker { CommonUtils.unlockDocument(this@NavHostComposeActivity, it) }, usable = usableBibleGate)
             if (!usableBibleGate()) {
                 flow.controller.setProgress(null)
                 flow.controller.refresh()
@@ -7623,6 +7623,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java),
             session.genericFileDownloader,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
         ) { }
         session.repoFactory = RepoFactory(session.downloadManager, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
 

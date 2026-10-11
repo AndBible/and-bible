@@ -11,3 +11,5 @@ cloudsync
 backup
 download
 installzip
+
+sword

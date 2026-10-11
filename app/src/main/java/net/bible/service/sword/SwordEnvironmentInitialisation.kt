@@ -29,7 +29,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.ensureDirExists
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.isAndroid
-import net.bible.service.common.Logger
 import org.apache.commons.lang3.StringUtils
 import org.koin.java.KoinJavaComponent.get
 import org.crosswire.common.util.CWProject
@@ -53,7 +52,7 @@ private const val FIVE_MINUTES_MS: Long = 1000 * 60 * 5
  */
 object SwordEnvironmentInitialisation {
     private var isSwordLoaded = false
-    private val log = Logger(SwordEnvironmentInitialisation::class.java.name)
+    private val tag = SwordEnvironmentInitialisation::class.java.name
     fun initialiseJSwordFolders() {
         try {
             if (isAndroid && !isSwordLoaded) { // ensure required module directories exist and register them with jsword
@@ -79,14 +78,14 @@ object SwordEnvironmentInitialisation {
                 } else {
                     CWProject.setHome("jsword.home", moduleDir.absolutePath, null)
                 }
-                log.debug("Main JSword path:" + CWProject.instance().writableProjectDir)
+                Log.d(tag, "Main JSword path:" + CWProject.instance().writableProjectDir)
                 // 5 sec should be more than enough? (was 20 seconds but I can't understand why)
                 WebResource.setTimeout(5000)
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
             }
         } catch (e: Exception) {
-            log.error("Error initialising", e)
+            Log.e(tag, "Error initialising", e)
         }
     }
 
@@ -101,7 +100,7 @@ object SwordEnvironmentInitialisation {
             get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
         } catch (e: Exception) {
             // Not rethrown (must not stop app startup), but never silent: without it no installed book is backed up.
-            log.error("BookInstallWatcher failed to start; book installs will not be tracked", e)
+            Log.e(tag, "BookInstallWatcher failed to start; book installs will not be tracked", e)
         }
     }
 

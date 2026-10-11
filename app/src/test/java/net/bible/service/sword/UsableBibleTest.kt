@@ -22,6 +22,8 @@ import org.crosswire.jsword.book.Book
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 
 /** Slice 8 §4: "at least one UNLOCKED Bible" -- the one predicate all three gates read. */
 class UsableBibleTest {
@@ -30,4 +32,16 @@ class UsableBibleTest {
     @Test fun noBibleIsNotUsable() = assertFalse(hasUsableBible(emptyList()))
     @Test fun onlyLockedBiblesAreNotUsable() = assertFalse(hasUsableBible(listOf(bible(true), bible(true))))
     @Test fun oneUnlockedBibleIsEnough() = assertTrue(hasUsableBible(listOf(bible(true), bible(false))))
+    @Test fun unlocksWithTheGivenUnlocker() = runTest {
+        val locked = bible(true)
+        val unlocked = bible(false)
+        val seen = mutableListOf<Book>()
+        unlockLockedBiblesIfNoneUsable(BookUnlocker { seen += it; true },
+            usable = { false }, bibles = { listOf(locked, unlocked) })
+        assertEquals(listOf(locked), seen)
+        seen.clear()
+        unlockLockedBiblesIfNoneUsable(BookUnlocker { seen += it; true },
+            usable = { true }, bibles = { listOf(locked) })
+        assertTrue(seen.isEmpty())
+    }
 }

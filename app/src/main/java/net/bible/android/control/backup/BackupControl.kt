@@ -997,7 +997,7 @@ class BackupControl(
         addManuallyInstalledMyBibleBooks()
         addManuallyInstalledMySwordBooks()
         addManuallyInstalledESwordBooks()
-        addManuallyInstalledEpubBooks()
+        addManuallyInstalledEpubBooks(strings, env)
         addManuallyInstalledTtfBooks()
         addManuallyInstalledBackgroundImageBooks()
         addManuallyInstalledCsvPromptBooks()

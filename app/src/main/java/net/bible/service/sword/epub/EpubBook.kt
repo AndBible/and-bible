@@ -143,7 +143,7 @@ fun deleteEpubModule(epubDir: File) {
     deleteAppDatabase(appDbFilename)
 }
 
-fun addEpubBook(epubDir: File) {
+fun addEpubBook(epubDir: File, strings: CoreStrings, environment: AppEnvironment) {
     if(!(epubDir.canRead() && epubDir.isDirectory)) return
 
     val optimizeLockFile = File(epubDir, "optimize.lock")
@@ -154,7 +154,7 @@ fun addEpubBook(epubDir: File) {
         return
     }
 
-    val state = EpubBackendState(epubDir, KoinJavaComponent.get(CoreStrings::class.java), KoinJavaComponent.get(AppEnvironment::class.java)) // L1-edge: JSword BookType.getBackend constructs the backend
+    val state = EpubBackendState(epubDir, strings, environment)
     val metadata = state.getBookMetaData()
     if(Books.installed().getBook(metadata.initials) != null) return
     val backend = EpubBackend(state, metadata)
@@ -178,7 +178,7 @@ fun addEpubBook(epubDir: File) {
     Books.installed().addBook(book)
 }
 
-fun addManuallyInstalledEpubBooks(): Boolean {
+fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment): Boolean {
     val dir = File(SharedConstants.modulesDir, "epub")
     dir.mkdirs()
     if(!(dir.isDirectory && dir.canRead())) return false
@@ -186,7 +186,7 @@ fun addManuallyInstalledEpubBooks(): Boolean {
 
     for(f in dir.listFiles()!!) {
         try {
-            addEpubBook(f)
+            addEpubBook(f, strings, environment)
         } catch (e: JDOMParseException) {
             Log.e(TAG, "addEpubBook catched JDOMParseException", e)
             deleteEpubModule(f)

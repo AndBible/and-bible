@@ -24,7 +24,7 @@ import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
@@ -83,8 +83,8 @@ object SwordDocumentFacade {
             return allDocuments
         }
 
-    private fun getDictionaries(keyName: String, fakeBookName: String, type: FeatureType, fakeBookFactory: FakeBookFactory): List<Book> {
-        val bookInitials = CommonUtils.settings.getStringSet(keyName )
+    private fun getDictionaries(keyName: String, fakeBookName: String, type: FeatureType, fakeBookFactory: FakeBookFactory, settings: AppSettings): List<Book> {
+        val bookInitials = settings.getStringSet(keyName )
         if(bookInitials.isNotEmpty()) {
             return bookInitials.mapNotNull{ Books.installed().getBook(it)}
         }
@@ -93,16 +93,16 @@ object SwordDocumentFacade {
         return listOf(fakeBookFactory.giveDoesNotExist(fakeBookName, BookCategory.DICTIONARY))
     }
 
-    fun defaultRobinsonGreekMorphology(fakeBookFactory: FakeBookFactory): List<Book> =
-        getDictionaries("robinson_greek_morphology","Robinson", FeatureType.GREEK_PARSE, fakeBookFactory)
-    fun defaultStrongsGreekDictionary(fakeBookFactory: FakeBookFactory): List<Book> =
-        getDictionaries("strongs_greek_dictionary", "StrongsGreek", FeatureType.GREEK_DEFINITIONS, fakeBookFactory)
-    fun defaultStrongsHebrewDictionary(fakeBookFactory: FakeBookFactory): List<Book> =
-        getDictionaries("strongs_hebrew_dictionary", "StrongsHebrew", FeatureType.HEBREW_DEFINITIONS, fakeBookFactory)
+    fun defaultRobinsonGreekMorphology(fakeBookFactory: FakeBookFactory, settings: AppSettings): List<Book> =
+        getDictionaries("robinson_greek_morphology","Robinson", FeatureType.GREEK_PARSE, fakeBookFactory, settings)
+    fun defaultStrongsGreekDictionary(fakeBookFactory: FakeBookFactory, settings: AppSettings): List<Book> =
+        getDictionaries("strongs_greek_dictionary", "StrongsGreek", FeatureType.GREEK_DEFINITIONS, fakeBookFactory, settings)
+    fun defaultStrongsHebrewDictionary(fakeBookFactory: FakeBookFactory, settings: AppSettings): List<Book> =
+        getDictionaries("strongs_hebrew_dictionary", "StrongsHebrew", FeatureType.HEBREW_DEFINITIONS, fakeBookFactory, settings)
 
-    val wordLookupDictionaries: List<Book> get() {
+    fun wordLookupDictionaries(settings: AppSettings): List<Book> {
         // Get disabled dictionaries (inverse logic - stores what is NOT selected)
-        val disabledInitials = CommonUtils.settings.getStringSet("disabled_word_lookup_dictionaries")
+        val disabledInitials = settings.getStringSet("disabled_word_lookup_dictionaries")
         // Return all plain dictionaries minus the disabled ones
         return Books.installed().getBooks().filter {
             it.bookCategory == BookCategory.DICTIONARY &&

@@ -155,7 +155,7 @@ class AndroidPlatformSeamsTest {
     }
 
     @Test fun koinResolvesEverySeam() {
-        listOf(AppSettings::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, AppCoroutineScope::class)
+        listOf(AppSettings::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, AppCoroutineScope::class, net.bible.service.sword.ContentSource::class)
             .forEach { assertNotNull(it.simpleName, GlobalContext.get().getOrNull<Any>(it)) }
     }
 
@@ -176,7 +176,7 @@ class AndroidPlatformSeamsTest {
             AdvancedSpeakSettings::class, SpeakSettingsStore::class, OrderedLauncher::class, BookInstallWatcher::class, ProgressJsActions::class, BookmarkJsActions::class,
             DocumentControl::class, ReadingPlanTextFileDao::class, ReadingPlanRepository::class,
             ReadingPlanSource::class, HistoryPlatform::class, LinkPlatform::class, DocumentSyncStarter::class,
-            AppSettings::class, AppCoroutineScope::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class,
+            AppSettings::class, AppCoroutineScope::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, net.bible.service.sword.ContentSource::class,
         )
         val global = GlobalContext.get()
         val globalBefore = (types + listOf(WindowControl::class, BookmarkControl::class)).associateWith { global.get<Any>(it) }

@@ -59,6 +59,7 @@ class DownloadReadinessTest {
             KoinJavaComponent.get(AppSettings::class.java),
             KoinJavaComponent.get(BookInstallWatcher::class.java),
             GenericFileDownloader(settings = KoinJavaComponent.get(AppSettings::class.java), notifier = KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java), strings = KoinJavaComponent.get(CoreStrings::class.java)),
+            KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
         )
         manager.refreshInstallManager()
         val factory = RepoFactory(manager, KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))

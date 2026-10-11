@@ -741,7 +741,7 @@ class BibleView(
                     isVisible = true
                 }
             }
-            if (currentSelectionText != null && SwordDocumentFacade.wordLookupDictionaries.isNotEmpty()) {
+            if (currentSelectionText != null && SwordDocumentFacade.wordLookupDictionaries(CommonUtils.settings).isNotEmpty()) {
                 menu.findItem(R.id.lookup_dictionary).apply {
                     isVisible = true
                 }

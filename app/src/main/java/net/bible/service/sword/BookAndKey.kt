@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.versification.toVerseRange
-import net.bible.service.common.CommonUtils.json
+import net.bible.sharedcore.platform.AppJson
 import net.bible.service.common.shortName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -51,7 +51,7 @@ class BookAndKeySerialized(
     }
 
     companion object {
-        fun fromJSON(str: String): BookAndKeySerialized = json.decodeFromString(serializer(), str)
+        fun fromJSON(str: String): BookAndKeySerialized = AppJson.decodeFromString(serializer(), str)
     }
 }
 
@@ -63,7 +63,7 @@ class BookAndKey(
 ): Key {
     val serialized: String get() {
         val s = BookAndKeySerialized(key.getOsisRef(), documentInitials, ordinal, htmlId)
-        return json.encodeToString(serializer(), s)
+        return AppJson.encodeToString(serializer(), s)
     }
 
     val key: Key = if(_key is BookAndKey) {

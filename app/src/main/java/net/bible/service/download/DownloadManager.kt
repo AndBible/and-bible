@@ -43,6 +43,7 @@ class DownloadManager(
     private val settings: net.bible.sharedcore.platform.AppSettings,
     private val watcher: BookInstallWatcher,
     private val fileDownloader: GenericFileDownloader,
+    private val environment: net.bible.sharedcore.platform.AppEnvironment,
     private val onFailedReposChange: (() -> Unit)? = null
 ) {
     val customRepositoryDao get() = DatabaseContainer.instance.repoDb.customRepositoryDao()
@@ -61,7 +62,7 @@ class DownloadManager(
                     }
                 }
                 "mybible-https" -> {
-                    MyBibleInstaller(r.manifestUrl!!, fileDownloader)
+                    MyBibleInstaller(r.manifestUrl!!, fileDownloader, environment)
                 }
                 else -> throw RuntimeException("Invalid repository specification")
             }

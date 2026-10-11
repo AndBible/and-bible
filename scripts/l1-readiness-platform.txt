@@ -10,3 +10,5 @@ service/cloudsync/googledrive/GoogleDriveCloudAdapter.kt	Play Services one-tap s
 service/cloudsync/nextcloud/NextCloudAdapter.kt	Nextcloud Android SDK credentials/sign-in and commons-httpclient/jackrabbit transport
 service/cloudsync/nextcloud/GenericRemoteOperation.kt	Nextcloud Android library operation over JVM commons-httpclient (deliberately classified even without scanner violations)
 service/cloudsync/nextcloud/NextCloudSearchMethod.kt	Nextcloud JVM commons-httpclient and jackrabbit search method (deliberately classified even without scanner violations)
+
+service/sword/SwordEnvironmentInitialisation.kt	Android process bootstrap: storage permission, JSword home dir, error dialog; iOS has its own engine init

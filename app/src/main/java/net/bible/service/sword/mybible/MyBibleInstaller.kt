@@ -20,7 +20,7 @@ package net.bible.service.sword.mybible
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import net.bible.android.BibleApplication.Companion.application
+import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.android.SharedConstants
 import net.bible.android.database.repoJson
 import net.bible.service.common.ArchiveUtils.unzipFile
@@ -64,7 +64,7 @@ class MyBibleRepositorySpec (
     }
 }
 
-class MyBibleInstaller(private val manifestUrl: String, private val downloader: GenericFileDownloader): Installer, AbstractBookList() {
+class MyBibleInstaller(private val manifestUrl: String, private val downloader: GenericFileDownloader, private val environment: AppEnvironment): Installer, AbstractBookList() {
     override fun getType(): String  = "mybible-https"
     private val myBibleDir = File(SharedConstants.modulesDir, "mybible")
     private val localManifestFile = File(myBibleDir, "manifest.json")
@@ -157,7 +157,7 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
 
     override fun install(book: Book, jobId: String?) {
         Log.i(TAG, "Installing MyBible book ${book.initials}, $jobId")
-        val tmpDir = File(application.cacheDir, "mybible")
+        val tmpDir = File(environment.cacheDir, "mybible")
         tmpDir.mkdirs()
         val url = book.myBibleDownloadUrl
         val moduleSpec = moduleSpecs.find { it.download_url == url } ?: throw InstallException("Spec error")
