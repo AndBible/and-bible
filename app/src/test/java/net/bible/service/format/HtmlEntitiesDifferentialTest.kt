@@ -20,6 +20,33 @@ class HtmlEntitiesDifferentialTest {
         "a<br>b", "<i>x</i>", "<unknown>x</unknown>", "a <", "x &amp y", "a<!-- hidden -->b",
     )
 
+    @Test fun portableNamedEntitiesRetainCoverageAndMatchFramework() {
+        assertEquals(253, htmlEntityCodePoints.size)
+        val differences = htmlEntityCodePoints.mapNotNull { (name, _) ->
+            val input = "a&$name;b"
+            val expected = Html.fromHtml(input, 0).toString()
+            val actual = decodeHtmlEntities(input)
+            println("NAMED_ORACLE $name " + java.util.Base64.getEncoder().encodeToString(expected.toByteArray()))
+            if (expected == actual) null else "entity $name expected=$expected actual=$actual"
+        }
+        assertEquals(differences.joinToString("\n"), emptyList<String>(), differences)
+        for (input in listOf("a&#128512;b", "a&#x1F600;b", "a&unknown;b", "a&AMP;b", "a&#0;b", "a&#13;b")) {
+            assertEquals("input $input", Html.fromHtml(input, 0).toString(), decodeHtmlEntities(input))
+        }
+    }
+
+    @Test fun carriageReturnsAndWindowsCharactersMatchFramework() {
+        val inputs = listOf("a\rb", "a\r\nb", "a\u0085b", "a&#133;b") +
+            (0x80..0x9f).flatMap { code -> listOf("a${code.toChar()}b", "a&#$code;b", "a&#x${code.toString(16)};b", "a&#$code b") }
+        val differences = inputs.mapNotNull { input ->
+            val expected = Html.fromHtml(input, 0).toString()
+            println("CONTROL_ORACLE ${java.util.Base64.getEncoder().encodeToString(input.toByteArray())} ${java.util.Base64.getEncoder().encodeToString(expected.toByteArray())}")
+            val actual = decodeHtmlEntities(input)
+            if (expected == actual) null else "input=$input expected=$expected actual=$actual"
+        }
+        assertEquals(differences.joinToString("\n"), emptyList<String>(), differences)
+    }
+
     @Test fun matchesFrameworkHtml() {
         val differences = corpus.mapNotNull { input ->
             val expected = Html.fromHtml(input, 0).toString()

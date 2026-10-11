@@ -1,7 +1,5 @@
 package net.bible.service.format
 
-import org.apache.commons.text.StringEscapeUtils
-
 /** Decodes the HTML fragments in SAX character data (not complete styled HTML documents). */
 fun decodeHtmlEntities(s: String): String {
     val out = StringBuilder()
@@ -10,7 +8,7 @@ fun decodeHtmlEntities(s: String): String {
             // Android collapses only ASCII spaces and LF, not tabs or NBSP.
             if (c == ' ' || c == '\n') {
                 if (out.isNotEmpty() && out.last() != ' ' && out.last() != '\n') out.append(' ')
-            } else out.append(c)
+            } else out.append(if (c.code in 0x80..0x9f) windowsCodePoints[c.code - 0x80].toChar() else c)
         }
     }
     fun paragraph() {
@@ -43,23 +41,45 @@ fun decodeHtmlEntities(s: String): String {
                     i++
                 } else {
                     val name = match.groupValues[1]
-                    val token = "&$name;"
-                    val decoded = if (name == "apos") "'" else StringEscapeUtils.unescapeHtml4(token)
-                    if (decoded == token) text(match.value) else {
-                        // TagSoup drops control-code numeric references before Html sees them.
-                        text(if (name.startsWith('#')) decoded.filter { it >= ' ' } else decoded)
+                    val numeric = name.startsWith('#')
+                    val code = if (numeric) {
+                        if (name.startsWith("#x", ignoreCase = true)) name.substring(2).toIntOrNull(16)
+                        else name.substring(1).toIntOrNull()
+                    } else if (name == "phi") 0x03d5 else htmlEntityCodePoints[name] // TagSoup uses the phi symbol, not HTML4's letter.
+                    if (code == null || code !in 1..0x10ffff) text(match.value) else {
+                        // TagSoup drops numeric controls, but maps raw and numeric C1 through Windows-1252.
+                        if (!numeric || code >= 32) text(codePointText(code))
                     }
                     i += match.value.length
                 }
             }
             else -> {
-                text(if (s[i] == '\r') "" else s[i].toString())
-                i++
+                // The HTML scanner normalizes CR and CRLF to one LF before whitespace collapse.
+                if (s[i] == '\r') {
+                    text("\n")
+                    i += if (i + 1 < s.length && s[i + 1] == '\n') 2 else 1
+                } else {
+                    text(s[i].toString())
+                    i++
+                }
             }
         }
     }
     return out.toString()
 }
+
+private fun codePointText(code: Int): String = if (code <= 0xffff) code.toChar().toString() else {
+    val supplementary = code - 0x10000
+    "${(0xd800 + (supplementary shr 10)).toChar()}${(0xdc00 + (supplementary and 0x3ff)).toChar()}"
+}
+
+// TagSoup's Windows table replaces the five undefined C1 slots with U+FFFD.
+private val windowsCodePoints = intArrayOf(
+    0x20ac, 0xfffd, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
+    0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0xfffd, 0x017d, 0xfffd,
+    0xfffd, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
+    0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0xfffd, 0x017e, 0x0178,
+)
 
 private val entityAtStart = Regex("&(#(?:[xX][0-9a-fA-F]+|[0-9]+)|[a-zA-Z][a-zA-Z0-9]*);?")
 
