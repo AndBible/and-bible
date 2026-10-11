@@ -778,6 +778,7 @@ class ReadingSearchEntryPointsTest {
         )
         var originalReadingViewHost: ComposeReadingViewHost? = null
         var readingHost: NavHostComposeActivity? = null
+        var readingViewHostOverridden = false
         try {
             val activeReadingHost = controller.create().start().resume().visible().get()
             readingHost = activeReadingHost
@@ -785,8 +786,9 @@ class ReadingSearchEntryPointsTest {
             val kjv = Books.installed().getBook("KJV") as SwordBook
             val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
             activeReadingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
-            originalReadingViewHost = activeReadingHost.composeReadingViewHost
+            originalReadingViewHost = assertNotNull(activeReadingHost.composeReadingViewHost, "awaited Reading host exists")
             activeReadingHost.composeReadingViewHost = null
+            readingViewHostOverridden = true
 
             val handled = activeReadingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
 
@@ -796,8 +798,8 @@ class ReadingSearchEntryPointsTest {
             assertNull(shadowOf(activeReadingHost).nextStartedActivityForResult)
             assertEquals("search/index", activeReadingHost.currentRouteForTest()?.substringBefore('?'))
         } finally {
-            // Restore the detached host so Activity.onDestroy() disposes its subscriptions and scope.
-            if (readingHost != null) {
+            // Restore only after overriding the field; setup failures leave Activity ownership untouched.
+            if (readingViewHostOverridden && readingHost != null) {
                 readingHost.composeReadingViewHost = originalReadingViewHost
                 assertSame(originalReadingViewHost, readingHost.composeReadingViewHost, "restore the host Activity owns")
             }
