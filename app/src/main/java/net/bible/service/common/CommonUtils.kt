@@ -1840,19 +1840,19 @@ fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
     return rv
 }
 
-fun Book.getBookAndKey(keyStr: String, ordinal: Int? = null): BookAndKey? {
+suspend fun Book.getBookAndKey(keyStr: String, strings: net.bible.sharedcore.platform.CoreStrings, ordinal: Int? = null): BookAndKey? {
     val k = try {getKey(keyStr)} catch (e: NoSuchKeyException) {null} ?: return null
-    return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k).first))
+    return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k, strings).first))
 }
 
-val BookAndKey.prev: BookAndKey get() {
+suspend fun BookAndKey.prev(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey {
     val nextKey: Key = when(this.key) {
         is VerseRange -> {
-            CommonUtils.bibleTraverser.getPrevVerse(this.document as AbstractPassageBook, this.key.end)
+            traverser.getPrevVerse(this.document as AbstractPassageBook, this.key.end)
 
         }
         is Verse -> {
-            CommonUtils.bibleTraverser.getPrevVerse(this.document as AbstractPassageBook, this.key)
+            traverser.getPrevVerse(this.document as AbstractPassageBook, this.key)
         }
         else -> {
             val backend = when(val book = this.document!!) {
@@ -1871,17 +1871,17 @@ val BookAndKey.prev: BookAndKey get() {
     return BookAndKey(
         nextKey,
         this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey).last)
+        OrdinalRange(this.document!!.ordinalRangeFor(nextKey, strings).last)
     )
 }
 
-val BookAndKey.next: BookAndKey get() {
+suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey {
     val nextKey: Key = when(this.key) {
         is VerseRange -> {
-            CommonUtils.bibleTraverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
+            traverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
         }
         is Verse -> {
-            CommonUtils.bibleTraverser.getNextVerse(this.document as AbstractPassageBook, this.key)
+            traverser.getNextVerse(this.document as AbstractPassageBook, this.key)
         }
         else -> {
             val backend = when(val book = this.document!!) {
@@ -1922,11 +1922,11 @@ val BookAndKey.next: BookAndKey get() {
     return BookAndKey(
         nextKey,
         this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey).first)
+        OrdinalRange(this.document!!.ordinalRangeFor(nextKey, strings).first)
     )
 }
 
-fun Book.ordinalRangeFor(key: Key): IntRange = SwordContentFacade.ordinalRangeFor(this, key, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
+suspend fun Book.ordinalRangeFor(key: Key, strings: net.bible.sharedcore.platform.CoreStrings): IntRange = SwordContentFacade.ordinalRangeFor(this, key, strings)
 
 val Key.tinyName: String get() =
     if(this is VerseKey<*>)

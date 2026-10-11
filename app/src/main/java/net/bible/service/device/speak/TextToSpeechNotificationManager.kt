@@ -206,6 +206,7 @@ class TextToSpeechNotificationManager : KoinComponent {
 
         subscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
             when (change) {
+                SpeakChange.Status -> if (serviceRunning) buildNotification(speakControl.isSpeaking)
                 is SpeakChange.State -> {
                     val ev = change
                     Log.i(TAG, "Speak state ${ev.speakState}")

@@ -415,9 +415,9 @@ class SwordContentFacade(
             }
         }
 
-        fun ordinalRangeFor(book: Book, key: Key, strings: CoreStrings): IntRange {
+        suspend fun ordinalRangeFor(book: Book, key: Key, strings: CoreStrings): IntRange {
             return if(book.isEpub) {
-                blockingDb { ((book as SwordGenBook).backend as EpubBackend).getOrdinalRange(key) } // L1-pending(sword)
+                ((book as SwordGenBook).backend as EpubBackend).getOrdinalRange(key)
             } else {
                 val texts = cachedText(book, key, strings)
                 val keys = texts.keys

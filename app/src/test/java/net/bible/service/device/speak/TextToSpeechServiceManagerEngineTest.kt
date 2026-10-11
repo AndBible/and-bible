@@ -1,5 +1,6 @@
 package net.bible.service.device.speak
 
+import kotlinx.coroutines.launch
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.speak.*
@@ -18,7 +19,8 @@ import java.util.Locale
 class FakeSpeakEngine(var languages: Map<Locale, SpeakLanguageResult>) : SpeakEngine {
     val calls = mutableListOf<String>()
     val requestedLocales = mutableListOf<Locale>()
-    override fun speakText(text: String, utteranceId: String) { calls += "speak:$text" }
+    val utteranceIds = mutableListOf<String>()
+    override fun speakText(text: String, utteranceId: String) { calls += "speak:$text"; utteranceIds += utteranceId }
     override fun playEarcon(earcon: String, volume: Float, utteranceId: String) { calls += "earcon:$earcon" }
     override fun playSilence(durationMs: Long, utteranceId: String) { calls += "silence:$durationMs" }
     override fun setLanguage(locale: Locale): SpeakLanguageResult {
@@ -125,6 +127,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
             engine.calls.count { it.startsWith("speak:") })
         assertEquals("Appending a passage must retain the current utterance text", currentText, provider.getText("AND-BIBLE-0"))
         platform.listener!!.onUtteranceDone("AND-BIBLE-0")
+        joinSpeech()
         assertTrue("Completion must advance the queued passage", engine.calls.count { it.startsWith("speak:") } > queuedBefore)
         speakControl.stop()
     }
@@ -189,6 +192,351 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
             speakControl.stop(force = true)
             net.bible.android.database.bookmarks.SpeakSettings().save()
         }
+    }
+
+    private fun joinSpeech() = kotlinx.coroutines.runBlocking {
+        kotlinx.coroutines.withTimeout(4000) {
+            GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(SPEAK_KEY)
+        }
+    }
+
+    private inner class HeldEpub : AutoCloseable {
+        private val fixture = net.bible.service.sword.epub.EpubBackendStateTest()
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val resume = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val hold = java.util.concurrent.atomic.AtomicBoolean(true)
+        val reads = java.util.concurrent.atomic.AtomicInteger()
+        val state: net.bible.service.sword.epub.EpubBackendState
+        val book: org.crosswire.jsword.book.sword.SwordGenBook
+        val key: net.bible.service.sword.BookAndKey
+        private val real: net.bible.android.database.EpubDao
+        init {
+            fixture.setUp()
+            val dir = fixture.buildEpub("held-speech-ordinal")
+            java.io.File(dir, "OEBPS/ch1.xhtml").writeText(
+                "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>One</title></head><body>" +
+                    (1..50).joinToString("") { "<p>Sentence $it is readable.</p>" } + "</body></html>")
+            state = net.bible.service.sword.epub.EpubBackendState(dir, testCoreStrings(),
+                net.bible.android.platform.AndroidAppEnvironment(app))
+            val metadata = state.getBookMetaData()
+            book = org.crosswire.jsword.book.sword.SwordGenBook(metadata, net.bible.service.sword.epub.EpubBackend(state, metadata))
+            org.crosswire.jsword.book.Books.installed().addBook(book)
+            net.bible.service.sword.SwordContentFacade.clearCaches()
+            val first = state.keys.first()
+            val range = kotlinx.coroutines.runBlocking { state.getOrdinalRange(first) }
+            key = net.bible.service.sword.BookAndKey(first, book, net.bible.android.control.page.OrdinalRange(range.first))
+            // Warm only this fragment's text so the held DAO call is the noncontract ordinal read,
+            // not JSword's synchronous readRawContent edge.
+            net.bible.service.sword.SwordContentFacade.getTextWithinOrdinalsAsString(book, first, range, testCoreStrings())
+            real = org.robolectric.util.ReflectionHelpers.getField(state, "dao")
+            org.robolectric.util.ReflectionHelpers.setField(state, "dao", object : net.bible.android.database.EpubDao by real {
+                override suspend fun getFragment(id: Long): net.bible.android.database.EpubFragment? {
+                    reads.incrementAndGet()
+                    if (hold.get()) {
+                        entered.countDown()
+                        kotlinx.coroutines.withTimeout(3000) { resume.await() }
+                    }
+                    return real.getFragment(id)
+                }
+            })
+        }
+        override fun close() {
+            resume.complete(Unit)
+            try { joinSpeech() } finally {
+                try {
+                    org.robolectric.util.ReflectionHelpers.setField(state, "dao", real)
+                    speakControl.stop(force = true)
+                    joinSpeech()
+                } finally {
+                    try {
+                        org.crosswire.jsword.book.Books.installed().removeBook(book)
+                        net.bible.service.sword.SwordContentFacade.clearCaches()
+                        state.close()
+                    } finally { fixture.tearDown() }
+                }
+            }
+        }
+    }
+
+    private fun prepareGeneric(): TextToSpeechServiceManager {
+        engine.languages = mapOf(Locale.UK to SpeakLanguageResult.AVAILABLE,
+            Locale.ENGLISH to SpeakLanguageResult.AVAILABLE)
+        configureFreshControl()
+        return GlobalContext.get().get()
+    }
+
+    @Test
+    fun providerReplacementRemainsLiveAndSuppressesHeldOldCursor() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            val replacementDone = java.util.concurrent.CountDownLatch(1)
+            var replacement: Thread? = null
+            try {
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                assertTrue(epub.entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                val provider = org.robolectric.util.ReflectionHelpers.getField<GeneralSpeakTextProvider>(manager, "generalSpeakTextProvider")
+                replacement = Thread {
+                    manager.speakBible(book, (book.getKey("Gen.1.1") as org.crosswire.jsword.passage.RangedPassage).getVerseAt(0))
+                    replacementDone.countDown()
+                }.apply { start() }
+                assertTrue("Provider replacement must not wait for the old ordinal lookup", replacementDone.await(200, java.util.concurrent.TimeUnit.MILLISECONDS))
+                epub.resume.complete(Unit)
+                replacement.join(3000)
+                joinSpeech()
+                assertEquals("An obsolete read must not advance the replaced provider", epub.key.ordinal!!.start,
+                    provider.getCurrentlyPlayingKey().ordinal!!.start)
+                assertFalse(engine.calls.any { it.contains("Sentence") })
+            } finally {
+                epub.resume.complete(Unit)
+                replacement?.join(3000)
+            }
+        }
+    }
+
+    @Test
+    fun engineReplacementRejectsHeldChunkAndOldCallbacks() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            var replacement: Thread? = null
+            val replaced = java.util.concurrent.CountDownLatch(1)
+            try {
+                manager.speakGeneric(epub.key)
+                val oldListener = platform.listener!!
+                oldListener.onInit(true)
+                assertTrue(epub.entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                platform.preferredEnginePackage = "replacement.engine"
+                replacement = Thread { manager.speakGeneric(epub.key); replaced.countDown() }.apply { start() }
+                assertTrue("Engine replacement must not wait for a held ordinal read", replaced.await(200, java.util.concurrent.TimeUnit.MILLISECONDS))
+                epub.resume.complete(Unit)
+                replacement.join(3000)
+                joinSpeech()
+                assertFalse("Old chunk must not queue before replacement readiness", engine.calls.any { it.startsWith("speak:") })
+                oldListener.onUtteranceStart("AND-BIBLE-0")
+                oldListener.onUtteranceDone("AND-BIBLE-0")
+                joinSpeech()
+                assertFalse(engine.calls.any { it.startsWith("speak:") })
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                assertTrue(engine.calls.any { it.contains("Sentence") })
+            } finally {
+                epub.resume.complete(Unit)
+                replacement?.join(3000)
+            }
+        }
+    }
+
+    @Test
+    fun rapidMovementAndChunkSubmissionRemainFifo() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            var rewind: Thread? = null
+            try {
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                platform.listener!!.onUtteranceStart(engine.utteranceIds.first())
+                joinSpeech()
+                manager.pause(true)
+                val initial = (manager.currentlyPlayingKey as net.bible.service.sword.BookAndKey).ordinal!!.start
+                epub.hold.set(true)
+                val submitted = java.util.concurrent.CountDownLatch(1)
+                rewind = Thread { manager.rewind(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE); submitted.countDown() }.apply { start() }
+                assertTrue(epub.entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                assertTrue("Movement must enqueue, not block its caller on lazy ordinals", submitted.await(200, java.util.concurrent.TimeUnit.MILLISECONDS))
+                manager.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                manager.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.ONE_VERSE)
+                epub.resume.complete(Unit)
+                rewind.join(3000)
+                joinSpeech()
+                // Rewind wraps to previous chapter, then forward returns and advances once.
+                assertEquals(initial + 1, (manager.currentlyPlayingKey as net.bible.service.sword.BookAndKey).ordinal!!.start)
+                manager.continueAfterPause()
+                joinSpeech()
+                val count = engine.utteranceIds.size
+                val last = engine.utteranceIds.last()
+                platform.listener!!.onUtteranceDone(last)
+                platform.listener!!.onUtteranceDone(last)
+                joinSpeech()
+                assertEquals("Duplicate completion cannot advance two chunks", 20, engine.utteranceIds.size - count)
+                assertEquals(engine.utteranceIds.size, engine.utteranceIds.distinct().size)
+            } finally {
+                epub.resume.complete(Unit)
+                rewind?.join(3000)
+            }
+        }
+    }
+
+    @Test
+    fun engineInvalidationDuringHeldMovementSuppressesCursorAndProgress() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            val progress = java.util.Collections.synchronizedList(mutableListOf<SpeakChange.Progress>())
+            val sub = SpeakChanges.changes.subscribe { if (it is SpeakChange.Progress) progress += it }
+            try {
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                manager.pause(true)
+                val before = (manager.currentlyPlayingKey as net.bible.service.sword.BookAndKey).ordinal!!.start
+                progress.clear()
+                epub.hold.set(true)
+                manager.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.SMART)
+                assertTrue(epub.entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                manager.invalidatePendingStart()
+                epub.resume.complete(Unit)
+                joinSpeech()
+                assertEquals("Invalid engine request cannot publish a calculated cursor", before,
+                    (manager.currentlyPlayingKey as net.bible.service.sword.BookAndKey).ordinal!!.start)
+                assertTrue("Invalid movement cannot emit stale progress", progress.isEmpty())
+            } finally {
+                epub.resume.complete(Unit)
+                sub.cancel()
+            }
+        }
+    }
+
+    @Test
+    fun liveStatusDoesNotBlockTransportAndDoesNotScanTheBook() {
+        val manager = prepareGeneric()
+        HeldEpub().use { epub ->
+            var reader: Thread? = null
+            try {
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                platform.listener!!.onUtteranceStart(engine.utteranceIds.first())
+                joinSpeech()
+                val before = epub.reads.get()
+                epub.hold.set(true)
+                val returned = java.util.concurrent.CountDownLatch(1)
+                var status = ""
+                reader = Thread { status = manager.getStatusText(GeneralSpeakTextProvider.FLAG_SHOW_ALL); returned.countDown() }.apply { start() }
+                assertTrue("Transport status must read a live projection without lazy I/O", returned.await(200, java.util.concurrent.TimeUnit.MILLISECONDS))
+                assertTrue("Status must retain the live chapter and percentage", status.contains("%"))
+                assertTrue(status.contains(epub.book.abbreviation))
+                assertEquals("Rendering status must not preload or reread ordinal data", before, epub.reads.get())
+                epub.hold.set(false)
+                epub.resume.complete(Unit)
+                manager.pause(true)
+                manager.forward(net.bible.android.database.bookmarks.SpeakSettings.RewindAmount.SMART)
+                joinSpeech()
+                assertNotEquals("Movement must refresh percentage", status, manager.getStatusText(GeneralSpeakTextProvider.FLAG_SHOW_ALL))
+            } finally {
+                epub.resume.complete(Unit)
+                reader?.join(3000)
+            }
+        }
+    }
+
+    @Test
+    fun applicationOwnedBookmarkWriteSurvivesHostCancellation() {
+        val manager = prepareGeneric()
+        val advanced = GlobalContext.get().get<AdvancedSpeakSettings>()
+        val old = advanced.autoBookmark
+        val hostJob = kotlinx.coroutines.Job()
+        HeldEpub().use { epub ->
+            try {
+                advanced.autoBookmark = true
+                epub.hold.set(false)
+                manager.speakGeneric(epub.key)
+                platform.listener!!.onInit(true)
+                joinSpeech()
+                platform.listener!!.onUtteranceStart(engine.utteranceIds.first())
+                joinSpeech()
+                val writeEntered = java.util.concurrent.CountDownLatch(1)
+                val allowWrite = kotlinx.coroutines.CompletableDeferred<Unit>()
+                val launcher = GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>()
+                launcher.launch(SPEAK_KEY) {
+                    writeEntered.countDown()
+                    allowWrite.await()
+                }
+                assertTrue(writeEntered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                try {
+                    kotlinx.coroutines.CoroutineScope(hostJob + kotlinx.coroutines.Dispatchers.Unconfined).launch {
+                        manager.shutdown()
+                    }
+                    hostJob.cancel()
+                    assertFalse(manager.isSpeaking)
+                } finally {
+                    allowWrite.complete(Unit)
+                }
+                joinSpeech()
+                val saved = kotlinx.coroutines.runBlocking { bookmarkControl.getGenericBookmarksWithLabel(bookmarkControl.speakLabel()) }
+                assertEquals(1, saved.count { it.book?.initials == epub.book.initials })
+                assertFalse(manager.isSpeaking)
+                val count = engine.utteranceIds.size
+                platform.listener!!.onUtteranceDone(engine.utteranceIds.last())
+                joinSpeech()
+                assertEquals(count, engine.utteranceIds.size)
+            } finally {
+                hostJob.cancel()
+                advanced.autoBookmark = old
+            }
+        }
+    }
+
+    @Test
+    fun stopRemainsLiveDuringRealEpubOrdinalLookup() {
+        val fixture = net.bible.service.sword.epub.EpubBackendStateTest()
+        fixture.setUp()
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val stopped = java.util.concurrent.CountDownLatch(1)
+        var stopper: Thread? = null
+        var state: net.bible.service.sword.epub.EpubBackendState? = null
+        var originalDao: net.bible.android.database.EpubDao? = null
+        val launcher = GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>()
+        try {
+            engine.languages = mapOf(Locale.UK to SpeakLanguageResult.AVAILABLE,
+                Locale.ENGLISH to SpeakLanguageResult.AVAILABLE)
+            configureFreshControl()
+            val epubState = net.bible.service.sword.epub.EpubBackendState(
+                fixture.buildEpub("held-speech-ordinal"), testCoreStrings(),
+                net.bible.android.platform.AndroidAppEnvironment(app))
+            state = epubState
+            val metadata = epubState.getBookMetaData()
+            val epub = org.crosswire.jsword.book.sword.SwordGenBook(metadata,
+                net.bible.service.sword.epub.EpubBackend(epubState, metadata))
+            val key = epubState.keys.first()
+            val range = kotlinx.coroutines.runBlocking { epubState.getOrdinalRange(key) }
+            val real = org.robolectric.util.ReflectionHelpers.getField<net.bible.android.database.EpubDao>(epubState, "dao")
+            originalDao = real
+            org.robolectric.util.ReflectionHelpers.setField(epubState, "dao", object : net.bible.android.database.EpubDao by real {
+                override suspend fun getFragment(id: Long): net.bible.android.database.EpubFragment? {
+                    entered.countDown()
+                    check(release.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                    return real.getFragment(id)
+                }
+            })
+            val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+            manager.speakGeneric(net.bible.service.sword.BookAndKey(key, epub,
+                net.bible.android.control.page.OrdinalRange(range.first)))
+            platform.listener!!.onInit(true)
+            assertTrue("Speech must reach the real lazy EPUB lookup", entered.await(3, java.util.concurrent.TimeUnit.SECONDS))
+            stopper = Thread { manager.shutdown(); stopped.countDown() }.apply { start() }
+            assertTrue("Stop must not wait for an ordinal read holding the manager monitor",
+                stopped.await(200, java.util.concurrent.TimeUnit.MILLISECONDS))
+        } finally {
+            release.countDown()
+            try {
+                stopper?.join(3000)
+                kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(4000) { launcher.join(SPEAK_KEY) } }
+            } finally {
+                try {
+                    if (state != null && originalDao != null) {
+                        org.robolectric.util.ReflectionHelpers.setField(state, "dao", originalDao)
+                    }
+                    speakControl.stop(force = true)
+                } finally {
+                    try { state?.close() } finally { fixture.tearDown() }
+                }
+            }
+        }
+        assertFalse("Released obsolete lookup must not enqueue audio", engine.calls.any { it.startsWith("speak:") })
     }
 
     @Test fun allLocalesUnsupportedShowsMessageAndStops() {

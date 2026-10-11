@@ -76,7 +76,7 @@ class BibleViewEpubLoadRaceTest {
 
     private fun field(name: String): Any? = BibleView::class.java.getDeclaredField(name).run { isAccessible = true; get(view) }
     private fun doc(id: String, entered: CountDownLatch? = null, release: CountDownLatch? = null): Document = object : Document {
-        override val asHashMap: Map<String, String> get() {
+        override suspend fun contentMap(): Map<String, String> {
             entered?.countDown()
             check(release?.await(10, TimeUnit.SECONDS) != false)
             return mapOf("id" to "'$id'")

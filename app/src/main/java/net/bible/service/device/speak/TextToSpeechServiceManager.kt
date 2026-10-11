@@ -39,7 +39,6 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
 
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -94,7 +93,7 @@ class TextToSpeechServiceManager constructor(
     private var mTts: SpeakEngine? = null
     // A synchronous engine callback must wait until its returned engine is assigned.
     private var engineReady = false
-    private var engineIdentity = 0L
+    @Volatile private var engineIdentity = 0L
     private var creatingEngine = false
     private var pendingInit: Boolean? = null
     private var configuredEnginePackage: String? = null
@@ -102,7 +101,7 @@ class TextToSpeechServiceManager constructor(
     private var localePreferenceList: MutableList<Locale> = ArrayList()
     private var currentLocale: Locale = Locale.getDefault()
 
-    private var mSpeakTextProvider: SpeakTextProvider
+    @Volatile private var mSpeakTextProvider: SpeakTextProvider
 
     private val legacySpeakTextProvider: LegacySpeakTextProvider
     private val generalSpeakTextProvider: GeneralSpeakTextProvider
@@ -112,6 +111,7 @@ class TextToSpeechServiceManager constructor(
 
     private val ttsLanguageSupport = TTSLanguageSupport(settings)
     private var uniqueUtteranceNo: Long = 0
+    private val acceptedUtterances = mutableSetOf<String>()
 
     // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
     var isSpeaking = false
@@ -150,6 +150,8 @@ class TextToSpeechServiceManager constructor(
             advanced = advanced,
             launcher = launcher,
             swordContentFacade = swordContentFacade,
+            strings = strings,
+            traverser = bibleTraverser,
         )
 
         mSpeakTextProvider = bibleSpeakTextProvider
@@ -168,6 +170,26 @@ class TextToSpeechServiceManager constructor(
 
     private val startGeneration = java.util.concurrent.atomic.AtomicLong()
     private var wasPaused = false
+    private data class Request(val generation: Long, val engine: Long, val provider: SpeakTextProvider)
+    private fun request() = Request(startGeneration.get(), engineIdentity, mSpeakTextProvider)
+    private fun valid(request: Request) = request.generation == startGeneration.get() &&
+        request.engine == engineIdentity && request.provider === mSpeakTextProvider
+    @Volatile private var statusTexts = emptyMap<Int, String>()
+
+    /** Status is a live UI projection, never an ordinal cache; reads happen on the speak FIFO. */
+    private suspend fun refreshStatus(request: Request) {
+        if (!valid(request)) return
+        val values = request.provider.getStatusTexts()
+        withContext(mainDispatcher) {
+            synchronized(this@TextToSpeechServiceManager) {
+                if (valid(request)) {
+                    statusTexts = values
+                    SpeakChanges.notifyStatus()
+                }
+            }
+        }
+    }
+
 
     private val engineListener = object : SpeakEngineListener {
         override fun onInit(success: Boolean) {
@@ -179,8 +201,12 @@ class TextToSpeechServiceManager constructor(
             val generation = startGeneration.get()
             val provider = mSpeakTextProvider
             val genericKey = pendingGenericKey
+            val identity = engineIdentity
+            val request = Request(generation, identity, provider)
             launcher.launch(SPEAK_KEY) {
-                if (generation != startGeneration.get()) return@launch
+                var start = false
+                var forceQueue = false
+                if (!valid(request)) return@launch
                 provider.loadBookmarkState()
                 val genericLocales = genericKey?.let { key ->
                     val language = getMyDocumentPageLanguage(key)
@@ -188,7 +214,7 @@ class TextToSpeechServiceManager constructor(
                 }
                 withContext(mainDispatcher) {
                     synchronized(this@TextToSpeechServiceManager) {
-                        if (generation != startGeneration.get() || provider !== mSpeakTextProvider) return@withContext
+                        if (!valid(request)) return@withContext
                         if (genericLocales != null) localePreferenceList = genericLocales
                         Log.i(TAG, "Tts initialised")
                         var isOk = false
@@ -231,9 +257,9 @@ class TextToSpeechServiceManager constructor(
                                 if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
                                 isOk = true
                                 provider.prepareForStartSpeaking()
-                                val forceQueue = forceQueueAfterEngineRestart
+                                forceQueue = forceQueueAfterEngineRestart
                                 forceQueueAfterEngineRestart = false
-                                startSpeaking(forceQueue = forceQueue)
+                                start = true
                                 stopIfPhoneCall()
                             }
                         } else {
@@ -246,34 +272,38 @@ class TextToSpeechServiceManager constructor(
                         }
                     }
                 }
+                if (start) startSpeaking(request, forceQueue)
             }
         }
 
         override fun onUtteranceStart(utteranceId: String) {
-            Log.i(TAG, "onStart $utteranceId")
-            mSpeakTextProvider.startUtterance(utteranceId)
-            mSpeakTiming.started(utteranceId, mSpeakTextProvider.getText(utteranceId).length)
+            val request = synchronized(this@TextToSpeechServiceManager) { request() }
+            launcher.launch(SPEAK_KEY) {
+                withContext(mainDispatcher) {
+                    synchronized(this@TextToSpeechServiceManager) {
+                        if (!valid(request) || !isSpeaking || !acceptedUtterances.contains(utteranceId)) return@withContext
+                        request.provider.startUtterance(utteranceId)
+                        mSpeakTiming.started(utteranceId, request.provider.getText(utteranceId).length)
+                    }
+                }
+                refreshStatus(request)
+            }
         }
 
         override fun onUtteranceDone(utteranceId: String) {
-            Log.i(TAG, "onUtteranceCompleted:$utteranceId")
-            // pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date
-
-            // estimate cps
-            mSpeakTextProvider.finishedUtterance(utteranceId)
-            mSpeakTiming.finished(utteranceId)
-
-            if (!isPaused && isSpeaking && StringUtils.startsWith(utteranceId, UTTERANCE_PREFIX)) {
-                val utteranceNo = java.lang.Long.valueOf(StringUtils.removeStart(utteranceId, UTTERANCE_PREFIX))
-                if (utteranceNo == uniqueUtteranceNo - 1) {
-
-                    // ask TTs to say the text
-                    if (mSpeakTextProvider.isMoreTextToSpeak()) {
-                        speakNextChunk()
-                    } else {
-                        Log.i(TAG, "Shutting down TTS")
-                        speakControl.stop()
+            val request = synchronized(this@TextToSpeechServiceManager) { request() }
+            launcher.launch(SPEAK_KEY) {
+                val advance = withContext(mainDispatcher) {
+                    synchronized(this@TextToSpeechServiceManager) {
+                        if (!valid(request) || !acceptedUtterances.remove(utteranceId)) return@synchronized false
+                        request.provider.finishedUtterance(utteranceId)
+                        mSpeakTiming.finished(utteranceId)
+                        !isPaused && isSpeaking && utteranceId == UTTERANCE_PREFIX + (uniqueUtteranceNo - 1)
                     }
+                }
+                if (advance) {
+                    if (request.provider.isMoreTextToSpeak()) speakNextChunk(request)
+                    else withContext(mainDispatcher) { if (valid(request)) speakControl.stop() }
                 }
             }
         }
@@ -296,6 +326,7 @@ class TextToSpeechServiceManager constructor(
     @Synchronized
     fun speakBible(book: SwordBook, verse: Verse) {
         startGeneration.incrementAndGet()
+        statusTexts = emptyMap()
         pendingGenericKey = null
         switchProvider(bibleSpeakTextProvider)
         clearTtsQueue()
@@ -307,6 +338,7 @@ class TextToSpeechServiceManager constructor(
     @Synchronized
     fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
         startGeneration.incrementAndGet()
+        statusTexts = emptyMap()
         pendingGenericKey = null
         switchProvider(legacySpeakTextProvider)
         legacySpeakTextProvider.setupReading(book, keyList)
@@ -318,7 +350,9 @@ class TextToSpeechServiceManager constructor(
     @Synchronized
     fun speakGeneric(key: BookAndKey) {
         startGeneration.incrementAndGet()
+        statusTexts = emptyMap()
         switchProvider(generalSpeakTextProvider)
+        clearTtsQueue()
         generalSpeakTextProvider.setupReading(key)
 
         pendingGenericKey = key
@@ -440,6 +474,21 @@ class TextToSpeechServiceManager constructor(
                             if (identity == engineIdentity) engineListener.onInit(success)
                         }
                     }
+                    override fun onUtteranceStart(utteranceId: String) {
+                        synchronized(this@TextToSpeechServiceManager) {
+                            if (identity == engineIdentity) engineListener.onUtteranceStart(utteranceId)
+                        }
+                    }
+                    override fun onUtteranceDone(utteranceId: String) {
+                        synchronized(this@TextToSpeechServiceManager) {
+                            if (identity == engineIdentity) engineListener.onUtteranceDone(utteranceId)
+                        }
+                    }
+                    override fun onUtteranceError(utteranceId: String) {
+                        synchronized(this@TextToSpeechServiceManager) {
+                            if (identity == engineIdentity) engineListener.onUtteranceError(utteranceId)
+                        }
+                    }
                 }
                 mTts = platform.createEngine(listener)
                 configuredEnginePackage = preferredEnginePackage
@@ -463,54 +512,34 @@ class TextToSpeechServiceManager constructor(
         platform.startPhoneCallMonitoring(::callStateChanged)
     }
 
-    @Synchronized
-    fun rewind(amount: SpeakSettings.RewindAmount?) {
-        Log.i(TAG, "Rewind TTS")
-        // prevent onUtteranceCompleted causing next text to be grabbed
-        uniqueUtteranceNo++
-        val wasPaused = isPaused
-        isPaused = true
-        if (isSpeaking) {
-            mTts?.stop()
-        }
-        isSpeaking = false
+    fun rewind(amount: SpeakSettings.RewindAmount?) = move(amount, backwards = true)
+    fun forward(amount: SpeakSettings.RewindAmount?) = move(amount, backwards = false)
 
-        if (!wasPaused) {
-            // ensure current position is saved which is done during pause
-            mSpeakTextProvider.savePosition(mSpeakTiming.fractionCompleted)
-        }
-
-        // move current position back a bit
-        mSpeakTextProvider.rewind(amount)
-
-        isPaused = wasPaused
-        if (!isPaused) {
-            continueAfterPause()
-        }
-    }
-
-    @Synchronized
-    fun forward(amount: SpeakSettings.RewindAmount?) {
-        Log.i(TAG, "Forward TTS")
-        // prevent onUtteranceCompleted causing next text to be grabbed
-        uniqueUtteranceNo++
-        val wasPaused = isPaused
-        isPaused = true
-        if (isSpeaking) {
-            mTts?.stop()
-        }
-        isSpeaking = false
-
-        if (!wasPaused) {
-            // ensure current position is saved which is done during pause
-            mSpeakTextProvider.savePosition(mSpeakTiming.fractionCompleted)
-        }
-
-        mSpeakTextProvider.forward(amount)
-
-        isPaused = wasPaused
-        if (!isPaused) {
-            continueAfterPause()
+    private fun move(amount: SpeakSettings.RewindAmount?, backwards: Boolean) {
+        val request = synchronized(this) { request() }
+        launcher.launch(SPEAK_KEY) {
+            val paused = withContext(mainDispatcher) {
+                synchronized(this@TextToSpeechServiceManager) {
+                    if (!valid(request)) return@synchronized null
+                    val paused = isPaused
+                    uniqueUtteranceNo++
+                    acceptedUtterances.clear()
+                    isPaused = true
+                    if (isSpeaking) mTts?.stop()
+                    isSpeaking = false
+                    if (!paused) request.provider.savePosition(mSpeakTiming.fractionCompleted)
+                    paused
+                }
+            } ?: return@launch
+            if (backwards) request.provider.rewind(amount) { valid(request) } else request.provider.forward(amount) { valid(request) }
+            refreshStatus(request)
+            withContext(mainDispatcher) {
+                synchronized(this@TextToSpeechServiceManager) {
+                    if (!valid(request)) return@withContext
+                    isPaused = paused
+                }
+            }
+            if (!paused && valid(request)) startSpeaking(request)
         }
     }
 
@@ -550,7 +579,10 @@ class TextToSpeechServiceManager constructor(
             clearPauseState()
             // ask TTs to say the text
             if (!reloadBookmark && mTts != null && platform.preferredEnginePackage == configuredEnginePackage) {
-                startSpeaking()
+                // Settings save retains its immediate playback-state contract; audio remains ordered.
+                isSpeaking = true
+                fireStateChangeEvent()
+                queueStart(request(), forceQueue = true)
             } else {
                 if (!reloadBookmark) {
                     // Keep save()'s synchronous state contract while a changed engine initializes.
@@ -570,43 +602,59 @@ class TextToSpeechServiceManager constructor(
         isPaused = false
     }
 
-    private fun startSpeaking(forceQueue: Boolean = false) {
-        initialized = true
-        Log.i(TAG, "about to send some text to TTS")
-        if (!platform.requestAudioFocus { gained ->
-                pauseDueCall = !gained
-                callStateChanged(!gained)
-            }) {
-            Log.i(TAG, "Could not gain audio focus, not starting")
-            shutdown()
-            return
-        }
-
-        if (!isSpeaking || forceQueue) {
-            speakNextChunk()
-            isSpeaking = true
-            isPaused = false
-            mSpeakTextProvider.isSpeaking = true
-            fireStateChangeEvent()
-        } else {
-            isPaused = false
-        }
+    private fun queueStart(request: Request, forceQueue: Boolean = false) {
+        launcher.launch(SPEAK_KEY) { startSpeaking(request, forceQueue) }
     }
 
-    private fun speakNextChunk() {
-        var utteranceId = ""
-        Log.i(TAG, "Adding items to TTS queue. first utterance id: $uniqueUtteranceNo")
-        for (i in 0 until mSpeakTextProvider.numItemsToTts) {
-            utteranceId = UTTERANCE_PREFIX + uniqueUtteranceNo++
-            val cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId, i == 0)
-            cmd.speak(mTts!!, utteranceId)
-            if(!mSpeakTextProvider.isMoreTextToSpeak()) {
-                break
+    private suspend fun startSpeaking(request: Request, forceQueue: Boolean = false) {
+        val queue = withContext(mainDispatcher) {
+            synchronized(this@TextToSpeechServiceManager) {
+                if (!valid(request) || !engineReady) return@synchronized false
+                initialized = true
+                if (!platform.requestAudioFocus { gained ->
+                        pauseDueCall = !gained
+                        callStateChanged(!gained)
+                    }) {
+                    shutdown()
+                    return@synchronized false
+                }
+                if (!isSpeaking || forceQueue) {
+                    isSpeaking = true
+                    isPaused = false
+                    request.provider.isSpeaking = true
+                    true
+                } else {
+                    isPaused = false
+                    false
+                }
             }
         }
-        Log.i(TAG, "Added items to TTS queue. Last utterance id: $utteranceId")
+        if (queue) speakNextChunk(request)
+        refreshStatus(request)
+        withContext(mainDispatcher) {
+            synchronized(this@TextToSpeechServiceManager) { if (valid(request)) fireStateChangeEvent() }
+        }
     }
 
+
+    private suspend fun speakNextChunk(request: Request) {
+        for (i in 0 until request.provider.numItemsToTts) {
+            val utteranceId = synchronized(this) {
+                if (!valid(request) || !isSpeaking || isPaused) return
+                UTTERANCE_PREFIX + uniqueUtteranceNo++
+            }
+            // No manager monitor or Main thread is held while lazy EPUB ordinals are read.
+            val cmd = request.provider.getNextSpeakCommand(utteranceId, i == 0) { valid(request) }
+            withContext(mainDispatcher) {
+                synchronized(this@TextToSpeechServiceManager) {
+                    if (!valid(request) || !isSpeaking || isPaused) return@withContext
+                    acceptedUtterances.add(utteranceId)
+                    cmd.speak(mTts!!, utteranceId)
+                }
+            }
+            if (!valid(request) || !request.provider.isMoreTextToSpeak()) break
+        }
+    }
 
     /** flush cached text
      */
@@ -620,6 +668,7 @@ class TextToSpeechServiceManager constructor(
             mTts?.flush()
         }
 
+        acceptedUtterances.clear()
         mSpeakTextProvider.reset()
         isSpeaking = false
     }
@@ -640,6 +689,7 @@ class TextToSpeechServiceManager constructor(
     @Synchronized
     fun shutdown(willContinueAfter: Boolean = false) {
         startGeneration.incrementAndGet()
+        statusTexts = emptyMap()
         Log.i(TAG, "Shutdown TTS")
 
         isSpeaking = false
@@ -655,6 +705,7 @@ class TextToSpeechServiceManager constructor(
 
     private fun shutdownTtsEngine() {
         engineReady = false
+        acceptedUtterances.clear()
         engineIdentity++
         Log.i(TAG, "Shutdown TTS Engine")
         try {
@@ -762,14 +813,17 @@ class TextToSpeechServiceManager constructor(
 		mTts?.setSpeechRate(speechRate / 100f)
     }
 
-    fun getStatusText(showFlag: Int): String {
-        return mSpeakTextProvider.getStatusText(showFlag)
-    }
+    fun getStatusText(showFlag: Int): String = statusTexts[showFlag and 3] ?: ""
 
     @Synchronized
     fun updateSettings(change: SpeakSettingsChange) {
         mSpeakTextProvider.updateSettings(change)
         setRate(change.speakSettings.playbackSettings.speed)
+        val request = request()
+        if (initialized || isPaused) launcher.launch(SPEAK_KEY) {
+            if (!valid(request)) return@launch
+            refreshStatus(request)
+        }
 
     }
 

@@ -205,7 +205,8 @@ class BibleSpeakTextProvider(
         return cmds
     }
 
-    override fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean): SpeakCommand {
+    override suspend fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean, isValid: () -> Boolean): SpeakCommand {
+        if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
         while(currentCommands.isEmpty()) {
             currentCommands.addAll(getMoreSpeakCommands())
         }
@@ -263,7 +264,7 @@ class BibleSpeakTextProvider(
         return cmds
     }
 
-    override fun getStatusText(showFlag: Int): String {
+    override suspend fun getStatusText(showFlag: Int): String {
         val verseRange = settings.playbackSettings.verseRange
         val percent = if(verseRange == null) {
             bibleTraverser.getPercentOfBook(currentState.startVerse)
@@ -407,9 +408,10 @@ class BibleSpeakTextProvider(
     }
 
     private fun getNextVerse(verse: Verse): Verse = limitToRange(bibleTraverser.getNextVerse(book, verse))
-    override fun rewind(amount: SpeakSettings.RewindAmount?) = rewind(amount, false)
+    override suspend fun rewind(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) = rewind(amount, false, isValid)
 
-    fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean) {
+    suspend fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean, isValid: () -> Boolean = { true }) {
+        if (!isValid()) return
         val lastTitle = this.lastVerseWithTitle
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
@@ -456,7 +458,8 @@ class BibleSpeakTextProvider(
         SpeakChanges.notifyProgress(SpeakChange.Progress(book, startVerse, normalCommand))
     }
 
-    override fun forward(amount: SpeakSettings.RewindAmount?) {
+    override suspend fun forward(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) {
+        if (!isValid()) return
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {

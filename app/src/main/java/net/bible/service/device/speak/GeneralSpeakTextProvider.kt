@@ -35,7 +35,6 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.control.speak.AdvancedSpeakSettings
-import net.bible.service.common.getBookAndKey
 import net.bible.service.common.next
 import net.bible.service.common.ordinalRangeFor
 import net.bible.service.common.prev
@@ -55,8 +54,14 @@ class GeneralSpeakTextProvider(
     private val launcher: OrderedLauncher,
     private val fakeBookFactory: net.bible.service.download.FakeBookFactory,
     private val swordContentFacade: SwordContentFacade,
+    private val strings: net.bible.sharedcore.platform.CoreStrings,
+    private val traverser: net.bible.android.control.versification.BibleTraverser,
 ) : SpeakTextProvider {
     private val appSettings = settings
+    private var revision = 0L
+    private fun checkRevision(expected: Long) {
+        if (expected != revision) throw kotlinx.coroutines.CancellationException("Obsolete speech cursor")
+    }
     private data class State(
         val book: Book,
         val startKey: BookAndKey,
@@ -98,6 +103,7 @@ class GeneralSpeakTextProvider(
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startKey, endKey, currentKey)
 
+    @Synchronized
     override fun updateSettings(change: SpeakSettingsChange) {
         this.settings = change.speakSettings
         Log.i(TAG, "SpeakSettings updated: $change")
@@ -129,8 +135,10 @@ class GeneralSpeakTextProvider(
         phrases = platform.phrasesFor(book.language.code)
     }
 
+    @Synchronized
     fun setupReading(key: BookAndKey) {
         reset()
+        loadedBookmark = null
         setupBook(key.document!!)
 
         currentKey = key
@@ -139,13 +147,13 @@ class GeneralSpeakTextProvider(
         stopOrdinal = key.ordinal!!.end
     }
 
-    private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey): SpeakCommandArray {
+    private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey, readingSettings: SpeakSettings, readingPhrases: SpeakPhrases): SpeakCommandArray {
         val cmds = SpeakCommandArray(platform.maxSpeechInputLength)
 
         if(prevKey.getOsisRef() != key.getOsisRef()) {
-            if(settings.playbackSettings.speakChapterChanges) {
-                cmds.add(PreChapterChangeCommand(settings))
-                cmds.add(TextCommand("${phrases.chapterChanged} ${key.getName()}. "))
+            if(readingSettings.playbackSettings.speakChapterChanges) {
+                cmds.add(PreChapterChangeCommand(readingSettings))
+                cmds.add(TextCommand("${readingPhrases.chapterChanged} ${key.getName()}. "))
                 cmds.add(SilenceCommand())
             }
         }
@@ -153,18 +161,46 @@ class GeneralSpeakTextProvider(
         return cmds
     }
 
-    override fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean): SpeakCommand {
-        while(currentCommands.isEmpty()) {
-            currentCommands.addAll(getMoreSpeakCommands())
+    override suspend fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean, isValid: () -> Boolean): SpeakCommand {
+        val expected: Long
+        val cursor: State
+        val pending: SpeakCommandArray
+        val remaining: SpeakCommandArray
+        val readingSettings: SpeakSettings
+        val readingPhrases: SpeakPhrases
+        val stop: Int?
+        synchronized(this) {
+            expected = revision
+            cursor = State(book, startKey, endKey, currentKey)
+            pending = currentCommands.copy()
+            remaining = readList.copy()
+            readingSettings = settings.copy(playbackSettings = settings.playbackSettings.copy())
+            readingPhrases = phrases
+            stop = stopOrdinal
         }
-        val cmd = currentCommands.removeAt(0)
-        if(isCurrent) {
-            currentUtteranceId = utteranceId
-            utteranceState.clear()
-            Log.i(TAG, "Marked current utteranceID $utteranceId")
+        var calculated = cursor
+        while (pending.isEmpty()) {
+            val result = getMoreSpeakCommands(calculated, remaining, readingSettings, readingPhrases, stop)
+            calculated = result.first
+            pending.addAll(result.second)
         }
-        utteranceState[utteranceId] = State(book, startKey, endKey, currentKey, cmd)
-        return cmd
+        val cmd = pending.removeAt(0)
+        return synchronized(this) {
+            checkRevision(expected)
+            if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
+            startKey = calculated.startKey
+            endKey = calculated.endKey
+            currentKey = calculated.currentKey
+            readList = remaining
+            currentCommands.clear()
+            currentCommands.addAll(pending)
+            if (isCurrent) {
+                currentUtteranceId = utteranceId
+                utteranceState.clear()
+            }
+            utteranceState[utteranceId] = calculated.copy(command = cmd)
+            cmd
+        }
     }
 
     private fun needToStop(key: BookAndKey): Boolean {
@@ -176,62 +212,55 @@ class GeneralSpeakTextProvider(
     }
 
 
-    private fun getMoreSpeakCommands(): SpeakCommandArray {
+    private suspend fun getMoreSpeakCommands(cursor: State, remaining: SpeakCommandArray, readingSettings: SpeakSettings, readingPhrases: SpeakPhrases, stop: Int?): Pair<State, SpeakCommandArray> {
         val cmds = SpeakCommandArray(platform.maxSpeechInputLength)
-
-        var key = limitToRange(currentKey)
-        startKey = key
-
-        if(readList.isNotEmpty()) {
-            cmds.addAll(readList)
-            readList.clear()
+        var key = limitToRange(cursor.currentKey)
+        val start = key
+        if (remaining.isNotEmpty()) {
+            cmds.addAll(remaining)
+            remaining.clear()
             key = getNextKey(key)
         }
-
-        cmds.addAll(getCommandsForKey(endKey, key))
-
+        cmds.addAll(getCommandsForKey(cursor.endKey, key, readingSettings, readingPhrases))
         val rest = SpeakCommandArray(platform.maxSpeechInputLength)
-
         while (!cmds.endsSentence) {
             val nextKey = getNextKey(key)
-            if(needToStop(nextKey)) break
-            if(nextKey.ordinal!! < key.ordinal!!) {
-                break
-            }
-            val nextCommands = getCommandsForKey(key, nextKey)
-            cmds.addUntilSentenceBreak(nextCommands, rest)
+            if ((stop != null && nextKey.ordinal!! > stop) || nextKey.ordinal!! < key.ordinal!!) break
+            cmds.addUntilSentenceBreak(getCommandsForKey(key, nextKey, readingSettings, readingPhrases), rest)
             key = nextKey
         }
-
-        currentKey = if (rest.isNotEmpty()) {
-            readList.addAll(rest)
+        val next = if (rest.isNotEmpty()) {
+            remaining.addAll(rest)
             key
-        } else {
-            getNextKey(key)
-        }
-
-        endKey = key
-
-        return cmds
+        } else getNextKey(key)
+        return State(cursor.book, start, key, next) to cmds
     }
 
-    override fun getStatusText(showFlag: Int): String {
-        var result = this.currentState.currentKey.shortName
+    override suspend fun getStatusText(showFlag: Int): String = getStatusTexts().getValue(showFlag and 3)
 
-        if(showFlag and FLAG_SHOW_STATUSITEMS != 0) {
-            if(settings.sleepTimer > 0) {
-                result += " ⌛"
+    override suspend fun getStatusTexts(): Map<Int, String> {
+        val state: State
+        val expected: Long
+        val sleep: Boolean
+        synchronized(this) {
+            state = currentState
+            expected = revision
+            sleep = settings.sleepTimer > 0
+        }
+        val range = state.book.ordinalRangeFor(state.currentKey.key, strings)
+        val percent = if (range.last == range.first) 0 else
+            (((state.currentKey.ordinal!!.start - range.first).toFloat() / (range.last - range.first)) * 100).toInt()
+        val name = state.currentKey.shortName
+        val values = (0..3).associateWith { flag ->
+            buildString {
+                append(name)
+                if (flag and FLAG_SHOW_STATUSITEMS != 0 && sleep) append(" ⌛")
+                if (flag and FLAG_SHOW_PERCENT != 0) append(" $percent%")
+                if (flag and FLAG_SHOW_BOOK != 0) append(" ${state.book.abbreviation}")
             }
         }
-        if(showFlag and FLAG_SHOW_PERCENT != 0) {
-            val ordinalRange = book.ordinalRangeFor(currentKey.key)
-            val percent: Int = (((currentState.currentKey.ordinal!!.start - ordinalRange.first).toFloat() / (ordinalRange.last - ordinalRange.first)) * 100).toInt()
-            result += " $percent%"
-        }
-        if(showFlag and FLAG_SHOW_BOOK != 0) {
-            result += " ${currentState.book.abbreviation}"
-        }
-        return result
+        synchronized(this) { checkRevision(expected) }
+        return values
     }
 
     override fun getText(utteranceId: String): String = currentState.command.toString()
@@ -239,6 +268,7 @@ class GeneralSpeakTextProvider(
     private fun getSpeakCommandsForKey(key: BookAndKey): SpeakCommandArray =
         swordContentFacade.getGenBookSpeakCommands(key)
 
+    @Synchronized
     override fun pause() {
         reset()
         currentKey = startKey
@@ -267,6 +297,7 @@ class GeneralSpeakTextProvider(
 
     override var isSpeaking: Boolean = false
 
+    @Synchronized
     override fun stop() {
         reset()
         if(isSpeaking) {
@@ -276,6 +307,7 @@ class GeneralSpeakTextProvider(
         bookmark = null
     }
 
+    @Synchronized
     override fun prepareForStartSpeaking() {
         val loaded = loadedBookmark
         if (loaded != null) {
@@ -294,8 +326,13 @@ class GeneralSpeakTextProvider(
     private var loadedBookmark: GenericBookmarkWithNotes? = null
 
     override suspend fun loadBookmarkState() {
-        val found = if (stopOrdinal == null) bookmarkControl.speakBookmarkForKey(currentKey) else null
-        loadedBookmark = if (found != null && bookmarkControl.labelsForBookmark(found).any { it.id == bookmarkControl.speakLabel().id }) found else null
+        val expected: Long
+        val key: BookAndKey
+        val limited: Boolean
+        synchronized(this) { expected = revision; key = currentKey; limited = stopOrdinal != null }
+        val found = if (!limited) bookmarkControl.speakBookmarkForKey(key) else null
+        val loaded = if (found != null && bookmarkControl.labelsForBookmark(found).any { it.id == bookmarkControl.speakLabel().id }) found else null
+        synchronized(this) { checkRevision(expected); loadedBookmark = loaded }
     }
 
     private suspend fun removeBookmark(previous: GenericBookmarkWithNotes?): Boolean {
@@ -328,72 +365,65 @@ class GeneralSpeakTextProvider(
         if (autoBookmark || wasRemoved) {
             val saved = bookmarkControl.addOrUpdateGenericBookmark(target)
             bookmarkControl.setLabelsForBookmark(saved, listOf(bookmarkControl.speakLabel()))
-            if (bookmark === target) bookmark = saved
+            synchronized(this) { if (bookmark === target) bookmark = saved }
         }
     }
 
     private fun limitToRange(key: BookAndKey): BookAndKey = key // If we want to implement repeat
 
-    private fun getNextOrdinal(key: BookAndKey): BookAndKey {
+    private suspend fun getNextOrdinal(key: BookAndKey): BookAndKey {
         val nextOrdinal = key.ordinal!!.start + 1
-        if(nextOrdinal > book.ordinalRangeFor(key.key).last) {
-            return key.next
+        if(nextOrdinal > key.document!!.ordinalRangeFor(key.key, strings).last) {
+            return key.next(strings, traverser)
         }
-        return BookAndKey(key.key, book, OrdinalRange(nextOrdinal))
+        return BookAndKey(key.key, key.document, OrdinalRange(nextOrdinal))
     }
 
-    private fun getPrevOrdinal(key: BookAndKey): BookAndKey {
+    private suspend fun getPrevOrdinal(key: BookAndKey): BookAndKey {
         val nextOrdinal = key.ordinal!!.start - 1
-        if(nextOrdinal < book.ordinalRangeFor(key.key).first) {
-            val prevKey = key.prev
-            return BookAndKey(prevKey.key, book, OrdinalRange(book.ordinalRangeFor(prevKey.key).last))
+        if(nextOrdinal < key.document!!.ordinalRangeFor(key.key, strings).first) {
+            val prevKey = key.prev(strings, traverser)
+            return BookAndKey(prevKey.key, key.document, OrdinalRange(key.document!!.ordinalRangeFor(prevKey.key, strings).last))
         }
-        return BookAndKey(key.key, book, OrdinalRange(nextOrdinal))
+        return BookAndKey(key.key, key.document, OrdinalRange(nextOrdinal))
     }
 
-    private fun getNextKey(key: BookAndKey): BookAndKey = limitToRange(getNextOrdinal(key))
-    override fun rewind(amount: SpeakSettings.RewindAmount?) = rewind(amount, false)
+    private suspend fun getNextKey(key: BookAndKey): BookAndKey = limitToRange(getNextOrdinal(key))
+    override suspend fun rewind(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) = rewind(amount, false, isValid)
 
-    fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean) {
-        val lastTitle = this.lastVerseWithTitle
-        reset()
-        val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
-        val minimumOrdinal = book.ordinalRangeFor(startKey.key).first
-
-        when(rewindAmount) {
-         SpeakSettings.RewindAmount.SMART -> {
-             currentKey = if(lastTitle != null && lastTitle != startKey) {
-                 lastTitle
-             } else {
-                 if (startKey.ordinal!! <= minimumOrdinal) {
-                     startKey.prev
-                 } else {
-                     var cur = startKey
-                     for(i in 1..10) {
-                         cur = getPrevOrdinal(cur)
-                     }
-                     cur
-                 }
-             }
-         }
-         SpeakSettings.RewindAmount.ONE_VERSE -> {
-             currentKey = getPrevOrdinal(startKey)
-         }
-         SpeakSettings.RewindAmount.NONE -> {}
+    suspend fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean, isValid: () -> Boolean = { true }) {
+        val expected: Long
+        val origin: State
+        val lastTitle: BookAndKey?
+        synchronized(this) {
+            expected = revision
+            origin = currentState
+            lastTitle = lastVerseWithTitle
         }
-
-        if(autoRewind && currentKey.ordinal!! < minimumOrdinal) {
-            currentKey = BookAndKey(startKey.key, book, OrdinalRange(minimumOrdinal))
+        val minimumOrdinal = origin.book.ordinalRangeFor(origin.startKey.key, strings).first
+        var target = when (amount ?: SpeakSettings.RewindAmount.SMART) {
+            SpeakSettings.RewindAmount.SMART -> if (lastTitle != null && lastTitle != origin.startKey) lastTitle
+                else if (origin.startKey.ordinal!! <= minimumOrdinal) origin.startKey.prev(strings, traverser)
+                else {
+                    var cur = origin.startKey
+                    repeat(10) { cur = getPrevOrdinal(cur) }
+                    cur
+                }
+            SpeakSettings.RewindAmount.ONE_VERSE -> getPrevOrdinal(origin.startKey)
+            SpeakSettings.RewindAmount.NONE -> origin.currentKey
         }
-
-        if(lastTitle == null || currentKey.ordinal!! < lastTitle.ordinal!!) {
-            clearNotificationAndWidgetTitles()
+        if (autoRewind && target.ordinal!! < minimumOrdinal)
+            target = BookAndKey(origin.startKey.key, origin.book, OrdinalRange(minimumOrdinal))
+        synchronized(this) {
+            checkRevision(expected)
+            if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
+            reset()
+            currentKey = target
+            startKey = target
+            endKey = target
+            if (lastTitle == null || target.ordinal!! < lastTitle.ordinal!!) clearNotificationAndWidgetTitles()
+            SpeakChanges.notifyProgress(SpeakChange.Progress(origin.book, target, null))
         }
-
-        startKey = currentKey
-        endKey = currentKey
-
-        SpeakChanges.notifyProgress(SpeakChange.Progress(book, currentKey, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
@@ -404,27 +434,31 @@ class GeneralSpeakTextProvider(
         SpeakChanges.notifyProgress(SpeakChange.Progress(book, startKey, normalCommand))
     }
 
-    override fun forward(amount: SpeakSettings.RewindAmount?) {
-        reset()
-        val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
-        when(rewindAmount) {
-            SpeakSettings.RewindAmount.SMART -> {
-                currentKey = startKey
-                for (i in 1..10) {
-                    currentKey = getNextOrdinal(currentKey)
-                }
-            }
-            SpeakSettings.RewindAmount.ONE_VERSE -> currentKey = getNextOrdinal(startKey)
+    override suspend fun forward(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) {
+        val expected: Long
+        val origin: State
+        synchronized(this) { expected = revision; origin = currentState }
+        var target = origin.startKey
+        when (amount ?: SpeakSettings.RewindAmount.SMART) {
+            SpeakSettings.RewindAmount.SMART -> repeat(10) { target = getNextOrdinal(target) }
+            SpeakSettings.RewindAmount.ONE_VERSE -> target = getNextOrdinal(target)
             SpeakSettings.RewindAmount.NONE -> throw RuntimeException("Invalid settings")
         }
-        startKey = currentKey
-        endKey = currentKey
-        clearNotificationAndWidgetTitles()
-        SpeakChanges.notifyProgress(SpeakChange.Progress(book, currentKey, null))
+        synchronized(this) {
+            checkRevision(expected)
+            if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
+            reset()
+            currentKey = target
+            startKey = target
+            endKey = target
+            clearNotificationAndWidgetTitles()
+            SpeakChanges.notifyProgress(SpeakChange.Progress(origin.book, target, null))
+        }
     }
 
     override fun finishedUtterance(utteranceId: String) {}
 
+    @Synchronized
     override fun startUtterance(utteranceId: String) {
         val state = utteranceState[utteranceId]
         currentUtteranceId = utteranceId
@@ -444,7 +478,9 @@ class GeneralSpeakTextProvider(
         }
     }
 
+    @Synchronized
     override fun reset() {
+        revision++
         val state = utteranceState[currentUtteranceId]
         Log.i(TAG, "Resetting. state: $currentUtteranceId $state")
         if(state != null) {

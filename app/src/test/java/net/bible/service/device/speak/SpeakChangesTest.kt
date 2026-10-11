@@ -70,7 +70,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
     private fun nextText(provider: SpeakTextProvider, prefix: String): Pair<String, TextCommand> {
         repeat(20) { index ->
             val id = "$prefix-$index"
-            val command = provider.getNextSpeakCommand(id)
+            val command = kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand(id) }
             if (command is TextCommand) return id to command
         }
         error("No text command in the first 20 commands")
@@ -102,8 +102,8 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         // The general provider also reads dictionaries; use real OSIS/ordinal extraction.
         val dictionary = requireNotNull(Books.installed().getBook("StrongsGreek"))
         val key = dictionary.getKey("00001")
-        val ordinal = SwordContentFacade.ordinalRangeFor(dictionary, key, strings = net.bible.test.testCoreStrings()).first
-        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get(), GlobalContext.get().get(), GlobalContext.get().get(), swordContentFacade = net.bible.test.testSwordContentFacade())
+        val ordinal = kotlinx.coroutines.runBlocking { SwordContentFacade.ordinalRangeFor(dictionary, key, strings = net.bible.test.testCoreStrings()) }.first
+        val provider = GeneralSpeakTextProvider(bookmarkControl, dictionary, fakePlatform, net.bible.test.testAppSettings(), GlobalContext.get().get(), GlobalContext.get().get(), GlobalContext.get().get(), swordContentFacade = net.bible.test.testSwordContentFacade(), strings = net.bible.test.testCoreStrings(), traverser = BibleTraverser(DocumentBibleBooksFactory()))
         provider.setupReading(BookAndKey(key, dictionary, OrdinalRange(ordinal, ordinal)))
         val (id, command) = nextText(provider, "general")
         assertEquals(TextCommand.TextType.NORMAL, command.type)

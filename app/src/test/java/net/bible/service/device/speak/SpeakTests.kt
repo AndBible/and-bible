@@ -284,6 +284,8 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.5
         runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
+        // Movement now publishes from the ordered worker; drain its Main following-page event.
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
         speakControl.stop()
         runBlocking { GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>().join(net.bible.android.control.speak.SPEAK_KEY) }
         assertThat(runBlocking { bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")) }.firstOrNull(), nullValue())
@@ -340,7 +342,7 @@ open class AbstractSpeakTests {
         var cmd: SpeakCommand
         do {
             val utteranceId = "id-${idCount++}"
-            cmd = provider.getNextSpeakCommand(utteranceId)
+            cmd = kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand(utteranceId) }
             provider.startUtterance(utteranceId)
         } while (!(cmd is TextCommand))
 
@@ -529,14 +531,14 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book, GlobalContext.get().get(), testAppSettings(), advancedSpeakSettings, GlobalContext.get().get(), swordContentFacade = net.bible.test.testSwordContentFacade())
         provider.setupReading(book, getVerse("Exod.31.8"))
-        val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
+        val cmd = kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand("id-1") } as TextCommand
         assertThat(cmd.text, startsWith("pöydän varusteineen"))
         assertThat(cmd.text, endsWith("heitä tekemään.\""))
-        assertThat("", provider.getNextSpeakCommand("id-1") is ParagraphChangeCommand)
-        assertThat("", provider.getNextSpeakCommand("id-1") is PreTitleCommand)
-        assertThat((provider.getNextSpeakCommand("id-1") as TextCommand).text, equalTo("Sapatti"))
-        assertThat("", provider.getNextSpeakCommand("id-1") is SilenceCommand)
-        val cmd2 = provider.getNextSpeakCommand("id-1") as TextCommand
+        assertThat("", kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand("id-1") } is ParagraphChangeCommand)
+        assertThat("", kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand("id-1") } is PreTitleCommand)
+        assertThat((kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand("id-1") } as TextCommand).text, equalTo("Sapatti"))
+        assertThat("", kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand("id-1") } is SilenceCommand)
+        val cmd2 = kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand("id-1") } as TextCommand
         assertThat(cmd2.text, startsWith("Herra puhui"))
         assertThat(cmd2.text, endsWith("pyhitän teidät."))
     }
@@ -1233,7 +1235,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
-        provider.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+        kotlinx.coroutines.runBlocking { provider.rewind(SpeakSettings.RewindAmount.ONE_VERSE) }
         assertThat(range(), equalTo("Rom.5.19"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
@@ -1247,7 +1249,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
 
-        provider.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+        kotlinx.coroutines.runBlocking { provider.forward(SpeakSettings.RewindAmount.ONE_VERSE) }
         assertThat(range(), equalTo("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
@@ -1271,12 +1273,12 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
-        provider.rewind(null)
+        kotlinx.coroutines.runBlocking { provider.rewind(null) }
         assertThat(range(), equalTo("Rom.5.1"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.1"))
 
-        provider.forward(null)
+        kotlinx.coroutines.runBlocking { provider.forward(null) }
         assertThat(range(), equalTo("Rom.6.1"))
         text = nextText()
         assertThat(range(), equalTo("Rom.6.1"))
@@ -1296,16 +1298,16 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         text = nextText()
         assertThat(range(), equalTo("Rom.5.13"))
 
-        provider.rewind(null)
+        kotlinx.coroutines.runBlocking { provider.rewind(null) }
         assertThat(range(), equalTo("Rom.5.12"))
-        provider.rewind(null)
+        kotlinx.coroutines.runBlocking { provider.rewind(null) }
         assertThat(range(), equalTo("Rom.5.1"))
-        provider.rewind(null)
+        kotlinx.coroutines.runBlocking { provider.rewind(null) }
         assertThat(range(), equalTo("Rom.4.1"))
 
-        provider.forward(null)
+        kotlinx.coroutines.runBlocking { provider.forward(null) }
         assertThat(range(), equalTo("Rom.5.1"))
-        provider.forward(null)
+        kotlinx.coroutines.runBlocking { provider.forward(null) }
         assertThat(range(), equalTo("Rom.6.1"))
     }
 
@@ -1323,20 +1325,20 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         text = nextText()
         assertThat(range(), equalTo("Rom.5.13"))
 
-        provider.rewind(null)
+        kotlinx.coroutines.runBlocking { provider.rewind(null) }
         text = nextText()
         assertThat(range(), equalTo("Rom.5.12"))
-        provider.rewind(null)
+        kotlinx.coroutines.runBlocking { provider.rewind(null) }
         text = nextText()
         assertThat(range(), equalTo("Rom.5.1"))
-        provider.rewind(null)
+        kotlinx.coroutines.runBlocking { provider.rewind(null) }
         text = nextText()
         assertThat(range(), equalTo("Rom.4.1"))
 
-        provider.forward(null)
+        kotlinx.coroutines.runBlocking { provider.forward(null) }
         text = nextText()
         assertThat(range(), equalTo("Rom.5.1"))
-        provider.forward(null)
+        kotlinx.coroutines.runBlocking { provider.forward(null) }
         text = nextText()
         assertThat(range(), equalTo("Rom.6.1"))
     }
@@ -1348,9 +1350,9 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         provider.setupReading(book, getVerse("Rom.5.11"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.11"))
-        provider.forward(null)
+        kotlinx.coroutines.runBlocking { provider.forward(null) }
         assertThat(range(), equalTo("Rom.6.1"))
-        provider.forward(null)
+        kotlinx.coroutines.runBlocking { provider.forward(null) }
         assertThat(range(), equalTo("Rom.7.1"))
     }
 }

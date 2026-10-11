@@ -112,6 +112,7 @@ class SpeakWidgetManager : KoinComponent {
         }
         subscriptions.add(SpeakChanges.changes.subscribe { change ->
             when (change) {
+                SpeakChange.Status -> updateWidgetTexts()
                 is SpeakChange.Progress -> {
                     val ev = change
                     if (ev.speakCommand is TextCommand) {

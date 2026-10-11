@@ -29,7 +29,7 @@ class BibleSpeakTextProviderPhrasesTest : AbstractSpeakTests() {
     }
 
     private fun queuedTexts(): List<String> = (0 until 30).mapNotNull { index ->
-        (provider.getNextSpeakCommand("phrases-$index") as? TextCommand)?.text
+        (kotlinx.coroutines.runBlocking { provider.getNextSpeakCommand("phrases-$index") } as? TextCommand)?.text
     }
 
     @Test

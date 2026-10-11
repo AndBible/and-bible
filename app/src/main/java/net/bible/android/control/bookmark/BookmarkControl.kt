@@ -773,12 +773,12 @@ open class BookmarkControl constructor(
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 
-    internal fun addText(b: BaseBookmarkWithNotes) = when(b) {
+    internal suspend fun addText(b: BaseBookmarkWithNotes) = when(b) {
         is BibleBookmarkWithNotes -> addText(b)
         is GenericBookmarkWithNotes -> addText(b)
         else -> throw RuntimeException("Illegal type")
     }
-    private fun addText(b: GenericBookmarkWithNotes) {
+    private suspend fun addText(b: GenericBookmarkWithNotes) {
         val book = b.book?: return
         try {
             val key = b.bookKey ?: book.getKey(b.key)

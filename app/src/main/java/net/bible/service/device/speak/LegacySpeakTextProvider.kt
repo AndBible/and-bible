@@ -57,7 +57,7 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
     override val numItemsToTts: Int
         get() = 1
 
-    override fun getStatusText(showFlag: Int): String {
+    override suspend fun getStatusText(showFlag: Int): String {
         return if (keyList != null && keyList!!.size > 0) {
             keyList!![0].getName()
         } else {
@@ -117,7 +117,8 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         return nextTextToSpeak < mTextToSpeak!!.size
     }
 
-    override fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean): SpeakCommand {
+    override suspend fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean, isValid: () -> Boolean): SpeakCommand {
+        if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
         var text = nextTextChunk
 
         // if a pause occurred then skip the first part
@@ -178,7 +179,8 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         reset()
     }
 
-    override fun rewind(amount: RewindAmount?) {
+    override suspend fun rewind(amount: RewindAmount?, isValid: () -> Boolean) {
+        if (!isValid()) return
         // go back to start of current sentence
         var textFraction = getPrevTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken)
 
@@ -202,7 +204,8 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         Log.i(TAG, "Rewind chunk length start position:$fractionOfNextSentenceSpoken")
     }
 
-    override fun forward(amount: RewindAmount?) {
+    override suspend fun forward(amount: RewindAmount?, isValid: () -> Boolean) {
+        if (!isValid()) return
         Log.i(TAG, "Forward nextText:$nextTextToSpeak")
 
         // go back to start of current sentence

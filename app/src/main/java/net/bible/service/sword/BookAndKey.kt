@@ -22,7 +22,6 @@ import kotlinx.serialization.serializer
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.versification.toVerseRange
 import net.bible.service.common.CommonUtils.json
-import net.bible.service.common.ordinalRangeFor
 import net.bible.service.common.shortName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -33,7 +32,6 @@ import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.RestrictionType
-val BookAndKey.ordinalRange: IntRange? get() = document?.ordinalRangeFor(key)
 
 @Serializable
 class BookAndKeySerialized(
