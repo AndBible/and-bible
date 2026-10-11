@@ -840,6 +840,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /** [onNewIntent]'s body, also run directly for a return-to-reading self-launch (fix batch 5 F110). */
+    private var intentArrival = 0L
+
     private fun applyNewIntent(intent: Intent) {
         // The route check comes FIRST: a route-less new intent must not become this Activity's
         // intent. It no longer THROWS on the next onCreate -- T8b turned that requireNotNull into a
@@ -847,6 +849,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // meaningful intent with a meaningless one, and `savedStartRoute` only pins the START route,
         // not `getIntent()` itself, which `bootstrapIfNeeded` reads `openLink` off.
         val route = intent.getStringExtra(EXTRA_ROUTE)?.let(::gatedReadingRoute) ?: return
+        val arrival = ++intentArrival
         setIntent(intent)
 
         // R7 fix round 1 (review Important 3): reading is reachable HERE too, on a host that
@@ -856,7 +859,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (route == NavRoutes.READING && CommonUtils.myDocumentRegistration?.isCompleted == false) {
             lifecycleScope.launch {
                 CommonUtils.myDocumentRegistration?.join()
-                applyNewIntent(intent)
+                if (arrival == intentArrival) applyNewIntent(intent)
             }
             return
         }
@@ -1356,8 +1359,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun bootstrapIfNeeded() {
         if (readingAppBootstrapped) return
         readingAppBootstrapped = true
-        ReadingHostPresence.setForeground(this)
-        ReadingViewVisibility.setActivityVisible(this, true)
+        if (!paused) {
+            ReadingHostPresence.setForeground(this)
+            ReadingViewVisibility.setActivityVisible(this, true)
+        }
         readingAppBootstrap.prepareData()
         readingAppBootstrap.createWindowRepository()
         readingAppBootstrap.setSoftKeyboardMode()
@@ -5777,7 +5782,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     MyDocumentBookManager.launcher.launch("mydocument-pages-$docId") {
                         MyDocumentBookManager.refreshDocument(documentInitials)
                         withContext(Dispatchers.Main) {
-                            onResult(MyDocumentPagesResult.Selected(documentInitials, page.pageKey))
+                            if (!isDestroyed && !isFinishing) {
+                                onResult(MyDocumentPagesResult.Selected(documentInitials, page.pageKey))
+                            }
                         }
                     }
                 }
@@ -6046,6 +6053,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             myDocumentDao.insert(newDoc)
             withContext(Dispatchers.Main) {
                 MyDocumentBookManager.registerDocument(newDoc)
+                if (isDestroyed || isFinishing || myDocumentsSession !== session) return@withContext
                 val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
                 session.entityByLong = session.entityByLong + (id to newDoc)
                 session.controller.addDocument(MyDocItem(id, initials, name, "", isAiGenerated = false, canDelete = true))
@@ -6172,6 +6180,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
                 withContext(Dispatchers.Main) {
                     MyDocumentBookManager.registerDocument(newDocument)
+                    if (isDestroyed || isFinishing || myDocumentsSession !== session) return@withContext
                     val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
                     session.entityByLong = session.entityByLong + (id to newDocument)
                     session.controller.addDocument(
@@ -9557,6 +9566,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * that is already being destroyed.
      */
     override fun onDestroy() {
+        ReadingViewVisibility.setActivityVisible(this, false)
+        ReadingHostPresence.clearForeground(this)
         workspaceSelectorController?.discardCreated()
         workspaceSelectorController = null
         // R4: the host's own subscriptions, so an Activity recreation (e.g. a

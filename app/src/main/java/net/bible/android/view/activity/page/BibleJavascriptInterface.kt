@@ -1090,6 +1090,8 @@ class BibleJavascriptInterface(
                 MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
                     MyDocumentBookManager.deleteAIDocumentPage(id)
                     withContext(Dispatchers.Main) {
+                        if (hostActivity.isDestroyed || hostActivity.isFinishing ||
+                            !scope.coroutineContext[kotlinx.coroutines.Job]!!.isActive) return@withContext
                         val window = bibleView.window
                         if (windowControl.isWindowRemovable(window)) {
                             windowControl.closeWindow(window)

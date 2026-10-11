@@ -227,8 +227,158 @@ class MyDocumentBookManagerTest {
         } finally {
             restored.cancel()
             controller.destroy()
+            net.bible.sharedcore.reading.ReadingViewVisibility.setActivityVisible(controller.get(), false)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(controller.get())
             queuedScope.cancel()
             net.bible.service.common.CommonUtils.initialized = savedInitialized
+        }
+    }
+
+    @Test
+    fun heldReadingIntentCannotReplaceNewerNonReadingIntent() = runTest {
+        val savedInitialized = net.bible.service.common.CommonUtils.initialized
+        val queuedScope = kotlinx.coroutines.test.TestScope(kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        MyDocumentBookManager.launcher = OrderedLauncher(queuedScope)
+        net.bible.service.common.CommonUtils.initialized = false
+        val ctx = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val hostClass = net.bible.android.view.activity.nav.NavHostComposeActivity::class.java
+        val controller = org.robolectric.Robolectric.buildActivity(hostClass,
+            net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(ctx, net.bible.sharedcore.nav.NavRoutes.myDocuments()))
+        val activity = controller.get()
+        activity.usableBibleGate = { true }
+        try {
+            controller.create().start().resume()
+            val reading = net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(ctx, net.bible.sharedcore.nav.NavRoutes.READING)
+            val newer = net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(ctx, net.bible.sharedcore.nav.NavRoutes.myDocuments()).putExtra("arrival", "newer")
+            val method = hostClass.getDeclaredMethod("applyNewIntent", android.content.Intent::class.java).apply { isAccessible = true }
+            method.invoke(activity, reading)
+            method.invoke(activity, newer)
+            testScheduler.advanceUntilIdle()
+            MyDocumentBookManager.launcher.join("mydocument-sync")
+            repeat(20) { org.robolectric.Shadows.shadowOf(Looper.getMainLooper()).runOneTask() }
+            assertSame(newer, activity.intent)
+            val pending = hostClass.getDeclaredField("pendingNewIntentRoute").apply { isAccessible = true }.get(activity)
+            assertEquals(net.bible.sharedcore.nav.NavRoutes.myDocuments(), pending)
+        } finally {
+            controller.pause().stop().destroy()
+            net.bible.sharedcore.reading.ReadingViewVisibility.setActivityVisible(activity, false)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(activity)
+            queuedScope.cancel()
+            net.bible.service.common.CommonUtils.initialized = savedInitialized
+        }
+    }
+
+    @Test
+    fun heldReadingIntentCannotReplaceNewerReadingIntent() = runTest {
+        val savedInitialized = net.bible.service.common.CommonUtils.initialized
+        val queuedScope = kotlinx.coroutines.test.TestScope(kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        MyDocumentBookManager.launcher = OrderedLauncher(queuedScope)
+        net.bible.service.common.CommonUtils.initialized = false
+        val ctx = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val hostClass = net.bible.android.view.activity.nav.NavHostComposeActivity::class.java
+        val controller = org.robolectric.Robolectric.buildActivity(hostClass,
+            net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(ctx, net.bible.sharedcore.nav.NavRoutes.myDocuments()))
+        val activity = controller.get()
+        activity.usableBibleGate = { true }
+        try {
+            controller.create().start().resume()
+            val reading = net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(ctx, net.bible.sharedcore.nav.NavRoutes.READING)
+            val newer = net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(ctx, net.bible.sharedcore.nav.NavRoutes.READING).putExtra("arrival", "newer")
+            val method = hostClass.getDeclaredMethod("applyNewIntent", android.content.Intent::class.java).apply { isAccessible = true }
+            method.invoke(activity, reading)
+            method.invoke(activity, newer)
+            testScheduler.advanceUntilIdle()
+            MyDocumentBookManager.launcher.join("mydocument-sync")
+            repeat(20) { org.robolectric.Shadows.shadowOf(Looper.getMainLooper()).runOneTask() }
+            assertSame(newer, activity.intent)
+            val pending = hostClass.getDeclaredField("pendingNewIntentRoute").apply { isAccessible = true }.get(activity)
+            assertEquals(net.bible.sharedcore.nav.NavRoutes.READING, pending)
+        } finally {
+            controller.pause().stop().destroy()
+            net.bible.sharedcore.reading.ReadingViewVisibility.setActivityVisible(activity, false)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(activity)
+            queuedScope.cancel()
+            net.bible.service.common.CommonUtils.initialized = savedInitialized
+        }
+    }
+
+    @Test
+    fun delayedColdBootstrapDoesNotReclaimForegroundAfterPause() = runTest {
+        val savedInitialized = net.bible.service.common.CommonUtils.initialized
+        val queuedScope = kotlinx.coroutines.test.TestScope(kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        MyDocumentBookManager.launcher = OrderedLauncher(queuedScope)
+        net.bible.service.common.CommonUtils.initialized = false
+        val controller = org.robolectric.Robolectric.buildActivity(
+            net.bible.android.view.activity.nav.NavHostComposeActivity::class.java,
+            net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(
+                androidx.test.core.app.ApplicationProvider.getApplicationContext(), net.bible.sharedcore.nav.NavRoutes.READING))
+        val activity = controller.get()
+        val other = Any()
+        activity.usableBibleGate = { true }
+        try {
+            controller.create().start().resume().pause()
+            net.bible.sharedcore.reading.ReadingHostPresence.setForeground(other)
+            testScheduler.advanceUntilIdle()
+            MyDocumentBookManager.launcher.join("mydocument-sync")
+            repeat(20) { org.robolectric.Shadows.shadowOf(Looper.getMainLooper()).runOneTask() }
+            assertTrue(net.bible.sharedcore.reading.ReadingHostPresence.isForeground(other))
+        } finally {
+            controller.stop().destroy()
+            net.bible.sharedcore.reading.ReadingViewVisibility.setActivityVisible(activity, false)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(activity)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(other)
+            queuedScope.cancel()
+            net.bible.service.common.CommonUtils.initialized = savedInitialized
+        }
+    }
+
+    @Test
+    fun destroyedColdHostNeverBootstrapsAfterHeldRegistration() = runTest {
+        val savedInitialized = net.bible.service.common.CommonUtils.initialized
+        val queuedScope = kotlinx.coroutines.test.TestScope(kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        MyDocumentBookManager.launcher = OrderedLauncher(queuedScope)
+        net.bible.service.common.CommonUtils.initialized = false
+        val controller = org.robolectric.Robolectric.buildActivity(
+            net.bible.android.view.activity.nav.NavHostComposeActivity::class.java,
+            net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(
+                androidx.test.core.app.ApplicationProvider.getApplicationContext(), net.bible.sharedcore.nav.NavRoutes.READING))
+        val activity = controller.get()
+        val other = Any()
+        activity.usableBibleGate = { true }
+        try {
+            controller.create().start().resume().pause().stop().destroy()
+            net.bible.sharedcore.reading.ReadingHostPresence.setForeground(other)
+            testScheduler.advanceUntilIdle()
+            MyDocumentBookManager.launcher.join("mydocument-sync")
+            repeat(20) { org.robolectric.Shadows.shadowOf(Looper.getMainLooper()).runOneTask() }
+            assertTrue(net.bible.sharedcore.reading.ReadingHostPresence.isForeground(other))
+            val field = activity.javaClass.getDeclaredField("readingAppBootstrapped").apply { isAccessible = true }
+            assertFalse(field.getBoolean(activity))
+        } finally {
+            net.bible.sharedcore.reading.ReadingViewVisibility.setActivityVisible(activity, false)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(activity)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(other)
+            queuedScope.cancel()
+            net.bible.service.common.CommonUtils.initialized = savedInitialized
+        }
+    }
+
+    @Test
+    fun destroyingPrecompositionColdHostRetractsVisibility() = runTest {
+        val controller = org.robolectric.Robolectric.buildActivity(
+            net.bible.android.view.activity.nav.NavHostComposeActivity::class.java,
+            net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(
+                androidx.test.core.app.ApplicationProvider.getApplicationContext(), net.bible.sharedcore.nav.NavRoutes.READING))
+        val activity = controller.get()
+        activity.usableBibleGate = { true }
+        try {
+            controller.create()
+            controller.destroy()
+            assertFalse(net.bible.sharedcore.reading.ReadingHostPresence.isForeground(activity))
+            assertFalse(net.bible.sharedcore.reading.ReadingViewVisibility.isVisible)
+        } finally {
+            net.bible.sharedcore.reading.ReadingViewVisibility.setActivityVisible(activity, false)
+            net.bible.sharedcore.reading.ReadingHostPresence.clearForeground(activity)
         }
     }
 
