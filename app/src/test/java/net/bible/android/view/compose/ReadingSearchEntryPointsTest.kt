@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.view.KeyEvent
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ApplicationProvider
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
@@ -118,6 +119,8 @@ import kotlin.test.assertTrue
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingSearchEntryPointsTest {
+    @get:org.junit.Rule val compose = createEmptyComposeRule()
+
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
     private lateinit var activity: NavHostComposeActivity
@@ -740,26 +743,59 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
-    @Test fun searchKeyOpensHostSearchWhenHosted() = onASetUpReadingHost { readingHost ->
-        if (readingHost.composeReadingViewHost == null) readingHost.composeReadingViewHost = ComposeReadingViewHost(readingHost)
+    @Test fun searchKeyOpensHostSearchWhenHosted() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val readingHost = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            if (readingHost.composeReadingViewHost == null) {
+                readingHost.composeReadingViewHost = ComposeReadingViewHost(readingHost)
+            }
 
-        val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+            val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
 
-        assertTrue(handled)
-        assertTrue(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
-        assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+            assertTrue(handled)
+            assertTrue(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
+            assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+        } finally {
+            controller.close()
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
     }
 
-    @Test fun searchKeyNavigatesTheGraphToSearchWhenNotHosted() = onASetUpReadingHost { readingHost ->
-        readingHost.composeReadingViewHost = null
+    @Test fun searchKeyNavigatesTheGraphToSearchWhenNotHosted() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val readingHost = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            val kjv = Books.installed().getBook("KJV") as SwordBook
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            readingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
+            readingHost.composeReadingViewHost = null
 
-        val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+            val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
 
-        assertTrue(handled)
-        // F118 (fix batch 6, plan C5): the STD self-launch is handled in the live graph, never by the platform
-        // (no second host instance below API 31). KJV has no index here, so the destination is the index prompt.
-        assertNull(shadowOf(readingHost).nextStartedActivityForResult)
-        assertEquals("search/index", readingHost.currentRouteForTest()?.substringBefore('?'))
+            assertTrue(handled)
+            // F118 (fix batch 6, plan C5): the STD self-launch is handled in the live graph, never by the platform
+            // (no second host instance below API 31). KJV has no index here, so the destination is the index prompt.
+            assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+            assertEquals("search/index", readingHost.currentRouteForTest()?.substringBefore('?'))
+        } finally {
+            controller.close()
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
     }
 
     // ---- Entry point 8: LinkControl.showAllOccurrences (Strong's find-all) ----------------------
