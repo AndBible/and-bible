@@ -853,6 +853,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // started on any other route and so never bootstrapped. This must precede the navigate --
         // the reading destination composes against `windowControl.windowRepository`. `setIntent`
         // above has already run, so the bootstrap reads the NEW intent's extras, as onCreate's does.
+        if (route == NavRoutes.READING && CommonUtils.myDocumentRegistration?.isCompleted == false) {
+            lifecycleScope.launch {
+                CommonUtils.myDocumentRegistration?.join()
+                applyNewIntent(intent)
+            }
+            return
+        }
         if (route == NavRoutes.READING) bootstrapIfNeeded()
 
         // A daily-reading route is applied HOST-SIDE, here, BEFORE the navigate — never by leaving
@@ -3291,7 +3298,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // mode rather than leaving a non-reading start to the manifest by omission.
         applyWindowModeFor(startRoute)
         refreshSystemBars(startRoute)
-        if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         // R8: build [readingCommands] NOW, while this Activity is still CREATED.
         //
         // Its constructor calls `registerForActivityResult` (the reading view's background-image
@@ -3311,7 +3317,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // `ReadingHostChromeTest` pins.
         @Suppress("UNUSED_EXPRESSION")
         readingCommands
-        // T8d: see [readingReturnDebts] and [onSaveInstanceState].
+        // Activity-result launchers must register while CREATED; only restoration and
+        // composition wait for the application-owned registration job.
+        if (startRoute == NavRoutes.READING && CommonUtils.myDocumentRegistration?.isCompleted == false) {
+            lifecycleScope.launch {
+                CommonUtils.myDocumentRegistration?.join()
+                finishHostCreation(savedInstanceState, startRoute)
+            }
+        } else {
+            finishHostCreation(savedInstanceState, startRoute)
+        }
+    }
+
+    private fun finishHostCreation(savedInstanceState: Bundle?, startRoute: String) {
+        if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         setContent {
             // Direct settings/download entry points can precede the startup coroutine.

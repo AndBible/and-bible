@@ -161,8 +161,11 @@ class MyDocumentBookManagerTest {
     fun queuedSaveAndRefreshFinishAfterScreenScopeIsCancelled() = runTest {
         val screen = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val page = dao.pageByKeyWithContent(document.id, "page_one")!!
+        Books.installed().getBook(document.initials)!!.getKey("page_one")
         val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
         val key = "mydocument-window-test"
+        val queuedScope = kotlinx.coroutines.test.TestScope(kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        MyDocumentBookManager.launcher = OrderedLauncher(queuedScope)
         val seen = mutableListOf<String>()
         val subscription = MyDocumentBookManager.changes.subscribe {
             if (it is MyDocumentChange.DocumentUpdated) seen += it.initials
@@ -175,9 +178,11 @@ class MyDocumentBookManagerTest {
             val refresh = MyDocumentBookManager.launcher.launch(key) {
                 MyDocumentBookManager.refreshDocument(document.initials)
             }
+            testScheduler.runCurrent()
             screen.cancel()
             assertTrue(seen.isEmpty())
             gate.complete(Unit)
+            testScheduler.advanceUntilIdle()
             save.join()
             refresh.join()
             assertEquals("saved", dao.pageByKeyWithContent(document.id, "page_one")!!.content)
@@ -187,6 +192,43 @@ class MyDocumentBookManagerTest {
             gate.complete(Unit)
             subscription.cancel()
             screen.cancel()
+            queuedScope.cancel()
+        }
+    }
+
+    @Test
+    fun coldReadingEntryWaitsForRegistrationBeforeRestoringWindows() = runTest {
+        val savedInitialized = net.bible.service.common.CommonUtils.initialized
+        val queuedScope = kotlinx.coroutines.test.TestScope(kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        MyDocumentBookManager.launcher = OrderedLauncher(queuedScope)
+        MyDocumentBookManager.clear()
+        net.bible.service.common.CommonUtils.initialized = false
+        val intent = net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor(
+            androidx.test.core.app.ApplicationProvider.getApplicationContext(),
+            net.bible.sharedcore.nav.NavRoutes.READING,
+        )
+        val controller = org.robolectric.Robolectric.buildActivity(
+            net.bible.android.view.activity.nav.NavHostComposeActivity::class.java, intent,
+        )
+        var restorationSawBook: Boolean? = null
+        controller.get().usableBibleGate = { true }
+        val restored = net.bible.android.control.page.window.WorkspaceChanges.changes.subscribe {
+            restorationSawBook = Books.installed().getBook(document.initials) != null
+        }
+        try {
+            controller.create()
+            assertNull("window restoration must wait for held startup registration", restorationSawBook)
+            testScheduler.advanceUntilIdle()
+            MyDocumentBookManager.launcher.join("mydocument-sync")
+            repeat(20) {
+                if (restorationSawBook == null) org.robolectric.Shadows.shadowOf(Looper.getMainLooper()).runOneTask()
+            }
+            assertEquals(true, restorationSawBook)
+        } finally {
+            restored.cancel()
+            controller.destroy()
+            queuedScope.cancel()
+            net.bible.service.common.CommonUtils.initialized = savedInitialized
         }
     }
 

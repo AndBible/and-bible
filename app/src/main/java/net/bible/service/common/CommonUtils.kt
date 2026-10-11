@@ -1079,6 +1079,9 @@ object CommonUtils : CommonUtilsBase() {
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
+    internal var myDocumentRegistration: kotlinx.coroutines.Job? = null
+        private set
+
     var initialized = false
     private var booksInitialized = false
     val isOnyxDevice get() = Build.BRAND.lowercase() == "onyx"
@@ -1109,7 +1112,7 @@ object CommonUtils : CommonUtilsBase() {
             addManuallyInstalledCsvPromptBooks()
             // Synchronous framework entry points cannot block Main on registration.
             // Reading startup awaits this queue in initializeAppCoroutine before restoring windows.
-            MyDocumentBookManager.launcher.launch("mydocument-sync") {
+            myDocumentRegistration = MyDocumentBookManager.launcher.launch("mydocument-sync") {
                 MyDocumentBookManager.registerAllDocuments()
             }
 
