@@ -133,7 +133,7 @@ const THEME_COLOR_PROPERTIES: [keyof ThemeColors, string][] = [
 ];
 
 /**
- * The accent's channels, published as `--ab-primary-rgb` alongside the hex roles so that
+ * Theme channels, published as `--ab-primary-rgb` and `--ab-secondary-container-rgb` alongside the hex roles so that
  * common.scss's `--accent-rgb` token can forward them to any rule that needs a TINTED TRANSLUCENT
  * value — such a rule wraps the token in an `rgba(…)` call with the alpha it already had. See
  * common.scss's token block. `color-mix()` would be the modern way to do this and is unavailable:
@@ -141,9 +141,11 @@ const THEME_COLOR_PROPERTIES: [keyof ThemeColors, string][] = [
  */
 const ACCENT_CHANNELS_PROPERTY = "--ab-primary-rgb";
 
-function accentChannels(primary: string): string | null {
+function colorChannels(color: string): string | null {
+    // Runtime bridge payloads can violate the TS contract; Color(null) means black.
+    if (typeof color !== "string") return null;
     try {
-        return Color(primary).rgb().round().array().join(", ");
+        return Color(color).rgb().round().array().join(", ");
     } catch {
         // An unparseable value must leave the property UNSET rather than set to junk: an invalid
         // custom property makes every declaration substituting it invalid at computed-value time,
@@ -163,9 +165,11 @@ export function applyThemeColors(colors: ThemeColors | null): void {
         if (colors) style.setProperty(property, colors[key]);
         else style.removeProperty(property);
     }
-    const channels = colors && accentChannels(colors.primary);
-    if (channels) style.setProperty(ACCENT_CHANNELS_PROPERTY, channels);
-    else style.removeProperty(ACCENT_CHANNELS_PROPERTY);
+    for (const [key, property] of [["primary", ACCENT_CHANNELS_PROPERTY], ["secondaryContainer", "--ab-secondary-container-rgb"]] as const) {
+        const channels = colors && colorChannels(colors[key]);
+        if (channels) style.setProperty(property, channels);
+        else style.removeProperty(property);
+    }
 }
 
 export type AppSettings = {

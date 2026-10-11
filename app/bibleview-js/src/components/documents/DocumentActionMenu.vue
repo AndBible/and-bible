@@ -153,12 +153,12 @@ defineExpose({openMenu});
 .action-buttons {
   display: flex;
   background: var(--background-color);
-  border: 1pt solid rgba(0, 0, 0, 0.3);
+  border: 1pt solid rgba(var(--accent-rgb), 0.3);
   border-radius: 10pt;
   opacity: 0.9;
 
   .night & {
-    border-color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(var(--accent-rgb), 0.6);
   }
   .monochrome & {
     border-color: black;

@@ -119,7 +119,7 @@ const { strings } = useCommon();
   }
 
   &:not(:disabled):active {
-    background: rgba(128, 128, 128, 0.2);
+    background: rgba(var(--accent-rgb-mid), 0.2);
     opacity: 0.8;
 
     .monochrome & {

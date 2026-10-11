@@ -70,7 +70,12 @@ settings hierarchy described above.
     (original)* is the unmodified Material version; *Fidelity* uses the
     chosen color as is; *Neutral* and *Monochrome* are muted or grey; the
     other styles are more playful. Applies only when **Color mode** is
-    *Normal*.
+    *Normal*. Reading-view controls also follow the workspace theme,
+    including bookmark editing buttons, note separators, editor selections,
+    study-pad drag highlights, and page and reading-progress badges. The active
+    window is marked by rounded corners in the theme color; without a workspace
+    theme, the corners remain blue. Bookmark colors and correctness/error colors
+    keep their own meaning.
 - **Format for new bookmark notes:** Choose whether new [notes](notes.md)
     are created with the **HTML** editor or the **Markdown** editor. Existing
     notes keep the format they were created with.

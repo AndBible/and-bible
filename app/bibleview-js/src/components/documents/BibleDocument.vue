@@ -157,12 +157,12 @@ function onCheckClick(event: Event) {
 .mark-as-read-icon {
     cursor: pointer;
     font-size: 18px;
-    color: rgba(0, 0, 0, 0.3);
+    color: rgba(var(--accent-rgb), 0.3);
     padding: 6px;
     border-radius: 50%;
 
     .night & {
-        color: rgba(255, 255, 255, 0.3);
+        color: rgba(var(--accent-rgb), 0.3);
     }
 
     .monochrome & {

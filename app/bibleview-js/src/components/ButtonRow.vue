@@ -119,7 +119,7 @@ function dragStart() {
 .edit-buttons {
   background: var(--background-color);
   border-style: solid;
-  border-color: rgba(0, 0, 0, 0.3);
+  border-color: rgba(var(--accent-rgb), 0.3);
   .monochrome & {
     border-color: black;
   }
@@ -137,7 +137,7 @@ function dragStart() {
   }
 
   .night & {
-    border-color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(var(--accent-rgb), 0.6);
   }
   .monochrome.night & {
     border-color: white;

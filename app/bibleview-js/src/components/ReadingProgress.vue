@@ -41,11 +41,12 @@ withDefaults(defineProps<{ text: string | null; bottom?: string }>(), {bottom: '
   align-items: center;
   font-size: 70%;
   font-weight: bold;
-  color: var(--text-color);
-  background: rgba(207, 207, 207, 0.71);
+  color: var(--chip-text, var(--text-color));
+  background: rgba(var(--chip-rgb), 0.71);
   border-radius: 0.5cm;
   .noAnimation & {
     background-color: var(--background-color);
+    color: var(--text-color);
     border: 1px solid var(--text-color);
   }
 }

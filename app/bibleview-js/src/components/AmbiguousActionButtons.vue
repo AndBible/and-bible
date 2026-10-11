@@ -374,10 +374,10 @@ setupKeyboardListener((e: KeyboardEvent) => {
     border-radius: 4px;
     
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: rgba(var(--accent-rgb), 0.05);
       
       .night & {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: rgba(var(--accent-rgb), 0.1);
       }
     }
   }
