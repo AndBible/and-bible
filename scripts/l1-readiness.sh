@@ -27,13 +27,19 @@ GLOBALS='CommonUtils|BibleApplication|(^|[^A-Za-z_.])R\.[a-z]+\.|^import[[:space
 JVMLIBS='^import[[:space:]]+(org\.json|okhttp3)\.'
 JAVAIO='^import[[:space:]]+java\.(io|util)\.'
 
-files_of() { # domain -> file list (platform files excluded)
+owner_of() { # relative path -> owning domain (longest mapped prefix), empty if none
+  awk -F'\t' -v r="$1" 'NF>=2 && substr($1,1,1)!="@" {
+      p=$2; if (r==p || index(r, p"/")==1) { if (length(p)>best) { best=length(p); d=$1 } } }
+      END { print d }' "$MAP"
+}
+files_of() { # domain -> file list (platform files and files owned by a longer row excluded)
   local d="$1"
-  awk -F'\t' -v d="$d" '$1==d {print $2}' "$MAP" | while read -r p; do
+  awk -F'\t' -v d="$d" 'NF>=2 && $1==d {print $2}' "$MAP" | while read -r p; do
     if [ -d "$SRC/$p" ]; then find "$SRC/$p" -type f \( -name '*.kt' -o -name '*.java' \); else echo "$SRC/$p"; fi
-  done | while read -r f; do
+  done | sort -u | while read -r f; do
     rel="${f#$SRC/}"
-    if ! awk -F'\t' '{print $1}' "$PLATFORM" | grep -qxF "$rel"; then echo "$f"; fi
+    awk -F'\t' 'NF>=1 {print $1}' "$PLATFORM" | grep -qxF "$rel" && continue
+    [ "$(owner_of "$rel")" = "$d" ] && echo "$f"
   done
 }
 count() { # pattern [exclude-pattern] files...
@@ -46,7 +52,7 @@ count() { # pattern [exclude-pattern] files...
 # markers are counted repo-wide in :app main sources, attributed to the domain named in L1-pending(<d>)
 pending_for() { { grep -a -r -h -E "L1-pending\($1\)" "$SRC" 2>/dev/null || true; } | wc -l; }
 
-domains=$(awk -F'\t' 'NF>=2 {print $1}' "$MAP" | awk '!seen[$0]++')
+domains=$(awk -F'\t' 'NF>=2 && substr($1,1,1)!="@" {print $1}' "$MAP" | awk '!seen[$0]++')
 [ -n "$ONLY" ] && domains="$ONLY"
 fail=0
 printf 'domain\tbridges\tedge\tpending\tandroid\tglobals\tjvmlibs\tjavaio\n'
@@ -69,4 +75,8 @@ for d in $domains; do
     fail=1
   fi
 done
+if [ $CHECK -eq 1 ] && grep -qxF '@no-pending' "$DONE" 2>/dev/null; then
+  # The sentinel covers every marker, including files in unmapped domains or with unknown labels.
+  if grep -a -r -n -F 'L1-pending' "$SRC" >&2; then echo "REGRESSION: L1-pending markers remain (@no-pending)" >&2; fail=1; fi
+fi
 exit $fail

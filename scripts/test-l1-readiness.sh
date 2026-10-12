@@ -50,4 +50,25 @@ out=$("$HERE/l1-readiness.sh" --root "$T2" --domain clean --check 2>/dev/null) \
 row=$(echo "$out" | awk -F'\t' '$1=="clean"')
 expect=$'clean\t0\t0\t1\t0\t0\t0\t0'
 [ "$row" = "$expect" ] || { echo "FAIL: got [$row] expected [$expect]"; exit 1; }
+# Longest-prefix ownership: a file under a nested mapped dir belongs to the nested domain only.
+T3="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3"' EXIT
+mkdir -p "$T3/scripts" "$T3/app/src/main/java/net/bible/android/control/outer/inner"
+printf 'outer\tandroid/control/outer\ninner\tandroid/control/outer/inner\n' > "$T3/scripts/l1-readiness-domains.txt"
+: > "$T3/scripts/l1-readiness-platform.txt"; : > "$T3/scripts/l1-readiness-done.txt"
+echo 'fun x() = blockingDb { 1 }' > "$T3/app/src/main/java/net/bible/android/control/outer/inner/In.kt"
+echo 'fun y() = 2' > "$T3/app/src/main/java/net/bible/android/control/outer/Out.kt"
+out=$("$HERE/l1-readiness.sh" --root "$T3")
+[ "$(echo "$out" | awk -F'\t' '$1=="outer"{print $2}')" = 0 ] || { echo "FAIL: outer counted inner's bridge"; exit 1; }
+[ "$(echo "$out" | awk -F'\t' '$1=="inner"{print $2}')" = 1 ] || { echo "FAIL: inner lost its bridge"; exit 1; }
+
+# @no-pending: any L1-pending anywhere (here an unmapped "view") fails --check; without it, passes.
+mkdir -p "$T3/app/src/main/java/net/bible/android/view/x"
+echo 'fun z() = blockingDb { 3 } // L1-pending(view)' > "$T3/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 || { echo "FAIL: --check failed without @no-pending"; exit 1; }
+echo '@no-pending' >> "$T3/scripts/l1-readiness-done.txt"
+"$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 && { echo "FAIL: @no-pending missed an unmapped pending marker"; exit 1; }
+echo 'fun z() = 3 // L1-pending: unknown-domain' > "$T3/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 && { echo "FAIL: @no-pending missed alternate marker formatting"; exit 1; }
+rm "$T3/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 || { echo "FAIL: @no-pending failed with no markers"; exit 1; }
 echo "l1-readiness self-test OK"

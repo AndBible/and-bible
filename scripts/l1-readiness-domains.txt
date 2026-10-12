@@ -25,5 +25,7 @@ sword	service/format
 llm	service/llm
 llm	android/view/activity/ai
 page	android/control/page
+window	android/control/page/window
+window	android/view/activity/workspaces/WorkspaceServiceImpl.kt
 search	android/control/search
 event	android/control/event
