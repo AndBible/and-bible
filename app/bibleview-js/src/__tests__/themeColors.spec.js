@@ -537,31 +537,36 @@ function tokenWinner(css, token, mode) {
     return winning(css, mode, "", "div")[token] ?? root[token];
 }
 describe("bounded theme chrome contrast and geometry", () => {
+    // [selector, arm-direction toward the free end (horizontal, vertical), fillet anchor, fillet circle centre]
     it.each([
-        [".top-left-corner", "100% 100%", ["top", "left"]],
-        [".top-right-corner", "0 100%", ["top", "right"]],
-        [".bottom-left-corner", "100% 0", ["bottom", "left"]],
-        [".bottom-right-corner", "0 0", ["bottom", "right"]],
-    ])("paints a filled 28px active corner at %s without changing e-ink paint", (selector, origin, sides) => {
+        [".top-left-corner", "to right", "to bottom", "left 3px top 3px", "100% 100%"],
+        [".top-right-corner", "to left", "to bottom", "right 3px top 3px", "0 100%"],
+        [".bottom-left-corner", "to right", "to top", "left 3px bottom 3px", "100% 0"],
+        [".bottom-right-corner", "to left", "to top", "right 3px bottom 3px", "0 0"],
+    ])("paints a filled, edge-fading active corner at %s", (selector, horizontal, vertical, anchor, centre) => {
         const css = componentCss("BibleView.vue");
-        const rule = declarations(css, selector);
-        expect(rule).toContain("height: 28px");
-        expect(rule).toContain("width: 28px");
-        expect(rule).toContain("border-width: 3px");
-        // The outer corner is square and filled, so no gap is left between the arc and the screen corner.
+        const rule = declarations(css, selector).replace(/\s+/g, " ");
+        expect(rule).toContain("width: 40px");
+        expect(rule).toContain("height: 40px");
+        // No rounded outer corner (no gap to the screen corner) and no CSS border: the L is drawn as
+        // background layers so the arms can fade out along the screen edge.
         expect(rule).not.toContain("radius");
-        for (const side of sides) expect(rule).toContain(`border-${side}-style: solid`);
-        // The fillet paints the border's own color, so every mode below recolors it too.
-        expect(rule).toContain("border-color: currentColor");
-        expect(rule).toContain("color: var(--ab-primary, rgba(0, 0, 255, 0.6))");
-        const fillet = declarations(css, `${selector}::before`);
-        expect(fillet).toContain("width: 9px");
-        expect(fillet).toContain("height: 9px");
-        for (const side of sides) expect(fillet).toContain(`${side}: 0`);
-        expect(fillet).toContain(`radial-gradient(circle at ${origin}, transparent 8.5px, currentColor 9px)`);
-        expect(declarations(css, `.monochrome ${selector}`)).toMatch(/(^|[^-])color: black/m);
-        expect(declarations(css, `.monochrome.night ${selector}`)).toMatch(/(^|[^-])color: white/m);
-        expect(declarations(css, `.colorEink ${selector}`)).toMatch(/(^|[^-])color: rgba\(0, 0, 255, 0.6\)/m);
+        expect(rule).not.toContain("border");
+        expect(rule).toContain(`linear-gradient(${horizontal}, currentColor 40%, var(--corner-tail))`);
+        expect(rule).toContain(`linear-gradient(${vertical}, currentColor 40%, var(--corner-tail))`);
+        // Concave 12px fillet that meets both arms tangentially.
+        expect(rule).toContain(`radial-gradient(circle at ${centre}, transparent 11.5px, currentColor 12px) ${anchor} / 12px 12px no-repeat`);
+        // The arms fade to nothing, except in monochrome and color e-ink where they stay solid.
+        expect(winning(css, selector.slice(1), "", "div")["--corner-tail"]).toBe("transparent");
+        expect(winning(css, selector.slice(1), "night", "div")["--corner-tail"]).toBe("transparent");
+        for (const mode of ["monochrome", "monochrome night", "colorEink", "colorEink night"]) {
+            expect(winning(css, selector.slice(1), mode, "div")["--corner-tail"]).toBe("currentColor");
+        }
+        // Paint still goes through `color` in every mode (the fillet and arms use currentColor).
+        expect(winning(css, selector.slice(1), "monochrome", "div").color).toBe("black");
+        expect(winning(css, selector.slice(1), "monochrome night", "div").color).toBe("white");
+        expect(winning(css, selector.slice(1), "colorEink", "div").color).toBe("rgba(0, 0, 255, 0.6)");
+        expect(winning(css, selector.slice(1), "", "div").color).toContain("var(--ab-primary, rgba(0, 0, 255, 0.6))");
     });
     it.each([["BibleView.vue", ".pagenumber"], ["ReadingProgress.vue", ".reading-progress"]])(
         "pairs the chip roles and restores window text on noAnimation in %s", (file, selector) => {

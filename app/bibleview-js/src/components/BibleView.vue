@@ -544,17 +544,21 @@ $borderDistance: 0;
 $colorEinkAccent: rgba(0, 0, 255, 0.6);
 $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
-// Square, filled outer corner with a concave fillet inside: no gap between the arc and the
-// screen corner. Paint goes through `color` so the fillet (currentColor) follows every mode.
-$cornerFillet: 9px;
+// Active-window corner: a square, filled outer corner (no gap to the screen corner) with a concave
+// fillet where the two arms meet. The L is drawn as background layers rather than borders so the
+// arms can fade out along the screen edge; paint goes through `color` so every layer (currentColor)
+// follows the theme. Monochrome and color e-ink keep the arms solid, since gradients dither badly there.
+$cornerSize: 40px;
+$cornerThickness: 3px;
+$cornerFillet: 12px;
+$cornerSolid: 40%;
 
 .active-window-corner {
   position: fixed;
   z-index: -1;
-  height: 28px;
-  width: 28px;
-  border-width: 3px;
-  border-color: currentColor;
+  width: $cornerSize;
+  height: $cornerSize;
+  --corner-tail: transparent;
 
   .night & {
     color: var(--ab-primary, rgba(196, 196, 255, 0.8));
@@ -564,79 +568,52 @@ $cornerFillet: 9px;
 
   .monochrome & {
     color: black;
+    --corner-tail: currentColor;
   }
   .monochrome.night & {
     color: white;
   }
   .colorEink & {
     color: $colorEinkAccent;
+    --corner-tail: currentColor;
   }
   .colorEink.night & {
     color: $colorEinkAccentNight;
   }
-
-  &::before {
-    content: "";
-    position: absolute;
-    width: $cornerFillet;
-    height: $cornerFillet;
-  }
 }
 
-@mixin corner-fillet($origin) {
-  background: radial-gradient(circle at $origin, transparent $cornerFillet - 0.5px, currentColor $cornerFillet);
+// $h/$v: the screen edges the corner sits on; $toward-h/$toward-v: gradient direction away from it;
+// $centre: the fillet circle's centre inside its box (the box corner farthest from the screen corner).
+// The vertical arm starts below the horizontal one so translucent paint never overlaps (no darker
+// dot in the corner). `#{'/'}` stops Sass from reading the background-position / size slash as division.
+@mixin active-corner($h, $v, $toward-h, $toward-v, $centre) {
+  #{$h}: $borderDistance;
+  #{$v}: $borderDistance;
+  background:
+    linear-gradient($toward-h, currentColor $cornerSolid, var(--corner-tail)) #{$h} #{$v} #{'/'} 100% $cornerThickness no-repeat,
+    linear-gradient($toward-v, currentColor $cornerSolid, var(--corner-tail)) #{$h} 0 #{$v} $cornerThickness #{'/'} $cornerThickness calc(100% - #{$cornerThickness}) no-repeat,
+    radial-gradient(circle at $centre, transparent $cornerFillet - 0.5px, currentColor $cornerFillet)
+      #{$h} $cornerThickness #{$v} $cornerThickness #{'/'} $cornerFillet $cornerFillet no-repeat;
 }
 
 .top-left-corner {
   @extend .active-window-corner;
-  top: $borderDistance;
-  left: $borderDistance;
-  border-top-style: solid;
-  border-left-style: solid;
-  &::before {
-    top: 0;
-    left: 0;
-    @include corner-fillet(100% 100%);
-  }
+  @include active-corner(left, top, to right, to bottom, 100% 100%);
 }
 
 .top-right-corner {
   @extend .active-window-corner;
-  top: $borderDistance;
-  right: $borderDistance;
-  border-top-style: solid;
-  border-right-style: solid;
-  &::before {
-    top: 0;
-    right: 0;
-    @include corner-fillet(0 100%);
-  }
-}
-
-.bottom-right-corner {
-  @extend .active-window-corner;
-  bottom: $borderDistance;
-  right: $borderDistance;
-  border-bottom-style: solid;
-  border-right-style: solid;
-  &::before {
-    bottom: 0;
-    right: 0;
-    @include corner-fillet(0 0);
-  }
+  @include active-corner(right, top, to left, to bottom, 0 100%);
 }
 
 .bottom-left-corner {
   @extend .active-window-corner;
-  bottom: $borderDistance;
-  left: $borderDistance;
-  border-bottom-style: solid;
-  border-left-style: solid;
-  &::before {
-    bottom: 0;
-    left: 0;
-    @include corner-fillet(100% 0);
-  }
+  @include active-corner(left, bottom, to right, to top, 100% 0);
+}
+
+.bottom-right-corner {
+  @extend .active-window-corner;
+  @include active-corner(right, bottom, to left, to top, 0 0);
 }
 
 .top-margin {
