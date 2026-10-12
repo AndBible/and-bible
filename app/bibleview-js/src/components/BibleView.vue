@@ -551,7 +551,7 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 // crisp, since gradients dither badly on e-ink, and smaller, since a hard edge reads larger.
 $cornerRadius: 32px;
 $cornerRadiusCrisp: 16px;
-$cornerSoftness: 1.18;
+$cornerSoftness: 1.4;
 
 .active-window-corner {
   position: fixed;
