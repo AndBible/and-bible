@@ -36,6 +36,7 @@ private fun JsonElement.frameworkString(): String = when (this) {
 }
 
 // Framework object/array text normalizes numbers and escapes slashes, unlike kotlinx JSON.
+@PublishedApi
 internal fun JsonElement.frameworkJson(): String = when (this) {
     is JsonObject -> entries.joinToString(",", "{", "}") { (key, value) ->
         JsonPrimitive(key).toString().replace("/", "\\/") + ":" + value.frameworkJson()
@@ -44,7 +45,18 @@ internal fun JsonElement.frameworkJson(): String = when (this) {
     is JsonPrimitive -> when {
         isString -> toString().replace("/", "\\/")
         this == JsonNull || booleanOrNull != null -> content
-        else -> frameworkString().removeSuffix(".0")
+        else -> {
+            val integer = content.toLongOrNull()
+            if (integer != null) integer.toString() else {
+                val number = content.toDouble()
+                // Android JSON keeps negative zero, but writes integral doubles as longs
+                // (including Double-rounded Long.MAX_VALUE at the conversion boundary).
+                if (number.toRawBits() == (-0.0).toRawBits()) "-0"
+                else number.toLong().let { long ->
+                    if (number == long.toDouble()) long.toString() else number.toString()
+                }
+            }
+        }
     }
 }
 

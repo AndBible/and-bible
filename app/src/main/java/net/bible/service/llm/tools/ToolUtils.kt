@@ -28,7 +28,7 @@ import net.bible.service.db.blockingDb
 
 /** Decode tool arguments from JsonObject to a typed @Serializable data class. */
 inline fun <reified T> JsonObject.decodeArgs(): T =
-    llmJson.decodeFromJsonElement<T>(this)
+    llmJson.decodeFromString<T>(frameworkJson())
 
 /**
  * Strip markdown formatting from a title string.

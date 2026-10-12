@@ -173,6 +173,15 @@ class LoopDetectionTest {
     }
 
     @Test
+    fun extractSignatures_scientificBoundaryRetainsFrameworkCanonicalHash() {
+        for ((scientific, integral) in listOf("1e6" to "1000000", "1e7" to "10000000", "-1e7" to "-10000000", "1e18" to "1000000000000000000")) {
+            val texts = listOf("""{"n":$scientific,"nested":[$scientific]}""", """{"nested":[$integral],"n":$integral}""")
+            val signatures = texts.map { extractSignatures(listOf(ToolCall("id", searchBible, it))).single() }
+            assertEquals(signatures[0], signatures[1])
+        }
+    }
+
+    @Test
     fun extractSignatures_differentArgsProduceDifferentHash() {
         val calls = listOf(
             ToolCall(id = "1", tool = searchBible, arguments = """{"query":"love"}"""),

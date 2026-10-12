@@ -22,8 +22,19 @@ class JsonArgsDifferentialTest {
         "2147483648", "-2147483649", "\"1e2\"", "\"NaN\"", "\"Infinity\"",
         "[null,true,{},[]]", "{\"a\":[1,2]}", "\"-0\"", "0.0", "-0.0",
         "9223372036854775807", "9223372036854775808", "-9223372036854775809",
-        "1e30", "1e-30", "[1e3,0.0,-0.0,\"a/b\"]", "{\"a/b\":1e3}"
+        "1e30", "1e-30", "[1e3,0.0,-0.0,\"a/b\"]", "{\"a/b\":1e3}",
+        "[1e7,1e8,-1e7,1e18,1e19,-0.0]", "{\"n\":1e7}",
+        "{\"n\":9.223372036854776e18}", "{\"n\":-9.223372036854776e18}"
     )
+
+    @Test
+    fun typedToolArgumentsRetainFrameworkIntegralDecimalNormalization() {
+        for (text in listOf("""{"book":"KJV","limit":10.0}""", """{"book":"KJV","limit":1e7,"offset":-0.0}""")) {
+            val expected = net.bible.service.llm.llmJson.decodeFromString<net.bible.service.llm.tools.read.GetGenBookKeysTool.Args>(JSONObject(text).toString())
+            val actual = parseToolArguments(text).decodeArgs<net.bible.service.llm.tools.read.GetGenBookKeysTool.Args>()
+            assertEquals(expected, actual)
+        }
+    }
 
     @Test
     fun parserRejectsMalformedAndNonObjectArgumentsAndAcceptsBlank() {
