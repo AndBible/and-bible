@@ -135,6 +135,12 @@ fun buildCoreModule() = module {
     single<AppSettings> { CommonUtils.settings }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
+    single<net.bible.service.llm.AiSettings> {
+        net.bible.service.llm.AiSettingsStore(
+            { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
+            DatabaseContainer.databaseRestored,
+        )
+    }
     single { ProgressJsActions(get()) }
     single { BookmarkJsActions(get(), get()) }
     single<net.bible.service.cloudsync.SyncSettingsPlatform> { net.bible.android.platform.AndroidSyncSettingsPlatform(androidContext()) }

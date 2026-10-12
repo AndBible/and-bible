@@ -3357,7 +3357,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val uninitialisedStart = doNotInitializeApp
             val loadedForStart by androidx.compose.runtime.produceState<Boolean?>(null, uninitialisedStart) {
                 // Welcome/restore deliberately leave the DB unopened and have no sync consumers.
-                if (!uninitialisedStart) documentSyncSettings.ensureLoaded()
+                if (!uninitialisedStart) {
+                    documentSyncSettings.ensureLoaded()
+                    CommonUtils.aiSettings.ensureLoaded()
+                }
                 value = uninitialisedStart
             }
             if (loadedForStart != uninitialisedStart) return@setContent

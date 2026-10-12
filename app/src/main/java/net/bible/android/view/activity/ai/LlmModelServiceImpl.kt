@@ -16,14 +16,15 @@
  */
 package net.bible.android.view.activity.ai
 
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import net.bible.android.database.IdType
-import net.bible.service.common.AiSettings
-import net.bible.service.common.CommonUtils
+import net.bible.service.llm.AiSettings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.DynamicModelService
 import net.bible.service.llm.LlmConfiguredModel
@@ -48,7 +49,7 @@ import net.bible.service.db.blockingDb
  *   `formatCost`/`getCumulativeCost`. Raw [ModelVd.priceInput]/[ModelVd.priceOutput] are populated
  *   ONLY for models with unknown/editable pricing (`!LlmProvider.hasKnownPricing`, mirroring
  *   [AvailableModelVd.knownPricing]) so the edit dialog can prefill its editable price fields.
- * - `GlobalAiSettings.defaultModelId` (`CommonUtils.aiSettings`) + [AiSettings.defaultModelChanged] for
+ * - `GlobalAiSettings.defaultModelId` (`aiSettings`) + [AiSettings.defaultModelChanged] for
  *   the per-model default flag and the tap-to-set-default action.
  * - [DynamicModelService] + [net.bible.service.llm.LlmProviderConfig.resolveAvailableModels] for
  *   the add-model provider picker (identical to `LlmProviderServiceImpl.fetchAvailableModels`).
@@ -68,8 +69,8 @@ import net.bible.service.db.blockingDb
  * elsewhere in the AI settings layer); the suspend paths ([saveModel], [availableModelsFor]) still
  * hop to [Dispatchers.IO] for the network-touching prefetch/insert.
  */
-class LlmModelServiceImpl : LlmModelService {
-    private val settings get() = CommonUtils.aiSettings
+class LlmModelServiceImpl : LlmModelService, KoinComponent {
+    private val settings: AiSettings by inject()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
@@ -78,9 +79,9 @@ class LlmModelServiceImpl : LlmModelService {
 
     init {
         // Process lifetime, like the bus registration it replaces: never cancelled.
-        AiSettings.configChanged.subscribeOnMain { refresh() }
+        settings.configChanged.subscribeOnMain { refresh() }
         // Process lifetime: never cancelled.
-        AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
+        settings.defaultModelChanged.subscribeOnMain { refresh() }
     }
 
     private fun buildModels(): List<ModelVd> {
@@ -202,7 +203,7 @@ class LlmModelServiceImpl : LlmModelService {
                 applyDefault(existing.id, setDefault)
             }
         }
-        AiSettings.notifyConfigChanged()
+        settings.notifyConfigChanged()
         refresh()
     }
 
@@ -215,7 +216,7 @@ class LlmModelServiceImpl : LlmModelService {
         if (settings.defaultModelId == model.id) {
             settings.defaultModelId = blockingDb { modelDao.all() }.firstOrNull()?.id
         }
-        AiSettings.notifyConfigChanged()
+        settings.notifyConfigChanged()
         refresh()
     }
 

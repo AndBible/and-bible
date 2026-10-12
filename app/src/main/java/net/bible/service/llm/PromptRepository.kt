@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import org.koin.core.component.KoinComponent
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
@@ -34,7 +35,8 @@ import net.bible.service.db.blockingDb
  * This singleton provides a single access point for all prompt operations,
  * replacing direct DAO usage throughout the codebase.
  */
-object PromptRepository {
+object PromptRepository : KoinComponent {
+    private val aiSettings: AiSettings get() = getKoin().get()
     private const val TAG = "PromptRepository"
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
@@ -105,7 +107,7 @@ object PromptRepository {
      * Hidden built-in prompts are excluded from all contexts.
      */
     fun allPrompts(): List<AgentPrompt> {
-        val hidden = CommonUtils.aiSettings.hiddenBuiltInPrompts
+        val hidden = aiSettings.hiddenBuiltInPrompts
         return blockingDb {
             val visibleBuiltIn = loadBuiltInPrompts().filter { it.id !in hidden }
             visibleBuiltIn + loadAddonPrompts() + dao.allPrompts()
@@ -203,13 +205,13 @@ object PromptRepository {
 
     /** Hide a built-in prompt so it doesn't appear in any context. */
     fun setBuiltInPromptHidden(promptId: IdType, hidden: Boolean) {
-        val current = CommonUtils.aiSettings.hiddenBuiltInPrompts
-        CommonUtils.aiSettings.hiddenBuiltInPrompts = if (hidden) current + promptId else current - promptId
+        val current = aiSettings.hiddenBuiltInPrompts
+        aiSettings.hiddenBuiltInPrompts = if (hidden) current + promptId else current - promptId
     }
 
     /** Check if a built-in prompt is hidden. */
     fun isBuiltInPromptHidden(promptId: IdType): Boolean =
-        promptId in CommonUtils.aiSettings.hiddenBuiltInPrompts
+        promptId in aiSettings.hiddenBuiltInPrompts
 
     // --- Category operations ---
 
@@ -256,20 +258,20 @@ object PromptRepository {
 
     /** Whether a category is hidden from AI Actions dialogs (works for both built-in and user categories). */
     fun isCategoryHidden(category: PromptCategory): Boolean =
-        category.hidden || category.id in CommonUtils.aiSettings.hiddenBuiltInCategories
+        category.hidden || category.id in aiSettings.hiddenBuiltInCategories
 
     // --- Favorite operations ---
 
     /** Sentinel ID for the virtual "Favorites" category used in prompt lists. */
     val FAVORITES_CATEGORY_ID: IdType = IdType.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff")
 
-    fun favoritePromptIds(): Set<IdType> = CommonUtils.aiSettings.favoritePrompts
+    fun favoritePromptIds(): Set<IdType> = aiSettings.favoritePrompts
 
-    fun isFavorite(id: IdType): Boolean = id in CommonUtils.aiSettings.favoritePrompts
+    fun isFavorite(id: IdType): Boolean = id in aiSettings.favoritePrompts
 
     fun toggleFavorite(id: IdType) {
-        val current = CommonUtils.aiSettings.favoritePrompts
-        CommonUtils.aiSettings.favoritePrompts = if (id in current) current - id else current + id
+        val current = aiSettings.favoritePrompts
+        aiSettings.favoritePrompts = if (id in current) current - id else current + id
     }
 
     /**

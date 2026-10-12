@@ -22,7 +22,7 @@ import android.os.Looper
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
-import net.bible.service.common.AiSettings
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmProviderConfig
@@ -37,7 +37,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-/** [AiSettings.defaultModelChanged] is emitted per write and refreshes the AI services. */
+/** [CommonUtils.aiSettings.defaultModelChanged] is emitted per write and refreshes the AI services. */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DefaultModelChangedTest {
@@ -45,10 +45,10 @@ class DefaultModelChangedTest {
 
     @Test fun theSetterEmitsOncePerWrite() {
         var emitted = 0
-        val subscription = AiSettings.defaultModelChanged.subscribe { emitted++ }
+        val subscription = CommonUtils.aiSettings.defaultModelChanged.subscribe { emitted++ }
         try {
-            AiSettings.defaultModelId = IdType()
-            AiSettings.defaultModelId = null
+            CommonUtils.aiSettings.defaultModelId = IdType()
+            CommonUtils.aiSettings.defaultModelId = null
         } finally { subscription.cancel() }
         assertEquals(2, emitted)
     }
@@ -67,7 +67,7 @@ class DefaultModelChangedTest {
         runBlocking { db.llmConfiguredModelDao().insert(first) }
         runBlocking { db.llmConfiguredModelDao().insert(second) }
 
-        AiSettings.defaultModelId = second.id
+        CommonUtils.aiSettings.defaultModelId = second.id
         shadowOf(Looper.getMainLooper()).idle()
 
         assertEquals("model-b", settingsService.snapshot.value.defaultModelLabel)

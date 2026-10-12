@@ -17,22 +17,24 @@
 
 package net.bible.service.llm.tools
 
-import net.bible.service.common.CommonUtils
+import net.bible.service.llm.AiSettings
+import org.koin.core.component.KoinComponent
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 
 /**
  * Centralized filter for AI document access.
  *
- * Uses a blacklist approach: documents in [CommonUtils.aiSettings.aiExcludedDocuments]
+ * Uses a blacklist approach: documents in [aiSettings.aiExcludedDocuments]
  * are excluded from AI tool access. New documents are allowed by default.
  */
-object AiDocumentFilter {
+object AiDocumentFilter : KoinComponent {
+    private val aiSettings: AiSettings get() = getKoin().get()
     fun isAllowed(initials: String): Boolean =
-        initials !in CommonUtils.aiSettings.aiExcludedDocuments
+        initials !in aiSettings.aiExcludedDocuments
 
     fun <T : Book> filterAllowed(books: List<T>): List<T> {
-        val excluded = CommonUtils.aiSettings.aiExcludedDocuments
+        val excluded = aiSettings.aiExcludedDocuments
         return if (excluded.isEmpty()) books
         else books.filter { it.initials !in excluded }
     }

@@ -366,7 +366,10 @@ class CloudSync(
             // Categories swap concurrently (`asyncMap`), and a restore may hold its own replace around a
             // sync: release once, when the last replace has ended. Also posts when the swap throws: the
             // epoch is already bumped, so the repository must reload to end the save freeze.
-            if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
+            if (!DatabaseContainer.replacing) {
+                notifyWorkspaceRefreshRequired()
+                DatabaseContainer.notifyDatabaseRestored()
+            }
         }
     }
 

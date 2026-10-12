@@ -57,6 +57,8 @@ object DatabaseResetter {
         Thread.sleep(300)
         val koin = org.koin.core.context.GlobalContext.getOrNull()
         runResetBlocking {
+            (net.bible.android.BibleApplication.application as? net.bible.android.TestBibleApplication)
+                ?.drainAiSettingsFixture()
             // Cancel producers, then wait for their finally blocks and late submissions before draining.
             val appJob = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
                 ?.coroutineContext?.get(kotlinx.coroutines.Job)

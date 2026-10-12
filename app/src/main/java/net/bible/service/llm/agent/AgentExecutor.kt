@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
@@ -34,7 +35,6 @@ import net.bible.service.llm.AgentTool
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.OsisToPlainText
@@ -174,6 +174,7 @@ private sealed class ProcessToolsResult {
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) : KoinComponent {
+    private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
     fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null, modelOverrideId: IdType? = null): Flow<AgentEvent> = flow {
         try {
@@ -434,7 +435,7 @@ class AgentExecutor(
             if (execResult.grantAllToolsPermission) {
                 currentContext = currentContext.withAllToolsPermissionGranted()
             } else if (execResult.grantSessionPermission ||
-                ((currentContext.promptPermissionMode ?: CommonUtils.aiSettings.agentPermissionMode) != PermissionMode.ALWAYS_ASK &&
+                ((currentContext.promptPermissionMode ?: aiSettings.agentPermissionMode) != PermissionMode.ALWAYS_ASK &&
                  result is ToolResult.Success && ToolRegistry.get(toolCall.tool)?.requiresPermission == true)) {
                 currentContext = currentContext.withWritePermissionGranted()
             }
@@ -606,13 +607,13 @@ class AgentExecutor(
     }
 
     private fun buildSystemPrompt(prompt: AgentPrompt, context: AgentContext): String {
-        val appLanguage = CommonUtils.aiSettings.aiDisplayLanguage
+        val appLanguage = aiSettings.aiDisplayLanguage
 
         return buildString {
             val customPrompt = if (prompt.isTextTransformation)
-                CommonUtils.aiSettings.customTextTransformationSystemPrompt
+                aiSettings.customTextTransformationSystemPrompt
             else
-                CommonUtils.aiSettings.customAgentSystemPrompt
+                aiSettings.customAgentSystemPrompt
 
             val basePrompt = customPrompt?.takeIf { it.isNotBlank() }
                 ?: if (prompt.isTextTransformation) strings.defaultTextTransformationSystemPrompt
@@ -854,9 +855,9 @@ class AgentExecutor(
         return when (checkPermission(
             tool = tool.agentTool,
             settings = PermissionSettings(
-                globalMode = CommonUtils.aiSettings.agentPermissionMode,
-                permanentlyAllowedTools = CommonUtils.aiSettings.permanentlyAllowedTools,
-                permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
+                globalMode = aiSettings.agentPermissionMode,
+                permanentlyAllowedTools = aiSettings.permanentlyAllowedTools,
+                permanentlyDeniedTools = aiSettings.permanentlyDeniedTools,
             ),
             promptAllowedTools = context.promptAllowedTools,
             promptDeniedTools = context.promptDeniedTools,
@@ -882,7 +883,7 @@ class AgentExecutor(
             return AgentTool.entries.toSet() - ToolRegistry.STRUCTURAL_TOOLS
         }
         return computeExcludedTools(
-            permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
+            permanentlyDeniedTools = aiSettings.permanentlyDeniedTools,
             promptDeniedTools = context.promptDeniedTools,
             promptAvailableTools = context.promptAvailableTools,
         )
@@ -940,7 +941,6 @@ class AgentExecutor(
                         title = strings.permissionAlwaysAllowConfirmTitle
                     )
                     if (confirmed) {
-                        val aiSettings = CommonUtils.aiSettings
                         aiSettings.permanentlyAllowedTools += tool.agentTool
                         // Also remove from denied set if present
                         aiSettings.permanentlyDeniedTools -= tool.agentTool

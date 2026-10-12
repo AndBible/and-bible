@@ -34,6 +34,7 @@ import java.util.UUID
  * Users can copy a built-in prompt to create their own editable version.
  */
 object BuiltInPrompts : KoinComponent {
+    private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
 
     /**
@@ -81,7 +82,7 @@ object BuiltInPrompts : KoinComponent {
     val TEST_MY_DOCUMENTS_ID = stableId("test-my-documents")
 
     private fun getUiLanguageName(): String =
-        CommonUtils.aiSettings.aiDisplayLanguage
+        aiSettings.aiDisplayLanguage
 
     /**
      * Returns all built-in prompts as AgentPrompt objects.

@@ -17,13 +17,13 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
 import android.net.Uri
 import kotlinx.serialization.Serializable
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -63,6 +63,7 @@ import java.io.StringReader
  * commentary covers a block of verses with a single entry).
  */
 object GetCommentariesTool : Tool, KoinComponent {
+    private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
@@ -336,7 +337,7 @@ object GetCommentariesTool : Tool, KoinComponent {
      * `BackupControl.selectDatabaseSections`, spec-referenced there).
      */
     internal suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
-        val thresholdTokens = CommonUtils.aiSettings.commentaryMaxResponseTokens
+        val thresholdTokens = aiSettings.commentaryMaxResponseTokens
         if (thresholdTokens <= 0 || commentaryResults.isEmpty()) {
             return FilterResult(commentaryResults, emptyList())
         }
@@ -384,7 +385,7 @@ object GetCommentariesTool : Tool, KoinComponent {
         items: List<CommentaryInfoForFilter>,
         thresholdTokens: Int
     ): List<CommentaryInfoForFilter>? {
-        val previouslyDeselected = CommonUtils.aiSettings.commentaryDeselected
+        val previouslyDeselected = aiSettings.commentaryDeselected
         val itemTokens = items.associate { it.initials to estimateTokens(it.estimatedChars) }
 
         val options = items.map { info ->
@@ -427,7 +428,7 @@ object GetCommentariesTool : Tool, KoinComponent {
         val newDeselected = items.filterNot { it.initials in ids }.map { it.initials }.toSet()
         // Preserve deselections for commentaries not present on this device
         val preserved = previouslyDeselected - dialogInitials
-        CommonUtils.aiSettings.commentaryDeselected = preserved + newDeselected
+        aiSettings.commentaryDeselected = preserved + newDeselected
 
         return items.filter { it.initials in ids }
     }

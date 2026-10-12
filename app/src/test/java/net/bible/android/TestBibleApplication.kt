@@ -31,9 +31,8 @@ import net.bible.android.control.speak.SpeakSettingsChanges
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
-import net.bible.service.common.AiSettings
-import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.service.llm.agent.AgentSessionManager
@@ -55,6 +54,8 @@ class TestBibleApplication : BibleApplication() {
         println("TestBibleApplication BibleApplication subclass being used.")
     }
 
+    private val aiScope = net.bible.sharedcore.platform.AppCoroutineScope()
+    private val aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
     override val isRunningTests: Boolean = true
 
     override fun getLocalizedResources(language: String): Resources = application.resources
@@ -70,7 +71,21 @@ class TestBibleApplication : BibleApplication() {
         } finally {
             Thread.setDefaultUncaughtExceptionHandler(originalHandler)
         }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.service.llm.AiSettings> {
+                net.bible.service.llm.AiSettingsStore(
+                    { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, aiLauncher, aiScope,
+                    net.bible.android.platform.AndroidAppEnvironment(this@TestBibleApplication),
+                    DatabaseContainer.databaseRestored,
+                )
+            }
+            single<net.bible.sharedcore.ai.LlmModelService> { net.bible.android.view.activity.ai.LlmModelServiceImpl() }
+            single<net.bible.sharedcore.ai.LlmProviderService> { net.bible.android.view.activity.ai.LlmProviderServiceImpl(get()) }
+            single<net.bible.sharedcore.ai.AiSettingsService> { net.bible.android.view.activity.ai.AiSettingsServiceImpl(get()) }
+            single<net.bible.sharedcore.ai.PromptService> { net.bible.android.view.activity.ai.PromptServiceImpl(get()) }
+        })
         CommonUtils.initializeApp()
+        kotlinx.coroutines.runBlocking { CommonUtils.aiSettings.ensureLoaded() }
         net.bible.test.DatabaseResetter.runResetBlocking {
             MyDocumentBookManager.launcher.join("mydocument-sync")
         }
@@ -79,14 +94,39 @@ class TestBibleApplication : BibleApplication() {
     /**
      * This is never called in real system (only in tests). See parent documentation.
      */
+    suspend fun drainAiSettingsFixture() {
+        aiLauncher.join("ai-settings")
+        val children = aiScope.coroutineContext[kotlinx.coroutines.Job]!!.children.toList()
+        children.forEach { it.cancel() }
+        children.forEach { it.join() }
+    }
+
     override fun onTerminate() {
+        net.bible.test.DatabaseResetter.runResetBlocking {
+            aiLauncher.join("ai-settings")
+            val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
+            job.cancel()
+            job.join()
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.service.llm.AiSettings> {
+                net.bible.service.llm.AiSettingsStore(
+                    { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
+                    DatabaseContainer.databaseRestored,
+                )
+            }
+            single<net.bible.sharedcore.ai.LlmModelService> { net.bible.android.view.activity.ai.LlmModelServiceImpl() }
+            single<net.bible.sharedcore.ai.LlmProviderService> { net.bible.android.view.activity.ai.LlmProviderServiceImpl(get()) }
+            single<net.bible.sharedcore.ai.AiSettingsService> { net.bible.android.view.activity.ai.AiSettingsServiceImpl(get()) }
+            single<net.bible.sharedcore.ai.PromptService> { net.bible.android.view.activity.ai.PromptServiceImpl(get()) }
+        })
         CommonUtils.destroy()
         super.onTerminate()
         AgentSessionManager.resetSubscribersForTest()
         SharedActivityState.instance.resetSubscribersForTest()
         GlobalContext.getOrNull()?.getOrNull<WindowStateServiceImpl>()?.resetSubscribersForTest()
         WorkspaceChanges.resetSubscribersForTest()
-        AiSettings.resetSubscribersForTest()
+
         GlobalContext.getOrNull()?.getOrNull<DocumentSync>()?.resetSubscribersForTest()
         GlobalContext.getOrNull()?.getOrNull<CloudSync>()?.resetSubscribersForTest()
         InstallZipProgress.resetSubscribersForTest()

@@ -20,7 +20,6 @@ import android.os.Looper
 import net.bible.android.database.IdType
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.agent.AgentLogEntry
@@ -279,10 +278,10 @@ class AgentSessionServiceImplTest {
     @Test
     fun autoHideEnabled_reflectsAiSettings() {
         val service = AgentSessionServiceImpl()
-        AiSettings.autoHideAgentLogOnCompletion = false
+        CommonUtils.aiSettings.autoHideAgentLogOnCompletion = false
         assertFalse(service.autoHideEnabled())
 
-        AiSettings.autoHideAgentLogOnCompletion = true
+        CommonUtils.aiSettings.autoHideAgentLogOnCompletion = true
         assertTrue(service.autoHideEnabled())
     }
 }

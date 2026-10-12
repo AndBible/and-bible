@@ -16,13 +16,14 @@
  */
 package net.bible.android.view.activity.ai
 
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
 import net.bible.service.llm.LlmStrings
 import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.bible.service.common.AiSettings
-import net.bible.service.common.CommonUtils
+import net.bible.service.llm.AiSettings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.agent.PermissionMode
@@ -32,7 +33,7 @@ import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [AiSettingsService]. Reads/writes the global [AiSettings] row (the classic
- * `CommonUtils.aiSettings` facade) and the AI DAOs / [LlmCostTracker], mirroring classic
+ * `aiSettings` facade) and the AI DAOs / [LlmCostTracker], mirroring classic
  * `AiConnectionSettingsFragment` summary/refresh behavior exactly. Each setter writes through the
  * classic accessor then re-emits a freshly built [AiSettingsSnapshot]. Subscribes to
  * [AiSettings.configChanged] and [AiSettings.defaultModelChanged] so external changes re-emit the
@@ -40,8 +41,8 @@ import net.bible.service.db.blockingDb
  * Registered as a Koin single (lives for the process); the host calls [refresh] in `onResume` for
  * parity with the old pull-based refresh.
  */
-class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService {
-    private val settings get() = CommonUtils.aiSettings
+class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService, KoinComponent {
+    private val settings: AiSettings by inject()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
@@ -50,9 +51,9 @@ class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService
 
     init {
         // Process lifetime, like the bus registration it replaces: never cancelled.
-        AiSettings.configChanged.subscribeOnMain { refresh() }
+        settings.configChanged.subscribeOnMain { refresh() }
         // Process lifetime: never cancelled.
-        AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
+        settings.defaultModelChanged.subscribeOnMain { refresh() }
     }
 
     private fun build(): AiSettingsSnapshot {

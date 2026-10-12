@@ -17,8 +17,8 @@
 
 package net.bible.service.llm
 
+import org.koin.core.component.KoinComponent
 import net.bible.android.database.IdType
-import net.bible.service.common.AiSettings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.blockingDb
 
@@ -141,7 +141,8 @@ enum class LlmProvider(
  */
 data class LlmModelConfig(
     val configuredModelId: IdType? = null,
-) {
+) : KoinComponent {
+    private val aiSettings: AiSettings get() = getKoin().get()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
@@ -154,7 +155,7 @@ data class LlmModelConfig(
             modelDao.getById(configuredModelId)?.let { return it }
             // Model was deleted → fall back to global default
         }
-        val defaultId = AiSettings.defaultModelId ?: return null
+        val defaultId = aiSettings.defaultModelId ?: return null
         return modelDao.getById(defaultId)
     }
 

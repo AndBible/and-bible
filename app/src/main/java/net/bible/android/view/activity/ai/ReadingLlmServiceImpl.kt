@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.service.llm.AiSettings
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
 import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,17 +38,19 @@ import net.bible.sharedcore.ai.reading.ReadingPromptVd
 
 /**
  * Android impl of [ReadingLlmService], wrapping the classic `LlmDialogHelper`/[PromptRepository]/
- * AI-DB DAO/[CommonUtils.aiSettings] logic for the reading-view AI dialogs (prompt selector,
+ * AI-DB DAO/[AiSettings] logic for the reading-view AI dialogs (prompt selector,
  * ask-model-before-run, model selection, regenerate). Verbatim port — see `LlmDialogHelper.kt` for
  * the classic dialog-hosting code this replaces (the actual persistence/lookup logic is unchanged,
  * only the UI hosting differs). Registered as a Koin single; stateless (no StateFlow) since the
  * reading-view AI dialogs are one-shot (opened, answered, dismissed) rather than continuously
  * observed screens.
  */
-class ReadingLlmServiceImpl(private val strings: LlmStrings) : ReadingLlmService {
+class ReadingLlmServiceImpl(private val strings: LlmStrings) : ReadingLlmService, KoinComponent {
+    private val aiSettings: AiSettings by inject()
 
     override suspend fun promptGroupsFor(contextId: String, docCategoryId: String?): List<ReadingPromptGroupVd> =
         withContext(Dispatchers.IO) {
+            aiSettings.ensureLoaded()
             val context = PromptContext.valueOf(contextId)
             val docCategory = docCategoryId?.let { DocumentCategory.valueOf(it) }
             val grouped = PromptRepository.promptsForContextGrouped(context, docCategory)
@@ -115,11 +120,13 @@ class ReadingLlmServiceImpl(private val strings: LlmStrings) : ReadingLlmService
         }
 
     override suspend fun toggleFavorite(promptId: String) = withContext(Dispatchers.IO) {
+            aiSettings.ensureLoaded()
         PromptRepository.toggleFavorite(IdType(promptId))
     }
 
     override suspend fun configuredModels(): List<ReadingModelVd> = withContext(Dispatchers.IO) {
-        val defaultModelId = CommonUtils.aiSettings.defaultModelId
+            aiSettings.ensureLoaded()
+        val defaultModelId = aiSettings.defaultModelId
         val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
         val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
@@ -137,14 +144,16 @@ class ReadingLlmServiceImpl(private val strings: LlmStrings) : ReadingLlmService
         }
     }
 
-    override fun askModelBeforeRun(): Boolean = CommonUtils.aiSettings.askModelBeforeRun
+    override fun askModelBeforeRun(): Boolean = aiSettings.askModelBeforeRun
 
     override suspend fun promptRequiresModelChoice(promptId: String): Boolean = withContext(Dispatchers.IO) {
+            aiSettings.ensureLoaded()
         val prompt = PromptRepository.promptById(IdType(promptId))
-        CommonUtils.aiSettings.askModelBeforeRun && prompt?.configuredModelId == null
+        aiSettings.askModelBeforeRun && prompt?.configuredModelId == null
     }
 
     override suspend fun setPromptModelDefault(promptId: String, modelId: String) = withContext(Dispatchers.IO) {
+            aiSettings.ensureLoaded()
         val id = IdType(promptId)
         if (PromptRepository.isBuiltIn(id)) {
             PromptRepository.setBuiltinPromptModelOverride(id, IdType(modelId))
@@ -156,9 +165,10 @@ class ReadingLlmServiceImpl(private val strings: LlmStrings) : ReadingLlmService
     }
 
     override suspend fun regenerateRequiresModelChoice(pageId: String): Boolean = withContext(Dispatchers.IO) {
+            aiSettings.ensureLoaded()
         val page = MyDocumentBookManager.getAIDocumentPage(IdType(pageId))
         val prompt = page?.sourcePromptId?.let { PromptRepository.promptById(it) }
-        CommonUtils.aiSettings.askModelBeforeRun && prompt?.configuredModelId == null
+        aiSettings.askModelBeforeRun && prompt?.configuredModelId == null
     }
 
     override fun isCategoryCollapsed(contextId: String, categoryId: String?): Boolean =

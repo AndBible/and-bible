@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.ai
 
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
 import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,8 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import net.bible.android.database.IdType
-import net.bible.service.common.AiSettings
-import net.bible.service.common.CommonUtils
+import net.bible.service.llm.AiSettings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.ApiFormat
 import net.bible.service.llm.DynamicModelService
@@ -54,7 +55,7 @@ import net.bible.service.db.blockingDb
  * - [DynamicModelService] for available-model discovery, [LlmProcessingService.testApiConnection]
  *   for the easy-setup connection test, and the classic `EasySetupDialogs` recommended-setup list +
  *   `performEasySetup` create-flow (ported here so the wizard UI in Task 9 stays presentation-only).
- * - [CommonUtils.aiSettings] `aiDisclaimerAccepted` for the disclaimer gate + `defaultModelId`.
+ * - [AiSettings] `aiDisclaimerAccepted` for the disclaimer gate + `defaultModelId`.
  *
  * Save/delete/easy-setup mirror the classic `AiProvidersFragment.saveProviderConfig`/
  * `confirmDeleteProvider` and `EasySetupDialogs.performEasySetup` exactly (custom-only endpoint/
@@ -67,8 +68,8 @@ import net.bible.service.db.blockingDb
  * bridge them with `blockingDb` and block the caller thread (as elsewhere in the AI settings layer); the suspend
  * mutations still hop to [Dispatchers.IO] for the network-touching prefetch.
  */
-class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderService {
-    private val settings get() = CommonUtils.aiSettings
+class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderService, KoinComponent {
+    private val settings: AiSettings by inject()
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
@@ -77,7 +78,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
 
     init {
         // Process lifetime, like the bus registration it replaces: never cancelled.
-        AiSettings.configChanged.subscribeOnMain { refresh() }
+        settings.configChanged.subscribeOnMain { refresh() }
     }
 
     private fun buildProviders(): List<ProviderVd> = blockingDb { dao.all() }.map { config ->
@@ -145,7 +146,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
             }
         }
         // Classic broadcast the config change only on create (now [AiSettings.notifyConfigChanged]); edits just refresh the list locally.
-        if (id == null) AiSettings.notifyConfigChanged()
+        if (id == null) settings.notifyConfigChanged()
         refresh()
     }
 
@@ -159,7 +160,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
         if (currentDefault != null && currentDefault in deletedModelIds) {
             settings.defaultModelId = blockingDb { modelDao.all() }.firstOrNull()?.id
         }
-        AiSettings.notifyConfigChanged()
+        settings.notifyConfigChanged()
         refresh()
     }
 
@@ -242,7 +243,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
         // of the commit -- hoisted out of the withContext(Dispatchers.IO) block above so a
         // cancellation during its network fetch can no longer swallow this notify/refresh() and
         // leave the DB configured while every consumer outside the AI cluster never hears about it.
-        AiSettings.notifyConfigChanged()
+        settings.notifyConfigChanged()
         refresh()
         withContext(Dispatchers.IO) { prefetchModels(provider, key) }
     }

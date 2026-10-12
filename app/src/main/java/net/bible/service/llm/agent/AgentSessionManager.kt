@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.service.llm.AiSettings
 import net.bible.service.llm.LlmStrings
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.json.Json.Default.decodeFromString
@@ -32,7 +33,6 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
@@ -233,6 +233,7 @@ class AgentSession(
 
 /** One session per workspace, lazily created. */
 object AgentSessionManager : AgentSessionManagerBase() {
+    private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
     private var changeSource = EventSource<AgentSessionChange>()
 
@@ -379,6 +380,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         modelOverrideId: IdType? = null,
         onStarted: suspend () -> Unit = {}
     ): Boolean {
+        aiSettings.ensureLoaded()
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
 
@@ -425,7 +427,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val usedWriteToolsTracker = AtomicBoolean(false)
 
         // Execute via AgentExecutor
-        val effectiveMaxIterations = prompt.maxIterations ?: CommonUtils.aiSettings.maxIterations
+        val effectiveMaxIterations = prompt.maxIterations ?: aiSettings.maxIterations
         val executor = AgentExecutor(maxIterations = effectiveMaxIterations)
         try {
             executor.execute(prompt, context, session.rawLlmLog, modelOverrideId = modelOverrideId).collect { event ->
@@ -870,7 +872,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
     private fun cleanupOldRawLogs() {
         try {
-            val retentionDays = CommonUtils.aiSettings.rawLogRetentionDays ?: return
+            val retentionDays = aiSettings.rawLogRetentionDays ?: return
             val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
             blockingDb { DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff) }
         } catch (e: Exception) {
@@ -977,6 +979,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         freshRun: Boolean = false,
         modelOverrideId: IdType? = null
     ): Boolean {
+        aiSettings.ensureLoaded()
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
         val session = activeSessions[workspaceId]

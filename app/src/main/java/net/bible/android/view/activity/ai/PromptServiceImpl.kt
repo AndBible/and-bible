@@ -16,12 +16,14 @@
  */
 package net.bible.android.view.activity.ai
 
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
 import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.service.db.blockingDb
-import net.bible.service.common.AiSettings
+import net.bible.service.llm.AiSettings
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -56,9 +58,9 @@ import net.bible.sharedcore.settings.SettingsItem
  * - [PromptRepository] for all prompt/category CRUD, favorites, built-in hide state, copy and
  *   reorder (orderNumber swap), plus [BuiltinPromptOverride] upsert for the built-in model override.
  * - [ToolRegistry.getConfigurableToolsByCategory] for the Permissions-tab tool list and
- *   [globalToolPermission] resolution against [CommonUtils.aiSettings] `permanentlyAllowed/DeniedTools`.
+ *   [globalToolPermission] resolution against [AiSettings] `permanentlyAllowed/DeniedTools`.
  * - [CommonUtils.settings] `llmConfigured` for the not-configured CTA gate and
- *   [CommonUtils.aiSettings] for `defaultModelId` / hidden state.
+ *   [AiSettings] for `defaultModelId` / hidden state.
  *
  * [groups] is published in the **classic `loadPrompts` order** — a virtual Favorites group first
  * (only when non-empty), then the uncategorized bucket, then all categories in `orderNumber` order
@@ -73,8 +75,8 @@ import net.bible.sharedcore.settings.SettingsItem
  * `suspend`; the non-suspend reads/mutations bridge them with `blockingDb`, so they block the caller
  * thread (as elsewhere in the AI settings layer).
  */
-class PromptServiceImpl(private val strings: LlmStrings) : PromptService {
-    private val settings get() = CommonUtils.aiSettings
+class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinComponent {
+    private val settings: AiSettings by inject()
     private val overrideDao get() = DatabaseContainer.instance.aiSettingsDb.builtinPromptOverrideDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
@@ -93,7 +95,7 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService {
 
     init {
         // Process lifetime, like the bus registration it replaces: never cancelled.
-        AiSettings.configChanged.subscribeOnMain { refresh() }
+        settings.configChanged.subscribeOnMain { refresh() }
     }
 
     // --- groups (classic AiSettingsActivity.loadPrompts, Favorites → uncategorized → categories) --

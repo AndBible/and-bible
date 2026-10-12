@@ -122,10 +122,9 @@ import net.bible.android.view.util.UiUtils
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.control.page.window.WorkspaceChange
 import net.bible.android.control.page.window.WorkspaceChanges
-import net.bible.service.common.AiSettings
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
@@ -1019,7 +1018,7 @@ class BibleView(
                 })
                 subscriptions.add(WorkspaceChanges.changes.subscribe { if (it == WorkspaceChange.SettingsEdited) updateConfig() })
                 // updateConfig carries llmConfigured, so AI configuration changes must reach it too.
-                subscriptions.add(AiSettings.configChanged.subscribe { updateConfig() })
+                subscriptions.add(CommonUtils.aiSettings.configChanged.subscribe { updateConfig() })
                 // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
                 // and finish a deferred teardown. Both events were posted only by the classic
                 // split reading area, so they became unpostable when it went; the live teardown
