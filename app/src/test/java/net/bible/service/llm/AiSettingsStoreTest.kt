@@ -92,6 +92,41 @@ class AiSettingsStoreTest {
         assertTrue(settings.aiDisclaimerAccepted)
     }
 
+    @Test fun anIntermediateOwnEmissionCannotReplaceNewerPendingSetters() = runBlocking {
+        val firstWritten = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        var writes = 0
+        val settings = AiSettingsStore({
+            val current = dao
+            object : GlobalAiSettingsDao by current {
+                override suspend fun set(settings: GlobalAiSettings) {
+                    current.set(settings)
+                    if (++writes == 1) { firstWritten.complete(Unit); release.await() }
+                }
+            }
+        }, launcher, scope, env, DatabaseContainer.databaseRestored)
+        settings.ensureLoaded()
+        settings.maxIterations = 22
+        settings.aiDisclaimerAccepted = true
+        firstWritten.await()
+        try {
+            assertEquals(22, dao.get()!!.maxIterations)
+            assertFalse(dao.get()!!.aiDisclaimerAccepted) // first FIFO write only
+            delay(100)
+            assertTrue(settings.aiDisclaimerAccepted)
+            settings.askModelBeforeRun = true
+            assertTrue(settings.aiDisclaimerAccepted)
+        } finally { release.complete(Unit) }
+        launcher.join("ai-settings")
+        withTimeout(2_000) {
+            while (!settings.askModelBeforeRun || !settings.aiDisclaimerAccepted) delay(10)
+        }
+        assertEquals(22, dao.get()!!.maxIterations)
+        assertTrue(dao.get()!!.aiDisclaimerAccepted)
+        assertTrue(dao.get()!!.askModelBeforeRun)
+        assertEquals(3, writes)
+    }
+
     @Test fun modelAndConfigEventsRemainSeparateAndReadTheNewSnapshot() = runBlocking {
         val settings = store()
         settings.ensureLoaded()
