@@ -38,8 +38,7 @@ import net.bible.service.llm.agent.RawLogEntry
 import net.bible.sharedcore.ai.RawLogEntryVd
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.RawLogSummaryVd
-import org.json.JSONArray
-import org.json.JSONObject
+import net.bible.service.llm.tools.prettyJson
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -226,8 +225,8 @@ class RawLogServiceImpl : RawLogService {
         private fun prettyFormatJson(json: String): String = try {
             val trimmed = json.trim()
             val formatted = when {
-                trimmed.startsWith("{") -> JSONObject(trimmed).toString(2)
-                trimmed.startsWith("[") -> JSONArray(trimmed).toString(2)
+                trimmed.startsWith("{") -> prettyJson(trimmed)
+                trimmed.startsWith("[") -> prettyJson(trimmed)
                 else -> json
             }
             longStringValueRegex.replace(formatted) { match ->

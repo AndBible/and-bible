@@ -31,7 +31,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.resolveMyDocument
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for listing pages of a My Documents book, optionally with content.
@@ -93,7 +94,7 @@ object GetMyDocumentPagesTool : Tool {
             default: false
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val initials = arguments.optString("initials", "").takeIf { it.isNotBlank() }
         val documentId = arguments.optString("documentId", "").takeIf { it.isNotBlank() }
         return initials ?: documentId?.take(8)
@@ -105,7 +106,7 @@ object GetMyDocumentPagesTool : Tool {
         return application.getString(R.string.tool_log_my_document_page_count, data.pageCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

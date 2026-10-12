@@ -17,6 +17,8 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.service.llm.tools.*
+
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.llm.AgentTool
@@ -220,22 +222,22 @@ class ToolCallParserTest {
     fun parseArgumentsValidJson() {
         val tc = ToolCall("id", AgentTool.GET_VERSE_CONTENT, """{"key": "value", "num": 42}""")
         val args = tc.parseArguments()
-        assertEquals("value", args.getString("key"))
-        assertEquals(42, args.getInt("num"))
+        assertEquals("value", args.optString("key"))
+        assertEquals(42, args.optInt("num"))
     }
 
     @Test
     fun parseArgumentsEmptyString() {
         val tc = ToolCall("id", AgentTool.GET_VERSE_CONTENT, "")
         val args = tc.parseArguments()
-        assertEquals(0, args.length())
+        assertEquals(0, args.size)
     }
 
     @Test
     fun parseArgumentsBlankString() {
         val tc = ToolCall("id", AgentTool.GET_VERSE_CONTENT, "   ")
         val args = tc.parseArguments()
-        assertEquals(0, args.length())
+        assertEquals(0, args.size)
     }
 
     // --- ChatMessage creation ---

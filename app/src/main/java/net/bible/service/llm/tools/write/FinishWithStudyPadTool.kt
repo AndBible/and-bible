@@ -31,7 +31,8 @@ import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for finishing the agent execution and opening a StudyPad.
@@ -88,7 +89,7 @@ object FinishWithStudyPadTool : Tool {
         required: [labelId, message]
     """)
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         val label = try { dao.labelById(IdType(labelId)) } catch (_: Exception) { null }
@@ -96,12 +97,12 @@ object FinishWithStudyPadTool : Tool {
         return BibleApplication.application.getString(R.string.action_open_studypad, labelName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         return shortId(labelId)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

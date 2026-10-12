@@ -40,7 +40,8 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for looking up dictionary entries.
@@ -99,13 +100,13 @@ object GetDictionaryEntryTool : Tool {
 
     private val linkControl get() = GlobalContext.get().get<net.bible.android.control.link.LinkControl>()
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val dictionary = arguments.optString("dictionary", "").takeIf { it.isNotBlank() } ?: return null
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() } ?: return null
         return "$dictionary: $key"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

@@ -35,8 +35,8 @@ import kotlinx.serialization.Serializable
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.VerseRange
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for getting bookmarks associated with a verse or verse range.
@@ -89,7 +89,7 @@ object GetBookmarksForVerseTool : Tool {
 
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
         return localizeVerseRef(verseRef)
     }
@@ -99,7 +99,7 @@ object GetBookmarksForVerseTool : Tool {
         return application.getString(R.string.tool_log_bookmark_count, (result.data as Result).bookmarkCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

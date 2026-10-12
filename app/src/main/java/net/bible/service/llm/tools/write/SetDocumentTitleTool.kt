@@ -29,7 +29,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for finishing the agent execution and saving the response as an AI document.
@@ -75,17 +76,17 @@ object SetDocumentTitleTool : Tool {
         required: [title]
     """)
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
         return BibleApplication.application.getString(R.string.action_set_document_title, title)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
         return "\"$title\""
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

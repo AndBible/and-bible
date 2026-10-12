@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkChange
@@ -87,7 +90,7 @@ class ToolIntegrationTest {
     @Test
     fun createBookmark_thenGetByVerse() = runBlocking {
         // Create bookmark
-        val createArgs = JSONObject().apply {
+        val createArgs = buildJsonObject {
             put("verseRef", "Gen.1.1")
             put("note", "In the beginning")
         }
@@ -99,7 +102,7 @@ class ToolIntegrationTest {
         assertTrue(createData.hasNote)
 
         // Get bookmarks for that verse
-        val getArgs = JSONObject().apply { put("verseRef", "Gen.1.1") }
+        val getArgs = buildJsonObject { put("verseRef", "Gen.1.1") }
         val getResult = GetBookmarksForVerseTool.execute(getArgs, context)
         assertTrue("Get should succeed", getResult is ToolResult.Success)
 
@@ -112,7 +115,7 @@ class ToolIntegrationTest {
 
     @Test
     fun createBookmark_sourcePromptIdSet() = runBlocking {
-        val args = JSONObject().apply { put("verseRef", "Matt.5.3") }
+        val args = buildJsonObject { put("verseRef", "Matt.5.3") }
         val result = CreateBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Success)
 
@@ -130,7 +133,7 @@ class ToolIntegrationTest {
         val real = CreateBookmarkTool.describeRange
         val result = try {
             CreateBookmarkTool.describeRange = { error("cannot name the range") }
-            CreateBookmarkTool.execute(JSONObject().apply { put("verseRef", "Rom.8.28") }, context)
+            CreateBookmarkTool.execute(buildJsonObject { put("verseRef", "Rom.8.28") }, context)
         } finally {
             CreateBookmarkTool.describeRange = real
         }
@@ -139,7 +142,7 @@ class ToolIntegrationTest {
     }
 
     private suspend fun bookmarksAt(ref: String): Int {
-        val r = GetBookmarksForVerseTool.execute(JSONObject().apply { put("verseRef", ref) }, context)
+        val r = GetBookmarksForVerseTool.execute(buildJsonObject { put("verseRef", ref) }, context)
         return ((r as ToolResult.Success).data as GetBookmarksForVerseTool.Result).bookmarkCount
     }
 
@@ -148,12 +151,12 @@ class ToolIntegrationTest {
     @Test
     fun addBookmarkNote_success() = runBlocking {
         // Create bookmark without note
-        val createArgs = JSONObject().apply { put("verseRef", "Rom.8.28") }
+        val createArgs = buildJsonObject { put("verseRef", "Rom.8.28") }
         val createResult = CreateBookmarkTool.execute(createArgs, context)
         val createData = (createResult as ToolResult.Success).data as CreateBookmarkTool.Result
 
         // Add note
-        val noteArgs = JSONObject().apply {
+        val noteArgs = buildJsonObject {
             put("bookmarkId", createData.id.toString())
             put("note", "God works all things for good")
         }
@@ -168,7 +171,7 @@ class ToolIntegrationTest {
     @Test
     fun addBookmarkNote_alreadyHasNote() = runBlocking {
         // Create bookmark with note
-        val createArgs = JSONObject().apply {
+        val createArgs = buildJsonObject {
             put("verseRef", "Ps.23.1")
             put("note", "Existing note")
         }
@@ -176,7 +179,7 @@ class ToolIntegrationTest {
         val bookmarkId = ((createResult as ToolResult.Success).data as CreateBookmarkTool.Result).id.toString()
 
         // Try to add another note
-        val noteArgs = JSONObject().apply {
+        val noteArgs = buildJsonObject {
             put("bookmarkId", bookmarkId)
             put("note", "New note")
         }
@@ -187,7 +190,7 @@ class ToolIntegrationTest {
 
     @Test
     fun addBookmarkNote_nonExistentBookmark() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", IdType().toString())
             put("note", "Note for missing bookmark")
         }
@@ -201,7 +204,7 @@ class ToolIntegrationTest {
     @Test
     fun updateBookmarkNote_success() = runBlocking {
         // Create bookmark with note
-        val createArgs = JSONObject().apply {
+        val createArgs = buildJsonObject {
             put("verseRef", "John.3.16")
             put("note", "Original note")
         }
@@ -209,7 +212,7 @@ class ToolIntegrationTest {
         val bookmarkId = ((createResult as ToolResult.Success).data as CreateBookmarkTool.Result).id
 
         // Update the note
-        val updateArgs = JSONObject().apply {
+        val updateArgs = buildJsonObject {
             put("bookmarkId", bookmarkId.toString())
             put("note", "Updated note text")
         }
@@ -229,7 +232,7 @@ class ToolIntegrationTest {
 
     @Test
     fun updateBookmarkNote_nonExistentBookmark() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", IdType().toString())
             put("note", "Note for missing bookmark")
         }
@@ -243,11 +246,11 @@ class ToolIntegrationTest {
     @Test
     fun createLabel_thenGetAll() = runBlocking {
         // Count labels before
-        val beforeResult = GetAllLabelsTool.execute(JSONObject(), context)
+        val beforeResult = GetAllLabelsTool.execute(buildJsonObject {}, context)
         val beforeCount = ((beforeResult as ToolResult.Success).data as GetAllLabelsTool.Result).labelCount
 
         // Create label
-        val createArgs = JSONObject().apply { put("name", "Test Study Label") }
+        val createArgs = buildJsonObject { put("name", "Test Study Label") }
         val createResult = CreateLabelTool.execute(createArgs, context)
         assertTrue("Create should succeed", createResult is ToolResult.Success)
 
@@ -255,7 +258,7 @@ class ToolIntegrationTest {
         assertEquals("Test Study Label", createData.name)
 
         // Get all labels and verify it exists
-        val afterResult = GetAllLabelsTool.execute(JSONObject(), context)
+        val afterResult = GetAllLabelsTool.execute(buildJsonObject {}, context)
         val afterData = (afterResult as ToolResult.Success).data as GetAllLabelsTool.Result
         assertEquals(beforeCount + 1, afterData.labelCount)
 
@@ -265,7 +268,7 @@ class ToolIntegrationTest {
 
     @Test
     fun createLabel_duplicateName_getsUniqueSuffix() = runBlocking {
-        val args = JSONObject().apply { put("name", "Duplicate Label") }
+        val args = buildJsonObject { put("name", "Duplicate Label") }
         val first = CreateLabelTool.execute(args, context)
         assertTrue("First create should succeed", first is ToolResult.Success)
         assertEquals("Duplicate Label", ((first as ToolResult.Success).data as CreateLabelTool.Result).name)
@@ -280,17 +283,17 @@ class ToolIntegrationTest {
     @Test
     fun addLabelToBookmark_success() = runBlocking {
         // Create bookmark
-        val bookmarkArgs = JSONObject().apply { put("verseRef", "Eph.2.8") }
+        val bookmarkArgs = buildJsonObject { put("verseRef", "Eph.2.8") }
         val bookmarkResult = CreateBookmarkTool.execute(bookmarkArgs, context)
         val bookmarkId = ((bookmarkResult as ToolResult.Success).data as CreateBookmarkTool.Result).id
 
         // Create label
-        val labelArgs = JSONObject().apply { put("name", "Grace") }
+        val labelArgs = buildJsonObject { put("name", "Grace") }
         val labelResult = CreateLabelTool.execute(labelArgs, context)
         val labelId = ((labelResult as ToolResult.Success).data as CreateLabelTool.Result).id
 
         // Link them
-        val linkArgs = JSONObject().apply {
+        val linkArgs = buildJsonObject {
             put("bookmarkId", bookmarkId.toString())
             put("labelId", labelId.toString())
         }
@@ -301,7 +304,7 @@ class ToolIntegrationTest {
         assertEquals("Grace", linkData.labelName)
 
         // Verify via GetBookmarksWithLabel
-        val queryArgs = JSONObject().apply { put("labelId", labelId.toString()) }
+        val queryArgs = buildJsonObject { put("labelId", labelId.toString()) }
         val queryResult = GetBookmarksWithLabelTool.execute(queryArgs, context)
         assertTrue(queryResult is ToolResult.Success)
 
@@ -316,15 +319,15 @@ class ToolIntegrationTest {
     fun addLabelToBookmark_alreadyLinked() = runBlocking {
         // Create bookmark and label
         val bookmarkId = ((CreateBookmarkTool.execute(
-            JSONObject().apply { put("verseRef", "Phil.4.13") }, context
+            buildJsonObject { put("verseRef", "Phil.4.13") }, context
         ) as ToolResult.Success).data as CreateBookmarkTool.Result).id.toString()
 
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Strength") }, context
+            buildJsonObject { put("name", "Strength") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Link once
-        val linkArgs = JSONObject().apply {
+        val linkArgs = buildJsonObject {
             put("bookmarkId", bookmarkId)
             put("labelId", labelId)
         }
@@ -341,12 +344,12 @@ class ToolIntegrationTest {
     @Test
     fun addStudyPadEntry_thenGetContent() = runBlocking {
         // Create label (which acts as StudyPad)
-        val labelArgs = JSONObject().apply { put("name", "Romans Study") }
+        val labelArgs = buildJsonObject { put("name", "Romans Study") }
         val labelResult = CreateLabelTool.execute(labelArgs, context)
         val labelId = ((labelResult as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Add text entry
-        val entryArgs = JSONObject().apply {
+        val entryArgs = buildJsonObject {
             put("labelId", labelId)
             put("text", "Paul's letter to the Romans explores justification by faith.")
             put("contentType", "MARKDOWN")
@@ -361,7 +364,7 @@ class ToolIntegrationTest {
         assertEquals("MARKDOWN", entryData.contentType)
 
         // Verify via GetStudyPadContent (full mode)
-        val contentArgs = JSONObject().apply {
+        val contentArgs = buildJsonObject {
             put("labelId", labelId)
             put("mode", "full")
         }
@@ -381,16 +384,16 @@ class ToolIntegrationTest {
     fun addStudyPadEntry_infoMode() = runBlocking {
         // Create label + add entry
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Info Test") }, context
+            buildJsonObject { put("name", "Info Test") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
-        AddStudyPadEntryTool.execute(JSONObject().apply {
+        AddStudyPadEntryTool.execute(buildJsonObject {
             put("labelId", labelId)
             put("text", "Some study content here")
         }, context)
 
         // Query in info mode
-        val infoArgs = JSONObject().apply {
+        val infoArgs = buildJsonObject {
             put("labelId", labelId)
             put("mode", "info")
         }
@@ -406,7 +409,7 @@ class ToolIntegrationTest {
 
     @Test
     fun addStudyPadEntry_nonExistentLabel() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("labelId", IdType().toString())
             put("text", "Some text")
         }
@@ -421,11 +424,11 @@ class ToolIntegrationTest {
     fun finishWithStudyPad_withRealLabel() = runBlocking {
         // Create label
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Finish Test Pad") }, context
+            buildJsonObject { put("name", "Finish Test Pad") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Finish with it
-        val finishArgs = JSONObject().apply {
+        val finishArgs = buildJsonObject {
             put("labelId", labelId)
             put("message", "Study pad ready")
         }
@@ -443,16 +446,16 @@ class ToolIntegrationTest {
     fun finishWithStudyPad_withScrollTo() = runBlocking {
         // Create label + add entry
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Scroll Test") }, context
+            buildJsonObject { put("name", "Scroll Test") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
-        val entryId = ((AddStudyPadEntryTool.execute(JSONObject().apply {
+        val entryId = ((AddStudyPadEntryTool.execute(buildJsonObject {
             put("labelId", labelId)
             put("text", "Scroll target")
         }, context) as ToolResult.Success).data as AddStudyPadEntryTool.Result).entryId.toString()
 
         // Finish with scrollTo
-        val finishArgs = JSONObject().apply {
+        val finishArgs = buildJsonObject {
             put("labelId", labelId)
             put("scrollToEntryId", entryId)
             put("message", "Scrolling to entry")
@@ -469,19 +472,19 @@ class ToolIntegrationTest {
     @Test
     fun studyPad_multipleEntries_indexMode() = runBlocking {
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Multi Entry Pad") }, context
+            buildJsonObject { put("name", "Multi Entry Pad") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Add 3 entries
         for (i in 1..3) {
-            AddStudyPadEntryTool.execute(JSONObject().apply {
+            AddStudyPadEntryTool.execute(buildJsonObject {
                 put("labelId", labelId)
                 put("text", "Entry number $i with some content")
             }, context)
         }
 
         // Query in index mode
-        val indexResult = GetStudyPadContentTool.execute(JSONObject().apply {
+        val indexResult = GetStudyPadContentTool.execute(buildJsonObject {
             put("labelId", labelId)
             put("mode", "index")
         }, context)
@@ -502,19 +505,19 @@ class ToolIntegrationTest {
     @Test
     fun studyPad_pageMode() = runBlocking {
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Page Mode Pad") }, context
+            buildJsonObject { put("name", "Page Mode Pad") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Add 5 entries
         for (i in 1..5) {
-            AddStudyPadEntryTool.execute(JSONObject().apply {
+            AddStudyPadEntryTool.execute(buildJsonObject {
                 put("labelId", labelId)
                 put("text", "Page entry $i")
             }, context)
         }
 
         // Get page with offset=1, limit=2
-        val pageResult = GetStudyPadContentTool.execute(JSONObject().apply {
+        val pageResult = GetStudyPadContentTool.execute(buildJsonObject {
             put("labelId", labelId)
             put("mode", "page")
             put("offset", 1)
@@ -533,18 +536,18 @@ class ToolIntegrationTest {
     @Test
     fun studyPad_pageMode_lastPage() = runBlocking {
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Last Page Pad") }, context
+            buildJsonObject { put("name", "Last Page Pad") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         for (i in 1..3) {
-            AddStudyPadEntryTool.execute(JSONObject().apply {
+            AddStudyPadEntryTool.execute(buildJsonObject {
                 put("labelId", labelId)
                 put("text", "Entry $i")
             }, context)
         }
 
         // Get last page
-        val pageResult = GetStudyPadContentTool.execute(JSONObject().apply {
+        val pageResult = GetStudyPadContentTool.execute(buildJsonObject {
             put("labelId", labelId)
             put("mode", "page")
             put("offset", 2)
@@ -561,22 +564,22 @@ class ToolIntegrationTest {
     fun getBookmarksWithLabel_fieldsParameter() = runBlocking {
         // Create label and bookmark with note
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Fields Test") }, context
+            buildJsonObject { put("name", "Fields Test") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
-        val bookmarkId = ((CreateBookmarkTool.execute(JSONObject().apply {
+        val bookmarkId = ((CreateBookmarkTool.execute(buildJsonObject {
             put("verseRef", "Isa.40.31")
             put("note", "They shall mount up with wings")
-            put("labelIds", org.json.JSONArray().apply { put(labelId) })
+            put("labelIds", buildJsonArray { add(labelId) })
         }, context) as ToolResult.Success).data as CreateBookmarkTool.Result).id.toString()
 
         // Query with notes field
-        val withNotes = GetBookmarksWithLabelTool.execute(JSONObject().apply {
+        val withNotes = GetBookmarksWithLabelTool.execute(buildJsonObject {
             put("labelId", labelId)
-            put("fields", org.json.JSONArray().apply {
-                put("verseRange")
-                put("verseName")
-                put("notes")
+            put("fields", buildJsonArray {
+                add("verseRange")
+                add("verseName")
+                add("notes")
             })
         }, context)
         val withNotesData = (withNotes as ToolResult.Success).data as GetBookmarksWithLabelTool.Result
@@ -584,11 +587,11 @@ class ToolIntegrationTest {
         assertEquals("They shall mount up with wings", bm.notes)
 
         // Query without notes field
-        val withoutNotes = GetBookmarksWithLabelTool.execute(JSONObject().apply {
+        val withoutNotes = GetBookmarksWithLabelTool.execute(buildJsonObject {
             put("labelId", labelId)
-            put("fields", org.json.JSONArray().apply {
-                put("verseRange")
-                put("verseName")
+            put("fields", buildJsonArray {
+                add("verseRange")
+                add("verseName")
             })
         }, context)
         val withoutNotesData = (withoutNotes as ToolResult.Success).data as GetBookmarksWithLabelTool.Result
@@ -598,7 +601,7 @@ class ToolIntegrationTest {
 
     @Test
     fun getBookmarksWithLabel_nonExistentLabel() = runBlocking {
-        val result = GetBookmarksWithLabelTool.execute(JSONObject().apply {
+        val result = GetBookmarksWithLabelTool.execute(buildJsonObject {
             put("labelId", IdType().toString())
         }, context)
         assertTrue(result is ToolResult.Error)
@@ -609,7 +612,7 @@ class ToolIntegrationTest {
 
     @Test
     fun createBookmark_noteWithEscapedNewlines() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("verseRef", "Gen.1.2")
             put("note", "Line one\\nLine two\\tTabbed")
         }
@@ -625,7 +628,7 @@ class ToolIntegrationTest {
 
     @Test
     fun createBookmark_htmlContentType() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("verseRef", "Gen.1.3")
             put("note", "<p>Let there be light</p>")
             put("noteContentType", "HTML")
@@ -644,10 +647,10 @@ class ToolIntegrationTest {
     @Test
     fun addBookmarkNote_htmlContentType() = runBlocking {
         val bookmarkId = ((CreateBookmarkTool.execute(
-            JSONObject().apply { put("verseRef", "Gen.1.4") }, context
+            buildJsonObject { put("verseRef", "Gen.1.4") }, context
         ) as ToolResult.Success).data as CreateBookmarkTool.Result).id.toString()
 
-        val noteResult = AddBookmarkNoteTool.execute(JSONObject().apply {
+        val noteResult = AddBookmarkNoteTool.execute(buildJsonObject {
             put("bookmarkId", bookmarkId)
             put("note", "<b>Bold note</b>")
             put("contentType", "HTML")
@@ -661,10 +664,10 @@ class ToolIntegrationTest {
     @Test
     fun addBookmarkNote_notesSourcePromptIdSet() = runBlocking {
         val bookmarkId = ((CreateBookmarkTool.execute(
-            JSONObject().apply { put("verseRef", "Gen.1.5") }, context
+            buildJsonObject { put("verseRef", "Gen.1.5") }, context
         ) as ToolResult.Success).data as CreateBookmarkTool.Result).id
 
-        AddBookmarkNoteTool.execute(JSONObject().apply {
+        AddBookmarkNoteTool.execute(buildJsonObject {
             put("bookmarkId", bookmarkId.toString())
             put("note", "AI-generated note")
         }, context)
@@ -679,13 +682,13 @@ class ToolIntegrationTest {
     @Test
     fun updateBookmarkNote_normalizesLlmText() = runBlocking {
         val bookmarkId = ((CreateBookmarkTool.execute(
-            JSONObject().apply {
+            buildJsonObject {
                 put("verseRef", "Gen.1.6")
                 put("note", "old")
             }, context
         ) as ToolResult.Success).data as CreateBookmarkTool.Result).id
 
-        UpdateBookmarkNoteTool.execute(JSONObject().apply {
+        UpdateBookmarkNoteTool.execute(buildJsonObject {
             put("bookmarkId", bookmarkId.toString())
             put("note", "Line1\\nLine2")
         }, context)
@@ -700,10 +703,10 @@ class ToolIntegrationTest {
     @Test
     fun addStudyPadEntry_htmlContentType() = runBlocking {
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "HTML Pad") }, context
+            buildJsonObject { put("name", "HTML Pad") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
-        val entryResult = AddStudyPadEntryTool.execute(JSONObject().apply {
+        val entryResult = AddStudyPadEntryTool.execute(buildJsonObject {
             put("labelId", labelId)
             put("text", "<h1>Title</h1><p>Content</p>")
             put("contentType", "HTML")
@@ -712,7 +715,7 @@ class ToolIntegrationTest {
         assertEquals("HTML", ((entryResult as ToolResult.Success).data as AddStudyPadEntryTool.Result).contentType)
 
         // Verify via full content
-        val contentResult = GetStudyPadContentTool.execute(JSONObject().apply {
+        val contentResult = GetStudyPadContentTool.execute(buildJsonObject {
             put("labelId", labelId)
         }, context)
         val contentData = (contentResult as ToolResult.Success).data as GetStudyPadContentTool.EntriesResult
@@ -725,7 +728,7 @@ class ToolIntegrationTest {
 
     @Test
     fun getAllLabels_returnsLabels() = runBlocking {
-        val result = GetAllLabelsTool.execute(JSONObject(), context)
+        val result = GetAllLabelsTool.execute(buildJsonObject {}, context)
         assertTrue(result is ToolResult.Success)
         val data = (result as ToolResult.Success).data as GetAllLabelsTool.Result
         assertTrue(data.labelCount >= 0)
@@ -738,14 +741,14 @@ class ToolIntegrationTest {
     fun createBookmark_withLabels() = runBlocking {
         // Create label first
         val labelId = ((CreateLabelTool.execute(
-            JSONObject().apply { put("name", "Favorites") }, context
+            buildJsonObject { put("name", "Favorites") }, context
         ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Create bookmark with label
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("verseRef", "Prov.3.5")
             put("note", "Trust in the Lord")
-            put("labelIds", org.json.JSONArray().apply { put(labelId) })
+            put("labelIds", buildJsonArray { add(labelId) })
         }
         val result = CreateBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Success)
@@ -755,7 +758,7 @@ class ToolIntegrationTest {
 
         // Verify bookmark appears under the label
         val queryResult = GetBookmarksWithLabelTool.execute(
-            JSONObject().apply { put("labelId", labelId) }, context
+            buildJsonObject { put("labelId", labelId) }, context
         )
         val queryData = (queryResult as ToolResult.Success).data as GetBookmarksWithLabelTool.Result
         assertEquals(1, queryData.bookmarkCount)
@@ -765,7 +768,7 @@ class ToolIntegrationTest {
 
     @Test
     fun getMyDocuments_emptyInitially() = runBlocking {
-        val result = GetMyDocumentsTool.execute(JSONObject(), context)
+        val result = GetMyDocumentsTool.execute(buildJsonObject {}, context)
         assertTrue(result is ToolResult.Success)
 
         val data = (result as ToolResult.Success).data as GetMyDocumentsTool.Result
@@ -779,7 +782,7 @@ class ToolIntegrationTest {
         // Ensure AI Documents book exists
         MyDocumentBookManager.getOrCreateAIDocument()
 
-        val result = GetMyDocumentsTool.execute(JSONObject(), context)
+        val result = GetMyDocumentsTool.execute(buildJsonObject {}, context)
         val data = (result as ToolResult.Success).data as GetMyDocumentsTool.Result
 
         assertTrue(data.documentCount >= 1)
@@ -795,7 +798,7 @@ class ToolIntegrationTest {
 
     @Test
     fun createMyDocument_success() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "Test Study Notes")
             put("description", "Notes on Romans")
         }
@@ -808,14 +811,14 @@ class ToolIntegrationTest {
         assertTrue(data.initials.startsWith("MyDoc_"))
 
         // Verify it appears in document list
-        val listResult = GetMyDocumentsTool.execute(JSONObject(), context)
+        val listResult = GetMyDocumentsTool.execute(buildJsonObject {}, context)
         val listData = (listResult as ToolResult.Success).data as GetMyDocumentsTool.Result
         assertTrue(listData.documents.any { it.id == data.id })
     }
 
     @Test
     fun createMyDocument_missingName() = runBlocking {
-        val result = CreateMyDocumentTool.execute(JSONObject(), context)
+        val result = CreateMyDocumentTool.execute(buildJsonObject {}, context)
         assertTrue(result is ToolResult.Error)
     }
 
@@ -823,7 +826,7 @@ class ToolIntegrationTest {
 
     @Test
     fun addMyDocumentPage_toAiDocuments() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Test Page")
             put("content", "# Hello World\n\nThis is a test page.")
@@ -841,13 +844,13 @@ class ToolIntegrationTest {
     @Test
     fun addMyDocumentPage_toCustomDocument() = runBlocking {
         // Create document first
-        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+        val docResult = CreateMyDocumentTool.execute(buildJsonObject {
             put("name", "Custom Doc")
         }, context)
         val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
 
         // Add page
-        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val pageResult = AddMyDocumentPageTool.execute(buildJsonObject {
             put("documentId", docData.id.toString())
             put("title", "Chapter 1")
             put("content", "Content here")
@@ -861,7 +864,7 @@ class ToolIntegrationTest {
 
     @Test
     fun addMyDocumentPage_normalizesLlmText() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Normalize Test")
             put("content", "Line1\\nLine2\\tTabbed")
@@ -877,7 +880,7 @@ class ToolIntegrationTest {
 
     @Test
     fun addMyDocumentPage_missingTitle() = runBlocking {
-        val result = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val result = AddMyDocumentPageTool.execute(buildJsonObject {
             put("content", "Some content")
         }, context)
         assertTrue(result is ToolResult.Error)
@@ -885,7 +888,7 @@ class ToolIntegrationTest {
 
     @Test
     fun addMyDocumentPage_documentNotFound() = runBlocking {
-        val result = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val result = AddMyDocumentPageTool.execute(buildJsonObject {
             put("documentId", IdType().toString())
             put("title", "Title")
             put("content", "Content")
@@ -899,24 +902,24 @@ class ToolIntegrationTest {
     @Test
     fun getMyDocumentPages_withoutContent() = runBlocking {
         // Create doc with pages
-        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+        val docResult = CreateMyDocumentTool.execute(buildJsonObject {
             put("name", "Pages Test")
         }, context)
         val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
 
-        AddMyDocumentPageTool.execute(JSONObject().apply {
+        AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", docData.initials)
             put("title", "Page A")
             put("content", "Content A")
         }, context)
-        AddMyDocumentPageTool.execute(JSONObject().apply {
+        AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", docData.initials)
             put("title", "Page B")
             put("content", "Content B")
         }, context)
 
         // List without content
-        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+        val listResult = GetMyDocumentPagesTool.execute(buildJsonObject {
             put("initials", docData.initials)
         }, context)
         assertTrue(listResult is ToolResult.Success)
@@ -931,18 +934,18 @@ class ToolIntegrationTest {
 
     @Test
     fun getMyDocumentPages_withContent() = runBlocking {
-        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+        val docResult = CreateMyDocumentTool.execute(buildJsonObject {
             put("name", "Content Test")
         }, context)
         val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
 
-        AddMyDocumentPageTool.execute(JSONObject().apply {
+        AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", docData.initials)
             put("title", "Page 1")
             put("content", "Hello World")
         }, context)
 
-        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+        val listResult = GetMyDocumentPagesTool.execute(buildJsonObject {
             put("initials", docData.initials)
             put("includeContent", true)
         }, context)
@@ -953,7 +956,7 @@ class ToolIntegrationTest {
 
     @Test
     fun getMyDocumentPages_documentNotFound() = runBlocking {
-        val result = GetMyDocumentPagesTool.execute(JSONObject().apply {
+        val result = GetMyDocumentPagesTool.execute(buildJsonObject {
             put("initials", "NonExistent")
         }, context)
         assertTrue(result is ToolResult.Error)
@@ -962,7 +965,7 @@ class ToolIntegrationTest {
 
     @Test
     fun getMyDocumentPages_missingIdentifier() = runBlocking {
-        val result = GetMyDocumentPagesTool.execute(JSONObject(), context)
+        val result = GetMyDocumentPagesTool.execute(buildJsonObject {}, context)
         assertTrue(result is ToolResult.Error)
         assertEquals("MISSING_IDENTIFIER", (result as ToolResult.Error).code)
     }
@@ -971,14 +974,14 @@ class ToolIntegrationTest {
 
     @Test
     fun editMyDocumentPage_updateTitle() = runBlocking {
-        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val pageResult = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Original Title")
             put("content", "Content")
         }, context)
         val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
 
-        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+        val editResult = EditMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", pageId.toString())
             put("title", "Updated Title")
         }, context)
@@ -990,14 +993,14 @@ class ToolIntegrationTest {
 
     @Test
     fun editMyDocumentPage_updateContent() = runBlocking {
-        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val pageResult = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Edit Content Test")
             put("content", "Old content")
         }, context)
         val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
 
-        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+        val editResult = EditMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", pageId.toString())
             put("content", "New content")
         }, context)
@@ -1010,14 +1013,14 @@ class ToolIntegrationTest {
 
     @Test
     fun editMyDocumentPage_updateOrderNumber() = runBlocking {
-        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val pageResult = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Order Test")
             put("content", "Content")
         }, context)
         val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
 
-        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+        val editResult = EditMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", pageId.toString())
             put("orderNumber", 5)
         }, context)
@@ -1029,7 +1032,7 @@ class ToolIntegrationTest {
 
     @Test
     fun editMyDocumentPage_pageNotFound() = runBlocking {
-        val result = EditMyDocumentPageTool.execute(JSONObject().apply {
+        val result = EditMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", IdType().toString())
             put("title", "New title")
         }, context)
@@ -1039,14 +1042,14 @@ class ToolIntegrationTest {
 
     @Test
     fun editMyDocumentPage_nothingToUpdate() = runBlocking {
-        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val pageResult = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "No Update Test")
             put("content", "Content")
         }, context)
         val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
 
-        val result = EditMyDocumentPageTool.execute(JSONObject().apply {
+        val result = EditMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", pageId.toString())
         }, context)
         assertTrue(result is ToolResult.Error)
@@ -1056,14 +1059,14 @@ class ToolIntegrationTest {
 
     @Test
     fun deleteMyDocumentPage_success() = runBlocking {
-        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val pageResult = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Delete Me")
             put("content", "To be deleted")
         }, context)
         val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
 
-        val deleteResult = DeleteMyDocumentPageTool.execute(JSONObject().apply {
+        val deleteResult = DeleteMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", pageId.toString())
         }, context)
         assertTrue(deleteResult is ToolResult.Success)
@@ -1079,7 +1082,7 @@ class ToolIntegrationTest {
 
     @Test
     fun deleteMyDocumentPage_pageNotFound() = runBlocking {
-        val result = DeleteMyDocumentPageTool.execute(JSONObject().apply {
+        val result = DeleteMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", IdType().toString())
         }, context)
         assertTrue(result is ToolResult.Error)
@@ -1091,7 +1094,7 @@ class ToolIntegrationTest {
     @Test
     fun addMyDocumentPage_noPermissionForAiDocuments() {
         // Adding to AI Documents should not require permission
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Test")
             put("content", "Content")
@@ -1104,7 +1107,7 @@ class ToolIntegrationTest {
 
     @Test
     fun addMyDocumentPage_requiresPermissionForOtherDocuments() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("initials", "SomeOtherDoc")
             put("title", "Test")
             put("content", "Content")
@@ -1118,7 +1121,7 @@ class ToolIntegrationTest {
     @Test
     fun editMyDocumentPage_noPermissionForSessionPages() = runBlocking {
         // Add a page and simulate AgentExecutor tracking the created page ID
-        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val pageResult = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Session Page")
             put("content", "Content")
@@ -1129,7 +1132,7 @@ class ToolIntegrationTest {
         val updatedContext = context.copy(createdPageIds = context.createdPageIds + pageId)
 
         // Edit should not require permission for pages created in this session
-        val editArgs = JSONObject().apply {
+        val editArgs = buildJsonObject {
             put("pageId", pageId.toString())
             put("title", "New Title")
         }
@@ -1141,7 +1144,7 @@ class ToolIntegrationTest {
 
     @Test
     fun editMyDocumentPage_requiresPermissionForOtherPages() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("pageId", IdType().toString())
             put("title", "New Title")
         }
@@ -1156,20 +1159,20 @@ class ToolIntegrationTest {
     @Test
     fun myDocuments_fullWorkflow() = runBlocking {
         // 1. Create document
-        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+        val docResult = CreateMyDocumentTool.execute(buildJsonObject {
             put("name", "Workflow Test")
         }, context)
         val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
 
         // 2. Add two pages
-        val page1Result = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val page1Result = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", docData.initials)
             put("title", "Introduction")
             put("content", "This is the introduction.")
         }, context)
         val page1Id = ((page1Result as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
 
-        val page2Result = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val page2Result = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", docData.initials)
             put("title", "Chapter 1")
             put("content", "This is chapter 1.")
@@ -1177,7 +1180,7 @@ class ToolIntegrationTest {
         val page2Id = ((page2Result as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
 
         // 3. List pages
-        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+        val listResult = GetMyDocumentPagesTool.execute(buildJsonObject {
             put("initials", docData.initials)
             put("includeContent", true)
         }, context)
@@ -1185,14 +1188,14 @@ class ToolIntegrationTest {
         assertEquals(2, listData.pageCount)
 
         // 4. Edit first page
-        EditMyDocumentPageTool.execute(JSONObject().apply {
+        EditMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", page1Id.toString())
             put("title", "Preface")
             put("content", "Updated introduction content.")
         }, context)
 
         // 5. Verify edit
-        val verifyResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+        val verifyResult = GetMyDocumentPagesTool.execute(buildJsonObject {
             put("initials", docData.initials)
             put("includeContent", true)
         }, context)
@@ -1202,12 +1205,12 @@ class ToolIntegrationTest {
         assertEquals("Updated introduction content.", editedPage?.content)
 
         // 6. Delete second page
-        DeleteMyDocumentPageTool.execute(JSONObject().apply {
+        DeleteMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", page2Id.toString())
         }, context)
 
         // 7. Verify deletion
-        val finalResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+        val finalResult = GetMyDocumentPagesTool.execute(buildJsonObject {
             put("initials", docData.initials)
         }, context)
         val finalData = (finalResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
@@ -1220,7 +1223,7 @@ class ToolIntegrationTest {
     @Test
     fun finishWithMyDocumentPage_success() = runBlocking {
         // Create a page first
-        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+        val pageResult = AddMyDocumentPageTool.execute(buildJsonObject {
             put("initials", "AIDocuments")
             put("title", "Finish Test Page")
             put("content", "Some content to show")
@@ -1228,7 +1231,7 @@ class ToolIntegrationTest {
         val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
 
         // Finish with that page
-        val finishResult = FinishWithMyDocumentPageTool.execute(JSONObject().apply {
+        val finishResult = FinishWithMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", pageId.toString())
             put("message", "Created and opening page")
         }, context)
@@ -1243,7 +1246,7 @@ class ToolIntegrationTest {
 
     @Test
     fun finishWithMyDocumentPage_pageNotFound() = runBlocking {
-        val result = FinishWithMyDocumentPageTool.execute(JSONObject().apply {
+        val result = FinishWithMyDocumentPageTool.execute(buildJsonObject {
             put("pageId", IdType().toString())
             put("message", "Test")
         }, context)
@@ -1253,7 +1256,7 @@ class ToolIntegrationTest {
 
     @Test
     fun finishWithMyDocumentPage_missingPageId() = runBlocking {
-        val result = FinishWithMyDocumentPageTool.execute(JSONObject().apply {
+        val result = FinishWithMyDocumentPageTool.execute(buildJsonObject {
             put("message", "Test")
         }, context)
         assertTrue(result is ToolResult.Error)
@@ -1267,11 +1270,11 @@ class ToolIntegrationTest {
         val links = mutableListOf<BookmarkChange.BookmarkToLabelUpserted>()
         val subscription = bookmarkControl.changes.subscribe { if (it is BookmarkChange.BookmarkToLabelUpserted) links += it }
         try {
-            val args = JSONObject().apply {
+            val args = buildJsonObject {
                 put("name", "Link Study")
-                put("items", org.json.JSONArray().apply {
-                    put(JSONObject().apply { put("type", "bookmark"); put("verseRef", "Rom.1.1") })
-                    put(JSONObject().apply { put("type", "bookmark"); put("verseRef", "Rom.1.2") })
+                put("items", buildJsonArray {
+                    add(buildJsonObject { put("type", "bookmark"); put("verseRef", "Rom.1.1") })
+                    add(buildJsonObject { put("type", "bookmark"); put("verseRef", "Rom.1.2") })
                 })
             }
             val data = (CreateStudyPadTool.execute(args, context) as ToolResult.Success).data as CreateStudyPadTool.Result
@@ -1283,23 +1286,23 @@ class ToolIntegrationTest {
 
     @Test
     fun createStudyPad_textAndBookmarks() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "Romans Study")
-            put("items", org.json.JSONArray().apply {
-                put(JSONObject().apply {
+            put("items", buildJsonArray {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "# Introduction\nPaul's letter to the Romans.")
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "bookmark")
                     put("verseRef", "Rom.1.1")
                     put("text", "Paul introduces himself")
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "## Key Theme: Justification")
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "bookmark")
                     put("verseRef", "Rom.3.23-24")
                 })
@@ -1316,7 +1319,7 @@ class ToolIntegrationTest {
         assertTrue(data.errors.isEmpty())
 
         // Verify StudyPad content via GetStudyPadContent
-        val contentResult = GetStudyPadContentTool.execute(JSONObject().apply {
+        val contentResult = GetStudyPadContentTool.execute(buildJsonObject {
             put("labelId", data.labelId.toString())
         }, context)
         assertTrue(contentResult is ToolResult.Success)
@@ -1344,19 +1347,19 @@ class ToolIntegrationTest {
 
     @Test
     fun createStudyPad_withIndentLevels() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "Indented Study")
-            put("items", org.json.JSONArray().apply {
-                put(JSONObject().apply {
+            put("items", buildJsonArray {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "Top level heading")
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "bookmark")
                     put("verseRef", "Gen.1.1")
                     put("indentLevel", 1)
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "Indented note")
                     put("indentLevel", 2)
@@ -1384,10 +1387,10 @@ class ToolIntegrationTest {
 
     @Test
     fun createStudyPad_emptyName() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "")
-            put("items", org.json.JSONArray().apply {
-                put(JSONObject().apply {
+            put("items", buildJsonArray {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "Content")
                 })
@@ -1399,9 +1402,9 @@ class ToolIntegrationTest {
 
     @Test
     fun createStudyPad_emptyItems() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "Empty Study")
-            put("items", org.json.JSONArray())
+            put("items", buildJsonArray {})
         }
         val result = CreateStudyPadTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
@@ -1410,10 +1413,10 @@ class ToolIntegrationTest {
 
     @Test
     fun createStudyPad_duplicateName_getsUniqueSuffix() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "Duplicate Study")
-            put("items", org.json.JSONArray().apply {
-                put(JSONObject().apply {
+            put("items", buildJsonArray {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "Content")
                 })
@@ -1436,18 +1439,18 @@ class ToolIntegrationTest {
 
     @Test
     fun createStudyPad_invalidVerseRef_partialSuccess() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "Partial Study")
-            put("items", org.json.JSONArray().apply {
-                put(JSONObject().apply {
+            put("items", buildJsonArray {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "Valid text entry")
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "bookmark")
                     put("verseRef", "NotABook.99.99")
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "bookmark")
                     put("verseRef", "John.3.16")
                 })
@@ -1466,14 +1469,14 @@ class ToolIntegrationTest {
 
     @Test
     fun createStudyPad_bookmarkMissingVerseRef() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "Missing Ref Study")
-            put("items", org.json.JSONArray().apply {
-                put(JSONObject().apply {
+            put("items", buildJsonArray {
+                add(buildJsonObject {
                     put("type", "bookmark")
                     // no verseRef
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "Valid entry")
                 })
@@ -1491,14 +1494,14 @@ class ToolIntegrationTest {
 
     @Test
     fun createStudyPad_sourcePromptIdSet() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("name", "Prompt Tracking Study")
-            put("items", org.json.JSONArray().apply {
-                put(JSONObject().apply {
+            put("items", buildJsonArray {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "AI generated text")
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "bookmark")
                     put("verseRef", "Ps.23.1")
                     put("text", "AI note")
@@ -1524,14 +1527,14 @@ class ToolIntegrationTest {
     @Test
     fun createStudyPad_thenFinishWithStudyPad() = runBlocking {
         // Create StudyPad
-        val createArgs = JSONObject().apply {
+        val createArgs = buildJsonObject {
             put("name", "Finish Test Study")
-            put("items", org.json.JSONArray().apply {
-                put(JSONObject().apply {
+            put("items", buildJsonArray {
+                add(buildJsonObject {
                     put("type", "text")
                     put("text", "Study content")
                 })
-                put(JSONObject().apply {
+                add(buildJsonObject {
                     put("type", "bookmark")
                     put("verseRef", "Matt.5.3")
                 })
@@ -1541,7 +1544,7 @@ class ToolIntegrationTest {
         val labelId = ((createResult as ToolResult.Success).data as CreateStudyPadTool.Result).labelId
 
         // Finish with StudyPad
-        val finishArgs = JSONObject().apply {
+        val finishArgs = buildJsonObject {
             put("labelId", labelId.toString())
             put("message", "Study created")
         }

@@ -32,7 +32,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.mydocument.MyDocumentBookManager
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for creating a new My Documents book.
@@ -76,16 +77,16 @@ object CreateMyDocumentTool : Tool {
         required: [name]
     """)
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
         return BibleApplication.application.getString(R.string.action_create_my_document, name)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         return arguments.optString("name", "").takeIf { it.isNotBlank() }
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

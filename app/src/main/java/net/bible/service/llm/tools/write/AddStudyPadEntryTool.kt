@@ -33,7 +33,8 @@ import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for adding a text entry to a StudyPad.
@@ -93,20 +94,20 @@ object AddStudyPadEntryTool : Tool {
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
         val labelName = label?.name ?: shortId(labelId)
         return BibleApplication.application.getString(R.string.action_add_entry_to_studypad, labelName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val contentType = arguments.optString("contentType", "MARKDOWN")
         return "${shortId(labelId)} ($contentType)"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

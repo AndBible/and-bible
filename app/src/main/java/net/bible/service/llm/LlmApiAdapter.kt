@@ -29,7 +29,7 @@ import kotlinx.serialization.json.JsonPrimitive
 
 import net.bible.service.llm.tools.ToolDefinition
 import net.bible.sharedcore.log.Log
-import org.json.JSONObject
+import net.bible.service.llm.tools.parseToolArguments
 
 /** Shared Json instance for all LLM serialization. */
 val llmJson = Json { ignoreUnknownKeys = true; isLenient = true; encodeDefaults = true; explicitNulls = false }
@@ -40,11 +40,7 @@ data class ToolCall(
     val arguments: String,
     val thoughtSignature: String? = null
 ) {
-    fun parseArguments(): JSONObject = if (arguments.isBlank()) {
-        JSONObject()
-    } else {
-        JSONObject(arguments)
-    }
+    fun parseArguments(): JsonObject = parseToolArguments(arguments)
 }
 
 sealed class ParsedResponse {

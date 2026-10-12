@@ -35,7 +35,8 @@ import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for listing the table of contents / navigation keys of a GenBook module.
@@ -98,7 +99,7 @@ object GetGenBookKeysTool : Tool {
         required: [book]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         return arguments.optString("book", "").takeIf { it.isNotBlank() }
     }
 
@@ -108,7 +109,7 @@ object GetGenBookKeysTool : Tool {
         return application.getString(R.string.tool_log_genbook_key_count, data.returnedCount, data.totalCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

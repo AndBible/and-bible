@@ -33,7 +33,8 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for deleting a My Documents page.
@@ -71,7 +72,7 @@ object DeleteMyDocumentPageTool : Tool {
         required: [pageId]
     """)
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val pageIdStr = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val page = try { dao.pageById(IdType(pageIdStr)) } catch (_: Exception) { null }
@@ -79,12 +80,12 @@ object DeleteMyDocumentPageTool : Tool {
         return BibleApplication.application.getString(R.string.action_delete_my_document_page, pageName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val pageId = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         return shortId(pageId)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

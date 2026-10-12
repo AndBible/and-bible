@@ -31,7 +31,8 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.isAIDocument
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for listing all My Documents books.
@@ -80,7 +81,7 @@ object GetMyDocumentsTool : Tool {
         return application.getString(R.string.tool_log_my_document_count, data.documentCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val documents = dao.allDocuments()
 

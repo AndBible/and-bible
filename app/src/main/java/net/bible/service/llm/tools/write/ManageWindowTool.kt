@@ -33,7 +33,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for managing window state: close, minimize, or restore.
@@ -90,7 +91,7 @@ object ManageWindowTool : Tool {
 
     private val windowControl get() = GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val app = BibleApplication.application
         val action = try {
             Action.valueOf(arguments.optString("action", "").uppercase())
@@ -107,7 +108,7 @@ object ManageWindowTool : Tool {
         }
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val action = arguments.optString("action", "").takeIf { it.isNotBlank() } ?: return null
         val windowId = arguments.optString("windowId", "")
         return "$action ${shortId(windowId)}"
@@ -120,7 +121,7 @@ object ManageWindowTool : Tool {
         return "${data.action} → $stateStr"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

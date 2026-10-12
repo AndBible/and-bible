@@ -31,7 +31,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for searching StudyPad content.
@@ -77,7 +78,7 @@ object SearchStudyPadsTool : Tool {
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null
         return "\"$query\""
     }
@@ -87,7 +88,7 @@ object SearchStudyPadsTool : Tool {
         return application.getString(R.string.tool_log_study_pad_count, (result.data as Result).studyPadCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

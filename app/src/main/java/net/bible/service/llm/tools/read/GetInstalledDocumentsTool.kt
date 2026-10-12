@@ -34,8 +34,8 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.index.IndexStatus
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for listing installed documents.
@@ -79,7 +79,7 @@ object GetInstalledDocumentsTool : Tool {
             description: Optional category filter. If not specified, returns all documents.
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val category = arguments.optString("category", "").takeIf { it.isNotBlank() }
         return category // null if no category filter (shows all)
     }
@@ -89,7 +89,7 @@ object GetInstalledDocumentsTool : Tool {
         return application.getString(R.string.tool_log_document_count, (result.data as Result).documentCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

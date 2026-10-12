@@ -29,7 +29,8 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for listing all available labels.
@@ -70,7 +71,7 @@ object GetAllLabelsTool : Tool {
         return application.getString(R.string.tool_log_label_count, (result.data as Result).labelCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         return try {
             val labels = dao.allLabelsSortedByName()
 

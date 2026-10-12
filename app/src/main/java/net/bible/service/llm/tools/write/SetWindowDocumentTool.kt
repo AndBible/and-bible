@@ -39,7 +39,8 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.versification.system.Versifications
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for changing the document and/or key displayed in a window.
@@ -92,7 +93,7 @@ object SetWindowDocumentTool : Tool {
 
     private val windowControl get() = GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val app = BibleApplication.application
         val initials = arguments.optString("documentInitials", "").takeIf { it.isNotBlank() } ?: return null
         val windowId = arguments.optString("windowId", "").takeIf { it.isNotBlank() }
@@ -105,7 +106,7 @@ object SetWindowDocumentTool : Tool {
         }
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val initials = arguments.optString("documentInitials", "").takeIf { it.isNotBlank() } ?: return null
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() }
         val windowId = arguments.optString("windowId", "").takeIf { it.isNotBlank() }
@@ -122,7 +123,7 @@ object SetWindowDocumentTool : Tool {
         return "${data.documentInitials} @ ${data.currentKeyName ?: data.currentKey ?: "?"}"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

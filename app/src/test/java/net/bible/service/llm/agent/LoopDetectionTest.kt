@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.agent
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.llm.AgentTool
@@ -39,9 +42,9 @@ class LoopDetectionTest {
     private fun sig(tool: AgentTool, args: String): ToolCallSignature {
         // Must match the normalization logic in extractSignatures (sorted keys)
         val normalized = try {
-            val json = org.json.JSONObject(args)
-            org.json.JSONObject().apply {
-                json.keys().asSequence().sorted().forEach { key -> put(key, json.get(key)) }
+            val json = parseToolArguments(args)
+            buildJsonObject {
+                json.keys.asSequence().sorted().forEach { key -> put(key, json.getValue(key)) }
             }.toString()
         } catch (_: Exception) { args }
         return ToolCallSignature(tool, normalized.hashCode())
@@ -160,6 +163,13 @@ class LoopDetectionTest {
             ToolCall(id = "2", tool = searchBible, arguments = """{"query":"love"}""")
         )
         assertEquals(extractSignatures(calls1)[0], extractSignatures(calls2)[0])
+    }
+
+    @Test
+    fun extractSignatures_numericSpellingsRetainFrameworkCanonicalHash() {
+        val texts = listOf("""{"n":1000,"nested":[0,1]}""", """{"nested":[0.0,1.0],"n":1e3}""")
+        val signatures = texts.map { extractSignatures(listOf(ToolCall("id", searchBible, it))).single() }
+        assertEquals(signatures[0], signatures[1])
     }
 
     @Test

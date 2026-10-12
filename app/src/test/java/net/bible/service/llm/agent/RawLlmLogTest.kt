@@ -54,13 +54,20 @@ class RawLlmLogTest {
         assertTrue(formatted.contains("=== USER ==="))
         assertTrue(formatted.contains("User message"))
         assertTrue(formatted.contains("=== RAW API RESPONSE (iteration 1) ==="))
-        assertTrue(formatted.contains("""{"choices":[]}"""))
+        assertTrue(formatted.contains("{\n  \"choices\": []\n}"))
         assertTrue(formatted.contains("=== TOOL_CALL: searchVerses [call_1] ==="))
-        assertTrue(formatted.contains("""{"query":"love"}"""))
+        assertTrue(formatted.contains("{\n  \"query\": \"love\"\n}"))
         assertTrue(formatted.contains("=== TOOL_RESULT [call_1] ==="))
-        assertTrue(formatted.contains("""{"result":"found"}"""))
+        assertTrue(formatted.contains("{\n  \"result\": \"found\"\n}"))
         assertTrue(formatted.contains("=== ASSISTANT ==="))
         assertTrue(formatted.contains("Final response"))
+    }
+
+    @Test
+    fun `format preserves malformed JSON instead of dropping the entry`() {
+        val log = RawLlmLog()
+        log.addRawApiResponse(1, "{broken JSON")
+        assertTrue(log.format().contains("{broken JSON"))
     }
 
     @Test

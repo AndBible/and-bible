@@ -37,8 +37,8 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for searching Bible text by Strong's concordance number.
@@ -104,7 +104,7 @@ object SearchByStrongsNumberTool : Tool {
         required: [strongsNumber]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val strongs = arguments.optString("strongsNumber", "").takeIf { it.isNotBlank() } ?: return null
         val book = arguments.optString("book", "").takeIf { it.isNotBlank() }
         return if (book != null) "$strongs ($book)" else strongs
@@ -141,7 +141,7 @@ object SearchByStrongsNumberTool : Tool {
             .firstOrNull()
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

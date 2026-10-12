@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.agent
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -119,7 +122,7 @@ class AgentExecutorDialogWaitingTest {
 
     @Test fun permissionDialogAnnouncesWaitingWithTheToolNameWhenTheAppLeaves() = runTest {
         val toolName = ToolRegistry.getDisplayName(GetCommentariesTool)
-        val result = async { callPrivate("showPermissionDialog", GetCommentariesTool, JSONObject(), ws) }
+        val result = async { callPrivate("showPermissionDialog", GetCommentariesTool, buildJsonObject {}, ws) }
         yield()
         assertNotNull(permissions.pending.value)
         CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
@@ -132,7 +135,7 @@ class AgentExecutorDialogWaitingTest {
     /** The "always allow" confirmation is part of the same decision: no false between the two dialogs. */
     @Test fun alwaysAllowConfirmationStaysInsideTheAnnouncedWait() = runTest {
         val toolName = ToolRegistry.getDisplayName(GetCommentariesTool)
-        val result = async { callPrivate("showPermissionDialog", GetCommentariesTool, JSONObject(), ws) }
+        val result = async { callPrivate("showPermissionDialog", GetCommentariesTool, buildJsonObject {}, ws) }
         yield()
         CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
         permissions.respond(AgentPermissionChoice.ALLOW_ALWAYS)

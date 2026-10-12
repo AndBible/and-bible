@@ -66,7 +66,8 @@ import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
-import org.json.JSONObject
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
 import java.io.StringReader
 import net.bible.service.db.blockingDb
 
@@ -79,11 +80,11 @@ internal data class ToolCallSignature(val tool: AgentTool, val argsHash: Int)
 internal fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignature> =
     toolCalls.map { tc ->
         val normalized = try {
-            val json = JSONObject(tc.arguments)
+            val json = parseToolArguments(tc.arguments)
             // Sort keys for consistent hashing regardless of key order
-            JSONObject().apply {
-                json.keys().asSequence().sorted().forEach { key -> put(key, json.get(key)) }
-            }.toString()
+            buildJsonObject {
+                json.keys.sorted().forEach { key -> put(key, json.getValue(key)) }
+            }.frameworkJson()
         } catch (_: Exception) { tc.arguments }
         ToolCallSignature(tc.tool, normalized.hashCode())
     }
@@ -514,7 +515,7 @@ class AgentExecutor(
             )
         }
         else -> {
-            val rawArgs = try { JSONObject(toolCall.arguments) } catch (_: Exception) { null }
+            val rawArgs = try { parseToolArguments(toolCall.arguments) } catch (_: Exception) { null }
             if (rawArgs?.optBoolean("taskComplete", false) == true) {
                 val message = rawArgs.optString("taskCompleteMessage", "").ifBlank {
                     application.getString(R.string.llm_default_task_completed)
@@ -729,7 +730,7 @@ class AgentExecutor(
             // Auto-include installed documents if enabled
             if (prompt.autoIncludeDocuments) {
                 try {
-                    val result = GetInstalledDocumentsTool.execute(JSONObject(), context)
+                    val result = GetInstalledDocumentsTool.execute(buildJsonObject {}, context)
                     append("\n\n--- Installed Documents (auto-included) ---\n")
                     append(result.toJson())
                 } catch (e: Exception) {
@@ -740,7 +741,7 @@ class AgentExecutor(
             // Auto-include commentaries if enabled and verse context is available
             if (prompt.autoIncludeCommentaries && context.selectedVerseRange != null) {
                 val result = try {
-                    val args = JSONObject().apply {
+                    val args = buildJsonObject {
                         put("verseRef", context.selectedVerseRange.getOsisRef())
                     }
                     GetCommentariesTool.execute(args, context)
@@ -848,7 +849,7 @@ class AgentExecutor(
     }
 
     /** Delegates to [checkPermission] for pure logic, shows dialog when needed. */
-    private suspend fun checkWritePermission(tool: Tool, arguments: JSONObject, context: AgentContext): DialogResult {
+    private suspend fun checkWritePermission(tool: Tool, arguments: JsonObject, context: AgentContext): DialogResult {
         return when (checkPermission(
             tool = tool.agentTool,
             settings = PermissionSettings(
@@ -915,7 +916,7 @@ class AgentExecutor(
     }
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
-    private suspend fun showPermissionDialog(tool: Tool, arguments: JSONObject, workspaceId: IdType? = null): DialogResult {
+    private suspend fun showPermissionDialog(tool: Tool, arguments: JsonObject, workspaceId: IdType? = null): DialogResult {
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
         val activity = awaitActivity(workspaceId, toolDisplayName)
         val actionDescription = try {

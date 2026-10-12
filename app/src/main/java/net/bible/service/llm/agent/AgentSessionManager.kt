@@ -42,7 +42,8 @@ import net.bible.service.llm.LlmRawLogRecord
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.tools.ToolRegistry
-import org.json.JSONObject
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.formatJsonForLog
 import net.bible.service.llm.tools.stripMarkdownFromTitle
@@ -679,7 +680,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 val tool = ToolRegistry.get(event.tool)
                 val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.tool.camelCaseName
                 val details = if (tool != null) {
-                    val args = try { JSONObject(event.arguments) } catch (_: Exception) { null }
+                    val args = try { parseToolArguments(event.arguments) } catch (_: Exception) { null }
                     args?.let { tool.formatArgsForLog(it) } ?: formatJsonForLog(event.arguments)
                 } else {
                     event.arguments

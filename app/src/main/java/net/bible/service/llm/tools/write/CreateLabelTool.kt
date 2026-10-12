@@ -33,7 +33,8 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.uniqueLabelName
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for creating a new label (category/StudyPad).
@@ -76,12 +77,12 @@ object CreateLabelTool : Tool {
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
         return BibleApplication.application.getString(R.string.action_create_label, name)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
         return "\"$name\""
     }
@@ -91,7 +92,7 @@ object CreateLabelTool : Tool {
         return (result.data as Result).name.takeIf { it.isNotBlank() }?.let { "\"$it\"" }
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

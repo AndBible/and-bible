@@ -31,7 +31,8 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for listing all windows in the current workspace.
@@ -86,7 +87,7 @@ object GetWindowsTool : Tool {
         return BibleApplication.application.getString(R.string.tool_log_window_count, data.windowCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         return try {
             val windowRepository = windowControl.windowRepository
             val activeWindowId = windowRepository.activeWindow.id

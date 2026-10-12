@@ -36,7 +36,8 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.isAIDocument
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 import java.util.Locale
 
 /**
@@ -101,7 +102,7 @@ object AddMyDocumentPageTool : Tool {
         required: [title, content]
     """)
 
-    override fun requiresPermissionForCall(arguments: JSONObject, context: AgentContext): Boolean {
+    override fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean {
         val initials = arguments.optString("initials", "")
         if (initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS) return false
 
@@ -113,20 +114,20 @@ object AddMyDocumentPageTool : Tool {
         return true
     }
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
         val initials = arguments.optString("initials", "").takeIf { it.isNotBlank() }
         val docName = initials ?: arguments.optString("documentId", "").take(8)
         return BibleApplication.application.getString(R.string.action_add_my_document_page, title, docName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
         val initials = arguments.optString("initials", "").takeIf { it.isNotBlank() } ?: ""
         return if (initials.isNotBlank()) "$title → $initials" else title
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

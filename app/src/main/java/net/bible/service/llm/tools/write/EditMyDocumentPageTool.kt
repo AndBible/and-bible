@@ -35,7 +35,8 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for editing an existing My Documents page (title and/or content).
@@ -90,7 +91,7 @@ object EditMyDocumentPageTool : Tool {
         required: [pageId]
     """)
 
-    override fun requiresPermissionForCall(arguments: JSONObject, context: AgentContext): Boolean {
+    override fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean {
         val pageIdStr = arguments.optString("pageId", "")
         if (pageIdStr.isBlank()) return true
         return try {
@@ -100,7 +101,7 @@ object EditMyDocumentPageTool : Tool {
         }
     }
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val pageIdStr = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val page = try { dao.pageById(IdType(pageIdStr)) } catch (_: Exception) { null }
@@ -108,7 +109,7 @@ object EditMyDocumentPageTool : Tool {
         return BibleApplication.application.getString(R.string.action_edit_my_document_page, pageName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val pageId = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         val hasTitle = arguments.optString("title", "").isNotBlank()
         val hasContent = arguments.optString("content", "").isNotBlank()
@@ -118,7 +119,7 @@ object EditMyDocumentPageTool : Tool {
         return parts.joinToString(", ")
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

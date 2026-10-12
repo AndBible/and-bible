@@ -31,7 +31,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for getting the content of a StudyPad with multiple read modes.
@@ -146,13 +147,13 @@ object GetStudyPadContentTool : Tool {
 
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val mode = arguments.optString("mode", "full")
         return "${shortId(labelId)} ($mode)"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

@@ -21,7 +21,6 @@ import kotlinx.serialization.json.JsonObject
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
-import org.json.JSONObject
 
 /**
  * Interface for agent tools that can be called by the LLM.
@@ -79,7 +78,7 @@ interface Tool {
      * @param context Current agent execution context
      * @return true if this specific invocation requires user permission
      */
-    fun requiresPermissionForCall(arguments: JSONObject, context: AgentContext): Boolean = requiresPermission
+    fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean = requiresPermission
 
     /**
      * String resource ID for the user-facing display name of this tool.
@@ -99,7 +98,7 @@ interface Tool {
      * @param context Agent execution context with information about the current state
      * @return Result of the tool execution
      */
-    suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult
+    suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult
 
     /**
      * Format a human-readable description of the specific action this tool will perform
@@ -111,13 +110,13 @@ interface Tool {
      *
      * @return A human-readable action description, or null to fall back to [description]
      */
-    suspend fun formatActionDescription(arguments: JSONObject): String? = null
+    suspend fun formatActionDescription(arguments: JsonObject): String? = null
 
     /**
      * Format tool arguments for human-readable display in the agent log.
      * Return null to fall back to the generic [formatJsonForLog] formatter.
      */
-    fun formatArgsForLog(arguments: JSONObject): String? = null
+    fun formatArgsForLog(arguments: JsonObject): String? = null
 
     /**
      * Format tool result for human-readable display in the agent log.

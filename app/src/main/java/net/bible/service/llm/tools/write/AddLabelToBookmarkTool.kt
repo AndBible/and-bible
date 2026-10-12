@@ -31,7 +31,8 @@ import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for adding a label to a bookmark.
@@ -74,7 +75,7 @@ object AddLabelToBookmarkTool : Tool {
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
@@ -84,13 +85,13 @@ object AddLabelToBookmarkTool : Tool {
         return BibleApplication.application.getString(R.string.action_add_label_to_bookmark, labelName, verseName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         return "${shortId(bookmarkId)} \u2192 ${shortId(labelId)}"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

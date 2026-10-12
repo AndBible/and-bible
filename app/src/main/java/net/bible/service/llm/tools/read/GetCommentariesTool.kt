@@ -49,7 +49,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import net.bible.android.control.page.renderCommentaryFragmentXml
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 import org.koin.java.KoinJavaComponent
 import java.io.StringReader
 
@@ -127,7 +128,7 @@ object GetCommentariesTool : Tool {
         required: [verseRef]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
         return localizeVerseRef(verseRef)
     }
@@ -179,7 +180,7 @@ object GetCommentariesTool : Tool {
         return blocks
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

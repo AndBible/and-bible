@@ -37,7 +37,8 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for reading verse content from Bible documents.
@@ -82,14 +83,14 @@ object GetVerseContentTool : Tool {
         required: [book, verseRef]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val book = arguments.optString("book", "")
         val verseRef = arguments.optString("verseRef", "")
         if (book.isBlank() || verseRef.isBlank()) return null
         return "$book: ${localizeVerseRef(verseRef)}"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

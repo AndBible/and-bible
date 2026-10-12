@@ -28,7 +28,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for finishing the agent execution without creating an AI document.
@@ -75,18 +76,18 @@ object FinishWithoutDocumentTool : Tool {
     /** Marker to indicate this tool was called - checked by AgentExecutor */
     const val FINISH_WITHOUT_DOCUMENT_MARKER = "__FINISH_WITHOUT_DOCUMENT__"
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val message = arguments.optString("message", "").takeIf { it.isNotBlank() } ?: return null
         val truncated = if (message.length > 60) "${message.take(60)}..." else message
         return BibleApplication.application.getString(R.string.action_finish, truncated)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val message = arguments.optString("message", "").takeIf { it.isNotBlank() } ?: return null
         return if (message.length > 60) "\"${message.take(60)}...\"" else "\"$message\""
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

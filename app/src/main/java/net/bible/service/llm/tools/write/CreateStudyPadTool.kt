@@ -44,7 +44,8 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for creating a complete StudyPad in a single call.
@@ -145,17 +146,17 @@ object CreateStudyPadTool : Tool {
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
-        val items = arguments.optJSONArray("items")
-        val count = items?.length() ?: 0
+        val items = arguments.optArray("items")
+        val count = items?.size ?: 0
         return BibleApplication.application.getString(R.string.action_create_studypad, name, count)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
-        val items = arguments.optJSONArray("items")
-        val count = items?.length() ?: 0
+        val items = arguments.optArray("items")
+        val count = items?.size ?: 0
         return "\"$name\" ($count items)"
     }
 
@@ -169,7 +170,7 @@ object CreateStudyPadTool : Tool {
         return parts.joinToString(", ")
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

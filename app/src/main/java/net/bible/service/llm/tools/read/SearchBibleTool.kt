@@ -35,8 +35,8 @@ import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for searching Bible text.
@@ -121,14 +121,14 @@ object SearchBibleTool : Tool {
         required: [query]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null
-        val books = arguments.optJSONArray("books")
+        val books = arguments.optArray("books")
         val maxResults = arguments.optInt("maxResults", 50)
         val offset = arguments.optInt("offset", 0)
         val parts = mutableListOf<String>()
-        if (books != null && books.length() > 0) {
-            parts.add((0 until books.length()).joinToString(", ") { books.getString(it) })
+        if (books != null && books.size > 0) {
+            parts.add((0 until books.size).joinToString(", ") { books.stringAt(it) })
         }
         if (offset > 0) parts.add("offset $offset")
         parts.add("max $maxResults")
@@ -141,7 +141,7 @@ object SearchBibleTool : Tool {
         return application.getString(R.string.tool_log_search_results, data.returnedResults, data.totalResults)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {
