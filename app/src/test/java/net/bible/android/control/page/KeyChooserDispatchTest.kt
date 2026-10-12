@@ -129,6 +129,184 @@ class KeyChooserDispatchTest {
         }
     }
 
+    private fun withForeignSingleton(other: NavHostComposeActivity, action: () -> Unit) {
+        val original = org.koin.core.context.GlobalContext.get().get<KeyChooserLauncher>()
+        var singletonCalls = 0
+        val foreign = AndroidKeyChooserLauncher { other }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<KeyChooserLauncher> { object : KeyChooserLauncher {
+                override fun startKeyChooser(page: CurrentPage): Boolean {
+                    singletonCalls++
+                    return foreign.startKeyChooser(page)
+                }
+            } }
+        })
+        assertTrue(org.koin.core.context.GlobalContext.get().get<KeyChooserLauncher>() !== original)
+        try {
+            action()
+            assertEquals(0, singletonCalls, "explicit-host callers must not use the foreground singleton")
+        } finally {
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<KeyChooserLauncher> { original } })
+        }
+    }
+
+    @Test fun readingCommandsFallbackUsesTouchedHostNotForegroundHost() {
+        val touched = host()
+        val other = host()
+        val holder = net.bible.android.view.activity.base.CurrentActivityHolder
+        shadowOf(Looper.getMainLooper()).idle()
+        holder.deactivate(other)
+        holder.activate(other)
+        assertTrue(holder.currentActivity === other, "fixture must publish a different foreground host")
+        assertNull(shadowOf(touched).nextStartedActivityForResult, "caller must be the first launch")
+        assertNull(shadowOf(other).nextStartedActivityForResult)
+        try {
+            withForeignSingleton(other) {
+                touched.readingCommands.composeStartKeyChooser()
+                shadowOf(Looper.getMainLooper()).idle()
+            }
+            assertNotNull(shadowOf(touched).nextStartedActivityForResult)
+            assertNull(shadowOf(other).nextStartedActivityForResult)
+        } finally { holder.deactivate(other) }
+    }
+
+    @Test fun ctrlKeyBUsesTouchedHostAndTheWebViewsWindow() {
+        val touched = host()
+        val other = host()
+        val holder = net.bible.android.view.activity.base.CurrentActivityHolder
+        val window = touched.hostWindowRepository.activeWindow
+        // A different page from the globally active host makes wrong-window dispatch observable.
+        CurrentPageManager::class.java.getDeclaredField("currentPage").apply {
+            isAccessible = true
+            set(window.pageManager, window.pageManager.currentDictionary)
+        }
+        val factory = touched.readingCommands.bibleViewFactory
+        val view = net.bible.android.view.activity.page.BibleView(touched, factory.hostCallbacks,
+            java.lang.ref.WeakReference(window), factory.windowControl, factory.pageControl,
+            net.bible.android.control.page.PageTiltScrollControl(), factory.linkControl, factory.bookmarkControl,
+            factory.downloadControl, factory.searchControl)
+        shadowOf(Looper.getMainLooper()).idle()
+        holder.deactivate(other)
+        holder.activate(other)
+        assertTrue(holder.currentActivity === other, "fixture must publish a different foreground host")
+        assertNull(shadowOf(touched).nextStartedActivityForResult, "caller must be the first launch")
+        assertNull(shadowOf(other).nextStartedActivityForResult)
+        try {
+            withForeignSingleton(other) {
+                net.bible.android.view.activity.page.BibleJavascriptInterface(view).onKeyDown("CtrlKeyB")
+                shadowOf(Looper.getMainLooper()).idle()
+            }
+            assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD,
+                assertNotNull(shadowOf(touched).nextStartedActivityForResult).intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+            assertNull(shadowOf(other).nextStartedActivityForResult)
+        } finally {
+            holder.deactivate(other)
+            net.bible.android.view.activity.page.BibleView::class.java.getDeclaredField("pageTiltScroller").apply {
+                isAccessible = true
+                set(view, net.bible.android.view.activity.page.screen.PageTiltScroller(view, net.bible.android.control.page.PageTiltScrollControl()))
+            }
+            view.destroy()
+        }
+    }
+
+    @Test fun pageManagerAutoOpenUsesKoinForegroundHostAndToleratesNoHost() {
+        val owning = host()
+        val foreground = host()
+        val manager = owning.hostWindowRepository.activeWindow.pageManager
+        val holder = net.bible.android.view.activity.base.CurrentActivityHolder
+        val dictionary = assertNotNull(Books.installed().getBook("StrongsGreek"))
+        val original = org.koin.core.context.GlobalContext.get().get<KeyChooserLauncher>()
+        var portCalls = 0
+        val recording = object : KeyChooserLauncher {
+            override fun startKeyChooser(page: CurrentPage): Boolean {
+                portCalls++
+                return original.startKeyChooser(page)
+            }
+        }
+        val override = org.koin.dsl.module { single<KeyChooserLauncher> { recording } }
+        org.koin.core.context.loadKoinModules(override)
+        holder.activate(foreground)
+        try {
+            manager.setCurrentDocument(dictionary)
+            assertEquals(1, portCalls, "auto-open must resolve the Koin port")
+            assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, assertNotNull(shadowOf(foreground).nextStartedActivityForResult).intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+            assertNull(shadowOf(owning).nextStartedActivityForResult)
+            holder.deactivate(foreground)
+            holder.forgetActivitiesForTest()
+            manager.setCurrentDocument(assertNotNull(Books.installed().getBook("KJV")))
+            manager.currentDictionary.doSetKey(null)
+            manager.setCurrentDocument(dictionary)
+            assertEquals(2, portCalls)
+            assertNull(shadowOf(foreground).nextStartedActivityForResult)
+            assertNull(shadowOf(owning).nextStartedActivityForResult)
+        } finally {
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<KeyChooserLauncher> { original } })
+            holder.deactivate(foreground)
+        }
+    }
+
+    @Test fun myDocumentRouteCarriesDocumentIdentityAndNames() {
+        val activity = host()
+        val document = net.bible.android.database.mydocument.MyDocument(name = "Chooser document", initials = "MyDoc_chooser")
+        val book = net.bible.service.sword.mydocument.createMyDocumentBook(document)
+        val page = activity.hostWindowRepository.activeWindow.pageManager.currentGeneralBook
+        Books.installed().addBook(book)
+        try {
+            page.onlySetCurrentDocument(book)
+            AndroidKeyChooserLauncher { activity }.startKeyChooser(page)
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals(NavRoutes.myDocumentPages(document.id.toString(), document.initials, document.name),
+                assertNotNull(shadowOf(activity).nextStartedActivityForResult).intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+        } finally { Books.installed().removeBook(book) }
+    }
+
+    @Test fun studyPadWritebackReReadsReplacedOwningSettings() {
+        val activity = host()
+        val other = host()
+        val repo = activity.hostWindowRepository
+        val old = repo.workspaceSettings
+        val oldMarker = net.bible.android.database.IdType()
+        old.autoAssignPrimaryLabel = oldMarker
+        val page = repo.activeWindow.pageManager.currentGeneralBook
+        val factory = org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java)
+        page.onlySetCurrentDocument(factory.journalDocument)
+        AndroidKeyChooserLauncher { activity }.startKeyChooser(page)
+        shadowOf(Looper.getMainLooper()).idle()
+        val started = assertNotNull(shadowOf(activity).nextStartedActivityForResult)
+        val replacement = net.bible.android.database.WorkspaceEntities.WorkspaceSettings.default
+        repo.workspaceSettings = replacement
+        val foreignBefore = other.hostWindowRepository.workspaceSettings.autoAssignPrimaryLabel
+        val resultMarker = net.bible.android.database.IdType()
+        val data = net.bible.android.view.activity.bookmark.ManageLabelsContract.ManageLabelsData(
+            mode = net.bible.android.view.activity.bookmark.ManageLabelsContract.Mode.STUDYPAD,
+            autoAssignPrimaryLabel = resultMarker)
+        activity.onActivityResult(started.requestCode, Activity.RESULT_OK, Intent().putExtra("data", data.toJSON()))
+        assertNull(replacement.autoAssignPrimaryLabel)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(resultMarker, replacement.autoAssignPrimaryLabel)
+        assertEquals(oldMarker, old.autoAssignPrimaryLabel)
+        assertEquals(foreignBefore, other.hostWindowRepository.workspaceSettings.autoAssignPrimaryLabel)
+    }
+
+    @Test fun destroyedHostDoesNotApplyAwaitedStudyPadResult() {
+        val activity = host()
+        val page = activity.hostWindowRepository.activeWindow.pageManager.currentGeneralBook
+        val settings = activity.hostWindowRepository.workspaceSettings
+        page.onlySetCurrentDocument(org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).journalDocument)
+        AndroidKeyChooserLauncher { activity }.startKeyChooser(page)
+        shadowOf(Looper.getMainLooper()).idle()
+        val started = assertNotNull(shadowOf(activity).nextStartedActivityForResult)
+        val marker = net.bible.android.database.IdType()
+        val before = settings.autoAssignPrimaryLabel
+        controllers.first { it.get() === activity }.destroy()
+        val result = net.bible.android.view.activity.bookmark.ManageLabelsContract.ManageLabelsData(
+            mode = net.bible.android.view.activity.bookmark.ManageLabelsContract.Mode.STUDYPAD,
+            autoAssignPrimaryLabel = marker)
+        activity.onActivityResult(started.requestCode, Activity.RESULT_OK, Intent().putExtra("data", result.toJSON()))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(before, settings.autoAssignPrimaryLabel)
+    }
+
     @Test fun explicitHostIsUsedInsteadOfAnotherLiveHost() {
         val touched = host()
         val other = host()
