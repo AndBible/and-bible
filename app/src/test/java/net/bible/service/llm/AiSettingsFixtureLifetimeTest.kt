@@ -31,6 +31,16 @@ class AiSettingsFixtureLifetimeTest {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         val firstApp = BibleApplication.application as TestBibleApplication
         val koin = GlobalContext.get()
+        val firstRaw = koin.get<RawLogService>()
+        runBlocking {
+            val record = LlmRawLogRecord(logData = byteArrayOf())
+            val dao = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao()
+            dao.insert(record)
+            firstRaw.deleteByIds(setOf(record.id.toString()))
+            assertNull(dao.getById(record.id))
+        }
+        val firstScope = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
+        val firstLauncher = koin.get<net.bible.sharedcore.platform.OrderedLauncher>()
         val firstAgent = koin.get<AgentSessionService>()
         val firstReading = koin.get<ReadingLlmService>()
         val firstFilter = koin.get<DocumentFilterService>()
@@ -48,6 +58,18 @@ class AiSettingsFixtureLifetimeTest {
         attach.invoke(secondApp, firstApp.baseContext)
         secondApp.onCreate()
         try {
+            val raw = koin.get<RawLogService>()
+            assertNotSame(firstRaw, raw)
+            assertSame(raw, koin.get<RawLogServiceImpl>())
+            runBlocking {
+                val record = LlmRawLogRecord(logData = byteArrayOf())
+                val dao = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao()
+                dao.insert(record)
+                raw.deleteByIds(setOf(record.id.toString()))
+                assertNull(dao.getById(record.id))
+            }
+            assertNotSame(firstScope, koin.get<net.bible.sharedcore.platform.AppCoroutineScope>())
+            assertNotSame(firstLauncher, koin.get<net.bible.sharedcore.platform.OrderedLauncher>())
             val agent = koin.get<AgentSessionService>()
             val reading = koin.get<ReadingLlmService>()
             val filter = koin.get<DocumentFilterService>()

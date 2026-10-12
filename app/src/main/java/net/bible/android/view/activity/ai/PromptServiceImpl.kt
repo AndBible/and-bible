@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.ai
 
 import kotlinx.coroutines.sync.withLock
+import net.bible.service.llm.collectOwned
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.platform.AppCoroutineScope
 import org.koin.core.component.inject
@@ -99,7 +100,7 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
     init {
         appScope.launch { settings.ensureLoaded(); refresh() }
         // The application job owns subscriptions as well as refresh work.
-        appScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { settings.configChanged.asFlow().collect { refresh() } }
+        settings.configChanged.collectOwned(appScope) { refresh() }
     }
 
     private suspend fun llmConfigured(): Boolean = try {

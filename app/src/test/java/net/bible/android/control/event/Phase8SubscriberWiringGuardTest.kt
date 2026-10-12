@@ -22,9 +22,9 @@ class Phase8SubscriberWiringGuardTest {
         assertContains(p, "CommonUtils.aiSettings.configChanged.subscribe { updateConfig() }", "Review Focus 3: llmConfigured")
     }
 
-    @Test fun aiServicesRefreshOnMainOnConfigChange() {
+    @Test fun aiServicesRegisterConfigRefreshWithApplicationOwner() {
         listOf("AiSettingsServiceImpl", "LlmProviderServiceImpl", "LlmModelServiceImpl", "PromptServiceImpl").forEach {
-            assertContains("android/view/activity/ai/$it.kt", "settings.configChanged.asFlow().collect { refresh() }", "application-owned suspend collector replaces the old Main callback")
+            assertContains("android/view/activity/ai/$it.kt", "settings.configChanged.collectOwned(appScope) { refresh() }", "synchronous registration with application-owned suspend processing")
         }
     }
 

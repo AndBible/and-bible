@@ -42,6 +42,7 @@ import net.bible.sharedcore.ai.reading.LogEntryKind
 import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.ai.reading.ReadingModelVd
 import org.koin.core.component.KoinComponent
+import net.bible.service.llm.collectOwned
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.platform.AppCoroutineScope
@@ -94,20 +95,15 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     private val refreshMutex = kotlinx.coroutines.sync.Mutex()
 
     init {
-        // Register before returning; asFlow owns cancellation of the subscription.
-        appScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
-            AgentSessionManager.changes.asFlow().collect { change ->
+        AgentSessionManager.changes.collectOwned(appScope) { change ->
                 withContext(Dispatchers.Main.immediate) {
                     if (change is AgentSessionChange.StatusChanged) {
                         lastStopByWorkspace[change.workspaceId] = change.stopReason?.toVd()
                     }
                     if (change.workspaceId == wsId() && change !is AgentSessionChange.PermissionWaiting) refresh()
                 }
-            }
         }
-        appScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
-            aiSettings.defaultModelChanged.asFlow().collect { withContext(Dispatchers.Main.immediate) { refresh() } }
-        }
+        aiSettings.defaultModelChanged.collectOwned(appScope) { withContext(Dispatchers.Main.immediate) { refresh() } }
         appScope.launch { aiSettings.ensureLoaded(); withContext(Dispatchers.Main.immediate) { refresh() } }
     }
 

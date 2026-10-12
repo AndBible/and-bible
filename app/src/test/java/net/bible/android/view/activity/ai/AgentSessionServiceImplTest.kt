@@ -68,6 +68,32 @@ class AgentSessionServiceImplTest {
         Dispatchers.resetMain()
     }
 
+    @Test fun constructorRegistersTerminalEventsBeforeQueuedOwnerRuns() = kotlinx.coroutines.test.runTest {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
+        val job = kotlinx.coroutines.SupervisorJob()
+        val queued = net.bible.sharedcore.platform.AppCoroutineScope(job + kotlinx.coroutines.test.StandardTestDispatcher(testScheduler))
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.sharedcore.platform.AppCoroutineScope> { queued } })
+        try {
+            val service = AgentSessionServiceImpl()
+            val ws = CommonUtils.windowControl.windowRepository.id
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.ERROR))
+            testScheduler.runCurrent()
+            assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+            job.cancel()
+            testScheduler.runCurrent()
+            job.join()
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.COMPLETED))
+            testScheduler.runCurrent()
+            assertEquals("cancelled owner cannot publish events", AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+        } finally {
+            job.cancel()
+            testScheduler.runCurrent()
+            job.join()
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.sharedcore.platform.AppCoroutineScope> { original } })
+        }
+    }
+
     // --- AgentSessionManager.changes ------------------------------------------------------------
 
     @Test

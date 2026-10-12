@@ -17,6 +17,7 @@
 
 package net.bible.android
 
+import net.bible.android.view.activity.ai.RawLogServiceImpl
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.bind
 import net.bible.android.view.activity.ai.LlmModelServiceImpl
@@ -96,6 +97,7 @@ class TestBibleApplication : BibleApplication() {
                     DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired,
                 )
             }
+            singleOf(::RawLogServiceImpl) { bind<net.bible.sharedcore.ai.RawLogService>() }
             singleOf(::LlmModelServiceImpl) { bind<net.bible.sharedcore.ai.LlmModelService>() }
             singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
             singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
@@ -138,6 +140,7 @@ class TestBibleApplication : BibleApplication() {
                     DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired,
                 )
             }
+            singleOf(::RawLogServiceImpl) { bind<net.bible.sharedcore.ai.RawLogService>() }
             singleOf(::LlmModelServiceImpl) { bind<net.bible.sharedcore.ai.LlmModelService>() }
             singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
             singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
