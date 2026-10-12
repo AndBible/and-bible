@@ -55,6 +55,37 @@ class AiProvidersControllerTest {
         override suspend fun acceptDisclaimer() {}
     }
 
+    @Test fun heldOldEditorCannotOverwriteNewDraftOrReopenDismissedDialog() = runTest {
+        val a = ProviderVd("a", "A", "OPENAI", true, false, "", "")
+        val ready = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val fake = object : Fake(listOf(a), listOf(customType)) {
+            override suspend fun apiKeyFor(providerId: String): String {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { ready.await() }
+                return "old-key"
+            }
+        }
+        val c = AiProvidersController(fake, backgroundScope)
+        c.startEdit("a")
+        testScheduler.runCurrent()
+        c.startAdd()
+        c.pickType("CUSTOM")
+        c.updateField(AiProvidersController.Field.NAME, "Latest draft")
+        ready.complete(Unit)
+        testScheduler.runCurrent()
+        assertEquals("Latest draft", c.dialog.value?.displayName)
+        val held = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val second = object : Fake(listOf(a), listOf(customType)) {
+            override suspend fun apiKeyFor(providerId: String): String { held.await(); return "old" }
+        }
+        val dismissed = AiProvidersController(second, backgroundScope)
+        dismissed.startEdit("a")
+        testScheduler.runCurrent()
+        dismissed.dismissDialog()
+        held.complete(Unit)
+        testScheduler.runCurrent()
+        assertNull(dismissed.dialog.value)
+    }
+
     private fun controller(fake: Fake) = AiProvidersController(fake, CoroutineScope(UnconfinedTestDispatcher()))
 
     @Test fun providers_reflectsServiceFlow() = runTest {

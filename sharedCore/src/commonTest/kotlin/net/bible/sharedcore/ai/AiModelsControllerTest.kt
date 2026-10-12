@@ -52,6 +52,21 @@ class AiModelsControllerTest {
         override suspend fun refresh() { refreshCount++ }
     }
 
+    @Test fun heldAddPickerCannotReopenAfterDismiss() = runTest {
+        val ready = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val backing = Fake()
+        val service = object : LlmModelService by backing {
+            override suspend fun providersForPicker(): List<ProviderVd> { ready.await(); return listOf(providerA) }
+        }
+        val c = AiModelsController(service, backgroundScope)
+        c.startAdd()
+        testScheduler.runCurrent()
+        c.dismissDialog()
+        ready.complete(Unit)
+        testScheduler.runCurrent()
+        assertNull(c.dialog.value)
+    }
+
     private fun controller(fake: Fake) = AiModelsController(fake, CoroutineScope(UnconfinedTestDispatcher()))
 
     @Test fun models_defaultFirstSort() = runTest {

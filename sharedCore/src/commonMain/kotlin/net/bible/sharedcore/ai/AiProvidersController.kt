@@ -47,7 +47,10 @@ class AiProvidersController(
     private val _dialog = MutableStateFlow<ProviderEditState?>(null)
     val dialog: StateFlow<ProviderEditState?> = _dialog.asStateFlow()
 
+    private var editGeneration = 0L
+
     fun startAdd() {
+        editGeneration++
         _dialog.value = ProviderEditState(
             id = null,
             step = ProviderEditState.Step.PICK_TYPE,
@@ -78,16 +81,20 @@ class AiProvidersController(
         )
     }
 
-    fun startEdit(id: String) { scope.launch {
+    fun startEdit(id: String) {
+        val generation = ++editGeneration
+        scope.launch {
         val p = service.providers.value.firstOrNull { it.id == id } ?: return@launch
         val type = service.providerTypes().firstOrNull { it.id == p.providerTypeId }
+        val key = service.apiKeyFor(p.id)
+        if (generation != editGeneration) return@launch
         publish(
             ProviderEditState(
                 id = p.id,
                 step = ProviderEditState.Step.FORM,
                 typeId = p.providerTypeId,
                 displayName = p.displayName,
-                apiKey = service.apiKeyFor(p.id),
+                apiKey = key,
                 endpoint = p.endpoint,
                 apiFormatId = p.apiFormatId,
                 isCustom = p.isCustom,
@@ -121,7 +128,7 @@ class AiProvidersController(
 
     fun delete(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deleteProvider(id) } }
 
-    fun dismissDialog() { _dialog.value = null }
+    fun dismissDialog() { editGeneration++; _dialog.value = null }
 
     /** F31: accepts the AI disclaimer (Quick-setup / Add-provider gate), via the shared
      *  [LlmProviderService] — routed through the controller so the Compose screen never calls the

@@ -77,11 +77,17 @@ class AiModelsController(
         scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.models.collect { _models.value = sortDefaultFirst(it) } }
     }
 
-    fun startAdd() { scope.launch {
+    private var editGeneration = 0L
+
+    fun startAdd() {
+        val generation = ++editGeneration
+        scope.launch {
+        val choices = service.providersForPicker()
+        if (generation != editGeneration) return@launch
         _dialog.value = ModelEditState(
             id = null,
             step = ModelEditState.Step.PICK_PROVIDER,
-            providerChoices = service.providersForPicker(),
+            providerChoices = choices,
             providerId = "",
             availableModels = emptyList(),
             loadingModels = false,
@@ -106,6 +112,7 @@ class AiModelsController(
      * see [ModelEditState] doc.
      */
     fun startEdit(id: String) {
+        editGeneration++
         val m = models.value.firstOrNull { it.id == id } ?: return
         publish(
             ModelEditState(
@@ -139,8 +146,10 @@ class AiModelsController(
                 modelId = "",
             )
         )
+        val generation = ++editGeneration
         scope.launch {
             val available = service.availableModelsFor(providerId)
+            if (generation != editGeneration) return@launch
             val cur = _dialog.value ?: return@launch
             publish(cur.copy(availableModels = available, loadingModels = false))
         }
@@ -194,7 +203,7 @@ class AiModelsController(
 
     fun setDefault(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.setDefault(id) } }
 
-    fun dismissDialog() { _dialog.value = null }
+    fun dismissDialog() { editGeneration++; _dialog.value = null }
 
     private fun publish(next: ModelEditState) {
         val isCustom = next.modelId == CUSTOM_MODEL_ID
