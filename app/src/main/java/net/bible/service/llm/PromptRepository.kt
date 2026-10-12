@@ -17,12 +17,13 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedcore.platform.AppEnvironment
+
 import org.koin.core.component.KoinComponent
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
 import net.bible.service.common.AndBibleAddons
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.blockingDb
 
@@ -38,6 +39,7 @@ import net.bible.service.db.blockingDb
 object PromptRepository : KoinComponent {
     private val aiSettings: AiSettings get() = getKoin().get()
     private const val TAG = "PromptRepository"
+    private val environment: AppEnvironment get() = getKoin().get()
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
     private val categoryDao get() = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
@@ -94,7 +96,7 @@ object PromptRepository : KoinComponent {
 
     /** Suspend: the override lookup per prompt runs inside the caller's single bridge. */
     private suspend fun loadBuiltInPrompts(): List<AgentPrompt> {
-        val prompts = if (CommonUtils.isDebugMode) BuiltInPrompts.allBuiltInPrompts()
+        val prompts = if (environment.isDebugMode) BuiltInPrompts.allBuiltInPrompts()
             else BuiltInPrompts.productionPrompts()
         return prompts.map { applyOverride(it) }
     }

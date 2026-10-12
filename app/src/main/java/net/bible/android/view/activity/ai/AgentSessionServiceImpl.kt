@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.sharedcore.platform.AppSettings
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +26,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.service.llm.AiSettings
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmProvider
@@ -72,6 +73,7 @@ internal fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.value
  */
 class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     private val aiSettings: AiSettings by inject()
+    private val settings: AppSettings by inject()
     private val windowControl: WindowControl by inject()
 
     /** Always reads the current workspace ID so it stays correct after workspace switches. */
@@ -166,10 +168,10 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
 
     override fun autoHideEnabled(): Boolean = aiSettings.autoHideAgentLogOnCompletion
 
-    override fun logVisiblePref(): Boolean = CommonUtils.settings.getBoolean(PREF_AGENT_LOG_VISIBLE, false)
+    override fun logVisiblePref(): Boolean = settings.getBoolean(PREF_AGENT_LOG_VISIBLE, false)
 
     override fun setLogVisiblePref(v: Boolean) {
-        CommonUtils.settings.setBoolean(PREF_AGENT_LOG_VISIBLE, v)
+        settings.setBoolean(PREF_AGENT_LOG_VISIBLE, v)
     }
 
     override fun currentWorkspaceId(): String = wsId().toString()

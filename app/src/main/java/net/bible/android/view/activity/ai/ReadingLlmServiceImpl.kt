@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.sharedcore.platform.AppSettings
+
 import net.bible.service.llm.AiSettings
 import org.koin.core.component.inject
 import org.koin.core.component.KoinComponent
@@ -24,7 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.LlmProvider
@@ -47,6 +48,7 @@ import net.bible.sharedcore.ai.reading.ReadingPromptVd
  */
 class ReadingLlmServiceImpl(private val strings: LlmStrings) : ReadingLlmService, KoinComponent {
     private val aiSettings: AiSettings by inject()
+    private val settings: AppSettings by inject()
 
     override suspend fun promptGroupsFor(contextId: String, docCategoryId: String?): List<ReadingPromptGroupVd> =
         withContext(Dispatchers.IO) {
@@ -172,10 +174,10 @@ class ReadingLlmServiceImpl(private val strings: LlmStrings) : ReadingLlmService
     }
 
     override fun isCategoryCollapsed(contextId: String, categoryId: String?): Boolean =
-        CommonUtils.settings.getBoolean(collapsedPrefKey(contextId, categoryId), false)
+        settings.getBoolean(collapsedPrefKey(contextId, categoryId), false)
 
     override fun setCategoryCollapsed(contextId: String, categoryId: String?, collapsed: Boolean) {
-        CommonUtils.settings.setBoolean(collapsedPrefKey(contextId, categoryId), collapsed)
+        settings.setBoolean(collapsedPrefKey(contextId, categoryId), collapsed)
     }
 
     /** Verbatim classic key from `LlmDialogHelper.collapsedPrefKey`. */

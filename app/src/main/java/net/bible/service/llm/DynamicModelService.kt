@@ -17,12 +17,13 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedcore.platform.AppEnvironment
+
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import net.bible.android.BibleApplication
 import java.io.File
 
 import net.bible.sharedcore.llm.http.LlmHttpTransport
@@ -65,6 +66,7 @@ private data class ApiPricing(
  */
 object DynamicModelService : KoinComponent {
     private val transport: LlmHttpTransport by inject()
+    private val environment: AppEnvironment get() = getKoin().get()
 
     data class DynamicModel(
         val id: String,
@@ -79,7 +81,7 @@ object DynamicModelService : KoinComponent {
     private val cache = mutableMapOf<String, Pair<List<DynamicModel>, Long>>()
 
     private fun cacheFile(providerId: String): File =
-        File(BibleApplication.application.cacheDir, "models_cache_${providerId}.json")
+        File(environment.cacheDir, "models_cache_${providerId}.json")
 
     /** Cache timestamp for a provider (epoch ms), or 0 if never fetched. */
     fun cacheTimestamp(providerId: String): Long {

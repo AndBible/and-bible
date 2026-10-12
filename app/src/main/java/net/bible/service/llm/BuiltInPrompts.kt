@@ -17,12 +17,13 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedcore.platform.AppEnvironment
+
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.android.database.IdType
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.llm.tools.ToolRegistry
-import net.bible.service.common.CommonUtils
 import java.util.UUID
 
 /**
@@ -36,6 +37,7 @@ import java.util.UUID
 object BuiltInPrompts : KoinComponent {
     private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
+    private val environment: AppEnvironment get() = getKoin().get()
 
     /**
      * Generates a stable deterministic IdType from a key string.
@@ -869,7 +871,7 @@ object BuiltInPrompts : KoinComponent {
             add(PromptCategory(id = CATEGORY_STUDY_ID, name = strings.promptCategoryStudy, orderNumber = 0))
             add(PromptCategory(id = CATEGORY_NOTES_ID, name = strings.promptCategoryNotes, orderNumber = 1))
             add(PromptCategory(id = CATEGORY_GENERAL_ID, name = strings.promptCategoryGeneral, orderNumber = 2))
-            if (CommonUtils.isDebugMode) {
+            if (environment.isDebugMode) {
                 add(PromptCategory(id = CATEGORY_TEST_ID, name = strings.promptCategoryTest, orderNumber = 3))
             }
         }.also { _defaultCategories = it }

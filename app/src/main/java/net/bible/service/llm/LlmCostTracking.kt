@@ -17,10 +17,11 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedcore.platform.AppEnvironment
+
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.bible.android.database.IdType
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.blockingDb
 
@@ -85,9 +86,10 @@ object LlmPricing {
  * Cumulative cost tracker persisted in AiSettingsDatabase as per-device [LlmUsageRecord] rows.
  * Each device writes only its own row; the UI sums across all devices for totals.
  */
-object LlmCostTracker {
+object LlmCostTracker : org.koin.core.component.KoinComponent {
+    private val environment: AppEnvironment get() = getKoin().get()
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmUsageRecordDao()
-    private val deviceId get() = CommonUtils.deviceIdentifier
+    private val deviceId get() = environment.deviceIdentifier
 
     private val usageMutex = Mutex()
 

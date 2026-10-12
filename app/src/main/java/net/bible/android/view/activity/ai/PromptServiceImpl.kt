@@ -59,7 +59,7 @@ import net.bible.sharedcore.settings.SettingsItem
  *   reorder (orderNumber swap), plus [BuiltinPromptOverride] upsert for the built-in model override.
  * - [ToolRegistry.getConfigurableToolsByCategory] for the Permissions-tab tool list and
  *   [globalToolPermission] resolution against [AiSettings] `permanentlyAllowed/DeniedTools`.
- * - [CommonUtils.settings] `llmConfigured` for the not-configured CTA gate and
+ * - provider configuration (Task 7 suspend conversion) for the not-configured CTA gate and
  *   [AiSettings] for `defaultModelId` / hidden state.
  *
  * [groups] is published in the **classic `loadPrompts` order** — a virtual Favorites group first
