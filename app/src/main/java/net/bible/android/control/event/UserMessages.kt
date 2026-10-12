@@ -23,7 +23,7 @@ import net.bible.sharedcore.event.Events
 
 /**
  * A one-shot message to show the user. Resource ids are resolved by the presenter
- * (`BibleApplication`), so a caller on a background thread needs no `Context`.
+ * (the application host), so a caller on a background thread needs no `Context`.
  */
 sealed interface UserMessage {
     data class Toast(val text: String?, @StringRes val textId: Int?, val long: Boolean) : UserMessage
@@ -37,7 +37,7 @@ sealed interface UserMessage {
 /**
  * Owner of user-visible one-shot messages: toasts and error notifications. Callable from any
  * thread; [messages] delivers synchronously on the caller's thread to `subscribe` handlers, and
- * `BibleApplication` presents them with `subscribeOnMain`.
+ * The application host presents them with `subscribeOnMain`.
  */
 object UserMessages {
     private val _messages = EventSource<UserMessage>()

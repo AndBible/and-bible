@@ -13,3 +13,7 @@ download
 installzip
 
 sword
+page
+search
+event
+@no-pending

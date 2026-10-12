@@ -22,6 +22,8 @@ import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.android.control.progress.ProgressJsActions
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.search.SearchHighlighter
+import net.bible.android.control.search.SearchTextHighlighter
 import net.bible.android.control.search.BibleSearchServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchIndexServiceImpl
@@ -215,6 +217,7 @@ fun buildCoreModule() = module {
         )
     }
     singleOf(::SearchControl)
+    single<SearchTextHighlighter> { SearchHighlighter }
     singleOf(::BibleSearchServiceImpl) { bind<BibleSearchService>() }
     // F26: shared across SearchResultsComposeActivity recreations (history-revert Back) so returning
     // to results doesn't re-run the Lucene search.

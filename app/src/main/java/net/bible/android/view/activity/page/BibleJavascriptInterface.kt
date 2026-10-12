@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.android.view.activity.search.searchIntent
 import net.bible.android.platform.AndroidBackupHost
 
 import android.content.ClipData
@@ -939,7 +940,7 @@ class BibleJavascriptInterface(
                     // F6 Task 8b entry point 5: retarget into the reading view's search when a
                     // Compose host is mounted; classic behaviour unchanged otherwise.
                     if (!hostCallbacks.composeSearchIfHosted(/* seedQuery = */ null, /* preDecorated = */ false)) {
-                        val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, hostActivity)
+                        val intent = searchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, hostActivity)
                         intent?.let {hostActivity.startActivityForResult(it, ActivityBase.STD_REQUEST_CODE)}
                     }
                 }

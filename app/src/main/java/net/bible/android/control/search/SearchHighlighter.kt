@@ -42,11 +42,11 @@ import java.util.regex.Pattern
  * Callers derive [terms]/[lemmaTerms] with the commonMain helpers (`prepareSearchTerms` / `splitSearchTerms`);
  * a Strong's search (search string contains `strong:`) supplies [lemmaTerms] and no [terms].
  */
-object SearchHighlighter {
+object SearchHighlighter : SearchTextHighlighter {
     private const val TAG = "SearchHighlighter"
     private val elementsToExclude = listOf("note", "reference")
 
-    fun highlight(osis: Element, terms: List<String>, lemmaTerms: List<String>): StyledText {
+    override fun highlight(osis: Element, terms: List<String>, lemmaTerms: List<String>): StyledText {
         val isStrongsSearch = lemmaTerms.isNotEmpty()
         val strongsPatterns = lemmaTerms.map { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
         val verseString = StringBuilder()

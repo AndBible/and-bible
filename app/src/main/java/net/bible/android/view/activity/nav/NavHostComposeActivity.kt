@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.nav
 
+import net.bible.android.view.activity.search.searchIntent
 import net.bible.android.platform.AndroidBackupHost
 
 import net.bible.android.control.document.DocumentChanges
@@ -1147,7 +1148,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             windowControl.activeWindowPageManager.currentPage.isSearchable
         ) {
             if (!readingCommands.composeSearchIfHosted()) {
-                searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)?.let { intent ->
+                searchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)?.let { intent ->
                     startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
                 }
             }

@@ -12,3 +12,6 @@ service/cloudsync/nextcloud/GenericRemoteOperation.kt	Nextcloud Android library 
 service/cloudsync/nextcloud/NextCloudSearchMethod.kt	Nextcloud JVM commons-httpclient and jackrabbit search method (deliberately classified even without scanner violations)
 
 service/sword/SwordEnvironmentInitialisation.kt	Android process bootstrap: storage permission, JSword home dir, error dialog; iOS has its own engine init
+android/control/page/PageTiltScrollControl.kt	Android sensor host: SensorManager, Display rotation, WindowManager; iOS has its own motion source
+android/control/search/SearchHighlighter.kt	Android Spanned/StyleSpan text styling behind SearchTextHighlighter
+android/control/event/phonecall/PhoneCallMonitor.kt	Android TelephonyManager/PhoneStateListener host

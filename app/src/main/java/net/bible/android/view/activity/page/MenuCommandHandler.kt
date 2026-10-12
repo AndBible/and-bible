@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.android.view.activity.search.searchIntent
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -194,7 +195,7 @@ class MenuCommandHandler(
                         if (composeSearchIfHosted()) {
                             isHandled = true
                         } else {
-                            handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, hostActivity)
+                            handlerIntent = searchIntent(currentPage.currentDocument, hostActivity)
                         }
                     }
                 }

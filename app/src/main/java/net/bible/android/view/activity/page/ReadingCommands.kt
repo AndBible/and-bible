@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.android.view.activity.search.searchIntent
 import android.app.Activity
 import android.content.ClipData
 import android.os.Bundle
@@ -392,7 +393,7 @@ class ReadingCommands(
             host.openSearch()
             return
         }
-        searchControl.getSearchIntent(documentControl.currentDocument, hostActivity)?.let { intent ->
+        searchIntent(documentControl.currentDocument, hostActivity)?.let { intent ->
             hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }

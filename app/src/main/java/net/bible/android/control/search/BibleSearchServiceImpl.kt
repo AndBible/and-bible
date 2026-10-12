@@ -19,7 +19,7 @@ package net.bible.android.control.search
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.search.BibleOption
@@ -42,11 +42,13 @@ import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
 /**
  * Host (`:app`) implementation of the portable [BibleSearchService] seam. It wraps the existing
  * [SearchControl] JSword logic and, for each grouped result, reads the OSIS fragment and turns the
- * Strong's/term highlighting into portable [StyledText] via [SearchHighlighter] — so the shared
+ * Strong's/term highlighting into portable [StyledText] via [SearchTextHighlighter] — so the shared
  * Compose search UI needs no Android `Spannable` or JSword types.
  */
 class BibleSearchServiceImpl(
     private val searchControl: SearchControl,
+    private val highlighter: SearchTextHighlighter,
+    private val settings: AppSettings,
     private val strings: net.bible.sharedcore.platform.CoreStrings,
 ) : BibleSearchService {
 
@@ -101,7 +103,7 @@ class BibleSearchServiceImpl(
         } else {
             SearchControl.SEARCH_TRANSLATIONS_PREF
         }
-        CommonUtils.settings.setString(key, translationIds.joinToString(","))
+        settings.setString(key, translationIds.joinToString(","))
     }
 
     override fun unindexedAmong(translationIds: List<String>): List<String> =
@@ -126,7 +128,7 @@ class BibleSearchServiceImpl(
 
     private fun previewFor(book: SwordBook, key: Key, terms: List<String>, lemmaTerms: List<String>): StyledText =
         try {
-            SearchHighlighter.highlight(SwordContentFacade.readOsisFragment(book, key, strings = strings), terms, lemmaTerms)
+            highlighter.highlight(SwordContentFacade.readOsisFragment(book, key, strings = strings), terms, lemmaTerms)
         } catch (e: Exception) {
             Log.e(TAG, "Error reading verse preview", e)
             StyledText.plain("")
