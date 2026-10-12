@@ -23,7 +23,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -52,8 +52,8 @@ class ModuleArchiveExtractionTest {
 
     @Before
     fun setUp() {
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
-        downloadDir = SwordBookPath.getSwordDownloadDir()
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
+        downloadDir = SwordBookPathJvm.getSwordDownloadDir()
     }
 
     /** Build a zip in [CommonUtils.tmpDir] with the given entries, in order. */

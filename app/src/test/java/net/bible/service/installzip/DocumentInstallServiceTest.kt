@@ -26,7 +26,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.BackupFileType
 import net.bible.android.control.document.DocumentChanges
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -92,8 +92,8 @@ class DocumentInstallServiceTest {
 
     @Before
     fun setUp() {
-        originalDownloadDir = SwordBookPath.getSwordDownloadDir()
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        originalDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
     }
 
     @After
@@ -101,7 +101,7 @@ class DocumentInstallServiceTest {
         Books.installed().getBook("TestDict")?.let { Books.installed().removeBook(it) }
         File(SharedConstants.modulesDir, "mods.d/testdict.conf").delete()
         File(SharedConstants.modulesDir, "modules/lexdict/rawld/testdict").deleteRecursively()
-        SwordBookPath.setDownloadDir(originalDownloadDir)
+        SwordBookPathJvm.setDownloadDir(originalDownloadDir)
     }
 
     /** Same fixture shape as `DefaultInstallCommitterTest.commitSwordZipExtractsAndRegistersRealModule`

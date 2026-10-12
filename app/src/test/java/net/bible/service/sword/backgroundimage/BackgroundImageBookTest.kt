@@ -22,7 +22,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.AndBibleAddons
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -53,7 +53,7 @@ class BackgroundImageBookTest {
             .getInternalMutablePackageInfo(app.packageName)
             .longVersionCode = 100000L
 
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         dir.mkdirs()
     }
 

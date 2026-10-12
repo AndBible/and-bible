@@ -37,7 +37,7 @@ import org.crosswire.common.util.ReporterEvent
 import org.crosswire.common.util.ReporterListener
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.BookException
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.index.lucene.LuceneIndexManager
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -110,7 +110,7 @@ object SwordEnvironmentInitialisation {
         CWProject.setHome("jsword.home", SharedConstants.modulesDir.absolutePath, SharedConstants.manualInstallDir.absolutePath)
         // the following causes Sword to initialise itself and can take quite a few seconds
 		// add manual install dir to this list
-        SwordBookPath.setAugmentPath(arrayOf(SharedConstants.manualInstallDir, SharedConstants.manualInstallDir2))
+        SwordBookPathJvm.setAugmentPath(arrayOf(SharedConstants.manualInstallDir, SharedConstants.manualInstallDir2))
     }
 
     private val messageShownLast = LruCache<String, Long>(100);

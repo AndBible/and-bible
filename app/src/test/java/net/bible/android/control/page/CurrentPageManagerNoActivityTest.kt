@@ -31,7 +31,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -64,7 +65,7 @@ class CurrentPageManagerNoActivityTest {
      */
     @Before
     fun setUp() {
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         registerMinimalRawLdDictionary()
     }
 
@@ -77,7 +78,7 @@ class CurrentPageManagerNoActivityTest {
     }
 
     private fun registerMinimalRawLdDictionary(): Book {
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val downloadDir = SwordBookPathJvm.getSwordDownloadDir()
         val conf = """
             [TestDict]
             DataPath=./modules/lexdict/rawld/testdict/test
@@ -100,7 +101,7 @@ class CurrentPageManagerNoActivityTest {
             .putInt(0).putShort(datBytes.size.toShort()).array()
         File(dataDir, "test.idx").writeBytes(idxBytes)
 
-        val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
+        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtil.getURI(downloadDir))
         bmd.setDriver(SwordBookDriver.instance())
         SwordBookDriver.registerNewBook(bmd)
         return requireNotNull(Books.installed().getBook("TestDict")) { "TestDict test module must be installed" }

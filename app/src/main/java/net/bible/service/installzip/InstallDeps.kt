@@ -34,7 +34,7 @@ import net.bible.service.sword.epub.epubInitials
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.CoreStrings
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.book.sword.SwordGenBook
 import java.io.File
@@ -90,7 +90,7 @@ fun terminalEventMessage(event: InstallPhase, strings: CoreStrings): String = wh
  * not reproduced here, as it only ever fed a display string).
  */
 internal fun scanSwordZip(localFile: File): InstallInspector.SwordZipScan {
-    val targetDirectory = SwordBookPath.getSwordDownloadDir()
+    val targetDirectory = SwordBookPathJvm.getSwordDownloadDir()
     val existingFiles = mutableListOf<String>()
     val otherFiles = mutableListOf<String>()
     var modsDirFound = false
