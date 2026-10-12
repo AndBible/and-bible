@@ -16,6 +16,10 @@
  */
 package net.bible.sharedcore.readingplan
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +36,8 @@ enum class ReadingPlanError { FAILED }
  * seams (start the plan + finish / reset the plan). No Android/JSword types here.
  */
 class ReadingPlanSelectorController(
-    private val loadPlans: () -> List<PlanEntry>,
+    private val scope: CoroutineScope,
+    private val loadPlans: suspend () -> List<PlanEntry>,
     private val hasDuplicates: () -> Boolean,
     private val onSelect: (String) -> Unit,
     private val onReset: (String) -> Unit,
@@ -50,11 +55,15 @@ class ReadingPlanSelectorController(
 
     fun load() {
         _error.value = null
-        try {
-            _plans.value = loadPlans()
-            _duplicateWarning.value = hasDuplicates()
-        } catch (e: Exception) {
-            _error.value = ReadingPlanError.FAILED
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                _plans.value = loadPlans()
+                _duplicateWarning.value = hasDuplicates()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _error.value = ReadingPlanError.FAILED
+            }
         }
     }
 
@@ -64,6 +73,8 @@ class ReadingPlanSelectorController(
         try {
             onReset(planCode)
             load()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             _error.value = ReadingPlanError.FAILED
         }

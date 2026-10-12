@@ -270,6 +270,7 @@ class ChooserInGraphResultTest {
      * `onResult` back to it.
      */
     private fun gridPassageController(onResult: (PassageResult) -> Unit) = GridChoosePassageController(
+        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
         initialOptions = GridOptions(
             showScripture = true,
             alphabetical = false,

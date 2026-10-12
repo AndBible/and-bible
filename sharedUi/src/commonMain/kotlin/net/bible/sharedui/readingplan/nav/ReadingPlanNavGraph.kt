@@ -141,7 +141,7 @@ enum class DailyReadingLoad {
  */
 class DailyReadingDeps(
     val controllerFor: (onChangePlan: () -> Unit, onChangeDay: () -> Unit) -> DailyReadingController,
-    val loadDay: (plan: String?, day: Int?) -> DailyReadingLoad,
+    val loadDay: suspend (plan: String?, day: Int?) -> DailyReadingLoad,
     val loaded: StateFlow<LoadedReadingDay?>,
     val subscribeEvents: () -> () -> Unit,
     val onImportPlan: () -> Unit,

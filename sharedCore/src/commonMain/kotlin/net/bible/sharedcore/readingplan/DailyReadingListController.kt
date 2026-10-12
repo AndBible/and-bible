@@ -16,6 +16,10 @@
  */
 package net.bible.sharedcore.readingplan
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +29,8 @@ data class DayEntry(val day: Int, val primary: String, val secondary: String)
 
 /** Framework-free controller for the day chooser. [loadDays] supplies rows; [onSelect] finishes with the day. */
 class DailyReadingListController(
-    private val loadDays: () -> List<DayEntry>,
+    private val scope: CoroutineScope,
+    private val loadDays: suspend () -> List<DayEntry>,
     private val onSelect: (Int) -> Unit,
 ) {
     private val _days = MutableStateFlow<List<DayEntry>>(emptyList())
@@ -38,7 +43,11 @@ class DailyReadingListController(
 
     fun load() {
         _error.value = null
-        try { _days.value = loadDays() } catch (e: Exception) { _error.value = ReadingPlanError.FAILED }
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try { _days.value = loadDays() }
+            catch (e: CancellationException) { throw e }
+            catch (e: Exception) { _error.value = ReadingPlanError.FAILED }
+        }
     }
 
     fun select(day: Int) = onSelect(day)

@@ -892,9 +892,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // whichever path follows re-runs the same load through the arm's own handling of them.
         if (isDailyReadingRoute(route)) {
             val (plan, day) = NavRoutes.readDailyReading(route)
-            loadReadingPlanDay(plan, day)
+            lifecycleScope.launch {
+                loadReadingPlanDay(plan, day)
+                if (arrival == intentArrival) navigateNewIntentRoute(route)
+            }
+            return
         }
+        navigateNewIntentRoute(route)
+    }
 
+    private fun navigateNewIntentRoute(route: String) {
         val controller = navController
         if (controller == null) {
             // Reachable: a restored-then-reordered Activity can receive LaunchActivityItem and
@@ -3552,9 +3559,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         dayList = DayListDeps(
                             controllerFor = { onSelect ->
                                 DailyReadingListController(
+                                    scope = lifecycleScope,
                                     loadDays = {
-                                        // DailyReadingListController.loadDays is a synchronous sharedCore contract
-                                        blockingDb { readingPlanControl.currentPlansReadingList() }.map { // L1-pending(view)
+                                        readingPlanControl.currentPlansReadingList().map {
                                             DayEntry(it.day, readingPlanDayPrimaryText(it), it.readingsDesc)
                                         }
                                     },
@@ -3569,9 +3576,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         selector = SelectorDeps(
                             controllerFor = { onSelect ->
                                 ReadingPlanSelectorController(
+                                    scope = lifecycleScope,
                                     loadPlans = {
-                                        // ReadingPlanSelectorController.loadPlans is a synchronous sharedCore contract
-                                        blockingDb { readingPlanControl.readingPlanList() }.map { // L1-pending(view)
+                                        readingPlanControl.readingPlanList().map {
                                             PlanEntry(it.planCode, it.planName ?: "", it.planDescription ?: "")
                                         }
                                     },
@@ -4759,15 +4766,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val returnedOverride = newLabelData.workspaceOverride
             if (returnedOverride != null) {
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                blockingDb { // L1-pending(view)
+                appScope.launch {
                     if (returnedOverride.hasOverride) {
                         dao.insertOrUpdateLabelOverride(returnedOverride)
                     } else {
                         dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
                     }
+                    bookmarkControl.notifyLabelChanged(updatedLabel)
+                    controller.refresh() // Re-derive the indicator after persistence.
                 }
-                bookmarkControl.notifyLabelChanged(updatedLabel)
-                controller.refresh() // re-derive the override (Tune icon) indicator immediately
             }
         }
     }
@@ -6377,12 +6384,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * selector, or from a history re-launch) a plan IS selected, because the selector calls
      * `startReadingPlan` before reporting the code back.
      */
-    private fun loadReadingPlanDay(plan: String?, day: Int?): DailyReadingLoad =
-        // DailyReadingDeps.loadDay is a synchronous sharedUi contract returning the outcome
-        blockingDb { loadReadingPlanDayNow(plan, day) } // L1-pending(view)
-
-    /** [loadReadingPlanDay] for callers that already run in a coroutine. */
-    private suspend fun loadReadingPlanDayNow(plan: String?, day: Int?): DailyReadingLoad {
+    private suspend fun loadReadingPlanDay(plan: String?, day: Int?): DailyReadingLoad {
         if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists()) {
             return DailyReadingLoad.NO_PLAN
         }
@@ -6394,6 +6396,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             pushReadingPlanUi()
             loadedReadingDay.value = LoadedReadingDay(planCodeLoaded ?: "", dayLoaded)
             DailyReadingLoad.LOADED
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG_READING_PLAN, "Error showing daily readings", e)
             dailyReadingController?.showError()
@@ -6459,7 +6463,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         lifecycleScope.launch {
             try {
                 val nextDayToShow = readingPlanWrites.done(dto.readingPlanInfo, dayLoaded)
-                if (nextDayToShow > 0) loadReadingPlanDayNow(planCodeLoaded, nextDayToShow) else finish()
+                if (nextDayToShow > 0) loadReadingPlanDay(planCodeLoaded, nextDayToShow) else finish()
             } catch (e: Exception) {
                 Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
                 dailyReadingController?.showError()
@@ -6472,7 +6476,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         lifecycleScope.launch {
             try {
                 readingPlanWrites.setCurrentDay(dto.readingPlanInfo, dayLoaded)
-                loadReadingPlanDayNow(planCodeLoaded, dayLoaded)
+                loadReadingPlanDay(planCodeLoaded, dayLoaded)
             } catch (e: Exception) {
                 Log.e(TAG_READING_PLAN, "Error setting current day", e)
                 dailyReadingController?.showError()
@@ -6520,7 +6524,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         planStartDate.set(year, month1to12 - 1, day)
         lifecycleScope.launch {
             readingPlanWrites.setStartDate(dto.readingPlanInfo, planStartDate.time)
-            loadReadingPlanDayNow(planCodeLoaded, dayLoaded)
+            loadReadingPlanDay(planCodeLoaded, dayLoaded)
         }
     }
 
@@ -9175,6 +9179,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val baseTitle = getString(R.string.choosePassageBookName)
         val workspaceName = SharedActivityState.currentWorkspaceName
         return GridChoosePassageController(
+            scope = lifecycleScope,
             initialOptions = initialGridOptions(navigationControl, isScripture),
             buildStep = { step, opts ->
                 buildGridStep(

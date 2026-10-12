@@ -81,8 +81,8 @@ class DailyReadingPassageStaysInHostTest {
 
     /**
      * The host's own `onNewIntent` for a daily-reading route: navigates onto the day AND loads it
-     * host-side (`loadReadingPlanDay`), which the destination's LaunchedEffect does not do under a
-     * paused Robolectric looper.
+     * host-side (`loadReadingPlanDay`). Await its suspend read and actual navigation, not merely
+     * the main looper: the DAO resumes from IO before the destination can be composed.
      */
     private fun openDay(controller: ActivityController<NavHostComposeActivity>) {
         controller.newIntent(
@@ -91,6 +91,7 @@ class DailyReadingPassageStaysInHostTest {
                 NavRoutes.dailyReading(plan = PLAN, day = 5),
             ),
         )
+        net.bible.test.awaitHostRoute(controller.get(), NavRoutes.dailyReading(plan = PLAN, day = 5))
         idleMain()
     }
 

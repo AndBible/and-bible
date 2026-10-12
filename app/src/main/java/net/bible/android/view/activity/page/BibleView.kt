@@ -637,6 +637,7 @@ class BibleView(
 
     val scope get() = host.lifecycleScope
     private val epubLinks by lazy { net.bible.sharedcore.platform.OrderedLauncher(scope) }
+    private val bookmarkChanges by lazy { net.bible.sharedcore.platform.OrderedLauncher(scope) }
     private var documentLoadGeneration = 0L
 
     internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.Main) {
@@ -1043,7 +1044,10 @@ class BibleView(
                     }
                 })
                 subscriptions.add(ReadingProgressSettings.changed.subscribe { onReadingProgressSettingsChanged() })
-                subscriptions.add(bookmarkControl.changes.subscribe { onBookmarkChange(it) })
+                subscriptions.add(bookmarkControl.changes.subscribe { change ->
+                    favouriteLabels.apply(change)
+                    bookmarkChanges.launch("bibleview-bookmarks-${window.id}") { onBookmarkChange(change) }
+                })
                 subscriptions.add(MyDocumentBookManager.changes.subscribe {
                     if (it is MyDocumentChange.AiDocPages) onAiDocPagesChanged(it)
                 })
@@ -1068,8 +1072,8 @@ class BibleView(
         }
     }
 
-    /** The reading view's reaction to [BookmarkControl.changes]; runs on the emitter's thread. */
-    private fun onBookmarkChange(change: BookmarkChange) {
+    /** Emits bookmark changes to the reading view after any required suspend reads. */
+    private suspend fun onBookmarkChange(change: BookmarkChange) {
         when (change) {
             is BookmarkChange.BookmarksUpserted -> {
                 val document = firstDocument
@@ -1136,8 +1140,7 @@ class BibleView(
             is BookmarkChange.LabelUpserted -> {
                 val workspaceId = windowControl.windowRepository.id
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                labelOverridesMap = blockingDb { dao.labelOverrides(workspaceId) }.associateBy { it.labelId } // L1-pending(view)
-                favouriteLabels.apply(change)
+                labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
                 val overriddenLabel = change.label.withStyleOverrides(labelOverridesMap[change.label.id])
                 val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
                 executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
@@ -1147,7 +1150,6 @@ class BibleView(
                 executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
             }
             is BookmarkChange.LabelsDeleted -> {
-                favouriteLabels.apply(change)
                 val labelIds = json.encodeToString(serializer(), change.labelIds)
                 executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
             }
@@ -1783,7 +1785,7 @@ class BibleView(
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
     /** Favourite label ids for [getUpdateConfigCommand] (synchronous): read in [loadDocument], kept
-     *  current from label changes in [onBookmarkChange]; see [FavouriteLabelIdsCache] for the threading. */
+     *  current synchronously from the bookmark subscription; see [FavouriteLabelIdsCache] for the threading. */
     private val favouriteLabels = FavouriteLabelIdsCache()
 
     private suspend fun refreshFavouriteLabels() {

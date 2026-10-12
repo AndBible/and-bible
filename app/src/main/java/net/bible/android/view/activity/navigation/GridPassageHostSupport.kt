@@ -22,7 +22,6 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ProgressControl
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.blockingDb
 import net.bible.sharedcore.navigation.BookPick
 import net.bible.sharedcore.navigation.ChapterPick
 import net.bible.sharedcore.navigation.GridButton
@@ -57,7 +56,7 @@ internal fun initialGridOptions(navigationControl: NavigationControl, isScriptur
 
 // ---- buildStep: ports bibleBookButtonInfo / getBibleChaptersButtonInfo / getBibleVersesButtonInfo ----
 
-internal fun buildGridStep(
+internal suspend fun buildGridStep(
     step: GridStep,
     opts: GridOptions,
     baseTitle: String,
@@ -66,12 +65,10 @@ internal fun buildGridStep(
     selectedChapter: Int,
     navigationControl: NavigationControl,
     windowControl: WindowControl,
-): GridUi = blockingDb { // L1-pending(view): view code serving the synchronous :sharedUi contract GridChoosePassageController.buildStep; make it suspend later
-    when (step) {
+): GridUi = when (step) {
         GridStep.BOOK -> buildBookStep(opts, baseTitle, workspaceName, navigationControl, windowControl)
         GridStep.CHAPTER -> buildChapterStep(opts, selectedBookNo, navigationControl, windowControl)
         GridStep.VERSE -> buildVerseStep(opts, selectedBookNo, selectedChapter, navigationControl, windowControl)
-    }
 }
 
 private suspend fun buildBookStep(

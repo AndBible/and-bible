@@ -133,6 +133,7 @@ class HistoryRouteBackTest {
                 ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading(plan = PLAN, day = 5),
             ),
         )
+        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5))
         idle()
         assertEquals("fixture: on daily reading", NavRoutes.dailyReading().substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
         assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)

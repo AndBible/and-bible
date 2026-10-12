@@ -16,6 +16,8 @@
  */
 package net.bible.sharedcore.readingplan
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.test.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -23,23 +25,37 @@ import kotlin.test.assertNull
 class DailyReadingListControllerTest {
     private val sample = listOf(DayEntry(1, "Day 1", "Gen 1-2; Matt 1"), DayEntry(2, "Day 2", "Gen 3-4; Matt 2"))
 
-    @Test fun load_populates_days() {
-        val c = DailyReadingListController({ sample }, {})
+    @Test fun load_populates_days() = runTest {
+        val c = DailyReadingListController(this, { sample }, {})
         assertEquals(sample, c.days.value)
         assertNull(c.error.value)
     }
 
-    @Test fun select_forwards_day() {
+    @Test fun select_forwards_day() = runTest {
         var picked = -1
-        val c = DailyReadingListController({ sample }, { picked = it })
+        val c = DailyReadingListController(this, { sample }, { picked = it })
         c.select(2)
         assertEquals(2, picked)
     }
 
-    @Test fun throwing_load_sets_error() {
-        val c = DailyReadingListController({ throw RuntimeException("boom") }, {})
+    @Test fun throwing_load_sets_error() = runTest {
+        val c = DailyReadingListController(this, { throw RuntimeException("boom") }, {})
         assertEquals(ReadingPlanError.FAILED, c.error.value)
         c.dismissError()
+        assertNull(c.error.value)
+    }
+
+    @Test fun suspended_source_keeps_rows_empty_until_completion() = runTest {
+        val gate = CompletableDeferred<List<DayEntry>>()
+        val c = DailyReadingListController(this, { gate.await() }, {})
+        assertEquals(emptyList(), c.days.value)
+        gate.complete(sample)
+        runCurrent()
+        assertEquals(sample, c.days.value)
+    }
+
+    @Test fun cancelled_source_does_not_set_failed() = runTest {
+        val c = DailyReadingListController(this, { throw CancellationException("screen closed") }, {})
         assertNull(c.error.value)
     }
 }

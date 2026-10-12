@@ -16,6 +16,8 @@
  */
 package net.bible.sharedcore.navigation
 
+import kotlinx.coroutines.*
+import net.bible.sharedcore.readingplan.ReadingPlanError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -104,8 +106,9 @@ sealed class ChapterPick {
  * classic branch logic; [onFinish] sets the result + finishes.
  */
 class GridChoosePassageController(
+    private val scope: CoroutineScope,
     initialOptions: GridOptions,
-    private val buildStep: (GridStep, GridOptions) -> GridUi,
+    private val buildStep: suspend (GridStep, GridOptions) -> GridUi,
     private val onPersistOptions: (GridOptions) -> Unit,
     private val onPickBook: (Int) -> BookPick,
     private val onPickChapter: (Int) -> ChapterPick,
@@ -120,8 +123,34 @@ class GridChoosePassageController(
     private val _options = MutableStateFlow(initialOptions)
     val options: StateFlow<GridOptions> = _options.asStateFlow()
 
-    private val _ui = MutableStateFlow(buildStep(GridStep.BOOK, initialOptions))
-    val ui: StateFlow<GridUi> = _ui.asStateFlow()
+    private val _ui = MutableStateFlow<GridUi?>(null)
+    val ui: StateFlow<GridUi?> = _ui.asStateFlow()
+    private val _error = MutableStateFlow<ReadingPlanError?>(null)
+    val error: StateFlow<ReadingPlanError?> = _error.asStateFlow()
+    private var buildJob: Job? = null
+    private var buildGeneration = 0L
+
+    init { rebuild() }
+
+    private fun rebuild() {
+        val generation = ++buildGeneration
+        buildJob?.cancel()
+        val step = _step.value
+        val options = _options.value
+        // Never keep a different step's buttons while its replacement is loading.
+        if (_ui.value?.step != step) _ui.value = null
+        _error.value = null
+        buildJob = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                val result = buildStep(step, options)
+                if (generation == buildGeneration && isActive) _ui.value = result
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (generation == buildGeneration && isActive) _error.value = ReadingPlanError.FAILED
+            }
+        }
+    }
 
     fun pick(id: Int) {
         when (_step.value) {
@@ -141,14 +170,14 @@ class GridChoosePassageController(
     private fun goTo(next: GridStep) {
         backStack.addLast(_step.value)
         _step.value = next
-        _ui.value = buildStep(next, _options.value)
+        rebuild()
     }
 
     /** Pops one step. Returns false when already at the root (host then finishes). */
     fun back(): Boolean {
         val prev = backStack.removeLastOrNull() ?: return false
         _step.value = prev
-        _ui.value = buildStep(prev, _options.value)
+        rebuild()
         return true
     }
 
@@ -164,6 +193,6 @@ class GridChoosePassageController(
         }
         _options.value = n
         onPersistOptions(n)
-        _ui.value = buildStep(_step.value, n)
+        rebuild()
     }
 }

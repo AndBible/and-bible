@@ -87,12 +87,16 @@ private const val LONG_NAME_MIN_FONT_SIZE_FRACTION = 0.65f
 
 @Composable
 fun GridChoosePassageScreen(
-    ui: GridUi,
+    ui: GridUi?,
     options: GridOptions,
     onPick: (Int) -> Unit,
     onToggle: (GridOption) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
+    if (ui == null) {
+        Box(Modifier.fillMaxSize())
+        return
+    }
     AbScaffold(
         topBar = {
             AbTopAppBar(
@@ -158,11 +162,15 @@ fun GridOptionsOverflow(ui: GridUi, options: GridOptions, onToggle: (GridOption)
  */
 @Composable
 fun GridChoosePassageContent(
-    ui: GridUi,
+    ui: GridUi?,
     onPick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     state: LazyGridState = rememberLazyGridState(),
 ) {
+    if (ui == null) {
+        Box(modifier)
+        return
+    }
     val sections = ui.sections
     val cols = ui.columns.coerceAtLeast(1)
     // Row-break spacers between grouped sections (classic group gaps).

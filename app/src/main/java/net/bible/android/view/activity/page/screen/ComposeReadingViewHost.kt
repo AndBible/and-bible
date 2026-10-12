@@ -84,6 +84,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CompletableDeferred
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -1887,8 +1888,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             }
             is ReadingQuickSheet.KeyChooser -> when (sheet.kind) {
                 KeyChooserKind.Grid -> {
+                    val gridScope = rememberCoroutineScope()
                     val controller = remember(sheet) {
                         newGridPassageController(
+                            scope = gridScope,
                             // The full-screen twin's own default title (GridChoosePassageComposeActivity
                             // reads the same string when no "title" intent extra overrides it) --
                             // NOT R.string.chooseBook, which is the DOCUMENT chooser's caption.
@@ -1908,6 +1911,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         )
                     }
                     val ui by controller.ui.collectAsState()
+                    val step by controller.step.collectAsState()
                     val options by controller.options.collectAsState()
                     // I2 (whole-branch review fix wave): the grid is the one sheet that ALWAYS
                     // overflows its 400dp bound (its own golden's arithmetic puts the content at
@@ -1920,10 +1924,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         open = true,
                         // Tracks the step: Genesis -> Genesis 1. The Speak sheet discards ui.title;
                         // that is right for "pick a range endpoint" and wrong for a general chooser.
-                        title = ui.title,
+                        title = ui?.title ?: activity.getString(R.string.choosePassageBookName),
                         onDismiss = { closeQuickSheet() },
                         // Still the header's back arrow: it pops a grid step until the stack is empty.
-                        canGoBack = { ui.step != GridStep.BOOK },
+                        canGoBack = { step != GridStep.BOOK },
                         onBack = { if (!controller.back()) closeQuickSheet() },
                         canScrollForward = { gridState.canScrollForward },
                         // Amendment D3: swipe-down and scrim-tap must CLOSE this sheet, as they do
@@ -1936,14 +1940,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         // handler, deleting this ONE argument restores the shell's default
                         // (back/swipe/scrim all close; the header's back arrow still pops steps).
                         dismissRoutesToBack = false,
-                        actions = if (ui.step == GridStep.BOOK) {
+                        actions = if (ui?.step == GridStep.BOOK) {
                             {
                                 // The six options are not decoration: GridOption.DEUTEROCANONICAL
                                 // rebuilds the book list, so dropping them here would be a
                                 // functional regression. AbOverflowMenu is a DropdownMenu, i.e. a
                                 // Popup, which stacks over a sheet without difficulty -- the port's
                                 // ban is on sheet-over-sheet, not popup-over-sheet.
-                                GridOptionsOverflow(ui, options) { controller.toggle(it) }
+                                GridOptionsOverflow(requireNotNull(ui), options) { controller.toggle(it) }
                             }
                         } else null,
                     ) {
@@ -1959,7 +1963,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         // recently added -- and the sheet's content composes after the dialog's own
                         // constructor ran. Verified against this project's material3 /
                         // androidx.activity / androidx.navigationevent bytecode (Task 8 report).
-                        BackHandler(enabled = ui.step != GridStep.BOOK) { controller.back() }
+                        BackHandler(enabled = step != GridStep.BOOK) { controller.back() }
                         GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize(), state = gridState)
                     }
                 }
@@ -2076,8 +2080,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private fun SpeakVersePickerPage(pickingEnd: Boolean) {
         val strings = LocalStrings.current
         val title = if (pickingEnd) strings.speakEndingOfPassage else strings.speakBeginningOfPassage
+        val gridScope = rememberCoroutineScope()
         val controller = remember(pickingEnd) {
             newGridPassageController(
+                scope = gridScope,
                 baseTitle = title,
                 isScripture = true,
                 navigateToVerse = true,
@@ -2104,6 +2110,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * there is one implementation behind both hosts rather than a copy here.
      */
     private fun newGridPassageController(
+        scope: CoroutineScope,
         baseTitle: String,
         isScripture: Boolean,
         navigateToVerse: Boolean,
@@ -2114,6 +2121,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         val v11n = navigationControl.versification
         val workspaceName = SharedActivityState.currentWorkspaceName
         return GridChoosePassageController(
+            scope = scope,
             initialOptions = initialGridOptions(navigationControl, isScripture),
             buildStep = { step, opts ->
                 buildGridStep(step, opts, baseTitle, workspaceName, selectedBookNo, selectedChapter,
