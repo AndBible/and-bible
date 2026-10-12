@@ -18,6 +18,7 @@ package net.bible.android.view.activity.ai
 
 import kotlinx.coroutines.sync.withLock
 import net.bible.service.llm.collectOwned
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.platform.AppCoroutineScope
 import org.koin.core.component.inject
@@ -94,6 +95,20 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
 
     private val _hasHiddenPrompts = MutableStateFlow(computeHasHiddenPrompts())
     override val hasHiddenPrompts: StateFlow<Boolean> = _hasHiddenPrompts.asStateFlow()
+
+    private val mutationLock = Any()
+    private var mutationTail: kotlinx.coroutines.Deferred<*>? = null
+
+    private suspend fun <T> mutate(block: suspend () -> T): T {
+        val write = synchronized(mutationLock) {
+            val previous = mutationTail
+            appScope.async {
+                previous?.join()
+                block()
+            }.also { mutationTail = it }
+        }
+        return write.await()
+    }
 
     private val refreshMutex = kotlinx.coroutines.sync.Mutex()
 
@@ -186,21 +201,21 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
         refresh()
     }
 
-    override suspend fun toggleFavorite(promptId: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun toggleFavorite(promptId: String) = mutate {
         PromptRepository.toggleFavorite(IdType(promptId))
         settings.awaitWrites()
         refresh()
     }
 
-    override suspend fun setPromptHidden(promptId: String, hidden: Boolean) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun setPromptHidden(promptId: String, hidden: Boolean) = mutate {
         PromptRepository.setBuiltInPromptHidden(IdType(promptId), hidden)
         settings.awaitWrites()
         refresh()
     }
 
-    override suspend fun setCategoryHidden(categoryId: String, hidden: Boolean) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun setCategoryHidden(categoryId: String, hidden: Boolean) = mutate {
         val id = IdType(categoryId)
-        val cat = PromptRepository.categoryById(id) ?: return@withContext
+        val cat = PromptRepository.categoryById(id) ?: return@mutate
         if (BuiltInPrompts.isBuiltInCategory(id)) {
             val current = settings.hiddenBuiltInCategories
             settings.hiddenBuiltInCategories = if (hidden) current + id else current - id
@@ -211,73 +226,73 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
         refresh()
     }
 
-    override suspend fun deletePrompt(promptId: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun deletePrompt(promptId: String) = mutate {
         val id = IdType(promptId)
-        if (PromptRepository.isReadOnly(id)) return@withContext
-        val prompt = PromptRepository.promptById(id) ?: return@withContext
+        if (PromptRepository.isReadOnly(id)) return@mutate
+        val prompt = PromptRepository.promptById(id) ?: return@mutate
         PromptRepository.deletePrompt(prompt)
         refresh()
     }
 
-    override suspend fun deleteCategory(categoryId: String, deletePrompts: Boolean) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun deleteCategory(categoryId: String, deletePrompts: Boolean) = mutate {
         // deletePrompts=false → keep prompts (moved to the uncategorized bucket); =true → cascade.
         // PromptRepository.deleteCategory implements exactly this two-outcome split.
         PromptRepository.deleteCategory(IdType(categoryId), deletePrompts)
         refresh()
     }
 
-    override suspend fun movePrompt(promptId: String, up: Boolean) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun movePrompt(promptId: String, up: Boolean) = mutate {
         val id = IdType(promptId)
-        if (PromptRepository.isReadOnly(id)) return@withContext
+        if (PromptRepository.isReadOnly(id)) return@mutate
         // Adjacency among the non-read-only siblings of the SAME (non-Favorites) group, in the
         // already-published display order (mirrors classic swapPromptOrder / index-in-siblings).
-        val group = _groups.value.firstOrNull { g -> !g.isFavorites && g.prompts.any { it.id == promptId } } ?: return@withContext
+        val group = _groups.value.firstOrNull { g -> !g.isFavorites && g.prompts.any { it.id == promptId } } ?: return@mutate
         val siblings = group.prompts.filter { !it.isReadOnly }
         val idx = siblings.indexOfFirst { it.id == promptId }
         val neighborIdx = if (up) idx - 1 else idx + 1
-        if (idx < 0 || neighborIdx !in siblings.indices) return@withContext
-        val a = PromptRepository.promptById(id) ?: return@withContext
-        val b = PromptRepository.promptById(IdType(siblings[neighborIdx].id)) ?: return@withContext
+        if (idx < 0 || neighborIdx !in siblings.indices) return@mutate
+        val a = PromptRepository.promptById(id) ?: return@mutate
+        val b = PromptRepository.promptById(IdType(siblings[neighborIdx].id)) ?: return@mutate
         PromptRepository.updatePrompt(a.copy(orderNumber = b.orderNumber))
         PromptRepository.updatePrompt(b.copy(orderNumber = a.orderNumber))
         refresh()
     }
 
-    override suspend fun movePromptToCategory(promptId: String, categoryId: String?) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun movePromptToCategory(promptId: String, categoryId: String?) = mutate {
         val id = IdType(promptId)
-        if (PromptRepository.isReadOnly(id)) return@withContext
-        val prompt = PromptRepository.promptById(id) ?: return@withContext
+        if (PromptRepository.isReadOnly(id)) return@mutate
+        val prompt = PromptRepository.promptById(id) ?: return@mutate
         PromptRepository.updatePrompt(prompt.copy(categoryId = categoryId?.let { IdType(it) }))
         refresh()
     }
 
-    override suspend fun moveCategory(categoryId: String, up: Boolean) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun moveCategory(categoryId: String, up: Boolean) = mutate {
         // Adjacency among all category groups in display order (classic categoryGroups); only a
         // non-built-in category is movable, but the swap partner may be built-in (a no-op DB update).
         val categories = _groups.value.mapNotNull { it.category }
         val idx = categories.indexOfFirst { it.id == categoryId }
-        if (idx < 0 || categories[idx].isBuiltIn) return@withContext
+        if (idx < 0 || categories[idx].isBuiltIn) return@mutate
         val neighborIdx = if (up) idx - 1 else idx + 1
-        if (neighborIdx !in categories.indices) return@withContext
-        val a = PromptRepository.categoryById(IdType(categoryId)) ?: return@withContext
-        val b = PromptRepository.categoryById(IdType(categories[neighborIdx].id)) ?: return@withContext
+        if (neighborIdx !in categories.indices) return@mutate
+        val a = PromptRepository.categoryById(IdType(categoryId)) ?: return@mutate
+        val b = PromptRepository.categoryById(IdType(categories[neighborIdx].id)) ?: return@mutate
         val tmp = a.orderNumber
         PromptRepository.updateCategory(a.copy(orderNumber = b.orderNumber))
         PromptRepository.updateCategory(b.copy(orderNumber = tmp))
         refresh()
     }
 
-    override suspend fun createCategory(name: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun createCategory(name: String) = mutate {
         val trimmed = name.trim()
-        if (trimmed.isEmpty()) return@withContext
+        if (trimmed.isEmpty()) return@mutate
         PromptRepository.insertCategory(PromptCategory(name = trimmed))
         refresh()
     }
 
-    override suspend fun renameCategory(categoryId: String, name: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun renameCategory(categoryId: String, name: String) = mutate {
         val trimmed = name.trim()
-        if (trimmed.isEmpty()) return@withContext
-        val cat = PromptRepository.categoryById(IdType(categoryId)) ?: return@withContext
+        if (trimmed.isEmpty()) return@mutate
+        val cat = PromptRepository.categoryById(IdType(categoryId)) ?: return@mutate
         PromptRepository.updateCategory(cat.copy(name = trimmed))
         refresh()
     }
@@ -422,7 +437,7 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
         return choices
     }
 
-    override suspend fun savePrompt(data: PromptEditData): String = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun savePrompt(data: PromptEditData): String = mutate {
         val existing = data.id?.let { PromptRepository.promptById(IdType(it)) }
         val allowedSet = data.allowedTools.mapNotNull { toAgentTool(it) }.toSet()
         val deniedSet = data.deniedTools.mapNotNull { toAgentTool(it) }.toSet()
@@ -450,23 +465,23 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
         )
         if (existing == null) PromptRepository.insertPrompt(prompt) else PromptRepository.updatePrompt(prompt)
         refresh()
-        return@withContext prompt.id.toString()
+        return@mutate prompt.id.toString()
     }
 
-    override suspend fun deletePromptById(id: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
-        val prompt = PromptRepository.promptById(IdType(id)) ?: return@withContext
-        if (PromptRepository.isReadOnly(prompt.id)) return@withContext
+    override suspend fun deletePromptById(id: String) = mutate {
+        val prompt = PromptRepository.promptById(IdType(id)) ?: return@mutate
+        if (PromptRepository.isReadOnly(prompt.id)) return@mutate
         PromptRepository.deletePrompt(prompt)
         refresh()
     }
 
-    override suspend fun copyPrompt(id: String): String = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun copyPrompt(id: String): String = mutate {
         val newId = PromptRepository.copyPrompt(IdType(id))
         refresh()
-        return@withContext (newId ?: IdType(id)).toString()
+        return@mutate (newId ?: IdType(id)).toString()
     }
 
-    override suspend fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+    override suspend fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) = mutate {
         // Mirrors classic PromptEditActivity.saveBuiltinOverride: upsert a BuiltinPromptOverride row
         // for the built-in prompt; a null configuredModelId row is equivalent to "use global default"
         // (PromptRepository.applyOverride copies the null through), i.e. the override is cleared.

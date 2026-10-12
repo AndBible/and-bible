@@ -115,6 +115,75 @@ class AiMutationOrderingTest {
         }
     }
 
+    @Test fun overlappingFavoritesPreserveBothTransformsAndSameKeyTogglesCancel() = runBlocking {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<AiSettings>()
+        original.favoritePrompts = emptySet()
+        original.awaitWrites()
+        val barrier = java.util.concurrent.CyclicBarrier(2)
+        val competing = object : AiSettings by original {
+            override var favoritePrompts: Set<IdType>
+                get() {
+                    val captured = original.favoritePrompts
+                    try { barrier.await(1, java.util.concurrent.TimeUnit.SECONDS) } catch (_: Exception) { }
+                    return captured
+                }
+                set(value) { original.favoritePrompts = value }
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<AiSettings> { competing } })
+        try {
+            val service = PromptServiceImpl(strings)
+            val a = IdType()
+            val b = IdType()
+            val owner = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
+            val first = owner.launch { service.toggleFavorite(a.toString()) }
+            val second = owner.launch { service.toggleFavorite(b.toString()) }
+            first.join(); second.join()
+            assertEquals(setOf(a, b), original.favoritePrompts)
+            assertEquals(setOf(a, b), DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao().get()?.favoritePrompts)
+            val third = owner.launch { service.toggleFavorite(a.toString()) }
+            val fourth = owner.launch { service.toggleFavorite(a.toString()) }
+            third.join(); fourth.join()
+            assertEquals(setOf(a, b), original.favoritePrompts)
+            assertEquals(setOf(a, b), DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao().get()?.favoritePrompts)
+        } finally {
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<AiSettings> { original } })
+        }
+    }
+
+    @Test fun oldRawRefreshCannotRepublishDeletedRows() = runBlocking {
+        val container = DatabaseContainer.instance
+        val original = container.aiSettingsDb
+        val real = original.llmRawLogRecordDao()
+        val record = LlmRawLogRecord(logData = byteArrayOf())
+        real.insert(record)
+        val captured = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var first = true
+        val held = object : LlmRawLogRecordDao by real {
+            override suspend fun allSummaries(): List<LlmRawLogSummary> {
+                val rows = real.allSummaries()
+                if (first) { first = false; captured.complete(Unit); release.await() }
+                return rows
+            }
+        }
+        val db = org.mockito.Mockito.mock(net.bible.android.database.AiSettingsDatabase::class.java)
+        org.mockito.Mockito.`when`(db.llmRawLogRecordDao()).thenReturn(held)
+        container.aiSettingsDb = db
+        try {
+            val service = RawLogServiceImpl(strings)
+            val owner = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
+            val old = owner.launch { service.refresh() }
+            captured.await()
+            val deletion = owner.launch { service.deleteByIds(setOf(record.id.toString())) }
+            kotlinx.coroutines.delay(100)
+            release.complete(Unit)
+            old.join(); deletion.join()
+            assertNull(real.getById(record.id))
+            assertFalse(service.summaries.value.any { it.id == record.id.toString() })
+        } finally { release.complete(Unit); container.aiSettingsDb = original }
+    }
+
     @Test fun resetCompletesBeforeUsageAndCostRead() = runBlocking {
         val id = IdType()
         DatabaseContainer.instance.aiSettingsDb.llmUsageRecordDao().upsert(

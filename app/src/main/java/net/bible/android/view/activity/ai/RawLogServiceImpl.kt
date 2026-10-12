@@ -18,6 +18,7 @@ package net.bible.android.view.activity.ai
 
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,7 +73,9 @@ class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService, org.ko
     private val _summaries = MutableStateFlow<List<RawLogSummaryVd>>(emptyList())
     override val summaries: StateFlow<List<RawLogSummaryVd>> = _summaries.asStateFlow()
 
-    override suspend fun refresh() {
+    private val refreshMutex = kotlinx.coroutines.sync.Mutex()
+
+    override suspend fun refresh() = refreshMutex.withLock {
         _summaries.value = dao.allSummaries().map { it.toVd() }
     }
 
