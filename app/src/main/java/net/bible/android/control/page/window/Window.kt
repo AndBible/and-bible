@@ -242,6 +242,9 @@ class Window (
     val initialized get() = lastUpdated != 0L
     private val updateScope get() = windowRepository.scope
 
+    private val contentLoadSequence = java.util.concurrent.atomic.AtomicLong()
+    internal val contentLoadGeneration: Long get() = contentLoadSequence.get()
+
     fun loadText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
 
@@ -251,7 +254,13 @@ class Window (
 
         Log.i(TAG, "Loading OSIS xml in background")
         var anchorOrdinal: OrdinalRange? = null
+        val generation = contentLoadSequence.incrementAndGet()
         val currentPage = pageManager.currentPage
+        val sourceDocument = currentPage.currentDocument
+        val sourceKey = currentPage.key?.getOsisRef()
+        fun isCurrentRequest() = generation == contentLoadGeneration &&
+            pageManager.currentPage === currentPage && currentPage.currentDocument === sourceDocument &&
+            currentPage.key?.getOsisRef() == sourceKey
         val key = if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
             pageManager.currentBibleVerse.verse
         } else {
@@ -271,10 +280,14 @@ class Window (
         updateScope.launch(Dispatchers.IO) {
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
-            val doc = fetchDocument()
-            if(adjusted) {
-                b?.adjustLoadingCount(-1)
+            val doc = try {
+                // The request owns the source before the first suspending page read.
+                if (!isCurrentRequest()) return@launch
+                fetchDocument(currentPage)
+            } finally {
+                if (adjusted) b?.adjustLoadingCount(-1)
             }
+            if (!isCurrentRequest()) return@launch
 
             // null means request was superseded - don't load anything
             if (doc == null) {
@@ -294,12 +307,13 @@ class Window (
 
             // BibleView initialization might take more time than loading OSIS, so let's wait for it.
             val viewReady = waitForBibleView()
+            if (!isCurrentRequest()) return@launch
 
             lastUpdated = System.currentTimeMillis()
             lastChecksum = checksum
 
             onLoadDelivered(viewReady)
-            bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId)
+            bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId, windowContentGeneration = generation)
 
             if(notifyLocationChange)
                 PassageChangeMediator.contentChangeFinished()
@@ -387,8 +401,7 @@ class Window (
         loadText(notifyLocationChange = true)
     }
 
-    private suspend fun fetchDocument(): Document? = withContext(Dispatchers.IO) {
-        val currentPage = pageManager.currentPage
+    private suspend fun fetchDocument(currentPage: net.bible.android.control.page.CurrentPage): Document? = withContext(Dispatchers.IO) {
         return@withContext try {
             val document = currentPage.currentDocument
             Log.i(TAG, "Loading document:$document key:${currentPage.key}")

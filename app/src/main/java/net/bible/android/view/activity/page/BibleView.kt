@@ -1691,6 +1691,7 @@ class BibleView(
                              key: Key? = null,
                              anchorOrdinal: OrdinalRange? = null,
                              htmlId: String? = null,
+                             windowContentGeneration: Long? = null,
     )
     {
         val generation = synchronized(documentLoadingLock) { ++documentLoadGeneration }
@@ -1721,7 +1722,9 @@ class BibleView(
         refreshFavouriteLabels()
         withContext(Dispatchers.Main) {
             synchronized(documentLoadingLock) {
-                if (generation != documentLoadGeneration || window.bibleView !== this@BibleView ||
+                if (generation != documentLoadGeneration ||
+                    (windowContentGeneration != null && window.contentLoadGeneration != windowContentGeneration) ||
+                    window.bibleView !== this@BibleView ||
                     window.pageManager.currentPage !== currentPage || currentPage.currentDocument != sourceDocument ||
                     windowControl.windowRepository.id != workspaceId) return@withContext
                 labelOverridesMap = overrides
