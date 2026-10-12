@@ -33,7 +33,8 @@ import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
-import net.bible.service.llm.getApiKey
+import net.bible.service.llm.apiKey
+import net.bible.service.llm.SecretStore
 import net.bible.service.llm.removeApiKey
 import net.bible.service.llm.setApiKey
 import net.bible.sharedcore.ai.AvailableModelVd
@@ -50,7 +51,7 @@ import net.bible.service.db.blockingDb
  * - [LlmProviderConfigDao] for the configured-provider rows, flattened to portable [ProviderVd]s.
  *   `endpoint`/`apiFormatId` are ALWAYS populated from `resolveEndpoint()`/`resolveApiFormat()`
  *   (the shared screen only shows them for custom providers, but the VD carries them regardless).
- * - the SharedPreferences-backed API key via [getApiKey]/[setApiKey]/[removeApiKey].
+ * - the SharedPreferences-backed API key via [apiKey]/[setApiKey]/[removeApiKey].
  * - the [LlmProvider] enum → [ProviderTypeVd] for the add-provider type picker.
  * - [DynamicModelService] for available-model discovery, [LlmProcessingService.testApiConnection]
  *   for the easy-setup connection test, and the classic `EasySetupDialogs` recommended-setup list +
@@ -70,6 +71,7 @@ import net.bible.service.db.blockingDb
  */
 class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderService, KoinComponent {
     private val settings: AiSettings by inject()
+    private val secrets: SecretStore by inject()
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
@@ -86,7 +88,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
             id = config.id.toString(),
             displayName = config.displayName,
             providerTypeId = config.providerType,
-            apiKeySet = config.getApiKey().isNotBlank(),
+            apiKeySet = config.apiKey(secrets).isNotBlank(),
             isCustom = config.resolveProvider() == LlmProvider.CUSTOM,
             endpoint = config.resolveEndpoint(),          // always populated (UI gates on isCustom)
             apiFormatId = config.resolveApiFormat().name,  // always populated
@@ -106,7 +108,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
     }
 
     override fun apiKeyFor(providerId: String): String =
-        blockingDb { dao.getById(IdType(providerId)) }?.getApiKey() ?: ""
+        blockingDb { dao.getById(IdType(providerId)) }?.apiKey(secrets) ?: ""
 
     override suspend fun saveProvider(
         id: String?,
@@ -132,7 +134,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
                     orderNumber = dao.getCount(),
                 )
                 dao.insert(newConfig)
-                newConfig.setApiKey(key)
+                newConfig.setApiKey(secrets, key)
                 prefetchModels(provider, key)
             } else {
                 val config = dao.getById(IdType(id)) ?: return@withContext
@@ -142,7 +144,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
                     apiFormat = if (isCustom) parseApiFormat(apiFormatId) else config.apiFormat,
                 )
                 dao.update(updated)
-                updated.setApiKey(key)
+                updated.setApiKey(secrets, key)
             }
         }
         // Classic broadcast the config change only on create (now [AiSettings.notifyConfigChanged]); edits just refresh the list locally.
@@ -152,7 +154,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
 
     override fun deleteProvider(id: String) {
         val config = blockingDb { dao.getById(IdType(id)) } ?: return
-        config.removeApiKey()
+        config.removeApiKey(secrets)
         val deletedModelIds = blockingDb {
             modelDao.getByProvider(config.id).map { it.id }.toSet().also { dao.delete(config) }
         }
@@ -180,7 +182,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
         val provider = config.resolveProvider()
         withContext(Dispatchers.IO) {
             if (provider.supportsDynamicModels) {
-                val fetchKey = if (provider.modelsEndpointPublic) "" else config.getApiKey()
+                val fetchKey = if (provider.modelsEndpointPublic) "" else config.apiKey(secrets)
                 DynamicModelService.fetchModels(provider.endpoint, fetchKey, provider.name)
             }
         }
@@ -229,7 +231,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
                 orderNumber = dao.getCount(),
             )
             dao.insert(providerConfig)
-            providerConfig.setApiKey(key)
+            providerConfig.setApiKey(secrets, key)
 
             val configuredModel = LlmConfiguredModel.create(
                 providerConfigId = providerConfig.id,

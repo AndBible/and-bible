@@ -133,6 +133,7 @@ fun buildCoreModule() = module {
     single<net.bible.android.control.speak.SpeakSettingsStore> { net.bible.android.platform.AndroidSpeakSettingsStore() }
 
     single<AppSettings> { CommonUtils.settings }
+    single<net.bible.service.llm.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
     single<net.bible.service.llm.AiSettings> {

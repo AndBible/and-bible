@@ -31,7 +31,8 @@ import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
-import net.bible.service.llm.getApiKey
+import net.bible.service.llm.apiKey
+import net.bible.service.llm.SecretStore
 import net.bible.sharedcore.ai.AvailableModelVd
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.ModelVd
@@ -71,6 +72,7 @@ import net.bible.service.db.blockingDb
  */
 class LlmModelServiceImpl : LlmModelService, KoinComponent {
     private val settings: AiSettings by inject()
+    private val secrets: SecretStore by inject()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
@@ -131,7 +133,7 @@ class LlmModelServiceImpl : LlmModelService, KoinComponent {
             id = config.id.toString(),
             displayName = config.displayName,
             providerTypeId = config.providerType,
-            apiKeySet = config.getApiKey().isNotBlank(),
+            apiKeySet = config.apiKey(secrets).isNotBlank(),
             isCustom = config.resolveProvider() == LlmProvider.CUSTOM,
             endpoint = config.resolveEndpoint(),
             apiFormatId = config.resolveApiFormat().name,
@@ -143,7 +145,7 @@ class LlmModelServiceImpl : LlmModelService, KoinComponent {
         val provider = config.resolveProvider()
         withContext(Dispatchers.IO) {
             if (provider.supportsDynamicModels) {
-                val fetchKey = if (provider.modelsEndpointPublic) "" else config.getApiKey()
+                val fetchKey = if (provider.modelsEndpointPublic) "" else config.apiKey(secrets)
                 DynamicModelService.fetchModels(provider.endpoint, fetchKey, provider.name)
             }
         }

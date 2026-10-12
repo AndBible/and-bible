@@ -17,13 +17,13 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedcore.platform.AppSettings
+
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.database.IdType
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentSessionManager
@@ -61,7 +61,9 @@ class LlmProcessingError(message: String) : Exception(message)
  */
 object LlmProcessingService : KoinComponent {
     private val strings: LlmStrings by inject()
+    private val secrets: SecretStore get() = getKoin().get()
     private val transport: LlmHttpTransport by inject()
+    private val settings: AppSettings get() = getKoin().get()
     private val activeRequests = AtomicInteger(0)
 
     /** Check if any LLM processing is currently active */
@@ -94,7 +96,7 @@ object LlmProcessingService : KoinComponent {
             providerConfig = providerConfig,
             adapter = providerConfig.resolveAdapter(),
             model = configuredModel.modelId,
-            apiKey = providerConfig.getApiKey(),
+            apiKey = providerConfig.apiKey(secrets),
             endpoint = providerConfig.resolveEndpoint(),
             configuredModelId = configuredModel.id,
         )
@@ -170,7 +172,7 @@ object LlmProcessingService : KoinComponent {
         val effectiveModel = resolved.model
         val endpoint = adapter.buildEndpointUrl(resolved.endpoint)
         val headers = adapter.buildHeaders(resolved.apiKey, extraHeaders)
-        val noTempModels = CommonUtils.settings.getStringSet(PREF_NO_TEMPERATURE_MODELS)
+        val noTempModels = settings.getStringSet(PREF_NO_TEMPERATURE_MODELS)
         val temperature: Double? = if (effectiveModel in noTempModels) null else LLM_TEMPERATURE
 
         fun buildRequest(temp: Double?): String {
@@ -229,7 +231,7 @@ object LlmProcessingService : KoinComponent {
                             && result.bodyText.contains("temperature", ignoreCase = true)) {
                             Log.w(TAG, "Temperature not supported by model $effectiveModel, retrying without it")
                             val updated = noTempModels.toMutableSet().apply { add(effectiveModel) }
-                            CommonUtils.settings.setStringSet(PREF_NO_TEMPERATURE_MODELS, updated)
+                            settings.setStringSet(PREF_NO_TEMPERATURE_MODELS, updated)
                             temperatureRetried = true
                             request = buildRequest(null)
                             lastError = null

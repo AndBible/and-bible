@@ -31,7 +31,6 @@ import androidx.room3.Query
 import androidx.room3.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
-import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.PermissionMode
 
 /** UI-only grouping for tool permission screens. Does not affect database storage or agent logic. */
@@ -227,16 +226,14 @@ data class LlmConfiguredModel(
     }
 }
 
-private val prefs get() = CommonUtils.realSharedPreferences
+fun LlmProviderConfig.apiKey(secrets: SecretStore): String =
+    secrets.get(apiKeyName(id)) ?: ""
 
-fun LlmProviderConfig.getApiKey(): String =
-    prefs.getString("llm_api_key_${id}", "") ?: ""
+fun LlmProviderConfig.setApiKey(secrets: SecretStore, key: String) =
+    secrets.put(apiKeyName(id), key)
 
-fun LlmProviderConfig.setApiKey(key: String) =
-    prefs.edit().putString("llm_api_key_${id}", key).apply()
-
-fun LlmProviderConfig.removeApiKey() =
-    prefs.edit().remove("llm_api_key_${id}").apply()
+fun LlmProviderConfig.removeApiKey(secrets: SecretStore) =
+    secrets.remove(apiKeyName(id))
 
 @Dao
 interface LlmProviderConfigDao {
