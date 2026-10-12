@@ -51,6 +51,25 @@ class CurrentGeneralBookPage internal constructor(
 
     override val documentCategory = DocumentCategory.GENERAL_BOOK
 
+    /** External choices invalidate queued steps; steps themselves keep their FIFO generation. */
+    private val selectionSequence = java.util.concurrent.atomic.AtomicLong()
+    val selectionGeneration: Long get() = selectionSequence.get()
+
+    override fun setKey(key: Key, addHistoryItem: Boolean) {
+        selectionSequence.incrementAndGet()
+        super.setKey(key, addHistoryItem)
+    }
+
+    override fun setCurrentDocument(doc: Book?) {
+        selectionSequence.incrementAndGet()
+        super.setCurrentDocument(doc)
+    }
+
+    override fun setCurrentDocumentAndKey(doc: Book, key: Key) {
+        selectionSequence.incrementAndGet()
+        super.setCurrentDocumentAndKey(doc, key)
+    }
+
     val isSpecialDoc get() = setOf(fakeBookFactory.journalDocument, fakeBookFactory.multiDocument).contains(currentDocument)
     val isStudyPad get() = fakeBookFactory.journalDocument == currentDocument
 
@@ -126,35 +145,37 @@ class CurrentGeneralBookPage internal constructor(
 
     override suspend fun next() {
         val key = key
+        val generation = selectionGeneration
         when (currentDocument) {
             fakeBookFactory.journalDocument -> {
                 val document = currentDocument
                 val nextLabel = pageManager.bookmarkControl.getNextLabel((key as StudyPadKey).label)
                 // A manual selection can supersede this step while its label lookup is suspended.
-                if (pageManager.currentPage === this && currentDocument === document && this.key === key) {
-                    setKey(StudyPadKey(nextLabel))
+                if (pageManager.currentPage === this && currentDocument === document && selectionGeneration == generation && this.key === key) {
+                    super.setKey(StudyPadKey(nextLabel), true)
                 }
             }
             fakeBookFactory.multiDocument -> {}
             else -> {
-                setKey(getKeyPlus(1))
+                super.setKey(getKeyPlus(1), true)
             }
         }
     }
 
     override suspend fun previous() {
         val key = key
+        val generation = selectionGeneration
         when (currentDocument) {
             fakeBookFactory.journalDocument -> {
                 val document = currentDocument
                 val nextLabel = pageManager.bookmarkControl.getPrevLabel((key as StudyPadKey).label)
-                if (pageManager.currentPage === this && currentDocument === document && this.key === key) {
-                    setKey(StudyPadKey(nextLabel))
+                if (pageManager.currentPage === this && currentDocument === document && selectionGeneration == generation && this.key === key) {
+                    super.setKey(StudyPadKey(nextLabel), true)
                 }
             }
             fakeBookFactory.multiDocument -> {}
             else -> {
-                setKey(getKeyPlus(-1))
+                super.setKey(getKeyPlus(-1), true)
             }
         }
     }

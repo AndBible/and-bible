@@ -116,6 +116,22 @@ class PageNavOrderingTest {
         labels[2].id to { (page.currentGeneralBook.key as StudyPadKey).label.id }
     }
 
+    @Test fun oldQueuedSwipeAndJavascriptDoNotMoveAManuallySelectedLabel() = navigation(selectionChanged = true) { commands, bridge, page, labels ->
+        commands.next()
+        bridge.goToNextChapter()
+        runCurrent()
+        page.setCurrentDocumentAndKey(GlobalContext.get().get<FakeBookFactory>().journalDocument, StudyPadKey(labels[2]))
+        labels[2].id to { (page.currentGeneralBook.key as StudyPadKey).label.id }
+    }
+
+    @Test fun oldQueuedPrevioussDoNotMoveADirectKeySelection() = navigation(startAtEnd = true, selectionChanged = true) { commands, bridge, page, labels ->
+        bridge.goToPreviousChapter()
+        commands.previous()
+        runCurrent()
+        page.currentGeneralBook.setKey(StudyPadKey(labels[0]))
+        labels[0].id to { (page.currentGeneralBook.key as StudyPadKey).label.id }
+    }
+
     @Test fun heldPreviousDoesNotOverwriteAManuallySelectedLabel() = navigation(startAtEnd = true, selectionChanged = true) { _, bridge, page, labels ->
         bridge.goToPreviousChapter()
         runCurrent()

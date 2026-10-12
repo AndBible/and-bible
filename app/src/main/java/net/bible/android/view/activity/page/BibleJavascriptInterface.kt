@@ -211,10 +211,12 @@ class BibleJavascriptInterface(
         val manager = currentPageManager
         val page = manager.currentPage
         val document = page.currentDocument
+        val generation = (page as? net.bible.android.control.page.CurrentGeneralBookPage)?.selectionGeneration
         orderedLauncher.launch("page-nav-${manager.window.id}") {
             try {
                 withContext(Dispatchers.Main) {
-                    if (manager.currentPage === page && page.currentDocument === document) page.next()
+                    if (manager.currentPage === page && page.currentDocument === document &&
+                        (page as? net.bible.android.control.page.CurrentGeneralBookPage)?.selectionGeneration == generation) page.next()
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error navigating to next chapter", e)
@@ -228,10 +230,12 @@ class BibleJavascriptInterface(
         val manager = currentPageManager
         val page = manager.currentPage
         val document = page.currentDocument
+        val generation = (page as? net.bible.android.control.page.CurrentGeneralBookPage)?.selectionGeneration
         orderedLauncher.launch("page-nav-${manager.window.id}") {
             try {
                 withContext(Dispatchers.Main) {
-                    if (manager.currentPage === page && page.currentDocument === document) page.previous()
+                    if (manager.currentPage === page && page.currentDocument === document &&
+                        (page as? net.bible.android.control.page.CurrentGeneralBookPage)?.selectionGeneration == generation) page.previous()
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error navigating to previous chapter", e)
