@@ -627,6 +627,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // — see AiConnectionSettingsDeps.onResume's kdoc for why this is route-scoped, not host-wide.
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
 
+        val initiallyReady by controller.ready.collectAsState()
+        if (!initiallyReady) {
+            net.bible.sharedui.components.AbLoadingOverlay()
+            return@composable
+        }
+
         AiConnectionSettingsScreen(
             state = state,
             onUp = { navController.popOrExit(deps.exitHost) },
@@ -740,6 +746,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             if (enteredForQuickSetup) {
                 ensureDisclaimerAccepted(forQuickSetup = true) { startEasySetup() }
             }
+        }
+
+        val initiallyReady by controller.ready.collectAsState()
+        if (!initiallyReady) {
+            net.bible.sharedui.components.AbLoadingOverlay()
+            return@composable
         }
 
         AiProvidersScreen(
@@ -880,6 +892,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // Parity with classic AiPromptsComposeActivity's onResume() -> service.refresh() -- see
         // AiPromptsDeps.onResume's kdoc.
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
+
+        val initiallyReady by controller.ready.collectAsState()
+        if (!initiallyReady) {
+            net.bible.sharedui.components.AbLoadingOverlay()
+            return@composable
+        }
 
         AiPromptsScreen(
             configured = configured,

@@ -38,6 +38,8 @@ class AiPromptsController(
     private val onNewPrompt: () -> Unit,
     private val onOpenConnectionSettings: () -> Unit,
 ) {
+    val ready: StateFlow<Boolean> = service.ready
+
     val configured: StateFlow<Boolean> = service.configured
     val groups: StateFlow<List<PromptGroupVd>> = service.groups
     val showHidden: StateFlow<Boolean> = service.showHidden

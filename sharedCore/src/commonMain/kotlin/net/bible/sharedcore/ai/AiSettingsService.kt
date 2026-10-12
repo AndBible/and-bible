@@ -25,6 +25,7 @@ data class AiSettingsSnapshot(
 )
 
 interface AiSettingsService {
+    val ready: StateFlow<Boolean>
     val snapshot: StateFlow<AiSettingsSnapshot>
     fun setAgentPermissionMode(value: String)
     fun setAiLanguage(value: String)

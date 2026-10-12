@@ -110,6 +110,9 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
         return write.await()
     }
 
+    private val _ready = MutableStateFlow(false)
+    override val ready: StateFlow<Boolean> = _ready.asStateFlow()
+
     private val refreshMutex = kotlinx.coroutines.sync.Mutex()
 
     init {
@@ -301,6 +304,7 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
         _configured.value = llmConfigured()
         _groups.value = buildGroups()
         _hasHiddenPrompts.value = computeHasHiddenPrompts()
+        _ready.value = true
     }
 
     // --- PromptEdit support -----------------------------------------------------------------------

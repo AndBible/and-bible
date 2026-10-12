@@ -24,6 +24,7 @@ class AiConnectionSettingsControllerTest {
         allowedToolCount = 3, deniedToolCount = 1, usageSummary = "no usage", disclaimerAccepted = true,
     )
     private class Fake(initial: AiSettingsSnapshot) : AiSettingsService {
+        override val ready: StateFlow<Boolean> = MutableStateFlow(true)
         val flow = MutableStateFlow(initial)
         override val snapshot: StateFlow<AiSettingsSnapshot> = flow
         var lastMode: String? = null; var lastAsk: Boolean? = null; var lastIters: Int? = null

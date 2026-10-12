@@ -40,6 +40,8 @@ class AiProvidersController(
     private val service: LlmProviderService,
     private val scope: CoroutineScope,
 ) {
+    val ready: StateFlow<Boolean> = service.ready
+
     enum class Field { NAME, API_KEY, ENDPOINT, API_FORMAT }
 
     val providers: StateFlow<List<ProviderVd>> = service.providers
@@ -50,6 +52,8 @@ class AiProvidersController(
     private var editGeneration = 0L
 
     fun startAdd() {
+        if (!ready.value) return
+
         editGeneration++
         _dialog.value = ProviderEditState(
             id = null,
@@ -66,6 +70,8 @@ class AiProvidersController(
     }
 
     fun pickType(typeId: String) {
+        if (!ready.value) return
+
         val current = _dialog.value ?: return
         val type = service.providerTypes().firstOrNull { it.id == typeId } ?: return
         publish(
@@ -82,6 +88,8 @@ class AiProvidersController(
     }
 
     fun startEdit(id: String) {
+        if (!ready.value) return
+
         val generation = ++editGeneration
         scope.launch {
         val p = service.providers.value.firstOrNull { it.id == id } ?: return@launch
@@ -118,6 +126,8 @@ class AiProvidersController(
     }
 
     fun save() {
+        if (!ready.value) return
+
         val s = _dialog.value ?: return
         if (!s.canSave) return
         scope.launch {

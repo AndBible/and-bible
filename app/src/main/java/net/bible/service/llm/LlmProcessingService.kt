@@ -61,7 +61,7 @@ class LlmProcessingError(message: String) : Exception(message)
 object LlmProcessingService : KoinComponent {
     private val strings: LlmStrings by inject()
     private val secrets: SecretStore get() = getKoin().get()
-    private val transport: LlmHttpTransport by inject()
+    private val transport: LlmHttpTransport get() = getKoin().get()
     private val settings: AppSettings get() = getKoin().get()
     private val activeRequests = AtomicInteger(0)
 

@@ -104,15 +104,32 @@ class AiMutationOrderingTest {
     }
 
     @Test fun cancelledConnectionCheckPropagatesCancellationNotFailureResult() = runBlocking {
-        val job = kotlinx.coroutines.Job().also { it.cancel() }
-        try {
-            kotlinx.coroutines.withContext(job) {
-                LlmProviderServiceImpl(strings).testConnection("CUSTOM", "", "dummy")
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.sharedcore.llm.http.LlmHttpTransport>()
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val cancellation = kotlinx.coroutines.CancellationException("held local transport cancelled")
+        val transport = object : net.bible.sharedcore.llm.http.LlmHttpTransport {
+            override suspend fun postJson(url: String, headers: Map<String, String>, jsonBody: String, timeouts: net.bible.sharedcore.llm.http.LlmTimeouts): net.bible.sharedcore.llm.http.LlmHttpResponse {
+                entered.complete(Unit)
+                release.await()
+                throw cancellation
             }
-            fail("Cancellation must propagate")
-        } catch (_: kotlinx.coroutines.CancellationException) {
-            // No transport is invoked: cancellation is checked on the IO dispatcher hop.
+            override suspend fun get(url: String, headers: Map<String, String>, timeouts: net.bible.sharedcore.llm.http.LlmTimeouts): net.bible.sharedcore.llm.http.LlmHttpResponse = error("not used")
         }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.sharedcore.llm.http.LlmHttpTransport> { transport } })
+        try {
+            val result = kotlinx.coroutines.CompletableDeferred<Throwable?>()
+            val call = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
+                result.complete(try { LlmProviderServiceImpl(strings).testConnection("OPENAI", "", "dummy"); null } catch (e: Throwable) { e })
+            }
+            kotlinx.coroutines.withTimeout(5000) { entered.await() }
+            release.complete(Unit)
+            val thrown = kotlinx.coroutines.withTimeout(5000) { result.await() }
+            assertTrue(thrown is kotlinx.coroutines.CancellationException)
+            assertEquals(cancellation.message, thrown?.message)
+            call.join()
+        } finally { release.complete(Unit); org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.sharedcore.llm.http.LlmHttpTransport> { original } }) }
     }
 
     @Test fun overlappingFavoritesPreserveBothTransformsAndSameKeyTogglesCancel() = runBlocking {
@@ -146,6 +163,19 @@ class AiMutationOrderingTest {
             third.join(); fourth.join()
             assertEquals(setOf(a, b), original.favoritePrompts)
             assertEquals(setOf(a, b), DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao().get()?.favoritePrompts)
+            original.hiddenBuiltInPrompts = emptySet()
+            original.hiddenBuiltInCategories = emptySet()
+            original.awaitWrites()
+            val hides = listOf(
+                owner.launch { service.setPromptHidden(a.toString(), true) },
+                owner.launch { service.setPromptHidden(b.toString(), true) },
+                owner.launch { service.setCategoryHidden(BuiltInPrompts.CATEGORY_TEST_ID.toString(), true) },
+            )
+            hides.forEach { it.join() }
+            assertEquals(setOf(a, b), original.hiddenBuiltInPrompts)
+            val persisted = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao().get()!!
+            assertEquals(setOf(a, b), persisted.hiddenBuiltInPrompts)
+            assertEquals(original.hiddenBuiltInCategories, persisted.hiddenBuiltInCategories)
         } finally {
             org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<AiSettings> { original } })
         }
@@ -159,8 +189,10 @@ class AiMutationOrderingTest {
         real.insert(record)
         val captured = kotlinx.coroutines.CompletableDeferred<Unit>()
         val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val deleted = kotlinx.coroutines.CompletableDeferred<Unit>()
         var first = true
         val held = object : LlmRawLogRecordDao by real {
+            override suspend fun deleteByIds(ids: List<IdType>) { real.deleteByIds(ids); deleted.complete(Unit) }
             override suspend fun allSummaries(): List<LlmRawLogSummary> {
                 val rows = real.allSummaries()
                 if (first) { first = false; captured.complete(Unit); release.await() }
@@ -176,11 +208,40 @@ class AiMutationOrderingTest {
             val old = owner.launch { service.refresh() }
             captured.await()
             val deletion = owner.launch { service.deleteByIds(setOf(record.id.toString())) }
-            kotlinx.coroutines.delay(100)
+            kotlinx.coroutines.withTimeout(5000) { deleted.await() }
             release.complete(Unit)
             old.join(); deletion.join()
             assertNull(real.getById(record.id))
             assertFalse(service.summaries.value.any { it.id == record.id.toString() })
+        } finally { release.complete(Unit); container.aiSettingsDb = original }
+    }
+
+    @Test fun heldInitialProviderLoadGatesAddAgainstAlreadyConfiguredProvider() = runBlocking {
+        val container = DatabaseContainer.instance
+        val original = container.aiSettingsDb
+        val real = original.llmProviderConfigDao()
+        val existing = LlmProviderConfig(providerType = "OPENAI", displayName = "Existing")
+        real.insert(existing)
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val held = object : LlmProviderConfigDao by real {
+            override suspend fun all(): List<LlmProviderConfig> { entered.complete(Unit); release.await(); return real.all() }
+        }
+        val db = org.mockito.Mockito.mock(net.bible.android.database.AiSettingsDatabase::class.java)
+        org.mockito.Mockito.`when`(db.llmProviderConfigDao()).thenReturn(held)
+        container.aiSettingsDb = db
+        try {
+            val service = LlmProviderServiceImpl(strings)
+            val controller = net.bible.sharedcore.ai.AiProvidersController(service, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default))
+            kotlinx.coroutines.withTimeout(5000) { entered.await() }
+            assertFalse(service.ready.value)
+            controller.startAdd()
+            assertNull(controller.dialog.value)
+            assertEquals(1, real.getCount())
+            release.complete(Unit)
+            service.refresh()
+            assertTrue(service.ready.value)
+            assertEquals(listOf(existing.id.toString()), service.providers.value.map { it.id })
         } finally { release.complete(Unit); container.aiSettingsDb = original }
     }
 

@@ -51,6 +51,10 @@ class AiSettingsFixtureLifetimeTest {
         firstTools.permissionFor(AgentTool.entries.first().name)
         val old = CommonUtils.aiSettings
         firstApp.onTerminate()
+        val restoredScope = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
+        val restoredLauncher = koin.get<net.bible.sharedcore.platform.OrderedLauncher>()
+        assertNotSame(firstScope, restoredScope)
+        assertNotSame(firstLauncher, restoredLauncher)
         val secondApp = TestBibleApplication()
         // Attach the same real Android context; onCreate exercises actual fixture binding replacement.
         val attach = android.content.ContextWrapper::class.java.getDeclaredMethod("attachBaseContext", android.content.Context::class.java)
@@ -108,6 +112,8 @@ class AiSettingsFixtureLifetimeTest {
             assertEquals("second-model", agent.snapshot.value.defaultModelText)
         } finally {
             secondApp.onTerminate()
+            assertSame(restoredScope, koin.get<net.bible.sharedcore.platform.AppCoroutineScope>())
+            assertSame(restoredLauncher, koin.get<net.bible.sharedcore.platform.OrderedLauncher>())
             DatabaseResetter.resetDatabase()
             Dispatchers.resetMain()
         }

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
  * `DynamicModelService`, connection testing, and `GlobalAiSettings.aiDisclaimerAccepted`.
  */
 interface LlmProviderService {
+    val ready: StateFlow<Boolean>
     val providers: StateFlow<List<ProviderVd>>
     fun providerTypes(): List<ProviderTypeVd>
     suspend fun apiKeyFor(providerId: String): String

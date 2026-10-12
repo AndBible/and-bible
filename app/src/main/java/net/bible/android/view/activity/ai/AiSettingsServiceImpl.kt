@@ -53,6 +53,9 @@ class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService
     private val _snapshot = MutableStateFlow(AiSettingsSnapshot(0, emptyList(), 0, null, "", "", "", false, 0, 0, false, false, -1, false, 0, 0, strings.llmUsageSummaryDefault, false))
     override val snapshot: StateFlow<AiSettingsSnapshot> = _snapshot.asStateFlow()
 
+    private val _ready = MutableStateFlow(false)
+    override val ready: StateFlow<Boolean> = _ready.asStateFlow()
+
     private val refreshMutex = kotlinx.coroutines.sync.Mutex()
 
     init {
@@ -183,6 +186,7 @@ class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService
 
     override suspend fun refresh() = refreshMutex.withLock {
         _snapshot.value = build()
+        _ready.value = true
     }
 }
 

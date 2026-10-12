@@ -49,6 +49,7 @@ class PromptEditControllerTest {
         private val newData: PromptEditData? = null,
         private val toolCatalog: List<Pair<ToolCategoryVd, List<ToolVd>>> = emptyList(),
     ) : PromptService {
+        override val ready: StateFlow<Boolean> = MutableStateFlow(true)
         override val configured: StateFlow<Boolean> = MutableStateFlow(true)
         override val groups: StateFlow<List<PromptGroupVd>> = MutableStateFlow(emptyList())
         override val showHidden: StateFlow<Boolean> = MutableStateFlow(false)

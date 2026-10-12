@@ -81,6 +81,9 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
     private val _providers = MutableStateFlow<List<ProviderVd>>(emptyList())
     override val providers: StateFlow<List<ProviderVd>> = _providers.asStateFlow()
 
+    private val _ready = MutableStateFlow(false)
+    override val ready: StateFlow<Boolean> = _ready.asStateFlow()
+
     private val refreshMutex = kotlinx.coroutines.sync.Mutex()
 
     init {
@@ -210,6 +213,7 @@ class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderServi
 
     override suspend fun refresh() = refreshMutex.withLock {
         _providers.value = buildProviders()
+        _ready.value = true
     }
 
     // --- Easy-setup wizard (ported from classic EasySetupDialogs) ---------------------------------

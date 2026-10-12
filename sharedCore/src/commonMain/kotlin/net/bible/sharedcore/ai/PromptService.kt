@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
  * and `CommonUtils.aiSettings`/`CommonUtils.settings.llmConfigured` for reorder/model-choice state.
  */
 interface PromptService {
+    val ready: StateFlow<Boolean>
     val configured: StateFlow<Boolean>                 // CommonUtils.settings.llmConfigured
     val groups: StateFlow<List<PromptGroupVd>>         // grouped+ordered, respects show/hide-hidden
     val showHidden: StateFlow<Boolean>

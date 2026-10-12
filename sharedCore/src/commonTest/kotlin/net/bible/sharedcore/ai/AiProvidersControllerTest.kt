@@ -31,6 +31,7 @@ class AiProvidersControllerTest {
         val types: List<ProviderTypeVd>,
         val apiKeys: MutableMap<String, String> = mutableMapOf(),
     ) : LlmProviderService {
+        override val ready: StateFlow<Boolean> = MutableStateFlow(true)
         val flow = MutableStateFlow(initialProviders)
         override val providers: StateFlow<List<ProviderVd>> = flow
         var lastSave: SaveCall? = null

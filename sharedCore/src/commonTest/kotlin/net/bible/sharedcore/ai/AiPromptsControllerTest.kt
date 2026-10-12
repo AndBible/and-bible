@@ -30,6 +30,7 @@ class AiPromptsControllerTest {
         showHiddenInitial: Boolean = false,
         hasHiddenPromptsInitial: Boolean = false,
     ) : PromptService {
+        override val ready: StateFlow<Boolean> = MutableStateFlow(true)
         val configuredFlow = MutableStateFlow(configuredInitial)
         override val configured: StateFlow<Boolean> = configuredFlow
         val groupsFlow = MutableStateFlow(groupsInitial)

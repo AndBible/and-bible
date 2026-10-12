@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -91,6 +92,33 @@ class AgentSessionServiceImplTest {
             testScheduler.runCurrent()
             job.join()
             org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.sharedcore.platform.AppCoroutineScope> { original } })
+        }
+    }
+
+    @Test fun eventWorkspaceAccessRunsOnMainEvenWhenOwnerIsDefault(): Unit = runBlocking {
+        val executor = java.util.concurrent.Executors.newSingleThreadExecutor { runnable -> Thread(runnable, "task7-main") }
+        val main = executor.asCoroutineDispatcher()
+        Dispatchers.setMain(main)
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.android.control.page.window.WindowControl>()
+        val repo = original.windowRepository
+        val accessed = kotlinx.coroutines.CompletableDeferred<String>()
+        val tracking = object : net.bible.android.control.page.window.WindowControl() {
+            override var windowRepository: net.bible.android.control.page.window.WindowRepository
+                get() { accessed.complete(Thread.currentThread().name); return repo }
+                set(value) { }
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.android.control.page.window.WindowControl> { tracking } })
+        try {
+            val service = AgentSessionServiceImpl()
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(repo.id, false, AgentStopReason.ERROR))
+            assertTrue(kotlinx.coroutines.withTimeout(5000) { accessed.await() }.startsWith("task7-main"))
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == AgentStopReasonVd.ERROR } }
+        } finally {
+            DatabaseResetter.resetDatabase()
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<net.bible.android.control.page.window.WindowControl> { original } })
+            Dispatchers.setMain(UnconfinedTestDispatcher())
+            main.close()
         }
     }
 
