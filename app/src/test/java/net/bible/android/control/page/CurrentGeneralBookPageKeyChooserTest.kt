@@ -112,7 +112,7 @@ class CurrentGeneralBookPageKeyChooserTest {
     @Test
     fun aGeneralBookKeyChooserStartsOnAHostThatIsNotMainBibleActivity() {
         val activity = host()
-        generalBookPageOf(activity).startKeyChooser(activity)
+        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(generalBookPageOf(activity))
         drainMain()
 
         val started = assertNotNull(
@@ -160,7 +160,7 @@ class CurrentGeneralBookPageKeyChooserTest {
 
         val page = generalBookPageOf(activity)
         page.onlySetCurrentDocument(org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).journalDocument)
-        page.startKeyChooser(activity)
+        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(page)
         drainMain()
 
         val started = assertNotNull(

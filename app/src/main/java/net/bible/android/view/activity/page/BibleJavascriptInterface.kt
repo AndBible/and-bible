@@ -902,7 +902,7 @@ class BibleJavascriptInterface(
                 // the host has already mounted, so the shortcut is not lost in practice.
                 "AltKeyO" -> hostCallbacks.composeReadingViewHost()?.openOverflowMenu()
                 // Round 15b Task 9: deliberately NOT rerouted to the quick sheet, unlike the
-                // toolbar title's tap. `startKeyChooser` is left untouched precisely so its
+                // toolbar title's tap. The launcher keeps the existing screen dispatch so its
                 // non-reading-view callers keep working, and this is one of them: the shortcut acts
                 // on `bibleView.window`, which is not necessarily the ACTIVE window the host's sheet
                 // would read. Rerouting it would be a behaviour change, not a consistency fix.
@@ -911,7 +911,7 @@ class BibleJavascriptInterface(
                 // -- is gone. That caller now opens the sheet and is resolved by a
                 // `CompletableDeferred`; this shortcut's active-window mismatch is unaffected, so
                 // it stays on the classic path. Spec §6.3 records the two remaining bypasses.)
-                "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(hostActivity)
+                "CtrlKeyB" -> net.bible.android.platform.AndroidKeyChooserLauncher { hostActivity }.startKeyChooser(bibleView.window.pageManager.currentPage)
                 "CtrlKeyW" -> {
                     // M1 (whole-branch review fix wave): guard on the MOUNTED HOST -- see
                     // MainBibleActivity's R.id.switchToWorkspace for the full rationale.

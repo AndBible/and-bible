@@ -56,9 +56,9 @@ class ChooserKeyLaunchRouteTest {
     fun theBibleAndCommentaryChoosersOpenTheScriptureGrid() {
         val activity = host()
         val pages = CommonUtils.windowControl.activeWindowPageManager
-        pages.currentBible.startKeyChooser(activity)
+        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(pages.currentBible)
         assertLaunched(activity, NavRoutes.gridChoosePassage(isScripture = true))
-        pages.currentCommentary.startKeyChooser(activity)
+        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(pages.currentCommentary)
         assertLaunched(activity, NavRoutes.gridChoosePassage(isScripture = true))
     }
 
@@ -66,9 +66,9 @@ class ChooserKeyLaunchRouteTest {
     fun theDictionaryAndMapChoosersOpenTheirRoutes() {
         val activity = host()
         val pages = CommonUtils.windowControl.activeWindowPageManager
-        pages.currentDictionary.startKeyChooser(activity)
+        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(pages.currentDictionary)
         assertLaunched(activity, NavRoutes.CHOOSE_DICTIONARY_WORD)
-        pages.currentMap.startKeyChooser(activity)
+        net.bible.android.platform.AndroidKeyChooserLauncher { activity }.startKeyChooser(pages.currentMap)
         assertLaunched(activity, NavRoutes.CHOOSE_MAP_KEY)
     }
 }

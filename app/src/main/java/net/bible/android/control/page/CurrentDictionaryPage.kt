@@ -16,10 +16,6 @@
  */
 package net.bible.android.control.page
 
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
-import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.sharedcore.nav.NavRoutes
 import org.crosswire.jsword.passage.Key
 
 /** Reference to current passage shown by viewer
@@ -33,7 +29,6 @@ class CurrentDictionaryPage internal constructor(
 {
     override val documentCategory = DocumentCategory.DICTIONARY
 
-    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_DICTIONARY_WORD), STD_REQUEST_CODE)
 
     override fun doSetKey(key: Key?) {
         this._key = key

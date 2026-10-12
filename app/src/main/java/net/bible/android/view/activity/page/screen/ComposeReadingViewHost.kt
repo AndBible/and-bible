@@ -1047,11 +1047,11 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /**
      * Maps the active page onto [KeyChooserPage]; null when nothing here recognises it.
      *
-     * Mirrors `CurrentPage.startKeyChooser`'s own dispatch, including its ORDER.
-     * [CurrentMyNotePage] extends [CurrentCommentaryPage] and does not override `startKeyChooser`,
+     * Mirrors `AndroidKeyChooserLauncher`'s dispatch, including its ORDER.
+     * [CurrentMyNotePage] extends [CurrentCommentaryPage] and shares its launcher arm,
      * so the my-note check must come FIRST — see [KeyChooserPage]'s kdoc, and
      * `KeyChooserDispatchGuardTest`, which fails if these two lines are ever swapped back.
-     * The general-book four-way test is `CurrentGeneralBookPage.startKeyChooser`'s own, in its own
+     * The general-book four-way test follows `AndroidKeyChooserLauncher`, in its own
      * order (journal → multi-document → my-document → plain).
      */
     internal fun currentKeyChooserPage(): KeyChooserPage? {

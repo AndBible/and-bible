@@ -525,8 +525,7 @@ class ReadingCommands(
      * tap ([ComposeReadingViewHost.install]'s `onTitleTap`), wired inside `install()` itself, so the
      * host is already non-null by the time this can fire.
      *
-     * `CurrentPage.startKeyChooser` itself is deliberately NOT touched, so `CurrentPageManager`'s
-     * auto-open behaves exactly as today. (`BibleJavascriptInterface.refChooserDialog`, which this
+     * The `KeyChooserLauncher` fallback preserves `CurrentPageManager`'s auto-open behavior. (`BibleJavascriptInterface.refChooserDialog`, which this
      * note used to list alongside it because it needed an Activity result, no longer does:
      * nav-graph slice 7 Task 10 moved it onto [ComposeReadingViewHost.openVerseChooserSheetForResult],
      * a `CompletableDeferred` the sheet's own selection callback completes.)
@@ -545,7 +544,7 @@ class ReadingCommands(
                     return@launch
                 }
             }
-            page.startKeyChooser(hostActivity)
+            net.bible.android.platform.AndroidKeyChooserLauncher { hostActivity }.startKeyChooser(page)
         }
     }
 

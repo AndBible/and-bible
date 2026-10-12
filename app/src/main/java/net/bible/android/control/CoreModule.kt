@@ -181,6 +181,9 @@ fun buildCoreModule() = module {
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
     single { ToolbarStateServiceImpl(get(), get(), get(), get(), get(), get<net.bible.service.cloudsync.CloudSync>().runningChanged) } bind ToolbarStateService::class
     singleOf(::LinkControl)
+    single<net.bible.android.control.page.KeyChooserLauncher> {
+        net.bible.android.platform.AndroidKeyChooserLauncher { net.bible.android.view.activity.base.CurrentActivityHolder.currentActivity }
+    }
     single<HistoryPlatform> { AndroidHistoryPlatform() }
     single<LinkPlatform> { AndroidLinkPlatform() }
     singleOf(::HistoryManager)

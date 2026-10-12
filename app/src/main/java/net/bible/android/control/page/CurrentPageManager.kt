@@ -25,7 +25,6 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.defaultBible
@@ -194,10 +193,8 @@ open class CurrentPageManager constructor(
                     // pop up a key selection screen on whatever Activity is in front. Slice 8 F5 (slice 7 Task 12):
                     // no `!!` -- with no Activity in front (a background sync or agent switching documents) there is
                     // nothing to show a chooser on, and not asking beats crashing.
-                    val activity = CurrentActivityHolder.currentActivity
-                    if (activity != null) {
-                        nextPage.startKeyChooser(activity)
-                    } else {
+                    val launcher = org.koin.java.KoinJavaComponent.get<KeyChooserLauncher>(KeyChooserLauncher::class.java)
+                    if (!launcher.startKeyChooser(nextPage)) {
                         Log.w(TAG, "No Activity in front to show the key chooser for ${nextDocument.initials}; not shown.")
                     }
                 }
