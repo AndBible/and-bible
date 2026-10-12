@@ -128,7 +128,10 @@ class UsableBibleGateTest {
         val activity = welcomeHost()
         assertFalse("sanity: an uninitialised WELCOME start applies no FLAG_SECURE", flagSecure(activity))
 
+        net.bible.test.awaitHostRoute(activity, NavRoutes.WELCOME)
+        assertEquals("Welcome graph must exist before Import", NavRoutes.WELCOME, activity.currentRouteForTest())
         activity.welcomeFlow.navDeps().onImport()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.INSTALL_ZIP_PATTERN)
         idle()
         assertEquals(NavRoutes.INSTALL_ZIP_PATTERN, route(activity))
         assertTrue("leaving Welcome initialises the app and its window (Correction 6)", flagSecure(activity))

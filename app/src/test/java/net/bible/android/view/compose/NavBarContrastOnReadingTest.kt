@@ -81,11 +81,15 @@ class NavBarContrastOnReadingTest {
                     NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
                 ).also { controllers += it }.create().start().resume().visible()
                 val activity = controller.get()
+                net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
                 idleMain()
+                kotlin.test.assertEquals(NavRoutes.READING, activity.currentRouteForTest(), "Reading graph must exist before navigation")
                 assertFalse(activity.window.isNavigationBarContrastEnforced)
                 for (route in listOf(NavRoutes.WORKSPACE_SELECTOR, NavRoutes.SETTINGS, NavRoutes.READING)) {
                     activity.navigateInGraph(route)
+                    net.bible.test.awaitHostRoute(activity, route) { compose.waitForIdle() }
                     idleMain()
+                    kotlin.test.assertEquals(route, activity.currentRouteForTest(), "Requested route must be current before decor dispatch")
                     val config = Configuration(activity.resources.configuration).apply {
                         orientation = Configuration.ORIENTATION_LANDSCAPE
                     }
@@ -110,7 +114,9 @@ class NavBarContrastOnReadingTest {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible()
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         idleMain()
+        kotlin.test.assertEquals(NavRoutes.READING, activity.currentRouteForTest(), "Reading graph must exist before navigation")
         assertFalse(activity.window.isNavigationBarContrastEnforced)
 
         fun rotate(orientation: Int) {
@@ -128,12 +134,16 @@ class NavBarContrastOnReadingTest {
         assertFalse(activity.window.isNavigationBarContrastEnforced, "reading rotation must not restore the scrim")
 
         activity.navigateInGraph(NavRoutes.SETTINGS)
+        net.bible.test.awaitHostRoute(activity, NavRoutes.SETTINGS) { compose.waitForIdle() }
         idleMain()
+        kotlin.test.assertEquals(NavRoutes.SETTINGS, activity.currentRouteForTest(), "Settings must be current before decor dispatch")
         rotate(Configuration.ORIENTATION_PORTRAIT)
         assertTrue(activity.window.isNavigationBarContrastEnforced, "settings rotation keeps contrast enforcement")
 
         activity.navigateInGraph(NavRoutes.READING)
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING) { compose.waitForIdle() }
         idleMain()
+        kotlin.test.assertEquals(NavRoutes.READING, activity.currentRouteForTest(), "Reading must be current before decor dispatch")
         rotate(Configuration.ORIENTATION_LANDSCAPE)
         assertFalse(activity.window.isNavigationBarContrastEnforced, "returning to reading still owns the rotated bar")
     }
