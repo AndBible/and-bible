@@ -18,6 +18,7 @@
 package net.bible.service.llm
 
 import net.bible.sharedcore.log.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.database.IdType
@@ -117,7 +118,6 @@ object PromptCsvUtils {
      */
     fun parsePromptsFromCsv(
         inputStream: InputStream,
-        resolveCategories: Boolean = false,
     ): List<AgentPrompt> {
         val prompts = mutableListOf<AgentPrompt>()
 
@@ -134,7 +134,7 @@ object PromptCsvUtils {
                         recordNumber++
                         continue
                     }
-                    prompts.add(parseCsvRowToPrompt(record, headerMap, recordNumber, resolveCategories))
+                    prompts.add(parseCsvRowToPrompt(record, headerMap, recordNumber))
                 } catch (e: Exception) {
                     Log.w(TAG, "Error parsing prompt from row $recordNumber", e)
                 }
@@ -142,6 +142,33 @@ object PromptCsvUtils {
             }
         }
         return prompts
+    }
+
+    /** Category-resolving parsing requires DAO access; add-on parsing stays synchronous and pure. */
+    suspend fun parsePromptsFromCsv(inputStream: InputStream, resolveCategories: Boolean): List<AgentPrompt> {
+        if (!resolveCategories) return parsePromptsFromCsv(inputStream)
+        return BufferedReader(InputStreamReader(inputStream, "UTF-8")).use { reader ->
+            val header = readCsvRecord(reader) ?: throw IOException("Empty CSV file")
+            val headerMap = header.withIndex().associate { it.value.trim() to it.index }
+            val prompts = mutableListOf<AgentPrompt>()
+            var row = 2
+            while (row <= MAX_IMPORT_ROWS + 1) {
+                val record = readCsvRecord(reader) ?: break
+                try {
+                    if (record.any { it.trim().isNotEmpty() }) {
+                        val prompt = parseCsvRowToPrompt(record, headerMap, row)
+                        val name = getValueOrNull(record, headerMap, HEADER_CATEGORY)?.trim()?.ifEmpty { null }
+                        prompts.add(prompt.copy(categoryId = name?.let { resolveCategoryByName(it) }))
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error parsing prompt from row $row", e)
+                }
+                row++
+            }
+            prompts
+        }
     }
 
     /**
@@ -178,7 +205,10 @@ object PromptCsvUtils {
                             continue
                         }
 
-                        val prompt = parseCsvRowToPrompt(record, headerMap, recordNumber, resolveCategories = true)
+                        val prompt = parseCsvRowToPrompt(record, headerMap, recordNumber).let { parsed ->
+                            val name = getValueOrNull(record, headerMap, HEADER_CATEGORY)?.trim()?.ifEmpty { null }
+                            parsed.copy(categoryId = name?.let { resolveCategoryByName(it) })
+                        }
 
                         if (BuiltInPrompts.isBuiltIn(prompt.id)) {
                             errorMessages.add("Row $recordNumber: Cannot import over built-in prompt '${prompt.name}'")
@@ -194,6 +224,8 @@ object PromptCsvUtils {
                             PromptRepository.insertPrompt(prompt)
                             created++
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         errorMessages.add("Row $recordNumber: ${e.message}")
                         Log.w(TAG, "Error importing prompt from row $recordNumber", e)
@@ -215,7 +247,6 @@ object PromptCsvUtils {
         values: List<String>,
         headerMap: Map<String, Int>,
         lineNumber: Int,
-        resolveCategories: Boolean = false,
     ): AgentPrompt {
         val name = getValueOrNull(values, headerMap, HEADER_NAME)?.trim()
         if (name.isNullOrEmpty()) {
@@ -282,8 +313,7 @@ object PromptCsvUtils {
         val bibleOnly = getValueOrNull(values, headerMap, HEADER_BIBLE_ONLY)
             ?.lowercase()?.toBooleanStrictOrNull() ?: false
 
-        val categoryName = getValueOrNull(values, headerMap, HEADER_CATEGORY)?.trim()?.ifEmpty { null }
-        val categoryId = if (resolveCategories) categoryName?.let { resolveCategoryByName(it) } else null
+        val categoryId: IdType? = null
 
         return AgentPrompt(
             id = id,
@@ -306,7 +336,7 @@ object PromptCsvUtils {
     /** Cache of category name → ID, populated before import to avoid repeated DB queries. */
     private var categoryNameCache: MutableMap<String, IdType>? = null
 
-    private fun initCategoryCache() {
+    private suspend fun initCategoryCache() {
         categoryNameCache = mutableMapOf<String, IdType>().apply {
             PromptRepository.allCategories().forEach { put(it.name, it.id) }
         }
@@ -317,7 +347,7 @@ object PromptCsvUtils {
     }
 
     /** Find an existing category by name, or create a new one. Uses local cache for efficiency. */
-    private fun resolveCategoryByName(name: String): IdType {
+    private suspend fun resolveCategoryByName(name: String): IdType {
         val cache = categoryNameCache ?: return resolveCategoryByNameUncached(name)
         cache[name]?.let { return it }
         val newCat = PromptCategory(name = name)
@@ -326,7 +356,7 @@ object PromptCsvUtils {
         return newCat.id
     }
 
-    private fun resolveCategoryByNameUncached(name: String): IdType {
+    private suspend fun resolveCategoryByNameUncached(name: String): IdType {
         val existing = PromptRepository.allCategories().find { it.name == name }
         if (existing != null) return existing.id
         val newCat = PromptCategory(name = name)

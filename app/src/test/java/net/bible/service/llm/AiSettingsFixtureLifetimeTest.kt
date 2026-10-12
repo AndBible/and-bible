@@ -2,6 +2,11 @@ package net.bible.service.llm
 
 import android.os.Looper
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.resetMain
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.BibleApplication
@@ -23,6 +28,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class AiSettingsFixtureLifetimeTest {
     @Test fun successiveApplicationLifetimesUseFreshSettingsAndEventsWithConcreteAliases() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         val firstApp = BibleApplication.application as TestBibleApplication
         val koin = GlobalContext.get()
         val firstAgent = koin.get<AgentSessionService>()
@@ -76,10 +82,12 @@ class AiSettingsFixtureLifetimeTest {
             runBlocking { db.llmProviderConfigDao().insert(provider); db.llmConfiguredModelDao().insert(model) }
             settings.defaultModelId = model.id
             shadowOf(Looper.getMainLooper()).idle()
+            runBlocking { kotlinx.coroutines.withTimeout(5000) { agent.snapshot.first { it.defaultModelText == "second-model" } } }
             assertEquals("second-model", agent.snapshot.value.defaultModelText)
         } finally {
             secondApp.onTerminate()
             DatabaseResetter.resetDatabase()
+            Dispatchers.resetMain()
         }
     }
 }

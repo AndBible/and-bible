@@ -87,7 +87,7 @@ class LlmPortableGlobalsTest {
         } finally { loadKoinModules(module { single<AppEnvironment> { original } }) }
     }
 
-    @Test fun injectedCacheDirectoryAndDebugModeAreObserved() {
+    @Test fun injectedCacheDirectoryAndDebugModeAreObserved() = runBlocking {
         val original = GlobalContext.get().get<AppEnvironment>()
         val directory = File(original.cacheDir, "task6-${UUID.randomUUID()}").apply { mkdirs() }
         val provider = "task6-${UUID.randomUUID()}"

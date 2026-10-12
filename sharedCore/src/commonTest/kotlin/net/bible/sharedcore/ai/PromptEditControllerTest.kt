@@ -1,5 +1,7 @@
 package net.bible.sharedcore.ai
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -51,20 +53,20 @@ class PromptEditControllerTest {
         override val groups: StateFlow<List<PromptGroupVd>> = MutableStateFlow(emptyList())
         override val showHidden: StateFlow<Boolean> = MutableStateFlow(false)
         override val hasHiddenPrompts: StateFlow<Boolean> = MutableStateFlow(false)
-        override fun setShowHidden(v: Boolean) {}
-        override fun toggleFavorite(promptId: String) {}
-        override fun setPromptHidden(promptId: String, hidden: Boolean) {}
-        override fun setCategoryHidden(categoryId: String, hidden: Boolean) {}
-        override fun deletePrompt(promptId: String) {}
-        override fun deleteCategory(categoryId: String, deletePrompts: Boolean) {}
-        override fun movePrompt(promptId: String, up: Boolean) {}
-        override fun movePromptToCategory(promptId: String, categoryId: String?) {}
-        override fun moveCategory(categoryId: String, up: Boolean) {}
-        override fun createCategory(name: String) {}
-        override fun renameCategory(categoryId: String, name: String) {}
-        override fun refresh() {}
+        override suspend fun setShowHidden(v: Boolean) {}
+        override suspend fun toggleFavorite(promptId: String) {}
+        override suspend fun setPromptHidden(promptId: String, hidden: Boolean) {}
+        override suspend fun setCategoryHidden(categoryId: String, hidden: Boolean) {}
+        override suspend fun deletePrompt(promptId: String) {}
+        override suspend fun deleteCategory(categoryId: String, deletePrompts: Boolean) {}
+        override suspend fun movePrompt(promptId: String, up: Boolean) {}
+        override suspend fun movePromptToCategory(promptId: String, categoryId: String?) {}
+        override suspend fun moveCategory(categoryId: String, up: Boolean) {}
+        override suspend fun createCategory(name: String) {}
+        override suspend fun renameCategory(categoryId: String, name: String) {}
+        override suspend fun refresh() {}
 
-        override fun prompt(id: String): PromptEditData? = prompts[id]
+        override suspend fun prompt(id: String): PromptEditData? = prompts[id]
         override fun newPromptData(template: String?, defaultContext: String?): PromptEditData =
             newData ?: PromptEditData(
                 id = null, name = "", description = "", template = template ?: "",
@@ -78,15 +80,15 @@ class PromptEditControllerTest {
                 isReadOnly = false, isBuiltIn = false, bibleOnly = false,
             )
 
-        override fun categories(): List<PromptCategoryVd> = emptyList()
+        override suspend fun categories(): List<PromptCategoryVd> = emptyList()
         override fun toolsByCategory(): List<Pair<ToolCategoryVd, List<ToolVd>>> = toolCatalog
         override fun globalToolPermission(toolId: String): ToolPermission = ToolPermission.DEFAULT
-        override fun modelChoices(): List<SettingsItem.Choice> = emptyList()
+        override suspend fun modelChoices(): List<SettingsItem.Choice> = emptyList()
 
         var lastSaved: PromptEditData? = null
         var saveCount = 0
         var saveIdToReturn = "saved-id"
-        override fun savePrompt(data: PromptEditData): String {
+        override suspend fun savePrompt(data: PromptEditData): String {
             lastSaved = data
             saveCount++
             return saveIdToReturn
@@ -94,7 +96,7 @@ class PromptEditControllerTest {
 
         var lastDeletedId: String? = null
         var deleteCount = 0
-        override fun deletePromptById(id: String) {
+        override suspend fun deletePromptById(id: String) {
             lastDeletedId = id
             deleteCount++
         }
@@ -102,7 +104,7 @@ class PromptEditControllerTest {
         var lastCopiedId: String? = null
         var copyCount = 0
         var copyIdToReturn = "copy-id"
-        override fun copyPrompt(id: String): String {
+        override suspend fun copyPrompt(id: String): String {
             lastCopiedId = id
             copyCount++
             return copyIdToReturn
@@ -111,11 +113,34 @@ class PromptEditControllerTest {
         var lastBuiltinOverridePromptId: String? = null
         var lastBuiltinOverrideModelId: String? = null
         var builtinOverrideCount = 0
-        override fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {
+        override suspend fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {
             lastBuiltinOverridePromptId = promptId
             lastBuiltinOverrideModelId = modelId
             builtinOverrideCount++
         }
+    }
+
+    @Test fun delayedLoadCannotSaveOrEditAnExistingPromptAsANewDraft() = runTest {
+        val ready = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val existing = data(id = "existing", name = "Stored")
+        val backing = Fake(mutableMapOf("existing" to existing))
+        val service = object : PromptService by backing {
+            override suspend fun prompt(id: String): PromptEditData? {
+                ready.await()
+                return backing.prompt(id)
+            }
+        }
+        val controller = PromptEditController(service, promptId = "existing")
+        val load = launch { controller.load("existing") }
+        runCurrent()
+        controller.setName("Premature draft")
+        controller.setTemplate("Premature template")
+        assertNull(controller.save())
+        assertEquals("", controller.state.value.name)
+        ready.complete(Unit)
+        load.join()
+        assertEquals(existing, controller.state.value)
+        assertFalse(controller.isDirty.value)
     }
 
     // --- load / new ---
@@ -124,6 +149,7 @@ class PromptEditControllerTest {
         val d = data(id = "p1", name = "Existing", description = "d", template = "t")
         val f = Fake(mutableMapOf("p1" to d))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         assertEquals(d, c.state.value)
         assertFalse(c.isDirty.value)
     }
@@ -131,6 +157,7 @@ class PromptEditControllerTest {
     @Test fun load_missingPromptFallsBackToNew() = runTest {
         val f = Fake()
         val c = PromptEditController(f, promptId = "does-not-exist")
+        c.load("does-not-exist")
         assertNull(c.state.value.id)
         assertFalse(c.isDirty.value)
     }
@@ -150,6 +177,7 @@ class PromptEditControllerTest {
         val d = data(name = "Original")
         val f = Fake(mutableMapOf("p1" to d))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         assertFalse(c.isDirty.value)
         c.setName("Changed")
         assertTrue(c.isDirty.value)
@@ -161,17 +189,20 @@ class PromptEditControllerTest {
     @Test fun setDescription_setTemplate_setCategory_markDirty() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.setDescription("new desc")
         assertTrue(c.isDirty.value)
         assertEquals("new desc", c.state.value.description)
 
         val f2 = Fake(mutableMapOf("p1" to data()))
         val c2 = PromptEditController(f2, promptId = "p1")
+        c2.load("p1")
         c2.setTemplate("new template")
         assertTrue(c2.isDirty.value)
 
         val f3 = Fake(mutableMapOf("p1" to data()))
         val c3 = PromptEditController(f3, promptId = "p1")
+        c3.load("p1")
         c3.setCategory("cat1")
         assertTrue(c3.isDirty.value)
         assertEquals("cat1", c3.state.value.categoryId)
@@ -180,6 +211,7 @@ class PromptEditControllerTest {
     @Test fun toggleContext_addsThenRemoves() = runTest {
         val f = Fake(mutableMapOf("p1" to data(contexts = setOf("VERSE_SELECTION"))))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.toggleContext("TEXT_SELECTION")
         assertEquals(setOf("VERSE_SELECTION", "TEXT_SELECTION"), c.state.value.contexts)
         assertTrue(c.isDirty.value)
@@ -194,6 +226,7 @@ class PromptEditControllerTest {
         val d = data(contexts = setOf("VERSE_SELECTION", "WORKSPACE_MENU", "NOTE_EDITOR"))
         val f = Fake(mutableMapOf("p1" to d))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.setBibleOnly(true)
         assertTrue(c.state.value.bibleOnly)
         assertEquals(setOf("VERSE_SELECTION"), c.state.value.contexts)
@@ -202,6 +235,7 @@ class PromptEditControllerTest {
     @Test fun bibleOnly_disablesWorkspaceAndNoteContexts() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         assertTrue(c.disabledContexts.isEmpty())
         c.setBibleOnly(true)
         assertEquals(setOf("WORKSPACE_MENU", "NOTE_EDITOR"), c.disabledContexts)
@@ -210,6 +244,7 @@ class PromptEditControllerTest {
     @Test fun toggleContext_isNoOpForDisabledContextWhileBibleOnly() = runTest {
         val f = Fake(mutableMapOf("p1" to data(bibleOnly = true, contexts = setOf("VERSE_SELECTION"))))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.toggleContext("WORKSPACE_MENU")
         assertEquals(setOf("VERSE_SELECTION"), c.state.value.contexts)
     }
@@ -218,6 +253,7 @@ class PromptEditControllerTest {
         val d = data(bibleOnly = true, contexts = setOf("VERSE_SELECTION", "WORKSPACE_MENU"))
         val f = Fake(mutableMapOf("p1" to d))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         assertEquals(setOf("VERSE_SELECTION"), c.state.value.contexts)
     }
 
@@ -226,6 +262,7 @@ class PromptEditControllerTest {
     @Test fun setTextTransformation_true_removesPermissionsFromAvailableTabs() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         assertTrue(PromptEditTab.PERMISSIONS in c.availableTabs.value)
         c.setTextTransformation(true)
         assertFalse(PromptEditTab.PERMISSIONS in c.availableTabs.value)
@@ -236,6 +273,7 @@ class PromptEditControllerTest {
     @Test fun selectTab_movesAwayFromPermissionsWhenItBecomesUnavailable() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.selectTab(PromptEditTab.PERMISSIONS)
         assertEquals(PromptEditTab.PERMISSIONS, c.tab.value)
         c.setTextTransformation(true)
@@ -245,6 +283,7 @@ class PromptEditControllerTest {
     @Test fun selectTab_ignoresUnavailableTab() = runTest {
         val f = Fake(mutableMapOf("p1" to data(isTextTransformation = true)))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         assertEquals(PromptEditTab.PROMPT, c.tab.value)
         c.selectTab(PromptEditTab.PERMISSIONS)
         assertEquals(PromptEditTab.PROMPT, c.tab.value)
@@ -258,6 +297,7 @@ class PromptEditControllerTest {
         val f = Fake(mutableMapOf("p1" to data(name = "Original")))
         f.saveIdToReturn = "p1"
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.setName("Renamed")
         val id = c.save()
         assertEquals("p1", id)
@@ -281,6 +321,7 @@ class PromptEditControllerTest {
     @Test fun delete_callsServiceDeletePromptById() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.delete()
         assertEquals("p1", f.lastDeletedId)
         assertEquals(1, f.deleteCount)
@@ -290,6 +331,7 @@ class PromptEditControllerTest {
         val f = Fake(mutableMapOf("p1" to data()))
         f.copyIdToReturn = "p1-copy"
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         val id = c.copyToCustomize()
         assertEquals("p1-copy", id)
         assertEquals("p1", f.lastCopiedId)
@@ -303,6 +345,7 @@ class PromptEditControllerTest {
         val f = Fake(mutableMapOf("p1" to d))
         f.copyIdToReturn = "copy-of-builtin"
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         assertFalse(c.canSave.value)
         c.setName("Should not change")
@@ -324,6 +367,7 @@ class PromptEditControllerTest {
     @Test fun canSave_falseWhenNameBlank() = runTest {
         val f = Fake(mutableMapOf("p1" to data(name = "Has name")))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         assertTrue(c.canSave.value)
         c.setName("")
         assertFalse(c.canSave.value)
@@ -334,6 +378,7 @@ class PromptEditControllerTest {
     @Test fun canSave_falseWhenTemplateBlank_trueOnceFilled() = runTest {
         val f = Fake(mutableMapOf("p1" to data(name = "Has name", template = "orig template")))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         assertTrue(c.canSave.value)
 
         // Classic parity: blank template blocks saving even with a non-blank name.
@@ -352,6 +397,7 @@ class PromptEditControllerTest {
     @Test fun setToolPermission_allowAndDenyAndDefault() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         c.setToolPermission("readBible", ToolPermission.ALLOW)
         assertEquals(setOf("readBible"), c.state.value.allowedTools)
@@ -369,6 +415,7 @@ class PromptEditControllerTest {
     @Test fun setToolPermission_enabledAndDisabledMapLikeAllowAndDeny() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         c.setToolPermission("readNotes", ToolPermission.ENABLED)
         assertEquals(setOf("readNotes"), c.state.value.allowedTools)
@@ -382,6 +429,7 @@ class PromptEditControllerTest {
         val d = data(allowedTools = setOf("a"), deniedTools = setOf("b"))
         val f = Fake(mutableMapOf("p1" to d))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.resetToolPermissions()
         assertTrue(c.state.value.allowedTools.isEmpty())
         assertTrue(c.state.value.deniedTools.isEmpty())
@@ -401,6 +449,7 @@ class PromptEditControllerTest {
         val d = data()
         val f = Fake(mutableMapOf("p1" to d), toolCatalog = bulkCatalog)
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         c.setCategoryRead("BULK", ToolPermission.DISABLED)
         assertEquals(setOf("readA", "readB"), c.state.value.deniedTools)
@@ -415,6 +464,7 @@ class PromptEditControllerTest {
         val d = data()
         val f = Fake(mutableMapOf("p1" to d), toolCatalog = bulkCatalog)
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         c.setCategoryWrite("BULK", ToolPermission.ALLOW)
         assertEquals(setOf("writeA", "writeB"), c.state.value.allowedTools)
@@ -433,6 +483,7 @@ class PromptEditControllerTest {
         val d = data()
         val f = Fake(mutableMapOf("p1" to d), toolCatalog = listOf(readOnlyCategory to listOf(readOnlyTool)))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         val before = c.state.value
         c.setCategoryWrite("READ_ONLY", ToolPermission.DENY)
@@ -443,6 +494,7 @@ class PromptEditControllerTest {
         val d = data(isReadOnly = true, isBuiltIn = false)
         val f = Fake(mutableMapOf("p1" to d), toolCatalog = bulkCatalog)
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         c.setCategoryRead("BULK", ToolPermission.DISABLED)
         assertTrue(c.state.value.deniedTools.isEmpty())
@@ -454,6 +506,7 @@ class PromptEditControllerTest {
     @Test fun setModelOverride_setMaxIterations_setSwitch() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.setModelOverride("model-1")
         assertEquals("model-1", c.state.value.modelOverrideId)
         c.setMaxIterations(7)
@@ -473,6 +526,7 @@ class PromptEditControllerTest {
     @Test fun setPermissionMode_updatesState() = runTest {
         val f = Fake(mutableMapOf("p1" to data()))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
         c.setPermissionMode("ALLOW_ALL")
         assertEquals("ALLOW_ALL", c.state.value.permissionMode)
         c.setPermissionMode(null)
@@ -499,6 +553,7 @@ class PromptEditControllerTest {
         val d = data(isReadOnly = true, isBuiltIn = true, name = "Builtin", modelOverrideId = "orig-model")
         val f = Fake(mutableMapOf("p1" to d))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         // Not yet changed: no Save.
         assertFalse(c.canSave.value)
@@ -534,6 +589,7 @@ class PromptEditControllerTest {
         val d = data(isReadOnly = true, isBuiltIn = true, modelOverrideId = "orig-model")
         val f = Fake(mutableMapOf("p1" to d))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         c.setModelOverride("changed")
         assertTrue(c.canSave.value)
@@ -547,6 +603,7 @@ class PromptEditControllerTest {
         val d = data(isReadOnly = true, isBuiltIn = false, name = "AddOn", modelOverrideId = "orig-model")
         val f = Fake(mutableMapOf("p1" to d))
         val c = PromptEditController(f, promptId = "p1")
+        c.load("p1")
 
         assertFalse(c.canSave.value)
         c.setModelOverride("attempted-change")

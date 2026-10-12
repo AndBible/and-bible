@@ -41,7 +41,7 @@ class AiConnectionSettingsControllerTest {
         override fun customTextTransformationSystemPromptText() = ""
         override fun builtInAgentSystemPromptText() = ""
         override fun builtInTextTransformationSystemPromptText() = ""
-        override fun refresh() {}
+        override suspend fun refresh() {}
     }
     private fun controller(fake: Fake, onResetUsageConfirm: () -> Unit = {}, nav: (String) -> Unit = {}) =
         AiConnectionSettingsController(

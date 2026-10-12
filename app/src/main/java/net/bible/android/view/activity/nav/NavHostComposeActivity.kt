@@ -3440,7 +3440,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             providersForPicker = { llmModelService.providersForPicker() },
                             helpBody = { getString(R.string.help_ai_models_text) },
                             helpReadMoreUrl = DocsLinks.page("ai", "available-models"),
-                            onResume = { llmModelService.refresh() },
+                            onResume = { lifecycleScope.launch { llmModelService.refresh() } },
                         ),
                         aiConnectionSettings = AiConnectionSettingsDeps(
                             controller = { aiConnectionSettingsController },
@@ -3449,14 +3449,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             onCustomPromptSave = { key, value -> onAiConnectionCustomPromptSave(key, value) },
                             customPromptTextFor = { key -> aiConnectionCustomPromptTextFor(key) },
                             actions = { AiConnectionHelpAction() },
-                            onResume = { aiSettingsService.refresh() },
+                            onResume = { lifecycleScope.launch { aiSettingsService.refresh() } },
                         ),
                         aiProviders = AiProvidersDeps(
                             controller = { aiProvidersController },
                             helpBody = { getString(R.string.help_ai_providers_text) },
                             helpReadMoreUrl = DocsLinks.page("ai", "choosing-a-provider"),
                             unknownErrorMessage = { getString(R.string.unknown_error) },
-                            onResume = { llmProviderService.refresh() },
+                            onResume = { lifecycleScope.launch { llmProviderService.refresh() } },
                         ),
                         aiPrompts = AiPromptsDeps(
                             controllerFor = { onOpenPrompt, onNewPrompt, onOpenConnectionSettings ->
@@ -3479,7 +3479,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // sequence mid-way is strictly worse than classic's behaviour.
                             onImportCsv = { lifecycleScope.launch { importPrompts() } },
                             onExportCsv = { lifecycleScope.launch { exportPrompts() } },
-                            onResume = { promptService.refresh() },
+                            onResume = { lifecycleScope.launch { promptService.refresh() } },
                             // Task 14: the live controller this arm builds, published for exactly as
                             // long as the AI_PROMPTS destination's composition is alive -- see
                             // AiPromptsDeps.onControllerLifecycle's kdoc. importPrompts() below reads
@@ -3520,7 +3520,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             recordTitleFor = ::rawLlmLogRecordTitle,
                             onCopy = ::copyRawLlmLog,
                             onShare = ::shareRawLlmLog,
-                            onDelete = { recordId -> rawLogService.deleteByIds(setOf(recordId)) },
+                            onDelete = { recordId -> appScope.launch { rawLogService.deleteByIds(setOf(recordId)) } },
                             onReportBug = ::reportRawLlmLogBug,
                         ),
                         rawLogHistory = RawLogHistoryDeps(
@@ -3529,7 +3529,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             },
                             helpBody = { getString(R.string.help_ai_connection_text) },
                             helpReadMoreUrl = DocsLinks.page("ai"),
-                            onResume = { rawLogService.refresh() },
+                            onResume = { lifecycleScope.launch { rawLogService.refresh() } },
                         ),
                     )
                 }
@@ -5303,7 +5303,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * param below, and runs only from `confirmDialog()`.
      */
     private fun resetAiConnectionUsage() {
-        lifecycleScope.launch {
+        appScope.launch {
             withContext(Dispatchers.IO) {
                 for (model in DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().all()) {
                     LlmCostTracker.reset(model.id)
@@ -5457,9 +5457,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (result.resultCode == RESULT_OK) {
                 result.data?.data?.let { uri ->
                     if (installAsAddon) {
-                        installCsvAsAddon(uri)
+                        withContext(appScope.coroutineContext + Dispatchers.Main.immediate) { installCsvAsAddon(uri) }
                     } else {
-                        importCsvAsEditable(uri, controller)
+                        withContext(appScope.coroutineContext + Dispatchers.Main.immediate) { importCsvAsEditable(uri, controller) }
                     }
                 }
             }

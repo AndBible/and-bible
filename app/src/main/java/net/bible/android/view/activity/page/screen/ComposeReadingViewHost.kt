@@ -3115,7 +3115,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     fun rebuild() {
         generation.rebuild()
-        agentSessionService.refresh()
+        activity.lifecycleScope.launch { agentSessionService.refresh() }
     }
 
     /**

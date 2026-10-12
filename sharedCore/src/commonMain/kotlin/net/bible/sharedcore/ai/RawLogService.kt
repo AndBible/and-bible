@@ -13,20 +13,20 @@ interface RawLogService {
     val summaries: StateFlow<List<RawLogSummaryVd>>
 
     /** Re-read [summaries] from the DB (host calls on resume / after a mutation). */
-    fun refresh()
+    suspend fun refresh()
 
     /** Delete the given persisted records by [RawLogSummaryVd.id] (`LlmRawLogRecordDao.deleteByIds`). */
-    fun deleteByIds(ids: Set<String>)
+    suspend fun deleteByIds(ids: Set<String>)
 
     /**
      * Delete persisted records older than [days] (`LlmRawLogRecordDao.deleteOlderThan`, cutoff =
      * `now - days*24h`). [days] is one of 7/30/90 (the classic "older than 1 week/month/3 months"
      * choices); `-1` (or any non-positive sentinel) means [deleteAll] instead.
      */
-    fun deleteOlderThan(days: Int)
+    suspend fun deleteOlderThan(days: Int)
 
     /** Delete all persisted records (`LlmRawLogRecordDao.deleteAll`; classic "Delete all"). */
-    fun deleteAll()
+    suspend fun deleteAll()
 
     /**
      * DB-mode detail: the gzip-decompressed formatted log text (`RawLlmLog.gzipDecompress` on
@@ -51,5 +51,5 @@ interface RawLogService {
      * [recordId] null: in-memory mode (resolves the model from the active session's last
      * iteration, `AiBugReport.resolveModelNameFromRawLog`; false if there's no usage yet).
      */
-    fun canReportBug(recordId: String?): Boolean
+    suspend fun canReportBug(recordId: String?): Boolean
 }

@@ -55,6 +55,8 @@ class AiSettingsStore(
     override val configChanged: Events<Unit> get() = configSource
     override fun notifyConfigChanged() = configSource.emit(Unit)
 
+    override suspend fun awaitWrites() { launcher.join("ai-settings") }
+
     override suspend fun ensureLoaded() {
         dbMutex.withLock {
             if (!observing) {

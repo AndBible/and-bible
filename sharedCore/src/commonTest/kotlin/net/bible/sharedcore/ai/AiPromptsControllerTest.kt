@@ -55,30 +55,30 @@ class AiPromptsControllerTest {
         var categoriesReturn: List<PromptCategoryVd> = emptyList()
         var refreshCount = 0
 
-        override fun setShowHidden(v: Boolean) { lastShowHidden = v; showHiddenFlow.value = v }
-        override fun toggleFavorite(promptId: String) { lastToggleFavoriteId = promptId }
-        override fun setPromptHidden(promptId: String, hidden: Boolean) { lastSetPromptHidden = promptId to hidden }
-        override fun setCategoryHidden(categoryId: String, hidden: Boolean) { lastSetCategoryHidden = categoryId to hidden }
-        override fun deletePrompt(promptId: String) { lastDeletePromptId = promptId }
-        override fun deleteCategory(categoryId: String, deletePrompts: Boolean) { lastDeleteCategory = categoryId to deletePrompts }
-        override fun movePrompt(promptId: String, up: Boolean) { lastMovePrompt = promptId to up }
-        override fun movePromptToCategory(promptId: String, categoryId: String?) { lastMovePromptToCategory = promptId to categoryId }
-        override fun moveCategory(categoryId: String, up: Boolean) { lastMoveCategory = categoryId to up }
-        override fun createCategory(name: String) { lastCreateCategoryName = name }
-        override fun renameCategory(categoryId: String, name: String) { lastRenameCategory = categoryId to name }
-        override fun refresh() { refreshCount++ }
+        override suspend fun setShowHidden(v: Boolean) { lastShowHidden = v; showHiddenFlow.value = v }
+        override suspend fun toggleFavorite(promptId: String) { lastToggleFavoriteId = promptId }
+        override suspend fun setPromptHidden(promptId: String, hidden: Boolean) { lastSetPromptHidden = promptId to hidden }
+        override suspend fun setCategoryHidden(categoryId: String, hidden: Boolean) { lastSetCategoryHidden = categoryId to hidden }
+        override suspend fun deletePrompt(promptId: String) { lastDeletePromptId = promptId }
+        override suspend fun deleteCategory(categoryId: String, deletePrompts: Boolean) { lastDeleteCategory = categoryId to deletePrompts }
+        override suspend fun movePrompt(promptId: String, up: Boolean) { lastMovePrompt = promptId to up }
+        override suspend fun movePromptToCategory(promptId: String, categoryId: String?) { lastMovePromptToCategory = promptId to categoryId }
+        override suspend fun moveCategory(categoryId: String, up: Boolean) { lastMoveCategory = categoryId to up }
+        override suspend fun createCategory(name: String) { lastCreateCategoryName = name }
+        override suspend fun renameCategory(categoryId: String, name: String) { lastRenameCategory = categoryId to name }
+        override suspend fun refresh() { refreshCount++ }
 
-        override fun prompt(id: String): PromptEditData? = null
+        override suspend fun prompt(id: String): PromptEditData? = null
         override fun newPromptData(template: String?, defaultContext: String?): PromptEditData =
             throw NotImplementedError()
-        override fun categories(): List<PromptCategoryVd> = categoriesReturn
+        override suspend fun categories(): List<PromptCategoryVd> = categoriesReturn
         override fun toolsByCategory(): List<Pair<ToolCategoryVd, List<ToolVd>>> = emptyList()
         override fun globalToolPermission(toolId: String): ToolPermission = ToolPermission.DEFAULT
-        override fun modelChoices(): List<net.bible.sharedcore.settings.SettingsItem.Choice> = emptyList()
-        override fun savePrompt(data: PromptEditData): String = ""
-        override fun deletePromptById(id: String) {}
-        override fun copyPrompt(id: String): String { lastCopyPromptId = id; return copyPromptReturn }
-        override fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {}
+        override suspend fun modelChoices(): List<net.bible.sharedcore.settings.SettingsItem.Choice> = emptyList()
+        override suspend fun savePrompt(data: PromptEditData): String = ""
+        override suspend fun deletePromptById(id: String) {}
+        override suspend fun copyPrompt(id: String): String { lastCopyPromptId = id; return copyPromptReturn }
+        override suspend fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {}
     }
 
     private class NavCalls {

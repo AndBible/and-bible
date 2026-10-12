@@ -16,6 +16,13 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.resetMain
+import org.junit.Before
 import android.os.Looper
 import net.bible.android.database.IdType
 import net.bible.android.TEST_SDK
@@ -53,25 +60,29 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class AgentSessionServiceImplTest {
 
+    @Before fun installMain() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
+
     @After
     fun tearDown() {
         DatabaseResetter.resetDatabase()
+        Dispatchers.resetMain()
     }
 
     // --- AgentSessionManager.changes ------------------------------------------------------------
 
     @Test
-    fun aStopForTheCurrentWorkspaceSetsTheStopReason() {
+    fun aStopForTheCurrentWorkspaceSetsTheStopReason() = runBlocking {
         val service = AgentSessionServiceImpl()
         val ws = CommonUtils.windowControl.windowRepository.id
         AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, isRunning = false, stopReason = AgentStopReason.ERROR))
         shadowOf(Looper.getMainLooper()).idle()
+        kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == AgentStopReasonVd.ERROR } }
         assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
         assertFalse(service.snapshot.value.running)
     }
 
     @Test
-    fun aRealCurrentWorkspaceSessionRefreshesRunningThenStoppedSnapshot() {
+    fun aRealCurrentWorkspaceSessionRefreshesRunningThenStoppedSnapshot() = runBlocking {
         val ws = CommonUtils.windowControl.windowRepository.id
         // Do not overwrite a session left by another test; restore this absent state in finally.
         assertNull(AgentSessionManager.getSession(ws))
@@ -80,11 +91,13 @@ class AgentSessionServiceImplTest {
         try {
             assertTrue(session.tryStart(AgentContext(promptId = IdType())))
             shadowOf(Looper.getMainLooper()).idle()
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.running } }
             assertTrue(service.snapshot.value.running)
             assertNull(service.snapshot.value.lastStopReason)
 
             session.stop(reason = AgentStopReason.ERROR)
             shadowOf(Looper.getMainLooper()).idle()
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { !it.running && it.lastStopReason == AgentStopReasonVd.ERROR } }
             assertFalse(service.snapshot.value.running)
             assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
         } finally {
@@ -94,7 +107,7 @@ class AgentSessionServiceImplTest {
     }
 
     @Test
-    fun anotherWorkspacesStopIsIgnored() {
+    fun anotherWorkspacesStopIsIgnored() = runBlocking {
         val service = AgentSessionServiceImpl()
         AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(IdType(), isRunning = false, stopReason = AgentStopReason.ERROR))
         shadowOf(Looper.getMainLooper()).idle()
@@ -102,21 +115,23 @@ class AgentSessionServiceImplTest {
     }
 
     @Test
-    fun aStartClearsTheStopReason() {
+    fun aStartClearsTheStopReason() = runBlocking {
         val service = AgentSessionServiceImpl()
         val ws = CommonUtils.windowControl.windowRepository.id
         AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.COMPLETED))
         shadowOf(Looper.getMainLooper()).idle()
+        kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == AgentStopReasonVd.COMPLETED } }
         assertEquals(AgentStopReasonVd.COMPLETED, service.snapshot.value.lastStopReason)
 
         AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, true))
         shadowOf(Looper.getMainLooper()).idle()
+        kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == null } }
         assertNull(service.snapshot.value.lastStopReason)
     }
 
     /** F127: a stop reason belongs to its workspace; a switch must not show another workspace's reason. */
     @Test
-    fun theStopReasonFollowsTheWorkspaceAcrossASwitch() {
+    fun theStopReasonFollowsTheWorkspaceAcrossASwitch() = runBlocking {
         val repo = CommonUtils.windowControl.windowRepository
         val original = repo.id
         val a = IdType()
@@ -126,6 +141,7 @@ class AgentSessionServiceImplTest {
             val service = AgentSessionServiceImpl()
             AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(a, isRunning = false, stopReason = AgentStopReason.ERROR))
             shadowOf(Looper.getMainLooper()).idle()
+            kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.lastStopReason == AgentStopReasonVd.ERROR } }
             assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
 
             repo.id = b

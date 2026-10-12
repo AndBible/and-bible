@@ -23,7 +23,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.blockingDb
 
 /**
  * Token usage from a single LLM API call.
@@ -54,7 +53,7 @@ data class LlmUsage(
  */
 object LlmPricing {
 
-    fun getPricing(model: String, configuredModelId: IdType? = null): ModelPricing? {
+    suspend fun getPricing(model: String, configuredModelId: IdType? = null): ModelPricing? {
         if (configuredModelId != null) {
             getConfiguredModelPricing(configuredModelId)?.let { return it }
         }
@@ -62,7 +61,7 @@ object LlmPricing {
             ?: DynamicModelService.getPricingForModel(model)
     }
 
-    fun estimateCost(usage: LlmUsage, model: String, configuredModelId: IdType? = null): Double? {
+    suspend fun estimateCost(usage: LlmUsage, model: String, configuredModelId: IdType? = null): Double? {
         val p = getPricing(model, configuredModelId) ?: return null
         return (usage.inputTokens * p.inputPerMillion +
             usage.outputTokens * p.outputPerMillion +
@@ -70,8 +69,8 @@ object LlmPricing {
             usage.cacheReadTokens * p.cacheReadPerMillion) / 1_000_000.0
     }
 
-    private fun getConfiguredModelPricing(configuredModelId: IdType): ModelPricing? {
-        val m = blockingDb { DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(configuredModelId) }
+    private suspend fun getConfiguredModelPricing(configuredModelId: IdType): ModelPricing? {
+        val m = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(configuredModelId)
             ?: return null
         return if (m.inputPricePerMillion > 0 || m.outputPricePerMillion > 0) {
             ModelPricing(m.inputPricePerMillion, m.outputPricePerMillion, m.cacheCreationPricePerMillion, m.cacheReadPricePerMillion)
@@ -120,20 +119,20 @@ object LlmCostTracker : org.koin.core.component.KoinComponent {
     private fun List<LlmUsageRecord>.sumUsage(): LlmUsage =
         fold(LlmUsage()) { acc, r -> acc + LlmUsage(r.inputTokens, r.outputTokens, r.cacheCreationTokens, r.cacheReadTokens) }
 
-    fun getCumulativeUsage(configuredModelId: IdType): LlmUsage =
-        blockingDb { dao.getByModel(configuredModelId) }.sumUsage()
+    suspend fun getCumulativeUsage(configuredModelId: IdType): LlmUsage =
+        dao.getByModel(configuredModelId).sumUsage()
 
-    fun getCumulativeCost(configuredModelId: IdType): Double =
-        blockingDb { dao.getByModel(configuredModelId) }.sumOf { it.estimatedCostUsd }
+    suspend fun getCumulativeCost(configuredModelId: IdType): Double =
+        dao.getByModel(configuredModelId).sumOf { it.estimatedCostUsd }
 
-    fun getTotalUsage(): LlmUsage =
-        blockingDb { dao.all() }.sumUsage()
+    suspend fun getTotalUsage(): LlmUsage =
+        dao.all().sumUsage()
 
-    fun getTotalCost(): Double =
-        blockingDb { dao.all() }.sumOf { it.estimatedCostUsd }
+    suspend fun getTotalCost(): Double =
+        dao.all().sumOf { it.estimatedCostUsd }
 
-    fun reset(configuredModelId: IdType) {
-        blockingDb { dao.deleteByModel(configuredModelId) }
+    suspend fun reset(configuredModelId: IdType) {
+        dao.deleteByModel(configuredModelId)
     }
 
     fun formatCost(cost: Double): String =
@@ -150,7 +149,7 @@ object LlmCostTracker : org.koin.core.component.KoinComponent {
         else -> count.toString()
     }
 
-    fun formatUsageSummary(usage: LlmUsage, model: String, configuredModelId: IdType? = null): String {
+    suspend fun formatUsageSummary(usage: LlmUsage, model: String, configuredModelId: IdType? = null): String {
         val cost = LlmPricing.estimateCost(usage, model, configuredModelId)
         val base = "${usage.inputTokens} in / ${usage.outputTokens} out"
         return if (cost != null) "$base (~${formatCost(cost)})" else base

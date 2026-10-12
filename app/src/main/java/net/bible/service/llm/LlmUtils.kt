@@ -20,7 +20,6 @@ package net.bible.service.llm
 import org.koin.core.component.KoinComponent
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.blockingDb
 
 enum class ApiFormat { OPENAI, ANTHROPIC }
 

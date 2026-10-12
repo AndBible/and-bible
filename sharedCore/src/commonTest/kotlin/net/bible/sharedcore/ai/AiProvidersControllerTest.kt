@@ -38,21 +38,21 @@ class AiProvidersControllerTest {
         var saveCount = 0
         var deleteCount = 0
         override fun providerTypes() = types
-        override fun apiKeyFor(providerId: String) = apiKeys[providerId] ?: ""
+        override suspend fun apiKeyFor(providerId: String) = apiKeys[providerId] ?: ""
         override suspend fun saveProvider(
             id: String?, typeId: String, displayName: String, apiKey: String, endpoint: String, apiFormatId: String,
         ) {
             lastSave = SaveCall(id, typeId, displayName, apiKey, endpoint, apiFormatId)
             saveCount++
         }
-        override fun deleteProvider(id: String) { lastDeleteId = id; deleteCount++ }
+        override suspend fun deleteProvider(id: String) { lastDeleteId = id; deleteCount++ }
         override suspend fun testConnection(typeId: String, endpoint: String, apiKey: String) = Result.success(Unit)
         override suspend fun fetchAvailableModels(providerId: String) = emptyList<AvailableModelVd>()
-        override fun refresh() {}
+        override suspend fun refresh() {}
         override fun recommendedSetups() = emptyList<RecommendedSetupVd>()
         override suspend fun performEasySetup(setupId: String, apiKey: String) {}
         override fun disclaimerAccepted() = true
-        override fun acceptDisclaimer() {}
+        override suspend fun acceptDisclaimer() {}
     }
 
     private fun controller(fake: Fake) = AiProvidersController(fake, CoroutineScope(UnconfinedTestDispatcher()))

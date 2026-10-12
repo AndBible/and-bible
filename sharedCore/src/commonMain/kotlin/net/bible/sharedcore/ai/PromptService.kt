@@ -20,34 +20,34 @@ interface PromptService {
     // `CommonUtils.aiSettings.hiddenBuiltInPrompts.isNotEmpty()` gate for the "restore hidden prompts"
     // menu item — gates the Compose overflow's show/hide-hidden toggle the same way.
     val hasHiddenPrompts: StateFlow<Boolean>
-    fun setShowHidden(v: Boolean)
-    fun toggleFavorite(promptId: String)
-    fun setPromptHidden(promptId: String, hidden: Boolean)
-    fun setCategoryHidden(categoryId: String, hidden: Boolean)
-    fun deletePrompt(promptId: String)
+    suspend fun setShowHidden(v: Boolean)
+    suspend fun toggleFavorite(promptId: String)
+    suspend fun setPromptHidden(promptId: String, hidden: Boolean)
+    suspend fun setCategoryHidden(categoryId: String, hidden: Boolean)
+    suspend fun deletePrompt(promptId: String)
     // deletePrompts=false: move the category's prompts to the uncategorized bucket (classic
     // "keep prompts"); deletePrompts=true: cascade-delete the prompts too (classic "and prompts").
-    fun deleteCategory(categoryId: String, deletePrompts: Boolean)
-    fun movePrompt(promptId: String, up: Boolean)
+    suspend fun deleteCategory(categoryId: String, deletePrompts: Boolean)
+    suspend fun movePrompt(promptId: String, up: Boolean)
     // Moves a user (non-read-only) prompt to a different category; null = uncategorized bucket.
     // Mirrors classic AiSettingsActivity.showMoveToCategoryDialog (prompt.categoryId = target;
     // PromptRepository.updatePrompt(prompt)). No-op for a read-only (built-in/add-on) prompt.
-    fun movePromptToCategory(promptId: String, categoryId: String?)
-    fun moveCategory(categoryId: String, up: Boolean)
-    fun createCategory(name: String)
-    fun renameCategory(categoryId: String, name: String)
-    fun refresh()
+    suspend fun movePromptToCategory(promptId: String, categoryId: String?)
+    suspend fun moveCategory(categoryId: String, up: Boolean)
+    suspend fun createCategory(name: String)
+    suspend fun renameCategory(categoryId: String, name: String)
+    suspend fun refresh()
     // PromptEdit support:
-    fun prompt(id: String): PromptEditData?            // full editable data
+    suspend fun prompt(id: String): PromptEditData?            // full editable data
     fun newPromptData(template: String?, defaultContext: String?): PromptEditData
-    fun categories(): List<PromptCategoryVd>
+    suspend fun categories(): List<PromptCategoryVd>
     fun toolsByCategory(): List<Pair<ToolCategoryVd, List<ToolVd>>>
     fun globalToolPermission(toolId: String): ToolPermission   // for the PROMPT-mode "Default(…)" label
-    fun modelChoices(): List<net.bible.sharedcore.settings.SettingsItem.Choice>  // model override options
-    fun savePrompt(data: PromptEditData): String       // returns saved prompt id
-    fun deletePromptById(id: String)
-    fun copyPrompt(id: String): String                 // returns new copy id
+    suspend fun modelChoices(): List<net.bible.sharedcore.settings.SettingsItem.Choice>  // model override options
+    suspend fun savePrompt(data: PromptEditData): String       // returns saved prompt id
+    suspend fun deletePromptById(id: String)
+    suspend fun copyPrompt(id: String): String                 // returns new copy id
     // Built-in prompt "Save" path (model override only, no copy-to-customize): upserts a
     // BuiltinPromptOverride row for promptId; null modelId clears the override.
-    fun setBuiltinPromptModelOverride(promptId: String, modelId: String?)
+    suspend fun setBuiltinPromptModelOverride(promptId: String, modelId: String?)
 }

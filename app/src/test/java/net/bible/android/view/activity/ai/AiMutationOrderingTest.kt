@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -48,6 +49,7 @@ class AiMutationOrderingTest {
         assertNull(db.llmProviderConfigDao().getById(removed.id))
         assertTrue(db.llmConfiguredModelDao().getByProvider(removed.id).isEmpty())
         assertEquals(remaining.id, CommonUtils.aiSettings.defaultModelId)
+        assertEquals(remaining.id, db.globalAiSettingsDao().get()?.defaultModelId)
     }
 
     @Test fun retentionDeletesOldRecordButKeepsFreshRecordBeforeReturn() = runBlocking {
@@ -62,6 +64,55 @@ class AiMutationOrderingTest {
         assertNull(dao.getById(old.id))
         assertNotNull(dao.getById(fresh.id))
         assertEquals(listOf(fresh.id.toString()), service.summaries.value.map { it.id })
+    }
+
+    @Test fun providerDeletionSurvivesCancelledWaiterAndStillRefreshes() = runBlocking {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<SecretStore>()
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val released = java.util.concurrent.CountDownLatch(1)
+        val completed = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val store = object : SecretStore by original {
+            override fun remove(key: String) {
+                entered.complete(Unit)
+                check(released.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            }
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<SecretStore> { store } })
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "Cancelled waiter")
+        val dao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+        dao.insert(provider)
+        val service = LlmProviderServiceImpl(strings)
+        val subscription = CommonUtils.aiSettings.configChanged.subscribe { completed.complete(Unit) }
+        try {
+            val waiter = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
+                service.deleteProvider(provider.id.toString())
+            }
+            kotlinx.coroutines.withTimeout(5000) { entered.await() }
+            waiter.cancel()
+            released.countDown()
+            kotlinx.coroutines.withTimeout(5000) { completed.await() }
+            waiter.join()
+            assertNull(dao.getById(provider.id))
+            service.refresh()
+            assertFalse(service.providers.value.any { it.id == provider.id.toString() })
+        } finally {
+            released.countDown()
+            subscription.cancel()
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<SecretStore> { original } })
+        }
+    }
+
+    @Test fun cancelledConnectionCheckPropagatesCancellationNotFailureResult() = runBlocking {
+        val job = kotlinx.coroutines.Job().also { it.cancel() }
+        try {
+            kotlinx.coroutines.withContext(job) {
+                LlmProviderServiceImpl(strings).testConnection("CUSTOM", "", "dummy")
+            }
+            fail("Cancellation must propagate")
+        } catch (_: kotlinx.coroutines.CancellationException) {
+            // No transport is invoked: cancellation is checked on the IO dispatcher hop.
+        }
     }
 
     @Test fun resetCompletesBeforeUsageAndCostRead() = runBlocking {

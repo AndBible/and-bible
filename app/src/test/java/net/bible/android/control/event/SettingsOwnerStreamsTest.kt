@@ -61,9 +61,9 @@ class SettingsOwnerStreamsTest {
         return n
     }
 
-    private fun createProvider(): String {
+    private fun createProvider(): String = runBlocking {
         runBlocking { providers.saveProvider(null, providers.providerTypes().first().id, "T", "k", "", "") }
-        return models.providersForPicker().last().id
+        models.providersForPicker().last().id
     }
 
     @Test fun creatingAProviderEmitsConfigChanged() {

@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.launch
+import net.bible.sharedcore.platform.AppCoroutineScope
 import org.koin.core.component.inject
 import org.koin.core.component.KoinComponent
 import net.bible.service.llm.LlmStrings
@@ -29,7 +32,6 @@ import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.AiSettingsSnapshot
-import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [AiSettingsService]. Reads/writes the global [AiSettings] row (the classic
@@ -43,21 +45,25 @@ import net.bible.service.db.blockingDb
  */
 class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService, KoinComponent {
     private val settings: AiSettings by inject()
+    private val appScope: AppCoroutineScope by inject()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
-    private val _snapshot = MutableStateFlow(build())
+    private val _snapshot = MutableStateFlow(AiSettingsSnapshot(0, emptyList(), 0, null, "", "", "", false, 0, 0, false, false, -1, false, 0, 0, strings.llmUsageSummaryDefault, false))
     override val snapshot: StateFlow<AiSettingsSnapshot> = _snapshot.asStateFlow()
 
+    private val refreshMutex = kotlinx.coroutines.sync.Mutex()
+
     init {
-        // Process lifetime, like the bus registration it replaces: never cancelled.
-        settings.configChanged.subscribeOnMain { refresh() }
-        // Process lifetime: never cancelled.
-        settings.defaultModelChanged.subscribeOnMain { refresh() }
+        appScope.launch { settings.ensureLoaded(); refresh() }
+        // The application job owns subscriptions as well as refresh work.
+        appScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { settings.configChanged.asFlow().collect { refresh() } }
+
+        appScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { settings.defaultModelChanged.asFlow().collect { refresh() } }
     }
 
-    private fun build(): AiSettingsSnapshot {
-        val (models, providerCount, providerNames) = blockingDb {
+    private suspend fun build(): AiSettingsSnapshot {
+        val (models, providerCount, providerNames) = run {
             Triple(modelDao.all(), providerDao.getCount(), providerDao.all().map { it.displayName })
         }
         val defaultModelId = settings.defaultModelId
@@ -95,7 +101,7 @@ class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService
     }
 
     /** Mirrors classic `AiConnectionSettingsFragment.updateUsageSummary`. */
-    private fun usageSummary(): String {
+    private suspend fun usageSummary(): String {
         val totalUsage = LlmCostTracker.getTotalUsage()
         return if (totalUsage.totalTokens == 0L) {
             strings.llmUsageSummaryDefault
@@ -110,52 +116,52 @@ class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService
 
     override fun setAgentPermissionMode(value: String) {
         settings.agentPermissionMode = PermissionMode.valueOf(value)
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun setAiLanguage(value: String) {
         settings.aiLanguage = value.ifBlank { null }
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun setAskModelBeforeRun(value: Boolean) {
         settings.askModelBeforeRun = value
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun setCommentaryMaxResponseTokens(value: Int) {
         settings.commentaryMaxResponseTokens = maxOf(0, value)
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun setMaxIterations(value: Int) {
         settings.maxIterations = maxOf(0, value)
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun setCustomAgentSystemPrompt(value: String?) {
         settings.customAgentSystemPrompt = value
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun setCustomTextTransformationSystemPrompt(value: String?) {
         settings.customTextTransformationSystemPrompt = value
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun setRawLogRetention(days: Int) {
         settings.rawLogRetentionDays = if (days > 0) days else null
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun setAutoHideAgentLogOnCompletion(value: Boolean) {
         settings.autoHideAgentLogOnCompletion = value
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun acceptDisclaimer() {
         settings.aiDisclaimerAccepted = true
-        refresh()
+        appScope.launch { refresh() }
     }
 
     override fun customAgentSystemPromptText(): String =
@@ -174,7 +180,7 @@ class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService
     override fun builtInTextTransformationSystemPromptText(): String =
         strings.defaultTextTransformationSystemPrompt
 
-    override fun refresh() {
+    override suspend fun refresh() = refreshMutex.withLock {
         _snapshot.value = build()
     }
 }

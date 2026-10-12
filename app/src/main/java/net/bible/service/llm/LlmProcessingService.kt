@@ -32,7 +32,6 @@ import net.bible.service.llm.tools.ToolDefinition
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.coroutineContext
-import net.bible.service.db.blockingDb
 
 import net.bible.sharedcore.llm.http.LlmHttpTransport
 import net.bible.sharedcore.llm.http.LlmTimeouts

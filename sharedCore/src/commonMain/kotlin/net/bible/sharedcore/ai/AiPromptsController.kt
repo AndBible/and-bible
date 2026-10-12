@@ -1,6 +1,7 @@
 package net.bible.sharedcore.ai
 
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -110,23 +111,23 @@ class AiPromptsController(
 
     fun dismissDialog() { _dialog.value = AiPromptsDialog.None }
 
-    fun onSetShowHidden(v: Boolean) = service.setShowHidden(v)
+    fun onSetShowHidden(v: Boolean) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.setShowHidden(v) } }
 
-    fun onToggleFavorite(promptId: String) = service.toggleFavorite(promptId)
-    fun onSetPromptHidden(promptId: String, hidden: Boolean) = service.setPromptHidden(promptId, hidden)
-    fun onSetCategoryHidden(categoryId: String, hidden: Boolean) = service.setCategoryHidden(categoryId, hidden)
-    fun onDeletePrompt(promptId: String) = service.deletePrompt(promptId)
-    fun onDeleteCategory(categoryId: String, deletePrompts: Boolean) = service.deleteCategory(categoryId, deletePrompts)
-    fun onMovePrompt(promptId: String, up: Boolean) = service.movePrompt(promptId, up)
-    fun onMoveCategory(categoryId: String, up: Boolean) = service.moveCategory(categoryId, up)
-    fun onCreateCategory(name: String) = service.createCategory(name)
-    fun onRenameCategory(categoryId: String, name: String) = service.renameCategory(categoryId, name)
-    fun onCopyPrompt(promptId: String) = service.copyPrompt(promptId)
-    fun onMovePromptToCategory(promptId: String, categoryId: String?) = service.movePromptToCategory(promptId, categoryId)
+    fun onToggleFavorite(promptId: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.toggleFavorite(promptId) } }
+    fun onSetPromptHidden(promptId: String, hidden: Boolean) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.setPromptHidden(promptId, hidden) } }
+    fun onSetCategoryHidden(categoryId: String, hidden: Boolean) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.setCategoryHidden(categoryId, hidden) } }
+    fun onDeletePrompt(promptId: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deletePrompt(promptId) } }
+    fun onDeleteCategory(categoryId: String, deletePrompts: Boolean) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deleteCategory(categoryId, deletePrompts) } }
+    fun onMovePrompt(promptId: String, up: Boolean) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.movePrompt(promptId, up) } }
+    fun onMoveCategory(categoryId: String, up: Boolean) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.moveCategory(categoryId, up) } }
+    fun onCreateCategory(name: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.createCategory(name) } }
+    fun onRenameCategory(categoryId: String, name: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.renameCategory(categoryId, name) } }
+    suspend fun onCopyPrompt(promptId: String) = service.copyPrompt(promptId)
+    fun onMovePromptToCategory(promptId: String, categoryId: String?) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.movePromptToCategory(promptId, categoryId) } }
 
     // Category list for the "Move to category…" picker (a plain snapshot, not a StateFlow — mirrors
     // how PromptEditComposeActivity reads [PromptService.categories] via `remember { }`).
-    fun categories(): List<PromptCategoryVd> = service.categories()
+    suspend fun categories(): List<PromptCategoryVd> = service.categories()
 
     fun onOpenPrompt(id: String) = onOpenPrompt.invoke(id)
     fun onNewPrompt() = onNewPrompt.invoke()

@@ -1,5 +1,6 @@
 package net.bible.sharedcore.ai
 
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -73,10 +74,10 @@ class AiModelsController(
     val dialog: StateFlow<ModelEditState?> = _dialog.asStateFlow()
 
     init {
-        scope.launch { service.models.collect { _models.value = sortDefaultFirst(it) } }
+        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.models.collect { _models.value = sortDefaultFirst(it) } }
     }
 
-    fun startAdd() {
+    fun startAdd() { scope.launch {
         _dialog.value = ModelEditState(
             id = null,
             step = ModelEditState.Step.PICK_PROVIDER,
@@ -94,7 +95,7 @@ class AiModelsController(
             showPriceFields = false,
             canSave = false,
         )
-    }
+    } }
 
     /**
      * Opens the edit dialog scoped to an existing model, prefilled from its [ModelVd] — provider
@@ -189,9 +190,9 @@ class AiModelsController(
         }
     }
 
-    fun delete(id: String) = service.deleteModel(id)
+    fun delete(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deleteModel(id) } }
 
-    fun setDefault(id: String) = service.setDefault(id)
+    fun setDefault(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.setDefault(id) } }
 
     fun dismissDialog() { _dialog.value = null }
 

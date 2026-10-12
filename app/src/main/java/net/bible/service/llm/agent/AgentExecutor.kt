@@ -70,7 +70,6 @@ import org.crosswire.jsword.index.IndexStatus
 import kotlinx.serialization.json.*
 import net.bible.service.llm.tools.*
 import java.io.StringReader
-import net.bible.service.db.blockingDb
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10

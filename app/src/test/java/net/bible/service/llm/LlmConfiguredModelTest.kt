@@ -177,7 +177,7 @@ class LlmConfiguredModelTest {
     // --- Pricing resolution ---
 
     @Test
-    fun pricing_configuredModelPricing_takePriorityOverEnum() {
+    fun pricing_configuredModelPricing_takePriorityOverEnum() = runBlocking {
         // Create model with custom pricing different from enum
         val customPricedModel = LlmConfiguredModel(
             providerConfigId = testProvider.id,
@@ -195,7 +195,7 @@ class LlmConfiguredModelTest {
     }
 
     @Test
-    fun pricing_zeroPricedConfiguredModel_fallsBackToEnum() {
+    fun pricing_zeroPricedConfiguredModel_fallsBackToEnum() = runBlocking {
         val zeroPricedModel = LlmConfiguredModel(
             providerConfigId = testProvider.id,
             modelId = "zero-priced-flash",
@@ -214,14 +214,14 @@ class LlmConfiguredModelTest {
     }
 
     @Test
-    fun pricing_withoutConfiguredModelId_usesEnumPricing() {
+    fun pricing_withoutConfiguredModelId_usesEnumPricing() = runBlocking {
         val pricing = LlmPricing.getPricing("gemini-2.5-flash", null)
         assertNotNull(pricing)
         assertEquals(0.15, pricing!!.inputPerMillion, 0.001)
     }
 
     @Test
-    fun pricing_unknownModelWithoutConfiguredId_returnsNull() {
+    fun pricing_unknownModelWithoutConfiguredId_returnsNull() = runBlocking {
         val pricing = LlmPricing.getPricing("totally-unknown-model-xyz", null)
         assertNull(pricing)
     }

@@ -27,5 +27,7 @@ interface AiSettings {
     var rawLogRetentionDays: Int?
     var autoHideAgentLogOnCompletion: Boolean
     val aiDisplayLanguage: String
+    /** Awaits the store-owned FIFO tail submitted before this call; setters stay synchronous. */
+    suspend fun awaitWrites()
     suspend fun ensureLoaded()
 }

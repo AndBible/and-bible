@@ -92,7 +92,7 @@ object EditMyDocumentPageTool : Tool, KoinComponent {
         required: [pageId]
     """)
 
-    override fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean {
+    override suspend fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean {
         val pageIdStr = arguments.optString("pageId", "")
         if (pageIdStr.isBlank()) return true
         return try {

@@ -24,7 +24,6 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.llmJson
 import org.crosswire.jsword.passage.PassageKeyFactory
 import kotlinx.serialization.json.*
-import net.bible.service.db.blockingDb
 
 /** Decode tool arguments from JsonObject to a typed @Serializable data class. */
 inline fun <reified T> JsonObject.decodeArgs(): T =
@@ -129,13 +128,13 @@ fun uniqueLabelName(baseName: String, existingNames: List<String>): String {
  *
  * @return The resolved MyDocument, or null if neither identifier matches
  */
-fun resolveMyDocument(documentId: IdType?, initials: String?): MyDocument? {
+suspend fun resolveMyDocument(documentId: IdType?, initials: String?): MyDocument? {
     val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
     if (documentId != null && !documentId.isEmpty) {
-        return blockingDb { dao.documentById(documentId) }
+        return dao.documentById(documentId)
     }
     if (!initials.isNullOrBlank()) {
-        return blockingDb { dao.documentByInitials(initials) }
+        return dao.documentByInitials(initials)
     }
     return null
 }

@@ -11,15 +11,15 @@ import kotlinx.coroutines.flow.StateFlow
 interface LlmProviderService {
     val providers: StateFlow<List<ProviderVd>>
     fun providerTypes(): List<ProviderTypeVd>
-    fun apiKeyFor(providerId: String): String
+    suspend fun apiKeyFor(providerId: String): String
     suspend fun saveProvider(id: String?, typeId: String, displayName: String, apiKey: String, endpoint: String, apiFormatId: String)  // id null = create
-    fun deleteProvider(id: String)
+    suspend fun deleteProvider(id: String)
     suspend fun testConnection(typeId: String, endpoint: String, apiKey: String): Result<Unit>
     suspend fun fetchAvailableModels(providerId: String): List<AvailableModelVd>
-    fun refresh()
+    suspend fun refresh()
     // recommended-setup data for the easy-setup wizard (Task 6/7):
     fun recommendedSetups(): List<RecommendedSetupVd>
     suspend fun performEasySetup(setupId: String, apiKey: String)
     fun disclaimerAccepted(): Boolean
-    fun acceptDisclaimer()
+    suspend fun acceptDisclaimer()
 }

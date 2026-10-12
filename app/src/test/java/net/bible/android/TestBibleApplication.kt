@@ -66,6 +66,8 @@ class TestBibleApplication : BibleApplication() {
     }
 
     private val aiScope = net.bible.sharedcore.platform.AppCoroutineScope()
+    private var previousAppScope: net.bible.sharedcore.platform.AppCoroutineScope? = null
+    private var previousLauncher: net.bible.sharedcore.platform.OrderedLauncher? = null
     private val aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
     override val isRunningTests: Boolean = true
 
@@ -82,7 +84,11 @@ class TestBibleApplication : BibleApplication() {
         } finally {
             Thread.setDefaultUncaughtExceptionHandler(originalHandler)
         }
+        previousAppScope = org.koin.core.context.GlobalContext.get().get()
+        previousLauncher = org.koin.core.context.GlobalContext.get().get()
         org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
+            single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
             single<net.bible.service.llm.AiSettings> {
                 net.bible.service.llm.AiSettingsStore(
                     { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, aiLauncher, aiScope,
@@ -124,6 +130,8 @@ class TestBibleApplication : BibleApplication() {
             job.join()
         }
         org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
+            single<net.bible.sharedcore.platform.OrderedLauncher> { checkNotNull(previousLauncher) }
             single<net.bible.service.llm.AiSettings> {
                 net.bible.service.llm.AiSettingsStore(
                     { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),

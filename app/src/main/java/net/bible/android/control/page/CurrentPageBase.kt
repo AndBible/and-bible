@@ -193,7 +193,7 @@ abstract class CurrentPageBase protected constructor(
             blockingDb { myDocumentDao.getCacheEntry(myDocumentPage.id) }
         } else null
         val promptName = if (promptId != null) {
-            PromptRepository.promptById(promptId)?.name ?: application.getString(R.string.ai_unknown_prompt)
+            blockingDb { PromptRepository.promptById(promptId) }?.name ?: application.getString(R.string.ai_unknown_prompt) // L1-pending(page)
         } else null
 
         val effectiveKey = annotateKey ?: key

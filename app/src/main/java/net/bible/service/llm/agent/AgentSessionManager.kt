@@ -17,6 +17,8 @@
 
 package net.bible.service.llm.agent
 
+import kotlinx.coroutines.sync.withLock
+
 import net.bible.service.llm.AiSettings
 import net.bible.service.llm.LlmStrings
 import net.bible.sharedcore.log.Log
@@ -75,7 +77,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import net.bible.service.db.blockingDb
 
 open class AgentSessionManagerBase : KoinComponent {
     val windowControl: WindowControl by inject()
@@ -314,8 +315,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private val activeSessions = ConcurrentHashMap<IdType, AgentSession>()
     private var initialized = false
 
-    @Synchronized
-    private fun ensureInitialized() {
+    private val initializationMutex = kotlinx.coroutines.sync.Mutex()
+
+    private suspend fun ensureInitialized() = initializationMutex.withLock {
         if (!initialized) {
             cleanupOldRawLogs()
             initialized = true
@@ -870,11 +872,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         )
     }
 
-    private fun cleanupOldRawLogs() {
+    private suspend fun cleanupOldRawLogs() {
         try {
             val retentionDays = aiSettings.rawLogRetentionDays ?: return
             val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
-            blockingDb { DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff) }
+            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.w(TAG, "Failed to cleanup old raw logs", e)
         }
@@ -904,7 +908,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         return pageInfo
     }
 
-    private fun attachTotalCost(session: AgentSession, usage: LlmUsage, model: String, configuredModelId: IdType? = null) {
+    private suspend fun attachTotalCost(session: AgentSession, usage: LlmUsage, model: String, configuredModelId: IdType? = null) {
         if (usage.totalTokens > 0) {
             val cost = LlmPricing.estimateCost(usage, model, configuredModelId)
             if (cost != null) {
@@ -1086,7 +1090,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     fun getCurrentSession(): AgentSession? {
-        ensureInitialized()
         return try {
             val workspaceId = windowControl.windowRepository.id
             getOrCreateSession(workspaceId)

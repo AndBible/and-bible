@@ -1,5 +1,6 @@
 package net.bible.sharedcore.ai
 
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -77,8 +78,8 @@ class AiProvidersController(
         )
     }
 
-    fun startEdit(id: String) {
-        val p = service.providers.value.firstOrNull { it.id == id } ?: return
+    fun startEdit(id: String) { scope.launch {
+        val p = service.providers.value.firstOrNull { it.id == id } ?: return@launch
         val type = service.providerTypes().firstOrNull { it.id == p.providerTypeId }
         publish(
             ProviderEditState(
@@ -94,6 +95,7 @@ class AiProvidersController(
                 canSave = false,
             )
         )
+    }
     }
 
     fun updateField(field: Field, value: String) {
@@ -117,14 +119,14 @@ class AiProvidersController(
         }
     }
 
-    fun delete(id: String) = service.deleteProvider(id)
+    fun delete(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deleteProvider(id) } }
 
     fun dismissDialog() { _dialog.value = null }
 
     /** F31: accepts the AI disclaimer (Quick-setup / Add-provider gate), via the shared
      *  [LlmProviderService] — routed through the controller so the Compose screen never calls the
      *  service directly. */
-    fun acceptDisclaimer() = service.acceptDisclaimer()
+    fun acceptDisclaimer() { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.acceptDisclaimer() } }
 
     /** F31: whether the AI disclaimer has already been accepted (the Quick-setup / Add-provider
      *  gate check). Routed through the controller for the same reason as [acceptDisclaimer]. */

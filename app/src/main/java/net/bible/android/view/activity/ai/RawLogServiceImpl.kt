@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +42,6 @@ import net.bible.service.llm.tools.prettyJson
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [RawLogService] backing the raw-LLM-log screens
@@ -49,8 +49,7 @@ import net.bible.service.db.blockingDb
  * the new-path twin of classic [RawLogHistoryActivity] / [RawLlmLogActivity] / [RawLlmLogAdapter].
  *
  * Registered as a Koin single. It holds two pieces of state: the [summaries] `StateFlow` (re-read
- * from [net.bible.service.llm.LlmRawLogRecordDao.allSummaries] on each [refresh], wrapped in the single
- * `blockingDb` bridge, as elsewhere in this layer) and [lastSessionLog] — the last in-memory [RawLlmLog] resolved by
+ * from [net.bible.service.llm.LlmRawLogRecordDao.allSummaries] on each suspending [refresh]) and [lastSessionLog] — the last in-memory [RawLlmLog] resolved by
  * [sessionEntries]. The latter exists because the [RawLogService] seam's [canReportBug] takes only a
  * nullable `recordId`, so the in-memory case (`recordId == null`) has no `workspaceId` to work from;
  * the controller always calls [sessionEntries] (which stashes the log) immediately before
@@ -62,7 +61,8 @@ import net.bible.service.db.blockingDb
  * mirroring classic `RawLogHistoryAdapter.bind`, which is the ADAPTER/view layer), so it is
  * single-owned there and not duplicated here.
  */
-class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService {
+class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService, org.koin.core.component.KoinComponent {
+    private val appScope: net.bible.sharedcore.platform.AppCoroutineScope by inject()
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
@@ -72,27 +72,27 @@ class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService {
     private val _summaries = MutableStateFlow<List<RawLogSummaryVd>>(emptyList())
     override val summaries: StateFlow<List<RawLogSummaryVd>> = _summaries.asStateFlow()
 
-    override fun refresh() {
-        _summaries.value = blockingDb { dao.allSummaries() }.map { it.toVd() }
+    override suspend fun refresh() {
+        _summaries.value = dao.allSummaries().map { it.toVd() }
     }
 
-    override fun deleteByIds(ids: Set<String>) {
-        blockingDb { dao.deleteByIds(ids.map { IdType(it) }) }
+    override suspend fun deleteByIds(ids: Set<String>) : Unit = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+        run { dao.deleteByIds(ids.map { IdType(it) }) }
         refresh()
     }
 
-    override fun deleteOlderThan(days: Int) {
+    override suspend fun deleteOlderThan(days: Int) : Unit = kotlinx.coroutines.withContext(appScope.coroutineContext) {
         if (days <= 0) {
             deleteAll()
-            return
+            return@withContext
         }
         val cutoff = System.currentTimeMillis() - days.toLong() * 24 * 60 * 60 * 1000
-        blockingDb { dao.deleteOlderThan(cutoff) }
+        dao.deleteOlderThan(cutoff)
         refresh()
     }
 
-    override fun deleteAll() {
-        blockingDb { dao.deleteAll() }
+    override suspend fun deleteAll() : Unit = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+        dao.deleteAll()
         refresh()
     }
 
@@ -128,9 +128,9 @@ class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService {
         }
     }
 
-    override fun canReportBug(recordId: String?): Boolean {
+    override suspend fun canReportBug(recordId: String?): Boolean {
         return if (recordId != null) {
-            val record = blockingDb { dao.getById(IdType(recordId)) } ?: return false
+            val record = dao.getById(IdType(recordId)) ?: return false
             AiBugReport.isReportAvailable(record.modelName)
         } else {
             // In-memory: mirror classic's `rawLog != null && usageByIteration.isNotEmpty()` gate, then
@@ -179,7 +179,7 @@ class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService {
         is RawLogEntry.RawApiResponse -> strings.rawLlmLogEntryApiResponse(entry.iteration)
     }
 
-    private fun entryTokenInfo(entry: RawLogEntry, usageByIteration: Map<Int, net.bible.service.llm.agent.IterationUsageData>): String = when (entry) {
+    private suspend fun entryTokenInfo(entry: RawLogEntry, usageByIteration: Map<Int, net.bible.service.llm.agent.IterationUsageData>): String = when (entry) {
         is RawLogEntry.RawApiResponse -> {
             val data = usageByIteration[entry.iteration]
             if (data != null) {

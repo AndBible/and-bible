@@ -64,9 +64,17 @@ class PromptEditController(
     template: String? = null,
     defaultContext: String? = null,
 ) {
-    private val loaded: PromptEditData =
-        (promptId?.let { service.prompt(it) } ?: service.newPromptData(template, defaultContext))
-            .let(::gateBibleOnly)
+    private val loaded: PromptEditData = service.newPromptData(template, defaultContext).let(::gateBibleOnly)
+
+    private val _loading = MutableStateFlow(promptId != null)
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
+
+    suspend fun load(promptId: String?) {
+        val data = promptId?.let { service.prompt(it) }?.let(::gateBibleOnly) ?: loaded
+        _loading.value = false
+        rebaseline(data)
+        publish(data)
+    }
 
     /** Static tool catalog, for the category bulk-toggle ops below (E2/F37) -- like
      *  [GlobalToolPermissionsController.categories], read once and never re-fetched. */
@@ -194,7 +202,7 @@ class PromptEditController(
      * For a built-in prompt this only persists the model override (via
      * [PromptService.setBuiltinPromptModelOverride]), never [PromptService.savePrompt].
      */
-    fun save(): String? {
+    suspend fun save(): String? {
         if (!_canSave.value) return null
         val current = _state.value
         return if (current.isBuiltIn && current.isReadOnly) {
@@ -219,14 +227,14 @@ class PromptEditController(
     }
 
     /** No-op for a new (unsaved) or read-only prompt. */
-    fun delete() {
+    suspend fun delete() {
         val id = _state.value.id ?: return
         if (_state.value.isReadOnly) return
         service.deletePromptById(id)
     }
 
     /** Works even for a read-only prompt — that's the point of "Copy to customize". */
-    fun copyToCustomize(): String? {
+    suspend fun copyToCustomize(): String? {
         val id = _state.value.id ?: return null
         return service.copyPrompt(id)
     }
@@ -237,6 +245,7 @@ class PromptEditController(
      *   add-on prompt (`isReadOnly && !isBuiltIn`) is still blocked either way.
      */
     private fun update(allowBuiltinOverride: Boolean = false, transform: (PromptEditData) -> PromptEditData) {
+        if (_loading.value) return
         val current = _state.value
         if (current.isReadOnly && !(allowBuiltinOverride && current.isBuiltIn)) return
         publish(transform(current))
@@ -263,7 +272,7 @@ class PromptEditController(
      * blank template.
      */
     private fun computeCanSave(data: PromptEditData): Boolean =
-        data.name.isNotBlank() &&
+        !_loading.value && data.name.isNotBlank() &&
             ((!data.isReadOnly && data.template.isNotBlank()) ||
                 (data.isBuiltIn && data.modelOverrideId != initialData.modelOverrideId))
 

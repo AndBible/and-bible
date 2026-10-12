@@ -103,13 +103,13 @@ object AddMyDocumentPageTool : Tool, KoinComponent {
         required: [title, content]
     """)
 
-    override fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean {
+    override suspend fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean {
         val initials = arguments.optString("initials", "")
         if (initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS) return false
 
         val documentIdStr = arguments.optString("documentId", "")
         if (documentIdStr.isNotBlank()) {
-            val doc = try { resolveMyDocument(IdType(documentIdStr), null) } catch (_: Exception) { null }
+            val doc = try { resolveMyDocument(IdType(documentIdStr), null) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
             if (doc?.isAIDocument == true) return false
         }
         return true

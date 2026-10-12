@@ -1092,7 +1092,7 @@ class ToolIntegrationTest {
     // === MyDocuments: Permission behavior ===
 
     @Test
-    fun addMyDocumentPage_noPermissionForAiDocuments() {
+    fun addMyDocumentPage_noPermissionForAiDocuments() = runBlocking {
         // Adding to AI Documents should not require permission
         val args = buildJsonObject {
             put("initials", "AIDocuments")
@@ -1106,7 +1106,7 @@ class ToolIntegrationTest {
     }
 
     @Test
-    fun addMyDocumentPage_requiresPermissionForOtherDocuments() {
+    fun addMyDocumentPage_requiresPermissionForOtherDocuments() = runBlocking {
         val args = buildJsonObject {
             put("initials", "SomeOtherDoc")
             put("title", "Test")
@@ -1143,7 +1143,7 @@ class ToolIntegrationTest {
     }
 
     @Test
-    fun editMyDocumentPage_requiresPermissionForOtherPages() {
+    fun editMyDocumentPage_requiresPermissionForOtherPages() = runBlocking {
         val args = buildJsonObject {
             put("pageId", IdType().toString())
             put("title", "New Title")

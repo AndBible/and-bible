@@ -25,7 +25,6 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.blockingDb
 
 /**
  * Unified facade for accessing both built-in and user-created prompts.
@@ -88,13 +87,13 @@ object PromptRepository : KoinComponent {
      * Get a prompt by ID, checking built-in prompts first, then add-ons, then DB.
      * Built-in prompts are merged with any DB overrides.
      */
-    fun promptById(id: IdType): AgentPrompt? {
-        BuiltInPrompts.promptById(id)?.let { return blockingDb { applyOverride(it) } }
+    suspend fun promptById(id: IdType): AgentPrompt? {
+        BuiltInPrompts.promptById(id)?.let { return applyOverride(it) }
         return loadAddonPrompts().find { it.id == id }
-            ?: blockingDb { dao.promptById(id) }
+            ?: dao.promptById(id)
     }
 
-    /** Suspend: the override lookup per prompt runs inside the caller's single bridge. */
+    /** Apply built-in overrides in the caller's coroutine. */
     private suspend fun loadBuiltInPrompts(): List<AgentPrompt> {
         val prompts = if (environment.isDebugMode) BuiltInPrompts.allBuiltInPrompts()
             else BuiltInPrompts.productionPrompts()
@@ -108,9 +107,9 @@ object PromptRepository : KoinComponent {
      * Test prompts (debugOnly) are excluded when not in debug mode.
      * Hidden built-in prompts are excluded from all contexts.
      */
-    fun allPrompts(): List<AgentPrompt> {
+    suspend fun allPrompts(): List<AgentPrompt> {
         val hidden = aiSettings.hiddenBuiltInPrompts
-        return blockingDb {
+        return run {
             val visibleBuiltIn = loadBuiltInPrompts().filter { it.id !in hidden }
             visibleBuiltIn + loadAddonPrompts() + dao.allPrompts()
         }
@@ -119,8 +118,8 @@ object PromptRepository : KoinComponent {
     /**
      * Returns all prompts including hidden ones, for use in settings UI.
      */
-    fun allPromptsIncludingHidden(): List<AgentPrompt> =
-        blockingDb { loadBuiltInPrompts() + loadAddonPrompts() + dao.allPrompts() }
+    suspend fun allPromptsIncludingHidden(): List<AgentPrompt> =
+        loadBuiltInPrompts() + loadAddonPrompts() + dao.allPrompts()
 
     /**
      * Returns prompts filtered by context and optionally by document category.
@@ -129,7 +128,7 @@ object PromptRepository : KoinComponent {
      * filtering is applied. When provided, prompts with [AgentPrompt.bibleOnly] = true are
      * hidden unless the category is [DocumentCategory.BIBLE].
      */
-    fun promptsForContext(context: PromptContext, documentCategory: DocumentCategory? = null): List<AgentPrompt> {
+    suspend fun promptsForContext(context: PromptContext, documentCategory: DocumentCategory? = null): List<AgentPrompt> {
         return allPrompts().filter { prompt ->
             context in prompt.showIn &&
             (documentCategory == null || !prompt.bibleOnly || documentCategory == DocumentCategory.BIBLE)
@@ -145,7 +144,7 @@ object PromptRepository : KoinComponent {
      * Copy a prompt (built-in, add-on, or user) into the DB as a new user prompt with a new ID.
      * Returns the new prompt's ID, or null if the source prompt was not found.
      */
-    fun copyPrompt(id: IdType): IdType? {
+    suspend fun copyPrompt(id: IdType): IdType? {
         val source = promptById(id) ?: return null
         val effectiveCategoryId = getCategoryForPrompt(source)?.id
         val newOrder = source.orderNumber + 1
@@ -156,7 +155,7 @@ object PromptRepository : KoinComponent {
             orderNumber = newOrder,
             categoryId = effectiveCategoryId,
         ).also { it.sourceModule = null }
-        blockingDb {
+        run {
             dao.shiftOrderNumbersAfter(source.orderNumber)
             dao.insert(newPrompt)
         }
@@ -166,38 +165,38 @@ object PromptRepository : KoinComponent {
     /**
      * Insert a new user prompt into the database.
      */
-    fun insertPrompt(prompt: AgentPrompt) {
+    suspend fun insertPrompt(prompt: AgentPrompt) {
         require(!BuiltInPrompts.isBuiltIn(prompt.id)) { "Cannot insert a prompt with a built-in ID" }
-        blockingDb { dao.insert(prompt) }
+        dao.insert(prompt)
     }
 
     /**
      * Update an existing user prompt in the database.
      */
-    fun updatePrompt(prompt: AgentPrompt) {
+    suspend fun updatePrompt(prompt: AgentPrompt) {
         require(!BuiltInPrompts.isBuiltIn(prompt.id)) { "Cannot update a built-in prompt" }
-        blockingDb { dao.update(prompt) }
+        dao.update(prompt)
     }
 
     /**
      * Delete a user prompt from the database.
      */
-    fun deletePrompt(prompt: AgentPrompt) {
+    suspend fun deletePrompt(prompt: AgentPrompt) {
         require(!BuiltInPrompts.isBuiltIn(prompt.id)) { "Cannot delete a built-in prompt" }
-        blockingDb { dao.delete(prompt) }
+        dao.delete(prompt)
     }
 
     /**
      * Delete all user prompts from the database.
      * Built-in prompts are unaffected (they live in code).
      */
-    fun deleteAllUserPrompts() {
-        blockingDb { dao.deleteAll() }
+    suspend fun deleteAllUserPrompts() {
+        dao.deleteAll()
     }
 
     /** Delete all user-created categories (built-in categories are in code and unaffected). */
-    fun deleteAllUserCategories() {
-        blockingDb { categoryDao.deleteAll() }
+    suspend fun deleteAllUserCategories() {
+        categoryDao.deleteAll()
     }
 
     /** Set the model override for a built-in prompt. */
@@ -218,25 +217,25 @@ object PromptRepository : KoinComponent {
     // --- Category operations ---
 
     /** All categories: built-in (from code) + user-created (from DB). */
-    fun allCategories(): List<PromptCategory> =
+    suspend fun allCategories(): List<PromptCategory> =
         BuiltInPrompts.defaultCategories() + userCategories()
 
     /** User-created categories only (from DB). */
-    fun userCategories(): List<PromptCategory> = blockingDb { categoryDao.all() }
+    suspend fun userCategories(): List<PromptCategory> = categoryDao.all()
 
-    fun categoryById(id: IdType): PromptCategory? =
-        BuiltInPrompts.defaultCategories().find { it.id == id } ?: blockingDb { categoryDao.getById(id) }
+    suspend fun categoryById(id: IdType): PromptCategory? =
+        BuiltInPrompts.defaultCategories().find { it.id == id } ?: categoryDao.getById(id)
 
-    fun insertCategory(category: PromptCategory) = blockingDb { categoryDao.insert(category) }
+    suspend fun insertCategory(category: PromptCategory) = categoryDao.insert(category)
 
-    fun updateCategory(category: PromptCategory) = blockingDb { categoryDao.update(category) }
+    suspend fun updateCategory(category: PromptCategory) = categoryDao.update(category)
 
     /**
      * Delete a user category. If [deletePrompts] is true, deletes all prompts in the category.
      * Otherwise moves them to root (categoryId = null).
      */
-    fun deleteCategory(categoryId: IdType, deletePrompts: Boolean) {
-        blockingDb {
+    suspend fun deleteCategory(categoryId: IdType, deletePrompts: Boolean) {
+        run {
             if (deletePrompts) {
                 dao.deleteByCategoryId(categoryId)
             } else {
@@ -250,7 +249,7 @@ object PromptRepository : KoinComponent {
      * Returns the effective category for a prompt.
      * Built-in prompts use hardcoded defaults; user/addon prompts use the DB field.
      */
-    fun getCategoryForPrompt(prompt: AgentPrompt): PromptCategory? {
+    suspend fun getCategoryForPrompt(prompt: AgentPrompt): PromptCategory? {
         if (isBuiltIn(prompt.id)) {
             val catId = BuiltInPrompts.defaultCategoryForPrompt(prompt.id) ?: return null
             return BuiltInPrompts.defaultCategories().find { it.id == catId }
@@ -280,7 +279,7 @@ object PromptRepository : KoinComponent {
      * Returns prompts grouped by category for the given context.
      * Key null = uncategorized prompts. Hidden categories are excluded.
      */
-    fun promptsForContextGrouped(
+    suspend fun promptsForContextGrouped(
         context: PromptContext,
         documentCategory: DocumentCategory? = null
     ): Map<PromptCategory?, List<AgentPrompt>> {

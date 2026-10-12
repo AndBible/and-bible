@@ -18,6 +18,11 @@
 package net.bible.android.view.activity.ai
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.resetMain
 import android.os.Looper
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -41,7 +46,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DefaultModelChangedTest {
-    @After fun tearDown() { DatabaseResetter.resetDatabase() }
+    @After fun tearDown() { DatabaseResetter.resetDatabase(); Dispatchers.resetMain() }
 
     @Test fun theSetterEmitsOncePerWrite() {
         var emitted = 0
@@ -53,7 +58,8 @@ class DefaultModelChangedTest {
         assertEquals(2, emitted)
     }
 
-    @Test fun aDefaultModelWriteRefreshesTheServiceSnapshots() {
+    @Test fun aDefaultModelWriteRefreshesTheServiceSnapshots() = runBlocking {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         // Fresh instances, not the Koin singletons: another test class may have created those, and
         // TestBibleApplication.onTerminate resets AiSettings' sources, which kills the process-lifetime
         // subscriptions of an already-built singleton.
@@ -69,6 +75,10 @@ class DefaultModelChangedTest {
 
         CommonUtils.aiSettings.defaultModelId = second.id
         shadowOf(Looper.getMainLooper()).idle()
+        kotlinx.coroutines.withTimeout(5000) {
+            settingsService.snapshot.first { it.defaultModelLabel == "model-b" }
+            modelService.models.first { list -> list.any { it.modelId == "model-b" && it.isDefault } }
+        }
 
         assertEquals("model-b", settingsService.snapshot.value.defaultModelLabel)
         assertEquals(listOf("model-b"), modelService.models.value.filter { it.isDefault }.map { it.modelId })

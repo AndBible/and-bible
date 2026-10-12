@@ -19,12 +19,12 @@ class Phase8SubscriberWiringGuardTest {
         val p = "android/view/activity/page/BibleView.kt"
         assertContains(p, "AndBibleAddons.reloaded.subscribe {", "reload_addons, synchronous like the old on{}")
         assertContains(p, "WorkspaceChanges.changes.subscribe { if (it == WorkspaceChange.SettingsEdited) updateConfig() }", "SettingsEdited reaches updateConfig")
-        assertContains(p, "AiSettings.configChanged.subscribe { updateConfig() }", "Review Focus 3: llmConfigured")
+        assertContains(p, "CommonUtils.aiSettings.configChanged.subscribe { updateConfig() }", "Review Focus 3: llmConfigured")
     }
 
     @Test fun aiServicesRefreshOnMainOnConfigChange() {
         listOf("AiSettingsServiceImpl", "LlmProviderServiceImpl", "LlmModelServiceImpl", "PromptServiceImpl").forEach {
-            assertContains("android/view/activity/ai/$it.kt", "AiSettings.configChanged.subscribeOnMain { refresh() }", "was onMain<AppSettingsUpdated>")
+            assertContains("android/view/activity/ai/$it.kt", "settings.configChanged.asFlow().collect { refresh() }", "application-owned suspend collector replaces the old Main callback")
         }
     }
 

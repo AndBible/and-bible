@@ -78,7 +78,7 @@ interface Tool {
      * @param context Current agent execution context
      * @return true if this specific invocation requires user permission
      */
-    fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean = requiresPermission
+    suspend fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean = requiresPermission
 
     /** UI category for grouping tools in permission screens. */
     val category: ToolCategory

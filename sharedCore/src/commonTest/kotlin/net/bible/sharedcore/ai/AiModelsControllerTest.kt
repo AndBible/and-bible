@@ -38,7 +38,7 @@ class AiModelsControllerTest {
         var setDefaultCount = 0
         var refreshCount = 0
 
-        override fun providersForPicker() = providerChoices
+        override suspend fun providersForPicker() = providerChoices
         override suspend fun availableModelsFor(providerId: String) = availableModelsByProvider[providerId] ?: emptyList()
         override suspend fun saveModel(
             id: String?, providerId: String, modelId: String,
@@ -47,9 +47,9 @@ class AiModelsControllerTest {
             lastSave = SaveCall(id, providerId, modelId, priceInput, priceOutput, setDefault)
             saveCount++
         }
-        override fun deleteModel(id: String) { lastDeleteId = id; deleteCount++ }
-        override fun setDefault(id: String) { lastSetDefaultId = id; setDefaultCount++ }
-        override fun refresh() { refreshCount++ }
+        override suspend fun deleteModel(id: String) { lastDeleteId = id; deleteCount++ }
+        override suspend fun setDefault(id: String) { lastSetDefaultId = id; setDefaultCount++ }
+        override suspend fun refresh() { refreshCount++ }
     }
 
     private fun controller(fake: Fake) = AiModelsController(fake, CoroutineScope(UnconfinedTestDispatcher()))

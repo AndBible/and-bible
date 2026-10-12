@@ -42,8 +42,10 @@ import net.bible.sharedcore.ai.reading.LogEntryKind
 import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.ai.reading.ReadingModelVd
 import org.koin.core.component.KoinComponent
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.launch
+import net.bible.sharedcore.platform.AppCoroutineScope
 import org.koin.core.component.inject
-import net.bible.service.db.blockingDb
 
 /**
  * Pure mapping from the mutable runtime [AgentLogEntry] to its immutable view-data twin. The two
@@ -73,6 +75,7 @@ internal fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.value
  */
 class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     private val aiSettings: AiSettings by inject()
+    private val appScope: AppCoroutineScope by inject()
     private val settings: AppSettings by inject()
     private val windowControl: WindowControl by inject()
 
@@ -85,28 +88,30 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
      */
     private val lastStopByWorkspace = mutableMapOf<IdType, AgentStopReasonVd?>()
 
-    private val _snapshot = MutableStateFlow(build())
+    private val _snapshot = MutableStateFlow(AgentLogSnapshot())
     override val snapshot: StateFlow<AgentLogSnapshot> = _snapshot.asStateFlow()
 
+    private val refreshMutex = kotlinx.coroutines.sync.Mutex()
+
     init {
-        // Process lifetime (Koin single): never cancelled. onMain before, so subscribeOnMain now.
-        AgentSessionManager.changes.subscribeOnMain { change ->
-            // Recorded for every workspace, before the filter, so switching back finds its own reason.
-            if (change is AgentSessionChange.StatusChanged) {
-                lastStopByWorkspace[change.workspaceId] = change.stopReason?.toVd()
-            }
-            if (change.workspaceId != wsId()) return@subscribeOnMain
-            when (change) {
-                is AgentSessionChange.LogUpdated -> refresh()
-                is AgentSessionChange.StatusChanged -> refresh()
-                is AgentSessionChange.PermissionWaiting -> Unit // the panel never showed it
+        // Register before returning; asFlow owns cancellation of the subscription.
+        appScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            AgentSessionManager.changes.asFlow().collect { change ->
+                withContext(Dispatchers.Main.immediate) {
+                    if (change is AgentSessionChange.StatusChanged) {
+                        lastStopByWorkspace[change.workspaceId] = change.stopReason?.toVd()
+                    }
+                    if (change.workspaceId == wsId() && change !is AgentSessionChange.PermissionWaiting) refresh()
+                }
             }
         }
-        // Process lifetime: never cancelled.
-        aiSettings.defaultModelChanged.subscribeOnMain { refresh() }
+        appScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            aiSettings.defaultModelChanged.asFlow().collect { withContext(Dispatchers.Main.immediate) { refresh() } }
+        }
+        appScope.launch { aiSettings.ensureLoaded(); withContext(Dispatchers.Main.immediate) { refresh() } }
     }
 
-    private fun build(): AgentLogSnapshot {
+    private suspend fun build(): AgentLogSnapshot {
         val workspaceId = wsId()
         val entries = AgentSessionManager.getLogEntries(workspaceId).map(::mapEntry)
         return AgentLogSnapshot(
@@ -134,9 +139,9 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     }
 
     /** Port of the classic `AgentLogWidget.updateModelSelectorText` model-id lookup. */
-    private fun defaultModelLabel(): String? {
+    private suspend fun defaultModelLabel(): String? {
         val defaultId = aiSettings.defaultModelId
-        return defaultId?.let { id -> blockingDb { DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(id)?.modelId } }
+        return defaultId?.let { id -> DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(id)?.modelId }
     }
 
     override fun stop() {
@@ -176,7 +181,7 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
 
     override fun currentWorkspaceId(): String = wsId().toString()
 
-    override fun refresh() {
+    override suspend fun refresh() = refreshMutex.withLock {
         _snapshot.value = build()
     }
 
