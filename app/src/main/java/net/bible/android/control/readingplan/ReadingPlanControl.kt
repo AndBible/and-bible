@@ -84,14 +84,14 @@ class ReadingPlanControl constructor(
      */
     suspend fun currentPlansReadingList(): List<OneDaysReadingsDto> = readingPlanTextDao.getReadingList(currentPlanCode)
 
-    suspend fun currentPlanExists(): Boolean = try {
-        readingPlanTextDao.getReading(currentPlanCode, 1)
+    suspend fun currentPlanExists(planCode: String = currentPlanCode): Boolean = try {
+        readingPlanTextDao.getReading(planCode, 1)
         true
-    } catch (e: Exception) { false }
+    } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+    catch (e: Exception) { false }
 
     /** The day the user is on: for a date-based plan today's day, else the stored current day. */
-    suspend fun currentPlanDay(): Int {
-            val planCode = currentPlanCode
+    suspend fun currentPlanDay(planCode: String = currentPlanCode): Int {
             return if (readingPlanTextDao.getReading(planCode, 1).isDateBasedPlan) {
                 val todayDate = Calendar.getInstance().apply {
                     set(Calendar.HOUR_OF_DAY, 0)
@@ -160,13 +160,12 @@ class ReadingPlanControl constructor(
 
     /** get read status of this days readings
      */
-    suspend fun getReadingStatus(day: Int): ReadingStatus {
-        val planCode = currentPlanCode
+    suspend fun getReadingStatus(day: Int, planCode: String = currentPlanCode): ReadingStatus {
         var readingStatus = readingStatus
         if (readingStatus == null || readingStatus.planCode != planCode || readingStatus.day != day) {
             val oneDaysReadingsDto = readingPlanTextDao.getReading(planCode, day)
             // if Historic then return historic status that returns read=true for all passages
-            readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay()) {
+            readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay(planCode)) {
                 HistoricReadingStatus(planCode, day, oneDaysReadingsDto.numReadings, readingPlanRepo)
             } else {
                 ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings, readingPlanRepo)
@@ -261,8 +260,8 @@ class ReadingPlanControl constructor(
 
     /** get readings due for current plan on specified day
      */
-    suspend fun getDaysReading(day: Int): OneDaysReadingsDto {
-        return readingPlanTextDao.getReading(currentPlanCode, day)
+    suspend fun getDaysReading(day: Int, planCode: String = currentPlanCode): OneDaysReadingsDto {
+        return readingPlanTextDao.getReading(planCode, day)
     }
 
     /** User wants to read a passage from the daily reading

@@ -143,13 +143,19 @@ class GridChoosePassageController(
         buildJob = scope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 val result = buildStep(step, options)
-                if (generation == buildGeneration && isActive) _ui.value = result
+                if (generation == buildGeneration && isActive) _ui.value = result.copy()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 if (generation == buildGeneration && isActive) _error.value = ReadingPlanError.FAILED
             }
         }
+    }
+
+    /** A retained UI callback may belong to a replaced step or build. */
+    fun pick(id: Int, rendered: GridUi) {
+        if (rendered !== _ui.value || rendered.step != _step.value) return
+        pick(id)
     }
 
     fun pick(id: Int) {

@@ -22,6 +22,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class DailyReadingListControllerTest {
     private val sample = listOf(DayEntry(1, "Day 1", "Gen 1-2; Matt 1"), DayEntry(2, "Day 2", "Gen 3-4; Matt 2"))
 
@@ -57,5 +58,25 @@ class DailyReadingListControllerTest {
     @Test fun cancelled_source_does_not_set_failed() = runTest {
         val c = DailyReadingListController(this, { throw CancellationException("screen closed") }, {})
         assertNull(c.error.value)
+    }
+
+    @Test fun latest_reload_rejects_old_success_and_error() = runTest {
+        for (fail in listOf(false, true)) {
+            val held = CompletableDeferred<Unit>()
+            var calls = 0
+            val c = DailyReadingListController(this, {
+                if (++calls == 1) {
+                    withContext(NonCancellable) { held.await() }
+                    if (fail) error("obsolete")
+                    emptyList()
+                } else sample
+            }, {})
+            c.load()
+            assertEquals(sample, c.days.value)
+            held.complete(Unit)
+            runCurrent()
+            assertEquals(sample, c.days.value)
+            assertNull(c.error.value)
+        }
     }
 }

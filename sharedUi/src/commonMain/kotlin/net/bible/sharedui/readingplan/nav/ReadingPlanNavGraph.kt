@@ -160,7 +160,7 @@ class DailyReadingDeps(
  * `getString(R.string.rdg_plan_title)` plus the identical `android:label`).
  */
 class DayListDeps(
-    val controllerFor: (onSelect: (day: Int) -> Unit) -> DailyReadingListController,
+    val controllerFor: (scope: kotlinx.coroutines.CoroutineScope, onSelect: (day: Int) -> Unit) -> DailyReadingListController,
     val subscribeEvents: (onReadingPlansChanged: () -> Unit) -> () -> Unit,
     val title: String,
 )
@@ -172,7 +172,7 @@ class DayListDeps(
  * graph's lambda with the code. [title] is `R.string.rdg_plan_selector_title`, screen and window.
  */
 class SelectorDeps(
-    val controllerFor: (onSelect: (planCode: String) -> Unit) -> ReadingPlanSelectorController,
+    val controllerFor: (scope: kotlinx.coroutines.CoroutineScope, onSelect: (planCode: String) -> Unit) -> ReadingPlanSelectorController,
     val subscribeEvents: (onReadingPlansChanged: () -> Unit) -> () -> Unit,
     val title: String,
 )
@@ -421,8 +421,9 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         val d = deps.dayList
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
+        val scope = androidx.compose.runtime.rememberCoroutineScope()
         val controller = remember {
-            d.controllerFor { day ->
+            d.controllerFor(scope) { day ->
                 // Classic set the day as the result Intent's ACTION and finished; the parent
                 // destination reads this instead — see ReadingPlanSelection.
                 deps.pendingSelection.value = ReadingPlanSelection.Day(day)
@@ -450,8 +451,9 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         val d = deps.selector
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
+        val scope = androidx.compose.runtime.rememberCoroutineScope()
         val controller = remember {
-            d.controllerFor { planCode ->
+            d.controllerFor(scope) { planCode ->
                 // The host has already started the plan by the time this runs (classic's
                 // startReadingPlan, kept there because it needs ReadingPlanControl) — see
                 // SelectorDeps' kdoc.

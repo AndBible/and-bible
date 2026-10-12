@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.compose
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
@@ -124,6 +126,59 @@ class DailyReadingPassageStaysInHostTest {
         activity.dailyReadingControllerForTest().read(1)
 
         assertTrue(activity.isFinishing)
+    }
+
+
+    @Test fun older_held_intent_cannot_publish_over_newer_day() {
+        selectAReadingPlan()
+        val controller = host().apply { create().start().resume().visible() }
+        val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity)
+        val container = net.bible.service.db.DatabaseContainer.instance
+        val original = container.readingPlanDb
+        val real = original.readingPlanDao()
+        val held = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val entered = java.util.concurrent.atomic.AtomicBoolean()
+        val heldDao = object : net.bible.android.database.readingplan.ReadingPlanDao by real {
+            override suspend fun getPlan(planCode: String): net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan? {
+                if (entered.compareAndSet(false, true)) {
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { held.await() }
+                }
+                return real.getPlan(planCode)
+            }
+        }
+        val db = com.nhaarman.mockitokotlin2.mock<net.bible.android.database.ReadingPlanDatabase>()
+        com.nhaarman.mockitokotlin2.whenever(db.readingPlanDao()).thenReturn(heldDao)
+        try {
+            container.readingPlanDb = db
+            val owner = activity.lifecycleScope.coroutineContext[Job]!!
+            val priorJobs = owner.children.toSet()
+            controller.newIntent(NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading(PLAN, 5)))
+            val oldJobs = owner.children.filter { it !in priorJobs }.toList()
+            assertTrue(oldJobs.isNotEmpty(), "actual intent load must own a coroutine")
+            val deadline = System.nanoTime() + 10_000_000_000L
+            while (!entered.get() && System.nanoTime() < deadline) { shadowOf(Looper.getMainLooper()).runOneTask(); Thread.sleep(10) }
+            assertTrue(entered.get(), "actual old intent must enter held DAO")
+            controller.newIntent(NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading(PLAN, 6)))
+            net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(PLAN, 6))
+            idleMain()
+            held.complete(Unit)
+            // Drain IO resumption and the actual stale coroutine, not merely its initial main task.
+            val end = System.nanoTime() + 10_000_000_000L
+            while (oldJobs.any { !it.isCompleted } && System.nanoTime() < end) {
+                shadowOf(Looper.getMainLooper()).runOneTask(); Thread.sleep(10)
+            }
+            assertTrue(oldJobs.all { it.isCompleted }, "held intent must finish before checking publication")
+            val day = NavHostComposeActivity::class.java.getDeclaredField("dayLoaded").run { isAccessible = true; getInt(activity) }
+            assertEquals(6, day, "old suspended intent replaced the current day")
+            val loaded = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay").run { isAccessible = true; get(activity) as kotlinx.coroutines.flow.StateFlow<*> }
+            assertTrue(loaded.value.toString().contains("day=6"), "loaded publication is stale: ${loaded.value}")
+        } finally {
+            held.complete(Unit)
+            controller.close()
+            controllers.remove(controller)
+            container.readingPlanDb = original
+        }
     }
 
     private companion object {

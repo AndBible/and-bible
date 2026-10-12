@@ -20,6 +20,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,14 +41,24 @@ class DailyReadingListController(
     private val _error = MutableStateFlow<ReadingPlanError?>(null)
     val error: StateFlow<ReadingPlanError?> = _error.asStateFlow()
 
+    private var loadJob: Job? = null
+    private var loadGeneration = 0L
+
     init { load() }
 
     fun load() {
+        val generation = ++loadGeneration
+        loadJob?.cancel()
         _error.value = null
-        scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            try { _days.value = loadDays() }
+        loadJob = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                val days = loadDays()
+                if (generation == loadGeneration && isActive) _days.value = days
+            }
             catch (e: CancellationException) { throw e }
-            catch (e: Exception) { _error.value = ReadingPlanError.FAILED }
+            catch (e: Exception) {
+                if (generation == loadGeneration && isActive) _error.value = ReadingPlanError.FAILED
+            }
         }
     }
 

@@ -1911,6 +1911,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         )
                     }
                     val ui by controller.ui.collectAsState()
+                    val rendered = ui
                     val step by controller.step.collectAsState()
                     val options by controller.options.collectAsState()
                     // I2 (whole-branch review fix wave): the grid is the one sheet that ALWAYS
@@ -1964,7 +1965,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         // constructor ran. Verified against this project's material3 /
                         // androidx.activity / androidx.navigationevent bytecode (Task 8 report).
                         BackHandler(enabled = step != GridStep.BOOK) { controller.back() }
-                        GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize(), state = gridState)
+                        GridChoosePassageContent(rendered, { id -> rendered?.let { controller.pick(id, it) } }, Modifier.fillMaxSize(), state = gridState)
                     }
                 }
                 // Both are flat single-level lists with no page stack, so they take the shell's
@@ -2101,7 +2102,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         val ui by controller.ui.collectAsState()
         // The sheet shell bounds the body to 400dp (Task 11), so `fillMaxSize()` here is
         // bounded and safe — the grid sizes its cells against that height.
-        GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize())
+        val rendered = ui
+        GridChoosePassageContent(rendered, { id -> rendered?.let { controller.pick(id, it) } }, Modifier.fillMaxSize())
     }
 
     /**

@@ -893,7 +893,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (isDailyReadingRoute(route)) {
             val (plan, day) = NavRoutes.readDailyReading(route)
             lifecycleScope.launch {
-                loadReadingPlanDay(plan, day)
+                loadReadingPlanDay(plan, day) { arrival == intentArrival }
                 if (arrival == intentArrival) navigateNewIntentRoute(route)
             }
             return
@@ -3557,9 +3557,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             title = getString(R.string.rdg_plan_title),
                         ),
                         dayList = DayListDeps(
-                            controllerFor = { onSelect ->
+                            controllerFor = { scope, onSelect ->
                                 DailyReadingListController(
-                                    scope = lifecycleScope,
+                                    scope = scope,
                                     loadDays = {
                                         readingPlanControl.currentPlansReadingList().map {
                                             DayEntry(it.day, readingPlanDayPrimaryText(it), it.readingsDesc)
@@ -3574,9 +3574,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             title = getString(R.string.rdg_plan_title),
                         ),
                         selector = SelectorDeps(
-                            controllerFor = { onSelect ->
+                            controllerFor = { scope, onSelect ->
                                 ReadingPlanSelectorController(
-                                    scope = lifecycleScope,
+                                    scope = scope,
                                     loadPlans = {
                                         readingPlanControl.readingPlanList().map {
                                             PlanEntry(it.planCode, it.planName ?: "", it.planDescription ?: "")
@@ -4019,8 +4019,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // (AndroidManifest.xml:119-121). Reproduced rather than replaced by the
                             // screen's own step-dependent title.
                             windowTitle = applicationInfo.loadLabel(packageManager).toString(),
-                            controllerFor = { isScripture, onResult ->
-                                gridChoosePassageControllerFor(isScripture, onResult)
+                            controllerFor = { scope, isScripture, onResult ->
+                                gridChoosePassageControllerFor(scope, isScripture, onResult)
                             },
                         ),
                         chooseDocument = ChooseDocumentDeps(
@@ -6384,21 +6384,37 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * selector, or from a history re-launch) a plan IS selected, because the selector calls
      * `startReadingPlan` before reporting the code back.
      */
-    private suspend fun loadReadingPlanDay(plan: String?, day: Int?): DailyReadingLoad {
-        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists()) {
-            return DailyReadingLoad.NO_PLAN
-        }
+    private var readingDayLoadGeneration = 0L
+
+    private suspend fun loadReadingPlanDay(
+        plan: String?, day: Int?, applicable: () -> Boolean = { true },
+    ): DailyReadingLoad {
+        val generation = ++readingDayLoadGeneration
+        fun current() = generation == readingDayLoadGeneration && applicable()
+        val code = plan ?: readingPlanControl.currentPlanCode
+        if (code.isEmpty()) return DailyReadingLoad.NO_PLAN
         return try {
-            plan?.let { readingPlanControl.setReadingPlan(it) }
-            dayLoaded = day ?: readingPlanControl.currentPlanDay()
-            planCodeLoaded = readingPlanControl.currentPlanCode
-            readingsDto = readingPlanControl.getDaysReading(dayLoaded)
-            pushReadingPlanUi()
-            loadedReadingDay.value = LoadedReadingDay(planCodeLoaded ?: "", dayLoaded)
+            if (!readingPlanControl.currentPlanExists(code)) {
+                if (!current()) throw CancellationException("Superseded reading day")
+                return DailyReadingLoad.NO_PLAN
+            }
+            val loadedDay = day ?: readingPlanControl.currentPlanDay(code)
+            val dto = readingPlanControl.getDaysReading(loadedDay, code)
+            val status = readingPlanControl.getReadingStatus(loadedDay, code)
+            val ui = readingPlanUi(dto, status)
+            // No host or selected-plan mutation until all suspend reads have finished.
+            if (!current()) throw CancellationException("Superseded reading day")
+            readingPlanControl.setReadingPlan(code)
+            dayLoaded = loadedDay
+            planCodeLoaded = code
+            readingsDto = dto
+            dailyReadingController?.setUi(ui)
+            loadedReadingDay.value = LoadedReadingDay(code, loadedDay)
             DailyReadingLoad.LOADED
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            if (!current()) throw CancellationException("Superseded reading day", e)
             Log.e(TAG_READING_PLAN, "Error showing daily readings", e)
             dailyReadingController?.showError()
             DailyReadingLoad.FAILED
@@ -6424,6 +6440,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private suspend fun pushReadingPlanUi() {
         val dto = readingsDto ?: return
         val status = readingPlanControl.getReadingStatus(dayLoaded)
+        dailyReadingController?.setUi(readingPlanUi(dto, status))
+    }
+
+    private fun readingPlanUi(dto: OneDaysReadingsDto, status: net.bible.android.control.readingplan.ReadingStatus): DailyReadingUi {
         val readings = synchronized(BookName::class.java) {
             val save = BookName.isFullBookName()
             BookName.setFullBookName(!CommonUtils.isPortrait)
@@ -6435,8 +6455,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 BookName.setFullBookName(save)
             }
         }
-        dailyReadingController?.setUi(
-            DailyReadingUi(
+        return DailyReadingUi(
                 planName = dto.readingPlanInfo.planName ?: "",
                 dayDesc = dto.dayDesc,
                 dateString = dto.readingDateString,
@@ -6445,7 +6464,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 allRead = status.isAllRead,
                 isDateBasedPlan = dto.isDateBasedPlan,
             )
-        )
     }
 
     private fun pushReadingPlanSpeakState() {
@@ -9170,6 +9188,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * title is unconditionally `R.string.choosePassageBookName`.
      */
     private fun gridChoosePassageControllerFor(
+        scope: CoroutineScope,
         isScripture: Boolean,
         onResult: (PassageResult) -> Unit,
     ): GridChoosePassageController {
@@ -9179,7 +9198,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val baseTitle = getString(R.string.choosePassageBookName)
         val workspaceName = SharedActivityState.currentWorkspaceName
         return GridChoosePassageController(
-            scope = lifecycleScope,
+            scope = scope,
             initialOptions = initialGridOptions(navigationControl, isScripture),
             buildStep = { step, opts ->
                 buildGridStep(

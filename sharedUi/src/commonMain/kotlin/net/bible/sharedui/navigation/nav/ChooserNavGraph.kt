@@ -158,6 +158,7 @@ class ChooseDictionaryWordDeps(
 class GridChoosePassageDeps(
     val windowTitle: String,
     val controllerFor: (
+        scope: kotlinx.coroutines.CoroutineScope,
         isScripture: Boolean,
         onResult: (PassageResult) -> Unit,
     ) -> GridChoosePassageController,
@@ -469,8 +470,9 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             getStringOrNull(NavRoutes.ARG_IS_SCRIPTURE)
         } == "true"
 
+        val scope = androidx.compose.runtime.rememberCoroutineScope()
         val controller = remember(isScripture) {
-            d.controllerFor(isScripture) { result -> deps.passageResults.deliver(navController, result) }
+            d.controllerFor(scope, isScripture) { result -> deps.passageResults.deliver(navController, result) }
         }
 
         LaunchedEffect(d.windowTitle) { deps.setWindowTitle(d.windowTitle) }
@@ -487,10 +489,11 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             if (!controller.back()) navController.popOrExit(deps.exitHost)
         }
 
+        val rendered = ui
         GridChoosePassageScreen(
-            ui = ui,
+            ui = rendered,
             options = options,
-            onPick = controller::pick,
+            onPick = { id -> rendered?.let { controller.pick(id, it) } },
             onToggle = controller::toggle,
             // Classic's `onNavigateUp` (`:95`) is the same branch as its back callback: the up-arrow
             // walks the step stack too.

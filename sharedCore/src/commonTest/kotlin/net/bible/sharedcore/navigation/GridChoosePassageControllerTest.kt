@@ -9,6 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class GridChoosePassageControllerTest {
     private fun ui(s: GridStep) = GridUi(s, "t", 6, false, false, true, emptyList())
     private val opts = GridOptions(showScripture = true, alphabetical = false, ltr = false, groupByCategory = false, longNames = false, showProgress = true)
@@ -158,5 +159,23 @@ class GridChoosePassageControllerTest {
         runCurrent()
         assertNull(c.error.value)
         assertEquals(GridStep.BOOK, c.ui.value?.step)
+    }
+
+    @Test fun stale_book_callback_cannot_pick_a_chapter_while_build_is_held() = runTest {
+        val held = CompletableDeferred<Unit>()
+        var chapterPicks = 0
+        val c = GridChoosePassageController(this, opts, { step, _ ->
+            if (step == GridStep.CHAPTER) held.await()
+            ui(step)
+        }, {}, { BookPick.GoChapter }, { chapterPicks++; ChapterPick.GoVerse }, { "Gen.1.$it" }, {})
+        val rendered = c.ui.value!!
+        c.pick(1, rendered)
+        c.pick(2, rendered)
+        assertEquals(0, chapterPicks)
+        assertEquals(GridStep.CHAPTER, c.step.value)
+        held.complete(Unit)
+        runCurrent()
+        c.pick(2, rendered)
+        assertEquals(0, chapterPicks)
     }
 }

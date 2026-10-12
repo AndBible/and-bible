@@ -124,6 +124,8 @@ class ChooserInGraphResultTest {
     private var mapController: ChooseMapKeyController? = null
     private var dictionaryController: ChooseDictionaryWordController? = null
     private var gridController: GridChoosePassageController? = null
+    private var gridGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+    private var gridCanceled = false
     private var gridIsScripture: Boolean? = null
     private var documentController: DocumentSelectionController? = null
     private var documentTypeFilter: DocTypeFilter? = null
@@ -229,9 +231,9 @@ class ChooserInGraphResultTest {
             ),
             gridChoosePassage = GridChoosePassageDeps(
                 windowTitle = "AndBible",
-                controllerFor = { isScripture, onResult ->
+                controllerFor = { scope, isScripture, onResult ->
                     gridIsScripture = isScripture
-                    gridPassageController(onResult).also { gridController = it }
+                    gridPassageController(scope, onResult).also { gridController = it }
                 },
             ),
             chooseDocument = ChooseDocumentDeps(
@@ -269,8 +271,8 @@ class ChooserInGraphResultTest {
      * walk Book -> Chapter -> Verse by clicking the screen rather than by calling the arm's own
      * `onResult` back to it.
      */
-    private fun gridPassageController(onResult: (PassageResult) -> Unit) = GridChoosePassageController(
-        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+    private fun gridPassageController(scope: kotlinx.coroutines.CoroutineScope, onResult: (PassageResult) -> Unit) = GridChoosePassageController(
+        scope = scope,
         initialOptions = GridOptions(
             showScripture = true,
             alphabetical = false,
@@ -280,6 +282,10 @@ class ChooserInGraphResultTest {
             showProgress = false,
         ),
         buildStep = { step, opts ->
+            try { gridGate?.await() } catch (e: kotlinx.coroutines.CancellationException) {
+                gridCanceled = true
+                throw e
+            }
             GridUi(
                 step = step,
                 title = "Step ${step.name}",
@@ -328,6 +334,19 @@ class ChooserInGraphResultTest {
     private fun navigateTo(route: String) {
         compose.runOnIdle { navController.navigate(route) }
         compose.waitForIdle()
+    }
+
+    @Test fun pending_grid_read_is_cancelled_when_destination_leaves() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        gridGate = gate
+        try {
+            setGraph(deps())
+            navigateTo(NavRoutes.gridChoosePassage(isScripture = true))
+            assertNotNull(gridController)
+            compose.runOnIdle { navController.popBackStack() }
+            compose.waitForIdle()
+            assertEquals(true, gridCanceled, "destination disposal must cancel the held grid read")
+        } finally { gate.cancel(); gridGate = null }
     }
 
     /** A real system back press, so the arm's `PlatformBackHandler` is what decides. */

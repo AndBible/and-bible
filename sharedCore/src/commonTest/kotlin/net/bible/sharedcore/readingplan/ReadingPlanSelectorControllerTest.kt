@@ -8,6 +8,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ReadingPlanSelectorControllerTest {
     private val sample = listOf(PlanEntry("y1", "Plan 1", "Desc 1"), PlanEntry("y2", "Plan 2", "Desc 2"))
 
@@ -59,5 +60,25 @@ class ReadingPlanSelectorControllerTest {
     @Test fun cancelled_source_does_not_set_failed() = runTest {
         val c = ReadingPlanSelectorController(this, { throw CancellationException("screen closed") }, { false }, {}, {})
         assertNull(c.error.value)
+    }
+
+    @Test fun latest_reload_rejects_old_success_and_error() = runTest {
+        for (fail in listOf(false, true)) {
+            val held = CompletableDeferred<Unit>()
+            var calls = 0
+            val c = ReadingPlanSelectorController(this, {
+                if (++calls == 1) {
+                    withContext(NonCancellable) { held.await() }
+                    if (fail) error("obsolete")
+                    emptyList()
+                } else sample
+            }, { false }, {}, {})
+            c.load()
+            assertEquals(sample, c.plans.value)
+            held.complete(Unit)
+            runCurrent()
+            assertEquals(sample, c.plans.value)
+            assertNull(c.error.value)
+        }
     }
 }
