@@ -16,10 +16,8 @@
  */
 package net.bible.android.control.page
 
-import net.bible.service.db.blockingDb
 import net.bible.sharedcore.log.Log
 import net.bible.android.common.toV11n
-import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.misc.OsisFragment
@@ -170,13 +168,14 @@ class CurrentGeneralBookPage internal constructor(
 
     override val isSyncable: Boolean = false
 
-    override fun restoreFrom(entity: WorkspaceEntities.Page?) {
+    override fun restoreFrom(entity: WorkspaceEntities.Page?) = restoreFrom(entity, null)
+
+    fun restoreFrom(entity: WorkspaceEntities.Page?, studyPadLabel: BookmarkEntities.Label?) {
         when (entity?.document) {
             fakeBookFactory.journalDocument.initials -> {
                 val splitted = entity!!.key?.split(":")?: return
                 if(splitted.size != 2) return
-                val id = splitted[1]
-                val label = blockingDb { pageManager.bookmarkControl.labelById(IdType(id)) } // L1-pending(page)
+                val label = studyPadLabel
                 if (label != null) {
                     doSetKey(StudyPadKey(label))
                     localSetCurrentDocument(fakeBookFactory.journalDocument)

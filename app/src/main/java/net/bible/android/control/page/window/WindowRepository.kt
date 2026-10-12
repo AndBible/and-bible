@@ -21,6 +21,10 @@ import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.activity.R
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.StudyPadKey
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.save
@@ -289,7 +293,10 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
         val newWindow = Window(winEntity, pageManager, this)
         if(sourceWindow != null) {
-            pageManager.restoreFrom(sourceWindow.pageManager.entity, textDisplaySettings)
+            pageManager.restoreFrom(
+                sourceWindow.pageManager.entity, textDisplaySettings,
+                (sourceWindow.pageManager.currentGeneralBook.key as? StudyPadKey)?.label,
+            )
         }
         blockingDb { dao.insertPageManager(pageManager.entity) }
         val pos =
@@ -408,7 +415,11 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         val pageManager: WorkspaceEntities.PageManager?,
         val history: List<WorkspaceEntities.HistoryItem>,
     )
-    private class LoadedWorkspace(val entity: WorkspaceEntities.Workspace, val windows: List<LoadedWindow>)
+    private class LoadedWorkspace(
+        val entity: WorkspaceEntities.Workspace,
+        val windows: List<LoadedWindow>,
+        val studyPadLabels: Map<IdType, BookmarkEntities.Label?>,
+    )
 
     /** Rebuilds this repository from the given (or first) workspace. Not re-entrant — see [loadingFromDb]. */
     fun loadFromDb(workspaceId: IdType?) {
@@ -426,14 +437,25 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         // The whole workspace is read in ONE bridge, before clear(): the restore below posts events
         // synchronously (see [loadingFromDb]) and must not run inside a database call.
         val workspaceDao = dao
-        val loaded = blockingDb {
+        val bookmarkControl = get<BookmarkControl>()
+        val journalInitials = get<FakeBookFactory>().journalDocument.initials
+        val loaded = blockingDb { // L1-edge: synchronous window workspace restore read phase
             val entity = (if(workspaceId != null) workspaceDao.workspace(workspaceId) else null)?: workspaceDao.firstWorkspace()
                 ?: WorkspaceEntities.Workspace("").apply{
                     workspaceDao.insertWorkspace(this)
                 }
-            LoadedWorkspace(entity, workspaceDao.windows(entity.id).map {
+            val windows = workspaceDao.windows(entity.id).map {
                 LoadedWindow(it, workspaceDao.pageManager(it.id), workspaceDao.historyItems(it.id))
-            })
+            }
+            val studyPadLabels = windows.associate { window ->
+                val page = window.pageManager?.generalBookPage
+                val parts = page?.key?.split(":")
+                val label = if (page?.document == journalInitials && parts?.size == 2) {
+                    bookmarkControl.labelById(IdType(parts[1]))
+                } else null
+                window.entity.id to label
+            }
+            LoadedWorkspace(entity, windows, studyPadLabels)
         }
         val entity = loaded.entity
         savedEntity = entity.deepCopy()
@@ -454,7 +476,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         for (loadedWindow in loaded.windows) {
             val it = loadedWindow.entity
             val pageManager = get<CurrentPageManager>()
-            pageManager.restoreFrom(loadedWindow.pageManager, textDisplaySettings)
+            pageManager.restoreFrom(loadedWindow.pageManager, textDisplaySettings, loaded.studyPadLabels[it.id])
             val window = Window(it, pageManager, this)
             windowList.add(window)
             historyManager.restoreFrom(window, loadedWindow.history)

@@ -23,11 +23,11 @@ import net.bible.sharedcore.log.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.AI_DOC_LABEL_ID
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
@@ -56,10 +56,7 @@ import org.crosswire.jsword.versification.Versification
 import java.util.*
 import java.util.UUID.randomUUID
 import kotlin.math.abs
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
-import net.bible.service.db.blockingDb
 
 /*
  * Serializable classes and utils that are used when transferring stuff to JS side
@@ -348,9 +345,7 @@ class StudyPadDocument(
         }
 }
 
-class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val v11n: Versification? = null): SynchronousDocument, KoinComponent {
-    val bookmarkControl: BookmarkControl by inject()
-
+class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val v11n: Versification? = null): SynchronousDocument {
 
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes)
@@ -361,7 +356,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse || bookmark.book == null) null else bookmark.textRange?.clientList),
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
-                if(it.isEmpty()) it.add(blockingDb { bookmarkControl.labelUnlabelled() }.id) // L1-pending(page)
+                if(it.isEmpty()) it.add(UNLABELED_LABEL_ID)
             }),
             "bookInitials" to wrapString(bookmark.book?.initials),
             "bookName" to wrapString(bookmark.book?.name),
@@ -389,9 +384,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
     }
 }
 
-class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNotes): SynchronousDocument, KoinComponent {
-    val bookmarkControl: BookmarkControl by inject()
-
+class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNotes): SynchronousDocument {
 
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes)
@@ -403,7 +396,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.ordinalStart, bookmark.ordinalEnd)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse) null else bookmark.textRange?.clientList),
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
-                if(it.isEmpty()) it.add(blockingDb { bookmarkControl.labelUnlabelled() }.id) // L1-pending(page)
+                if(it.isEmpty()) it.add(UNLABELED_LABEL_ID)
             }),
             "bookInitials" to wrapString(bookmark.bookInitials),
             "bookName" to wrapString(bookmark.book?.name?: bookmark.bookInitials),

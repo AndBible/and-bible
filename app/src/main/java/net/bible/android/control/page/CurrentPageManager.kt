@@ -288,7 +288,11 @@ open class CurrentPageManager constructor(
 
     val isModified get() = savedEntity != entity
 
-    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings?=null) {
+    fun restoreFrom(
+        pageManagerEntity: WorkspaceEntities.PageManager?,
+        workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings? = null,
+        studyPadLabel: net.bible.android.database.bookmarks.BookmarkEntities.Label? = null,
+    ) {
         pageManagerEntity ?: return
         savedEntity = pageManagerEntity.deepCopy()
 
@@ -298,7 +302,7 @@ open class CurrentPageManager constructor(
         currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
 
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
-        currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
+        currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage, studyPadLabel)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         jsState = pageManagerEntity.jsState
 
