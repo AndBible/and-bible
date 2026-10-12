@@ -568,6 +568,19 @@ describe("bounded theme chrome contrast and geometry", () => {
         expect(winning(css, selector.slice(1), "colorEink", "div").color).toBe("rgba(0, 0, 255, 0.6)");
         expect(winning(css, selector.slice(1), "", "div").color).toContain("var(--ab-primary, rgba(0, 0, 255, 0.6))");
     });
+    it("keeps only the bottom corners above the bottom window's bar, via --corner-bottom-offset", () => {
+        const css = componentCss("BibleView.vue");
+        for (const selector of [".bottom-left-corner", ".bottom-right-corner"]) {
+            expect(declarations(css, selector)).toContain("bottom: var(--corner-bottom-offset, 0)");
+        }
+        for (const selector of [".top-left-corner", ".top-right-corner"]) {
+            expect(declarations(css, selector)).not.toContain("--corner-bottom-offset");
+        }
+        // The variable is only useful if the template feeds it from the shared helper.
+        const source = readFileSync(join(__dirname, "../components/BibleView.vue"), "utf8");
+        expect(source).toMatch(/--corner-bottom-offset['"]?\s*:\s*`?\$?\{?cornerBottomOffset/);
+        expect(source).toMatch(/calcActiveCornerBottomOffset\(appSettings\.isBottomWindow, appSettings\.bottomOffset\)/);
+    });
     it.each([["BibleView.vue", ".pagenumber"], ["ReadingProgress.vue", ".reading-progress"]])(
         "pairs the chip roles and restores window text on noAnimation in %s", (file, selector) => {
             const css = componentCss(file);

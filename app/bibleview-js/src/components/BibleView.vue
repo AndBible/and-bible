@@ -34,7 +34,7 @@
     <div class="window-id" v-if="appSettings.errorBox">{{appSettings.windowId}}</div>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
-    <div v-if="appSettings.hasActiveIndicator">
+    <div v-if="appSettings.hasActiveIndicator" :style="{'--corner-bottom-offset': cornerBottomOffset}">
       <div class="top-left-corner"/>
       <div class="top-right-corner"/>
       <div class="bottom-left-corner"/>
@@ -151,7 +151,13 @@ import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {black, useConfig, white} from "@/composables/config";
-import {calcHelperLinePositions, calcMaxScrollY, calcPageScrollDistance, calcRelativePageNumbers} from "@/composables/page-scroll";
+import {
+    calcActiveCornerBottomOffset,
+    calcHelperLinePositions,
+    calcMaxScrollY,
+    calcPageScrollDistance,
+    calcRelativePageNumbers,
+} from "@/composables/page-scroll";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
@@ -476,6 +482,11 @@ const helperLineClass = computed(() => {
     }
 });
 
+// The bottom window's bar covers the screen edge, so its bottom corners sit on top of the bar instead.
+const cornerBottomOffset = computed(() =>
+    `${calcActiveCornerBottomOffset(appSettings.isBottomWindow, appSettings.bottomOffset)}px`
+);
+
 const pageNumberBottom = computed(() =>
     appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
 );
@@ -588,7 +599,12 @@ $cornerSoftness: 1.4;
 // $centre: the circle's centre inside the box (the box corner farthest from the screen corner).
 @mixin active-corner($h, $v, $centre) {
   #{$h}: $borderDistance;
-  #{$v}: $borderDistance;
+  @if $v == bottom {
+    // Lifted above the bottom window's bar (0 elsewhere or when the bar is hidden).
+    bottom: var(--corner-bottom-offset, $borderDistance);
+  } @else {
+    #{$v}: $borderDistance;
+  }
   background: radial-gradient(circle at $centre, transparent calc(var(--corner-radius) - 0.5px), currentColor calc(var(--corner-radius) * var(--corner-softness)));
 }
 

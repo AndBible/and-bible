@@ -100,6 +100,20 @@ export function calcMaxScrollY(
 }
 
 /**
+ * How far above the screen edge the active-window bottom corners sit.
+ *
+ * Only the bottom window is covered by the bottom bar (`.bottom-touch-block`, which is opaque and
+ * drawn over the corners), and `bottomOffset` is shared by every window, so the offset applies to
+ * the bottom window alone. It is 0 whenever the bar is hidden, which puts the corners back on the edge.
+ *
+ * @param isBottomWindow whether this window is the lowest one on screen
+ * @param bottomOffset height of the bottom bar covering the viewport, if any
+ */
+export function calcActiveCornerBottomOffset(isBottomWindow: boolean, bottomOffset: number): number {
+    return isBottomWindow ? Math.max(0, bottomOffset) : 0;
+}
+
+/**
  * Relative page numbers for the page-number overlay: the current position and
  * the end of the currently loaded content, both measured from the top of that
  * content.
