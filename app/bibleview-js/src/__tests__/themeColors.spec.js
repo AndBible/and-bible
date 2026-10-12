@@ -556,7 +556,7 @@ describe("bounded theme chrome contrast and geometry", () => {
         // (gradients dither badly there, and a hard edge reads larger than a soft one).
         for (const mode of ["", "night"]) {
             const winner = winning(css, selector.slice(1), mode, "div");
-            expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["32px", "1.18"]);
+            expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["32px", "1.4"]);
         }
         for (const mode of ["monochrome", "monochrome night", "colorEink", "colorEink night"]) {
             const winner = winning(css, selector.slice(1), mode, "div");
