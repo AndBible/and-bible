@@ -47,19 +47,20 @@ class PageContentCancellationTest {
         val heldDb = mock<MyDocumentDatabase>()
         whenever(heldDb.myDocumentDao()).thenReturn(heldDao)
         val manager = CurrentPageManager(mock<BibleTraverser>(), mock<BookmarkControl>(), mock<WindowControl>())
-        val window = Window(net.bible.android.database.WorkspaceEntities.Window(
-            workspaceId = net.bible.android.database.IdType(), isSynchronized = false, isPinMode = false,
-            windowLayout = net.bible.android.database.WorkspaceEntities.WindowLayout("MINIMISED")), manager,
-            net.bible.android.control.page.window.WindowRepository(backgroundScope))
-        manager.window = window
-        val book = Books.installed().getBook("KJV")!!
-        val page = manager.currentBible
-        val v11n = org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV")
-        val key = org.crosswire.jsword.passage.VerseRange(v11n,
-            org.crosswire.jsword.passage.Verse(v11n, org.crosswire.jsword.versification.BibleBook.GEN, 1, 1))
-        val responses = mutableListOf<Document>()
+        var window: Window? = null
         var contentJob: kotlinx.coroutines.Job? = null
         try {
+            window = Window(net.bible.android.database.WorkspaceEntities.Window(
+                workspaceId = net.bible.android.database.IdType(), isSynchronized = false, isPinMode = false,
+                windowLayout = net.bible.android.database.WorkspaceEntities.WindowLayout("MINIMISED")), manager,
+                net.bible.android.control.page.window.WindowRepository(backgroundScope))
+            manager.window = window
+            val book = Books.installed().getBook("KJV")!!
+            val page = manager.currentBible
+            val v11n = org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV")
+            val key = org.crosswire.jsword.passage.VerseRange(v11n,
+                org.crosswire.jsword.passage.Verse(v11n, org.crosswire.jsword.versification.BibleBook.GEN, 1, 1))
+            val responses = mutableListOf<Document>()
             page.setCurrentDocumentAndKey(book, key)
             database.myDocumentDb = heldDb
             // This is the BibleView chapter-loader shape: publish only after the content call returns.
@@ -72,7 +73,7 @@ class PageContentCancellationTest {
                 contentJob?.cancelAndJoin()
             } finally {
                 database.myDocumentDb = originalDb
-                window.destroy(destroyView = false)
+                if (window != null) window.destroy(destroyView = false) else manager.destroy()
             }
         }
     }
