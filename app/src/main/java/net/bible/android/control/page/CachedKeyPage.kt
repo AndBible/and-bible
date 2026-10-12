@@ -18,8 +18,6 @@ package net.bible.android.control.page
 
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
-import net.bible.android.activity.R
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.sharedcore.event.Subscription
@@ -89,7 +87,7 @@ abstract class CachedKeyPage internal constructor(
                     keylist = null
                     System.gc()
                     Log.e(TAG, "Error getting keys for $doc", e)
-                    Dialogs.showErrorMsg(R.string.error_occurred, e)
+                    notifier.showError(strings.errorOccurred, e)
                 }
                 Log.i(TAG, "Finished creating cached key list len:" + (keylist?.size ?: 0))
             }

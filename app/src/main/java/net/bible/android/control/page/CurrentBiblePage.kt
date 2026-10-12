@@ -23,7 +23,7 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.common.CommonUtils.getWholeChapter
+import net.bible.android.control.versification.wholeChapter
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import net.bible.service.sword.SwordDocumentFacade
@@ -61,7 +61,7 @@ class CurrentBiblePage(
 
     fun getDocumentForChapter(chapter: Int): Document {
         val verseForFragment = Verse(versification, verseSelected.book, chapter, 1)
-        val wholeChapter = getWholeChapter(verseForFragment, showIntros)
+        val wholeChapter = wholeChapter(verseForFragment, showIntros)
         return getPageContent(wholeChapter)
     }
 
@@ -120,7 +120,7 @@ class CurrentBiblePage(
     override fun getPagePlus(num: Int): Key {
         val targetChapterVerse1 = getKeyPlus(num)
         // convert to full chapter before returning because bible view is for a full chapter
-        return getWholeChapter(targetChapterVerse1, showIntros)
+        return wholeChapter(targetChapterVerse1, showIntros)
     }
 
 
@@ -151,7 +151,7 @@ class CurrentBiblePage(
         val key: Key = if (!requireSingleKey) {
             // display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
             // if verseNo is required too then use getVerseRange()
-            getWholeChapter(verse, showIntros)
+            wholeChapter(verse, showIntros)
         } else {
             verse
         }

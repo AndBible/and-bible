@@ -17,13 +17,13 @@
 package net.bible.android.control.page
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
+import org.koin.java.KoinJavaComponent.inject
 import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -57,6 +57,10 @@ abstract class CurrentPageBase protected constructor(
 	shareKeyBetweenDocs: Boolean,
     override val pageManager: CurrentPageManager
 ) : CurrentPage {
+
+    protected val strings: CoreStrings by inject(CoreStrings::class.java)
+    protected val notifier: UserNotifier by inject(UserNotifier::class.java)
+    private val settings: AppSettings by inject(AppSettings::class.java)
 
     override var isInhibitChangeNotifications: Boolean = false
 
@@ -150,12 +154,12 @@ abstract class CurrentPageBase protected constructor(
         val key = key
         if(currentDocument?.doesNotExist == true) {
             val link = "<AndBibleLink href='download://?initials=${currentDocument?.initials}'>${currentDocument?.initials}</AndBibleLink>"
-            val errorXml = application.getString(R.string.document_not_installed, link)
+            val errorXml = strings.documentNotInstalled(link)
             return ErrorDocument(errorXml, ErrorSeverity.NORMAL)
         }
         return if(key == null) {
             Log.e(TAG, "Key was null, giving ErrorDocument")
-            ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.WARNING)
+            ErrorDocument(strings.errorOccurred, ErrorSeverity.WARNING)
         } else getPageContent(key)
     }
 
@@ -193,7 +197,7 @@ abstract class CurrentPageBase protected constructor(
             blockingDb { myDocumentDao.getCacheEntry(myDocumentPage.id) }
         } else null
         val promptName = if (promptId != null) {
-            PromptRepository.promptById(promptId)?.name ?: application.getString(R.string.ai_unknown_prompt)
+            PromptRepository.promptById(promptId)?.name ?: strings.aiUnknownPrompt
         } else null
 
         val effectiveKey = annotateKey ?: key
@@ -216,7 +220,7 @@ abstract class CurrentPageBase protected constructor(
         when (e) {
             is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
             is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
-            else -> ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
+            else -> ErrorDocument(strings.errorOccurred, ErrorSeverity.ERROR)
         }
     }
 
@@ -254,9 +258,9 @@ abstract class CurrentPageBase protected constructor(
         }
 
     private fun getDefaultBook(): Book? {
-        // see net.bible.android.view.activity.page.MainBibleActivity.setCurrentDocument
+        // The document-selection host stores this category-specific default.
         val savedDefaultBook = SwordDocumentFacade.getDocumentByInitials(
-            CommonUtils.settings.getString("default-${documentCategory.bookCategory.name}", ""))
+            settings.getString("default-${documentCategory.bookCategory.name}", ""))
 
         return savedDefaultBook ?: {
             val books = SwordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }
@@ -330,7 +334,7 @@ abstract class CurrentPageBase protected constructor(
                     doSetKey(DefaultLeafKeyList(keyName))
                     Log.e(TAG, "Key $keyName not be loaded from $document", e)
                     if(e !is NoSuchKeyException) {
-                        Dialogs.showErrorMsg(R.string.error_occurred, e)
+                        notifier.showError(strings.errorOccurred, e)
                     }
                 }
             }

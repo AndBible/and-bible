@@ -26,9 +26,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
 import net.bible.android.database.WorkspaceEntities
-import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.defaultBible
-import net.bible.service.common.CommonUtils.defaultVerse
+import org.koin.java.KoinJavaComponent.inject
 import net.bible.service.common.tinyName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.history.HistoryManager
@@ -74,6 +72,8 @@ open class CurrentPageManager constructor(
     val bookmarkControl: BookmarkControl,
     val windowControl: WindowControl,
 )  {
+    private val globalTextDisplaySettings: GlobalTextDisplaySettingsSource by inject(GlobalTextDisplaySettingsSource::class.java)
+
     // use the same verse in the commentary and bible to keep them in sync
     val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
     val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, this)
@@ -116,7 +116,7 @@ open class CurrentPageManager constructor(
     }
 
     val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowControl.windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings)
+        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowControl.windowRepository.textDisplaySettings, globalTextDisplaySettings.current)
 
     lateinit var window: Window
 
@@ -309,7 +309,7 @@ open class CurrentPageManager constructor(
         }
         val settings = pageManagerEntity.textDisplaySettings
         if(workspaceDisplaySettings != null) {
-            WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings, CommonUtils.globalTextDisplaySettings)
+            WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings, globalTextDisplaySettings.current)
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
             savedEntity?.textDisplaySettings = textDisplaySettings.copy()
         }
@@ -323,8 +323,8 @@ open class CurrentPageManager constructor(
      * go through a list of default verses until one is found in the first/only book installed
      */
     fun setFirstUseDefaultVerse() {
-        currentBible.setCurrentDocument(defaultBible)
-        currentBible.doSetKey(defaultVerse.start)
+        currentBible.setCurrentDocument(defaultBible())
+        currentBible.doSetKey(defaultVerse().start)
     }
 
     /**

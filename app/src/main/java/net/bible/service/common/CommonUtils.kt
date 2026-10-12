@@ -705,28 +705,9 @@ object CommonUtils : CommonUtilsBase() {
 
     fun getKeyDescription(key: Key): String = net.bible.service.history.keyDescription(key)
 
-    fun getWholeChapter(currentVerse: Verse, showIntros: Boolean = true): VerseRange {
-        Log.i(TAG, "getWholeChapter (Key) ${currentVerse.getOsisID()}")
-        val versification = currentVerse.versification
-        val book = currentVerse.book
-        val chapter = currentVerse.chapter
+    fun getWholeChapter(currentVerse: Verse, showIntros: Boolean = true): VerseRange = net.bible.android.control.versification.wholeChapter(currentVerse, showIntros)
 
-        val startChapter = if(showIntros && chapter == 1) 0 else chapter
-        val endChapter = if(showIntros && chapter == 0) 1 else chapter
-
-        val targetChapterFirstVerse = Verse(versification, book, startChapter, 0)
-        val targetChapterLastVerse = Verse(versification, book, endChapter, versification.getLastVerse(book, endChapter))
-
-        // convert to full chapter before returning because bible view is for a full chapter
-        return VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse)
-    }
-
-    fun getWholeChapters(v11n: Versification, book: BibleBook, chapter1: Int, chapter2: Int): VerseRange {
-        val targetChapterFirstVerse = Verse(v11n, book, chapter1, 0)
-        val targetChapterLastVerse = Verse(v11n, book, chapter2, v11n.getLastVerse(book, chapter2))
-
-        return VerseRange(v11n, targetChapterFirstVerse, targetChapterLastVerse)
-    }
+    fun getWholeChapters(v11n: Versification, book: BibleBook, chapter1: Int, chapter2: Int): VerseRange = net.bible.android.control.versification.wholeChapters(v11n, book, chapter1, chapter2)
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
@@ -1218,19 +1199,8 @@ object CommonUtils : CommonUtilsBase() {
 
     const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
-    val defaultBible get() = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }[0] as SwordBook
-    val defaultVerse: VerseRange get() {
-        val (otVerse, ntVerse, psVerse) =
-            listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3")
-                .map {
-                    VerseRangeFactory.fromString(KJVA, it).toV11n(defaultBible.versification)
-                }
-        return when {
-            defaultBible.contains(ntVerse.start) -> ntVerse
-            defaultBible.contains(otVerse.start) -> otVerse
-            else -> psVerse
-        }
-    }
+    val defaultBible get() = net.bible.android.control.page.defaultBible()
+    val defaultVerse: VerseRange get() = net.bible.android.control.page.defaultVerse()
 
     private fun prepareExampleBookmarksAndWorkspaces() {
         blockingDb { prepareExampleBookmarks() }

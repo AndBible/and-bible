@@ -36,7 +36,6 @@ import net.bible.android.misc.OsisFragment
 import net.bible.android.misc.sanitizeId
 import net.bible.android.misc.uniqueId
 import net.bible.android.misc.wrapString
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.epubBackend

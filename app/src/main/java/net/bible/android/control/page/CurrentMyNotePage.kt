@@ -20,7 +20,7 @@ import net.bible.android.common.toV11n
 import net.bible.service.db.blockingDb
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.service.common.CommonUtils
+import net.bible.android.control.versification.wholeChapter
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
@@ -33,7 +33,7 @@ class CurrentMyNotePage internal constructor(
 ) : CurrentCommentaryPage(currentVerse, bibleTraverser, pageManager), CurrentPage
 {
     override val currentPageContent: Document get() {
-        val verseRange = CommonUtils.getWholeChapter(currentBibleVerse.verse, false)
+        val verseRange = wholeChapter(currentBibleVerse.verse, false)
         val bookmarksForChapter = blockingDb { pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true) } // L1-pending(page)
         return MyNotesDocument(bookmarksForChapter, verseRange.toV11n(KJVA))
     }

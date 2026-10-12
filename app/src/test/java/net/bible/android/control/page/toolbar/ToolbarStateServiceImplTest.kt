@@ -103,6 +103,31 @@ class ToolbarStateServiceImplTest {
     }
 
     @Test
+    fun toolbarReadsPortableExperimentalSettingsOnEachRefresh() {
+        val original = GlobalContext.get().get<net.bible.sharedcore.platform.AppSettings>()
+        var features = setOf(net.bible.sharedui.TOOLBAR_LITERAL_COLOR_FEATURE)
+        val fake = object : net.bible.sharedcore.platform.AppSettings by original {
+            override fun getStringSet(key: String, defValues: Set<String>): Set<String> =
+                if (key == "experimental_features") features else original.getStringSet(key, defValues)
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.sharedcore.platform.AppSettings> { fake }
+        })
+        try {
+            seedActivePageSilently(kjv, gen11)
+            service.refresh()
+            assertThat(service.toolbar.value.deriveToolbarFromTheme, equalTo(false))
+            features = emptySet()
+            service.refresh()
+            assertThat(service.toolbar.value.deriveToolbarFromTheme, equalTo(true))
+        } finally {
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+                single<net.bible.sharedcore.platform.AppSettings> { original }
+            })
+        }
+    }
+
+    @Test
     fun toolbarStartsEmpty() {
         assertThat(service.toolbar.value, equalTo(ToolbarState.EMPTY))
     }

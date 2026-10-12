@@ -30,7 +30,9 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.android.control.versification.wholeChapter
+import org.koin.java.KoinJavaComponent.inject
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.sharedcore.reading.ToolbarState
@@ -60,6 +62,8 @@ class ToolbarStateServiceImpl(
     private val windowStateService: WindowStateServiceImpl,
     private val syncRunning: net.bible.sharedcore.event.Events<Boolean>,
 ) : ToolbarStateService {
+
+    private val settings: AppSettings by inject(AppSettings::class.java)
 
     private val _toolbar = MutableStateFlow(ToolbarState.EMPTY)
     override val toolbar: StateFlow<ToolbarState> = _toolbar.asStateFlow()
@@ -101,7 +105,7 @@ class ToolbarStateServiceImpl(
 
     private fun buildSnapshot(): ToolbarState {
         val page = windowControl.activeWindowPageManager.currentPage
-        val setting = CommonUtils.settings.getString("toolbar_button_actions", "default")
+        val setting = settings.getString("toolbar_button_actions", "default")
         val swap = setting?.startsWith("swap-") == true
         val showBible = if (swap) documentControl.suggestedBible != null else documentControl.biblesForVerse.isNotEmpty()
         val showCommentary = if (swap) documentControl.suggestedCommentary != null else documentControl.commentariesForVerse.isNotEmpty()
@@ -129,7 +133,7 @@ class ToolbarStateServiceImpl(
             // WorkspaceThemeSeedTest (this class needs Koin + a Context + four collaborators, which
             // is why the rule lives outside it). Re-read fresh on every snapshot for the same reason
             // as workspaceColorArgb above.
-            deriveToolbarFromTheme = deriveToolbarFromTheme(CommonUtils.settings.enabledExperimentalFeatures),
+            deriveToolbarFromTheme = deriveToolbarFromTheme(settings.getStringSet("experimental_features", emptySet())),
         )
     }
 
@@ -139,7 +143,7 @@ class ToolbarStateServiceImpl(
         val doc = page.currentDocument
         var key = page.displayKey
         if (doc?.bookCategory == BookCategory.BIBLE) key = pageControl.currentBibleVerse
-        return if (key is Verse && key.verse == 0) CommonUtils.getWholeChapter(key, false).getName()
+        return if (key is Verse && key.verse == 0) wholeChapter(key, false).getName()
         else key?.getName() ?: ""
     }
 }
