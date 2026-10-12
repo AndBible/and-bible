@@ -537,32 +537,28 @@ function tokenWinner(css, token, mode) {
     return winning(css, mode, "", "div")[token] ?? root[token];
 }
 describe("bounded theme chrome contrast and geometry", () => {
-    // [selector, arm-direction toward the free end (horizontal, vertical), fillet anchor, fillet circle centre]
+    // [selector, fillet circle centre]: the circle is centred on the corner farthest from the screen corner.
     it.each([
-        [".top-left-corner", "to right", "to bottom", "left 3px top 3px", "100% 100%"],
-        [".top-right-corner", "to left", "to bottom", "right 3px top 3px", "0 100%"],
-        [".bottom-left-corner", "to right", "to top", "left 3px bottom 3px", "100% 0"],
-        [".bottom-right-corner", "to left", "to top", "right 3px bottom 3px", "0 0"],
-    ])("paints a filled, edge-fading active corner at %s", (selector, horizontal, vertical, anchor, centre) => {
+        [".top-left-corner", "100% 100%"],
+        [".top-right-corner", "0 100%"],
+        [".bottom-left-corner", "100% 0"],
+        [".bottom-right-corner", "0 0"],
+    ])("paints an active corner that tapers into both screen edges at %s", (selector, centre) => {
         const css = componentCss("BibleView.vue");
         const rule = declarations(css, selector).replace(/\s+/g, " ");
-        expect(rule).toContain("width: 40px");
-        expect(rule).toContain("height: 40px");
-        // No rounded outer corner (no gap to the screen corner) and no CSS border: the L is drawn as
-        // background layers so the arms can fade out along the screen edge.
-        expect(rule).not.toContain("radius");
-        expect(rule).not.toContain("border");
-        expect(rule).toContain(`linear-gradient(${horizontal}, currentColor 40%, var(--corner-tail))`);
-        expect(rule).toContain(`linear-gradient(${vertical}, currentColor 40%, var(--corner-tail))`);
-        // Concave 12px fillet that meets both arms tangentially.
-        expect(rule).toContain(`radial-gradient(circle at ${centre}, transparent 11.5px, currentColor 12px) ${anchor} / 12px 12px no-repeat`);
-        // The arms fade to nothing, except in monochrome and color e-ink where they stay solid.
-        expect(winning(css, selector.slice(1), "", "div")["--corner-tail"]).toBe("transparent");
-        expect(winning(css, selector.slice(1), "night", "div")["--corner-tail"]).toBe("transparent");
+        expect(rule).toContain("width: 32px");
+        expect(rule).toContain("height: 32px");
+        // One filled corner minus a quarter circle: the curve is tangent to both screen edges, so the
+        // paint thins to nothing at its ends instead of stopping in an angular line end.
+        for (const forbidden of ["radius", "border", "linear-gradient"]) expect(rule).not.toContain(forbidden);
+        expect(rule).toContain(`radial-gradient(circle at ${centre}, transparent 31.5px, currentColor var(--corner-solid-from))`);
+        // Soft inner edge in colored modes, crisp in monochrome and color e-ink (gradients dither badly).
+        expect(winning(css, selector.slice(1), "", "div")["--corner-solid-from"]).toBe("37.76px");
+        expect(winning(css, selector.slice(1), "night", "div")["--corner-solid-from"]).toBe("37.76px");
         for (const mode of ["monochrome", "monochrome night", "colorEink", "colorEink night"]) {
-            expect(winning(css, selector.slice(1), mode, "div")["--corner-tail"]).toBe("currentColor");
+            expect(winning(css, selector.slice(1), mode, "div")["--corner-solid-from"]).toBe("32px");
         }
-        // Paint still goes through `color` in every mode (the fillet and arms use currentColor).
+        // Paint still goes through `color` in every mode.
         expect(winning(css, selector.slice(1), "monochrome", "div").color).toBe("black");
         expect(winning(css, selector.slice(1), "monochrome night", "div").color).toBe("white");
         expect(winning(css, selector.slice(1), "colorEink", "div").color).toBe("rgba(0, 0, 255, 0.6)");

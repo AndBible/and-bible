@@ -544,21 +544,20 @@ $borderDistance: 0;
 $colorEinkAccent: rgba(0, 0, 255, 0.6);
 $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
-// Active-window corner: a square, filled outer corner (no gap to the screen corner) with a concave
-// fillet where the two arms meet. The L is drawn as background layers rather than borders so the
-// arms can fade out along the screen edge; paint goes through `color` so every layer (currentColor)
-// follows the theme. Monochrome and color e-ink keep the arms solid, since gradients dither badly there.
-$cornerSize: 40px;
-$cornerThickness: 3px;
-$cornerFillet: 12px;
-$cornerSolid: 40%;
+// Active-window corner: the screen corner filled up to a concave quarter circle. The curve is tangent
+// to both screen edges, so the paint thins to nothing along them and blends into the edge with no
+// angular line end. Paint goes through `color` (currentColor in the gradient) so it follows the theme.
+// Colored modes soften the inner edge (--corner-solid-from > radius); monochrome and color e-ink keep
+// it crisp, since gradients dither badly on e-ink.
+$cornerRadius: 32px;
+$cornerSoftness: 1.18;
 
 .active-window-corner {
   position: fixed;
   z-index: -1;
-  width: $cornerSize;
-  height: $cornerSize;
-  --corner-tail: transparent;
+  width: $cornerRadius;
+  height: $cornerRadius;
+  --corner-solid-from: #{$cornerRadius * $cornerSoftness};
 
   .night & {
     color: var(--ab-primary, rgba(196, 196, 255, 0.8));
@@ -568,52 +567,45 @@ $cornerSolid: 40%;
 
   .monochrome & {
     color: black;
-    --corner-tail: currentColor;
+    --corner-solid-from: #{$cornerRadius};
   }
   .monochrome.night & {
     color: white;
   }
   .colorEink & {
     color: $colorEinkAccent;
-    --corner-tail: currentColor;
+    --corner-solid-from: #{$cornerRadius};
   }
   .colorEink.night & {
     color: $colorEinkAccentNight;
   }
 }
 
-// $h/$v: the screen edges the corner sits on; $toward-h/$toward-v: gradient direction away from it;
-// $centre: the fillet circle's centre inside its box (the box corner farthest from the screen corner).
-// The vertical arm starts below the horizontal one so translucent paint never overlaps (no darker
-// dot in the corner). `#{'/'}` stops Sass from reading the background-position / size slash as division.
-@mixin active-corner($h, $v, $toward-h, $toward-v, $centre) {
+// $centre: the circle's centre inside the box (the box corner farthest from the screen corner).
+@mixin active-corner($h, $v, $centre) {
   #{$h}: $borderDistance;
   #{$v}: $borderDistance;
-  background:
-    linear-gradient($toward-h, currentColor $cornerSolid, var(--corner-tail)) #{$h} #{$v} #{'/'} 100% $cornerThickness no-repeat,
-    linear-gradient($toward-v, currentColor $cornerSolid, var(--corner-tail)) #{$h} 0 #{$v} $cornerThickness #{'/'} $cornerThickness calc(100% - #{$cornerThickness}) no-repeat,
-    radial-gradient(circle at $centre, transparent $cornerFillet - 0.5px, currentColor $cornerFillet)
-      #{$h} $cornerThickness #{$v} $cornerThickness #{'/'} $cornerFillet $cornerFillet no-repeat;
+  background: radial-gradient(circle at $centre, transparent $cornerRadius - 0.5px, currentColor var(--corner-solid-from));
 }
 
 .top-left-corner {
   @extend .active-window-corner;
-  @include active-corner(left, top, to right, to bottom, 100% 100%);
+  @include active-corner(left, top, 100% 100%);
 }
 
 .top-right-corner {
   @extend .active-window-corner;
-  @include active-corner(right, top, to left, to bottom, 0 100%);
+  @include active-corner(right, top, 0 100%);
 }
 
 .bottom-left-corner {
   @extend .active-window-corner;
-  @include active-corner(left, bottom, to right, to top, 100% 0);
+  @include active-corner(left, bottom, 100% 0);
 }
 
 .bottom-right-corner {
   @extend .active-window-corner;
-  @include active-corner(right, bottom, to left, to top, 0 0);
+  @include active-corner(right, bottom, 0 0);
 }
 
 .top-margin {
