@@ -27,6 +27,10 @@ import org.robolectric.annotation.Config
 import java.io.File
 import java.net.InetSocketAddress
 import java.net.ServerSocket
+import java.net.Socket
+import java.net.SocketException
+import java.net.SocketTimeoutException
+import java.util.concurrent.atomic.AtomicReference
 import java.net.URI
 import java.util.Locale
 import java.util.UUID
@@ -94,21 +98,45 @@ class LlmHttpBehaviourTest {
         server.start()
     }
 
+    private var callWorkerQuiesced = true
+
     @After
     fun tearDown() {
-        try {
+        var failure: Throwable? = null
+        fun cleanup(action: () -> Unit) {
+            try {
+                action()
+            } catch (error: Throwable) {
+                if (failure == null) failure = error else failure!!.addSuppressed(error)
+            }
+        }
+        cleanup {
             blockedHandlers.forEach { it.countDown() }
             server.stop(0)
+        }
+        cleanup {
             executor.shutdownNow()
             assertTrue("HTTP handlers must stop", executor.awaitTermination(2, TimeUnit.SECONDS))
-        } finally {
-            File(BibleApplication.application.cacheDir, "models_cache_${providerId}.json").delete()
+        }
+        // Never reset a DB that a non-cooperative call worker could still write to.
+        if (!callWorkerQuiesced) {
+            val error = AssertionError("Call worker did not quiesce; database reset is unsafe")
+            failure?.let { error.addSuppressed(it) }
+            throw error
+        }
+        cleanup { File(BibleApplication.application.cacheDir, "models_cache_${providerId}.json").delete() }
+        cleanup {
             // The service has no public eviction API; remove only this test's unique cache entry.
             val field = DynamicModelService::class.java.getDeclaredField("cache").apply { isAccessible = true }
             (field.get(DynamicModelService) as MutableMap<*, *>).remove(providerId)
-            CommonUtils.settings.setStringSet(NO_TEMPERATURE_MODELS, emptySet())
-            resetDatabase()
         }
+        cleanup { CommonUtils.settings.setStringSet(NO_TEMPERATURE_MODELS, emptySet()) }
+        cleanup { resetDatabase() }
+        failure?.let { throw it }
+    }
+
+    private fun requireQuiescence(done: CountDownLatch, timeoutMs: Long = 2_000) {
+        assertTrue("Worker must quiesce within ${timeoutMs}ms", done.await(timeoutMs, TimeUnit.MILLISECONDS))
     }
 
     private fun resolved(type: String = "CUSTOM", baseEndpoint: String = endpoint): LlmProcessingService.ResolvedProvider {
@@ -217,23 +245,109 @@ class LlmHttpBehaviourTest {
 
     @Test
     fun cancellingTheCallerCancelsTheRequestPromptly() = runBlocking {
-        val latch = CountDownLatch(1).also { blockedHandlers += it }
-        responses += ScriptedResponse(block = latch)
+        // Raw HTTP/1.1 socket: observe peer EOF/reset without sending any response.
+        // HttpServer hides its socket, so cannot distinguish cancellation from teardown.
+        val listener = ServerSocket(0, 1, java.net.InetAddress.getByName("127.0.0.1"))
+        val accepted = AtomicReference<Socket>()
+        val requestRead = CountDownLatch(1)
+        val peerClosed = CountDownLatch(1)
+        val handlerDone = CountDownLatch(1)
+        val handlerFailure = AtomicReference<Throwable>()
+        val handler = Thread {
+            try {
+                listener.accept().use { socket ->
+                    accepted.set(socket)
+                    socket.soTimeout = 5_000
+                    val input = socket.getInputStream()
+                    val header = StringBuilder()
+                    while (!header.endsWith("\r\n\r\n")) {
+                        val byte = input.read()
+                        check(byte >= 0) { "EOF before request headers" }
+                        header.append(byte.toChar())
+                    }
+                    val length = header.lines().first { it.startsWith("Content-Length:", true) }
+                        .substringAfter(':').trim().toInt()
+                    repeat(length) { check(input.read() >= 0) { "EOF before request body" } }
+                    requestRead.countDown()
+                    socket.soTimeout = 10_000
+                    try {
+                        if (input.read() == -1) peerClosed.countDown()
+                    } catch (error: SocketException) {
+                        if (!socket.isClosed) peerClosed.countDown() else throw error
+                    } catch (_: SocketTimeoutException) {
+                        // No client close: assertion on peerClosed must fail before fixture shutdown.
+                    }
+                }
+            } catch (error: Throwable) {
+                handlerFailure.set(error)
+            } finally {
+                handlerDone.countDown()
+            }
+        }.apply { isDaemon = true; start() }
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        val provider = resolved()
-        var completion: Throwable? = null
+        val provider = resolved(baseEndpoint = "http://127.0.0.1:${listener.localPort}/v1")
+        val callDone = CountDownLatch(1)
+        val completion = AtomicReference<Throwable>()
+        callWorkerQuiesced = false
         val job = scope.launch { call(provider) }
-        job.invokeOnCompletion { completion = it }
+        job.invokeOnCompletion { completion.set(it); callDone.countDown() }
+        var originalFailure: Throwable? = null
         try {
-            assertTrue("Server must receive the pending request", received.await(5, TimeUnit.SECONDS))
+            assertTrue("Server must read the pending request", requestRead.await(5, TimeUnit.SECONDS))
             withTimeout(2_000) { job.cancelAndJoin() }
             assertTrue(job.isCancelled)
-            assertTrue("Caller completes with cancellation, not a network failure", completion is CancellationException)
-            assertEquals(1, requests.size)
+            assertTrue("Caller completes with cancellation, not a network failure", completion.get() is CancellationException)
+            assertTrue("Cancellation must close the HTTP socket before server shutdown", peerClosed.await(2, TimeUnit.SECONDS))
+            handlerFailure.get()?.let { throw it }
+            Unit
+        } catch (error: Throwable) {
+            originalFailure = error
+            throw error
         } finally {
-            latch.countDown()
+            // Force I/O to unblock first; waits below are real latch deadlines, not cooperative timeouts.
             scope.cancel()
-            job.cancelAndJoin()
+            val socketCloseFailure = runCatching { accepted.get()?.close() }.exceptionOrNull()
+            val listenerCloseFailure = runCatching { listener.close() }.exceptionOrNull()
+            try {
+                requireQuiescence(callDone)
+                callWorkerQuiesced = true
+                requireQuiescence(handlerDone)
+                handler.join(100)
+                socketCloseFailure?.let { throw it }
+                listenerCloseFailure?.let { throw it }
+            } catch (cleanupFailure: Throwable) {
+                if (originalFailure != null) originalFailure.addSuppressed(cleanupFailure) else throw cleanupFailure
+            }
+        }
+    }
+
+    @Test
+    fun nonCooperativeWorkerCleanupHasABoundedFailurePath() {
+        val release = CountDownLatch(1)
+        val started = CountDownLatch(1)
+        val done = CountDownLatch(1)
+        val worker = Thread {
+            try {
+                started.countDown()
+                while (release.count > 0) {
+                    try { release.await() } catch (_: InterruptedException) { /* Deliberately ignore cancellation. */ }
+                }
+            } finally {
+                done.countDown()
+            }
+        }.apply { isDaemon = true; start() }
+        try {
+            assertTrue(started.await(2, TimeUnit.SECONDS))
+            worker.interrupt()
+            val start = System.nanoTime()
+            val error = runCatching { requireQuiescence(done, 100) }.exceptionOrNull()
+            assertTrue(error is AssertionError)
+            assertTrue(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) < 1_000)
+            assertEquals(1L, done.count)
+        } finally {
+            release.countDown()
+            requireQuiescence(done)
+            worker.join(100)
         }
     }
 
