@@ -47,6 +47,29 @@ class LlmPortableGlobalsTest {
         } finally { loadKoinModules(module { single<AppSettings> { original } }) }
     }
 
+    @Test fun cachedCategoriesUseInjectedDebugMode() {
+        val original = GlobalContext.get().get<AppEnvironment>()
+        val cache = BuiltInPrompts::class.java.getDeclaredField("_defaultCategories").apply { isAccessible = true }
+        val previous = cache.get(BuiltInPrompts)
+        var debug = false
+        val local = object : AppEnvironment by original {
+            override val isDebugMode get() = debug
+        }
+        loadKoinModules(module { single<AppEnvironment> { local } })
+        try {
+            cache.set(BuiltInPrompts, null)
+            assertFalse(BuiltInPrompts.defaultCategories().any { it.id == BuiltInPrompts.CATEGORY_TEST_ID })
+            debug = true
+            // The existing cache remains stable until the next first-access rebuild.
+            assertFalse(BuiltInPrompts.defaultCategories().any { it.id == BuiltInPrompts.CATEGORY_TEST_ID })
+            cache.set(BuiltInPrompts, null)
+            assertTrue(BuiltInPrompts.defaultCategories().any { it.id == BuiltInPrompts.CATEGORY_TEST_ID })
+        } finally {
+            cache.set(BuiltInPrompts, previous)
+            loadKoinModules(module { single<AppEnvironment> { original } })
+        }
+    }
+
     @Test fun usageIsAttributedToInjectedDevice() = runBlocking {
         val original = GlobalContext.get().get<AppEnvironment>()
         val local = object : AppEnvironment by original {
