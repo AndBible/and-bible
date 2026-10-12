@@ -17,10 +17,11 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import android.net.Uri
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -44,7 +45,8 @@ import net.bible.service.llm.tools.*
  * Works with all GENERAL_BOOK modules including MyDocuments and external GenBooks.
  * Supports pagination for large books.
  */
-object GetGenBookKeysTool : Tool {
+object GetGenBookKeysTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val book: String = "",
@@ -72,7 +74,6 @@ object GetGenBookKeysTool : Tool {
 
     override val agentTool = AgentTool.GET_GENBOOK_KEYS
     override val category = ToolCategory.GENERAL_BOOKS
-    override val displayNameResId = R.string.tool_get_genbook_keys
 
     override val description = """
         List table of contents / navigation keys for a general book (reference material, handbook, My Document, etc.).
@@ -106,7 +107,7 @@ object GetGenBookKeysTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return application.getString(R.string.tool_log_genbook_key_count, data.returnedCount, data.totalCount)
+        return strings.toolLogGenbookKeyCount(data.returnedCount, data.totalCount)
     }
 
     override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {

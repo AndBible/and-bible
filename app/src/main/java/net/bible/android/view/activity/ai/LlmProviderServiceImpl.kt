@@ -16,13 +16,12 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
@@ -68,7 +67,7 @@ import net.bible.service.db.blockingDb
  * bridge them with `blockingDb` and block the caller thread (as elsewhere in the AI settings layer); the suspend
  * mutations still hop to [Dispatchers.IO] for the network-touching prefetch.
  */
-class LlmProviderServiceImpl : LlmProviderService {
+class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderService {
     private val settings get() = CommonUtils.aiSettings
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
@@ -96,7 +95,7 @@ class LlmProviderServiceImpl : LlmProviderService {
     override fun providerTypes(): List<ProviderTypeVd> = LlmProvider.entries.map { p ->
         ProviderTypeVd(
             id = p.name,
-            displayName = if (p == LlmProvider.CUSTOM) application.getString(R.string.llm_provider_custom) else p.displayName,
+            displayName = if (p == LlmProvider.CUSTOM) strings.llmProviderCustom else p.displayName,
             tier = p.tier.name,
             apiKeyUrl = p.apiKeyUrl,
             defaultEndpoint = p.endpoint,
@@ -203,17 +202,17 @@ class LlmProviderServiceImpl : LlmProviderService {
     override fun recommendedSetups(): List<RecommendedSetupVd> = listOf(
         recommendedSetup(
             LlmProvider.GEMINI, "gemini-3-flash-preview",
-            application.getString(R.string.easy_setup_gemini_desc),
-            application.getString(R.string.easy_setup_free_tier),
+            strings.easySetupGeminiDesc,
+            strings.easySetupFreeTier,
         ),
         recommendedSetup(
             LlmProvider.ANTHROPIC, "claude-haiku-4-5",
-            application.getString(R.string.easy_setup_anthropic_desc),
+            strings.easySetupAnthropicDesc,
             null,
         ),
         recommendedSetup(
             LlmProvider.OPENAI, "gpt-5.4-mini",
-            application.getString(R.string.easy_setup_openai_desc),
+            strings.easySetupOpenaiDesc,
             null,
         ),
     )

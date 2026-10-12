@@ -17,10 +17,11 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -43,7 +44,8 @@ import net.bible.service.llm.tools.*
  *
  * Uses the Lucene index to search for words or phrases.
  */
-object SearchBibleTool : Tool {
+object SearchBibleTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val query: String = "",
@@ -71,7 +73,6 @@ object SearchBibleTool : Tool {
 
     override val agentTool = AgentTool.SEARCH_BIBLE
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_search_bible
 
     private data class VerseResult(val book: String, val osisRef: String, val verseName: String)
     private data class CachedSearch(val query: String, val bookInitials: List<String>, val results: List<VerseResult>)
@@ -138,7 +139,7 @@ object SearchBibleTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return application.getString(R.string.tool_log_search_results, data.returnedResults, data.totalResults)
+        return strings.toolLogSearchResults(data.returnedResults, data.totalResults)
     }
 
     override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {

@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
@@ -40,7 +41,8 @@ import net.bible.service.llm.tools.*
  * Returns document metadata including page counts and highlights the AI Documents book
  * with top-level fields for easy access.
  */
-object GetMyDocumentsTool : Tool {
+object GetMyDocumentsTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class DocumentInfo(
         val id: IdType,
@@ -61,7 +63,6 @@ object GetMyDocumentsTool : Tool {
 
     override val agentTool = AgentTool.GET_MY_DOCUMENTS
     override val category = ToolCategory.MY_DOCUMENTS
-    override val displayNameResId = R.string.tool_get_my_documents
 
     override val description = """
         List all My Documents books (user-created and AI-generated document collections).
@@ -78,7 +79,7 @@ object GetMyDocumentsTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return application.getString(R.string.tool_log_my_document_count, data.documentCount)
+        return strings.toolLogMyDocumentCount(data.documentCount)
     }
 
     override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {

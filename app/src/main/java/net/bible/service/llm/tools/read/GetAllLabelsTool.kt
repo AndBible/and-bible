@@ -17,10 +17,11 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.database.IdType
-import net.bible.android.activity.R
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -37,7 +38,8 @@ import net.bible.service.llm.tools.*
  *
  * Labels are used to organize bookmarks and create StudyPads.
  */
-object GetAllLabelsTool : Tool {
+object GetAllLabelsTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class LabelInfo(
         val id: IdType,
@@ -51,7 +53,6 @@ object GetAllLabelsTool : Tool {
 
     override val agentTool = AgentTool.GET_ALL_LABELS
     override val category = ToolCategory.LABELS
-    override val displayNameResId = R.string.tool_get_all_labels
 
     override val description = """
         Get all available labels (tags/categories).
@@ -68,7 +69,7 @@ object GetAllLabelsTool : Tool {
 
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
-        return application.getString(R.string.tool_log_label_count, (result.data as Result).labelCount)
+        return strings.toolLogLabelCount((result.data as Result).labelCount)
     }
 
     override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {

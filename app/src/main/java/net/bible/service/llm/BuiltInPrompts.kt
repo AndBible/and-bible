@@ -17,8 +17,8 @@
 
 package net.bible.service.llm
 
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import net.bible.android.database.IdType
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.llm.tools.ToolRegistry
@@ -33,7 +33,8 @@ import java.util.UUID
  *
  * Users can copy a built-in prompt to create their own editable version.
  */
-object BuiltInPrompts {
+object BuiltInPrompts : KoinComponent {
+    private val strings: LlmStrings by inject()
 
     /**
      * Generates a stable deterministic IdType from a key string.
@@ -119,15 +120,15 @@ object BuiltInPrompts {
     )
 
     private fun buildProductionPrompts(): List<AgentPrompt> {
-        val context = BibleApplication.application
+
         var order = 0
 
         return listOf(
             // 1. Translate
             AgentPrompt(
                 id = TRANSLATE_UI_LANGUAGE_ID,
-                name = context.getString(R.string.default_prompt_translate_to_language, getUiLanguageName()),
-                description = context.getString(R.string.default_prompt_translate_to_ui_language_desc),
+                name = strings.defaultPromptTranslateToLanguage(getUiLanguageName()),
+                description = strings.defaultPromptTranslateToUiLanguageDesc,
                 promptTemplate = """
                     Translate the selected text to ${getUiLanguageName()}.
                     If the user has highlighted or selected a specific portion, translate ONLY that portion.
@@ -143,8 +144,8 @@ object BuiltInPrompts {
             // 2. Summary
             AgentPrompt(
                 id = SUMMARY_ID,
-                name = context.getString(R.string.default_prompt_summary),
-                description = context.getString(R.string.default_prompt_summary_desc),
+                name = strings.defaultPromptSummary,
+                description = strings.defaultPromptSummaryDesc,
                 promptTemplate = """
                     Create a concise summary of the selected passage.
                     If the user has highlighted or selected a specific portion, focus your summary on that portion.
@@ -165,8 +166,8 @@ object BuiltInPrompts {
             // 3. Explain Verses
             AgentPrompt(
                 id = EXPLAIN_VERSES_ID,
-                name = context.getString(R.string.default_prompt_explain_verses),
-                description = context.getString(R.string.default_prompt_explain_verses_desc),
+                name = strings.defaultPromptExplainVerses,
+                description = strings.defaultPromptExplainVersesDesc,
                 promptTemplate = """
                     Explain the meaning and context of the selected verses.
 
@@ -196,8 +197,8 @@ object BuiltInPrompts {
             // 3b. Explain Verses → StudyPad
             AgentPrompt(
                 id = EXPLAIN_VERSES_STUDYPAD_ID,
-                name = context.getString(R.string.default_prompt_explain_verses_studypad),
-                description = context.getString(R.string.default_prompt_explain_verses_studypad_desc),
+                name = strings.defaultPromptExplainVersesStudypad,
+                description = strings.defaultPromptExplainVersesStudypadDesc,
                 promptTemplate = """
                     Explain the selected verses and create a StudyPad with the explanation.
 
@@ -234,8 +235,8 @@ object BuiltInPrompts {
             // 4. Word Study
             AgentPrompt(
                 id = WORD_STUDY_ID,
-                name = context.getString(R.string.default_prompt_word_study),
-                description = context.getString(R.string.default_prompt_word_study_desc),
+                name = strings.defaultPromptWordStudy,
+                description = strings.defaultPromptWordStudyDesc,
                 promptTemplate = """
                     Perform a word study on the original Hebrew/Greek words in the selected text.
 
@@ -266,8 +267,8 @@ object BuiltInPrompts {
             // 5. Cross-References
             AgentPrompt(
                 id = CROSS_REFERENCES_ID,
-                name = context.getString(R.string.default_prompt_cross_references),
-                description = context.getString(R.string.default_prompt_cross_references_desc),
+                name = strings.defaultPromptCrossReferences,
+                description = strings.defaultPromptCrossReferencesDesc,
                 promptTemplate = """
                     Find and explain cross-references for the selected verses.
 
@@ -297,8 +298,8 @@ object BuiltInPrompts {
             // 6. Compare Translations
             AgentPrompt(
                 id = COMPARE_TRANSLATIONS_ID,
-                name = context.getString(R.string.default_prompt_compare_translations),
-                description = context.getString(R.string.default_prompt_compare_translations_desc),
+                name = strings.defaultPromptCompareTranslations,
+                description = strings.defaultPromptCompareTranslationsDesc,
                 promptTemplate = """
                     Compare how different Bible translations render the selected verses.
 
@@ -340,8 +341,8 @@ object BuiltInPrompts {
             // 7. Thematic Study → StudyPad
             AgentPrompt(
                 id = THEMATIC_STUDY_ID,
-                name = context.getString(R.string.default_prompt_thematic_study),
-                description = context.getString(R.string.default_prompt_thematic_study_desc),
+                name = strings.defaultPromptThematicStudy,
+                description = strings.defaultPromptThematicStudyDesc,
                 promptTemplate = """
                     Build a thematic study based on the selected passage.
 
@@ -385,8 +386,8 @@ object BuiltInPrompts {
             // 8. Bookmark & Annotate
             AgentPrompt(
                 id = BOOKMARK_ANNOTATE_ID,
-                name = context.getString(R.string.default_prompt_bookmark_annotate),
-                description = context.getString(R.string.default_prompt_bookmark_annotate_desc),
+                name = strings.defaultPromptBookmarkAnnotate,
+                description = strings.defaultPromptBookmarkAnnotateDesc,
                 promptTemplate = """
                     Create a bookmark for the selected verses and add a study note.
 
@@ -430,8 +431,8 @@ object BuiltInPrompts {
             // 10. Open Study Layout
             AgentPrompt(
                 id = STUDY_LAYOUT_ID,
-                name = context.getString(R.string.default_prompt_study_layout),
-                description = context.getString(R.string.default_prompt_study_layout_desc),
+                name = strings.defaultPromptStudyLayout,
+                description = strings.defaultPromptStudyLayoutDesc,
                 promptTemplate = """
                     Set up a multi-window study layout for the selected passage.
 
@@ -473,8 +474,8 @@ object BuiltInPrompts {
             // 11. Workspace Assistant
             AgentPrompt(
                 id = WORKSPACE_ASSISTANT_ID,
-                name = context.getString(R.string.default_prompt_workspace_assistant),
-                description = context.getString(R.string.default_prompt_workspace_assistant_desc),
+                name = strings.defaultPromptWorkspaceAssistant,
+                description = strings.defaultPromptWorkspaceAssistantDesc,
                 promptTemplate = """
                     Help the user manage their workspace windows.
                     The current workspace layout is provided in the system prompt.
@@ -516,8 +517,8 @@ object BuiltInPrompts {
             // 12. Enhance Note
             AgentPrompt(
                 id = ENHANCE_NOTE_ID,
-                name = context.getString(R.string.default_prompt_enhance_note),
-                description = context.getString(R.string.default_prompt_enhance_note_desc),
+                name = strings.defaultPromptEnhanceNote,
+                description = strings.defaultPromptEnhanceNoteDesc,
                 promptTemplate = """
                     Improve the language and clarity of the user's note.
 
@@ -538,8 +539,8 @@ object BuiltInPrompts {
             // 12. Ask a Question
             AgentPrompt(
                 id = ASK_QUESTION_ID,
-                name = context.getString(R.string.default_prompt_ask_question),
-                description = context.getString(R.string.default_prompt_ask_question_desc),
+                name = strings.defaultPromptAskQuestion,
+                description = strings.defaultPromptAskQuestionDesc,
                 promptTemplate = """
                     Answer the user's question about the selected passage.
                     Commentaries and installed documents are provided below.
@@ -558,9 +559,9 @@ object BuiltInPrompts {
             // 13. Custom Prompt
             AgentPrompt(
                 id = CUSTOM_PROMPT_ID,
-                name = context.getString(R.string.default_prompt_custom),
-                description = context.getString(R.string.default_prompt_custom_desc),
-                promptTemplate = context.getString(R.string.default_prompt_custom_template),
+                name = strings.defaultPromptCustom,
+                description = strings.defaultPromptCustomDesc,
+                promptTemplate = strings.defaultPromptCustomTemplate,
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 specifyBeforeRun = true,
@@ -863,13 +864,12 @@ object BuiltInPrompts {
     private var _defaultCategories: List<PromptCategory>? = null
     fun defaultCategories(): List<PromptCategory> {
         _defaultCategories?.let { return it }
-        val ctx = BibleApplication.application
         return buildList {
-            add(PromptCategory(id = CATEGORY_STUDY_ID, name = ctx.getString(R.string.prompt_category_study), orderNumber = 0))
-            add(PromptCategory(id = CATEGORY_NOTES_ID, name = ctx.getString(R.string.prompt_category_notes), orderNumber = 1))
-            add(PromptCategory(id = CATEGORY_GENERAL_ID, name = ctx.getString(R.string.prompt_category_general), orderNumber = 2))
+            add(PromptCategory(id = CATEGORY_STUDY_ID, name = strings.promptCategoryStudy, orderNumber = 0))
+            add(PromptCategory(id = CATEGORY_NOTES_ID, name = strings.promptCategoryNotes, orderNumber = 1))
+            add(PromptCategory(id = CATEGORY_GENERAL_ID, name = strings.promptCategoryGeneral, orderNumber = 2))
             if (CommonUtils.isDebugMode) {
-                add(PromptCategory(id = CATEGORY_TEST_ID, name = ctx.getString(R.string.prompt_category_test), orderNumber = 3))
+                add(PromptCategory(id = CATEGORY_TEST_ID, name = strings.promptCategoryTest, orderNumber = 3))
             }
         }.also { _defaultCategories = it }
     }

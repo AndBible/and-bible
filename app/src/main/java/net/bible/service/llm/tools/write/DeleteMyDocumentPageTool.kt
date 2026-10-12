@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
@@ -40,7 +41,8 @@ import net.bible.service.llm.tools.*
  * Tool for deleting a My Documents page.
  * Always requires user permission.
  */
-object DeleteMyDocumentPageTool : Tool {
+object DeleteMyDocumentPageTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val pageId: IdType = IdType.empty()
@@ -56,7 +58,6 @@ object DeleteMyDocumentPageTool : Tool {
     override val agentTool = AgentTool.DELETE_MY_DOCUMENT_PAGE
     override val category = ToolCategory.MY_DOCUMENTS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_delete_my_document_page
 
     override val description = """
         Delete a page from a My Documents book. This action is irreversible.
@@ -77,7 +78,7 @@ object DeleteMyDocumentPageTool : Tool {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val page = try { dao.pageById(IdType(pageIdStr)) } catch (_: Exception) { null }
         val pageName = page?.title ?: shortId(pageIdStr)
-        return BibleApplication.application.getString(R.string.action_delete_my_document_page, pageName)
+        return strings.actionDeleteMyDocumentPage(pageName)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.defaultLabelColor
@@ -41,7 +42,8 @@ import net.bible.service.llm.tools.*
  *
  * Labels are used to organize bookmarks and can function as StudyPads.
  */
-object CreateLabelTool : Tool {
+object CreateLabelTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val name: String = "",
@@ -73,13 +75,12 @@ object CreateLabelTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_create_label
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
-        return BibleApplication.application.getString(R.string.action_create_label, name)
+        return strings.actionCreateLabel(name)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

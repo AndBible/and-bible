@@ -17,7 +17,6 @@
 
 package net.bible.service.llm.tools.read
 
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -58,7 +57,6 @@ object GetVerseContentTool : Tool {
 
     override val agentTool = AgentTool.GET_VERSE_CONTENT
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_get_verse_content
 
     override val description = """
         Get verse content from a Bible translation. Returns readable text by default.

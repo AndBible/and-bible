@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -40,7 +41,8 @@ import net.bible.service.llm.tools.*
  * Optionally deletes bookmarks that would become orphaned (have no remaining labels).
  * Prevents deletion of special internal labels (AI, Speak, Unlabeled, etc.).
  */
-object DeleteLabelTool : Tool {
+object DeleteLabelTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val labelId: IdType = IdType.empty(),
@@ -73,7 +75,6 @@ object DeleteLabelTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_delete_label
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
@@ -81,7 +82,7 @@ object DeleteLabelTool : Tool {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
         val labelName = label?.name ?: shortId(labelId)
-        return BibleApplication.application.getString(R.string.action_delete_label, labelName)
+        return strings.actionDeleteLabel(labelName)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

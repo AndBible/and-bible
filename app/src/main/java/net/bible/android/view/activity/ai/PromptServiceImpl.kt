@@ -16,11 +16,10 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.db.blockingDb
 import net.bible.service.common.AiSettings
 import net.bible.android.database.IdType
@@ -74,7 +73,7 @@ import net.bible.sharedcore.settings.SettingsItem
  * `suspend`; the non-suspend reads/mutations bridge them with `blockingDb`, so they block the caller
  * thread (as elsewhere in the AI settings layer).
  */
-class PromptServiceImpl : PromptService {
+class PromptServiceImpl(private val strings: LlmStrings) : PromptService {
     private val settings get() = CommonUtils.aiSettings
     private val overrideDao get() = DatabaseContainer.instance.aiSettingsDb.builtinPromptOverrideDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
@@ -387,7 +386,7 @@ class PromptServiceImpl : PromptService {
         val defaultSuffix = if (defaultModel != null && defaultProvider != null) {
             " (${defaultModel.modelId} — ${defaultProvider.displayName})"
         } else ""
-        choices.add(SettingsItem.Choice(value = "", label = application.getString(R.string.prompt_model_default) + defaultSuffix))
+        choices.add(SettingsItem.Choice(value = "", label = strings.promptModelDefault + defaultSuffix))
 
         for (model in models) {
             val provider = providerConfigs[model.providerConfigId]

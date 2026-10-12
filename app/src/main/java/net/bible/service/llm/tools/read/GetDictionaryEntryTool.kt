@@ -19,10 +19,8 @@ package net.bible.service.llm.tools.read
 
 import org.koin.core.context.GlobalContext
 import android.net.Uri
-import net.bible.android.BibleApplication
 import net.bible.android.control.link.isGreekDef
 import net.bible.android.control.link.isHebrewDef
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -61,7 +59,6 @@ object GetDictionaryEntryTool : Tool {
 
     override val agentTool = AgentTool.GET_DICTIONARY_ENTRY
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_get_dictionary_entry
 
     override val description = """
         Look up an entry in a Bible dictionary, including Strong's dictionaries. Returns readable text by default.

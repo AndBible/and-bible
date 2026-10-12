@@ -19,7 +19,6 @@ package net.bible.service.llm.tools.read
 
 import android.net.Uri
 import kotlinx.serialization.Serializable
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -66,7 +65,6 @@ object GetGenBookContentTool : Tool {
 
     override val agentTool = AgentTool.GET_GENBOOK_CONTENT
     override val category = ToolCategory.GENERAL_BOOKS
-    override val displayNameResId = R.string.tool_get_genbook_content
 
     override val description = """
         Read the content of a specific entry in a general book (reference material, handbook, My Document, etc.).

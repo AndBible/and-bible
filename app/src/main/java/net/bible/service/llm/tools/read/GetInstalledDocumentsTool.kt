@@ -17,8 +17,9 @@
 
 package net.bible.service.llm.tools.read
 
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -42,7 +43,8 @@ import net.bible.service.llm.tools.*
  *
  * Returns information about installed Bibles, commentaries, dictionaries, etc.
  */
-object GetInstalledDocumentsTool : Tool {
+object GetInstalledDocumentsTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(val category: String = "")
 
@@ -58,7 +60,6 @@ object GetInstalledDocumentsTool : Tool {
 
     override val agentTool = AgentTool.GET_INSTALLED_DOCUMENTS
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_get_installed_documents
 
     override val description = """
         Get a list of installed documents (Bibles, commentaries, dictionaries, etc.).
@@ -86,7 +87,7 @@ object GetInstalledDocumentsTool : Tool {
 
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
-        return application.getString(R.string.tool_log_document_count, (result.data as Result).documentCount)
+        return strings.toolLogDocumentCount((result.data as Result).documentCount)
     }
 
     override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {

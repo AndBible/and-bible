@@ -57,7 +57,7 @@ class DefaultModelChangedTest {
         // Fresh instances, not the Koin singletons: another test class may have created those, and
         // TestBibleApplication.onTerminate resets AiSettings' sources, which kills the process-lifetime
         // subscriptions of an already-built singleton.
-        val settingsService: AiSettingsService = AiSettingsServiceImpl()
+        val settingsService: AiSettingsService = AiSettingsServiceImpl(net.bible.android.platform.AndroidLlmStrings(net.bible.android.BibleApplication.application))
         val modelService: LlmModelService = LlmModelServiceImpl()
         val db = DatabaseContainer.instance.aiSettingsDb
         val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")

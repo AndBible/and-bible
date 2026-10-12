@@ -17,8 +17,9 @@
 
 package net.bible.service.llm.tools.write
 
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -39,7 +40,8 @@ import net.bible.service.llm.tools.*
  * ensuring the title in the table of contents is clean (no markdown links)
  * while the content can include rich formatting with links.
  */
-object SetDocumentTitleTool : Tool {
+object SetDocumentTitleTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(val title: String = "")
 
@@ -51,7 +53,6 @@ object SetDocumentTitleTool : Tool {
 
     override val agentTool = AgentTool.SET_DOCUMENT_TITLE
     override val category = ToolCategory.MY_DOCUMENTS
-    override val displayNameResId = R.string.tool_set_document_title
 
     override val description = """
         Set the title for your AI document and finish the task.
@@ -78,7 +79,7 @@ object SetDocumentTitleTool : Tool {
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
-        return BibleApplication.application.getString(R.string.action_set_document_title, title)
+        return strings.actionSetDocumentTitle(title)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

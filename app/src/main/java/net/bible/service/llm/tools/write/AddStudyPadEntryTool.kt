@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.AgentTool
@@ -41,7 +42,8 @@ import net.bible.service.llm.tools.*
  *
  * StudyPads (labels) can contain both bookmark references and standalone text entries.
  */
-object AddStudyPadEntryTool : Tool {
+object AddStudyPadEntryTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val labelId: IdType = IdType.empty(),
@@ -90,7 +92,6 @@ object AddStudyPadEntryTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_add_study_pad_entry
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
@@ -98,7 +99,7 @@ object AddStudyPadEntryTool : Tool {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
         val labelName = label?.name ?: shortId(labelId)
-        return BibleApplication.application.getString(R.string.action_add_entry_to_studypad, labelName)
+        return strings.actionAddEntryToStudypad(labelName)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

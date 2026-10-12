@@ -52,7 +52,7 @@ class ReadingLlmServiceImplTest {
 
     @Before
     fun setUp() {
-        service = ReadingLlmServiceImpl()
+        service = ReadingLlmServiceImpl(net.bible.android.platform.AndroidLlmStrings(net.bible.android.BibleApplication.application))
         // Hide every built-in prompt so promptGroupsFor tests only see the prompts each test sets
         // up itself (built-ins would otherwise pollute VERSE_SELECTION/etc. groups).
         AiSettings.hiddenBuiltInPrompts = BuiltInPrompts.allBuiltInPrompts().map { it.id }.toSet()

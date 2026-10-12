@@ -16,12 +16,11 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.service.llm.LlmStrings
 import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -41,7 +40,7 @@ import net.bible.service.db.blockingDb
  * Registered as a Koin single (lives for the process); the host calls [refresh] in `onResume` for
  * parity with the old pull-based refresh.
  */
-class AiSettingsServiceImpl : AiSettingsService {
+class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService {
     private val settings get() = CommonUtils.aiSettings
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
@@ -88,7 +87,7 @@ class AiSettingsServiceImpl : AiSettingsService {
     /** Mirrors classic `AiConnectionSettingsFragment.updateAiLanguageSummary`. */
     private fun aiLanguageLabel(): String {
         val tag = settings.aiLanguage
-            ?: return application.getString(R.string.ai_language_app_default, Locale.getDefault().displayLanguage)
+            ?: return strings.aiLanguageAppDefault(Locale.getDefault().displayLanguage)
         val locale = Locale.forLanguageTag(tag)
         val displayName = locale.getDisplayLanguage(locale)
         return if (displayName.isNotEmpty() && displayName != tag) "$displayName ($tag)" else tag
@@ -98,19 +97,15 @@ class AiSettingsServiceImpl : AiSettingsService {
     private fun usageSummary(): String {
         val totalUsage = LlmCostTracker.getTotalUsage()
         return if (totalUsage.totalTokens == 0L) {
-            application.getString(R.string.llm_usage_summary_default)
+            strings.llmUsageSummaryDefault
         } else {
-            application.getString(
-                R.string.llm_usage_summary_format,
+            strings.llmUsageSummaryFormat(
                 totalUsage.inputTokens,
                 totalUsage.outputTokens,
                 LlmCostTracker.formatCost(LlmCostTracker.getTotalCost()),
             )
         }
     }
-
-    private fun defaultPromptText(res: Int): String =
-        application.resources.openRawResource(res).bufferedReader().use { it.readText() }
 
     override fun setAgentPermissionMode(value: String) {
         settings.agentPermissionMode = PermissionMode.valueOf(value)
@@ -164,19 +159,19 @@ class AiSettingsServiceImpl : AiSettingsService {
 
     override fun customAgentSystemPromptText(): String =
         settings.customAgentSystemPrompt?.takeIf { it.isNotBlank() }
-            ?: defaultPromptText(R.raw.llm_agent_system_prompt)
+            ?: strings.defaultAgentSystemPrompt
 
     override fun customTextTransformationSystemPromptText(): String =
         settings.customTextTransformationSystemPrompt?.takeIf { it.isNotBlank() }
-            ?: defaultPromptText(R.raw.llm_text_transformation_system_prompt)
+            ?: strings.defaultTextTransformationSystemPrompt
 
     // Raw built-in defaults, ignoring any custom override — see AiSettingsService KDoc for why
     // these must stay distinct from the two methods above.
     override fun builtInAgentSystemPromptText(): String =
-        defaultPromptText(R.raw.llm_agent_system_prompt)
+        strings.defaultAgentSystemPrompt
 
     override fun builtInTextTransformationSystemPromptText(): String =
-        defaultPromptText(R.raw.llm_text_transformation_system_prompt)
+        strings.defaultTextTransformationSystemPrompt
 
     override fun refresh() {
         _snapshot.value = build()

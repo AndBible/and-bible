@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.AgentTool
@@ -39,7 +40,8 @@ import net.bible.service.llm.tools.*
 /**
  * Tool for updating an existing bookmark note.
  */
-object UpdateBookmarkNoteTool : Tool {
+object UpdateBookmarkNoteTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val bookmarkId: IdType = IdType.empty(),
@@ -70,7 +72,6 @@ object UpdateBookmarkNoteTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_update_bookmark_note
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
@@ -78,7 +79,7 @@ object UpdateBookmarkNoteTool : Tool {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
         val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
         val verseName = bookmark?.verseRange?.getName() ?: shortId(bookmarkId)
-        return BibleApplication.application.getString(R.string.action_update_note_on_bookmark_at, verseName)
+        return strings.actionUpdateNoteOnBookmarkAt(verseName)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

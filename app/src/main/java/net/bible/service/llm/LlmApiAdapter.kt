@@ -17,10 +17,11 @@
 
 package net.bible.service.llm
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -165,7 +166,8 @@ internal fun modelSupportsCacheControl(model: String): Boolean {
  */
 class OpenAiApiAdapter(
     private val supportsCacheControl: Boolean = false
-) : LlmApiAdapter {
+) : LlmApiAdapter, KoinComponent {
+    private val strings: LlmStrings by inject()
 
     override fun buildEndpointUrl(baseEndpoint: String): String =
         "${baseEndpoint.trimEnd('/')}/chat/completions"
@@ -251,7 +253,7 @@ class OpenAiApiAdapter(
         return try {
             val response = llmJson.decodeFromString<OpenAiResponse>(responseBody)
             val message = response.choices.firstOrNull()?.message
-                ?: return ParsedResponse.ParseError(application.getString(R.string.llm_parse_error_no_choices))
+                ?: return ParsedResponse.ParseError(strings.llmParseErrorNoChoices)
 
             val toolCalls = message.toolCalls?.mapNotNull { tc ->
                 if (tc.type != "function") null
@@ -280,7 +282,7 @@ class OpenAiApiAdapter(
                 ParsedResponse.TextResponse(content ?: "")
             }
         } catch (e: Exception) {
-            ParsedResponse.ParseError(application.getString(R.string.llm_parse_error_openai, e.message ?: ""))
+            ParsedResponse.ParseError(strings.llmParseErrorOpenai(e.message ?: ""))
         }
     }
 
@@ -313,7 +315,8 @@ class OpenAiApiAdapter(
 /**
  * Anthropic Messages API format with prompt caching support.
  */
-class AnthropicApiAdapter : LlmApiAdapter {
+class AnthropicApiAdapter : LlmApiAdapter, KoinComponent {
+    private val strings: LlmStrings by inject()
 
     companion object {
         private const val ANTHROPIC_VERSION = "2023-06-01"
@@ -452,7 +455,7 @@ class AnthropicApiAdapter : LlmApiAdapter {
                 ParsedResponse.TextResponse(textContent ?: "")
             }
         } catch (e: Exception) {
-            ParsedResponse.ParseError(application.getString(R.string.llm_parse_error_anthropic, e.message ?: ""))
+            ParsedResponse.ParseError(strings.llmParseErrorAnthropic(e.message ?: ""))
         }
     }
 

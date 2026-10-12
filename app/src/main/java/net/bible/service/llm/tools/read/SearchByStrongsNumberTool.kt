@@ -17,11 +17,12 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -45,7 +46,8 @@ import net.bible.service.llm.tools.*
  *
  * Automatically selects a Strong's-enabled, indexed Bible if none is specified.
  */
-object SearchByStrongsNumberTool : Tool {
+object SearchByStrongsNumberTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val strongsNumber: String = "",
@@ -70,7 +72,6 @@ object SearchByStrongsNumberTool : Tool {
 
     override val agentTool = AgentTool.SEARCH_BY_STRONGS
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_search_by_strongs
 
     private data class VerseResult(val book: String, val osisRef: String, val verseName: String)
     private data class CachedSearch(val strongsNumber: String, val bookInitials: String, val results: List<VerseResult>)
@@ -113,7 +114,7 @@ object SearchByStrongsNumberTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return application.getString(R.string.tool_log_search_results, data.returnedResults, data.totalResults)
+        return strings.toolLogSearchResults(data.returnedResults, data.totalResults)
     }
 
     private val STRONGS_PATTERN = Regex("^([HhGg])0*(\\d+)$")

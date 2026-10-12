@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
@@ -37,7 +38,8 @@ import net.bible.service.llm.tools.*
 /**
  * Tool for listing pages of a My Documents book, optionally with content.
  */
-object GetMyDocumentPagesTool : Tool {
+object GetMyDocumentPagesTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val documentId: IdType = IdType.empty(),
@@ -66,7 +68,6 @@ object GetMyDocumentPagesTool : Tool {
 
     override val agentTool = AgentTool.GET_MY_DOCUMENT_PAGES
     override val category = ToolCategory.MY_DOCUMENTS
-    override val displayNameResId = R.string.tool_get_my_document_pages
 
     override val description = """
         List pages of a My Documents book. Identify the document by documentId or initials.
@@ -103,7 +104,7 @@ object GetMyDocumentPagesTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return application.getString(R.string.tool_log_my_document_page_count, data.pageCount)
+        return strings.toolLogMyDocumentPageCount(data.pageCount)
     }
 
     override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {

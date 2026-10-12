@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,8 +24,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
@@ -63,7 +62,7 @@ import net.bible.service.db.blockingDb
  * mirroring classic `RawLogHistoryAdapter.bind`, which is the ADAPTER/view layer), so it is
  * single-owned there and not duplicated here.
  */
-class RawLogServiceImpl : RawLogService {
+class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService {
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
@@ -104,8 +103,7 @@ class RawLogServiceImpl : RawLogService {
         // the log text — binding.totalCostHeader — only when there was usage to show).
         if (record.estimatedCostUsd > 0 || record.totalInputTokens > 0) {
             val costStr = if (record.estimatedCostUsd > 0) " · ${LlmCostTracker.formatCost(record.estimatedCostUsd)}" else ""
-            val header = application.getString(
-                R.string.raw_llm_log_total,
+            val header = strings.rawLlmLogTotal(
                 LlmCostTracker.formatTokenCount(record.totalInputTokens),
                 LlmCostTracker.formatTokenCount(record.totalOutputTokens),
                 costStr,
@@ -150,8 +148,7 @@ class RawLogServiceImpl : RawLogService {
             ?.let { type -> try { LlmProvider.valueOf(type).displayName } catch (_: Exception) { type } }
             ?: ""
         val modelInfo = if (providerLabel.isNotBlank()) "$providerLabel · $modelName" else modelName
-        val tokenInfo = application.getString(
-            R.string.raw_log_item_tokens,
+        val tokenInfo = strings.rawLogItemTokens(
             LlmCostTracker.formatTokenCount(totalInputTokens),
             LlmCostTracker.formatTokenCount(totalOutputTokens),
         )
@@ -171,15 +168,15 @@ class RawLogServiceImpl : RawLogService {
 
     private fun entryTitle(entry: RawLogEntry): String = when (entry) {
         is RawLogEntry.Message -> when (entry.role.uppercase()) {
-            "SYSTEM" -> application.getString(R.string.raw_llm_log_entry_system)
-            "USER" -> application.getString(R.string.raw_llm_log_entry_user)
-            "ASSISTANT" -> application.getString(R.string.raw_llm_log_entry_assistant)
+            "SYSTEM" -> strings.rawLlmLogEntrySystem
+            "USER" -> strings.rawLlmLogEntryUser
+            "ASSISTANT" -> strings.rawLlmLogEntryAssistant
             else -> entry.role
         }
-        is RawLogEntry.ToolCallEntry -> application.getString(R.string.raw_llm_log_entry_tool_call, entry.toolName)
-        is RawLogEntry.ToolResultEntry -> application.getString(R.string.raw_llm_log_entry_tool_result, entry.id)
-        is RawLogEntry.ToolDefinitionsEntry -> application.getString(R.string.raw_llm_log_entry_tool_definitions, entry.toolDefs.size)
-        is RawLogEntry.RawApiResponse -> application.getString(R.string.raw_llm_log_entry_api_response, entry.iteration)
+        is RawLogEntry.ToolCallEntry -> strings.rawLlmLogEntryToolCall(entry.toolName)
+        is RawLogEntry.ToolResultEntry -> strings.rawLlmLogEntryToolResult(entry.id)
+        is RawLogEntry.ToolDefinitionsEntry -> strings.rawLlmLogEntryToolDefinitions(entry.toolDefs.size)
+        is RawLogEntry.RawApiResponse -> strings.rawLlmLogEntryApiResponse(entry.iteration)
     }
 
     private fun entryTokenInfo(entry: RawLogEntry, usageByIteration: Map<Int, net.bible.service.llm.agent.IterationUsageData>): String = when (entry) {
@@ -189,28 +186,27 @@ class RawLogServiceImpl : RawLogService {
                 val usage = data.usage
                 val cost = LlmPricing.estimateCost(usage, data.model, data.configuredModelId)
                 val costStr = if (cost != null) " · ${LlmCostTracker.formatCost(cost)}" else ""
-                application.getString(
-                    R.string.raw_llm_log_entry_usage,
+                strings.rawLlmLogEntryUsage(
                     LlmCostTracker.formatTokenCount(usage.inputTokens),
                     LlmCostTracker.formatTokenCount(usage.outputTokens),
                     costStr,
                 )
             } else {
-                application.getString(R.string.raw_llm_log_entry_tokens, LlmCostTracker.formatTokenCount(entry.estimateTokens().toLong()))
+                strings.rawLlmLogEntryTokens(LlmCostTracker.formatTokenCount(entry.estimateTokens().toLong()))
             }
         }
-        else -> application.getString(R.string.raw_llm_log_entry_tokens, LlmCostTracker.formatTokenCount(entry.estimateTokens().toLong()))
+        else -> strings.rawLlmLogEntryTokens(LlmCostTracker.formatTokenCount(entry.estimateTokens().toLong()))
     }
 
     private fun entryBody(entry: RawLogEntry): String = when (entry) {
-        is RawLogEntry.Message -> entry.content ?: application.getString(R.string.raw_llm_log_entry_empty)
+        is RawLogEntry.Message -> entry.content ?: strings.rawLlmLogEntryEmpty
         is RawLogEntry.ToolCallEntry -> prettyFormatJson(entry.arguments)
         is RawLogEntry.ToolResultEntry -> prettyFormatJson(entry.result)
         is RawLogEntry.ToolDefinitionsEntry -> buildString {
             for (def in entry.toolDefs) {
                 appendLine("--- ${def.name} ---")
-                appendLine(application.getString(R.string.raw_llm_log_entry_tool_desc, def.description))
-                appendLine(application.getString(R.string.raw_llm_log_entry_tool_params, prettyJson.encodeToString(def.parametersSchema)))
+                appendLine(strings.rawLlmLogEntryToolDesc(def.description))
+                appendLine(strings.rawLlmLogEntryToolParams(prettyJson.encodeToString(def.parametersSchema)))
                 appendLine()
             }
         }

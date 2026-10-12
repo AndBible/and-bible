@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.agent
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
 import android.app.Activity
 import net.bible.sharedcore.log.Log
@@ -27,8 +30,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -172,7 +173,8 @@ private sealed class ProcessToolsResult {
  */
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
-) {
+) : KoinComponent {
+    private val strings: LlmStrings by inject()
     fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null, modelOverrideId: IdType? = null): Flow<AgentEvent> = flow {
         try {
             val llmConfig = LlmModelConfig(modelOverrideId ?: prompt.configuredModelId)
@@ -197,7 +199,7 @@ class AgentExecutor(
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Agent execution failed", e)
-            emit(AgentEvent.Error(e.message ?: application.getString(R.string.llm_error_unknown), e))
+            emit(AgentEvent.Error(e.message ?: strings.llmErrorUnknown, e))
         }
     }
 
@@ -316,7 +318,7 @@ class AgentExecutor(
                             saveNoteContent(currentContext, normalizedContent)
                             Log.d(TAG, "Text transformation (text response) saved to note: ${currentContext.noteEditorEntityType}/${currentContext.noteEditorEntityId}")
                             emit(AgentEvent.CompletedWithoutDocument(
-                                message = application.getString(R.string.llm_note_updated),
+                                message = strings.llmNoteUpdated,
                                 totalIterations = iteration,
                                 usage = totalUsage,
                                 model = resolved.model,
@@ -349,7 +351,7 @@ class AgentExecutor(
                         return
                     }
                     is ParsedResponse.ParseError -> {
-                        emit(AgentEvent.Error(application.getString(R.string.llm_parse_error, parsed.error)))
+                        emit(AgentEvent.Error(strings.llmParseError(parsed.error)))
                         return
                     }
                 }
@@ -362,7 +364,7 @@ class AgentExecutor(
             }
             break
         }
-        emit(AgentEvent.Error(application.getString(R.string.llm_error_max_iterations, iterationLimit)))
+        emit(AgentEvent.Error(strings.llmErrorMaxIterations(iterationLimit)))
     }
 
     private suspend fun callLlmAndParse(
@@ -492,7 +494,7 @@ class AgentExecutor(
         AgentTool.FINISH_WITHOUT_DOCUMENT -> {
             val data = result.data as? FinishWithoutDocumentTool.Result
             ProcessToolsResult.FinishWithoutDocument(
-                message = data?.message ?: application.getString(R.string.llm_default_task_completed),
+                message = data?.message ?: strings.llmDefaultTaskCompleted,
                 context = context
             )
         }
@@ -501,7 +503,7 @@ class AgentExecutor(
             ProcessToolsResult.FinishWithStudyPad(
                 labelId = IdType(data?.labelId ?: ""),
                 scrollToEntryId = data?.scrollToEntryId?.takeIf { it.isNotBlank() }?.let { IdType(it) },
-                message = data?.message ?: application.getString(R.string.llm_default_studypad_opened),
+                message = data?.message ?: strings.llmDefaultStudypadOpened,
                 context = context
             )
         }
@@ -510,7 +512,7 @@ class AgentExecutor(
             ProcessToolsResult.FinishWithMyDocumentPage(
                 documentInitials = data?.documentInitials ?: "",
                 pageKey = data?.pageKey ?: "",
-                message = data?.message ?: application.getString(R.string.llm_default_task_completed),
+                message = data?.message ?: strings.llmDefaultTaskCompleted,
                 context = context
             )
         }
@@ -518,7 +520,7 @@ class AgentExecutor(
             val rawArgs = try { parseToolArguments(toolCall.arguments) } catch (_: Exception) { null }
             if (rawArgs?.optBoolean("taskComplete", false) == true) {
                 val message = rawArgs.optString("taskCompleteMessage", "").ifBlank {
-                    application.getString(R.string.llm_default_task_completed)
+                    strings.llmDefaultTaskCompleted
                 }
                 ProcessToolsResult.FinishWithoutDocument(message = message, context = context)
             } else null
@@ -546,7 +548,7 @@ class AgentExecutor(
                 saveNoteContent(context, normalizeLlmText(content))
                 Log.d(TAG, "Text transformation saved to note: ${context.noteEditorEntityType}/${context.noteEditorEntityId}")
                 return ProcessToolsResult.FinishWithoutDocument(
-                    message = application.getString(R.string.llm_note_updated),
+                    message = strings.llmNoteUpdated,
                     context = context
                 )
             }
@@ -565,14 +567,14 @@ class AgentExecutor(
         if (context.noDocumentCreation) {
             Log.i(TAG, "setDocumentTitle blocked: noDocumentCreation is enabled")
             return ProcessToolsResult.FinishWithoutDocument(
-                message = application.getString(R.string.llm_no_document_creation_intercepted),
+                message = strings.llmNoDocumentCreationIntercepted,
                 context = context
             )
         }
 
         // Normal document creation
         val data = result.data as? SetDocumentTitleTool.Result
-        val title = data?.title ?: application.getString(R.string.llm_default_document_title)
+        val title = data?.title ?: strings.llmDefaultDocumentTitle
 
         if (content == null) {
             Log.i(TAG, "setDocumentTitle called without content, saving pending title: $title")
@@ -607,15 +609,14 @@ class AgentExecutor(
         val appLanguage = CommonUtils.aiSettings.aiDisplayLanguage
 
         return buildString {
-            val (customPrompt, templateRes) = if (prompt.isTextTransformation)
-                CommonUtils.aiSettings.customTextTransformationSystemPrompt to R.raw.llm_text_transformation_system_prompt
+            val customPrompt = if (prompt.isTextTransformation)
+                CommonUtils.aiSettings.customTextTransformationSystemPrompt
             else
-                CommonUtils.aiSettings.customAgentSystemPrompt to R.raw.llm_agent_system_prompt
+                CommonUtils.aiSettings.customAgentSystemPrompt
 
             val basePrompt = customPrompt?.takeIf { it.isNotBlank() }
-                ?: application.resources.openRawResource(templateRes)
-                    .bufferedReader()
-                    .use { it.readText() }
+                ?: if (prompt.isTextTransformation) strings.defaultTextTransformationSystemPrompt
+                else strings.defaultAgentSystemPrompt
             append(basePrompt.replace("{{APP_LANGUAGE}}", appLanguage))
 
             // Text transformations use a minimal system prompt — no extra context needed
@@ -934,9 +935,9 @@ class AgentExecutor(
                     // Show confirmation dialog
                     val confirmed = Dialogs.simpleQuestion(
                         activity,
-                        message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName) +
-                            "\n\n" + activity.getString(R.string.permission_always_allow_confirm_reset_hint),
-                        title = activity.getString(R.string.permission_always_allow_confirm_title)
+                        message = strings.permissionAlwaysAllowConfirm(toolDisplayName) +
+                            "\n\n" + strings.permissionAlwaysAllowConfirmResetHint,
+                        title = strings.permissionAlwaysAllowConfirmTitle
                     )
                     if (confirmed) {
                         val aiSettings = CommonUtils.aiSettings
@@ -961,8 +962,8 @@ class AgentExecutor(
         return AgentSessionManager.awaitingUserDecision(workspaceId, null) {
             Dialogs.simpleQuestion(
                 activity,
-                message = application.getString(R.string.llm_continue_iterations_message, currentIteration, increment),
-                title = application.getString(R.string.llm_continue_iterations_title)
+                message = strings.llmContinueIterationsMessage(currentIteration, increment),
+                title = strings.llmContinueIterationsTitle
             )
         }
     }

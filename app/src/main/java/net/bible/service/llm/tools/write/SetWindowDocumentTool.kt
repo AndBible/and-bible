@@ -17,12 +17,13 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -47,7 +48,8 @@ import net.bible.service.llm.tools.*
  *
  * Can change the active window or a specific window by ID.
  */
-object SetWindowDocumentTool : Tool {
+object SetWindowDocumentTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val windowId: String? = null,
@@ -67,7 +69,6 @@ object SetWindowDocumentTool : Tool {
     override val agentTool = AgentTool.SET_WINDOW_DOCUMENT
     override val category = ToolCategory.WINDOWS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_set_window_document
 
     override val description = """
         Change the document displayed in a window.
@@ -94,15 +95,14 @@ object SetWindowDocumentTool : Tool {
     private val windowControl get() = GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
-        val app = BibleApplication.application
         val initials = arguments.optString("documentInitials", "").takeIf { it.isNotBlank() } ?: return null
         val windowId = arguments.optString("windowId", "").takeIf { it.isNotBlank() }
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() }
-        val target = if (windowId != null) shortId(windowId) else app.getString(R.string.action_active_window)
+        val target = if (windowId != null) shortId(windowId) else strings.actionActiveWindow
         return if (key != null) {
-            app.getString(R.string.action_set_window_document_with_key, target, initials, key)
+            strings.actionSetWindowDocumentWithKey(target, initials, key)
         } else {
-            app.getString(R.string.action_set_window_document, target, initials)
+            strings.actionSetWindowDocument(target, initials)
         }
     }
 

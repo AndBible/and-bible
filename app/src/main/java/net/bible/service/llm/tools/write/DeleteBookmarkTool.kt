@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.llm.AgentTool
@@ -40,7 +41,8 @@ import net.bible.service.llm.tools.*
  *
  * Supports both Bible bookmarks and generic bookmarks.
  */
-object DeleteBookmarkTool : Tool {
+object DeleteBookmarkTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val bookmarkId: IdType = IdType.empty()
@@ -68,7 +70,6 @@ object DeleteBookmarkTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_delete_bookmark
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
@@ -79,7 +80,7 @@ object DeleteBookmarkTool : Tool {
                 ?: bookmarkControl.genericBookmarkById(IdType(bookmarkId))
         } catch (_: Exception) { null }
         val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.getName() ?: shortId(bookmarkId)
-        return BibleApplication.application.getString(R.string.action_delete_bookmark, verseName)
+        return strings.actionDeleteBookmark(verseName)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

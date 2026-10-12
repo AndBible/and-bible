@@ -22,7 +22,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -61,6 +60,7 @@ class LlmProcessingError(message: String) : Exception(message)
  * for agent-based LLM interactions.
  */
 object LlmProcessingService : KoinComponent {
+    private val strings: LlmStrings by inject()
     private val transport: LlmHttpTransport by inject()
     private val activeRequests = AtomicInteger(0)
 
@@ -200,7 +200,7 @@ object LlmProcessingService : KoinComponent {
                     val delaySec = "%.1f".format(delayMs / 1000.0)
                     Log.w(TAG, "Rate limited (HTTP ${prev.code}). Retry $attempt/${LlmRetryPolicy.MAX_RETRIES} after ${delayMs}ms")
                     session?.addLogEntry(AgentLogEntry.info(
-                        application.getString(R.string.llm_rate_limited_retrying, delaySec)
+                        strings.llmRateLimitedRetrying(delaySec)
                     ))
                     delay(delayMs)
                 }

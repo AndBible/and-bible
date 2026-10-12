@@ -16,10 +16,9 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
@@ -43,7 +42,7 @@ import net.bible.sharedcore.ai.reading.ReadingPromptVd
  * reading-view AI dialogs are one-shot (opened, answered, dismissed) rather than continuously
  * observed screens.
  */
-class ReadingLlmServiceImpl : ReadingLlmService {
+class ReadingLlmServiceImpl(private val strings: LlmStrings) : ReadingLlmService {
 
     override suspend fun promptGroupsFor(contextId: String, docCategoryId: String?): List<ReadingPromptGroupVd> =
         withContext(Dispatchers.IO) {
@@ -67,7 +66,7 @@ class ReadingLlmServiceImpl : ReadingLlmService {
             if (favoritePrompts.isNotEmpty()) {
                 groups.add(
                     ReadingPromptGroupVd(
-                        categoryName = application.getString(R.string.prompt_category_favorites),
+                        categoryName = strings.promptCategoryFavorites,
                         categoryId = ReadingLlmService.FAVORITES_CATEGORY_ID,
                         isFavorites = true,
                         collapsed = false,
@@ -80,7 +79,7 @@ class ReadingLlmServiceImpl : ReadingLlmService {
             grouped[null]?.let { prompts ->
                 groups.add(
                     ReadingPromptGroupVd(
-                        categoryName = application.getString(R.string.prompt_category_uncategorized),
+                        categoryName = strings.promptCategoryUncategorized,
                         categoryId = null,
                         isFavorites = false,
                         collapsed = isCategoryCollapsed(contextId, null),

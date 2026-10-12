@@ -17,12 +17,13 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -39,7 +40,8 @@ import net.bible.service.llm.tools.*
  *
  * Returns information about each window including its state, document, and position.
  */
-object GetWindowsTool : Tool {
+object GetWindowsTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class WindowInfo(
         val id: String,
@@ -65,7 +67,6 @@ object GetWindowsTool : Tool {
 
     override val agentTool = AgentTool.GET_WINDOWS
     override val category = ToolCategory.WINDOWS
-    override val displayNameResId = R.string.tool_get_windows
 
     override val description = """
         Get a list of all windows in the current workspace.
@@ -84,7 +85,7 @@ object GetWindowsTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return BibleApplication.application.getString(R.string.tool_log_window_count, data.windowCount)
+        return strings.toolLogWindowCount(data.windowCount)
     }
 
     override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {

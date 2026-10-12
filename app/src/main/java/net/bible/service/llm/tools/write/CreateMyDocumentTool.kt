@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.service.db.DatabaseContainer
@@ -39,7 +40,8 @@ import net.bible.service.llm.tools.*
  * Tool for creating a new My Documents book.
  * Always requires user permission.
  */
-object CreateMyDocumentTool : Tool {
+object CreateMyDocumentTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val name: String = "",
@@ -57,7 +59,6 @@ object CreateMyDocumentTool : Tool {
     override val agentTool = AgentTool.CREATE_MY_DOCUMENT
     override val category = ToolCategory.MY_DOCUMENTS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_create_my_document
 
     override val description = """
         Create a new My Documents book. Use this to create a new document collection
@@ -79,7 +80,7 @@ object CreateMyDocumentTool : Tool {
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
-        return BibleApplication.application.getString(R.string.action_create_my_document, name)
+        return strings.actionCreateMyDocument(name)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

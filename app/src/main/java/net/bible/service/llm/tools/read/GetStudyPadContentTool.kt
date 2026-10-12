@@ -18,7 +18,6 @@
 package net.bible.service.llm.tools.read
 
 import kotlinx.serialization.Serializable
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.db.DatabaseContainer
@@ -109,7 +108,6 @@ object GetStudyPadContentTool : Tool {
 
     override val agentTool = AgentTool.GET_STUDY_PAD_CONTENT
     override val category = ToolCategory.STUDY_PADS
-    override val displayNameResId = R.string.tool_get_study_pad_content
 
     override val description = """
         Get the content of a StudyPad (label).

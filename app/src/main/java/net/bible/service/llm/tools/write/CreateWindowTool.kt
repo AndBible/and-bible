@@ -17,12 +17,13 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -46,7 +47,8 @@ import net.bible.service.llm.tools.*
  * Can optionally open a specific document and key in the new window,
  * or create it minimized.
  */
-object CreateWindowTool : Tool {
+object CreateWindowTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val documentInitials: String? = null,
@@ -65,7 +67,6 @@ object CreateWindowTool : Tool {
     override val agentTool = AgentTool.CREATE_WINDOW
     override val category = ToolCategory.WINDOWS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_create_window
 
     override val description = """
         Create a new window in the current workspace.
@@ -91,35 +92,34 @@ object CreateWindowTool : Tool {
     private val windowControl get() = GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
-        val app = BibleApplication.application
+
         val initials = arguments.optString("documentInitials", "").takeIf { it.isNotBlank() }
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() }
         return if (initials != null && key != null) {
-            app.getString(R.string.action_create_window_with_doc_and_key, initials, key)
+            strings.actionCreateWindowWithDocAndKey(initials, key)
         } else if (initials != null) {
-            app.getString(R.string.action_create_window_with_doc, initials)
+            strings.actionCreateWindowWithDoc(initials)
         } else {
-            app.getString(R.string.action_create_window)
+            strings.actionCreateWindow
         }
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {
-        val app = BibleApplication.application
+
         val initials = arguments.optString("documentInitials", "").takeIf { it.isNotBlank() }
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() }
         val minimized = arguments.optBoolean("minimized", false)
         val parts = mutableListOf<String>()
         if (initials != null) parts.add(initials)
         if (key != null) parts.add(key)
-        if (minimized) parts.add(app.getString(R.string.tool_log_window_minimized))
+        if (minimized) parts.add(strings.toolLogWindowMinimized)
         return parts.joinToString(", ").takeIf { it.isNotBlank() }
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
-        val app = BibleApplication.application
         val data = result.data as Result
-        return "${data.documentInitials ?: app.getString(R.string.tool_log_window_copy)} (${data.state})"
+        return "${data.documentInitials ?: strings.toolLogWindowCopy} (${data.state})"
     }
 
     override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {

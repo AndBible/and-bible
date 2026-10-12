@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
@@ -46,7 +47,8 @@ import java.util.Locale
  * Permission is required except when adding to the AI Documents book,
  * which is the standard destination for AI-generated content.
  */
-object AddMyDocumentPageTool : Tool {
+object AddMyDocumentPageTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val documentId: IdType = IdType.empty(),
@@ -70,7 +72,6 @@ object AddMyDocumentPageTool : Tool {
     override val agentTool = AgentTool.ADD_MY_DOCUMENT_PAGE
     override val category = ToolCategory.MY_DOCUMENTS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_add_my_document_page
 
     override val description = """
         Add a new page to a My Documents book.
@@ -118,7 +119,7 @@ object AddMyDocumentPageTool : Tool {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
         val initials = arguments.optString("initials", "").takeIf { it.isNotBlank() }
         val docName = initials ?: arguments.optString("documentId", "").take(8)
-        return BibleApplication.application.getString(R.string.action_add_my_document_page, title, docName)
+        return strings.actionAddMyDocumentPage(title, docName)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

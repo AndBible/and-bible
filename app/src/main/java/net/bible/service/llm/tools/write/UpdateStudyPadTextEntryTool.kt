@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -38,7 +39,8 @@ import net.bible.service.llm.tools.*
 /**
  * Tool for updating the text content of a StudyPad journal text entry.
  */
-object UpdateStudyPadTextEntryTool : Tool {
+object UpdateStudyPadTextEntryTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val entryId: IdType = IdType.empty(),
@@ -69,13 +71,12 @@ object UpdateStudyPadTextEntryTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_update_studypad_text_entry
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val entryId = arguments.optString("entryId", "").takeIf { it.isNotBlank() } ?: return null
-        return BibleApplication.application.getString(R.string.action_update_studypad_text_entry, shortId(entryId))
+        return strings.actionUpdateStudypadTextEntry(shortId(entryId))
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

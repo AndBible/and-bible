@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
@@ -54,7 +55,8 @@ import net.bible.service.llm.tools.*
  * and Bible bookmark references, allowing the LLM to build a structured
  * study document in one operation.
  */
-object CreateStudyPadTool : Tool {
+object CreateStudyPadTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     enum class ItemType {
         @SerialName("text") TEXT,
@@ -142,7 +144,6 @@ object CreateStudyPadTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_create_study_pad
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
@@ -150,7 +151,7 @@ object CreateStudyPadTool : Tool {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
         val items = arguments.optArray("items")
         val count = items?.size ?: 0
-        return BibleApplication.application.getString(R.string.action_create_studypad, name, count)
+        return strings.actionCreateStudypad(name, count)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

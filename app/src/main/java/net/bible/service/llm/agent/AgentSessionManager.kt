@@ -17,10 +17,10 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.service.llm.LlmStrings
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.json.Json.Default.decodeFromString
 import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.event.EventSource
@@ -233,6 +233,7 @@ class AgentSession(
 
 /** One session per workspace, lazily created. */
 object AgentSessionManager : AgentSessionManagerBase() {
+    private val strings: LlmStrings by inject()
     private var changeSource = EventSource<AgentSessionChange>()
 
     /**
@@ -406,7 +407,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     BibleApplication.application,
-                    R.string.agent_already_running,
+                    strings.agentAlreadyRunning,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -434,8 +435,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
             // Flow collection may terminate before AgentEvent.Cancelled is collected.
             // Ensure the session is properly stopped so the UI reflects cancellation.
             if (session.isRunning) {
-                val app = BibleApplication.application
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled)))
+
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogCancelled))
                 session.stop()
             }
             throw e
@@ -665,16 +666,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
         usedWriteToolsTracker: AtomicBoolean,
         targetWindowId: IdType? = null
     ) {
-        val app = BibleApplication.application
+
         when (event) {
             is AgentEvent.Started -> {
                 session.addLogEntry(AgentLogEntry.info(
-                    app.getString(R.string.agent_log_executing, prompt.name),
+                    strings.agentLogExecuting(prompt.name),
                     details = event.model
                 ))
             }
             is AgentEvent.Iteration -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_iteration, event.number)))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogIteration(event.number)))
             }
             is AgentEvent.ToolCalling -> {
                 val tool = ToolRegistry.get(event.tool)
@@ -687,7 +688,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 }
                 session.addLogEntry(
                     AgentLogEntry.action(
-                        app.getString(R.string.agent_log_tool, displayName),
+                        strings.agentLogTool(displayName),
                         details = details,
                         toolCallId = event.toolCallId
                     )
@@ -701,9 +702,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 // On success, keep the original "Tool: X" message (per #3773 — only the icon needs to
                 // change). On failure, switch to the failure message so the row is unambiguous.
                 val message = if (isSuccess) {
-                    app.getString(R.string.agent_log_tool, displayName)
+                    strings.agentLogTool(displayName)
                 } else {
-                    app.getString(R.string.agent_log_tool_failed, displayName)
+                    strings.agentLogToolFailed(displayName)
                 }
                 val details = tool?.formatResultForLog(event.result) ?: formatJsonForLog(event.result.toJson())
                 val updated = session.updateActionEntry(event.toolCallId, message, details, status)
@@ -738,7 +739,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             is AgentEvent.TextResponse -> {
                 if (event.isFinal) {
                     session.addLogEntry(
-                        AgentLogEntry.info(app.getString(R.string.agent_log_response_received), details = event.text.take(200))
+                        AgentLogEntry.info(strings.agentLogResponseReceived, details = event.text.take(200))
                     )
                 } else {
                     val text = event.text.trim()
@@ -750,7 +751,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             is AgentEvent.Completed -> {
                 if (context.noDocumentCreation) {
                     session.addLogEntry(AgentLogEntry.info(
-                        app.getString(R.string.llm_no_document_creation_intercepted),
+                        strings.llmNoDocumentCreationIntercepted,
                         details = event.response.take(500)
                     ))
                 } else {
@@ -766,16 +767,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithoutDocument -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
                 completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithStudyPad -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
                 openStudyPadResult(event.labelId, event.scrollToEntryId, session)
                 completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithMyDocumentPage -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
                 openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId, session)
                 completeSession(session, event, prompt)
             }
@@ -787,7 +788,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
             is AgentEvent.Cancelled -> {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled), showRawLogLink = hasRawLog))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogCancelled, showRawLogLink = hasRawLog))
                 persistRawLogFromIterations(session, prompt)
                 session.stop()
             }
@@ -796,8 +797,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
     /** Stops the session, attaches total cost, and persists raw log. Used by all completion event handlers. */
     private suspend fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
-        val app = BibleApplication.application
-        session.stop(app.getString(R.string.agent_log_completed), AgentStopReason.COMPLETED)
+
+        session.stop(strings.agentLogCompleted, AgentStopReason.COMPLETED)
         attachTotalCost(session, event.usage, event.model, event.configuredModelId)
         persistRawLog(
             session, prompt,
@@ -896,7 +897,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             sourceModelName = model.takeIf { it.isNotBlank() }
         )
         session.addLogEntry(AgentLogEntry.info(
-            BibleApplication.application.getString(R.string.agent_log_saved, title)
+            strings.agentLogSaved(title)
         ))
         return pageInfo
     }
@@ -905,8 +906,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         if (usage.totalTokens > 0) {
             val cost = LlmPricing.estimateCost(usage, model, configuredModelId)
             if (cost != null) {
-                val app = BibleApplication.application
-                session.setLastEntryCost(app.getString(R.string.llm_cost_total, LlmCostTracker.formatCost(cost)), isTotalCost = true)
+                session.setLastEntryCost(strings.llmCostTotal(LlmCostTracker.formatCost(cost)), isTotalCost = true)
             }
         }
     }
@@ -984,7 +984,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     BibleApplication.application,
-                    R.string.agent_already_running,
+                    strings.agentAlreadyRunning,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -1009,7 +1009,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     BibleApplication.application,
-                    R.string.ai_regenerate_prompt_not_found,
+                    strings.aiRegeneratePromptNotFound,
                     Toast.LENGTH_LONG
                 ).show()
             }

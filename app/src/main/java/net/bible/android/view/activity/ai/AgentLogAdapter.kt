@@ -17,6 +17,9 @@
 
 package net.bible.android.view.activity.ai
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -40,7 +43,8 @@ import net.bible.service.llm.agent.LogEntryType
  * Uses a custom [AsyncListDiffer] with position-offset callback so that the synthetic
  * header item doesn't cause DiffUtil notifications to target wrong positions.
  */
-class AgentLogAdapter : RecyclerView.Adapter<AgentLogAdapter.ViewHolder>() {
+class AgentLogAdapter : RecyclerView.Adapter<AgentLogAdapter.ViewHolder>(), KoinComponent {
+    private val strings: LlmStrings by inject()
 
     var onRawLogClick: (() -> Unit)? = null
     var onModelSelectorClick: (() -> Unit)? = null
@@ -151,7 +155,7 @@ class AgentLogAdapter : RecyclerView.Adapter<AgentLogAdapter.ViewHolder>() {
         rawLogLink.setTextColor(if (monochrome) Color.BLACK else context.getColor(R.color.log_info))
         if (entry.showRawLogLink) {
             rawLogLink.visibility = View.VISIBLE
-            rawLogLink.text = context.getString(R.string.agent_log_view_raw)
+            rawLogLink.text = strings.agentLogViewRaw
             rawLogLink.setOnClickListener { onRawLogClick?.invoke() }
         } else {
             rawLogLink.visibility = View.GONE

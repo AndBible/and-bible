@@ -80,14 +80,6 @@ interface Tool {
      */
     fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean = requiresPermission
 
-    /**
-     * String resource ID for the user-facing display name of this tool.
-     * Used in permission dialogs and settings UI.
-     * Return 0 to use the tool's code name as fallback.
-     */
-    val displayNameResId: Int
-        get() = 0
-
     /** UI category for grouping tools in permission screens. */
     val category: ToolCategory
 

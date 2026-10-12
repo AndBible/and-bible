@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -39,7 +40,8 @@ import net.bible.service.llm.tools.*
  *
  * Associates a bookmark with a label (category/StudyPad).
  */
-object AddLabelToBookmarkTool : Tool {
+object AddLabelToBookmarkTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val bookmarkId: IdType = IdType.empty(),
@@ -71,7 +73,6 @@ object AddLabelToBookmarkTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_add_label_to_bookmark
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
@@ -82,7 +83,7 @@ object AddLabelToBookmarkTool : Tool {
         val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
         val verseName = bookmark?.verseRange?.getName() ?: shortId(bookmarkId)
         val labelName = label?.name ?: shortId(labelId)
-        return BibleApplication.application.getString(R.string.action_add_label_to_bookmark, labelName, verseName)
+        return strings.actionAddLabelToBookmark(labelName, verseName)
     }
 
     override fun formatArgsForLog(arguments: JsonObject): String? {

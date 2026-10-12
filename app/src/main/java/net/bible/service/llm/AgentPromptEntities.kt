@@ -17,7 +17,6 @@
 
 package net.bible.service.llm
 
-import net.bible.android.activity.R
 import androidx.room3.ColumnInfo
 import androidx.room3.Dao
 import androidx.room3.Delete
@@ -36,14 +35,14 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.PermissionMode
 
 /** UI-only grouping for tool permission screens. Does not affect database storage or agent logic. */
-enum class ToolCategory(val displayNameResId: Int) {
-    BIBLE_SEARCH(R.string.tool_category_bible_search),
-    BOOKMARKS(R.string.tool_category_bookmarks),
-    LABELS(R.string.tool_category_labels),
-    STUDY_PADS(R.string.tool_category_study_pads),
-    MY_DOCUMENTS(R.string.tool_category_my_documents),
-    GENERAL_BOOKS(R.string.tool_category_general_books),
-    WINDOWS(R.string.tool_category_windows),
+enum class ToolCategory {
+    BIBLE_SEARCH,
+    BOOKMARKS,
+    LABELS,
+    STUDY_PADS,
+    MY_DOCUMENTS,
+    GENERAL_BOOKS,
+    WINDOWS,
 }
 
 /** All agent tools. Enum names are converted to camelCase for ToolRegistry / LLM function calling. */

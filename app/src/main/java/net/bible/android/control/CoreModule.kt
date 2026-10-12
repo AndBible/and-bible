@@ -165,6 +165,7 @@ fun buildCoreModule() = module {
     single<UserNotifier> { AndroidUserNotifier() }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
+    single<net.bible.service.llm.LlmStrings> { net.bible.android.platform.AndroidLlmStrings(androidContext()) }
     single<net.bible.service.sword.HtmlToPlainText> {
         net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }
     }
