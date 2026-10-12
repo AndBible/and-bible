@@ -543,6 +543,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val readingPlanWrites by lazy { ReadingPlanDayWrites(readingPlanControl, appScope.coroutineContext) }
     private val speakControl: SpeakControl by inject()
     private val appScope: AppCoroutineScope by inject()
+    private val orderedLauncher: net.bible.sharedcore.platform.OrderedLauncher by inject()
     private val speakTransportServiceImpl: SpeakTransportServiceImpl by inject()
     private val windowStateService: WindowStateServiceImpl by inject()
     private val searchControl: SearchControl by inject()
@@ -4767,7 +4768,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val returnedOverride = newLabelData.workspaceOverride
             if (returnedOverride != null) {
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                appScope.launch {
+                orderedLauncher.launch("workspace") {
                     if (returnedOverride.hasOverride) {
                         dao.insertOrUpdateLabelOverride(returnedOverride)
                     } else {
