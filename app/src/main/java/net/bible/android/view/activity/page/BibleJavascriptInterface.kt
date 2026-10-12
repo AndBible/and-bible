@@ -207,10 +207,14 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun goToNextChapter() {
         Log.i(TAG, "Go to next chapter")
-        val page = currentPageManager
-        orderedLauncher.launch("page-nav-${page.window.id}") {
+        val manager = currentPageManager
+        val page = manager.currentPage
+        val document = page.currentDocument
+        orderedLauncher.launch("page-nav-${manager.window.id}") {
             try {
-                withContext(Dispatchers.Main) { page.currentPage.next() }
+                withContext(Dispatchers.Main) {
+                    if (manager.currentPage === page && page.currentDocument === document) page.next()
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error navigating to next chapter", e)
             }
@@ -220,10 +224,14 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun goToPreviousChapter() {
         Log.i(TAG, "Go to previous chapter")
-        val page = currentPageManager
-        orderedLauncher.launch("page-nav-${page.window.id}") {
+        val manager = currentPageManager
+        val page = manager.currentPage
+        val document = page.currentDocument
+        orderedLauncher.launch("page-nav-${manager.window.id}") {
             try {
-                withContext(Dispatchers.Main) { page.currentPage.previous() }
+                withContext(Dispatchers.Main) {
+                    if (manager.currentPage === page && page.currentDocument === document) page.previous()
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error navigating to previous chapter", e)
             }

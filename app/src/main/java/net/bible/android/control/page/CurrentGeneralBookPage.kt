@@ -130,8 +130,12 @@ class CurrentGeneralBookPage internal constructor(
         val key = key
         when (currentDocument) {
             fakeBookFactory.journalDocument -> {
+                val document = currentDocument
                 val nextLabel = pageManager.bookmarkControl.getNextLabel((key as StudyPadKey).label)
-                setKey(StudyPadKey(nextLabel))
+                // A manual selection can supersede this step while its label lookup is suspended.
+                if (pageManager.currentPage === this && currentDocument === document && this.key === key) {
+                    setKey(StudyPadKey(nextLabel))
+                }
             }
             fakeBookFactory.multiDocument -> {}
             else -> {
@@ -144,8 +148,11 @@ class CurrentGeneralBookPage internal constructor(
         val key = key
         when (currentDocument) {
             fakeBookFactory.journalDocument -> {
+                val document = currentDocument
                 val nextLabel = pageManager.bookmarkControl.getPrevLabel((key as StudyPadKey).label)
-                setKey(StudyPadKey(nextLabel))
+                if (pageManager.currentPage === this && currentDocument === document && this.key === key) {
+                    setKey(StudyPadKey(nextLabel))
+                }
             }
             fakeBookFactory.multiDocument -> {}
             else -> {

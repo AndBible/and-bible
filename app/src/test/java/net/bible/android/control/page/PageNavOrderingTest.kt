@@ -95,10 +95,59 @@ class PageNavOrderingTest {
         start + 2 to { (page.currentCommentary.key as Verse).ordinal }
     }
 
+    @Test fun queuedSwipeDoesNotNavigateTheNewlySelectedPage() = navigation(selectionChanged = true) { commands, _, page, _ ->
+        commands.next()
+        selectCommentary(page)
+        val selected = (page.currentCommentary.key as Verse).ordinal
+        selected to { (page.currentCommentary.key as Verse).ordinal }
+    }
+
+    @Test fun queuedJavascriptDoesNotNavigateTheNewlySelectedPage() = navigation(selectionChanged = true) { _, bridge, page, _ ->
+        bridge.goToNextChapter()
+        selectCommentary(page)
+        val selected = (page.currentCommentary.key as Verse).ordinal
+        selected to { (page.currentCommentary.key as Verse).ordinal }
+    }
+
+    @Test fun heldNextDoesNotOverwriteAManuallySelectedLabel() = navigation(selectionChanged = true) { commands, _, page, labels ->
+        commands.next()
+        runCurrent()
+        page.setCurrentDocumentAndKey(GlobalContext.get().get<FakeBookFactory>().journalDocument, StudyPadKey(labels[2]))
+        labels[2].id to { (page.currentGeneralBook.key as StudyPadKey).label.id }
+    }
+
+    @Test fun heldPreviousDoesNotOverwriteAManuallySelectedLabel() = navigation(startAtEnd = true, selectionChanged = true) { _, bridge, page, labels ->
+        bridge.goToPreviousChapter()
+        runCurrent()
+        page.setCurrentDocumentAndKey(GlobalContext.get().get<FakeBookFactory>().journalDocument, StudyPadKey(labels[0]))
+        labels[0].id to { (page.currentGeneralBook.key as StudyPadKey).label.id }
+    }
+
+    @Test fun heldNextDoesNotOverwriteASwitchedDocument() = navigation(selectionChanged = true) { commands, _, page, labels ->
+        commands.next()
+        runCurrent()
+        selectCommentary(page)
+        labels[0].id to { (page.currentGeneralBook.key as StudyPadKey).label.id }
+    }
+
+    @Test fun heldNextDoesNotOverwriteANewDocumentOnTheSamePage() = navigation(selectionChanged = true) { commands, _, page, _ ->
+        commands.next()
+        runCurrent()
+        val selected = net.bible.service.sword.BookAndKeyList()
+        page.setCurrentDocumentAndKey(GlobalContext.get().get<FakeBookFactory>().multiDocument, selected)
+        selected to { page.currentGeneralBook.key!! }
+    }
+
+    private fun selectCommentary(page: CurrentPageManager) {
+        page.setCurrentDocumentAndKey(GlobalContext.get().get<FakeBookFactory>().compareDocument,
+            Verse(Versifications.instance().getVersification("KJV"), org.crosswire.jsword.versification.BibleBook.GEN, 1, 1))
+    }
+
     private fun navigation(
         startAtEnd: Boolean = false,
         commentary: Boolean = false,
-        enqueue: suspend (ReadingCommands, BibleJavascriptInterface, CurrentPageManager, List<Label>) -> Pair<Any, () -> Any>,
+        selectionChanged: Boolean = false,
+        enqueue: suspend kotlinx.coroutines.test.TestScope.(ReadingCommands, BibleJavascriptInterface, CurrentPageManager, List<Label>) -> Pair<Any, () -> Any>,
     ) = runTest(testDispatcher, timeout = 30.seconds) {
         val koin = GlobalContext.get()
         val originalLauncher = koin.get<OrderedLauncher>()
@@ -106,13 +155,14 @@ class PageNavOrderingTest {
         val originalRepo = control.windowRepository
         var originalDb: BookmarkDatabase? = null
         val actor = OrderedLauncher(this)
-        koin.loadModules(listOf(module { single<OrderedLauncher> { actor } }))
+        val activity = Robolectric.buildActivity(NavigationTestActivity::class.java)
         val repoJob = SupervisorJob(coroutineContext[Job])
         val repo = WindowRepository(CoroutineScope(coroutineContext + repoJob))
-        val activity = Robolectric.buildActivity(NavigationTestActivity::class.java).create()
         var view: BibleView? = null
         val gate = CompletableDeferred<Unit>()
         try {
+            koin.loadModules(listOf(module { single<OrderedLauncher> { actor } }))
+            activity.create()
             control.windowRepository = repo
             repo.initialize()
             val window = repo.activeWindow
@@ -168,13 +218,13 @@ class PageNavOrderingTest {
             DatabaseContainer.instance.bookmarkDb = heldDb
             val (expected, finalKey) = enqueue(commands, bridge, page, labels)
             runCurrent()
-            if (!commentary) {
+            if (!commentary && !selectionChanged) {
                 assertEquals(if (startAtEnd) labels[2].id else labels[0].id, (page.currentGeneralBook.key as StudyPadKey).label.id)
             }
             gate.complete(Unit)
             actor.join("page-nav-${window.id}")
             advanceUntilIdle()
-            if (!commentary) {
+            if (!commentary && expected in labels.map { it.id }) {
                 assertEquals(labels.single { it.id == expected }.name, (page.currentGeneralBook.key as StudyPadKey).label.name)
             }
             assertEquals(expected, finalKey())
@@ -183,8 +233,9 @@ class PageNavOrderingTest {
             try {
                 // Window loads run on IO and may still be returning to Main after navigation finishes.
                 repoJob.cancelAndJoin()
-                actor.join("page-nav-${repo.activeWindow.id}")
+                repo.windowList.forEach { actor.join("page-nav-${it.id}") }
                 advanceUntilIdle()
+                repo.windowList.forEach { it.destroy(destroyView = false) }
                 view?.listenEvents = false
                 view?.destroy()
                 org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()

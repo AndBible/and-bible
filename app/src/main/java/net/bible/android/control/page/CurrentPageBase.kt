@@ -214,6 +214,8 @@ abstract class CurrentPageBase protected constructor(
             aiDocMarkers = aiDocMarkers,
             commentaryRange = commentaryRangeFor(key),
         )
+    } catch (e: kotlinx.coroutines.CancellationException) {
+        throw e
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)
         when (e) {

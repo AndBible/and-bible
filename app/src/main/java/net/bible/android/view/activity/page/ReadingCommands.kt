@@ -1313,9 +1313,13 @@ class ReadingCommands(
     /** user swiped right */
     internal fun next() {
         if (hostCallbacks.documentViewManager().documentView.isPageNextOkay) {
-            val page = windowControl.activeWindowPageManager
-            orderedLauncher.launch("page-nav-${page.window.id}") {
-                withContext(Dispatchers.Main) { page.currentPage.next() }
+            val manager = windowControl.activeWindowPageManager
+            val page = manager.currentPage
+            val document = page.currentDocument
+            orderedLauncher.launch("page-nav-${manager.window.id}") {
+                withContext(Dispatchers.Main) {
+                    if (manager.currentPage === page && page.currentDocument === document) page.next()
+                }
             }
         }
     }
@@ -1323,9 +1327,13 @@ class ReadingCommands(
     /** user swiped left */
     internal fun previous() {
         if (hostCallbacks.documentViewManager().documentView.isPagePreviousOkay) {
-            val page = windowControl.activeWindowPageManager
-            orderedLauncher.launch("page-nav-${page.window.id}") {
-                withContext(Dispatchers.Main) { page.currentPage.previous() }
+            val manager = windowControl.activeWindowPageManager
+            val page = manager.currentPage
+            val document = page.currentDocument
+            orderedLauncher.launch("page-nav-${manager.window.id}") {
+                withContext(Dispatchers.Main) {
+                    if (manager.currentPage === page && page.currentDocument === document) page.previous()
+                }
             }
         }
     }
