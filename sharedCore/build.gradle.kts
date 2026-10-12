@@ -29,6 +29,10 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.atomicfu)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.core)
+        }
+        jvmTest.dependencies {
+            implementation(libs.ktor.client.mock)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

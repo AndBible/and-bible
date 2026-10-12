@@ -21,7 +21,6 @@ import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
@@ -30,27 +29,18 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.tools.ToolDefinition
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 
-import java.io.IOException
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import net.bible.service.db.blockingDb
 
+import net.bible.sharedcore.llm.http.LlmHttpTransport
+import net.bible.sharedcore.llm.http.LlmTimeouts
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+
 private const val TAG = "LlmProcessingService"
-private const val CONNECT_TIMEOUT_SECONDS = 120L
-private const val READ_TIMEOUT_SECONDS = 90L  // 90s per API call; generous for reasoning models
-private const val WRITE_TIMEOUT_SECONDS = 120L
 private const val LLM_TEMPERATURE = 0.3
 private const val PREF_NO_TEMPERATURE_MODELS = "llm_no_temperature_models"
 
@@ -70,22 +60,12 @@ class LlmProcessingError(message: String) : Exception(message)
  * Provides the core API call infrastructure used by AgentExecutor
  * for agent-based LLM interactions.
  */
-object LlmProcessingService {
+object LlmProcessingService : KoinComponent {
+    private val transport: LlmHttpTransport by inject()
     private val activeRequests = AtomicInteger(0)
 
     /** Check if any LLM processing is currently active */
     val isRunning: Boolean get() = activeRequests.get() > 0
-
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .build()
-
-    private val testClient = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
-        .build()
 
     /**
      * Resolved provider/model/adapter triple, used to thread resolved state through the call chain.
@@ -124,7 +104,7 @@ object LlmProcessingService {
      * Test API connection by sending a minimal request. Throws on failure.
      * Used by Easy Setup to validate API keys before saving.
      */
-    fun testApiConnection(provider: LlmProvider, modelId: String, apiKey: String) {
+    suspend fun testApiConnection(provider: LlmProvider, modelId: String, apiKey: String) {
         val providerConfig = LlmProviderConfig(
             providerType = provider.name,
             displayName = provider.displayName,
@@ -135,17 +115,10 @@ object LlmProcessingService {
         val body = adapter.buildRequestBody(modelId, messages, emptyList(), temperature = null)
         val url = adapter.buildEndpointUrl(endpoint)
         val headers = adapter.buildHeaders(apiKey, emptyMap())
-        val request = Request.Builder().url(url).apply {
-            headers.forEach { (k, v) -> addHeader(k, v) }
-            addHeader("Content-Type", "application/json")
-            post(body.toRequestBody("application/json".toMediaType()))
-        }.build()
-        val response = testClient.newCall(request).execute()
-        response.use {
-            if (!it.isSuccessful) {
-                val errorBody = it.body.string().take(200)
-                throw LlmProcessingError("HTTP ${it.code}: $errorBody (URL: $url)")
-            }
+        val response = transport.postJson(url, headers + ("Content-Type" to "application/json"), body, LlmTimeouts.CONNECTION_TEST)
+        if (!response.isSuccessful) {
+            val errorBody = response.body.take(200)
+            throw LlmProcessingError("HTTP ${response.code}: $errorBody (URL: $url)")
         }
     }
 
@@ -170,49 +143,6 @@ object LlmProcessingService {
             val bodyText: String,
             val retryAfterSeconds: Double?
         ) : HttpCallResult()
-    }
-
-    /**
-     * Execute a single HTTP call to the LLM API.
-     * Returns [HttpCallResult.Success] or [HttpCallResult.Error] instead of throwing on non-2xx.
-     * [IOException] (network errors) are still thrown directly.
-     */
-    private suspend fun executeHttpCall(request: Request): HttpCallResult {
-        return suspendCancellableCoroutine { continuation ->
-            val call = client.newCall(request)
-
-            continuation.invokeOnCancellation {
-                call.cancel()
-            }
-
-            call.enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    Log.e(TAG, "LLM API call failed: ${e.message}")
-                    continuation.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    response.use { resp ->
-                        if (!resp.isSuccessful) {
-                            val retryAfter = LlmRetryPolicy.parseRetryAfterHeader(resp.header("retry-after"))
-                            val errorBody = resp.body?.string() ?: "No error body"
-                            continuation.resume(HttpCallResult.Error(resp.code, errorBody, retryAfter))
-                            return
-                        }
-
-                        try {
-                            val responseBody = resp.body?.string()
-                                ?: throw LlmProcessingError("Empty response body")
-                            Log.d(TAG, "LLM API response received")
-                            continuation.resume(HttpCallResult.Success(responseBody))
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Failed to read LLM response: ${e.message}")
-                            continuation.resumeWithException(e)
-                        }
-                    }
-                }
-            })
-        }
     }
 
     /**
@@ -243,17 +173,13 @@ object LlmProcessingService {
         val noTempModels = CommonUtils.settings.getStringSet(PREF_NO_TEMPERATURE_MODELS)
         val temperature: Double? = if (effectiveModel in noTempModels) null else LLM_TEMPERATURE
 
-        fun buildRequest(temp: Double?): Request {
+        fun buildRequest(temp: Double?): String {
             val bodyString = adapter.buildRequestBody(effectiveModel, messages, toolDefs, temp)
             val systemLen = messages.firstOrNull { it.role == ChatMessage.Role.SYSTEM }?.content?.length ?: 0
             val userLen = messages.firstOrNull { it.role == ChatMessage.Role.USER }?.content?.length ?: 0
             val safeEndpoint = endpoint.substringBefore('?')
             Log.d(TAG, "LLM API with tools: $safeEndpoint, model: $effectiveModel, tools: ${toolDefs.size}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars, temperature: $temp")
-            return Request.Builder()
-                .url(endpoint)
-                .apply { for ((key, value) in headers) addHeader(key, value) }
-                .post(bodyString.toRequestBody("application/json".toMediaType()))
-                .build()
+            return bodyString
         }
 
         var request = buildRequest(temperature)
@@ -279,7 +205,15 @@ object LlmProcessingService {
                     delay(delayMs)
                 }
 
-                when (val result = executeHttpCall(request)) {
+                val response = transport.postJson(endpoint, headers, request, LlmTimeouts.CHAT)
+                val result = if (response.isSuccessful) {
+                    Log.d(TAG, "LLM API response received")
+                    HttpCallResult.Success(response.body)
+                } else {
+                    HttpCallResult.Error(response.code, response.body,
+                        LlmRetryPolicy.parseRetryAfterHeader(response.header("retry-after")))
+                }
+                when (result) {
                     is HttpCallResult.Success -> {
                         val usage = adapter.extractUsage(result.body)
                         if (usage.totalTokens > 0) {

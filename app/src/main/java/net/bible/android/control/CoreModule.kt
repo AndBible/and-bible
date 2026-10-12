@@ -219,6 +219,9 @@ fun buildCoreModule() = module {
     singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() }
     singleOf(::WorkspaceServiceImpl) { bind<WorkspaceService>() }
     singleOf(::AiSettingsServiceImpl) { bind<AiSettingsService>() }
+    single<net.bible.sharedcore.llm.http.LlmHttpTransport> {
+        net.bible.sharedcore.llm.http.KtorLlmHttpTransport(net.bible.android.platform.AndroidLlmHttpClients()::clientFor)
+    }
     singleOf(::LlmProviderServiceImpl) { bind<LlmProviderService>() }
     singleOf(::LlmModelServiceImpl) { bind<LlmModelService>() }
     singleOf(::PromptServiceImpl) { bind<PromptService>() }
