@@ -439,7 +439,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         val workspaceDao = dao
         val bookmarkControl = get<BookmarkControl>()
         val journalInitials = get<FakeBookFactory>().journalDocument.initials
-        val loaded = blockingDb { // L1-edge: synchronous window workspace restore read phase
+        val loaded = blockingDb { // L1-edge: temporary deferred window restore bridge; remove in Task 11
             val entity = (if(workspaceId != null) workspaceDao.workspace(workspaceId) else null)?: workspaceDao.firstWorkspace()
                 ?: WorkspaceEntities.Workspace("").apply{
                     workspaceDao.insertWorkspace(this)

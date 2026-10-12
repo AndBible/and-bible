@@ -209,9 +209,17 @@ class ReadingHostLauncherGuardTest {
     // --- step 0: the chooser results reach whatever host opened them -------------------------------
 
     @Test fun everyGeneralBookKeyChooserArmAwaitsItsOwnResult() {
-        val code = ClassicRemovalScan.codeLinesOf(
-            "src/main/java/net/bible/android/control/page/CurrentGeneralBookPage.kt"
-        )
+        assertGeneralBookChooserAwaited(generalBookChooserCode())
+    }
+
+    private fun generalBookChooserCode(): String = ClassicRemovalScan.codeLinesOf(
+        "src/main/java/net/bible/android/platform/AndroidKeyChooserLauncher.kt"
+    )
+
+    private fun assertGeneralBookChooserAwaited(source: String) {
+        // Other launcher arms legitimately retain their Activity result dispatch.
+        val code = functionBody(source, "private fun startGeneralBookChooser(") +
+            functionBody(source, "private suspend fun awaitChosenKey(")
         assertFalse(
             "startActivityForResult(…, STD_REQUEST_CODE) is answered only by " +
                 "MainBibleActivity.onActivityResult, so on every other ActivityBase the user's " +
@@ -225,14 +233,26 @@ class ReadingHostLauncherGuardTest {
         )
         assertEquals(
             "the other three arms — multi-document, my-document and the general-book key list — " +
-                "each await through awaitChosenKey (3 calls plus its own declaration)",
-            4,
+                "each await through awaitChosenKey (3 calls in the dispatch body)",
+            3,
             Regex("awaitChosenKey\\(").findAll(code).count(),
         )
         assertTrue(
             "the awaited answer must be applied through the shared applier",
             code.contains("KeyChooserResults.apply("),
         )
+    }
+
+    @Test fun generalBookScannerRejectsAnUnawaitedResultInEitherBody() {
+        val source = generalBookChooserCode()
+        for (call in listOf("context.awaitIntent(", "KeyChooserResults.apply(")) {
+            val broken = source.replace(call, "context.startActivityForResult(")
+            val failure = runCatching { assertGeneralBookChooserAwaited(broken) }.exceptionOrNull()
+            assertTrue("scanner did not detect the real launcher defect $call", failure is AssertionError)
+        }
+        // Whole-launcher dispatches for Bible/dictionary/map are not general-book defects.
+        assertTrue(source.contains("context.startActivityForResult("))
+        assertGeneralBookChooserAwaited(source)
     }
 
     /**

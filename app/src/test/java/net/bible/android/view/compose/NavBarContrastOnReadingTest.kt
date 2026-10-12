@@ -81,6 +81,7 @@ class NavBarContrastOnReadingTest {
                     NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
                 ).also { controllers += it }.create().start().resume().visible()
                 val activity = controller.get()
+                net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
                 idleMain()
                 assertFalse(activity.window.isNavigationBarContrastEnforced)
                 for (route in listOf(NavRoutes.WORKSPACE_SELECTOR, NavRoutes.SETTINGS, NavRoutes.READING)) {
@@ -92,6 +93,7 @@ class NavBarContrastOnReadingTest {
                     activity.onConfigurationChanged(config)
                     activity.window.decorView.dispatchConfigurationChanged(config)
                     idleMain()
+                    kotlin.test.assertEquals(route.substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'), "contrast fixture must have navigated")
                     val expected = mode != net.bible.service.common.DisplayColorMode.MONOCHROME && route != NavRoutes.READING
                     kotlin.test.assertEquals(expected, activity.window.isNavigationBarContrastEnforced, "$mode $route")
                 }
@@ -110,6 +112,7 @@ class NavBarContrastOnReadingTest {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible()
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         idleMain()
         assertFalse(activity.window.isNavigationBarContrastEnforced)
 
@@ -130,6 +133,7 @@ class NavBarContrastOnReadingTest {
         activity.navigateInGraph(NavRoutes.SETTINGS)
         idleMain()
         rotate(Configuration.ORIENTATION_PORTRAIT)
+        kotlin.test.assertEquals(NavRoutes.SETTINGS, activity.currentRouteForTest()?.substringBefore('?'), "contrast fixture must have navigated")
         assertTrue(activity.window.isNavigationBarContrastEnforced, "settings rotation keeps contrast enforcement")
 
         activity.navigateInGraph(NavRoutes.READING)

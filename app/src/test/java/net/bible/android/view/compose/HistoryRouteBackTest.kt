@@ -133,7 +133,14 @@ class HistoryRouteBackTest {
                 ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading(plan = PLAN, day = 5),
             ),
         )
-        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5))
+        try {
+            net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5))
+        } catch (failure: AssertionError) {
+            val logs = org.robolectric.shadows.ShadowLog.getLogs().takeLast(80)
+                .joinToString("\n") { "${it.tag}: ${it.msg} ${it.throwable ?: ""}" }
+            throw AssertionError("Daily history fixture route=${activity.currentRouteForTest()}, " +
+                "visible=${ReadingViewVisibility.isVisible}\n$logs", failure)
+        }
         idle()
         assertEquals("fixture: on daily reading", NavRoutes.dailyReading().substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
         assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)
