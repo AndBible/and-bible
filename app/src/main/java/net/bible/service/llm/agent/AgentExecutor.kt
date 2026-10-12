@@ -22,19 +22,15 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import android.app.Activity
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import net.bible.service.llm.AgentTool
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.OsisToPlainText
@@ -175,6 +171,7 @@ class AgentExecutor(
 ) : KoinComponent {
     private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
+    private val platform: AgentPlatform by inject()
     fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null, modelOverrideId: IdType? = null): Flow<AgentEvent> = flow {
         try {
             val llmConfig = LlmModelConfig(modelOverrideId ?: prompt.configuredModelId)
@@ -893,8 +890,8 @@ class AgentExecutor(
      * Emits [AgentSessionChange.PermissionWaiting] true, then false on every exit (normal return or
      * cancellation) via `finally`.
      */
-    private suspend fun awaitActivity(workspaceId: IdType? = null, toolName: String? = null): Activity {
-        CurrentActivityHolder.currentActivity?.let { return it }
+    private suspend fun awaitActivity(workspaceId: IdType? = null, toolName: String? = null) {
+        if (platform.hasForegroundUi) return
         Log.d(TAG, "No current activity, waiting for activity to resume...")
         if (workspaceId != null) {
             AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = true, toolName = toolName)
@@ -902,13 +899,8 @@ class AgentExecutor(
         // F126: announce the end of the wait on every exit, cancellation included, so the service restores
         // its progress notification and wakelock (GetCommentariesTool does the same).
         try {
-            var activity: Activity?
-            do {
-                delay(500)
-                activity = CurrentActivityHolder.currentActivity
-            } while (activity == null)
+            if (!platform.awaitForegroundUi()) throw CancellationException("Foreground wait cancelled")
             Log.d(TAG, "Activity resumed")
-            return activity
         } finally {
             if (workspaceId != null) {
                 AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = false)
@@ -919,7 +911,7 @@ class AgentExecutor(
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
     private suspend fun showPermissionDialog(tool: Tool, arguments: JsonObject, workspaceId: IdType? = null): DialogResult {
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
-        val activity = awaitActivity(workspaceId, toolDisplayName)
+        awaitActivity(workspaceId, toolDisplayName)
         val actionDescription = try {
             tool.formatActionDescription(arguments)
         } catch (e: Exception) {
@@ -927,14 +919,13 @@ class AgentExecutor(
             null
         }
         return AgentSessionManager.awaitingUserDecision(workspaceId, toolDisplayName) {
-            when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description, actionDescription)) {
-                Dialogs.AgentPermissionResult.ALLOW -> DialogResult.Allowed
-                Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
-                Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
-                Dialogs.AgentPermissionResult.ALLOW_ALWAYS -> {
+            when (platform.askToolPermission(toolDisplayName, tool.description, actionDescription)) {
+                ToolPermissionAnswer.ALLOW -> DialogResult.Allowed
+                ToolPermissionAnswer.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
+                ToolPermissionAnswer.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
+                ToolPermissionAnswer.ALLOW_ALWAYS -> {
                     // Show confirmation dialog
-                    val confirmed = Dialogs.simpleQuestion(
-                        activity,
+                    val confirmed = platform.askQuestion(
                         message = strings.permissionAlwaysAllowConfirm(toolDisplayName) +
                             "\n\n" + strings.permissionAlwaysAllowConfirmResetHint,
                         title = strings.permissionAlwaysAllowConfirmTitle
@@ -947,7 +938,7 @@ class AgentExecutor(
                     // Allow this operation regardless of confirmation
                     DialogResult.Allowed
                 }
-                Dialogs.AgentPermissionResult.DENY -> DialogResult.Denied
+                ToolPermissionAnswer.DENY -> DialogResult.Denied
             }
         }
     }
@@ -957,10 +948,9 @@ class AgentExecutor(
      * Follows the same activity-lookup pattern as [showPermissionDialog].
      */
     private suspend fun showContinueDialog(currentIteration: Int, increment: Int, workspaceId: IdType? = null): Boolean {
-        val activity = awaitActivity(workspaceId)
+        awaitActivity(workspaceId)
         return AgentSessionManager.awaitingUserDecision(workspaceId, null) {
-            Dialogs.simpleQuestion(
-                activity,
+            platform.askQuestion(
                 message = strings.llmContinueIterationsMessage(currentIteration, increment),
                 title = strings.llmContinueIterationsTitle
             )

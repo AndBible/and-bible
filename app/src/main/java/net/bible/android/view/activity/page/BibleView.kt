@@ -198,22 +198,22 @@ fun bibleViewBackgroundColorFor(window: Window): Int {
 @Serializable
 class Selection(
     override val bookInitials: String?,
-    val startOrdinal: Int,
+    override val startOrdinal: Int,
     override val startOffset: Int?,
-    val endOrdinal: Int,
+    override val endOrdinal: Int,
     override val endOffset: Int?,
     val bookmarks: List<IdType>,
     override val notes: String? = null,
-    val text: String = "",
-    val osisRef: String? = null,
-    val noteEditorEntityType: NoteEditorEntityType? = null,
+    override val text: String = "",
+    override val osisRef: String? = null,
+    override val noteEditorEntityType: NoteEditorEntityType? = null,
     /** Note editor entity ID (bookmark UUID, studypad entry UUID, or MyDocument page ID) */
-    val noteEditorEntityId: String? = null,
+    override val noteEditorEntityId: String? = null,
     /** Current text content in the note editor */
-    val noteEditorContent: String? = null,
+    override val noteEditorContent: String? = null,
     /** Content type of the editor: "MARKDOWN" or "HTML" */
-    val noteEditorContentType: String? = null,
-) : KoinComponent, net.bible.service.sword.ShareSelection
+    override val noteEditorContentType: String? = null,
+) : KoinComponent, net.bible.service.sword.ShareSelection, net.bible.service.llm.agent.LlmSelection
 {
     constructor(bookmark: BookmarkEntities.BibleBookmarkWithNotes):
         this(

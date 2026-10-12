@@ -23,7 +23,6 @@ import net.bible.service.llm.AiSettings
 import net.bible.service.llm.LlmStrings
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.json.Json.Default.decodeFromString
-import net.bible.android.BibleApplication
 import net.bible.android.common.toV11n
 import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.event.EventSource
@@ -34,7 +33,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.view.activity.page.Selection
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
@@ -62,10 +60,7 @@ import org.crosswire.jsword.passage.VerseRange
 import net.bible.android.control.versification.toVerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
-import android.widget.Toast
 import net.bible.android.database.mydocument.AiCachedPageWithContent
-import net.bible.android.view.activity.base.AppPosition
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -236,6 +231,8 @@ class AgentSession(
 object AgentSessionManager : AgentSessionManagerBase() {
     private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
+    private val platform: AgentPlatform get() = getKoin().get()
+    private val notifier: net.bible.sharedcore.platform.UserNotifier by inject()
     private var changeSource = EventSource<AgentSessionChange>()
 
     /**
@@ -276,15 +273,15 @@ object AgentSessionManager : AgentSessionManagerBase() {
             if (state.getAndSet(DECISION_CLOSED) == DECISION_ANNOUNCED && emitFalse)
                 notifyPermissionWaiting(workspaceId, false)
         }
-        val subscription = CurrentActivityHolder.appPositionChanges.subscribe { position ->
+        val subscription = platform.foregroundChanges.subscribe { position ->
             when (position) {
-                AppPosition.BACKGROUND ->
+                false ->
                     if (state.compareAndSet(DECISION_IDLE, DECISION_ANNOUNCED)) notifyPermissionWaiting(workspaceId, true, toolName)
-                AppPosition.FOREGROUND ->
+                true ->
                     if (state.compareAndSet(DECISION_ANNOUNCED, DECISION_IDLE)) notifyPermissionWaiting(workspaceId, false)
             }
         }
-        if (CurrentActivityHolder.currentActivity == null &&
+        if (!platform.hasForegroundUi &&
             state.compareAndSet(DECISION_IDLE, DECISION_ANNOUNCED)) {
             notifyPermissionWaiting(workspaceId, true, toolName)
         }
@@ -373,7 +370,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     suspend fun executePrompt(
         prompt: AgentPrompt,
-        selection: Selection,
+        selection: LlmSelection,
         targetWindowId: IdType? = null,
         additionalInstructions: String? = null,
         previousResponse: String? = null,
@@ -409,11 +406,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val session = getOrCreateSession(workspaceId)
         if (!session.tryStart(context, currentCoroutineContext()[Job])) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    BibleApplication.application,
-                    strings.agentAlreadyRunning,
-                    Toast.LENGTH_SHORT
-                ).show()
+                platform.showShortMessage(strings.agentAlreadyRunning)
             }
             return false
         }
@@ -499,7 +492,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     /** Extract content for whole-page mode (ordinals are -1, Bible document). */
-    private fun extractWholePageContent(book: SwordBook, selection: Selection, pageKey: Key?): SelectionContent {
+    private fun extractWholePageContent(book: SwordBook, selection: LlmSelection, pageKey: Key?): SelectionContent {
         val keyToUse = selection.osisRef?.let {
             try { book.getKey(it) } catch (e: Exception) {
                 Log.w(TAG, "Could not parse osisRef: $it", e)
@@ -510,7 +503,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val verseRange = keyToVerseRange(keyToUse)
 
         val selectedText = if (keyToUse != null) {
-            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy()) }
+            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = org.koin.core.context.GlobalContext.get().get<SwordContentFacade>().saxTextPolicy) }
             catch (e: Exception) { Log.w(TAG, "Could not get canonical text", e); "" }
         } else ""
 
@@ -525,7 +518,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     /** Extract content for ordinal-based selection mode. */
-    private fun extractSelectionContent(book: Book?, selection: Selection, pageKey: Key?): SelectionContent {
+    private fun extractSelectionContent(book: Book?, selection: LlmSelection, pageKey: Key?): SelectionContent {
         val ordinalRange = selection.startOrdinal..selection.endOrdinal
 
         val verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
@@ -554,7 +547,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
     private suspend fun buildAgentContext(
         prompt: AgentPrompt,
-        selection: Selection,
+        selection: LlmSelection,
         additionalInstructions: String? = null,
         previousResponse: String? = null,
         userSpecification: String? = null
@@ -942,7 +935,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     private suspend fun openMyDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?, session: AgentSession? = null) {
-        if (CurrentActivityHolder.currentActivity == null) {
+        if (!platform.hasForegroundUi) {
             // App is backgrounded — defer opening until user returns
             session?.pendingResult = PendingAgentResult.OpenDocument(documentInitials, pageKey, targetWindowId)
             return
@@ -966,7 +959,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     private suspend fun openStudyPadResult(labelId: IdType, scrollToEntryId: IdType?, session: AgentSession? = null) {
-        if (CurrentActivityHolder.currentActivity == null) {
+        if (!platform.hasForegroundUi) {
             session?.pendingResult = PendingAgentResult.OpenStudyPad(labelId, scrollToEntryId)
             return
         }
@@ -989,11 +982,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val session = activeSessions[workspaceId]
         if (session?.isRunning == true) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    BibleApplication.application,
-                    strings.agentAlreadyRunning,
-                    Toast.LENGTH_SHORT
-                ).show()
+                platform.showShortMessage(strings.agentAlreadyRunning)
             }
             return false
         }
@@ -1014,11 +1003,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         if (prompt == null) {
             Log.w(TAG, "Cannot regenerate: prompt not found: $promptId")
             withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    BibleApplication.application,
-                    strings.aiRegeneratePromptNotFound,
-                    Toast.LENGTH_LONG
-                ).show()
+                notifier.showInfo(strings.aiRegeneratePromptNotFound, long = true)
             }
             return false
         }
@@ -1051,7 +1036,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val book = bookInitials?.let { Books.installed().getBook(it) } as? SwordBook
 
         // Create selection for regeneration
-        val selection: Selection
+        val selection: LlmSelection
         if (kjvOrdinalStart != null && kjvOrdinalEnd != null && book != null) {
             // Convert KJVA ordinals to target versification
             val targetVersification = book.versification
@@ -1062,16 +1047,19 @@ object AgentSessionManager : AgentSessionManagerBase() {
             val targetStart = kjvaStart.toV11n(targetVersification)
             val targetEnd = kjvaEnd.toV11n(targetVersification)
 
-            selection = Selection(
-                bookInitials = bookInitials,
-                startOrdinal = targetStart.ordinal,
-                startOffset = null,
-                endOrdinal = targetEnd.ordinal,
-                endOffset = null,
-                bookmarks = emptyList(),
-                notes = null,
-                text = storedContext.selectedText ?: ""
-            )
+            selection = object : LlmSelection {
+                override val bookInitials = bookInitials
+                override val startOrdinal = targetStart.ordinal
+                override val endOrdinal = targetEnd.ordinal
+                override val startOffset: Int? = null
+                override val endOffset: Int? = null
+                override val text = storedContext.selectedText ?: ""
+                override val osisRef: String? = null
+                override val noteEditorEntityType: NoteEditorEntityType? = null
+                override val noteEditorEntityId: String? = null
+                override val noteEditorContent: String? = null
+                override val noteEditorContentType: String? = null
+            }
         } else {
             Log.w(TAG, "Cannot regenerate: missing ordinal data")
             return false

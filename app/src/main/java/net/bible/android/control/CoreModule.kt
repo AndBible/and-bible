@@ -142,6 +142,7 @@ fun buildCoreModule() = module {
             DatabaseContainer.databaseRestored, get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
         )
     }
+    single<net.bible.service.llm.agent.AgentPlatform> { net.bible.android.platform.AndroidAgentPlatform() }
     single { ProgressJsActions(get()) }
     single { BookmarkJsActions(get(), get()) }
     single<net.bible.service.cloudsync.SyncSettingsPlatform> { net.bible.android.platform.AndroidSyncSettingsPlatform(androidContext()) }

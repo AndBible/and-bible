@@ -137,7 +137,7 @@ class AgentExecutorDialogWaitingTest {
         val toolName = ToolRegistry.getDisplayName(GetCommentariesTool)
         val result = async { callPrivate("showPermissionDialog", GetCommentariesTool, buildJsonObject {}, ws) }
         yield()
-        CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
+        controller!!.pause().stop()
         permissions.respond(AgentPermissionChoice.ALLOW_ALWAYS)
         yield()
         assertNotNull("confirmation dialog is open", dialogs.pending.value)

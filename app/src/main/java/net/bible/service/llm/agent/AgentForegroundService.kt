@@ -48,7 +48,6 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
-import net.bible.service.common.CommonUtils
 import net.bible.service.llm.PromptRepository
 
 private const val TAG = "AgentForegroundService"
@@ -63,6 +62,7 @@ private const val WAKELOCK_TIMEOUT_MS = 15L * 60 * 1000 // 15 minutes
  */
 class AgentForegroundService : Service(), KoinComponent {
     private val strings: LlmStrings by inject()
+    private val environment: net.bible.sharedcore.platform.AppEnvironment by inject()
 
     companion object {
         const val START_AGENT = "action_start_agent"
@@ -307,7 +307,7 @@ class AgentForegroundService : Service(), KoinComponent {
         if (BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else AI_AGENT_NOTIFICATION_CHANNEL
 
     private fun notificationIcon(): Int =
-        if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_ichtys
+        if (environment.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_ichtys
 
     private fun buildMainActivityIntent(): PendingIntent {
         // reading-host re-typing T8b: same flags, same PendingIntent, the reading host instead of
