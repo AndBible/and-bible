@@ -547,17 +547,19 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 // Active-window corner: the screen corner filled up to a concave quarter circle. The curve is tangent
 // to both screen edges, so the paint thins to nothing along them and blends into the edge with no
 // angular line end. Paint goes through `color` (currentColor in the gradient) so it follows the theme.
-// Colored modes soften the inner edge (--corner-solid-from > radius); monochrome and color e-ink keep
-// it crisp, since gradients dither badly on e-ink.
+// Colored modes soften the inner edge (--corner-softness > 1); monochrome and color e-ink keep it
+// crisp, since gradients dither badly on e-ink, and smaller, since a hard edge reads larger.
 $cornerRadius: 32px;
+$cornerRadiusCrisp: 16px;
 $cornerSoftness: 1.18;
 
 .active-window-corner {
   position: fixed;
   z-index: -1;
-  width: $cornerRadius;
-  height: $cornerRadius;
-  --corner-solid-from: #{$cornerRadius * $cornerSoftness};
+  width: var(--corner-radius);
+  height: var(--corner-radius);
+  --corner-radius: #{$cornerRadius};
+  --corner-softness: #{$cornerSoftness};
 
   .night & {
     color: var(--ab-primary, rgba(196, 196, 255, 0.8));
@@ -567,14 +569,16 @@ $cornerSoftness: 1.18;
 
   .monochrome & {
     color: black;
-    --corner-solid-from: #{$cornerRadius};
+    --corner-radius: #{$cornerRadiusCrisp};
+    --corner-softness: 1;
   }
   .monochrome.night & {
     color: white;
   }
   .colorEink & {
     color: $colorEinkAccent;
-    --corner-solid-from: #{$cornerRadius};
+    --corner-radius: #{$cornerRadiusCrisp};
+    --corner-softness: 1;
   }
   .colorEink.night & {
     color: $colorEinkAccentNight;
@@ -585,7 +589,7 @@ $cornerSoftness: 1.18;
 @mixin active-corner($h, $v, $centre) {
   #{$h}: $borderDistance;
   #{$v}: $borderDistance;
-  background: radial-gradient(circle at $centre, transparent $cornerRadius - 0.5px, currentColor var(--corner-solid-from));
+  background: radial-gradient(circle at $centre, transparent calc(var(--corner-radius) - 0.5px), currentColor calc(var(--corner-radius) * var(--corner-softness)));
 }
 
 .top-left-corner {

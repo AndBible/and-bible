@@ -546,17 +546,21 @@ describe("bounded theme chrome contrast and geometry", () => {
     ])("paints an active corner that tapers into both screen edges at %s", (selector, centre) => {
         const css = componentCss("BibleView.vue");
         const rule = declarations(css, selector).replace(/\s+/g, " ");
-        expect(rule).toContain("width: 32px");
-        expect(rule).toContain("height: 32px");
+        expect(rule).toContain("width: var(--corner-radius)");
+        expect(rule).toContain("height: var(--corner-radius)");
         // One filled corner minus a quarter circle: the curve is tangent to both screen edges, so the
         // paint thins to nothing at its ends instead of stopping in an angular line end.
-        for (const forbidden of ["radius", "border", "linear-gradient"]) expect(rule).not.toContain(forbidden);
-        expect(rule).toContain(`radial-gradient(circle at ${centre}, transparent 31.5px, currentColor var(--corner-solid-from))`);
-        // Soft inner edge in colored modes, crisp in monochrome and color e-ink (gradients dither badly).
-        expect(winning(css, selector.slice(1), "", "div")["--corner-solid-from"]).toBe("37.76px");
-        expect(winning(css, selector.slice(1), "night", "div")["--corner-solid-from"]).toBe("37.76px");
+        for (const forbidden of ["border", "linear-gradient"]) expect(rule).not.toContain(forbidden);
+        expect(rule).toContain(`radial-gradient(circle at ${centre}, transparent calc(var(--corner-radius) - 0.5px), currentColor calc(var(--corner-radius) * var(--corner-softness)))`);
+        // Soft, 32px corner in colored modes; a crisp, smaller 16px one in monochrome and color e-ink
+        // (gradients dither badly there, and a hard edge reads larger than a soft one).
+        for (const mode of ["", "night"]) {
+            const winner = winning(css, selector.slice(1), mode, "div");
+            expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["32px", "1.18"]);
+        }
         for (const mode of ["monochrome", "monochrome night", "colorEink", "colorEink night"]) {
-            expect(winning(css, selector.slice(1), mode, "div")["--corner-solid-from"]).toBe("32px");
+            const winner = winning(css, selector.slice(1), mode, "div");
+            expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["16px", "1"]);
         }
         // Paint still goes through `color` in every mode.
         expect(winning(css, selector.slice(1), "monochrome", "div").color).toBe("black");
