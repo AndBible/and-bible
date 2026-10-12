@@ -55,6 +55,10 @@ open class CurrentCommentaryPage internal constructor(
 ) : VersePage(true, currentBibleVerse, bibleTraverser, pageManager), CurrentPage
 {
 
+    private val saxTextPolicy: net.bible.service.format.SaxTextPolicy by org.koin.java.KoinJavaComponent.inject(
+        net.bible.service.format.SaxTextPolicy::class.java
+    )
+
     override val documentCategory = DocumentCategory.COMMENTARY
     var sourceBookAndKey: BookAndKey? = null
 
@@ -85,7 +89,7 @@ open class CurrentCommentaryPage internal constructor(
                 ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
             val texts = ArrayList<Pair<String, String>>()
             for (verse in verseRange) {
-                val text = SwordContentFacade.getCanonicalText(doc, verse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy())
+                val text = SwordContentFacade.getCanonicalText(doc, verse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = saxTextPolicy)
                 texts.add(Pair(verse.shortName, text))
             }
             val kjvRange = verseRange.toV11n(KJVA)
