@@ -148,7 +148,7 @@ open class BibleApplication : Application() {
         }
         InstallManager.installSiteMap(
             PropertyMap().apply {
-                resources.openRawResource(R.raw.repositories).use { load(it) }
+                resources.openRawResource(R.raw.repositories).use { org.crosswire.common.util.PropertyMapJvm.load(this, it) }
             })
         BookType.addSupportedBookType(myBibleBible)
         BookType.addSupportedBookType(myBibleCommentary)
