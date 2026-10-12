@@ -42,7 +42,8 @@ class AiSettingsStoreTest {
     private val env get() = net.bible.android.platform.AndroidAppEnvironment(net.bible.android.BibleApplication.application)
     private val files = mutableListOf<File>()
     private fun store(debug: Boolean = true) = AiSettingsStore({ dao }, launcher, scope,
-        object : AppEnvironment by env { override val isDebugMode = debug }, DatabaseContainer.databaseRestored)
+        object : AppEnvironment by env { override val isDebugMode = debug }, DatabaseContainer.databaseRestored,
+        get<net.bible.service.cloudsync.CloudSync>(net.bible.service.cloudsync.CloudSync::class.java).workspaceRefreshRequired)
 
     @Before fun setUp() { DatabaseResetter.resetDatabase() }
     @After fun tearDown() = runBlocking {
@@ -132,12 +133,14 @@ class AiSettingsStoreTest {
         settings.ensureLoaded()
         val id = IdType()
         var models = 0
+        var observedModel: IdType? = null
         var configs = 0
-        val modelSub = settings.defaultModelChanged.subscribe { models++; assertEquals(id, settings.defaultModelId) }
+        val modelSub = settings.defaultModelChanged.subscribe { models++; observedModel = settings.defaultModelId }
         val configSub = settings.configChanged.subscribe { configs++ }
         try {
             settings.defaultModelId = id
             assertEquals(1, models)
+            assertEquals(id, observedModel)
             assertEquals(0, configs)
             settings.notifyConfigChanged()
             assertEquals(1, configs)

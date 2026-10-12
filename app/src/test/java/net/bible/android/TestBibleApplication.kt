@@ -17,6 +17,17 @@
 
 package net.bible.android
 
+import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.bind
+import net.bible.android.view.activity.ai.LlmModelServiceImpl
+import net.bible.android.view.activity.ai.LlmProviderServiceImpl
+import net.bible.android.view.activity.ai.AiSettingsServiceImpl
+import net.bible.android.view.activity.ai.PromptServiceImpl
+import net.bible.android.view.activity.ai.AgentSessionServiceImpl
+import net.bible.android.view.activity.ai.ReadingLlmServiceImpl
+import net.bible.android.view.activity.ai.DocumentFilterServiceImpl
+import net.bible.android.view.activity.ai.ToolPermissionServiceImpl
+
 import net.bible.android.control.document.DocumentChanges
 import net.bible.android.view.activity.nav.SystemBarSettingChanges
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -76,13 +87,17 @@ class TestBibleApplication : BibleApplication() {
                 net.bible.service.llm.AiSettingsStore(
                     { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, aiLauncher, aiScope,
                     net.bible.android.platform.AndroidAppEnvironment(this@TestBibleApplication),
-                    DatabaseContainer.databaseRestored,
+                    DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired,
                 )
             }
-            single<net.bible.sharedcore.ai.LlmModelService> { net.bible.android.view.activity.ai.LlmModelServiceImpl() }
-            single<net.bible.sharedcore.ai.LlmProviderService> { net.bible.android.view.activity.ai.LlmProviderServiceImpl(get()) }
-            single<net.bible.sharedcore.ai.AiSettingsService> { net.bible.android.view.activity.ai.AiSettingsServiceImpl(get()) }
-            single<net.bible.sharedcore.ai.PromptService> { net.bible.android.view.activity.ai.PromptServiceImpl(get()) }
+            singleOf(::LlmModelServiceImpl) { bind<net.bible.sharedcore.ai.LlmModelService>() }
+            singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
+            singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
+            singleOf(::PromptServiceImpl) { bind<net.bible.sharedcore.ai.PromptService>() }
+            singleOf(::AgentSessionServiceImpl) { bind<net.bible.sharedcore.ai.reading.AgentSessionService>() }
+            singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
+            singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
+            singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
         })
         CommonUtils.initializeApp()
         kotlinx.coroutines.runBlocking { CommonUtils.aiSettings.ensureLoaded() }
@@ -112,13 +127,17 @@ class TestBibleApplication : BibleApplication() {
             single<net.bible.service.llm.AiSettings> {
                 net.bible.service.llm.AiSettingsStore(
                     { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
-                    DatabaseContainer.databaseRestored,
+                    DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired,
                 )
             }
-            single<net.bible.sharedcore.ai.LlmModelService> { net.bible.android.view.activity.ai.LlmModelServiceImpl() }
-            single<net.bible.sharedcore.ai.LlmProviderService> { net.bible.android.view.activity.ai.LlmProviderServiceImpl(get()) }
-            single<net.bible.sharedcore.ai.AiSettingsService> { net.bible.android.view.activity.ai.AiSettingsServiceImpl(get()) }
-            single<net.bible.sharedcore.ai.PromptService> { net.bible.android.view.activity.ai.PromptServiceImpl(get()) }
+            singleOf(::LlmModelServiceImpl) { bind<net.bible.sharedcore.ai.LlmModelService>() }
+            singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
+            singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
+            singleOf(::PromptServiceImpl) { bind<net.bible.sharedcore.ai.PromptService>() }
+            singleOf(::AgentSessionServiceImpl) { bind<net.bible.sharedcore.ai.reading.AgentSessionService>() }
+            singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
+            singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
+            singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
         })
         CommonUtils.destroy()
         super.onTerminate()

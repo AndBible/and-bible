@@ -138,7 +138,7 @@ fun buildCoreModule() = module {
     single<net.bible.service.llm.AiSettings> {
         net.bible.service.llm.AiSettingsStore(
             { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
-            DatabaseContainer.databaseRestored,
+            DatabaseContainer.databaseRestored, get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
         )
     }
     single { ProgressJsActions(get()) }

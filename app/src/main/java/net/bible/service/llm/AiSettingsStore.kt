@@ -41,6 +41,7 @@ class AiSettingsStore(
     private val appScope: AppCoroutineScope,
     private val env: AppEnvironment,
     private val replacements: Events<Unit> = EventSource(),
+    private val syncReplacements: Events<Unit> = EventSource(),
 ) : AiSettings {
     private val state = MutableStateFlow<GlobalAiSettings?>(null)
     private val dbMutex = Mutex()
@@ -58,8 +59,9 @@ class AiSettingsStore(
         dbMutex.withLock {
             if (!observing) {
                 val subscription = replacements.subscribe { synchronized(stateLock) { generation.value++ } }
+                val syncSubscription = syncReplacements.subscribe { synchronized(stateLock) { generation.value++ } }
                 val loaded = try { dao().get() ?: GlobalAiSettings() }
-                catch (e: Exception) { subscription.cancel(); throw e }
+                catch (e: Exception) { subscription.cancel(); syncSubscription.cancel(); throw e }
                 synchronized(stateLock) { if (state.value == null) state.value = loaded }
                 observing = true
                 val job = appScope.launch(start = CoroutineStart.UNDISPATCHED) {
@@ -75,7 +77,7 @@ class AiSettingsStore(
                         }
                     }
                 }
-                job.invokeOnCompletion { subscription.cancel() }
+                job.invokeOnCompletion { subscription.cancel(); syncSubscription.cancel() }
             }
         }
     }
