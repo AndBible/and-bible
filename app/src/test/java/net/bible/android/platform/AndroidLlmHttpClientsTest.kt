@@ -42,6 +42,29 @@ class AndroidLlmHttpClientsTest {
         } finally { client.close() }
     }
 
+    // A single cached client for all profiles makes the second call inherit the short timeout.
+    @Test fun differentProfilesRetainTheirTimeoutsInTheSameFactory() = withSlowServer { url ->
+        val clients = AndroidLlmHttpClients()
+        val shortProfile = LlmTimeouts(1_000, 300, null)
+        val longProfile = LlmTimeouts(1_000, 5_000, null)
+        val shortClient = clients.clientFor(shortProfile)
+        try {
+            val transport = KtorLlmHttpTransport(clients::clientFor)
+            val error = runCatching {
+                runBlocking { transport.get(url, emptyMap(), shortProfile) }
+            }.exceptionOrNull()
+            assertTrue("Expected short-profile timeout, got $error", error is java.net.SocketTimeoutException)
+            val longClient = clients.clientFor(longProfile)
+            try {
+                val response = runBlocking { transport.get(url, emptyMap(), longProfile) }
+                assertEquals(200, response.code)
+                assertEquals("slow response", response.body)
+                assertSame(shortClient, clients.clientFor(shortProfile))
+                assertSame(longClient, clients.clientFor(longProfile))
+            } finally { longClient.close() }
+        } finally { shortClient.close() }
+    }
+
     @Test fun clientsAreCachedPerProfile() {
         val clients = AndroidLlmHttpClients()
         val client = clients.clientFor(LlmTimeouts.CHAT)
