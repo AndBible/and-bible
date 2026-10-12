@@ -52,10 +52,16 @@ class StudyPadRestoreTest {
 
     @After fun tearDown() {
         try {
-            repo.clear()
-            scope.cancel()
-            CommonUtils.windowControl.windowRepository = previousRepo
-            DatabaseResetter.resetDatabase()
+            try {
+                repo.clear()
+            } finally {
+                try {
+                    scope.cancel()
+                } finally {
+                    CommonUtils.windowControl.windowRepository = previousRepo
+                    DatabaseResetter.resetDatabase()
+                }
+            }
         } finally {
             Dispatchers.resetMain()
         }
