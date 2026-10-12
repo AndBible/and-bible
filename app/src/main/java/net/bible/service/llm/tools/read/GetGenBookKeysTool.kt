@@ -20,7 +20,7 @@ package net.bible.service.llm.tools.read
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
-import android.net.Uri
+import net.bible.service.llm.encodeUriComponent
 import kotlinx.serialization.Serializable
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -140,13 +140,13 @@ object GetGenBookKeysTool : Tool, KoinComponent {
 
             val pageKeys = allKeys.drop(clampedOffset).take(clampedLimit)
 
-            val encodedInitials = Uri.encode(args.book)
+            val encodedInitials = encodeUriComponent(args.book)
             val keyInfos = pageKeys.map { key ->
                 val ref = key.getOsisRef() ?: key.getName()
                 KeyInfo(
                     name = key.getName(),
                     osisRef = ref,
-                    linkUrl = "sword://$encodedInitials/${Uri.encode(ref)}"
+                    linkUrl = "sword://$encodedInitials/${encodeUriComponent(ref)}"
                 )
             }
 

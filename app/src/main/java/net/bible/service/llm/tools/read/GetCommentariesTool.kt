@@ -21,9 +21,8 @@ import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
-import android.net.Uri
+import net.bible.service.llm.encodeUriComponent
 import kotlinx.serialization.Serializable
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -247,7 +246,7 @@ object GetCommentariesTool : Tool, KoinComponent {
                     } else {
                         "${block.startVerseRef}-${block.endVerseRef}"
                     }
-                    val linkUrl = "sword://${Uri.encode(commentary.initials)}/${Uri.encode(block.startVerseRef)}"
+                    val linkUrl = "sword://${encodeUriComponent(commentary.initials)}/${encodeUriComponent(block.startVerseRef)}"
                     if (useXml) {
                         CommentaryEntry(verseRange = rangeRef, linkUrl = linkUrl, osisXml = block.content)
                     } else {

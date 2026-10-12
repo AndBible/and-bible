@@ -17,7 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
-import android.net.Uri
+import net.bible.service.llm.encodeUriComponent
 import kotlinx.serialization.Serializable
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -130,7 +130,7 @@ object GetGenBookContentTool : Tool {
                 ?: return ToolResult.error("Key not found: ${args.key}", "KEY_NOT_FOUND")
 
             val fragment = SwordContentFacade.readOsisFragment(book, resolvedKey, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
-            val linkUrl = "sword://${Uri.encode(args.book)}/${Uri.encode(args.key)}"
+            val linkUrl = "sword://${encodeUriComponent(args.book)}/${encodeUriComponent(args.key)}"
 
             if (args.format == ContentFormat.XML) {
                 val outputter = XMLOutputter(Format.getRawFormat())

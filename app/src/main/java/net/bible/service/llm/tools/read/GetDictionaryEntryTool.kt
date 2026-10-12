@@ -18,7 +18,7 @@
 package net.bible.service.llm.tools.read
 
 import org.koin.core.context.GlobalContext
-import android.net.Uri
+import net.bible.service.llm.encodeUriComponent
 import net.bible.android.control.link.isGreekDef
 import net.bible.android.control.link.isHebrewDef
 import net.bible.service.llm.AgentTool
@@ -143,7 +143,7 @@ object GetDictionaryEntryTool : Tool {
             val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
             val linkUrl = when {
                 dictionary.isGreekDef || dictionary.isHebrewDef -> "strongs://$key"
-                else -> "sword://${Uri.encode(dictionaryInitials)}/${Uri.encode(key)}"
+                else -> "sword://${encodeUriComponent(dictionaryInitials)}/${encodeUriComponent(key)}"
             }
 
             if (args.format == ContentFormat.XML) {

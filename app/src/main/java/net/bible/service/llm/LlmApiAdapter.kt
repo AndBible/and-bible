@@ -21,7 +21,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import net.bible.android.BibleApplication.Companion.application
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
