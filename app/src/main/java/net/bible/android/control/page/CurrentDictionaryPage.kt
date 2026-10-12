@@ -34,11 +34,11 @@ class CurrentDictionaryPage internal constructor(
         this._key = key
     }
 
-    override fun next() {
+    override suspend fun next() {
         setKey(getKeyPlus(1))
     }
 
-    override fun previous() {
+    override suspend fun previous() {
         setKey(getKeyPlus(-1))
     }
 

@@ -103,8 +103,8 @@ Versification=KJVA""",
     private fun fragmentCount(osisFragmentsJson: String): Int =
         Regex("'bookInitials':").findAll(osisFragmentsJson).count()
 
-    private fun osisFragmentsJson(page: CurrentGeneralBookPage): String {
-        val doc = page.currentPageContent as MultiFragmentDocument
+    private suspend fun osisFragmentsJson(page: CurrentGeneralBookPage): String {
+        val doc = page.currentPageContent() as MultiFragmentDocument
         return doc.asHashMap["osisFragments"] as String
     }
 
@@ -114,7 +114,7 @@ Versification=KJVA""",
      * silently, contributing no error card.
      */
     @Test
-    fun anUninstalledDocumentDropsOutSilentlyLeavingOnlyTheInstalledFragment() {
+    fun anUninstalledDocumentDropsOutSilentlyLeavingOnlyTheInstalledFragment() = kotlinx.coroutines.test.runTest {
         val robinson = org.koin.java.KoinJavaComponent.get<FakeBookFactory>(FakeBookFactory::class.java).giveDoesNotExist("Robinson", BookCategory.DICTIONARY)
         assertThat(
             "sanity: Robinson must genuinely be absent from the installed registry, or this test " +
@@ -149,7 +149,7 @@ Versification=KJVA""",
      * information the reader needs, not noise from an assembled key.
      */
     @Test
-    fun aKeyGenuinelyMissingFromAnInstalledDocumentStillProducesItsCard() {
+    fun aKeyGenuinelyMissingFromAnInstalledDocumentStillProducesItsCard() = kotlinx.coroutines.test.runTest {
         val book = installedEmptyBook()
         assertThat(
             "sanity: the fake commentary must genuinely be registered as installed, or this test " +

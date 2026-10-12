@@ -40,13 +40,13 @@ class CurrentMapPage internal constructor(
         _key = key
     }
 
-    override fun next() {
+    override suspend fun next() {
         getKeyPlus(1).let {
 			setKey(it)
 		}
     }
 
-    override fun previous() {
+    override suspend fun previous() {
         getKeyPlus(-1).let {
 			setKey(it)
 		}

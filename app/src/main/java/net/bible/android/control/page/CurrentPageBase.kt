@@ -47,7 +47,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.Element
-import net.bible.service.db.blockingDb
 
 /** Common functionality for different document page types
  *
@@ -138,8 +137,8 @@ abstract class CurrentPageBase protected constructor(
         return true
     }
 
-    override fun next() {}
-    override fun previous() {}
+    override suspend fun next() {}
+    override suspend fun previous() {}
 
     /** add or subtract a number of pages from the current position and return Page
      * default is one key per page - all except bible use this default
@@ -150,7 +149,7 @@ abstract class CurrentPageBase protected constructor(
 
     override val isSingleKey: Boolean = false
 
-    override val currentPageContent: Document get() {
+    override suspend fun currentPageContent(): Document {
         val key = key
         if(currentDocument?.doesNotExist == true) {
             val link = "<AndBibleLink href='download://?initials=${currentDocument?.initials}'>${currentDocument?.initials}</AndBibleLink>"
@@ -170,7 +169,7 @@ abstract class CurrentPageBase protected constructor(
     /** Subclasses (commentary) may supply a verse-range descriptor shown by the Vue side. */
     protected open fun commentaryRangeFor(key: Key): CommentaryRangeInfo? = null
 
-    override fun getPageContent(key: Key): Document = try {
+    override suspend fun getPageContent(key: Key): Document = try {
         val currentDocument = currentDocument!!
 
         val frag = synchronized(currentDocument) {
@@ -187,27 +186,27 @@ abstract class CurrentPageBase protected constructor(
             val documentId = currentDocument.myDocumentId
             val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
             if (documentId != null) {
-                blockingDb { myDocumentDao.pageByKey(documentId, pageKey) }
+                myDocumentDao.pageByKey(documentId, pageKey)
             } else null
         } else null
 
         // Fetch AI generation metadata (prompt name + model) for footer display
         val promptId = myDocumentPage?.sourcePromptId
         val cacheEntry = if (promptId != null) {
-            blockingDb { myDocumentDao.getCacheEntry(myDocumentPage.id) }
+            myDocumentDao.getCacheEntry(myDocumentPage.id)
         } else null
         val promptName = if (promptId != null) {
             PromptRepository.promptById(promptId)?.name ?: strings.aiUnknownPrompt
         } else null
 
         val effectiveKey = annotateKey ?: key
-        val aiDocMarkers = blockingDb { myDocumentDao.aiDocMarkersForPage(currentDocument.initials, effectiveKey.getOsisRef()) }
+        val aiDocMarkers = myDocumentDao.aiDocMarkersForPage(currentDocument.initials, effectiveKey.getOsisRef())
 
         OsisDocument(
             book = currentDocument,
             key = key,
             osisFragment = frag,
-            genericBookmarks = blockingDb { pageManager.bookmarkControl.genericBookmarksFor(currentDocument, effectiveKey, withLabels = true) }, // L1-pending(page)
+            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, effectiveKey, withLabels = true),
             myDocumentPageId = myDocumentPage?.id?.toString(),
             sourcePromptId = myDocumentPage?.sourcePromptId?.toString(),
             sourcePromptName = promptName,

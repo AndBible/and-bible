@@ -21,7 +21,7 @@ import net.bible.android.platform.AndroidBackupHost
 
 import android.content.ClipData
 import android.content.Intent
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.webkit.JavascriptInterface
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -128,6 +128,7 @@ class BibleJavascriptInterface(
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     private val progressJsActions: ProgressJsActions by inject()
     private val bookmarkJsActions: BookmarkJsActions by inject()
+    private val orderedLauncher: net.bible.sharedcore.platform.OrderedLauncher by inject()
     val linkControl get() = bibleView.linkControl
     val bookmarkControl get() = bibleView.bookmarkControl
     val downloadControl get() = bibleView.downloadControl
@@ -206,9 +207,10 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun goToNextChapter() {
         Log.i(TAG, "Go to next chapter")
-        scope.launch(Dispatchers.Main) {
+        val page = currentPageManager
+        orderedLauncher.launch("page-nav-${page.window.id}") {
             try {
-                currentPageManager.currentPage.next()
+                withContext(Dispatchers.Main) { page.currentPage.next() }
             } catch (e: Exception) {
                 Log.e(TAG, "Error navigating to next chapter", e)
             }
@@ -218,9 +220,10 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun goToPreviousChapter() {
         Log.i(TAG, "Go to previous chapter")
-        scope.launch(Dispatchers.Main) {
+        val page = currentPageManager
+        orderedLauncher.launch("page-nav-${page.window.id}") {
             try {
-                currentPageManager.currentPage.previous()
+                withContext(Dispatchers.Main) { page.currentPage.previous() }
             } catch (e: Exception) {
                 Log.e(TAG, "Error navigating to previous chapter", e)
             }

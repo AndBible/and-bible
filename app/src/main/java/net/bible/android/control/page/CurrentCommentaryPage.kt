@@ -42,7 +42,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import net.bible.service.db.blockingDb
 
 /** Reference to current passage shown by viewer
  *
@@ -62,58 +61,57 @@ open class CurrentCommentaryPage internal constructor(
 
     private val isSpecialDoc: Boolean get() = currentDocument?.isSpecial == true
 
-    override val currentPageContent: Document
-        get() {
-            return if(currentDocument == fakeBookFactory.compareDocument) {
-                val key: VerseRange = when(val origKey = originalVerseRange ?: singleKey) {
-                    is VerseRange -> origKey
-                    is Verse -> VerseRange(origKey.versification, origKey, origKey)
-                    else -> throw RuntimeException("Invalid type")
-                }
+    override suspend fun currentPageContent(): Document {
+        return if(currentDocument == fakeBookFactory.compareDocument) {
+            val key: VerseRange = when(val origKey = originalVerseRange ?: singleKey) {
+                is VerseRange -> origKey
+                is Verse -> VerseRange(origKey.versification, origKey, origKey)
+                else -> throw RuntimeException("Invalid type")
+            }
 
-                val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
-                    try {
-                        OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification), strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), key, it)
-                    } catch (e: OsisError) {
-                        null
-                    }
-                }.filterNotNull()
-                MultiFragmentDocument(frags, compare=true)
-            } else if (currentDocument == fakeBookFactory.memorizeDocument) {
-                val bookAndKey = sourceBookAndKey
-                    ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
-                val doc = bookAndKey.document
-                val verseRange = bookAndKey.key as? VerseRange
-                    ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
-                val texts = ArrayList<Pair<String, String>>()
-                for (verse in verseRange) {
-                    val text = SwordContentFacade.getCanonicalText(doc, verse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy())
-                    texts.add(Pair(verse.shortName, text))
+            val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
+                try {
+                    OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification), strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), key, it)
+                } catch (e: OsisError) {
+                    null
                 }
-                val kjvRange = verseRange.toV11n(KJVA)
-                val v11n = verseRange.versification
-                val memorizedOrdinals = blockingDb { ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal) } // L1-pending(page)
-                    .map { Verse(KJVA, it).toV11n(v11n).ordinal }
-                val targetOrdinals = blockingDb { ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal) } // L1-pending(page)
-                    .map { Verse(KJVA, it).toV11n(v11n).ordinal }
-                MemorizeDocument(
-                    verseRange.getName(), texts, pageManager.jsState,
-                    bookInitials = doc?.initials,
-                    v11nName = v11n.name,
-                    osisRef = verseRange.getOsisRef(),
-                    startOrdinal = verseRange.start.ordinal,
-                    endOrdinal = verseRange.end.ordinal,
-                    memorizedOrdinals = memorizedOrdinals,
-                    targetOrdinals = targetOrdinals,
-                    readingProgressSettingsJson = ReadingProgressSettings.getBundleAsJson(),
-                )
-            } else super.currentPageContent
-        }
+            }.filterNotNull()
+            MultiFragmentDocument(frags, compare=true)
+        } else if (currentDocument == fakeBookFactory.memorizeDocument) {
+            val bookAndKey = sourceBookAndKey
+                ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
+            val doc = bookAndKey.document
+            val verseRange = bookAndKey.key as? VerseRange
+                ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
+            val texts = ArrayList<Pair<String, String>>()
+            for (verse in verseRange) {
+                val text = SwordContentFacade.getCanonicalText(doc, verse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy())
+                texts.add(Pair(verse.shortName, text))
+            }
+            val kjvRange = verseRange.toV11n(KJVA)
+            val v11n = verseRange.versification
+            val memorizedOrdinals = ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+                .map { Verse(KJVA, it).toV11n(v11n).ordinal }
+            val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+                .map { Verse(KJVA, it).toV11n(v11n).ordinal }
+            MemorizeDocument(
+                verseRange.getName(), texts, pageManager.jsState,
+                bookInitials = doc?.initials,
+                v11nName = v11n.name,
+                osisRef = verseRange.getOsisRef(),
+                startOrdinal = verseRange.start.ordinal,
+                endOrdinal = verseRange.end.ordinal,
+                memorizedOrdinals = memorizedOrdinals,
+                targetOrdinals = targetOrdinals,
+                readingProgressSettingsJson = ReadingProgressSettings.getBundleAsJson(),
+            )
+        } else super.currentPageContent()
+    }
 
     /* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#next()
 	 */
-    override fun next() {
+    override suspend fun next() {
         Log.i(TAG, "Next")
         if (!navigateByBlock(forward = true)) nextVerse()
     }
@@ -121,7 +119,7 @@ open class CurrentCommentaryPage internal constructor(
     /* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#previous()
 	 */
-    override fun previous() {
+    override suspend fun previous() {
         Log.i(TAG, "Previous")
         if (!navigateByBlock(forward = false)) previousVerse()
     }

@@ -31,7 +31,7 @@ import android.os.Build
 import android.os.Looper
 import android.text.TextUtils
 import android.util.LayoutDirection
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.view.ActionMode
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo

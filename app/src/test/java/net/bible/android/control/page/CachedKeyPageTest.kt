@@ -105,7 +105,7 @@ class CachedKeyPageTest {
         assertThat(page.getKeyPlus(currentKey, 1), equalTo(currentKey as Key))
     }
     @Test
-    fun failedKeyRetrievalNotifiesWithOriginalCauseAndKeepsCurrentKey() {
+    fun failedKeyRetrievalNotifiesWithOriginalCauseAndKeepsCurrentKey() = kotlinx.coroutines.test.runTest {
         val koin = org.koin.core.context.GlobalContext.get()
         val originalNotifier = koin.get<net.bible.sharedcore.platform.UserNotifier>()
         val originalStrings = koin.get<net.bible.sharedcore.platform.CoreStrings>()
@@ -140,7 +140,7 @@ class CachedKeyPageTest {
             page.onlySetCurrentDocument(null)
             org.junit.Assert.assertEquals(
                 "`portable key lookup error`",
-                (page.currentPageContent as ErrorDocument).asHashMap["errorMessage"]
+                (page.currentPageContent() as ErrorDocument).asHashMap["errorMessage"]
             )
         } finally {
             manager.destroy()

@@ -126,7 +126,7 @@ class WindowControlPageChangeTest {
         assertEquals(BibleBook.JOHN, b.pageManager.currentBible.singleKey.book)
     }
 
-    @Test fun contentLoaderEmitsForItsOwnWindowBeforeReturning() {
+    @Test fun contentLoaderEmitsForItsOwnWindowBeforeReturning() = kotlinx.coroutines.test.runTest {
         val (_, window) = twoSyncedWindows()
         val page = window.pageManager.currentGeneralBook
         val book = Books.installed().getBook("KJV")!!

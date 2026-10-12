@@ -60,64 +60,63 @@ class CurrentGeneralBookPage internal constructor(
 
     private val defaultBibleDoc get() = pageManager.currentBible.currentDocument ?: firstBibleDoc
 
-    override val currentPageContent: Document
-        get() {
-            return when(val key = key) {
-                is StudyPadKey -> {
-                    val bookmarks = blockingDb { pageManager.bookmarkControl.getBibleBookmarksWithLabel(key.label, addData = true) } // L1-pending(page)
-                    val genericBookmarks = blockingDb { pageManager.bookmarkControl.getGenericBookmarksWithLabel(key.label, addData = true) } // L1-pending(page)
-                    val journalTextEntries = blockingDb { pageManager.bookmarkControl.getStudyPadTextEntriesForLabel(key.label) } // L1-pending(page)
-                    val bookmarkToLabels = bookmarks.mapNotNull { blockingDb { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) } as BookmarkEntities.BibleBookmarkToLabel? } // L1-pending(page)
-                    val genericBookmarkToLabels = genericBookmarks.mapNotNull { blockingDb { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) } as BookmarkEntities.GenericBookmarkToLabel? } // L1-pending(page)
-                    val entryId = key.entryId
-                    StudyPadDocument(key.label, entryId, bookmarks, genericBookmarks, bookmarkToLabels, genericBookmarkToLabels, journalTextEntries)
-                }
-                is BookAndKeyList -> {
-                    // A multi-document key is ASSEMBLED, not asked for: a Strong's tap builds one
-                    // Robinson entry per installed morphology document (LinkControl.kt:329). A
-                    // document that is not installed therefore contributes an error card with its
-                    // own download link that the user never requested -- drop it instead.
-                    //
-                    // A key genuinely missing from an INSTALLED document is different: that is
-                    // information, not noise, and must still produce its card.
-                    //
-                    // Both cases throw the SAME exception class, DocumentNotFound
-                    // (SwordContentFacade.kt:170 for "not installed", :174 and :359 for "key not in
-                    // document") -- so the two cannot be told apart by catch-type alone. dropUninstalled
-                    // re-checks Books.installed() for the specific document inside the catch instead.
-                    fun fragmentFor(bookAndKey: BookAndKey, dropUninstalled: Boolean): OsisFragment? {
-                        val doc = bookAndKey.document ?: defaultBibleDoc
-                        var k = bookAndKey.key
-                        return try {
-                            if(doc is SwordBook) {
-                                k = when(k) {
-                                    is Passage -> k.toV11n(doc.versification)
-                                    is VerseRange -> k.toV11n(doc.versification)
-                                    is Verse -> k.toV11n(doc.versification)
-                                    else -> k
-                                }
-                            }
-                            OsisFragment(SwordContentFacade.readOsisFragment(doc, k, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), k, doc)
-                        } catch (e: OsisError) {
-                            if(dropUninstalled && e is DocumentNotFound && Books.installed().getBook(doc.initials) == null) {
-                                Log.i(TAG, "Dropping an uninstalled document from an assembled key: ${doc.initials}")
-                                null
-                            } else {
-                                Log.e(TAG, "Fragment could not be read")
-                                OsisFragment(e.xml, k, doc)
+    override suspend fun currentPageContent(): Document {
+        return when(val key = key) {
+            is StudyPadKey -> {
+                val bookmarks = pageManager.bookmarkControl.getBibleBookmarksWithLabel(key.label, addData = true)
+                val genericBookmarks = pageManager.bookmarkControl.getGenericBookmarksWithLabel(key.label, addData = true)
+                val journalTextEntries = pageManager.bookmarkControl.getStudyPadTextEntriesForLabel(key.label)
+                val bookmarkToLabels = bookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.BibleBookmarkToLabel? }
+                val genericBookmarkToLabels = genericBookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.GenericBookmarkToLabel? }
+                val entryId = key.entryId
+                StudyPadDocument(key.label, entryId, bookmarks, genericBookmarks, bookmarkToLabels, genericBookmarkToLabels, journalTextEntries)
+            }
+            is BookAndKeyList -> {
+                // A multi-document key is ASSEMBLED, not asked for: a Strong's tap builds one
+                // Robinson entry per installed morphology document (LinkControl.kt:329). A
+                // document that is not installed therefore contributes an error card with its
+                // own download link that the user never requested -- drop it instead.
+                //
+                // A key genuinely missing from an INSTALLED document is different: that is
+                // information, not noise, and must still produce its card.
+                //
+                // Both cases throw the SAME exception class, DocumentNotFound
+                // (SwordContentFacade.kt:170 for "not installed", :174 and :359 for "key not in
+                // document") -- so the two cannot be told apart by catch-type alone. dropUninstalled
+                // re-checks Books.installed() for the specific document inside the catch instead.
+                fun fragmentFor(bookAndKey: BookAndKey, dropUninstalled: Boolean): OsisFragment? {
+                    val doc = bookAndKey.document ?: defaultBibleDoc
+                    var k = bookAndKey.key
+                    return try {
+                        if(doc is SwordBook) {
+                            k = when(k) {
+                                is Passage -> k.toV11n(doc.versification)
+                                is VerseRange -> k.toV11n(doc.versification)
+                                is Verse -> k.toV11n(doc.versification)
+                                else -> k
                             }
                         }
+                        OsisFragment(SwordContentFacade.readOsisFragment(doc, k, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), k, doc)
+                    } catch (e: OsisError) {
+                        if(dropUninstalled && e is DocumentNotFound && Books.installed().getBook(doc.initials) == null) {
+                            Log.i(TAG, "Dropping an uninstalled document from an assembled key: ${doc.initials}")
+                            null
+                        } else {
+                            Log.e(TAG, "Fragment could not be read")
+                            OsisFragment(e.xml, k, doc)
+                        }
                     }
-                    val bookAndKeys = key.filterIsInstance<BookAndKey>()
-                    val frags = bookAndKeys.mapNotNull { fragmentFor(it, dropUninstalled = true) }
-                    // If everything dropped (every document in the assembled key is uninstalled),
-                    // fall back to today's behaviour -- showing every card -- rather than an empty page.
-                    val shown = frags.ifEmpty { bookAndKeys.mapNotNull { fragmentFor(it, dropUninstalled = false) } }
-                    MultiFragmentDocument(shown, state = pageManager.jsState)
                 }
-                else -> super.currentPageContent
+                val bookAndKeys = key.filterIsInstance<BookAndKey>()
+                val frags = bookAndKeys.mapNotNull { fragmentFor(it, dropUninstalled = true) }
+                // If everything dropped (every document in the assembled key is uninstalled),
+                // fall back to today's behaviour -- showing every card -- rather than an empty page.
+                val shown = frags.ifEmpty { bookAndKeys.mapNotNull { fragmentFor(it, dropUninstalled = false) } }
+                MultiFragmentDocument(shown, state = pageManager.jsState)
             }
+            else -> super.currentPageContent()
         }
+    }
 
     /** set key without notification
      *
@@ -127,11 +126,11 @@ class CurrentGeneralBookPage internal constructor(
         _key = key
     }
 
-    override fun next() {
+    override suspend fun next() {
         val key = key
         when (currentDocument) {
             fakeBookFactory.journalDocument -> {
-                val nextLabel = blockingDb { pageManager.bookmarkControl.getNextLabel((key as StudyPadKey).label) } // L1-pending(page)
+                val nextLabel = pageManager.bookmarkControl.getNextLabel((key as StudyPadKey).label)
                 setKey(StudyPadKey(nextLabel))
             }
             fakeBookFactory.multiDocument -> {}
@@ -141,11 +140,11 @@ class CurrentGeneralBookPage internal constructor(
         }
     }
 
-    override fun previous() {
+    override suspend fun previous() {
         val key = key
         when (currentDocument) {
             fakeBookFactory.journalDocument -> {
-                val nextLabel = blockingDb { pageManager.bookmarkControl.getPrevLabel((key as StudyPadKey).label) } // L1-pending(page)
+                val nextLabel = pageManager.bookmarkControl.getPrevLabel((key as StudyPadKey).label)
                 setKey(StudyPadKey(nextLabel))
             }
             fakeBookFactory.multiDocument -> {}

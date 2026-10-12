@@ -392,7 +392,7 @@ class Window (
         return@withContext try {
             val document = currentPage.currentDocument
             Log.i(TAG, "Loading document:$document key:${currentPage.key}")
-            currentPage.currentPageContent
+            currentPage.currentPageContent()
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()

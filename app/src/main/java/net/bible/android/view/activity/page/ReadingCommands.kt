@@ -20,7 +20,7 @@ package net.bible.android.view.activity.page
 import android.app.Activity
 import android.content.ClipData
 import android.os.Bundle
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.asImageBitmap
@@ -182,6 +182,7 @@ class ReadingCommands(
     // wording avoids a colon before the Activity's name on purpose: R6c1's report records this
     // exact hazard, and `CollaboratorTypeGuardTest`'s parameter scan reads RAW text, so prose of
     // the shape "<colon> MainBibleActivity" reads as a type position to it.
+    private val orderedLauncher: net.bible.sharedcore.platform.OrderedLauncher by inject()
     private val windowControl: WindowControl by inject()
     private val documentControl: DocumentControl by inject()
     private val speakControl: SpeakControl by inject()
@@ -1312,14 +1313,20 @@ class ReadingCommands(
     /** user swiped right */
     internal fun next() {
         if (hostCallbacks.documentViewManager().documentView.isPageNextOkay) {
-            windowControl.activeWindowPageManager.currentPage.next()
+            val page = windowControl.activeWindowPageManager
+            orderedLauncher.launch("page-nav-${page.window.id}") {
+                withContext(Dispatchers.Main) { page.currentPage.next() }
+            }
         }
     }
 
     /** user swiped left */
     internal fun previous() {
         if (hostCallbacks.documentViewManager().documentView.isPagePreviousOkay) {
-            windowControl.activeWindowPageManager.currentPage.previous()
+            val page = windowControl.activeWindowPageManager
+            orderedLauncher.launch("page-nav-${page.window.id}") {
+                withContext(Dispatchers.Main) { page.currentPage.previous() }
+            }
         }
     }
 

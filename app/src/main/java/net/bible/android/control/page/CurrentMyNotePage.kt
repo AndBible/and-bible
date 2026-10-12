@@ -17,7 +17,6 @@
 package net.bible.android.control.page
 
 import net.bible.android.common.toV11n
-import net.bible.service.db.blockingDb
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.control.versification.wholeChapter
@@ -32,17 +31,17 @@ class CurrentMyNotePage internal constructor(
     pageManager: CurrentPageManager
 ) : CurrentCommentaryPage(currentVerse, bibleTraverser, pageManager), CurrentPage
 {
-    override val currentPageContent: Document get() {
+    override suspend fun currentPageContent(): Document {
         val verseRange = wholeChapter(currentBibleVerse.verse, false)
-        val bookmarksForChapter = blockingDb { pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true) } // L1-pending(page)
+        val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
         return MyNotesDocument(bookmarksForChapter, verseRange.toV11n(KJVA))
     }
 
-    override fun next() {
+    override suspend fun next() {
         setKey(pageManager.currentBible.getKeyPlus(1))
     }
 
-    override fun previous() {
+    override suspend fun previous() {
         setKey(pageManager.currentBible.getKeyPlus(-1))
     }
 

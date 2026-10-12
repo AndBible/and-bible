@@ -34,7 +34,6 @@ import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
-import net.bible.service.db.blockingDb
 
 /** Reference to current passage shown by viewer
  *
@@ -49,31 +48,31 @@ class CurrentBiblePage(
     override val documentCategory = DocumentCategory.BIBLE
 
 
-    override fun next() {
+    override suspend fun next() {
         Log.i(TAG, "Next")
         nextChapter()
     }
 
-    override fun previous() {
+    override suspend fun previous() {
         Log.i(TAG, "Previous")
         previousChapter()
     }
 
-    fun getDocumentForChapter(chapter: Int): Document {
+    suspend fun getDocumentForChapter(chapter: Int): Document {
         val verseForFragment = Verse(versification, verseSelected.book, chapter, 1)
         val wholeChapter = wholeChapter(verseForFragment, showIntros)
         return getPageContent(wholeChapter)
     }
 
-    override fun getPageContent(key: Key): Document {
+    override suspend fun getPageContent(key: Key): Document {
         annotateKey = null
         val verseRange = key as VerseRange
         val doc = super.getPageContent(verseRange)
         return if(doc is OsisDocument) {
-            val bookmarksForChapter = blockingDb { pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true) } // L1-pending(page)
+            val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
             val kjvRange = verseRange.toV11n(KJVA)
             val myDocumentDao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-            val aiDocMarkers = blockingDb { myDocumentDao.aiDocMarkersForRange(kjvRange.start.ordinal, kjvRange.end.ordinal) }
+            val aiDocMarkers = myDocumentDao.aiDocMarkersForRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
             BibleDocument(
                 osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
                 bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey,

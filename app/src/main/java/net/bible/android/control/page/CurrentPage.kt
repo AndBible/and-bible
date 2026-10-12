@@ -48,8 +48,8 @@ interface CurrentPage {
     val bookAndKey: BookAndKey? get() = singleKey?.let {BookAndKey(it, currentDocument, anchorOrdinal, htmlId)}
 
 
-    operator fun next()
-    fun previous()
+    suspend fun next()
+    suspend fun previous()
     /** get incremented key according to the type of page displayed - verse, chapter, ...
      */
     fun getKeyPlus(num: Int): Key
@@ -105,9 +105,9 @@ interface CurrentPage {
 
     fun checkCurrentDocumenInstalled(): Boolean
     /** get a page to display  */
-    val currentPageContent: Document
+    suspend fun currentPageContent(): Document
 
-    fun getPageContent(key: Key): Document
+    suspend fun getPageContent(key: Key): Document
 
     var isInhibitChangeNotifications: Boolean
     val isSearchable: Boolean
