@@ -516,7 +516,9 @@ class ChooserInGraphResultTest {
 
         val controller = assertNotNull(dictionaryController, "the arm never built a controller")
         assertEquals(ChooserError.FAILED, controller.error.value, "a null row list is classic's error path")
-        assertTrue(controller.loading.value, "a failed load must not look like a finished, empty one")
+        // CR-3: a failed load ends the spinner, or it spins under (and after) the error dialog forever.
+        // The error field is what distinguishes the failure from a finished, empty list.
+        assertFalse(controller.loading.value, "a failed load has nothing left to load; the spinner must end")
         assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, currentRoute, "a failed load stays put; classic did")
         assertEquals(0, channelExits)
         assertNull(keyChooserResults.consume(), "a failed load publishes nothing")

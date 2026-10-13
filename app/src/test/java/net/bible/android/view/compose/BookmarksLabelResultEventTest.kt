@@ -149,9 +149,11 @@ class BookmarksLabelResultEventTest {
      *  reached the same untyped way `CloudDocumentsControllerRebuildIsolationTest.currentEntry` reaches
      *  its own private per-entry state. */
     private fun currentBookmarksSession(activity: NavHostComposeActivity): Any {
-        val field = NavHostComposeActivity::class.java.getDeclaredField("bookmarksSession")
+        // `bookmarksSession` is a Compose delegated property (`by mutableStateOf`), so the JVM field
+        // is the delegate state object, not the Pair. Read it the way the property does.
+        val field = NavHostComposeActivity::class.java.getDeclaredField("bookmarksSession\$delegate")
         field.isAccessible = true
-        val pair = field.get(activity) as Pair<*, *>?
+        val pair = (field.get(activity) as androidx.compose.runtime.MutableState<*>).value as Pair<*, *>?
         return requireNotNull(pair?.second) { "bookmarksControllerFor did not seed bookmarksSession" }
     }
 
