@@ -3732,9 +3732,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // every cluster. Same string the screen draws in its own top bar.
                             title = getString(R.string.bookmarks_and_mynotes_title),
                             onManageLabelsResult = { result -> applyBookmarksManageLabelsResult(result) },
-                            // CR-5: the arm's consume gate, kept on the session because the session
-                            // (unlike the arm) survives the label manager sitting on top.
-                            awaitingManageLabels = { bookmarksSession?.second?.awaitingManageLabels == true },
                             subscribeSyncEvents = { onBookmarksChanged ->
                                 subscribeBookmarksUpdated(onBookmarksChanged)
                             },
@@ -4131,6 +4128,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     readingNavGraph(navController, readingNavDeps)
                 }
                 InstallZipReturnCollector()
+                // CR-5: the bookmark list's claim on a label-manager answer. Host-level, outside the
+                // NavHost, for InstallZipReturnCollector's reason: the arm that asked is disposed while
+                // the label manager is on top, and the settings arm (which shares this channel) may be
+                // the resumed destination when the answer arrives. An arm-local consume would miss it,
+                // leave it pending, and apply it stale the next time the list composed.
+                BookmarksManageLabelsCollector()
 
                 // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
                 // lifecycleScope and outlives the destination that started it, so a chooser scoped
@@ -4283,8 +4286,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         lateinit var controller: BookmarksController
         var pendingAssign: List<BookmarkEntities.BaseBookmarkWithNotes>? = null
 
-        /** CR-5: this list navigated to the label manager and its answer has not been applied yet. */
-        var awaitingManageLabels = false
+        /**
+         * CR-5: this list navigated to the label manager and its answer has not been applied yet.
+         * Snapshot state, not a plain field: the host-level collector composes once per Activity and
+         * must recompose when a request starts, which can only happen after that composition.
+         */
+        var awaitingManageLabels by mutableStateOf(false)
     }
 
     /**
@@ -4299,7 +4306,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * root destination, it has no re-entry for a stale session to be resumed by, and the host dies
      * with it. Dropping it at its exit would be a reload of a list that is about to disappear.
      */
-    private var bookmarksSession: Pair<Int, BookmarksSession>? = null
+    /**
+     * Snapshot state, not a plain field: [BookmarksManageLabelsCollector] composes once per Activity
+     * and must recompose when a session appears after that composition. A plain field read inside a
+     * `?.let` registers no dependency when it is null, which is exactly the launch-on-bookmarks case
+     * the comment above `manageLabelsHelpOpen` documents.
+     */
+    private var bookmarksSession: Pair<Int, BookmarksSession>? by mutableStateOf(null)
 
     /**
      * Classic `BookmarksComposeActivity`'s `controller` (`:79-91`) plus its `onCreate` side effects
@@ -8851,6 +8864,32 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val onReturn = installZipReturn
             installZipReturn = null
             onReturn?.invoke(result)
+        }
+    }
+
+    /**
+     * CR-5's consumer, and the only one `manageLabelsResults` has for the bookmark list. The session
+     * flag is the source of truth for "this list asked"; the channel's pending is the answer. Both
+     * are read UNCONDITIONALLY, for the reason the comment above `manageLabelsHelpOpen` spells out:
+     * this lambda composes once per Activity, and a scope that could reach the flag only through a
+     * `?.let` on a plain field would register no dependency whenever the field was null at that one
+     * composition. Both the session and the flag are snapshot state, and both are read before the
+     * null check, so the subscription is unconditional.
+     *
+     * An answer the list did not ask for is left in the channel, for whoever did (the settings arm's
+     * own gate is that side of the same contract).
+     */
+    @Composable
+    private fun BookmarksManageLabelsCollector() {
+        val pending by manageLabelsResults.pending.collectAsState()
+        // Read UNCONDITIONALLY, before the null check, for the reason above: a `?.let` that only
+        // reached the flag when a session already existed would subscribe to nothing on the
+        // composition where the field was null, and a later request would flip a state nobody observes.
+        val awaiting = bookmarksSession?.second?.awaitingManageLabels == true
+        LaunchedEffect(pending, awaiting) {
+            if (pending == null || !awaiting) return@LaunchedEffect
+            val result = manageLabelsResults.consume() ?: return@LaunchedEffect
+            applyBookmarksManageLabelsResult(result)
         }
     }
 

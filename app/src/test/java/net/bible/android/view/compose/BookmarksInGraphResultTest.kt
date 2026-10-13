@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.compose
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -226,7 +229,6 @@ class BookmarksInGraphResultTest {
                 awaitingManageLabels = false
                 appliedResults.add(result.data)
             },
-            awaitingManageLabels = { awaitingManageLabels },
             subscribeSyncEvents = { { } },
         ),
         manageLabels = ManageLabelsDeps(
@@ -299,6 +301,16 @@ class BookmarksInGraphResultTest {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                     NavHost(navController = navController, startDestination = startDestination) {
                         bookmarkNavGraph(navController, d)
+                    }
+                    // The production consumer is the host's, outside the NavHost
+                    // (NavHostComposeActivity.BookmarksManageLabelsCollector). This graph has no host,
+                    // so the test stands one in with the same contract: claim only an answer the list
+                    // asked for, and leave anything else in the channel.
+                    val pending by d.manageLabelsResults.pending.collectAsState()
+                    LaunchedEffect(pending, awaitingManageLabels) {
+                        if (pending == null || !awaitingManageLabels) return@LaunchedEffect
+                        val result = d.manageLabelsResults.consume() ?: return@LaunchedEffect
+                        d.bookmarks.onManageLabelsResult(result)
                     }
                 }
             }
@@ -433,6 +445,12 @@ class BookmarksInGraphResultTest {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                     NavHost(navController = navController, startDestination = NavRoutes.bookmarks()) {
                         bookmarkNavGraph(navController, d)
+                    }
+                    val pending by d.manageLabelsResults.pending.collectAsState()
+                    LaunchedEffect(pending, awaitingManageLabels) {
+                        if (pending == null || !awaitingManageLabels) return@LaunchedEffect
+                        val result = d.manageLabelsResults.consume() ?: return@LaunchedEffect
+                        d.bookmarks.onManageLabelsResult(result)
                     }
                 }
             }

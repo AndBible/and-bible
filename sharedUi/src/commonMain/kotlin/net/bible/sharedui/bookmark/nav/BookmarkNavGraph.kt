@@ -185,13 +185,6 @@ class LabelEditDeps(
  *   SAVES). A user who backs out of it is delivering a result, and classic's `if (resultCode ==
  *   RESULT_OK)` guard was therefore always true on this edge.
  *
- * - [awaitingManageLabels] is the arm's consume gate (CR-5), the mirror of
- *   `TextDisplaySettingsNavState.awaitingHideLabels`: true from this list's own navigation to the
- *   label manager until [onManageLabelsResult] has run. `manageLabelsResults` is shared with the
- *   settings graph, whose arm leaves an answer it did not ask for in the channel on purpose. It is
- *   the host's, not arm state, because the arm is disposed while the label manager is on top and the
- *   host-memoised controller keeps the first composition's navigate lambda for its whole life.
- *
  * - [subscribeSyncEvents] is classic's bus `register(this) { onMain<BookmarksUpdatedViaSyncEvent>
  *   { controller.refresh() } }` / `unregister` pair (`:99`, `:149`), as a `DisposableEffect` in this
  *   arm -- the seam shape [net.bible.sharedui.readingplan.nav.DailyReadingDeps.subscribeEvents]
@@ -206,7 +199,6 @@ class BookmarksDeps(
     ) -> BookmarksController,
     val title: String,
     val onManageLabelsResult: (ManageLabelsResult) -> Unit,
-    val awaitingManageLabels: () -> Boolean,
     val subscribeSyncEvents: (onBookmarksChanged: () -> Unit) -> () -> Unit,
 )
 
@@ -457,26 +449,13 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             onDispose { unsubscribe() }
         }
 
-        // ——— the channel's IN-GRAPH branch, consumed ———
-        // This is where ManageLabels' in-graph ENTRY mode first runs in production: before this arm
-        // existed, every entry into the label manager was the host's start destination, so
-        // `deliver` always took the exit branch. Both of classic's round trips -- assign-labels
-        // (`BookmarksComposeActivity.kt:206`) and manage-labels (`:258`) -- come back through this
-        // one effect; the host tells them apart from the request it recorded when it built the
-        // payload, because a ManageLabelsResult carries only the returned JSON.
-        //
-        // Same shape as the MANAGE_LABELS_PATTERN arm's consumption of `labelEditResults`, and for
-        // the same reasons: `consume()` clears the channel in the same breath as reading it, so a
-        // recomposition cannot apply the same result twice -- and clearing re-triggers this effect
-        // with `null`, which is the early return. It consumes only an answer this list asked for
-        // (CR-5, see BookmarksDeps.awaitingManageLabels); anything else stays in the channel for
-        // whoever did.
-        val pendingManageLabels by deps.manageLabelsResults.pending.collectAsState()
-        LaunchedEffect(pendingManageLabels) {
-            if (pendingManageLabels == null || !d.awaitingManageLabels()) return@LaunchedEffect
-            val result = deps.manageLabelsResults.consume() ?: return@LaunchedEffect
-            d.onManageLabelsResult(result)
-        }
+        // The label-manager answer is NOT consumed here. CR-5: this arm is disposed while the label
+        // manager is on top, and the settings arm (which shares `manageLabelsResults`) may be the
+        // resumed destination when the answer arrives, so an arm-local consume misses an answer this
+        // list asked for and then applies it stale on the next composition. The host claims it from a
+        // composition that outlives every destination (`NavHostComposeActivity
+        // .BookmarksManageLabelsCollector`), gated on the session flag, and leaves an answer nobody
+        // asked for in the channel. `onManageLabelsResult` is what that collector calls.
 
         val rows by controller.rows.collectAsState()
         val filterLabels by controller.filterLabels.collectAsState()
@@ -544,7 +523,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             // it never replaces), `deliver` would publish the picked row to a `pending` nothing reads
             // and the selection would be silently dropped. Whoever adds the first in-graph edge into
             // this destination must therefore also add the consuming `LaunchedEffect` in the PARENT
-            // arm, in the shape the `manageLabelsResults` consumption above uses, and
+            // arm, in the shape the `labelEditResults` consumption below uses, and
             // `NavResultChannelGuardTest` should grow its per-channel line for it. Until then the
             // safe reading of this line is "pops correctly if it is ever a child", not "is ready to
             // be one".

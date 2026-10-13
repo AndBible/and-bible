@@ -246,25 +246,46 @@ class NavResultChannelGuardTest {
      * assertion is the one that catches a `consume()` whose value is then thrown away, exactly as in
      * [manageLabelsArmConsumesTheLabelEditChannel].
      */
+    /**
+     * CR-5 fix round 1 moved this consumption OUT of the graph. The bookmark arm is disposed while the
+     * label manager is on top, and the settings arm (which shares the channel) may be the resumed
+     * destination when the answer arrives, so an arm-local consume misses an answer the list asked for
+     * and applies it stale on the next composition. The host claims it from a composition that outlives
+     * every destination. The three assertions moved with it: the collection, the `consume()`, and the
+     * hand-off to `applyBookmarksManageLabelsResult` -- a `consume()` whose value is thrown away is
+     * still the failure the third one exists to catch.
+     */
     @Test
-    fun bookmarksArmConsumesTheManageLabelsChannel() {
-        val text = bookmarkNavGraphSource()
+    fun theHostCollectsTheManageLabelsChannelForTheBookmarkList() {
+        val text = hostSource()
         assertTrue(
             text.contains("manageLabelsResults.pending"),
-            "BookmarkNavGraph.kt does not collect manageLabelsResults.pending -- labels assigned " +
-                "from inside the graph would pop with the user's choices dropped",
+            "NavHostComposeActivity.kt does not collect manageLabelsResults.pending -- labels " +
+                "assigned from inside the graph would pop with the user's choices dropped",
         )
         assertTrue(
             text.contains("manageLabelsResults.consume()"),
-            "BookmarkNavGraph.kt does not clear manageLabelsResults with consume() -- a pending " +
-                "result would be re-applied on every recomposition",
+            "NavHostComposeActivity.kt does not clear manageLabelsResults with consume() -- a " +
+                "pending result would be re-applied on every recomposition",
         )
         assertTrue(
-            text.contains("onManageLabelsResult("),
-            "BookmarkNavGraph.kt consumes manageLabelsResults but hands the result to nobody -- " +
-                "BookmarksDeps.onManageLabelsResult is never called, so an assign/manage round trip " +
-                "is read, cleared and DROPPED",
+            text.contains("applyBookmarksManageLabelsResult("),
+            "NavHostComposeActivity.kt consumes manageLabelsResults but hands the result to nobody " +
+                "-- an assign/manage round trip is read, cleared and DROPPED",
         )
+        assertTrue(
+            !bookmarkNavGraphSource().contains("manageLabelsResults.consume()"),
+            "BookmarkNavGraph.kt still consumes manageLabelsResults -- the arm is disposed while the " +
+                "label manager is on top, so an arm-local consume misses an answer the list asked for " +
+                "and applies it stale (CR-5)",
+        )
+    }
+
+    /** The host, which is where the bookmark list's label-manager answer is claimed (CR-5). */
+    private fun hostSource(): String {
+        val file = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        assertTrue(file.isFile, "cannot find NavHostComposeActivity.kt at ${file.absolutePath}")
+        return withoutComments(file.readText())
     }
 
     /**
