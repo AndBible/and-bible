@@ -1,6 +1,7 @@
 package net.bible.service.llm
 
 import android.os.Looper
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -27,6 +28,59 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class AiSettingsFixtureLifetimeTest {
+    @Test fun pumpFailureRetainsUnquiescedOwnerUntilRetryBeforeRestart() {
+        val app = BibleApplication.application as TestBibleApplication
+        val koin = GlobalContext.get()
+        val scope = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
+        val job = scope.coroutineContext[kotlinx.coroutines.Job]!!
+        val settings = koin.get<AiSettings>()
+        val container = DatabaseContainer.instance
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val sentinel = IllegalStateException("fixture Main pump failure")
+        val handler = Thread.getDefaultUncaughtExceptionHandler()
+        val initialized = CommonUtils::class.java.getDeclaredField("initialized").apply { isAccessible = true }
+        val containerField = DatabaseContainer.Companion::class.java.enclosingClass
+            .getDeclaredField("_instance").apply { isAccessible = true }
+        val child = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { release.await() }
+        }
+        android.os.Handler(Looper.getMainLooper()).post { throw sentinel }
+        try {
+            val failure = runCatching { app.onTerminate() }.exceptionOrNull()
+            assertSame("original pump failure is retained", sentinel, failure)
+            assertFalse("held real fixture owner has not completed", child.isCompleted)
+            assertFalse(job.isCompleted)
+            assertSame("no detach before actual completion", container, containerField.get(null))
+            assertSame(scope, koin.get<net.bible.sharedcore.platform.AppCoroutineScope>())
+            assertSame(settings, koin.get<AiSettings>())
+            assertTrue("global resource cleanup is deferred", initialized.getBoolean(CommonUtils))
+            assertSame(handler, Thread.getDefaultUncaughtExceptionHandler())
+            assertTrue("restart must reject incomplete old ownership",
+                runCatching { app.onCreate() }.exceptionOrNull() is IllegalStateException)
+            release.complete(Unit)
+            app.onTerminate()
+            assertTrue(child.isCompleted)
+            assertTrue("retry proves actual job completion", job.isCompleted)
+            assertNull(containerField.get(null))
+            app.onCreate()
+            val fresh = koin.get<AiSettings>()
+            val dao = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
+            val before = runBlocking { dao.get()?.askModelBeforeRun ?: false }
+            fresh.askModelBeforeRun = !before
+            runBlocking {
+                kotlinx.coroutines.withTimeout(5000) { fresh.awaitWrites() }
+                assertEquals(!before, dao.get()?.askModelBeforeRun)
+            }
+        } finally {
+            release.complete(Unit)
+            runBlocking { kotlinx.coroutines.withTimeout(5000) { child.join() } }
+            // Safety net for the RED fixture, whose premature completion skips a retry.
+            job.cancel()
+            runBlocking { kotlinx.coroutines.withTimeout(5000) { job.join() } }
+            try { app.onTerminate() } finally { DatabaseResetter.resetDatabase() }
+        }
+    }
+
     @Test fun restorationFailureStillQuiescesAndClearsApplicationGlobals() {
         val app = BibleApplication.application as TestBibleApplication
         val koin = GlobalContext.get()

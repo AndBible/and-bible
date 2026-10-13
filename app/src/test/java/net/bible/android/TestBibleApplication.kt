@@ -73,16 +73,20 @@ class TestBibleApplication : BibleApplication() {
     private var aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
     private var overriddenKoin: org.koin.core.Koin? = null
     private var terminated = false
+    private var terminationPending = false
+    private var presenterReleased = false
     override val isRunningTests: Boolean = true
 
     override fun getLocalizedResources(language: String): Resources = application.resources
 
     override fun onCreate() {
+        check(!terminationPending) { "Previous fixture termination has not completed; retry onTerminate first" }
         if (terminated) {
             aiScope = net.bible.sharedcore.platform.AppCoroutineScope()
             aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
         }
         terminated = false
+        presenterReleased = false
         // At the start, not in onTerminate: a test may terminate the application mid-way with its activity still live.
         CurrentActivityHolder.forgetActivitiesForTest()
         // The production handler is process-global; Robolectric creates an application per test.
@@ -137,7 +141,8 @@ class TestBibleApplication : BibleApplication() {
 
     override fun onTerminate() {
         if (terminated) return
-        terminated = true
+        terminationPending = true
+        val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
         var failure: Throwable? = null
         fun cleanup(action: () -> Unit) {
             try { action() } catch (e: Throwable) {
@@ -146,7 +151,6 @@ class TestBibleApplication : BibleApplication() {
         }
         cleanup {
             net.bible.test.DatabaseResetter.runResetBlocking {
-                val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
                 try {
                     aiLauncher.join("ai-settings")
                 } finally {
@@ -154,6 +158,16 @@ class TestBibleApplication : BibleApplication() {
                     job.join()
                 }
             }
+        }
+        // The abortable Main pump may return before its cancelled worker finishes joining.
+        // Cancellation alone is not quiescence: retain ownership until a retry proves completion.
+        cleanup { job.cancel() }
+        if (!job.isCompleted) {
+            if (!presenterReleased) cleanup {
+                super.onTerminate()
+                presenterReleased = true
+            }
+            throw failure ?: IllegalStateException("Fixture owner has not completed termination")
         }
         cleanup {
             val koin = overriddenKoin
@@ -183,7 +197,10 @@ class TestBibleApplication : BibleApplication() {
             overriddenKoin = null
         }
         cleanup { CommonUtils.destroy() }
-        cleanup { super.onTerminate() }
+        if (!presenterReleased) cleanup {
+            super.onTerminate()
+            presenterReleased = true
+        }
         cleanup { AgentSessionManager.resetSubscribersForTest() }
         cleanup { SharedActivityState.instance.resetSubscribersForTest() }
         cleanup { GlobalContext.getOrNull()?.getOrNull<WindowStateServiceImpl>()?.resetSubscribersForTest() }
@@ -215,6 +232,8 @@ class TestBibleApplication : BibleApplication() {
             detachedContainer = DatabaseContainer.detachInstanceForTest()
             previous?.closeAll()
         }
+        terminationPending = false
+        terminated = true
         failure?.let { throw it }
     }
 }
