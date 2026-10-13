@@ -40,7 +40,9 @@ import java.time.Duration
 class PromptEditMutationHostTest {
     @get:Rule val compose = createEmptyComposeRule()
     private val scheduler = TestCoroutineScheduler()
-    private val owner = AppCoroutineScope(SupervisorJob() + StandardTestDispatcher(scheduler))
+    private val fixtureScope = GlobalContext.get().get<AppCoroutineScope>()
+    private val fixtureJob = fixtureScope.coroutineContext[Job]!!
+    private val owner = AppCoroutineScope(SupervisorJob(fixtureJob) + StandardTestDispatcher(scheduler))
     private var host: org.robolectric.android.controller.ActivityController<NavHostComposeActivity>? = null
     private var oldScope: AppCoroutineScope? = null
     private var oldService: PromptService? = null
@@ -49,7 +51,13 @@ class PromptEditMutationHostTest {
 
     private fun service(): PromptServiceImpl {
         val koin = GlobalContext.get()
-        oldScope = koin.get()
+        val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
+        val actualFixtureScope = TestBibleApplication::class.java.getDeclaredField("aiScope")
+            .apply { isAccessible = true }.get(app)
+        assertSame("captured parent belongs to exact application fixture", fixtureScope, actualFixtureScope)
+        assertSame("fixture graph must not change before override", fixtureScope, koin.get<AppCoroutineScope>())
+        assertTrue(fixtureJob.children.any { it === owner.coroutineContext[Job] })
+        oldScope = fixtureScope
         oldService = koin.get()
         loadKoinModules(module { single<AppCoroutineScope> { owner } })
         return PromptServiceImpl(koin.get<LlmStrings>()).also { real ->
@@ -60,7 +68,9 @@ class PromptEditMutationHostTest {
         }
     }
 
-    @After fun cleanup() {
+    @After fun cleanup() = cleanupOwned { scheduler.advanceUntilIdle() }
+
+    private fun cleanupOwned(pump: () -> Unit) {
         var failure: Throwable? = null
         fun attempt(block: () -> Unit) {
             try { block() } catch (caught: Throwable) {
@@ -74,12 +84,15 @@ class PromptEditMutationHostTest {
             runBlocking {
                 withTimeout(5_000) {
                     while (!ownerJob.isCompleted) {
-                        scheduler.advanceUntilIdle()
+                        pump()
                         delay(10)
                     }
                 }
             }
             assertTrue("test owner must quiesce before database reset", ownerJob.isCompleted)
+        }
+        if (!ownerJob.isCompleted) {
+            throw failure ?: IllegalStateException("Held prompt test owner has not completed")
         }
         attempt {
             oldScope?.let { scope -> oldService?.let { service ->
@@ -93,6 +106,61 @@ class PromptEditMutationHostTest {
         // A failed drain must never detach a database still used by this owner.
         if (ownerJob.isCompleted) attempt { DatabaseResetter.resetDatabase() }
         failure?.let { throw it }
+    }
+
+    @Test fun failedLocalDrainRetainsStructuredOwnerUntilOuterTerminationRetry() {
+        val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
+        val koin = GlobalContext.get()
+        service()
+        val parent = oldScope!!.coroutineContext[Job]!!
+        val ownerJob = owner.coroutineContext[Job]!!
+        val overriddenService = koin.get<PromptService>()
+        val container = DatabaseContainer.instance
+        val containerField = DatabaseContainer.Companion::class.java.enclosingClass
+            .getDeclaredField("_instance").apply { isAccessible = true }
+        val initialized = net.bible.service.common.CommonUtils::class.java
+            .getDeclaredField("initialized").apply { isAccessible = true }
+        val handler = Thread.getDefaultUncaughtExceptionHandler()
+        val release = CompletableDeferred<Unit>()
+        val sentinel = IllegalStateException("local dispatcher drain failed")
+        val outerSentinel = IllegalStateException("outer Main pump failed")
+        val held = owner.launch(start = CoroutineStart.UNDISPATCHED) {
+            withContext(NonCancellable) { release.await() }
+        }
+        try {
+            val failure = runCatching { cleanupOwned { throw sentinel } }.exceptionOrNull()
+            assertTrue("original drain failure retained through coroutine recovery",
+                generateSequence(failure) { it.cause }.any { it === sentinel })
+            assertFalse(held.isCompleted)
+            assertFalse(ownerJob.isCompleted)
+            assertSame("incomplete owner must remain in graph", owner, koin.get<AppCoroutineScope>())
+            assertSame(overriddenService, koin.get<PromptService>())
+            assertSame(container, containerField.get(null))
+            assertTrue("exact fixture parent must own held dispatcher owner", parent.children.any { it === ownerJob })
+            android.os.Handler(Looper.getMainLooper()).post { throw outerSentinel }
+            assertSame(outerSentinel, runCatching { app.onTerminate() }.exceptionOrNull())
+            assertFalse(parent.isCompleted)
+            assertSame(container, containerField.get(null))
+            assertSame(owner, koin.get<AppCoroutineScope>())
+            assertTrue(initialized.getBoolean(net.bible.service.common.CommonUtils))
+            assertSame(handler, Thread.getDefaultUncaughtExceptionHandler())
+            assertTrue(runCatching { app.onCreate() }.exceptionOrNull() is IllegalStateException)
+            release.complete(Unit)
+            cleanupOwned { scheduler.advanceUntilIdle() }
+            assertTrue(held.isCompleted)
+            assertTrue(ownerJob.isCompleted)
+            assertSame(oldScope, koin.get<AppCoroutineScope>())
+            assertSame(oldService, koin.get<PromptService>())
+            app.onTerminate()
+            assertTrue(parent.isCompleted)
+            assertNull(containerField.get(null))
+            assertTrue("primary drain failure remains observable",
+                generateSequence(failure) { it.cause }.any { it === sentinel })
+        } finally {
+            release.complete(Unit)
+            cleanupOwned { scheduler.advanceUntilIdle() }
+            app.onTerminate()
+        }
     }
 
     private fun idle() {
