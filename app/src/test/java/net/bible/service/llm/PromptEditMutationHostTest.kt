@@ -229,6 +229,7 @@ class PromptEditMutationHostTest {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.AI_CONNECTION_SETTINGS)).setup()
         idle()
         val activity = host!!.get()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.AI_CONNECTION_SETTINGS) { compose.waitForIdle() }
         val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
             .apply { isAccessible = true }.get(activity) as NavHostController
         nav.navigate(NavRoutes.promptEdit(template = "Original accepted template"))
