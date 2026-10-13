@@ -1,5 +1,6 @@
 package net.bible.sharedcore.ai
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +40,11 @@ class AiModelsControllerTest {
         var refreshCount = 0
 
         override fun providersForPicker() = providerChoices
-        override suspend fun availableModelsFor(providerId: String) = availableModelsByProvider[providerId] ?: emptyList()
+        /** Per-provider gates: a provider listed here suspends until its deferred completes. */
+        val gates = mutableMapOf<String, CompletableDeferred<List<AvailableModelVd>>>()
+
+        override suspend fun availableModelsFor(providerId: String) =
+            gates[providerId]?.await() ?: availableModelsByProvider[providerId] ?: emptyList()
         override suspend fun saveModel(
             id: String?, providerId: String, modelId: String,
             priceInput: String?, priceOutput: String?, setDefault: Boolean,
@@ -73,6 +78,57 @@ class AiModelsControllerTest {
         assertEquals(ModelEditState.Step.PICK_PROVIDER, s.step)
         assertEquals(listOf(providerA, providerB), s.providerChoices)
         assertFalse(s.canSave)
+    }
+
+    /** CR-8: provider A's slow fetch returning after B's must not overwrite B's list. */
+    @Test fun pickProvider_aStaleFetchForAnEarlierProviderIsDropped() = runTest {
+        val f = Fake(providerChoices = listOf(providerA, providerB))
+        f.gates["p1"] = CompletableDeferred()
+        f.gates["p2"] = CompletableDeferred()
+        val c = controller(f)
+        c.startAdd()
+        c.pickProvider("p1")
+        c.pickProvider("p2")
+
+        f.gates.getValue("p2").complete(listOf(unknownModel))
+        f.gates.getValue("p1").complete(listOf(knownModel))   // stale: A answered last
+
+        val s = assertNotNull(c.dialog.value)
+        assertEquals("p2", s.providerId)
+        assertEquals(listOf(unknownModel), s.availableModels)
+        assertFalse(s.loadingModels)
+    }
+
+    /** CR-8: A's stale fetch completing FIRST must not clear B's loading state early either. */
+    @Test fun pickProvider_aStaleFetchDoesNotEndTheLaterProvidersLoading() = runTest {
+        val f = Fake(providerChoices = listOf(providerA, providerB))
+        f.gates["p1"] = CompletableDeferred()
+        f.gates["p2"] = CompletableDeferred()
+        val c = controller(f)
+        c.startAdd()
+        c.pickProvider("p1")
+        c.pickProvider("p2")
+
+        f.gates.getValue("p1").complete(listOf(knownModel))
+
+        val s = assertNotNull(c.dialog.value)
+        assertTrue(s.loadingModels, "B is still loading; A's answer must not end it")
+        assertEquals(emptyList(), s.availableModels)
+    }
+
+    /** Review focus: the same provider picked twice still ends with that provider's list loaded. */
+    @Test fun pickProvider_sameProviderTwiceLoadsOnce() = runTest {
+        val f = Fake(providerChoices = listOf(providerA))
+        f.gates["p1"] = CompletableDeferred()
+        val c = controller(f)
+        c.startAdd()
+        c.pickProvider("p1")
+        c.pickProvider("p1")
+        f.gates.getValue("p1").complete(listOf(knownModel))
+
+        val s = assertNotNull(c.dialog.value)
+        assertEquals(listOf(knownModel), s.availableModels)
+        assertFalse(s.loadingModels)
     }
 
     @Test fun pickProvider_loadsAvailableModelsAndAdvancesStep() = runTest {
