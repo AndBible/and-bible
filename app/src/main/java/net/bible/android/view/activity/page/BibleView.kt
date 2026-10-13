@@ -1694,7 +1694,11 @@ class BibleView(
                              windowContentGeneration: Long? = null,
     )
     {
-        val generation = synchronized(documentLoadingLock) { ++documentLoadGeneration }
+        val generation = synchronized(documentLoadingLock) {
+            // A stale Window request must not invalidate an already admitted newer load.
+            if (windowContentGeneration != null && window.contentLoadGeneration != windowContentGeneration) return
+            ++documentLoadGeneration
+        }
         val currentPage = window.pageManager.currentPage
         val sourceDocument = currentPage.currentDocument
         val workspaceId = windowControl.windowRepository.id

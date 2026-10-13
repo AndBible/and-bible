@@ -8,6 +8,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.control.page.Document
 import net.bible.android.database.mydocument.AiDocMarkerInfo
 import net.bible.android.database.mydocument.MyDocumentDao
 import net.bible.android.database.mydocument.MyDocumentDatabase
@@ -104,6 +105,73 @@ class WindowContentLoadRaceTest {
                 view?.destroy()
             } finally {
                 database.myDocumentDb = originalDb
+                control.windowRepository = originalRepo
+            }
+        }
+    }
+
+    @Test fun staleWindowAdmissionCannotInvalidateANewerHeldSerialization() = runTest(dispatcher, timeout = 30.seconds) {
+        val control = CommonUtils.windowControl
+        val originalRepo = control.windowRepository
+        val repoJob = SupervisorJob(coroutineContext[Job])
+        val repo = WindowRepository(CoroutineScope(coroutineContext + repoJob))
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        var view: BibleView? = null
+        try {
+            control.windowRepository = repo
+            repo.initialize()
+            val window = repo.activeWindow
+            val host = mock<ReadingHostActivity>()
+            whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+            val callbacks = BibleViewHostCallbacks(mock(), {}, {}, { _, _ -> }, { _, _ -> false }, { false }, {}, { null }, { _, _ -> }, {}, { false }, { 0 }, { 0 }, { 0 }, { error("Unused") })
+            val koin = GlobalContext.get()
+            val reader = BibleView(host, callbacks, WeakReference(window), control, koin.get(), PageTiltScrollControl(), koin.get(), koin.get(), koin.get(), koin.get())
+            view = reader
+            window.bibleView = reader
+            reader.lastUpdated = 1
+            BibleView::class.java.getDeclaredField("pageTiltScroller").apply {
+                isAccessible = true
+                set(reader, PageTiltScroller(reader, PageTiltScrollControl()))
+            }
+            val key = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 2, 1)
+            window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV")!!, key, false)
+            window.loadText()
+            awaitIo { reader.firstDocument != null && repoJob.children.none { it.isActive } }
+            val currentToken = window.contentLoadGeneration
+            assertTrue("actual Window load must advance the source token", currentToken > 0)
+            val newer = object : Document {
+                override suspend fun contentMap(): Map<String, String> {
+                    entered.complete(Unit)
+                    release.await()
+                    return mapOf("id" to "'newer'")
+                }
+            }
+            val stale = object : Document {
+                override suspend fun contentMap() = mapOf("id" to "'stale'")
+            }
+            val pending = launch(Dispatchers.IO) {
+                reader.loadDocument(newer, key = key, windowContentGeneration = currentToken)
+            }
+            try {
+                entered.await()
+                assertFalse("newer serialization is actually held", release.isCompleted)
+                reader.loadDocument(stale, windowContentGeneration = currentToken - 1)
+                release.complete(Unit)
+                pending.join()
+                assertSame("stale admission must not invalidate the valid pending publication", newer, reader.firstDocument)
+                assertEquals(key, reader.initialKey)
+            } finally {
+                release.complete(Unit)
+                pending.cancelAndJoin()
+            }
+        } finally {
+            release.complete(Unit)
+            try {
+                repoJob.cancelAndJoin()
+                repo.windowList.forEach { it.destroy(destroyView = false) }
+                view?.destroy()
+            } finally {
                 control.windowRepository = originalRepo
             }
         }
