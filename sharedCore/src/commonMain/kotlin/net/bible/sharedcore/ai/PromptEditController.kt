@@ -66,6 +66,9 @@ class PromptEditController(
 ) {
     private val loaded: PromptEditData = service.newPromptData(template, defaultContext).let(::gateBibleOnly)
 
+    private val _mutating = MutableStateFlow(false)
+    val mutating: StateFlow<Boolean> = _mutating.asStateFlow()
+
     private val _loading = MutableStateFlow(promptId != null)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
@@ -203,20 +206,42 @@ class PromptEditController(
      * [PromptService.setBuiltinPromptModelOverride]), never [PromptService.savePrompt].
      */
     suspend fun save(): String? {
-        if (!_canSave.value) return null
+        if (!_canSave.value || _mutating.value) return null
         val current = _state.value
-        return if (current.isBuiltIn && current.isReadOnly) {
-            val id = current.id ?: return null
-            service.setBuiltinPromptModelOverride(id, current.modelOverrideId)
-            rebaseline(current)
-            id
-        } else {
-            val id = service.savePrompt(current)
-            val saved = current.copy(id = id)
-            _state.value = saved
-            rebaseline(saved)
-            id
+        if (!admitMutation()) return null
+        return completeMutation {
+            if (current.isBuiltIn && current.isReadOnly) {
+                val id = current.id ?: return@completeMutation null
+                service.setBuiltinPromptModelOverride(id, current.modelOverrideId)
+                rebaseline(current)
+                id
+            } else {
+                val id = service.savePrompt(current)
+                val saved = current.copy(id = id)
+                _state.value = saved
+                rebaseline(saved)
+                id
+            }
         }
+    }
+
+    // Admission is synchronous on the UI thread. Success consumes this editor until its host
+    // leaves; cancellation also consumes it because the application-owned write may still finish.
+    private fun admitMutation(): Boolean {
+        if (_loading.value || _mutating.value) return false
+        _mutating.value = true
+        _canSave.value = false
+        return true
+    }
+
+    private suspend fun <T> completeMutation(block: suspend () -> T): T = try {
+        block()
+    } catch (cancelled: kotlinx.coroutines.CancellationException) {
+        throw cancelled
+    } catch (failure: Throwable) {
+        _mutating.value = false
+        _canSave.value = computeCanSave(_state.value)
+        throw failure
     }
 
     /** Re-baselines dirty/canSave tracking against [data] as the new "loaded" snapshot. */
@@ -227,16 +252,17 @@ class PromptEditController(
     }
 
     /** No-op for a new (unsaved) or read-only prompt. */
-    suspend fun delete() {
-        val id = _state.value.id ?: return
-        if (_state.value.isReadOnly) return
-        service.deletePromptById(id)
+    suspend fun delete(): Boolean {
+        val id = _state.value.id ?: return false
+        if (_state.value.isReadOnly || !admitMutation()) return false
+        return completeMutation { service.deletePromptById(id); true }
     }
 
     /** Works even for a read-only prompt — that's the point of "Copy to customize". */
     suspend fun copyToCustomize(): String? {
         val id = _state.value.id ?: return null
-        return service.copyPrompt(id)
+        if (!admitMutation()) return null
+        return completeMutation { service.copyPrompt(id) }
     }
 
     /**
@@ -245,7 +271,7 @@ class PromptEditController(
      *   add-on prompt (`isReadOnly && !isBuiltIn`) is still blocked either way.
      */
     private fun update(allowBuiltinOverride: Boolean = false, transform: (PromptEditData) -> PromptEditData) {
-        if (_loading.value) return
+        if (_loading.value || _mutating.value) return
         val current = _state.value
         if (current.isReadOnly && !(allowBuiltinOverride && current.isBuiltIn)) return
         publish(transform(current))
@@ -272,7 +298,7 @@ class PromptEditController(
      * blank template.
      */
     private fun computeCanSave(data: PromptEditData): Boolean =
-        !_loading.value && data.name.isNotBlank() &&
+        !_loading.value && !_mutating.value && data.name.isNotBlank() &&
             ((!data.isReadOnly && data.template.isNotBlank()) ||
                 (data.isBuiltIn && data.modelOverrideId != initialData.modelOverrideId))
 

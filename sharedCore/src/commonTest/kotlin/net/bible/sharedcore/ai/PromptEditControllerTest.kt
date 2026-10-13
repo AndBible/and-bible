@@ -144,6 +144,79 @@ class PromptEditControllerTest {
         assertFalse(controller.isDirty.value)
     }
 
+    @Test fun heldNewSaveConsumesOneIntentBeforeSuspension() = runTest {
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val backing = Fake(newData = data(id = null))
+        val service = object : PromptService by backing {
+            override suspend fun savePrompt(data: PromptEditData): String {
+                backing.savePrompt(data)
+                release.await()
+                return "saved-id"
+            }
+        }
+        val controller = PromptEditController(service, null)
+        val first = launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.save() }
+        var secondResult: String? = null
+        val second = launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { secondResult = controller.save() }
+        release.complete(Unit)
+        assertEquals(1, backing.saveCount)
+        assertNull(secondResult)
+        assertNull(backing.lastSaved!!.id)
+        assertFalse(controller.canSave.value)
+        controller.setName("Rejected newer name")
+        assertEquals("My prompt", controller.state.value.name)
+        release.complete(Unit)
+        first.join()
+        assertEquals("saved-id", controller.state.value.id)
+        assertFalse(controller.isDirty.value)
+    }
+
+    @Test fun heldSaveBlocksConflictingCopyDeleteAndEdits() = runTest {
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val backing = Fake(newData = data())
+        val service = object : PromptService by backing {
+            override suspend fun savePrompt(data: PromptEditData): String {
+                backing.savePrompt(data)
+                release.await()
+                return "saved-id"
+            }
+        }
+        val controller = PromptEditController(service, null)
+        controller.setTemplate("Accepted draft")
+        val first = launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.save() }
+        controller.setTemplate("Rejected draft")
+        controller.setModelOverride("rejected-model")
+        controller.delete()
+        assertNull(controller.copyToCustomize())
+        assertEquals(0, backing.deleteCount)
+        assertEquals(0, backing.copyCount)
+        assertEquals("Accepted draft", controller.state.value.template)
+        assertNull(controller.state.value.modelOverrideId)
+        release.complete(Unit)
+        first.join()
+        assertEquals("Accepted draft", backing.lastSaved!!.template)
+    }
+
+    @Test fun failedMutationKeepsDraftAndAllowsRetry() = runTest {
+        val backing = Fake(newData = data(id = null))
+        var fail = true
+        val service = object : PromptService by backing {
+            override suspend fun savePrompt(data: PromptEditData): String {
+                if (fail) throw IllegalStateException("write failed")
+                return backing.savePrompt(data)
+            }
+        }
+        val controller = PromptEditController(service, null)
+        controller.setName("Retry draft")
+        assertFailsWith<IllegalStateException> { controller.save() }
+        assertTrue(controller.isDirty.value)
+        assertTrue(controller.canSave.value)
+        assertEquals("Retry draft", controller.state.value.name)
+        assertNull(controller.state.value.id)
+        fail = false
+        assertEquals("saved-id", controller.save())
+    }
+
     // --- load / new ---
 
     @Test fun load_prefillsStateFromPromptId() = runTest {

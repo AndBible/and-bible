@@ -976,6 +976,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val availableTabs by controller.availableTabs.collectAsState()
         val isDirty by controller.isDirty.collectAsState()
         val canSave by controller.canSave.collectAsState()
+        val mutating by controller.mutating.collectAsState()
 
         // Mirrors PromptEditScreen's own top-bar title logic (see that screen's `val title = when
         // {...}` below its parameter list) rather than a single `strings.xxxTitle` constant, since
@@ -1013,6 +1014,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             hiddenAdvancedKeys = controller.hiddenAdvancedKeys,
             isDirty = isDirty,
             canSave = canSave,
+            mutating = mutating,
             isReadOnly = state.isReadOnly,
             isBuiltIn = state.isBuiltIn,
             isNew = controller.isNew,
@@ -1040,8 +1042,24 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // No result to report — see PromptEditDeps' kdoc "No result slot". Only pop when a
             // save actually happened (controller.save() returns null if canSave was false,
             // defensively — the Save action is already disabled in that case).
-            onSave = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { if (controller.save() != null) navController.popOrExit(deps.exitHost) } },
-            onDelete = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.delete(); navController.popOrExit(deps.exitHost) } },
+            onSave = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                try {
+                    if (controller.save() != null) navController.popOrExit(deps.exitHost)
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    net.bible.sharedcore.log.Log.e("PromptEdit", "Save failed", failure)
+                }
+            } },
+            onDelete = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                try {
+                    if (controller.delete()) navController.popOrExit(deps.exitHost)
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    net.bible.sharedcore.log.Log.e("PromptEdit", "Delete failed", failure)
+                }
+            } },
             // Self-replacing navigation (mirrors classic copyToCustomizeAndFinish): navigate to a
             // fresh PROMPT_EDIT entry for the copy, popping the CURRENT entry off so the old
             // (now-stale) editor never lingers on the back stack. popUpTo targets the PATTERN
@@ -1050,12 +1068,18 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // pushed — shares that same registered route; popping by pattern removes exactly the
             // one entry currently on the stack for it, which is what "replace" means here.
             onCopyToCustomize = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
-                val newId = controller.copyToCustomize()
-                if (newId != null) {
-                    d.onPromptCopied()
-                    navController.navigate(NavRoutes.promptEdit(promptId = newId)) {
-                        popUpTo(NavRoutes.PROMPT_EDIT_PATTERN) { inclusive = true }
+                try {
+                    val newId = controller.copyToCustomize()
+                    if (newId != null) {
+                        d.onPromptCopied()
+                        navController.navigate(NavRoutes.promptEdit(promptId = newId)) {
+                            popUpTo(NavRoutes.PROMPT_EDIT_PATTERN) { inclusive = true }
+                        }
                     }
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    net.bible.sharedcore.log.Log.e("PromptEdit", "Copy failed", failure)
                 }
             } },
             onViewTools = { navController.navigate(NavRoutes.AI_TOOL_INFO) },
