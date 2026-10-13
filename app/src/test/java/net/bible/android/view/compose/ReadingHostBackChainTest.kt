@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.compose
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.test.core.app.ApplicationProvider
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import net.bible.android.TestBibleApplication
@@ -104,11 +106,95 @@ class ReadingHostBackChainTest {
      */
     @After
     fun resetReadingSeams() {
+        val scopes = hostControllers.flatMap { controller ->
+            val activity = controller.get()
+            listOfNotNull(activity.lifecycleScope, activity.composeReadingViewHost?.let { view ->
+                view.javaClass.getDeclaredField("hostScope").apply { isAccessible = true }.get(view) as kotlinx.coroutines.CoroutineScope
+            })
+        }
         hostControllers.forEach { it.close() }
         hostControllers.clear()
         ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        DatabaseResetter.resetDatabase(*scopes.toTypedArray())
     }
+
+    /** Pre-paused host-owned getter mechanism, not a Window.loadText or historical crash reproduction. */
+    @OptIn(kotlinx.coroutines.InternalCoroutinesApi::class)
+    @Test
+    fun resetDrainsExactHostGetterBeforeSameHandleClose() {
+        val boundary = net.bible.service.llm.WorkspaceNativeLifetimeWitnessTest.Boundary(20, true)
+        DatabaseResetter.resetDatabase()
+        val originalFactory = net.bible.service.db.DatabaseContainer.containerFactory
+        val witness = net.bible.service.llm.WorkspaceNativeLifetimeWitnessTest()
+        var owner: net.bible.service.llm.WorkspaceNativeLifetimeWitnessTest.CleanupOwner? = null
+        var originalFailure: Throwable? = null
+        var producer: kotlinx.coroutines.Job? = null
+        val originalObserver = DatabaseResetter.drainObserver
+        var installedObserver: ((List<kotlinx.coroutines.Job>, kotlinx.coroutines.Deferred<Unit>) -> Unit)? = null
+        var observedDrain = false
+        val factory: () -> net.bible.service.db.DatabaseContainer = {
+            originalFactory().also { container ->
+                boundary.container = container
+                owner = witness.retainCleanupOwner(boundary, container)
+                container.workspaceDb.close()
+                val replacement = androidx.room3.Room.databaseBuilder<net.bible.android.database.WorkspaceDatabase>(
+                    ApplicationProvider.getApplicationContext(), net.bible.android.database.WorkspaceDatabase.dbFileName
+                ).setDriver(boundary).setQueryCoroutineContext(kotlinx.coroutines.Dispatchers.IO)
+                    .setJournalMode(androidx.room3.RoomDatabase.JournalMode.TRUNCATE)
+                    .addMigrations(*net.bible.android.database.migrations.workspacesMigrations).build()
+                owner!!.database = replacement
+                boundary.database = replacement
+                container.workspaceDb = replacement
+            }
+        }
+        net.bible.service.db.DatabaseContainer.containerFactory = factory
+        try {
+            val activity = host()
+            owner!!.published = true
+            val controller = hostControllers.single()
+            val parent = checkNotNull(activity.lifecycleScope.coroutineContext[kotlinx.coroutines.Job])
+            assertTrue(activity.hostWindowRepository.scope.coroutineContext[kotlinx.coroutines.Job] === parent)
+            controller.pause()
+            boundary.armed.set(true)
+            producer = activity.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                try { CommonUtils.globalTextDisplaySettings }
+                finally { boundary.completed.set(true); boundary.event("host-getter-completion") }
+            }
+            owner!!.producer = producer
+            val child = producer
+            assertTrue("HARNESS FAILURE: target hold absent", boundary.entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            assertTrue(parent.children.any { it === child })
+            installedObserver = { jobs, drain ->
+                assertTrue("actual drain includes exact lifecycle parent", jobs.any { it === parent })
+                assertFalse("UNDISPATCHED join really suspended on held parent", drain.isCompleted)
+                assertFalse(child.isCompleted)
+                assertEquals(-1, boundary.index("connection-close-attempt"))
+                observedDrain = true
+                boundary.event("actual-reset-join-suspended exact-parent-incomplete")
+                boundary.release.countDown()
+            }
+            DatabaseResetter.drainObserver = installedObserver
+            controller.stop().destroy()
+            // Keep the actual scopes retained even after host destruction; use the same reset seam as @After.
+            DatabaseResetter.resetDatabase(activity.lifecycleScope)
+            assertTrue("observer reached actual suspended drain", observedDrain)
+            assertTrue(child.isCompleted)
+            assertTrue(boundary.index("host-getter-completion") < boundary.index("connection-close-attempt"))
+            assertTrue(boundary.index("delegate-step-exit") < boundary.index("connection-close-attempt"))
+        } catch (e: Throwable) {
+            originalFailure = e
+            throw e
+        } finally {
+            boundary.release.countDown()
+            if (DatabaseResetter.drainObserver === installedObserver) DatabaseResetter.drainObserver = originalObserver
+            if (net.bible.service.db.DatabaseContainer.containerFactory === factory) net.bible.service.db.DatabaseContainer.containerFactory = originalFactory
+            try { owner?.finish() } catch (e: Throwable) {
+                if (originalFailure == null) throw e
+                if (originalFailure !== e) originalFailure.addSuppressed(e)
+            }
+        }
+    }
+
 
     @Test
     fun theChainIsClassicsSixBranchesInClassicsOrder() {

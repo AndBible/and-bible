@@ -33,6 +33,9 @@ import java.lang.reflect.Field
  * Created by mjden on 31/08/2017.
  */
 object DatabaseResetter {
+    /** Optional test observer of an already-started exact producer drain. */
+    internal var drainObserver: ((List<kotlinx.coroutines.Job>, kotlinx.coroutines.Deferred<Unit>) -> Unit)? = null
+
     @JvmStatic
     fun resetDatabase(vararg scopes_: CoroutineScope) {
         val scopes = ArrayList<CoroutineScope>()
@@ -65,7 +68,13 @@ object DatabaseResetter {
             val jobs = (scopes_.mapNotNull { it.coroutineContext[kotlinx.coroutines.Job] } +
                 (appJob?.children?.toList() ?: emptyList())).distinct()
             jobs.forEach { it.cancel() }
-            jobs.forEach { it.join() }
+            kotlinx.coroutines.coroutineScope {
+                val drain = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                    jobs.forEach { it.join() }
+                }
+                drainObserver?.invoke(jobs, drain)
+                drain.await()
+            }
             val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
             if (settings == null) commitReset { DatabaseContainer.reset() }
