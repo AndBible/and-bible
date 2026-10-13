@@ -460,9 +460,6 @@ data class GlobalAiSettings(
 @Dao
 interface GlobalAiSettingsDao {
     @Query("SELECT * FROM GlobalAiSettings LIMIT 1")
-    fun observe(): kotlinx.coroutines.flow.Flow<GlobalAiSettings?>
-
-    @Query("SELECT * FROM GlobalAiSettings LIMIT 1")
     suspend fun get(): GlobalAiSettings?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

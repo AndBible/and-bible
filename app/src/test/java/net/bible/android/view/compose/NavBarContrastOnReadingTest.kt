@@ -81,11 +81,13 @@ class NavBarContrastOnReadingTest {
                     NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
                 ).also { controllers += it }.create().start().resume().visible()
                 val activity = controller.get()
+                net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
                 idleMain()
                 assertFalse(activity.window.isNavigationBarContrastEnforced)
                 for (route in listOf(NavRoutes.WORKSPACE_SELECTOR, NavRoutes.SETTINGS, NavRoutes.READING)) {
                     activity.navigateInGraph(route)
                     idleMain()
+                    kotlin.test.assertEquals(route, activity.currentRouteForTest(), "decor dispatch must target requested route")
                     val config = Configuration(activity.resources.configuration).apply {
                         orientation = Configuration.ORIENTATION_LANDSCAPE
                     }
@@ -110,6 +112,7 @@ class NavBarContrastOnReadingTest {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         ).also { controllers += it }.create().start().resume().visible()
         val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity) { compose.waitForIdle() }
         idleMain()
         assertFalse(activity.window.isNavigationBarContrastEnforced)
 
@@ -129,6 +132,7 @@ class NavBarContrastOnReadingTest {
 
         activity.navigateInGraph(NavRoutes.SETTINGS)
         idleMain()
+        kotlin.test.assertEquals(NavRoutes.SETTINGS, activity.currentRouteForTest(), "settings must be composed before decor dispatch")
         rotate(Configuration.ORIENTATION_PORTRAIT)
         assertTrue(activity.window.isNavigationBarContrastEnforced, "settings rotation keeps contrast enforcement")
 
