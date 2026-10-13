@@ -123,6 +123,7 @@ fun SheetConfirmRow(
     cancelLabel: String,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
+    confirmEnabled: Boolean = true,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
@@ -130,7 +131,7 @@ fun SheetConfirmRow(
     ) {
         Spacer(Modifier.weight(1f))
         TextButton(onClick = onCancel) { Text(cancelLabel) }
-        TextButton(onClick = onConfirm) { Text(confirmLabel) }
+        TextButton(onClick = onConfirm, enabled = confirmEnabled) { Text(confirmLabel) }
     }
 }
 
@@ -269,11 +270,16 @@ fun GenericSettingsEditorSheet(
                     numeric = row.numeric,
                     masked = row.masked,
                 )
+                // CR-9: a row that only takes a non-negative integer cannot apply anything else, so
+                // the sheet never closes on a value the screen would silently drop.
+                val applied = if (row.nonNegativeIntOnly) current.trim() else current
+                val valid = !row.nonNegativeIntOnly || (applied.toIntOrNull()?.let { it >= 0 } == true)
                 SheetConfirmRow(
                     confirmLabel = strings.settingsEditorApply,
                     cancelLabel = strings.cancel,
-                    onConfirm = { onTextInput(row.key, current); editor.pop() },
+                    onConfirm = { onTextInput(row.key, applied); editor.pop() },
                     onCancel = { editor.pop() },
+                    confirmEnabled = valid,
                 )
             }
             is SettingsItem.MultiSelectRow -> {
