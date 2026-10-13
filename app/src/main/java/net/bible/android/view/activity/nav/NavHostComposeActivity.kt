@@ -3483,6 +3483,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             onPromptCopied = {
                                 Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
                             },
+                            onPromptCopyFailed = {
+                                Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copy_failed, Toast.LENGTH_SHORT).show()
+                            },
                         ),
                         rawLlmLog = RawLlmLogDeps(
                             controllerFor = { RawLlmLogController(service = rawLogService, scope = lifecycleScope) },

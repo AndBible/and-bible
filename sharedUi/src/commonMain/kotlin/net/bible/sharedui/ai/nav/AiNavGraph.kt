@@ -328,6 +328,8 @@ class AiPromptsDeps(
  *   etc. live on `Deps`.
  * - [onPromptCopied] shows the "Prompt copied" toast (`R.string.prompt_copied`, `Toast.makeText`);
  *   platform-only, ported verbatim from classic `copyToCustomizeAndFinish`.
+ * - [onPromptCopyFailed] shows the failure toast (`R.string.prompt_copy_failed`) when the source
+ *   prompt is gone; the editor stays open.
  *
  * **No result slot.** Classic's `saveAndMaybeFinish()` conditionally set
  * `RESULT_PROMPT_ID`/`EXTRA_EXECUTE_AFTER_SAVE` on save — dead code with no consumer anywhere in
@@ -344,6 +346,7 @@ class PromptEditDeps(
     val helpBody: () -> String,
     val helpReadMoreUrl: String,
     val onPromptCopied: () -> Unit,
+    val onPromptCopyFailed: () -> Unit,
 )
 
 /**
@@ -1024,6 +1027,9 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                     navController.navigate(NavRoutes.promptEdit(promptId = newId)) {
                         popUpTo(NavRoutes.PROMPT_EDIT_PATTERN) { inclusive = true }
                     }
+                } else {
+                    // CR-7: the source prompt is gone. Say so and stay on the editor.
+                    d.onPromptCopyFailed()
                 }
             },
             onViewTools = { navController.navigate(NavRoutes.AI_TOOL_INFO) },

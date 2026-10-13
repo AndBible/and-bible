@@ -439,10 +439,10 @@ class PromptServiceImpl : PromptService {
         refresh()
     }
 
-    override fun copyPrompt(id: String): String {
+    override fun copyPrompt(id: String): String? {
         val newId = PromptRepository.copyPrompt(IdType(id))
         refresh()
-        return (newId ?: IdType(id)).toString()
+        return newId?.toString()
     }
 
     override fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {

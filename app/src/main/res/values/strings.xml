@@ -1687,6 +1687,7 @@
     <string name="built_in_prompt_notice">This is a built-in prompt and cannot be edited. Use \"Copy to customize\" to create an editable copy.</string>
     <string name="copy_to_customize">Copy to customize</string>
     <string name="prompt_copied">Prompt copied</string>
+    <string name="prompt_copy_failed">Could not copy the prompt. It may have been deleted.</string>
     <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
     <string name="prompt_name_required">Prompt name is required</string>
     <string name="prompt_template_required">Prompt template is required</string>

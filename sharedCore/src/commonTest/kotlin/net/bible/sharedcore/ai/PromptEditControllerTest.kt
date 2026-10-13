@@ -101,8 +101,8 @@ class PromptEditControllerTest {
 
         var lastCopiedId: String? = null
         var copyCount = 0
-        var copyIdToReturn = "copy-id"
-        override fun copyPrompt(id: String): String {
+        var copyIdToReturn: String? = "copy-id"
+        override fun copyPrompt(id: String): String? {
             lastCopiedId = id
             copyCount++
             return copyIdToReturn
@@ -293,6 +293,14 @@ class PromptEditControllerTest {
         val id = c.copyToCustomize()
         assertEquals("p1-copy", id)
         assertEquals("p1", f.lastCopiedId)
+        assertEquals(1, f.copyCount)
+    }
+
+    @Test fun copyToCustomize_returnsNullWhenTheCopyFails() = runTest {
+        val f = Fake(mutableMapOf("p1" to data()))
+        f.copyIdToReturn = null
+        val c = PromptEditController(f, promptId = "p1")
+        assertNull(c.copyToCustomize())
         assertEquals(1, f.copyCount)
     }
 

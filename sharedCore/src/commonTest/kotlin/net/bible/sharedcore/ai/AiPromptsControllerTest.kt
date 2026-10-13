@@ -50,7 +50,7 @@ class AiPromptsControllerTest {
         var lastCreateCategoryName: String? = null
         var lastRenameCategory: Pair<String, String>? = null
         var lastCopyPromptId: String? = null
-        var copyPromptReturn: String = "new-id"
+        var copyPromptReturn: String? = "new-id"
         var lastMovePromptToCategory: Pair<String, String?>? = null
         var categoriesReturn: List<PromptCategoryVd> = emptyList()
         var refreshCount = 0
@@ -77,7 +77,7 @@ class AiPromptsControllerTest {
         override fun modelChoices(): List<net.bible.sharedcore.settings.SettingsItem.Choice> = emptyList()
         override fun savePrompt(data: PromptEditData): String = ""
         override fun deletePromptById(id: String) {}
-        override fun copyPrompt(id: String): String { lastCopyPromptId = id; return copyPromptReturn }
+        override fun copyPrompt(id: String): String? { lastCopyPromptId = id; return copyPromptReturn }
         override fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {}
     }
 
