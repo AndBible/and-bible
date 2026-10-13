@@ -1,5 +1,7 @@
 package net.bible.service.llm
 
+import kotlinx.coroutines.flow.map
+
 import androidx.room3.useWriterConnection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +45,8 @@ class AiSettingsStoreTest {
     private val files = mutableListOf<File>()
     private fun store(debug: Boolean = true) = AiSettingsStore({ dao }, launcher, scope,
         object : AppEnvironment by env { override val isDebugMode = debug }, DatabaseContainer.databaseRestored,
-        get<net.bible.service.cloudsync.CloudSync>(net.bible.service.cloudsync.CloudSync::class.java).workspaceRefreshRequired)
+        get<net.bible.service.cloudsync.CloudSync>(net.bible.service.cloudsync.CloudSync::class.java).workspaceRefreshRequired, DatabaseContainer.aiLifetime,
+        { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } })
 
     @Before fun setUp() { DatabaseResetter.resetDatabase() }
     @After fun tearDown() = runBlocking {
@@ -105,7 +108,8 @@ class AiSettingsStoreTest {
                     if (++writes == 1) { firstWritten.complete(Unit); release.await() }
                 }
             }
-        }, launcher, scope, env, DatabaseContainer.databaseRestored)
+        }, launcher, scope, env, DatabaseContainer.databaseRestored, lifetime = DatabaseContainer.aiLifetime,
+            invalidations = { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } })
         settings.ensureLoaded()
         settings.maxIterations = 22
         settings.aiDisclaimerAccepted = true

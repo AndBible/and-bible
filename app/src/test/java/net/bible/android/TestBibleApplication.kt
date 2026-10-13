@@ -17,6 +17,8 @@
 
 package net.bible.android
 
+import kotlinx.coroutines.flow.map
+
 import net.bible.android.view.activity.ai.RawLogServiceImpl
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.bind
@@ -94,7 +96,8 @@ class TestBibleApplication : BibleApplication() {
                 net.bible.service.llm.AiSettingsStore(
                     { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, aiLauncher, aiScope,
                     net.bible.android.platform.AndroidAppEnvironment(this@TestBibleApplication),
-                    DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired,
+                    DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired, DatabaseContainer.aiLifetime,
+                    { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } },
                 )
             }
             singleOf(::RawLogServiceImpl) { bind<net.bible.sharedcore.ai.RawLogService>() }
@@ -137,7 +140,8 @@ class TestBibleApplication : BibleApplication() {
             single<net.bible.service.llm.AiSettings> {
                 net.bible.service.llm.AiSettingsStore(
                     { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
-                    DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired,
+                    DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired, DatabaseContainer.aiLifetime,
+                    { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } },
                 )
             }
             singleOf(::RawLogServiceImpl) { bind<net.bible.sharedcore.ai.RawLogService>() }

@@ -42,6 +42,8 @@ class AiSettingsStore(
     private val env: AppEnvironment,
     private val replacements: Events<Unit> = EventSource(),
     private val syncReplacements: Events<Unit> = EventSource(),
+    private val lifetime: AiDatabaseLifetime,
+    private val invalidations: () -> kotlinx.coroutines.flow.Flow<Unit>,
 ) : AiSettings {
     private val state = MutableStateFlow<GlobalAiSettings?>(null)
     private val dbMutex = Mutex()
@@ -58,19 +60,22 @@ class AiSettingsStore(
     override suspend fun awaitWrites() { launcher.join("ai-settings") }
 
     override suspend fun ensureLoaded() {
-        dbMutex.withLock {
+        lifetime.use { dbMutex.withLock {
             if (!observing) {
                 val subscription = replacements.subscribe { synchronized(stateLock) { generation.value++ } }
                 val syncSubscription = syncReplacements.subscribe { synchronized(stateLock) { generation.value++ } }
-                val loaded = try { dao().get() ?: GlobalAiSettings() }
+                val loaded = try { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().get() ?: GlobalAiSettings() } }
                 catch (e: Exception) { subscription.cancel(); syncSubscription.cancel(); throw e }
                 synchronized(stateLock) { if (state.value == null) state.value = loaded }
                 observing = true
                 val job = appScope.launch(start = CoroutineStart.UNDISPATCHED) {
                     generation.collectLatest {
                         try {
-                            refresh()
-                            dao().observe().collect { refresh() }
+                            lifetime.observe {
+                                refresh()
+                                val changes = lifetime.use { invalidations() }
+                                changes.collect { refresh() }
+                            }
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {
@@ -81,7 +86,7 @@ class AiSettingsStore(
                 }
                 job.invokeOnCompletion { subscription.cancel(); syncSubscription.cancel() }
             }
-        }
+        } }
     }
 
     private fun getOrDefault(): GlobalAiSettings = state.value ?: run {
@@ -91,12 +96,14 @@ class AiSettingsStore(
         GlobalAiSettings()
     }
 
-    private suspend fun refresh() = dbMutex.withLock {
+    // Admission precedes the per-store mutex. DAO resolution and native cleanup stay in this lease,
+    // even when the caller is cancelled; only the bounded DAO call is non-cancellable.
+    private suspend fun refresh() = lifetime.use { dbMutex.withLock {
         // Never publish an emission captured before a newer local setter or queued write.
         // Re-read under the writer mutex: Room can deliver intermediate own emissions late.
-        val loaded = dao().get() ?: GlobalAiSettings()
+        val loaded = kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().get() ?: GlobalAiSettings() }
         synchronized(stateLock) { if (pendingWrites == 0) state.value = loaded }
-    }
+    } }
 
     private fun update(transform: GlobalAiSettings.() -> GlobalAiSettings) {
         synchronized(stateLock) {
@@ -104,10 +111,8 @@ class AiSettingsStore(
             state.value = snapshot
             pendingWrites++
             launcher.launch("ai-settings") {
-                dbMutex.withLock {
-                    try { dao().set(snapshot) }
-                    finally { synchronized(stateLock) { pendingWrites-- } }
-                }
+                try { lifetime.use { dbMutex.withLock { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().set(snapshot) } } } }
+                finally { synchronized(stateLock) { pendingWrites-- } }
             }
         }
     }

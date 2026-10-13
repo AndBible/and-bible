@@ -232,7 +232,9 @@ class BackupControl(
         val tmpFile = File(internalDbBackupDir, OLD_MONOLITHIC_DATABASE_NAME)
         try {
             if (!unpackOldMonolithicDatabase(inputStream, tmpFile)) return@withContext false
-            reloadingAfterReplace { DatabaseContainer.replacingDatabases { swapInOldMonolithicDatabase(tmpFile) } }
+            // A running sync may need replacement admission to finish. Never wait for it while owning that gate.
+            for (def in SyncableDatabaseDefinition.ALL) beforeRestore(def)
+            reloadingAfterReplace { DatabaseContainer.replacingDatabases { token -> swapInOldMonolithicDatabase(tmpFile, token) } }
         } finally {
             tmpFile.delete()
         }
@@ -269,11 +271,10 @@ class BackupControl(
      * database is opened) or [afterRestore] fails, so a failure returns false with the user's data untouched.
      * The snapshot is deleted only after all of those. Runs inside [DatabaseContainer.replacingDatabases].
      */
-    private suspend fun swapInOldMonolithicDatabase(validated: File): Boolean {
-        for (def in SyncableDatabaseDefinition.ALL) beforeRestore(def)
+    private suspend fun swapInOldMonolithicDatabase(validated: File, token: net.bible.service.llm.AiDatabaseLifetime.Replacement): Boolean {
         // Not reset(): with no open instance, reset() BUILDS a container (open, migrate) just to close it,
         // which touches the files about to be snapshotted and runs containerFactory too early.
-        DatabaseContainer.dropInstanceWithoutOpening()
+        DatabaseContainer.dropInstanceWithoutOpeningOwned(token)
         val rollbackDir = restoreRollbackDir
         if (rollbackDir.exists()) {
             // An earlier restore died before cleaning up; its snapshot may be the user's only copy.
@@ -308,7 +309,7 @@ class BackupControl(
         if (!ok) {
             // The instance may be fully open (or half built if `instance` threw after `_instance` was set); close it
             // before the files are deleted and moved.
-            DatabaseContainer.dropInstanceWithoutOpening()
+            DatabaseContainer.dropInstanceWithoutOpeningOwned(token)
             rollBackOldMonolithicRestore(rollbackDir)
             return false
         }
@@ -833,10 +834,10 @@ class BackupControl(
         prompts: RestorePrompts,
     ) = reloadingAfterReplace {
         val plan = collectRestoreDecisions(selection, unzipFolder, prompts)
-        DatabaseContainer.replacingDatabases {
+        DatabaseContainer.replacingDatabases { token ->
             for ((fileName, f) in plan.toRestore) {
                 Log.i(TAG, "Restoring $fileName")
-                if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplace(fileName)
+                if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplaceOwned(fileName, token)
                 val targetFilePath = env.databasePath(fileName)
                 f.copyTo(File(targetFilePath), overwrite = true)
                 File("$targetFilePath-journal").delete()
@@ -844,7 +845,7 @@ class BackupControl(
                 File("$targetFilePath-wal").delete()
                 File("$targetFilePath.lck").delete()
             }
-            DatabaseContainer.reset()
+            DatabaseContainer.resetOwned(token)
             for ((category, f) in plan.toImport) importDatabaseFile(category, f)
         }
         if (DatabaseContainer.ready) {
@@ -1054,18 +1055,15 @@ class BackupControl(
 
         withContext(Dispatchers.IO) {
             reloadingAfterReplace {
-                DatabaseContainer.replacingDatabases {
-                    if (syncCategory != null) {
-                        beforeRestore(syncCategory)
-                    }
-
+                if (syncCategory != null) beforeRestore(syncCategory)
+                DatabaseContainer.replacingDatabases { token ->
                     if (DatabaseContainer.ready) {
-                        DatabaseContainer.instance.closeForReplace(dbFileName)
+                        DatabaseContainer.instance.closeForReplaceOwned(dbFileName, token)
                     }
 
                     deleteAppDatabase(dbFileName) // the file, its journal/WAL leftovers and Room's .lck
 
-                    DatabaseContainer.reset()
+                    DatabaseContainer.resetOwned(token)
                     if (DatabaseContainer.ready) {
                         DatabaseContainer.instance
                         if (syncCategory != null) {

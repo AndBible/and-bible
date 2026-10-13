@@ -151,10 +151,15 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
     val localDbFile: File,
     val category: SyncableDatabaseDefinition,
     val _reactToUpdates: ((entries: List<LogEntry>) -> Unit)? = null,
-    val deviceId: String
+    val deviceId: String,
+    private val resetOwned: ((net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T)? = null,
 ) {
     fun resetLocalDb() {
         localDb = _resetLocalDb()
+    }
+
+    internal fun resetLocalDbOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+        localDb = resetOwned?.invoke(token) ?: _resetLocalDb()
     }
 
     suspend fun reactToUpdates(lastSynchronized: Long) {

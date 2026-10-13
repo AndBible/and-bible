@@ -1,5 +1,7 @@
 package net.bible.android.control
 
+import kotlinx.coroutines.flow.map
+
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
@@ -140,6 +142,8 @@ fun buildCoreModule() = module {
         net.bible.service.llm.AiSettingsStore(
             { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
             DatabaseContainer.databaseRestored, get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
+            DatabaseContainer.aiLifetime,
+            { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } },
         )
     }
     single<net.bible.service.llm.agent.AgentPlatform> { net.bible.android.platform.AndroidAgentPlatform() }

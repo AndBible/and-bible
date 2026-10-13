@@ -1,5 +1,7 @@
 package net.bible.service.llm
 
+import kotlinx.coroutines.flow.map
+
 import android.os.Looper
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ApplicationProvider
@@ -57,7 +59,8 @@ class AiSettingsColdRouteTest {
         }
         val env = GlobalContext.get().get<AppEnvironment>()
         val store = AiSettingsStore({ DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, launcher, scope,
-            object : AppEnvironment by env { override val isDebugMode = true }, DatabaseContainer.databaseRestored)
+            object : AppEnvironment by env { override val isDebugMode = true }, DatabaseContainer.databaseRestored, lifetime = DatabaseContainer.aiLifetime,
+            invalidations = { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } })
         var construction = 0
         loadKoinModules(module {
             single<AiSettings> { store }

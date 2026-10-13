@@ -82,8 +82,10 @@ class CloudSyncInitialSwapTest {
         val streamSub = org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).workspaceRefreshRequired.subscribe { streamed += it }
         try {
             runBlocking {
-                DatabaseContainer.replacingDatabases {
-                    org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C")) { }
+                DatabaseContainer.replacingDatabases { token ->
+                    kotlinx.coroutines.withTimeout(2_000) {
+                        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C"), token) { }
+                    }
                     assertEquals("still inside an outer replace (stream)", 0, streamed.size)
                 }
             }

@@ -50,6 +50,12 @@ class AiSettingsFixtureLifetimeTest {
         firstFilter.setExcluded(setOf("first"))
         firstTools.permissionFor(AgentTool.entries.first().name)
         val old = CommonUtils.aiSettings
+        fun assertSharedCoordinator(settings: AiSettings) {
+            val field = AiSettingsStore::class.java.getDeclaredField("lifetime").apply { isAccessible = true }
+            assertSame("real fixture store participates in production replacement admission",
+                DatabaseContainer.aiLifetime, field.get(settings))
+        }
+        assertSharedCoordinator(old)
         firstApp.onTerminate()
         val restoredScope = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
         val restoredLauncher = koin.get<net.bible.sharedcore.platform.OrderedLauncher>()
@@ -92,6 +98,7 @@ class AiSettingsFixtureLifetimeTest {
             assertSame(koin.get<PromptService>(), koin.get<PromptServiceImpl>())
             val settings = CommonUtils.aiSettings
             assertNotSame(old, settings)
+            assertSharedCoordinator(settings)
             settings.autoHideAgentLogOnCompletion = true
             settings.askModelBeforeRun = true
             assertTrue(agent.autoHideEnabled())
