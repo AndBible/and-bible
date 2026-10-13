@@ -76,6 +76,8 @@ class TestBibleApplication : BibleApplication() {
     private var terminationPending = false
     private var startupRegistrationOwner: net.bible.sharedcore.platform.OrderedLauncher? = null
     private var previousManagerLauncher: net.bible.sharedcore.platform.OrderedLauncher? = null
+    private var previousSecretStore: net.bible.service.llm.SecretStore? = null
+    private var fixtureSecretStore: net.bible.service.llm.SecretStore? = null
     private var presenterReleased = false
     override val isRunningTests: Boolean = true
 
@@ -118,7 +120,10 @@ class TestBibleApplication : BibleApplication() {
             checkNotNull(startupRegistrationOwner).join("mydocument-sync")
         }
         startupRegistrationOwner = null
+        previousSecretStore = koin.get()
+        fixtureSecretStore = net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences)
         koin.loadModules(listOf(org.koin.dsl.module {
+            single<net.bible.service.llm.SecretStore> { checkNotNull(fixtureSecretStore) }
             single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
             single<net.bible.service.llm.AiSettings> {
@@ -212,6 +217,11 @@ class TestBibleApplication : BibleApplication() {
             if (koin != null && GlobalContext.getOrNull() === koin) {
                 if (MyDocumentBookManager.launcher === aiLauncher) {
                     MyDocumentBookManager.launcher = checkNotNull(previousManagerLauncher)
+                }
+                if (koin.getOrNull<net.bible.service.llm.SecretStore>() === fixtureSecretStore) {
+                    koin.loadModules(listOf(org.koin.dsl.module {
+                        single<net.bible.service.llm.SecretStore> { checkNotNull(previousSecretStore) }
+                    }))
                 }
                 koin.loadModules(listOf(org.koin.dsl.module {
                     single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
