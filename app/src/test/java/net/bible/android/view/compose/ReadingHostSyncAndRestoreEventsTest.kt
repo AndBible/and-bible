@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import androidx.lifecycle.lifecycleScope
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.Job
@@ -95,15 +96,49 @@ class ReadingHostSyncAndRestoreEventsTest {
     private var toastSubscription: Subscription? = null
 
     @After
-    fun tearDown() {
+    fun tearDown() = closeFixture()
+
+    private fun closeFixture(afterClose: () -> Unit = {}) {
         toastSubscription?.cancel()
         controllers.forEach { runCatching { it.get().readingAppBootstrap.stopPeriodicSync() } }
-        net.bible.test.closeReadingHostsBeforeReset(controllers, reset = {
+        net.bible.test.closeReadingHostsBeforeReset(controllers, afterClose = afterClose, restoreBeforeReset = {
+            try {
+                SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
+            } finally {
+                CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        })
+    }
+
+    @Test
+    fun cleanupFailureStillRestoresSyncAndNightSettings() {
+        net.bible.android.view.activity.base.firstTime = false
+        val activity = nonReadingHost().get()
+        val database = DatabaseContainer.instance
+        val failure = IllegalArgumentException("after-close failed")
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
+        CommonUtils.realSharedPreferences.edit().putString("night_mode_pref", "dark").putString("night_mode_pref3", "dark").commit()
+        try {
+            val thrown = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                closeFixture(afterClose = {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    throw failure
+                })
+            }
+            org.junit.Assert.assertSame(failure, thrown)
+            assertFalse(SyncableDatabaseDefinition.BOOKMARKS.isSyncEnabled(CommonUtils.settings), "cleanup failure must restore sync setting")
+            assertFalse(CommonUtils.realSharedPreferences.contains("night_mode_pref"))
+            assertFalse(CommonUtils.realSharedPreferences.contains("night_mode_pref3"))
+            assertEquals(AppCompatDelegate.MODE_NIGHT_NO, AppCompatDelegate.getDefaultNightMode())
+            org.junit.Assert.assertSame("failed cleanup must not reset DB", database, DatabaseContainer.instance)
+        } finally {
+            val owner = activity.lifecycleScope
+            DatabaseResetter.runResetBlocking { owner.coroutineContext[Job]?.let { it.cancel(); it.join() } }
             SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
             CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            DatabaseResetter.resetDatabase()
-        })
+        }
     }
 
     private fun host(route: String): ActivityController<NavHostComposeActivity> {

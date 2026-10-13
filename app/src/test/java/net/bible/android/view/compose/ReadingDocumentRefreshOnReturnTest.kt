@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import kotlinx.coroutines.launch
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -156,6 +157,38 @@ class ReadingDocumentRefreshOnReturnTest {
                     single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { original }
                 }))
             }
+        }
+    }
+
+    @Test
+    fun cleanupPumpFailureRestoresReadingGlobalsWithoutReset() {
+        val activity = composedHost().get()
+        val owner = activity.hostWindowRepository.scope
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val tail = owner.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            try { kotlinx.coroutines.awaitCancellation() }
+            finally { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { release.await() } }
+        }
+        val database = net.bible.service.db.DatabaseContainer.instance
+        val token = Any()
+        val failure = IllegalArgumentException("cleanup Main callback failed")
+        try {
+            val thrown = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                closeHostsAndReset(afterClose = {
+                    ReadingHostPresence.setForeground(token)
+                    ReadingViewVisibility.setVisible(true)
+                    android.os.Handler(Looper.getMainLooper()).post { throw failure }
+                })
+            }
+            org.junit.Assert.assertSame(failure, thrown)
+            assertFalse(ReadingHostPresence.isForeground(token), "failure must retract global foreground")
+            assertFalse(ReadingViewVisibility.isVisible, "failure must retract global visibility")
+            org.junit.Assert.assertSame("failed join must not reset the database", database, net.bible.service.db.DatabaseContainer.instance)
+        } finally {
+            release.complete(Unit)
+            DatabaseResetter.runResetBlocking { tail.join(); owner.coroutineContext[kotlinx.coroutines.Job]?.join() }
+            ReadingHostPresence.setForeground(null)
+            ReadingViewVisibility.setVisible(false)
         }
     }
 

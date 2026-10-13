@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
 import android.os.Bundle
 import android.os.Looper
 import android.view.WindowManager
@@ -56,12 +57,40 @@ class UsableBibleGateTest {
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @After
-    fun tearDown() {
-        net.bible.test.closeReadingHostsBeforeReset(controllers, reset = {
+    fun tearDown() = closeFixture()
+
+    private fun closeFixture(afterClose: () -> Unit = {}) {
+        net.bible.test.closeReadingHostsBeforeReset(controllers, afterClose = afterClose, restoreBeforeReset = {
+            try {
+                CommonUtils.realSharedPreferences.edit().remove("show_calculator").commit()
+            } finally {
+                comingFromStartupActivity = false
+            }
+        })
+    }
+
+    @Test
+    fun cleanupFailureStillRestoresCalculatorAndStartupState() {
+        val activity = welcomeHost()
+        val failure = IllegalArgumentException("after-close failed")
+        val database = net.bible.service.db.DatabaseContainer.instance
+        CommonUtils.realSharedPreferences.edit().putBoolean("show_calculator", true).commit()
+        comingFromStartupActivity = true
+        try {
+            val thrown = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                closeFixture(afterClose = { throw failure })
+            }
+            org.junit.Assert.assertSame(failure, thrown)
+            assertFalse("close failure must restore startup state", comingFromStartupActivity)
+            assertFalse(CommonUtils.realSharedPreferences.contains("show_calculator"))
+            org.junit.Assert.assertSame("failed close must not reset the database", database, net.bible.service.db.DatabaseContainer.instance)
+        } finally {
+            controllers.clear()
+            val owner = activity.lifecycleScope
+            DatabaseResetter.runResetBlocking { owner.coroutineContext[kotlinx.coroutines.Job]?.let { it.cancel(); it.join() } }
             CommonUtils.realSharedPreferences.edit().remove("show_calculator").commit()
             comingFromStartupActivity = false
-            DatabaseResetter.resetDatabase()
-        })
+        }
     }
 
     private fun welcomeIntent() =

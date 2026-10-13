@@ -31,23 +31,31 @@ fun closeReadingHostsBeforeReset(
     controllers: MutableList<ActivityController<NavHostComposeActivity>>,
     afterClose: () -> Unit = {},
     reset: () -> Unit = { DatabaseResetter.resetDatabase() },
+    restoreBeforeReset: () -> Unit = {},
 ) {
     val owners = controllers.map { it.get().lifecycleScope }.distinct()
-    println("WINDOW_OWNERS beforeClose=${owners.map { it.coroutineContext }}")
-    controllers.forEach { it.close() }
-    controllers.clear()
-    println("WINDOW_OWNERS afterClose=${owners.map { it.coroutineContext }}")
-    afterClose()
-    DatabaseResetter.runResetBlocking {
-        owners.forEach { it.coroutineContext[Job]?.cancel() }
-        owners.forEach { owner ->
-            val job = owner.coroutineContext[Job]
-            checkpoint("join-reading-owner", "context=${owner.coroutineContext} children=${job?.children?.toList()}")
-            job?.join()
+    try {
+        println("WINDOW_OWNERS beforeClose=${owners.map { it.coroutineContext }}")
+        controllers.forEach { it.close() }
+        controllers.clear()
+        println("WINDOW_OWNERS afterClose=${owners.map { it.coroutineContext }}")
+        afterClose()
+        DatabaseResetter.runResetBlocking {
+            owners.forEach { it.coroutineContext[Job]?.cancel() }
+            owners.forEach { owner ->
+                val job = owner.coroutineContext[Job]
+                checkpoint("join-reading-owner", "context=${owner.coroutineContext} children=${job?.children?.toList()}")
+                job?.join()
+            }
+        }
+    } finally {
+        try {
+            restoreBeforeReset()
+        } finally {
+            ReadingHostPresence.setForeground(null)
+            ReadingViewVisibility.setVisible(false)
         }
     }
-    ReadingHostPresence.setForeground(null)
-    ReadingViewVisibility.setVisible(false)
     println("WINDOW_OWNERS resetBoundary=${owners.map { it.coroutineContext }}")
     reset()
 }
