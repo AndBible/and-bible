@@ -48,6 +48,9 @@ object CurrentActivityHolder {
      */
     @VisibleForTesting fun forgetActivitiesForTest() { activities.clear() }
 
+    /** Activities a finished test left activated. Reset joins their owners before closing the database. */
+    @VisibleForTesting fun liveActivitiesForTest(): List<ActivityBase> = activities.toList()
+
     val currentActivity: ActivityBase? get() = try { activities.last() } catch (e: NoSuchElementException) {null}
 
     /**

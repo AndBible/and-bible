@@ -47,6 +47,40 @@ class DatabaseResetterMainTest {
         DatabaseResetter.resetDatabase()
     }
 
+    @Test fun resetJoinsTheLauncherTheSettingsObjectActuallyOwns() {
+        val settings = get<DocumentSyncSettings>(DocumentSyncSettings::class.java)
+        val owned = OrderedLauncher(CoroutineScope(SupervisorJob() + Dispatchers.Default))
+        val koinLauncher = get<OrderedLauncher>(OrderedLauncher::class.java)
+        val field = settings.javaClass.getDeclaredField("launcher").apply { isAccessible = true }
+        val previous = field.get(settings)
+        assertTrue("the fixture launcher and the owned launcher must be distinct", previous !== owned)
+        field.set(settings, owned)
+        val release = CompletableDeferred<Unit>()
+        val resetDone = CompletableDeferred<Throwable?>()
+        val thread = Thread {
+            resetDone.complete(runCatching { DatabaseResetter.resetDatabase() }.exceptionOrNull())
+        }
+        try {
+            runBlocking { settings.ensureLoaded() }
+            settings.wifiOnly = false
+            owned.launch("document-sync-settings") { release.await() }
+            thread.isDaemon = true
+            thread.start()
+            Thread.sleep(800)
+            assertFalse(
+                "reset joined the Koin launcher and closed the database while the owned queue was still held",
+                resetDone.isCompleted,
+            )
+            release.complete(Unit)
+            runBlocking { withTimeout(15_000) { resetDone.await() } }?.let { throw it }
+            assertFalse(koinLauncher === owned)
+        } finally {
+            if (!release.isCompleted) release.complete(Unit)
+            thread.join(15_000)
+            field.set(settings, previous)
+        }
+    }
+
     @Test fun committedActualDbResetWaitsPastDeadlineForDatabaseMonitor() {
         val settings = get<DocumentSyncSettings>(DocumentSyncSettings::class.java)
         runBlocking { settings.ensureLoaded() }

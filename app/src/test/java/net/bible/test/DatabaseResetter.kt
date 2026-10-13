@@ -17,6 +17,7 @@
 
 package net.bible.test
 
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
@@ -62,6 +63,17 @@ object DatabaseResetter {
         runResetBlocking {
             (net.bible.android.BibleApplication.application as? net.bible.android.TestBibleApplication)
                 ?.drainAiSettingsFixture()
+            // A reading host's Window.loadText outlives a test that reset the database without joining
+            // the activity. The next teardown closes that detached container, and the query then
+            // surfaces as UncaughtExceptionsBeforeTest.
+            val hostOwners = net.bible.android.view.activity.base.CurrentActivityHolder.liveActivitiesForTest()
+                .map { it.lifecycleScope }
+            hostOwners.forEach { it.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
+            hostOwners.forEach { owner ->
+                val job = owner.coroutineContext[kotlinx.coroutines.Job]
+                checkpoint("join-live-reading-owner", "context=${owner.coroutineContext} children=${job?.children?.toList()}")
+                job?.join()
+            }
             // Cancel producers, then wait for their finally blocks and late submissions before draining.
             val appScope = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
             val appJob = appScope?.coroutineContext?.get(kotlinx.coroutines.Job)
@@ -83,7 +95,13 @@ object DatabaseResetter {
             val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
             if (settings == null) commitReset { DatabaseContainer.reset() }
-            else resetDocumentSyncFixture(settings, koin.get()) { DatabaseContainer.reset() }
+            else {
+                // The settings object keeps the launcher it was constructed with. After the first test
+                // that is the production launcher, not the Koin override the fixture later drains.
+                val ownedLauncher = settings.javaClass.getDeclaredField("launcher").apply { isAccessible = true }
+                    .get(settings) as net.bible.sharedcore.platform.OrderedLauncher
+                resetDocumentSyncFixture(settings, ownedLauncher) { DatabaseContainer.reset() }
+            }
         }
         DatabaseContainer.forgetReplacesForTest()
         //resetSingleton(DatabaseContainer::class.java, "instance")
