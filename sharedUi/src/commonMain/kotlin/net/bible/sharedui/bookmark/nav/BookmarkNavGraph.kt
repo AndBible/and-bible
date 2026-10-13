@@ -173,18 +173,6 @@ class LabelEditDeps(
  *   [BookmarksScreen] draws in its own top bar (`R.string.bookmarks_and_mynotes_title`), exactly as
  *   classic passed the one string to both.
  *
- * - [onManageLabelsResult] is where BOTH round trips land: classic's `assignLabels` continuation
- *   (`BookmarksComposeActivity.kt:215-222`) and its `manageLabels` one (`:266-270`). They share one
- *   channel, and the host tells them apart from the request it recorded when it built the payload --
- *   not the arm, which has nothing to tell them apart WITH (a `ManageLabelsResult` carries only the
- *   returned JSON). Both bodies are Room work (`changeLabelsForBookmark`, `workspaceSettings
- *   .updateFrom`) plus a controller refresh, so the whole of both stays host-side.
- *
- *   There is deliberately no cancelled branch: [NavResultChannel] only ever carries the payload
- *   classic's `RESULT_OK` carried, and the label manager has no cancel path at all (its Back press
- *   SAVES). A user who backs out of it is delivering a result, and classic's `if (resultCode ==
- *   RESULT_OK)` guard was therefore always true on this edge.
- *
  * - [subscribeSyncEvents] is classic's bus `register(this) { onMain<BookmarksUpdatedViaSyncEvent>
  *   { controller.refresh() } }` / `unregister` pair (`:99`, `:149`), as a `DisposableEffect` in this
  *   arm -- the seam shape [net.bible.sharedui.readingplan.nav.DailyReadingDeps.subscribeEvents]
@@ -198,7 +186,6 @@ class BookmarksDeps(
         navigateToManageLabels: (payload: String) -> Unit,
     ) -> BookmarksController,
     val title: String,
-    val onManageLabelsResult: (ManageLabelsResult) -> Unit,
     val subscribeSyncEvents: (onBookmarksChanged: () -> Unit) -> () -> Unit,
 )
 
@@ -453,9 +440,8 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         // manager is on top, and the settings arm (which shares `manageLabelsResults`) may be the
         // resumed destination when the answer arrives, so an arm-local consume misses an answer this
         // list asked for and then applies it stale on the next composition. The host claims it from a
-        // composition that outlives every destination (`NavHostComposeActivity
-        // .BookmarksManageLabelsCollector`), gated on the session flag, and leaves an answer nobody
-        // asked for in the channel. `onManageLabelsResult` is what that collector calls.
+        // composition that outlives every destination ([BookmarksManageLabelsCollector], hosted by `NavHostComposeActivity`), gated on the session flag, and leaves an answer nobody
+        // asked for in the channel (see [BookmarksManageLabelsCollector], which the host calls).
 
         val rows by controller.rows.collectAsState()
         val filterLabels by controller.filterLabels.collectAsState()
@@ -790,5 +776,41 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
                 controller::dismissDeletePrompt,
             )
         }
+    }
+}
+
+/**
+ * CR-5's consumer of the label-manager answer for the bookmark list, hosted OUTSIDE every
+ * destination (the bookmark arm is disposed while the label manager is on top, and the settings arm,
+ * which shares [results], may be the resumed destination when the answer arrives). [awaiting] is the
+ * source of truth for "this list asked"; the channel's pending value is the answer. An answer nobody
+ * asked for is left in the channel for whoever did.
+ *
+ * The caller must read the flag it passes UNCONDITIONALLY (snapshot state read before any null
+ * check), since this composes once per host and a read hidden behind a `?.let` on a null field would
+ * subscribe to nothing.
+ *
+ * [onResult] is where BOTH round trips land: classic's `assignLabels` continuation
+ * (`BookmarksComposeActivity.kt:215-222`) and its `manageLabels` one (`:266-270`). They share one
+ * channel, and the host tells them apart from the request it recorded when it built the payload --
+ * not this composable, which has nothing to tell them apart WITH (a [ManageLabelsResult] carries
+ * only the returned JSON). Both bodies are Room work plus a controller refresh, so the whole of both
+ * stays host-side.
+ *
+ * There is deliberately no cancelled branch: [NavResultChannel] only ever carries the payload
+ * classic's `RESULT_OK` carried, and the label manager has no cancel path at all (its Back press
+ * SAVES).
+ */
+@Composable
+fun BookmarksManageLabelsCollector(
+    results: NavResultChannel<ManageLabelsResult>,
+    awaiting: Boolean,
+    onResult: (ManageLabelsResult) -> Unit,
+) {
+    val pending by results.pending.collectAsState()
+    LaunchedEffect(pending, awaiting) {
+        if (pending == null || !awaiting) return@LaunchedEffect
+        val result = results.consume() ?: return@LaunchedEffect
+        onResult(result)
     }
 }

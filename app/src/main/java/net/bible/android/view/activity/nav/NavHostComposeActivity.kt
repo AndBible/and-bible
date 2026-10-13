@@ -3736,7 +3736,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // Classic carried this as android:label on the host; one host now serves
                             // every cluster. Same string the screen draws in its own top bar.
                             title = getString(R.string.bookmarks_and_mynotes_title),
-                            onManageLabelsResult = { result -> applyBookmarksManageLabelsResult(result) },
                             subscribeSyncEvents = { onBookmarksChanged ->
                                 subscribeBookmarksUpdated(onBookmarksChanged)
                             },
@@ -8886,16 +8885,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     @Composable
     private fun BookmarksManageLabelsCollector() {
-        val pending by manageLabelsResults.pending.collectAsState()
         // Read UNCONDITIONALLY, before the null check, for the reason above: a `?.let` that only
         // reached the flag when a session already existed would subscribe to nothing on the
         // composition where the field was null, and a later request would flip a state nobody observes.
         val awaiting = bookmarksSession?.second?.awaitingManageLabels == true
-        LaunchedEffect(pending, awaiting) {
-            if (pending == null || !awaiting) return@LaunchedEffect
-            val result = manageLabelsResults.consume() ?: return@LaunchedEffect
-            applyBookmarksManageLabelsResult(result)
-        }
+        net.bible.sharedui.bookmark.nav.BookmarksManageLabelsCollector(
+            results = manageLabelsResults,
+            awaiting = awaiting,
+            onResult = { applyBookmarksManageLabelsResult(it) },
+        )
     }
 
     // ——— ChooseGeneralBookKey ————————————————————————————————————————————————————————————————————

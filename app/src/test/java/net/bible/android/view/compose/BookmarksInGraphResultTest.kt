@@ -16,9 +16,9 @@
  */
 package net.bible.android.view.compose
 
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -51,6 +51,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.bookmark.nav.BookmarksDeps
+import net.bible.sharedui.bookmark.nav.BookmarksManageLabelsCollector
 import net.bible.sharedui.bookmark.nav.LabelEditDeps
 import net.bible.sharedui.bookmark.nav.ManageLabelsDeps
 import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
@@ -80,8 +81,8 @@ import kotlin.test.assertTrue
  * The two host halves are stood in for, not faked away: the `ManageLabels` controller here reports
  * through the same `onResult` the real host passes, and the payload travels through
  * [NavRoutes.manageLabels]' own percent-encoding, so the JSON round trip is real too. What is NOT
- * exercised is the host's own Room work behind `onManageLabelsResult`, which is why the assertion is
- * on the payload that reaches that slot rather than on anything it would do with it.
+ * exercised is the host's own Room work behind the collector's `onResult`, which is why the assertion is
+ * on the payload that reaches it rather than on anything it would do with it.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -122,7 +123,7 @@ class BookmarksInGraphResultTest {
     private val appliedResults = mutableListOf<String>()
 
     /** The fake host's half of CR-5's gate: set when the list navigates to the label manager. */
-    private var awaitingManageLabels = false
+    private var awaitingManageLabels by mutableStateOf(false)
 
     /** The arm's own `navController.navigate(NavRoutes.manageLabels(payload))`, captured when the
      *  bookmark list's controller is built — this is the edge classic reached with `awaitIntent`. */
@@ -225,10 +226,6 @@ class BookmarksInGraphResultTest {
                 )
             },
             title = "Bookmarks",
-            onManageLabelsResult = { result ->
-                awaitingManageLabels = false
-                appliedResults.add(result.data)
-            },
             subscribeSyncEvents = { { } },
         ),
         manageLabels = ManageLabelsDeps(
@@ -302,16 +299,15 @@ class BookmarksInGraphResultTest {
                     NavHost(navController = navController, startDestination = startDestination) {
                         bookmarkNavGraph(navController, d)
                     }
-                    // The production consumer is the host's, outside the NavHost
-                    // (NavHostComposeActivity.BookmarksManageLabelsCollector). This graph has no host,
-                    // so the test stands one in with the same contract: claim only an answer the list
-                    // asked for, and leave anything else in the channel.
-                    val pending by d.manageLabelsResults.pending.collectAsState()
-                    LaunchedEffect(pending, awaitingManageLabels) {
-                        if (pending == null || !awaitingManageLabels) return@LaunchedEffect
-                        val result = d.manageLabelsResults.consume() ?: return@LaunchedEffect
-                        d.bookmarks.onManageLabelsResult(result)
-                    }
+                    // The production consumer, outside the NavHost like the host's own call.
+                    BookmarksManageLabelsCollector(
+                        results = d.manageLabelsResults,
+                        awaiting = awaitingManageLabels,
+                        onResult = { result ->
+                            awaitingManageLabels = false
+                            appliedResults.add(result.data)
+                        },
+                    )
                 }
             }
         }
@@ -446,12 +442,15 @@ class BookmarksInGraphResultTest {
                     NavHost(navController = navController, startDestination = NavRoutes.bookmarks()) {
                         bookmarkNavGraph(navController, d)
                     }
-                    val pending by d.manageLabelsResults.pending.collectAsState()
-                    LaunchedEffect(pending, awaitingManageLabels) {
-                        if (pending == null || !awaitingManageLabels) return@LaunchedEffect
-                        val result = d.manageLabelsResults.consume() ?: return@LaunchedEffect
-                        d.bookmarks.onManageLabelsResult(result)
-                    }
+                    // The production consumer, outside the NavHost like the host's own call.
+                    BookmarksManageLabelsCollector(
+                        results = d.manageLabelsResults,
+                        awaiting = awaitingManageLabels,
+                        onResult = { result ->
+                            awaitingManageLabels = false
+                            appliedResults.add(result.data)
+                        },
+                    )
                 }
             }
         }

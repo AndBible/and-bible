@@ -257,21 +257,33 @@ class NavResultChannelGuardTest {
      */
     @Test
     fun theHostCollectsTheManageLabelsChannelForTheBookmarkList() {
-        val text = hostSource()
+        val graph = bookmarkNavGraphSource()
+        val start = graph.indexOf("fun BookmarksManageLabelsCollector(")
+        assertTrue(start >= 0, "BookmarkNavGraph.kt has no shared BookmarksManageLabelsCollector")
+        val rest = graph.substring(start + 1)
+        val end = Regex("\\n(@Composable|fun |private fun |internal fun |class |object )").find(rest)?.range?.first
+        val body = if (end == null) rest else rest.substring(0, end)
         assertTrue(
-            text.contains("manageLabelsResults.pending"),
-            "NavHostComposeActivity.kt does not collect manageLabelsResults.pending -- labels " +
-                "assigned from inside the graph would pop with the user's choices dropped",
+            body.contains("results.pending"),
+            "the shared collector does not collect the channel's pending -- labels assigned from " +
+                "inside the graph would pop with the user's choices dropped",
         )
         assertTrue(
-            text.contains("manageLabelsResults.consume()"),
-            "NavHostComposeActivity.kt does not clear manageLabelsResults with consume() -- a " +
-                "pending result would be re-applied on every recomposition",
+            body.contains("results.consume()"),
+            "the shared collector does not clear the channel with consume() -- a pending result " +
+                "would be re-applied on every recomposition",
         )
         assertTrue(
-            text.contains("applyBookmarksManageLabelsResult("),
-            "NavHostComposeActivity.kt consumes manageLabelsResults but hands the result to nobody " +
-                "-- an assign/manage round trip is read, cleared and DROPPED",
+            body.contains("onResult(result)"),
+            "the shared collector consumes the channel but hands the result to nobody -- an " +
+                "assign/manage round trip is read, cleared and DROPPED",
+        )
+        val host = hostSource()
+        assertTrue(
+            Regex("BookmarksManageLabelsCollector\\(\\s*results = manageLabelsResults,[^)]*applyBookmarksManageLabelsResult\\(")
+                .containsMatchIn(host),
+            "NavHostComposeActivity.kt does not call the shared BookmarksManageLabelsCollector with " +
+                "manageLabelsResults and applyBookmarksManageLabelsResult",
         )
         assertTrue(
             !bookmarkNavGraphSource().contains("manageLabelsResults.consume()"),

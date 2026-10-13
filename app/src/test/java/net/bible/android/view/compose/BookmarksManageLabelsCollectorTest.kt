@@ -59,9 +59,14 @@ import org.robolectric.annotation.Config
  *
  * The host starts on `backup/restore`, a destination with no label-manager consumer, and the answer is
  * delivered the way a popped label manager delivers it (`deliver` with a parent entry). Starting on
- * `bookmarks` would not do: that arm composes and consumes unconditionally today, so the asked-for
- * case would pass for the wrong reason and the unrequested case would fail for the wrong one. The
- * only thing that can consume the answer here is the host-level collector.
+ * `bookmarks` would not do: the bookmark arm is composed there, which would put a second composition
+ * next to the host-level collector under test. The only thing that can consume the answer here is the
+ * host-level collector.
+ *
+ * The last two tests start from the REAL request paths (`requestManageLabels`, `requestAssignLabels`,
+ * reached through the real `BookmarksController` that `bookmarksControllerFor` builds) rather than
+ * writing the session flag by hand, so deleting `session.awaitingManageLabels = true` from either
+ * path fails them.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -163,6 +168,107 @@ class BookmarksManageLabelsCollectorTest {
     private fun autoAssignLabels(): Set<IdType> =
         GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
             .windowRepository.workspaceSettings.autoAssignLabels
+
+    /** The real controller the list's own screen would drive, with a recording navigate lambda. */
+    private fun realController(
+        activity: NavHostComposeActivity,
+        navigated: MutableList<String>,
+    ): net.bible.sharedcore.bookmark.BookmarksController {
+        val method = NavHostComposeActivity::class.java.declaredMethods
+            .single { it.name == "bookmarksControllerFor" }
+        method.isAccessible = true
+        return method.invoke(activity, 0, { _: Any? -> }, { payload: String -> navigated += payload })
+            as net.bible.sharedcore.bookmark.BookmarksController
+    }
+
+    /** Idles the main looper until [condition] holds; `requestAssignLabels` hops through Dispatchers.IO. */
+    private fun idleUntil(what: String, condition: () -> Boolean) {
+        val deadline = System.nanoTime() + Duration.ofSeconds(20).toNanos()
+        while (!condition()) {
+            check(System.nanoTime() < deadline) { "timed out waiting for $what" }
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(50))
+            Thread.sleep(20)
+        }
+    }
+
+    /**
+     * WORKSPACE mode through the real `requestManageLabels`: the controller's own `manageLabels()`
+     * must arm the gate, so the collector applies the answer without any test-side flag.
+     */
+    @Test
+    fun theRealManageLabelsRequestArmsTheCollector() {
+        val activity = host()
+        idle()
+        val navigated = mutableListOf<String>()
+        val controller = realController(activity, navigated)
+
+        controller.manageLabels()
+        idleUntil("requestManageLabels to navigate") { navigated.isNotEmpty() }
+        assertTrue("requestManageLabels must arm the gate", isAwaiting(bookmarksSession(activity)))
+
+        val marker = IdType()
+        val payload = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.WORKSPACE,
+            autoAssignLabels = mutableSetOf(marker),
+        ).toJSON()
+        deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+
+        assertEquals(null, channel(activity).pending.value)
+        assertEquals(setOf(marker), autoAssignLabels())
+    }
+
+    /**
+     * ASSIGN mode through the real `requestAssignLabels` (Dispatchers.IO, then Main): the labels the
+     * label manager returns must end up on the selected bookmark.
+     */
+    @Test
+    fun theRealAssignLabelsRequestArmsTheCollector() {
+        val activity = host()
+        idle()
+        val control: net.bible.android.control.bookmark.BookmarkControl = GlobalContext.get().get()
+        val bookmark = control.addOrUpdateBibleBookmark(
+            net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes(
+                org.crosswire.jsword.passage.VerseRangeFactory.fromString(
+                    org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV"),
+                    "Psalms 119:1",
+                ),
+                null, true, null,
+            ),
+            null,
+        )
+        val label = control.insertOrUpdateLabel(
+            net.bible.android.database.bookmarks.BookmarkEntities.Label(new = true).apply { name = "X" },
+        )
+        // `bookmarksByIds` resolves against what the list's `loadRows` loaded, as in production.
+        val service: net.bible.android.view.activity.bookmark.BookmarksServiceImpl = GlobalContext.get().get()
+        kotlinx.coroutines.runBlocking {
+            service.loadRows(
+                filterIndex = 0,
+                sort = net.bible.sharedcore.bookmark.BookmarkSortMode.BIBLE_ORDER,
+                search = null,
+                showNotes = false,
+            )
+        }
+        val navigated = mutableListOf<String>()
+        val controller = realController(activity, navigated)
+
+        controller.enterSelection(bookmark.id.toString())
+        controller.assignSelected()
+        idleUntil("requestAssignLabels to navigate") { navigated.isNotEmpty() }
+        assertTrue("requestAssignLabels must arm the gate", isAwaiting(bookmarksSession(activity)))
+
+        val payload = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.ASSIGN,
+            selectedLabels = mutableSetOf(label.id),
+        ).toJSON()
+        deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+
+        assertEquals(null, channel(activity).pending.value)
+        // applyBookmarksManageLabelsResult writes on Dispatchers.IO.
+        idleUntil("the assigned label to reach the bookmark") {
+            control.labelsForBookmark(bookmark).map { it.id } == listOf(label.id)
+        }
+    }
 
     /**
      * The answer the list asked for must be claimed and applied exactly once even though no bookmark
