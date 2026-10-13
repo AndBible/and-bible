@@ -25,12 +25,13 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
 
 /**
- * MONO window button strokes at a fractional density (300 dpi, the Go103 e-ink panel: 1dp = 1.875px).
+ * MONO window button strokes at a fractional density (440 dpi: 1dp = 2.75px).
  * A stroke whose width or position is a fraction of a pixel antialiases into grey on e-ink, so every
- * MONO stroke must be whole pixels wide and lie fully inside the button.
+ * MONO stroke must be whole pixels wide and lie fully inside the button. The active border is
+ * 1.75dp, the compromise between 1.5dp (too faint to pick out) and 2dp (too heavy on e-ink).
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "300dpi")
+@Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "440dpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class WindowButtonMonochromeStrokeTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
@@ -64,7 +65,7 @@ class WindowButtonMonochromeStrokeTest {
 
     @Test fun solidBordersAreWholePixelsWithoutGreyFringe() {
         setContent()
-        assertEquals("Fixture must run at the Go103 density", 1.875f, density, 0.001f)
+        assertEquals("Fixture must run at a density where 1.5dp and 1.75dp round apart", 2.75f, density, 0.001f)
         for (theme in listOf(false, true)) for (buttonMode in WindowButtonMode.entries) {
             for (selected in listOf(false, true)) {
                 compose.runOnIdle {
@@ -73,7 +74,7 @@ class WindowButtonMonochromeStrokeTest {
                 capture { b ->
                     val ink = if (theme) 0xFFFFFF else 0x000000
                     val paper = if (theme) 0x000000 else 0xFFFFFF
-                    val width = px(if (selected) 1.5f else 1f)
+                    val width = px(if (selected) 1.75f else 1f)
                     val y = px(20f)
                     val row = (0..width).map { b.getPixel(it, y) and 0xFFFFFF }
                     val expected = List(width) { ink } + paper

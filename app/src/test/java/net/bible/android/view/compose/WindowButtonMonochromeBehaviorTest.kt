@@ -30,7 +30,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [TEST_SDK], application = android.app.Application::class)
+@Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "440dpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class WindowButtonMonochromeBehaviorTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
@@ -172,8 +172,10 @@ class WindowButtonMonochromeBehaviorTest {
                         bitmap.getPixel((20 * density).toInt(), y) and 0xFFFFFF)
                     assertEquals("Outer ink border", ink,
                         bitmap.getPixel((0.5f * density).toInt(), y) and 0xFFFFFF)
-                    assertEquals("Active border must be 2dp, inactive 1dp", if (selected) ink else paper,
-                        bitmap.getPixel((1.5f * density).toInt(), y) and 0xFFFFFF)
+                    // 1.75dp is the active width: probing just inside it catches a border that thinned
+                    // back to 1.5dp, which a probe at 1.5dp would not.
+                    assertEquals("Active border must be 1.75dp, inactive 1dp", if (selected) ink else paper,
+                        bitmap.getPixel((1.6f * density).toInt(), y) and 0xFFFFFF)
                 } finally { bitmap.recycle() }
                 compose.runOnIdle { label.value = "H" }
                 compose.waitForIdle()

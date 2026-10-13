@@ -140,8 +140,9 @@ private val SyncBadgeDigitSize = 8.dp
 private val PinIconSize = 9.5.dp
 private val BorderWidth = 1.dp
 private val MinimisedBorderWidth = 1.5.dp
-/** MONO borders: active is heavier than inactive, but not double (2dp read too heavy on e-ink). */
-private val MonoActiveBorderWidth = 1.5.dp
+/** MONO borders: active is heavier than inactive. 1.75dp sits between 1.5dp (too faint to pick the
+ *  active button out) and 2dp (too heavy on e-ink). */
+private val MonoActiveBorderWidth = 1.75.dp
 private val MonoBorderWidth = 1.dp
 /**
  * MONO minimised dash width. The old centred 1.5dp stroke showed only its inner ~0.75dp (the clip
