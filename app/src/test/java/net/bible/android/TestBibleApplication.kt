@@ -74,13 +74,24 @@ class TestBibleApplication : BibleApplication() {
     private var overriddenKoin: org.koin.core.Koin? = null
     private var terminated = false
     private var terminationPending = false
+    private var startupRegistrationOwner: net.bible.sharedcore.platform.OrderedLauncher? = null
+    private var previousManagerLauncher: net.bible.sharedcore.platform.OrderedLauncher? = null
     private var presenterReleased = false
     override val isRunningTests: Boolean = true
 
     override fun getLocalizedResources(language: String): Resources = application.resources
 
     override fun onCreate() {
-        check(!terminationPending) { "Previous fixture termination has not completed; retry onTerminate first" }
+        check(!terminationPending && startupRegistrationOwner == null) {
+            "Previous fixture termination/startup has not completed; retry onTerminate first"
+        }
+        // The manager may still own work from the preceding graph. Do not replace its launcher,
+        // graph or resources until that exact queue has completed, including on failed startup.
+        startupRegistrationOwner = runCatching { MyDocumentBookManager.launcher }.getOrNull()
+        startupRegistrationOwner?.let { previous ->
+            net.bible.test.DatabaseResetter.runResetBlocking { previous.join("mydocument-sync") }
+        }
+        startupRegistrationOwner = null
         if (terminated) {
             aiScope = net.bible.sharedcore.platform.AppCoroutineScope()
             aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
@@ -101,6 +112,12 @@ class TestBibleApplication : BibleApplication() {
         overriddenKoin = koin
         previousAppScope = koin.get()
         previousLauncher = koin.get()
+        previousManagerLauncher = MyDocumentBookManager.launcher
+        startupRegistrationOwner = previousManagerLauncher
+        net.bible.test.DatabaseResetter.runResetBlocking {
+            checkNotNull(startupRegistrationOwner).join("mydocument-sync")
+        }
+        startupRegistrationOwner = null
         koin.loadModules(listOf(org.koin.dsl.module {
             single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
@@ -122,6 +139,7 @@ class TestBibleApplication : BibleApplication() {
             singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
             singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
         }))
+        MyDocumentBookManager.launcher = aiLauncher
         CommonUtils.initializeApp()
         kotlinx.coroutines.runBlocking { CommonUtils.aiSettings.ensureLoaded() }
         net.bible.test.DatabaseResetter.runResetBlocking {
@@ -134,12 +152,20 @@ class TestBibleApplication : BibleApplication() {
      */
     suspend fun drainAiSettingsFixture() {
         aiLauncher.join("ai-settings")
+        aiLauncher.join("mydocument-sync")
         val children = aiScope.coroutineContext[kotlinx.coroutines.Job]!!.children.toList()
         children.forEach { it.cancel() }
         children.forEach { it.join() }
     }
 
     override fun onTerminate() {
+        startupRegistrationOwner?.let { previous ->
+            terminationPending = true
+            // Failed startup must retain the old manager/graph until its real tail completes.
+            net.bible.test.DatabaseResetter.runResetBlocking { previous.join("mydocument-sync") }
+            startupRegistrationOwner = null
+            terminationPending = false
+        }
         if (terminated) return
         terminationPending = true
         val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
@@ -153,6 +179,7 @@ class TestBibleApplication : BibleApplication() {
             net.bible.test.DatabaseResetter.runResetBlocking {
                 try {
                     aiLauncher.join("ai-settings")
+                    aiLauncher.join("mydocument-sync")
                 } finally {
                     job.cancel()
                     job.join()
@@ -173,6 +200,9 @@ class TestBibleApplication : BibleApplication() {
             val koin = overriddenKoin
             // Never restore an old fixture's bindings into a replacement global graph.
             if (koin != null && GlobalContext.getOrNull() === koin) {
+                if (MyDocumentBookManager.launcher === aiLauncher) {
+                    MyDocumentBookManager.launcher = checkNotNull(previousManagerLauncher)
+                }
                 koin.loadModules(listOf(org.koin.dsl.module {
                     single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
                     single<net.bible.sharedcore.platform.OrderedLauncher> { checkNotNull(previousLauncher) }
