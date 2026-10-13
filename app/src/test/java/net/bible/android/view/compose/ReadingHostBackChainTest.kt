@@ -104,10 +104,7 @@ class ReadingHostBackChainTest {
      */
     @After
     fun resetReadingSeams() {
-        hostControllers.forEach { it.close() }
-        hostControllers.clear()
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(hostControllers)
     }
 
     @Test

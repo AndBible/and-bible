@@ -79,13 +79,10 @@ class ReadingDocumentRefreshOnReturnTest {
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @After
-    fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
-    }
+    fun tearDown() = closeHostsAndReset()
+
+    private fun closeHostsAndReset(afterClose: () -> Unit = {}, reset: () -> Unit = { DatabaseResetter.resetDatabase() }) =
+        net.bible.test.closeReadingHostsBeforeReset(controllers, afterClose, reset)
 
     /**
      * A host on the reading route, composed: `.visible()` is what composes the destination and is
@@ -105,6 +102,60 @@ class ReadingDocumentRefreshOnReturnTest {
         ).also { controllers += it }.apply {
             create().start().resume().visible()
             net.bible.test.awaitReadingGraph(get()) { compose.waitForIdle() }
+        }
+    }
+
+    @Test
+    fun teardownJoinsAnActualWindowReaderBeforeReset() {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val armed = java.util.concurrent.atomic.AtomicBoolean(false)
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val source = object : net.bible.android.control.page.GlobalTextDisplaySettingsSource {
+            override val current: net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+                get() {
+                    if (Thread.currentThread().name.startsWith("DefaultDispatcher") && armed.compareAndSet(true, false)) {
+                        // Like the real source, this synchronous bridge does not inherit the Window job.
+                        net.bible.service.db.blockingDb {
+                            entered.countDown()
+                            release.await()
+                        }
+                    }
+                    return original.current
+                }
+        }
+        var owner: kotlinx.coroutines.Job? = null
+        try {
+            koin.loadModules(listOf(org.koin.dsl.module {
+                single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { source }
+            }))
+            val activity = composedHost().get()
+            val scope = activity.hostWindowRepository.scope
+            val job = requireNotNull(scope.coroutineContext[kotlinx.coroutines.Job])
+            owner = job
+            armed.set(true)
+            activity.hostWindowRepository.activeWindow.loadText()
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS), "actual Window settings read must enter the held source")
+            println("WINDOW_OWNER beforeClose=$job children=${job.children.toList()}")
+            closeHostsAndReset(afterClose = {
+                println("WINDOW_OWNER afterClose=$job children=${job.children.toList()}")
+                assertFalse(job.isCompleted, "the held actual reader must still own cancellation work")
+                android.os.Handler(Looper.getMainLooper()).post { release.complete(Unit) }
+            }, reset = {
+                println("WINDOW_OWNER resetBoundary=$job children=${job.children.toList()}")
+                assertTrue(job.isCompleted, "fixture must join the real Window owner before database reset")
+                DatabaseResetter.resetDatabase()
+            })
+        } finally {
+            release.complete(Unit)
+            try {
+                owner?.let { job -> DatabaseResetter.runResetBlocking { job.cancel(); job.join() } }
+            } finally {
+                koin.loadModules(listOf(org.koin.dsl.module {
+                    single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { original }
+                }))
+            }
         }
     }
 

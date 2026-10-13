@@ -50,11 +50,7 @@ class VolumeScrollHostTest {
     @After
     fun tearDown() {
         CommonUtils.settings.removeBoolean("volume_keys_scroll")
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun idleMain() {

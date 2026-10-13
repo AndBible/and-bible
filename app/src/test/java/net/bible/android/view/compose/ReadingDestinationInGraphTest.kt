@@ -149,10 +149,7 @@ class ReadingDestinationInGraphTest {
 
     @After
     fun tearDown() {
-        hostControllers.forEach { it.close() }
-        hostControllers.clear()
-        ReadingHostPresence.setForeground(null)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(hostControllers)
     }
 
     private fun deps() = ReadingNavDeps(

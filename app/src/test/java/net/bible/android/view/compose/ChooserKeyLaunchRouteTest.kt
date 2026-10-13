@@ -32,9 +32,7 @@ class ChooserKeyLaunchRouteTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun host(): NavHostComposeActivity {

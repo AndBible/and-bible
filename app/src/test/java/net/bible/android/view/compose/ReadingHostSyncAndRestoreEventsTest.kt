@@ -98,14 +98,12 @@ class ReadingHostSyncAndRestoreEventsTest {
     fun tearDown() {
         toastSubscription?.cancel()
         controllers.forEach { runCatching { it.get().readingAppBootstrap.stopPeriodicSync() } }
-        controllers.forEach { it.close() }
-        controllers.clear()
-        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
-        CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers, reset = {
+            SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
+            CommonUtils.realSharedPreferences.edit().remove("night_mode_pref").remove("night_mode_pref3").commit()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            DatabaseResetter.resetDatabase()
+        })
     }
 
     private fun host(route: String): ActivityController<NavHostComposeActivity> {

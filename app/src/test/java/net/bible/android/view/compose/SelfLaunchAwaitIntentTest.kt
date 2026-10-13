@@ -72,11 +72,7 @@ class SelfLaunchAwaitIntentTest {
 
     @org.junit.After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        net.bible.sharedcore.reading.ReadingHostPresence.setForeground(null)
-        net.bible.sharedcore.reading.ReadingViewVisibility.setVisible(false)
-        net.bible.test.DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     @Test

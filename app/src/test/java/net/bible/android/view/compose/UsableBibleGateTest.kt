@@ -57,13 +57,11 @@ class UsableBibleGateTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        CommonUtils.realSharedPreferences.edit().remove("show_calculator").commit()
-        comingFromStartupActivity = false
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers, reset = {
+            CommonUtils.realSharedPreferences.edit().remove("show_calculator").commit()
+            comingFromStartupActivity = false
+            DatabaseResetter.resetDatabase()
+        })
     }
 
     private fun welcomeIntent() =

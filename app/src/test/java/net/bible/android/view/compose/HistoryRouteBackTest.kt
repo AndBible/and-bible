@@ -52,10 +52,7 @@ class HistoryRouteBackTest {
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     @After fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun idle() {

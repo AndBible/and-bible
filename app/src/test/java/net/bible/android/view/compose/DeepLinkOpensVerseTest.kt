@@ -52,11 +52,7 @@ class DeepLinkOpensVerseTest {
 
     @After
     fun tearDown() {
-        controllers.forEach { it.close() }
-        controllers.clear()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
-        DatabaseResetter.resetDatabase()
+        net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
     private fun idleMain() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
