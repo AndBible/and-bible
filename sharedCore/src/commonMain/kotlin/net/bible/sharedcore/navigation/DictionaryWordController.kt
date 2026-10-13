@@ -64,6 +64,10 @@ class ChooseDictionaryWordController(
 
     fun select(keyId: String) = onSelect(keyId)
 
-    fun showError() { _error.value = ChooserError.FAILED }
+    /** The key list failed to load: there is nothing left to wait for, so loading ends too (CR-3). */
+    fun showError() {
+        _loading.value = false
+        _error.value = ChooserError.FAILED
+    }
     fun dismissError() { _error.value = null }
 }
