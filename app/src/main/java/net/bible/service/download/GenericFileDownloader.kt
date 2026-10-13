@@ -126,7 +126,7 @@ class GenericFileDownloader(
 
         val jobName = JSMsg.gettext("Downloading : {0}", target.name + " " + description)
         val job = if(jobId != null) {
-            JobManager.createJob(jobId, jobName, null)
+            org.crosswire.common.progress.JobManagerJvm.createJob(jobId, jobName, null)
         } else {
             JobManager.createJob(jobName)
         }

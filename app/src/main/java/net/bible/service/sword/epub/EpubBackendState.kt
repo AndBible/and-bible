@@ -308,7 +308,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
         var job: Progress? = null
         try {
             val jobName = strings.creatingIndexFor(getBookMetaData().name)
-            job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
+            job = org.crosswire.common.progress.JobManagerJvm.createJob("index-creation-${epubDir.path}", jobName, null)
             job.isNotifyUser = true
             job.beginJob(jobName)
             search.createTable()
