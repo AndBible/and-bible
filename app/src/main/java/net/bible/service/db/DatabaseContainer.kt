@@ -530,8 +530,10 @@ class DatabaseContainer {
 
         internal suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)
-            val current = try { instance }
-            catch (e: DataBaseNotReady) { Log.i(TAG, "Can't close, database not ready"); null }
+            val current = synchronized(this) {
+                try { instance }
+                catch (e: DataBaseNotReady) { Log.i(TAG, "Can't close, database not ready"); null }
+            }
             current?.settingsStore?.flush()
             // Keep native close and publication atomic with respect to container construction.
             // Only the suspendable settings flush is outside the original monitor contract.

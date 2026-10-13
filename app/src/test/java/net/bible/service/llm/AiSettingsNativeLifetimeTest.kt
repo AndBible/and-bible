@@ -169,7 +169,39 @@ class AiSettingsNativeLifetimeTest {
 
     @Test fun concurrentCloudSwapsQueueWhileTheFirstOwnsReplacement() = exerciseNativeBoundary("concurrent")
 
-    private fun exerciseNativeBoundary(path: String) = runBlocking {
+    private class CleanupProbe {
+        var originalAdmission: Any? = null
+        var restoreAdmission: (() -> Unit)? = null
+        var owner: Job? = null
+        var downloaded: File? = null
+        val children = mutableListOf<Job>()
+        val failure = IllegalStateException("unexpected real swap child failure")
+    }
+
+    @Test fun unexpectedSwapChildFailureQuiescesChildrenAndRestoresGlobalAdmission() {
+        val probe = CleanupProbe()
+        try {
+            val failure = runCatching { exerciseNativeBoundary("unexpected", probe) }.exceptionOrNull()
+            assertSame("preserve original async child failure", probe.failure, failure)
+            val admission = AiDatabaseLifetime::class.java.getDeclaredField("admission").apply { isAccessible = true }
+            assertSame("cancelled fixture finally must restore the original global mutex",
+                probe.originalAdmission, admission.get(DatabaseContainer.aiLifetime))
+            assertTrue("store owner completed", probe.owner!!.isCompleted)
+            assertTrue("all retained async children completed", probe.children.isNotEmpty() && probe.children.all { it.isCompleted })
+            assertFalse("temporary download removed", probe.downloaded!!.exists())
+            assertFalse("mandatory fixture reset cleared replacement epoch", DatabaseContainer.replacing)
+            assertEquals(0L, DatabaseContainer.replaceEpoch)
+        } finally {
+            // Safety net for the RED run: no failed cleanup regression may pollute later classes.
+            runBlocking(NonCancellable) {
+                probe.children.forEach { it.cancelAndJoin() }
+                probe.owner?.cancelAndJoin()
+                try { probe.restoreAdmission?.invoke() } finally { DatabaseResetter.resetDatabase() }
+            }
+        }
+    }
+
+    private fun exerciseNativeBoundary(path: String, probe: CleanupProbe? = null) = runBlocking {
         DatabaseResetter.resetDatabase()
         val owner = SupervisorJob()
         val scope = AppCoroutineScope(owner + Dispatchers.Default)
@@ -208,24 +240,40 @@ class AiSettingsNativeLifetimeTest {
         }, writerLauncher, scope,
             env, DatabaseContainer.databaseRestored, cloud.workspaceRefreshRequired, DatabaseContainer.aiLifetime,
             { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } })
+        val admissionField = AiDatabaseLifetime::class.java.getDeclaredField("admission").apply { isAccessible = true }
+        probe?.originalAdmission = admissionField.get(DatabaseContainer.aiLifetime)
+        probe?.owner = owner
+        probe?.downloaded = downloaded
         val restoreAdmission = boundary.traceAdmission(DatabaseContainer.aiLifetime)
+        probe?.restoreAdmission = restoreAdmission
         var trigger: Deferred<Unit>? = null
         var laterSwap: Deferred<Unit>? = null
+        var swap: Deferred<Unit>? = null
+        var originalFailure: Throwable? = null
         try {
             target.localDb.globalDaoForTest().set(GlobalAiSettings(maxIterations = 41))
             target.localDbFile.copyTo(downloaded, overwrite = true)
             target.localDb.globalDaoForTest().set(GlobalAiSettings(maxIterations = 10))
             settings.ensureLoaded()
             withTimeout(5_000) { boundary.initialRefresh.await() }
-            if (path == "write") boundary.matchSql = { it.startsWith("INSERT OR REPLACE INTO `GlobalAiSettings`") }
-            boundary.armed.set(true)
-            // Trigger native work after initial load, not a DAO-before-Room barrier.
-            if (path == "write") settings.maxIterations = 11
-            else trigger = async(Dispatchers.IO) { target.localDb.globalDaoForTest().set(GlobalAiSettings(maxIterations = 11)) }
+            if (path == "write") {
+                boundary.matchSql = { it.startsWith("INSERT OR REPLACE INTO `GlobalAiSettings`") }
+                boundary.armed.set(true)
+                settings.maxIterations = 11
+                trigger = async(Dispatchers.IO) { writerLauncher.join("ai-settings") }
+            } else {
+                // Finish the invalidating store write BEFORE arming: startup flow refreshes can
+                // otherwise hold admission before that write starts, deadlocking a writer join.
+                settings.maxIterations = 11
+                writerLauncher.join("ai-settings")
+                boundary.armed.set(true)
+                trigger = async(Dispatchers.IO) { cloud.notifyWorkspaceRefreshRequired() }
+            }
+            probe?.children?.add(trigger)
             assertTrue("actual native SELECT entered", withContext(Dispatchers.IO) { boundary.entered.await(5, TimeUnit.SECONDS) })
             if (path == "ownerCancel") owner.cancel()
             val replacementEntered = CompletableDeferred<Unit>()
-            val swap = async(Dispatchers.IO + boundary.ownerLabel.asContextElement("replacement")) {
+            swap = async(Dispatchers.IO + boundary.ownerLabel.asContextElement("replacement")) {
                 if (path == "backup") {
                     val folder = File(env.tmpDir, "native-ai-restore").apply { mkdirs() }
                     File(folder, "db").mkdirs()
@@ -254,6 +302,7 @@ class AiSettingsNativeLifetimeTest {
                     try {
                         cloud.swapInInitialDb(target, downloaded) {
                             replacementEntered.complete(Unit)
+                            if (path == "unexpected") throw probe!!.failure
                             if (path == "failure") throw IllegalArgumentException("afterReset failure")
                             if (path == "cancel") awaitCancellation()
                             if (path == "concurrent") {
@@ -265,6 +314,7 @@ class AiSettingsNativeLifetimeTest {
                                         finally { second.delete() }
                                     }
                                     withTimeout(3_000) { boundary.secondAttempted.await() }
+                                    laterSwap?.let { probe?.children?.add(it) }
                                     assertFalse("second real swap queues behind first owner", laterSwap!!.isCompleted)
                                     boundary.event("first-replacement-body-end")
                                 } catch (e: Throwable) { second.delete(); throw e }
@@ -281,6 +331,7 @@ class AiSettingsNativeLifetimeTest {
                     } catch (e: IllegalArgumentException) { if (path != "failure") throw e }
                 }
             }
+            probe?.children?.add(swap)
             withTimeout(5_000) { boundary.attempted.await() }
             assertNotNull("replacement attempted while the same statement is held", boundary.active)
             boundary.release.countDown()
@@ -319,12 +370,32 @@ class AiSettingsNativeLifetimeTest {
             settings.maxIterations = 43
             writerLauncher.join("ai-settings")
             assertEquals(43, DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao().get()!!.maxIterations)
+        } catch (e: Throwable) {
+            originalFailure = e
+            throw e
         } finally {
-            boundary.release.countDown()
-            owner.cancelAndJoin()
-            restoreAdmission()
-            downloaded.delete()
-            DatabaseResetter.resetDatabase()
+            withContext(NonCancellable) {
+                var cleanupFailure: Throwable? = null
+                suspend fun cleanup(block: suspend () -> Unit) {
+                    try { block() } catch (e: Throwable) {
+                        if (cleanupFailure == null) cleanupFailure = e else cleanupFailure!!.addSuppressed(e)
+                    }
+                }
+                boundary.release.countDown()
+                // Even a failed runBlocking child cancels its caller; quiesce every retained user of
+                // the decorated process-global mutex before mandatory restoration and database reset.
+                cleanup { trigger?.cancelAndJoin() }
+                cleanup { swap?.cancelAndJoin() }
+                cleanup { laterSwap?.cancelAndJoin() }
+                cleanup { owner.cancelAndJoin() }
+                cleanup { restoreAdmission() }
+                cleanup { downloaded.delete() }
+                cleanup { DatabaseResetter.resetDatabase() }
+                cleanupFailure?.let { failure ->
+                    if (originalFailure == null) throw failure
+                    originalFailure!!.addSuppressed(failure)
+                }
+            }
         }
     }
 

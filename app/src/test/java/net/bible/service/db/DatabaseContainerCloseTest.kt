@@ -45,6 +45,73 @@ class DatabaseContainerCloseTest {
     @Before fun setUp() = DatabaseContainer.reset()
     @After fun tearDown() = DatabaseContainer.reset()
 
+    @Test fun resetWaitsForReadyClearedConstructionThenClosesItsPublishedContainer() {
+        val originalApp = net.bible.android.BibleApplication.application
+        val originalReady = DatabaseContainer.ready
+        val originalFactory = DatabaseContainer.containerFactory
+        val productionApp = object : net.bible.android.BibleApplication() { }
+        android.content.ContextWrapper::class.java.getDeclaredMethod("attachBaseContext", android.content.Context::class.java)
+            .apply { isAccessible = true }.invoke(productionApp, originalApp.baseContext)
+        val applicationField = net.bible.android.BibleApplication::class.java.getDeclaredField("application").apply { isAccessible = true }
+        applicationField.set(null, originalApp)
+        val constructing = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val failure = java.util.concurrent.atomic.AtomicReference<Throwable?>()
+        val built = java.util.concurrent.atomic.AtomicReference<DatabaseContainer>()
+        var opener: Thread? = null
+        var resetter: Thread? = null
+        try {
+            DatabaseContainer.dropInstanceWithoutOpening()
+            DatabaseContainer.ready = true
+            DatabaseContainer.containerFactory = {
+                originalFactory().also { current ->
+                    built.set(current)
+                    applicationField.set(null, productionApp)
+                    DatabaseContainer.withReadyCleared {
+                        constructing.countDown()
+                        check(release.await(5, java.util.concurrent.TimeUnit.SECONDS)) { "construction harness timeout" }
+                    }
+                }
+            }
+            opener = Thread { try { DatabaseContainer.instance } catch (e: Throwable) { failure.set(e) } }.apply { start() }
+            assertTrue(constructing.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            resetter = Thread { try { DatabaseContainer.reset() } catch (e: Throwable) { failure.set(e) } }.apply { start() }
+            val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5)
+            while (resetter.state != Thread.State.BLOCKED && resetter.isAlive && System.nanoTime() < deadline) Thread.yield()
+            assertEquals("reset really waits for the constructor monitor", Thread.State.BLOCKED, resetter.state)
+            release.countDown()
+            opener.join(5_000); resetter.join(5_000)
+            assertTrue("workers completed", !opener.isAlive && !resetter.isAlive)
+            failure.get()?.let { throw AssertionError("worker failed", it) }
+            val current = built.get()
+            assertNotNull("reset closes the container published after readiness returns",
+                runCatching { runBlocking { current.bookmarkDb.bookmarkDao().allLabelsSortedByName() } }.exceptionOrNull())
+            DatabaseContainer.containerFactory = originalFactory
+            assertNotSame(current, DatabaseContainer.instance)
+        } finally {
+            release.countDown()
+            opener?.join(5_000); resetter?.join(5_000)
+            applicationField.set(null, originalApp)
+            DatabaseContainer.ready = originalReady
+            DatabaseContainer.containerFactory = originalFactory
+        }
+    }
+
+    @Test fun resetIsEagerButDropNeverConstructsAContainer() {
+        val originalFactory = DatabaseContainer.containerFactory
+        var opens = 0
+        try {
+            DatabaseContainer.dropInstanceWithoutOpening()
+            DatabaseContainer.containerFactory = { opens++; originalFactory() }
+            DatabaseContainer.dropInstanceWithoutOpening()
+            assertEquals(0, opens)
+            DatabaseContainer.reset()
+            assertEquals(1, opens)
+            DatabaseContainer.dropInstanceWithoutOpening()
+            assertEquals(1, opens)
+        } finally { DatabaseContainer.containerFactory = originalFactory }
+    }
+
     @Test fun closeForReplaceThenCloseAllIsSafeAndTheNextContainerWorks() {
         val old = DatabaseContainer.instance
         runBlocking { old.bookmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "before close")) }
