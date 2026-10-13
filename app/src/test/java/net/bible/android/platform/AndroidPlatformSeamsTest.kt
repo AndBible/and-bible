@@ -53,6 +53,22 @@ import org.robolectric.annotation.Config
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.io.File
+import net.bible.service.llm.AiSettings
+import net.bible.service.llm.SecretStore
+import net.bible.service.llm.LlmStrings
+import net.bible.service.llm.LlmProcessingService
+import net.bible.service.llm.DynamicModelService
+import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.LlmConfiguredModel
+import net.bible.service.llm.LlmModelConfig
+import net.bible.service.llm.agent.AgentPlatform
+import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.llm.tools.ToolRegistry
+import net.bible.service.llm.ToolCategory
+import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.llm.http.LlmHttpTransport
+import kotlinx.coroutines.cancelAndJoin
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -153,6 +169,99 @@ class AndroidPlatformSeamsTest {
         assertTrue(scope.launch { }.let { it.join(); it.isCompleted && !it.isCancelled })
     }
 
+    @Test fun llmSingletonsUseDependenciesAfterStartup() = runBlocking {
+        // TestBibleApplication has run the real BibleApplication.startKoin before this method.
+        // Keep that exact graph: swapping it would strand process-global lazy injections.
+        val koin = GlobalContext.get()
+        val settings = koin.get<AiSettings>()
+        settings.ensureLoaded()
+        // Real provider resolution consumes SecretStore; no request or real credential is needed.
+        val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "startup seam", endpoint = "http://127.0.0.1")
+        val model = LlmConfiguredModel(providerConfigId = provider.id, modelId = "startup-seam")
+        val db = DatabaseContainer.instance.aiSettingsDb
+        try {
+            db.llmProviderConfigDao().insert(provider)
+            db.llmConfiguredModelDao().insert(model)
+            val resolved = LlmProcessingService.resolveFromConfig(LlmModelConfig(model.id))
+            assertEquals("", resolved.apiKey)
+            assertEquals(model.modelId, resolved.model)
+            // This path reads the injected AppEnvironment, without mutating the disk cache.
+            assertEquals(0L, DynamicModelService.cacheTimestamp("startup-seam-${provider.id}"))
+            assertEquals("decision", AgentSessionManager.awaitingUserDecision(provider.id, "startup seam") { "decision" })
+            assertEquals(koin.get<LlmStrings>().toolCategoryBibleSearch,
+                ToolRegistry.getCategoryDisplayName(ToolCategory.BIBLE_SEARCH))
+        } finally {
+            db.llmProviderConfigDao().delete(provider) // cascades the test model only
+        }
+    }
+
+    /** Bounded synchronous bootstrap chain, not declaration order or a whole-file keyword scan. */
+    @Test fun llmSingletonsAreNotTouchedBeforeKoinStartup() {
+        assertNoPreKoinLlmAccess(startupSources())
+    }
+
+    @Test fun startupGuardRejectsLlmAccessHiddenInSwordHelper() {
+        val sources = startupSources().toMutableMap()
+        val path = "service/sword/SwordEnvironmentInitialisation.kt"
+        listOf("LlmProcessingService", "DynamicModelService", "AgentSessionManager", "ToolRegistry").forEach { singleton ->
+            sources[path] = startupSources().getValue(path).replace("fun enableDefaultAndManualInstallFolder() {",
+                "fun enableDefaultAndManualInstallFolder() {\n $singleton.toString()")
+            val failure = runCatching { assertNoPreKoinLlmAccess(sources) }.exceptionOrNull()
+            assertTrue("the nested pre-Koin helper must be inspected for $singleton", failure is AssertionError)
+            assertTrue(failure!!.message.orEmpty().contains(singleton))
+        }
+    }
+
+    private fun startupSources(): Map<String, String> = listOf(
+        "android/BibleApplication.kt", "service/sword/SwordEnvironmentInitialisation.kt",
+    ).associateWith { path ->
+        val file = File("src/main/java/net/bible/$path")
+        assertTrue("source guard cannot see $file", file.isFile)
+        file.readText().replace(Regex("/\\*.*?\\*/", RegexOption.DOT_MATCHES_ALL), "")
+            .lineSequence().map { it.substringBefore("//") }.joinToString("\n")
+    }
+
+    private fun assertNoPreKoinLlmAccess(sources: Map<String, String>) {
+        fun body(source: String, name: String): String {
+            val declaration = Regex("fun\\s+$name\\s*\\([^)]*\\)[^{]*\\{").find(source)
+            assertNotNull("missing bootstrap function $name", declaration)
+            val start = declaration!!.range.last + 1
+            var depth = 1
+            for (i in start until source.length) {
+                when (source[i]) { '{' -> depth++; '}' -> depth-- }
+                if (depth == 0) return source.substring(start, i)
+            }
+            error("unbounded bootstrap function $name")
+        }
+        val app = sources.getValue("android/BibleApplication.kt")
+        val onCreate = body(app, "onCreate")
+        val start = onCreate.indexOf("startKoin {")
+        assertTrue("startKoin anchor must survive", start >= 0)
+        val prefix = onCreate.substring(0, start)
+        assertTrue("Sword startup call must remain in the checked prefix",
+            prefix.contains("SwordEnvironmentInitialisation.initialiseJSwordFolders()"))
+        val seen = mutableSetOf<String>()
+        val forbidden = Regex("\\b(LlmProcessingService|DynamicModelService|AgentSessionManager|ToolRegistry)\\b")
+        fun visit(path: String, name: String, code: String) {
+            if (!seen.add("$path:$name")) return
+            assertTrue("bootstrap chain exceeded its bound", seen.size <= 30)
+            assertTrue("pre-Koin $path:$name touches ${forbidden.find(code)?.value}", !forbidden.containsMatchIn(code))
+            val source = sources.getValue(path)
+            Regex("fun\\s+(\\w+)\\s*\\(").findAll(source).map { it.groupValues[1] }.forEach { helper ->
+                if (helper != "onCreate" && Regex("\\b$helper\\s*\\(").containsMatchIn(code)) {
+                    visit(path, helper, body(source, helper))
+                }
+            }
+            if (path == "android/BibleApplication.kt") {
+                Regex("SwordEnvironmentInitialisation\\.(\\w+)\\s*\\(").findAll(code).forEach { call ->
+                    val swordPath = "service/sword/SwordEnvironmentInitialisation.kt"
+                    visit(swordPath, call.groupValues[1], body(sources.getValue(swordPath), call.groupValues[1]))
+                }
+            }
+        }
+        visit("android/BibleApplication.kt", "onCreate", prefix)
+    }
+
     @Test fun koinResolvesEverySeam() {
         listOf(AppSettings::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, AppCoroutineScope::class, net.bible.service.sword.ContentSource::class)
             .forEach { assertNotNull(it.simpleName, GlobalContext.get().getOrNull<Any>(it)) }
@@ -175,6 +284,7 @@ class AndroidPlatformSeamsTest {
             AdvancedSpeakSettings::class, SpeakSettingsStore::class, OrderedLauncher::class, BookInstallWatcher::class, ProgressJsActions::class, BookmarkJsActions::class,
             DocumentControl::class, ReadingPlanTextFileDao::class, ReadingPlanRepository::class,
             ReadingPlanSource::class, HistoryPlatform::class, LinkPlatform::class, DocumentSyncStarter::class,
+            LlmHttpTransport::class, LlmStrings::class, AiSettings::class, SecretStore::class, AgentPlatform::class,
             AppSettings::class, AppCoroutineScope::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, net.bible.service.sword.ContentSource::class,
         )
         val global = GlobalContext.get()
@@ -187,6 +297,10 @@ class AndroidPlatformSeamsTest {
             types.forEach { type ->
                 val instance: Any = app.koin.get(type, null, null) // throws (with the cause) if the factory fails
                 assertTrue("${type.simpleName} resolved to ${instance::class}", type.isInstance(instance))
+                if (instance is AiSettings) runBlocking {
+                    instance.ensureLoaded()
+                    assertTrue("production settings snapshot is usable", instance.maxIterations > 0)
+                }
                 // AppSettings is bound to the process-wide CommonUtils.settings, so only it may be the same object
                 if (type != AppSettings::class) {
                     assertNotSame("${type.simpleName} must be built by the isolated application", globalBefore[type], instance)
@@ -194,7 +308,7 @@ class AndroidPlatformSeamsTest {
             }
         } finally {
             // the isolated app's own scope: cancel it so nothing it launched outlives this test
-            app.koin.getOrNull<AppCoroutineScope>()?.coroutineContext?.get(Job)?.cancel()
+            runBlocking { app.koin.getOrNull<AppCoroutineScope>()?.coroutineContext?.get(Job)?.cancelAndJoin() }
             app.close()
         }
         globalBefore.forEach { (type, before) ->
