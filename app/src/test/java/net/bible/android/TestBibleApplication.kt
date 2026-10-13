@@ -36,7 +36,6 @@ import net.bible.android.view.activity.nav.SystemBarSettingChanges
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.device.ScreenSettings
 import android.content.res.Resources
-import android.util.Log
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.window.WorkspaceChanges
@@ -68,15 +67,22 @@ class TestBibleApplication : BibleApplication() {
         println("TestBibleApplication BibleApplication subclass being used.")
     }
 
-    private val aiScope = net.bible.sharedcore.platform.AppCoroutineScope()
+    private var aiScope = net.bible.sharedcore.platform.AppCoroutineScope()
     private var previousAppScope: net.bible.sharedcore.platform.AppCoroutineScope? = null
     private var previousLauncher: net.bible.sharedcore.platform.OrderedLauncher? = null
-    private val aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
+    private var aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
+    private var overriddenKoin: org.koin.core.Koin? = null
+    private var terminated = false
     override val isRunningTests: Boolean = true
 
     override fun getLocalizedResources(language: String): Resources = application.resources
 
     override fun onCreate() {
+        if (terminated) {
+            aiScope = net.bible.sharedcore.platform.AppCoroutineScope()
+            aiLauncher = net.bible.sharedcore.platform.OrderedLauncher(aiScope)
+        }
+        terminated = false
         // At the start, not in onTerminate: a test may terminate the application mid-way with its activity still live.
         CurrentActivityHolder.forgetActivitiesForTest()
         // The production handler is process-global; Robolectric creates an application per test.
@@ -87,9 +93,11 @@ class TestBibleApplication : BibleApplication() {
         } finally {
             Thread.setDefaultUncaughtExceptionHandler(originalHandler)
         }
-        previousAppScope = org.koin.core.context.GlobalContext.get().get()
-        previousLauncher = org.koin.core.context.GlobalContext.get().get()
-        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+        val koin = GlobalContext.get()
+        overriddenKoin = koin
+        previousAppScope = koin.get()
+        previousLauncher = koin.get()
+        koin.loadModules(listOf(org.koin.dsl.module {
             single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
             single<net.bible.service.llm.AiSettings> {
@@ -109,7 +117,7 @@ class TestBibleApplication : BibleApplication() {
             singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
             singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
             singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
-        })
+        }))
         CommonUtils.initializeApp()
         kotlinx.coroutines.runBlocking { CommonUtils.aiSettings.ensureLoaded() }
         net.bible.test.DatabaseResetter.runResetBlocking {
@@ -128,54 +136,73 @@ class TestBibleApplication : BibleApplication() {
     }
 
     override fun onTerminate() {
-        net.bible.test.DatabaseResetter.runResetBlocking {
-            aiLauncher.join("ai-settings")
-            val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
-            job.cancel()
-            job.join()
-        }
-        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
-            single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
-            single<net.bible.sharedcore.platform.OrderedLauncher> { checkNotNull(previousLauncher) }
-            single<net.bible.service.llm.AiSettings> {
-                net.bible.service.llm.AiSettingsStore(
-                    { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
-                    DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired, DatabaseContainer.aiLifetime,
-                    { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } },
-                )
+        if (terminated) return
+        terminated = true
+        var failure: Throwable? = null
+        fun cleanup(action: () -> Unit) {
+            try { action() } catch (e: Throwable) {
+                if (failure == null) failure = e else if (failure !== e) failure!!.addSuppressed(e)
             }
-            singleOf(::RawLogServiceImpl) { bind<net.bible.sharedcore.ai.RawLogService>() }
-            singleOf(::LlmModelServiceImpl) { bind<net.bible.sharedcore.ai.LlmModelService>() }
-            singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
-            singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
-            singleOf(::PromptServiceImpl) { bind<net.bible.sharedcore.ai.PromptService>() }
-            singleOf(::AgentSessionServiceImpl) { bind<net.bible.sharedcore.ai.reading.AgentSessionService>() }
-            singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
-            singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
-            singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
-        })
-        CommonUtils.destroy()
-        super.onTerminate()
-        AgentSessionManager.resetSubscribersForTest()
-        SharedActivityState.instance.resetSubscribersForTest()
-        GlobalContext.getOrNull()?.getOrNull<WindowStateServiceImpl>()?.resetSubscribersForTest()
-        WorkspaceChanges.resetSubscribersForTest()
-
-        GlobalContext.getOrNull()?.getOrNull<DocumentSync>()?.resetSubscribersForTest()
-        GlobalContext.getOrNull()?.getOrNull<CloudSync>()?.resetSubscribersForTest()
-        InstallZipProgress.resetSubscribersForTest()
-        SpeakChanges.resetSubscribersForTest()
-        SpeakSettingsChanges.resetSubscribersForTest()
-        DatabaseContainer.resetBookmarksSyncedForTest()
-        MyDocumentBookManager.resetSubscribersForTest()
-        PassageChangeMediator.resetSubscribersForTest()
-        net.bible.service.history.HistoryManager.resetInstanceForTest()
-        ScreenSettings.resetSubscribersForTest()
-        CurrentActivityHolder.resetSubscribersForTest()
-        SystemBarSettingChanges.resetSubscribersForTest()
-        DocumentChanges.resetSubscribersForTest()
-        DatabaseContainer.resetPhase8StreamsForTest()
-        AndBibleAddons.resetSubscribersForTest()
+        }
+        cleanup {
+            net.bible.test.DatabaseResetter.runResetBlocking {
+                val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
+                try {
+                    aiLauncher.join("ai-settings")
+                } finally {
+                    job.cancel()
+                    job.join()
+                }
+            }
+        }
+        cleanup {
+            val koin = overriddenKoin
+            // Never restore an old fixture's bindings into a replacement global graph.
+            if (koin != null && GlobalContext.getOrNull() === koin) {
+                koin.loadModules(listOf(org.koin.dsl.module {
+                    single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
+                    single<net.bible.sharedcore.platform.OrderedLauncher> { checkNotNull(previousLauncher) }
+                    single<net.bible.service.llm.AiSettings> {
+                        net.bible.service.llm.AiSettingsStore(
+                            { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
+                            DatabaseContainer.databaseRestored, get<CloudSync>().workspaceRefreshRequired, DatabaseContainer.aiLifetime,
+                            { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } },
+                        )
+                    }
+                    singleOf(::RawLogServiceImpl) { bind<net.bible.sharedcore.ai.RawLogService>() }
+                    singleOf(::LlmModelServiceImpl) { bind<net.bible.sharedcore.ai.LlmModelService>() }
+                    singleOf(::LlmProviderServiceImpl) { bind<net.bible.sharedcore.ai.LlmProviderService>() }
+                    singleOf(::AiSettingsServiceImpl) { bind<net.bible.sharedcore.ai.AiSettingsService>() }
+                    singleOf(::PromptServiceImpl) { bind<net.bible.sharedcore.ai.PromptService>() }
+                    singleOf(::AgentSessionServiceImpl) { bind<net.bible.sharedcore.ai.reading.AgentSessionService>() }
+                    singleOf(::ReadingLlmServiceImpl) { bind<net.bible.sharedcore.ai.reading.ReadingLlmService>() }
+                    singleOf(::DocumentFilterServiceImpl) { bind<net.bible.sharedcore.ai.DocumentFilterService>() }
+                    singleOf(::ToolPermissionServiceImpl) { bind<net.bible.sharedcore.ai.ToolPermissionService>() }
+                }))
+            }
+            overriddenKoin = null
+        }
+        cleanup { CommonUtils.destroy() }
+        cleanup { super.onTerminate() }
+        cleanup { AgentSessionManager.resetSubscribersForTest() }
+        cleanup { SharedActivityState.instance.resetSubscribersForTest() }
+        cleanup { GlobalContext.getOrNull()?.getOrNull<WindowStateServiceImpl>()?.resetSubscribersForTest() }
+        cleanup { WorkspaceChanges.resetSubscribersForTest() }
+        cleanup { GlobalContext.getOrNull()?.getOrNull<DocumentSync>()?.resetSubscribersForTest() }
+        cleanup { GlobalContext.getOrNull()?.getOrNull<CloudSync>()?.resetSubscribersForTest() }
+        cleanup { InstallZipProgress.resetSubscribersForTest() }
+        cleanup { SpeakChanges.resetSubscribersForTest() }
+        cleanup { SpeakSettingsChanges.resetSubscribersForTest() }
+        cleanup { DatabaseContainer.resetBookmarksSyncedForTest() }
+        cleanup { MyDocumentBookManager.resetSubscribersForTest() }
+        cleanup { PassageChangeMediator.resetSubscribersForTest() }
+        cleanup { net.bible.service.history.HistoryManager.resetInstanceForTest() }
+        cleanup { ScreenSettings.resetSubscribersForTest() }
+        cleanup { CurrentActivityHolder.resetSubscribersForTest() }
+        cleanup { SystemBarSettingChanges.resetSubscribersForTest() }
+        cleanup { DocumentChanges.resetSubscribersForTest() }
+        cleanup { DatabaseContainer.resetPhase8StreamsForTest() }
+        cleanup { AndBibleAddons.resetSubscribersForTest() }
         // D1 final review M9: the one-JVM suite's safety net. A test that touched the settings or a DAO without
         // DatabaseContainer.reset() would otherwise leave its container (files in this test's now dead Robolectric
         // data dir) for the next class. The container is detached now (never built) but closed only at the NEXT
@@ -183,12 +210,11 @@ class TestBibleApplication : BibleApplication() {
         // BibleView render reading ProgressDb on Dispatchers.Default -> "Database is closed", reported by
         // kotlinx-coroutines-test as UncaughtExceptionsBeforeTest in a later runTest). Last, so nothing above
         // reopens it.
-        try {
+        cleanup {
             val previous = detachedContainer
             detachedContainer = DatabaseContainer.detachInstanceForTest()
             previous?.closeAll()
-        } catch (e: Throwable) {
-            Log.e("TestBibleApplication", "Detaching or closing the database container failed", e)
         }
+        failure?.let { throw it }
     }
 }

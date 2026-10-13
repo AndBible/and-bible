@@ -27,6 +27,95 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class AiSettingsFixtureLifetimeTest {
+    @Test fun restorationFailureStillQuiescesAndClearsApplicationGlobals() {
+        val app = BibleApplication.application as TestBibleApplication
+        val koin = GlobalContext.get()
+        val scope = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
+        // Inject at Koin's restoration boundary without introducing a fixture/production hook.
+        val loggerField = org.koin.core.Koin::class.java.getDeclaredField("logger").apply { isAccessible = true }
+        val originalLogger = loggerField.get(koin)
+        val expected = IllegalStateException("fixture restoration injection")
+        loggerField.set(koin, object : org.koin.core.logger.Logger(org.koin.core.logger.Level.DEBUG) {
+            override fun display(level: org.koin.core.logger.Level, msg: String) { throw expected }
+        })
+        try {
+            val failure = runCatching { app.onTerminate() }.exceptionOrNull()
+            assertSame("original restoration failure remains visible", expected, failure)
+            assertFalse(scope.coroutineContext[kotlinx.coroutines.Job]!!.isActive)
+            val initialized = CommonUtils::class.java.getDeclaredField("initialized").apply { isAccessible = true }
+            assertFalse("restoration failure must not bypass CommonUtils.destroy()",
+                initialized.getBoolean(CommonUtils))
+            app.onTerminate()
+        } finally {
+            loggerField.set(koin, originalLogger)
+            app.onCreate()
+        }
+    }
+
+    @Test fun terminationDoesNotRestoreBindingsIntoReplacementKoinGraph() {
+        val app = BibleApplication.application as TestBibleApplication
+        val scope = net.bible.sharedcore.platform.AppCoroutineScope()
+        val launcher = net.bible.sharedcore.platform.OrderedLauncher(scope)
+        GlobalContext.stopKoin()
+        val replacement = org.koin.core.context.startKoin {
+            modules(org.koin.dsl.module {
+                single { scope }
+                single { launcher }
+            })
+        }.koin
+        try {
+            app.onTerminate()
+            app.onTerminate()
+            assertSame(scope, replacement.get<net.bible.sharedcore.platform.AppCoroutineScope>())
+            assertSame(launcher, replacement.get<net.bible.sharedcore.platform.OrderedLauncher>())
+            assertNull("old fixture must not install its settings into a replacement graph",
+                replacement.getOrNull<AiSettings>())
+        } finally {
+            GlobalContext.stopKoin()
+            scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
+            app.onCreate()
+        }
+    }
+
+    @Test fun sameApplicationRestartPersistsWritesUsingFreshOwnedBindings() {
+        val app = BibleApplication.application as TestBibleApplication
+        val koin = GlobalContext.get()
+        val oldScope = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
+        val oldLauncher = koin.get<net.bible.sharedcore.platform.OrderedLauncher>()
+        val oldSettings = koin.get<AiSettings>()
+        try {
+            app.onTerminate()
+            app.onCreate()
+            val scope = koin.get<net.bible.sharedcore.platform.AppCoroutineScope>()
+            val launcher = koin.get<net.bible.sharedcore.platform.OrderedLauncher>()
+            val settings = koin.get<AiSettings>()
+            val dao = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
+            val before = runBlocking { dao.get()?.askModelBeforeRun ?: false }
+            val service = koin.get<AiSettingsService>()
+            assertSame(service, koin.get<AiSettingsServiceImpl>())
+            service.setAskModelBeforeRun(!before)
+            runBlocking {
+                kotlinx.coroutines.withTimeout(5000) { settings.awaitWrites() }
+                assertEquals("restarted fixture's queued write reaches the real database",
+                    !before, dao.get()?.askModelBeforeRun)
+            }
+            assertNotSame(oldSettings, settings)
+            assertNotSame(oldScope, scope)
+            assertNotSame(oldLauncher, launcher)
+            assertTrue("restarted scope accepts owned work",
+                scope.coroutineContext[kotlinx.coroutines.Job]!!.isActive)
+            assertFalse("previous scope has quiesced",
+                oldScope.coroutineContext[kotlinx.coroutines.Job]!!.isActive)
+            // Identity at the store boundary rules out an active but unrelated replacement scope.
+            for ((fieldName, expected) in listOf("appScope" to scope, "launcher" to launcher)) {
+                val field = AiSettingsStore::class.java.getDeclaredField(fieldName).apply { isAccessible = true }
+                assertSame(expected, field.get(settings))
+            }
+        } finally {
+            try { app.onTerminate() } finally { DatabaseResetter.resetDatabase() }
+        }
+    }
+
     @Test fun successiveApplicationLifetimesUseFreshSettingsAndEventsWithConcreteAliases() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         val firstApp = BibleApplication.application as TestBibleApplication
