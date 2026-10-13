@@ -66,6 +66,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.crosswire.common.util.NetUtil
+import org.crosswire.common.util.NetUtilJvm
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -990,7 +991,7 @@ class BackupControl(
         // Load configuration files & register SWORD books
         val bookDriver = SwordBookDriver.instance()
         for (confFile in confFiles) {
-            val me = SwordBookMetaDataJvm.create(confFile, NetUtil.getURI(targetDirectory))
+            val me = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(targetDirectory))
             me.setDriver(bookDriver)
             SwordBookDriver.registerNewBook(me)
         }

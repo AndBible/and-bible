@@ -27,6 +27,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.crosswire.common.util.NetUtil
+import org.crosswire.common.util.NetUtilJvm
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookDriver
@@ -101,7 +102,7 @@ class CurrentPageManagerNoActivityTest {
             .putInt(0).putShort(datBytes.size.toShort()).array()
         File(dataDir, "test.idx").writeBytes(idxBytes)
 
-        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtil.getURI(downloadDir))
+        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(downloadDir))
         bmd.setDriver(SwordBookDriver.instance())
         SwordBookDriver.registerNewBook(bmd)
         return requireNotNull(Books.installed().getBook("TestDict")) { "TestDict test module must be installed" }

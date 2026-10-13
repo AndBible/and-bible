@@ -26,6 +26,7 @@ import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.util.LucidException
 import org.crosswire.common.util.NetUtil
+import org.crosswire.common.util.NetUtilJvm
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.JSMsg
 import org.crosswire.jsword.book.install.InstallException
@@ -146,7 +147,7 @@ class GenericFileDownloader(
             // Once the download is complete, we need to continue
             job.isCancelable = false
             if (!job.isFinished) {
-                val tempFile = NetUtil.getAsFile(temp)
+                val tempFile = NetUtilJvm.getAsFile(temp)
                 if (!copyFile(tempFile, target)) {
                     Log.e(TAG, "Download Error renaming temp file $tempFile to:$target")
                     notifier.showError(strings.errorOccurred)

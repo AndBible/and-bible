@@ -29,6 +29,7 @@ import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import net.bible.service.sword.ttf.isManuallyInstalledTtf
 import org.crosswire.common.util.NetUtil
+import org.crosswire.common.util.NetUtilJvm
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.NullBackend
@@ -204,7 +205,7 @@ class ModuleBackupRoundTripTest {
         }
 
         // File-based metadata → configFile != null, the distinguisher from a manual TTF.
-        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtil.getURI(downloadDir))
+        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(downloadDir))
         val book: Book = SwordBook(bmd, NullBackend())
 
         assertFalse(
@@ -310,7 +311,7 @@ class ModuleBackupRoundTripTest {
             .putInt(0).putShort(datBytes.size.toShort()).array()
         File(dataDir, "test.idx").writeBytes(idxBytes)
 
-        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtil.getURI(downloadDir))
+        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(downloadDir))
         bmd.setDriver(SwordBookDriver.instance())
         SwordBookDriver.registerNewBook(bmd)
         return Books.installed().getBook("TestDict")!!
