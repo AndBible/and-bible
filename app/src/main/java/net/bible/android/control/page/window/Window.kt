@@ -21,6 +21,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -258,9 +260,13 @@ class Window (
         val currentPage = pageManager.currentPage
         val sourceDocument = currentPage.currentDocument
         val sourceKey = currentPage.key?.getOsisRef()
-        fun isCurrentRequest() = generation == contentLoadGeneration &&
-            pageManager.currentPage === currentPage && currentPage.currentDocument === sourceDocument &&
-            currentPage.key?.getOsisRef() == sourceKey
+        suspend fun isCurrentRequest(): Boolean {
+            // key can enter an independent blockingDb bridge; do not start it after cancellation.
+            currentCoroutineContext().ensureActive()
+            return generation == contentLoadGeneration &&
+                pageManager.currentPage === currentPage && currentPage.currentDocument === sourceDocument &&
+                currentPage.key?.getOsisRef() == sourceKey
+        }
         val key = if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
             pageManager.currentBibleVerse.verse
         } else {

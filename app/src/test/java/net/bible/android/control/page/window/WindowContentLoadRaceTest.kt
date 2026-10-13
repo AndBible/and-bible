@@ -177,6 +177,87 @@ class WindowContentLoadRaceTest {
         }
     }
 
+    @Test fun aCancelledWindowDoesNotReadSettingsAtTheReadyViewBoundary() = runTest(dispatcher, timeout = 30.seconds) {
+        val control = CommonUtils.windowControl
+        val originalRepo = control.windowRepository
+        val koin = GlobalContext.get()
+        val originalSource = koin.get<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val settings = originalSource.current
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val guardReads = java.util.concurrent.atomic.AtomicInteger()
+        val cancelledReads = java.util.concurrent.atomic.AtomicInteger()
+        val armed = java.util.concurrent.atomic.AtomicBoolean(false)
+        val repoJob = SupervisorJob(coroutineContext[Job])
+        val repo = WindowRepository(CoroutineScope(coroutineContext + repoJob))
+        var view: BibleView? = null
+        val source = object : net.bible.android.control.page.GlobalTextDisplaySettingsSource {
+            override val current: net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+                get() {
+                    if (!armed.get() || !Thread.currentThread().name.startsWith("DefaultDispatcher")) return originalSource.current
+                    if (repoJob.isCancelled) {
+                        cancelledReads.incrementAndGet()
+                        // Count the real attempted source access without touching a torn-down DB.
+                        return settings
+                    }
+                    val current = originalSource.current
+                    if (Thread.currentThread().stackTrace.any { it.className == Window::class.java.name && it.methodName.contains("isCurrentRequest") } && guardReads.incrementAndGet() == 2) {
+                        // Hold the actual post-fetch key/settings read, whose blocking bridge has
+                        // an independent Job. A ready view makes the next boundary non-suspending.
+                        net.bible.service.db.blockingDb {
+                            entered.complete(Unit)
+                            release.await()
+                        }
+                    }
+                    return current
+                }
+        }
+        try {
+            koin.loadModules(listOf(org.koin.dsl.module {
+                single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { source }
+            }))
+            control.windowRepository = repo
+            repo.initialize()
+            val window = repo.activeWindow
+            val host = mock<ReadingHostActivity>()
+            whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
+            val callbacks = BibleViewHostCallbacks(mock(), {}, {}, { _, _ -> }, { _, _ -> false }, { false }, {}, { null }, { _, _ -> }, {}, { false }, { 0 }, { 0 }, { 0 }, { error("Unused") })
+            val reader = BibleView(host, callbacks, WeakReference(window), control, koin.get(), PageTiltScrollControl(), koin.get(), koin.get(), koin.get(), koin.get())
+            view = reader
+            window.bibleView = reader
+            reader.lastUpdated = 1
+            BibleView::class.java.getDeclaredField("pageTiltScroller").apply {
+                isAccessible = true
+                set(reader, PageTiltScroller(reader, PageTiltScrollControl()))
+            }
+            val key = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 2, 1)
+            window.pageManager.setCurrentDocumentAndKey(Books.installed().getBook("KJV")!!, key, false)
+            armed.set(true)
+            window.loadText()
+            entered.await()
+            assertEquals("actual pre-read and post-fetch guards must run", 2, guardReads.get())
+            assertFalse("actual post-fetch settings source must remain held", release.isCompleted)
+            repoJob.cancel()
+            assertFalse("held synchronous reader must keep ownership during cancellation", repoJob.isCompleted)
+            release.complete(Unit)
+            repoJob.join()
+            assertEquals("cancelled Window must not begin another key/settings read at the ready-view boundary", 0, cancelledReads.get())
+            assertNull("cancelled Window must not publish a document", reader.firstDocument)
+        } finally {
+            release.complete(Unit)
+            try {
+                repoJob.cancelAndJoin()
+                repo.windowList.forEach { it.destroy(destroyView = false) }
+                view?.destroy()
+            } finally {
+                control.windowRepository = originalRepo
+                koin.loadModules(listOf(org.koin.dsl.module {
+                    single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { originalSource }
+                }))
+            }
+        }
+    }
+
     private suspend fun TestScope.awaitIo(condition: () -> Boolean) {
         withContext(Dispatchers.Default) {
             withTimeout(10_000) {
