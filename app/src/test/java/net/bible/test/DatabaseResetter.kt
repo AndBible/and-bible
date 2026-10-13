@@ -58,12 +58,17 @@ object DatabaseResetter {
         val koin = org.koin.core.context.GlobalContext.getOrNull()
         runResetBlocking {
             // Cancel producers, then wait for their finally blocks and late submissions before draining.
-            val appJob = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
-                ?.coroutineContext?.get(kotlinx.coroutines.Job)
+            val appScope = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
+            val appJob = appScope?.coroutineContext?.get(kotlinx.coroutines.Job)
             val jobs = (scopes_.mapNotNull { it.coroutineContext[kotlinx.coroutines.Job] } +
                 (appJob?.children?.toList() ?: emptyList())).distinct()
+            checkpoint("cancel-producers", "appContext=${appScope?.coroutineContext} explicitContexts=${scopes_.map { it.coroutineContext }} jobs=${jobs.joinToString { jobState(it) }}")
             jobs.forEach { it.cancel() }
-            jobs.forEach { it.join() }
+            jobs.forEach {
+                checkpoint("join-producer", jobState(it))
+                it.join()
+            }
+            checkpoint("producers-joined")
             val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
             if (settings == null) commitReset { DatabaseContainer.reset() }
@@ -84,7 +89,7 @@ object DatabaseResetter {
             while (!cleanup.isCompleted) {
                 if (System.nanoTime() >= deadline && decision.abortBeforeCommit()) {
                     cleanup.cancel()
-                    throw IllegalStateException("Database fixture cleanup timed out before reset (${timeoutMs}ms)")
+                    throw IllegalStateException("Database fixture cleanup timed out before reset (${timeoutMs}ms); ${decision.diagnostic()}")
                 }
                 if (android.os.Looper.myLooper() === main) {
                     org.robolectric.Shadows.shadowOf(main).runOneTask()
@@ -124,6 +129,16 @@ object DatabaseResetter {
         companion object Key : kotlin.coroutines.CoroutineContext.Key<ResetDecision>
         private enum class Phase { PREPARING, COMMITTED, ABORTED }
         private var phase = Phase.PREPARING
+        private var stage = "starting"
+        private var details = ""
+
+        @Synchronized fun checkpoint(stage: String, details: String) {
+            this.stage = stage
+            this.details = details
+            println("DB_RESET stage=$stage $details")
+        }
+
+        @Synchronized fun diagnostic() = "stage=$stage $details"
 
         @Synchronized fun abortBeforeCommit(): Boolean {
             if (phase == Phase.COMMITTED) return false
@@ -147,10 +162,20 @@ object DatabaseResetter {
         launcher: net.bible.sharedcore.platform.OrderedLauncher,
         reset: suspend () -> Unit,
     ) {
-        launcher.join("document-sync-settings")
+        val capturedLauncher = settings.javaClass.getDeclaredField("launcher").apply { isAccessible = true }.get(settings)
+        val tailsField = launcher.javaClass.getDeclaredField("tails").apply { isAccessible = true }
+        val lockField = launcher.javaClass.getDeclaredField("lock").apply { isAccessible = true }
+        val tail = synchronized(requireNotNull(lockField.get(launcher))) {
+            (tailsField.get(launcher) as Map<*, *>)["document-sync-settings"] as kotlinx.coroutines.Job?
+        }
         val mutexField = settings.javaClass.getDeclaredField("dbMutex").apply { isAccessible = true }
         val mutex = mutexField.get(settings) as kotlinx.coroutines.sync.Mutex
+        val queueScope = launcher.javaClass.getDeclaredField("scope").apply { isAccessible = true }.get(launcher) as CoroutineScope
+        checkpoint("settings-tail", "queue=${System.identityHashCode(launcher)} capturedQueue=${System.identityHashCode(capturedLauncher)} queueContext=${queueScope.coroutineContext} tail=${tail?.let { jobState(it) }} mutexLocked=${mutex.isLocked}")
+        launcher.join("document-sync-settings")
+        checkpoint("settings-mutex", "mutexLocked=${mutex.isLocked}")
         mutex.lock()
+        checkpoint("settings-reset")
         try {
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
             val commit: suspend () -> Unit = {
@@ -163,6 +188,13 @@ object DatabaseResetter {
             val decision = kotlinx.coroutines.currentCoroutineContext()[ResetDecision]
             if (decision == null) commit() else decision.commitReset(commit)
         } finally { mutex.unlock() }
+    }
+
+    private fun jobState(job: kotlinx.coroutines.Job): String =
+        "$job identity=${System.identityHashCode(job)} active=${job.isActive} completed=${job.isCompleted} cancelled=${job.isCancelled} context=${(job as? CoroutineScope)?.coroutineContext} children=${job.children.toList()}"
+
+    private suspend fun checkpoint(stage: String, details: String = "") {
+        kotlinx.coroutines.currentCoroutineContext()[ResetDecision]?.checkpoint(stage, details)
     }
 
     private fun resetSingleton(class_: Class<*>, fieldName: String) {
