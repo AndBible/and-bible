@@ -165,7 +165,7 @@ import kotlin.math.min
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext
-import net.bible.service.db.blockingDb
+import net.bible.service.db.blockingAtEdge
 import net.bible.android.control.bookmark.BookmarkJsActions
 
 const val MAX_DOC_STR_LENGTH = 4000000;
@@ -1291,7 +1291,7 @@ class BibleView(
                     (if(book is SwordGenBook) {
                         val backend = book.backend
                         if (backend is EpubBackend) {
-                            blockingDb { backend.styleSheets(key) } // L1-edge: WebView shouldInterceptRequest
+                            blockingAtEdge { backend.styleSheets(key) } // L1-edge: WebView shouldInterceptRequest
                         } else null
                     }  else null) ?: return notFound
 

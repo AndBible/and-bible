@@ -54,6 +54,12 @@ class BlockingDbTest {
 
     @Test fun returnsTheBlockValue() { assertEquals(3, blockingDb { 1 + 2 }) }
 
+    @Test fun blockingAtEdgeReturnsTheBlockValue() { assertEquals(3, blockingAtEdge { 1 + 2 }) }
+
+    @Test fun blockingAtEdgeRefusesInsideRoomTransaction() = assertRefusedWithin {
+        runBlocking { db.roomTransaction { blockingAtEdge { 1 } } }
+    }
+
     @Test fun refusesToRunInsideAMarkedTransaction() {
         assertThrows(BlockingDbInTransaction::class.java) {
             runBlocking(DbTransactionMarker) { blockingDb { 1 } }

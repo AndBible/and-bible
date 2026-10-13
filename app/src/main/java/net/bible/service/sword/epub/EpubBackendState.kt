@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.epub
 
-import net.bible.service.db.blockingDb
+import net.bible.service.db.blockingAtEdge
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.service.common.ArchiveUtils
@@ -150,7 +150,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
             .evaluateFirst(content)?.value
     }
 
-    private fun fragmentBlocking(key: Key): EpubFragment? = blockingDb { dao.getFragment(key.getOsisRef().toLong()) } // L1-edge: JSword synchronous Backend contract
+    private fun fragmentBlocking(key: Key): EpubFragment? = blockingAtEdge { dao.getFragment(key.getOsisRef().toLong()) } // L1-edge: JSword synchronous Backend contract
 
     private suspend fun fragment(key: Key): EpubFragment? = dao.getFragment(key.getOsisRef().toLong())
 
@@ -231,7 +231,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
         xp.compile("//ns:spine/ns:itemref", Filters.element(), null, epubNamespace).evaluate(content)
     }.map { it.getAttribute("idref").value }
 
-    val keys: List<Key> get() = blockingDb { dao.fragments() }.map { getKey(it) } // L1-edge: JSword synchronous Backend contract
+    val keys: List<Key> get() = blockingAtEdge { dao.fragments() }.map { getKey(it) } // L1-edge: JSword synchronous Backend contract
 
     internal val fragDir get() = File(epubDir,  "optimized")
     internal val versionFile = File(fragDir, "version.txt")

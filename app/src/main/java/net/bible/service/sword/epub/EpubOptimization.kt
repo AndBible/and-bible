@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.epub
 
-import net.bible.service.db.blockingDb
+import net.bible.service.db.blockingAtEdge
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubHtmlToFrag
@@ -227,7 +227,7 @@ fun EpubBackendState.optimizeEpub() {
     // The database file lives in internal storage and can outlive the (external) epub dir
     // when a module is removed via the failure path. Clear any stale rows from a previous
     // optimization so newly-written fragment files are the only ones referenced.
-    blockingDb { writeDao.clear() } // L1-edge: JSword BookType.getBackend (first open optimizes)
+    blockingAtEdge { writeDao.clear() } // L1-edge: JSword BookType.getBackend (first open optimizes)
     val start = System.currentTimeMillis()
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: strings.namelessTitle
@@ -246,7 +246,7 @@ fun EpubBackendState.optimizeEpub() {
             .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
             .mapNotNull { StyleSheet(k, it.getAttribute("href").value) }.toTypedArray()
 
-        blockingDb { // L1-edge: JSword BookType.getBackend (first open optimizes)
+        blockingAtEdge { // L1-edge: JSword BookType.getBackend (first open optimizes)
             val ids = writeDao.insert(*fragments.toTypedArray())
             for((id, frag) in ids.zip(fragments)) {
                 frag.id = id
@@ -262,7 +262,7 @@ fun EpubBackendState.optimizeEpub() {
             findIds(frag).mapTo(epubHtmlToFrags) { EpubHtmlToFrag("$k#$it", frag.id) }
             frag.element = null // clear up memory
         }
-        blockingDb { writeDao.insert(*epubHtmlToFrags.toTypedArray()) } // L1-edge: JSword BookType.getBackend (first open optimizes)
+        blockingAtEdge { writeDao.insert(*epubHtmlToFrags.toTypedArray()) } // L1-edge: JSword BookType.getBackend (first open optimizes)
         fileForOriginalId(k)?.delete()
     }
     versionFile.outputStream().use {

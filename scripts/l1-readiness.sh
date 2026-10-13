@@ -19,7 +19,7 @@ MAP="$ROOT/scripts/l1-readiness-domains.txt"
 DONE="$ROOT/scripts/l1-readiness-done.txt"
 PLATFORM="$ROOT/scripts/l1-readiness-platform.txt"
 
-BRIDGE='runBlocking|blockingDb[[:space:]]*[({]|(^|[^A-Za-z_.])blocking[[:space:]]*\{'
+BRIDGE='runBlocking|blockingDb[[:space:]]*[({]|blockingAtEdge[[:space:]]*[({]|(^|[^A-Za-z_.])blocking[[:space:]]*\{'
 MARKER='L1-edge|L1-pending'
 ANDROID='^import[[:space:]]+(android\.|androidx\.)'
 ALLOW='^import[[:space:]]+androidx\.(room3|sqlite|annotation|collection)\.'
@@ -78,5 +78,15 @@ done
 if [ $CHECK -eq 1 ] && grep -qxF '@no-pending' "$DONE" 2>/dev/null; then
   # The sentinel covers every marker, including files in unmapped domains or with unknown labels.
   if grep -a -r -n -F 'L1-pending' "$SRC" >&2; then echo "REGRESSION: L1-pending markers remain (@no-pending)" >&2; fail=1; fi
+fi
+if [ $CHECK -eq 1 ] && grep -qxF '@no-unmarked-bridges' "$DONE" 2>/dev/null; then
+  # Every bridge under SRC needs a same-line L1-edge. BlockingDb.kt holds the definitions, so it is excluded by path.
+  unmarked=$(grep -a -r -n -E "$BRIDGE" "$SRC" --include='*.kt' --include='*.java' \
+    | grep -a -v -F '/service/db/BlockingDb.kt:' | { grep -a -v -E 'L1-edge' || true; })
+  if [ -n "$unmarked" ]; then
+    echo "$unmarked" >&2
+    echo "REGRESSION: unmarked bridges remain (@no-unmarked-bridges)" >&2
+    fail=1
+  fi
 fi
 exit $fail

@@ -56,6 +56,16 @@ fun <T> blockingDb(block: suspend CoroutineScope.() -> T): T {
     return runBlocking(block = block)
 }
 
+/**
+ * The only bridge allowed after L1a (spec §2 M1 exception): a synchronous Android/JSword edge that cannot
+ * suspend. Every call carries a same-line `// L1-edge: <reason>`; `scripts/l1-readiness.sh --check` enforces it.
+ * Same transaction guard as the retired blockingDb.
+ */
+fun <T> blockingAtEdge(block: suspend CoroutineScope.() -> T): T {
+    if (inTransactionOnThread.get() == true) throw BlockingDbInTransaction()
+    return runBlocking(block = block)
+}
+
 /** Every Room transaction in app code goes through this: Room 3 `withWriteTransaction` (`BEGIN IMMEDIATE`), marked. */
 suspend fun <R> RoomDatabase.roomTransaction(block: suspend () -> R): R =
     withContext(DbTransactionMarker) { withWriteTransaction { block() } }
