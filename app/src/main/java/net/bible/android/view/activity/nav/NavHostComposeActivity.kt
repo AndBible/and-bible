@@ -1891,7 +1891,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * `ReadingViewVisibility`. Classic needs no reordering of its own — its `onScreenTurnedOff`
      * override goes straight to `documentViewManager`, not through this seam.
      *
-     * It also saves the window repository to the DB (F93/F94), on every destination, as classic did.
+     * It also saves the window repository to the DB (F93/F94), on every destination, but only while this host owns it (CR-1; see onTopResumedActivityChanged).
      */
     override fun onPause() {
         ReadingViewVisibility.setActivityVisible(this, false)
@@ -1899,12 +1899,40 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // Fix batch 1 §2.1 (F93/F94): classic MainBibleActivity.onPause saved here (`47dc2f73f^`
         // :1872). Every reload path -- a new host, process death, resume-reclaim -- reads the DB, so
         // without this the last INCIDENTAL save (workspace switch, sync tick) is what comes back.
-        // Saved on every destination: the repository belongs to the host, not to `reading`.
-        if (readingAppBootstrapped) hostWindowRepository.saveIntoDb(false)
+        // Saved on every destination: the repository belongs to the host, not to `reading`. Only
+        // while this host OWNS it, though (CR-1): with two hosts resumed at once the other one may
+        // own it now, this host's copy may be stale, and this host already saved its own edits when
+        // it lost top-resumed (onTopResumedActivityChanged).
+        if (readingAppBootstrapped && windowControl.windowRepository === hostWindowRepository) {
+            hostWindowRepository.saveIntoDb(false)
+        }
         super.onPause()
         // AFTER super: see this method's kdoc -- super.onPause() dispatches onScreenTurnedOff, and
         // that reaches the reading view only while this host is still the foreground one.
         ReadingHostPresence.clearForeground(this)
+    }
+
+    /**
+     * CR-1: ownership of the shared `windowControl.windowRepository` follows the host the user is
+     * USING. With two hosts resumed at once (split-screen, freeform; API 29+), `onResume` does not
+     * run again when the user taps the other host, so it cannot be the only hand-over point.
+     *
+     * Losing top-resumed saves this host's edits while it still owns the repository, so they reach
+     * the DB before the other host can write newer ones. Gaining it takes the repository WITHOUT a
+     * reload: the windows this host shows must not jump to the other host's positions in front of the
+     * user, and `saveIntoDb` writes only rows that differ from this repository's own saved state, so
+     * rows this host did not touch are never written back. The net rule is that the last edit wins,
+     * row by row. Below API 29 this is never called, and `onPause`/`onResume` cover the single
+     * resumed host.
+     */
+    override fun onTopResumedActivityChanged(isTopResumedActivity: Boolean) {
+        super.onTopResumedActivityChanged(isTopResumedActivity)
+        if (!readingAppBootstrapped) return
+        if (isTopResumedActivity) {
+            windowControl.windowRepository = hostWindowRepository
+        } else if (windowControl.windowRepository === hostWindowRepository) {
+            hostWindowRepository.saveIntoDb(false)
+        }
     }
 
     /**

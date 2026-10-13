@@ -22,6 +22,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.nav.NavRoutes
@@ -41,6 +42,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * F93/F94 (fix batch 1, spec §2.1): classic `MainBibleActivity.onPause` saved the window repository;
@@ -53,6 +55,7 @@ import kotlin.test.assertNotNull
 class ReadingHostSaveOnPauseTest {
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private val rom81 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Rom.8.1")
+    private val gen21 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Gen.2.1")
 
     @After
     fun tearDown() {
@@ -71,6 +74,27 @@ class ReadingHostSaveOnPauseTest {
     private fun navigateActiveWindowToKjvRomans8(activity: NavHostComposeActivity) {
         val kjv = assertNotNull(SwordDocumentFacade.getDocumentByInitials("KJV"), "KJV test module missing (~/.sword)")
         activity.hostWindowRepository.activeWindow.pageManager.setCurrentDocumentAndKey(kjv, rom81)
+    }
+
+    private fun navigateActiveWindowToKjvGenesis2(activity: NavHostComposeActivity) {
+        val kjv = assertNotNull(SwordDocumentFacade.getDocumentByInitials("KJV"), "KJV test module missing (~/.sword)")
+        activity.hostWindowRepository.activeWindow.pageManager.setCurrentDocumentAndKey(kjv, gen21)
+    }
+
+    /** Two hosts resumed at once; B resumed last, so B owns the shared repository. */
+    private fun twoResumedHosts(): Pair<ActivityController<NavHostComposeActivity>, ActivityController<NavHostComposeActivity>> {
+        val controllerA = host().apply { create().start().resume() }
+        val controllerB = host().apply { create().start().resume() }
+        assertTrue(
+            CommonUtils.windowControl.windowRepository === controllerB.get().hostWindowRepository,
+            "precondition: the host resumed last owns the shared repository",
+        )
+        assertEquals(
+            controllerA.get().hostWindowRepository.activeWindow.id,
+            controllerB.get().hostWindowRepository.activeWindow.id,
+            "precondition: both hosts show the same workspace's window",
+        )
+        return controllerA to controllerB
     }
 
     private fun savedBiblePage(activity: NavHostComposeActivity) =
@@ -108,5 +132,77 @@ class ReadingHostSaveOnPauseTest {
         controller.pause()
 
         assertEquals("KJV", savedBiblePage(activity).document)
+    }
+
+    /**
+     * CR-1, the review's scenario: A's edit is OLDER than B's. A has to lose top-resumed when B gains
+     * it, so A's edit is saved at that moment, and B's later save wins. A pausing at the end must not
+     * write A's copy over B's row.
+     */
+    @Test
+    fun anOlderEditInAHostThatLostFocusDoesNotOverwriteANewerOneOnPause() {
+        val controllerA = host().apply { create().start().resume() }
+        controllerA.topActivityResumed(true)
+        navigateActiveWindowToKjvGenesis2(controllerA.get())
+        controllerA.topActivityResumed(false)       // the user moves to the second host
+
+        val controllerB = host().apply { create().start().resume() }
+        controllerB.topActivityResumed(true)
+        navigateActiveWindowToKjvRomans8(controllerB.get())
+        controllerB.pause()
+
+        controllerA.pause()
+
+        assertEquals(
+            rom81, savedBiblePage(controllerB.get()).verse.jswordVerse,
+            "a host that no longer owns the repository wrote its older page over the newer one -- CR-1",
+        )
+    }
+
+    /**
+     * CR-1, split-screen: the user goes back to A, which is already resumed, so only top-resumed
+     * changes. A's edit is now the newest and must be the one that survives both hosts pausing.
+     */
+    @Test
+    fun theEditInTheHostUsedLastSurvivesBothHostsPausing() {
+        val (controllerA, controllerB) = twoResumedHosts()
+        controllerB.topActivityResumed(true)
+        navigateActiveWindowToKjvRomans8(controllerB.get())
+
+        controllerB.topActivityResumed(false)       // the user taps the other half of the screen
+        controllerA.topActivityResumed(true)
+        assertTrue(
+            CommonUtils.windowControl.windowRepository === controllerA.get().hostWindowRepository,
+            "gaining top-resumed must hand the shared repository to this host",
+        )
+        assertEquals(
+            rom81, savedBiblePage(controllerB.get()).verse.jswordVerse,
+            "losing top-resumed must save the host's edits while it still owns the repository",
+        )
+        navigateActiveWindowToKjvGenesis2(controllerA.get())
+
+        controllerA.pause()
+        controllerB.pause()
+
+        assertEquals(
+            gen21, savedBiblePage(controllerA.get()).verse.jswordVerse,
+            "the edit made last, in the host used last, was lost or overwritten -- CR-1",
+        )
+    }
+
+    /** Gaining top-resumed hands over ownership WITHOUT reloading: the windows A shows do not jump. */
+    @Test
+    fun gainingFocusDoesNotReloadTheHostsWindowsFromTheDb() {
+        val (controllerA, controllerB) = twoResumedHosts()
+        val aVerseBefore = controllerA.get().hostWindowRepository.activeWindow.pageManager.currentBible.singleKey
+        navigateActiveWindowToKjvRomans8(controllerB.get())
+        controllerB.topActivityResumed(false)       // B saves Rom 8:1 to the DB
+
+        controllerA.topActivityResumed(true)
+
+        assertEquals(
+            aVerseBefore, controllerA.get().hostWindowRepository.activeWindow.pageManager.currentBible.singleKey,
+            "gaining top-resumed reloaded the host from the DB; its window jumped to the other host's position",
+        )
     }
 }
