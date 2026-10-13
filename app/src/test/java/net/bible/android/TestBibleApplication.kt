@@ -159,22 +159,32 @@ class TestBibleApplication : BibleApplication() {
     }
 
     override fun onTerminate() {
-        startupRegistrationOwner?.let { previous ->
-            terminationPending = true
-            // Failed startup must retain the old manager/graph until its real tail completes.
-            net.bible.test.DatabaseResetter.runResetBlocking { previous.join("mydocument-sync") }
-            startupRegistrationOwner = null
-            terminationPending = false
-        }
-        if (terminated) return
-        terminationPending = true
-        val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
         var failure: Throwable? = null
         fun cleanup(action: () -> Unit) {
             try { action() } catch (e: Throwable) {
                 if (failure == null) failure = e else if (failure !== e) failure!!.addSuppressed(e)
             }
         }
+        startupRegistrationOwner?.let { previous ->
+            terminationPending = true
+            var drained = false
+            cleanup {
+                net.bible.test.DatabaseResetter.runResetBlocking { previous.join("mydocument-sync") }
+                drained = true
+            }
+            if (!drained) {
+                if (!presenterReleased) cleanup {
+                    super.onTerminate()
+                    presenterReleased = true
+                }
+                throw failure ?: IllegalStateException("Retained startup work has not completed")
+            }
+            startupRegistrationOwner = null
+            terminationPending = false
+        }
+        if (terminated) return
+        terminationPending = true
+        val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
         cleanup {
             net.bible.test.DatabaseResetter.runResetBlocking {
                 try {

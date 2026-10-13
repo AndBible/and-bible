@@ -20,6 +20,77 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class MyDocumentFixtureOwnerProbeTest {
+    @Test fun failedPostSuperDrainReleasesOwnPresenterButRetainsRealRegistration() {
+        val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
+        app.onTerminate()
+        val graph = GlobalContext.get()
+        val oldLauncher = graph.get<OrderedLauncher>()
+        val priorScope = graph.get<AppCoroutineScope>()
+        val originalDispatcher = MyDocumentBookManager.mainDispatcher
+        val scheduler = TestCoroutineScheduler()
+        val held = StandardTestDispatcher(scheduler)
+        val reached = CompletableDeferred<Unit>()
+        val startupFailure = IllegalStateException("post-super startup pump failed")
+        val retryFailure = IllegalStateException("post-super termination pump failed")
+        val container = net.bible.service.db.DatabaseContainer.instance
+        val containerField = net.bible.service.db.DatabaseContainer.Companion::class.java.enclosingClass
+            .getDeclaredField("_instance").apply { isAccessible = true }
+        val subscription = net.bible.android.BibleApplication::class.java.getDeclaredField("userMessagesSubscription")
+            .apply { isAccessible = true }
+        val released = TestBibleApplication::class.java.getDeclaredField("presenterReleased")
+            .apply { isAccessible = true }
+        var tail: Job? = null
+        var installedPresenter: Any? = null
+        val retainedLauncher = OrderedLauncher(priorScope)
+        MyDocumentBookManager.mainDispatcher = object : CoroutineDispatcher() {
+            override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) {
+                reached.complete(Unit)
+                held.dispatch(context, block)
+            }
+        }
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<OrderedLauncher> {
+                // This factory is first resolved by real BibleApplication.onCreate after subscribing.
+                installedPresenter = subscription.get(app)
+                tail = retainedLauncher.launch("mydocument-sync") { MyDocumentBookManager.registerAllDocuments() }
+                runBlocking { withTimeout(5_000) { reached.await() } }
+                android.os.Handler(android.os.Looper.getMainLooper()).post { throw startupFailure }
+                retainedLauncher
+            }
+        })
+        try {
+            assertSame(startupFailure, runCatching { app.onCreate() }.exceptionOrNull())
+            assertNotNull("actual super startup installed presenter before held drain", installedPresenter)
+            assertSame(installedPresenter, subscription.get(app))
+            assertSame(retainedLauncher, MyDocumentBookManager.launcher)
+            assertFalse(tail!!.isCompleted)
+            android.os.Handler(android.os.Looper.getMainLooper()).post { throw retryFailure }
+            assertSame(retryFailure, runCatching { app.onTerminate() }.exceptionOrNull())
+            assertFalse(tail!!.isCompleted)
+            assertSame(retainedLauncher, MyDocumentBookManager.launcher)
+            assertSame(graph, GlobalContext.get())
+            assertSame(container, containerField.get(null))
+            assertTrue(runCatching { app.onCreate() }.exceptionOrNull() is IllegalStateException)
+            assertNull("incomplete registration must not retain independent presenter", subscription.get(app))
+            assertTrue("presenter safe cleanup recorded once", released.getBoolean(app))
+            scheduler.advanceUntilIdle()
+            runBlocking { withTimeout(5_000) { tail!!.join() } }
+            MyDocumentBookManager.mainDispatcher = originalDispatcher
+            app.onTerminate()
+            assertTrue(tail!!.isCompleted)
+            assertNull(subscription.get(app))
+            assertTrue(released.getBoolean(app))
+            assertNull(containerField.get(null))
+        } finally {
+            scheduler.advanceUntilIdle()
+            runBlocking { withTimeout(5_000) { tail?.join() } }
+            MyDocumentBookManager.mainDispatcher = originalDispatcher
+            app.onTerminate()
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module { single<OrderedLauncher> { oldLauncher } })
+            if (MyDocumentBookManager.launcher === retainedLauncher) MyDocumentBookManager.launcher = oldLauncher
+        }
+    }
+
     @Test fun predecessorResetAndGraphStopDoNotAbandonRealRegistration() {
         val app = ApplicationProvider.getApplicationContext<TestBibleApplication>()
         val graph = GlobalContext.get()
