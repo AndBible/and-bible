@@ -1891,7 +1891,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * `ReadingViewVisibility`. Classic needs no reordering of its own — its `onScreenTurnedOff`
      * override goes straight to `documentViewManager`, not through this seam.
      *
-     * It also saves the window repository to the DB (F93/F94), on every destination, but only while this host owns it (CR-1; see onTopResumedActivityChanged).
+     * It also saves the window repository to the DB (F93/F94), on every destination, but only while this host owns it (CR-1; see onTopResumedActivityChanged). A host that lost ownership was flushed by the one that took it.
      */
     override fun onPause() {
         ReadingViewVisibility.setActivityVisible(this, false)
@@ -1922,14 +1922,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * reload: the windows this host shows must not jump to the other host's positions in front of the
      * user, and `saveIntoDb` writes only rows that differ from this repository's own saved state, so
      * rows this host did not touch are never written back. The net rule is that the last edit wins,
-     * row by row. Below API 29 this is never called, and `onPause`/`onResume` cover the single
+     * row by row. Whoever takes the repository flushes the previous owner first
+     * ([net.bible.android.control.page.window.WindowControl.takeWindowRepository]), so the order of
+     * the two hosts' focus callbacks does not matter. Below API 29 this is never called, and `onPause`/`onResume` cover the single
      * resumed host.
      */
     override fun onTopResumedActivityChanged(isTopResumedActivity: Boolean) {
         super.onTopResumedActivityChanged(isTopResumedActivity)
         if (!readingAppBootstrapped) return
         if (isTopResumedActivity) {
-            windowControl.windowRepository = hostWindowRepository
+            windowControl.takeWindowRepository(hostWindowRepository)
         } else if (windowControl.windowRepository === hostWindowRepository) {
             hostWindowRepository.saveIntoDb(false)
         }
@@ -2805,13 +2807,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Classic `MainBibleActivity.onResume`'s first arm (`:1970-1973`): `windowControl`'s repository
      * is whichever reading host RESUMED last, so a host coming back to the front reclaims it.
      *
+     * Flushes the previous owner first (CR-1 I1), like every takeover.
+     *
      * @return whether it had to be reclaimed -- classic's `needRefresh`, which decides which of the
      * two arms in [reconcileReadingStateOnResume] runs.
      */
     private fun reclaimWindowRepository(): Boolean {
-        if (windowControl.windowRepository === hostWindowRepository) return false
-        windowControl.windowRepository = hostWindowRepository
-        return true
+        return windowControl.takeWindowRepository(hostWindowRepository)
     }
 
     /**

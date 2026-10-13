@@ -205,4 +205,36 @@ class ReadingHostSaveOnPauseTest {
             "gaining top-resumed reloaded the host from the DB; its window jumped to the other host's position",
         )
     }
+
+    /**
+     * CR-1 review I1: B takes the repository BEFORE A receives top-resumed(false). A's focus-loss
+     * save is then skipped (A no longer owns), so the host taking ownership must flush A itself --
+     * otherwise B loads a DB lacking A's edit and A later writes it over B's newer row.
+     */
+    @Test
+    fun takingOwnershipFlushesThePreviousOwnerWhateverTheCallbackOrder() {
+        val controllerA = host().apply { create().start().resume() }
+        controllerA.topActivityResumed(true)
+        navigateActiveWindowToKjvGenesis2(controllerA.get())
+
+        val controllerB = host().apply { create().start().resume() }   // before A loses focus
+        assertEquals(
+            gen21, controllerB.get().hostWindowRepository.activeWindow.pageManager.currentBible.singleKey,
+            "B loaded a DB lacking A's last edit -- the new owner did not flush the previous one (CR-1 I1)",
+        )
+        controllerA.topActivityResumed(false)
+        controllerB.topActivityResumed(true)
+        navigateActiveWindowToKjvRomans8(controllerB.get())
+        controllerB.topActivityResumed(false)
+
+        controllerA.topActivityResumed(true)
+        controllerA.topActivityResumed(false)
+        controllerA.pause()
+        controllerB.pause()
+
+        assertEquals(
+            rom81, savedBiblePage(controllerB.get()).verse.jswordVerse,
+            "A wrote its older page over B's newer one after the reversed callback order -- CR-1 I1",
+        )
+    }
 }

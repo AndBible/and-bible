@@ -59,6 +59,23 @@ open class WindowControl constructor() {
             _windowRepository = value
         }
 
+    /**
+     * Makes [new] the shared repository, first saving the previous owner's unsaved edits (CR-1 I1).
+     * Whoever takes ownership flushes the previous owner, so correctness does not depend on the order
+     * of the hosts' focus callbacks: the old owner's own focus-loss save is skipped once it no
+     * longer owns the repository. The lazily created fallback (not [WindowRepository.initialized])
+     * is never saved.
+     *
+     * @return whether the owner changed.
+     */
+    fun takeWindowRepository(new: WindowRepository): Boolean {
+        val previous = windowRepository
+        if (previous === new) return false
+        if (previous.initialized) previous.saveIntoDb(false)
+        windowRepository = new
+        return true
+    }
+
     val windowSync get() = windowRepository.windowSync
     val activeWindowPageManager: CurrentPageManager
         get() = activeWindow.pageManager
