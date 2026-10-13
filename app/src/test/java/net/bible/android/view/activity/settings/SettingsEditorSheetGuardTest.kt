@@ -193,11 +193,6 @@ class SettingsEditorSheetGuardTest {
             // that are themselves exact substrings of "...Sheet(" -- so without this exclusion the
             // guard would always report itself as an offender, self-defeating the whole check.
             .filterNot { it.name == "SettingsEditorSheetGuardTest.kt" }
-            // CR-9: SettingsEditorSheetNumericInputTest drives GenericSettingsEditorSheet under a
-            // Compose rule to pin Apply's enabled state. It is not a Roborazzi golden, so it cannot
-            // hang the suite the way a golden capturing an open sheet does, which is what this guard
-            // exists for.
-            .filterNot { it.name == "SettingsEditorSheetNumericInputTest.kt" }
             .filter { file -> sheetComposables.any { file.readText().contains(it) } }
             .map { it.name }.toList()
         assertEquals(
