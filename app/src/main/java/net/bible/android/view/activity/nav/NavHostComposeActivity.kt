@@ -3732,6 +3732,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // every cluster. Same string the screen draws in its own top bar.
                             title = getString(R.string.bookmarks_and_mynotes_title),
                             onManageLabelsResult = { result -> applyBookmarksManageLabelsResult(result) },
+                            // CR-5: the arm's consume gate, kept on the session because the session
+                            // (unlike the arm) survives the label manager sitting on top.
+                            awaitingManageLabels = { bookmarksSession?.second?.awaitingManageLabels == true },
                             subscribeSyncEvents = { onBookmarksChanged ->
                                 subscribeBookmarksUpdated(onBookmarksChanged)
                             },
@@ -4279,6 +4282,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private class BookmarksSession {
         lateinit var controller: BookmarksController
         var pendingAssign: List<BookmarkEntities.BaseBookmarkWithNotes>? = null
+
+        /** CR-5: this list navigated to the label manager and its answer has not been applied yet. */
+        var awaitingManageLabels = false
     }
 
     /**
@@ -4408,6 +4414,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
             withContext(Dispatchers.Main) {
                 session.pendingAssign = bookmarks
+                session.awaitingManageLabels = true
                 navigateToManageLabels(payload)
             }
         }
@@ -4423,6 +4430,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 mode = ManageLabelsContract.Mode.WORKSPACE,
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
             session.pendingAssign = null
+            session.awaitingManageLabels = true
             navigateToManageLabels(payload)
         }
     }
@@ -4441,6 +4449,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = bookmarksSession?.second ?: return
         val bookmarks = session.pendingAssign
         session.pendingAssign = null
+        session.awaitingManageLabels = false
 
         val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
         if (bookmarks != null) {

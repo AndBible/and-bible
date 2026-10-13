@@ -118,6 +118,9 @@ class BookmarksInGraphResultTest {
     /** What the graph handed back to the host, in the order it handed it. */
     private val appliedResults = mutableListOf<String>()
 
+    /** The fake host's half of CR-5's gate: set when the list navigates to the label manager. */
+    private var awaitingManageLabels = false
+
     /** The arm's own `navController.navigate(NavRoutes.manageLabels(payload))`, captured when the
      *  bookmark list's controller is built — this is the edge classic reached with `awaitIntent`. */
     private var navigateToManageLabels: ((String) -> Unit)? = null
@@ -198,7 +201,10 @@ class BookmarksInGraphResultTest {
         labelEditResults = NavResultChannel<LabelEditResult> { channelExitWithResultCalls++ },
         bookmarks = BookmarksDeps(
             controllerFor = { initialFilterIndex, onSelectBookmark, navigate ->
-                navigateToManageLabels = navigate
+                navigateToManageLabels = { payload ->
+                    awaitingManageLabels = true
+                    navigate(payload)
+                }
                 BookmarksController(
                     service = FakeBookmarksService(),
                     scope = scope,
@@ -216,7 +222,11 @@ class BookmarksInGraphResultTest {
                 )
             },
             title = "Bookmarks",
-            onManageLabelsResult = { result -> appliedResults.add(result.data) },
+            onManageLabelsResult = { result ->
+                awaitingManageLabels = false
+                appliedResults.add(result.data)
+            },
+            awaitingManageLabels = { awaitingManageLabels },
             subscribeSyncEvents = { { } },
         ),
         manageLabels = ManageLabelsDeps(
@@ -358,6 +368,32 @@ class BookmarksInGraphResultTest {
         compose.waitForIdle()
 
         assertEquals(listOf("once"), appliedResults)
+    }
+
+    /**
+     * CR-5, the bookmark side of the shared-channel gate (the settings side is
+     * WorkspaceInGraphResultTest.aLabelAnswerThisVisitDidNotAskForIsLeftInTheChannel). The label
+     * manager is entered WITHOUT the list's own navigate-to-manage-labels callback -- the shape of
+     * "some other destination asked" -- so the answer must be left in the channel, not applied to
+     * the workspace through applyBookmarksManageLabelsResult.
+     */
+    @Test
+    fun aLabelAnswerTheBookmarkListDidNotAskForIsLeftInTheChannel() {
+        setGraph()
+        compose.runOnIdle { navController.navigate(NavRoutes.manageLabels("""{"mode":"WORKSPACE"}""")) }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.MANAGE_LABELS_PATTERN, currentRoute)
+
+        val returned = """{"mode":"WORKSPACE","selected":["L1"]}"""
+        compose.runOnIdle { manageLabelsChannel.deliver(navController, ManageLabelsResult(returned)) }
+        compose.waitForIdle()
+
+        assertEquals(NavRoutes.BOOKMARKS_PATTERN, currentRoute)
+        assertTrue(appliedResults.isEmpty(), "an unrequested label answer was applied: $appliedResults")
+        assertEquals(
+            returned, manageLabelsChannel.pending.value?.data,
+            "the answer was consumed by an arm that never asked for it",
+        )
     }
 
     /**
