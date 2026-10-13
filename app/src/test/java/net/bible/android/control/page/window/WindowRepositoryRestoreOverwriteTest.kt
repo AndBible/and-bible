@@ -45,9 +45,9 @@ class WindowRepositoryRestoreOverwriteTest {
 
     /** What BackupControl does: the restored file holds "C", then the container is reset. */
     private fun restoreWorkspaceNamed(name: String) = runBlocking {
-        DatabaseContainer.replacingDatabases {
+        DatabaseContainer.replacingDatabases { token ->
             dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = name))
-            DatabaseContainer.reset()
+            DatabaseContainer.resetOwned(token)
         }
     }
 
@@ -79,10 +79,10 @@ class WindowRepositoryRestoreOverwriteTest {
         assertFalse(DatabaseContainer.replacing)
     }
 
-    /** Review Focus 2: CloudSync categories replace in parallel; a restore waits for CloudSync inside its own replace. */
+    /** An explicitly nested swap leaves its outer owner's save freeze active. */
     @Test fun anInnerReplaceExitDoesNotClearReplacing() = runBlocking {
-        DatabaseContainer.replacingDatabases {
-            DatabaseContainer.replacingDatabases { }
+        DatabaseContainer.replacingDatabases { token ->
+            kotlinx.coroutines.withTimeout(2_000) { DatabaseContainer.replacingDatabases(token) { } }
             assertTrue("the outer replace is still running", DatabaseContainer.replacing)
         }
         assertFalse(DatabaseContainer.replacing)

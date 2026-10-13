@@ -17,10 +17,12 @@
 
 package net.bible.service.llm.agent
 
+import kotlinx.coroutines.sync.withLock
+
+import net.bible.service.llm.AiSettings
+import net.bible.service.llm.LlmStrings
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.json.Json.Default.decodeFromString
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.event.EventSource
@@ -31,8 +33,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
@@ -42,7 +42,8 @@ import net.bible.service.llm.LlmRawLogRecord
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.tools.ToolRegistry
-import org.json.JSONObject
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.formatJsonForLog
 import net.bible.service.llm.tools.stripMarkdownFromTitle
@@ -59,10 +60,7 @@ import org.crosswire.jsword.passage.VerseRange
 import net.bible.android.control.versification.toVerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
-import android.widget.Toast
 import net.bible.android.database.mydocument.AiCachedPageWithContent
-import net.bible.android.view.activity.base.AppPosition
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -74,7 +72,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import net.bible.service.db.blockingDb
 
 open class AgentSessionManagerBase : KoinComponent {
     val windowControl: WindowControl by inject()
@@ -232,6 +229,10 @@ class AgentSession(
 
 /** One session per workspace, lazily created. */
 object AgentSessionManager : AgentSessionManagerBase() {
+    private val aiSettings: AiSettings get() = getKoin().get()
+    private val strings: LlmStrings by inject()
+    private val platform: AgentPlatform get() = getKoin().get()
+    private val notifier: net.bible.sharedcore.platform.UserNotifier by inject()
     private var changeSource = EventSource<AgentSessionChange>()
 
     /**
@@ -272,15 +273,15 @@ object AgentSessionManager : AgentSessionManagerBase() {
             if (state.getAndSet(DECISION_CLOSED) == DECISION_ANNOUNCED && emitFalse)
                 notifyPermissionWaiting(workspaceId, false)
         }
-        val subscription = CurrentActivityHolder.appPositionChanges.subscribe { position ->
+        val subscription = platform.foregroundChanges.subscribe { position ->
             when (position) {
-                AppPosition.BACKGROUND ->
+                false ->
                     if (state.compareAndSet(DECISION_IDLE, DECISION_ANNOUNCED)) notifyPermissionWaiting(workspaceId, true, toolName)
-                AppPosition.FOREGROUND ->
+                true ->
                     if (state.compareAndSet(DECISION_ANNOUNCED, DECISION_IDLE)) notifyPermissionWaiting(workspaceId, false)
             }
         }
-        if (CurrentActivityHolder.currentActivity == null &&
+        if (!platform.hasForegroundUi &&
             state.compareAndSet(DECISION_IDLE, DECISION_ANNOUNCED)) {
             notifyPermissionWaiting(workspaceId, true, toolName)
         }
@@ -311,8 +312,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private val activeSessions = ConcurrentHashMap<IdType, AgentSession>()
     private var initialized = false
 
-    @Synchronized
-    private fun ensureInitialized() {
+    private val initializationMutex = kotlinx.coroutines.sync.Mutex()
+
+    private suspend fun ensureInitialized() = initializationMutex.withLock {
         if (!initialized) {
             cleanupOldRawLogs()
             initialized = true
@@ -368,7 +370,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     suspend fun executePrompt(
         prompt: AgentPrompt,
-        selection: Selection,
+        selection: LlmSelection,
         targetWindowId: IdType? = null,
         additionalInstructions: String? = null,
         previousResponse: String? = null,
@@ -377,6 +379,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         modelOverrideId: IdType? = null,
         onStarted: suspend () -> Unit = {}
     ): Boolean {
+        aiSettings.ensureLoaded()
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
 
@@ -403,11 +406,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val session = getOrCreateSession(workspaceId)
         if (!session.tryStart(context, currentCoroutineContext()[Job])) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    BibleApplication.application,
-                    R.string.agent_already_running,
-                    Toast.LENGTH_SHORT
-                ).show()
+                platform.showShortMessage(strings.agentAlreadyRunning)
             }
             return false
         }
@@ -423,7 +422,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val usedWriteToolsTracker = AtomicBoolean(false)
 
         // Execute via AgentExecutor
-        val effectiveMaxIterations = prompt.maxIterations ?: CommonUtils.aiSettings.maxIterations
+        val effectiveMaxIterations = prompt.maxIterations ?: aiSettings.maxIterations
         val executor = AgentExecutor(maxIterations = effectiveMaxIterations)
         try {
             executor.execute(prompt, context, session.rawLlmLog, modelOverrideId = modelOverrideId).collect { event ->
@@ -433,8 +432,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
             // Flow collection may terminate before AgentEvent.Cancelled is collected.
             // Ensure the session is properly stopped so the UI reflects cancellation.
             if (session.isRunning) {
-                val app = BibleApplication.application
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled)))
+
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogCancelled))
                 session.stop()
             }
             throw e
@@ -493,7 +492,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     /** Extract content for whole-page mode (ordinals are -1, Bible document). */
-    private fun extractWholePageContent(book: SwordBook, selection: Selection, pageKey: Key?): SelectionContent {
+    private fun extractWholePageContent(book: SwordBook, selection: LlmSelection, pageKey: Key?): SelectionContent {
         val keyToUse = selection.osisRef?.let {
             try { book.getKey(it) } catch (e: Exception) {
                 Log.w(TAG, "Could not parse osisRef: $it", e)
@@ -504,7 +503,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val verseRange = keyToVerseRange(keyToUse)
 
         val selectedText = if (keyToUse != null) {
-            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy()) }
+            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = org.koin.core.context.GlobalContext.get().get<SwordContentFacade>().saxTextPolicy) }
             catch (e: Exception) { Log.w(TAG, "Could not get canonical text", e); "" }
         } else ""
 
@@ -519,7 +518,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     /** Extract content for ordinal-based selection mode. */
-    private fun extractSelectionContent(book: Book?, selection: Selection, pageKey: Key?): SelectionContent {
+    private fun extractSelectionContent(book: Book?, selection: LlmSelection, pageKey: Key?): SelectionContent {
         val ordinalRange = selection.startOrdinal..selection.endOrdinal
 
         val verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
@@ -548,7 +547,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
     private suspend fun buildAgentContext(
         prompt: AgentPrompt,
-        selection: Selection,
+        selection: LlmSelection,
         additionalInstructions: String? = null,
         previousResponse: String? = null,
         userSpecification: String? = null
@@ -664,29 +663,29 @@ object AgentSessionManager : AgentSessionManagerBase() {
         usedWriteToolsTracker: AtomicBoolean,
         targetWindowId: IdType? = null
     ) {
-        val app = BibleApplication.application
+
         when (event) {
             is AgentEvent.Started -> {
                 session.addLogEntry(AgentLogEntry.info(
-                    app.getString(R.string.agent_log_executing, prompt.name),
+                    strings.agentLogExecuting(prompt.name),
                     details = event.model
                 ))
             }
             is AgentEvent.Iteration -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_iteration, event.number)))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogIteration(event.number)))
             }
             is AgentEvent.ToolCalling -> {
                 val tool = ToolRegistry.get(event.tool)
                 val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.tool.camelCaseName
                 val details = if (tool != null) {
-                    val args = try { JSONObject(event.arguments) } catch (_: Exception) { null }
+                    val args = try { parseToolArguments(event.arguments) } catch (_: Exception) { null }
                     args?.let { tool.formatArgsForLog(it) } ?: formatJsonForLog(event.arguments)
                 } else {
                     event.arguments
                 }
                 session.addLogEntry(
                     AgentLogEntry.action(
-                        app.getString(R.string.agent_log_tool, displayName),
+                        strings.agentLogTool(displayName),
                         details = details,
                         toolCallId = event.toolCallId
                     )
@@ -700,9 +699,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 // On success, keep the original "Tool: X" message (per #3773 — only the icon needs to
                 // change). On failure, switch to the failure message so the row is unambiguous.
                 val message = if (isSuccess) {
-                    app.getString(R.string.agent_log_tool, displayName)
+                    strings.agentLogTool(displayName)
                 } else {
-                    app.getString(R.string.agent_log_tool_failed, displayName)
+                    strings.agentLogToolFailed(displayName)
                 }
                 val details = tool?.formatResultForLog(event.result) ?: formatJsonForLog(event.result.toJson())
                 val updated = session.updateActionEntry(event.toolCallId, message, details, status)
@@ -737,7 +736,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             is AgentEvent.TextResponse -> {
                 if (event.isFinal) {
                     session.addLogEntry(
-                        AgentLogEntry.info(app.getString(R.string.agent_log_response_received), details = event.text.take(200))
+                        AgentLogEntry.info(strings.agentLogResponseReceived, details = event.text.take(200))
                     )
                 } else {
                     val text = event.text.trim()
@@ -749,7 +748,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             is AgentEvent.Completed -> {
                 if (context.noDocumentCreation) {
                     session.addLogEntry(AgentLogEntry.info(
-                        app.getString(R.string.llm_no_document_creation_intercepted),
+                        strings.llmNoDocumentCreationIntercepted,
                         details = event.response.take(500)
                     ))
                 } else {
@@ -765,16 +764,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithoutDocument -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
                 completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithStudyPad -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
                 openStudyPadResult(event.labelId, event.scrollToEntryId, session)
                 completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithMyDocumentPage -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogDone(event.message)))
                 openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId, session)
                 completeSession(session, event, prompt)
             }
@@ -786,7 +785,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
             is AgentEvent.Cancelled -> {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled), showRawLogLink = hasRawLog))
+                session.addLogEntry(AgentLogEntry.info(strings.agentLogCancelled, showRawLogLink = hasRawLog))
                 persistRawLogFromIterations(session, prompt)
                 session.stop()
             }
@@ -795,8 +794,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
     /** Stops the session, attaches total cost, and persists raw log. Used by all completion event handlers. */
     private suspend fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
-        val app = BibleApplication.application
-        session.stop(app.getString(R.string.agent_log_completed), AgentStopReason.COMPLETED)
+
+        session.stop(strings.agentLogCompleted, AgentStopReason.COMPLETED)
         attachTotalCost(session, event.usage, event.model, event.configuredModelId)
         persistRawLog(
             session, prompt,
@@ -866,11 +865,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         )
     }
 
-    private fun cleanupOldRawLogs() {
+    private suspend fun cleanupOldRawLogs() {
         try {
-            val retentionDays = CommonUtils.aiSettings.rawLogRetentionDays ?: return
+            val retentionDays = aiSettings.rawLogRetentionDays ?: return
             val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
-            blockingDb { DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff) }
+            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.w(TAG, "Failed to cleanup old raw logs", e)
         }
@@ -895,17 +896,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
             sourceModelName = model.takeIf { it.isNotBlank() }
         )
         session.addLogEntry(AgentLogEntry.info(
-            BibleApplication.application.getString(R.string.agent_log_saved, title)
+            strings.agentLogSaved(title)
         ))
         return pageInfo
     }
 
-    private fun attachTotalCost(session: AgentSession, usage: LlmUsage, model: String, configuredModelId: IdType? = null) {
+    private suspend fun attachTotalCost(session: AgentSession, usage: LlmUsage, model: String, configuredModelId: IdType? = null) {
         if (usage.totalTokens > 0) {
             val cost = LlmPricing.estimateCost(usage, model, configuredModelId)
             if (cost != null) {
-                val app = BibleApplication.application
-                session.setLastEntryCost(app.getString(R.string.llm_cost_total, LlmCostTracker.formatCost(cost)), isTotalCost = true)
+                session.setLastEntryCost(strings.llmCostTotal(LlmCostTracker.formatCost(cost)), isTotalCost = true)
             }
         }
     }
@@ -935,7 +935,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     private suspend fun openMyDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?, session: AgentSession? = null) {
-        if (CurrentActivityHolder.currentActivity == null) {
+        if (!platform.hasForegroundUi) {
             // App is backgrounded — defer opening until user returns
             session?.pendingResult = PendingAgentResult.OpenDocument(documentInitials, pageKey, targetWindowId)
             return
@@ -959,7 +959,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     private suspend fun openStudyPadResult(labelId: IdType, scrollToEntryId: IdType?, session: AgentSession? = null) {
-        if (CurrentActivityHolder.currentActivity == null) {
+        if (!platform.hasForegroundUi) {
             session?.pendingResult = PendingAgentResult.OpenStudyPad(labelId, scrollToEntryId)
             return
         }
@@ -976,16 +976,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         freshRun: Boolean = false,
         modelOverrideId: IdType? = null
     ): Boolean {
+        aiSettings.ensureLoaded()
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
         val session = activeSessions[workspaceId]
         if (session?.isRunning == true) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    BibleApplication.application,
-                    R.string.agent_already_running,
-                    Toast.LENGTH_SHORT
-                ).show()
+                platform.showShortMessage(strings.agentAlreadyRunning)
             }
             return false
         }
@@ -1006,11 +1003,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         if (prompt == null) {
             Log.w(TAG, "Cannot regenerate: prompt not found: $promptId")
             withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    BibleApplication.application,
-                    R.string.ai_regenerate_prompt_not_found,
-                    Toast.LENGTH_LONG
-                ).show()
+                notifier.showInfo(strings.aiRegeneratePromptNotFound, long = true)
             }
             return false
         }
@@ -1043,7 +1036,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val book = bookInitials?.let { Books.installed().getBook(it) } as? SwordBook
 
         // Create selection for regeneration
-        val selection: Selection
+        val selection: LlmSelection
         if (kjvOrdinalStart != null && kjvOrdinalEnd != null && book != null) {
             // Convert KJVA ordinals to target versification
             val targetVersification = book.versification
@@ -1054,16 +1047,19 @@ object AgentSessionManager : AgentSessionManagerBase() {
             val targetStart = kjvaStart.toV11n(targetVersification)
             val targetEnd = kjvaEnd.toV11n(targetVersification)
 
-            selection = Selection(
-                bookInitials = bookInitials,
-                startOrdinal = targetStart.ordinal,
-                startOffset = null,
-                endOrdinal = targetEnd.ordinal,
-                endOffset = null,
-                bookmarks = emptyList(),
-                notes = null,
-                text = storedContext.selectedText ?: ""
-            )
+            selection = object : LlmSelection {
+                override val bookInitials = bookInitials
+                override val startOrdinal = targetStart.ordinal
+                override val endOrdinal = targetEnd.ordinal
+                override val startOffset: Int? = null
+                override val endOffset: Int? = null
+                override val text = storedContext.selectedText ?: ""
+                override val osisRef: String? = null
+                override val noteEditorEntityType: NoteEditorEntityType? = null
+                override val noteEditorEntityId: String? = null
+                override val noteEditorContent: String? = null
+                override val noteEditorContentType: String? = null
+            }
         } else {
             Log.w(TAG, "Cannot regenerate: missing ordinal data")
             return false
@@ -1082,7 +1078,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     fun getCurrentSession(): AgentSession? {
-        ensureInitialized()
         return try {
             val workspaceId = windowControl.windowRepository.id
             getOrCreateSession(workspaceId)

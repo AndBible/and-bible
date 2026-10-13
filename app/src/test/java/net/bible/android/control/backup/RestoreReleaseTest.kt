@@ -59,8 +59,8 @@ class RestoreReleaseTest {
         val epoch = DatabaseContainer.replaceEpoch
         val realFactory = DatabaseContainer.containerFactory
         try {
-            runCatching { runBlocking { DatabaseContainer.replacingDatabases {
-                DatabaseContainer.reset()
+            runCatching { runBlocking { DatabaseContainer.replacingDatabases { token ->
+                DatabaseContainer.resetOwned(token)
                 DatabaseContainer.containerFactory = { error("migration failed") }
                 DatabaseContainer.instance
             } } }

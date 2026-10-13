@@ -17,8 +17,10 @@
 
 package net.bible.service.llm.tools
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import net.bible.sharedcore.log.Log
-import net.bible.android.BibleApplication
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.tools.read.GetAllLabelsTool
@@ -84,7 +86,8 @@ data class ToolDefinition(
  * Manages registration of tools and provides them to the agent executor.
  * Tools are registered at application startup and remain available throughout.
  */
-object ToolRegistry {
+object ToolRegistry : KoinComponent {
+    private val strings: LlmStrings by inject()
     private val tools = ConcurrentHashMap<AgentTool, Tool>()
 
     init {
@@ -226,8 +229,7 @@ object ToolRegistry {
      * Uses the translated string resource if available, otherwise falls back to the code name.
      */
     fun getDisplayName(tool: Tool): String =
-        if (tool.displayNameResId != 0) BibleApplication.application.getString(tool.displayNameResId)
-        else tool.agentTool.camelCaseName
+        strings.toolDisplayName(tool.agentTool)
 
     /**
      * Get all tools that require user permission (write tools), sorted by display name.
@@ -261,7 +263,15 @@ object ToolRegistry {
 
     /** Get the localized display name for a [ToolCategory]. */
     fun getCategoryDisplayName(category: ToolCategory): String =
-        BibleApplication.application.getString(category.displayNameResId)
+        when (category) {
+            ToolCategory.BIBLE_SEARCH -> strings.toolCategoryBibleSearch
+            ToolCategory.BOOKMARKS -> strings.toolCategoryBookmarks
+            ToolCategory.LABELS -> strings.toolCategoryLabels
+            ToolCategory.STUDY_PADS -> strings.toolCategoryStudyPads
+            ToolCategory.MY_DOCUMENTS -> strings.toolCategoryMyDocuments
+            ToolCategory.GENERAL_BOOKS -> strings.toolCategoryGeneralBooks
+            ToolCategory.WINDOWS -> strings.toolCategoryWindows
+        }
 
     /**
      * Clear all registered tools (mainly for testing).

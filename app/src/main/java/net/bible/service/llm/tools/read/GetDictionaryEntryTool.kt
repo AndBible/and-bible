@@ -18,11 +18,9 @@
 package net.bible.service.llm.tools.read
 
 import org.koin.core.context.GlobalContext
-import android.net.Uri
-import net.bible.android.BibleApplication
+import net.bible.service.llm.encodeUriComponent
 import net.bible.android.control.link.isGreekDef
 import net.bible.android.control.link.isHebrewDef
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -40,7 +38,8 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for looking up dictionary entries.
@@ -60,7 +59,6 @@ object GetDictionaryEntryTool : Tool {
 
     override val agentTool = AgentTool.GET_DICTIONARY_ENTRY
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_get_dictionary_entry
 
     override val description = """
         Look up an entry in a Bible dictionary, including Strong's dictionaries. Returns readable text by default.
@@ -99,13 +97,13 @@ object GetDictionaryEntryTool : Tool {
 
     private val linkControl get() = GlobalContext.get().get<net.bible.android.control.link.LinkControl>()
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val dictionary = arguments.optString("dictionary", "").takeIf { it.isNotBlank() } ?: return null
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() } ?: return null
         return "$dictionary: $key"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {
@@ -145,7 +143,7 @@ object GetDictionaryEntryTool : Tool {
             val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
             val linkUrl = when {
                 dictionary.isGreekDef || dictionary.isHebrewDef -> "strongs://$key"
-                else -> "sword://${Uri.encode(dictionaryInitials)}/${Uri.encode(key)}"
+                else -> "sword://${encodeUriComponent(dictionaryInitials)}/${encodeUriComponent(key)}"
             }
 
             if (args.format == ContentFormat.XML) {

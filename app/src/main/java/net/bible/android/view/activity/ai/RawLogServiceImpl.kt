@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.activity.ai
 
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,8 +26,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
@@ -38,12 +39,10 @@ import net.bible.service.llm.agent.RawLogEntry
 import net.bible.sharedcore.ai.RawLogEntryVd
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.RawLogSummaryVd
-import org.json.JSONArray
-import org.json.JSONObject
+import net.bible.service.llm.tools.prettyJson
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [RawLogService] backing the raw-LLM-log screens
@@ -51,8 +50,7 @@ import net.bible.service.db.blockingDb
  * the new-path twin of classic [RawLogHistoryActivity] / [RawLlmLogActivity] / [RawLlmLogAdapter].
  *
  * Registered as a Koin single. It holds two pieces of state: the [summaries] `StateFlow` (re-read
- * from [net.bible.service.llm.LlmRawLogRecordDao.allSummaries] on each [refresh], wrapped in the single
- * `blockingDb` bridge, as elsewhere in this layer) and [lastSessionLog] — the last in-memory [RawLlmLog] resolved by
+ * from [net.bible.service.llm.LlmRawLogRecordDao.allSummaries] on each suspending [refresh]) and [lastSessionLog] — the last in-memory [RawLlmLog] resolved by
  * [sessionEntries]. The latter exists because the [RawLogService] seam's [canReportBug] takes only a
  * nullable `recordId`, so the in-memory case (`recordId == null`) has no `workspaceId` to work from;
  * the controller always calls [sessionEntries] (which stashes the log) immediately before
@@ -64,7 +62,8 @@ import net.bible.service.db.blockingDb
  * mirroring classic `RawLogHistoryAdapter.bind`, which is the ADAPTER/view layer), so it is
  * single-owned there and not duplicated here.
  */
-class RawLogServiceImpl : RawLogService {
+class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService, org.koin.core.component.KoinComponent {
+    private val appScope: net.bible.sharedcore.platform.AppCoroutineScope by inject()
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
@@ -74,27 +73,29 @@ class RawLogServiceImpl : RawLogService {
     private val _summaries = MutableStateFlow<List<RawLogSummaryVd>>(emptyList())
     override val summaries: StateFlow<List<RawLogSummaryVd>> = _summaries.asStateFlow()
 
-    override fun refresh() {
-        _summaries.value = blockingDb { dao.allSummaries() }.map { it.toVd() }
+    private val refreshMutex = kotlinx.coroutines.sync.Mutex()
+
+    override suspend fun refresh() = refreshMutex.withLock {
+        _summaries.value = dao.allSummaries().map { it.toVd() }
     }
 
-    override fun deleteByIds(ids: Set<String>) {
-        blockingDb { dao.deleteByIds(ids.map { IdType(it) }) }
+    override suspend fun deleteByIds(ids: Set<String>) : Unit = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+        run { dao.deleteByIds(ids.map { IdType(it) }) }
         refresh()
     }
 
-    override fun deleteOlderThan(days: Int) {
+    override suspend fun deleteOlderThan(days: Int) : Unit = kotlinx.coroutines.withContext(appScope.coroutineContext) {
         if (days <= 0) {
             deleteAll()
-            return
+            return@withContext
         }
         val cutoff = System.currentTimeMillis() - days.toLong() * 24 * 60 * 60 * 1000
-        blockingDb { dao.deleteOlderThan(cutoff) }
+        dao.deleteOlderThan(cutoff)
         refresh()
     }
 
-    override fun deleteAll() {
-        blockingDb { dao.deleteAll() }
+    override suspend fun deleteAll() : Unit = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+        dao.deleteAll()
         refresh()
     }
 
@@ -105,8 +106,7 @@ class RawLogServiceImpl : RawLogService {
         // the log text — binding.totalCostHeader — only when there was usage to show).
         if (record.estimatedCostUsd > 0 || record.totalInputTokens > 0) {
             val costStr = if (record.estimatedCostUsd > 0) " · ${LlmCostTracker.formatCost(record.estimatedCostUsd)}" else ""
-            val header = application.getString(
-                R.string.raw_llm_log_total,
+            val header = strings.rawLlmLogTotal(
                 LlmCostTracker.formatTokenCount(record.totalInputTokens),
                 LlmCostTracker.formatTokenCount(record.totalOutputTokens),
                 costStr,
@@ -131,9 +131,9 @@ class RawLogServiceImpl : RawLogService {
         }
     }
 
-    override fun canReportBug(recordId: String?): Boolean {
+    override suspend fun canReportBug(recordId: String?): Boolean {
         return if (recordId != null) {
-            val record = blockingDb { dao.getById(IdType(recordId)) } ?: return false
+            val record = dao.getById(IdType(recordId)) ?: return false
             AiBugReport.isReportAvailable(record.modelName)
         } else {
             // In-memory: mirror classic's `rawLog != null && usageByIteration.isNotEmpty()` gate, then
@@ -151,8 +151,7 @@ class RawLogServiceImpl : RawLogService {
             ?.let { type -> try { LlmProvider.valueOf(type).displayName } catch (_: Exception) { type } }
             ?: ""
         val modelInfo = if (providerLabel.isNotBlank()) "$providerLabel · $modelName" else modelName
-        val tokenInfo = application.getString(
-            R.string.raw_log_item_tokens,
+        val tokenInfo = strings.rawLogItemTokens(
             LlmCostTracker.formatTokenCount(totalInputTokens),
             LlmCostTracker.formatTokenCount(totalOutputTokens),
         )
@@ -172,46 +171,45 @@ class RawLogServiceImpl : RawLogService {
 
     private fun entryTitle(entry: RawLogEntry): String = when (entry) {
         is RawLogEntry.Message -> when (entry.role.uppercase()) {
-            "SYSTEM" -> application.getString(R.string.raw_llm_log_entry_system)
-            "USER" -> application.getString(R.string.raw_llm_log_entry_user)
-            "ASSISTANT" -> application.getString(R.string.raw_llm_log_entry_assistant)
+            "SYSTEM" -> strings.rawLlmLogEntrySystem
+            "USER" -> strings.rawLlmLogEntryUser
+            "ASSISTANT" -> strings.rawLlmLogEntryAssistant
             else -> entry.role
         }
-        is RawLogEntry.ToolCallEntry -> application.getString(R.string.raw_llm_log_entry_tool_call, entry.toolName)
-        is RawLogEntry.ToolResultEntry -> application.getString(R.string.raw_llm_log_entry_tool_result, entry.id)
-        is RawLogEntry.ToolDefinitionsEntry -> application.getString(R.string.raw_llm_log_entry_tool_definitions, entry.toolDefs.size)
-        is RawLogEntry.RawApiResponse -> application.getString(R.string.raw_llm_log_entry_api_response, entry.iteration)
+        is RawLogEntry.ToolCallEntry -> strings.rawLlmLogEntryToolCall(entry.toolName)
+        is RawLogEntry.ToolResultEntry -> strings.rawLlmLogEntryToolResult(entry.id)
+        is RawLogEntry.ToolDefinitionsEntry -> strings.rawLlmLogEntryToolDefinitions(entry.toolDefs.size)
+        is RawLogEntry.RawApiResponse -> strings.rawLlmLogEntryApiResponse(entry.iteration)
     }
 
-    private fun entryTokenInfo(entry: RawLogEntry, usageByIteration: Map<Int, net.bible.service.llm.agent.IterationUsageData>): String = when (entry) {
+    private suspend fun entryTokenInfo(entry: RawLogEntry, usageByIteration: Map<Int, net.bible.service.llm.agent.IterationUsageData>): String = when (entry) {
         is RawLogEntry.RawApiResponse -> {
             val data = usageByIteration[entry.iteration]
             if (data != null) {
                 val usage = data.usage
                 val cost = LlmPricing.estimateCost(usage, data.model, data.configuredModelId)
                 val costStr = if (cost != null) " · ${LlmCostTracker.formatCost(cost)}" else ""
-                application.getString(
-                    R.string.raw_llm_log_entry_usage,
+                strings.rawLlmLogEntryUsage(
                     LlmCostTracker.formatTokenCount(usage.inputTokens),
                     LlmCostTracker.formatTokenCount(usage.outputTokens),
                     costStr,
                 )
             } else {
-                application.getString(R.string.raw_llm_log_entry_tokens, LlmCostTracker.formatTokenCount(entry.estimateTokens().toLong()))
+                strings.rawLlmLogEntryTokens(LlmCostTracker.formatTokenCount(entry.estimateTokens().toLong()))
             }
         }
-        else -> application.getString(R.string.raw_llm_log_entry_tokens, LlmCostTracker.formatTokenCount(entry.estimateTokens().toLong()))
+        else -> strings.rawLlmLogEntryTokens(LlmCostTracker.formatTokenCount(entry.estimateTokens().toLong()))
     }
 
     private fun entryBody(entry: RawLogEntry): String = when (entry) {
-        is RawLogEntry.Message -> entry.content ?: application.getString(R.string.raw_llm_log_entry_empty)
+        is RawLogEntry.Message -> entry.content ?: strings.rawLlmLogEntryEmpty
         is RawLogEntry.ToolCallEntry -> prettyFormatJson(entry.arguments)
         is RawLogEntry.ToolResultEntry -> prettyFormatJson(entry.result)
         is RawLogEntry.ToolDefinitionsEntry -> buildString {
             for (def in entry.toolDefs) {
                 appendLine("--- ${def.name} ---")
-                appendLine(application.getString(R.string.raw_llm_log_entry_tool_desc, def.description))
-                appendLine(application.getString(R.string.raw_llm_log_entry_tool_params, prettyJson.encodeToString(def.parametersSchema)))
+                appendLine(strings.rawLlmLogEntryToolDesc(def.description))
+                appendLine(strings.rawLlmLogEntryToolParams(prettyJson.encodeToString(def.parametersSchema)))
                 appendLine()
             }
         }
@@ -226,8 +224,8 @@ class RawLogServiceImpl : RawLogService {
         private fun prettyFormatJson(json: String): String = try {
             val trimmed = json.trim()
             val formatted = when {
-                trimmed.startsWith("{") -> JSONObject(trimmed).toString(2)
-                trimmed.startsWith("[") -> JSONArray(trimmed).toString(2)
+                trimmed.startsWith("{") -> prettyJson(trimmed)
+                trimmed.startsWith("[") -> prettyJson(trimmed)
                 else -> json
             }
             longStringValueRegex.replace(formatted) { match ->

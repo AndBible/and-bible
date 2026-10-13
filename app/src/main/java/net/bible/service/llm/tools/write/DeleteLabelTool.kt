@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -31,7 +32,8 @@ import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for deleting a label by ID.
@@ -39,7 +41,8 @@ import org.json.JSONObject
  * Optionally deletes bookmarks that would become orphaned (have no remaining labels).
  * Prevents deletion of special internal labels (AI, Speak, Unlabeled, etc.).
  */
-object DeleteLabelTool : Tool {
+object DeleteLabelTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val labelId: IdType = IdType.empty(),
@@ -72,23 +75,22 @@ object DeleteLabelTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_delete_label
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
         val labelName = label?.name ?: shortId(labelId)
-        return BibleApplication.application.getString(R.string.action_delete_label, labelName)
+        return strings.actionDeleteLabel(labelName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         return shortId(labelId)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

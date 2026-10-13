@@ -17,11 +17,12 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -37,15 +38,16 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for searching Bible text by Strong's concordance number.
  *
  * Automatically selects a Strong's-enabled, indexed Bible if none is specified.
  */
-object SearchByStrongsNumberTool : Tool {
+object SearchByStrongsNumberTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val strongsNumber: String = "",
@@ -70,7 +72,6 @@ object SearchByStrongsNumberTool : Tool {
 
     override val agentTool = AgentTool.SEARCH_BY_STRONGS
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_search_by_strongs
 
     private data class VerseResult(val book: String, val osisRef: String, val verseName: String)
     private data class CachedSearch(val strongsNumber: String, val bookInitials: String, val results: List<VerseResult>)
@@ -104,7 +105,7 @@ object SearchByStrongsNumberTool : Tool {
         required: [strongsNumber]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val strongs = arguments.optString("strongsNumber", "").takeIf { it.isNotBlank() } ?: return null
         val book = arguments.optString("book", "").takeIf { it.isNotBlank() }
         return if (book != null) "$strongs ($book)" else strongs
@@ -113,7 +114,7 @@ object SearchByStrongsNumberTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return application.getString(R.string.tool_log_search_results, data.returnedResults, data.totalResults)
+        return strings.toolLogSearchResults(data.returnedResults, data.totalResults)
     }
 
     private val STRONGS_PATTERN = Regex("^([HhGg])0*(\\d+)$")
@@ -141,7 +142,7 @@ object SearchByStrongsNumberTool : Tool {
             .firstOrNull()
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

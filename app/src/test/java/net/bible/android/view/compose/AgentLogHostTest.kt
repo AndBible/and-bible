@@ -85,7 +85,7 @@ private class FakeAgentSessionService(
     override fun logVisiblePref() = visiblePrefStore
     override fun setLogVisiblePref(v: Boolean) { visiblePrefStore = v }
     override fun currentWorkspaceId() = "ws1"
-    override fun refresh() {}
+    override suspend fun refresh() {}
 }
 
 /**

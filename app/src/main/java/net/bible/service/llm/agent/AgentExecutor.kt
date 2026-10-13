@@ -17,23 +17,20 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.service.llm.AiSettings
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import android.app.Activity
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.OsisToPlainText
@@ -66,9 +63,9 @@ import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
-import org.json.JSONObject
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
 import java.io.StringReader
-import net.bible.service.db.blockingDb
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
@@ -79,11 +76,11 @@ internal data class ToolCallSignature(val tool: AgentTool, val argsHash: Int)
 internal fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignature> =
     toolCalls.map { tc ->
         val normalized = try {
-            val json = JSONObject(tc.arguments)
+            val json = parseToolArguments(tc.arguments)
             // Sort keys for consistent hashing regardless of key order
-            JSONObject().apply {
-                json.keys().asSequence().sorted().forEach { key -> put(key, json.get(key)) }
-            }.toString()
+            buildJsonObject {
+                json.keys.sorted().forEach { key -> put(key, json.getValue(key)) }
+            }.frameworkJson()
         } catch (_: Exception) { tc.arguments }
         ToolCallSignature(tc.tool, normalized.hashCode())
     }
@@ -171,7 +168,10 @@ private sealed class ProcessToolsResult {
  */
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
-) {
+) : KoinComponent {
+    private val aiSettings: AiSettings get() = getKoin().get()
+    private val strings: LlmStrings by inject()
+    private val platform: AgentPlatform by inject()
     fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null, modelOverrideId: IdType? = null): Flow<AgentEvent> = flow {
         try {
             val llmConfig = LlmModelConfig(modelOverrideId ?: prompt.configuredModelId)
@@ -196,7 +196,7 @@ class AgentExecutor(
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Agent execution failed", e)
-            emit(AgentEvent.Error(e.message ?: application.getString(R.string.llm_error_unknown), e))
+            emit(AgentEvent.Error(e.message ?: strings.llmErrorUnknown, e))
         }
     }
 
@@ -315,7 +315,7 @@ class AgentExecutor(
                             saveNoteContent(currentContext, normalizedContent)
                             Log.d(TAG, "Text transformation (text response) saved to note: ${currentContext.noteEditorEntityType}/${currentContext.noteEditorEntityId}")
                             emit(AgentEvent.CompletedWithoutDocument(
-                                message = application.getString(R.string.llm_note_updated),
+                                message = strings.llmNoteUpdated,
                                 totalIterations = iteration,
                                 usage = totalUsage,
                                 model = resolved.model,
@@ -348,7 +348,7 @@ class AgentExecutor(
                         return
                     }
                     is ParsedResponse.ParseError -> {
-                        emit(AgentEvent.Error(application.getString(R.string.llm_parse_error, parsed.error)))
+                        emit(AgentEvent.Error(strings.llmParseError(parsed.error)))
                         return
                     }
                 }
@@ -361,7 +361,7 @@ class AgentExecutor(
             }
             break
         }
-        emit(AgentEvent.Error(application.getString(R.string.llm_error_max_iterations, iterationLimit)))
+        emit(AgentEvent.Error(strings.llmErrorMaxIterations(iterationLimit)))
     }
 
     private suspend fun callLlmAndParse(
@@ -431,7 +431,7 @@ class AgentExecutor(
             if (execResult.grantAllToolsPermission) {
                 currentContext = currentContext.withAllToolsPermissionGranted()
             } else if (execResult.grantSessionPermission ||
-                ((currentContext.promptPermissionMode ?: CommonUtils.aiSettings.agentPermissionMode) != PermissionMode.ALWAYS_ASK &&
+                ((currentContext.promptPermissionMode ?: aiSettings.agentPermissionMode) != PermissionMode.ALWAYS_ASK &&
                  result is ToolResult.Success && ToolRegistry.get(toolCall.tool)?.requiresPermission == true)) {
                 currentContext = currentContext.withWritePermissionGranted()
             }
@@ -491,7 +491,7 @@ class AgentExecutor(
         AgentTool.FINISH_WITHOUT_DOCUMENT -> {
             val data = result.data as? FinishWithoutDocumentTool.Result
             ProcessToolsResult.FinishWithoutDocument(
-                message = data?.message ?: application.getString(R.string.llm_default_task_completed),
+                message = data?.message ?: strings.llmDefaultTaskCompleted,
                 context = context
             )
         }
@@ -500,7 +500,7 @@ class AgentExecutor(
             ProcessToolsResult.FinishWithStudyPad(
                 labelId = IdType(data?.labelId ?: ""),
                 scrollToEntryId = data?.scrollToEntryId?.takeIf { it.isNotBlank() }?.let { IdType(it) },
-                message = data?.message ?: application.getString(R.string.llm_default_studypad_opened),
+                message = data?.message ?: strings.llmDefaultStudypadOpened,
                 context = context
             )
         }
@@ -509,15 +509,15 @@ class AgentExecutor(
             ProcessToolsResult.FinishWithMyDocumentPage(
                 documentInitials = data?.documentInitials ?: "",
                 pageKey = data?.pageKey ?: "",
-                message = data?.message ?: application.getString(R.string.llm_default_task_completed),
+                message = data?.message ?: strings.llmDefaultTaskCompleted,
                 context = context
             )
         }
         else -> {
-            val rawArgs = try { JSONObject(toolCall.arguments) } catch (_: Exception) { null }
+            val rawArgs = try { parseToolArguments(toolCall.arguments) } catch (_: Exception) { null }
             if (rawArgs?.optBoolean("taskComplete", false) == true) {
                 val message = rawArgs.optString("taskCompleteMessage", "").ifBlank {
-                    application.getString(R.string.llm_default_task_completed)
+                    strings.llmDefaultTaskCompleted
                 }
                 ProcessToolsResult.FinishWithoutDocument(message = message, context = context)
             } else null
@@ -545,7 +545,7 @@ class AgentExecutor(
                 saveNoteContent(context, normalizeLlmText(content))
                 Log.d(TAG, "Text transformation saved to note: ${context.noteEditorEntityType}/${context.noteEditorEntityId}")
                 return ProcessToolsResult.FinishWithoutDocument(
-                    message = application.getString(R.string.llm_note_updated),
+                    message = strings.llmNoteUpdated,
                     context = context
                 )
             }
@@ -564,14 +564,14 @@ class AgentExecutor(
         if (context.noDocumentCreation) {
             Log.i(TAG, "setDocumentTitle blocked: noDocumentCreation is enabled")
             return ProcessToolsResult.FinishWithoutDocument(
-                message = application.getString(R.string.llm_no_document_creation_intercepted),
+                message = strings.llmNoDocumentCreationIntercepted,
                 context = context
             )
         }
 
         // Normal document creation
         val data = result.data as? SetDocumentTitleTool.Result
-        val title = data?.title ?: application.getString(R.string.llm_default_document_title)
+        val title = data?.title ?: strings.llmDefaultDocumentTitle
 
         if (content == null) {
             Log.i(TAG, "setDocumentTitle called without content, saving pending title: $title")
@@ -603,18 +603,17 @@ class AgentExecutor(
     }
 
     private fun buildSystemPrompt(prompt: AgentPrompt, context: AgentContext): String {
-        val appLanguage = CommonUtils.aiSettings.aiDisplayLanguage
+        val appLanguage = aiSettings.aiDisplayLanguage
 
         return buildString {
-            val (customPrompt, templateRes) = if (prompt.isTextTransformation)
-                CommonUtils.aiSettings.customTextTransformationSystemPrompt to R.raw.llm_text_transformation_system_prompt
+            val customPrompt = if (prompt.isTextTransformation)
+                aiSettings.customTextTransformationSystemPrompt
             else
-                CommonUtils.aiSettings.customAgentSystemPrompt to R.raw.llm_agent_system_prompt
+                aiSettings.customAgentSystemPrompt
 
             val basePrompt = customPrompt?.takeIf { it.isNotBlank() }
-                ?: application.resources.openRawResource(templateRes)
-                    .bufferedReader()
-                    .use { it.readText() }
+                ?: if (prompt.isTextTransformation) strings.defaultTextTransformationSystemPrompt
+                else strings.defaultAgentSystemPrompt
             append(basePrompt.replace("{{APP_LANGUAGE}}", appLanguage))
 
             // Text transformations use a minimal system prompt — no extra context needed
@@ -729,7 +728,7 @@ class AgentExecutor(
             // Auto-include installed documents if enabled
             if (prompt.autoIncludeDocuments) {
                 try {
-                    val result = GetInstalledDocumentsTool.execute(JSONObject(), context)
+                    val result = GetInstalledDocumentsTool.execute(buildJsonObject {}, context)
                     append("\n\n--- Installed Documents (auto-included) ---\n")
                     append(result.toJson())
                 } catch (e: Exception) {
@@ -740,7 +739,7 @@ class AgentExecutor(
             // Auto-include commentaries if enabled and verse context is available
             if (prompt.autoIncludeCommentaries && context.selectedVerseRange != null) {
                 val result = try {
-                    val args = JSONObject().apply {
+                    val args = buildJsonObject {
                         put("verseRef", context.selectedVerseRange.getOsisRef())
                     }
                     GetCommentariesTool.execute(args, context)
@@ -848,13 +847,13 @@ class AgentExecutor(
     }
 
     /** Delegates to [checkPermission] for pure logic, shows dialog when needed. */
-    private suspend fun checkWritePermission(tool: Tool, arguments: JSONObject, context: AgentContext): DialogResult {
+    private suspend fun checkWritePermission(tool: Tool, arguments: JsonObject, context: AgentContext): DialogResult {
         return when (checkPermission(
             tool = tool.agentTool,
             settings = PermissionSettings(
-                globalMode = CommonUtils.aiSettings.agentPermissionMode,
-                permanentlyAllowedTools = CommonUtils.aiSettings.permanentlyAllowedTools,
-                permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
+                globalMode = aiSettings.agentPermissionMode,
+                permanentlyAllowedTools = aiSettings.permanentlyAllowedTools,
+                permanentlyDeniedTools = aiSettings.permanentlyDeniedTools,
             ),
             promptAllowedTools = context.promptAllowedTools,
             promptDeniedTools = context.promptDeniedTools,
@@ -880,7 +879,7 @@ class AgentExecutor(
             return AgentTool.entries.toSet() - ToolRegistry.STRUCTURAL_TOOLS
         }
         return computeExcludedTools(
-            permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
+            permanentlyDeniedTools = aiSettings.permanentlyDeniedTools,
             promptDeniedTools = context.promptDeniedTools,
             promptAvailableTools = context.promptAvailableTools,
         )
@@ -891,8 +890,8 @@ class AgentExecutor(
      * Emits [AgentSessionChange.PermissionWaiting] true, then false on every exit (normal return or
      * cancellation) via `finally`.
      */
-    private suspend fun awaitActivity(workspaceId: IdType? = null, toolName: String? = null): Activity {
-        CurrentActivityHolder.currentActivity?.let { return it }
+    private suspend fun awaitActivity(workspaceId: IdType? = null, toolName: String? = null) {
+        if (platform.hasForegroundUi) return
         Log.d(TAG, "No current activity, waiting for activity to resume...")
         if (workspaceId != null) {
             AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = true, toolName = toolName)
@@ -900,13 +899,8 @@ class AgentExecutor(
         // F126: announce the end of the wait on every exit, cancellation included, so the service restores
         // its progress notification and wakelock (GetCommentariesTool does the same).
         try {
-            var activity: Activity?
-            do {
-                delay(500)
-                activity = CurrentActivityHolder.currentActivity
-            } while (activity == null)
+            if (!platform.awaitForegroundUi()) throw CancellationException("Foreground wait cancelled")
             Log.d(TAG, "Activity resumed")
-            return activity
         } finally {
             if (workspaceId != null) {
                 AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = false)
@@ -915,9 +909,9 @@ class AgentExecutor(
     }
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
-    private suspend fun showPermissionDialog(tool: Tool, arguments: JSONObject, workspaceId: IdType? = null): DialogResult {
+    private suspend fun showPermissionDialog(tool: Tool, arguments: JsonObject, workspaceId: IdType? = null): DialogResult {
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
-        val activity = awaitActivity(workspaceId, toolDisplayName)
+        awaitActivity(workspaceId, toolDisplayName)
         val actionDescription = try {
             tool.formatActionDescription(arguments)
         } catch (e: Exception) {
@@ -925,20 +919,18 @@ class AgentExecutor(
             null
         }
         return AgentSessionManager.awaitingUserDecision(workspaceId, toolDisplayName) {
-            when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description, actionDescription)) {
-                Dialogs.AgentPermissionResult.ALLOW -> DialogResult.Allowed
-                Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
-                Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
-                Dialogs.AgentPermissionResult.ALLOW_ALWAYS -> {
+            when (platform.askToolPermission(toolDisplayName, tool.description, actionDescription)) {
+                ToolPermissionAnswer.ALLOW -> DialogResult.Allowed
+                ToolPermissionAnswer.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
+                ToolPermissionAnswer.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
+                ToolPermissionAnswer.ALLOW_ALWAYS -> {
                     // Show confirmation dialog
-                    val confirmed = Dialogs.simpleQuestion(
-                        activity,
-                        message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName) +
-                            "\n\n" + activity.getString(R.string.permission_always_allow_confirm_reset_hint),
-                        title = activity.getString(R.string.permission_always_allow_confirm_title)
+                    val confirmed = platform.askQuestion(
+                        message = strings.permissionAlwaysAllowConfirm(toolDisplayName) +
+                            "\n\n" + strings.permissionAlwaysAllowConfirmResetHint,
+                        title = strings.permissionAlwaysAllowConfirmTitle
                     )
                     if (confirmed) {
-                        val aiSettings = CommonUtils.aiSettings
                         aiSettings.permanentlyAllowedTools += tool.agentTool
                         // Also remove from denied set if present
                         aiSettings.permanentlyDeniedTools -= tool.agentTool
@@ -946,7 +938,7 @@ class AgentExecutor(
                     // Allow this operation regardless of confirmation
                     DialogResult.Allowed
                 }
-                Dialogs.AgentPermissionResult.DENY -> DialogResult.Denied
+                ToolPermissionAnswer.DENY -> DialogResult.Denied
             }
         }
     }
@@ -956,12 +948,11 @@ class AgentExecutor(
      * Follows the same activity-lookup pattern as [showPermissionDialog].
      */
     private suspend fun showContinueDialog(currentIteration: Int, increment: Int, workspaceId: IdType? = null): Boolean {
-        val activity = awaitActivity(workspaceId)
+        awaitActivity(workspaceId)
         return AgentSessionManager.awaitingUserDecision(workspaceId, null) {
-            Dialogs.simpleQuestion(
-                activity,
-                message = application.getString(R.string.llm_continue_iterations_message, currentIteration, increment),
-                title = application.getString(R.string.llm_continue_iterations_title)
+            platform.askQuestion(
+                message = strings.llmContinueIterationsMessage(currentIteration, increment),
+                title = strings.llmContinueIterationsTitle
             )
         }
     }

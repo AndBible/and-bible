@@ -11,9 +11,8 @@ import net.bible.android.view.activity.ai.LlmModelServiceImpl
 import net.bible.android.view.activity.ai.LlmProviderServiceImpl
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.service.common.AiSettings
-import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.LlmProviderService
@@ -57,14 +56,14 @@ class SettingsOwnerStreamsTest {
 
     private fun countConfigChanges(block: suspend () -> Unit): Int {
         var n = 0
-        val sub = AiSettings.configChanged.subscribe { n++ }
+        val sub = CommonUtils.aiSettings.configChanged.subscribe { n++ }
         try { runBlocking { block() } } finally { sub.cancel() }
         return n
     }
 
-    private fun createProvider(): String {
+    private fun createProvider(): String = runBlocking {
         runBlocking { providers.saveProvider(null, providers.providerTypes().first().id, "T", "k", "", "") }
-        return models.providersForPicker().last().id
+        models.providersForPicker().last().id
     }
 
     @Test fun creatingAProviderEmitsConfigChanged() {

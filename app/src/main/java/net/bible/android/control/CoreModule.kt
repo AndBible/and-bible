@@ -1,5 +1,7 @@
 package net.bible.android.control
 
+import kotlinx.coroutines.flow.map
+
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
@@ -135,8 +137,18 @@ fun buildCoreModule() = module {
     single<net.bible.android.control.speak.SpeakSettingsStore> { net.bible.android.platform.AndroidSpeakSettingsStore() }
 
     single<AppSettings> { CommonUtils.settings }
+    single<net.bible.service.llm.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
+    single<net.bible.service.llm.AiSettings> {
+        net.bible.service.llm.AiSettingsStore(
+            { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
+            DatabaseContainer.databaseRestored, get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
+            DatabaseContainer.aiLifetime,
+            { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } },
+        )
+    }
+    single<net.bible.service.llm.agent.AgentPlatform> { net.bible.android.platform.AndroidAgentPlatform() }
     single { ProgressJsActions(get()) }
     single { BookmarkJsActions(get(), get()) }
     single<net.bible.service.cloudsync.SyncSettingsPlatform> { net.bible.android.platform.AndroidSyncSettingsPlatform(androidContext()) }
@@ -170,6 +182,7 @@ fun buildCoreModule() = module {
     single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> {
         net.bible.android.platform.AndroidGlobalTextDisplaySettingsSource()
     }
+    single<net.bible.service.llm.LlmStrings> { net.bible.android.platform.AndroidLlmStrings(androidContext()) }
     single<net.bible.service.sword.HtmlToPlainText> {
         net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }
     }
@@ -228,6 +241,9 @@ fun buildCoreModule() = module {
     singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() }
     singleOf(::WorkspaceServiceImpl) { bind<WorkspaceService>() }
     singleOf(::AiSettingsServiceImpl) { bind<AiSettingsService>() }
+    single<net.bible.sharedcore.llm.http.LlmHttpTransport> {
+        net.bible.sharedcore.llm.http.KtorLlmHttpTransport(net.bible.android.platform.AndroidLlmHttpClients()::clientFor)
+    }
     singleOf(::LlmProviderServiceImpl) { bind<LlmProviderService>() }
     singleOf(::LlmModelServiceImpl) { bind<LlmModelService>() }
     singleOf(::PromptServiceImpl) { bind<PromptService>() }

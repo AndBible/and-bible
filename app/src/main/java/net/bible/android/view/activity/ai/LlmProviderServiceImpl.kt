@@ -16,16 +16,20 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.sync.withLock
+import net.bible.service.llm.collectOwned
+import kotlinx.coroutines.launch
+import net.bible.sharedcore.platform.AppCoroutineScope
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
-import net.bible.service.common.AiSettings
-import net.bible.service.common.CommonUtils
+import net.bible.service.llm.AiSettings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.ApiFormat
 import net.bible.service.llm.DynamicModelService
@@ -33,7 +37,8 @@ import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
-import net.bible.service.llm.getApiKey
+import net.bible.service.llm.apiKey
+import net.bible.service.llm.SecretStore
 import net.bible.service.llm.removeApiKey
 import net.bible.service.llm.setApiKey
 import net.bible.sharedcore.ai.AvailableModelVd
@@ -41,7 +46,6 @@ import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.ProviderTypeVd
 import net.bible.sharedcore.ai.ProviderVd
 import net.bible.sharedcore.ai.RecommendedSetupVd
-import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [LlmProviderService] backing [net.bible.sharedcore.ai.AiProvidersController] and
@@ -50,12 +54,12 @@ import net.bible.service.db.blockingDb
  * - [LlmProviderConfigDao] for the configured-provider rows, flattened to portable [ProviderVd]s.
  *   `endpoint`/`apiFormatId` are ALWAYS populated from `resolveEndpoint()`/`resolveApiFormat()`
  *   (the shared screen only shows them for custom providers, but the VD carries them regardless).
- * - the SharedPreferences-backed API key via [getApiKey]/[setApiKey]/[removeApiKey].
+ * - the SharedPreferences-backed API key via [apiKey]/[setApiKey]/[removeApiKey].
  * - the [LlmProvider] enum → [ProviderTypeVd] for the add-provider type picker.
  * - [DynamicModelService] for available-model discovery, [LlmProcessingService.testApiConnection]
  *   for the easy-setup connection test, and the classic `EasySetupDialogs` recommended-setup list +
  *   `performEasySetup` create-flow (ported here so the wizard UI in Task 9 stays presentation-only).
- * - [CommonUtils.aiSettings] `aiDisclaimerAccepted` for the disclaimer gate + `defaultModelId`.
+ * - [AiSettings] `aiDisclaimerAccepted` for the disclaimer gate + `defaultModelId`.
  *
  * Save/delete/easy-setup mirror the classic `AiProvidersFragment.saveProviderConfig`/
  * `confirmDeleteProvider` and `EasySetupDialogs.performEasySetup` exactly (custom-only endpoint/
@@ -64,29 +68,36 @@ import net.bible.service.db.blockingDb
  * [AiSettings.configChanged] subscription also re-emits when an external change fires it (same
  * pattern as [AiSettingsServiceImpl]). Registered as a Koin single (lives for the process).
  *
- * The DAOs are `suspend`; the non-suspend reads/[deleteProvider]
- * bridge them with `blockingDb` and block the caller thread (as elsewhere in the AI settings layer); the suspend
- * mutations still hop to [Dispatchers.IO] for the network-touching prefetch.
+ * DAO reads suspend; mutations await application-owned write-then-refresh sequences.
+ * Network-touching prefetch still runs on [Dispatchers.IO].
  */
-class LlmProviderServiceImpl : LlmProviderService {
-    private val settings get() = CommonUtils.aiSettings
+class LlmProviderServiceImpl(private val strings: LlmStrings) : LlmProviderService, KoinComponent {
+    private val settings: AiSettings by inject()
+    private val appScope: AppCoroutineScope by inject()
+    private val secrets: SecretStore by inject()
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
-    private val _providers = MutableStateFlow(buildProviders())
+    private val _providers = MutableStateFlow<List<ProviderVd>>(emptyList())
     override val providers: StateFlow<List<ProviderVd>> = _providers.asStateFlow()
 
+    private val _ready = MutableStateFlow(false)
+    override val ready: StateFlow<Boolean> = _ready.asStateFlow()
+
+    private val refreshMutex = kotlinx.coroutines.sync.Mutex()
+
     init {
-        // Process lifetime, like the bus registration it replaces: never cancelled.
-        AiSettings.configChanged.subscribeOnMain { refresh() }
+        appScope.launch { settings.ensureLoaded(); refresh() }
+        // The application job owns subscriptions as well as refresh work.
+        settings.configChanged.collectOwned(appScope) { refresh() }
     }
 
-    private fun buildProviders(): List<ProviderVd> = blockingDb { dao.all() }.map { config ->
+    private suspend fun buildProviders(): List<ProviderVd> = dao.all().map { config ->
         ProviderVd(
             id = config.id.toString(),
             displayName = config.displayName,
             providerTypeId = config.providerType,
-            apiKeySet = config.getApiKey().isNotBlank(),
+            apiKeySet = config.apiKey(secrets).isNotBlank(),
             isCustom = config.resolveProvider() == LlmProvider.CUSTOM,
             endpoint = config.resolveEndpoint(),          // always populated (UI gates on isCustom)
             apiFormatId = config.resolveApiFormat().name,  // always populated
@@ -96,7 +107,7 @@ class LlmProviderServiceImpl : LlmProviderService {
     override fun providerTypes(): List<ProviderTypeVd> = LlmProvider.entries.map { p ->
         ProviderTypeVd(
             id = p.name,
-            displayName = if (p == LlmProvider.CUSTOM) application.getString(R.string.llm_provider_custom) else p.displayName,
+            displayName = if (p == LlmProvider.CUSTOM) strings.llmProviderCustom else p.displayName,
             tier = p.tier.name,
             apiKeyUrl = p.apiKeyUrl,
             defaultEndpoint = p.endpoint,
@@ -105,8 +116,8 @@ class LlmProviderServiceImpl : LlmProviderService {
         )
     }
 
-    override fun apiKeyFor(providerId: String): String =
-        blockingDb { dao.getById(IdType(providerId)) }?.getApiKey() ?: ""
+    override suspend fun apiKeyFor(providerId: String): String =
+        dao.getById(IdType(providerId))?.apiKey(secrets) ?: ""
 
     override suspend fun saveProvider(
         id: String?,
@@ -115,7 +126,7 @@ class LlmProviderServiceImpl : LlmProviderService {
         apiKey: String,
         endpoint: String,
         apiFormatId: String,
-    ) {
+    ) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
         val provider = resolveProviderType(typeId)
         val isCustom = provider == LlmProvider.CUSTOM
         val name = displayName.trim().ifEmpty { provider.displayName }
@@ -132,7 +143,7 @@ class LlmProviderServiceImpl : LlmProviderService {
                     orderNumber = dao.getCount(),
                 )
                 dao.insert(newConfig)
-                newConfig.setApiKey(key)
+                newConfig.setApiKey(secrets, key)
                 prefetchModels(provider, key)
             } else {
                 val config = dao.getById(IdType(id)) ?: return@withContext
@@ -142,36 +153,42 @@ class LlmProviderServiceImpl : LlmProviderService {
                     apiFormat = if (isCustom) parseApiFormat(apiFormatId) else config.apiFormat,
                 )
                 dao.update(updated)
-                updated.setApiKey(key)
+                updated.setApiKey(secrets, key)
             }
         }
         // Classic broadcast the config change only on create (now [AiSettings.notifyConfigChanged]); edits just refresh the list locally.
-        if (id == null) AiSettings.notifyConfigChanged()
+        if (id == null) settings.notifyConfigChanged()
         refresh()
     }
 
-    override fun deleteProvider(id: String) {
-        val config = blockingDb { dao.getById(IdType(id)) } ?: return
-        config.removeApiKey()
-        val deletedModelIds = blockingDb {
+    override suspend fun deleteProvider(id: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+        val config = dao.getById(IdType(id)) ?: return@withContext
+        config.removeApiKey(secrets)
+        val deletedModelIds = run {
             modelDao.getByProvider(config.id).map { it.id }.toSet().also { dao.delete(config) }
         }
         val currentDefault = settings.defaultModelId
         if (currentDefault != null && currentDefault in deletedModelIds) {
-            settings.defaultModelId = blockingDb { modelDao.all() }.firstOrNull()?.id
+            settings.defaultModelId = modelDao.all().firstOrNull()?.id
         }
-        AiSettings.notifyConfigChanged()
+        settings.awaitWrites()
+        settings.notifyConfigChanged()
         refresh()
     }
 
     override suspend fun testConnection(typeId: String, endpoint: String, apiKey: String): Result<Unit> =
         withContext(Dispatchers.IO) {
-            runCatching {
+            try {
                 val provider = resolveProviderType(typeId)
                 // The classic easy-setup test picks the setup's model; the seam only carries the
                 // type, so use the provider's first representative model to validate the key/endpoint.
                 val modelId = provider.models.firstOrNull() ?: ""
                 LlmProcessingService.testApiConnection(provider, modelId, apiKey.trim())
+                Result.success(Unit)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Result.failure(e)
             }
         }
 
@@ -180,7 +197,7 @@ class LlmProviderServiceImpl : LlmProviderService {
         val provider = config.resolveProvider()
         withContext(Dispatchers.IO) {
             if (provider.supportsDynamicModels) {
-                val fetchKey = if (provider.modelsEndpointPublic) "" else config.getApiKey()
+                val fetchKey = if (provider.modelsEndpointPublic) "" else config.apiKey(secrets)
                 DynamicModelService.fetchModels(provider.endpoint, fetchKey, provider.name)
             }
         }
@@ -194,8 +211,9 @@ class LlmProviderServiceImpl : LlmProviderService {
         }
     }
 
-    override fun refresh() {
+    override suspend fun refresh() = refreshMutex.withLock {
         _providers.value = buildProviders()
+        _ready.value = true
     }
 
     // --- Easy-setup wizard (ported from classic EasySetupDialogs) ---------------------------------
@@ -203,23 +221,23 @@ class LlmProviderServiceImpl : LlmProviderService {
     override fun recommendedSetups(): List<RecommendedSetupVd> = listOf(
         recommendedSetup(
             LlmProvider.GEMINI, "gemini-3-flash-preview",
-            application.getString(R.string.easy_setup_gemini_desc),
-            application.getString(R.string.easy_setup_free_tier),
+            strings.easySetupGeminiDesc,
+            strings.easySetupFreeTier,
         ),
         recommendedSetup(
             LlmProvider.ANTHROPIC, "claude-haiku-4-5",
-            application.getString(R.string.easy_setup_anthropic_desc),
+            strings.easySetupAnthropicDesc,
             null,
         ),
         recommendedSetup(
             LlmProvider.OPENAI, "gpt-5.4-mini",
-            application.getString(R.string.easy_setup_openai_desc),
+            strings.easySetupOpenaiDesc,
             null,
         ),
     )
 
-    override suspend fun performEasySetup(setupId: String, apiKey: String) {
-        val setup = recommendedSetups().firstOrNull { it.id == setupId } ?: return
+    override suspend fun performEasySetup(setupId: String, apiKey: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+        val setup = recommendedSetups().firstOrNull { it.id == setupId } ?: return@withContext
         val provider = resolveProviderType(setup.providerTypeId)
         val key = apiKey.trim()
         withContext(Dispatchers.IO) {
@@ -229,7 +247,7 @@ class LlmProviderServiceImpl : LlmProviderService {
                 orderNumber = dao.getCount(),
             )
             dao.insert(providerConfig)
-            providerConfig.setApiKey(key)
+            providerConfig.setApiKey(secrets, key)
 
             val configuredModel = LlmConfiguredModel.create(
                 providerConfigId = providerConfig.id,
@@ -243,14 +261,15 @@ class LlmProviderServiceImpl : LlmProviderService {
         // of the commit -- hoisted out of the withContext(Dispatchers.IO) block above so a
         // cancellation during its network fetch can no longer swallow this notify/refresh() and
         // leave the DB configured while every consumer outside the AI cluster never hears about it.
-        AiSettings.notifyConfigChanged()
+        settings.awaitWrites()
+        settings.notifyConfigChanged()
         refresh()
         withContext(Dispatchers.IO) { prefetchModels(provider, key) }
     }
 
     override fun disclaimerAccepted(): Boolean = settings.aiDisclaimerAccepted
 
-    override fun acceptDisclaimer() {
+    override suspend fun acceptDisclaimer() {
         settings.aiDisclaimerAccepted = true
         refresh()
     }

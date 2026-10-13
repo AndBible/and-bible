@@ -17,12 +17,13 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -39,14 +40,16 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.versification.system.Versifications
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for changing the document and/or key displayed in a window.
  *
  * Can change the active window or a specific window by ID.
  */
-object SetWindowDocumentTool : Tool {
+object SetWindowDocumentTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val windowId: String? = null,
@@ -66,7 +69,6 @@ object SetWindowDocumentTool : Tool {
     override val agentTool = AgentTool.SET_WINDOW_DOCUMENT
     override val category = ToolCategory.WINDOWS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_set_window_document
 
     override val description = """
         Change the document displayed in a window.
@@ -92,20 +94,19 @@ object SetWindowDocumentTool : Tool {
 
     private val windowControl get() = GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
-        val app = BibleApplication.application
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val initials = arguments.optString("documentInitials", "").takeIf { it.isNotBlank() } ?: return null
         val windowId = arguments.optString("windowId", "").takeIf { it.isNotBlank() }
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() }
-        val target = if (windowId != null) shortId(windowId) else app.getString(R.string.action_active_window)
+        val target = if (windowId != null) shortId(windowId) else strings.actionActiveWindow
         return if (key != null) {
-            app.getString(R.string.action_set_window_document_with_key, target, initials, key)
+            strings.actionSetWindowDocumentWithKey(target, initials, key)
         } else {
-            app.getString(R.string.action_set_window_document, target, initials)
+            strings.actionSetWindowDocument(target, initials)
         }
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val initials = arguments.optString("documentInitials", "").takeIf { it.isNotBlank() } ?: return null
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() }
         val windowId = arguments.optString("windowId", "").takeIf { it.isNotBlank() }
@@ -122,7 +123,7 @@ object SetWindowDocumentTool : Tool {
         return "${data.documentInitials} @ ${data.currentKeyName ?: data.currentKey ?: "?"}"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

@@ -16,7 +16,9 @@
  */
 package net.bible.android.view.activity.ai
 
-import net.bible.service.common.CommonUtils
+import net.bible.service.llm.AiSettings
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
 import net.bible.sharedcore.ai.AiDocGroupVd
 import net.bible.sharedcore.ai.AiDocVd
 import net.bible.sharedcore.ai.DocumentFilterService
@@ -39,12 +41,12 @@ import org.crosswire.jsword.book.Books
  * - Blacklist semantics: [AiDocVd.allowed] = `initials !in aiExcludedDocuments`, so a freshly
  *   installed document starts allowed.
  * - [setExcluded] persists the working excluded set to
- *   [CommonUtils.aiSettings] `aiExcludedDocuments` (classic "Save").
+ *   [AiSettings] `aiExcludedDocuments` (classic "Save").
  *
- * Registered as a Koin single (stateless — reads installed books + `CommonUtils.aiSettings` live).
+ * Registered as a Koin single (stateless — reads installed books + `aiSettings` live).
  */
-class DocumentFilterServiceImpl : DocumentFilterService {
-    private val settings get() = CommonUtils.aiSettings
+class DocumentFilterServiceImpl : DocumentFilterService, KoinComponent {
+    private val settings: AiSettings by inject()
 
     override fun groups(): List<AiDocGroupVd> {
         val excluded = settings.aiExcludedDocuments

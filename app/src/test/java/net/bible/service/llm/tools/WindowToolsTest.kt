@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -75,7 +78,7 @@ class WindowToolsTest {
 
     @Test
     fun getWindows_returnsDefaultWindow() = runBlocking {
-        val result = GetWindowsTool.execute(JSONObject(), context)
+        val result = GetWindowsTool.execute(buildJsonObject {}, context)
 
         assertTrue(result is ToolResult.Success)
         val data = (result as ToolResult.Success).data as GetWindowsTool.Result
@@ -89,7 +92,7 @@ class WindowToolsTest {
 
     @Test
     fun getWindows_excludesClosedWindows() = runBlocking {
-        val result = GetWindowsTool.execute(JSONObject(), context)
+        val result = GetWindowsTool.execute(buildJsonObject {}, context)
 
         assertTrue(result is ToolResult.Success)
         val data = (result as ToolResult.Success).data as GetWindowsTool.Result
@@ -105,24 +108,24 @@ class WindowToolsTest {
 
     @Test
     fun createWindow_withoutParams_copiesActive() = runBlocking {
-        val initialResult = GetWindowsTool.execute(JSONObject(), context)
+        val initialResult = GetWindowsTool.execute(buildJsonObject {}, context)
         val initialCount = ((initialResult as ToolResult.Success).data as GetWindowsTool.Result).windowCount
 
-        val result = CreateWindowTool.execute(JSONObject(), context)
+        val result = CreateWindowTool.execute(buildJsonObject {}, context)
 
         assertTrue("Create should succeed", result is ToolResult.Success)
         val data = (result as ToolResult.Success).data as CreateWindowTool.Result
         assertNotNull("New window ID should not be null", data.windowId)
 
         // Verify window count increased
-        val afterResult = GetWindowsTool.execute(JSONObject(), context)
+        val afterResult = GetWindowsTool.execute(buildJsonObject {}, context)
         val afterCount = ((afterResult as ToolResult.Success).data as GetWindowsTool.Result).windowCount
         assertEquals("Window count should increase by 1", initialCount + 1, afterCount)
     }
 
     @Test
     fun createWindow_withInvalidDocument_returnsError() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("documentInitials", "NONEXISTENT_DOC_12345")
         }
         val result = CreateWindowTool.execute(args, context)
@@ -137,14 +140,14 @@ class WindowToolsTest {
     @Test
     fun manageWindow_minimizeAndRestore() = runBlocking {
         // Create a second window so we can minimize one
-        CreateWindowTool.execute(JSONObject(), context)
+        CreateWindowTool.execute(buildJsonObject {}, context)
 
-        val windows = ((GetWindowsTool.execute(JSONObject(), context) as ToolResult.Success)
+        val windows = ((GetWindowsTool.execute(buildJsonObject {}, context) as ToolResult.Success)
             .data as GetWindowsTool.Result).windows
         val visibleWindow = windows.first { it.state == "VISIBLE" }
 
         // Minimize
-        val minimizeArgs = JSONObject().apply {
+        val minimizeArgs = buildJsonObject {
             put("windowId", visibleWindow.id)
             put("action", "MINIMIZE")
         }
@@ -155,7 +158,7 @@ class WindowToolsTest {
         assertEquals("MINIMISED", minimizeData.newState)
 
         // Restore
-        val restoreArgs = JSONObject().apply {
+        val restoreArgs = buildJsonObject {
             put("windowId", visibleWindow.id)
             put("action", "RESTORE")
         }
@@ -168,14 +171,14 @@ class WindowToolsTest {
     @Test
     fun manageWindow_closeWindow() = runBlocking {
         // Create a second window
-        val createResult = CreateWindowTool.execute(JSONObject(), context)
+        val createResult = CreateWindowTool.execute(buildJsonObject {}, context)
         val newWindowId = ((createResult as ToolResult.Success).data as CreateWindowTool.Result).windowId
 
-        val beforeCount = ((GetWindowsTool.execute(JSONObject(), context) as ToolResult.Success)
+        val beforeCount = ((GetWindowsTool.execute(buildJsonObject {}, context) as ToolResult.Success)
             .data as GetWindowsTool.Result).windowCount
 
         // Close the new window
-        val closeArgs = JSONObject().apply {
+        val closeArgs = buildJsonObject {
             put("windowId", newWindowId)
             put("action", "CLOSE")
         }
@@ -186,19 +189,19 @@ class WindowToolsTest {
         assertNull("Closed window should have null state", closeData.newState)
 
         // Verify window count decreased
-        val afterCount = ((GetWindowsTool.execute(JSONObject(), context) as ToolResult.Success)
+        val afterCount = ((GetWindowsTool.execute(buildJsonObject {}, context) as ToolResult.Success)
             .data as GetWindowsTool.Result).windowCount
         assertEquals("Window count should decrease by 1", beforeCount - 1, afterCount)
     }
 
     @Test
     fun manageWindow_cannotCloseLastWindow() = runBlocking {
-        val windows = ((GetWindowsTool.execute(JSONObject(), context) as ToolResult.Success)
+        val windows = ((GetWindowsTool.execute(buildJsonObject {}, context) as ToolResult.Success)
             .data as GetWindowsTool.Result).windows
 
         // If there's only one window, try to close it
         if (windows.size == 1) {
-            val closeArgs = JSONObject().apply {
+            val closeArgs = buildJsonObject {
                 put("windowId", windows[0].id)
                 put("action", "CLOSE")
             }
@@ -210,13 +213,13 @@ class WindowToolsTest {
 
     @Test
     fun manageWindow_cannotMinimizeLastVisibleWindow() = runBlocking {
-        val windows = ((GetWindowsTool.execute(JSONObject(), context) as ToolResult.Success)
+        val windows = ((GetWindowsTool.execute(buildJsonObject {}, context) as ToolResult.Success)
             .data as GetWindowsTool.Result).windows
         val visibleWindows = windows.filter { it.state == "VISIBLE" }
 
         // If there's only one visible window, try to minimize it
         if (visibleWindows.size == 1) {
-            val minimizeArgs = JSONObject().apply {
+            val minimizeArgs = buildJsonObject {
                 put("windowId", visibleWindows[0].id)
                 put("action", "MINIMIZE")
             }
@@ -228,7 +231,7 @@ class WindowToolsTest {
 
     @Test
     fun manageWindow_invalidWindowId_returnsError() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("windowId", IdType().toString())
             put("action", "CLOSE")
         }
@@ -239,10 +242,10 @@ class WindowToolsTest {
 
     @Test
     fun manageWindow_invalidAction_returnsError() = runBlocking {
-        val windows = ((GetWindowsTool.execute(JSONObject(), context) as ToolResult.Success)
+        val windows = ((GetWindowsTool.execute(buildJsonObject {}, context) as ToolResult.Success)
             .data as GetWindowsTool.Result).windows
 
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("windowId", windows[0].id)
             put("action", "EXPLODE")
         }
@@ -254,7 +257,7 @@ class WindowToolsTest {
 
     @Test
     fun setWindowDocument_invalidDocument_returnsError() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("documentInitials", "NONEXISTENT_DOC_12345")
         }
         val result = SetWindowDocumentTool.execute(args, context)
@@ -265,7 +268,7 @@ class WindowToolsTest {
 
     @Test
     fun setWindowDocument_invalidWindowId_returnsError() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("windowId", IdType().toString())
             put("documentInitials", "KJV")
         }
@@ -277,7 +280,7 @@ class WindowToolsTest {
 
     @Test
     fun setWindowDocument_missingDocumentInitials_returnsError() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("documentInitials", "")
         }
         val result = SetWindowDocumentTool.execute(args, context)

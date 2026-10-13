@@ -17,8 +17,9 @@
 
 package net.bible.service.llm.tools.write
 
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
@@ -31,7 +32,8 @@ import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for finishing the agent execution and opening a StudyPad.
@@ -40,7 +42,8 @@ import org.json.JSONObject
  * to open it as the final result. The StudyPad should already exist (created
  * via createLabel + addStudyPadEntry tools earlier in the session).
  */
-object FinishWithStudyPadTool : Tool {
+object FinishWithStudyPadTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val labelId: IdType = IdType.empty(),
@@ -58,7 +61,6 @@ object FinishWithStudyPadTool : Tool {
 
     override val agentTool = AgentTool.FINISH_WITH_STUDY_PAD
     override val category = ToolCategory.STUDY_PADS
-    override val displayNameResId = R.string.tool_finish_with_study_pad
 
     override val description = """
         Finish the current task and open a StudyPad.
@@ -88,26 +90,26 @@ object FinishWithStudyPadTool : Tool {
         required: [labelId, message]
     """)
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         val label = try { dao.labelById(IdType(labelId)) } catch (_: Exception) { null }
         val labelName = label?.name ?: shortId(labelId)
-        return BibleApplication.application.getString(R.string.action_open_studypad, labelName)
+        return strings.actionOpenStudypad(labelName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         return shortId(labelId)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {
             return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
         }
-        val message = args.message.ifBlank { BibleApplication.application.getString(R.string.llm_default_studypad_opened) }
+        val message = args.message.ifBlank { strings.llmDefaultStudypadOpened }
 
         if (args.labelId.isEmpty) {
             return ToolResult.error(

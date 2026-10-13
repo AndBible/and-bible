@@ -139,13 +139,3 @@ data class AnthropicWireTool(
 ) : CacheableWireTool<AnthropicWireTool> {
     override fun withCacheControl(cc: AnthropicCacheControl) = copy(cacheControl = cc)
 }
-
-// --- Utility: convert org.json to kotlinx.serialization ---
-
-/** Convert org.json.JSONObject to kotlinx.serialization JsonObject via string round-trip. */
-fun orgJsonToJsonObject(obj: org.json.JSONObject): JsonObject =
-    llmJson.parseToJsonElement(obj.toString()) as JsonObject
-
-/** Convert org.json.JSONArray to kotlinx.serialization JsonArray via string round-trip. */
-fun orgJsonToJsonArray(arr: org.json.JSONArray): JsonArray =
-    llmJson.parseToJsonElement(arr.toString()) as JsonArray

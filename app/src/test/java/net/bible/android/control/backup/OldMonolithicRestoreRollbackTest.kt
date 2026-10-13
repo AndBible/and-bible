@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -113,7 +114,7 @@ class OldMonolithicRestoreRollbackTest {
             DatabaseContainer.containerFactory = {
                 File(dbDir, OLD_MONOLITHIC_DATABASE_NAME).delete() // stands in for DatabaseSplitMigrations
                 val container = real()
-                container.closeAll() // Room reopens, and so migrates or fails, on the next access
+                container.bookmarkDb.close() // First access fails on this real closed Room database.
                 File(dbDir, BookmarkDatabase.dbFileName).writeText("this is not a database")
                 container
             }
@@ -154,6 +155,46 @@ class OldMonolithicRestoreRollbackTest {
         assertEquals("old", File(kept.single(), "workspaces.sqlite3").readText())
         assertEquals("the pre-restore databases are back", before, fingerprint())
         assertFalse(rollbackDir.exists())
+    }
+
+    @Test fun syncCanAcquireReplacementWhileLegacyRestoreWaitsForIt() = runBlocking {
+        val cloud = org.koin.core.context.GlobalContext.get().get<net.bible.service.cloudsync.CloudSync>()
+        val adapterField = cloud.javaClass.getDeclaredField("_adapter").apply { isAccessible = true }
+        val startedField = cloud.javaClass.getDeclaredField("syncStarted").apply { isAccessible = true }
+        val originalAdapter = adapterField.get(cloud)
+        val originalStarted = startedField.get(cloud)
+        val syncFinished = kotlinx.coroutines.CompletableDeferred<Boolean>()
+        val waiting = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val adapter = java.lang.reflect.Proxy.newProxyInstance(
+            net.bible.service.cloudsync.CloudAdapter::class.java.classLoader,
+            arrayOf(net.bible.service.cloudsync.CloudAdapter::class.java),
+        ) { _, method, _ ->
+            if (method.name == "getSignedIn") { waiting.complete(Unit); true }
+            else error("Unexpected adapter operation: ${method.name}")
+        }
+        val source = fixture()
+        backup.copyStagedDatabase = { _, _ -> false }
+        var restore: kotlinx.coroutines.Deferred<Boolean>? = null
+        try {
+            adapterField.set(cloud, adapter)
+            startedField.set(cloud, syncFinished)
+            // The real beforeRestore suspends in CloudSync.waitUntilFinished.
+            restore = async(kotlinx.coroutines.Dispatchers.IO) {
+                backup.restoreOldMonolithicDatabase(source.inputStream())
+            }
+            kotlinx.coroutines.withTimeout(2_000) { waiting.await() }
+            kotlinx.coroutines.withTimeout(2_000) {
+                DatabaseContainer.replacingDatabases { syncFinished.complete(true) }
+                assertFalse(restore.await())
+            }
+        } finally {
+            syncFinished.complete(true)
+            restore?.cancel()
+            restore?.join()
+            adapterField.set(cloud, originalAdapter)
+            startedField.set(cloud, originalStarted)
+        }
+        Unit
     }
 
     /** Review Focus 2. */

@@ -17,12 +17,13 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -33,14 +34,16 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for managing window state: close, minimize, or restore.
  *
  * Combines three related window operations into a single tool with an action parameter.
  */
-object ManageWindowTool : Tool {
+object ManageWindowTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     enum class Action {
         CLOSE, MINIMIZE, RESTORE;
@@ -65,7 +68,6 @@ object ManageWindowTool : Tool {
     override val agentTool = AgentTool.MANAGE_WINDOW
     override val category = ToolCategory.WINDOWS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_manage_window
 
     override val description = """
         Manage a window: close, minimize, or restore it.
@@ -90,8 +92,7 @@ object ManageWindowTool : Tool {
 
     private val windowControl get() = GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
-        val app = BibleApplication.application
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val action = try {
             Action.valueOf(arguments.optString("action", "").uppercase())
         } catch (_: Exception) { return null }
@@ -101,13 +102,13 @@ object ManageWindowTool : Tool {
         } catch (_: Exception) { null }
         val docName = window?.pageManager?.currentPage?.currentDocument?.abbreviation ?: shortId(windowId)
         return when (action) {
-            Action.CLOSE -> app.getString(R.string.action_close_window, docName)
-            Action.MINIMIZE -> app.getString(R.string.action_minimize_window, docName)
-            Action.RESTORE -> app.getString(R.string.action_restore_window, docName)
+            Action.CLOSE -> strings.actionCloseWindow(docName)
+            Action.MINIMIZE -> strings.actionMinimizeWindow(docName)
+            Action.RESTORE -> strings.actionRestoreWindow(docName)
         }
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val action = arguments.optString("action", "").takeIf { it.isNotBlank() } ?: return null
         val windowId = arguments.optString("windowId", "")
         return "$action ${shortId(windowId)}"
@@ -116,11 +117,11 @@ object ManageWindowTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        val stateStr = data.newState ?: BibleApplication.application.getString(R.string.tool_log_window_removed)
+        val stateStr = data.newState ?: strings.toolLogWindowRemoved
         return "${data.action} → $stateStr"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

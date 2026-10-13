@@ -155,8 +155,38 @@ class UsableBibleGateTest {
         val activity = welcomeHost()
         assertFalse("sanity: an uninitialised WELCOME start applies no FLAG_SECURE", flagSecure(activity))
 
-        activity.welcomeFlow.navDeps().onImport()
-        idle()
+        val graph = org.koin.core.context.GlobalContext.get()
+        val oldSettings = graph.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val reachedLoad = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val realDao = db.documentSyncPreferencesDao()
+        val heldDao = object : net.bible.android.database.DocumentSyncPreferencesDao by realDao {
+            override suspend fun get(): net.bible.android.database.DocumentSyncPreferences? {
+                reachedLoad.complete(Unit)
+                release.await()
+                return realDao.get()
+            }
+        }
+        val settings = net.bible.service.cloudsync.documents.DocumentSyncSettings(
+            { heldDao }, { db.cloudListingStateDao() }, { db.cloudDocumentSyncTimestampDao() }, graph.get(), graph.get(),
+        )
+        org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+            single<net.bible.service.cloudsync.documents.DocumentSyncSettings> { settings }
+        })
+        try {
+            activity.welcomeFlow.navDeps().onImport()
+            idle()
+            assertTrue("actual Import DAO load boundary reached", reachedLoad.isCompleted)
+            assertEquals("virtual idle cannot complete held real load", NavRoutes.WELCOME, route(activity))
+            release.complete(Unit)
+            net.bible.test.awaitHostRoute(activity, NavRoutes.INSTALL_ZIP_PATTERN)
+        } finally {
+            release.complete(Unit)
+            org.koin.core.context.loadKoinModules(org.koin.dsl.module {
+                single<net.bible.service.cloudsync.documents.DocumentSyncSettings> { oldSettings }
+            })
+        }
         assertEquals(NavRoutes.INSTALL_ZIP_PATTERN, route(activity))
         assertTrue("leaving Welcome initialises the app and its window (Correction 6)", flagSecure(activity))
 

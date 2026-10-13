@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
@@ -33,13 +34,15 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for deleting a My Documents page.
  * Always requires user permission.
  */
-object DeleteMyDocumentPageTool : Tool {
+object DeleteMyDocumentPageTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val pageId: IdType = IdType.empty()
@@ -55,7 +58,6 @@ object DeleteMyDocumentPageTool : Tool {
     override val agentTool = AgentTool.DELETE_MY_DOCUMENT_PAGE
     override val category = ToolCategory.MY_DOCUMENTS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_delete_my_document_page
 
     override val description = """
         Delete a page from a My Documents book. This action is irreversible.
@@ -71,20 +73,20 @@ object DeleteMyDocumentPageTool : Tool {
         required: [pageId]
     """)
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val pageIdStr = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val page = try { dao.pageById(IdType(pageIdStr)) } catch (_: Exception) { null }
         val pageName = page?.title ?: shortId(pageIdStr)
-        return BibleApplication.application.getString(R.string.action_delete_my_document_page, pageName)
+        return strings.actionDeleteMyDocumentPage(pageName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val pageId = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         return shortId(pageId)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

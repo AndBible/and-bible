@@ -469,6 +469,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.atomicfu)
+    implementation(libs.ktor.client.okhttp)
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")

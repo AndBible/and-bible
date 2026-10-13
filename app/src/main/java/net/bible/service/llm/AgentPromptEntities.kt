@@ -17,7 +17,6 @@
 
 package net.bible.service.llm
 
-import net.bible.android.activity.R
 import androidx.room3.ColumnInfo
 import androidx.room3.Dao
 import androidx.room3.Delete
@@ -32,18 +31,17 @@ import androidx.room3.Query
 import androidx.room3.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
-import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.PermissionMode
 
 /** UI-only grouping for tool permission screens. Does not affect database storage or agent logic. */
-enum class ToolCategory(val displayNameResId: Int) {
-    BIBLE_SEARCH(R.string.tool_category_bible_search),
-    BOOKMARKS(R.string.tool_category_bookmarks),
-    LABELS(R.string.tool_category_labels),
-    STUDY_PADS(R.string.tool_category_study_pads),
-    MY_DOCUMENTS(R.string.tool_category_my_documents),
-    GENERAL_BOOKS(R.string.tool_category_general_books),
-    WINDOWS(R.string.tool_category_windows),
+enum class ToolCategory {
+    BIBLE_SEARCH,
+    BOOKMARKS,
+    LABELS,
+    STUDY_PADS,
+    MY_DOCUMENTS,
+    GENERAL_BOOKS,
+    WINDOWS,
 }
 
 /** All agent tools. Enum names are converted to camelCase for ToolRegistry / LLM function calling. */
@@ -228,16 +226,14 @@ data class LlmConfiguredModel(
     }
 }
 
-private val prefs get() = CommonUtils.realSharedPreferences
+fun LlmProviderConfig.apiKey(secrets: SecretStore): String =
+    secrets.get(apiKeyName(id)) ?: ""
 
-fun LlmProviderConfig.getApiKey(): String =
-    prefs.getString("llm_api_key_${id}", "") ?: ""
+fun LlmProviderConfig.setApiKey(secrets: SecretStore, key: String) =
+    secrets.put(apiKeyName(id), key)
 
-fun LlmProviderConfig.setApiKey(key: String) =
-    prefs.edit().putString("llm_api_key_${id}", key).apply()
-
-fun LlmProviderConfig.removeApiKey() =
-    prefs.edit().remove("llm_api_key_${id}").apply()
+fun LlmProviderConfig.removeApiKey(secrets: SecretStore) =
+    secrets.remove(apiKeyName(id))
 
 @Dao
 interface LlmProviderConfigDao {

@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
@@ -32,7 +33,8 @@ import net.bible.service.llm.tools.resolveMyDocument
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for finishing the agent execution and opening an existing My Documents page.
@@ -40,7 +42,8 @@ import org.json.JSONObject
  * Use this when the agent has created or edited a My Documents page and wants
  * to show it to the user. The page must already exist.
  */
-object FinishWithMyDocumentPageTool : Tool {
+object FinishWithMyDocumentPageTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val pageId: IdType = IdType.empty(),
@@ -57,7 +60,6 @@ object FinishWithMyDocumentPageTool : Tool {
 
     override val agentTool = AgentTool.FINISH_WITH_MY_DOCUMENT_PAGE
     override val category = ToolCategory.MY_DOCUMENTS
-    override val displayNameResId = R.string.tool_finish_with_my_document_page
 
     override val description = """
         Finish the current task and open a My Documents page.
@@ -82,26 +84,26 @@ object FinishWithMyDocumentPageTool : Tool {
         required: [pageId, message]
     """)
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val pageIdStr = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val page = try { dao.pageById(IdType(pageIdStr)) } catch (_: Exception) { null }
         val pageName = page?.title ?: shortId(pageIdStr)
-        return BibleApplication.application.getString(R.string.action_open_my_document_page, pageName)
+        return strings.actionOpenMyDocumentPage(pageName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val pageId = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         return shortId(pageId)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {
             return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
         }
-        val message = args.message.ifBlank { BibleApplication.application.getString(R.string.llm_default_task_completed) }
+        val message = args.message.ifBlank { strings.llmDefaultTaskCompleted }
 
         if (args.pageId.isEmpty) {
             return ToolResult.error("pageId is required", "MISSING_PAGE_ID")

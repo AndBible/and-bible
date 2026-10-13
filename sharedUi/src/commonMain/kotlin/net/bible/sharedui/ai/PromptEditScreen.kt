@@ -277,9 +277,10 @@ fun PromptEditScreen(
      *  an Android resource `:sharedUi` cannot read; see [MaxIterationsSheetContent]. */
     globalMaxIterationsLabel: String,
     initiallyHelpDialogOpen: Boolean = false,
+    mutating: Boolean = false,
 ) {
     val strings = LocalStrings.current
-    val editable = !isReadOnly
+    val editable = !isReadOnly && !mutating
     var showDiscardConfirm by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
@@ -295,13 +296,14 @@ fun PromptEditScreen(
         title = title,
         onNavigateUp = requestBack,
         actions = {
-            IconButton(onClick = onSave, enabled = canSave) {
+            IconButton(onClick = onSave, enabled = canSave && !mutating) {
                 Icon(Icons.Filled.Check, contentDescription = strings.okay, modifier = Modifier.size(AbActionIconSize))
             }
             AbOverflowMenu(contentDescription = null) { close ->
                 if (!isReadOnly && !isNew) {
                     AbMenuItem(
                         text = strings.deleteLabel,
+                        enabled = !mutating,
                         onClick = { close(); showDeleteConfirm = true },
                         icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
                     )
@@ -309,6 +311,7 @@ fun PromptEditScreen(
                 if (isReadOnly || !isNew) {
                     AbMenuItem(
                         text = strings.copyToCustomizeLabel,
+                        enabled = !mutating,
                         onClick = { close(); onCopyToCustomize() },
                         icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
                     )
@@ -363,6 +366,7 @@ fun PromptEditScreen(
                         hiddenAdvancedKeys = hiddenAdvancedKeys,
                         isReadOnly = isReadOnly,
                         isBuiltIn = isBuiltIn,
+                        mutating = mutating,
                         modelChoices = modelChoices,
                         globalMaxIterationsLabel = globalMaxIterationsLabel,
                         onSetModelOverride = onSetModelOverride,
@@ -723,6 +727,7 @@ private fun AdvancedTabContent(
     hiddenAdvancedKeys: Set<String>,
     isReadOnly: Boolean,
     isBuiltIn: Boolean,
+    mutating: Boolean,
     modelChoices: List<SettingsItem.Choice>,
     globalMaxIterationsLabel: String,
     onSetModelOverride: (String?) -> Unit,
@@ -730,8 +735,8 @@ private fun AdvancedTabContent(
     onSetSwitch: (String, Boolean) -> Unit,
 ) {
     val strings = LocalStrings.current
-    val modelEnabled = !isReadOnly || isBuiltIn
-    val otherEnabled = !isReadOnly
+    val modelEnabled = (!isReadOnly || isBuiltIn) && !mutating
+    val otherEnabled = !isReadOnly && !mutating
     var maxIterationsSheetOpen by remember { mutableStateOf(false) }
 
     // 17f: states the EFFECTIVE value, never the old "leave empty" instruction — a NavigationRow's

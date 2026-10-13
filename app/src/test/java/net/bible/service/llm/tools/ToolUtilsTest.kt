@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import org.json.JSONArray
@@ -108,9 +111,9 @@ class ToolUtilsTest {
 
     @Test
     fun formatJsonForLog_simpleObject() {
-        val json = JSONObject().apply {
+        val json = buildJsonObject {
             put("status", "success")
-            put("data", JSONObject().apply {
+            put("data", buildJsonObject {
                 put("book", "KJV")
                 put("verseRef", "Gen.1.1")
             })
@@ -123,10 +126,10 @@ class ToolUtilsTest {
 
     @Test
     fun formatJsonForLog_nestedObject() {
-        val json = JSONObject().apply {
+        val json = buildJsonObject {
             put("status", "success")
-            put("data", JSONObject().apply {
-                put("nested", JSONObject())
+            put("data", buildJsonObject {
+                put("nested", buildJsonObject {})
                 put("count", 5)
             })
         }.toString()
@@ -138,11 +141,11 @@ class ToolUtilsTest {
 
     @Test
     fun formatJsonForLog_arrayData() {
-        val json = JSONObject().apply {
+        val json = buildJsonObject {
             put("status", "success")
-            put("data", JSONArray().apply {
-                put("item1")
-                put("item2")
+            put("data", buildJsonArray {
+                add("item1")
+                add("item2")
             })
         }.toString()
 
@@ -153,9 +156,9 @@ class ToolUtilsTest {
     @Test
     fun formatJsonForLog_longValue_truncated() {
         val longText = "A".repeat(200)
-        val json = JSONObject().apply {
+        val json = buildJsonObject {
             put("status", "success")
-            put("data", JSONObject().apply {
+            put("data", buildJsonObject {
                 put("text", longText)
             })
         }.toString()
@@ -169,6 +172,14 @@ class ToolUtilsTest {
     fun formatJsonForLog_invalidJson() {
         val result = formatJsonForLog("not json at all")
         assertEquals("not json at all", result)
+    }
+
+    @Test
+    fun formatJsonForLog_exactUnwrapAndTruncation() {
+        assertEquals("book: KJV, count: 2", formatJsonForLog("""{"status":"success","data":{"book":"KJV","count":2}}"""))
+        assertEquals("3 items", formatJsonForLog("""{"status":"success","data":[1,2,3]}"""))
+        assertEquals("n: 1000.0", formatJsonForLog("""{"n":1e3}"""))
+        assertEquals("text: ${"A".repeat(80)}...", formatJsonForLog("""{"text":"${"A".repeat(81)}"}"""))
     }
 
     // --- shortId ---

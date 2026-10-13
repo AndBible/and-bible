@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.compose
 
+import androidx.room3.useWriterConnection
+import net.bible.service.db.exec
+
 import android.os.Looper
 import androidx.lifecycle.lifecycleScope
 import androidx.appcompat.app.AppCompatDelegate
@@ -218,6 +221,23 @@ class ReadingHostSyncAndRestoreEventsTest {
     }
 
     // ——— CloudSync.workspaceRefreshRequired / DatabaseContainer.workspacesSynced ———————————————————————————————
+
+    @Test
+    fun anInitialAiDatabaseSwapReloadsTheHostExactlyOnce() {
+        readingHost()
+        val target = DatabaseContainer.databaseAccessorsByCategory.getValue(SyncableDatabaseDefinition.AI_SETTINGS)
+        val downloaded = java.io.File.createTempFile("ai-host-swap", ".sqlite3")
+        kotlinx.coroutines.runBlocking {
+            target.localDb.useWriterConnection { it.exec("PRAGMA wal_checkpoint(TRUNCATE)") }
+            target.localDbFile.copyTo(downloaded, overwrite = true)
+        }
+        countToasts()
+        kotlinx.coroutines.runBlocking {
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(target, downloaded) { }
+        }
+        idleMain()
+        assertEquals(1, toasts, "one initial swap must reload once, not once per replacement event")
+    }
 
     @Test
     fun aWorkspaceRefreshRequiredReloadsTheFirstWorkspace() {

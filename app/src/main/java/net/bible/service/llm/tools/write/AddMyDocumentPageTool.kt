@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
@@ -36,7 +37,8 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.isAIDocument
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 import java.util.Locale
 
 /**
@@ -45,7 +47,8 @@ import java.util.Locale
  * Permission is required except when adding to the AI Documents book,
  * which is the standard destination for AI-generated content.
  */
-object AddMyDocumentPageTool : Tool {
+object AddMyDocumentPageTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val documentId: IdType = IdType.empty(),
@@ -69,7 +72,6 @@ object AddMyDocumentPageTool : Tool {
     override val agentTool = AgentTool.ADD_MY_DOCUMENT_PAGE
     override val category = ToolCategory.MY_DOCUMENTS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_add_my_document_page
 
     override val description = """
         Add a new page to a My Documents book.
@@ -101,32 +103,32 @@ object AddMyDocumentPageTool : Tool {
         required: [title, content]
     """)
 
-    override fun requiresPermissionForCall(arguments: JSONObject, context: AgentContext): Boolean {
+    override suspend fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean {
         val initials = arguments.optString("initials", "")
         if (initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS) return false
 
         val documentIdStr = arguments.optString("documentId", "")
         if (documentIdStr.isNotBlank()) {
-            val doc = try { resolveMyDocument(IdType(documentIdStr), null) } catch (_: Exception) { null }
+            val doc = try { resolveMyDocument(IdType(documentIdStr), null) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
             if (doc?.isAIDocument == true) return false
         }
         return true
     }
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
         val initials = arguments.optString("initials", "").takeIf { it.isNotBlank() }
         val docName = initials ?: arguments.optString("documentId", "").take(8)
-        return BibleApplication.application.getString(R.string.action_add_my_document_page, title, docName)
+        return strings.actionAddMyDocumentPage(title, docName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
         val initials = arguments.optString("initials", "").takeIf { it.isNotBlank() } ?: ""
         return if (initials.isNotBlank()) "$title → $initials" else title
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

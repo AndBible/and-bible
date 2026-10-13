@@ -25,21 +25,21 @@ class BackupControlReplaceGuardTest {
 
     /** Indices of [target] not enclosed by a `replacingDatabases {` brace block. */
     internal fun unguarded(src: String, target: Regex): List<Int> {
-        val blocks = blocks(src, Regex("""replacingDatabases\s*\{"""))
+        val blocks = blocks(src, Regex("""replacingDatabases(?:\([^)]*\))?\s*\{"""))
         return target.findAll(src).map { it.range.first }.filter { idx -> blocks.none { idx in it } }.toList()
     }
 
-    internal fun unguardedResets(src: String): List<Int> = unguarded(src, Regex("""DatabaseContainer\.reset\(\)"""))
+    internal fun unguardedResets(src: String): List<Int> = unguarded(src, Regex("""DatabaseContainer\.reset(?:Owned)?\([^)]*\)"""))
 
     @Test fun everyResetIsInsideAReplace() = assertEquals(emptyList<Int>(), unguardedResets(file.readText()))
-    @Test fun theScanSeesTheSource() = assertTrue("run from app/", file.isFile && "DatabaseContainer.reset()" in file.readText())
+    @Test fun theScanSeesTheSource() = assertTrue("run from app/", file.isFile && "DatabaseContainer.resetOwned(token)" in file.readText())
     @Test fun theGuardCanFail() = assertEquals(1, unguardedResets("fun x() { DatabaseContainer.reset() }").size)
 
     @Test fun everyLocalDbResetInCloudSyncIsInsideAReplace() =
-        assertEquals(emptyList<Int>(), unguarded(cloudSync.readText(), Regex("""\.resetLocalDb\(\)""")))
-    @Test fun theCloudSyncScanSeesTheSource() = assertTrue(cloudSync.isFile && "resetLocalDb()" in cloudSync.readText())
+        assertEquals(emptyList<Int>(), unguarded(cloudSync.readText(), Regex("""\.resetLocalDb(?:Owned)?\([^)]*\)""")))
+    @Test fun theCloudSyncScanSeesTheSource() = assertTrue(cloudSync.isFile && "resetLocalDbOwned(token)" in cloudSync.readText())
     @Test fun theLocalDbGuardCanFail() =
-        assertEquals(1, unguarded("fun x() { dbDef.resetLocalDb() }", Regex("""\.resetLocalDb\(\)""")).size)
+        assertEquals(1, unguarded("fun x() { dbDef.resetLocalDb() }", Regex("""\.resetLocalDb(?:Owned)?\([^)]*\)""")).size)
 
     // F115 (fix batch 6 §1.3): every replace in BackupControl is followed by exactly one reload.
     @Test fun everyReplaceIsInsideAReloadingAfterReplace() {

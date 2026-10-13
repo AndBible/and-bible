@@ -17,9 +17,8 @@
 
 package net.bible.service.llm.tools.read
 
-import android.net.Uri
+import net.bible.service.llm.encodeUriComponent
 import kotlinx.serialization.Serializable
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -36,7 +35,8 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for reading the content of a specific entry in a GenBook module.
@@ -65,7 +65,6 @@ object GetGenBookContentTool : Tool {
 
     override val agentTool = AgentTool.GET_GENBOOK_CONTENT
     override val category = ToolCategory.GENERAL_BOOKS
-    override val displayNameResId = R.string.tool_get_genbook_content
 
     override val description = """
         Read the content of a specific entry in a general book (reference material, handbook, My Document, etc.).
@@ -95,13 +94,13 @@ object GetGenBookContentTool : Tool {
         required: [book, key]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val book = arguments.optString("book", "").takeIf { it.isNotBlank() } ?: return null
         val key = arguments.optString("key", "").takeIf { it.isNotBlank() } ?: return null
         return "$book: $key"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {
@@ -131,7 +130,7 @@ object GetGenBookContentTool : Tool {
                 ?: return ToolResult.error("Key not found: ${args.key}", "KEY_NOT_FOUND")
 
             val fragment = SwordContentFacade.readOsisFragment(book, resolvedKey, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
-            val linkUrl = "sword://${Uri.encode(args.book)}/${Uri.encode(args.key)}"
+            val linkUrl = "sword://${encodeUriComponent(args.book)}/${encodeUriComponent(args.key)}"
 
             if (args.format == ContentFormat.XML) {
                 val outputter = XMLOutputter(Format.getRawFormat())

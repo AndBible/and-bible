@@ -22,8 +22,7 @@ import kotlinx.serialization.json.Json
 import net.bible.android.database.IdType
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolDefinition
-import org.json.JSONArray
-import org.json.JSONObject
+import net.bible.service.llm.tools.prettyJson
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
@@ -133,8 +132,8 @@ class RawLlmLog {
         private fun prettyFormatJson(json: String): String = try {
             val trimmed = json.trim()
             val formatted = when {
-                trimmed.startsWith("{") -> JSONObject(trimmed).toString(2)
-                trimmed.startsWith("[") -> JSONArray(trimmed).toString(2)
+                trimmed.startsWith("{") -> prettyJson(trimmed)
+                trimmed.startsWith("[") -> prettyJson(trimmed)
                 else -> json
             }
             unescapeJsonStringContents(formatted)

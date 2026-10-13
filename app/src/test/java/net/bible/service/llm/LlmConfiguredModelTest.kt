@@ -21,7 +21,7 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
-import net.bible.service.common.AiSettings
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.junit.After
@@ -63,12 +63,12 @@ class LlmConfiguredModelTest {
             outputPricePerMillion = 0.60,
         )
         runBlocking { modelDao.insert(testModel) }
-        AiSettings.defaultModelId = testModel.id
+        CommonUtils.aiSettings.defaultModelId = testModel.id
     }
 
     @After
     fun tearDown() {
-        AiSettings.defaultModelId = null
+        CommonUtils.aiSettings.defaultModelId = null
         resetDatabase()
     }
 
@@ -102,7 +102,7 @@ class LlmConfiguredModelTest {
 
     @Test
     fun resolveConfiguredModel_noDefaultSet_returnsNull() {
-        AiSettings.defaultModelId = null
+        CommonUtils.aiSettings.defaultModelId = null
         val config = LlmModelConfig(configuredModelId = null)
         val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNull(resolved)
@@ -110,7 +110,7 @@ class LlmConfiguredModelTest {
 
     @Test
     fun resolveConfiguredModel_defaultPointsToDeletedModel_returnsNull() {
-        AiSettings.defaultModelId = IdType() // Points to non-existent model
+        CommonUtils.aiSettings.defaultModelId = IdType() // Points to non-existent model
         val config = LlmModelConfig(configuredModelId = null)
         val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNull(resolved)
@@ -127,7 +127,7 @@ class LlmConfiguredModelTest {
 
     @Test
     fun resolveProviderConfig_noModel_returnsNull() {
-        AiSettings.defaultModelId = null
+        CommonUtils.aiSettings.defaultModelId = null
         val config = LlmModelConfig(configuredModelId = null)
         val provider = runBlocking { config.resolveProviderConfig() }
         assertNull(provider)
@@ -177,7 +177,7 @@ class LlmConfiguredModelTest {
     // --- Pricing resolution ---
 
     @Test
-    fun pricing_configuredModelPricing_takePriorityOverEnum() {
+    fun pricing_configuredModelPricing_takePriorityOverEnum() = runBlocking {
         // Create model with custom pricing different from enum
         val customPricedModel = LlmConfiguredModel(
             providerConfigId = testProvider.id,
@@ -195,7 +195,7 @@ class LlmConfiguredModelTest {
     }
 
     @Test
-    fun pricing_zeroPricedConfiguredModel_fallsBackToEnum() {
+    fun pricing_zeroPricedConfiguredModel_fallsBackToEnum() = runBlocking {
         val zeroPricedModel = LlmConfiguredModel(
             providerConfigId = testProvider.id,
             modelId = "zero-priced-flash",
@@ -214,14 +214,14 @@ class LlmConfiguredModelTest {
     }
 
     @Test
-    fun pricing_withoutConfiguredModelId_usesEnumPricing() {
+    fun pricing_withoutConfiguredModelId_usesEnumPricing() = runBlocking {
         val pricing = LlmPricing.getPricing("gemini-2.5-flash", null)
         assertNotNull(pricing)
         assertEquals(0.15, pricing!!.inputPerMillion, 0.001)
     }
 
     @Test
-    fun pricing_unknownModelWithoutConfiguredId_returnsNull() {
+    fun pricing_unknownModelWithoutConfiguredId_returnsNull() = runBlocking {
         val pricing = LlmPricing.getPricing("totally-unknown-model-xyz", null)
         assertNull(pricing)
     }

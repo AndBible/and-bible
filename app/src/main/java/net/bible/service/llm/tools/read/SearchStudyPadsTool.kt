@@ -17,10 +17,10 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -31,14 +31,16 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for searching StudyPad content.
  *
  * Searches through all StudyPads for matching text in notes and text entries.
  */
-object SearchStudyPadsTool : Tool {
+object SearchStudyPadsTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(val query: String = "")
 
@@ -58,7 +60,6 @@ object SearchStudyPadsTool : Tool {
 
     override val agentTool = AgentTool.SEARCH_STUDY_PADS
     override val category = ToolCategory.STUDY_PADS
-    override val displayNameResId = R.string.tool_search_study_pads
 
     override val description = """
         Search for text across all StudyPads.
@@ -77,17 +78,17 @@ object SearchStudyPadsTool : Tool {
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null
         return "\"$query\""
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
-        return application.getString(R.string.tool_log_study_pad_count, (result.data as Result).studyPadCount)
+        return strings.toolLogStudyPadCount((result.data as Result).studyPadCount)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

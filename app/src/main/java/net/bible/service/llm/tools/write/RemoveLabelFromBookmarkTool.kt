@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
@@ -33,14 +34,16 @@ import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for removing a label from a bookmark without deleting either.
  *
  * Supports both Bible bookmarks and generic bookmarks.
  */
-object RemoveLabelFromBookmarkTool : Tool {
+object RemoveLabelFromBookmarkTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val bookmarkId: IdType = IdType.empty(),
@@ -71,11 +74,10 @@ object RemoveLabelFromBookmarkTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_remove_label_from_bookmark
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val bookmark = try {
@@ -85,16 +87,16 @@ object RemoveLabelFromBookmarkTool : Tool {
         val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
         val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.getName() ?: shortId(bookmarkId)
         val labelName = label?.name ?: shortId(labelId)
-        return BibleApplication.application.getString(R.string.action_remove_label_from_bookmark, labelName, verseName)
+        return strings.actionRemoveLabelFromBookmark(labelName, verseName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         return "${shortId(bookmarkId)} \u2190 ${shortId(labelId)}"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

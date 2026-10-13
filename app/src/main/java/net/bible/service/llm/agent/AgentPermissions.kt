@@ -41,7 +41,7 @@ sealed class PermissionCheckResult {
     object NeedsDialog : PermissionCheckResult()
 }
 
-/** Decoupled from CommonUtils.settings for testability. */
+/** Permission settings port for testability. */
 data class PermissionSettings(
     val globalMode: PermissionMode,
     val permanentlyAllowedTools: Set<AgentTool>,

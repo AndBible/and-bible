@@ -168,7 +168,12 @@ class DatabaseContainer {
 
     @Volatile var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
 
-    fun resetAiSettingsDb(): AiSettingsDatabase {
+    fun resetAiSettingsDb(): AiSettingsDatabase = blockingDb {
+        aiLifetime.replace { resetAiSettingsDbOwned(it) }
+    }
+
+    internal fun resetAiSettingsDbOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement): AiSettingsDatabase {
+        aiLifetime.requireOwner(token)
         aiSettingsDb.close()
         aiSettingsDb = getAiSettingsDb()
         return aiSettingsDb
@@ -308,8 +313,13 @@ class DatabaseContainer {
      * then are logged by the store's `onWriteError` and dropped.
      * Closing an already closed database is a no-op, so [closeAll] after this is safe.
      */
-    internal fun closeForReplace(fileName: String) {
-        if (fileName == SettingsDatabase.dbFileName) blockingDb { settingsStore.flush() }
+    internal fun closeForReplace(fileName: String) = blockingDb {
+        aiLifetime.replace { closeForReplaceOwned(fileName, it) }
+    }
+
+    internal suspend fun closeForReplaceOwned(fileName: String, token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+        aiLifetime.requireOwner(token)
+        if (fileName == SettingsDatabase.dbFileName) settingsStore.flush()
         dbByFilename[fileName]?.close()
     }
 
@@ -319,14 +329,22 @@ class DatabaseContainer {
      * dropped (a closed Room 3 database does not reopen). The window is milliseconds, and restore paths already
      * treat writes there as a hazard. Databases already closed by [closeForReplace] are closed again harmlessly.
      */
-    internal fun closeAll() {
+    internal fun closeAll() = blockingDb { aiLifetime.replace { closeAllOwned(it) } }
+
+    private suspend fun closeAllOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+        aiLifetime.requireOwner(token)
         // Flush BEFORE cancelling the scope: writes still queued at cancel are dropped.
-        blockingDb { settingsStore.flush() }
+        settingsStore.flush()
+        synchronized(Companion) { closeDatabasesAfterFlush() }
+    }
+
+    private fun closeDatabasesAfterFlush() {
         settingsScope.cancel()
         allDatabases.forEach { it.close() }
     }
 
     companion object {
+        val aiLifetime = net.bible.service.llm.AiDatabaseLifetime()
         @Volatile var ready: Boolean = false
 
         private val _readingPlansSynced = EventSource<List<LogEntry>>()
@@ -381,17 +399,31 @@ class DatabaseContainer {
         val replaceEpoch: Long get() = replaceEpochCounter.get()
 
         /** Every BackupControl path that closes, copies over or deletes database files runs inside this. */
-        suspend fun <T> replacingDatabases(block: suspend () -> T): T {
+        suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T =
+            aiLifetime.replace { replacingDatabasesOwned(it, block) }
+
+        /** Nested replacement must pass the active owner's token; independent calls queue at admission. */
+        internal suspend fun <T> replacingDatabases(
+            token: net.bible.service.llm.AiDatabaseLifetime.Replacement?,
+            block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T,
+        ): T = if (token == null) replacingDatabases(block)
+        else aiLifetime.replace(token) { replacingDatabasesOwned(it, block) }
+
+        private suspend fun <T> replacingDatabasesOwned(
+            token: net.bible.service.llm.AiDatabaseLifetime.Replacement,
+            block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T,
+        ): T {
+            aiLifetime.requireOwner(token)
             replaceDepth.incrementAndGet()
             replaceEpochCounter.incrementAndGet()
             var completed = false
             try {
-                return block().also { completed = true }
+                return block(token).also { completed = true }
             } finally {
                 // F115: a block that throws or is cancelled mid-copy may leave `_instance` holding a database it
                 // closed. Drop it before the depth falls, so the reload reopens from disk.
                 try {
-                    if (!completed) dropInstanceWithoutOpening()
+                    if (!completed) kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dropInstanceWithoutOpeningOwned(token) }
                 } finally {
                     replaceDepth.decrementAndGet()
                 }
@@ -412,12 +444,18 @@ class DatabaseContainer {
          * just to close it; a restore whose migration threw would then throw again from its own cleanup.
          * Also the old monolithic restore's close before its snapshot (F120).
          */
-        internal fun dropInstanceWithoutOpening() {
-            synchronized(this) {
-                try {
-                    _instance?.closeAll()
-                } finally {
-                    _instance = null
+        internal fun dropInstanceWithoutOpening() = blockingDb {
+            aiLifetime.replace { dropInstanceWithoutOpeningOwned(it) }
+        }
+
+        internal suspend fun dropInstanceWithoutOpeningOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+            aiLifetime.requireOwner(token)
+            val current = synchronized(this) { _instance }
+            try { current?.settingsStore?.flush() }
+            finally {
+                synchronized(this) {
+                    try { current?.closeDatabasesAfterFlush() }
+                    finally { if (_instance === current) _instance = null }
                 }
             }
         }
@@ -488,14 +526,20 @@ class DatabaseContainer {
 
         suspend fun sync() = instance.sync()
         suspend fun vacuum() = instance.vacuum()
-        fun reset() {
+        fun reset() = blockingDb { aiLifetime.replace { resetOwned(it) } }
+
+        internal suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+            aiLifetime.requireOwner(token)
+            val current = synchronized(this) {
+                try { instance }
+                catch (e: DataBaseNotReady) { Log.i(TAG, "Can't close, database not ready"); null }
+            }
+            current?.settingsStore?.flush()
+            // Keep native close and publication atomic with respect to container construction.
+            // Only the suspendable settings flush is outside the original monitor contract.
             synchronized(this) {
-                try {
-                    instance.closeAll()
-                } catch (e: DataBaseNotReady) {
-                    Log.i(TAG, "Can't close, database not ready")
-                }
-                _instance = null
+                current?.closeDatabasesAfterFlush()
+                if (_instance === current) _instance = null
             }
         }
 
@@ -563,6 +607,7 @@ class DatabaseContainer {
                     _resetLocalDb = { resetAiSettingsDb() },
                     localDbFile = application.getDatabasePath(AiSettingsDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.AI_SETTINGS,
+                    resetOwned = { token -> resetAiSettingsDbOwned(token) },
                 ) },
                 { SyncableDatabaseAccessor(
                     deviceId = CommonUtils.deviceIdentifier,

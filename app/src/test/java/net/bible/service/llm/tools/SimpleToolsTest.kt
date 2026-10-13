@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -42,7 +45,7 @@ class SimpleToolsTest {
 
     @Test
     fun setDocumentTitle_normalTitle() = runBlocking {
-        val args = JSONObject().apply { put("title", "Romans 8:28 Analysis") }
+        val args = buildJsonObject { put("title", "Romans 8:28 Analysis") }
         val result = SetDocumentTitleTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
@@ -53,7 +56,7 @@ class SimpleToolsTest {
 
     @Test
     fun setDocumentTitle_emptyTitle() = runBlocking {
-        val args = JSONObject().apply { put("title", "") }
+        val args = buildJsonObject { put("title", "") }
         val result = SetDocumentTitleTool.execute(args, context)
 
         assertTrue(result is ToolResult.Error)
@@ -62,7 +65,7 @@ class SimpleToolsTest {
 
     @Test
     fun setDocumentTitle_blankTitle() = runBlocking {
-        val args = JSONObject().apply { put("title", "   ") }
+        val args = buildJsonObject { put("title", "   ") }
         val result = SetDocumentTitleTool.execute(args, context)
 
         assertTrue(result is ToolResult.Error)
@@ -70,7 +73,7 @@ class SimpleToolsTest {
 
     @Test
     fun setDocumentTitle_markdownStripped() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("title", "**[Romans 8:28](sword://KJV/Rom.8.28)** - _Analysis_")
         }
         val result = SetDocumentTitleTool.execute(args, context)
@@ -83,7 +86,7 @@ class SimpleToolsTest {
     @Test
     fun setDocumentTitle_longTitle_truncated() = runBlocking {
         val longTitle = "A".repeat(100)
-        val args = JSONObject().apply { put("title", longTitle) }
+        val args = buildJsonObject { put("title", longTitle) }
         val result = SetDocumentTitleTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
@@ -93,7 +96,7 @@ class SimpleToolsTest {
 
     @Test
     fun setDocumentTitle_missingParameter() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = SetDocumentTitleTool.execute(args, context)
 
         assertTrue(result is ToolResult.Error)
@@ -101,13 +104,13 @@ class SimpleToolsTest {
 
     @Test
     fun setDocumentTitle_formatArgsForLog() {
-        val args = JSONObject().apply { put("title", "My Title") }
+        val args = buildJsonObject { put("title", "My Title") }
         assertEquals("\"My Title\"", SetDocumentTitleTool.formatArgsForLog(args))
     }
 
     @Test
     fun setDocumentTitle_formatArgsForLog_empty() {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         assertEquals(null, SetDocumentTitleTool.formatArgsForLog(args))
     }
 
@@ -115,7 +118,7 @@ class SimpleToolsTest {
 
     @Test
     fun finishWithoutDocument_normalMessage() = runBlocking {
-        val args = JSONObject().apply { put("message", "Bookmark created successfully") }
+        val args = buildJsonObject { put("message", "Bookmark created successfully") }
         val result = FinishWithoutDocumentTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
@@ -127,7 +130,7 @@ class SimpleToolsTest {
 
     @Test
     fun finishWithoutDocument_emptyMessage_usesDefault() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = FinishWithoutDocumentTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
@@ -137,14 +140,14 @@ class SimpleToolsTest {
 
     @Test
     fun finishWithoutDocument_formatArgsForLog_shortMessage() {
-        val args = JSONObject().apply { put("message", "Done") }
+        val args = buildJsonObject { put("message", "Done") }
         assertEquals("\"Done\"", FinishWithoutDocumentTool.formatArgsForLog(args))
     }
 
     @Test
     fun finishWithoutDocument_formatArgsForLog_longMessage() {
         val longMsg = "A".repeat(100)
-        val args = JSONObject().apply { put("message", longMsg) }
+        val args = buildJsonObject { put("message", longMsg) }
         val result = FinishWithoutDocumentTool.formatArgsForLog(args)!!
         assertTrue(result.contains("..."))
         assertTrue(result.length < 100)
@@ -152,7 +155,7 @@ class SimpleToolsTest {
 
     @Test
     fun finishWithoutDocument_formatArgsForLog_empty() {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         assertEquals(null, FinishWithoutDocumentTool.formatArgsForLog(args))
     }
 }

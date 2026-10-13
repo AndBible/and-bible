@@ -348,6 +348,7 @@ class CloudSync(
     internal suspend fun swapInInitialDb(
         dbDef: SyncableDatabaseAccessor<*>,
         downloaded: File,
+        replacement: net.bible.service.llm.AiDatabaseLifetime.Replacement? = null,
         afterReset: suspend () -> Unit,
     ) {
         try {
@@ -355,11 +356,11 @@ class CloudSync(
             // repository's reload would write the pre-download windows over the downloaded file, and the
             // freshly created triggers would then log it for upload. The epoch bump freezes saving until
             // [workspaceRefreshRequired] -> `loadFromDb`.
-            DatabaseContainer.replacingDatabases {
+            DatabaseContainer.replacingDatabases(replacement) { token ->
                 dbDef.localDb.close()
                 downloaded.copyTo(dbDef.localDbFile, overwrite = true)
                 downloaded.delete()
-                dbDef.resetLocalDb()
+                dbDef.resetLocalDbOwned(token)
                 afterReset()
             }
         } finally {

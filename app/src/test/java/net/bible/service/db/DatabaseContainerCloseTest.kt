@@ -17,7 +17,7 @@
 
 package net.bible.service.db
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.BookmarkDatabase
@@ -42,8 +42,178 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DatabaseContainerCloseTest {
-    @Before fun setUp() = DatabaseContainer.reset()
-    @After fun tearDown() = DatabaseContainer.reset()
+    companion object {
+        private var retainedPreparation: DatabaseContainerCloseTest? = null
+    }
+    private var fixtureOwner: TestBibleApplication? = null
+    private var fixtureChildren: List<Job> = emptyList()
+    private var fixtureHadLiveChildren = false
+    private var drainOwner: (TestBibleApplication) -> Unit = { app ->
+        net.bible.test.DatabaseResetter.runResetBlocking { app.drainAiSettingsFixture() }
+    }
+    private var resetAction: () -> Unit = { DatabaseContainer.reset() }
+
+    private fun retainCurrentOwner() {
+        val app = net.bible.android.BibleApplication.application as TestBibleApplication
+        check(fixtureOwner == null || fixtureOwner === app) { "Cannot replace retained preparation owner" }
+        fixtureOwner = app
+        retainedPreparation = this
+        val scope = TestBibleApplication::class.java.getDeclaredField("aiScope")
+            .apply { isAccessible = true }.get(app) as CoroutineScope
+        val children = checkNotNull(scope.coroutineContext[Job]).children.toList()
+        fixtureChildren = (fixtureChildren + children).distinct()
+        fixtureHadLiveChildren = fixtureChildren.any { !it.isCompleted }
+    }
+
+    private fun drainRetainedOwner() {
+        val owner = checkNotNull(fixtureOwner)
+        drainOwner(owner) // Successful return proves the exact owner's named queues were joined too.
+        assertTrue("INVARIANT exact fixture children must complete before exclusive database experiment",
+            fixtureChildren.all { it.isCompleted })
+    }
+
+    @Before fun setUp() {
+        check(retainedPreparation == null) { "Previous exact preparation owner requires teardown retry" }
+        retainCurrentOwner()
+        drainRetainedOwner()
+        resetAction()
+    }
+
+    @After fun tearDown() {
+        // A blocked new instance must not reset over another instance's retained preparation.
+        if (fixtureOwner == null || retainedPreparation == null) return
+        check(retainedPreparation === this) { "Another preparation owner is retained" }
+        drainRetainedOwner()
+        resetAction()
+        retainedPreparation = null
+    }
+
+    /** Fixture-owner completion, not a replay of the historical factory bypass. */
+    @Test fun exactLiveFixtureChildrenCompleteBeforeExclusiveDatabaseExperiment() {
+        assertTrue("Real current fixture must have live observer children before drain", fixtureHadLiveChildren)
+        assertTrue("Retained exact fixture children completed", fixtureChildren.all { it.isCompleted })
+    }
+
+    @Test fun refusedPreparationRetainsExactOwnerUntilCompletedTeardownRetry() {
+        val owner = checkNotNull(fixtureOwner)
+        val scope = TestBibleApplication::class.java.getDeclaredField("aiScope")
+            .apply { isAccessible = true }.get(owner) as CoroutineScope
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val child = scope.launch(Dispatchers.IO) {
+            withContext(NonCancellable) {
+                entered.countDown()
+                check(release.await(5, java.util.concurrent.TimeUnit.SECONDS)) { "preparation gate timeout" }
+            }
+        }
+        val actualDrain = drainOwner
+        val actualReset = resetAction
+        val refusal = IllegalStateException("injected preparation drain refusal")
+        var resets = 0
+        var primary: Throwable? = null
+        try {
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            retainCurrentOwner()
+            assertTrue(fixtureChildren.any { it === child })
+            drainOwner = { exact -> assertTrue(exact === owner); throw refusal }
+            resetAction = {
+                assertTrue("INVARIANT teardown cannot reset with incomplete exact owner", child.isCompleted)
+                resets++
+                actualReset()
+            }
+            val error = runCatching { tearDown() }.exceptionOrNull()
+            if (error !== refusal) throw AssertionError("Teardown must report drain refusal before reset", error)
+            assertEquals(0, resets)
+            assertTrue(fixtureOwner === owner && retainedPreparation === this)
+            val next = DatabaseContainerCloseTest()
+            assertNotNull(runCatching { next.setUp() }.exceptionOrNull())
+            next.tearDown()
+            assertEquals(0, resets)
+            release.countDown()
+            drainOwner = actualDrain
+            tearDown()
+            assertTrue(child.isCompleted)
+            assertEquals(1, resets)
+            assertTrue(retainedPreparation == null)
+        } catch (failure: Throwable) { primary = failure }
+        finally {
+            release.countDown()
+            drainOwner = actualDrain
+            resetAction = actualReset
+            try { tearDown() } catch (failure: Throwable) {
+                val first = primary
+                if (first == null) primary = failure else if (first !== failure) first.addSuppressed(failure)
+            }
+        }
+        primary?.let { throw it }
+    }
+
+    @Test fun resetWaitsForReadyClearedConstructionThenClosesItsPublishedContainer() {
+        val originalApp = net.bible.android.BibleApplication.application
+        val originalReady = DatabaseContainer.ready
+        val originalFactory = DatabaseContainer.containerFactory
+        val productionApp = object : net.bible.android.BibleApplication() { }
+        android.content.ContextWrapper::class.java.getDeclaredMethod("attachBaseContext", android.content.Context::class.java)
+            .apply { isAccessible = true }.invoke(productionApp, originalApp.baseContext)
+        val applicationField = net.bible.android.BibleApplication::class.java.getDeclaredField("application").apply { isAccessible = true }
+        applicationField.set(null, originalApp)
+        val constructing = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val failure = java.util.concurrent.atomic.AtomicReference<Throwable?>()
+        val built = java.util.concurrent.atomic.AtomicReference<DatabaseContainer>()
+        var opener: Thread? = null
+        var resetter: Thread? = null
+        try {
+            DatabaseContainer.dropInstanceWithoutOpening()
+            DatabaseContainer.ready = true
+            DatabaseContainer.containerFactory = {
+                originalFactory().also { current ->
+                    built.set(current)
+                    applicationField.set(null, productionApp)
+                    DatabaseContainer.withReadyCleared {
+                        constructing.countDown()
+                        check(release.await(5, java.util.concurrent.TimeUnit.SECONDS)) { "construction harness timeout" }
+                    }
+                }
+            }
+            opener = Thread { try { DatabaseContainer.instance } catch (e: Throwable) { failure.set(e) } }.apply { start() }
+            assertTrue(constructing.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            resetter = Thread { try { DatabaseContainer.reset() } catch (e: Throwable) { failure.set(e) } }.apply { start() }
+            val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5)
+            while (resetter.state != Thread.State.BLOCKED && resetter.isAlive && System.nanoTime() < deadline) Thread.yield()
+            assertEquals("reset really waits for the constructor monitor", Thread.State.BLOCKED, resetter.state)
+            release.countDown()
+            opener.join(5_000); resetter.join(5_000)
+            assertTrue("workers completed", !opener.isAlive && !resetter.isAlive)
+            failure.get()?.let { throw AssertionError("worker failed", it) }
+            val current = built.get()
+            assertNotNull("reset closes the container published after readiness returns",
+                runCatching { runBlocking { current.bookmarkDb.bookmarkDao().allLabelsSortedByName() } }.exceptionOrNull())
+            DatabaseContainer.containerFactory = originalFactory
+            assertNotSame(current, DatabaseContainer.instance)
+        } finally {
+            release.countDown()
+            opener?.join(5_000); resetter?.join(5_000)
+            applicationField.set(null, originalApp)
+            DatabaseContainer.ready = originalReady
+            DatabaseContainer.containerFactory = originalFactory
+        }
+    }
+
+    @Test fun resetIsEagerButDropNeverConstructsAContainer() {
+        val originalFactory = DatabaseContainer.containerFactory
+        var opens = 0
+        try {
+            DatabaseContainer.dropInstanceWithoutOpening()
+            DatabaseContainer.containerFactory = { opens++; originalFactory() }
+            DatabaseContainer.dropInstanceWithoutOpening()
+            assertEquals(0, opens)
+            DatabaseContainer.reset()
+            assertEquals(1, opens)
+            DatabaseContainer.dropInstanceWithoutOpening()
+            assertEquals(1, opens)
+        } finally { DatabaseContainer.containerFactory = originalFactory }
+    }
 
     @Test fun closeForReplaceThenCloseAllIsSafeAndTheNextContainerWorks() {
         val old = DatabaseContainer.instance

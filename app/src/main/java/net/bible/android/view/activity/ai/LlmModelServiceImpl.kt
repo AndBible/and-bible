@@ -16,26 +16,31 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.sync.withLock
+import net.bible.service.llm.collectOwned
+import kotlinx.coroutines.launch
+import net.bible.sharedcore.platform.AppCoroutineScope
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import net.bible.android.database.IdType
-import net.bible.service.common.AiSettings
-import net.bible.service.common.CommonUtils
+import net.bible.service.llm.AiSettings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.DynamicModelService
 import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
-import net.bible.service.llm.getApiKey
+import net.bible.service.llm.apiKey
+import net.bible.service.llm.SecretStore
 import net.bible.sharedcore.ai.AvailableModelVd
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.ModelVd
 import net.bible.sharedcore.ai.ProviderVd
-import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [LlmModelService] backing [net.bible.sharedcore.ai.AiModelsController] and the
@@ -48,7 +53,7 @@ import net.bible.service.db.blockingDb
  *   `formatCost`/`getCumulativeCost`. Raw [ModelVd.priceInput]/[ModelVd.priceOutput] are populated
  *   ONLY for models with unknown/editable pricing (`!LlmProvider.hasKnownPricing`, mirroring
  *   [AvailableModelVd.knownPricing]) so the edit dialog can prefill its editable price fields.
- * - `GlobalAiSettings.defaultModelId` (`CommonUtils.aiSettings`) + [AiSettings.defaultModelChanged] for
+ * - `GlobalAiSettings.defaultModelId` (`aiSettings`) + [AiSettings.defaultModelChanged] for
  *   the per-model default flag and the tap-to-set-default action.
  * - [DynamicModelService] + [net.bible.service.llm.LlmProviderConfig.resolveAvailableModels] for
  *   the add-model provider picker (identical to `LlmProviderServiceImpl.fetchAvailableModels`).
@@ -64,28 +69,33 @@ import net.bible.service.db.blockingDb
  * Registered as a Koin single (lives for the process).
  *
  * The DAOs are `suspend`; the non-suspend seam methods
- * ([providersForPicker], [deleteModel], [setDefault]) bridge them with one `blockingDb` per method (as
+ * ([providersForPicker], [deleteModel], [setDefault]) suspend rather than blocking (as
  * elsewhere in the AI settings layer); the suspend paths ([saveModel], [availableModelsFor]) still
  * hop to [Dispatchers.IO] for the network-touching prefetch/insert.
  */
-class LlmModelServiceImpl : LlmModelService {
-    private val settings get() = CommonUtils.aiSettings
+class LlmModelServiceImpl : LlmModelService, KoinComponent {
+    private val settings: AiSettings by inject()
+    private val appScope: AppCoroutineScope by inject()
+    private val secrets: SecretStore by inject()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
-    private val _models = MutableStateFlow(buildModels())
+    private val _models = MutableStateFlow<List<ModelVd>>(emptyList())
     override val models: StateFlow<List<ModelVd>> = _models.asStateFlow()
 
+    private val refreshMutex = kotlinx.coroutines.sync.Mutex()
+
     init {
-        // Process lifetime, like the bus registration it replaces: never cancelled.
-        AiSettings.configChanged.subscribeOnMain { refresh() }
-        // Process lifetime: never cancelled.
-        AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
+        appScope.launch { settings.ensureLoaded(); refresh() }
+        // The application job owns subscriptions as well as refresh work.
+        settings.configChanged.collectOwned(appScope) { refresh() }
+
+        settings.defaultModelChanged.collectOwned(appScope) { refresh() }
     }
 
-    private fun buildModels(): List<ModelVd> {
+    private suspend fun buildModels(): List<ModelVd> {
         val defaultId = settings.defaultModelId
-        val (providers, models) = blockingDb { providerDao.all() to modelDao.all() }
+        val (providers, models) = providerDao.all() to modelDao.all()
         val providerNames = providers.associate { it.id to it.displayName }
         return models.map { m ->
             // Raw editable prices exposed only when pricing is unknown/custom (mirrors
@@ -107,7 +117,7 @@ class LlmModelServiceImpl : LlmModelService {
     }
 
     /** Mirrors classic `AiModelsFragment.refreshModelList`'s row summary verbatim. */
-    private fun pricingSummary(model: LlmConfiguredModel, providerName: String): String = buildString {
+    private suspend fun pricingSummary(model: LlmConfiguredModel, providerName: String): String = buildString {
         append(providerName)
         append(" — ")
         append(model.modelId)
@@ -125,12 +135,12 @@ class LlmModelServiceImpl : LlmModelService {
         }
     }
 
-    override fun providersForPicker(): List<ProviderVd> = blockingDb { providerDao.all() }.map { config ->
+    override suspend fun providersForPicker(): List<ProviderVd> = providerDao.all().map { config ->
         ProviderVd(
             id = config.id.toString(),
             displayName = config.displayName,
             providerTypeId = config.providerType,
-            apiKeySet = config.getApiKey().isNotBlank(),
+            apiKeySet = config.apiKey(secrets).isNotBlank(),
             isCustom = config.resolveProvider() == LlmProvider.CUSTOM,
             endpoint = config.resolveEndpoint(),
             apiFormatId = config.resolveApiFormat().name,
@@ -142,7 +152,7 @@ class LlmModelServiceImpl : LlmModelService {
         val provider = config.resolveProvider()
         withContext(Dispatchers.IO) {
             if (provider.supportsDynamicModels) {
-                val fetchKey = if (provider.modelsEndpointPublic) "" else config.getApiKey()
+                val fetchKey = if (provider.modelsEndpointPublic) "" else config.apiKey(secrets)
                 DynamicModelService.fetchModels(provider.endpoint, fetchKey, provider.name)
             }
         }
@@ -163,9 +173,9 @@ class LlmModelServiceImpl : LlmModelService {
         priceInput: String?,
         priceOutput: String?,
         setDefault: Boolean,
-    ) {
+    ) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
         val trimmedModelId = modelId.trim()
-        if (trimmedModelId.isBlank()) return
+        if (trimmedModelId.isBlank()) return@withContext
         withContext(Dispatchers.IO) {
             if (id == null) {
                 // Create — mirrors classic showAddModelDialog's OK handler. Auto-price a known
@@ -202,25 +212,28 @@ class LlmModelServiceImpl : LlmModelService {
                 applyDefault(existing.id, setDefault)
             }
         }
-        AiSettings.notifyConfigChanged()
+        settings.awaitWrites()
+        settings.notifyConfigChanged()
         refresh()
     }
 
-    override fun deleteModel(id: String) {
-        val model = blockingDb {
+    override suspend fun deleteModel(id: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
+        val model = run {
             modelDao.getById(IdType(id))?.also { modelDao.delete(it) }
-        } ?: return
+        } ?: return@withContext
         // Classic confirmDeleteModel: if the deleted model was default, reassign to the first
         // remaining model (null only when the list is now empty — a legitimately default-less state).
         if (settings.defaultModelId == model.id) {
-            settings.defaultModelId = blockingDb { modelDao.all() }.firstOrNull()?.id
+            settings.defaultModelId = modelDao.all().firstOrNull()?.id
         }
-        AiSettings.notifyConfigChanged()
+        settings.awaitWrites()
+        settings.notifyConfigChanged()
         refresh()
     }
 
-    override fun setDefault(id: String) {
+    override suspend fun setDefault(id: String) = kotlinx.coroutines.withContext(appScope.coroutineContext) {
         settings.defaultModelId = IdType(id)
+        settings.awaitWrites()
         refresh()
     }
 
@@ -247,7 +260,7 @@ class LlmModelServiceImpl : LlmModelService {
         }
     }
 
-    override fun refresh() {
+    override suspend fun refresh() = refreshMutex.withLock {
         _models.value = buildModels()
     }
 }

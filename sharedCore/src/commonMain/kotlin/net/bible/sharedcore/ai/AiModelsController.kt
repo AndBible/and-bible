@@ -1,5 +1,6 @@
 package net.bible.sharedcore.ai
 
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -73,14 +74,20 @@ class AiModelsController(
     val dialog: StateFlow<ModelEditState?> = _dialog.asStateFlow()
 
     init {
-        scope.launch { service.models.collect { _models.value = sortDefaultFirst(it) } }
+        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.models.collect { _models.value = sortDefaultFirst(it) } }
     }
 
+    private var editGeneration = 0L
+
     fun startAdd() {
+        val generation = ++editGeneration
+        scope.launch {
+        val choices = service.providersForPicker()
+        if (generation != editGeneration) return@launch
         _dialog.value = ModelEditState(
             id = null,
             step = ModelEditState.Step.PICK_PROVIDER,
-            providerChoices = service.providersForPicker(),
+            providerChoices = choices,
             providerId = "",
             availableModels = emptyList(),
             loadingModels = false,
@@ -94,7 +101,7 @@ class AiModelsController(
             showPriceFields = false,
             canSave = false,
         )
-    }
+    } }
 
     /**
      * Opens the edit dialog scoped to an existing model, prefilled from its [ModelVd] — provider
@@ -105,6 +112,7 @@ class AiModelsController(
      * see [ModelEditState] doc.
      */
     fun startEdit(id: String) {
+        editGeneration++
         val m = models.value.firstOrNull { it.id == id } ?: return
         publish(
             ModelEditState(
@@ -138,8 +146,10 @@ class AiModelsController(
                 modelId = "",
             )
         )
+        val generation = ++editGeneration
         scope.launch {
             val available = service.availableModelsFor(providerId)
+            if (generation != editGeneration) return@launch
             val cur = _dialog.value ?: return@launch
             publish(cur.copy(availableModels = available, loadingModels = false))
         }
@@ -189,11 +199,11 @@ class AiModelsController(
         }
     }
 
-    fun delete(id: String) = service.deleteModel(id)
+    fun delete(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.deleteModel(id) } }
 
-    fun setDefault(id: String) = service.setDefault(id)
+    fun setDefault(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.setDefault(id) } }
 
-    fun dismissDialog() { _dialog.value = null }
+    fun dismissDialog() { editGeneration++; _dialog.value = null }
 
     private fun publish(next: ModelEditState) {
         val isCustom = next.modelId == CUSTOM_MODEL_ID

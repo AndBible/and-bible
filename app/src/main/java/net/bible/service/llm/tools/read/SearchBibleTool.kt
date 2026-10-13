@@ -17,10 +17,11 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -35,15 +36,16 @@ import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for searching Bible text.
  *
  * Uses the Lucene index to search for words or phrases.
  */
-object SearchBibleTool : Tool {
+object SearchBibleTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val query: String = "",
@@ -71,7 +73,6 @@ object SearchBibleTool : Tool {
 
     override val agentTool = AgentTool.SEARCH_BIBLE
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_search_bible
 
     private data class VerseResult(val book: String, val osisRef: String, val verseName: String)
     private data class CachedSearch(val query: String, val bookInitials: List<String>, val results: List<VerseResult>)
@@ -121,14 +122,14 @@ object SearchBibleTool : Tool {
         required: [query]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null
-        val books = arguments.optJSONArray("books")
+        val books = arguments.optArray("books")
         val maxResults = arguments.optInt("maxResults", 50)
         val offset = arguments.optInt("offset", 0)
         val parts = mutableListOf<String>()
-        if (books != null && books.length() > 0) {
-            parts.add((0 until books.length()).joinToString(", ") { books.getString(it) })
+        if (books != null && books.size > 0) {
+            parts.add((0 until books.size).joinToString(", ") { books.stringAt(it) })
         }
         if (offset > 0) parts.add("offset $offset")
         parts.add("max $maxResults")
@@ -138,10 +139,10 @@ object SearchBibleTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return application.getString(R.string.tool_log_search_results, data.returnedResults, data.totalResults)
+        return strings.toolLogSearchResults(data.returnedResults, data.totalResults)
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

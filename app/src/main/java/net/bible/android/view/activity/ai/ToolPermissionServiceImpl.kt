@@ -16,7 +16,9 @@
  */
 package net.bible.android.view.activity.ai
 
-import net.bible.service.common.CommonUtils
+import net.bible.service.llm.AiSettings
+import org.koin.core.component.inject
+import org.koin.core.component.KoinComponent
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
@@ -33,7 +35,7 @@ import net.bible.sharedcore.ai.ToolVd
  * - [toolsByCategory] = [ToolRegistry.getConfigurableToolsByCategory] (same source as
  *   `PromptService.toolsByCategory`), mapped to the shared VD shape (`ToolVd.id` = `AgentTool.name`).
  * - [permissionFor] resolves one tool's current GLOBAL permission against
- *   [CommonUtils.aiSettings] `permanentlyAllowedTools`/`permanentlyDeniedTools`, exactly as classic's
+ *   [AiSettings] `permanentlyAllowedTools`/`permanentlyDeniedTools`, exactly as classic's
  *   `configureGlobalRow` sets the radio: a **write** tool (`requiresPermission`) is
  *   [ToolPermission.ALLOW] if allowed, [ToolPermission.DENY] if denied, else the neutral
  *   [ToolPermission.ASK]; a **read** tool is [ToolPermission.DISABLED] if denied, else
@@ -46,11 +48,11 @@ import net.bible.sharedcore.ai.ToolVd
  *   both read-DISABLED and write-DENY collapse to the denied set — matching classic's single
  *   `radioDeny` id.
  *
- * Registered as a Koin single (stateless — reads/writes go straight to `CommonUtils.aiSettings`,
+ * Registered as a Koin single (stateless — reads/writes go straight to `aiSettings`,
  * which persists via `GlobalAiSettingsDao`; DAO calls are suspend and bridged with `blockingDb` there).
  */
-class ToolPermissionServiceImpl : ToolPermissionService {
-    private val settings get() = CommonUtils.aiSettings
+class ToolPermissionServiceImpl : ToolPermissionService, KoinComponent {
+    private val settings: AiSettings by inject()
 
     override fun toolsByCategory(): List<Pair<ToolCategoryVd, List<ToolVd>>> =
         ToolRegistry.getConfigurableToolsByCategory().map { (category, tools) ->

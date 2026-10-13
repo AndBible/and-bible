@@ -17,12 +17,12 @@
 
 package net.bible.service.llm.tools.read
 
-import android.net.Uri
+import net.bible.service.llm.AiSettings
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
+import net.bible.service.llm.encodeUriComponent
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -49,7 +49,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import net.bible.android.control.page.renderCommentaryFragmentXml
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 import org.koin.java.KoinJavaComponent
 import java.io.StringReader
 
@@ -60,7 +61,9 @@ import java.io.StringReader
  * and deduplicates identical content across consecutive verses (common when a
  * commentary covers a block of verses with a single entry).
  */
-object GetCommentariesTool : Tool {
+object GetCommentariesTool : Tool, KoinComponent {
+    private val aiSettings: AiSettings get() = getKoin().get()
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val verseRef: String = "",
@@ -94,7 +97,6 @@ object GetCommentariesTool : Tool {
 
     override val agentTool = AgentTool.GET_COMMENTARIES
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_get_commentaries
 
     override val description = """
         Get commentary entries for a verse or verse range from installed commentaries.
@@ -127,7 +129,7 @@ object GetCommentariesTool : Tool {
         required: [verseRef]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
         return localizeVerseRef(verseRef)
     }
@@ -135,7 +137,7 @@ object GetCommentariesTool : Tool {
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null
         val data = result.data as Result
-        return application.getString(R.string.tool_log_commentary_count, data.commentaryCount)
+        return strings.toolLogCommentaryCount(data.commentaryCount)
     }
 
     /** A single verse's rendered content (plain text or OSIS XML), or null if it has no commentary. */
@@ -179,7 +181,7 @@ object GetCommentariesTool : Tool {
         return blocks
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {
@@ -244,7 +246,7 @@ object GetCommentariesTool : Tool {
                     } else {
                         "${block.startVerseRef}-${block.endVerseRef}"
                     }
-                    val linkUrl = "sword://${Uri.encode(commentary.initials)}/${Uri.encode(block.startVerseRef)}"
+                    val linkUrl = "sword://${encodeUriComponent(commentary.initials)}/${encodeUriComponent(block.startVerseRef)}"
                     if (useXml) {
                         CommentaryEntry(verseRange = rangeRef, linkUrl = linkUrl, osisXml = block.content)
                     } else {
@@ -334,7 +336,7 @@ object GetCommentariesTool : Tool {
      * `BackupControl.selectDatabaseSections`, spec-referenced there).
      */
     internal suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
-        val thresholdTokens = CommonUtils.aiSettings.commentaryMaxResponseTokens
+        val thresholdTokens = aiSettings.commentaryMaxResponseTokens
         if (thresholdTokens <= 0 || commentaryResults.isEmpty()) {
             return FilterResult(commentaryResults, emptyList())
         }
@@ -382,7 +384,7 @@ object GetCommentariesTool : Tool {
         items: List<CommentaryInfoForFilter>,
         thresholdTokens: Int
     ): List<CommentaryInfoForFilter>? {
-        val previouslyDeselected = CommonUtils.aiSettings.commentaryDeselected
+        val previouslyDeselected = aiSettings.commentaryDeselected
         val itemTokens = items.associate { it.initials to estimateTokens(it.estimatedChars) }
 
         val options = items.map { info ->
@@ -390,16 +392,16 @@ object GetCommentariesTool : Tool {
             val rangeStr = if (info.verseRanges.isNotEmpty()) " [${info.verseRanges}]" else ""
             SettingsItem.Choice(
                 info.initials,
-                application.getString(R.string.commentary_filter_item, info.name, rangeStr, "%,d".format(tokens)),
+                strings.commentaryFilterItem(
+                    info.name, rangeStr, "%,d".format(tokens)),
             )
         }
         val selectedIds = items.mapNotNull { if (it.initials !in previouslyDeselected) it.initials else null }
 
         fun tokenTotalText(ids: List<String>): String {
             val selectedTokens = ids.sumOf { itemTokens[it] ?: 0 }
-            val description = application.getString(R.string.commentary_filter_dialog_message, "%,d".format(thresholdTokens))
-            val total = application.getString(
-                R.string.commentary_filter_total_tokens,
+            val description = strings.commentaryFilterDialogMessage("%,d".format(thresholdTokens))
+            val total = strings.commentaryFilterTotalTokens(
                 "%,d".format(selectedTokens),
                 "%,d".format(thresholdTokens),
             )
@@ -409,13 +411,13 @@ object GetCommentariesTool : Tool {
         val dialogs = KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java)
         val result = dialogs.await(
             AppDialogRequest.MultiChoice(
-                title = application.getString(R.string.commentary_filter_dialog_title),
+                title = strings.commentaryFilterDialogTitle,
                 options = options,
                 selectedIds = selectedIds,
-                confirmText = application.getString(R.string.okay),
-                dismissText = application.getString(R.string.cancel),
-                selectAllText = application.getString(R.string.select_all),
-                selectNoneText = application.getString(R.string.select_none),
+                confirmText = strings.okay,
+                dismissText = strings.cancel,
+                selectAllText = strings.selectAll,
+                selectNoneText = strings.selectNone,
                 footerFor = ::tokenTotalText,
             ),
         )
@@ -425,7 +427,7 @@ object GetCommentariesTool : Tool {
         val newDeselected = items.filterNot { it.initials in ids }.map { it.initials }.toSet()
         // Preserve deselections for commentaries not present on this device
         val preserved = previouslyDeselected - dialogInitials
-        CommonUtils.aiSettings.commentaryDeselected = preserved + newDeselected
+        aiSettings.commentaryDeselected = preserved + newDeselected
 
         return items.filter { it.initials in ids }
     }

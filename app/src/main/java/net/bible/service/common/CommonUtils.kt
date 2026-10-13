@@ -436,7 +436,7 @@ object CommonUtils : CommonUtilsBase() {
      * Global AI settings stored in the syncable AiSettingsDatabase.
      * Use this for agent permissions, excluded documents, commentary token limit, etc.
      */
-    val aiSettings: AiSettings get() = AiSettings
+    val aiSettings: net.bible.service.llm.AiSettings get() = org.koin.java.KoinJavaComponent.get(net.bible.service.llm.AiSettings::class.java)
 
     var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
         get() = DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().let { dao ->
@@ -1122,6 +1122,8 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     suspend fun initializeAppCoroutine() {
+        DatabaseContainer.ready = true
+        aiSettings.ensureLoaded()
         MyDocumentBookManager.launcher.join("mydocument-sync")
         if(!initialized) {
             try {

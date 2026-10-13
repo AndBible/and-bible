@@ -152,7 +152,7 @@ class GlobalToolPermissionsDeps(
 class AiModelsDeps(
     /** Resolved by the arm's `remember { … }`, behind the host's `by lazy` — see [ToolInfoDeps]. */
     val controller: () -> AiModelsController,
-    val providersForPicker: () -> List<ProviderVd>,
+    val providersForPicker: suspend () -> List<ProviderVd>,
     val helpBody: () -> String,
     val helpReadMoreUrl: String,
     val onResume: (() -> Unit)? = null,
@@ -336,9 +336,9 @@ class AiPromptsDeps(
  */
 class PromptEditDeps(
     val controllerFor: (promptId: String?, template: String?, defaultContext: String?) -> PromptEditController,
-    val categories: () -> List<PromptCategoryVd>,
+    val categories: suspend () -> List<PromptCategoryVd>,
     val toolsByCategory: () -> List<Pair<ToolCategoryVd, List<ToolVd>>>,
-    val modelChoices: () -> List<SettingsItem.Choice>,
+    val modelChoices: suspend () -> List<SettingsItem.Choice>,
     val globalToolPermission: (toolId: String) -> ToolPermission,
     val globalMaxIterationsLabel: () -> String,
     val helpBody: () -> String,
@@ -567,7 +567,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val controller = remember { deps.aiModels.controller() }
         val models by controller.models.collectAsState()
         val editState by controller.dialog.collectAsState()
-        val providers = remember(models) { deps.aiModels.providersForPicker() }
+        var providers by remember { mutableStateOf<List<ProviderVd>>(emptyList()) }
+        LaunchedEffect(models) { providers = deps.aiModels.providersForPicker() }
 
         // Parity with classic AiModelsComposeActivity's onResume() -> service.refresh() (models/keys
         // may have changed elsewhere). Route-scoped: fires only while THIS destination is resumed,
@@ -625,6 +626,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // Parity with classic AiConnectionSettingsComposeActivity's onResume() -> service.refresh()
         // — see AiConnectionSettingsDeps.onResume's kdoc for why this is route-scoped, not host-wide.
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
+
+        val initiallyReady by controller.ready.collectAsState()
+        if (!initiallyReady) {
+            net.bible.sharedui.components.AbLoadingOverlay()
+            return@composable
+        }
 
         AiConnectionSettingsScreen(
             state = state,
@@ -741,6 +748,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             }
         }
 
+        val initiallyReady by controller.ready.collectAsState()
+        if (!initiallyReady) {
+            net.bible.sharedui.components.AbLoadingOverlay()
+            return@composable
+        }
+
         AiProvidersScreen(
             providers = providers,
             providerTypes = providerTypes,
@@ -838,6 +851,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val strings = LocalStrings.current
         val title = strings.aiPromptsTitle
         LaunchedEffect(title) { deps.setWindowTitle(title) }
+        val promptsScope = rememberCoroutineScope()
+        var promptCategories by remember { mutableStateOf<List<PromptCategoryVd>>(emptyList()) }
         val d = deps.aiPrompts
 
         // Same shape as RawLogHistoryDeps.controllerFor's onOpenLog -- these three callbacks need
@@ -854,6 +869,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         }
         val configured by controller.configured.collectAsState()
         val groups by controller.groups.collectAsState()
+        LaunchedEffect(groups) { promptCategories = controller.categories() }
         val showHidden by controller.showHidden.collectAsState()
         val hasHiddenPrompts by controller.hasHiddenPrompts.collectAsState()
         val dialog by controller.dialog.collectAsState()
@@ -876,6 +892,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // Parity with classic AiPromptsComposeActivity's onResume() -> service.refresh() -- see
         // AiPromptsDeps.onResume's kdoc.
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
+
+        val initiallyReady by controller.ready.collectAsState()
+        if (!initiallyReady) {
+            net.bible.sharedui.components.AbLoadingOverlay()
+            return@composable
+        }
 
         AiPromptsScreen(
             configured = configured,
@@ -905,9 +927,9 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // worse than the old behaviour.
             onImportCsv = d.onImportCsv,
             onExportCsv = d.onExportCsv,
-            onCopyPrompt = controller::onCopyPrompt,
+            onCopyPrompt = { id -> promptsScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { controller.onCopyPrompt(id) } },
             onMovePromptToCategory = controller::onMovePromptToCategory,
-            categoriesProvider = { controller.categories() },
+            categoriesProvider = { promptCategories },
             helpBody = remember { d.helpBody() },
             helpReadMoreUrl = d.helpReadMoreUrl,
             dialog = dialog,
@@ -946,11 +968,15 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             d.controllerFor(promptId, template, defaultContext)
         }
 
+        LaunchedEffect(controller) { controller.load(promptId) }
+        val editScope = rememberCoroutineScope()
+        val loading by controller.loading.collectAsState()
         val state by controller.state.collectAsState()
         val tab by controller.tab.collectAsState()
         val availableTabs by controller.availableTabs.collectAsState()
         val isDirty by controller.isDirty.collectAsState()
         val canSave by controller.canSave.collectAsState()
+        val mutating by controller.mutating.collectAsState()
 
         // Mirrors PromptEditScreen's own top-bar title logic (see that screen's `val title = when
         // {...}` below its parameter list) rather than a single `strings.xxxTitle` constant, since
@@ -962,9 +988,11 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         }
         LaunchedEffect(title) { deps.setWindowTitle(title) }
 
-        val categories = remember { d.categories() }
+        var categories by remember { mutableStateOf<List<PromptCategoryVd>>(emptyList()) }
+        LaunchedEffect(controller) { categories = d.categories() }
         val toolsByCategory = remember { d.toolsByCategory() }
-        val modelChoices = remember { d.modelChoices() }
+        var modelChoices by remember { mutableStateOf<List<SettingsItem.Choice>>(emptyList()) }
+        LaunchedEffect(controller) { modelChoices = d.modelChoices() }
         val globalMaxIterationsLabel = remember { d.globalMaxIterationsLabel() }
 
         var showDiscardConfirm by remember { mutableStateOf(false) }
@@ -972,6 +1000,11 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // itself behind a discard-confirm dialog (see that screen's kdoc), but that does not
         // intercept system back — mirrors classic PromptEditComposeActivity's BackHandler.
         PlatformBackHandler(enabled = isDirty) { showDiscardConfirm = true }
+
+        if (loading) {
+            net.bible.sharedui.components.AbLoadingOverlay()
+            return@composable
+        }
 
         PromptEditScreen(
             state = state,
@@ -981,6 +1014,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             hiddenAdvancedKeys = controller.hiddenAdvancedKeys,
             isDirty = isDirty,
             canSave = canSave,
+            mutating = mutating,
             isReadOnly = state.isReadOnly,
             isBuiltIn = state.isBuiltIn,
             isNew = controller.isNew,
@@ -1008,8 +1042,24 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // No result to report — see PromptEditDeps' kdoc "No result slot". Only pop when a
             // save actually happened (controller.save() returns null if canSave was false,
             // defensively — the Save action is already disabled in that case).
-            onSave = { if (controller.save() != null) navController.popOrExit(deps.exitHost) },
-            onDelete = { controller.delete(); navController.popOrExit(deps.exitHost) },
+            onSave = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                try {
+                    if (controller.save() != null) navController.popOrExit(deps.exitHost)
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    net.bible.sharedcore.log.Log.e("PromptEdit", "Save failed", failure)
+                }
+            } },
+            onDelete = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                try {
+                    if (controller.delete()) navController.popOrExit(deps.exitHost)
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    net.bible.sharedcore.log.Log.e("PromptEdit", "Delete failed", failure)
+                }
+            } },
             // Self-replacing navigation (mirrors classic copyToCustomizeAndFinish): navigate to a
             // fresh PROMPT_EDIT entry for the copy, popping the CURRENT entry off so the old
             // (now-stale) editor never lingers on the back stack. popUpTo targets the PATTERN
@@ -1017,15 +1067,21 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // route identity, and every PROMPT_EDIT entry — this one and the new one about to be
             // pushed — shares that same registered route; popping by pattern removes exactly the
             // one entry currently on the stack for it, which is what "replace" means here.
-            onCopyToCustomize = {
-                val newId = controller.copyToCustomize()
-                if (newId != null) {
-                    d.onPromptCopied()
-                    navController.navigate(NavRoutes.promptEdit(promptId = newId)) {
-                        popUpTo(NavRoutes.PROMPT_EDIT_PATTERN) { inclusive = true }
+            onCopyToCustomize = { editScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                try {
+                    val newId = controller.copyToCustomize()
+                    if (newId != null) {
+                        d.onPromptCopied()
+                        navController.navigate(NavRoutes.promptEdit(promptId = newId)) {
+                            popUpTo(NavRoutes.PROMPT_EDIT_PATTERN) { inclusive = true }
+                        }
                     }
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    net.bible.sharedcore.log.Log.e("PromptEdit", "Copy failed", failure)
                 }
-            },
+            } },
             onViewTools = { navController.navigate(NavRoutes.AI_TOOL_INFO) },
             onBack = { navController.popOrExit(deps.exitHost) },
             helpBody = remember { d.helpBody() },

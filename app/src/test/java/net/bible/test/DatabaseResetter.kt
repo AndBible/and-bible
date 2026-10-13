@@ -33,6 +33,9 @@ import java.lang.reflect.Field
  * Created by mjden on 31/08/2017.
  */
 object DatabaseResetter {
+    /** Optional test observer of an already-started exact producer drain. */
+    internal var drainObserver: ((List<kotlinx.coroutines.Job>, kotlinx.coroutines.Deferred<Unit>) -> Unit)? = null
+
     @JvmStatic
     fun resetDatabase(vararg scopes_: CoroutineScope) {
         val scopes = ArrayList<CoroutineScope>()
@@ -57,6 +60,8 @@ object DatabaseResetter {
         Thread.sleep(300)
         val koin = org.koin.core.context.GlobalContext.getOrNull()
         runResetBlocking {
+            (net.bible.android.BibleApplication.application as? net.bible.android.TestBibleApplication)
+                ?.drainAiSettingsFixture()
             // Cancel producers, then wait for their finally blocks and late submissions before draining.
             val appScope = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
             val appJob = appScope?.coroutineContext?.get(kotlinx.coroutines.Job)
@@ -64,9 +69,15 @@ object DatabaseResetter {
                 (appJob?.children?.toList() ?: emptyList())).distinct()
             checkpoint("cancel-producers", "appContext=${appScope?.coroutineContext} explicitContexts=${scopes_.map { it.coroutineContext }} jobs=${jobs.joinToString { jobState(it) }}")
             jobs.forEach { it.cancel() }
-            jobs.forEach {
-                checkpoint("join-producer", jobState(it))
-                it.join()
+            kotlinx.coroutines.coroutineScope {
+                val drain = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                    jobs.forEach {
+                        checkpoint("join-producer", jobState(it))
+                        it.join()
+                    }
+                }
+                drainObserver?.invoke(jobs, drain)
+                drain.await()
             }
             checkpoint("producers-joined")
             val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()

@@ -17,11 +17,12 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.TextRange
@@ -43,7 +44,8 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.VerseRange
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for creating a new bookmark.
@@ -51,7 +53,8 @@ import org.json.JSONObject
  * Creates a bookmark at the specified verse reference with optional note and labels.
  * The sourcePromptId is automatically set to link the bookmark to the AI prompt.
  */
-object CreateBookmarkTool : Tool {
+object CreateBookmarkTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     private const val TAG = "CreateBookmarkTool"
 
     @Serializable
@@ -121,37 +124,35 @@ object CreateBookmarkTool : Tool {
     internal var describeRange: (VerseRange) -> Pair<String, String> = { it.getOsisRef() to it.getName() }
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_create_bookmark
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
-        val app = BibleApplication.application
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
         val verseName = localizeVerseRef(verseRef)
         val extras = mutableListOf<String>()
-        if (arguments.has("note") && !arguments.isNull("note")) extras.add(app.getString(R.string.action_with_note))
-        val labelIds = arguments.optJSONArray("labelIds")
-        if (labelIds != null && labelIds.length() > 0) {
-            val names = (0 until labelIds.length()).mapNotNull { i ->
-                try { bookmarkControl.labelById(IdType(labelIds.getString(i)))?.name } catch (_: Exception) { null }
+        if (arguments.has("note") && !arguments.isNull("note")) extras.add(strings.actionWithNote)
+        val labelIds = arguments.optArray("labelIds")
+        if (labelIds != null && labelIds.size > 0) {
+            val names = (0 until labelIds.size).mapNotNull { i ->
+                try { bookmarkControl.labelById(IdType(labelIds.stringAt(i)))?.name } catch (_: Exception) { null }
             }
-            if (names.isNotEmpty()) extras.add(app.getString(R.string.action_labels, names.joinToString(", ")))
+            if (names.isNotEmpty()) extras.add(strings.actionLabels(names.joinToString(", ")))
         }
         return if (extras.isEmpty()) {
-            app.getString(R.string.action_create_bookmark_at, verseName)
+            strings.actionCreateBookmarkAt(verseName)
         } else {
-            app.getString(R.string.action_create_bookmark_at_with_extras, verseName, extras.joinToString(", "))
+            strings.actionCreateBookmarkAtWithExtras(verseName, extras.joinToString(", "))
         }
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
         val verseName = localizeVerseRef(verseRef)
         val extras = mutableListOf<String>()
         if (arguments.has("note") && !arguments.isNull("note")) extras.add("+note")
-        val labelIds = arguments.optJSONArray("labelIds")
-        if (labelIds != null && labelIds.length() > 0) extras.add("+${labelIds.length()} labels")
+        val labelIds = arguments.optArray("labelIds")
+        if (labelIds != null && labelIds.size > 0) extras.add("+${labelIds.size} labels")
         return if (extras.isEmpty()) verseName else "$verseName (${extras.joinToString(", ")})"
     }
 
@@ -160,7 +161,7 @@ object CreateBookmarkTool : Tool {
         return (result.data as Result).verseName.takeIf { it.isNotBlank() }
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

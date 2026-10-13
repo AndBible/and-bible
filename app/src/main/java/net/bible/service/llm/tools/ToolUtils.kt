@@ -23,13 +23,11 @@ import net.bible.android.database.mydocument.MyDocument
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.llmJson
 import org.crosswire.jsword.passage.PassageKeyFactory
-import org.json.JSONArray
-import org.json.JSONObject
-import net.bible.service.db.blockingDb
+import kotlinx.serialization.json.*
 
-/** Decode tool arguments from JSONObject to a typed @Serializable data class. */
-inline fun <reified T> JSONObject.decodeArgs(): T =
-    llmJson.decodeFromString<T>(this.toString())
+/** Decode tool arguments from JsonObject to a typed @Serializable data class. */
+inline fun <reified T> JsonObject.decodeArgs(): T =
+    llmJson.decodeFromString<T>(frameworkJson())
 
 /**
  * Strip markdown formatting from a title string.
@@ -61,18 +59,18 @@ fun normalizeLlmText(text: String): String = text
 
 /**
  * Generic fallback formatter for JSON strings in the agent log.
- * Parses as JSONObject and outputs key: value pairs.
+ * Parses as JsonObject and outputs key: value pairs.
  * Unwraps the ToolResult `{"status":"...","data":{...}}` wrapper automatically.
  * Truncates long values to keep the log readable.
  */
 fun formatJsonForLog(json: String): String = try {
-    val obj = JSONObject(json)
+    val obj = Json.parseToJsonElement(json).jsonObject
     // Unwrap ToolResult wrapper: format "data" contents directly
     val target = if (obj.has("status") && obj.has("data")) {
-        when (val data = obj.opt("data")) {
-            is JSONObject -> data
-            is JSONArray -> return "${data.length()} items"
-            else -> return data?.toString() ?: json
+        when (val data = obj["data"]) {
+            is JsonObject -> data
+            is JsonArray -> return "${data.size} items"
+            else -> return obj.optString("data", json)
         }
     } else {
         obj
@@ -82,15 +80,15 @@ fun formatJsonForLog(json: String): String = try {
     json
 }
 
-private fun formatJsonObjectForLog(obj: JSONObject): String =
-    obj.keys().asSequence()
+private fun formatJsonObjectForLog(obj: JsonObject): String =
+    obj.keys.asSequence()
         .filter { it != "status" }
         .map { key ->
-            val value = obj.opt(key)
+            val value = obj[key]
             val str = when (value) {
-                is JSONObject -> "{...}"
-                is JSONArray -> "${value.length()} items"
-                else -> value?.toString() ?: "null"
+                is JsonObject -> "{...}"
+                is JsonArray -> "${value.size} items"
+                else -> obj.optString(key, "null")
             }
             val truncated = if (str.length > 80) str.take(80) + "..." else str
             "$key: $truncated"
@@ -130,13 +128,13 @@ fun uniqueLabelName(baseName: String, existingNames: List<String>): String {
  *
  * @return The resolved MyDocument, or null if neither identifier matches
  */
-fun resolveMyDocument(documentId: IdType?, initials: String?): MyDocument? {
+suspend fun resolveMyDocument(documentId: IdType?, initials: String?): MyDocument? {
     val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
     if (documentId != null && !documentId.isEmpty) {
-        return blockingDb { dao.documentById(documentId) }
+        return dao.documentById(documentId)
     }
     if (!initials.isNullOrBlank()) {
-        return blockingDb { dao.documentByInitials(initials) }
+        return dao.documentByInitials(initials)
     }
     return null
 }

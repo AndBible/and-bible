@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import kotlinx.serialization.Serializable
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.service.db.DatabaseContainer
@@ -35,7 +36,8 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for editing an existing My Documents page (title and/or content).
@@ -43,7 +45,8 @@ import org.json.JSONObject
  * Permission is required except for pages created in the same agent session
  * (tracked via [AgentContext.createdPageIds]).
  */
-object EditMyDocumentPageTool : Tool {
+object EditMyDocumentPageTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(
         val pageId: IdType = IdType.empty(),
@@ -64,7 +67,6 @@ object EditMyDocumentPageTool : Tool {
     override val agentTool = AgentTool.EDIT_MY_DOCUMENT_PAGE
     override val category = ToolCategory.MY_DOCUMENTS
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_edit_my_document_page
 
     override val description = """
         Edit an existing My Documents page. Can update the title, content, and/or order number.
@@ -90,7 +92,7 @@ object EditMyDocumentPageTool : Tool {
         required: [pageId]
     """)
 
-    override fun requiresPermissionForCall(arguments: JSONObject, context: AgentContext): Boolean {
+    override suspend fun requiresPermissionForCall(arguments: JsonObject, context: AgentContext): Boolean {
         val pageIdStr = arguments.optString("pageId", "")
         if (pageIdStr.isBlank()) return true
         return try {
@@ -100,15 +102,15 @@ object EditMyDocumentPageTool : Tool {
         }
     }
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val pageIdStr = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val page = try { dao.pageById(IdType(pageIdStr)) } catch (_: Exception) { null }
         val pageName = page?.title ?: shortId(pageIdStr)
-        return BibleApplication.application.getString(R.string.action_edit_my_document_page, pageName)
+        return strings.actionEditMyDocumentPage(pageName)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val pageId = arguments.optString("pageId", "").takeIf { it.isNotBlank() } ?: return null
         val hasTitle = arguments.optString("title", "").isNotBlank()
         val hasContent = arguments.optString("content", "").isNotBlank()
@@ -118,7 +120,7 @@ object EditMyDocumentPageTool : Tool {
         return parts.joinToString(", ")
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

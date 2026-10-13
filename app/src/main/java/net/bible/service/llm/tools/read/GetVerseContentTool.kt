@@ -17,7 +17,6 @@
 
 package net.bible.service.llm.tools.read
 
-import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -37,7 +36,8 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for reading verse content from Bible documents.
@@ -57,7 +57,6 @@ object GetVerseContentTool : Tool {
 
     override val agentTool = AgentTool.GET_VERSE_CONTENT
     override val category = ToolCategory.BIBLE_SEARCH
-    override val displayNameResId = R.string.tool_get_verse_content
 
     override val description = """
         Get verse content from a Bible translation. Returns readable text by default.
@@ -82,14 +81,14 @@ object GetVerseContentTool : Tool {
         required: [book, verseRef]
     """)
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val book = arguments.optString("book", "")
         val verseRef = arguments.optString("verseRef", "")
         if (book.isBlank() || verseRef.isBlank()) return null
         return "$book: ${localizeVerseRef(verseRef)}"
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

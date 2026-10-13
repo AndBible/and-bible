@@ -17,16 +17,20 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedcore.platform.AppEnvironment
+
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import net.bible.android.BibleApplication
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.File
-import java.util.concurrent.TimeUnit
+
+import net.bible.sharedcore.llm.http.LlmHttpTransport
+import net.bible.sharedcore.llm.http.LlmTimeouts
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val TAG = "DynamicModelService"
 private const val CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000L  // 7 days
@@ -60,7 +64,9 @@ private data class ApiPricing(
  *
  * Each provider's cache is stored as a separate file keyed by provider ID.
  */
-object DynamicModelService {
+object DynamicModelService : KoinComponent {
+    private val transport: LlmHttpTransport by inject()
+    private val environment: AppEnvironment get() = getKoin().get()
 
     data class DynamicModel(
         val id: String,
@@ -71,16 +77,11 @@ object DynamicModelService {
         val category: String get() = id.substringBefore('/', "")
     }
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
-
     // In-memory cache: providerId → (models, timestampMs)
     private val cache = mutableMapOf<String, Pair<List<DynamicModel>, Long>>()
 
     private fun cacheFile(providerId: String): File =
-        File(BibleApplication.application.cacheDir, "models_cache_${providerId}.json")
+        File(environment.cacheDir, "models_cache_${providerId}.json")
 
     /** Cache timestamp for a provider (epoch ms), or 0 if never fetched. */
     fun cacheTimestamp(providerId: String): Long {
@@ -107,31 +108,26 @@ object DynamicModelService {
      * @param apiKey API key for authentication.
      * @param providerId Cache key (e.g. "OPENAI", "OPENROUTER", or config ID for CUSTOM).
      */
-    suspend fun fetchModels(endpoint: String, apiKey: String, providerId: String): List<DynamicModel>? =
-        withContext(Dispatchers.IO) {
-            try {
-                val modelsUrl = buildModelsUrl(endpoint)
-                val request = Request.Builder()
-                    .url(modelsUrl)
-                    .addHeader("Authorization", "Bearer $apiKey")
-                    .build()
-                val response = client.newCall(request).execute()
-                if (!response.isSuccessful) {
-                    Log.w(TAG, "[$providerId] API returned ${response.code}")
-                    return@withContext null
-                }
-                val body = response.body?.string() ?: return@withContext null
-                val models = parseModels(body)
-                if (models.isNotEmpty()) {
-                    saveToDisk(providerId, body)
-                    cache[providerId] = models to System.currentTimeMillis()
-                }
-                models
-            } catch (e: Exception) {
-                Log.w(TAG, "[$providerId] Failed to fetch models", e)
-                null
+    suspend fun fetchModels(endpoint: String, apiKey: String, providerId: String): List<DynamicModel>? {
+        return try {
+            val response = transport.get(buildModelsUrl(endpoint), mapOf("Authorization" to "Bearer $apiKey"), LlmTimeouts.MODELS)
+            if (!response.isSuccessful) {
+                Log.w(TAG, "[$providerId] API returned ${response.code}")
+                return null
             }
+            val models = parseModels(response.body)
+            if (models.isNotEmpty()) {
+                withContext(Dispatchers.IO) { saveToDisk(providerId, response.body) }
+                cache[providerId] = models to System.currentTimeMillis()
+            }
+            models
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "[$providerId] Failed to fetch models", e)
+            null
         }
+    }
 
     /** Whether all disk cache files have been loaded into memory. */
     private var allDiskCachesLoaded = false

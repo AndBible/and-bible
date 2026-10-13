@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -54,7 +57,7 @@ class WriteToolsTest {
 
     @Test
     fun createBookmark_missingVerseRef() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = CreateBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("verseRef"))
@@ -62,7 +65,7 @@ class WriteToolsTest {
 
     @Test
     fun createBookmark_emptyVerseRef() = runBlocking {
-        val args = JSONObject().apply { put("verseRef", "") }
+        val args = buildJsonObject { put("verseRef", "") }
         val result = CreateBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
@@ -74,7 +77,7 @@ class WriteToolsTest {
 
     @Test
     fun createBookmark_formatArgsForLog_verseOnly() {
-        val args = JSONObject().apply { put("verseRef", "Gen.1.1") }
+        val args = buildJsonObject { put("verseRef", "Gen.1.1") }
         val result = CreateBookmarkTool.formatArgsForLog(args)
         assertNotNull(result)
         // Should be localized verse name, not OSIS ref
@@ -82,7 +85,7 @@ class WriteToolsTest {
 
     @Test
     fun createBookmark_formatArgsForLog_withNote() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("verseRef", "Gen.1.1")
             put("note", "Important verse")
         }
@@ -92,11 +95,11 @@ class WriteToolsTest {
 
     @Test
     fun createBookmark_formatArgsForLog_withLabels() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("verseRef", "Gen.1.1")
-            put("labelIds", JSONArray().apply {
-                put(IdType().toString())
-                put(IdType().toString())
+            put("labelIds", buildJsonArray {
+                add(IdType().toString())
+                add(IdType().toString())
             })
         }
         val result = CreateBookmarkTool.formatArgsForLog(args)!!
@@ -105,7 +108,7 @@ class WriteToolsTest {
 
     @Test
     fun createBookmark_formatArgsForLog_empty() {
-        assertNull(CreateBookmarkTool.formatArgsForLog(JSONObject()))
+        assertNull(CreateBookmarkTool.formatArgsForLog(buildJsonObject {}))
     }
 
     @Test
@@ -121,7 +124,7 @@ class WriteToolsTest {
 
     @Test
     fun addBookmarkNote_missingBookmarkId() = runBlocking {
-        val args = JSONObject().apply { put("note", "Some note") }
+        val args = buildJsonObject { put("note", "Some note") }
         val result = AddBookmarkNoteTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("bookmarkId"))
@@ -129,7 +132,7 @@ class WriteToolsTest {
 
     @Test
     fun addBookmarkNote_missingNote() = runBlocking {
-        val args = JSONObject().apply { put("bookmarkId", IdType().toString()) }
+        val args = buildJsonObject { put("bookmarkId", IdType().toString()) }
         val result = AddBookmarkNoteTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("note"))
@@ -137,7 +140,7 @@ class WriteToolsTest {
 
     @Test
     fun addBookmarkNote_emptyBookmarkId() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", "")
             put("note", "Some note")
         }
@@ -147,7 +150,7 @@ class WriteToolsTest {
 
     @Test
     fun addBookmarkNote_emptyNote() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", IdType().toString())
             put("note", "")
         }
@@ -163,7 +166,7 @@ class WriteToolsTest {
     @Test
     fun addBookmarkNote_formatArgsForLog() {
         val id = IdType().toString()
-        val args = JSONObject().apply { put("bookmarkId", id) }
+        val args = buildJsonObject { put("bookmarkId", id) }
         val result = AddBookmarkNoteTool.formatArgsForLog(args)
         assertNotNull(result)
         assertEquals(shortId(id), result)
@@ -173,7 +176,7 @@ class WriteToolsTest {
 
     @Test
     fun updateBookmarkNote_missingBookmarkId() = runBlocking {
-        val args = JSONObject().apply { put("note", "Updated note") }
+        val args = buildJsonObject { put("note", "Updated note") }
         val result = UpdateBookmarkNoteTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("bookmarkId"))
@@ -181,7 +184,7 @@ class WriteToolsTest {
 
     @Test
     fun updateBookmarkNote_missingNote() = runBlocking {
-        val args = JSONObject().apply { put("bookmarkId", IdType().toString()) }
+        val args = buildJsonObject { put("bookmarkId", IdType().toString()) }
         val result = UpdateBookmarkNoteTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("note"))
@@ -189,7 +192,7 @@ class WriteToolsTest {
 
     @Test
     fun updateBookmarkNote_emptyNote() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", IdType().toString())
             put("note", "")
         }
@@ -205,7 +208,7 @@ class WriteToolsTest {
     @Test
     fun updateBookmarkNote_formatArgsForLog() {
         val id = IdType().toString()
-        val args = JSONObject().apply { put("bookmarkId", id) }
+        val args = buildJsonObject { put("bookmarkId", id) }
         assertEquals(shortId(id), UpdateBookmarkNoteTool.formatArgsForLog(args))
     }
 
@@ -213,7 +216,7 @@ class WriteToolsTest {
 
     @Test
     fun createLabel_missingName() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = CreateLabelTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("name"))
@@ -221,7 +224,7 @@ class WriteToolsTest {
 
     @Test
     fun createLabel_emptyName() = runBlocking {
-        val args = JSONObject().apply { put("name", "") }
+        val args = buildJsonObject { put("name", "") }
         val result = CreateLabelTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
@@ -233,13 +236,13 @@ class WriteToolsTest {
 
     @Test
     fun createLabel_formatArgsForLog() {
-        val args = JSONObject().apply { put("name", "My Label") }
+        val args = buildJsonObject { put("name", "My Label") }
         assertEquals("\"My Label\"", CreateLabelTool.formatArgsForLog(args))
     }
 
     @Test
     fun createLabel_formatArgsForLog_empty() {
-        assertNull(CreateLabelTool.formatArgsForLog(JSONObject()))
+        assertNull(CreateLabelTool.formatArgsForLog(buildJsonObject {}))
     }
 
     @Test
@@ -252,7 +255,7 @@ class WriteToolsTest {
 
     @Test
     fun addLabelToBookmark_missingBookmarkId() = runBlocking {
-        val args = JSONObject().apply { put("labelId", IdType().toString()) }
+        val args = buildJsonObject { put("labelId", IdType().toString()) }
         val result = AddLabelToBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("bookmarkId"))
@@ -260,7 +263,7 @@ class WriteToolsTest {
 
     @Test
     fun addLabelToBookmark_missingLabelId() = runBlocking {
-        val args = JSONObject().apply { put("bookmarkId", IdType().toString()) }
+        val args = buildJsonObject { put("bookmarkId", IdType().toString()) }
         val result = AddLabelToBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("labelId"))
@@ -268,7 +271,7 @@ class WriteToolsTest {
 
     @Test
     fun addLabelToBookmark_bothEmpty() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", "")
             put("labelId", "")
         }
@@ -285,7 +288,7 @@ class WriteToolsTest {
     fun addLabelToBookmark_formatArgsForLog() {
         val bId = IdType().toString()
         val lId = IdType().toString()
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", bId)
             put("labelId", lId)
         }
@@ -297,14 +300,14 @@ class WriteToolsTest {
 
     @Test
     fun addLabelToBookmark_formatArgsForLog_missingField() {
-        assertNull(AddLabelToBookmarkTool.formatArgsForLog(JSONObject().apply { put("bookmarkId", IdType().toString()) }))
+        assertNull(AddLabelToBookmarkTool.formatArgsForLog(buildJsonObject { put("bookmarkId", IdType().toString()) }))
     }
 
     // === AddStudyPadEntryTool ===
 
     @Test
     fun addStudyPadEntry_missingLabelId() = runBlocking {
-        val args = JSONObject().apply { put("text", "Some text") }
+        val args = buildJsonObject { put("text", "Some text") }
         val result = AddStudyPadEntryTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("labelId"))
@@ -312,7 +315,7 @@ class WriteToolsTest {
 
     @Test
     fun addStudyPadEntry_missingText() = runBlocking {
-        val args = JSONObject().apply { put("labelId", IdType().toString()) }
+        val args = buildJsonObject { put("labelId", IdType().toString()) }
         val result = AddStudyPadEntryTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("text"))
@@ -320,7 +323,7 @@ class WriteToolsTest {
 
     @Test
     fun addStudyPadEntry_emptyText() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("labelId", IdType().toString())
             put("text", "")
         }
@@ -336,7 +339,7 @@ class WriteToolsTest {
     @Test
     fun addStudyPadEntry_formatArgsForLog() {
         val id = IdType().toString()
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("labelId", id)
             put("contentType", "HTML")
         }
@@ -349,7 +352,7 @@ class WriteToolsTest {
 
     @Test
     fun finishWithStudyPad_missingLabelId() = runBlocking {
-        val args = JSONObject().apply { put("message", "Done") }
+        val args = buildJsonObject { put("message", "Done") }
         val result = FinishWithStudyPadTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertEquals("MISSING_LABEL_ID", (result as ToolResult.Error).code)
@@ -357,7 +360,7 @@ class WriteToolsTest {
 
     @Test
     fun finishWithStudyPad_emptyLabelId() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("labelId", "")
             put("message", "Done")
         }
@@ -368,7 +371,7 @@ class WriteToolsTest {
 
     @Test
     fun finishWithStudyPad_invalidLabelIdFormat() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("labelId", "not-a-valid-uuid")
             put("message", "Done")
         }
@@ -379,7 +382,7 @@ class WriteToolsTest {
 
     @Test
     fun finishWithStudyPad_nonExistentLabel() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("labelId", IdType().toString())
             put("message", "Done")
         }
@@ -391,20 +394,20 @@ class WriteToolsTest {
     @Test
     fun finishWithStudyPad_formatArgsForLog() {
         val id = IdType().toString()
-        val args = JSONObject().apply { put("labelId", id) }
+        val args = buildJsonObject { put("labelId", id) }
         assertEquals(shortId(id), FinishWithStudyPadTool.formatArgsForLog(args))
     }
 
     @Test
     fun finishWithStudyPad_formatArgsForLog_empty() {
-        assertNull(FinishWithStudyPadTool.formatArgsForLog(JSONObject()))
+        assertNull(FinishWithStudyPadTool.formatArgsForLog(buildJsonObject {}))
     }
 
     // === DeleteBookmarkTool ===
 
     @Test
     fun deleteBookmark_missingBookmarkId() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = DeleteBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("bookmarkId"))
@@ -412,14 +415,14 @@ class WriteToolsTest {
 
     @Test
     fun deleteBookmark_emptyBookmarkId() = runBlocking {
-        val args = JSONObject().apply { put("bookmarkId", "") }
+        val args = buildJsonObject { put("bookmarkId", "") }
         val result = DeleteBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
 
     @Test
     fun deleteBookmark_nonExistentBookmark() = runBlocking {
-        val args = JSONObject().apply { put("bookmarkId", IdType().toString()) }
+        val args = buildJsonObject { put("bookmarkId", IdType().toString()) }
         val result = DeleteBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertEquals("BOOKMARK_NOT_FOUND", (result as ToolResult.Error).code)
@@ -433,20 +436,20 @@ class WriteToolsTest {
     @Test
     fun deleteBookmark_formatArgsForLog() {
         val id = IdType().toString()
-        val args = JSONObject().apply { put("bookmarkId", id) }
+        val args = buildJsonObject { put("bookmarkId", id) }
         assertEquals(shortId(id), DeleteBookmarkTool.formatArgsForLog(args))
     }
 
     @Test
     fun deleteBookmark_formatArgsForLog_empty() {
-        assertNull(DeleteBookmarkTool.formatArgsForLog(JSONObject()))
+        assertNull(DeleteBookmarkTool.formatArgsForLog(buildJsonObject {}))
     }
 
     // === DeleteLabelTool ===
 
     @Test
     fun deleteLabel_missingLabelId() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = DeleteLabelTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("labelId"))
@@ -454,14 +457,14 @@ class WriteToolsTest {
 
     @Test
     fun deleteLabel_emptyLabelId() = runBlocking {
-        val args = JSONObject().apply { put("labelId", "") }
+        val args = buildJsonObject { put("labelId", "") }
         val result = DeleteLabelTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
 
     @Test
     fun deleteLabel_nonExistentLabel() = runBlocking {
-        val args = JSONObject().apply { put("labelId", IdType().toString()) }
+        val args = buildJsonObject { put("labelId", IdType().toString()) }
         val result = DeleteLabelTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertEquals("LABEL_NOT_FOUND", (result as ToolResult.Error).code)
@@ -475,20 +478,20 @@ class WriteToolsTest {
     @Test
     fun deleteLabel_formatArgsForLog() {
         val id = IdType().toString()
-        val args = JSONObject().apply { put("labelId", id) }
+        val args = buildJsonObject { put("labelId", id) }
         assertEquals(shortId(id), DeleteLabelTool.formatArgsForLog(args))
     }
 
     @Test
     fun deleteLabel_formatArgsForLog_empty() {
-        assertNull(DeleteLabelTool.formatArgsForLog(JSONObject()))
+        assertNull(DeleteLabelTool.formatArgsForLog(buildJsonObject {}))
     }
 
     // === RemoveLabelFromBookmarkTool ===
 
     @Test
     fun removeLabelFromBookmark_missingBookmarkId() = runBlocking {
-        val args = JSONObject().apply { put("labelId", IdType().toString()) }
+        val args = buildJsonObject { put("labelId", IdType().toString()) }
         val result = RemoveLabelFromBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("bookmarkId"))
@@ -496,7 +499,7 @@ class WriteToolsTest {
 
     @Test
     fun removeLabelFromBookmark_missingLabelId() = runBlocking {
-        val args = JSONObject().apply { put("bookmarkId", IdType().toString()) }
+        val args = buildJsonObject { put("bookmarkId", IdType().toString()) }
         val result = RemoveLabelFromBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("labelId"))
@@ -504,7 +507,7 @@ class WriteToolsTest {
 
     @Test
     fun removeLabelFromBookmark_bothEmpty() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", "")
             put("labelId", "")
         }
@@ -521,7 +524,7 @@ class WriteToolsTest {
     fun removeLabelFromBookmark_formatArgsForLog() {
         val bId = IdType().toString()
         val lId = IdType().toString()
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("bookmarkId", bId)
             put("labelId", lId)
         }
@@ -533,6 +536,6 @@ class WriteToolsTest {
 
     @Test
     fun removeLabelFromBookmark_formatArgsForLog_missingField() {
-        assertNull(RemoveLabelFromBookmarkTool.formatArgsForLog(JSONObject().apply { put("bookmarkId", IdType().toString()) }))
+        assertNull(RemoveLabelFromBookmarkTool.formatArgsForLog(buildJsonObject { put("bookmarkId", IdType().toString()) }))
     }
 }

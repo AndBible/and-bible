@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.*
+import net.bible.service.llm.tools.*
+
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -56,7 +59,7 @@ class ReadToolsTest {
 
     @Test
     fun getVerseContent_missingBook() = runBlocking {
-        val args = JSONObject().apply { put("verseRef", "Gen.1.1") }
+        val args = buildJsonObject { put("verseRef", "Gen.1.1") }
         val result = GetVerseContentTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("book"))
@@ -64,7 +67,7 @@ class ReadToolsTest {
 
     @Test
     fun getVerseContent_missingVerseRef() = runBlocking {
-        val args = JSONObject().apply { put("book", "KJV") }
+        val args = buildJsonObject { put("book", "KJV") }
         val result = GetVerseContentTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("verseRef"))
@@ -72,7 +75,7 @@ class ReadToolsTest {
 
     @Test
     fun getVerseContent_emptyBook() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("book", "")
             put("verseRef", "Gen.1.1")
         }
@@ -82,7 +85,7 @@ class ReadToolsTest {
 
     @Test
     fun getVerseContent_unknownBook() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("book", "NONEXISTENT_BOOK_XYZ")
             put("verseRef", "Gen.1.1")
         }
@@ -93,7 +96,7 @@ class ReadToolsTest {
 
     @Test
     fun getVerseContent_formatArgsForLog() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("book", "KJV")
             put("verseRef", "Matt.5.3")
         }
@@ -104,7 +107,7 @@ class ReadToolsTest {
 
     @Test
     fun getVerseContent_formatArgsForLog_empty() {
-        assertNull(GetVerseContentTool.formatArgsForLog(JSONObject()))
+        assertNull(GetVerseContentTool.formatArgsForLog(buildJsonObject {}))
     }
 
     @Test
@@ -128,7 +131,7 @@ class ReadToolsTest {
 
     @Test
     fun searchBible_missingQuery() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = SearchBibleTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("query"))
@@ -136,14 +139,14 @@ class ReadToolsTest {
 
     @Test
     fun searchBible_emptyQuery() = runBlocking {
-        val args = JSONObject().apply { put("query", "") }
+        val args = buildJsonObject { put("query", "") }
         val result = SearchBibleTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
 
     @Test
     fun searchBible_formatArgsForLog_queryOnly() {
-        val args = JSONObject().apply { put("query", "love") }
+        val args = buildJsonObject { put("query", "love") }
         val result = SearchBibleTool.formatArgsForLog(args)
         assertNotNull(result)
         assertTrue(result!!.contains("\"love\""))
@@ -152,9 +155,9 @@ class ReadToolsTest {
 
     @Test
     fun searchBible_formatArgsForLog_withBooks() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("query", "love")
-            put("books", JSONArray().apply { put("KJV") })
+            put("books", buildJsonArray { add("KJV") })
             put("maxResults", 10)
         }
         val result = SearchBibleTool.formatArgsForLog(args)
@@ -165,7 +168,7 @@ class ReadToolsTest {
 
     @Test
     fun searchBible_formatArgsForLog_withOffset() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("query", "love")
             put("offset", 100)
             put("maxResults", 25)
@@ -178,7 +181,7 @@ class ReadToolsTest {
 
     @Test
     fun searchBible_formatArgsForLog_zeroOffsetNotShown() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("query", "love")
             put("offset", 0)
         }
@@ -189,7 +192,7 @@ class ReadToolsTest {
 
     @Test
     fun searchBible_formatArgsForLog_empty() {
-        assertNull(SearchBibleTool.formatArgsForLog(JSONObject()))
+        assertNull(SearchBibleTool.formatArgsForLog(buildJsonObject {}))
     }
 
     @Test
@@ -209,9 +212,9 @@ class ReadToolsTest {
 
     @Test
     fun searchBible_explicitNonExistentBook_returnsNotIndexedError() = runBlocking {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("query", "love")
-            put("books", JSONArray().apply { put("NONEXISTENT_BOOK") })
+            put("books", buildJsonArray { add("NONEXISTENT_BOOK") })
         }
         val result = SearchBibleTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
@@ -223,7 +226,7 @@ class ReadToolsTest {
 
     @Test
     fun getCommentaries_missingVerseRef() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = GetCommentariesTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("verseRef"))
@@ -231,14 +234,14 @@ class ReadToolsTest {
 
     @Test
     fun getCommentaries_emptyVerseRef() = runBlocking {
-        val args = JSONObject().apply { put("verseRef", "") }
+        val args = buildJsonObject { put("verseRef", "") }
         val result = GetCommentariesTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
 
     @Test
     fun getCommentaries_formatArgsForLog() {
-        val args = JSONObject().apply { put("verseRef", "Matt.5.3") }
+        val args = buildJsonObject { put("verseRef", "Matt.5.3") }
         assertNotNull(GetCommentariesTool.formatArgsForLog(args))
     }
 
@@ -260,7 +263,7 @@ class ReadToolsTest {
 
     @Test
     fun getDictionaryEntry_missingDictionary() = runBlocking {
-        val args = JSONObject().apply { put("key", "H430") }
+        val args = buildJsonObject { put("key", "H430") }
         val result = GetDictionaryEntryTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("dictionary"))
@@ -268,7 +271,7 @@ class ReadToolsTest {
 
     @Test
     fun getDictionaryEntry_missingKey() = runBlocking {
-        val args = JSONObject().apply { put("dictionary", "StrongsHebrew") }
+        val args = buildJsonObject { put("dictionary", "StrongsHebrew") }
         val result = GetDictionaryEntryTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("key"))
@@ -276,7 +279,7 @@ class ReadToolsTest {
 
     @Test
     fun getDictionaryEntry_formatArgsForLog() {
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("dictionary", "StrongsHebrew")
             put("key", "H430")
         }
@@ -291,14 +294,14 @@ class ReadToolsTest {
 
     @Test
     fun getDictionaryEntry_formatArgsForLog_missingField() {
-        assertNull(GetDictionaryEntryTool.formatArgsForLog(JSONObject().apply { put("dictionary", "StrongsHebrew") }))
+        assertNull(GetDictionaryEntryTool.formatArgsForLog(buildJsonObject { put("dictionary", "StrongsHebrew") }))
     }
 
     // === GetBookmarksForVerseTool ===
 
     @Test
     fun getBookmarksForVerse_missingVerseRef() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = GetBookmarksForVerseTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("verseRef"))
@@ -306,7 +309,7 @@ class ReadToolsTest {
 
     @Test
     fun getBookmarksForVerse_formatArgsForLog() {
-        val args = JSONObject().apply { put("verseRef", "Rom.8.28") }
+        val args = buildJsonObject { put("verseRef", "Rom.8.28") }
         assertNotNull(GetBookmarksForVerseTool.formatArgsForLog(args))
     }
 
@@ -322,7 +325,7 @@ class ReadToolsTest {
 
     @Test
     fun getBookmarksWithLabel_missingLabelId() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = GetBookmarksWithLabelTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("labelId"))
@@ -330,7 +333,7 @@ class ReadToolsTest {
 
     @Test
     fun getBookmarksWithLabel_emptyLabelId() = runBlocking {
-        val args = JSONObject().apply { put("labelId", "") }
+        val args = buildJsonObject { put("labelId", "") }
         val result = GetBookmarksWithLabelTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
@@ -338,7 +341,7 @@ class ReadToolsTest {
     @Test
     fun getBookmarksWithLabel_formatArgsForLog() {
         val id = IdType().toString()
-        val args = JSONObject().apply { put("labelId", id) }
+        val args = buildJsonObject { put("labelId", id) }
         val result = GetBookmarksWithLabelTool.formatArgsForLog(args)
         assertNotNull(result)
         assertTrue(result!!.length <= 12) // shortId(8) + "..."
@@ -374,7 +377,7 @@ class ReadToolsTest {
 
     @Test
     fun getStudyPadContent_missingLabelId() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = GetStudyPadContentTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("labelId"))
@@ -382,7 +385,7 @@ class ReadToolsTest {
 
     @Test
     fun getStudyPadContent_emptyLabelId() = runBlocking {
-        val args = JSONObject().apply { put("labelId", "") }
+        val args = buildJsonObject { put("labelId", "") }
         val result = GetStudyPadContentTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
@@ -390,7 +393,7 @@ class ReadToolsTest {
     @Test
     fun getStudyPadContent_formatArgsForLog() {
         val id = IdType().toString()
-        val args = JSONObject().apply {
+        val args = buildJsonObject {
             put("labelId", id)
             put("mode", "index")
         }
@@ -402,7 +405,7 @@ class ReadToolsTest {
     @Test
     fun getStudyPadContent_formatArgsForLog_defaultMode() {
         val id = IdType().toString()
-        val args = JSONObject().apply { put("labelId", id) }
+        val args = buildJsonObject { put("labelId", id) }
         val result = GetStudyPadContentTool.formatArgsForLog(args)
         assertNotNull(result)
         assertTrue(result!!.contains("full"))
@@ -412,7 +415,7 @@ class ReadToolsTest {
 
     @Test
     fun searchStudyPads_missingQuery() = runBlocking {
-        val args = JSONObject()
+        val args = buildJsonObject {}
         val result = SearchStudyPadsTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertTrue((result as ToolResult.Error).message.contains("query"))
@@ -420,14 +423,14 @@ class ReadToolsTest {
 
     @Test
     fun searchStudyPads_emptyQuery() = runBlocking {
-        val args = JSONObject().apply { put("query", "") }
+        val args = buildJsonObject { put("query", "") }
         val result = SearchStudyPadsTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
     }
 
     @Test
     fun searchStudyPads_formatArgsForLog() {
-        val args = JSONObject().apply { put("query", "faith") }
+        val args = buildJsonObject { put("query", "faith") }
         assertEquals("\"faith\"", SearchStudyPadsTool.formatArgsForLog(args))
     }
 
@@ -441,7 +444,7 @@ class ReadToolsTest {
 
     @Test
     fun getInstalledDocuments_invalidCategory() = runBlocking {
-        val args = JSONObject().apply { put("category", "INVALID_CAT") }
+        val args = buildJsonObject { put("category", "INVALID_CAT") }
         val result = GetInstalledDocumentsTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
         assertEquals("INVALID_CATEGORY", (result as ToolResult.Error).code)
@@ -449,13 +452,13 @@ class ReadToolsTest {
 
     @Test
     fun getInstalledDocuments_formatArgsForLog_withCategory() {
-        val args = JSONObject().apply { put("category", "BIBLE") }
+        val args = buildJsonObject { put("category", "BIBLE") }
         assertEquals("BIBLE", GetInstalledDocumentsTool.formatArgsForLog(args))
     }
 
     @Test
     fun getInstalledDocuments_formatArgsForLog_noCategory() {
-        assertNull(GetInstalledDocumentsTool.formatArgsForLog(JSONObject()))
+        assertNull(GetInstalledDocumentsTool.formatArgsForLog(buildJsonObject {}))
     }
 
     @Test

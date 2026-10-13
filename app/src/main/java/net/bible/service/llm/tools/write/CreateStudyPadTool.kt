@@ -17,9 +17,10 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import org.koin.core.context.GlobalContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
@@ -44,7 +45,8 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for creating a complete StudyPad in a single call.
@@ -53,7 +55,8 @@ import org.json.JSONObject
  * and Bible bookmark references, allowing the LLM to build a structured
  * study document in one operation.
  */
-object CreateStudyPadTool : Tool {
+object CreateStudyPadTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     enum class ItemType {
         @SerialName("text") TEXT,
@@ -141,21 +144,20 @@ object CreateStudyPadTool : Tool {
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_create_study_pad
 
     private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
-        val items = arguments.optJSONArray("items")
-        val count = items?.length() ?: 0
-        return BibleApplication.application.getString(R.string.action_create_studypad, name, count)
+        val items = arguments.optArray("items")
+        val count = items?.size ?: 0
+        return strings.actionCreateStudypad(name, count)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
-        val items = arguments.optJSONArray("items")
-        val count = items?.length() ?: 0
+        val items = arguments.optArray("items")
+        val count = items?.size ?: 0
         return "\"$name\" ($count items)"
     }
 
@@ -169,7 +171,7 @@ object CreateStudyPadTool : Tool {
         return parts.joinToString(", ")
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {

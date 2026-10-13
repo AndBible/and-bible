@@ -17,8 +17,9 @@
 
 package net.bible.service.llm.tools.write
 
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.service.llm.LlmStrings
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -28,7 +29,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import net.bible.service.llm.tools.*
 
 /**
  * Tool for finishing the agent execution without creating an AI document.
@@ -37,7 +39,8 @@ import org.json.JSONObject
  * for example after creating a bookmark or performing an action that doesn't
  * require a written response.
  */
-object FinishWithoutDocumentTool : Tool {
+object FinishWithoutDocumentTool : Tool, KoinComponent {
+    private val strings: LlmStrings by inject()
     @Serializable
     data class Args(val message: String = "")
 
@@ -50,7 +53,6 @@ object FinishWithoutDocumentTool : Tool {
 
     override val agentTool = AgentTool.FINISH_WITHOUT_DOCUMENT
     override val category = ToolCategory.WINDOWS
-    override val displayNameResId = R.string.tool_finish_without_document
 
     override val description = """
         Finish the current task without creating an AI document.
@@ -75,24 +77,24 @@ object FinishWithoutDocumentTool : Tool {
     /** Marker to indicate this tool was called - checked by AgentExecutor */
     const val FINISH_WITHOUT_DOCUMENT_MARKER = "__FINISH_WITHOUT_DOCUMENT__"
 
-    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+    override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val message = arguments.optString("message", "").takeIf { it.isNotBlank() } ?: return null
         val truncated = if (message.length > 60) "${message.take(60)}..." else message
-        return BibleApplication.application.getString(R.string.action_finish, truncated)
+        return strings.actionFinish(truncated)
     }
 
-    override fun formatArgsForLog(arguments: JSONObject): String? {
+    override fun formatArgsForLog(arguments: JsonObject): String? {
         val message = arguments.optString("message", "").takeIf { it.isNotBlank() } ?: return null
         return if (message.length > 60) "\"${message.take(60)}...\"" else "\"$message\""
     }
 
-    override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
+    override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
         } catch (e: Exception) {
             return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
         }
-        val message = args.message.ifBlank { BibleApplication.application.getString(R.string.llm_default_task_completed) }
+        val message = args.message.ifBlank { strings.llmDefaultTaskCompleted }
 
         return typedSuccess(Result(finished = true, message = message, marker = FINISH_WITHOUT_DOCUMENT_MARKER))
     }

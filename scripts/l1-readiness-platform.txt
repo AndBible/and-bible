@@ -15,3 +15,4 @@ service/sword/SwordEnvironmentInitialisation.kt	Android process bootstrap: stora
 android/control/page/PageTiltScrollControl.kt	Android sensor host: SensorManager, Display rotation, WindowManager; iOS has its own motion source
 android/control/search/SearchHighlighter.kt	Android Spanned/StyleSpan text styling behind SearchTextHighlighter
 android/control/event/phonecall/PhoneCallMonitor.kt	Android TelephonyManager/PhoneStateListener host
+service/llm/agent/AgentForegroundService.kt	Android foreground service host for agent runs (notification, wakelock, Intent); run logic is in AgentSessionManager
