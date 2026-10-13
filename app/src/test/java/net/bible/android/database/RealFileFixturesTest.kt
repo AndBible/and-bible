@@ -17,7 +17,7 @@
 
 package net.bible.android.database
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -49,7 +49,16 @@ class RealFileFixturesTest {
     @Before fun before() = DatabaseContainer.reset()
     @After fun after() = DatabaseContainer.reset()
 
-    private fun install(name: String) {
+    private fun replaceFixture(write: suspend () -> Unit) = runBlocking {
+        DatabaseContainer.aiLifetime.replace { token ->
+            DatabaseContainer.resetOwned(token)
+            write()
+        }
+    }
+
+    private fun install(name: String) = replaceFixture { copyFixture(name) }
+
+    private fun copyFixture(name: String) {
         val src = File("src/test/resources/db-fixtures/requery-2026-10/$name")
         assertTrue("missing fixture ${src.absolutePath}", src.isFile)
         src.copyTo(application.getDatabasePath(name).also { it.parentFile!!.mkdirs() }, overwrite = true)
@@ -168,6 +177,46 @@ class RealFileFixturesTest {
         return runCatching { runBlocking { bookmarkDb.bookmarkDao().allBookmarks() }.size }
     }
 
+    /** Existing-admission ownership regression, not an exact AiSettingsStore observer replay. */
+    @Test fun fixtureCopyOwnsReplacementUntilSupplierCanReadRealRows() {
+        val lifetime = DatabaseContainer.aiLifetime
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        var attempt: Deferred<Int>? = null
+        var primary: Throwable? = null
+        var supplierEntered = false
+        try {
+            replaceFixture {
+                val token = lifetime.javaClass.getDeclaredField("active").apply { isAccessible = true }
+                    .get(lifetime) as? net.bible.service.llm.AiDatabaseLifetime.Replacement
+                assertNotNull("INVARIANT fixture write must own active replacement", token)
+                lifetime.requireOwner(checkNotNull(token))
+                attempt = scope.async(start = CoroutineStart.UNDISPATCHED) {
+                    lifetime.use {
+                        supplierEntered = true
+                        DatabaseContainer.instance.bookmarkDb.bookmarkDao().allBookmarks().size
+                    }
+                }
+                assertFalse("Undispatched supplier must suspend before DAO/native work", supplierEntered)
+                assertFalse(checkNotNull(attempt).isCompleted)
+                copyFixture(BookmarkDatabase.dbFileName)
+            }
+            assertEquals(3, runBlocking { withTimeout(5_000) { checkNotNull(attempt).await() } })
+            assertTrue(supplierEntered)
+            assertTrue(checkNotNull(attempt).isCompleted)
+        } catch (failure: Throwable) {
+            primary = failure
+        } finally {
+            // Replacement admission has exited even on assertion failure; join its exact attempt.
+            try { runBlocking { withTimeout(5_000) { attempt?.join() } } }
+            catch (failure: Throwable) {
+                val first = primary
+                if (first == null) primary = failure else if (first !== failure) first.addSuppressed(failure)
+            }
+            scope.cancel()
+        }
+        primary?.let { throw it }
+    }
+
     /**
      * A corrupt file must neither crash every start nor be lost: the container moves it aside to
      * `<name>.corrupt-<timestamp>` (bytes intact) and Room recreates the database empty (D1 Task 17 fix round 1;
@@ -178,11 +227,9 @@ class RealFileFixturesTest {
         // cannot pass vacuously (e.g. a broken open path that always yields 0).
         install(BookmarkDatabase.dbFileName)
         assertEquals(3, openBookmarkCount().getOrThrow())
-        DatabaseContainer.reset()
-
         val file = application.getDatabasePath(BookmarkDatabase.dbFileName)
         val garbage = ByteArray(4096) { 7 }
-        file.writeBytes(garbage)
+        replaceFixture { file.writeBytes(garbage) }
         assertEquals("a corrupt file is recreated empty", 0, openBookmarkCount().getOrThrow())
 
         val aside = file.parentFile!!.listFiles()!!.filter { Regex(Regex.escape(file.name) + "\\.corrupt-[0-9-]+").matches(it.name) }
