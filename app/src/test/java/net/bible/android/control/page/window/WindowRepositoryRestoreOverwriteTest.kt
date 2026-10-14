@@ -36,6 +36,7 @@ class WindowRepositoryRestoreOverwriteTest {
         repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
     }
 
     @After fun tearDown() {
@@ -55,6 +56,7 @@ class WindowRepositoryRestoreOverwriteTest {
         restoreWorkspaceNamed("C")
         repo.name = "B" // pre-restore in-memory state, not yet reloaded
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
         assertEquals("C", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
@@ -63,6 +65,7 @@ class WindowRepositoryRestoreOverwriteTest {
             repo.name = "B"
             repo.saveIntoDb(false)
         }
+        repo.persistence.awaitPersisted() // ordered write-through since L1a.8; the frozen save must not land
         assertEquals("A", dao.workspace(repo.id)!!.name)
     }
 
@@ -71,6 +74,7 @@ class WindowRepositoryRestoreOverwriteTest {
         kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         repo.name = "D"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
         assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 

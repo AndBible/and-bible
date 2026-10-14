@@ -54,6 +54,7 @@ class OldMonolithicRestoreRollbackTest {
         repo.initializeAtEdge()
         repo.name = "Before restore"
         repo.saveIntoDb(false)
+        runBlocking { repo.persistence.awaitPersisted() } // the save is an ordered write-through since L1a.8
         DatabaseContainer.reset() // close + flush, so the files can be fingerprinted
     }
 

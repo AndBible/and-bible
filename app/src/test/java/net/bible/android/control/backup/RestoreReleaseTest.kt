@@ -38,6 +38,7 @@ class RestoreReleaseTest {
         repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
     }
 
     @After fun tearDown() {
@@ -92,6 +93,7 @@ class RestoreReleaseTest {
         runCatching { runBlocking { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
         kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) } // what databaseRestored triggers on the host
         repo.name = "D"; repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
         assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 }

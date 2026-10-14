@@ -511,6 +511,7 @@ class MyDocumentBookManagerTest {
             val oldKey = window.pageManager.currentPage.singleKey!!.getOsisRef()
             assertEquals("Gen.1.1", oldKey)
             activity.hostWindowRepository.saveIntoDb(false)
+            kotlinx.coroutines.runBlocking { activity.hostWindowRepository.persistence.awaitPersisted() } // ordered write-through since L1a.8
             val owner = net.bible.android.control.page.window.WindowRepository(syncScope)
             currentWindowControl.windowRepository = owner
             assertTrue(currentWindowControl.windowRepository !== activity.hostWindowRepository)

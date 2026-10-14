@@ -43,6 +43,7 @@ class CloudSyncInitialSwapTest {
         repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
     }
 
     @After fun tearDown() {
@@ -65,6 +66,7 @@ class CloudSyncInitialSwapTest {
         runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloaded) { } }
         repo.name = "B" // pre-download in-memory state, not yet reloaded
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
         assertEquals("C", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
@@ -73,6 +75,7 @@ class CloudSyncInitialSwapTest {
         kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         repo.name = "D"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
         assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
