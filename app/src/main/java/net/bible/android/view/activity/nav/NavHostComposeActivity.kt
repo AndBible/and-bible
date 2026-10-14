@@ -4684,9 +4684,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 return all.assignableLabelItems()
             }
         }
-        val highlightId = (windowControl.activeWindowPageManager.currentPage.key as? StudyPadKey)
-            ?.takeIf { parsed.mode == ManageLabelsContract.Mode.STUDYPAD }
-            ?.label?.id?.toString()
+        // Only STUDYPAD reads the active window: other modes are opened from hosts whose window repository may not
+        // be initialised (e.g. a host started on backup), where activeWindow throws.
+        val highlightId = if (parsed.mode == ManageLabelsContract.Mode.STUDYPAD) {
+            (windowControl.activeWindowPageManager.currentPage.key as? StudyPadKey)?.label?.id?.toString()
+        } else null
         session.controller = ManageLabelsController(
             mode = ManageLabelsMapper.toMode(parsed.mode),
             service = sessionService,

@@ -301,6 +301,41 @@ class BookmarksManageLabelsCollectorTest {
     }
 
     /**
+     * A WORKSPACE-mode label manager has no business with the active window. It read it anyway (for a
+     * STUDYPAD-only highlight), so composing it while the window repository could not answer
+     * `activeWindow` (here: mid-load, the state behind this class's order-dependent full-suite failures)
+     * threw in composition: the collector never ran and the answer stayed pending.
+     */
+    @Test
+    fun aWorkspaceAnswerIsAppliedWhileTheWindowRepositoryCannotNameAnActiveWindow() {
+        val activity = host()
+        idle()
+        val windowControl: net.bible.android.control.page.window.WindowControl = GlobalContext.get().get()
+        val previous = windowControl.windowRepository
+        val midLoad = net.bible.android.control.page.window.WindowRepository(
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        )
+        net.bible.android.control.page.window.WindowRepository::class.java.getDeclaredField("loadingFromDb")
+            .apply { isAccessible = true }.setBoolean(midLoad, true)
+        windowControl.windowRepository = midLoad
+        try {
+            seedBookmarksSession(activity)
+            setAwaiting(bookmarksSession(activity), true)
+            val marker = IdType()
+            val payload = ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.WORKSPACE,
+                autoAssignLabels = mutableSetOf(marker),
+            ).toJSON()
+            deliverAsTheLabelManagerWould(activity, ManageLabelsResult(payload))
+
+            assertEquals("the claimed answer must leave the channel", null, channel(activity).pending.value)
+            assertEquals(setOf(marker), midLoad.workspaceSettings.autoAssignLabels)
+        } finally {
+            windowControl.windowRepository = previous
+        }
+    }
+
+    /**
      * The other half of the ruling: an answer nobody asked for stays in the channel, for whoever did,
      * and writes nothing. This is what keeps
      * `aLabelAnswerTheBookmarkListDidNotAskForIsLeftInTheChannel` true once the graph arm no longer
