@@ -53,6 +53,13 @@ import org.crosswire.jsword.passage.VerseKey
 open class WindowControl constructor() {
     private var _windowRepository: WindowRepository? = null
 
+    /**
+     * Read-only peek at the repository currently held, without creating one (unlike [windowRepository]'s
+     * lazy getter). Lets the test database reset own the scope `Window.loadText` launches into.
+     */
+    @VisibleForTesting
+    internal val currentWindowRepositoryOrNull: WindowRepository? get() = _windowRepository
+
     open var windowRepository: WindowRepository
         get() = _windowRepository ?: WindowRepository(CoroutineScope(Dispatchers.Main)) .apply { _windowRepository = this }
         set(value) {

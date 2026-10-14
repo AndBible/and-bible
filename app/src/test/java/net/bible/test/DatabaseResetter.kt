@@ -89,7 +89,8 @@ object DatabaseResetter {
             // Cancel producers, then wait for their finally blocks and late submissions before draining.
             val appScope = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
             val appJob = appScope?.coroutineContext?.get(kotlinx.coroutines.Job)
-            val jobs = (hostJobs + scopes_.mapNotNull { it.coroutineContext[kotlinx.coroutines.Job] } +
+            val windowRepoJob = currentWindowRepositoryJob(koin)
+            val jobs = (hostJobs + listOfNotNull(windowRepoJob) + scopes_.mapNotNull { it.coroutineContext[kotlinx.coroutines.Job] } +
                 (appJob?.children?.toList() ?: emptyList())).distinct()
             checkpoint("cancel-producers", "appContext=${appScope?.coroutineContext} explicitContexts=${scopes_.map { it.coroutineContext }} jobs=${jobs.joinToString { jobState(it) }}")
             jobs.forEach { it.cancel() }
@@ -117,6 +118,21 @@ object DatabaseResetter {
         }
         DatabaseContainer.forgetReplacesForTest()
         //resetSingleton(DatabaseContainer::class.java, "instance")
+    }
+
+    /**
+     * Job of the repository held by an already-created Koin [WindowControl], whose scope
+     * `Window.loadText` launches into. Never creates the singleton or a repository.
+     */
+    @OptIn(org.koin.core.annotation.KoinInternalApi::class)
+    private fun currentWindowRepositoryJob(koin: org.koin.core.Koin?): kotlinx.coroutines.Job? {
+        val factory = koin?.instanceRegistry?.instances?.values?.firstOrNull {
+            it.beanDefinition.primaryType == net.bible.android.control.page.window.WindowControl::class
+        } ?: return null
+        val context = org.koin.core.instance.ResolutionContext(koin.logger, koin.scopeRegistry.rootScope, net.bible.android.control.page.window.WindowControl::class)
+        if (!factory.isCreated(context)) return null
+        val control = factory.get(context) as net.bible.android.control.page.window.WindowControl
+        return control.currentWindowRepositoryOrNull?.scope?.coroutineContext?.get(kotlinx.coroutines.Job)
     }
 
     /** Drive one Main task at a time; idle() can loop forever with a Compose popup open. */
