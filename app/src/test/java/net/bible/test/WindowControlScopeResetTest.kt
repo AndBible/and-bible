@@ -83,4 +83,15 @@ class WindowControlScopeResetTest {
         assertFalse(assigned.scope.coroutineContext[Job]!!.isActive)
         DatabaseResetter.resetDatabase()
     }
+
+    @Test fun resetDoesNotLeaveACancelledRepositoryInTheLiveWindowControl() {
+        val windowControl = get<WindowControl>(WindowControl::class.java)
+        val repository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = repository
+        DatabaseResetter.resetDatabase()
+        val repoJob = repository.scope.coroutineContext[Job]!!
+        assertTrue("reset must have cancelled the repository scope", repoJob.isCancelled)
+        val held = windowControl.currentWindowRepositoryOrNull
+        assertTrue("a cancelled repository must not stay installed for the next test", held == null || held.scope.coroutineContext[Job]!!.isActive)
+    }
 }

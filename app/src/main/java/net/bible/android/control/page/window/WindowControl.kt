@@ -60,6 +60,12 @@ open class WindowControl constructor() {
     @VisibleForTesting
     internal val currentWindowRepositoryOrNull: WindowRepository? get() = _windowRepository
 
+    /** Drops [expected] if it is still the installed repository, so the lazy getter builds a live one next. */
+    @VisibleForTesting
+    internal fun forgetWindowRepositoryIfCurrent(expected: WindowRepository) {
+        if (_windowRepository === expected) _windowRepository = null
+    }
+
     open var windowRepository: WindowRepository
         get() = _windowRepository ?: WindowRepository(CoroutineScope(Dispatchers.Main)) .apply { _windowRepository = this }
         set(value) {
