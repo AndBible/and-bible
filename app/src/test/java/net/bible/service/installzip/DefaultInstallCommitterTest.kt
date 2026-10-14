@@ -23,7 +23,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -59,8 +59,8 @@ class DefaultInstallCommitterTest {
 
     @Before
     fun setUp() {
-        originalDownloadDir = SwordBookPath.getSwordDownloadDir()
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        originalDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
     }
 
     @After
@@ -68,7 +68,7 @@ class DefaultInstallCommitterTest {
         Books.installed().getBook("TestDict")?.let { Books.installed().removeBook(it) }
         File(SharedConstants.modulesDir, "mods.d/testdict.conf").delete()
         File(SharedConstants.modulesDir, "modules/lexdict/rawld/testdict").deleteRecursively()
-        SwordBookPath.setDownloadDir(originalDownloadDir)
+        SwordBookPathJvm.setDownloadDir(originalDownloadDir)
     }
 
     /** Build a zip in [CommonUtils.tmpDir] with the given entries, in order. */
@@ -119,7 +119,7 @@ class DefaultInstallCommitterTest {
         val progressValues = mutableListOf<Int>()
         committer.commitSwordZip(zip, totalEntries = 3, onProgress = { progressValues.add(it) })
 
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val downloadDir = SwordBookPathJvm.getSwordDownloadDir()
         assertTrue("conf must land on disk", File(downloadDir, "mods.d/testdict.conf").exists())
         assertEquals("progress must reach 100%", 100, progressValues.last())
 

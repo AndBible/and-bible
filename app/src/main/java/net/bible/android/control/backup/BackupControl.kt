@@ -66,12 +66,14 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.crosswire.common.util.NetUtil
+import org.crosswire.common.util.NetUtilJvm
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.crosswire.jsword.book.sword.SwordConstants
 import java.io.BufferedInputStream
 import java.io.Closeable
@@ -438,7 +440,7 @@ class BackupControl(
             // disk to locate the module root from. Every such type AndBible creates has its own
             // branch above, but an unhandled one (e.g. the MyDocument pseudo-books of OSTicket 3392)
             // must be skipped rather than abort the whole backup/sync operation with an NPE.
-            val configFile = bmd.configFile
+            val configFile = SwordBookMetaDataJvm.getConfigFile(bmd)
             if (configFile == null) {
                 Log.w(TAG, "Skipping ${b.initials}: no SWORD config file (not a file-backed module)")
                 return
@@ -939,7 +941,7 @@ class BackupControl(
         onProgress: ((percent: Int) -> Unit)? = null,
     ) = withContext(Dispatchers.IO) {
         val confFiles = ArrayList<File>()
-        val targetDirectory = SwordBookPath.getSwordDownloadDir()
+        val targetDirectory = SwordBookPathJvm.getSwordDownloadDir()
         val errors: MutableList<String> = mutableListOf()
         ZipInputStream(newInputStream()).use { zIn ->
             var ze: ZipEntry? = zIn.nextEntry
@@ -990,7 +992,7 @@ class BackupControl(
         // Load configuration files & register SWORD books
         val bookDriver = SwordBookDriver.instance()
         for (confFile in confFiles) {
-            val me = SwordBookMetaData(confFile, NetUtil.getURI(targetDirectory))
+            val me = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(targetDirectory))
             me.setDriver(bookDriver)
             SwordBookDriver.registerNewBook(me)
         }

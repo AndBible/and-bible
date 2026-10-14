@@ -29,13 +29,15 @@ import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import net.bible.service.sword.ttf.isManuallyInstalledTtf
 import org.crosswire.common.util.NetUtil
+import org.crosswire.common.util.NetUtilJvm
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -62,7 +64,7 @@ import java.util.zip.ZipInputStream
  * between three callers — the sideload `InstallZip` flow, the "Backup modules" feature,
  * and cloud document-sync — so a change to one path can't silently break the others.
  *
- * The extraction target ([SwordBookPath.getSwordDownloadDir]) is pinned to
+ * The extraction target ([SwordBookPathJvm.getSwordDownloadDir]) is pinned to
  * [SharedConstants.modulesDir] in [setUp] so that restored files land where the
  * manually-installed rescans (TTF/MyBible/EPUB) look for them; on a real device the JSword
  * home is configured to the same directory, but the download dir is otherwise computed once
@@ -73,7 +75,7 @@ import java.util.zip.ZipInputStream
 class ModuleBackupRoundTripTest {
     @Before
     fun setUp() {
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
     }
 
     @After
@@ -95,7 +97,7 @@ class ModuleBackupRoundTripTest {
      * A TTF font is a real (non-pseudo) [org.crosswire.jsword.book.Book] backed by
      * byte-array-constructed metadata, so it reaches [BackupControl.createSingleModuleZip].
      * Regression guard for the NPE that occurred when such books fell into the generic SWORD
-     * branch (whose `bmd.configFile` is null for byte-array metadata). Packaging must instead
+     * branch (whose `SwordBookMetaDataJvm.getConfigFile(bmd)` is null for byte-array metadata). Packaging must instead
      * archive the underlying `.ttf` file, and restore must re-register it.
      */
     @Test
@@ -179,7 +181,7 @@ class ModuleBackupRoundTripTest {
      */
     @Test
     fun fontPackAddonPackagesViaSwordBranchNotTtfFile() = runBlocking {
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val downloadDir = SwordBookPathJvm.getSwordDownloadDir()
 
         // Font files live under the DataPath dir (./ttf/), in an `and-bible/` subdir as real
         // FontPack modules ship them. One font exists; a second is referenced by the conf's
@@ -203,7 +205,7 @@ class ModuleBackupRoundTripTest {
         }
 
         // File-based metadata → configFile != null, the distinguisher from a manual TTF.
-        val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
+        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(downloadDir))
         val book: Book = SwordBook(bmd, NullBackend())
 
         assertFalse(
@@ -261,7 +263,7 @@ class ModuleBackupRoundTripTest {
         }
 
         // Wipe the on-disk module + registration, then restore purely from the archive.
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val downloadDir = SwordBookPathJvm.getSwordDownloadDir()
         File(downloadDir, "mods.d/testdict.conf").delete()
         File(downloadDir, "modules/lexdict/rawld/testdict").deleteRecursively()
         Books.installed().removeBook(book)
@@ -286,7 +288,7 @@ class ModuleBackupRoundTripTest {
      * uint32-LE offset + uint16-LE length, both little-endian.
      */
     private fun registerMinimalRawLdDictionary(): Book {
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val downloadDir = SwordBookPathJvm.getSwordDownloadDir()
         val conf = """
             [TestDict]
             DataPath=./modules/lexdict/rawld/testdict/test
@@ -309,7 +311,7 @@ class ModuleBackupRoundTripTest {
             .putInt(0).putShort(datBytes.size.toShort()).array()
         File(dataDir, "test.idx").writeBytes(idxBytes)
 
-        val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
+        val bmd = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(downloadDir))
         bmd.setDriver(SwordBookDriver.instance())
         SwordBookDriver.registerNewBook(bmd)
         return Books.installed().getBook("TestDict")!!

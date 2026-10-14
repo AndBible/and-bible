@@ -155,6 +155,8 @@ class UsableBibleGateTest {
         val activity = welcomeHost()
         assertFalse("sanity: an uninitialised WELCOME start applies no FLAG_SECURE", flagSecure(activity))
 
+        net.bible.test.awaitHostRoute(activity, NavRoutes.WELCOME)
+        assertEquals("Welcome graph must exist before Import", NavRoutes.WELCOME, activity.currentRouteForTest())
         val graph = org.koin.core.context.GlobalContext.get()
         val oldSettings = graph.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
         val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb

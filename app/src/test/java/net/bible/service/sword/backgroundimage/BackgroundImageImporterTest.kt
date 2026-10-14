@@ -24,7 +24,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.common.AndBibleAddons
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -64,13 +64,13 @@ class BackgroundImageImporterTest {
         // Background-image modules declare AndBibleMinimumVersion=1112, so AndBibleAddonFilter only
         // exposes them on apps whose version is >= 1112 (mirrors BackgroundImageBookTest).
         previousVersion = app.packageManager.getPackageInfo(app.packageName, 0).longVersionCode
-        previousDownloadDir = SwordBookPath.getDownloadDir()
+        previousDownloadDir = SwordBookPathJvm.getDownloadDir()
         previousBooks = Books.installed().getBooks().toList()
         shadowOf(app.packageManager)
             .getInternalMutablePackageInfo(app.packageName)
             .longVersionCode = 100000L
 
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         dir.mkdirs()
         tmp = File(SharedConstants.modulesDir, "importer-test-src").apply { mkdirs() }
     }
@@ -81,7 +81,7 @@ class BackgroundImageImporterTest {
             Books.installed().removeBook(b)
         }
         shadowOf(app.packageManager).getInternalMutablePackageInfo(app.packageName).longVersionCode = previousVersion
-        previousDownloadDir?.let { SwordBookPath.setDownloadDir(it) }
+        previousDownloadDir?.let { SwordBookPathJvm.setDownloadDir(it) }
         AndBibleAddons.clearCaches()
         dir.deleteRecursively()
         tmp.deleteRecursively()

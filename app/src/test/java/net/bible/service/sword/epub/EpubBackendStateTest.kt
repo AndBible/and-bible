@@ -27,7 +27,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.BibleApplication.Companion.application
-import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -60,8 +60,8 @@ class EpubBackendStateTest {
 
     @Before
     fun setUp() {
-        originalDownloadDir = SwordBookPath.getSwordDownloadDir()
-        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
+        originalDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
+        SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         epubRoot = File(SharedConstants.modulesDir, "epub").apply { mkdirs() }
     }
 
@@ -71,7 +71,7 @@ class EpubBackendStateTest {
             epubRoot.deleteRecursively()
             createdDbFilenames.forEach { application.deleteDatabase(it) }
         } finally {
-            SwordBookPath.setDownloadDir(originalDownloadDir)
+            SwordBookPathJvm.setDownloadDir(originalDownloadDir)
         }
     }
 

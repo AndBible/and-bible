@@ -68,7 +68,7 @@ class DocumentDownloadProgressCacheTest {
     private inner class TestData {
         var initials = "KJV"
         var document: Book? = null
-        var progress = JobManager.createJob("INSTALL_BOOK-$initials", "Installing King James Version", null)
+        var progress = org.crosswire.common.progress.JobManagerJvm.createJob("INSTALL_BOOK-$initials", "Installing King James Version", null)
 
         init {
             try {
