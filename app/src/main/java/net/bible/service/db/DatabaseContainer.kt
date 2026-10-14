@@ -168,7 +168,8 @@ class DatabaseContainer {
 
     @Volatile var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
 
-    fun resetAiSettingsDb(): AiSettingsDatabase = blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (reset)
+    @VisibleForTesting
+    fun resetAiSettingsDb(): AiSettingsDatabase = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses resetAiSettingsDbOwned
         aiLifetime.replace { resetAiSettingsDbOwned(it) }
     }
 
@@ -313,7 +314,8 @@ class DatabaseContainer {
      * then are logged by the store's `onWriteError` and dropped.
      * Closing an already closed database is a no-op, so [closeAll] after this is safe.
      */
-    internal fun closeForReplace(fileName: String) = blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close)
+    @VisibleForTesting
+    internal fun closeForReplace(fileName: String) = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses closeForReplaceOwned
         aiLifetime.replace { closeForReplaceOwned(fileName, it) }
     }
 
@@ -329,7 +331,8 @@ class DatabaseContainer {
      * dropped (a closed Room 3 database does not reopen). The window is milliseconds, and restore paths already
      * treat writes there as a hazard. Databases already closed by [closeForReplace] are closed again harmlessly.
      */
-    internal fun closeAll() = blockingAtEdge { aiLifetime.replace { closeAllOwned(it) } } // L1-edge: DatabaseContainer synchronous lifecycle (close)
+    @VisibleForTesting
+    internal fun closeAll() = blockingAtEdge { aiLifetime.replace { closeAllOwned(it) } } // L1-edge: test-only synchronous wrapper; production uses closeAllOwned
 
     private suspend fun closeAllOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         aiLifetime.requireOwner(token)
@@ -460,7 +463,8 @@ class DatabaseContainer {
          * just to close it; a restore whose migration threw would then throw again from its own cleanup.
          * Also the old monolithic restore's close before its snapshot (F120).
          */
-        internal fun dropInstanceWithoutOpening() = blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close)
+        @VisibleForTesting
+        internal fun dropInstanceWithoutOpening() = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses dropInstanceWithoutOpeningOwned
             aiLifetime.replace { dropInstanceWithoutOpeningOwned(it) }
         }
 
@@ -542,7 +546,8 @@ class DatabaseContainer {
 
         suspend fun sync() = instance.sync()
         suspend fun vacuum() = instance.vacuum()
-        fun reset() = blockingAtEdge { aiLifetime.replace { resetOwned(it) } } // L1-edge: DatabaseContainer synchronous lifecycle (reset)
+        @VisibleForTesting
+        fun reset() = blockingAtEdge { aiLifetime.replace { resetOwned(it) } } // L1-edge: test-only synchronous wrapper; production uses resetOwned
 
         internal suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)

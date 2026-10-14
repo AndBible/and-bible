@@ -28,7 +28,7 @@ class AiDatabaseLifetime {
 
     /**
      * Owns a fire-and-forget [job] that reads databases outside [use] (the startup snapshot loads of
-     * `CommonUtils.initializeApp`): every [replace] cancels and joins it before its block can close anything.
+     * the app bootstrap `initializeApp`): every [replace] cancels and joins it before its block can close anything.
      * Room 3 closes connections under an in-flight statement step, which is a native crash, not an exception.
      * Register a job before it starts (launch it LAZY); a job registered while a replace runs is not waited for.
      */
