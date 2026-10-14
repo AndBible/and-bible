@@ -119,7 +119,7 @@ class ReadingDocumentRefreshOnReturnTest {
                 get() {
                     if (Thread.currentThread().name.startsWith("DefaultDispatcher") && armed.compareAndSet(true, false)) {
                         // Like the real source, this synchronous bridge does not inherit the Window job.
-                        net.bible.service.db.blockingDb {
+                        net.bible.service.db.blockingAtEdge {
                             entered.countDown()
                             release.await()
                         }

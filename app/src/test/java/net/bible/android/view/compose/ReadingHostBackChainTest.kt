@@ -145,7 +145,7 @@ class ReadingHostBackChainTest {
             hostControllers.single().pause().stop()
             boundary.armed.set(true)
             val child = scope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                try { net.bible.service.db.blockingDb { net.bible.service.db.DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().get() } }
+                try { net.bible.service.db.blockingAtEdge { net.bible.service.db.DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().get() } }
                 finally { boundary.completed.set(true); boundary.event("private-host-query-complete") }
             }
             cleanupOwner!!.producer = child
@@ -219,7 +219,7 @@ class ReadingHostBackChainTest {
             controller.pause()
             boundary.armed.set(true)
             producer = activity.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                try { net.bible.service.db.blockingDb { net.bible.service.db.DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().get() } }
+                try { net.bible.service.db.blockingAtEdge { net.bible.service.db.DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().get() } }
                 finally { boundary.completed.set(true); boundary.event("host-getter-completion") }
             }
             owner!!.producer = producer

@@ -117,9 +117,9 @@ class RoomConnectionTransactionTest {
         }
     }
 
-    @Test fun blockingDbIsRefusedInside() = bothModes { mode, db ->
+    @Test fun blockingAtEdgeIsRefusedInside() = bothModes { mode, db ->
         val e = runCatching {
-            db.useWriterConnection { t -> t.inTransaction { blockingDb { 1 } } }
+            db.useWriterConnection { t -> t.inTransaction { blockingAtEdge { 1 } } }
         }.exceptionOrNull()
         assertTrue("$mode: $e", e is BlockingDbInTransaction)
     }

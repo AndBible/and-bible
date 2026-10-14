@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import net.bible.service.db.BlockingDbInTransaction
-import net.bible.service.db.blockingDb
+import net.bible.service.db.blockingAtEdge
 import net.bible.service.db.columnIndex
 import net.bible.service.db.inTransaction
 import net.bible.service.db.exec
@@ -167,7 +167,7 @@ class SqliteConnectionExtTest {
 
     @Test
     fun inTransactionRefusesBlockingDbInside() {
-        val e = runCatching { runBlocking { c.inTransaction { exec("INSERT INTO t (i) VALUES (1)"); blockingDb { 1 } } } }.exceptionOrNull()
+        val e = runCatching { runBlocking { c.inTransaction { exec("INSERT INTO t (i) VALUES (1)"); blockingAtEdge { 1 } } } }.exceptionOrNull()
         assertTrue("$e", e is BlockingDbInTransaction)
         assertEquals(0L, c.queryLong("SELECT COUNT(*) FROM t"))
     }

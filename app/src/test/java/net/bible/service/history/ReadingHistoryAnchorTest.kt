@@ -129,7 +129,7 @@ class ReadingHistoryAnchorTest {
             override val current: WorkspaceEntities.TextDisplaySettings
                 get() {
                     if (Thread.currentThread().name.startsWith("DefaultDispatcher") && armed.compareAndSet(true, false)) {
-                        net.bible.service.db.blockingDb {
+                        net.bible.service.db.blockingAtEdge {
                             entered.countDown()
                             release.await()
                         }

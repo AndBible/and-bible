@@ -204,7 +204,7 @@ class WindowContentLoadRaceTest {
                     if (Thread.currentThread().stackTrace.any { it.className == Window::class.java.name && it.methodName.contains("isCurrentRequest") } && guardReads.incrementAndGet() == 2) {
                         // Hold the actual post-fetch key/settings read, whose blocking bridge has
                         // an independent Job. A ready view makes the next boundary non-suspending.
-                        net.bible.service.db.blockingDb {
+                        net.bible.service.db.blockingAtEdge {
                             entered.complete(Unit)
                             release.await()
                         }

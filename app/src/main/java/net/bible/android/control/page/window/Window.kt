@@ -258,7 +258,7 @@ class Window (
         val sourceDocument = currentPage.currentDocument
         val sourceKey = currentPage.key?.getOsisRef()
         suspend fun isCurrentRequest(): Boolean {
-            // key can enter an independent blockingDb bridge; do not start it after cancellation.
+            // key can enter an independent blockingAtEdge bridge; do not start it after cancellation.
             currentCoroutineContext().ensureActive()
             return generation == contentLoadGeneration &&
                 pageManager.currentPage === currentPage && currentPage.currentDocument === sourceDocument &&

@@ -520,7 +520,7 @@ class WorkspaceNativeLifetimeWitnessTest {
      * The blocking DAO read `CommonUtils.globalTextDisplaySettings` used to be (it is a store snapshot now, with no
      * database access); the witness needs a real reader through the current container's Workspace database.
      */
-    private fun readGlobalTextDisplaySettingsRow() = net.bible.service.db.blockingDb {
+    private fun readGlobalTextDisplaySettingsRow() = net.bible.service.db.blockingAtEdge {
         DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().get()
     }?.textDisplaySettings ?: net.bible.android.database.WorkspaceEntities.TextDisplaySettings()
 }

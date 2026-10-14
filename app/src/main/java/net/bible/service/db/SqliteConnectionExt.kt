@@ -100,7 +100,7 @@ fun SQLiteConnection.insertOr(conflict: String, table: String, vararg values: Pa
 /**
  * `BEGIN IMMEDIATE` ... `COMMIT` on a raw (non-Room) connection, `ROLLBACK` when [block] throws (the exception
  * is rethrown; a failing ROLLBACK is attached to it as suppressed). The coroutine is marked as in a transaction,
- * so [blockingDb] refuses to run inside [block].
+ * so [blockingAtEdge] refuses to run inside [block].
  */
 suspend fun <T> SQLiteConnection.inTransaction(block: suspend SQLiteConnection.() -> T): T = withContext(DbTransactionMarker) {
     execSQL("BEGIN IMMEDIATE")
@@ -116,7 +116,7 @@ suspend fun <T> SQLiteConnection.inTransaction(block: suspend SQLiteConnection.(
  * Room-connection counterpart of [SQLiteConnection.inTransaction], for a [Transactor] from `useWriterConnection`:
  * an IMMEDIATE transaction through Room (which also handles compatibility mode), rolled back when [block] throws.
  * Suspend DAO calls made inside [block] join this transaction: Room finds the connection in the coroutine context.
- * Marked like the raw one, so [blockingDb] refuses inside. Not to be confused with the member `inTransaction()`,
+ * Marked like the raw one, so [blockingAtEdge] refuses inside. Not to be confused with the member `inTransaction()`,
  * which only asks whether a transaction is open.
  */
 suspend fun <T> Transactor.inTransaction(block: suspend TransactionScope<T>.() -> T): T =

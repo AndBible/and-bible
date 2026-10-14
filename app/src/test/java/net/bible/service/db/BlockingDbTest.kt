@@ -52,23 +52,17 @@ class BlockingDbTest {
     @After
     fun tearDown() = db.close()
 
-    @Test fun returnsTheBlockValue() { assertEquals(3, blockingDb { 1 + 2 }) }
-
-    @Test fun blockingAtEdgeReturnsTheBlockValue() { assertEquals(3, blockingAtEdge { 1 + 2 }) }
-
-    @Test fun blockingAtEdgeRefusesInsideRoomTransaction() = assertRefusedWithin {
-        runBlocking { db.roomTransaction { blockingAtEdge { 1 } } }
-    }
+    @Test fun returnsTheBlockValue() { assertEquals(3, blockingAtEdge { 1 + 2 }) }
 
     @Test fun refusesToRunInsideAMarkedTransaction() {
         assertThrows(BlockingDbInTransaction::class.java) {
-            runBlocking(DbTransactionMarker) { blockingDb { 1 } }
+            runBlocking(DbTransactionMarker) { blockingAtEdge { 1 } }
         }
     }
 
     @Test fun markIsRestoredAfterTheMarkedBlockSoLaterCallsWork() {
         runBlocking(DbTransactionMarker) { 1 }
-        assertEquals(3, blockingDb { 3 })
+        assertEquals(3, blockingAtEdge { 3 })
     }
 
     /**
@@ -96,31 +90,31 @@ class BlockingDbTest {
     }
 
     @Test fun refusesInsideRoomTransaction() = assertRefusedWithin {
-        runBlocking { db.roomTransaction { blockingDb { 1 } } }
+        runBlocking { db.roomTransaction { blockingAtEdge { 1 } } }
     }
 
     @Test fun refusesInsideRoomTransactionAfterHoppingThreads() = assertRefusedWithin {
-        runBlocking { db.roomTransaction { withContext(Dispatchers.IO) { blockingDb { 1 } } } }
+        runBlocking { db.roomTransaction { withContext(Dispatchers.IO) { blockingAtEdge { 1 } } } }
     }
 
-    // D1 final review I3: with one pooled connection, a nested blockingDb DAO call inside a connection block waits
+    // D1 final review I3: with one pooled connection, a nested blockingAtEdge DAO call inside a connection block waits
     // for that connection forever; the marked helpers turn the hang into BlockingDbInTransaction.
     @Test fun refusesInsideAMarkedWriterConnection() = assertRefusedWithin {
-        runBlocking { db.useWriterConnectionMarked { blockingDb { db.epubDao().getMeta() } } }
+        runBlocking { db.useWriterConnectionMarked { blockingAtEdge { db.epubDao().getMeta() } } }
     }
 
     @Test fun refusesInsideAMarkedReaderConnection() = assertRefusedWithin {
-        runBlocking { db.useReaderConnectionMarked { blockingDb { db.epubDao().getMeta() } } }
+        runBlocking { db.useReaderConnectionMarked { blockingAtEdge { db.epubDao().getMeta() } } }
     }
 
     @Test fun refusesInsideAMarkedWriterConnectionAfterHoppingThreads() = assertRefusedWithin {
-        runBlocking { db.useWriterConnectionMarked { withContext(Dispatchers.IO) { blockingDb { db.epubDao().getMeta() } } } }
+        runBlocking { db.useWriterConnectionMarked { withContext(Dispatchers.IO) { blockingAtEdge { db.epubDao().getMeta() } } } }
     }
 
     @Test fun markedConnectionsReturnTheBlockValueAndClearTheMarkAfterwards() {
         assertEquals(1L, withWatchdog { runBlocking { db.useWriterConnectionMarked { it.queryLong("SELECT 1") } } }.getOrThrow())
         assertEquals(2L, withWatchdog { runBlocking { db.useReaderConnectionMarked { it.queryLong("SELECT 2") } } }.getOrThrow())
-        assertEquals(3, blockingDb { 3 })
+        assertEquals(3, blockingAtEdge { 3 })
     }
 
     /** Every non-empty Room connection block in app code is a marked one (the empty `{ }` open/migrate calls hold nothing). */
@@ -159,8 +153,8 @@ class BlockingDbTest {
         assertEquals(null, db.epubDao().getMeta())
     }
 
-    @Test fun blockingDbWorksAgainOutsideTheTransactionAfterwards() = runBlocking {
+    @Test fun blockingAtEdgeWorksAgainOutsideTheTransactionAfterwards() = runBlocking {
         db.roomTransaction { 1 }
-        assertEquals(2, blockingDb { 2 })
+        assertEquals(2, blockingAtEdge { 2 })
     }
 }
