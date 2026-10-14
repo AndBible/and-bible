@@ -527,6 +527,9 @@ class DatabaseContainer {
             }
         }
 
+        /** Bound for the ordered store write queues when the caller gave no timeout. */
+        private const val ORDERED_WRITES_EXIT_WAIT_MS = 5_000L
+
         /**
          * Persists queued settings writes; call before a path that ends the process (`exitProcess`). No-op if the
          * database is not open; never builds a container and never throws. With [timeoutMs] it gives up waiting
@@ -537,9 +540,23 @@ class DatabaseContainer {
             if (!ready) return
             try {
                 blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close: flush before exit, also the crash handler)
-                    val store = _instance?.settingsStore ?: return@blockingAtEdge
-                    if (timeoutMs == null) store.flush()
-                    else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
+                    val store = _instance?.settingsStore
+                    if (store != null) {
+                        if (timeoutMs == null) store.flush()
+                        else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
+                    }
+                    // The ordered write-through keys (workspace, global text display, reading progress) queue their
+                    // writes off the caller's thread; a few ms before exit they would otherwise die with the process.
+                    val launcher = runCatching {
+                        org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.sharedcore.platform.OrderedLauncher>()
+                    }.getOrNull() ?: return@blockingAtEdge
+                    val keys = listOf(
+                        net.bible.android.control.page.window.WorkspacePersistence.KEY,
+                        net.bible.service.common.GlobalTextDisplaySettingsStore.KEY,
+                        net.bible.service.common.ReadingProgressSettingsStore.KEY,
+                    )
+                    if (withTimeoutOrNull(timeoutMs ?: ORDERED_WRITES_EXIT_WAIT_MS) { keys.forEach { launcher.join(it) } } == null)
+                        Log.w(TAG, "Ordered write queues did not drain before exit")
                 }
             } catch (e: Throwable) { Log.e(TAG, "Settings flush failed", e) }
         }

@@ -163,6 +163,40 @@ class SettingsStoreIntegrationTest {
         }
     }
 
+    /** Final review m2: writes queued on the ordered keys a few ms before exit must not die with the process. */
+    @Test fun flushSettingsBeforeExitWaitsForTheOrderedStoreWriteQueues() = whileReady {
+        val launcher = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>()
+        for (key in listOf(
+            net.bible.android.control.page.window.WorkspacePersistence.KEY,
+            net.bible.service.common.GlobalTextDisplaySettingsStore.KEY,
+            net.bible.service.common.ReadingProgressSettingsStore.KEY,
+        )) {
+            val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+            val written = java.util.concurrent.atomic.AtomicBoolean(false)
+            launcher.launch(key) { gate.await(); written.set(true) }
+            val done = CountDownLatch(1)
+            val flusher = Thread { DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 10_000); done.countDown() }.apply { start() }
+            try {
+                assertFalse("flush returned before the '$key' write finished", done.await(700, TimeUnit.MILLISECONDS))
+                gate.complete(Unit)
+                assertTrue(done.await(10, TimeUnit.SECONDS))
+                assertTrue(written.get())
+            } finally { gate.complete(Unit); flusher.join(10_000) }
+        }
+    }
+
+    /** Final review m2: a stuck ordered write must not hang the dying process either. */
+    @Test fun flushSettingsBeforeExitIsBoundedWhenAnOrderedWriteIsStuck() = whileReady {
+        val launcher = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>()
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        launcher.launch(net.bible.service.common.GlobalTextDisplaySettingsStore.KEY) { gate.await() }
+        try {
+            val t0 = System.nanoTime()
+            DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 300)
+            assertTrue("flush waited too long", (System.nanoTime() - t0) / 1_000_000 < 5_000)
+        } finally { gate.complete(Unit) }
+    }
+
     private val store get() = DatabaseContainer.instance.settingsStore
 
     @Test fun migrationTurnsMonochromeFalseIntoNormalColorMode() {
