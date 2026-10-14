@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.workspaces
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -123,5 +124,33 @@ class WorkspaceServiceImplTest {
         fun remaining() = runBlocking { dao.allWorkspaces().count { w -> drops.any { it.id == w.id.toString() } } }
         while (remaining() > 0 && System.nanoTime() < deadline) Thread.sleep(20)
         assertEquals(0, remaining())
+    }
+
+    /**
+     * Save, then an immediate recreate: the new host's `loadAll()` replaces the shared working list while Save is
+     * still waiting for the queued workspace write. The rows to update must have been captured before that wait.
+     */
+    @Test fun applyChangesWritesTheRenamesEvenIfLoadAllReplacesTheWorkingListWhileItWaits() = runBlocking {
+        val current = service.loadAll().single()
+        val b = service.createWorkspace("b")
+        val c = service.createWorkspace("c")
+        val gate = CompletableDeferred<Unit>()
+        repo.persistence.enqueue { gate.await() }
+
+        val recreate = launch(start = CoroutineStart.UNDISPATCHED) { service.loadAll() }
+        val save = launch(start = CoroutineStart.UNDISPATCHED) {
+            service.applyChanges(
+                orderedIds = listOf(c.id, current.id),
+                deletedIds = listOf(b.id),
+                renamed = mapOf(c.id to "c-renamed"),
+                changedIds = setOf(c.id, current.id),
+            )
+        }
+        gate.complete(Unit)
+        save.join(); recreate.join()
+
+        val rows = dao.allWorkspaces()
+        assertEquals("c-renamed", rows.first { it.id.toString() == c.id }.name)
+        assertEquals(listOf(c.id, current.id), rows.map { it.id.toString() })
     }
 }

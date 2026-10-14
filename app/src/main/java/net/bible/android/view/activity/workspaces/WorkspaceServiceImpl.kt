@@ -87,10 +87,11 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
         renamed.forEach { (id, n) -> working.firstOrNull { it.id.toString() == id }?.name = n }
         orderedIds.forEachIndexed { idx, id -> working.firstOrNull { it.id.toString() == id }?.orderNumber = idx }
         val toDelete = deletedIds.map { IdType(it) }
+        // Captured before the first suspension: a recreated host's loadAll() may replace `working` while we wait.
+        val toUpdate = working.filter { it.id.toString() in changedIds && it.id.toString() !in deletedIds }
         awaitSaves()
         toDelete.forEach { dao.deleteWorkspace(it) }
         toDelete.forEach { AgentSessionManager.clearSession(it) }
-        val toUpdate = working.filter { it.id.toString() in changedIds && it.id.toString() !in deletedIds }
         dao.updateWorkspaces(toUpdate)
     }
 
