@@ -171,11 +171,14 @@ class PassageFinderLauncher(
             // Started only now, so the `isShowing` guard below is answered by this open
             // rather than by whatever the view was doing beforehand.
             loadJob = activity.lifecycleScope.launch {
-                val loaded = try {
-                    dataSource.loadBooks()
-                } catch (e: Exception) {
-                    Log.w(TAG, "Failed to load books for passage finder", e)
-                    null
+                var loaded = loadBooksOrNull()
+                // The active document can change while a cold load runs: a touch forwarded
+                // into the other half of a split makes that window active. Installing the
+                // old module's books would let the user confirm a book the active module
+                // lacks, so reload for whatever is active now. Checked here on the main
+                // thread, where the list is applied, so nothing can switch in between.
+                while (loaded != null && finder.isShowing && !dataSource.isCurrent(loaded)) {
+                    loaded = loadBooksOrNull()
                 }
                 if (!finder.isShowing) return@launch
                 if (loaded == null || loaded.books.isEmpty()) {
@@ -188,6 +191,14 @@ class PassageFinderLauncher(
             }
         }
         return true
+    }
+
+    /** [PassageFinderDataSource.loadBooks], with a failure reported as null. */
+    private suspend fun loadBooksOrNull(): PassageFinderDataSource.BookList? = try {
+        dataSource.loadBooks()
+    } catch (e: Exception) {
+        Log.w(TAG, "Failed to load books for passage finder", e)
+        null
     }
 
     /**

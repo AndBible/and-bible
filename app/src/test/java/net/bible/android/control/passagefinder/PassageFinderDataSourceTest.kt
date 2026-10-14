@@ -30,6 +30,7 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
@@ -131,6 +132,34 @@ class PassageFinderDataSourceTest {
         // And switching back must not resurrect a stale entry either.
         currentInitials = "KJV"
         assertNull(dataSource.cachedBooks())
+    }
+
+    /**
+     * The launcher applies a cold load only after it lands, and the active document can
+     * change in between — a touch forwarded into the other half of a split makes that
+     * window active. Installing the old module's books there would let the user confirm a
+     * book the now-active module does not have, so the list has to say it is stale.
+     */
+    @Test
+    fun `a list the document changed out from under is not current`() = runTest {
+        whenever(navigationControl.getAllDocumentBooksExcludingIntros()).thenAnswer {
+            currentInitials = "ESV"
+            listOf(BibleBook.GEN, BibleBook.EXOD, BibleBook.MATT)
+        }
+
+        val loaded = dataSource.loadBooks()
+
+        assertFalse(dataSource.isCurrent(loaded))
+    }
+
+    @Test
+    fun `a list loaded for the open document is current until the document changes`() = runTest {
+        val loaded = dataSource.loadBooks()
+        assertTrue(dataSource.isCurrent(loaded))
+
+        currentInitials = "ESV"
+
+        assertFalse(dataSource.isCurrent(loaded))
     }
 
     @Test

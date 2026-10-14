@@ -61,6 +61,8 @@ class PassageFinderDataSource(
     class BookList(
         val books: List<BookInfo>,
         val chapterCounts: IntArray,
+        /** Initials of the module this list was scanned from; see [isCurrent]. */
+        val documentKey: String? = null,
     )
 
     /** Cached per module, keyed by document initials. See [loadBooks]. */
@@ -81,6 +83,16 @@ class PassageFinderDataSource(
         val key = currentDocumentKey() ?: return null
         return cache?.takeIf { it.first == key }?.second
     }
+
+    /**
+     * Whether [list] was scanned from the document that is active now.
+     *
+     * [loadBooks] hands back the list for the document that was active when the scan
+     * started, and the active document can change while the scan runs — or between the
+     * scan finishing and the caller applying it. A caller about to install a list must
+     * check this first, or it puts one module's books in front of another.
+     */
+    fun isCurrent(list: BookList): Boolean = list.documentKey == currentDocumentKey()
 
     /**
      * Loads every book of the active Bible module in canonical order, including
@@ -127,7 +139,7 @@ class PassageFinderDataSource(
             )
         }
         val counts = IntArray(infos.size) { getChapterCount(infos[it].book) }
-        val loaded = BookList(infos, counts)
+        val loaded = BookList(infos, counts, loadKey)
         val settledKey = currentDocumentKey()
         if (loadKey != null && loadKey == settledKey) {
             cache = loadKey to loaded
