@@ -14,6 +14,7 @@ on:
       - "gradle.properties"
       - "strings-gen/**"
       - "jsword"
+      - "kdom"
       - "app/src/main/res/values/strings.xml"
       - ".github/workflows/ios.yml"
 concurrency: {group: "ios-${{ github.ref }}", cancel-in-progress: true}
@@ -23,14 +24,16 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-      - name: Init jsword submodule
-        run: git submodule update --init jsword
+      - name: Init jsword and kdom submodules
+        run: git submodule update --init jsword kdom
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: "17"}
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
       - name: jsword common tests on the iOS simulator
         run: ./gradlew -Dorg.gradle.native=false :jsword:iosSimulatorArm64Test
+      - name: kdom common tests on the iOS simulator
+        run: ./gradlew -Dorg.gradle.native=false :kdom:iosSimulatorArm64Test
       - name: sharedCore NSLog regression test on the iOS simulator
         # Only NsLogTest: the rest of :sharedCore's commonTest has never run on iOS.
         run: ./gradlew -Dorg.gradle.native=false :sharedCore:iosSimulatorArm64Test --tests 'net.bible.sharedcore.log.NsLogTest'
@@ -46,10 +49,10 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-      # settings.gradle.kts includes :jsword (a submodule), so the Gradle build needs it. Only that one: the
+      # settings.gradle.kts includes :jsword and the kdom composite build (submodules), so the Gradle build needs them. Only those: the
       # golden-screenshot and website-media submodules are unused here, and docs/superpowers is private (update=none).
-      - name: Init jsword submodule
-        run: git submodule update --init jsword
+      - name: Init jsword and kdom submodules
+        run: git submodule update --init jsword kdom
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: "17"}
       - uses: actions/setup-node@v4
