@@ -1,5 +1,4 @@
-New features
-- Opt-in scrollable passage finder: dial in a verse with one thumb (Settings > Advanced) (#3796)
+Bugfixes
 
 AndBible 5.1 stable release!
 
