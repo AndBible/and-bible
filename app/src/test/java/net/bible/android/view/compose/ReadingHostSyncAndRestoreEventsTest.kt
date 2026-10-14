@@ -49,6 +49,7 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import net.bible.test.resetComposeUiDispatcher
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -97,6 +98,15 @@ class ReadingHostSyncAndRestoreEventsTest {
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var toasts = 0
     private var toastSubscription: Subscription? = null
+
+    /**
+     * `firstTime` is a file-level var Robolectric does not reset. While it is true, the first host's
+     * `fixNightMode` schedules `recreate()` 250 ms (virtual) later; the settle loops advance that clock
+     * faster than a real-thread workspace read can post its apply, so the recreate cancels the switch
+     * under test. Whichever class ran first in a JVM paid it, which made this class pass or fail by run order.
+     */
+    @Before
+    fun pinFirstTimeFalse() { net.bible.android.view.activity.base.firstTime = false }
 
     @After
     fun tearDown() = closeFixture()

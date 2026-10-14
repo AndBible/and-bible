@@ -67,18 +67,24 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
 
     /**
      * The last answer of [previousInstallDetected]. [loadInfo] is synchronous (the controller computes its
-     * first state at construction), so the answer is loaded once when the controller is built and the
-     * controller is refreshed when it arrives.
+     * first state at construction), so the answer is read by [refreshInfo]: when the controller is built and
+     * on every later refresh.
      */
     private var previousInstall = false
 
     private val controllerLazy = lazy {
-        StartupWelcomeController(::loadInfo).also { controller ->
-            host.lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                previousInstall = previousInstallDetected()
-                controller.refresh()
-            }
+        StartupWelcomeController(::loadInfo).also {
+            host.lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) { refreshInfo() }
         }
+    }
+
+    /**
+     * Re-reads what the controller's info depends on the database for, then refreshes it. The host calls
+     * this wherever it used to call `controller.refresh()` (the answer changes after a download or restore).
+     */
+    suspend fun refreshInfo() {
+        previousInstall = previousInstallDetected()
+        controller.refresh()
     }
 
     val controller: StartupWelcomeController get() = controllerLazy.value

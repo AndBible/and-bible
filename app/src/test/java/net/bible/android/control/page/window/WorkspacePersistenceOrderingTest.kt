@@ -201,6 +201,19 @@ class WorkspacePersistenceOrderingTest {
         assertEquals("renamed", rows.first { it.id == repo.id.toString() }.name)
     }
 
+    /** Breaks if the selector's flush deletes and rewrites workspace rows before the save queued just before it. */
+    @Test fun applyChangesRightAfterASaveLandsTheSaveFirst() {
+        val service = net.bible.android.view.activity.workspaces.WorkspaceServiceImpl(CommonUtils.windowControl)
+        val other = runBlocking { service.loadAll(); service.createWorkspace("other") }
+        repo.name = "renamed"
+        gate.hold()
+        repo.saveIntoDb(false)
+        assertEquals("the write must still be queued", true, gate.pending > 0)
+        runBlocking { service.applyChanges(listOf(repo.id.toString()), listOf(other.id), emptyMap(), emptySet()) }
+        assertEquals("renamed", runBlocking { dao.workspace(repo.id) }!!.name)
+        assertEquals(null, runBlocking { dao.workspace(IdType(other.id)) })
+    }
+
     /** Breaks if cloning copies page-manager rows before the save queued just before it. */
     @Test fun cloneRightAfterASaveCopiesIt() {
         repo.activeWindow.pageManager.currentBible.currentChapterVerse = ChapterVerse(1, 7)

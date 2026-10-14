@@ -3,6 +3,7 @@ package net.bible.sharedcore.workspaces
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -22,6 +23,7 @@ import net.bible.sharedcore.search.SearchModeController
 class WorkspaceSelectorController(
     private val service: WorkspaceService,
     private val scope: CoroutineScope,
+    private val writeScope: CoroutineScope = scope,
     private val onResult: (workspaceId: String?, changed: Boolean) -> Unit,
     private val onCancel: () -> Unit,
     private val onEditSettings: (id: String) -> Unit,
@@ -54,8 +56,19 @@ class WorkspaceSelectorController(
     /** Serialises the service's writes (clone/create/apply/delete) so they reach the database in call order. */
     private val writes = Mutex()
 
+    /**
+     * Writes run in [writeScope], not [scope]: a clone or a Save the user asked for must reach the database even
+     * if the host is destroyed mid-flight (a dark-mode flip does that), and the host's own `onDestroy` cleanup
+     * ([discardCreated]) must still be able to run after [scope] is cancelled. The staging state is only touched
+     * from write coroutines and the UI thread, so a host passes a [writeScope] that runs on its main dispatcher.
+     */
     private fun launchWrite(block: suspend () -> Unit) {
-        scope.launch(start = CoroutineStart.UNDISPATCHED) { writes.withLock { block() } }
+        writeScope.launch(start = CoroutineStart.UNDISPATCHED) { writes.withLock { block() } }
+    }
+
+    /** Tells the host a flush finished; dropped when the host's [scope] is already gone (nobody is left to navigate). */
+    private fun reportToHost(report: () -> Unit) {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) { if (isActive) report() }
     }
 
     /**
@@ -180,17 +193,34 @@ class WorkspaceSelectorController(
         else applyThen { onResult(id, false) }
     }
 
-    /** Flushes the staged edits, then (and only then) runs [then]. The staging is snapshotted at call time. */
+    /** True from the first Save/select flush on, so a double tap flushes and reports once. */
+    private var applying = false
+
+    /**
+     * Flushes the staged edits, then (and only then) runs [then]. The staging is snapshotted at call time.
+     * The session's clones are saved with it, so they stop being discardable at once: a host destroyed
+     * mid-flush must not delete what the user just saved. A failed flush re-arms the controller.
+     */
     private fun applyThen(then: () -> Unit) {
+        if (applying) return
+        applying = true
         val order = order(); val del = deleted.toList(); val ren = renamed.toMap(); val chg = changed.toSet()
-        launchWrite { service.applyChanges(order, del, ren, chg); then() }
+        created.clear()
+        launchWrite {
+            try { service.applyChanges(order, del, ren, chg) } catch (t: Throwable) { applying = false; throw t }
+            reportToHost(then)
+        }
     }
 
     fun confirmPendingSelect(save: Boolean) {
         val id = _pendingSelect.value ?: return
         _pendingSelect.value = null
         if (save) applyThen { onResult(id, true) }
-        else { val ids = created.toList(); launchWrite { service.deleteCreated(ids); onResult(id, false) } }
+        else launchWrite {
+            val ids = created.toList(); created.clear()
+            service.deleteCreated(ids)
+            reportToHost { onResult(id, false) }
+        }
     }
 
     fun dismissPendingSelect() { _pendingSelect.value = null }
@@ -211,11 +241,11 @@ class WorkspaceSelectorController(
      * Idempotent: [created] is cleared, so a later [cancel] on the same controller does not ask the
      * service to delete the same rows twice.
      */
-    fun discardCreated() {
-        if (created.isEmpty()) return
+    fun discardCreated() = launchWrite {
+        // Snapshotted under the write lock, so a clone still in flight when this is called is included.
         val ids = created.toList()
         created.clear()
-        launchWrite { service.deleteCreated(ids) }
+        if (ids.isNotEmpty()) service.deleteCreated(ids)
     }
 
     private fun order(): List<String> = working.map { it.id }

@@ -3206,7 +3206,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             unlockLockedBiblesIfNoneUsable(net.bible.service.sword.BookUnlocker { CommonUtils.unlockDocument(this@NavHostComposeActivity, it) }, usable = usableBibleGate)
             if (!usableBibleGate()) {
                 flow.controller.setProgress(null)
-                flow.controller.refresh()
+                flow.refreshInfo()
                 return@launch
             }
             // Fix round 1: not re-entrant by construction -- the unlock prompt suspends, so two overlapping
@@ -6042,7 +6042,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             }
             // Must-complete: the user's Save must reach the database even if this host is destroyed
             // right after it, so it runs in the application scope rather than lifecycleScope.
-            appScope.launch {
+            // The ordered "mydocument-sync" key keeps two quick Saves in order, and keeps them behind a sync's own writes.
+            MyDocumentBookManager.launcher.launch("mydocument-sync") {
                 val deletedPageIds = removedDocs.flatMap { doc -> myDocumentDao.pagesForDocument(doc.id).map { it.id } }
                 val freshDocs = removedDocs.mapNotNull { myDocumentDao.documentById(it.id) }
                 // JSword's Activator and SwordGenBook are not thread-safe: registration changes stay on Main.
@@ -9222,7 +9223,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         var selectedBookNo = 0
         var selectedChapter = 1
         val baseTitle = getString(R.string.choosePassageBookName)
-        val workspaceName = windowControl.windowRepository.name
+        val workspaceName = hostWindowRepository.name
         return GridChoosePassageController(
             scope = scope,
             initialOptions = initialGridOptions(navigationControl, isScripture),
@@ -9601,6 +9602,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val controller = WorkspaceSelectorController(
             service = workspaceService,
             scope = lifecycleScope,
+            // Saves and clones must outlive this host (a dark-mode flip recreates it mid-flush); the Main dispatcher
+            // keeps the controller's staging state on the UI thread.
+            writeScope = CoroutineScope(appScope.coroutineContext + Dispatchers.Main),
             onResult = { workspaceId, changed ->
                 workspaceSelectorController = null
                 onResult(workspaceId, changed)

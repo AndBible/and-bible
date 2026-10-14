@@ -109,15 +109,19 @@ class WorkspaceServiceImplTest {
         assertEquals(true, keep.id in ids)
     }
 
-    /** A host destroyed mid-visit cancels its scope; the cleanup delete must still reach the database. */
+    /**
+     * A host destroyed mid-visit cancels its scope; the cleanup delete must still reach the database.
+     * Several rows, so that a delete which stopped at the first cancellation point would show.
+     */
     @Test fun deleteCreatedStillCompletesWhenTheCallerIsCancelled() {
         runBlocking { service.loadAll() }
-        val drop = runBlocking { service.createWorkspace("drop") }
+        val drops = runBlocking { (1..4).map { service.createWorkspace("drop$it") } }
         val callerScope = CoroutineScope(Dispatchers.Main)
-        callerScope.launch(start = CoroutineStart.UNDISPATCHED) { service.deleteCreated(listOf(drop.id)) }
         callerScope.cancel()
+        callerScope.launch(start = CoroutineStart.UNDISPATCHED) { service.deleteCreated(drops.map { it.id }) }
         val deadline = System.nanoTime() + 10_000_000_000L
-        while (runBlocking { dao.workspace(IdType(drop.id)) } != null && System.nanoTime() < deadline) Thread.sleep(20)
-        assertNull(runBlocking { dao.workspace(IdType(drop.id)) })
+        fun remaining() = runBlocking { dao.allWorkspaces().count { w -> drops.any { it.id == w.id.toString() } } }
+        while (remaining() > 0 && System.nanoTime() < deadline) Thread.sleep(20)
+        assertEquals(0, remaining())
     }
 }
