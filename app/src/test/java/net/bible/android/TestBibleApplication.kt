@@ -270,6 +270,8 @@ class TestBibleApplication : BibleApplication() {
         cleanup { DocumentChanges.resetSubscribersForTest() }
         cleanup { DatabaseContainer.resetPhase8StreamsForTest() }
         cleanup { AndBibleAddons.resetSubscribersForTest() }
+        // Before the container is detached below: this test's repository must not be flushed into the next test's database.
+        cleanup { GlobalContext.getOrNull()?.getOrNull<net.bible.android.control.page.window.WindowControl>()?.markWindowRepositoryStaleForTest() }
         // D1 final review M9: the one-JVM suite's safety net. A test that touched the settings or a DAO without
         // DatabaseContainer.reset() would otherwise leave its container (files in this test's now dead Robolectric
         // data dir) for the next class. The container is detached now (never built) but closed only at the NEXT

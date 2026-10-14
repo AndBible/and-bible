@@ -71,9 +71,22 @@ open class WindowControl constructor() {
     fun takeWindowRepository(new: WindowRepository): Boolean {
         val previous = windowRepository
         if (previous === new) return false
-        if (previous.initialized) previous.saveIntoDb(false)
+        if (previous.initialized && previous !== staleRepositoryForTest) previous.saveIntoDb(false)
         windowRepository = new
         return true
+    }
+
+    private var staleRepositoryForTest: WindowRepository? = null
+
+    /**
+     * Marks the current repository as belonging to a finished test. The test JVM keeps this Koin singleton
+     * across tests while each test gets a fresh database: without this, the next test's
+     * [takeWindowRepository] would flush the previous test's windows into the new database (FOREIGN KEY
+     * failure on their history). The repository stays readable for the finished test's late callbacks.
+     */
+    @VisibleForTesting
+    fun markWindowRepositoryStaleForTest() {
+        staleRepositoryForTest = _windowRepository
     }
 
     val windowSync get() = windowRepository.windowSync
