@@ -448,7 +448,7 @@ class DatabaseContainer {
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        internal fun forgetReplacesForTest() { replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { DatabaseContainer() } }
+        internal fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { DatabaseContainer() } }
 
         /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
         @VisibleForTesting

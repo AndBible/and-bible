@@ -1385,7 +1385,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             ReadingViewVisibility.setActivityVisible(this, true)
         }
         readingAppBootstrap.prepareData()
-        readingAppBootstrap.createWindowRepository()
+        val repository = readingAppBootstrap.createWindowRepository()
+        // Bootstrapped during a restore: the repository holds provisional state. If the restore already ended, its
+        // notification may have gone out before this host listened, so reload now (else the notification does it).
+        if (repository.staleAfterRestore && !DatabaseContainer.replacing) {
+            lifecycleScope.launch { readingCommands.applyRestoredDatabase() }
+        }
         readingAppBootstrap.setSoftKeyboardMode()
         bootstrapUiOwed = true
         applyBootstrapUiIfForeground()

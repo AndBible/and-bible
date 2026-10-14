@@ -21,6 +21,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -150,25 +151,41 @@ class WindowRepositoryEarlyReaderTest {
     }
 
     /**
-     * Review fix (Task 10 M3, contract tightened by review I2): nothing is created while a restore runs, because the
-     * insert would land while files are swapped. The first start fails (the host reloads after the restore) and
-     * leaves no row; once the restore has ended the same repository starts and creates its workspace.
+     * Round-2 N1: a host that bootstraps while a restore runs must not crash. Nothing is created or saved during the
+     * restore: with no workspace the repository holds an in-memory one, marked stale, and the restore-end reload
+     * (which this test performs) replaces it from the restored database.
      */
-    @Test fun firstStartDuringARestoreCreatesNothingAndSucceedsAfterwards() {
+    @Test fun firstStartAtTheEdgeDuringARestoreDoesNotThrowAndWritesNothing() {
         runBlocking { workspaceDao.allWorkspaces().forEach { workspaceDao.deleteWorkspace(it.id) } }
         CommonUtils.settings.setString("current_workspace_id", null)
-        var refused = false
         runBlocking {
             DatabaseContainer.replacingDatabases {
-                try { f.repo.initialize() } catch (e: IllegalStateException) { refused = true }
+                f.repo.initializeAtEdge()
+                assertTrue(f.repo.initialized)
+                f.repo.saveIntoDb(false)
+                f.persistence.awaitPersisted()
             }
         }
-        assertTrue("the create must be refused while replacing", refused)
-        assertFalse(f.repo.initialized)
         assertEquals("no workspace row was written", 0, runBlocking { workspaceDao.allWorkspaces().size })
-        runBlocking { f.repo.initialize() }
-        assertTrue(f.repo.initialized)
-        assertNotNull("the created workspace has a row", runBlocking { workspaceDao.workspace(f.repo.id) })
+        assertNull("the stored workspace id was not re-pointed", CommonUtils.settings.getString("current_workspace_id"))
+        assertTrue("the repository knows it must reload after the restore", f.repo.staleAfterRestore)
+        runBlocking { f.repo.loadFromDb(null) }
+        assertFalse(f.repo.staleAfterRestore)
+    }
+
+    @Test fun firstStartAtTheEdgeDuringARestorePrefersAnExistingWorkspace() {
+        val existing = WorkspaceEntities.Workspace("Existing")
+        runBlocking {
+            workspaceDao.allWorkspaces().forEach { workspaceDao.deleteWorkspace(it.id) }
+            workspaceDao.insertWorkspace(existing)
+        }
+        CommonUtils.settings.setString("current_workspace_id", null)
+        runBlocking {
+            DatabaseContainer.replacingDatabases { f.repo.initializeAtEdge() }
+        }
+        assertEquals(existing.id, f.repo.id)
+        assertEquals("no workspace was created", 1, runBlocking { workspaceDao.allWorkspaces().size })
+        assertTrue(f.repo.staleAfterRestore)
     }
 
     /**

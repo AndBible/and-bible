@@ -24,6 +24,7 @@ import net.bible.android.database.WorkspaceDao
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils.getResourceString
+import net.bible.service.db.DatabaseContainer
 
 /** One window as read from the database, with its StudyPad label prefetched (the apply phase must not read the database). */
 class LoadedWindow(
@@ -33,9 +34,14 @@ class LoadedWindow(
     val studyPadLabel: BookmarkEntities.Label?,
 )
 
+/**
+ * @param stale true when the read ran during a database restore: the state is provisional (possibly an in-memory
+ * workspace with no row), so the repository must not save it and the host reloads once the restore has ended.
+ */
 class LoadedWorkspace(
     val entity: WorkspaceEntities.Workspace,
     val windows: List<LoadedWindow>,
+    val stale: Boolean = false,
 )
 
 /**
@@ -57,11 +63,16 @@ open class WorkspaceLoader(
         // Reads must see every write this repository has queued (ordered write-through).
         persistence.awaitPersisted()
         val workspaceDao = dao()
+        val restoring = DatabaseContainer.replacing
         val existing = if (workspaceId != null && !workspaceId.isEmpty) workspaceDao.workspace(workspaceId) else null
-        val entity = existing
-            ?: (if (createIfMissing) createWorkspace() else null)
-            ?: workspaceDao.firstWorkspace()
-            ?: WorkspaceEntities.Workspace("").also { requireNoRestore(); workspaceDao.insertWorkspace(it) }
+        val entity = existing ?: if (restoring) {
+            // Nothing is created while files are swapped: use what is there, else an in-memory workspace (stale, never saved).
+            workspaceDao.firstWorkspace() ?: WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
+        } else {
+            (if (createIfMissing) createWorkspace() else null)
+                ?: workspaceDao.firstWorkspace()
+                ?: WorkspaceEntities.Workspace("").also { if (!DatabaseContainer.replacing) workspaceDao.insertWorkspace(it) }
+        }
         val windows = workspaceDao.windows(entity.id).map { window ->
             val pageManager = workspaceDao.pageManager(window.id)
             val page = pageManager?.generalBookPage
@@ -71,16 +82,8 @@ open class WorkspaceLoader(
             } else null
             LoadedWindow(window, pageManager, workspaceDao.historyItems(window.id), label)
         }
-        return LoadedWorkspace(entity, windows)
+        return LoadedWorkspace(entity, windows, restoring)
     }
-
-    /**
-     * Nothing is created while a restore runs: the insert would land while files are swapped (after the restore's
-     * drain of the write queue) and could leave a stray workspace in the restored database. The load fails instead;
-     * the host's restore handler reloads from the restored database, which has its own workspaces.
-     */
-    private fun requireNoRestore() =
-        check(!net.bible.service.db.DatabaseContainer.replacing) { "workspace create refused: database restore in progress" }
 
     /**
      * Queued through [persistence] but NOT behind the restore guard that stale saves use: a created
@@ -88,10 +91,9 @@ open class WorkspaceLoader(
      * key (the repository would hold an in-memory-only workspace). Awaited, so those inserts find it.
      */
     private suspend fun createWorkspace(): WorkspaceEntities.Workspace {
-        requireNoRestore()
         val created = WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
         val row = created.deepCopy()
-        persistence.enqueue { insertWorkspace(row) }
+        persistence.enqueue { if (!DatabaseContainer.replacing) insertWorkspace(row) }
         persistence.awaitPersisted()
         return created
     }

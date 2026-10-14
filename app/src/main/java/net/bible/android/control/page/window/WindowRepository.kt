@@ -174,7 +174,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     private fun finishInitialize(createIfMissing: Boolean) {
         // Only a freshly created (or re-pointed) workspace changes the stored id; a plain load never did.
-        if (createIfMissing && settings.getString("current_workspace_id") != id.toString()) {
+        if (createIfMissing && !staleAfterRestore && settings.getString("current_workspace_id") != id.toString()) {
             settings.setString("current_workspace_id", id.toString())
         }
         val firstTime = settings.getBoolean("first-time", true)
@@ -392,6 +392,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     /** Restore epoch this repository's state was loaded at (fix batch 5 §1.1). */
     private var loadedEpoch = DatabaseContainer.replaceEpoch
 
+    /**
+     * True when this repository was loaded while a restore ran (or before one) and has not reloaded since. A host
+     * that bootstraps during a restore checks it once the restore has ended: the restore-end notification may have
+     * fired before the host subscribed.
+     */
+    val staleAfterRestore: Boolean get() = initialized && restoreInProgress(loadedEpoch)
+
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
         if(!CommonUtils.initialized || !DatabaseContainer.ready) return
@@ -540,7 +547,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     /** The apply phase: replaces this repository's state wholesale from [loaded]. Synchronous; runs under [loadingFromDb]. */
     private fun applyLoaded(loaded: LoadedWorkspace, epoch: Long) {
         pendingLoad = null
-        loadedEpoch = epoch
+        // A load that read during a restore is provisional: one epoch behind keeps every save skipped until a reload.
+        loadedEpoch = if (loaded.stale) epoch - 1 else epoch
         val entity = loaded.entity
         savedEntity = entity.deepCopy()
         clear()
