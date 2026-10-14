@@ -2,10 +2,10 @@ package net.bible.android.platform
 
 import net.bible.android.control.page.GlobalTextDisplaySettingsSource
 import net.bible.android.database.WorkspaceEntities
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.GlobalTextDisplaySettingsStore
 
-/** Reads the live global row rather than caching a copy. */
-class AndroidGlobalTextDisplaySettingsSource : GlobalTextDisplaySettingsSource {
+/** Reads the [GlobalTextDisplaySettingsStore] snapshot. */
+class AndroidGlobalTextDisplaySettingsSource(private val store: () -> GlobalTextDisplaySettingsStore) : GlobalTextDisplaySettingsSource {
     override val current: WorkspaceEntities.TextDisplaySettings
-        get() = CommonUtils.globalTextDisplaySettings
+        get() = store().current
 }

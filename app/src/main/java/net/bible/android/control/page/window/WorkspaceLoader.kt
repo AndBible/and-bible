@@ -17,13 +17,14 @@
 
 package net.bible.android.control.page.window
 
-import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceDao
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.service.common.CommonUtils.getResourceString
+import net.bible.sharedcore.platform.CoreStrings
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import net.bible.service.db.DatabaseContainer
 
 /** One window as read from the database, with its StudyPad label prefetched (the apply phase must not read the database). */
@@ -54,7 +55,9 @@ open class WorkspaceLoader(
     private val dao: () -> WorkspaceDao,
     private val bookmarkControl: BookmarkControl,
     private val journalInitials: String,
-) {
+) : KoinComponent {
+    private val strings: CoreStrings by inject()
+
     /**
      * @param createIfMissing true on a repository's first start: a missing or unknown stored workspace
      * is created ("Workspace 1"), not replaced by another existing workspace.
@@ -67,7 +70,7 @@ open class WorkspaceLoader(
         val existing = if (workspaceId != null && !workspaceId.isEmpty) workspaceDao.workspace(workspaceId) else null
         val entity = existing ?: if (restoring) {
             // Nothing is created while files are swapped: use what is there, else an in-memory workspace (stale, never saved).
-            workspaceDao.firstWorkspace() ?: WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
+            workspaceDao.firstWorkspace() ?: WorkspaceEntities.Workspace(strings.workspaceNumber(1))
         } else {
             (if (createIfMissing) createWorkspace() else null)
                 ?: workspaceDao.firstWorkspace()
@@ -91,7 +94,7 @@ open class WorkspaceLoader(
      * key (the repository would hold an in-memory-only workspace). Awaited, so those inserts find it.
      */
     private suspend fun createWorkspace(): WorkspaceEntities.Workspace {
-        val created = WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
+        val created = WorkspaceEntities.Workspace(strings.workspaceNumber(1))
         val row = created.deepCopy()
         persistence.enqueue { if (!DatabaseContainer.replacing) insertWorkspace(row) }
         persistence.awaitPersisted()

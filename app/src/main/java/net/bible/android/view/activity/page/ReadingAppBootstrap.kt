@@ -588,7 +588,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     }
 
     private val lastTouched: Long get() {
-        return windowRepository.windowList.mapNotNull { it.bibleView?.lastTouched }.max()
+        return windowRepository.windowList.mapNotNull { it.androidBibleView?.lastTouched }.max()
     }
 
     private val syncInterval get() =

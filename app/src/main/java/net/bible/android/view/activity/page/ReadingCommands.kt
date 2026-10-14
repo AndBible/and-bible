@@ -1112,7 +1112,7 @@ class ReadingCommands(
             }
             // SplitBibleArea.kt:1011-1019
             WindowPaneMenuStateBuilder.ID_EXPORT_HTML -> {
-                window.bibleView?.exportHtml()
+                window.androidBibleView?.exportHtml()
                 false
             }
             // SplitBibleArea.kt:1020-1026
@@ -1138,7 +1138,7 @@ class ReadingCommands(
                 val book = currentPage.currentDocument
                 val key = currentPage.key
                 if (book != null && key != null) {
-                    window.bibleView?.createWholePageBookmark(book.initials, key.getOsisRef())
+                    window.androidBibleView?.createWholePageBookmark(book.initials, key.getOsisRef())
                 }
                 false
             }

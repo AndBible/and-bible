@@ -57,6 +57,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val sqliteInvalidFile: String get() = context.getString(R.string.sqlite_invalid_file)
     override val aiUnknownPrompt: String get() = context.getString(R.string.ai_unknown_prompt)
     override val errorPageTooLarge: String get() = context.getString(R.string.error_page_too_large)
+    override fun workspaceNumber(n: Int): String = context.getString(R.string.workspace_number, n)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val errorNoContent: String get() = context.getString(R.string.error_no_content)
     override fun errorKeyNotInDocument(key: String, initials: String): String =

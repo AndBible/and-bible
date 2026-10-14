@@ -32,13 +32,12 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.save
 import net.bible.android.database.IdType
-import net.bible.service.common.CommonUtils.settings
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.blockingAtEdge
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.service.common.CommonUtils
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
@@ -60,6 +59,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         get() = persistenceOverride ?: appPersistence
         set(value) { persistenceOverride = value }
     val speakControl: SpeakControl by inject()
+    private val settings: AppSettings by inject()
+    private val appEnvironment: AppEnvironment by inject()
     private val windowStateService: WindowStateServiceImpl by inject()
 
     val windowSync: WindowSync = WindowSync(this)
@@ -105,10 +106,6 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     var id: IdType = IdType.empty()
     var name = ""
-        set(value) {
-            SharedActivityState.currentWorkspaceName = value
-            field = value
-        }
 
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
@@ -401,7 +398,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
-        if(!CommonUtils.initialized || !DatabaseContainer.ready) return
+        if(!appEnvironment.isInitialized || !DatabaseContainer.ready) return
         // Before the first load there is nothing to save, and `savedEntity` is not set yet.
         if(!initialized) return
         // Fix batch 5 §1.1: mid-restore, or loaded before a restore and not reloaded since -- this

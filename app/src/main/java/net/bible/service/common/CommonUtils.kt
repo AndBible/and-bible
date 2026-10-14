@@ -438,14 +438,13 @@ object CommonUtils : CommonUtilsBase() {
      */
     val aiSettings: net.bible.service.llm.AiSettings get() = org.koin.java.KoinJavaComponent.get(net.bible.service.llm.AiSettings::class.java)
 
+    /** The snapshot held by [GlobalTextDisplaySettingsStore]; loaded in [initializeAppCoroutine]. */
     var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() = DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().let { dao ->
-            blockingDb { dao.get() }?.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
-        }
-        set(value) {
-            val dao = DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao()
-            blockingDb { dao.set(GlobalTextDisplaySettings(textDisplaySettings = value)) }
-        }
+        get() = globalTextDisplaySettingsStore.current
+        set(value) = globalTextDisplaySettingsStore.set(value)
+
+    private val globalTextDisplaySettingsStore: GlobalTextDisplaySettingsStore
+        get() = org.koin.java.KoinJavaComponent.get(GlobalTextDisplaySettingsStore::class.java)
 
     val localePref: String?
         get() = realSharedPreferences.getString("locale_pref", null)
@@ -1124,6 +1123,7 @@ object CommonUtils : CommonUtilsBase() {
     suspend fun initializeAppCoroutine() {
         DatabaseContainer.ready = true
         aiSettings.ensureLoaded()
+        globalTextDisplaySettingsStore.load()
         MyDocumentBookManager.launcher.join("mydocument-sync")
         if(!initialized) {
             try {

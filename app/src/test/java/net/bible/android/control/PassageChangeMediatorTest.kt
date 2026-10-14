@@ -42,7 +42,7 @@ class PassageChangeMediatorTest {
     private lateinit var subscription: Subscription
 
     /** A BibleView an earlier test (any class, one JVM) left on the shared window; detached for this test. */
-    private var leftoverBibleView: BibleView? = null
+    private var leftoverBibleView: net.bible.android.control.page.window.WindowView? = null
 
     @Before fun setUp() {
         PassageChangeMediator.resetSubscribersForTest()

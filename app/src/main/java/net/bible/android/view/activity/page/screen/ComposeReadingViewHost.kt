@@ -1755,7 +1755,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     // "History (%1$s: Window %2$d)" and the goldens depend on both.
                     title = activity.hostContext.getString(
                         R.string.history_for,
-                        SharedActivityState.currentWorkspaceName,
+                        windowControl.windowRepository.name,
                         windowControl.activeWindowPosition + 1,
                     ),
                     onDismiss = { closeQuickSheet() },
@@ -2121,7 +2121,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         var selectedBookNo = 0
         var selectedChapter = 1
         val v11n = navigationControl.versification
-        val workspaceName = SharedActivityState.currentWorkspaceName
+        val workspaceName = windowControl.windowRepository.name
         return GridChoosePassageController(
             scope = scope,
             initialOptions = initialGridOptions(navigationControl, isScripture),

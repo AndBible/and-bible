@@ -12,7 +12,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.workspacesMigrations
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter
 import org.junit.Assert.*
@@ -296,7 +295,7 @@ class WorkspaceNativeLifetimeWitnessTest {
             owner!!.finish()
             val exact = owner!!.container
             assertTrue("exact unpublished settings writer completed", exact.settingsScope.coroutineContext[kotlinx.coroutines.Job]!!.isCompleted)
-            assertTrue("exact unpublished Workspace DAO closed", runCatching { CommonUtils.globalTextDisplaySettings; kotlinx.coroutines.runBlocking { exact.workspaceDb.globalTextDisplaySettingsDao().get() } }.isFailure)
+            assertTrue("exact unpublished Workspace DAO closed", runCatching { readGlobalTextDisplaySettingsRow(); kotlinx.coroutines.runBlocking { exact.workspaceDb.globalTextDisplaySettingsDao().get() } }.isFailure)
             val all = exact.javaClass.getDeclaredMethod("getAllDatabases").apply { isAccessible = true }.invoke(exact) as Array<*>
             all.forEach { resource ->
                 val db = resource as androidx.room3.RoomDatabase
@@ -375,7 +374,7 @@ class WorkspaceNativeLifetimeWitnessTest {
         try {
             assertSame(probe.injected, runCatching { exercise(3, true, probe) }.exceptionOrNull())
             assertTrue("mandatory restoration after owned setup failure", probe.restored)
-            CommonUtils.globalTextDisplaySettings
+            readGlobalTextDisplaySettingsRow()
         } finally { DatabaseResetter.resetDatabase() }
     }
 
@@ -443,12 +442,12 @@ class WorkspaceNativeLifetimeWitnessTest {
             boundary.database = database
             container.workspaceDb = database
             // Finish opening/schema SQL before the held read; no competing SQL trigger is needed.
-            CommonUtils.globalTextDisplaySettings
+            readGlobalTextDisplaySettingsRow()
             boundary.armed.set(true)
             val reader = Thread({
-                boundary.event("reader-entry owner=CommonUtils.globalTextDisplaySettings", stack = true)
+                boundary.event("reader-entry owner=GlobalTextDisplaySettingsDao.get", stack = true)
                 try {
-                    val result = CommonUtils.globalTextDisplaySettings
+                    val result = readGlobalTextDisplaySettingsRow()
                     boundary.event("dao-result type=${result.javaClass.name}")
                 } catch (e: Throwable) {
                     boundary.failure.set(e)
@@ -516,4 +515,12 @@ class WorkspaceNativeLifetimeWitnessTest {
             }
         }
     }
+
+    /**
+     * The blocking DAO read `CommonUtils.globalTextDisplaySettings` used to be (it is a store snapshot now, with no
+     * database access); the witness needs a real reader through the current container's Workspace database.
+     */
+    private fun readGlobalTextDisplaySettingsRow() = net.bible.service.db.blockingDb {
+        DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().get()
+    }?.textDisplaySettings ?: net.bible.android.database.WorkspaceEntities.TextDisplaySettings()
 }

@@ -96,6 +96,7 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
+import net.bible.android.control.page.window.WindowView
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
@@ -292,7 +293,7 @@ class BibleView(
                 internal val bookmarkControl: BookmarkControl,
                 internal val downloadControl: DownloadControl,
                 private val searchControl: SearchControl
-) : WebView(host.hostContext.applicationContext), DocumentView
+) : WebView(host.hostContext.applicationContext), DocumentView, WindowView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
     private val swordContentFacade: SwordContentFacade by lazy { GlobalContext.get().get() }
@@ -1007,7 +1008,7 @@ class BibleView(
         }
     }
 
-    var listenEvents: Boolean = false
+    override var listenEvents: Boolean = false
         set(value) {
             if(value == field) return
             if(value) {
@@ -1677,20 +1678,20 @@ class BibleView(
     // body, just extracted.
     val backgroundColor: Int get() = bibleViewBackgroundColorFor(window)
 
-    var lastUpdated = 0L
+    override var lastUpdated = 0L
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
     private var labelOverridesMap: Map<IdType, WorkspaceEntities.WorkspaceLabelOverride> = emptyMap()
 
-    var firstDocument: Document? = null
+    override var firstDocument: Document? = null
 
     private val documentLoadingLock = object {}
 
-    suspend fun loadDocument(document: Document,
-                             updateLocation: Boolean = false,
-                             key: Key? = null,
-                             anchorOrdinal: OrdinalRange? = null,
-                             htmlId: String? = null,
-                             windowContentGeneration: Long? = null,
+    override suspend fun loadDocument(document: Document,
+                             updateLocation: Boolean,
+                             key: Key?,
+                             anchorOrdinal: OrdinalRange?,
+                             htmlId: String?,
+                             windowContentGeneration: Long?,
     )
     {
         val generation = synchronized(documentLoadingLock) {
@@ -1773,7 +1774,7 @@ class BibleView(
     private val windowState: WindowStateServiceImpl by lazy { GlobalContext.get().get() }
     internal val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
 
-    fun updateTextDisplaySettings(onAttach: Boolean = false) {
+    override fun updateTextDisplaySettings(onAttach: Boolean) {
         Log.i(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
         updateConfig(onAttach)
@@ -1876,7 +1877,7 @@ class BibleView(
 
     private var labelsUploaded = false
 
-    fun adjustLoadingCount(adj: Int): Boolean {
+    override fun adjustLoadingCount(adj: Int): Boolean {
         return executeJavascriptOnUiThread("""bibleView.emit("adjust_loading_count", ${adj})""")
     }
 
@@ -2155,7 +2156,7 @@ class BibleView(
         flushTasks()
     }
 
-    fun scrollOrJumpToVerse(key: Key, forceNow: Boolean = false) {
+    override fun scrollOrJumpToVerse(key: Key, forceNow: Boolean) {
         Log.i(TAG, "Scroll or jump to:$key")
         var toVerse: Verse
         var endVerse: Verse? = null
@@ -2192,7 +2193,7 @@ class BibleView(
             PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
-    fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, bookInitials: String?, osisRef: String?, forceNow: Boolean = false) {
+    override fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, bookInitials: String?, osisRef: String?, forceNow: Boolean) {
         Log.i(TAG, "Scroll or jump to ordinal:$ordinal")
         
         // Return early if both ordinal and htmlId are null - nothing to scroll to
@@ -2216,11 +2217,11 @@ class BibleView(
         }
     }
 
-    fun highlightOrdinalRange(bookInitials: String, osisRef: String, range: IntRange) {
+    override fun highlightOrdinalRange(bookInitials: String, osisRef: String, range: IntRange) {
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, bookInitials: '$bookInitials', osisRef: '$osisRef', ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
     }
 
-    fun highlightBibleOrdinalRange(range: IntRange) {
+    override fun highlightBibleOrdinalRange(range: IntRange) {
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
     }
     fun executeJavascriptOnUiThread(javascript: String): Boolean {
@@ -2282,7 +2283,7 @@ class BibleView(
     private val isCommentary get() = (firstDocument as? OsisDocument)?.book?.bookCategory == BookCategory.COMMENTARY
     private val isMyNotes get() = firstDocument is MyNotesDocument
 
-    val verseRangeLoaded: VerseRange? get() {
+    override val verseRangeLoaded: VerseRange? get() {
         val key = (firstKey as? Verse)?: return null
         return CommonUtils.getWholeChapters(key.versification, key.book, minChapter, maxChapter)
     }
@@ -2404,7 +2405,7 @@ class BibleView(
         }
     }
 
-    fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
+    override fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
     fun setClientReady() = runOnUiThread {
         htmlLoadingOngoing = false

@@ -23,8 +23,9 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.defaultWorkspaceColor
-import net.bible.android.view.activity.settings.getPrefItem
-import net.bible.service.common.CommonUtils
+import net.bible.android.control.page.window.SettingLabels
+import net.bible.service.common.GlobalTextDisplaySettingsStore
+import org.koin.core.context.GlobalContext
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
@@ -40,6 +41,8 @@ import net.bible.service.db.blockingDb
 class WorkspaceServiceImpl(private val windowControl: WindowControl) : WorkspaceService {
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
     private val working = mutableListOf<WorkspaceEntities.Workspace>()
+    private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = GlobalContext.get().get()
+    private val settingLabels: SettingLabels get() = GlobalContext.get().get()
 
     private fun WorkspaceEntities.Workspace.toVd() = WorkspaceRowVd(
         id = id.toString(),
@@ -90,7 +93,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     override fun settingTypeLabels(sourceId: String): List<String> {
         val ws = find(sourceId)
         return WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(bundleFor(ws), it).title.toString()
+            settingLabels.label(bundleFor(ws), it)
         }
     }
 
@@ -99,7 +102,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
         workspaceSettings = (ws.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()).apply {
             colors?.workspaceColor = ws.workspaceSettings?.workspaceColor
         },
-        globalSettings = CommonUtils.globalTextDisplaySettings,
+        globalSettings = globalSettingsStore.current,
     )
 
     override fun copySettings(sourceId: String, typeIndices: List<Int>, targetIds: List<String>): List<WorkspaceRowVd> {
@@ -120,7 +123,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
         val dirtyTypes = typeIndices.map { types[it] }.toSet()
         val source = find(sourceId)
-        val global = CommonUtils.globalTextDisplaySettings
+        val global = globalSettingsStore.current
 
         // Resolve through the source's own parent chain first: a workspace that INHERITS a type has
         // null there, and writing that null used to reset the global to the factory default.
@@ -137,7 +140,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
             global, resolved, dirtyTypes,
             working.mapNotNull { it.textDisplaySettings },
         )
-        CommonUtils.globalTextDisplaySettings = newGlobal
+        globalSettingsStore.set(newGlobal)
 
         // Walk the tree, as every other writer of the global level does. Without this the new
         // default stays invisible behind every existing workspace/window override and the command

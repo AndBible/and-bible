@@ -185,6 +185,7 @@ import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.androidBibleView
 import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
@@ -1216,7 +1217,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun readingViewKeyPressed(key: ReadingViewKey): Boolean = when (key) {
         ReadingViewKey.VolumeUp, ReadingViewKey.VolumeDown ->
             if (readingViewOwnsVolumeKeys()) {
-                windowControl.activeWindow.bibleView?.let { readingViewScrollFor(key)(it) } ?: false
+                windowControl.activeWindow.androidBibleView?.let { readingViewScrollFor(key)(it) } ?: false
             } else {
                 false
             }
@@ -1262,7 +1263,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun readingViewScreenTurnedOn() {
         ScreenSettings.refreshNightMode()
         refreshIfNightModeChange()
-        windowControl.activeWindow.bibleView?.onScreenTurnedOn()
+        windowControl.activeWindow.androidBibleView?.onScreenTurnedOn()
     }
 
     /**
@@ -1281,7 +1282,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Classic `MainBibleActivity.onScreenTurnedOff` (`:2688`). */
     private fun readingViewScreenTurnedOff() {
-        windowControl.activeWindow.bibleView?.onScreenTurnedOff()
+        windowControl.activeWindow.androidBibleView?.onScreenTurnedOff()
     }
 
     // ——— The reading view's window chrome (reading-host re-typing R4) ———————————————————————————
@@ -9215,7 +9216,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         var selectedBookNo = 0
         var selectedChapter = 1
         val baseTitle = getString(R.string.choosePassageBookName)
-        val workspaceName = SharedActivityState.currentWorkspaceName
+        val workspaceName = windowControl.windowRepository.name
         return GridChoosePassageController(
             scope = scope,
             initialOptions = initialGridOptions(navigationControl, isScripture),

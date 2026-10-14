@@ -39,6 +39,7 @@ interface CoreStrings {
     val sqliteInvalidFile: String // R.string.sqlite_invalid_file
     val aiUnknownPrompt: String // R.string.ai_unknown_prompt
     val errorPageTooLarge: String // R.string.error_page_too_large
+    fun workspaceNumber(n: Int): String // R.string.workspace_number
     val errorOccurred: String // R.string.error_occurred
     val errorNoContent: String // R.string.error_no_content
     fun errorKeyNotInDocument(key: String, initials: String): String // R.string.error_key_not_in_document2
