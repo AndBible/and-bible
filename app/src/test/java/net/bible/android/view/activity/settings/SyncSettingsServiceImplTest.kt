@@ -48,7 +48,22 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
 class SyncSettingsServiceImplTest {
-    private val settings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
+    /**
+     * This test's own instance, on this test's [net.bible.sharedcore.platform.OrderedLauncher]. The Koin
+     * singleton is built once per JVM and keeps the launcher of whichever test created it (the fixture swaps
+     * the launcher per test and cancels the old one's scope), so joining this test's launcher did not wait for
+     * its writes, and its already-loaded state could come from an earlier test's database.
+     */
+    private val settings: DocumentSyncSettings by lazy {
+        fun <T : Any> get(type: Class<T>): T = org.koin.java.KoinJavaComponent.get(type)
+        DocumentSyncSettings(
+            { net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao() },
+            { net.bible.service.db.DatabaseContainer.instance.documentSyncDb.cloudListingStateDao() },
+            { net.bible.service.db.DatabaseContainer.instance.documentSyncDb.cloudDocumentSyncTimestampDao() },
+            get(net.bible.sharedcore.platform.OrderedLauncher::class.java),
+            get(net.bible.sharedcore.platform.AppEnvironment::class.java),
+        )
+    }
     private val scopes = mutableListOf<CoroutineScope>()
     private val schedulers = mutableListOf<kotlinx.coroutines.test.TestCoroutineScheduler>()
     @After fun tearDown() {
