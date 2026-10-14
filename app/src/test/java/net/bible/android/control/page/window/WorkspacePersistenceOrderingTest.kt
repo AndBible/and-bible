@@ -197,7 +197,7 @@ class WorkspacePersistenceOrderingTest {
         gate.hold()
         repo.saveIntoDb(false)
         assertEquals("the write must still be queued", true, gate.pending > 0)
-        val rows = net.bible.android.view.activity.workspaces.WorkspaceServiceImpl(CommonUtils.windowControl).loadAll()
+        val rows = net.bible.android.view.activity.workspaces.WorkspaceServiceImpl(CommonUtils.windowControl).let { runBlocking { it.loadAll() } }
         assertEquals("renamed", rows.first { it.id == repo.id.toString() }.name)
     }
 
@@ -208,7 +208,7 @@ class WorkspacePersistenceOrderingTest {
         repo.saveIntoDb(false)
         assertEquals("the write must still be queued", true, gate.pending > 0)
         val service = net.bible.android.view.activity.workspaces.WorkspaceServiceImpl(CommonUtils.windowControl)
-        val clone = service.cloneWorkspace(repo.id.toString(), "copy")
+        val clone = runBlocking { service.cloneWorkspace(repo.id.toString(), "copy") }
         val verse = runBlocking {
             val window = dao.windows(IdType(clone.id)).first()
             dao.pageManager(window.id)!!.biblePage.verse.verseNo

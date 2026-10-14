@@ -49,7 +49,7 @@ import net.bible.sharedcore.ai.ToolVd
  *   `radioDeny` id.
  *
  * Registered as a Koin single (stateless — reads/writes go straight to `aiSettings`,
- * which persists via `GlobalAiSettingsDao`; DAO calls are suspend and bridged with `blockingDb` there).
+ * which persists via `GlobalAiSettingsDao`; DAO calls are suspend there).
  */
 class ToolPermissionServiceImpl : ToolPermissionService, KoinComponent {
     private val settings: AiSettings by inject()

@@ -24,18 +24,21 @@ class WorkspaceSelectorControllerTest {
 
         override fun currentWorkspaceId() = working.firstOrNull { it.isCurrent }?.id ?: working.first().id
         override fun saveCurrentIntoDb() { savedIntoDb = true }
-        override fun loadAll() = working.toList()
-        override fun createWorkspace(name: String): WorkspaceRowVd {
+        var loadGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+        var applyGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+        override suspend fun loadAll(): List<WorkspaceRowVd> { loadGate?.await(); return working.toList() }
+        override suspend fun createWorkspace(name: String): WorkspaceRowVd {
             val v = vd("${nextNewId++}", name); working.add(v); return v
         }
-        override fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd {
+        override suspend fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd {
             val v = vd("${nextNewId++}", name)
             working.add(working.indexOfFirst { it.id == sourceId } + 1, v); return v
         }
-        override fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
+        override suspend fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
+            applyGate?.await()
             appliedOrder = orderedIds; appliedDeleted = deletedIds; appliedRenamed = renamed; appliedChanged = changedIds
         }
-        override fun deleteCreated(ids: List<String>) { deletedCreated = ids }
+        override suspend fun deleteCreated(ids: List<String>) { deletedCreated = ids }
         override fun settingTypeLabels(sourceId: String) = listOf("Font", "Colors", "Margins")
         override fun copySettings(sourceId: String, typeIndices: List<Int>, targetIds: List<String>): List<WorkspaceRowVd> {
             copyCall = Triple(sourceId, typeIndices, targetIds); return targetIds.mapNotNull { t -> working.firstOrNull { it.id == t } }
@@ -65,6 +68,54 @@ class WorkspaceSelectorControllerTest {
         assertEquals(listOf("1", "2"), c.workspaces.value.map { it.id })
         assertFalse(c.dirty.value)
         assertTrue(c.canDelete.value)
+    }
+
+    @Test fun a_held_load_shows_empty_then_the_rows() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1", current = true), vd("2")))
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.loadGate = gate
+        val c = controller(svc)
+        assertEquals(emptyList<String>(), c.workspaces.value.map { it.id }, "nothing is published while the load is held")
+        gate.complete(Unit)
+        assertEquals(listOf("1", "2"), c.workspaces.value.map { it.id })
+        assertFalse(c.dirty.value)
+    }
+
+    @Test fun a_newer_load_wins_over_a_still_held_older_one() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1")))
+        val c = controller(svc)
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.loadGate = gate
+        c.load()                                   // held
+        svc.loadGate = null
+        svc.working = mutableListOf(vd("9"))
+        c.load()                                   // completes at once
+        gate.complete(Unit)
+        assertEquals(listOf("9"), c.workspaces.value.map { it.id })
+    }
+
+    @Test fun save_reports_the_result_only_after_applyChanges_completed() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
+        c.rename("1", "x")
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.applyGate = gate
+        c.save()
+        assertNull(resultChanged, "the host must not leave before the flush finished")
+        gate.complete(Unit)
+        assertEquals(true, resultChanged)
+        assertEquals(mapOf("1" to "x"), svc.appliedRenamed)
+    }
+
+    @Test fun discardCreated_is_idempotent_and_deletes_once() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1")))
+        val c = controller(svc); c.clone("1", "tmp")
+        val id = c.workspaces.value.first { it.name == "tmp" }.id
+        c.discardCreated()
+        assertEquals(listOf(id), svc.deletedCreated)
+        svc.deletedCreated = null
+        c.discardCreated()
+        assertNull(svc.deletedCreated)
     }
 
     @Test fun single_workspace_cannot_delete() = runTest(UnconfinedTestDispatcher()) {

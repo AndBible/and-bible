@@ -100,7 +100,6 @@ import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.coroutines.resume
-import net.bible.service.db.blockingDb
 
 /**
  * The reading view's COMMAND SURFACE, lifted out of [MainBibleActivity] -- reading-host re-typing
@@ -1372,7 +1371,18 @@ class ReadingCommands(
 
     // ---- Workspace switching (addendum Ruling D) ----
 
-    private val workspaces get() = DatabaseContainer.instance.workspaceDb.workspaceDao().let { dao -> blockingDb { dao.allWorkspaces() } }
+    private suspend fun workspaces() = DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces()
+
+    /**
+     * Counts the read that picks the target as part of the switch it leads to, so
+     * [workspaceSwitchesInFlight] covers the whole operation and not just the part after the read.
+     */
+    private suspend fun <T> countedAsSwitch(block: suspend () -> T): T {
+        workspaceSwitchesInFlight.incrementAndGet()
+        try { return block() } finally { workspaceSwitchesInFlight.decrementAndGet() }
+    }
+
+    private suspend fun switchToFirstWorkspace() = countedAsSwitch { switchWorkspace(workspaces().first().id) }
 
     /**
      * Switch to a workspace by id. Extracted from the WORKSPACE_CHANGED result arm so round 15b's
@@ -1474,7 +1484,7 @@ class ReadingCommands(
             it.entityId1 == currentWorkspaceId
         }
         if(workspaceDeleted) {
-            switchWorkspace(workspaces.first().id)
+            switchToFirstWorkspace()
         }
 
         val windowsChanged = entries.any { entry ->
@@ -1494,12 +1504,12 @@ class ReadingCommands(
 
     /** Classic `MainBibleActivity`'s refresh subscription, verbatim (now fed by `CloudSync.workspaceRefreshRequired`). */
     internal suspend fun applyWorkspaceRefreshRequired() {
-        switchWorkspace(workspaces.first().id)
+        switchToFirstWorkspace()
     }
 
-    internal suspend fun cycleWorkspace(forward: Boolean) {
-        val workspaces = workspaces
-        if (workspaces.size < 2) return
+    internal suspend fun cycleWorkspace(forward: Boolean) = countedAsSwitch {
+        val workspaces = workspaces()
+        if (workspaces.size < 2) return@countedAsSwitch
         windowRepository().saveIntoDb()
         val currentWorkspacePos = workspaces.indexOf(workspaces.find { it.id == currentWorkspaceId })
         val nextPos = if (forward) {

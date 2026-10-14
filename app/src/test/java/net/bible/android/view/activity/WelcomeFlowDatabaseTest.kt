@@ -90,4 +90,24 @@ class WelcomeFlowDatabaseTest {
         )
         controller.close()
     }
+
+    /** The previous-install check reads the repo database, so it is a `suspend` call (no blocking bridge in view code). */
+    @Test
+    fun previousInstallDetectedReflectsTheKnownInstalledDocuments() {
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME))
+            .apply { create().start().resume().visible() }
+        try {
+            shadowOf(Looper.getMainLooper()).idle()
+            val flow = controller.get().welcomeFlow
+            val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+            kotlinx.coroutines.runBlocking {
+                dao.getKnownInstalled().forEach { dao.deleteByOsisId(it.initials) }
+                org.junit.Assert.assertFalse(flow.previousInstallDetected())
+                dao.insert(net.bible.android.database.SwordDocumentInfo("KJV", "King James", "KJV", "en", "Crosswire"))
+                assertTrue(flow.previousInstallDetected())
+            }
+        } finally { controller.close() }
+    }
 }

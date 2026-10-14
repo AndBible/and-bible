@@ -30,7 +30,8 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedcore.workspaces.WorkspaceService
-import net.bible.service.db.blockingDb
+import net.bible.sharedcore.platform.AppCoroutineScope
+import kotlinx.coroutines.async
 
 /**
  * Room/JSword-backed [WorkspaceService]; holds the working entities and mirrors classic
@@ -43,6 +44,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     private val working = mutableListOf<WorkspaceEntities.Workspace>()
     private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = GlobalContext.get().get()
     private val settingLabels: SettingLabels get() = GlobalContext.get().get()
+    private val appScope: AppCoroutineScope get() = GlobalContext.get().get()
 
     private fun WorkspaceEntities.Workspace.toVd() = WorkspaceRowVd(
         id = id.toString(),
@@ -59,36 +61,46 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     override fun currentWorkspaceId() = windowControl.windowRepository.id.toString()
     override fun saveCurrentIntoDb() { windowControl.windowRepository.saveIntoDb() }
 
-    override fun loadAll(): List<WorkspaceRowVd> {
-        working.clear(); working.addAll(blockingDb { awaitSaves(); dao.allWorkspaces() }); return working.map { it.toVd() }
+    override suspend fun loadAll(): List<WorkspaceRowVd> {
+        awaitSaves()
+        val rows = dao.allWorkspaces()
+        working.clear(); working.addAll(rows); return working.map { it.toVd() }
     }
 
-    override fun createWorkspace(name: String): WorkspaceRowVd {
+    override suspend fun createWorkspace(name: String): WorkspaceRowVd {
         val repo = windowControl.windowRepository
         val ws = WorkspaceEntities.Workspace(
             name = name, contentsText = null, orderNumber = repo.orderNumber,
             textDisplaySettings = repo.textDisplaySettings, workspaceSettings = repo.workspaceSettings,
-        ).apply { blockingDb { dao.insertWorkspace(this@apply) } }
+        ).also { dao.insertWorkspace(it) }
         working.add(ws); return ws.toVd()
     }
 
-    override fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd {
-        val ws = blockingDb { awaitSaves(); dao.cloneWorkspace(IdType(sourceId), name) }
+    override suspend fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd {
+        awaitSaves()
+        val ws = dao.cloneWorkspace(IdType(sourceId), name)
         working.add(working.indexOfFirst { it.id.toString() == sourceId } + 1, ws)
         return ws.toVd()
     }
 
-    override fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
+    override suspend fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
         renamed.forEach { (id, n) -> working.firstOrNull { it.id.toString() == id }?.name = n }
         orderedIds.forEachIndexed { idx, id -> working.firstOrNull { it.id.toString() == id }?.orderNumber = idx }
         val toDelete = deletedIds.map { IdType(it) }
-        blockingDb { awaitSaves(); toDelete.forEach { dao.deleteWorkspace(it) } }
+        awaitSaves()
+        toDelete.forEach { dao.deleteWorkspace(it) }
         toDelete.forEach { AgentSessionManager.clearSession(it) }
         val toUpdate = working.filter { it.id.toString() in changedIds && it.id.toString() !in deletedIds }
-        blockingDb { dao.updateWorkspaces(toUpdate) }
+        dao.updateWorkspaces(toUpdate)
     }
 
-    override fun deleteCreated(ids: List<String>) { blockingDb { ids.forEach { dao.deleteWorkspace(IdType(it)) } } }
+    /**
+     * Must-complete: the host calls this from `onDestroy` mid-visit, when its own scope is being
+     * cancelled. The delete therefore runs in the application scope; the caller only waits for it.
+     */
+    override suspend fun deleteCreated(ids: List<String>) {
+        appScope.async { ids.forEach { dao.deleteWorkspace(IdType(it)) } }.await()
+    }
 
     override fun settingTypeLabels(sourceId: String): List<String> {
         val ws = find(sourceId)

@@ -1755,7 +1755,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     // "History (%1$s: Window %2$d)" and the goldens depend on both.
                     title = activity.hostContext.getString(
                         R.string.history_for,
-                        windowControl.windowRepository.name,
+                        activity.hostWindowRepository.name,
                         windowControl.activeWindowPosition + 1,
                     ),
                     onDismiss = { closeQuickSheet() },
@@ -1773,7 +1773,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             }
             ReadingQuickSheet.Workspaces -> {
                 val controller = remember(sheet) {
-                    WorkspaceQuickController(workspaceService) { id ->
+                    WorkspaceQuickController(workspaceService, activity.lifecycleScope) { id ->
                         closeQuickSheet()
                         // C1: the quick sheet never pauses the activity, so nothing else flushes the
                         // outgoing workspace's windows/page-managers/history before switching. Use
@@ -2121,7 +2121,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         var selectedBookNo = 0
         var selectedChapter = 1
         val v11n = navigationControl.versification
-        val workspaceName = windowControl.windowRepository.name
+        val workspaceName = activity.hostWindowRepository.name
         return GridChoosePassageController(
             scope = scope,
             initialOptions = initialGridOptions(navigationControl, isScripture),

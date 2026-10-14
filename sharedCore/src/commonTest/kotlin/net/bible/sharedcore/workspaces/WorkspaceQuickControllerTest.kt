@@ -8,11 +8,11 @@ private class SpyWorkspaceService(private val all: List<WorkspaceRowVd>) : Works
     val calls = mutableListOf<String>()
     override fun currentWorkspaceId(): String { calls += "currentWorkspaceId"; return all.first { it.isCurrent }.id }
     override fun saveCurrentIntoDb() { calls += "saveCurrentIntoDb" }
-    override fun loadAll(): List<WorkspaceRowVd> { calls += "loadAll"; return all }
-    override fun createWorkspace(name: String): WorkspaceRowVd { calls += "createWorkspace"; error("must not be called") }
-    override fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd { calls += "cloneWorkspace"; error("must not be called") }
-    override fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) { calls += "applyChanges" }
-    override fun deleteCreated(ids: List<String>) { calls += "deleteCreated" }
+    override suspend fun loadAll(): List<WorkspaceRowVd> { calls += "loadAll"; return all }
+    override suspend fun createWorkspace(name: String): WorkspaceRowVd { calls += "createWorkspace"; error("must not be called") }
+    override suspend fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd { calls += "cloneWorkspace"; error("must not be called") }
+    override suspend fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) { calls += "applyChanges" }
+    override suspend fun deleteCreated(ids: List<String>) { calls += "deleteCreated" }
     override fun settingTypeLabels(sourceId: String): List<String> { calls += "settingTypeLabels"; return emptyList() }
     override fun copySettings(sourceId: String, typeIndices: List<Int>, targetIds: List<String>): List<WorkspaceRowVd> { calls += "copySettings"; return emptyList() }
     override fun copySettingsToGlobal(sourceId: String, typeIndices: List<Int>) { calls += "copySettingsToGlobal" }
@@ -20,7 +20,10 @@ private class SpyWorkspaceService(private val all: List<WorkspaceRowVd>) : Works
     override fun applyWorkspaceSettings(id: String, settingsBundleJson: String, reset: Boolean): WorkspaceRowVd { calls += "applyWorkspaceSettings"; error("must not be called") }
 }
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class WorkspaceQuickControllerTest {
+    private fun scope() = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+
     private val rows = listOf(
         WorkspaceRowVd("a", "Study", null, 0xFF1B5E20.toInt(), isCurrent = false),
         WorkspaceRowVd("b", "Devotional", null, 0xFF444444.toInt(), isCurrent = true),
@@ -28,21 +31,32 @@ class WorkspaceQuickControllerTest {
 
     @Test fun itPublishesTheServiceOrderUnchanged() {
         val svc = SpyWorkspaceService(rows)
-        val c = WorkspaceQuickController(svc) {}
+        val c = WorkspaceQuickController(svc, scope()) {}
         assertEquals(listOf("a", "b"), c.rows.value.map { it.id })
         assertEquals(listOf(true), c.rows.value.map { it.isCurrent }.filter { it })
     }
 
+    @Test fun aHeldLoadShowsEmptyThenTheRows() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val svc = object : WorkspaceService by SpyWorkspaceService(rows) {
+            override suspend fun loadAll(): List<WorkspaceRowVd> { gate.await(); return rows }
+        }
+        val c = WorkspaceQuickController(svc, scope()) {}
+        assertEquals(emptyList<String>(), c.rows.value.map { it.id })
+        gate.complete(Unit)
+        assertEquals(listOf("a", "b"), c.rows.value.map { it.id })
+    }
+
     @Test fun selectingHandsTheIdToTheHost() {
         var switched: String? = null
-        val c = WorkspaceQuickController(SpyWorkspaceService(rows)) { switched = it }
+        val c = WorkspaceQuickController(SpyWorkspaceService(rows), scope()) { switched = it }
         c.select("a")
         assertEquals("a", switched)
     }
 
     @Test fun selectingTheCurrentWorkspaceIsANoOp() {
         var switched: String? = null
-        val c = WorkspaceQuickController(SpyWorkspaceService(rows)) { switched = it }
+        val c = WorkspaceQuickController(SpyWorkspaceService(rows), scope()) { switched = it }
         c.select("b")
         assertEquals(null, switched, "the current workspace row is inert, as QuickDocPicker's is")
     }
@@ -58,7 +72,7 @@ class WorkspaceQuickControllerTest {
      */
     @Test fun itNeverMutatesTheWorkspaceService() {
         val svc = SpyWorkspaceService(rows)
-        val c = WorkspaceQuickController(svc) {}
+        val c = WorkspaceQuickController(svc, scope()) {}
         c.reload()
         c.select("a")
         val mutating = setOf(

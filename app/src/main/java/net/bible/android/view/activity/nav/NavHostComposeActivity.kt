@@ -513,7 +513,6 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.jdom2.Element
 import org.koin.android.ext.android.inject
-import net.bible.service.db.blockingDb
 
 /**
  * The single Android host for the Compose navigation graph. Screens migrated off their own
@@ -6032,13 +6031,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
          *  post `MyDocumentChange.AiDocPages` for the deletions. */
         fun applyMyDocumentsChanges(ordered: List<MyDocItem>, changed: Set<Long>, deleted: Set<Long>) {
             val removedDocs = deleted.mapNotNull { session.entityByLong[it] }
-            val deletedPageIds = blockingDb {
-                removedDocs.flatMap { doc -> myDocumentDao.pagesForDocument(doc.id).map { it.id } }
-            }
-            // MyDocumentBookManager bridges by itself, so it is called outside the DAO bridges.
-            val freshDocs = blockingDb { removedDocs.mapNotNull { myDocumentDao.documentById(it.id) } }
-            freshDocs.forEach { MyDocumentBookManager.unregisterDocument(it.initials) }
-            blockingDb { freshDocs.forEach { myDocumentDao.delete(it) } }
+            // The entity edits are in-memory and immediate, so the screen that follows already sees them.
             val toUpdate = ArrayList<MyDocument>()
             ordered.forEachIndexed { index, item ->
                 val doc = session.entityByLong[item.id] ?: return@forEachIndexed
@@ -6047,8 +6040,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 doc.description = item.description.ifEmpty { null }
                 if (item.id in changed) { doc.updatedAt = System.currentTimeMillis(); toUpdate.add(doc) }
             }
-            if (toUpdate.isNotEmpty()) blockingDb { myDocumentDao.updateDocuments(toUpdate) }
-            if (deletedPageIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedPageIds))
+            // Must-complete: the user's Save must reach the database even if this host is destroyed
+            // right after it, so it runs in the application scope rather than lifecycleScope.
+            appScope.launch {
+                val deletedPageIds = removedDocs.flatMap { doc -> myDocumentDao.pagesForDocument(doc.id).map { it.id } }
+                val freshDocs = removedDocs.mapNotNull { myDocumentDao.documentById(it.id) }
+                // JSword's Activator and SwordGenBook are not thread-safe: registration changes stay on Main.
+                withContext(Dispatchers.Main) { freshDocs.forEach { MyDocumentBookManager.unregisterDocument(it.initials) } }
+                freshDocs.forEach { myDocumentDao.delete(it) }
+                if (toUpdate.isNotEmpty()) myDocumentDao.updateDocuments(toUpdate)
+                if (deletedPageIds.isNotEmpty()) withContext(Dispatchers.Main) {
+                    MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedPageIds))
+                }
+            }
         }
 
         session.controller = MyDocumentsController(
@@ -8001,27 +8005,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = downloadSession ?: return
         val book = session.booksById[docId] ?: return
         Log.i(TAG_DOWNLOAD, "Document selected:" + book.initials)
-        try {
-            manageDownload(session, book)
-        } catch (e: Exception) {
-            Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
-            Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            try {
+                manageDownload(session, book)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
+                Toast.makeText(this@NavHostComposeActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     /** Classic `manageDownload` (`:633-654`), including its confirm-before-download AlertDialog. */
-    private fun manageDownload(session: DownloadSession, documentToDownload: Book?) {
+    private suspend fun manageDownload(session: DownloadSession, documentToDownload: Book?) {
         if (documentToDownload != null &&
             downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus != DocumentInstallStatus.BEING_INSTALLED &&
             !documentToDownload.isPseudoBook
         ) {
             if (documentToDownload.isInstalled && DatabaseContainer.ready &&
-                blockingDb { downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) } > 0
+                downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) > 0
             ) {
-                lifecycleScope.launch {
-                    if (CommonUtils.documentUpgradeConfirmation(this@NavHostComposeActivity)) {
-                        doDownload(session, documentToDownload)
-                    }
+                if (CommonUtils.documentUpgradeConfirmation(this@NavHostComposeActivity)) {
+                    doDownload(session, documentToDownload)
                 }
             } else {
                 session.controller.requestDownloadConfirm(

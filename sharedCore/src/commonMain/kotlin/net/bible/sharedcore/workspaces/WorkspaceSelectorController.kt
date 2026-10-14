@@ -1,6 +1,11 @@
 package net.bible.sharedcore.workspaces
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,12 +49,31 @@ class WorkspaceSelectorController(
     private val _pendingSelect = MutableStateFlow<String?>(null); val pendingSelectId: StateFlow<String?> = _pendingSelect.asStateFlow()
     private val _canDelete = MutableStateFlow(false); val canDelete: StateFlow<Boolean> = _canDelete.asStateFlow()
 
+    private var loadJob: Job? = null
+
+    /** Serialises the service's writes (clone/create/apply/delete) so they reach the database in call order. */
+    private val writes = Mutex()
+
+    private fun launchWrite(block: suspend () -> Unit) {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) { writes.withLock { block() } }
+    }
+
+    /**
+     * Resets the staging and (re)loads the rows. The list is empty until the service answers; a newer
+     * [load] supersedes an older one still in flight (its late result is dropped).
+     */
     fun load() {
-        working.clear(); working.addAll(service.loadAll())
+        loadJob?.cancel()
+        working.clear()
         created.clear(); deleted.clear(); renamed.clear(); changed.clear()
         _query.value = ""; _filtering.value = false; _dirty.value = false; _copy.value = null; _pendingSelect.value = null
         searchMode.reset()
         publish()
+        loadJob = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            val rows = writes.withLock { service.loadAll() }
+            working.clear(); working.addAll(rows)
+            publish()
+        }
     }
 
     private fun publish() {
@@ -90,14 +114,14 @@ class WorkspaceSelectorController(
         renamed[id] = name; changed.add(id); _dirty.value = true; publish()
     }
 
-    fun clone(sourceId: String, name: String) {
+    fun clone(sourceId: String, name: String) = launchWrite {
         val v = service.cloneWorkspace(sourceId, name)
         val at = working.indexOfFirst { it.id == sourceId }
         working.add(if (at >= 0) at + 1 else working.size, v)
         created.add(v.id); _dirty.value = true; publish()
     }
 
-    fun createNew(name: String) {
+    fun createNew(name: String) = launchWrite {
         val v = service.createWorkspace(name)
         // NOTE: unlike clone(), classic createNewWorkspace() does NOT track the new workspace in
         // workspacesCreated — only cloneWorkspace() does. A created-and-persisted workspace must
@@ -153,22 +177,25 @@ class WorkspaceSelectorController(
 
     fun selectWorkspace(id: String) {
         if (_dirty.value) { _pendingSelect.value = id }
-        else { service.applyChanges(order(), deleted.toList(), renamed.toMap(), changed.toSet()); onResult(id, false) }
+        else applyThen { onResult(id, false) }
+    }
+
+    /** Flushes the staged edits, then (and only then) runs [then]. The staging is snapshotted at call time. */
+    private fun applyThen(then: () -> Unit) {
+        val order = order(); val del = deleted.toList(); val ren = renamed.toMap(); val chg = changed.toSet()
+        launchWrite { service.applyChanges(order, del, ren, chg); then() }
     }
 
     fun confirmPendingSelect(save: Boolean) {
         val id = _pendingSelect.value ?: return
         _pendingSelect.value = null
-        if (save) { service.applyChanges(order(), deleted.toList(), renamed.toMap(), changed.toSet()); onResult(id, true) }
-        else { service.deleteCreated(created.toList()); onResult(id, false) }
+        if (save) applyThen { onResult(id, true) }
+        else { val ids = created.toList(); launchWrite { service.deleteCreated(ids); onResult(id, false) } }
     }
 
     fun dismissPendingSelect() { _pendingSelect.value = null }
 
-    fun save() {
-        service.applyChanges(order(), deleted.toList(), renamed.toMap(), changed.toSet())
-        onResult(null, true)
-    }
+    fun save() = applyThen { onResult(null, true) }
 
     fun cancel() { discardCreated(); onCancel() }
 
@@ -186,8 +213,9 @@ class WorkspaceSelectorController(
      */
     fun discardCreated() {
         if (created.isEmpty()) return
-        service.deleteCreated(created.toList())
+        val ids = created.toList()
         created.clear()
+        launchWrite { service.deleteCreated(ids) }
     }
 
     private fun order(): List<String> = working.map { it.id }
