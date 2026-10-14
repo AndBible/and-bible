@@ -77,7 +77,7 @@ class DocumentQuickSheetScopeTest {
 
     @Test
     fun theBibleSheetOffersOnlyBiblesAndItsVerseTabIsBiblesForVerse() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         val tabs = host.buildDocumentQuickTabsForHost(DocumentSheetScope.BIBLE)
         assertTrue(DocumentQuickTab.ALL in tabs.visible, "sanity: the test modules include Bibles")
         DocumentQuickTab.entries.forEach { tab ->
@@ -89,7 +89,7 @@ class DocumentQuickSheetScopeTest {
 
     @Test
     fun theCommentarySheetsVerseTabIsCommentariesForVerseAndAllAddsDictionaries() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         val tabs = host.buildDocumentQuickTabsForHost(DocumentSheetScope.COMMENTARY)
         val forVerse = tabs.rowsByTab.getValue(DocumentQuickTab.FOR_VERSE).map { it.docId }.toSet()
         assertTrue(
@@ -103,14 +103,14 @@ class DocumentQuickSheetScopeTest {
 
     @Test
     fun theTitleSheetStillOffersLastFilterAndNotAll() {
-        val tabs = ComposeReadingViewHost(activity).buildDocumentQuickTabsForHost(DocumentSheetScope.ALL)
+        val tabs = net.bible.test.fixtureReadingHost(activity).buildDocumentQuickTabsForHost(DocumentSheetScope.ALL)
         assertFalse(DocumentQuickTab.ALL in tabs.visible)
         assertTrue(DocumentQuickTab.LAST_FILTER in tabs.visible)
     }
 
     @Test
     fun eachScopeRestoresItsOwnTab() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         host.persistQuickDocTab(DocumentSheetScope.BIBLE, DocumentQuickTab.ALL.name)
         host.persistQuickDocTab(DocumentSheetScope.ALL, DocumentQuickTab.LAST_FILTER.name)
         val scopedVisible = listOf(DocumentQuickTab.RECENT, DocumentQuickTab.FOR_VERSE, DocumentQuickTab.ALL)

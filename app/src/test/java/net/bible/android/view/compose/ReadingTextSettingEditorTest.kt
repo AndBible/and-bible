@@ -102,7 +102,7 @@ class ReadingTextSettingEditorTest {
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
-    private fun host() = ComposeReadingViewHost(activity)
+    private fun host() = net.bible.test.fixtureReadingHost(activity)
 
     @Test
     fun showTextSettingEditorOpensTheStackAtThatPage() {

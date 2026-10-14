@@ -84,7 +84,7 @@ class RefChooserSheetTest {
         ).get()
         activity.readingAppBootstrap.windowRepository = windowRepository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
-        host = ComposeReadingViewHost(activity)
+        host = net.bible.test.fixtureReadingHost(activity)
     }
 
     @After

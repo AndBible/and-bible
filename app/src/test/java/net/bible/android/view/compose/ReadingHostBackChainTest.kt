@@ -106,13 +106,78 @@ class ReadingHostBackChainTest {
      */
     @After
     fun resetReadingSeams() {
-        // The reading view's hostScope is its own SupervisorJob, not a lifecycleScope child: drain it in the reset too.
-        val hostScopes = hostControllers.mapNotNull { controller ->
-            controller.get().composeReadingViewHost?.let { view ->
-                view.javaClass.getDeclaredField("hostScope").apply { isAccessible = true }.get(view) as kotlinx.coroutines.CoroutineScope
+        net.bible.test.closeReadingHostsBeforeReset(hostControllers)
+    }
+
+    @Test fun resetJoinsStoppedPrivateHostQueryBeforeNativeClose() {
+        val boundary = net.bible.service.llm.WorkspaceNativeLifetimeWitnessTest.Boundary(21, true)
+        DatabaseResetter.resetDatabase()
+        val originalFactory = net.bible.service.db.DatabaseContainer.containerFactory
+        val witness = net.bible.service.llm.WorkspaceNativeLifetimeWitnessTest()
+        var cleanupOwner: net.bible.service.llm.WorkspaceNativeLifetimeWitnessTest.CleanupOwner? = null
+        val oldDrain = DatabaseResetter.drainObserver
+        val oldClose = DatabaseResetter.beforeCloseObserver
+        var primary: Throwable? = null
+        var attempted = false
+        val factory: () -> net.bible.service.db.DatabaseContainer = {
+            originalFactory().also { container ->
+                boundary.container = container
+                cleanupOwner = witness.retainCleanupOwner(boundary, container)
+                container.workspaceDb.close()
+                val db = androidx.room3.Room.databaseBuilder<net.bible.android.database.WorkspaceDatabase>(
+                    ApplicationProvider.getApplicationContext(), net.bible.android.database.WorkspaceDatabase.dbFileName
+                ).setDriver(boundary).setQueryCoroutineContext(kotlinx.coroutines.Dispatchers.IO)
+                    .setJournalMode(androidx.room3.RoomDatabase.JournalMode.TRUNCATE)
+                    .addMigrations(*net.bible.android.database.migrations.workspacesMigrations).build()
+                cleanupOwner!!.database = db
+                boundary.database = db
+                container.workspaceDb = db
             }
         }
-        net.bible.test.closeReadingHostsBeforeReset(hostControllers, reset = { DatabaseResetter.resetDatabase(*hostScopes.toTypedArray()) })
+        net.bible.service.db.DatabaseContainer.containerFactory = factory
+        try {
+            val activity = host()
+            cleanupOwner!!.published = true
+            val view = requireNotNull(activity.composeReadingViewHost)
+            val scope = view.javaClass.getDeclaredField("hostScope").apply { isAccessible = true }.get(view) as kotlinx.coroutines.CoroutineScope
+            val parent = requireNotNull(scope.coroutineContext[kotlinx.coroutines.Job])
+            assertTrue("private host is independent of lifecycle", parent !== activity.lifecycleScope.coroutineContext[kotlinx.coroutines.Job])
+            hostControllers.single().pause().stop()
+            boundary.armed.set(true)
+            val child = scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                try { CommonUtils.globalTextDisplaySettings }
+                finally { boundary.completed.set(true); boundary.event("private-host-query-complete") }
+            }
+            cleanupOwner!!.producer = child
+            assertTrue(boundary.entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            DatabaseResetter.drainObserver = { jobs, drain ->
+                assertTrue("exact private Job must be retained even after stop", jobs.any { it === parent })
+                assertFalse("attempted join must suspend on real query", drain.isCompleted)
+                assertFalse(child.isCompleted)
+                attempted = true
+                boundary.release.countDown()
+            }
+            DatabaseResetter.beforeCloseObserver = {
+                // Reject omission BEFORE native reset, even though Boundary also defers exact handles.
+                assertTrue("safe pre-close: private query join was attempted", attempted)
+                assertTrue("safe pre-close: actual private owner completed", parent.isCompleted)
+                assertTrue(boundary.completed.get())
+            }
+            DatabaseResetter.resetDatabase()
+            assertTrue(child.isCompleted)
+            assertTrue(boundary.index("delegate-step-exit") < boundary.index("connection-close-attempt"))
+        } catch (e: Throwable) { primary = e; throw e }
+        finally {
+            boundary.release.countDown()
+            DatabaseResetter.drainObserver = oldDrain
+            DatabaseResetter.beforeCloseObserver = oldClose
+            // Complete exact work before restoring any factory/container globals.
+            try {
+                DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+                net.bible.service.db.DatabaseContainer.containerFactory = originalFactory
+                cleanupOwner?.finish()
+            } catch (e: Throwable) { if (primary == null) throw e else if (primary !== e) primary.addSuppressed(e) }
+        }
     }
 
     /** Pre-paused host-owned getter mechanism, not a Window.loadText or historical crash reproduction. */

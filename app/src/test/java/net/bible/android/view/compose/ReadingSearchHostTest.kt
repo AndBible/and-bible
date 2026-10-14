@@ -186,15 +186,15 @@ class ReadingSearchHostTest {
     @After
     fun tearDownRealHost() {
         if (tornDown) return
-        tornDown = true
         // F130: the host's searches run on the activity's lifecycleScope, which a never-destroyed Robolectric
         // activity never cancels; an unfinished one used to escape into later tests.
         activity.lifecycleScope.cancel()
         CurrentActivityHolder.deactivate(activity)
         DatabaseResetter.resetDatabase(windowRepository.scope)
+        tornDown = true
     }
 
-    private fun host() = ComposeReadingViewHost(activity)
+    private fun host() = net.bible.test.fixtureReadingHost(activity)
 
     /**
      * A fake Bible left UNINDEXED (no `indexStatus` override) — the twin of

@@ -84,6 +84,8 @@ class TestBibleApplication : BibleApplication() {
     override fun getLocalizedResources(language: String): Resources = application.resources
 
     override fun onCreate() {
+        net.bible.test.DatabaseResetter.requireNoRetainedWorkers()
+        net.bible.test.ReadingFixtureOwners.requireEmpty()
         check(!terminationPending && startupRegistrationOwner == null) {
             "Previous fixture termination/startup has not completed; retry onTerminate first"
         }
@@ -189,6 +191,17 @@ class TestBibleApplication : BibleApplication() {
         }
         if (terminated) return
         terminationPending = true
+        // Test factories/controller helpers retain stopped, unactivated and private owners.
+        CurrentActivityHolder.liveActivitiesForTest().forEach { activity ->
+            if (activity is net.bible.android.view.activity.nav.NavHostComposeActivity)
+                net.bible.test.ReadingFixtureOwners.retain(activity)
+        }
+        var readingDrained = false
+        cleanup {
+            net.bible.test.DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+            readingDrained = true
+        }
+        if (!readingDrained) throw failure ?: IllegalStateException("Reading fixture ownership incomplete")
         val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
         cleanup {
             net.bible.test.DatabaseResetter.runResetBlocking {
