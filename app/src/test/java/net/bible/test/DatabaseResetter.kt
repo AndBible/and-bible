@@ -63,9 +63,9 @@ object DatabaseResetter {
         runResetBlocking {
             (net.bible.android.BibleApplication.application as? net.bible.android.TestBibleApplication)
                 ?.drainAiSettingsFixture()
-            // A reading host's Window.loadText outlives a test that reset the database without joining
-            // the activity. The next teardown closes that detached container, and the query then
-            // surfaces as UncaughtExceptionsBeforeTest.
+            // This activated-activity fallback is not a complete fixture owner inventory:
+            // standalone, unactivated and stopped hosts require exact fixture retention.
+            // The historical escaped query has not been correlated to a particular host/container.
             val hostOwners = net.bible.android.view.activity.base.CurrentActivityHolder.liveActivitiesForTest()
                 .map { it.lifecycleScope }
             hostOwners.forEach { it.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
@@ -98,8 +98,7 @@ object DatabaseResetter {
             else {
                 // The settings object keeps the launcher it was constructed with. After the first test
                 // that is the production launcher, not the Koin override the fixture later drains.
-                val ownedLauncher = settings.javaClass.getDeclaredField("launcher").apply { isAccessible = true }
-                    .get(settings) as net.bible.sharedcore.platform.OrderedLauncher
+                val ownedLauncher = settings.fixtureLauncher()
                 resetDocumentSyncFixture(settings, ownedLauncher) { DatabaseContainer.reset() }
             }
         }

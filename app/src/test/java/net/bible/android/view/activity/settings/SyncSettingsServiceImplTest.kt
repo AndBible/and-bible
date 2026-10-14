@@ -29,6 +29,15 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
+import net.bible.test.awaitFixtureWrites
+import kotlinx.coroutines.async
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.cancelAndJoin
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -128,6 +137,53 @@ class SyncSettingsServiceImplTest {
         assertFalse(db.documentSyncPreferencesDao().get()!!.autoDownload)
     }
 
+    @Test fun persistenceBarrierWaitsForTheSettingsOwnedCurrentWrite() = runBlocking {
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val owner = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val launcher = net.bible.sharedcore.platform.OrderedLauncher(owner)
+        val dao = object : net.bible.android.database.DocumentSyncPreferencesDao by db.documentSyncPreferencesDao() {
+            override suspend fun set(prefs: net.bible.android.database.DocumentSyncPreferences) {
+                entered.complete(Unit)
+                release.await()
+                db.documentSyncPreferencesDao().set(prefs)
+            }
+        }
+        val fresh = DocumentSyncSettings({ dao }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
+        var primary: Throwable? = null
+        val barrierScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        var barrier: kotlinx.coroutines.Deferred<Unit>? = null
+        try {
+            fresh.ensureLoaded()
+            fresh.wifiOnly = false
+            assertFalse("snapshot publication precedes persistence", fresh.wifiOnly)
+            withTimeout(5000) { entered.await() }
+            barrier = barrierScope.async(start = CoroutineStart.UNDISPATCHED) { fresh.awaitFixtureWrites() }
+            // UNDISPATCHED reaches the actual join before returning; the DAO is still held.
+            assertFalse("foreign queue cannot establish current-write persistence", barrier.isCompleted)
+            release.complete(Unit)
+            withTimeout(5000) { barrier.await() }
+            assertFalse(db.documentSyncPreferencesDao().get()!!.wifiOnly)
+        } catch (failure: Throwable) {
+            primary = failure
+            throw failure
+        } finally {
+            release.complete(Unit)
+            try {
+                withTimeout(5000) {
+                    launcher.join("document-sync-settings")
+                    owner.coroutineContext[Job]!!.cancelAndJoin()
+                    barrierScope.coroutineContext[Job]!!.cancelAndJoin()
+                }
+            } catch (cleanup: Throwable) {
+                if (primary == null) throw cleanup else primary.addSuppressed(cleanup)
+            }
+        }
+    }
+
     @Test fun rapidLoadedTogglesKeepSubmissionOrderWithDelayedWorker() = kotlinx.coroutines.runBlocking {
         settings.ensureLoaded()
         val ui = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
@@ -139,8 +195,7 @@ class SyncSettingsServiceImplTest {
         service.setDocumentSyncToggle("sync_documents_wifi_only", false)
         assertFalse("last submitted write is visible without scheduling worker", settings.wifiOnly)
         worker.scheduler.runCurrent()
-        org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.OrderedLauncher>(
-            net.bible.sharedcore.platform.OrderedLauncher::class.java).join("document-sync-settings")
+        settings.awaitFixtureWrites()
         assertFalse(net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao().get()!!.wifiOnly)
     }
 
