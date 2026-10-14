@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.compose
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -48,6 +51,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.bookmark.nav.BookmarksDeps
+import net.bible.sharedui.bookmark.nav.BookmarksManageLabelsCollector
 import net.bible.sharedui.bookmark.nav.LabelEditDeps
 import net.bible.sharedui.bookmark.nav.ManageLabelsDeps
 import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
@@ -77,8 +81,8 @@ import kotlin.test.assertTrue
  * The two host halves are stood in for, not faked away: the `ManageLabels` controller here reports
  * through the same `onResult` the real host passes, and the payload travels through
  * [NavRoutes.manageLabels]' own percent-encoding, so the JSON round trip is real too. What is NOT
- * exercised is the host's own Room work behind `onManageLabelsResult`, which is why the assertion is
- * on the payload that reaches that slot rather than on anything it would do with it.
+ * exercised is the host's own Room work behind the collector's `onResult`, which is why the assertion is
+ * on the payload that reaches it rather than on anything it would do with it.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -117,6 +121,9 @@ class BookmarksInGraphResultTest {
 
     /** What the graph handed back to the host, in the order it handed it. */
     private val appliedResults = mutableListOf<String>()
+
+    /** The fake host's half of CR-5's gate: set when the list navigates to the label manager. */
+    private var awaitingManageLabels by mutableStateOf(false)
 
     /** The arm's own `navController.navigate(NavRoutes.manageLabels(payload))`, captured when the
      *  bookmark list's controller is built — this is the edge classic reached with `awaitIntent`. */
@@ -198,7 +205,10 @@ class BookmarksInGraphResultTest {
         labelEditResults = NavResultChannel<LabelEditResult> { channelExitWithResultCalls++ },
         bookmarks = BookmarksDeps(
             controllerFor = { initialFilterIndex, onSelectBookmark, navigate ->
-                navigateToManageLabels = navigate
+                navigateToManageLabels = { payload ->
+                    awaitingManageLabels = true
+                    navigate(payload)
+                }
                 BookmarksController(
                     service = FakeBookmarksService(),
                     scope = scope,
@@ -216,7 +226,6 @@ class BookmarksInGraphResultTest {
                 )
             },
             title = "Bookmarks",
-            onManageLabelsResult = { result -> appliedResults.add(result.data) },
             subscribeSyncEvents = { { } },
         ),
         manageLabels = ManageLabelsDeps(
@@ -290,6 +299,15 @@ class BookmarksInGraphResultTest {
                     NavHost(navController = navController, startDestination = startDestination) {
                         bookmarkNavGraph(navController, d)
                     }
+                    // The production consumer, outside the NavHost like the host's own call.
+                    BookmarksManageLabelsCollector(
+                        results = d.manageLabelsResults,
+                        awaiting = awaitingManageLabels,
+                        onResult = { result ->
+                            awaitingManageLabels = false
+                            appliedResults.add(result.data)
+                        },
+                    )
                 }
             }
         }
@@ -361,6 +379,32 @@ class BookmarksInGraphResultTest {
     }
 
     /**
+     * CR-5, the bookmark side of the shared-channel gate (the settings side is
+     * WorkspaceInGraphResultTest.aLabelAnswerThisVisitDidNotAskForIsLeftInTheChannel). The label
+     * manager is entered WITHOUT the list's own navigate-to-manage-labels callback -- the shape of
+     * "some other destination asked" -- so the answer must be left in the channel, not applied to
+     * the workspace through applyBookmarksManageLabelsResult.
+     */
+    @Test
+    fun aLabelAnswerTheBookmarkListDidNotAskForIsLeftInTheChannel() {
+        setGraph()
+        compose.runOnIdle { navController.navigate(NavRoutes.manageLabels("""{"mode":"WORKSPACE"}""")) }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.MANAGE_LABELS_PATTERN, currentRoute)
+
+        val returned = """{"mode":"WORKSPACE","selected":["L1"]}"""
+        compose.runOnIdle { manageLabelsChannel.deliver(navController, ManageLabelsResult(returned)) }
+        compose.waitForIdle()
+
+        assertEquals(NavRoutes.BOOKMARKS_PATTERN, currentRoute)
+        assertTrue(appliedResults.isEmpty(), "an unrequested label answer was applied: $appliedResults")
+        assertEquals(
+            returned, manageLabelsChannel.pending.value?.data,
+            "the answer was consumed by an arm that never asked for it",
+        )
+    }
+
+    /**
      * The payload survives [NavRoutes.manageLabels]' percent-encoding and the navigation library's
      * single decode. `100%` in the JSON is the case that matters: the arm reads its argument PLAINLY
      * for exactly this reason (a second `NavRoutes.decodeArg` pass would corrupt it), and that
@@ -398,6 +442,15 @@ class BookmarksInGraphResultTest {
                     NavHost(navController = navController, startDestination = NavRoutes.bookmarks()) {
                         bookmarkNavGraph(navController, d)
                     }
+                    // The production consumer, outside the NavHost like the host's own call.
+                    BookmarksManageLabelsCollector(
+                        results = d.manageLabelsResults,
+                        awaiting = awaitingManageLabels,
+                        onResult = { result ->
+                            awaitingManageLabels = false
+                            appliedResults.add(result.data)
+                        },
+                    )
                 }
             }
         }

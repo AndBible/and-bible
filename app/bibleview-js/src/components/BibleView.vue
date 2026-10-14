@@ -34,7 +34,7 @@
     <div class="window-id" v-if="appSettings.errorBox">{{appSettings.windowId}}</div>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
-    <div v-if="appSettings.hasActiveIndicator">
+    <div v-if="appSettings.hasActiveIndicator" :style="{'--corner-bottom-offset': cornerBottomOffset}">
       <div class="top-left-corner"/>
       <div class="top-right-corner"/>
       <div class="bottom-left-corner"/>
@@ -151,7 +151,13 @@ import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {black, useConfig, white} from "@/composables/config";
-import {calcHelperLinePositions, calcMaxScrollY, calcPageScrollDistance, calcRelativePageNumbers} from "@/composables/page-scroll";
+import {
+    calcActiveCornerBottomOffset,
+    calcHelperLinePositions,
+    calcMaxScrollY,
+    calcPageScrollDistance,
+    calcRelativePageNumbers,
+} from "@/composables/page-scroll";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
@@ -476,6 +482,11 @@ const helperLineClass = computed(() => {
     }
 });
 
+// The bottom window's bar covers the screen edge, so its bottom corners sit on top of the bar instead.
+const cornerBottomOffset = computed(() =>
+    `${calcActiveCornerBottomOffset(appSettings.isBottomWindow, appSettings.bottomOffset)}px`
+);
+
 const pageNumberBottom = computed(() =>
     appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
 );
@@ -544,67 +555,77 @@ $borderDistance: 0;
 $colorEinkAccent: rgba(0, 0, 255, 0.6);
 $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
+// Active-window corner: the screen corner filled up to a concave quarter circle. The curve is tangent
+// to both screen edges, so the paint thins to nothing along them and blends into the edge with no
+// angular line end. Paint goes through `color` (currentColor in the gradient) so it follows the theme.
+// Colored modes soften the inner edge (--corner-softness > 1); monochrome and color e-ink keep it
+// crisp, since gradients dither badly on e-ink, and smaller, since a hard edge reads larger.
+$cornerRadius: 32px;
+$cornerRadiusCrisp: 16px;
+$cornerSoftness: 1.4;
+
 .active-window-corner {
   position: fixed;
   z-index: -1;
-  height: 28px;
-  width: 28px;
-  border-width: 3px;
+  width: var(--corner-radius);
+  height: var(--corner-radius);
+  --corner-radius: #{$cornerRadius};
+  --corner-softness: #{$cornerSoftness};
 
   .night & {
-    border-color: var(--ab-primary, rgba(196, 196, 255, 0.8));
+    color: var(--ab-primary, rgba(196, 196, 255, 0.8));
   }
 
-  border-color: var(--ab-primary, rgba(0, 0, 255, 0.6));
+  color: var(--ab-primary, rgba(0, 0, 255, 0.6));
 
   .monochrome & {
-    border-color: black;
+    color: black;
+    --corner-radius: #{$cornerRadiusCrisp};
+    --corner-softness: 1;
   }
   .monochrome.night & {
-    border-color: white;
+    color: white;
   }
   .colorEink & {
-    border-color: $colorEinkAccent;
+    color: $colorEinkAccent;
+    --corner-radius: #{$cornerRadiusCrisp};
+    --corner-softness: 1;
   }
   .colorEink.night & {
-    border-color: $colorEinkAccentNight;
+    color: $colorEinkAccentNight;
   }
+}
+
+// $centre: the circle's centre inside the box (the box corner farthest from the screen corner).
+@mixin active-corner($h, $v, $centre) {
+  #{$h}: $borderDistance;
+  @if $v == bottom {
+    // Lifted above the bottom window's bar (0 elsewhere or when the bar is hidden).
+    bottom: var(--corner-bottom-offset, $borderDistance);
+  } @else {
+    #{$v}: $borderDistance;
+  }
+  background: radial-gradient(circle at $centre, transparent calc(var(--corner-radius) - 0.5px), currentColor calc(var(--corner-radius) * var(--corner-softness)));
 }
 
 .top-left-corner {
   @extend .active-window-corner;
-  border-top-left-radius: 12px;
-  top: $borderDistance;
-  left: $borderDistance;
-  border-top-style: solid;
-  border-left-style: solid;
+  @include active-corner(left, top, 100% 100%);
 }
 
 .top-right-corner {
   @extend .active-window-corner;
-  border-top-right-radius: 12px;
-  top: $borderDistance;
-  right: $borderDistance;
-  border-top-style: solid;
-  border-right-style: solid;
-}
-
-.bottom-right-corner {
-  @extend .active-window-corner;
-  border-bottom-right-radius: 12px;
-  bottom: $borderDistance;
-  right: $borderDistance;
-  border-bottom-style: solid;
-  border-right-style: solid;
+  @include active-corner(right, top, 0 100%);
 }
 
 .bottom-left-corner {
   @extend .active-window-corner;
-  border-bottom-left-radius: 12px;
-  bottom: $borderDistance;
-  left: $borderDistance;
-  border-bottom-style: solid;
-  border-left-style: solid;
+  @include active-corner(left, bottom, 100% 0);
+}
+
+.bottom-right-corner {
+  @extend .active-window-corner;
+  @include active-corner(right, bottom, 0 0);
 }
 
 .top-margin {

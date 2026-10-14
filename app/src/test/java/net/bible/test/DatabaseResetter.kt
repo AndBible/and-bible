@@ -18,10 +18,12 @@
 package net.bible.test
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.ensureActive
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import java.lang.IllegalStateException
@@ -80,6 +82,14 @@ object DatabaseResetter {
                 drain.await()
             }
             checkpoint("producers-joined")
+            // The shared WindowControl outlives the test, and its repository now holds windows the fresh
+            // DB lacks. A host taking ownership flushes the previous owner (CR-1 I1), which would hit
+            // foreign-key errors on that stale copy, so drop it the way a new process would.
+            try {
+                CommonUtils.windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+            } catch (e: Exception) {
+                // No Koin / app in this test: there is no shared repository to drop.
+            }
             val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
             if (settings == null) commitReset { DatabaseContainer.reset() }

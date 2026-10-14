@@ -61,4 +61,13 @@ class ChooseDictionaryWordControllerTest {
         c.dismissError()
         assertNull(c.error.value)
     }
+
+    /** CR-3: a failed key load must end the spinner, or it spins under (and after) the error dialog. */
+    @Test fun showError_ends_loading() {
+        val c = ChooseDictionaryWordController({})
+        assertTrue(c.loading.value)
+        c.showError()
+        assertFalse(c.loading.value)
+        assertEquals(ChooserError.FAILED, c.error.value)
+    }
 }

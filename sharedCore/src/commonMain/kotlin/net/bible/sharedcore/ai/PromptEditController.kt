@@ -258,11 +258,20 @@ class PromptEditController(
         return completeMutation { service.deletePromptById(id); true }
     }
 
-    /** Works even for a read-only prompt — that's the point of "Copy to customize". */
+    /**
+     * Works even for a read-only prompt — that's the point of "Copy to customize". Returns null
+     * when the admission is refused or when the source prompt is gone; in the latter case the
+     * editor is released so the user can stay on it (CR-7).
+     */
     suspend fun copyToCustomize(): String? {
         val id = _state.value.id ?: return null
         if (!admitMutation()) return null
-        return completeMutation { service.copyPrompt(id) }
+        return completeMutation { service.copyPrompt(id) }.also { newId ->
+            if (newId == null) {
+                _mutating.value = false
+                _canSave.value = computeCanSave(_state.value)
+            }
+        }
     }
 
     /**

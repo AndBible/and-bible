@@ -537,20 +537,50 @@ function tokenWinner(css, token, mode) {
     return winning(css, mode, "", "div")[token] ?? root[token];
 }
 describe("bounded theme chrome contrast and geometry", () => {
-    it.each([".top-left-corner", ".top-right-corner", ".bottom-left-corner", ".bottom-right-corner"])(
-        "paints a rounded 28px active corner at %s without changing e-ink paint", selector => {
-            const css = componentCss("BibleView.vue");
-            const rule = declarations(css, selector);
-            expect(rule).toContain("height: 28px");
-            expect(rule).toContain("width: 28px");
-            expect(rule).toContain("border-width: 3px");
-            expect(rule).toContain(`border-${selector.slice(1).replace("-corner", "")}-radius: 12px`);
-            expect(rule).toContain("var(--ab-primary, rgba(0, 0, 255, 0.6))");
-            expect(declarations(css, `.monochrome ${selector}`)).toContain("border-color: black");
-            expect(declarations(css, `.monochrome.night ${selector}`)).toContain("border-color: white");
-            expect(declarations(css, `.colorEink ${selector}`)).toContain("border-color: rgba(0, 0, 255, 0.6)");
+    // [selector, fillet circle centre]: the circle is centred on the corner farthest from the screen corner.
+    it.each([
+        [".top-left-corner", "100% 100%"],
+        [".top-right-corner", "0 100%"],
+        [".bottom-left-corner", "100% 0"],
+        [".bottom-right-corner", "0 0"],
+    ])("paints an active corner that tapers into both screen edges at %s", (selector, centre) => {
+        const css = componentCss("BibleView.vue");
+        const rule = declarations(css, selector).replace(/\s+/g, " ");
+        expect(rule).toContain("width: var(--corner-radius)");
+        expect(rule).toContain("height: var(--corner-radius)");
+        // One filled corner minus a quarter circle: the curve is tangent to both screen edges, so the
+        // paint thins to nothing at its ends instead of stopping in an angular line end.
+        for (const forbidden of ["border", "linear-gradient"]) expect(rule).not.toContain(forbidden);
+        expect(rule).toContain(`radial-gradient(circle at ${centre}, transparent calc(var(--corner-radius) - 0.5px), currentColor calc(var(--corner-radius) * var(--corner-softness)))`);
+        // Soft, 32px corner in colored modes; a crisp, smaller 16px one in monochrome and color e-ink
+        // (gradients dither badly there, and a hard edge reads larger than a soft one).
+        for (const mode of ["", "night"]) {
+            const winner = winning(css, selector.slice(1), mode, "div");
+            expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["32px", "1.4"]);
         }
-    );
+        for (const mode of ["monochrome", "monochrome night", "colorEink", "colorEink night"]) {
+            const winner = winning(css, selector.slice(1), mode, "div");
+            expect([winner["--corner-radius"], winner["--corner-softness"]]).toEqual(["16px", "1"]);
+        }
+        // Paint still goes through `color` in every mode.
+        expect(winning(css, selector.slice(1), "monochrome", "div").color).toBe("black");
+        expect(winning(css, selector.slice(1), "monochrome night", "div").color).toBe("white");
+        expect(winning(css, selector.slice(1), "colorEink", "div").color).toBe("rgba(0, 0, 255, 0.6)");
+        expect(winning(css, selector.slice(1), "", "div").color).toContain("var(--ab-primary, rgba(0, 0, 255, 0.6))");
+    });
+    it("keeps only the bottom corners above the bottom window's bar, via --corner-bottom-offset", () => {
+        const css = componentCss("BibleView.vue");
+        for (const selector of [".bottom-left-corner", ".bottom-right-corner"]) {
+            expect(declarations(css, selector)).toContain("bottom: var(--corner-bottom-offset, 0)");
+        }
+        for (const selector of [".top-left-corner", ".top-right-corner"]) {
+            expect(declarations(css, selector)).not.toContain("--corner-bottom-offset");
+        }
+        // The variable is only useful if the template feeds it from the shared helper.
+        const source = readFileSync(join(__dirname, "../components/BibleView.vue"), "utf8");
+        expect(source).toMatch(/--corner-bottom-offset['"]?\s*:\s*`?\$?\{?cornerBottomOffset/);
+        expect(source).toMatch(/calcActiveCornerBottomOffset\(appSettings\.isBottomWindow, appSettings\.bottomOffset\)/);
+    });
     it.each([["BibleView.vue", ".pagenumber"], ["ReadingProgress.vue", ".reading-progress"]])(
         "pairs the chip roles and restores window text on noAnimation in %s", (file, selector) => {
             const css = componentCss(file);

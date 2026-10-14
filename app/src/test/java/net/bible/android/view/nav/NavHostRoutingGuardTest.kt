@@ -1145,6 +1145,25 @@ class NavHostRoutingGuardTest {
     }
 
     /**
+     * CR-2 review M6: the index-progress error's dismiss must leave the screen, so the route wires
+     * `controller::dismissErrorAndLeave`. The controller method is unit-tested on its own, but
+     * nothing else fails if the route is pointed back at `controller::dismissError`, which only
+     * clears the error and leaves the user stranded on the progress screen. Source-text pin on the
+     * real (uncommented) wiring line, since the graph is a Compose composable and cannot be driven
+     * here without a full nav host.
+     */
+    @Test
+    fun theIndexProgressErrorDismissalLeavesTheScreen() {
+        val graph = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/search/nav/SearchNavGraph.kt")
+        assertTrue(graph.isFile, "cannot find SearchNavGraph.kt at ${graph.absolutePath}")
+        val wiring = Regex("^\\s*onDismissError\\s*=\\s*controller::dismissErrorAndLeave\\s*,", RegexOption.MULTILINE)
+        assertTrue(
+            wiring.containsMatchIn(graph.readText()),
+            "SearchNavGraph.kt must wire onDismissError = controller::dismissErrorAndLeave",
+        )
+    }
+
+    /**
      * Every `*NavGraph.kt` in `:sharedUi`'s `commonMain`. Globbed rather than listed so the slices
      * still queued behind this batch are covered the moment their graph file lands, instead of being
      * silently skipped by a hard-coded list nobody remembers to extend.

@@ -39,10 +39,9 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.test.assertTrue
 
 /**
- * Classic parity for the gaps in the window-tab rail: classic `rebuildRestoreButtons()` put the tabs
- * side by side (only `window_button.xml`'s 0.3dip start/end margins between them) and a 5dip
- * `Space` between groups. Measured as the distance between the tabs' label start edges, which sit
- * at the same offset inside every 40dp tab.
+ * Gaps in the window-tab rail: tabs of one group sit 2dp apart (a hairline, tighter than the old 6dp)
+ * while the semantic gap between groups stays wide (17dp, divider included). Measured as the
+ * distance between the tabs' label start edges, which sit at the same offset inside every 40dp tab.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -65,7 +64,7 @@ class WindowTabBarSpacingTest {
         compose.onNodeWithText(label, useUnmergedTree = true).getUnclippedBoundsInRoot().left
 
     @Test
-    fun tabsSitAlmostFlushAndGroupsKeepAClassicSizedGap() {
+    fun tabsSitCloseAndGroupsKeepAWideGap() {
         val model = buildWindowTabBar(
             WindowLayoutState(
                 windows = listOf(win("P", pin = true), win("N1"), win("N2")),
@@ -95,7 +94,7 @@ class WindowTabBarSpacingTest {
         val inGroupGap = labelStart("N2") - labelStart("N1") - tabWidth
         val groupGap = labelStart("N1") - labelStart("P") - tabWidth
 
-        assertTrue(inGroupGap in 0.dp..1.5.dp, "gap between tabs of one group: $inGroupGap")
-        assertTrue(groupGap in 4.dp..6.dp, "gap between groups (separator included): $groupGap")
+        assertTrue(inGroupGap in 1.5.dp..2.5.dp, "gap between tabs of one group: $inGroupGap")
+        assertTrue(groupGap in 16.dp..18.dp, "gap between groups (separator included): $groupGap")
     }
 }

@@ -233,6 +233,7 @@ fun AiConnectionSettingsScreen(
         // Only commentary_max_response / agent_max_iterations (both numeric TextInputRows) still
         // reach here — the other TextInputRow keys (custom prompts, retention) were rewritten to
         // NavigationRow above, so this screen never needs a plain-String text callback.
+        // The sheet now blocks invalid input (CR-9), so this guard is unreachable from the UI.
         onTextInput = { key, value -> value.toIntOrNull()?.let { onTextInputInt(key, it) } },
         onNavigate = { key ->
             when (key) {

@@ -117,6 +117,15 @@ class AiConnectionSettingsControllerTest {
         assertFalse(AiConnectionNav.EASY_SETUP in c.state.value.visibleItems.map { it.key })
     }
 
+    @Test fun theTwoAiLimitRowsOnlyAcceptNonNegativeIntegers() = runTest {
+        val c = controller(Fake(snap(providers = 1, models = 1)))
+        val rows = c.state.value.items
+            .filterIsInstance<SettingsItem.TextInputRow>()
+            .filter { it.key == "agent_max_iterations" || it.key == "commentary_max_response" }
+        assertEquals(2, rows.size)
+        assertTrue(rows.all { it.nonNegativeIntOnly })
+    }
+
     @Test fun everyNonCategoryRowCarriesAnIconKey() = runTest {
         val c = controller(Fake(snap(providers = 1, models = 1)))
         val missing = c.state.value.items

@@ -1933,7 +1933,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * `ReadingViewVisibility`. Classic needs no reordering of its own — its `onScreenTurnedOff`
      * override goes straight to `documentViewManager`, not through this seam.
      *
-     * It also saves the window repository to the DB (F93/F94), on every destination, as classic did.
+     * It also saves the window repository to the DB (F93/F94), on every destination, but only while this host owns it (CR-1; see onTopResumedActivityChanged). A host that lost ownership was flushed by the one that took it.
      */
     override fun onPause() {
         ReadingViewVisibility.setActivityVisible(this, false)
@@ -1941,12 +1941,42 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // Fix batch 1 §2.1 (F93/F94): classic MainBibleActivity.onPause saved here (`47dc2f73f^`
         // :1872). Every reload path -- a new host, process death, resume-reclaim -- reads the DB, so
         // without this the last INCIDENTAL save (workspace switch, sync tick) is what comes back.
-        // Saved on every destination: the repository belongs to the host, not to `reading`.
-        if (readingAppBootstrapped) hostWindowRepository.saveIntoDb(false)
+        // Saved on every destination: the repository belongs to the host, not to `reading`. Only
+        // while this host OWNS it, though (CR-1): with two hosts resumed at once the other one may
+        // own it now, this host's copy may be stale, and this host already saved its own edits when
+        // it lost top-resumed (onTopResumedActivityChanged).
+        if (readingAppBootstrapped && windowControl.windowRepository === hostWindowRepository) {
+            hostWindowRepository.saveIntoDb(false)
+        }
         super.onPause()
         // AFTER super: see this method's kdoc -- super.onPause() dispatches onScreenTurnedOff, and
         // that reaches the reading view only while this host is still the foreground one.
         ReadingHostPresence.clearForeground(this)
+    }
+
+    /**
+     * CR-1: ownership of the shared `windowControl.windowRepository` follows the host the user is
+     * USING. With two hosts resumed at once (split-screen, freeform; API 29+), `onResume` does not
+     * run again when the user taps the other host, so it cannot be the only hand-over point.
+     *
+     * Losing top-resumed saves this host's edits while it still owns the repository, so they reach
+     * the DB before the other host can write newer ones. Gaining it takes the repository WITHOUT a
+     * reload: the windows this host shows must not jump to the other host's positions in front of the
+     * user, and `saveIntoDb` writes only rows that differ from this repository's own saved state, so
+     * rows this host did not touch are never written back. The net rule is that the last edit wins,
+     * row by row. Whoever takes the repository flushes the previous owner first
+     * ([net.bible.android.control.page.window.WindowControl.takeWindowRepository]), so the order of
+     * the two hosts' focus callbacks does not matter. Below API 29 this is never called, and `onPause`/`onResume` cover the single
+     * resumed host.
+     */
+    override fun onTopResumedActivityChanged(isTopResumedActivity: Boolean) {
+        super.onTopResumedActivityChanged(isTopResumedActivity)
+        if (!readingAppBootstrapped) return
+        if (isTopResumedActivity) {
+            windowControl.takeWindowRepository(hostWindowRepository)
+        } else if (windowControl.windowRepository === hostWindowRepository) {
+            hostWindowRepository.saveIntoDb(false)
+        }
     }
 
     /**
@@ -2820,13 +2850,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Classic `MainBibleActivity.onResume`'s first arm (`:1970-1973`): `windowControl`'s repository
      * is whichever reading host RESUMED last, so a host coming back to the front reclaims it.
      *
+     * Flushes the previous owner first (CR-1 I1), like every takeover.
+     *
      * @return whether it had to be reclaimed -- classic's `needRefresh`, which decides which of the
      * two arms in [reconcileReadingStateOnResume] runs.
      */
     private fun reclaimWindowRepository(): Boolean {
-        if (windowControl.windowRepository === hostWindowRepository) return false
-        windowControl.windowRepository = hostWindowRepository
-        return true
+        return windowControl.takeWindowRepository(hostWindowRepository)
     }
 
     /**
@@ -3522,6 +3552,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             onPromptCopied = {
                                 Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
                             },
+                            onPromptCopyFailed = {
+                                Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copy_failed, Toast.LENGTH_SHORT).show()
+                            },
                         ),
                         rawLlmLog = RawLlmLogDeps(
                             controllerFor = { RawLlmLogController(service = rawLogService, scope = lifecycleScope) },
@@ -3776,7 +3809,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // Classic carried this as android:label on the host; one host now serves
                             // every cluster. Same string the screen draws in its own top bar.
                             title = getString(R.string.bookmarks_and_mynotes_title),
-                            onManageLabelsResult = { result -> applyBookmarksManageLabelsResult(result) },
                             subscribeSyncEvents = { onBookmarksChanged ->
                                 subscribeBookmarksUpdated(onBookmarksChanged)
                             },
@@ -4178,6 +4210,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     readingNavGraph(navController, readingNavDeps)
                 }
                 InstallZipReturnCollector()
+                // CR-5: the bookmark list's claim on a label-manager answer. Host-level, outside the
+                // NavHost, for InstallZipReturnCollector's reason: the arm that asked is disposed while
+                // the label manager is on top, and the settings arm (which shares this channel) may be
+                // the resumed destination when the answer arrives. An arm-local consume would miss it,
+                // leave it pending, and apply it stale the next time the list composed.
+                BookmarksManageLabelsCollector()
 
                 // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
                 // lifecycleScope and outlives the destination that started it, so a chooser scoped
@@ -4331,6 +4369,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private class BookmarksSession {
         lateinit var controller: BookmarksController
         var pendingAssign: List<BookmarkEntities.BaseBookmarkWithNotes>? = null
+
+        /**
+         * CR-5: this list navigated to the label manager and its answer has not been applied yet.
+         * Snapshot state, not a plain field: the host-level collector composes once per Activity and
+         * must recompose when a request starts, which can only happen after that composition.
+         */
+        var awaitingManageLabels by mutableStateOf(false)
     }
 
     /**
@@ -4345,7 +4390,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * root destination, it has no re-entry for a stale session to be resumed by, and the host dies
      * with it. Dropping it at its exit would be a reload of a list that is about to disappear.
      */
-    private var bookmarksSession: Pair<Int, BookmarksSession>? = null
+    /**
+     * Snapshot state, not a plain field: [BookmarksManageLabelsCollector] composes once per Activity
+     * and must recompose when a session appears after that composition. A plain field read inside a
+     * `?.let` registers no dependency when it is null, which is exactly the launch-on-bookmarks case
+     * the comment above `manageLabelsHelpOpen` documents.
+     */
+    private var bookmarksSession: Pair<Int, BookmarksSession>? by mutableStateOf(null)
 
     /**
      * Classic `BookmarksComposeActivity`'s `controller` (`:79-91`) plus its `onCreate` side effects
@@ -4462,6 +4513,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
             withContext(Dispatchers.Main) {
                 session.pendingAssign = bookmarks
+                session.awaitingManageLabels = true
                 navigateToManageLabels(payload)
             }
         }
@@ -4477,6 +4529,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 mode = ManageLabelsContract.Mode.WORKSPACE,
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
             session.pendingAssign = null
+            session.awaitingManageLabels = true
             navigateToManageLabels(payload)
         }
     }
@@ -4495,6 +4548,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = bookmarksSession?.second ?: return
         val bookmarks = session.pendingAssign
         session.pendingAssign = null
+        session.awaitingManageLabels = false
 
         val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
         if (bookmarks != null) {
@@ -8967,6 +9021,31 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             installZipReturn = null
             onReturn?.invoke(result)
         }
+    }
+
+    /**
+     * CR-5's consumer, and the only one `manageLabelsResults` has for the bookmark list. The session
+     * flag is the source of truth for "this list asked"; the channel's pending is the answer. Both
+     * are read UNCONDITIONALLY, for the reason the comment above `manageLabelsHelpOpen` spells out:
+     * this lambda composes once per Activity, and a scope that could reach the flag only through a
+     * `?.let` on a plain field would register no dependency whenever the field was null at that one
+     * composition. Both the session and the flag are snapshot state, and both are read before the
+     * null check, so the subscription is unconditional.
+     *
+     * An answer the list did not ask for is left in the channel, for whoever did (the settings arm's
+     * own gate is that side of the same contract).
+     */
+    @Composable
+    private fun BookmarksManageLabelsCollector() {
+        // Read UNCONDITIONALLY, before the null check, for the reason above: a `?.let` that only
+        // reached the flag when a session already existed would subscribe to nothing on the
+        // composition where the field was null, and a later request would flip a state nobody observes.
+        val awaiting = bookmarksSession?.second?.awaitingManageLabels == true
+        net.bible.sharedui.bookmark.nav.BookmarksManageLabelsCollector(
+            results = manageLabelsResults,
+            awaiting = awaiting,
+            onResult = { applyBookmarksManageLabelsResult(it) },
+        )
     }
 
     // ——— ChooseGeneralBookKey ————————————————————————————————————————————————————————————————————

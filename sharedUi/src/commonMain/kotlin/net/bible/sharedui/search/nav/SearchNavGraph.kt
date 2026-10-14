@@ -809,7 +809,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             noTasks = noTasks,
             error = error,
             onHide = controller::hide,
-            onDismissError = controller::dismissError,
+            onDismissError = controller::dismissErrorAndLeave,
         )
     }
 

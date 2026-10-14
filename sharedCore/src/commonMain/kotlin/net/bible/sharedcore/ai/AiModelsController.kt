@@ -2,6 +2,7 @@ package net.bible.sharedcore.ai
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,6 +73,9 @@ class AiModelsController(
 
     private val _dialog = MutableStateFlow<ModelEditState?>(null)
     val dialog: StateFlow<ModelEditState?> = _dialog.asStateFlow()
+
+    /** The in-flight [LlmModelService.availableModelsFor] for the provider picked last (CR-8). */
+    private var modelsJob: Job? = null
 
     init {
         scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.models.collect { _models.value = sortDefaultFirst(it) } }
@@ -146,11 +150,15 @@ class AiModelsController(
                 modelId = "",
             )
         )
+        // CR-8: a fetch for an earlier pick must never publish into a later one. Cancel it, and
+        // check the generation and provider on resume as well, because a non-cancellable fetch
+        // can still return.
         val generation = ++editGeneration
-        scope.launch {
+        modelsJob?.cancel()
+        modelsJob = scope.launch {
             val available = service.availableModelsFor(providerId)
             if (generation != editGeneration) return@launch
-            val cur = _dialog.value ?: return@launch
+            val cur = _dialog.value?.takeIf { it.providerId == providerId } ?: return@launch
             publish(cur.copy(availableModels = available, loadingModels = false))
         }
     }
@@ -203,7 +211,12 @@ class AiModelsController(
 
     fun setDefault(id: String) { scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { service.setDefault(id) } }
 
-    fun dismissDialog() { editGeneration++; _dialog.value = null }
+    fun dismissDialog() {
+        editGeneration++
+        modelsJob?.cancel()
+        modelsJob = null
+        _dialog.value = null
+    }
 
     private fun publish(next: ModelEditState) {
         val isCustom = next.modelId == CUSTOM_MODEL_ID

@@ -215,7 +215,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     fun createWindowRepository(): WindowRepository {
         if (this::windowRepository.isInitialized) return windowRepository
         windowRepository = WindowRepository(host.lifecycleScope)
-        windowControl.windowRepository = windowRepository
+        // Flushes the previous owner first, so initialize() reads a DB that has its last edit (CR-1 I1).
+        windowControl.takeWindowRepository(windowRepository)
         windowRepository.initialize()
         return windowRepository
     }

@@ -479,10 +479,10 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
         refresh()
     }
 
-    override suspend fun copyPrompt(id: String): String = mutate {
+    override suspend fun copyPrompt(id: String): String? = mutate {
         val newId = PromptRepository.copyPrompt(IdType(id))
         refresh()
-        return@mutate (newId ?: IdType(id)).toString()
+        return@mutate newId?.toString()
     }
 
     override suspend fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) = mutate {
