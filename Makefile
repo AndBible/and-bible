@@ -91,11 +91,14 @@ accrescent-debug:
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
-# Push the current branch, pushing our own submodules (jsword, goldens, superpowers, media) first so the
+# Push the current branch, pushing our own submodules (jsword, goldens, superpowers, media, kdom) first so the
 # gitlinks never point at unpublished commits. Each submodule pushes the commit the committed
 # gitlink names (not its checkout, which can lag behind) to the superproject's branch name,
 # fast-forward only. --recurse-submodules=check refuses the final push if any gitlink is unpushed.
-PUSH_SUBMODULES := jsword app/src/test/roborazzi docs/superpowers website/media
+# Submodules in PUSH_SUBMODULES_OWN_BRANCH are standalone libraries with one line of history: they push to
+# the branch .gitmodules names for them (kdom: main) instead of the superproject's branch name.
+PUSH_SUBMODULES := jsword app/src/test/roborazzi docs/superpowers website/media kdom
+PUSH_SUBMODULES_OWN_BRANCH := kdom
 
 # andbible.org (website/): build into website/_site, then check it. CI runs both.
 site:
@@ -123,8 +126,13 @@ push:
 		sha=$$(git rev-parse "HEAD:$$sm"); \
 		[ "$$(git -C "$$sm" rev-parse HEAD)" = "$$sha" ] || \
 			echo "push: note: $$sm checkout differs from the committed gitlink; pushing the gitlink"; \
-		echo "push: $$sm ($$(git -C "$$sm" rev-parse --short "$$sha") -> $$branch)"; \
-		git -C "$$sm" push origin "$$sha:refs/heads/$$branch"; \
+		target=$$branch; \
+		case " $(PUSH_SUBMODULES_OWN_BRANCH) " in *" $$sm "*) \
+			target=$$(git config -f .gitmodules "submodule.$$sm.branch") || \
+				{ echo "push: $$sm has no branch in .gitmodules" >&2; exit 1; };; \
+		esac; \
+		echo "push: $$sm ($$(git -C "$$sm" rev-parse --short "$$sha") -> $$target)"; \
+		git -C "$$sm" push origin "$$sha:refs/heads/$$target"; \
 	done; \
 	echo "push: and-bible ($$branch)"; \
 	git push --recurse-submodules=check -u origin "$$branch"
