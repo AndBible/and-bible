@@ -564,6 +564,8 @@ class BackupControl(
     suspend fun makeDatabaseBackupFile(): File? {
         if(env.isInitialized && DatabaseContainer.ready) {
             windowControl.windowRepository.saveIntoDb()
+            // The save is an ordered write-through: the zip must not read the file before it lands.
+            windowControl.windowRepository.persistence.awaitPersisted()
             // A setting changed just before "backup now" may still be queued in the store's writer.
             DatabaseContainer.instance.settingsStore.flush()
             DatabaseContainer.vacuum()

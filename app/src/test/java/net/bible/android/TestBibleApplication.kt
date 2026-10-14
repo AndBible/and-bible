@@ -128,6 +128,8 @@ class TestBibleApplication : BibleApplication() {
             single<net.bible.service.llm.SecretStore> { checkNotNull(fixtureSecretStore) }
             single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
+            // Singletons keep the launcher they were built with, and the fixture replaces aiScope after a terminate.
+            single { net.bible.android.control.page.window.WorkspacePersistence(aiLauncher) { DatabaseContainer.instance.workspaceDb.workspaceDao() } }
             single<net.bible.service.llm.AiSettings> {
                 net.bible.service.llm.AiSettingsStore(
                     { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, aiLauncher, aiScope,
@@ -239,6 +241,7 @@ class TestBibleApplication : BibleApplication() {
                 koin.loadModules(listOf(org.koin.dsl.module {
                     single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
                     single<net.bible.sharedcore.platform.OrderedLauncher> { checkNotNull(previousLauncher) }
+                    single { net.bible.android.control.page.window.WorkspacePersistence(checkNotNull(previousLauncher)) { DatabaseContainer.instance.workspaceDb.workspaceDao() } }
                     single<net.bible.service.llm.AiSettings> {
                         net.bible.service.llm.AiSettingsStore(
                             { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),

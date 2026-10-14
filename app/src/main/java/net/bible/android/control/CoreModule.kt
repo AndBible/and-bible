@@ -140,6 +140,12 @@ fun buildCoreModule() = module {
     single<net.bible.service.llm.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
+    single {
+        net.bible.android.control.page.window.WorkspacePersistence(get()) {
+            // The DAO is resolved per write: DatabaseContainer.reset()/restore replaces workspaceDb.
+            DatabaseContainer.instance.workspaceDb.workspaceDao()
+        }
+    }
     single<net.bible.service.llm.AiSettings> {
         net.bible.service.llm.AiSettingsStore(
             { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
