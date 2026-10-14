@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 class AiDatabaseLifetime {
     private val admission = Mutex()
     private val observers = mutableSetOf<Job>()
+    private val owned = java.util.concurrent.ConcurrentHashMap.newKeySet<Job>()
     private val generation = MutableStateFlow(0L)
     private var active: Replacement? = null
 
@@ -23,6 +24,17 @@ class AiDatabaseLifetime {
 
     internal fun requireOwner(token: Replacement) {
         check(token.owner === this && active === token) { "Inactive AI database replacement token" }
+    }
+
+    /**
+     * Owns a fire-and-forget [job] that reads databases outside [use] (the startup snapshot loads of
+     * `CommonUtils.initializeApp`): every [replace] cancels and joins it before its block can close anything.
+     * Room 3 closes connections under an in-flight statement step, which is a native crash, not an exception.
+     * Register a job before it starts (launch it LAZY); a job registered while a replace runs is not waited for.
+     */
+    fun ownUntilReplace(job: Job) {
+        owned.add(job)
+        job.invokeOnCompletion { owned.remove(job) }
     }
 
     /** Resolve the DAO inside this block, never before admission. */
@@ -47,7 +59,11 @@ class AiDatabaseLifetime {
         active = token
         try {
             // No store mutex is held here. Cancellation joins even a non-cancellable native step.
-            withContext(NonCancellable) { observers.toList().forEach { it.cancelAndJoin() } }
+            withContext(NonCancellable) {
+                // An owned job may itself be waiting for admission; cancelling (not just joining) releases it.
+                owned.toList().forEach { it.cancelAndJoin() }
+                observers.toList().forEach { it.cancelAndJoin() }
+            }
             block(token)
         } finally {
             active = null

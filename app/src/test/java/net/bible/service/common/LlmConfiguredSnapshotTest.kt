@@ -3,6 +3,7 @@ package net.bible.service.common
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import net.bible.service.cloudsync.CloudSync
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
@@ -80,5 +81,15 @@ class LlmConfiguredSnapshotTest {
         val ran = mutableListOf<Int>()
         CommonUtils.runEachCatching({ ran += 1 }, { throw IllegalStateException("boom") }, { ran += 3 })
         assertTrue(ran == listOf(1, 3))
+    }
+
+    /** A cancelled owner (a database reset cancels the background load) stops; later steps must not run. */
+    @Test fun cancellationIsNotSwallowed() = runBlocking {
+        val ran = mutableListOf<Int>()
+        val job = launch {
+            CommonUtils.runEachCatching({ ran += 1 }, { throw kotlinx.coroutines.CancellationException("reset") }, { ran += 3 })
+        }
+        job.join()
+        assertTrue(ran == listOf(1))
     }
 }

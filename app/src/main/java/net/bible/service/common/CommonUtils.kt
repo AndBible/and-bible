@@ -470,7 +470,9 @@ object CommonUtils : CommonUtilsBase() {
 
     internal suspend fun runEachCatching(vararg steps: suspend () -> Unit) {
         for (step in steps) {
-            try { step() } catch (e: Exception) { Log.e(TAG, "Snapshot store step failed", e) }
+            try { step() }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { Log.e(TAG, "Snapshot store step failed", e) }
         }
     }
 
@@ -1163,15 +1165,22 @@ object CommonUtils : CommonUtilsBase() {
     /**
      * A host recreated directly (process death) only runs [initializeApp], never [initializeAppCoroutine]. Start the
      * snapshot loads here without blocking; writes that arrive before they finish are applied to the loaded rows.
+     * The job is owned by [DatabaseContainer.aiLifetime]: every database reset, close or restore cancels and joins it
+     * before closing (a Room 3 close under its in-flight read is a native crash). A cancelled load leaves the store
+     * unloaded (factory defaults) until the next [initializeAppCoroutine] loads it.
      */
-    private fun loadSnapshotStoresInBackground() {
+    @androidx.annotation.VisibleForTesting
+    internal fun loadSnapshotStoresInBackground(): kotlinx.coroutines.Job {
         val scope = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppCoroutineScope>(net.bible.sharedcore.platform.AppCoroutineScope::class.java)
-        scope.launch {
+        return scope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
             runEachCatching(
                 { globalTextDisplaySettingsStore.load() },
                 { readingProgressSettingsStore.load() },
                 { promptService.refresh() },
             )
+        }.also {
+            DatabaseContainer.aiLifetime.ownUntilReplace(it)
+            it.start()
         }
     }
 
