@@ -35,13 +35,15 @@ class GlobalTextDisplaySettingsStoreTest {
     private val gate = GateDispatcher()
     private val restored = EventSource<Unit>()
     private val synced = EventSource<Unit>()
-    private val invalidations = MutableSharedFlow<Unit>()
+    /** A NEW flow per call, like `invalidationTracker.createFlow` on whichever database is current. */
+    private val flows = java.util.concurrent.CopyOnWriteArrayList<MutableSharedFlow<Unit>>()
+    private val invalidations get() = flows.first()
     private val observerScope = AppCoroutineScope()
 
     @Before fun setUp() {
         db = Room.inMemoryDatabaseBuilder(application, WorkspaceDatabase::class.java).setDriver(sqliteDriverFactory()).build()
         launcher = OrderedLauncher(AppCoroutineScope(kotlinx.coroutines.SupervisorJob() + gate))
-        store = GlobalTextDisplaySettingsStore(launcher, { db.globalTextDisplaySettingsDao() }, restored, synced, observerScope) { invalidations }
+        store = GlobalTextDisplaySettingsStore(launcher, { db.globalTextDisplaySettingsDao() }, restored, synced, observerScope) { MutableSharedFlow<Unit>().also { flows.add(it) } }
     }
 
     @After fun tearDown() { gate.release(); observerScope.coroutineContext[kotlinx.coroutines.Job]!!.cancel(); db.close() }
@@ -109,6 +111,18 @@ class GlobalTextDisplaySettingsStoreTest {
         invalidations.emit(Unit)
         withTimeout(10_000) { while (store.current != settings(9)) kotlinx.coroutines.delay(10) }
         assertEquals(settings(9), store.current)
+    }
+
+    @Test fun afterARestoreTheFlowOfTheNewDatabaseIsFollowed() = runBlocking {
+        store.load()
+        withTimeout(10_000) { while (flows.isEmpty() || flows[0].subscriptionCount.value == 0) kotlinx.coroutines.delay(10) }
+        restored.emit(Unit)
+        settle()
+        withTimeout(10_000) { while (flows.size < 2 || flows[1].subscriptionCount.value == 0) kotlinx.coroutines.delay(10) }
+        writeBehindTheStore(settings(5))
+        flows[1].emit(Unit)
+        withTimeout(10_000) { while (store.current != settings(5)) kotlinx.coroutines.delay(10) }
+        assertEquals(settings(5), store.current)
     }
 
     @Test fun aWriteQueuedBeforeARestoreDoesNotLandInTheRestoredDatabase() = runBlocking {

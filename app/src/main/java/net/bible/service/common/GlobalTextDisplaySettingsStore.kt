@@ -5,6 +5,7 @@ import net.bible.android.database.GlobalTextDisplaySettingsDao
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
@@ -39,6 +40,7 @@ class GlobalTextDisplaySettingsStore(
     private var pendingWrites = 0
     private var replacementEpoch = 0L
     private var observing = false
+    private val generation = kotlinx.coroutines.flow.MutableStateFlow(0L)
 
     suspend fun load() {
         val row = dao().get()?.textDisplaySettings
@@ -50,25 +52,33 @@ class GlobalTextDisplaySettingsStore(
 
     private fun startObserving() {
         synchronized(lock) { if (observing) return; observing = true }
-        replacements.subscribe {
+        val restoreSubscription = replacements.subscribe {
             synchronized(lock) { replacementEpoch++ }
+            generation.value++
             reload()
         }
-        syncReplacements.subscribe { reload() }
+        val syncSubscription = syncReplacements.subscribe {
+            generation.value++
+            reload()
+        }
         val scope = appScope
         val flow = invalidations
-        if (scope != null && flow != null) {
-            scope.launch(start = CoroutineStart.UNDISPATCHED) {
+        if (scope == null || flow == null) return
+        val job = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            // The flow belongs to the database that was current when it was created, so each replacement
+            // re-creates it (as AiSettingsStore does); collectLatest drops the one on the closed database.
+            generation.collectLatest {
                 try {
                     flow().collect { reload() }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    // A closed pre-restore database can fail here; the restore signal reloads.
+                    // A closed pre-restore database can fail here; the next replacement signal re-arms.
                     Log.e(TAG, "Observation ended; awaiting database replacement", e)
                 }
             }
         }
+        job.invokeOnCompletion { restoreSubscription.cancel(); syncSubscription.cancel() }
     }
 
     private fun reload() {
