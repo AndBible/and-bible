@@ -74,23 +74,38 @@ class BookmarksServiceImpl(
         sort: BookmarkSortMode,
         search: String?,
         showNotes: Boolean,
-    ): List<BookmarkRow> = withContext(Dispatchers.IO) {
+    ): List<BookmarkRow> {
+        // Window state belongs to the main thread: read it before the IO hop, where it could initialise the
+        // window repository off-main. A reload triggered by an event fired DURING a workspace load has no
+        // active window to read (it would throw): use each bookmark's own versification then; the switch's
+        // own notification reloads the rows afterwards.
+        val versification = if (windowControl.windowRepository.loadingFromDb) null
+            else windowControl.activeWindowPageManager.currentBible.versification
+        return withContext(Dispatchers.IO) { loadRowsOnIo(filterIndex, sort, search, showNotes, versification) }
+    }
+
+    private suspend fun loadRowsOnIo(
+        filterIndex: Int,
+        sort: BookmarkSortMode,
+        search: String?,
+        showNotes: Boolean,
+        versification: Versification?,
+    ): List<BookmarkRow> {
         val label = bookmarkControl.allLabels().getOrNull(filterIndex) ?: run {
             loaded = emptyMap()
-            return@withContext emptyList()
+            return emptyList()
         }
 
         val bible = bookmarkControl.getBibleBookmarksWithLabel(label, sort.toClassicSortOrder(), search = search)
         val generic = bookmarkControl.getGenericBookmarksWithLabel(label, search = search)
         val all: List<BaseBookmarkWithNotes> = bible + generic
 
-        val versification = windowControl.activeWindowPageManager.currentBible.versification
         val rows = all.map { toRow(it, versification, showNotes) }
         loaded = all.associateBy { it.id.toString() }
-        rows
+        return rows
     }
 
-    private suspend fun toRow(bm: BaseBookmarkWithNotes, versification: Versification, showNotes: Boolean): BookmarkRow {
+    private suspend fun toRow(bm: BaseBookmarkWithNotes, versification: Versification?, showNotes: Boolean): BookmarkRow {
         // Classic's BookmarkItemAdapter.getView lazily resolves text the first time a row is bound.
         if (bm.text == null) bookmarkControl.addText(bm)
 
@@ -103,7 +118,7 @@ class BookmarksServiceImpl(
 
         val title = when (bm) {
             is BibleBookmarkWithNotes -> {
-                val verseName = bm.verseRange.toV11n(versification).getName()
+                val verseName = (if (versification != null) bm.verseRange.toV11n(versification) else bm.verseRange).getName()
                 val speakBook = bm.speakBook
                 if (isSpeak && speakBook != null) {
                     coreStrings.somethingWithParenthesis(verseName, speakBook.abbreviation)

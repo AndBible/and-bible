@@ -71,22 +71,22 @@ open class WindowControl constructor() {
     fun takeWindowRepository(new: WindowRepository): Boolean {
         val previous = windowRepository
         if (previous === new) return false
-        if (previous.initialized && previous !== staleRepositoryForTest) previous.saveIntoDb(false)
+        if (previous.initialized) previous.saveIntoDb(false)
         windowRepository = new
         return true
     }
 
-    private var staleRepositoryForTest: WindowRepository? = null
-
     /**
-     * Marks the current repository as belonging to a finished test. The test JVM keeps this Koin singleton
-     * across tests while each test gets a fresh database: without this, the next test's
-     * [takeWindowRepository] would flush the previous test's windows into the new database (FOREIGN KEY
-     * failure on their history). The repository stays readable for the finished test's late callbacks.
+     * Retires the current repository at the end of a test, so the next test starts from a fresh lazy fallback
+     * on its own database. The test JVM keeps this Koin singleton across tests: without this, the next host's
+     * [takeWindowRepository] flushed the previous test's windows into the new database (FOREIGN KEY failure on
+     * their history), and the fallback's scope -- which, unlike a host's lifecycleScope, nothing else cancels --
+     * kept running the previous test's loadText/fetchDocument work into later tests.
      */
     @VisibleForTesting
-    fun markWindowRepositoryStaleForTest() {
-        staleRepositoryForTest = _windowRepository
+    fun retireWindowRepositoryForTest() {
+        _windowRepository?.scope?.coroutineContext?.get(kotlinx.coroutines.Job)?.cancel()
+        _windowRepository = null
     }
 
     val windowSync get() = windowRepository.windowSync
@@ -127,6 +127,8 @@ open class WindowControl constructor() {
     fun isActiveWindow(window: Window): Boolean = window == windowRepository.activeWindow
 
     open fun defaultBibleDoc(useLinks: Boolean  = true): SwordBook {
+        // Mid workspace load there is no active window (reading it would throw): same fallback as a window without a Bible.
+        if (windowRepository.loadingFromDb) return firstBibleDoc
         val activeWindowBibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument as SwordBook?
         return activeWindowBibleDoc ?: firstBibleDoc
     }

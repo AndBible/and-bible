@@ -120,7 +120,9 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      * See also the guard in `ToolbarStateServiceImpl.refresh()`, which keeps that observer from
      * reading a repository that is mid-load at all.
      */
-    private var loadingFromDb = false
+    /** True while [loadFromDb] runs: [activeWindow] has no value then (see [loadFromDb]). */
+    var loadingFromDb = false
+        private set
 
     fun initialize() {
         if(initialized || loadingFromDb) return
