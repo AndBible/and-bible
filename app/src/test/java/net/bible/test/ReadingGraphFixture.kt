@@ -60,7 +60,11 @@ fun closeReadingHostsBeforeReset(
     reset()
 }
 
-private fun awaitHostCondition(message: String, advanceComposition: () -> Unit, ready: () -> Boolean) {
+/**
+ * Pump the main looper (one task at a time) until [ready], failing with [message] after 10 s. For host effects
+ * that finish asynchronously, e.g. a `lifecycleScope.launch` that suspends on IO before acting.
+ */
+fun awaitHostCondition(message: String, advanceComposition: () -> Unit = {}, ready: () -> Boolean) {
     val deadline = System.nanoTime() + 10_000_000_000L
     while (!ready() && System.nanoTime() < deadline) {
         // One task rather than idle(): a Compose popup can keep the looper busy forever.

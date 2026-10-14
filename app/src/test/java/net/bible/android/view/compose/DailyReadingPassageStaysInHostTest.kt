@@ -105,6 +105,10 @@ class DailyReadingPassageStaysInHostTest {
         idleMain()
         openDay(controller)
         activity.dailyReadingControllerForTest().read(1)
+        // read() acts after a suspending lifecycleScope job: await its outcome, or the checks below pass vacuously.
+        net.bible.test.awaitHostCondition("Passage returns to the reading view") {
+            activity.isFinishing || activity.currentRouteForTest()?.substringBefore('?') == NavRoutes.READING
+        }
         idleMain()
         assertFalse(activity.isFinishing, "Passage finished the host that owns the reading view -- F94's launcher")
         assertEquals(NavRoutes.READING, activity.currentRouteForTest()?.substringBefore('?'))
@@ -121,7 +125,8 @@ class DailyReadingPassageStaysInHostTest {
         openDay(controller)
         activity.dailyReadingControllerForTest().read(1)
 
-        assertTrue(activity.isFinishing)
+        // read() marks the reading and moves the passage in a suspending lifecycleScope job; finish() comes after it.
+        net.bible.test.awaitHostCondition("Passage from a start-destination day finishes the host") { activity.isFinishing }
     }
 
 
