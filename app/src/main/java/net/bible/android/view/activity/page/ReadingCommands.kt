@@ -70,7 +70,7 @@ import net.bible.android.view.activity.settings.textDisplaySettingsRoute
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.exportStudyPads
+import net.bible.android.platform.exportStudyPads
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.isStudyPad

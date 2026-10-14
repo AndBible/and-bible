@@ -113,7 +113,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.service.db.blockingDb
+import net.bible.service.db.blockingAtEdge
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.device.speak.TextToSpeechNotificationManager
@@ -420,7 +420,7 @@ object CommonUtils : CommonUtilsBase() {
         /** Check if any LlmProviderConfig exists in the database. */
         val llmConfigured: Boolean
             get() = try {
-                blockingDb { DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() } > 0
+                blockingAtEdge { DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() } > 0 // L1-edge: synchronous settings read (menu state, BibleView config, context menu); no provider-count snapshot exists
             } catch (_: Exception) { false }
 
     }
@@ -1111,7 +1111,7 @@ object CommonUtils : CommonUtilsBase() {
 
         if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
             if(!application.isRunningTests) {
-                for (it in blockingDb { docDao.getUnlocked() }) {
+                for (it in blockingAtEdge { docDao.getUnlocked() }) { // L1-edge: synchronous app bootstrap (widget/media-button entry before any coroutine)
                     val book = Books.installed().getBook(it.initials)
                     book!!.unlock(it.cipherKey)
                 }
@@ -1124,6 +1124,7 @@ object CommonUtils : CommonUtilsBase() {
         DatabaseContainer.ready = true
         aiSettings.ensureLoaded()
         globalTextDisplaySettingsStore.load()
+        org.koin.java.KoinJavaComponent.get<ReadingProgressSettingsStore>(ReadingProgressSettingsStore::class.java).load()
         MyDocumentBookManager.launcher.join("mydocument-sync")
         if(!initialized) {
             try {
@@ -1205,7 +1206,7 @@ object CommonUtils : CommonUtilsBase() {
     val defaultVerse: VerseRange get() = net.bible.android.control.page.defaultVerse()
 
     private fun prepareExampleBookmarksAndWorkspaces() {
-        blockingDb { prepareExampleBookmarks() }
+        blockingAtEdge { prepareExampleBookmarks() } // L1-edge: synchronous first-run bootstrap (prepareData runs on the host UI thread before the window repository exists)
         prepareExampleWorkspaces()
     }
 
@@ -1287,9 +1288,9 @@ object CommonUtils : CommonUtilsBase() {
 
     private fun prepareExampleWorkspaces() {
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        val ws = blockingDb { workspaceDao.allWorkspaces() }
+        val ws = blockingAtEdge { workspaceDao.allWorkspaces() } // L1-edge: synchronous first-run bootstrap (prepareData)
         if(ws.isNotEmpty()) {
-            blockingDb { workspaceDao.updateWorkspaces(ws) }
+            blockingAtEdge { workspaceDao.updateWorkspaces(ws) } // L1-edge: synchronous first-run bootstrap (prepareData)
             settings.setBoolean("first-time", false)
         } else {
             val workspaceSettings = WorkspaceEntities.WorkspaceSettings()
@@ -1297,7 +1298,7 @@ object CommonUtils : CommonUtilsBase() {
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
             )
-            blockingDb { newWorkspaces.forEach { workspaceDao.insertWorkspace(it) } }
+            blockingAtEdge { newWorkspaces.forEach { workspaceDao.insertWorkspace(it) } } // L1-edge: synchronous first-run bootstrap (prepareData)
             val workspaceIds = newWorkspaces.map { it.id }
             settings.setString("current_workspace_id", workspaceIds[0].toString())
         }

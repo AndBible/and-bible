@@ -17,7 +17,7 @@
 
 package net.bible.service.db
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.room3.PooledConnection
 import androidx.room3.TransactionScope
 import androidx.room3.Transactor

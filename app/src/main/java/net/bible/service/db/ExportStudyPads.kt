@@ -17,24 +17,21 @@
 
 package net.bible.service.db
 
-import net.bible.android.platform.AndroidBackupHost
-
 import androidx.annotation.VisibleForTesting
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.joinColumnNames
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.service.common.DbType
 import java.io.BufferedInputStream
 import java.io.File
@@ -171,17 +168,23 @@ internal suspend fun writeStudyPadExportDb(
     }
 }
 
+/**
+ * Writes the chosen StudyPads into an export archive and hands it to [host]. Platform-free: the Android entry point
+ * (`exportStudyPads(activity, ...)` in `net.bible.android.platform`) supplies the host.
+ */
 suspend fun exportStudyPads(
-    activity: ActivityBase,
-    vararg labels: BookmarkEntities.Label,
+    labels: List<BookmarkEntities.Label>,
+    host: net.bible.android.control.backup.BackupHost,
+    strings: CoreStrings,
+    environment: AppEnvironment,
+    backupControl: BackupControl,
     chooseDestination: (suspend () -> SaveOrShare?)? = null,
-    host: net.bible.android.control.backup.BackupHost = AndroidBackupHost { activity },
 ) = withContext(Dispatchers.IO) {
-    val exportDbFile = CommonUtils.tmpFile
-    writeStudyPadExportDb(exportDbFile, labels.toList())
+    val exportDbFile = File.createTempFile("andbible-", ".tmp", File(environment.tmpDir))
+    writeStudyPadExportDb(exportDbFile, labels)
 
     val filename = if (labels.size > 1) "StudyPads$DATABASE_BACKUP_SUFFIX" else sanitizeFilename(labels.first().name) + DATABASE_BACKUP_SUFFIX
-    val zipFile = File(org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).internalDbBackupDir, filename)
+    val zipFile = File(backupControl.internalDbBackupDir, filename)
     val manifest = AndBibleBackupManifest(
         backupType = BackupType.STUDYPAD_EXPORT,
         contains = setOf(DbType.BOOKMARKS),
@@ -197,17 +200,15 @@ suspend fun exportStudyPads(
         }
     }
     exportDbFile.delete()
-    val subject = activity.getString(R.string.exported_studypads_subject)
-    val message = activity.getString(R.string.exported_studypads_message, CommonUtils.applicationNameMedium)
-    org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
+    backupControl.saveOrShare(
         host = host,
         file = zipFile,
         fileName = filename,
-        subject = subject,
-        message = message,
-        chooserTitle = activity.getString(R.string.send_export_file),
-        promptTitle = activity.getString(R.string.export_destination_title),
-        promptMessage = activity.getString(R.string.export_destination_message),
+        subject = strings.exportedStudypadsSubject,
+        message = strings.exportedStudypadsMessage(environment.applicationNameMedium),
+        chooserTitle = strings.sendExportFile,
+        promptTitle = strings.exportDestinationTitle,
+        promptMessage = strings.exportDestinationMessage,
         chooseDestination = chooseDestination,
     )
 }

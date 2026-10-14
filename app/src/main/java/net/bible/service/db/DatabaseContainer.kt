@@ -110,7 +110,7 @@ class DatabaseContainer {
             // Room opens the old file only to run its legacy migrations; its connection must be closed
             // before the split reopens the same file outside Room.
             getOldDatabase().apply {
-                try { blockingDb { useWriterConnection { } } } finally { close() }
+                try { blockingAtEdge { useWriterConnection { } } } finally { close() } // L1-edge: DatabaseContainer synchronous lifecycle (open probe)
             }
             openSqlite(oldDbFile.path).use {
                 val migrations = DatabaseSplitMigrations(it, application)
@@ -168,7 +168,7 @@ class DatabaseContainer {
 
     @Volatile var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
 
-    fun resetAiSettingsDb(): AiSettingsDatabase = blockingDb {
+    fun resetAiSettingsDb(): AiSettingsDatabase = blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (reset)
         aiLifetime.replace { resetAiSettingsDbOwned(it) }
     }
 
@@ -192,7 +192,7 @@ class DatabaseContainer {
 
     init {
         if(!application.isRunningTests) {
-            blockingDb {
+            blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (open: trigger setup)
                 for (dbDef in getDatabaseAccessorFactories(this@DatabaseContainer).map { it.invoke() }) {
                     dropTriggers(dbDef)
                     createTriggers(dbDef)
@@ -223,7 +223,7 @@ class DatabaseContainer {
     val settingsStore: SettingsStore = SettingsStore(
         RoomSettingsBackend(settingsDb), settingsScope,
         onWriteError = { w, e -> Log.e(TAG, "Settings write failed for key ${w.key}", e) },
-    ).also { blockingDb { it.load() } }
+    ).also { blockingAtEdge { it.load() } } // L1-edge: DatabaseContainer synchronous lifecycle (open: settings-store load)
 
     private fun backupDatabaseIfNeeded() {
         if(application.isRunningTests) return
@@ -313,7 +313,7 @@ class DatabaseContainer {
      * then are logged by the store's `onWriteError` and dropped.
      * Closing an already closed database is a no-op, so [closeAll] after this is safe.
      */
-    internal fun closeForReplace(fileName: String) = blockingDb {
+    internal fun closeForReplace(fileName: String) = blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close)
         aiLifetime.replace { closeForReplaceOwned(fileName, it) }
     }
 
@@ -329,7 +329,7 @@ class DatabaseContainer {
      * dropped (a closed Room 3 database does not reopen). The window is milliseconds, and restore paths already
      * treat writes there as a hazard. Databases already closed by [closeForReplace] are closed again harmlessly.
      */
-    internal fun closeAll() = blockingDb { aiLifetime.replace { closeAllOwned(it) } }
+    internal fun closeAll() = blockingAtEdge { aiLifetime.replace { closeAllOwned(it) } } // L1-edge: DatabaseContainer synchronous lifecycle (close)
 
     private suspend fun closeAllOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         aiLifetime.requireOwner(token)
@@ -460,7 +460,7 @@ class DatabaseContainer {
          * just to close it; a restore whose migration threw would then throw again from its own cleanup.
          * Also the old monolithic restore's close before its snapshot (F120).
          */
-        internal fun dropInstanceWithoutOpening() = blockingDb {
+        internal fun dropInstanceWithoutOpening() = blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close)
             aiLifetime.replace { dropInstanceWithoutOpeningOwned(it) }
         }
 
@@ -532,8 +532,8 @@ class DatabaseContainer {
         fun flushSettingsBeforeExit(timeoutMs: Long? = null) {
             if (!ready) return
             try {
-                blockingDb {
-                    val store = _instance?.settingsStore ?: return@blockingDb
+                blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close: flush before exit, also the crash handler)
+                    val store = _instance?.settingsStore ?: return@blockingAtEdge
                     if (timeoutMs == null) store.flush()
                     else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
                 }
@@ -542,7 +542,7 @@ class DatabaseContainer {
 
         suspend fun sync() = instance.sync()
         suspend fun vacuum() = instance.vacuum()
-        fun reset() = blockingDb { aiLifetime.replace { resetOwned(it) } }
+        fun reset() = blockingAtEdge { aiLifetime.replace { resetOwned(it) } } // L1-edge: DatabaseContainer synchronous lifecycle (reset)
 
         internal suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)

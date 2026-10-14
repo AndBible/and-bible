@@ -17,4 +17,5 @@ llm
 page
 search
 event
+core
 @no-pending

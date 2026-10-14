@@ -130,6 +130,7 @@ class TestBibleApplication : BibleApplication() {
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
             // Singletons keep the launcher they were built with, and the fixture replaces aiScope after a terminate.
             single { net.bible.service.common.GlobalTextDisplaySettingsStore(aiLauncher, dao = { DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() }) }
+            single { net.bible.service.common.ReadingProgressSettingsStore(aiLauncher, dao = { DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao() }) }
             single { net.bible.android.control.page.window.WorkspacePersistence(aiLauncher) { DatabaseContainer.instance.workspaceDb.workspaceDao() } }
             single<net.bible.service.llm.AiSettings> {
                 net.bible.service.llm.AiSettingsStore(
@@ -245,6 +246,7 @@ class TestBibleApplication : BibleApplication() {
                     single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
                     single<net.bible.sharedcore.platform.OrderedLauncher> { checkNotNull(previousLauncher) }
                     single { net.bible.service.common.GlobalTextDisplaySettingsStore(checkNotNull(previousLauncher), dao = { DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() }) }
+                    single { net.bible.service.common.ReadingProgressSettingsStore(checkNotNull(previousLauncher), dao = { DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao() }) }
                     single { net.bible.android.control.page.window.WorkspacePersistence(checkNotNull(previousLauncher)) { DatabaseContainer.instance.workspaceDb.workspaceDao() } }
                     single<net.bible.service.llm.AiSettings> {
                         net.bible.service.llm.AiSettingsStore(

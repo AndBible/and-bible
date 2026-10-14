@@ -16,3 +16,19 @@ android/control/page/PageTiltScrollControl.kt	Android sensor host: SensorManager
 android/control/search/SearchHighlighter.kt	Android Spanned/StyleSpan text styling behind SearchTextHighlighter
 android/control/event/phonecall/PhoneCallMonitor.kt	Android TelephonyManager/PhoneStateListener host
 service/llm/agent/AgentForegroundService.kt	Android foreground service host for agent runs (notification, wakelock, Intent); run logic is in AgentSessionManager
+service/common/CommonUtils.kt	Android implementation behind the seams (Context, preferences, files, widgets, notifications); sync bootstrap bridges are marked L1-edge
+service/common/BuildVariantProps.kt	BuildConfig flavor/distribution properties
+service/common/AndBibleAddons.kt	Android add-on discovery (BuildConfig, packages and assets)
+service/common/FileManager.kt	Android file/storage host (Environment, storage volumes, JSword file paths)
+service/common/RecyclerViewSearchHelper.kt	Android RecyclerView UI helper
+service/common/Logger.kt	Android Log facade for legacy callers (FileManager, DocumentBibleBooksFactory)
+service/common/TestUtils.kt	Test/Android runtime detection helper used by Logger
+service/db/DatabaseContainer.kt	Android database host: Room builders, file locations, open/close/backup lifecycle (L1-edge bridges)
+service/db/AppDatabaseFiles.kt	Android database file locations
+service/db/ImportDb.kt	Android database import host (file picker results, ContentResolver, restore replacement)
+service/db/oldmigrations/OldMigrations.kt	Legacy Android SQLite migrations run on the original database files
+service/db/oldmigrations/DEPRECATED_ReadingPlanDatabaseDefinition.kt	Legacy Android SQLite schema kept for the old migrations
+service/db/BlockingDb.kt	Holds blockingAtEdge and the transaction markers (excluded from the unmarked-bridge check by path)
+service/device/LightSensor.kt	Android SensorManager host
+service/device/ProgressNotificationManager.kt	Android notification host
+service/device/ScreenSettings.kt	Android screen brightness/orientation settings host

@@ -21,21 +21,20 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import net.bible.sharedcore.navigation.RecentDocuments
+import net.bible.sharedcore.platform.AppSettings
 
 /**
  * Storage for round 15b's most-recently-used document list (spec §4.5).
  *
- * One JSON string key in `CommonUtils.settings`, which is a key/value Room store
- * (`CommonUtils.kt:408-411`) — so this adds no column and needs no migration. Ordering lives in the
+ * One JSON string key in the injected [AppSettings], which is a key/value Room store
+ * (`AppSettings`) — so this adds no column and needs no migration. Ordering lives in the
  * pure [RecentDocuments]; this file is only the read/write half.
  */
-object RecentDocumentsStore {
-    const val KEY = "recent_documents"
-
+class RecentDocumentsStore(private val settings: AppSettings) {
     private val json = Json { ignoreUnknownKeys = true }
 
     fun read(): List<String> {
-        val raw = CommonUtils.settings.getString(KEY, null) ?: return emptyList()
+        val raw = settings.getString(KEY, null) ?: return emptyList()
         // A malformed value must degrade to "no recents", never crash the reading view on launch.
         return runCatching { json.decodeFromString(ListSerializer(String.serializer()), raw) }
             .getOrDefault(emptyList())
@@ -44,6 +43,10 @@ object RecentDocumentsStore {
     fun record(initials: String?) {
         if (initials.isNullOrBlank()) return
         val next = RecentDocuments.touched(read(), initials)
-        CommonUtils.settings.setString(KEY, json.encodeToString(ListSerializer(String.serializer()), next))
+        settings.setString(KEY, json.encodeToString(ListSerializer(String.serializer()), next))
+    }
+
+    companion object {
+        const val KEY = "recent_documents"
     }
 }

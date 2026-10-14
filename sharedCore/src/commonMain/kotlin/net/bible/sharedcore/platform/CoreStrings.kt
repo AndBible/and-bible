@@ -108,4 +108,9 @@ interface CoreStrings {
     fun askRestoreOrImport(contents: String): String
     fun resetDatabaseConfirm(name: String): String
     fun backupFileInfo(version: Int, size: String): String
+    val exportedStudypadsSubject: String // R.string.exported_studypads_subject
+    fun exportedStudypadsMessage(appName: String): String // R.string.exported_studypads_message
+    val sendExportFile: String // R.string.send_export_file
+    val exportDestinationTitle: String // R.string.export_destination_title
+    val exportDestinationMessage: String // R.string.export_destination_message
 }

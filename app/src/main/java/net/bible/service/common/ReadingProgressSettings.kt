@@ -20,8 +20,6 @@ package net.bible.service.common
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.bible.android.database.progress.GlobalReadingProgressSettings
-import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.blockingDb
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 
@@ -40,7 +38,8 @@ data class ReadingProgressSettingsBundle(
 
 /**
  * Accessor for global reading progress settings stored in the syncable ProgressDatabase.
- * Each property reads/writes the [GlobalReadingProgressSettings] singleton row.
+ * Each property reads and writes the [ReadingProgressSettingsStore] snapshot of the
+ * [GlobalReadingProgressSettings] singleton row; the store persists writes in submission order.
  */
 object ReadingProgressSettings {
     private val _changed = EventSource<Unit>()
@@ -53,13 +52,13 @@ object ReadingProgressSettings {
 
     fun notifyChanged() = _changed.emit(Unit)
 
-    private val dao get() = DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao()
+    private val store: ReadingProgressSettingsStore get() = org.koin.java.KoinJavaComponent.get(ReadingProgressSettingsStore::class.java)
 
-    private fun getOrDefault(): GlobalReadingProgressSettings = blockingDb { dao.get() } ?: GlobalReadingProgressSettings()
+    private fun getOrDefault(): GlobalReadingProgressSettings = store.current
 
     private fun update(transform: GlobalReadingProgressSettings.() -> GlobalReadingProgressSettings) {
-        val updated = getOrDefault().transform()
-        blockingDb { dao.set(updated) }
+        // Atomic read-modify-write: concurrent setters must not lose each other's fields.
+        store.update(transform)
     }
 
     var autoMarkMemorized: Boolean

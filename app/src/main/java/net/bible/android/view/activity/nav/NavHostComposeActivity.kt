@@ -242,7 +242,7 @@ import net.bible.service.sword.hasUsableBible
 import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.backup.BackupServiceImpl
-import net.bible.service.db.exportStudyPads
+import net.bible.android.platform.exportStudyPads
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
 import net.bible.service.llm.PromptRepository

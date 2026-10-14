@@ -598,6 +598,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
 
     private val windowState: WindowStateServiceImpl by inject()
+    private val recentDocumentsStore: RecentDocumentsStore by inject()
     private val subscriptions = Subscriptions()
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
@@ -919,7 +920,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // resolved against this FULL list, so a language whose only document is locked does not
             // silently lose the user's saved filter.
             installed = rows,
-            recentInitials = RecentDocumentsStore.read(),
+            recentInitials = recentDocumentsStore.read(),
             forVerseIds = forVerseIds,
             lastLanguage = lastLanguage,
             lastTypeFilter = lastTypeFilter,

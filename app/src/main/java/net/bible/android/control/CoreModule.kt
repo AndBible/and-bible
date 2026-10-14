@@ -138,6 +138,7 @@ fun buildCoreModule() = module {
 
     single<AppSettings> { CommonUtils.settings }
     single<net.bible.service.llm.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
+    single { net.bible.service.common.RecentDocumentsStore(get()) }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
     single {
@@ -148,6 +149,16 @@ fun buildCoreModule() = module {
             get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
             get<AppCoroutineScope>(),
             { net.bible.service.db.DatabaseContainer.instance.workspaceDb.invalidationTracker.createFlow("GlobalTextDisplaySettings").map { Unit } },
+        )
+    }
+    single {
+        net.bible.service.common.ReadingProgressSettingsStore(
+            get(),
+            { net.bible.service.db.DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao() },
+            DatabaseContainer.databaseRestored,
+            get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
+            get<AppCoroutineScope>(),
+            { net.bible.service.db.DatabaseContainer.instance.progressDb.invalidationTracker.createFlow("GlobalReadingProgressSettings").map { Unit } },
         )
     }
     single {
