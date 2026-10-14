@@ -182,6 +182,7 @@ class WindowContentLoadRaceTest {
         val originalRepo = control.windowRepository
         val koin = GlobalContext.get()
         val originalSource = koin.get<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val tdsSnapshot = net.bible.test.KoinFactorySnapshot.of<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
         val settings = originalSource.current
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
@@ -251,9 +252,7 @@ class WindowContentLoadRaceTest {
                 view?.destroy()
             } finally {
                 control.windowRepository = originalRepo
-                koin.loadModules(listOf(org.koin.dsl.module {
-                    single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { originalSource }
-                }))
+                tdsSnapshot.restore()
             }
         }
     }

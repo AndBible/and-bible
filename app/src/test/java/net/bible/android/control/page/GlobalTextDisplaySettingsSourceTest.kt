@@ -22,7 +22,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class GlobalTextDisplaySettingsSourceTest {
     @Test fun nonSpecificSettingsUseInjectedGlobalRow() {
-        val original = GlobalContext.get().get<GlobalTextDisplaySettingsSource>()
+        val tdsSnapshot = net.bible.test.KoinFactorySnapshot.of<GlobalTextDisplaySettingsSource>()
         val source = object : GlobalTextDisplaySettingsSource {
             override val current = TextDisplaySettings(fontSize = 21)
         }
@@ -42,7 +42,7 @@ class GlobalTextDisplaySettingsSourceTest {
         } finally {
             manager.destroy()
             scope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
-            loadKoinModules(module { single<GlobalTextDisplaySettingsSource> { original } })
+            tdsSnapshot.restore()
         }
     }
 }
