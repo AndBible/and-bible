@@ -325,7 +325,10 @@ class PassageFinderViewModel(
                 val initialChapter = state.selectedChapter.coerceIn(1, chapterCount)
 
                 if (chapterCount == 1) {
-                    // Single-chapter book: skip chapter level, go directly to verse
+                    // Single-chapter book: skip chapter level, go directly to verse.
+                    // Skipping it stands in for picking chapter 1, so the bubble shows as
+                    // it would after onChapterSelected — otherwise a one-chapter book is
+                    // the only one that reaches its verses with no preview.
                     val verseCount = dataSource.getVerseCount(book.book, 1)
                     val initialVerse = state.selectedVerse.coerceIn(1, verseCount.coerceAtLeast(1))
                     _uiState.value = state.copy(
@@ -334,6 +337,7 @@ class PassageFinderViewModel(
                         chapterCount = chapterCount,
                         selectedVerse = initialVerse,
                         verseCount = verseCount,
+                        showPreview = true,
                     )
                     requestVerseText(book.book, 1, initialVerse)
                 } else {

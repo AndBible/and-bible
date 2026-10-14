@@ -25,6 +25,7 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
+import androidx.annotation.VisibleForTesting
 import androidx.core.view.ViewCompat
 import android.widget.OverScroller
 import net.bible.android.activity.R
@@ -159,11 +160,16 @@ class PassageFinderView(context: Context) : View(context) {
      *  - while the user scrolls books, the chapter and verse strips hide;
      *  - while the user scrolls chapters, the verse strip hides;
      *  - after the book changes, the verse strip stays hidden until a chapter is picked,
-     *    so the widget does not pre-commit to verse 1 of the new book.
+     *    so the widget does not pre-commit to verse 1 of the new book. Reaching verse
+     *    level counts as that pick: a one-chapter book drills straight there.
      */
     private var bookScrolling = false
     private var chapterScrolling = false
     private var verseRevealed = true
+
+    /** Whether the verse strip is allowed to show once no strip is being scrolled. */
+    @VisibleForTesting
+    internal val isVerseStripRevealed: Boolean get() = verseRevealed
 
     private var isDarkTheme = false
     private var isMonochrome = false
@@ -336,6 +342,16 @@ class PassageFinderView(context: Context) : View(context) {
         // a state left over from the previous one.
         val opening = pendingOpenSnap
         pendingOpenSnap = false
+
+        // Arriving at verse level is itself the chapter pick a book change waits for. A
+        // multi-chapter book only gets here through a chapter pick, which reveals the strip
+        // already; a one-chapter book drills straight here and would otherwise sit at verse
+        // level with its verse strip hidden.
+        if (newState.currentLevel == NavigationLevel.VERSE &&
+            previous.currentLevel != NavigationLevel.VERSE
+        ) {
+            verseRevealed = true
+        }
 
         // Animate a re-centre only when the strips were already showing real content.
         // On a cold open the widget first renders a loading placeholder, which is visible

@@ -464,6 +464,36 @@ class PassageFinderViewModelTest {
     }
 
     @Test
+    fun `drilling into a single-chapter book reveals the preview`() = runTest {
+        val singleChapterBooks = testBooks + PassageFinderDataSource.BookInfo(
+            BibleBook.JUDE, "Jude", "Jude", BookCategory.GENERAL_EPISTLES,
+        )
+        whenever(dataSource.getChapterCount(eq(BibleBook.JUDE))).thenReturn(1)
+        whenever(dataSource.getVerseCount(eq(BibleBook.JUDE), eq(1))).thenReturn(25)
+
+        viewModel.show(bookList(singleChapterBooks))
+        viewModel.onBookSelected(4)            // a book change clears showPreview
+        assertFalse(viewModel.uiState.value.showPreview)
+        viewModel.drillDown()                  // BOOK -> VERSE, chapter 1 implied
+
+        // Skipping the chapter level stands in for picking chapter 1, which is what shows
+        // the bubble for every other book. Without it a one-chapter book reached the verse
+        // strip with no bubble and no way to get one short of tapping chapter "1".
+        assertEquals(NavigationLevel.VERSE, viewModel.uiState.value.currentLevel)
+        assertTrue(viewModel.uiState.value.showPreview)
+    }
+
+    @Test
+    fun `drilling into a multi-chapter book does not show the preview yet`() = runTest {
+        viewModel.show(bookList())
+        viewModel.onBookSelected(1)
+        viewModel.drillDown()                  // BOOK -> CHAPTER: nothing picked yet
+
+        assertEquals(NavigationLevel.CHAPTER, viewModel.uiState.value.currentLevel)
+        assertFalse(viewModel.uiState.value.showPreview)
+    }
+
+    @Test
     fun `drillDown preserves chapter picked on a non-open book`() = runTest {
         // Open book is Genesis (index 0). Move to Exodus (a non-open book), scroll the
         // chapter strip to chapter 5 while still at BOOK level, then drill down.
