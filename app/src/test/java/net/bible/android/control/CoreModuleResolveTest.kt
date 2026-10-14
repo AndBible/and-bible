@@ -53,6 +53,8 @@ class CoreModuleResolveTest {
     }
 
     private fun drainCurrentFixture() {
+        net.bible.test.DatabaseResetter.requireNoRetainedWorkers()
+        net.bible.test.ReadingFixtureOwners.requireEmpty()
         val application = androidx.test.core.app.ApplicationProvider.getApplicationContext<TestBibleApplication>()
         // Join this application's captured owners while their database is still attached.
         net.bible.test.DatabaseResetter.runResetBlocking(timeoutMs = 5000) {
@@ -76,6 +78,95 @@ class CoreModuleResolveTest {
             org.junit.Assert.assertTrue("preparation must not terminate the application scope", job.isActive)
         } finally {
             kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(5000) { child.cancelAndJoin() } }
+        }
+    }
+
+    private fun finishObserverFixture(
+        scope: net.bible.sharedcore.platform.AppCoroutineScope,
+        primary: Throwable?,
+        restore: () -> Unit,
+    ) {
+        // Register both obligations before the abortable pump can throw. Startup's existing
+        // admission check rejects replacement until a retry joins and restores these exact owners.
+        net.bible.test.ReadingFixtureOwners.retain(listOf(scope))
+        net.bible.test.ReadingFixtureOwners.retainRestoration(restore)
+        var failure = primary
+        try {
+            net.bible.test.DatabaseResetter.runResetBlocking(timeoutMs = 5000) {
+                net.bible.test.ReadingFixtureOwners.drain()
+            }
+        } catch (cleanup: Throwable) {
+            if (failure == null) failure = cleanup else if (failure !== cleanup) failure.addSuppressed(cleanup)
+        }
+        failure?.let { throw it }
+    }
+
+    @Test
+    fun `failed observer cleanup retains exact restoration and blocks admission until joined`() {
+        drainCurrentFixture()
+        val application = androidx.test.core.app.ApplicationProvider.getApplicationContext<TestBibleApplication>()
+        val scope = net.bible.sharedcore.platform.AppCoroutineScope()
+        val job = scope.coroutineContext[kotlinx.coroutines.Job]!!
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { entered.complete(Unit); release.await() }
+        }
+        val factory = net.bible.service.db.DatabaseContainer.containerFactory
+        val ready = net.bible.service.db.DatabaseContainer.ready
+        val initialized = net.bible.service.common.CommonUtils.initialized
+        val detached = net.bible.service.db.DatabaseContainer.detachInstanceForTest()
+        val trap = OpeningTrap()
+        val replacementFactory: () -> net.bible.service.db.DatabaseContainer = trap::open
+        var restored = false
+        val restore = {
+            net.bible.service.db.DatabaseContainer.containerFactory = factory
+            net.bible.service.db.DatabaseContainer.ready = ready
+            net.bible.service.common.CommonUtils.initialized = initialized
+            restoreContainer(detached)
+            restored = true
+        }
+        val primary = IllegalStateException("controlled observer body failure")
+        val pumpFailure = IllegalStateException("controlled observer cleanup pump failure")
+        try {
+            kotlinx.coroutines.runBlocking { entered.await() }
+            net.bible.service.db.DatabaseContainer.containerFactory = replacementFactory
+            net.bible.service.db.DatabaseContainer.ready = false
+            net.bible.service.common.CommonUtils.initialized = false
+            android.os.Handler(android.os.Looper.getMainLooper()).post { throw pumpFailure }
+            val failure = runCatching { finishObserverFixture(scope, primary, restore) }.exceptionOrNull()
+            assertSame(primary, failure)
+            org.junit.Assert.assertTrue(primary.suppressed.contains(pumpFailure))
+            org.junit.Assert.assertFalse(job.isCompleted)
+            org.junit.Assert.assertFalse(restored)
+            assertSame(replacementFactory, net.bible.service.db.DatabaseContainer.containerFactory)
+            org.junit.Assert.assertTrue("retained restoration blocks admission",
+                runCatching { net.bible.test.ReadingFixtureOwners.requireEmpty() }.isFailure)
+            org.junit.Assert.assertTrue("application replacement stays blocked",
+                runCatching { application.onCreate() }.isFailure)
+            org.junit.Assert.assertTrue("another cold graph cannot replace retained globals",
+                runCatching { drainCurrentFixture() }.isFailure)
+            release.complete(Unit)
+            net.bible.test.DatabaseResetter.runResetBlocking {
+                net.bible.test.ReadingFixtureOwners.drain()
+            }
+            org.junit.Assert.assertTrue(job.isCompleted)
+            org.junit.Assert.assertTrue("retry restores saved exact globals", restored)
+            assertSame(factory, net.bible.service.db.DatabaseContainer.containerFactory)
+            val field = net.bible.service.db.DatabaseContainer::class.java.getDeclaredField("_instance").apply { isAccessible = true }
+            assertSame(detached, field.get(null))
+            org.junit.Assert.assertEquals(ready, net.bible.service.db.DatabaseContainer.ready)
+            org.junit.Assert.assertEquals(initialized, net.bible.service.common.CommonUtils.initialized)
+            org.junit.Assert.assertEquals(0, trap.calls.get())
+            net.bible.test.ReadingFixtureOwners.requireEmpty()
+            net.bible.test.DatabaseResetter.requireNoRetainedWorkers()
+        } finally {
+            release.complete(Unit)
+            net.bible.test.DatabaseResetter.runResetBlocking {
+                job.cancelAndJoin()
+                net.bible.test.ReadingFixtureOwners.drain()
+            }
+            restore()
         }
     }
 
@@ -104,6 +195,7 @@ class CoreModuleResolveTest {
         var detached: net.bible.service.db.DatabaseContainer? = null
         var didDetach = false
         val trap = OpeningTrap()
+        var failure: Throwable? = null
         try {
             kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(5000) { store.ensureLoaded(); collecting.await() } }
             detached = net.bible.service.db.DatabaseContainer.detachInstanceForTest()
@@ -128,13 +220,16 @@ class CoreModuleResolveTest {
                 org.junit.Assert.assertEquals("Only the controlled observer attempted opening\n${trap.diagnostic()}",
                     1, trap.calls.get())
             } finally { app.close() }
+        } catch (original: Throwable) {
+            failure = original
         } finally {
             release.complete(Unit)
-            kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(5000) { job.cancelAndJoin() } }
-            net.bible.service.db.DatabaseContainer.containerFactory = factory
-            net.bible.service.db.DatabaseContainer.ready = ready
-            net.bible.service.common.CommonUtils.initialized = initialized
-            if (didDetach) restoreContainer(detached)
+            finishObserverFixture(scope, failure) {
+                net.bible.service.db.DatabaseContainer.containerFactory = factory
+                net.bible.service.db.DatabaseContainer.ready = ready
+                net.bible.service.common.CommonUtils.initialized = initialized
+                if (didDetach) restoreContainer(detached)
+            }
         }
     }
 
