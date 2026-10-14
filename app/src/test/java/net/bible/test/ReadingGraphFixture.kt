@@ -18,6 +18,9 @@ fun awaitHostRoute(activity: NavHostComposeActivity, route: String, advanceCompo
     }
 }
 
+/** Wait (bounded, looper pumped, real time) for an arbitrary host condition that settles asynchronously. */
+fun awaitHostUntil(message: String, ready: () -> Boolean) = awaitHostCondition(message, {}, ready)
+
 /** Wait for real startup effects, not just Activity.resume(): settings loading suspends graph creation. */
 fun awaitReadingGraph(activity: NavHostComposeActivity, advanceComposition: () -> Unit = {}) {
     awaitHostCondition("fixture must publish the real visible Reading destination", advanceComposition) {

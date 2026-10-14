@@ -90,6 +90,12 @@ class DailyReadingPassageStaysInHostTest {
             ),
         )
         net.bible.test.awaitHostRoute(controller.get(), NavRoutes.dailyReading(plan = PLAN, day = 5))
+        // Reaching the route is not the day being loaded: the host's `readingsDto` (which `read()` silently
+        // requires) is set only after the async DAO/status reads finish, and an early read(1) is a no-op.
+        // The controller itself is built by the destination's first frames, so look it up inside the wait.
+        net.bible.test.awaitHostUntil("daily reading day must be loaded") {
+            runCatching { controller.get().dailyReadingControllerForTest() }.getOrNull()?.ui?.value?.readings?.isNotEmpty() == true
+        }
         idleMain()
     }
 
@@ -120,6 +126,8 @@ class DailyReadingPassageStaysInHostTest {
         idleMain()
         openDay(controller)
         activity.dailyReadingControllerForTest().read(1)
+        // read() suspends on a getReadingStatus cache miss, so finish() lands asynchronously.
+        net.bible.test.awaitHostUntil("host must finish") { activity.isFinishing }
 
         assertTrue(activity.isFinishing)
     }
