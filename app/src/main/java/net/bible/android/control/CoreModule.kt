@@ -275,8 +275,17 @@ fun buildCoreModule() = module {
     single { TextDisplaySettingsServiceImpl() } bind TextDisplaySettingsService::class
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
-    // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
-    single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    // NoDefinitionFoundException). Supply the Lazy wrapper explicitly. It resolves on every access rather
+    // than memoizing: TextToSpeechServiceManager is a single, so production sees the same instance either
+    // way, but a test that rebinds the manager (SpeakIntegrationTestBase) must reach the SpeakControl an
+    // earlier test already created -- a memoized Lazy kept the old manager and hung those tests.
+    single {
+        val koin = getKoin()
+        SpeakControl(object : Lazy<TextToSpeechServiceManager> {
+            override val value: TextToSpeechServiceManager get() = koin.get()
+            override fun isInitialized() = true
+        }, get(), get(), get(), get(), get(), get(), get(), get(), get())
+    }
     singleOf(::DocumentBibleBooksFactory)
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
