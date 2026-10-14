@@ -12,7 +12,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.first
 import net.bible.android.control.page.window.GateDispatcher
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.platform.AppCoroutineScope
@@ -37,7 +36,11 @@ class GlobalTextDisplaySettingsStoreTest {
     private val synced = EventSource<Unit>()
     /** A NEW flow per call, like `invalidationTracker.createFlow` on whichever database is current. */
     private val flows = java.util.concurrent.CopyOnWriteArrayList<MutableSharedFlow<Unit>>()
-    private val invalidations get() = flows.first()
+    /** The observer creates its flow on its own coroutine after load(); wait for it to subscribe instead of racing it. */
+    private suspend fun awaitInvalidations(): MutableSharedFlow<Unit> = withTimeout(10_000) {
+        while (flows.isEmpty() || flows[0].subscriptionCount.value == 0) kotlinx.coroutines.delay(10)
+        flows[0]
+    }
     private val observerScope = AppCoroutineScope()
 
     @Before fun setUp() {
@@ -106,7 +109,7 @@ class GlobalTextDisplaySettingsStoreTest {
 
     @Test fun snapshotFollowsTableInvalidations() = runBlocking {
         store.load()
-        withTimeout(10_000) { invalidations.subscriptionCount.first { it > 0 } }
+        val invalidations = awaitInvalidations()
         writeBehindTheStore(settings(9))
         invalidations.emit(Unit)
         withTimeout(10_000) { while (store.current != settings(9)) kotlinx.coroutines.delay(10) }
