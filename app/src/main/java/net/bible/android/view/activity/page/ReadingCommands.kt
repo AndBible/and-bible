@@ -156,6 +156,7 @@ class ReadingCommands(
         private const val TAG = "ReadingCommands"
 
         /** Workspace switches running or queued on any host; tests wait for it to reach zero (a switch reads off the main thread). */
+        @androidx.annotation.VisibleForTesting
         internal val workspaceSwitchesInFlight = java.util.concurrent.atomic.AtomicInteger(0)
     }
 

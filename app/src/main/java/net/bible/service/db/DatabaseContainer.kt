@@ -402,7 +402,12 @@ class DatabaseContainer {
         suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T =
             aiLifetime.replace { replacingDatabasesOwned(it, block) }
 
+        /** Test seam: called when a restore starts waiting for the workspace write queue. */
+        @VisibleForTesting
+        internal var onWorkspaceDrainEntered: (() -> Unit)? = null
+
         private suspend fun drainWorkspaceWrites() {
+            onWorkspaceDrainEntered?.invoke()
             val persistence = runCatching {
                 org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.android.control.page.window.WorkspacePersistence>()
             }.getOrNull()

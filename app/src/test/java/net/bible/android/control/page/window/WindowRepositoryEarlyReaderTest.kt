@@ -150,18 +150,48 @@ class WindowRepositoryEarlyReaderTest {
     }
 
     /**
-     * Review fix (Task 10 M3): the first start of a repository that finds no workspace creates one. During a
-     * restore the create insert used to be skipped by the stale-write guard, leaving an in-memory-only workspace
-     * whose window inserts then failed their foreign key.
+     * Review fix (Task 10 M3, contract tightened by review I2): nothing is created while a restore runs, because the
+     * insert would land while files are swapped. The first start fails (the host reloads after the restore) and
+     * leaves no row; once the restore has ended the same repository starts and creates its workspace.
      */
-    @Test fun firstStartDuringARestoreStillWritesTheCreatedWorkspace() {
+    @Test fun firstStartDuringARestoreCreatesNothingAndSucceedsAfterwards() {
         runBlocking { workspaceDao.allWorkspaces().forEach { workspaceDao.deleteWorkspace(it.id) } }
         CommonUtils.settings.setString("current_workspace_id", null)
+        var refused = false
         runBlocking {
-            DatabaseContainer.replacingDatabases { f.repo.initialize() }
+            DatabaseContainer.replacingDatabases {
+                try { f.repo.initialize() } catch (e: IllegalStateException) { refused = true }
+            }
         }
+        assertTrue("the create must be refused while replacing", refused)
+        assertFalse(f.repo.initialized)
+        assertEquals("no workspace row was written", 0, runBlocking { workspaceDao.allWorkspaces().size })
+        runBlocking { f.repo.initialize() }
         assertTrue(f.repo.initialized)
         assertNotNull("the created workspace has a row", runBlocking { workspaceDao.workspace(f.repo.id) })
+    }
+
+    /**
+     * Review fix (I1): the restore epoch becomes this repository's own only when the load applies. A save during the
+     * read phase of a load that started after a restore still holds the pre-restore epoch and must write nothing.
+     */
+    @Test fun saveDuringTheReadPhaseAfterARestoreWritesNothing() {
+        runBlocking { f.repo.initialize() }
+        runBlocking { f.persistence.awaitPersisted() }
+        f.repo.name = "pre-restore state"
+        runBlocking { DatabaseContainer.replacingDatabases { } }
+        val loader = HoldingLoader(realLoader(f.persistence), f.persistence)
+        f.repo.loaderOverride = loader
+        runBlocking {
+            val load = launch { f.repo.loadFromDb(f.repo.id) }
+            withTimeout(10_000) { loader.entered.await() }
+            f.repo.saveIntoDb(false)
+            loader.release.complete(Unit)
+            withTimeout(10_000) { load.join() }
+        }
+        runBlocking { f.persistence.awaitPersisted() }
+        assertFalse("the stale save must not have been written",
+            runBlocking { workspaceDao.workspace(f.repo.id) }!!.name == "pre-restore state")
     }
 }
 
@@ -170,29 +200,31 @@ class WindowRepositoryEarlyReaderTest {
 class WorkspaceRestoreDrainTest {
     /**
      * Review fix (Task 10 M7): a write that already passed its in-block guard may be mid-DAO-call when a restore
-     * starts; the restore must wait for it before it touches the files. Breaks if the restore enters its block
-     * while that write is still running.
+     * starts; the restore must wait for it before it touches the files. The write is let go only once the restore
+     * has announced (through the drain seam) that it is waiting, so entering the block early is caught every time.
      */
     @Test fun restoreWaitsForAWriteAlreadyInFlight() {
         DatabaseResetter.resetDatabase()
+        val persistence = org.koin.java.KoinJavaComponent.get<WorkspacePersistence>(WorkspacePersistence::class.java)
+        val entered = CompletableDeferred<Unit>()
+        val proceed = CompletableDeferred<Unit>()
+        val drainEntered = CompletableDeferred<Unit>()
+        val writeDone = AtomicBoolean(false)
+        val writeDoneAtRestoreEntry = AtomicBoolean(false)
+        DatabaseContainer.onWorkspaceDrainEntered = { drainEntered.complete(Unit) }
         try {
-            val persistence = org.koin.java.KoinJavaComponent.get<WorkspacePersistence>(WorkspacePersistence::class.java)
-            val entered = CompletableDeferred<Unit>()
-            val proceed = CompletableDeferred<Unit>()
-            val writeDone = AtomicBoolean(false)
-            val writeDoneAtRestoreEntry = AtomicBoolean(false)
             persistence.enqueue { entered.complete(Unit); proceed.await(); writeDone.set(true) }
             runBlocking { withTimeout(10_000) { entered.await() } }
             val restore = CoroutineScope(Dispatchers.Default).launch {
                 DatabaseContainer.replacingDatabases { writeDoneAtRestoreEntry.set(writeDone.get()) }
             }
-            val deadline = System.nanoTime() + 10_000_000_000L
-            while (!DatabaseContainer.replacing && System.nanoTime() < deadline) Thread.yield()
-            assertTrue("the restore started", DatabaseContainer.replacing)
+            runBlocking { withTimeout(5_000) { drainEntered.await() } }
             proceed.complete(Unit)
             runBlocking { withTimeout(10_000) { restore.join() } }
             assertTrue("the restore must not enter before the in-flight write finished", writeDoneAtRestoreEntry.get())
         } finally {
+            proceed.complete(Unit) // never leave the shared "workspace" key held
+            DatabaseContainer.onWorkspaceDrainEntered = null
             DatabaseResetter.resetDatabase()
         }
     }

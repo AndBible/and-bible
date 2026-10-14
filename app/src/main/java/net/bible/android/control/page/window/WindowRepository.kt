@@ -200,12 +200,12 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         val createIfMissing = if(pending == null) beginInitialize() else false
         if(pending == null) loadingFromDb = true
         try {
-            if(pending == null) loadedEpoch = DatabaseContainer.replaceEpoch
+            val epoch = pending?.epoch ?: DatabaseContainer.replaceEpoch
             val readId = id
             val loaded = blockingAtEdge { // L1-edge: activeWindow read or host bootstrap before the first load finished
                 pending?.loaded?.await() ?: currentLoader().read(readId, createIfMissing)
             }
-            if(pending == null || pending.claim()) applyLoaded(loaded)
+            if(pending == null || pending.claim()) applyLoaded(loaded, epoch)
         } finally {
             if(pending == null) loadingFromDb = false
         }
@@ -481,10 +481,15 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     }
 
     /**
-     * A load whose read phase is running. [claim] makes the apply phase happen exactly once, whoever
+     * A load whose read phase is running. Carries the restore epoch captured when it started: [loadedEpoch] only
+     * takes it when the apply happens, so a save during the read still sees the pre-load epoch and the restore guard.
+     * The join through [claim] protects a path with no production entry today (the first load is the edge); it is
+     * kept for the early-reader contract. A background reader that loses [claim] returns before Main's apply and
+     * can read a null active window, as the old lazy getter could.
+     * [claim] makes the apply phase happen exactly once, whoever
      * gets there first: the suspended load, or an [activeWindow] reader that joined it.
      */
-    private class PendingLoad {
+    private class PendingLoad(val epoch: Long) {
         val loaded = CompletableDeferred<LoadedWorkspace>()
         private val claimed = java.util.concurrent.atomic.AtomicBoolean(false)
         fun claim() = claimed.compareAndSet(false, true)
@@ -508,11 +513,11 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     suspend fun loadFromDb(workspaceId: IdType?) = loadFromDb(workspaceId, false)
 
     private suspend fun loadFromDb(workspaceId: IdType?, createIfMissing: Boolean) = loadMutex.withLock {
-        val pending = PendingLoad()
+        val startEpoch = DatabaseContainer.replaceEpoch
+        val pending = PendingLoad(startEpoch)
         pendingLoad = pending
         loadingFromDb = true
         try {
-            loadedEpoch = DatabaseContainer.replaceEpoch
             Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
             val loader = currentLoader()
             // The deferred completes on the read dispatcher, never on Main: a main-thread reader waiting on it
@@ -525,7 +530,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
                     throw e
                 }
             }
-            withContext(Dispatchers.Main.immediate) { if (pending.claim()) applyLoaded(loaded) }
+            withContext(Dispatchers.Main.immediate) { if (pending.claim()) applyLoaded(loaded, startEpoch) }
         } finally {
             if (pendingLoad === pending) pendingLoad = null
             loadingFromDb = false
@@ -533,8 +538,9 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     }
 
     /** The apply phase: replaces this repository's state wholesale from [loaded]. Synchronous; runs under [loadingFromDb]. */
-    private fun applyLoaded(loaded: LoadedWorkspace) {
+    private fun applyLoaded(loaded: LoadedWorkspace, epoch: Long) {
         pendingLoad = null
+        loadedEpoch = epoch
         val entity = loaded.entity
         savedEntity = entity.deepCopy()
         clear()
