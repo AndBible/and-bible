@@ -162,6 +162,46 @@ class PassageFinderViewModelTest {
     }
 
     @Test
+    fun `followCurrentVerse refreshes the preview text of a revealed bubble`() = runTest {
+        whenever(dataSource.getVerseText(eq(BibleBook.GEN), eq(1), eq(5))).thenReturn("And God called")
+        whenever(dataSource.getVerseText(eq(BibleBook.MATT), eq(5), eq(9))).thenReturn("Blessed are")
+        // Let the verse-text collector start; its flow has no replay, so an emission made
+        // while it is still queued would be dropped and the preview would never be Ready.
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.show(bookList())
+        viewModel.drillDown()
+        viewModel.drillDown()
+        viewModel.onVerseSelected(5)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.showPreview)
+        assertEquals(PreviewVerseText.Ready("And God called"), viewModel.previewVerseText.value)
+
+        // The reader scrolls behind the open finder; the bubble's reference follows it.
+        whenever(dataSource.getCurrentVerse()).thenReturn(Verse(v11n, BibleBook.MATT, 5, 9))
+        viewModel.followCurrentVerse()
+
+        // Before the read lands the bubble must be pending, never Gen 1:5's words under a
+        // Matt 5:9 reference.
+        assertEquals(PreviewVerseText.Loading, viewModel.previewVerseText.value)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(PreviewVerseText.Ready("Blessed are"), viewModel.previewVerseText.value)
+    }
+
+    @Test
+    fun `followCurrentVerse does not read verse text while no bubble is shown`() = runTest {
+        testDispatcher.scheduler.advanceUntilIdle()
+        viewModel.show(bookList())
+        whenever(dataSource.getCurrentVerse()).thenReturn(Verse(v11n, BibleBook.MATT, 5, 9))
+
+        viewModel.followCurrentVerse()
+
+        // Following runs on every reader scroll report; with the bubble hidden there is
+        // nothing to refresh, so it must not arm a placeholder or queue a disk read.
+        assertEquals(PreviewVerseText.None, viewModel.previewVerseText.value)
+    }
+
+    @Test
     fun `confirmSelection emits Verse with correct book chapter verse`() = runTest {
         viewModel.show(bookList())
 

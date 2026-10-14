@@ -250,6 +250,11 @@ class PassageFinderViewModel(
             chapterCount = chapterCount,
             verseCount = verseCount,
         )
+        // A revealed bubble's reference line follows the new selection on the next render,
+        // so its text has to follow too, or it shows the old verse's words under the new
+        // reference. With no bubble up there is nothing to refresh, and this runs on every
+        // reader scroll report, so skip the read.
+        if (state.showPreview) requestVerseText(current.book, chapter, verse)
     }
 
     /** Hide the widget. */
