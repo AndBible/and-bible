@@ -25,6 +25,8 @@ import android.net.Uri
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -70,13 +72,10 @@ class BookmarkCsvFlowTest {
     @get:Rule val dialogReset = AppDialogControllerResetRule()
     private lateinit var bookmarkControl: BookmarkControl
     private lateinit var flow: BookmarkCsvFlow
-    // Shared across the whole test method, and kept as the Main dispatcher until @After -- see the
-    // matching field in ErrorReportControlTest for why resetting Main inside the test body's own
-    // `finally` (the old shape here too) can deadlock a test that leaves a still-cancelling child
-    // behind: it races that child off the test scheduler and onto the real, blocked Robolectric main
-    // thread. (Neither test below currently leaves such a child, but the shape is now uniform with
-    // the other three test classes that share this trap.)
+    // Keep Main on the exact scheduler through runTest's child completion. @After checks that
+    // boundary before restoring the real Looper dispatcher required by blocking reset preparation.
     private val testDispatcher = StandardTestDispatcher()
+    private val bodyJobs = mutableListOf<Job>()
 
     @Before
     fun setUp() {
@@ -88,9 +87,10 @@ class BookmarkCsvFlowTest {
 
     @After
     fun tearDown() {
-        dialogs.cancelAll()
-        resetDatabase()
-        Dispatchers.resetMain()
+        finishCsvFixture(bodyJobs) {
+            dialogs.cancelAll()
+            resetDatabase()
+        }
     }
 
     private fun csvUri(content: String): Uri {
@@ -102,6 +102,7 @@ class BookmarkCsvFlowTest {
 
     @Test
     fun invalidRowsPostAMessageWithTheOriginalTitleAndErrorSummary() = runTest(testDispatcher, timeout = 30.seconds) {
+        bodyJobs += checkNotNull(currentCoroutineContext()[Job])
         val context = RuntimeEnvironment.getApplication()
         // "osisRef" header, one non-blank but unparseable data row -- getVerseRange() fails every
         // branch (empty ordinals, unparseable osisRef, no book/chapter/verse, no bible ref) and
@@ -128,6 +129,7 @@ class BookmarkCsvFlowTest {
 
     @Test
     fun aCleanImportPostsNothing() = runTest(testDispatcher, timeout = 30.seconds) {
+        bodyJobs += checkNotNull(currentCoroutineContext()[Job])
         val context = RuntimeEnvironment.getApplication()
         // Header only, no data rows at all -- created = updated = errors = 0.
         val uri = csvUri("osisRef\n")
@@ -137,4 +139,11 @@ class BookmarkCsvFlowTest {
 
         assertEquals(null, dialogs.pending.value)
     }
+}
+
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+internal fun finishCsvFixture(bodyJobs: List<Job>, reset: () -> Unit) {
+    check(bodyJobs.all { it.isCompleted }) { "CSV test children must complete before Main restoration" }
+    Dispatchers.resetMain()
+    reset()
 }

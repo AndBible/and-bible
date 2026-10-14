@@ -38,11 +38,21 @@ import net.bible.sharedcore.event.EventSource
 @Config(application = TestBibleApplication::class, sdk = [35])
 @OptIn(ExperimentalCoroutinesApi::class)
 class BibleViewBookmarkChangeOrderTest {
-    @After fun resetMain() { Dispatchers.resetMain() }
+    private val bodyJobs = mutableListOf<Job>()
+    private val fixtureJobs = mutableListOf<Job>()
+
+    @After fun resetMain() {
+        check(bodyJobs.all { it.isCompleted } && fixtureJobs.all { it.isCompleted }) {
+            "Exact bookmark fixture children must complete before Main restoration/reset"
+        }
+        Dispatchers.resetMain()
+        DatabaseResetter.resetDatabase()
+    }
 
     @Test fun label_update_precedes_bookmark_update_while_override_read_is_suspended() = runTest {
+        bodyJobs += checkNotNull(currentCoroutineContext()[Job])
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val repoJob = SupervisorJob()
+        val repoJob = SupervisorJob().also { fixtureJobs += it }
         val repo = WindowRepository(CoroutineScope(repoJob + Dispatchers.Main))
         val originalRepo = CommonUtils.windowControl.windowRepository
         val container = DatabaseContainer.instance
@@ -50,6 +60,8 @@ class BibleViewBookmarkChangeOrderTest {
         var view: BibleView? = null
         var lifecycle: LifecycleRegistry? = null
         val gate = CompletableDeferred<Unit>()
+        var primary: Throwable? = null
+        net.bible.test.ReadingFixtureOwners.retain(listOf(repo.scope))
         try {
             CommonUtils.windowControl.windowRepository = repo
             repo.initialize()
@@ -66,6 +78,12 @@ class BibleViewBookmarkChangeOrderTest {
             view = BibleView(host, callbacks, WeakReference(repo.activeWindow), control,
                 GlobalContext.get().get(), PageTiltScrollControl(), GlobalContext.get().get(),
                 bookmarks, GlobalContext.get().get(), GlobalContext.get().get())
+            fixtureJobs += checkNotNull(view.scope.coroutineContext[Job])
+            val ownedView = view
+            net.bible.test.ReadingFixtureOwners.retain(listOf(ownedView.scope)) {
+                ownedView.listenEvents = false
+                ownedView.destroy()
+            }
             BibleView::class.java.getDeclaredField("pageTiltScroller").apply {
                 isAccessible = true
                 set(view, PageTiltScroller(view, PageTiltScrollControl()))
@@ -112,20 +130,36 @@ class BibleViewBookmarkChangeOrderTest {
             val bookmarkIndex = scripts.indexOfFirst { it.contains("add_or_update_bookmarks") }
             assertTrue("Both actual WebView commands must execute: $scripts", labelIndex >= 0 && bookmarkIndex >= 0)
             assertTrue("Labels must precede their bookmarks: $scripts", labelIndex < bookmarkIndex)
-        } finally {
+        } catch (e: Throwable) { primary = e; throw e }
+        finally {
             gate.complete(Unit)
-            try {
-                lifecycle?.currentState = Lifecycle.State.DESTROYED
-                view?.listenEvents = false
-                view?.destroy()
-                repo.windowList.forEach { it.destroy(destroyView = false) }
-            } finally {
-                try { repoJob.cancelAndJoin() } finally {
-                    container.workspaceDb = originalDb
-                    CommonUtils.windowControl.windowRepository = originalRepo
-                    DatabaseResetter.resetDatabase(repo.scope)
+            var failure = primary
+            fun attempt(action: () -> Unit) {
+                try { action() } catch (e: Throwable) {
+                    if (failure == null) failure = e else if (failure !== e) failure!!.addSuppressed(e)
                 }
             }
+            val restore = {
+                container.workspaceDb = originalDb
+                CommonUtils.windowControl.windowRepository = originalRepo
+            }
+            // Retain restoration before disposal; failed joins must not restore the live DAO/graph.
+            net.bible.test.ReadingFixtureOwners.retainRestoration(restore)
+            attempt { lifecycle?.currentState = Lifecycle.State.DESTROYED }
+            attempt { view?.listenEvents = false }
+            attempt { net.bible.test.ReadingFixtureOwners.disposeAndSnapshot() }
+            repo.windowList.forEach { window -> attempt { window.destroy(destroyView = false) } }
+            fixtureJobs.forEach { it.cancel() }
+            try {
+                withContext(NonCancellable) {
+                    fixtureJobs.forEach { it.join() }
+                    // Suspending here keeps runTest driving the exact Standard scheduler on Main.
+                    net.bible.test.ReadingFixtureOwners.drain()
+                }
+            } catch (e: Throwable) {
+                if (failure == null) failure = e else if (failure !== e) failure!!.addSuppressed(e)
+            }
+            if (primary == null) failure?.let { throw it }
         }
     }
 }
