@@ -150,4 +150,15 @@ class GlobalTextDisplaySettingsStoreTest {
         store.load()
         assertEquals(WorkspaceEntities.TextDisplaySettings(), store.current)
     }
+
+    /** A partial update before load() must apply to the real row, not to the defaults. */
+    @Test fun updateBeforeLoadKeepsTheOtherFieldsOfTheStoredRow() = runBlocking {
+        writeBehindTheStore(TextDisplaySettings(strongsMode = 2, showXrefs = true))
+        store.update { copy(showMyNotes = false) }
+        store.load()
+        settle()
+        val expected = TextDisplaySettings(strongsMode = 2, showXrefs = true, showMyNotes = false)
+        assertEquals(expected, store.current)
+        assertEquals(expected, stored())
+    }
 }

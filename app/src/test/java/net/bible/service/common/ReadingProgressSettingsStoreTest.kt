@@ -46,7 +46,7 @@ class ReadingProgressSettingsStoreTest {
 
     @After fun tearDown() { gate.release(); observerScope.coroutineContext[kotlinx.coroutines.Job]!!.cancel(); db.close() }
 
-    private fun settings(strongs: Int) = GlobalReadingProgressSettings(activeCycle = strongs)
+    private fun settings(cycle: Int) = GlobalReadingProgressSettings(activeCycle = cycle)
     private fun stored() = runBlocking { db.globalReadingProgressSettingsDao().get() }
 
     @Test fun loadMakesCurrentEqualTheDatabaseRow() = runBlocking {
@@ -89,6 +89,7 @@ class ReadingProgressSettingsStoreTest {
         store.load()
         store.set(settings(1)); settle()
         writeBehindTheStore(settings(7))
+        gate.hold()
         restored.emit(Unit)
         gate.release(); settle()
         assertEquals(settings(7), store.current)
@@ -157,5 +158,27 @@ class ReadingProgressSettingsStoreTest {
         assertEquals(GlobalReadingProgressSettings(activeCycle = 4, memorizeTypeFullWords = true), store.current)
         gate.release(); settle()
         assertEquals(GlobalReadingProgressSettings(activeCycle = 4, memorizeTypeFullWords = true), stored())
+    }
+
+    /** A one-field setter before load() must apply to the real row, not to the defaults. */
+    @Test fun updateBeforeLoadKeepsTheOtherFieldsOfTheStoredRow() = runBlocking {
+        db.globalReadingProgressSettingsDao().set(GlobalReadingProgressSettings(activeCycle = 6, memorizeWordVisibility = "dim"))
+        store.update { copy(memorizeTypeFullWords = true) }
+        store.load()
+        settle()
+        val expected = GlobalReadingProgressSettings(activeCycle = 6, memorizeWordVisibility = "dim", memorizeTypeFullWords = true)
+        assertEquals(expected, store.current)
+        assertEquals(expected, stored())
+    }
+
+    @Test fun updatesBeforeLoadComposeInOrderOnTheStoredRow() = runBlocking {
+        db.globalReadingProgressSettingsDao().set(GlobalReadingProgressSettings(activeCycle = 6))
+        store.update { copy(activeCycle = 7) }
+        store.update { copy(activeCycle = activeCycle + 1, memorizeIncludeReference = false) }
+        store.load()
+        settle()
+        val expected = GlobalReadingProgressSettings(activeCycle = 8, memorizeIncludeReference = false)
+        assertEquals(expected, store.current)
+        assertEquals(expected, stored())
     }
 }

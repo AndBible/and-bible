@@ -37,15 +37,28 @@ class ReadingProgressSettingsStore(
     @Volatile private var loaded = false
     @Volatile private var warned = false
     private var pendingWrites = 0
+    private val preLoad = mutableListOf<(GlobalReadingProgressSettings) -> GlobalReadingProgressSettings>()
     private var replacementEpoch = 0L
     private var observing = false
     private val generation = kotlinx.coroutines.flow.MutableStateFlow(0L)
 
+    /**
+     * Reads the row once. Writes made before this ran ([set], [update]) are held as transforms and applied here to the
+     * real row, so a one-field setter on a not-yet-loaded store cannot persist defaults over the other fields.
+     * Idempotent: later calls only make sure observation is running.
+     */
     suspend fun load() {
         val row = dao().get()
-        // A set() that raced the read is newer than the row just read.
-        synchronized(lock) { if (snapshot == null) snapshot = row }
-        loaded = true
+        synchronized(lock) {
+            if (!loaded) {
+                loaded = true
+                if (preLoad.isNotEmpty()) {
+                    val applied = preLoad.fold(row ?: GlobalReadingProgressSettings()) { acc, t -> t(acc) }
+                    preLoad.clear()
+                    commit(applied)
+                } else snapshot = row
+            }
+        }
         startObserving()
     }
 
@@ -97,25 +110,32 @@ class ReadingProgressSettingsStore(
             return snapshot ?: GlobalReadingProgressSettings()
         }
 
-    fun set(value: GlobalReadingProgressSettings) {
-        val copy = value
+    fun set(value: GlobalReadingProgressSettings) = update { value }
+
+    /**
+     * Applies [transform] to the snapshot and persists the result in submission order. Before [load] the transform is
+     * queued and applied to the stored row by [load]; the snapshot meanwhile shows it applied to the defaults.
+     */
+    fun update(transform: GlobalReadingProgressSettings.() -> GlobalReadingProgressSettings) {
         synchronized(lock) {
-            snapshot = copy
-            pendingWrites++
-            val epoch = replacementEpoch
-            launcher.launch(KEY) {
-                try {
-                    if (synchronized(lock) { epoch == replacementEpoch }) dao().set(copy)
-                } finally {
-                    synchronized(lock) { pendingWrites-- }
-                }
-            }
+            if (!loaded) preLoad.add(transform)
+            commit((snapshot ?: GlobalReadingProgressSettings()).transform(), persist = loaded)
         }
     }
 
-    /** Applies [transform] to the snapshot and persists the result, atomically with respect to other writers. */
-    fun update(transform: GlobalReadingProgressSettings.() -> GlobalReadingProgressSettings) {
-        synchronized(lock) { set((snapshot ?: GlobalReadingProgressSettings()).transform()) }
+    /** Publishes [copy] as the snapshot and, when [persist], queues its write. Caller holds [lock]. */
+    private fun commit(copy: GlobalReadingProgressSettings, persist: Boolean = true) {
+        snapshot = copy
+        if (!persist) return
+        pendingWrites++
+        val epoch = replacementEpoch
+        launcher.launch(KEY) {
+            try {
+                if (synchronized(lock) { epoch == replacementEpoch }) dao().set(copy)
+            } finally {
+                synchronized(lock) { pendingWrites-- }
+            }
+        }
     }
 
     companion object {

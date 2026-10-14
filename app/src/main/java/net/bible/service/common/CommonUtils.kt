@@ -417,11 +417,13 @@ object CommonUtils : CommonUtilsBase() {
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
 
 
-        /** Check if any LlmProviderConfig exists in the database. */
+        /**
+         * True when any LlmProviderConfig exists. Read on the UI thread, so it reads the app-wide
+         * [net.bible.sharedcore.ai.PromptService.configured] snapshot (refreshed when the AI configuration changes)
+         * instead of the database; [initializeAppCoroutine] awaits its first refresh.
+         */
         val llmConfigured: Boolean
-            get() = try {
-                blockingAtEdge { DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() } > 0 // L1-edge: synchronous settings read (menu state, BibleView config, context menu); no provider-count snapshot exists
-            } catch (_: Exception) { false }
+            get() = promptService.configured.value
 
     }
 
@@ -437,6 +439,12 @@ object CommonUtils : CommonUtilsBase() {
      * Use this for agent permissions, excluded documents, commentary token limit, etc.
      */
     val aiSettings: net.bible.service.llm.AiSettings get() = org.koin.java.KoinJavaComponent.get(net.bible.service.llm.AiSettings::class.java)
+
+    private val promptService: net.bible.sharedcore.ai.PromptService
+        get() = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.ai.PromptService::class.java)
+
+    private val readingProgressSettingsStore: ReadingProgressSettingsStore
+        get() = org.koin.java.KoinJavaComponent.get(ReadingProgressSettingsStore::class.java)
 
     /** The snapshot held by [GlobalTextDisplaySettingsStore]; loaded in [initializeAppCoroutine]. */
     var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
@@ -1081,6 +1089,7 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
+            loadSnapshotStoresInBackground()
             if (ttsNotificationManager == null) {
                 ttsNotificationManager = TextToSpeechNotificationManager()
             }
@@ -1120,11 +1129,31 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    /**
+     * A host recreated directly (process death) only runs [initializeApp], never [initializeAppCoroutine]. Start the
+     * snapshot loads here without blocking; writes that arrive before they finish are applied to the loaded rows.
+     */
+    private fun loadSnapshotStoresInBackground() {
+        val scope = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppCoroutineScope>(net.bible.sharedcore.platform.AppCoroutineScope::class.java)
+        scope.launch {
+            try {
+                globalTextDisplaySettingsStore.load()
+                readingProgressSettingsStore.load()
+                promptService.refresh()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Snapshot store load failed", e)
+            }
+        }
+    }
+
     suspend fun initializeAppCoroutine() {
         DatabaseContainer.ready = true
         aiSettings.ensureLoaded()
         globalTextDisplaySettingsStore.load()
-        org.koin.java.KoinJavaComponent.get<ReadingProgressSettingsStore>(ReadingProgressSettingsStore::class.java).load()
+        readingProgressSettingsStore.load()
+        promptService.refresh()
         MyDocumentBookManager.launcher.join("mydocument-sync")
         if(!initialized) {
             try {
