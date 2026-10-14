@@ -1019,8 +1019,8 @@ class BibleView(
                     executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames, styleModuleNames: $styleModuleNames});")
                 })
                 subscriptions.add(WorkspaceChanges.changes.subscribe { if (it == WorkspaceChange.SettingsEdited) updateConfig() })
-                // updateConfig carries llmConfigured, so AI configuration changes must reach it too.
-                subscriptions.add(CommonUtils.aiSettings.configChanged.subscribe { updateConfig() })
+                // updateConfig carries llmConfigured: follow the value itself (aiSettings.configChanged fires before it is refreshed).
+                subscriptions.add(CommonUtils.llmConfiguredChanges.subscribe { updateConfig() })
                 // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
                 // and finish a deferred teardown. Both events were posted only by the classic
                 // split reading area, so they became unpostable when it went; the live teardown

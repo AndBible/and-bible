@@ -443,6 +443,37 @@ object CommonUtils : CommonUtilsBase() {
     private val promptService: net.bible.sharedcore.ai.PromptService
         get() = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.ai.PromptService::class.java)
 
+    private val llmConfiguredSource = net.bible.sharedcore.event.EventSource<Unit>()
+    private var llmBridgeJob: kotlinx.coroutines.Job? = null
+    private var llmBridgeFor: net.bible.sharedcore.ai.PromptService? = null
+
+    /**
+     * Fires after [net.bible.sharedcore.ai.PromptService.configured] changed value, so a listener reading
+     * [AndBibleSettings.llmConfigured] sees the new value (unlike `aiSettings.configChanged`, which fires before the
+     * asynchronous refresh). Reading it starts the bridge; it restarts when the service or its scope was replaced.
+     */
+    val llmConfiguredChanges: net.bible.sharedcore.event.Events<Unit> get() {
+        val service = promptService
+        synchronized(llmConfiguredSource) {
+            if (llmBridgeJob?.isActive != true || llmBridgeFor !== service) {
+                llmBridgeJob?.cancel()
+                llmBridgeFor = service
+                var last = service.configured.value
+                val scope = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppCoroutineScope>(net.bible.sharedcore.platform.AppCoroutineScope::class.java)
+                llmBridgeJob = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                    service.configured.collect { if (it != last) { last = it; llmConfiguredSource.emit(Unit) } }
+                }
+            }
+        }
+        return llmConfiguredSource
+    }
+
+    internal suspend fun runEachCatching(vararg steps: suspend () -> Unit) {
+        for (step in steps) {
+            try { step() } catch (e: Exception) { Log.e(TAG, "Snapshot store step failed", e) }
+        }
+    }
+
     private val readingProgressSettingsStore: ReadingProgressSettingsStore
         get() = org.koin.java.KoinJavaComponent.get(ReadingProgressSettingsStore::class.java)
 
@@ -1136,15 +1167,11 @@ object CommonUtils : CommonUtilsBase() {
     private fun loadSnapshotStoresInBackground() {
         val scope = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppCoroutineScope>(net.bible.sharedcore.platform.AppCoroutineScope::class.java)
         scope.launch {
-            try {
-                globalTextDisplaySettingsStore.load()
-                readingProgressSettingsStore.load()
-                promptService.refresh()
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "Snapshot store load failed", e)
-            }
+            runEachCatching(
+                { globalTextDisplaySettingsStore.load() },
+                { readingProgressSettingsStore.load() },
+                { promptService.refresh() },
+            )
         }
     }
 
