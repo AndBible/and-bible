@@ -218,6 +218,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         windowControl.windowRepository = windowRepository
         // The one synchronous load: the host's bootstrap is a straight-line onCreate sequence whose next steps read this repository.
         windowRepository.initializeAtEdge()
+        // Process-death recreation never runs initializeAppCoroutine: the snapshot stores must be loaded before the first render reads them.
+        CommonUtils.awaitSnapshotLoadsAtEdge()
         return windowRepository
     }
 

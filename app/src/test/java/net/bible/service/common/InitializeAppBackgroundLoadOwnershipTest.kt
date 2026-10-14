@@ -69,4 +69,87 @@ class InitializeAppBackgroundLoadOwnershipTest {
             koin.loadModules(listOf(org.koin.dsl.module { single { previous } }))
         }
     }
+
+    private class GatedProgressStore(koin: org.koin.core.Koin, val row: GlobalReadingProgressSettings) {
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        private val dao = object : GlobalReadingProgressSettingsDao {
+            override suspend fun get(): GlobalReadingProgressSettings? {
+                entered.complete(Unit)
+                release.await()
+                return row
+            }
+            override suspend fun set(settings: GlobalReadingProgressSettings) {}
+        }
+        val store = ReadingProgressSettingsStore(koin.get<OrderedLauncher>(), { dao })
+    }
+
+    @Test fun coldStartBarrierWaitsForTheBackgroundLoadSoAStoreReadSeesTheRealRow() {
+        val koin = GlobalContext.get()
+        val previous = koin.get<ReadingProgressSettingsStore>()
+        val real = GlobalReadingProgressSettings(autoTrackReading = true, activeCycle = 7)
+        val gated = GatedProgressStore(koin, real)
+        koin.loadModules(listOf(org.koin.dsl.module { single { gated.store } }))
+        val barrierDone = CountDownLatch(1)
+        try {
+            CommonUtils.loadSnapshotStoresInBackground()
+            runBlocking { withTimeout(10_000) { gated.entered.await() } }
+
+            val reader = Thread { CommonUtils.awaitSnapshotLoadsAtEdge(); barrierDone.countDown() }.apply { start() }
+            assertFalse("the barrier returned while the load was still reading", barrierDone.await(1, TimeUnit.SECONDS))
+
+            gated.release.complete(Unit)
+            assertTrue("the barrier must end with the load", barrierDone.await(10, TimeUnit.SECONDS))
+            reader.join(10_000)
+            assertTrue(gated.store.current.autoTrackReading)
+            assertTrue(gated.store.current.activeCycle == 7)
+        } finally {
+            gated.release.complete(Unit)
+            koin.loadModules(listOf(org.koin.dsl.module { single { previous } }))
+        }
+    }
+
+    @Test fun coldStartBarrierDoesNotHangOnACancelledLoad() {
+        val koin = GlobalContext.get()
+        val previous = koin.get<ReadingProgressSettingsStore>()
+        val gated = GatedProgressStore(koin, GlobalReadingProgressSettings())
+        koin.loadModules(listOf(org.koin.dsl.module { single { gated.store } }))
+        try {
+            val load = CommonUtils.loadSnapshotStoresInBackground()
+            runBlocking { withTimeout(10_000) { gated.entered.await() } }
+            load.cancel()
+            val done = CountDownLatch(1)
+            Thread { CommonUtils.awaitSnapshotLoadsAtEdge(); done.countDown() }.start()
+            assertTrue("a cancelled load must not hang the barrier", done.await(10, TimeUnit.SECONDS))
+        } finally {
+            gated.release.complete(Unit)
+            koin.loadModules(listOf(org.koin.dsl.module { single { previous } }))
+        }
+    }
+
+    @Test fun initializeAppCoroutineSurvivesAFailingStoreLoadAndStillRunsTheLaterSteps() {
+        val koin = GlobalContext.get()
+        val previousGlobal = koin.get<GlobalTextDisplaySettingsStore>()
+        val previousProgress = koin.get<ReadingProgressSettingsStore>()
+        var progressReads = 0
+        val failingGlobal = GlobalTextDisplaySettingsStore(koin.get<OrderedLauncher>(), {
+            object : net.bible.android.database.GlobalTextDisplaySettingsDao {
+                override suspend fun get(): net.bible.android.database.GlobalTextDisplaySettings? = throw IllegalStateException("unreadable row")
+                override suspend fun set(settings: net.bible.android.database.GlobalTextDisplaySettings) {}
+            }
+        })
+        val countingProgress = ReadingProgressSettingsStore(koin.get<OrderedLauncher>(), {
+            object : GlobalReadingProgressSettingsDao {
+                override suspend fun get(): GlobalReadingProgressSettings? { progressReads++; return null }
+                override suspend fun set(settings: GlobalReadingProgressSettings) {}
+            }
+        })
+        koin.loadModules(listOf(org.koin.dsl.module { single { failingGlobal }; single { countingProgress } }))
+        try {
+            runBlocking { withTimeout(60_000) { CommonUtils.initializeAppCoroutine() } }
+            assertTrue("the step after the failing load must still run", progressReads > 0)
+        } finally {
+            koin.loadModules(listOf(org.koin.dsl.module { single { previousGlobal }; single { previousProgress } }))
+        }
+    }
 }

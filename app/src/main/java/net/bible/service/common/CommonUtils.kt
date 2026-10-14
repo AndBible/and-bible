@@ -1167,7 +1167,8 @@ object CommonUtils : CommonUtilsBase() {
      * snapshot loads here without blocking; writes that arrive before they finish are applied to the loaded rows.
      * The job is owned by [DatabaseContainer.aiLifetime]: every database reset, close or restore cancels and joins it
      * before closing (a Room 3 close under its in-flight read is a native crash). A cancelled load leaves the store
-     * unloaded (factory defaults) until the next [initializeAppCoroutine] loads it.
+     * unloaded (factory defaults) until a later [initializeAppCoroutine] loads it; the host bootstrap joins this job
+     * through [awaitSnapshotLoadsAtEdge].
      */
     @androidx.annotation.VisibleForTesting
     internal fun loadSnapshotStoresInBackground(): kotlinx.coroutines.Job {
@@ -1179,17 +1180,36 @@ object CommonUtils : CommonUtilsBase() {
                 { promptService.refresh() },
             )
         }.also {
+            snapshotLoadJob = it
             DatabaseContainer.aiLifetime.ownUntilReplace(it)
             it.start()
         }
     }
 
+    @Volatile private var snapshotLoadJob: kotlinx.coroutines.Job? = null
+
+    /**
+     * The cold-start barrier for the snapshot stores: the process-death path never runs [initializeAppCoroutine], so
+     * the host bootstrap joins the background load here before anything reads a store (otherwise a first render reads
+     * factory defaults and nothing re-renders when the load lands). Bounded by one row read per store. A cancelled
+     * load (a reset or restore took ownership) completes the join at once instead of hanging; the stores then keep
+     * their defaults until a later load.
+     */
+    internal fun awaitSnapshotLoadsAtEdge() {
+        val job = snapshotLoadJob ?: return
+        if (job.isCompleted) return
+        blockingAtEdge { job.join() } // L1-edge: cold-start barrier for the snapshot stores (host bootstrap, process-death path)
+    }
+
     suspend fun initializeAppCoroutine() {
         DatabaseContainer.ready = true
         aiSettings.ensureLoaded()
-        globalTextDisplaySettingsStore.load()
-        readingProgressSettingsStore.load()
-        promptService.refresh()
+        // Per-step isolation, as in the background variant: an unreadable AI/settings row must not abort startup.
+        runEachCatching(
+            { globalTextDisplaySettingsStore.load() },
+            { readingProgressSettingsStore.load() },
+            { promptService.refresh() },
+        )
         MyDocumentBookManager.launcher.join("mydocument-sync")
         if(!initialized) {
             try {
