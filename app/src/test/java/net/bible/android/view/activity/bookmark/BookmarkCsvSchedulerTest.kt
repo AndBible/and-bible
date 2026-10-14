@@ -32,6 +32,7 @@ class BookmarkCsvSchedulerTest {
         val release = CompletableDeferred<Unit>()
         val entered = CompletableDeferred<Unit>()
         val finished = CompletableDeferred<Unit>()
+        val finishedMain = CompletableDeferred<Unit>()
         val child = owner.launch {
             try { entered.complete(Unit); awaitCancellation() }
             finally { withContext(NonCancellable + Dispatchers.Main) { release.await(); finished.complete(Unit) } }
@@ -46,12 +47,28 @@ class BookmarkCsvSchedulerTest {
             assertThrows(IllegalStateException::class.java) { finishCsvFixture(listOf(child)) { reset = true } }
             assertFalse(reset)
             assertFalse(finished.isCompleted)
+            val mainHandshake = owner.launch(Dispatchers.Main) { entered.complete(Unit); finishedMain.complete(Unit) }
+            assertFalse("Main handshake must remain queued until exact scheduler runs", finishedMain.isCompleted)
+            dispatcher.scheduler.runCurrent()
+            assertTrue("Rejected cleanup must keep Main on the exact test scheduler", finishedMain.isCompleted)
+            assertTrue(mainHandshake.isCompleted)
         } finally {
             release.complete(Unit)
-            dispatcher.scheduler.runCurrent()
+            val childDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
+            while (!child.isCompleted && System.nanoTime() < childDeadline) {
+                dispatcher.scheduler.runCurrent()
+                org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).runOneTask()
+                Thread.yield()
+            }
             check(child.isCompleted) { "Exact CSV child must complete before restoring Main" }
             runBlocking { child.join() }
             owner.cancel()
+            val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
+            while (!owner.coroutineContext[Job]!!.isCompleted && System.nanoTime() < deadline) {
+                dispatcher.scheduler.runCurrent()
+                org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).runOneTask()
+                Thread.yield()
+            }
             check(owner.coroutineContext[Job]!!.isCompleted)
             finishCsvFixture(listOf(child)) { }
         }

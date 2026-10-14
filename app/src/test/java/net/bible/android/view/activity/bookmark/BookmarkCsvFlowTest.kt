@@ -67,6 +67,7 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class BookmarkCsvFlowTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
     @get:Rule val dialogReset = AppDialogControllerResetRule()

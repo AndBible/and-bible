@@ -49,7 +49,11 @@ class BibleViewBookmarkChangeOrderTest {
         DatabaseResetter.resetDatabase()
     }
 
-    @Test fun label_update_precedes_bookmark_update_while_override_read_is_suspended() = runTest {
+    @Test fun label_update_precedes_bookmark_update_while_override_read_is_suspended() = bookmarkScenario(false)
+
+    @Test fun failedDisposalAndHeldJoinRetainExactRestorationUntilSafeRetry() = bookmarkScenario(true)
+
+    private fun bookmarkScenario(exceptionalCleanup: Boolean) = runTest {
         bodyJobs += checkNotNull(currentCoroutineContext()[Job])
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val repoJob = SupervisorJob().also { fixtureJobs += it }
@@ -61,6 +65,13 @@ class BibleViewBookmarkChangeOrderTest {
         var lifecycle: LifecycleRegistry? = null
         val gate = CompletableDeferred<Unit>()
         var primary: Throwable? = null
+        val assertionFailure = AssertionError("original bookmark assertion failure")
+        val disposalFailure = IllegalArgumentException("injected first view disposal failure")
+        var disposalAttempts = 0
+        val joinRelease = CompletableDeferred<Unit>()
+        val joinEntered = CompletableDeferred<Unit>()
+        var heldChild: Job? = null
+        var replacementDb: WorkspaceDatabase? = null
         net.bible.test.ReadingFixtureOwners.retain(listOf(repo.scope))
         try {
             CommonUtils.windowControl.windowRepository = repo
@@ -81,6 +92,8 @@ class BibleViewBookmarkChangeOrderTest {
             fixtureJobs += checkNotNull(view.scope.coroutineContext[Job])
             val ownedView = view
             net.bible.test.ReadingFixtureOwners.retain(listOf(ownedView.scope)) {
+                disposalAttempts++
+                if (exceptionalCleanup && disposalAttempts == 1) throw disposalFailure
                 ownedView.listenEvents = false
                 ownedView.destroy()
             }
@@ -103,6 +116,7 @@ class BibleViewBookmarkChangeOrderTest {
             }
             val heldDb = mock<WorkspaceDatabase>()
             whenever(heldDb.workspaceDao()).thenReturn(heldDao)
+            replacementDb = heldDb
             container.workspaceDb = heldDb
             val label = BookmarkEntities.Label(name = "FIFO favourite", favourite = true)
             val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
@@ -130,7 +144,19 @@ class BibleViewBookmarkChangeOrderTest {
             val bookmarkIndex = scripts.indexOfFirst { it.contains("add_or_update_bookmarks") }
             assertTrue("Both actual WebView commands must execute: $scripts", labelIndex >= 0 && bookmarkIndex >= 0)
             assertTrue("Labels must precede their bookmarks: $scripts", labelIndex < bookmarkIndex)
-        } catch (e: Throwable) { primary = e; throw e }
+            if (exceptionalCleanup) {
+                heldChild = view.scope.launch {
+                    try { awaitCancellation() } finally {
+                        withContext(NonCancellable) { joinEntered.complete(Unit); joinRelease.await() }
+                    }
+                }
+                runCurrent()
+                throw assertionFailure
+            }
+        } catch (e: Throwable) {
+            primary = e
+            if (!exceptionalCleanup || e !== assertionFailure) throw e
+        }
         finally {
             gate.complete(Unit)
             var failure = primary
@@ -152,12 +178,70 @@ class BibleViewBookmarkChangeOrderTest {
             fixtureJobs.forEach { it.cancel() }
             try {
                 withContext(NonCancellable) {
+                    if (exceptionalCleanup) {
+                        val exactWorker = java.util.concurrent.atomic.AtomicReference<Job>()
+                        var fakeCommit = false
+                        try {
+                            val timeout = runCatching {
+                                DatabaseResetter.runResetBlocking(timeoutMs = 100) {
+                                    exactWorker.set(checkNotNull(checkNotNull(currentCoroutineContext()[Job]).parent))
+                                    // Join the exact lifecycle/repository owners; never close while held.
+                                    fixtureJobs.forEach { it.join() }
+                                    commitReset { check(fixtureJobs.all { it.isCompleted }); fakeCommit = true }
+                                }
+                            }.exceptionOrNull()
+                            assertTrue("held exact join must abort preparation", timeout is IllegalStateException)
+                            if (timeout != null) failure!!.addSuppressed(timeout)
+                            runCurrent()
+                            assertTrue("real lifecycle child entered cancellation finally", joinEntered.isCompleted)
+                            assertFalse(heldChild!!.isCompleted)
+                            assertFalse(fakeCommit)
+                            assertSame("DAO restoration must remain retained under held work", replacementDb, container.workspaceDb)
+                            assertSame("repository restoration must remain retained under held work", repo, CommonUtils.windowControl.windowRepository)
+                            assertThrows(IllegalStateException::class.java) { net.bible.test.ReadingFixtureOwners.requireEmpty() }
+                            assertThrows(IllegalStateException::class.java) { resetMain() }
+                            val app = RuntimeEnvironment.getApplication() as TestBibleApplication
+                            assertThrows(IllegalStateException::class.java) { app.onCreate() }
+                            assertSame(assertionFailure, failure)
+                            assertTrue(failure!!.suppressed.any { it === disposalFailure })
+                            assertTrue(failure!!.suppressed.any { it === timeout })
+                        } finally {
+                            joinRelease.complete(Unit)
+                            exactWorker.get()?.let { exact ->
+                                val deadline = System.nanoTime() + 5_000_000_000L
+                                while (!exact.isCompleted && System.nanoTime() < deadline) {
+                                    testScheduler.runCurrent()
+                                    Thread.yield()
+                                }
+                                check(exact.isCompleted) { "Exact aborted parent must finish on original scheduler" }
+                                exact.join()
+                            }
+                            DatabaseResetter.requireNoRetainedWorkers()
+                        }
+                    }
                     fixtureJobs.forEach { it.join() }
                     // Suspending here keeps runTest driving the exact Standard scheduler on Main.
                     net.bible.test.ReadingFixtureOwners.drain()
                 }
             } catch (e: Throwable) {
                 if (failure == null) failure = e else if (failure !== e) failure!!.addSuppressed(e)
+            }
+            if (exceptionalCleanup) {
+                // A failed oracle is not an expected fixture failure; cleanup safely before reporting it.
+                joinRelease.complete(Unit)
+                withContext(NonCancellable) {
+                    fixtureJobs.forEach { it.join() }
+                    net.bible.test.ReadingFixtureOwners.drain()
+                }
+                assertSame(originalDb, container.workspaceDb)
+                assertSame(originalRepo, CommonUtils.windowControl.windowRepository)
+                net.bible.test.ReadingFixtureOwners.requireEmpty()
+                assertTrue("failed disposal must be retried", disposalAttempts >= 2)
+                // Only the injected disposal failure and the bounded-reset timeout are expected;
+                // anything else (including a failed oracle assertion) must fail the test.
+                assertSame("primary failure must be preserved", assertionFailure, failure)
+                failure!!.suppressed.firstOrNull { it !== disposalFailure && !(it is IllegalStateException && it.message?.startsWith("Database fixture cleanup timed out") == true) }
+                    ?.let { throw it }
             }
             if (primary == null) failure?.let { throw it }
         }
