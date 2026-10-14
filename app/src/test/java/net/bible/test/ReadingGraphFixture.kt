@@ -34,6 +34,17 @@ internal object ReadingFixtureOwners {
     }
     private val owners = mutableListOf<Owner>()
     private val restorations = mutableListOf<() -> Unit>()
+    private val closures = linkedMapOf<ActivityController<NavHostComposeActivity>, () -> Unit>()
+
+    @Synchronized fun retainController(controller: ActivityController<NavHostComposeActivity>, closed: () -> Unit) {
+        closures.putIfAbsent(controller, closed)
+    }
+
+    @Synchronized fun closeController(controller: ActivityController<NavHostComposeActivity>) {
+        controller.close()
+        // A completed Job is not evidence that onDestroy removed subscriptions/callbacks.
+        closures.remove(controller)?.invoke()
+    }
 
     @Synchronized fun retainRestoration(restore: () -> Unit) { restorations += restore }
 
@@ -64,15 +75,23 @@ internal object ReadingFixtureOwners {
     @Synchronized fun retireCompleted() { owners.removeAll { it.disposed && it.jobs.all(Job::isCompleted) } }
     @Synchronized fun requireEmpty() {
         retireCompleted()
-        check(owners.isEmpty() && restorations.isEmpty()) { "Retained fixture owners require cleanup retry before restart" }
+        check(owners.isEmpty() && restorations.isEmpty() && closures.isEmpty()) { "Retained fixture owners require cleanup retry before restart" }
     }
 
-    suspend fun drain() {
+    suspend fun drain(retryClosures: Boolean = true) {
         val jobs = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) { disposeAndSnapshot() }
         jobs.forEach { it.join() }
         retireCompleted()
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
             synchronized(this@ReadingFixtureOwners) {
+                var failure: Throwable? = null
+                if (retryClosures) closures.keys.toList().forEach { controller ->
+                    try { closeController(controller) } catch (e: Throwable) {
+                        if (failure == null) failure = e else if (failure !== e) failure!!.addSuppressed(e)
+                    }
+                }
+                failure?.let { throw it }
+                check(closures.isEmpty()) { "Controller destruction incomplete; retry cleanup before restoration/reset" }
                 restorations.toList().forEach { restore -> restore(); restorations.remove(restore) }
             }
         }
@@ -93,33 +112,31 @@ fun closeReadingHostsBeforeReset(
     reset: () -> Unit = { DatabaseResetter.resetDatabase() },
     restoreBeforeReset: () -> Unit = {},
 ) {
-    controllers.forEach { ReadingFixtureOwners.retain(it.get()) }
+    controllers.forEach { controller ->
+        ReadingFixtureOwners.retain(controller.get())
+        ReadingFixtureOwners.retainController(controller) { controllers.remove(controller) }
+    }
     var failure: Throwable? = null
     fun attempt(action: () -> Unit) {
         try { action() } catch (e: Throwable) {
             if (failure == null) failure = e else if (failure !== e) failure!!.addSuppressed(e)
         }
     }
-    controllers.toList().forEach { controller -> attempt { controller.close(); controllers.remove(controller) } }
+    controllers.toList().forEach { controller -> attempt { ReadingFixtureOwners.closeController(controller) } }
     attempt(afterClose)
+    // Register BEFORE any drain/attempt. Immediate and deferred failures have identical lifetime.
+    ReadingFixtureOwners.retainRestoration(restoreBeforeReset)
     var drained = false
     attempt {
-        DatabaseResetter.runResetBlocking { ReadingFixtureOwners.drain() }
+        // Do not silently retry a failed lifecycle stage in this same invocation. Exact Jobs
+        // still drain; the centrally retained controller blocks restoration until explicit retry.
+        DatabaseResetter.runResetBlocking { ReadingFixtureOwners.drain(retryClosures = false) }
         drained = true
-    }
-    // Failed pumps retain exact jobs AND restoration obligations for a later cleanup retry.
-    if (!drained) ReadingFixtureOwners.retainRestoration {
-        restoreBeforeReset()
-        ReadingHostPresence.setForeground(null)
-        ReadingViewVisibility.setVisible(false)
     }
     // Retracting UI presence admits no new DB work and preserves the existing failure contract.
     // The mutable graph/settings restoration above remains deferred until owner completion.
     attempt { ReadingHostPresence.setForeground(null); ReadingViewVisibility.setVisible(false) }
-    if (drained) {
-        attempt(restoreBeforeReset)
-        if (failure == null) attempt(reset)
-    }
+    if (drained && failure == null) attempt(reset)
     failure?.let { throw it }
 }
 
