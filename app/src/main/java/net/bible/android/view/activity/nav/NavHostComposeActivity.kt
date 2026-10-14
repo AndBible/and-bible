@@ -3199,9 +3199,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * (Correction 5): an in-graph navigate produces no `onResume`, so the flag would outlive this transition
      * and suppress the next real calculator prompt.
      */
-    internal fun welcomeAfterFlow() {
+    internal fun welcomeAfterFlow(): kotlinx.coroutines.Job {
         val flow = welcomeFlow
-        lifecycleScope.launch(Dispatchers.Main) {
+        return lifecycleScope.launch(Dispatchers.Main) {
             CommonUtils.initializeAppCoroutine()
             unlockLockedBiblesIfNoneUsable(net.bible.service.sword.BookUnlocker { CommonUtils.unlockDocument(this@NavHostComposeActivity, it) }, usable = usableBibleGate)
             if (!usableBibleGate()) {

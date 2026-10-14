@@ -113,6 +113,13 @@ class UsableBibleGateTest {
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
+    private fun openLinksKeys(): List<String?> = CommonUtils.windowControl.windowRepository.windowList
+        .filter { it.isLinksWindow }.map { it.pageManager.currentPage.key?.getOsisRef() }
+
+    /** Wait (bounded, real time, looper pumped) for a launched gate (b) coroutine to finish, so negative assertions are not vacuous. */
+    private fun awaitJob(job: kotlinx.coroutines.Job) =
+        net.bible.test.awaitHostUntil("welcomeAfterFlow must finish") { job.isCompleted }
+
     private fun nav(a: NavHostComposeActivity): NavHostController {
         val field = NavHostComposeActivity::class.java.getDeclaredField("navController").apply { isAccessible = true }
         val deadline = System.nanoTime() + 10_000_000_000L
@@ -132,7 +139,7 @@ class UsableBibleGateTest {
         assertEquals(NavRoutes.WELCOME, nav(activity).currentDestination?.route)
 
         activity.welcomeAfterFlow()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
 
         assertEquals(NavRoutes.READING, nav(activity).currentDestination?.route)
         assertNull("WELCOME is popped inclusive: back from reading exits", nav(activity).previousBackStackEntry)
@@ -142,7 +149,7 @@ class UsableBibleGateTest {
     @Test
     fun withoutAUsableBibleTheWelcomeStays() {
         val activity = welcomeHost(usable = false)
-        activity.welcomeAfterFlow()
+        awaitJob(activity.welcomeAfterFlow())
         idle()
         assertEquals(NavRoutes.WELCOME, nav(activity).currentDestination?.route)
         assertFalse(bootstrapped(activity))
@@ -191,7 +198,7 @@ class UsableBibleGateTest {
         assertTrue("leaving Welcome initialises the app and its window (Correction 6)", flagSecure(activity))
 
         nav(activity).popBackStack()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
         assertEquals("the listener's re-check ran gate (b)", NavRoutes.READING, route(activity))
     }
 
@@ -228,7 +235,7 @@ class UsableBibleGateTest {
         assertTrue("the recreated host is still an initialised one: FLAG_SECURE (Correction 6)", flagSecure(recreated))
 
         nav(recreated).popBackStack()
-        idle()
+        net.bible.test.awaitHostRoute(recreated, NavRoutes.READING)
         assertEquals("the restored back stack still re-checks on the way back", NavRoutes.READING, route(recreated))
     }
 
@@ -253,7 +260,7 @@ class UsableBibleGateTest {
         assertTrue("the restored host initialised itself: FLAG_SECURE (Correction 6)", flagSecure(restored))
 
         nav(restored).popBackStack()
-        idle()
+        net.bible.test.awaitHostRoute(restored, NavRoutes.READING)
         assertEquals("the restored back stack still re-checks on the way back", NavRoutes.READING, route(restored))
     }
 
@@ -261,8 +268,10 @@ class UsableBibleGateTest {
     @Test
     fun overlappingReChecksTransitionOnce() {
         val activity = welcomeHost()
-        activity.welcomeAfterFlow()
-        activity.welcomeAfterFlow()
+        val first = activity.welcomeAfterFlow()
+        val second = activity.welcomeAfterFlow()
+        awaitJob(first)
+        awaitJob(second)
         idle()
         assertEquals(NavRoutes.READING, route(activity))
         assertNull("exactly one READING entry, nothing beneath it", nav(activity).previousBackStackEntry)
@@ -277,12 +286,12 @@ class UsableBibleGateTest {
         val activity = welcomeHost(
             intent = welcomeIntent().putExtra("openLink", "https://read.andbible.org/Rev.22.21"),
         )
-        activity.welcomeAfterFlow()
+        awaitJob(activity.welcomeAfterFlow())
         idle()
         assertEquals(NavRoutes.READING, route(activity))
         // showLink opens it in the links window (WindowControl.showLink); that window's page is the chapter.
-        val linksKeys = CommonUtils.windowControl.windowRepository.windowList
-            .filter { it.isLinksWindow }.map { it.pageManager.currentPage.key?.getOsisRef() }
+        net.bible.test.awaitHostUntil("deep link opened in the links window") { openLinksKeys().any { it == "Rev.22" } }
+        val linksKeys = openLinksKeys()
         assertTrue("the deep link's passage is open in the links window: $linksKeys", linksKeys.any { it == "Rev.22" })
     }
 
@@ -305,7 +314,7 @@ class UsableBibleGateTest {
             0, activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE,
         )
         activity.welcomeAfterFlow()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
         assertTrue(
             "the reading view must not show in Recents in discrete mode",
             activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE != 0,
@@ -317,8 +326,8 @@ class UsableBibleGateTest {
     fun theTransitionDoesNotArmTheStartupFlag() {
         comingFromStartupActivity = false
         val activity = welcomeHost()
-        activity.welcomeAfterFlow()
-        idle()
+        awaitJob(activity.welcomeAfterFlow())
+        assertEquals("the transition actually happened", NavRoutes.READING, route(activity))
         assertFalse(comingFromStartupActivity)
     }
 
@@ -379,7 +388,7 @@ class UsableBibleGateTest {
 
         usable = true
         activity.welcomeAfterFlow()
-        idle()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING)
 
         assertEquals(NavRoutes.READING, route(activity))
         val readingEntries = nav(activity).currentBackStack.value.count { it.destination.route == NavRoutes.READING }
