@@ -40,7 +40,7 @@ class CloudSyncInitialSwapTest {
         CommonUtils.settings.setBoolean("first-time", false)
         repo = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
     }
@@ -70,7 +70,7 @@ class CloudSyncInitialSwapTest {
 
     @Test fun saveWorksAgainAfterTheReload() {
         runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C")) { } }
-        repo.loadFromDb(repo.id)
+        kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         repo.name = "D"
         repo.saveIntoDb(false)
         assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)

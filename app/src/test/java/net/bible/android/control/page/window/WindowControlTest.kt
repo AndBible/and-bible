@@ -60,7 +60,7 @@ class WindowControlTest {
     fun setUp() {
         windowControl = CommonUtils.windowControl
         windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
         windowRepository.workspaceSettings.autoPin = true
         windowControl!!.activeWindow.isPinMode = true
     }

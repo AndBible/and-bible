@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.withLock
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
@@ -151,8 +152,11 @@ class ReadingCommands(
     private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
 
 
-    private companion object {
+    companion object {
         private const val TAG = "ReadingCommands"
+
+        /** Workspace switches running or queued on any host; tests wait for it to reach zero (a switch reads off the main thread). */
+        internal val workspaceSwitchesInFlight = java.util.concurrent.atomic.AtomicInteger(0)
     }
 
     /** The host as a plain Android Activity. See [ReadingCommandsHostCallbacks.hostActivity]. */
@@ -505,12 +509,14 @@ class ReadingCommands(
      * the outgoing workspace in the DB. Saving there would recompute `contentText` from the STALE
      * in-memory `name` and push it back over a rename the user just made in the selector.
      */
-    internal fun quickSwitchToWorkspace(workspaceId: String) {
+    internal suspend fun quickSwitchToWorkspace(workspaceId: String) {
         windowRepository().saveIntoDb()
         switchToWorkspace(workspaceId)
     }
 
-    internal fun composeCycleWorkspace(forward: Boolean) = cycleWorkspace(forward)
+    internal fun composeCycleWorkspace(forward: Boolean) {
+        hostActivity.lifecycleScope.launch { cycleWorkspace(forward) }
+    }
 
     /**
      * The Compose toolbar title's TAP. Round 15b Task 9: with a Compose host mounted, the three key
@@ -1371,8 +1377,8 @@ class ReadingCommands(
      * Switch to a workspace by id. Extracted from the WORKSPACE_CHANGED result arm so round 15b's
      * quick sheet and the full selector's activity result cannot drift apart.
      */
-    internal fun switchToWorkspace(workspaceId: String) {
-        currentWorkspaceId = IdType(workspaceId)
+    internal suspend fun switchToWorkspace(workspaceId: String) {
+        switchWorkspace(IdType(workspaceId))
     }
 
     /**
@@ -1390,7 +1396,7 @@ class ReadingCommands(
      * @return whether anything was applied -- Ruling D's hook for the flipped host, which logs a
      * result that arrived and meant nothing. Classic ignored it and still does.
      */
-    internal fun applyWorkspaceChangedResult(resultCode: Int, extras: Bundle): Boolean {
+    internal suspend fun applyWorkspaceChangedResult(resultCode: Int, extras: Bundle): Boolean {
         val workspaceId = extras.getString("workspaceId")
         val changed = extras.getBoolean("changed")
 
@@ -1399,7 +1405,7 @@ class ReadingCommands(
             switchToWorkspace(workspaceId)
             true
         } else if (changed) {
-            currentWorkspaceId = currentWorkspaceId
+            switchWorkspace(currentWorkspaceId)
             true
         } else {
             false
@@ -1447,11 +1453,11 @@ class ReadingCommands(
      * RESTORED database -- `IdType.empty()` makes `loadFromDb` pick the restored current workspace.
      * Without it the live repository's next `saveIntoDb` overwrites what was just restored.
      */
-    internal fun applyRestoredDatabase() {
+    internal suspend fun applyRestoredDatabase() {
         bookmarkControl.reset()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        currentWorkspaceId = IdType.empty()
+        switchWorkspace(IdType.empty())
     }
 
     /**
@@ -1460,14 +1466,14 @@ class ReadingCommands(
      * workspace when it (or one of its windows) changed, and fall back to the first workspace when the
      * current one was deleted on another device.
      */
-    internal fun applyWorkspacesUpdatedViaSync(entries: List<LogEntry>) {
+    internal suspend fun applyWorkspacesUpdatedViaSync(entries: List<LogEntry>) {
         val workspaceDeleted = entries.any {
             it.tableName == "Workspace" &&
             it.type == LogEntryTypes.DELETE &&
             it.entityId1 == currentWorkspaceId
         }
         if(workspaceDeleted) {
-            currentWorkspaceId = workspaces.first().id
+            switchWorkspace(workspaces.first().id)
         }
 
         val windowsChanged = entries.any { entry ->
@@ -1481,16 +1487,16 @@ class ReadingCommands(
             it.entityId1 == currentWorkspaceId
         }
         if(windowsChanged || workspaceChanged) {
-            currentWorkspaceId = currentWorkspaceId
+            switchWorkspace(currentWorkspaceId)
         }
     }
 
     /** Classic `MainBibleActivity`'s refresh subscription, verbatim (now fed by `CloudSync.workspaceRefreshRequired`). */
-    internal fun applyWorkspaceRefreshRequired() {
-        currentWorkspaceId = workspaces.first().id
+    internal suspend fun applyWorkspaceRefreshRequired() {
+        switchWorkspace(workspaces.first().id)
     }
 
-    internal fun cycleWorkspace(forward: Boolean) {
+    internal suspend fun cycleWorkspace(forward: Boolean) {
         val workspaces = workspaces
         if (workspaces.size < 2) return
         windowRepository().saveIntoDb()
@@ -1500,12 +1506,18 @@ class ReadingCommands(
         } else {
             if (currentWorkspacePos > 0) currentWorkspacePos - 1 else workspaces.size - 1
         }
-        currentWorkspaceId = workspaces[nextPos].id
+        switchWorkspace(workspaces[nextPos].id)
     }
 
+    /** The workspace the owning host is showing. */
+    internal val currentWorkspaceId: IdType get() = windowRepository().id
+
+    /** Serialises switches: each is read phase + apply phase + view rebuild, and an overlapping one must queue, not interleave. */
+    private val switchMutex = kotlinx.coroutines.sync.Mutex()
+
     /**
-     * The workspace the owning host is showing. The setter is the real workspace switch, moved here
-     * verbatim from `MainBibleActivity` (Ruling D): every step of it is either this collaborator's
+     * The real workspace switch, moved here
+     * verbatim from `MainBibleActivity`, now `suspend` (read phase off the main thread, apply phase on it) (Ruling D): every step of it is either this collaborator's
      * own ([bibleViewFactory]), a Koin singleton ([windowControl]), the owning host's repository
      * supplier, a global (`CommonUtils.settings`, `UserMessages`), or one of the two host callbacks
      * a second host must genuinely answer ([ReadingCommandsHostCallbacks.documentViewManager] and
@@ -1513,22 +1525,27 @@ class ReadingCommands(
      * is honestly nothing-to-do for a Compose host -- and it is the one step a dropped workspace
      * switch would not be visible through.
      */
-    internal var currentWorkspaceId: IdType
-        get() = windowRepository().id
-        set(value) {
-            bibleViewFactory.clear()
-            windowRepository().loadFromDb(value)
+    internal suspend fun switchWorkspace(id: IdType) {
+        workspaceSwitchesInFlight.incrementAndGet()
+        try {
+            switchMutex.withLock {
+                bibleViewFactory.clear()
+                windowRepository().loadFromDb(id)
 
-            CommonUtils.settings.setString("current_workspace_id", windowRepository().id.toString())
-            hostCallbacks.documentViewManager().buildView(forceUpdate = true)
-            windowControl.windowSync.reloadAllWindows()
-            windowRepository().updateAllWindowsTextDisplaySettings()
+                CommonUtils.settings.setString("current_workspace_id", windowRepository().id.toString())
+                hostCallbacks.documentViewManager().buildView(forceUpdate = true)
+                windowControl.windowSync.reloadAllWindows()
+                windowRepository().updateAllWindowsTextDisplaySettings()
 
-            UserMessages.toast(windowRepository().name)
+                UserMessages.toast(windowRepository().name)
 
-            hostCallbacks.updateBottomBars()
-            hostCallbacks.updateTitle()
+                hostCallbacks.updateBottomBars()
+                hostCallbacks.updateTitle()
+            }
+        } finally {
+            workspaceSwitchesInFlight.decrementAndGet()
         }
+    }
 
     /**
      * The current page's display title -- the second half of [bibleOverlayText] and, on the classic

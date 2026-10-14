@@ -86,7 +86,7 @@ class ReadingOptionsMenuTest {
         windowControl = CommonUtils.windowControl
         windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         // Built WITHOUT `.create()`, for the reasons OptionsMenuStateBuilderTest's kdoc gives.
         activity = Robolectric.buildActivity(

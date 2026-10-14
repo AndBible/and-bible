@@ -149,7 +149,7 @@ class ReadingHostResumeReconciliationTest {
         controller.pause()
         DocumentChanges.notifyInstalledChanged()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertNotNull(
             displayedKeyOf(window),
             "a document update that arrived while this host was away must be consumed on resume — " +
@@ -172,7 +172,7 @@ class ReadingHostResumeReconciliationTest {
 
         controller.pause()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertNull(
             displayedKeyOf(window),
             "an ordinary resume must not reload every window — the refresh is gated on a pending " +
@@ -195,7 +195,7 @@ class ReadingHostResumeReconciliationTest {
         controller.pause()
         CommonUtils.windowControl.windowRepository = foreign
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertSame(
             activity.hostWindowRepository, CommonUtils.windowControl.windowRepository,
             "a resumed reading host must publish ITS OWN repository — every collaborator that " +
@@ -232,7 +232,7 @@ class ReadingHostResumeReconciliationTest {
         DocumentChanges.notifyInstalledChanged()
         countToasts()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertTrue(
             toasts > 0,
             "the needRefresh arm must run the full workspace reload (whose setter posts a " +
@@ -245,7 +245,7 @@ class ReadingHostResumeReconciliationTest {
 
         controller.pause()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertNotNull(
             displayedKeyOf(window),
             "the pending document update must SURVIVE the workspace arm and be consumed by the " +
@@ -266,7 +266,7 @@ class ReadingHostResumeReconciliationTest {
         DocumentChanges.notifyInstalledChanged()
         countToasts()
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertNotNull(
             displayedKeyOf(activity.hostWindowRepository.activeWindow),
             "sanity: this is the document-refresh arm",

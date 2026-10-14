@@ -402,6 +402,13 @@ class DatabaseContainer {
         suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T =
             aiLifetime.replace { replacingDatabasesOwned(it, block) }
 
+        private suspend fun drainWorkspaceWrites() {
+            val persistence = runCatching {
+                org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.android.control.page.window.WorkspacePersistence>()
+            }.getOrNull()
+            persistence?.awaitPersisted()
+        }
+
         /** Nested replacement must pass the active owner's token; independent calls queue at admission. */
         internal suspend fun <T> replacingDatabases(
             token: net.bible.service.llm.AiDatabaseLifetime.Replacement?,
@@ -418,6 +425,10 @@ class DatabaseContainer {
             replaceEpochCounter.incrementAndGet()
             var completed = false
             try {
+                // No new workspace write passes its guard from here on; one that already did may still be
+                // mid-DAO-call, so let it finish before the files are touched. The restore never runs inside
+                // the "workspace" key (queued blocks are plain DAO calls), so this cannot wait on itself.
+                drainWorkspaceWrites()
                 return block(token).also { completed = true }
             } finally {
                 // F115: a block that throws or is cancelled mid-copy may leave `_instance` holding a database it

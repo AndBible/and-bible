@@ -111,7 +111,7 @@ class BibleViewEpubLoadRaceTest {
         control.windowRepository = repo
         originalRepo = CommonUtils.windowControl.windowRepository
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         window = repo.activeWindow
         host = mock()
         whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())

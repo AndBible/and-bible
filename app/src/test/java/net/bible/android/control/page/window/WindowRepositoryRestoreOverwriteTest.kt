@@ -33,7 +33,7 @@ class WindowRepositoryRestoreOverwriteTest {
         CommonUtils.settings.setBoolean("first-time", false)
         repo = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
     }
@@ -68,7 +68,7 @@ class WindowRepositoryRestoreOverwriteTest {
 
     @Test fun saveWorksAgainAfterTheReload() {
         restoreWorkspaceNamed("C")
-        repo.loadFromDb(repo.id)
+        kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         repo.name = "D"
         repo.saveIntoDb(false)
         assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)

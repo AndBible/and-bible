@@ -115,7 +115,7 @@ class CurrentPageManagerNoActivityTest {
     fun aKeylessSwitchWithNoActivityInFrontDoesNotCrash() {
         windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
         val dictionary = requireNotNull(Books.installed().getBook("TestDict")) { "TestDict test module must be installed" }
         val pageManager = CommonUtils.windowControl.activeWindowPageManager
         val saved = ArrayList(holderActivities())

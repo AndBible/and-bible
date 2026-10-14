@@ -54,7 +54,7 @@ class WorkspaceChangedEventTest {
         val received = mutableListOf<WorkspaceChange>()
         val subscription = WorkspaceChanges.changes.subscribe { received += it }
         try {
-            windowControl.windowRepository.loadFromDb(null)
+            kotlinx.coroutines.runBlocking { windowControl.windowRepository.loadFromDb(null) }
             assertThat(received, equalTo(listOf<WorkspaceChange>(WorkspaceChange.Switched)))
         } finally {
             subscription.cancel()

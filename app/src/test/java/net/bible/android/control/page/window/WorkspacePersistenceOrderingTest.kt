@@ -42,7 +42,7 @@ import java.util.zip.ZipFile
  * Runs queued coroutine tasks only after [release]: while [hold] is in force the persistence queue is
  * frozen, so a test decides exactly what happens between enqueue and write. No sleeps, no racing.
  */
-private class GateDispatcher : CoroutineDispatcher() {
+internal class GateDispatcher : CoroutineDispatcher() {
     private val queue = ArrayList<Runnable>()
     private var held = false
     val pending: Int get() = synchronized(this) { queue.size }
@@ -83,7 +83,7 @@ class WorkspacePersistenceOrderingTest {
             override suspend fun awaitPersisted() { gate.release(); super.awaitPersisted() }
         }
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         runBlocking { persistence.awaitPersisted() }
     }
 
@@ -114,7 +114,7 @@ class WorkspacePersistenceOrderingTest {
         runBlocking { persistence.awaitPersisted() }
 
         val loaded = WindowRepository(CoroutineScope(Dispatchers.Main))
-        loaded.loadFromDb(id)
+        runBlocking { loaded.loadFromDb(id) }
         assertEquals(7, loaded.activeWindow.pageManager.currentBible.currentBibleVerse.verse.verse)
         loaded.clear()
     }
@@ -187,7 +187,7 @@ class WorkspacePersistenceOrderingTest {
         repo.saveIntoDb(false)
         assertEquals("the write must still be queued", true, gate.pending > 0)
         runBlocking { DatabaseContainer.replacingDatabases { } }
-        repo.loadFromDb(repo.id)
+        runBlocking { repo.loadFromDb(repo.id) }
         assertEquals("saved", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 

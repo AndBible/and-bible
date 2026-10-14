@@ -74,7 +74,7 @@ class WindowPaneMenuStateBuilderTest {
         windowControl = CommonUtils.windowControl
         windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
         windowRepository.workspaceSettings.autoPin = true
 
         val koin = GlobalContext.get()

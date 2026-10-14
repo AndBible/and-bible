@@ -169,7 +169,10 @@ class ReadingHostSyncAndRestoreEventsTest {
      * Bounded, never `idle()`: with the Compose dispatcher reset the composed reading host keeps
      * scheduling frames, and an unbounded idle spins on them forever.
      */
-    private fun idleMain() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(200))
+    private fun idleMain() {
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(200))
+        net.bible.test.settleWorkspaceSwitches() // a switch reads off the main thread
+    }
 
     private var lastSynchronized: Long
         get() = CommonUtils.settings.getLong("globalLastSynchronized", 0L)

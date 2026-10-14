@@ -1778,7 +1778,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         // C1: the quick sheet never pauses the activity, so nothing else flushes the
                         // outgoing workspace's windows/page-managers/history before switching. Use
                         // the save-then-switch entry point, never plain switchToWorkspace here.
-                        activity.readingCommands.quickSwitchToWorkspace(id)
+                        activity.lifecycleScope.launch { activity.readingCommands.quickSwitchToWorkspace(id) }
                     }
                 }
                 val rows by controller.rows.collectAsState()

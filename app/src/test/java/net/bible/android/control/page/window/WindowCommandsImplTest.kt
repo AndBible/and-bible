@@ -46,7 +46,7 @@ class WindowCommandsImplTest {
         repo = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl = WindowControl()
         windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.workspaceSettings.autoPin = true
         commands = WindowCommandsImpl(windowControl)
     }

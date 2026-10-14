@@ -18,11 +18,14 @@
 package net.bible.android.control.page.window
 
 import net.bible.sharedcore.log.Log
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import net.bible.android.activity.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import net.bible.android.control.page.window.WindowLayout.WindowState
@@ -36,7 +39,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
@@ -146,15 +148,31 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      */
     private var loadingFromDb = false
 
-    fun initialize() {
+    /**
+     * First load of this repository, off the main thread: read phase, then the apply phase on Main.
+     * Production cold start uses [initializeAtEdge] (the host's bootstrap is a synchronous sequence
+     * whose next steps read the repository); this is the entry for callers that can suspend.
+     */
+    suspend fun initialize() {
         if(initialized || loadingFromDb) return
-        // An empty id means first start of this repository: a missing or unknown stored workspace is
-        // created (queued through [persistence]), not replaced by another existing workspace.
+        val createIfMissing = beginInitialize()
+        loadFromDb(id, createIfMissing)
+        finishInitialize(createIfMissing)
+    }
+
+    /**
+     * An empty id means first start of this repository: a missing or unknown stored workspace is
+     * created, not replaced by another existing workspace.
+     */
+    private fun beginInitialize(): Boolean {
         val createIfMissing = id.isEmpty
         if(createIfMissing) {
             settings.getString("current_workspace_id")?.let { this.id = IdType(it) }
         }
-        loadFromDb(id, createIfMissing)
+        return createIfMissing
+    }
+
+    private fun finishInitialize(createIfMissing: Boolean) {
         // Only a freshly created (or re-pointed) workspace changes the stored id; a plain load never did.
         if (createIfMissing && settings.getString("current_workspace_id") != id.toString()) {
             settings.setString("current_workspace_id", id.toString())
@@ -166,12 +184,40 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         }
     }
 
+    /**
+     * The synchronous entry to the first load, for the callers that cannot suspend: the host bootstrap
+     * and the [activeWindow] read before any load finished (media buttons, services and tools can read
+     * it with no UI host at all, so a throwing getter would be reachable from production).
+     *
+     * Joins a [loadFromDb] that is already mid-read instead of reading twice: the read phase never needs
+     * the main thread, so waiting for it cannot deadlock a main-thread reader, and the reader then
+     * applies the result itself (the suspended load finds it claimed and skips its own apply).
+     */
+    fun initializeAtEdge() {
+        if(initialized) return
+        val pending = pendingLoad
+        if(pending == null && loadingFromDb) return // mid-apply: the re-entrancy guard, see [loadingFromDb]
+        val createIfMissing = if(pending == null) beginInitialize() else false
+        if(pending == null) loadingFromDb = true
+        try {
+            if(pending == null) loadedEpoch = DatabaseContainer.replaceEpoch
+            val readId = id
+            val loaded = blockingAtEdge { // L1-edge: activeWindow read or host bootstrap before the first load finished
+                pending?.loaded?.await() ?: currentLoader().read(readId, createIfMissing)
+            }
+            if(pending == null || pending.claim()) applyLoaded(loaded)
+        } finally {
+            if(pending == null) loadingFromDb = false
+        }
+        if(pending == null) finishInitialize(createIfMissing)
+    }
+
     private var _activeWindow: Window? = null
 
     // 1 based screen no
     var activeWindow: Window
         get() {
-            if(!initialized) initialize()
+            if(!initialized) initializeAtEdge()
             return _activeWindow!!
         }
         set (newActiveWindow) {
@@ -349,6 +395,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
         if(!CommonUtils.initialized || !DatabaseContainer.ready) return
+        // Before the first load there is nothing to save, and `savedEntity` is not set yet.
+        if(!initialized) return
         // Fix batch 5 §1.1: mid-restore, or loaded before a restore and not reloaded since -- this
         // repository's state is pre-restore and would overwrite what was just restored.
         if (restoreInProgress(loadedEpoch)) {
@@ -432,61 +480,61 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         windowStateService.notify(WindowChange.RestoreButtonsChanged)
     }
 
-    private class LoadedWindow(
-        val entity: WorkspaceEntities.Window,
-        val pageManager: WorkspaceEntities.PageManager?,
-        val history: List<WorkspaceEntities.HistoryItem>,
-    )
-    private class LoadedWorkspace(
-        val entity: WorkspaceEntities.Workspace,
-        val windows: List<LoadedWindow>,
-        val studyPadLabels: Map<IdType, BookmarkEntities.Label?>,
+    /**
+     * A load whose read phase is running. [claim] makes the apply phase happen exactly once, whoever
+     * gets there first: the suspended load, or an [activeWindow] reader that joined it.
+     */
+    private class PendingLoad {
+        val loaded = CompletableDeferred<LoadedWorkspace>()
+        private val claimed = java.util.concurrent.atomic.AtomicBoolean(false)
+        fun claim() = claimed.compareAndSet(false, true)
+    }
+    @Volatile private var pendingLoad: PendingLoad? = null
+
+    /** Serialises loads: with a suspending read two switches can overlap, and the later one must win. */
+    private val loadMutex = Mutex()
+
+    /** Tests substitute a loader whose read they control; production builds one per load around the current [persistence]. */
+    internal var loaderOverride: WorkspaceLoader? = null
+
+    private fun currentLoader(): WorkspaceLoader = loaderOverride ?: WorkspaceLoader(
+        persistence, { dao }, get<BookmarkControl>(), get<FakeBookFactory>().journalDocument.initials,
     )
 
-    /** Rebuilds this repository from the given (or first) workspace. Not re-entrant — see [loadingFromDb]. */
-    fun loadFromDb(workspaceId: IdType?) = loadFromDb(workspaceId, false)
+    /**
+     * Rebuilds this repository from the given (or first) workspace: the read phase off the main
+     * thread, the apply phase on it. Not re-entrant — see [loadingFromDb].
+     */
+    suspend fun loadFromDb(workspaceId: IdType?) = loadFromDb(workspaceId, false)
 
-    private fun loadFromDb(workspaceId: IdType?, createIfMissing: Boolean) {
+    private suspend fun loadFromDb(workspaceId: IdType?, createIfMissing: Boolean) = loadMutex.withLock {
+        val pending = PendingLoad()
+        pendingLoad = pending
         loadingFromDb = true
         try {
-            loadFromDbInner(workspaceId, createIfMissing)
+            loadedEpoch = DatabaseContainer.replaceEpoch
+            Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
+            val loader = currentLoader()
+            // The deferred completes on the read dispatcher, never on Main: a main-thread reader waiting on it
+            // (see [initializeAtEdge]) would otherwise wait for the very thread it blocks.
+            val loaded = withContext(Dispatchers.IO) {
+                try {
+                    loader.read(workspaceId, createIfMissing).also { pending.loaded.complete(it) }
+                } catch (e: Throwable) {
+                    pending.loaded.completeExceptionally(e)
+                    throw e
+                }
+            }
+            withContext(Dispatchers.Main.immediate) { if (pending.claim()) applyLoaded(loaded) }
         } finally {
+            if (pendingLoad === pending) pendingLoad = null
             loadingFromDb = false
         }
     }
 
-    private fun loadFromDbInner(workspaceId: IdType?, createIfMissing: Boolean) {
-        loadedEpoch = DatabaseContainer.replaceEpoch
-        Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
-        // The whole workspace is read in ONE bridge, before clear(): the restore below posts events
-        // synchronously (see [loadingFromDb]) and must not run inside a database call.
-        val workspaceDao = dao
-        val bookmarkControl = get<BookmarkControl>()
-        val journalInitials = get<FakeBookFactory>().journalDocument.initials
-        val loaded = blockingAtEdge { // L1-edge: temporary deferred window restore bridge; remove in Task 11
-            // Reads must see every write this repository has queued (ordered write-through).
-            persistence.awaitPersisted()
-            val existing = if(workspaceId != null && !workspaceId.isEmpty) workspaceDao.workspace(workspaceId) else null
-            val entity = existing
-                ?: (if (createIfMissing) WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
-                    .also { created -> enqueueWrite { insertWorkspace(created.deepCopy()) } } else null)
-                ?: workspaceDao.firstWorkspace()
-                ?: WorkspaceEntities.Workspace("").apply {
-                    workspaceDao.insertWorkspace(this)
-                }
-            val windows = workspaceDao.windows(entity.id).map {
-                LoadedWindow(it, workspaceDao.pageManager(it.id), workspaceDao.historyItems(it.id))
-            }
-            val studyPadLabels = windows.associate { window ->
-                val page = window.pageManager?.generalBookPage
-                val parts = page?.key?.split(":")
-                val label = if (page?.document == journalInitials && parts?.size == 2) {
-                    bookmarkControl.labelById(IdType(parts[1]))
-                } else null
-                window.entity.id to label
-            }
-            LoadedWorkspace(entity, windows, studyPadLabels)
-        }
+    /** The apply phase: replaces this repository's state wholesale from [loaded]. Synchronous; runs under [loadingFromDb]. */
+    private fun applyLoaded(loaded: LoadedWorkspace) {
+        pendingLoad = null
         val entity = loaded.entity
         savedEntity = entity.deepCopy()
         clear()
@@ -506,7 +554,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         for (loadedWindow in loaded.windows) {
             val it = loadedWindow.entity
             val pageManager = get<CurrentPageManager>()
-            pageManager.restoreFrom(loadedWindow.pageManager, textDisplaySettings, loaded.studyPadLabels[it.id])
+            pageManager.restoreFrom(loadedWindow.pageManager, textDisplaySettings, loadedWindow.studyPadLabel)
             val window = Window(it, pageManager, this)
             windowList.add(window)
             historyManager.restoreFrom(window, loadedWindow.history)

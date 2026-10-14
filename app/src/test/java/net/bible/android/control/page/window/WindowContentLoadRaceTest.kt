@@ -67,7 +67,7 @@ class WindowContentLoadRaceTest {
         whenever(heldDb.myDocumentDao()).thenReturn(heldDao)
         try {
             control.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val window = repo.activeWindow
             val host = mock<ReadingHostActivity>()
             whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
@@ -120,7 +120,7 @@ class WindowContentLoadRaceTest {
         var view: BibleView? = null
         try {
             control.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val window = repo.activeWindow
             val host = mock<ReadingHostActivity>()
             whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
@@ -217,7 +217,7 @@ class WindowContentLoadRaceTest {
                 single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { source }
             }))
             control.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val window = repo.activeWindow
             val host = mock<ReadingHostActivity>()
             whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())

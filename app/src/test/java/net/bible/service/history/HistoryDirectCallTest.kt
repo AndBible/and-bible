@@ -46,7 +46,7 @@ class HistoryDirectCallTest {
         originalRepository = CommonUtils.windowControl.windowRepository
         repository = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.windowControl.windowRepository = repository
-        repository.initialize()
+        repository.initializeAtEdge()
         HistoryManager.resetInstanceForTest()
         window.pageManager.setCurrentDocumentAndKey(kjv, verse(BibleBook.GEN, 1, 1), false)
         history = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())

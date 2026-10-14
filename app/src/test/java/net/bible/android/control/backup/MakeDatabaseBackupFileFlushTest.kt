@@ -45,7 +45,7 @@ class MakeDatabaseBackupFileFlushTest {
         CommonUtils.settings.setBoolean("first-time", false)
         repo = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
     }
 
     @After fun tearDown() {

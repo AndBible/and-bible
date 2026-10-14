@@ -180,7 +180,7 @@ class PageNavOrderingTest {
             koin.loadModules(listOf(module { single<OrderedLauncher> { actor } }))
             activity.create()
             control.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val window = repo.activeWindow
             val page = window.pageManager
             val labels = listOf("A", "B", "C").map { page.bookmarkControl.insertOrUpdateLabel(Label(name = it, new = true)) }

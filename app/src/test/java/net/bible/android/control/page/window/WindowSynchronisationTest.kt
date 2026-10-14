@@ -61,7 +61,7 @@ class WindowSynchronisationTest {
         windowControl = CommonUtils.windowControl
         windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.settings.setBoolean("first-time", false)
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
     }
 
     @After

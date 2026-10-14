@@ -140,7 +140,7 @@ class ReadingSearchEntryPointsTest {
         windowControl = CommonUtils.windowControl
         windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,

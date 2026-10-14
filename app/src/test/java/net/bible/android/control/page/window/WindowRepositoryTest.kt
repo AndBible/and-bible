@@ -49,7 +49,7 @@ class WindowRepositoryTest {
     fun setUp() {
         windowControl = CommonUtils.windowControl
         windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
     }
 
     @After

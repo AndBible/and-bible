@@ -51,7 +51,7 @@ class OldMonolithicRestoreRollbackTest {
         CommonUtils.settings.setBoolean("first-time", false)
         repo = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "Before restore"
         repo.saveIntoDb(false)
         DatabaseContainer.reset() // close + flush, so the files can be fingerprinted

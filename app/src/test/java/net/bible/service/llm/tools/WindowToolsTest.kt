@@ -66,7 +66,7 @@ class WindowToolsTest {
         // windowRepository set here would then be invisible to the tools.
         windowControl = GlobalContext.get().get<WindowControl>()
         windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowControl.windowRepository.initialize()
+        windowControl.windowRepository.initializeAtEdge()
     }
 
     @After

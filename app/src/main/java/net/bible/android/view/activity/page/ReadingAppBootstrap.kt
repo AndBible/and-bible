@@ -216,7 +216,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         if (this::windowRepository.isInitialized) return windowRepository
         windowRepository = WindowRepository(host.lifecycleScope)
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        // The one synchronous load: the host's bootstrap is a straight-line onCreate sequence whose next steps read this repository.
+        windowRepository.initializeAtEdge()
         return windowRepository
     }
 

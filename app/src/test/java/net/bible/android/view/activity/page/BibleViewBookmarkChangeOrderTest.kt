@@ -75,7 +75,7 @@ class BibleViewBookmarkChangeOrderTest {
         net.bible.test.ReadingFixtureOwners.retain(listOf(repo.scope))
         try {
             CommonUtils.windowControl.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val control = WindowControl().apply { windowRepository = repo }
             val host = mock<ReadingHostActivity>()
             whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())

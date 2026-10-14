@@ -1969,9 +1969,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // `onScreenTurnedOn`, and anything either reaches may read `windowControl.windowRepository`.
         val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
-        if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
-        applyBootstrapUiIfForeground()
-        applyPendingActivityResult()
+        // The workspace reload suspends (its read leaves the main thread), and everything after it must still
+        // see the reloaded workspace. `lifecycleScope` starts on Main.immediate, so with no reload to wait for
+        // this runs inline exactly as before.
+        lifecycleScope.launch {
+            if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
+            applyBootstrapUiIfForeground()
+            applyPendingActivityResult()
+        }
     }
 
     /**
@@ -2365,8 +2370,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Classic's `WORKSPACE_CHANGED` arm, applied NOW -- see [deliverReadingResult]. */
     private fun applyInGraphWorkspaceResult(resultCode: Int, data: Intent?) {
         val extras = data?.extras ?: return
-        if (!readingCommands.applyWorkspaceChangedResult(resultCode, extras)) {
-            Log.i(TAG_READING_RESULTS, "An in-graph workspace answer named no change; nothing applied.")
+        lifecycleScope.launch {
+            if (!readingCommands.applyWorkspaceChangedResult(resultCode, extras)) {
+                Log.i(TAG_READING_RESULTS, "An in-graph workspace answer named no change; nothing applied.")
+            }
         }
     }
 
@@ -2519,8 +2526,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     Log.w(TAG_START_ROUTE, "A WORKSPACE_CHANGED result carried no extras; not applied.")
                     return
                 }
-                if (!readingCommands.applyWorkspaceChangedResult(pending.resultCode, extras)) {
-                    Log.i(TAG_START_ROUTE, "A WORKSPACE_CHANGED result named no change; nothing applied.")
+                lifecycleScope.launch {
+                    if (!readingCommands.applyWorkspaceChangedResult(pending.resultCode, extras)) {
+                        Log.i(TAG_START_ROUTE, "A WORKSPACE_CHANGED result named no change; nothing applied.")
+                    }
                 }
             }
             IntentHelper.REFRESH_DISPLAY_ON_FINISH,
@@ -2860,9 +2869,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * off the reading route rather than falling back to another host's repository, and ~45 of this
      * host's routes are not reading routes.
      */
-    private fun reconcileReadingStateOnResume(needRefresh: Boolean) {
+    private suspend fun reconcileReadingStateOnResume(needRefresh: Boolean) {
         if (needRefresh) {
-            readingCommands.currentWorkspaceId = readingCommands.currentWorkspaceId // reload from db
+            readingCommands.switchWorkspace(readingCommands.currentWorkspaceId) // reload from db
         } else if (updateDocumentsPending) {
             updateDocuments()
         }
@@ -2980,15 +2989,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         })
         hostSubscriptions.add(DatabaseContainer.workspacesSynced.subscribeOnMain { updated ->
             if (!readingAppBootstrapped) return@subscribeOnMain
-            readingCommands.applyWorkspacesUpdatedViaSync(updated)
+            lifecycleScope.launch { readingCommands.applyWorkspacesUpdatedViaSync(updated) }
         })
         hostSubscriptions.add(cloudSync.workspaceRefreshRequired.subscribeOnMain {
             if (!readingAppBootstrapped) return@subscribeOnMain
-            readingCommands.applyWorkspaceRefreshRequired()
+            lifecycleScope.launch { readingCommands.applyWorkspaceRefreshRequired() }
         })
         hostSubscriptions.add(DatabaseContainer.databaseRestored.subscribeOnMain {
             if (!readingAppBootstrapped) return@subscribeOnMain
-            readingCommands.applyRestoredDatabase()
+            lifecycleScope.launch { readingCommands.applyRestoredDatabase() }
         })
     }
 
