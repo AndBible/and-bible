@@ -141,9 +141,14 @@ fun buildCoreModule() = module {
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
     single {
-        net.bible.service.common.GlobalTextDisplaySettingsStore(get()) {
-            net.bible.service.db.DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao()
-        }
+        net.bible.service.common.GlobalTextDisplaySettingsStore(
+            get(),
+            { net.bible.service.db.DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() },
+            DatabaseContainer.databaseRestored,
+            get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
+            get<AppCoroutineScope>(),
+            { net.bible.service.db.DatabaseContainer.instance.workspaceDb.invalidationTracker.createFlow("GlobalTextDisplaySettings").map { Unit } },
+        )
     }
     single {
         net.bible.android.control.page.window.WorkspacePersistence(get()) {

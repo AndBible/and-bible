@@ -129,7 +129,7 @@ class TestBibleApplication : BibleApplication() {
             single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
             // Singletons keep the launcher they were built with, and the fixture replaces aiScope after a terminate.
-            single { net.bible.service.common.GlobalTextDisplaySettingsStore(aiLauncher) { DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() } }
+            single { net.bible.service.common.GlobalTextDisplaySettingsStore(aiLauncher, dao = { DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() }) }
             single { net.bible.android.control.page.window.WorkspacePersistence(aiLauncher) { DatabaseContainer.instance.workspaceDb.workspaceDao() } }
             single<net.bible.service.llm.AiSettings> {
                 net.bible.service.llm.AiSettingsStore(
@@ -163,6 +163,7 @@ class TestBibleApplication : BibleApplication() {
     suspend fun drainAiSettingsFixture() {
         aiLauncher.join("ai-settings")
         aiLauncher.join("mydocument-sync")
+        aiLauncher.join("global-tds")
         val children = aiScope.coroutineContext[kotlinx.coroutines.Job]!!.children.toList()
         children.forEach { it.cancel() }
         children.forEach { it.join() }
@@ -211,6 +212,7 @@ class TestBibleApplication : BibleApplication() {
                 try {
                     aiLauncher.join("ai-settings")
                     aiLauncher.join("mydocument-sync")
+                    aiLauncher.join("global-tds")
                 } finally {
                     job.cancel()
                     job.join()
@@ -242,7 +244,7 @@ class TestBibleApplication : BibleApplication() {
                 koin.loadModules(listOf(org.koin.dsl.module {
                     single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
                     single<net.bible.sharedcore.platform.OrderedLauncher> { checkNotNull(previousLauncher) }
-                    single { net.bible.service.common.GlobalTextDisplaySettingsStore(checkNotNull(previousLauncher)) { DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() } }
+                    single { net.bible.service.common.GlobalTextDisplaySettingsStore(checkNotNull(previousLauncher), dao = { DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() }) }
                     single { net.bible.android.control.page.window.WorkspacePersistence(checkNotNull(previousLauncher)) { DatabaseContainer.instance.workspaceDb.workspaceDao() } }
                     single<net.bible.service.llm.AiSettings> {
                         net.bible.service.llm.AiSettingsStore(
