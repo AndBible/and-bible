@@ -24,11 +24,11 @@ import net.bible.sharedcore.platform.OrderedLauncher
  * Workspace writes leave the caller's thread in submission order (spec §4: must-complete writes, ordered).
  * The caller captures deep copies before [enqueue] returns; the block runs later, on the application launcher.
  */
-class WorkspacePersistence(private val launcher: OrderedLauncher, private val dao: () -> WorkspaceDao) {
+open class WorkspacePersistence(private val launcher: OrderedLauncher, private val dao: () -> WorkspaceDao) {
     fun enqueue(block: suspend WorkspaceDao.() -> Unit) { launcher.launch(KEY) { dao().block() } }
 
     /** Waits for every write enqueued before this call. */
-    suspend fun awaitPersisted() = launcher.join(KEY)
+    open suspend fun awaitPersisted() = launcher.join(KEY)
 
     companion object { const val KEY = "workspace" }
 }

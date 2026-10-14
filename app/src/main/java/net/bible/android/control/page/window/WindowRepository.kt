@@ -42,7 +42,6 @@ import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
-import org.koin.core.context.GlobalContext
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.min
 
@@ -51,7 +50,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      * The application write-through. Resolved lazily: this repository is constructed while Koin is
      * still starting (the graph builds [net.bible.android.control.page.window.WindowControl] first).
      */
-    private val appPersistence: WorkspacePersistence by lazy { GlobalContext.get().get() }
+    private val appPersistence: WorkspacePersistence by inject()
     private var persistenceOverride: WorkspacePersistence? = null
 
     /** Tests substitute a persistence whose execution they control; production always uses the Koin one. */
@@ -156,6 +155,10 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             settings.getString("current_workspace_id")?.let { this.id = IdType(it) }
         }
         loadFromDb(id, createIfMissing)
+        // Only a freshly created (or re-pointed) workspace changes the stored id; a plain load never did.
+        if (createIfMissing && settings.getString("current_workspace_id") != id.toString()) {
+            settings.setString("current_workspace_id", id.toString())
+        }
         val firstTime = settings.getBoolean("first-time", true)
         if(firstTime) {
             activeWindow.pageManager.setFirstUseDefaultVerse()
@@ -468,7 +471,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
                 ?: (if (createIfMissing) WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
                     .also { created -> enqueueWrite { insertWorkspace(created.deepCopy()) } } else null)
                 ?: workspaceDao.firstWorkspace()
-                ?: WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)).apply {
+                ?: WorkspaceEntities.Workspace("").apply {
                     workspaceDao.insertWorkspace(this)
                 }
             val windows = workspaceDao.windows(entity.id).map {
@@ -490,7 +493,6 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
         orderNumber = entity.orderNumber
         id = entity.id
-        settings.setString("current_workspace_id", id.toString())
         name = entity.name
         unPinnedWeight = entity.unPinnedWeight
         maximizedWindowId = entity.maximizedWindowId

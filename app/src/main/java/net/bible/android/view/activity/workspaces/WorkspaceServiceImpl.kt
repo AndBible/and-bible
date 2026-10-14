@@ -50,11 +50,14 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     )
     private fun find(id: String) = working.first { it.id.toString() == id }
 
+    /** Readers and rewriters of workspace rows must see the save [saveCurrentIntoDb] queued (ordered write-through). */
+    private suspend fun awaitSaves() = windowControl.windowRepository.persistence.awaitPersisted()
+
     override fun currentWorkspaceId() = windowControl.windowRepository.id.toString()
     override fun saveCurrentIntoDb() { windowControl.windowRepository.saveIntoDb() }
 
     override fun loadAll(): List<WorkspaceRowVd> {
-        working.clear(); working.addAll(blockingDb { dao.allWorkspaces() }); return working.map { it.toVd() }
+        working.clear(); working.addAll(blockingDb { awaitSaves(); dao.allWorkspaces() }); return working.map { it.toVd() }
     }
 
     override fun createWorkspace(name: String): WorkspaceRowVd {
@@ -67,7 +70,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     }
 
     override fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd {
-        val ws = blockingDb { dao.cloneWorkspace(IdType(sourceId), name) }
+        val ws = blockingDb { awaitSaves(); dao.cloneWorkspace(IdType(sourceId), name) }
         working.add(working.indexOfFirst { it.id.toString() == sourceId } + 1, ws)
         return ws.toVd()
     }
@@ -76,7 +79,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
         renamed.forEach { (id, n) -> working.firstOrNull { it.id.toString() == id }?.name = n }
         orderedIds.forEachIndexed { idx, id -> working.firstOrNull { it.id.toString() == id }?.orderNumber = idx }
         val toDelete = deletedIds.map { IdType(it) }
-        blockingDb { toDelete.forEach { dao.deleteWorkspace(it) } }
+        blockingDb { awaitSaves(); toDelete.forEach { dao.deleteWorkspace(it) } }
         toDelete.forEach { AgentSessionManager.clearSession(it) }
         val toUpdate = working.filter { it.id.toString() in changedIds && it.id.toString() !in deletedIds }
         blockingDb { dao.updateWorkspaces(toUpdate) }

@@ -601,6 +601,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         if (DatabaseContainer.replacing) return
         if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
             windowRepository.saveIntoDb(false)
+            // The save is queued; cloud sync must not apply remote rows before it has landed.
+            windowRepository.persistence.awaitPersisted()
             if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && cloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
                 if(!cloudSync.signedIn) {

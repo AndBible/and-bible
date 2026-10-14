@@ -62,6 +62,7 @@ private class GateDispatcher : CoroutineDispatcher() {
 class WorkspacePersistenceOrderingTest {
     private lateinit var repo: WindowRepository
     private var wasReady = false
+    private var wasInitialized = false
     private val gate = GateDispatcher()
     private val persistence get() = repo.persistence
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
@@ -71,10 +72,15 @@ class WorkspacePersistenceOrderingTest {
         wasReady = DatabaseContainer.ready
         DatabaseContainer.ready = true
         CommonUtils.settings.setBoolean("first-time", false)
+        wasInitialized = CommonUtils.initialized
         CommonUtils.initialized = true
         repo = WindowRepository(CoroutineScope(Dispatchers.Main))
-        repo.persistence = WorkspacePersistence(OrderedLauncher(CoroutineScope(SupervisorJob() + gate))) {
-            DatabaseContainer.instance.workspaceDb.workspaceDao()
+        repo.persistence = object : WorkspacePersistence(
+            OrderedLauncher(CoroutineScope(SupervisorJob() + gate)),
+            { DatabaseContainer.instance.workspaceDb.workspaceDao() },
+        ) {
+            /** Whoever waits for persistence lets the held writes through first: a missing wait never terminates the hold. */
+            override suspend fun awaitPersisted() { gate.release(); super.awaitPersisted() }
         }
         CommonUtils.windowControl.windowRepository = repo
         repo.initialize()
@@ -82,11 +88,18 @@ class WorkspacePersistenceOrderingTest {
     }
 
     @After fun tearDown() {
-        gate.release()
-        runBlocking { persistence.awaitPersisted() }
-        DatabaseResetter.resetDatabase()
-        DatabaseContainer.ready = wasReady
-        repo.clear()
+        try {
+            gate.release()
+            runBlocking { persistence.awaitPersisted() }
+        } finally {
+            try {
+                DatabaseResetter.resetDatabase()
+            } finally {
+                DatabaseContainer.ready = wasReady
+                CommonUtils.initialized = wasInitialized
+                repo.clear()
+            }
+        }
     }
 
     private fun savedVerseNo(): Int = runBlocking {
@@ -159,20 +172,58 @@ class WorkspacePersistenceOrderingTest {
         }
     }
 
+    /**
+     * Breaks if a reload between enqueue and write lets the stale write through: the epoch is captured
+     * at enqueue, so a restore that finished and a reload that refreshed [WindowRepository]'s own epoch
+     * in between must still skip it. (The reload's wait lets the held write run.)
+     */
+    @Test fun restoreAndReloadBeforeTheWriteStillSkipTheStaleWrite() {
+        repo.name = "saved"
+        repo.saveIntoDb(false)
+        runBlocking { persistence.awaitPersisted() }
+
+        gate.hold()
+        repo.name = "stale"
+        repo.saveIntoDb(false)
+        assertEquals("the write must still be queued", true, gate.pending > 0)
+        runBlocking { DatabaseContainer.replacingDatabases { } }
+        repo.loadFromDb(repo.id)
+        assertEquals("saved", runBlocking { dao.workspace(repo.id) }!!.name)
+    }
+
+    /** Breaks if the selector's load reads the workspace rows before the save queued just before it. */
+    @Test fun selectorLoadRightAfterASaveSeesIt() {
+        repo.name = "renamed"
+        gate.hold()
+        repo.saveIntoDb(false)
+        assertEquals("the write must still be queued", true, gate.pending > 0)
+        val rows = net.bible.android.view.activity.workspaces.WorkspaceServiceImpl(CommonUtils.windowControl).loadAll()
+        assertEquals("renamed", rows.first { it.id == repo.id.toString() }.name)
+    }
+
+    /** Breaks if cloning copies page-manager rows before the save queued just before it. */
+    @Test fun cloneRightAfterASaveCopiesIt() {
+        repo.activeWindow.pageManager.currentBible.currentChapterVerse = ChapterVerse(1, 7)
+        gate.hold()
+        repo.saveIntoDb(false)
+        assertEquals("the write must still be queued", true, gate.pending > 0)
+        val service = net.bible.android.view.activity.workspaces.WorkspaceServiceImpl(CommonUtils.windowControl)
+        val clone = service.cloneWorkspace(repo.id.toString(), "copy")
+        val verse = runBlocking {
+            val window = dao.windows(IdType(clone.id)).first()
+            dao.pageManager(window.id)!!.biblePage.verse.verseNo
+        }
+        assertEquals(7, verse)
+    }
+
     /** Breaks if the backup zips the database before the last enqueued save has landed. */
     @Test fun backupContainsTheLastSave() {
         val before = savedVerseNo()
         repo.activeWindow.pageManager.currentBible.currentChapterVerse = ChapterVerse(1, 11)
         assertNotEquals(before, 11)
+        // The save inside the backup queues behind the held gate; only BackupControl's own wait lets it through.
         gate.hold()
-        // The save inside the backup queues behind the held gate; only then is the write let through.
-        val releaser = kotlin.concurrent.thread {
-            val deadline = System.nanoTime() + 20_000_000_000L
-            while (gate.pending == 0 && System.nanoTime() < deadline) Thread.yield()
-            gate.release()
-        }
         val zip = runBlocking { net.bible.test.testBackupControl().makeDatabaseBackupFile() }!!
-        releaser.join()
         val extracted = File(BibleApplication.application.cacheDir, "backup-workspaces.sqlite3").apply { delete() }
         ZipFile(zip).use { z ->
             z.getInputStream(z.getEntry("db/${WorkspaceDatabase.dbFileName}")).use { input ->
