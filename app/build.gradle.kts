@@ -329,6 +329,10 @@ android {
                   // in one fork can OOM near the edge. Give the fork a real heap; the container has 32 GiB.
                   test.maxHeapSize = "4g"
                   test.systemProperty("mono.audit.report", System.getProperty("mono.audit.report") ?: "")
+                  test.systemProperty("k5.project.root", rootProject.projectDir.absolutePath)
+                  for (flag in listOf("k5.oracle.write", "k5.oracle.check", "k5.timing.out", "k5.timing.label")) {
+                      System.getProperty(flag)?.let { test.systemProperty(flag, it) }
+                  }
                   test.testLogging {
                     events("passed", "skipped", "failed")
                     setExceptionFormat("full")
