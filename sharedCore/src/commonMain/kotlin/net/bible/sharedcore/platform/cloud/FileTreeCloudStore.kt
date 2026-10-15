@@ -150,6 +150,7 @@ class FileTreeCloudStore(
             val checked = coordinatedPath(base, local)
             val temporary = resolve(base, checked.relativeTo(base).toString() + ".tmp-${now()}")
             if (fs.exists(temporary)) throw IOException("temporary file already exists: $temporary")
+            var failure: Throwable? = null
             try {
                 fs.sink(temporary, mustCreate = true).use { output ->
                     fs.source(file).use { input ->
@@ -162,8 +163,17 @@ class FileTreeCloudStore(
                     }
                 }
                 fs.atomicMove(temporary, checked)
+            } catch (error: Throwable) {
+                failure = error
+                throw error
             } finally {
-                fs.delete(temporary, mustExist = false)
+                try {
+                    fs.delete(temporary, mustExist = false)
+                } catch (cleanup: Throwable) {
+                    val primary = failure
+                    if (primary == null) throw cleanup
+                    primary.addSuppressed(cleanup)
+                }
             }
         }
         return describe(base, id)

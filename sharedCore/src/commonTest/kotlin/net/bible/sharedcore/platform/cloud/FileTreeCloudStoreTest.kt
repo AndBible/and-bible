@@ -167,6 +167,55 @@ class FileTreeCloudStoreTest {
         assertEquals(listOf(root / "x"), fs.list(root))
     }
 
+    @Test fun atomicMoveFailurePreservesTargetAndCleansTemporaryFile() = runTest {
+        store.upload("x", source("original"), "")
+        val failure = IOException("atomic move failed")
+        val failingFs = object : okio.ForwardingFileSystem(fs) {
+            override fun atomicMove(source: Path, target: Path): Unit = throw failure
+        }
+        val failing = FileTreeCloudStore(failingFs, { root }, now = { clock++ })
+        assertSame(failure, assertFailsWith<IOException> { failing.upload("x", source("replacement"), "") })
+        assertEquals("original", fs.read(root / "x") { readUtf8() })
+        assertEquals(listOf(root / "x"), fs.list(root))
+    }
+
+    @Test fun cleanupFailureIsSuppressedOnPrimaryUploadFailure() = runTest {
+        for (failMove in listOf(false, true)) {
+            val primary = IOException(if (failMove) "move failed" else "source failed")
+            val cleanup = IOException("cleanup failed")
+            val input = source("replacement")
+            val failingFs = object : okio.ForwardingFileSystem(fs) {
+                override fun source(file: Path): okio.Source {
+                    if (!failMove && file == input) throw primary
+                    return super.source(file)
+                }
+                override fun atomicMove(source: Path, target: Path): Unit = throw primary
+                override fun delete(path: Path, mustExist: Boolean) {
+                    if (".tmp-" in path.name) throw cleanup
+                    super.delete(path, mustExist)
+                }
+            }
+            val failing = FileTreeCloudStore(failingFs, { root }, now = { clock++ })
+            val thrown = assertFailsWith<IOException> { failing.upload("x", input, "") }
+            assertSame(primary, thrown)
+            assertEquals(listOf(cleanup), thrown.suppressedExceptions)
+            fs.list(root).forEach { fs.delete(it) }
+        }
+    }
+
+    @Test fun cleanupFailureWithoutPrimaryIsPropagated() = runTest {
+        val cleanup = IOException("cleanup failed")
+        val failingFs = object : okio.ForwardingFileSystem(fs) {
+            override fun delete(path: Path, mustExist: Boolean) {
+                if (".tmp-" in path.name) throw cleanup
+                super.delete(path, mustExist)
+            }
+        }
+        val failing = FileTreeCloudStore(failingFs, { root }, now = { clock++ })
+        assertSame(cleanup, assertFailsWith<IOException> { failing.upload("x", source("content"), "") })
+        assertEquals("content", fs.read(root / "x") { readUtf8() })
+    }
+
     @Test fun coordinatorCannotRedirectOutsideRoot() = runTest {
         source("private")
         val coordination = object : FileCoordination {
