@@ -12,13 +12,10 @@ import net.bible.sharedui.poc.LocalPocPaneCreated
 import net.bible.sharedui.poc.PocBibleViewController
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSBundle
-import platform.Foundation.NSString
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLComponents
 import platform.Foundation.NSURLQueryItem
-import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.setValue
-import platform.Foundation.stringWithContentsOfFile
 import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationDelegateProtocol
 import platform.WebKit.WKUserScript
@@ -63,10 +60,6 @@ private object IosWebViewHolder {
         entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
     }
 
-    private fun bundleScript(name: String): String =
-        NSBundle.mainBundle.pathForResource(name, "js", BUNDLE_DIR)
-            ?.let { NSString.stringWithContentsOfFile(it, NSUTF8StringEncoding, null) } ?: ""
-
     private fun create(controller: PocBibleViewController): PaneEntry {
         val windowId = controller.windowId
         lateinit var webView: WKWebView
@@ -89,13 +82,6 @@ private object IosWebViewHolder {
         val config = WKWebViewConfiguration()
         config.preferences.setValue(true, forKey = "allowFileAccessFromFileURLs")
         config.userContentController.apply {
-            addUserScript(
-                WKUserScript(
-                    source = bundleScript("ios-shim"),
-                    injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
-                    forMainFrameOnly = true,
-                ),
-            )
             addUserScript(
                 WKUserScript(
                     source = "window.__activeLanguages__ = '[\"en\"]';",

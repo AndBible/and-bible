@@ -1,11 +1,10 @@
-// Loads the production build in headless WebKit with the iOS shim and a stub messageHandlers,
+// Loads the production build in headless WebKit with the bundled bridge and a stub messageHandlers,
 // replays the start-up sequence the Kotlin controller sends, and checks the bridge round trip.
 import {readFileSync, createReadStream, statSync} from "node:fs";
 import {createServer} from "node:http";
 import {resolve, extname, sep} from "node:path";
 
 const root = resolve(import.meta.dirname, "../..");
-const shim = readFileSync(resolve(root, "ios/ios-shim.js"), "utf8");
 const doc = readFileSync(resolve(root, "ios/poc-document.json"), "utf8");
 
 const MIME = {
@@ -69,7 +68,6 @@ await page.addInitScript(() => {
     window.__posted__ = [];
     window.webkit = {messageHandlers: {bridge: {postMessage: m => window.__posted__.push(m)}}};
 });
-await page.addInitScript(shim);
 await page.goto(`http://127.0.0.1:${server.address().port}/index.html?lang=en&night=false`);
 await page.waitForFunction(() => window.__posted__.some(m => m.method === "setClientReady"), null, {timeout: 10000})
     .catch(() => fail("setClientReady never posted"));
