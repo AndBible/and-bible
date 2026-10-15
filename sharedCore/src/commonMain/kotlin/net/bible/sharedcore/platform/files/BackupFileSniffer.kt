@@ -3,6 +3,7 @@ package net.bible.sharedcore.platform.files
 import net.bible.sharedcore.log.Log
 import okio.Source
 import okio.buffer
+import okio.use
 
 object BackupFileSniffer {
     private const val SQLITE_HEADER = "SQLite format 3\u0000"
