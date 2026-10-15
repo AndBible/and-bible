@@ -26,7 +26,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentPrompt
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -48,7 +47,13 @@ import java.util.concurrent.atomic.AtomicReference
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ExecutePromptLostRaceTest {
-    private val ws get() = CommonUtils.windowControl.windowRepository.id
+    /**
+     * The WindowControl AgentSessionManager itself uses. Both it and CommonUtils are objects that inject once per
+     * JVM; after a test restarts Koin (AiSettingsFixtureLifetimeTest, the speak tests) they can hold different
+     * instances, and a session made through the other one is not the session executePrompt races against.
+     */
+    private val windowControl get() = AgentSessionManager.windowControl
+    private val ws get() = windowControl.windowRepository.id
 
     @After fun tearDown() {
         AgentSessionManager.clearSession(ws)
@@ -71,7 +76,7 @@ class ExecutePromptLostRaceTest {
     @Test fun aCallThatLosesTheRaceReportsItAndSkipsOnStarted() {
         val winner = Job()
         // The repository id is empty until initialized; executePrompt would otherwise initialize it mid-test.
-        CommonUtils.windowControl.windowRepository.initialize()
+        windowControl.windowRepository.initialize()
         assertTrue(AgentSessionManager.getOrCreateSession(ws).tryStart(AgentContext(promptId = IdType()), winner))
         var started = false
         val result = onIoIdlingMain {
@@ -94,7 +99,7 @@ class ExecutePromptLostRaceTest {
      * completed; the failure is therefore captured inside the coroutine instead of read from the result.
      */
     @Test fun aThrowingOnStartedLeavesTheSessionStopped() {
-        CommonUtils.windowControl.windowRepository.initialize()
+        windowControl.windowRepository.initialize()
         val failure = AtomicReference<Throwable?>()
         val d = CoroutineScope(Dispatchers.IO).async {
             try {

@@ -136,6 +136,9 @@ open class SpeakIntegrationTestBase {
 
     @After
     fun tearDown() {
+        // The repository setUp installed runs its windows' loadText on a scope only this can cancel: the fixture's
+        // own retirement looks the WindowControl up in Koin, which is stopped below.
+        windowControl.retireWindowRepositoryForTest()
         restoreAdvancedSettings()
         DatabaseResetter.resetDatabase()
         // Stop the Koin container so the next test method starts fresh. Koin's global
@@ -198,6 +201,16 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         SpeakSettings().save()
 
         mainActivityController.create()
+    }
+
+    /**
+     * Before the base tearDown stops Koin (subclass @After runs first): a host left created keeps its
+     * lifecycleScope work (the reading bootstrap UI) queued, and it ran in a later test's teardown against a
+     * stopped Koin (UncaughtExceptionsBeforeTest there).
+     */
+    @After
+    fun destroyHost() {
+        mainActivityController.destroy()
     }
 
     private fun getVerse(verseStr: String): Verse {
