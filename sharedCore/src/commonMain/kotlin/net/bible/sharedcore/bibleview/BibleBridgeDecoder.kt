@@ -168,7 +168,6 @@ object BibleBridgeDecoder {
         if (p is JsonNull || p.isString || p.booleanOrNull != null) return null
         p.longOrNull?.let { return it }
         val number = p.doubleOrNull ?: return null
-        if (number.isNaN() || number.isInfinite()) return null
-        return number.toLong() // Match BridgeArgs.long() for finite fractional numbers.
+        return number.toLong() // Match BridgeArgs.long() truncation and saturation.
     }
 }

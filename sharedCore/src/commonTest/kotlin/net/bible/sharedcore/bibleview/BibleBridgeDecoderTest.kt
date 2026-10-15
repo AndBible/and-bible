@@ -1,5 +1,6 @@
 package net.bible.sharedcore.bibleview
 
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -99,6 +100,11 @@ class BibleBridgeDecoderTest {
     @Test fun callIdOfTruncatesFiniteFractionalNumbersTowardZero() {
         assertEquals(7L, BibleBridgeDecoder.callIdOf(args(7.0)))
         assertEquals(-2L, BibleBridgeDecoder.callIdOf(args(-2.7)))
+    }
+
+    @Test fun callIdOfSaturatesParsedNumbersOutsideDoubleRange() {
+        assertEquals(Long.MAX_VALUE, BibleBridgeDecoder.callIdOf(listOf(Json.parseToJsonElement("1e400"))))
+        assertEquals(Long.MIN_VALUE, BibleBridgeDecoder.callIdOf(listOf(Json.parseToJsonElement("-1e400"))))
     }
 
     @Test fun tableHas87MethodsAndDeferredOnesStartWithACallId() {
