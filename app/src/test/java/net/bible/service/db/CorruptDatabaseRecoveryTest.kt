@@ -45,8 +45,8 @@ import java.io.File
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class CorruptDatabaseRecoveryTest {
-    @Before fun setUp() = DatabaseContainer.reset()
-    @After fun tearDown() = DatabaseContainer.reset()
+    @Before fun setUp() = net.bible.test.DatabaseResetter.resetDatabase()
+    @After fun tearDown() = net.bible.test.DatabaseResetter.resetDatabase()
 
     private val garbage = ByteArray(4096) { 7 }
 
@@ -55,7 +55,8 @@ class CorruptDatabaseRecoveryTest {
         file.parentFile!!.listFiles()!!.filter { Regex(Regex.escape(file.name) + "\\.corrupt-[0-9-]+").matches(it.name) }
 
     @Test fun aCorruptRegenerableDatabaseIsMovedAsideWithItsSiblingsAndRecreated() {
-        DatabaseContainer.reset()
+        // Quiesce fixture observers before overwriting a file, not merely the current container.
+        net.bible.test.DatabaseResetter.resetDatabase()
         val file = application.getDatabasePath("temporary.sqlite3").also { it.parentFile!!.mkdirs() }
         file.writeBytes(garbage)
         // Room 3's lock file (SQLite's own open may consume invalid -journal/-wal files, see recoverIfCorrupt)

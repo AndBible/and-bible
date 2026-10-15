@@ -121,6 +121,48 @@ class ReadingHostNonStdResultTest {
         net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
+    @Test
+    fun backgroundSettingsCompletionKeepsGraphCompositionOnMain() {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val original = koin.get<net.bible.service.llm.AiSettings>()
+        val saved = net.bible.test.KoinFactorySnapshot.of<net.bible.service.llm.AiSettings>(koin)
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val ready = kotlinx.coroutines.CompletableDeferred<Unit>()
+        koin.loadModules(listOf(org.koin.dsl.module {
+            single<net.bible.service.llm.AiSettings> {
+                object : net.bible.service.llm.AiSettings by original {
+                    override suspend fun ensureLoaded() {
+                        entered.countDown()
+                        ready.await()
+                    }
+                }
+            }
+        }))
+        try {
+            val controller = Robolectric.buildActivity(NavHostComposeActivity::class.java,
+                NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING))
+                .also { controllers += it }
+            controller.create().start().resume().visible()
+            compose.waitForIdle()
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS), "The composition must be suspended at settings")
+            val failure = java.util.concurrent.atomic.AtomicReference<Throwable?>()
+            val worker = Thread {
+                try {
+                    ready.complete(Unit)
+                    androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+                } catch (error: Throwable) { failure.set(error) }
+            }.apply { start() }
+            worker.join(5_000)
+            assertFalse(worker.isAlive)
+            failure.get()?.let { throw AssertionError("Background completion failed", it) }
+            net.bible.test.awaitReadingGraph(controller.get()) { compose.waitForIdle() }
+            assertTrue(controller.get().readingCommands.composeReadingViewHost != null)
+        } finally {
+            ready.complete(Unit)
+            saved.restore()
+        }
+    }
+
     /** A host on the reading route, composed: `.visible()` is what composes the destination. */
     private fun composedHost(state: Bundle? = null, expectedRoute: String = NavRoutes.READING): ActivityController<NavHostComposeActivity> =
         Robolectric.buildActivity(
