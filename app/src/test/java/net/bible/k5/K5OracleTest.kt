@@ -89,6 +89,37 @@ class K5OracleTest {
         } finally { tmp.deleteRecursively() }
     }
 
+    @Test fun syntheticJosephusRootHasExplicitClientPageProvenance() = withExtraModules {
+        val book = requireNotNull(Books.installed().getBook("Josephus"))
+        val keys = sample(book, 300)
+        val root = keys.first()
+        assertEquals("", root.getOsisID())
+        val captured = clientPages(mapOf(book to listOf(root, keys.first { it.getOsisID().isNotBlank() })))
+        assertTrue(captured.contains("synthetic-genbook-root"))
+        assertTrue(captured.contains("bookInitials"))
+        assertThrows(Exception::class.java) { clientPages(mapOf(book to listOf(org.crosswire.jsword.passage.TreeKey("DefinitelyMissingEntry")))) }
+    }
+
+    @Test fun epubQueryInventoryRetainsFallbacksAndContextDifferences() = runBlocking {
+        val output = epub()
+        assertTrue(output.contains("query\tbackend.toc.ncx"))
+        assertTrue(output.contains("query\tbackend.toc.id"))
+        assertTrue(output.contains("query\tbackend.toc.nav"))
+        assertTrue(output.contains("query\tfacade.text\tchapter1"))
+        assertTrue(output.contains("query\tbackend.index.bva\tdetached-body"))
+        assertTrue(output.contains("query\tfacade.bva\tsub-element"))
+        assertTrue(output.contains("query\toptimizer.split"))
+        val queries = output.lineSequence().filter { it.startsWith("query\t") }.map { it.split('\t') }.toList()
+        assertTrue(queries.any { it[1] == "backend.toc.id" && it[2] == "opf" && it[4] == "0" })
+        assertTrue(queries.any { it[1] == "backend.toc.id" && it[2] == "opf-id-fallback" && it[4] == "1" })
+        val absolute = queries.single { it[1] == "backend.index.bva" && it[2] == "sub-element-chapter2" }[4].toInt()
+        val relative = queries.single { it[1] == "facade.bva" && it[2] == "sub-element-chapter2" }[4].toInt()
+        assertTrue(absolute > relative)
+        val text = queries.single { it[1] == "facade.text" && it[2] == "chapter1" }[5]
+        assertTrue(text.contains("XHTML note"))
+        assertFalse(text.contains("Plain note"))
+    }
+
     @Test fun realProducerSmoke() = runBlocking {
         val book = Books.installed().getBook("KJV") as SwordBook
         val verse = VerseRangeFactory.fromString(book.versification, "John.3.16").start
@@ -171,7 +202,10 @@ class K5OracleTest {
             }
             val genBooks = books.filter { it.bookCategory == BookCategory.GENERAL_BOOK }
             if (genBooks.isEmpty()) llm.append(row("SKIP", "genbook", "No GenBook installed"))
-            for (book in genBooks) for (key in sample.getValue(book).filter { it.getOsisID().isNotBlank() }.take(5)) for (format in listOf("text", "xml")) llm.append(tool(GetGenBookContentTool, book.initials, key.getOsisID(), format, "book", "key"))
+            for (book in genBooks) {
+                for (key in sample.getValue(book).filter { syntheticRoot(book, it) }) llm.append(row(book.initials, key.getOsisID(), "SKIP", "synthetic-genbook-root", "Read tool requires a content entry"))
+                for (key in sample.getValue(book).filterNot { syntheticRoot(book, it) }.take(5)) for (format in listOf("text", "xml")) llm.append(tool(GetGenBookContentTool, book.initials, key.getOsisID(), format, "book", "key"))
+            }
             val commentaries = books.filterIsInstance<SwordBook>().filter { it.initials == "ISV" || it.bookCategory == BookCategory.COMMENTARY }
             if (commentaries.isEmpty()) commentary.append(row("SKIP", "commentary", "No commentary-capable module installed"))
             for (book in commentaries) {
@@ -212,7 +246,11 @@ class K5OracleTest {
     }
 
     private fun clientPages(sample: Map<Book, List<Key>>) = buildString {
-        for ((book, keys) in sample) for (key in keys) {
+        for ((book, keys) in sample) for ((position, key) in keys.withIndex()) {
+            if (syntheticRoot(book, key)) {
+                append(row(book.initials, key.getOsisID(), "SKIP", "synthetic-genbook-root", "sample-position=$position", "Non-content index container; name empty, parent absent, children present"))
+                continue
+            }
             val fragment = OsisFragment(SwordContentFacade.readOsisFragment(book, key, strings), key, book)
             append(row(book.initials, key.getOsisID(), fragment.toHashMap.entries.joinToString(",", "{", "}") { "${it.key}:${it.value}" }))
         }
@@ -232,6 +270,11 @@ class K5OracleTest {
         var book: Book? = null
         try {
             val source = K5EpubFixture.create(tmp)
+            val querySnapshots = if (capture) {
+                val originals = File(tmp, "originals")
+                net.bible.service.common.ArchiveUtils.unzipFile(source, originals)
+                K5EpubQueries.capture(originals)
+            } else ""
             check(DefaultInstallCommitter(testBackupControl(), strings, env).commitEpub(source, name, false))
             book = Books.installed().getBook(epubInitials(name)) ?: error("Fixture EPUB did not register")
             val backend = book.epubBackend ?: error("Not an EPUB backend")
@@ -243,6 +286,7 @@ class K5OracleTest {
                 ZipFile(source).use { zip ->
                     for (entry in zip.entries().toList()) append(row("source", entry.name, java.util.Base64.getEncoder().encodeToString(zip.getInputStream(entry).use { it.readBytes() })))
                 }
+                append(querySnapshots)
                 for (key in backend.tocKeys()) append(row("toc", key.getName(), key.getOsisRef()))
                 for (key in backend.state.keys) {
                     val text = book.getRawText(key)
@@ -267,6 +311,20 @@ class K5OracleTest {
         val sampled = sample(book, 200).filterIsInstance<Verse>()
         return (mandatory.map { VerseRangeFactory.fromString(book.versification, it).start } + sampled).distinctBy { it.getOsisID() }.take(200)
     }
+
+    private fun withExtraModules(action: () -> Unit) {
+        val previous = SwordBookPathJvm.getAugmentPath()
+        try {
+            val root = File(requireNotNull(System.getProperty("k5.project.root")))
+            val extras = File(root, ".local/k5-sword").walkTopDown().filter { it.isDirectory && File(it, "mods.d").isDirectory }.toList()
+            SwordBookPathJvm.setAugmentPath((previous.toList() + extras).distinct().toTypedArray())
+            action()
+        } finally { SwordBookPathJvm.setAugmentPath(previous) }
+    }
+
+    private fun syntheticRoot(book: Book, key: Key): Boolean = book is org.crosswire.jsword.book.sword.SwordGenBook &&
+        book.backend is org.crosswire.jsword.book.sword.GenBookBackend && key.getParent() == null &&
+        key.getName().isEmpty() && key.getOsisID().isEmpty() && key.getChildCount() > 0
 
     private fun sample(book: Book, cap: Int): List<Key> {
         val keys = (book.getGlobalKeyList() as Iterable<Key>).toList()

@@ -1,0 +1,87 @@
+package net.bible.k5
+
+import java.io.File
+import org.jdom2.Document
+import org.jdom2.Element
+import org.jdom2.Namespace
+import org.jdom2.Text
+import org.jdom2.filter.Filters
+import org.jdom2.input.SAXBuilder
+import org.jdom2.output.Format
+import org.jdom2.output.XMLOutputter
+import org.jdom2.xpath.XPathFactory
+import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.epub.xhtmlNamespace
+
+/** Site-labelled snapshots of the Task 11/14 authoritative XPath inventory, including short-circuited fallbacks. */
+internal object K5EpubQueries {
+    fun capture(dir: File): String = buildString {
+        val xp = XPathFactory.instance()
+        val out = XMLOutputter(Format.getRawFormat())
+        val opf = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
+        val dc = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
+        val ncx = Namespace.getNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/")
+        val containerNs = Namespace.getNamespace("ns", "urn:oasis:names:tc:opendocument:xmlns:container")
+        val svg = Namespace.getNamespace("svg", "http://www.w3.org/2000/svg")
+        val xlink = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink")
+        fun row(vararg cells: String) = cells.joinToString("\t") { it.replace("\\", "\\\\").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n") } + "\n"
+        fun query(site: String, contextId: String, expression: String, context: Any, vararg ns: Namespace): List<Element> {
+            val results = xp.compile(expression, Filters.element(), null, *ns).evaluate(context)
+            // Retain an explicit empty result, expression, count and ordered complete element values.
+            append(row("query", site, contextId, expression, results.size.toString(), results.joinToString("\u001e") { out.outputString(it) }))
+            return results
+        }
+        val container = SAXBuilder().build(File(dir, "META-INF/container.xml"))
+        query("backend.container", "container", "//ns:rootfile", container, containerNs)
+        val content = SAXBuilder().build(File(dir, "content.opf"))
+        fun opfQueries(contextId: String, doc: Document) {
+            query("backend.manifest", contextId, "//ns:manifest/ns:item", doc, opf)
+            query("backend.toc.ncx", contextId, "//ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']", doc, opf)
+            query("backend.toc.id", contextId, "//ns:manifest/ns:item[@id='toc']", doc, opf)
+            query("backend.toc.nav", contextId, "//ns:manifest/ns:item[@properties='nav']", doc, opf)
+        }
+        opfQueries("opf", content)
+        // The main fixture deliberately has id=ncx: separately exercise the id=toc fallback with a matching item.
+        val fallback = content.clone()
+        fallback.rootElement.getChild("manifest", opf).children.first { it.getAttributeValue("id") == "ncx" }.apply {
+            setAttribute("id", "toc"); setAttribute("media-type", "application/octet-stream")
+        }
+        opfQueries("opf-id-fallback", fallback)
+        for (name in listOf("title", "creator", "language")) query("backend.metadata.$name", "opf", "//dc:$name", content, dc)
+        query("backend.spine", "opf", "//ns:spine/ns:itemref", content, opf)
+        val toc = SAXBuilder().build(File(dir, "toc.ncx"))
+        for (site in listOf("backend.fileToTitle", "backend.tocKeys")) {
+            val contents = query("$site.content", "ncx", "//ns:navPoint/ns:content", toc, ncx)
+            for ((index, element) in contents.withIndex()) query("$site.label", "ncx-content-$index", "../ns:navLabel/ns:text", element, ncx)
+        }
+        for (chapter in 1..2) {
+            val original = SAXBuilder().build(File(dir, "ch$chapter.xhtml"))
+            query("optimizer.svg", "chapter$chapter", "//svg:image[@xlink:href]", original, svg, xlink)
+            query("optimizer.img", "chapter$chapter", "//ns:img", original, xhtmlNamespace)
+            query("optimizer.link", "chapter$chapter", "//ns:a", original, xhtmlNamespace)
+            query("optimizer.body", "chapter$chapter", "//ns:body", original, xhtmlNamespace)
+            text("facade.text", "chapter$chapter", original, xp, out, ::row, this)
+            val body = original.rootElement.getChild("body", xhtmlNamespace)
+            text("facade.text", "chapter$chapter-sub-element", body.children.first(), xp, out, ::row, this)
+            val anchored = original.clone()
+            SwordContentFacade.addAnchors(anchored.rootElement.getChild("body", xhtmlNamespace), "en", true)
+            val anchoredBody = anchored.rootElement.getChild("body", xhtmlNamespace)
+            val detached = anchoredBody.clone().detach()
+            val contexts = listOf("document" to anchored, "detached-body" to detached, "sub-element" to anchoredBody.children.first())
+            for ((contextName, context) in contexts) {
+                for (site in listOf("backend.index.bva", "backend.totalCharacters.bva", "optimizer.ordinalRange")) query(site, "$contextName-chapter$chapter", "//ns:BVA", context, xhtmlNamespace)
+                query("facade.bva", "$contextName-chapter$chapter", ".//ns:BVA", context, xhtmlNamespace)
+                query("optimizer.ids", "$contextName-chapter$chapter", "//*[@id]", context)
+                query("optimizer.write.body", "$contextName-chapter$chapter", "//ns:body", context, xhtmlNamespace)
+            }
+            val ordinals = xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(anchored).map { it.getAttributeValue("ordinal") }.distinct()
+            for (ordinal in ordinals) query("optimizer.split", "chapter$chapter-ordinal-$ordinal", "//*[descendant::ns:BVA[@ordinal='$ordinal'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]", anchored, xhtmlNamespace)
+        }
+    }
+
+    private fun text(site: String, contextId: String, context: Any, xp: XPathFactory, out: XMLOutputter, row: (Array<out String>) -> String, target: StringBuilder) {
+        val expression = ".//text()[not(ancestor::note)]"
+        val results: List<Text> = xp.compile(expression, Filters.text()).evaluate(context)
+        target.append(row(arrayOf("query", site, contextId, expression, results.size.toString(), results.joinToString("\u001e") { out.outputString(it) })))
+    }
+}
