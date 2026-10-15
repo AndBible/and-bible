@@ -90,7 +90,10 @@ class K5OracleTest {
     }
 
     @Test fun syntheticJosephusRootHasExplicitClientPageProvenance() = withExtraModules {
-        val book = requireNotNull(Books.installed().getBook("Josephus"))
+        val book = Books.installed().getBook("Josephus")
+        if (System.getProperty("k5.oracle.write") != null || System.getProperty("k5.oracle.check") != null) requireNotNull(book) { "Full oracle requires Josephus regression coverage" }
+        assumeTrue("Optional Josephus module not installed for normal CI", book != null)
+        requireNotNull(book)
         val keys = sample(book, 300)
         val root = keys.first()
         assertEquals("", root.getOsisID())
@@ -118,6 +121,22 @@ class K5OracleTest {
         val text = queries.single { it[1] == "facade.text" && it[2] == "chapter1" }[5]
         assertTrue(text.contains("XHTML note"))
         assertFalse(text.contains("Plain note"))
+    }
+
+    @Test fun titleProbeReportsAvailabilityWithoutForcingMissingEntries() {
+        val finpr = Books.installed().getBook("FinPR") as SwordBook
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+        assertFalse(verses(finpr).any { it.getOsisID() == "Ps.3.0" })
+        assertEquals(200, verses(finpr).size)
+        assertTrue(titleCoverage(finpr).contains("unavailable"))
+        assertTrue(verses(kjv).any { it.getOsisID() == "Ps.3.0" })
+        assertTrue(titleCoverage(kjv).contains("available"))
+        for (book in listOf(finpr, kjv)) for (ref in listOf("Gen.1.1", "Ps.3.1", "Matt.5.3", "John.3.16", "Rev.22.21")) assertTrue(verses(book).any { it.getOsisID() == ref })
+    }
+
+    private fun titleCoverage(book: SwordBook): String {
+        val title = VerseRangeFactory.fromString(book.versification, "Ps.3.0").start
+        return row(book.initials, "Ps.3.0", "extra-title-probe", if (book.contains(title)) "available" else "unavailable", if (book.contains(title)) "Included in verse sample" else "Module has no entry")
     }
 
     @Test fun realProducerSmoke() = runBlocking {
@@ -217,7 +236,7 @@ class K5OracleTest {
             }
             sections["speak.tsv"] = speak.toString(); sections["copy.tsv"] = copy.toString(); sections["canonical.tsv"] = canonical.toString()
             sections["search-highlight.tsv"] = highlight.toString(); sections["llm.tsv"] = llm.toString(); sections["commentary-blocks.tsv"] = commentary.toString(); sections["epub.tsv"] = epub()
-            sections["coverage.tsv"] = books.joinToString("") { row(it.initials, it.bookCategory.name, sample.getValue(it).size.toString()) }
+            sections["coverage.tsv"] = books.joinToString("") { row(it.initials, it.bookCategory.name, sample.getValue(it).size.toString()) } + bibles.joinToString("") { titleCoverage(it) }
             val dir = File(write ?: check!!)
             if (write != null) { dir.mkdirs(); sections.forEach { (name, text) -> File(dir, name).writeText(text) } }
             else { val failures = differences(dir, sections); assertTrue(failures.joinToString("\n"), failures.isEmpty()) }
@@ -307,9 +326,11 @@ class K5OracleTest {
     }
 
     private fun verses(book: SwordBook): List<Verse> {
-        val mandatory = listOf("Gen.1.1", "Ps.3.1", "Matt.5.3", "John.3.16", "Rev.22.21", "Ps.3.0")
+        val mandatory = listOf("Gen.1.1", "Ps.3.1", "Matt.5.3", "John.3.16", "Rev.22.21")
+        val title = VerseRangeFactory.fromString(book.versification, "Ps.3.0").start
+        val extra = if (book.contains(title)) listOf(title) else emptyList()
         val sampled = sample(book, 200).filterIsInstance<Verse>()
-        return (mandatory.map { VerseRangeFactory.fromString(book.versification, it).start } + sampled).distinctBy { it.getOsisID() }.take(200)
+        return (mandatory.map { VerseRangeFactory.fromString(book.versification, it).start } + extra + sampled).distinctBy { it.getOsisID() }.take(200)
     }
 
     private fun withExtraModules(action: () -> Unit) {

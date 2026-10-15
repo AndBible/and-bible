@@ -25,11 +25,10 @@ import net.bible.android.database.StyleSheet
 import net.bible.android.misc.elementToString
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.service.common.useSaxBuilder
-import net.bible.service.common.useXPathInstance
+import net.bible.service.common.XmlQueries
 import net.bible.service.sword.SwordContentFacade
 import org.jdom2.Document
 import org.jdom2.Element
-import org.jdom2.filter.Filters
 import java.io.File
 import java.net.URLDecoder
 import java.util.zip.GZIPOutputStream
@@ -49,17 +48,17 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     }
 
     fun fixReferences(e: Element): Element {
-        for(img in useXPathInstance { xp -> xp.compile("//svg:image[@xlink:href]", Filters.element(), null, svgNamespace, xlinkNamespace).evaluate(e) }) {
+        for(img in XmlQueries.svgImagesWithHref(e, svgNamespace, xlinkNamespace)) {
             val src = img.getAttribute("href", xlinkNamespace).value
             val finalSrc = epubSrc(src)
             img.setAttribute("href", finalSrc, xlinkNamespace)
         }
-        for(img in useXPathInstance { xp -> xp.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
+        for(img in XmlQueries.imgs(e, xhtmlNamespace)) {
             val src = img.getAttribute("src").value
             val finalSrc = epubSrc(src)
             img.setAttribute("src", finalSrc)
         }
-        for(a in useXPathInstance { xp -> xp.compile("//ns:a", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
+        for(a in XmlQueries.links(e, xhtmlNamespace)) {
             val href = a.getAttribute("href")?.value?: continue
             val fileAndId = getFileAndId(href)
             if(fileAndId != null && !urlRe.matches(href)) {
@@ -79,7 +78,7 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     return useSaxBuilder { it.build(file) }
         .let {
             val processed = fixReferences(it.rootElement)
-            val body = useXPathInstance { xp -> xp.compile("//ns:body", Filters.element(), null, xhtmlNamespace).evaluateFirst(processed) }
+            val body = XmlQueries.body(processed, xhtmlNamespace)
                 ?: return Pair(null, 0)
             val maxOrdinal = SwordContentFacade.addAnchors(body, getBookMetaData().language.code, true)
             Pair(it, maxOrdinal)
@@ -89,12 +88,7 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
 const val ORDINALS_PER_FRAGMENT = 500
 fun EpubBackendState.optimizeEpub() {
 
-    fun getSplitPoint(element: Document, splitPoint: Int): Element? = useXPathInstance { xp ->
-        xp.compile(
-            "//*[descendant::ns:BVA[@ordinal='$splitPoint'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]",
-            Filters.element(), null, xhtmlNamespace
-        ).evaluateFirst(element)
-    }
+    fun getSplitPoint(element: Document, splitPoint: Int): Element? = XmlQueries.splitPoint(element, splitPoint, xhtmlNamespace)
 
     fun removeSiblingsBefore(ele: Element) {
         val parent = ele.parentElement?: return
@@ -171,12 +165,7 @@ fun EpubBackendState.optimizeEpub() {
     }
 
     fun getOrdinalRange(doc: Document): IntRange? {
-        val bvas = useXPathInstance { xp ->
-            xp.compile(
-                "//ns:BVA",
-                Filters.element(), null, xhtmlNamespace
-            ).evaluate(doc)
-        }
+        val bvas = XmlQueries.bvas(doc, xhtmlNamespace)
         if(bvas.size == 0) return null
         return bvas.first().getAttribute("ordinal").intValue ..
             bvas.last().getAttribute("ordinal").intValue
@@ -193,23 +182,13 @@ fun EpubBackendState.optimizeEpub() {
     }
 
     fun findIds(frag: EpubFragment): List<String> {
-        val elemsWithId = useXPathInstance { xp ->
-            xp.compile(
-                "//*[@id]",
-                Filters.element(), null, xhtmlNamespace
-            ).evaluate(frag.element)
-        }
+        val elemsWithId = XmlQueries.elementsWithId(frag.element!!)
         return elemsWithId.map { it.getAttribute("id").value }
     }
 
     fun writeFragment(frag: EpubFragment) {
         val f = File(fragDir, frag.fragFileName)
-        val body = useXPathInstance { xp ->
-            xp.compile(
-                "//ns:body",
-                Filters.element(), null, xhtmlNamespace
-            ).evaluateFirst(frag.element)
-        }
+        val body = XmlQueries.body(frag.element!!, xhtmlNamespace)!!
         body.name = "div"
         val strContent = elementToString(body)
         f.outputStream().use {out ->

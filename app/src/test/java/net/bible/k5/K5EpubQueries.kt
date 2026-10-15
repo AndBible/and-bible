@@ -5,18 +5,17 @@ import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.Text
-import org.jdom2.filter.Filters
 import org.jdom2.input.SAXBuilder
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
-import org.jdom2.xpath.XPathFactory
+import net.bible.service.common.XmlQueries
+import org.jdom2.Parent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.xhtmlNamespace
 
 /** Site-labelled snapshots of the Task 11/14 authoritative XPath inventory, including short-circuited fallbacks. */
 internal object K5EpubQueries {
     fun capture(dir: File): String = buildString {
-        val xp = XPathFactory.instance()
         val out = XMLOutputter(Format.getRawFormat())
         val opf = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
         val dc = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
@@ -26,7 +25,30 @@ internal object K5EpubQueries {
         val xlink = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink")
         fun row(vararg cells: String) = cells.joinToString("\t") { it.replace("\\", "\\\\").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n") } + "\n"
         fun query(site: String, contextId: String, expression: String, context: Any, vararg ns: Namespace): List<Element> {
-            val results = xp.compile(expression, Filters.element(), null, *ns).evaluate(context)
+            val results = when (site) {
+                "backend.container" -> XmlQueries.rootfiles(context as Document, ns[0])
+                "backend.manifest" -> XmlQueries.manifestItems(context as Document, ns[0])
+                "backend.toc.ncx" -> XmlQueries.tocNcxItems(context as Document, ns[0])
+                "backend.toc.id" -> XmlQueries.tocIdItems(context as Document, ns[0])
+                "backend.toc.nav" -> XmlQueries.tocNavItems(context as Document, ns[0])
+                "backend.spine" -> XmlQueries.spineItemrefs(context as Document, ns[0])
+                "optimizer.svg" -> XmlQueries.svgImagesWithHref((context as Document).rootElement, ns[0], ns[1])
+                "optimizer.img" -> XmlQueries.imgs((context as Document).rootElement, ns[0])
+                "optimizer.link" -> XmlQueries.links((context as Document).rootElement, ns[0])
+                "optimizer.body", "optimizer.write.body" -> listOfNotNull(XmlQueries.body(context as Parent, ns[0]))
+                "facade.bva" -> XmlQueries.bvasBelow(if (context is Document) context.rootElement else context as Element, ns[0])
+                "optimizer.ids" -> XmlQueries.elementsWithId(context as Parent)
+                "optimizer.split" -> XmlQueries.splitPoints(context as Document, contextId.substringAfterLast('-').toInt(), ns[0])
+                "backend.index.bva", "backend.totalCharacters.bva", "optimizer.ordinalRange" -> XmlQueries.bvas(context as Parent, ns[0])
+                else -> when {
+                    site.startsWith("backend.metadata.") -> XmlQueries.dcElements(context as Document, site.substringAfterLast('.'), ns[0])
+                    site.endsWith(".content") -> XmlQueries.navPointContents(context as Document, ns[0])
+                    site.endsWith(".label") -> XmlQueries.navLabelTexts(context as Element, ns[0])
+                    else -> error("Unmapped production query site $site")
+                }
+            }
+            val reference = org.jdom2.xpath.XPathFactory.instance().compile(expression, org.jdom2.filter.Filters.element(), null, *ns).evaluate(context)
+            org.junit.Assert.assertEquals("Production query $site/$contextId differs from frozen jaxen contract", reference.map { out.outputString(it) }, results.map { out.outputString(it) })
             // Retain an explicit empty result, expression, count and ordered complete element values.
             append(row("query", site, contextId, expression, results.size.toString(), results.joinToString("\u001e") { out.outputString(it) }))
             return results
@@ -60,9 +82,9 @@ internal object K5EpubQueries {
             query("optimizer.img", "chapter$chapter", "//ns:img", original, xhtmlNamespace)
             query("optimizer.link", "chapter$chapter", "//ns:a", original, xhtmlNamespace)
             query("optimizer.body", "chapter$chapter", "//ns:body", original, xhtmlNamespace)
-            text("facade.text", "chapter$chapter", original, xp, out, ::row, this)
+            text("facade.text", "chapter$chapter", original.rootElement, out, ::row, this)
             val body = original.rootElement.getChild("body", xhtmlNamespace)
-            text("facade.text", "chapter$chapter-sub-element", body.children.first(), xp, out, ::row, this)
+            text("facade.text", "chapter$chapter-sub-element", body.children.first(), out, ::row, this)
             val anchored = original.clone()
             SwordContentFacade.addAnchors(anchored.rootElement.getChild("body", xhtmlNamespace), "en", true)
             val anchoredBody = anchored.rootElement.getChild("body", xhtmlNamespace)
@@ -74,14 +96,16 @@ internal object K5EpubQueries {
                 query("optimizer.ids", "$contextName-chapter$chapter", "//*[@id]", context)
                 query("optimizer.write.body", "$contextName-chapter$chapter", "//ns:body", context, xhtmlNamespace)
             }
-            val ordinals = xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(anchored).map { it.getAttributeValue("ordinal") }.distinct()
+            val ordinals = XmlQueries.bvas(anchored, xhtmlNamespace).map { it.getAttributeValue("ordinal") }.distinct()
             for (ordinal in ordinals) query("optimizer.split", "chapter$chapter-ordinal-$ordinal", "//*[descendant::ns:BVA[@ordinal='$ordinal'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]", anchored, xhtmlNamespace)
         }
     }
 
-    private fun text(site: String, contextId: String, context: Any, xp: XPathFactory, out: XMLOutputter, row: (Array<out String>) -> String, target: StringBuilder) {
+    private fun text(site: String, contextId: String, context: Element, out: XMLOutputter, row: (Array<out String>) -> String, target: StringBuilder) {
         val expression = ".//text()[not(ancestor::note)]"
-        val results: List<Text> = xp.compile(expression, Filters.text()).evaluate(context)
+        val results: List<Text> = XmlQueries.textsOutsideNotes(context)
+        val reference = org.jdom2.xpath.XPathFactory.instance().compile(expression, org.jdom2.filter.Filters.text()).evaluate(context)
+        org.junit.Assert.assertEquals("Production text query $contextId", reference.map { out.outputString(it) }, results.map { out.outputString(it) })
         target.append(row(arrayOf("query", site, contextId, expression, results.size.toString(), results.joinToString("\u001e") { out.outputString(it) })))
     }
 }

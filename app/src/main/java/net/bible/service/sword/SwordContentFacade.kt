@@ -63,8 +63,6 @@ import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.Text
-import org.jdom2.filter.Filters
-import org.jdom2.xpath.XPathFactory
 import org.xml.sax.ContentHandler
 import java.io.StringReader
 import java.util.*
@@ -305,7 +303,6 @@ class SwordContentFacade(
         }
 
 
-        private val textQuery = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text())
         private val ns =  Namespace.getNamespace("http://www.w3.org/1999/xhtml")
 
         // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
@@ -336,7 +333,7 @@ class SwordContentFacade(
                 }
             }
 
-            for(content in textQuery.evaluate(frag)) {
+            for(content in net.bible.service.common.XmlQueries.textsOutsideNotes(frag)) {
                 if(content.text.trim().isEmpty()) continue
                 val parent = content.parentElement
                 val textContents = splitSentences(content.text)
@@ -400,7 +397,6 @@ class SwordContentFacade(
             return ordinalRange.mapNotNull { map[it] }
         }
 
-        private val bvaQuery = XPathFactory.instance().compile(".//ns:BVA", Filters.element(), null, xhtmlNamespace)
 
         private fun cachedText(book: Book, key: Key, strings: CoreStrings): Map<Int, String> = synchronized(this) {
             val cacheKey = "${book.initials}-${key.getOsisRef()}"
@@ -411,7 +407,7 @@ class SwordContentFacade(
                     Log.e(TAG, "Could not read fragment", e)
                     return@run emptyMap()
                 }
-                val texts = bvaQuery.evaluate(frag).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
+                val texts = net.bible.service.common.XmlQueries.bvasBelow(frag, xhtmlNamespace).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
                 plainTextCache.put(cacheKey, texts)
                 texts
             }
