@@ -7730,7 +7730,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java),
-        ) { }
+            onErrorsChange = {},
+        )
         session.downloadManager = DownloadManager(
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java),
