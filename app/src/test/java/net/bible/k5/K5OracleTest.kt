@@ -171,6 +171,23 @@ class K5OracleTest {
         return row(book.initials, "Ps.3.0", "extra-title-probe", if (book.contains(title)) "available" else "unavailable", if (book.contains(title)) "Included in verse sample" else "Module has no entry")
     }
 
+    @Test fun realProducerSmokeReadsOwnedContentWhenAmbientGeneralBookIsEmpty() {
+        val registry = Books.installed()
+        val previous = registry.getBooks().filter { it.bookCategory == BookCategory.GENERAL_BOOK }
+        val empty = net.bible.service.sword.mydocument.createMyDocumentBook(
+            net.bible.android.database.mydocument.MyDocument(name = "Empty smoke document", initials = "MyDoc_K5EmptySmoke")
+        )
+        try {
+            previous.forEach { registry.removeBook(it) }
+            registry.addBook(empty)
+            assertFalse((empty.getGlobalKeyList() as Iterable<Key>).any { it.getOsisID().isNotBlank() })
+            realProducerSmoke()
+        } finally {
+            registry.removeBook(empty)
+            previous.forEach { registry.addBook(it) }
+        }
+    }
+
     @Test fun realProducerSmoke() = runBlocking {
         val book = Books.installed().getBook("KJV") as SwordBook
         val verse = VerseRangeFactory.fromString(book.versification, "John.3.16").start
@@ -178,9 +195,13 @@ class K5OracleTest {
         assertTrue(facade.getBibleSpeakCommands(SpeakSettings(), book, verse).isNotEmpty())
         assertTrue(SearchHighlighter.highlight(SwordContentFacade.readOsisFragment(book, verse, strings), listOf("God"), emptyList()).toString().contains("God"))
         assertEquals(200, verses(book).size)
-        val genBook = Books.installed().getBooks().firstOrNull { it.bookCategory == BookCategory.GENERAL_BOOK }
-        if (genBook != null) for (format in listOf("text", "xml")) {
-            tool(GetGenBookContentTool, genBook.initials, (genBook.getGlobalKeyList() as Iterable<Key>).first { it.getOsisID().isNotBlank() }.getOsisID(), format, "book", "key")
+        epub(capture = false) { genBook ->
+            val key = genBook.getGlobalKeyList().iterator().next().getOsisID()
+            for (format in listOf("text", "xml")) {
+                val result = tool(GetGenBookContentTool, genBook.initials, key, format, "book", "key")
+                assertTrue(result.contains("success"))
+                assertTrue("Owned EPUB $format result must retain chapter content", result.contains("Grace and peace"))
+            }
         }
         val isv = Books.installed().getBook("ISV") as SwordBook
         val block = CommentaryBlockResolver(SwordCommentaryWalker(isv, org.koin.core.context.GlobalContext.get().get())).resolveBlock(verse)
@@ -317,7 +338,7 @@ class K5OracleTest {
         return row(module, key, tool.javaClass.simpleName, format, result.toJson())
     }
 
-    private suspend fun epub(capture: Boolean = true): String {
+    private suspend fun epub(capture: Boolean = true, inspect: suspend (Book) -> Unit = {}): String {
         val tmp = kotlin.io.path.createTempDirectory("k5-epub").toFile()
         val name = "K5OracleFixture"
         val dir = File(File(SharedConstants.modulesDir, "epub"), name)
@@ -335,6 +356,7 @@ class K5OracleTest {
             val backend = book.epubBackend ?: error("Not an EPUB backend")
             // EpubBackendState performs optimization on construction when the source has no optimized data.
             check(backend.state.keys.size > 2) { "Long chapter did not split" }
+            inspect(book)
             if (!capture) return ""
             return buildString {
                 append(row("fixture", "source-sha256", digest(source.readBytes())))
