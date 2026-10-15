@@ -7,6 +7,9 @@ import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import androidx.compose.ui.platform.testTag
 import kotlinx.cinterop.ExperimentalForeignApi
+import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.sharedcore.bibleview.BridgeDispatcher
+import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.poc.LocalPocPaneCreated
 import net.bible.sharedui.poc.PocBibleViewController
@@ -63,19 +66,18 @@ private object IosWebViewHolder {
     private fun create(controller: PocBibleViewController): PaneEntry {
         val windowId = controller.windowId
         lateinit var webView: WKWebView
-        val sink = JsSink { js ->
+        val sink: (JsCall) -> Unit = { call ->
             dispatch_async(dispatch_get_main_queue()) {
                 try {
-                    webView.evaluateJavaScript(js, null)
+                    webView.evaluateJavaScript(call.js, null)
                 } catch (t: Throwable) {
                     nsLog("bridge[$windowId]: evaluateJavaScript failure $t")
                 }
             }
         }
-        val handlers = controller.handlers + ("console" to BridgeHandler { args, _ ->
-            nsLog("js[$windowId]: ${args.joinToString(" ")}")
-        })
-        val dispatcher = BridgeDispatcher(sink, { msg -> nsLog("bridge[$windowId]: $msg") }, handlers)
+        val log: (String) -> Unit = { msg -> nsLog("bridge[$windowId]: $msg") }
+        val bridge = controller.bridge(sink, log)
+        val dispatcher = BridgeDispatcher(bridge, { callId -> sink(BibleViewEvents.response(callId, null)) }, log)
         val handler = IosBridgeMessageHandler(dispatcher)
         val navDelegate = IosNavDelegate(windowId)
 
