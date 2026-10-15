@@ -72,4 +72,4 @@ Output: `BUILD SUCCESSFUL in 30s`. JUnit XML reports `tests=13`, `failures=0`, `
 
 Self-review confirmed the caller cancellation identity is restored only when the caller block recorded one, and a cancelled coroutine fails `ensureActive()` rather than having its cancellation replaced. The in-flight cancellation test verifies MockEngine cleanup. The controller's full JVM and both iOS compile gates were green on the initial commit; reruns after this fix are required and remain controller-owned. No independent reviewer/subagent was used.
 
-Fix commit: pending.
+Fix commit: `2910d1d63` (`D3: preserve caller cancellation through Ktor`), footer `Implemented by gpt-6-luna (Haiku role).`.
