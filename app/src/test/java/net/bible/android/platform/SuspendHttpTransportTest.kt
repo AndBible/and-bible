@@ -5,7 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
@@ -194,15 +194,16 @@ class SuspendHttpTransportTest {
         val fake = FakeHttp(hang = true, hangMetadata = hangMetadata)
         val body = body(fake)
         if (!hangMetadata) body.prepareRead()
-        val caller = async(Dispatchers.IO) {
-            runCatching { if (hangMetadata) body.status() else body.read(ByteArray(10)) }.exceptionOrNull()
+        val result = CompletableDeferred<Throwable?>()
+        val caller = launch(Dispatchers.IO) {
+            result.complete(runCatching { if (hangMetadata) body.status() else body.read(ByteArray(10)) }.exceptionOrNull())
         }
         withContext(Dispatchers.IO) {
             assertTrue(fake.entered.await(2, TimeUnit.SECONDS))
             if (!hangMetadata) assertTrue(fake.readEntered.await(2, TimeUnit.SECONDS))
         }
         caller.cancel()
-        val outcome = withTimeout(1_000) { caller.await() }
+        val outcome = withTimeout(1_000) { result.await() }
         assertTrue("got $outcome", outcome is CancellationException)
         assertFalse("a cancelled caller is not a transport cancellation", outcome is TransportCancelledException)
         finished(fake) // No close(): the caller's cancellation itself must release the open block.
