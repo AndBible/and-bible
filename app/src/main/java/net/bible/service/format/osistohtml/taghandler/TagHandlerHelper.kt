@@ -27,7 +27,7 @@ object TagHandlerHelper {
 
     /** support defaultvalue with attribute fetch
      */
-    fun getAttribute(attributeName: String?, attrs: Attributes, defaultValue: String): String {
+    fun getAttribute(attributeName: String, attrs: Attributes, defaultValue: String): String {
         val attrValue = attrs.getValue(attributeName)
         return attrValue ?: defaultValue
     }
@@ -49,7 +49,7 @@ object TagHandlerHelper {
 
     /** Return true if attribute contains the desiredValue in any case
      */
-    fun contains(attributeName: String?, attrs: Attributes, desiredValue: String?): Boolean {
+    fun contains(attributeName: String, attrs: Attributes, desiredValue: String?): Boolean {
         var attribContainsExpectedValue = false
         val attrValue = attrs.getValue(attributeName)
         if (attrValue != null) {
@@ -66,7 +66,7 @@ object TagHandlerHelper {
      * @return
      */
     @JvmStatic
-    fun isAttr(attributeName: String?, attrs: Attributes): Boolean {
+    fun isAttr(attributeName: String, attrs: Attributes): Boolean {
         val attrValue = attrs.getValue(attributeName)
         return StringUtils.isNotEmpty(attrValue)
     }

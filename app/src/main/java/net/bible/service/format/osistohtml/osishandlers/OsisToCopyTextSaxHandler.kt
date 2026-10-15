@@ -35,14 +35,14 @@ class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean, textPolicy: SaxTex
     private var currentVerseNumber: Int = 0
     private var writeChapter: String = ""
 
-    override fun startElement(namespaceURI: String?,
-                              sName: String?, // simple name
+    override fun startElement(namespaceURI: String,
+                              sName: String, // simple name
                               qName: String, // qualified name
-                              attrs: Attributes?) {
+                              attrs: Attributes) {
 
         when (getName(sName, qName)) {
             OSISUtil.OSIS_ELEMENT_CHAPTER -> {
-                if (attrs != null && showVerseNumbers) {
+                if (showVerseNumbers) {
                     val oldChapterNumber = currentChapterNumber
                     currentChapterNumber = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
                     if (oldChapterNumber > 0 && currentChapterNumber > oldChapterNumber) {
@@ -51,7 +51,7 @@ class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean, textPolicy: SaxTex
                 }
             }
             OSISUtil.OSIS_ELEMENT_VERSE -> {
-                if (attrs != null && showVerseNumbers) {
+                if (showVerseNumbers) {
                     val osisID = attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID)
                     currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(osisID)
 

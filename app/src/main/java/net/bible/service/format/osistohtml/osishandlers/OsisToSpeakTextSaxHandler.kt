@@ -25,7 +25,7 @@ import org.xml.sax.Attributes
  */
 class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: SaxTextPolicy) : OsisToCanonicalTextSaxHandler(textPolicy = textPolicy) {
     private var writingRef = false
-    override fun startElement(namespaceURI: String?, sName: String?, qName: String, attrs: Attributes?) {
+    override fun startElement(namespaceURI: String, sName: String, qName: String, attrs: Attributes) {
         val name = getName(sName, qName) // element name
         debug(name, attrs, true)
         if (sayReferences && name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
@@ -40,8 +40,8 @@ class OsisToSpeakTextSaxHandler(private val sayReferences: Boolean, textPolicy: 
      * Called when the Ending of the current Element is reached. For example in the
      * above explanation, this method is called when </Title> tag is reached
     */
-    override fun endElement(namespaceURI: String?,
-                            sName: String?,  // simple name
+    override fun endElement(namespaceURI: String,
+                            sName: String,  // simple name
                             qName: String // qualified name
     ) {
         val name = getName(sName, qName)

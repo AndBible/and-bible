@@ -40,8 +40,8 @@ open class OsisSaxHandler : DefaultHandler() {
         return writer.html
     }
 
-    protected fun getName(eName: String?, qName: String): String {
-        return if (eName != null && eName.length > 0) {
+    protected fun getName(eName: String, qName: String): String {
+        return if (eName.isNotEmpty()) {
             eName
         } else {
             qName // not namespace-aware
@@ -59,10 +59,7 @@ open class OsisSaxHandler : DefaultHandler() {
      * @param checkValue
      * @return
      */
-    protected fun isAttrValue(attrs: Attributes?, attrName: String?, checkValue: String): Boolean {
-        if (attrs == null) {
-            return false
-        }
+    protected fun isAttrValue(attrs: Attributes, attrName: String, checkValue: String): Boolean {
         val value = attrs.getValue(attrName)
         return checkValue == value
     }
