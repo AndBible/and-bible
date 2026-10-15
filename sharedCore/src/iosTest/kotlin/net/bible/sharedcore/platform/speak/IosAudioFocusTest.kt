@@ -63,9 +63,30 @@ class IosAudioFocusTest {
         val focus = IosAudioFocus({ session }, center)
         val oldEvents = mutableListOf<Boolean>()
         val newEvents = mutableListOf<Boolean>()
+        fun assertNoCallbacksAfterRefusal(request: String) {
+            center.postNotificationName(AVAudioSessionInterruptionNotification, session, mapOf(
+                AVAudioSessionInterruptionTypeKey to NSNumber(unsignedLong = AVAudioSessionInterruptionTypeBegan),
+            ))
+            center.postNotificationName(AVAudioSessionInterruptionNotification, session, mapOf(
+                AVAudioSessionInterruptionTypeKey to NSNumber(unsignedLong = AVAudioSessionInterruptionTypeEnded),
+                AVAudioSessionInterruptionOptionKey to NSNumber(unsignedLong = AVAudioSessionInterruptionOptionShouldResume),
+            ))
+            center.postNotificationName(AVAudioSessionRouteChangeNotification, session, mapOf(
+                AVAudioSessionRouteChangeReasonKey to NSNumber(unsignedLong = AVAudioSessionRouteChangeReasonOldDeviceUnavailable),
+            ))
+            assertEquals(emptyList(), oldEvents, "$request refusal must remove the original callback and observers")
+            assertEquals(emptyList(), newEvents, "$request refusal must not retain the replacement callback")
+            println("IosAudioFocusTest: $request request refused; both callbacks and observer absence checked")
+        }
         try {
-            if (!focus.requestAudioFocus { oldEvents += it }) return
-            if (!focus.requestAudioFocus { newEvents += it }) return
+            if (!focus.requestAudioFocus { oldEvents += it }) {
+                assertNoCallbacksAfterRefusal("First")
+                return
+            }
+            if (!focus.requestAudioFocus { newEvents += it }) {
+                assertNoCallbacksAfterRefusal("Second")
+                return
+            }
             center.postNotificationName(AVAudioSessionInterruptionNotification, session, mapOf(
                 AVAudioSessionInterruptionTypeKey to NSNumber(unsignedLong = AVAudioSessionInterruptionTypeBegan),
             ))
