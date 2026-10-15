@@ -78,7 +78,7 @@ class AndroidSpeakPlatform(private val context: Context) : SpeakPlatform {
         CurrentActivityHolder.currentActivity?.volumeControlStream = AudioManager.STREAM_MUSIC
     }
     override fun attachMediaControls(control: SpeakControl) =
-        MediaButtonHandler.initialize(control, AndroidMediaSession(context))
+        MediaButtonHandler.initialize(control, AndroidMediaSession(context) { control.isSpeaking })
     override fun detachMediaControls() = MediaButtonHandler.release()
     override fun bringReadingToFront() {
         context.startActivity(NavHostComposeActivity.intentFor(context, NavRoutes.READING).apply {

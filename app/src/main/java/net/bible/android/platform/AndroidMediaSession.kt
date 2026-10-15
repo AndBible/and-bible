@@ -16,7 +16,10 @@ import net.bible.sharedcore.platform.speak.MediaPlaybackState
 import net.bible.sharedcore.platform.speak.MediaSession
 
 /** Android media-session ownership, including the silent sound needed for media-button listening. */
-class AndroidMediaSession(private val context: Context) : MediaSession {
+class AndroidMediaSession(
+    private val context: Context,
+    private val isSpeaking: () -> Boolean,
+) : MediaSession {
     companion object {
         private const val TAG = "MediaButtons"
         var current: AndroidMediaSession? = null
@@ -24,7 +27,6 @@ class AndroidMediaSession(private val context: Context) : MediaSession {
     }
 
     private val subscriptions = Subscriptions()
-    private var lastState = MediaPlaybackState.STOPPED
     private val state = PlaybackStateCompat.Builder()
         .setActions(
             PlaybackStateCompat.ACTION_PLAY_PAUSE or PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE
@@ -59,15 +61,20 @@ class AndroidMediaSession(private val context: Context) : MediaSession {
             setMetadata(nothingPlaying)
         }
         current = this
+        // Temporary stops intentionally publish no media state, but still need the Android workaround.
+        subscriptions.add(net.bible.android.control.speak.SpeakChanges.changes.subscribeOnMain { change ->
+            if (change is net.bible.android.control.speak.SpeakChange.State && change.isTemporarilyStopped) {
+                makeTriggerSound()
+            }
+        })
         subscriptions.add(CurrentActivityHolder.appPositionChanges.subscribe { position ->
-            if (position == AppPosition.FOREGROUND && lastState == MediaPlaybackState.PLAYING) {
+            if (position == AppPosition.FOREGROUND && isSpeaking()) {
                 makeTriggerSound()
             }
         })
     }
 
     override fun setPlaybackState(state: MediaPlaybackState) {
-        lastState = state
         val androidState = when (state) {
             MediaPlaybackState.PLAYING -> PlaybackStateCompat.STATE_PLAYING
             MediaPlaybackState.PAUSED -> PlaybackStateCompat.STATE_PAUSED

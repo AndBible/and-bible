@@ -22,6 +22,7 @@ import org.robolectric.annotation.Config
 class MediaButtonAndroidSessionTest {
     private lateinit var session: AndroidMediaSession
     private var originalButtonsEnabled = true
+    private var speaking = false
     private val commands = object : MediaCommands {
         override fun play() = Unit
         override fun pause() = Unit
@@ -35,7 +36,7 @@ class MediaButtonAndroidSessionTest {
     @Before fun setUp() {
         originalButtonsEnabled = CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)
         CommonUtils.settings.setBoolean("enable_bluetooth_pref", false)
-        session = AndroidMediaSession(BibleApplication.application)
+        session = AndroidMediaSession(BibleApplication.application) { speaking }
         session.activate(commands)
     }
 
@@ -43,8 +44,56 @@ class MediaButtonAndroidSessionTest {
         try {
             session.release()
         } finally {
+            org.robolectric.shadows.ShadowMediaPlayer.setCreateListener(null)
             CommonUtils.settings.setBoolean("enable_bluetooth_pref", originalButtonsEnabled)
         }
+    }
+
+    @Test fun temporaryStopTriggersWithoutReplacingPublishedPlayingState() {
+        CommonUtils.settings.setBoolean("enable_bluetooth_pref", true)
+        var triggers = 0
+        org.robolectric.shadows.ShadowMediaPlayer.setCreateListener { _, _ -> triggers++ }
+        session.setPlaybackState(MediaPlaybackState.PLAYING)
+        triggers = 0
+        net.bible.android.control.speak.SpeakChanges.notifyState(
+            net.bible.android.control.speak.SpeakPlaybackState.TEMPORARY_STOP)
+        assertEquals(1, triggers)
+        assertEquals(PlaybackStateCompat.STATE_PLAYING, session.ms.controller.playbackState!!.state)
+    }
+
+    @Test fun foregroundDoesNotTriggerFromStalePublishedPlayingState() {
+        CommonUtils.settings.setBoolean("enable_bluetooth_pref", true)
+        var triggers = 0
+        org.robolectric.shadows.ShadowMediaPlayer.setCreateListener { _, _ -> triggers++ }
+        session.setPlaybackState(MediaPlaybackState.PLAYING)
+        net.bible.android.control.speak.SpeakChanges.notifyState(
+            net.bible.android.control.speak.SpeakPlaybackState.TEMPORARY_STOP)
+        triggers = 0
+        net.bible.android.view.activity.base.CurrentActivityHolder.notifyAppPosition(
+            net.bible.android.view.activity.base.AppPosition.FOREGROUND)
+        assertEquals(0, triggers)
+    }
+
+    @Test fun foregroundTriggersFromLiveSpeakingEvenWithoutPublishedPlayingState() {
+        CommonUtils.settings.setBoolean("enable_bluetooth_pref", true)
+        var triggers = 0
+        org.robolectric.shadows.ShadowMediaPlayer.setCreateListener { _, _ -> triggers++ }
+        speaking = true
+        net.bible.android.view.activity.base.CurrentActivityHolder.notifyAppPosition(
+            net.bible.android.view.activity.base.AppPosition.FOREGROUND)
+        assertEquals(1, triggers)
+    }
+
+    @Test fun disabledPreferenceSuppressesStateTemporaryStopAndForegroundTriggers() {
+        var triggers = 0
+        org.robolectric.shadows.ShadowMediaPlayer.setCreateListener { _, _ -> triggers++ }
+        session.setPlaybackState(MediaPlaybackState.PLAYING)
+        net.bible.android.control.speak.SpeakChanges.notifyState(
+            net.bible.android.control.speak.SpeakPlaybackState.TEMPORARY_STOP)
+        speaking = true
+        net.bible.android.view.activity.base.CurrentActivityHolder.notifyAppPosition(
+            net.bible.android.view.activity.base.AppPosition.FOREGROUND)
+        assertEquals(0, triggers)
     }
 
     @Test fun playbackStatesPreserveActionsPositionAndSpeed() {
@@ -66,7 +115,7 @@ class MediaButtonAndroidSessionTest {
     }
 
     @Test fun releasingAnOlderSessionDoesNotClearTheReceiverOwner() {
-        val newer = AndroidMediaSession(BibleApplication.application)
+        val newer = AndroidMediaSession(BibleApplication.application) { speaking }
         newer.activate(commands)
         try {
             session.release()
