@@ -19,10 +19,12 @@
 
 package net.bible.service.cloudsync.documents
 
+import okio.Path.Companion.toOkioPath
+import okio.sink
 import net.bible.sharedcore.log.Log
 import net.bible.service.cloudsync.CloudAdapter
-import net.bible.service.cloudsync.CloudFile
-import net.bible.service.cloudsync.DownloadProgressListener
+import net.bible.sharedcore.platform.cloud.CloudFile
+import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.common.asyncMap
 import java.io.File
 
@@ -64,7 +66,7 @@ class DocumentStore(
     private suspend fun downloadMeta(metaFile: CloudFile): DocumentSyncMeta? {
         val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         return try {
-            tmp.outputStream().use { adapter.download(metaFile.id, it) }
+            tmp.outputStream().use { adapter.download(metaFile.id, it.sink()) }
             DocumentSyncMeta.fromJson(tmp.readText())
         } catch (e: Exception) {
             Log.e(TAG, "Failed reading meta ${metaFile.id}", e); null
@@ -113,7 +115,7 @@ class DocumentStore(
         val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         try {
             tmp.writeText(meta.toJson())
-            adapter.upload(DOCUMENT_META_FILENAME, tmp, folderId)
+            adapter.upload(DOCUMENT_META_FILENAME, tmp.toOkioPath(), folderId)
         } finally { tmp.delete() }
     }
 
@@ -121,7 +123,7 @@ class DocumentStore(
         val folderId = ensureFolder(meta.initials)
         val archiveName = "${meta.version}.abmd.zip"
         // upload archive first; only then commit meta.json pointing at it
-        adapter.upload(archiveName, archive, folderId)
+        adapter.upload(archiveName, archive.toOkioPath(), folderId)
         // remove older archives (keep only newest version)
         adapter.listFiles(parentsIds = listOf(folderId))
             .filter { it.name.endsWith(".abmd.zip") && it.name != archiveName }
@@ -141,7 +143,7 @@ class DocumentStore(
             ?: return null
         val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         try {
-            tmp.outputStream().use { adapter.download(file.id, it, onProgress) }
+            tmp.outputStream().use { adapter.download(file.id, it.sink(), onProgress) }
         } catch (e: Exception) {
             // The temp file was created before the download; delete it so a failed (e.g. network
             // drop) download doesn't leak a potentially large orphan in the tmp dir.

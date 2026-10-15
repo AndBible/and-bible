@@ -17,6 +17,9 @@
 
 package net.bible.service.cloudsync
 
+import okio.Path.Companion.toOkioPath
+import net.bible.sharedcore.platform.cloud.CloudFile
+import okio.sink
 import net.bible.sharedcore.platform.CoreStrings
 
 import net.bible.sharedcore.log.Log
@@ -294,7 +297,7 @@ class CloudSync(
         Log.i(TAG, "uploading initial db, ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
         val result = adapter.upload(
             name = INITIAL_BACKUP_FILENAME,
-            file = gzippedTmpFile,
+            file = gzippedTmpFile.toOkioPath(),
             parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         )
         dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, 0, result.size, result.createdTime))
@@ -312,7 +315,7 @@ class CloudSync(
             )
             .first()
         val gzippedTmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
-        gzippedTmpFile.outputStream().use { adapter.download(initialFile.id, it) }
+        gzippedTmpFile.outputStream().use { adapter.download(initialFile.id, it.sink()) }
         Log.i(TAG, "Downloaded initial db for ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
         val tmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         net.bible.service.common.ArchiveUtils.gunzipFile(gzippedTmpFile, tmpFile)
@@ -546,7 +549,7 @@ class CloudSync(
             Log.i(TAG, "Downloading ${f.file.name}, ${f.file.size} bytes")
             val tmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
             tmpFile.outputStream().use {
-                adapter.download(f.file.id, it)
+                adapter.download(f.file.id, it.sink())
             }
             tmpFile
         }
@@ -569,7 +572,7 @@ class CloudSync(
         val lastWritten = System.currentTimeMillis();
 
         val result = try {
-            adapter.upload(fileName, file, syncDeviceFolderId)
+            adapter.upload(fileName, file.toOkioPath(), syncDeviceFolderId)
         } catch (e: Exception) {
             Log.e(TAG, "Uploading failed due to error", e)
             file.delete()

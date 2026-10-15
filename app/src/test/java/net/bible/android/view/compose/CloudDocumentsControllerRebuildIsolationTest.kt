@@ -22,12 +22,13 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import java.io.IOException
-import java.io.OutputStream
+import okio.Path
+import okio.Sink
 import net.bible.android.database.SyncConfiguration
 import net.bible.service.cloudsync.CloudAdapter
-import net.bible.service.cloudsync.CloudFile
+import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.cloudsync.DownloadProgressListener
+import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import org.robolectric.android.controller.ActivityController
 import java.io.File
@@ -165,9 +166,9 @@ class CloudDocumentsControllerRebuildIsolationTest {
         override suspend fun signOut(): Unit = error("unexpected signOut")
         override suspend fun get(id: String): CloudFile = error("unexpected get")
         override suspend fun getFolders(parentId: String): List<CloudFile> = error("unexpected getFolders")
-        override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?): Unit = error("unexpected download")
+        override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?): Unit = error("unexpected download")
         override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = error("unexpected createNewFolder")
-        override suspend fun upload(name: String, file: File, parentId: String): CloudFile = error("unexpected upload")
+        override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = error("unexpected upload")
         override suspend fun delete(id: String): Unit = error("unexpected delete")
         override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean = error("unexpected isSyncFolderKnown")
         override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Unit = error("unexpected makeSyncFolderKnown")

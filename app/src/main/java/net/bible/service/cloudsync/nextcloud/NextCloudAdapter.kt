@@ -34,8 +34,8 @@ import kotlinx.coroutines.withContext
 import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
-import net.bible.service.cloudsync.CloudFile
-import net.bible.service.cloudsync.DownloadProgressListener
+import net.bible.sharedcore.platform.cloud.CloudFile
+import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.TAG
@@ -44,7 +44,10 @@ import net.bible.service.common.asyncMap
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.OutputStream
+import okio.Path
+import okio.Path.Companion.toOkioPath
+import okio.Sink
+import okio.buffer
 import java.util.UUID
 import kotlin.collections.List
 import kotlin.coroutines.resume
@@ -211,17 +214,19 @@ class NextCloudAdapter(
     override suspend fun getFolders(parentId: String): List<CloudFile> =
         listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
 
-    override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?) {
-        val tmpFile = File(CommonUtils.tmpDir, id)
-        val operation = DownloadFileRemoteOperation(id, CommonUtils.tmpDir.absolutePath)
-        // A failed download previously fell through to readBytes() below, surfacing as a bare
-        // FileNotFoundException on the temp file rather than the actual server error.
-        operation.executeForData()
-        val bytes = tmpFile.readBytes()
-        outputStream.write(bytes)
-        // This adapter downloads in one shot (no chunked progress), so just report the final size.
-        onProgress?.invoke(bytes.size.toLong())
-        tmpFile.delete()
+    override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) {
+        sink.buffer().outputStream().use { outputStream ->
+            val tmpFile = File(CommonUtils.tmpDir, id)
+            val operation = DownloadFileRemoteOperation(id, CommonUtils.tmpDir.absolutePath)
+            // A failed download previously fell through to readBytes() below, surfacing as a bare
+            // FileNotFoundException on the temp file rather than the actual server error.
+            operation.executeForData()
+            val bytes = tmpFile.readBytes()
+            outputStream.write(bytes)
+            // This adapter downloads in one shot (no chunked progress), so just report the final size.
+            onProgress?.invoke(bytes.size.toLong())
+            tmpFile.delete()
+        }
     }
 
     override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
@@ -238,11 +243,12 @@ class NextCloudAdapter(
         )
     }
 
-    override suspend fun upload(name: String, file: File, parentId: String): CloudFile {
+    override suspend fun upload(name: String, file: Path, parentId: String): CloudFile {
+        val f = file.toFile()
         val remotePath = "$parentId/$name"
         val createdTimeSeconds = System.currentTimeMillis() / 1000
         UploadFileRemoteOperation(
-            file.absolutePath,
+            f.absolutePath,
             remotePath,
             GZIP_MIMETYPE,
             createdTimeSeconds,
@@ -250,7 +256,7 @@ class NextCloudAdapter(
         return CloudFile(
             id = remotePath,
             name = name,
-            size = file.length(),
+            size = f.length(),
             createdTime = createdTimeSeconds*1000,
             parentId = parentId
         )
@@ -279,7 +285,7 @@ class NextCloudAdapter(
         Log.i(TAG, "Making NextCloud sync folder known")
         val secretFileName = "device-known-${CommonUtils.deviceIdentifier}-${UUID.randomUUID()}"
         val tmpFile = File.createTempFile("ng-secret", null)
-        val result = upload(secretFileName, tmpFile, id)
+        val result = upload(secretFileName, tmpFile.toOkioPath(), id)
         Log.i(TAG, "Result: $result")
         tmpFile.delete()
         dbDef.dao.setConfig(NEXTCLOUD_SECRET_FILE_NAME_KEY, secretFileName)

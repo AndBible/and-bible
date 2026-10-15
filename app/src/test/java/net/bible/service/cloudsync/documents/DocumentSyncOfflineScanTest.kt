@@ -24,9 +24,9 @@ import net.bible.android.database.CachedCloudDocument
 import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
-import net.bible.service.cloudsync.CloudFile
+import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.cloudsync.DownloadProgressListener
+import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.db.DatabaseContainer
 import org.junit.After
@@ -36,9 +36,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.File
 import java.io.IOException
-import java.io.OutputStream
+import okio.Path
+import okio.Sink
 
 /**
  * Regression test for OSTicket 3362: opening the document-sync management view while signed in but
@@ -68,9 +68,9 @@ class DocumentSyncOfflineScanTest {
         override suspend fun signOut() = throw NotImplementedError()
         override suspend fun get(id: String): CloudFile = throw NotImplementedError()
         override suspend fun getFolders(parentId: String): List<CloudFile> = throw NotImplementedError()
-        override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?) = throw NotImplementedError()
+        override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) = throw NotImplementedError()
         override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = throw NotImplementedError()
-        override suspend fun upload(name: String, file: File, parentId: String): CloudFile = throw NotImplementedError()
+        override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = throw NotImplementedError()
         override suspend fun delete(id: String) = throw NotImplementedError()
         override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean = throw NotImplementedError()
         override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) = throw NotImplementedError()
