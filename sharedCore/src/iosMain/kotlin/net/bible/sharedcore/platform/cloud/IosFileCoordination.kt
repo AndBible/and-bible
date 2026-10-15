@@ -65,6 +65,8 @@ class IosFileCoordination : FileCoordination {
         }
         if (!ubiquitous) return@withContext
         fun isCurrent(): Boolean = memScoped {
+            // NSURL caches resource values; every poll must observe the download's latest state.
+            url.removeCachedResourceValueForKey(NSURLUbiquitousItemDownloadingStatusKey)
             val value = alloc<ObjCObjectVar<Any?>>().apply { this.value = null }
             val error = alloc<ObjCObjectVar<NSError?>>().apply { this.value = null }
             val success = url.getResourceValue(value.ptr, NSURLUbiquitousItemDownloadingStatusKey, error.ptr)
