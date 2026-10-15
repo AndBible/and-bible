@@ -20,42 +20,61 @@ package net.bible.service.device.speak
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
-import net.bible.sharedcore.log.Log
 import androidx.media.session.MediaButtonReceiver
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
-import net.bible.android.view.activity.base.AppPosition
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.control.speak.SpeakControl
-import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.service.common.CommonUtils
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.platform.AndroidMediaSession
+import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.event.Subscriptions
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.platform.speak.MediaCommands
+import net.bible.sharedcore.platform.speak.MediaPlaybackState
+import net.bible.sharedcore.platform.speak.MediaSession
 
 class AndBibleMediaButtonReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         CommonUtils.initializeApp()
         Log.i("MediaButtons", "MediaButtonReceiver onReceive")
-        val handler = MediaButtonHandler.handler
-        if(handler != null) {
-            MediaButtonReceiver.handleIntent(handler.ms, intent)
-        }
+        AndroidMediaSession.current?.let { MediaButtonReceiver.handleIntent(it.ms, intent) }
     }
 }
 
+/** Today's media-button to speech mapping, separated from the platform media session. */
+internal class SpeakMediaCommands(
+    private val pause: () -> Unit,
+    private val continueLastPosition: () -> Unit,
+    private val stop: () -> Unit,
+    private val forward: (SpeakSettings.RewindAmount) -> Unit,
+    private val rewind: (SpeakSettings.RewindAmount) -> Unit,
+    private val buttonsEnabled: () -> Boolean,
+) : MediaCommands {
+    override fun play() { if (buttonsEnabled()) continueLastPosition() }
+    override fun pause() = pause.invoke()
+    override fun stop() = stop.invoke()
+    override fun next() = forward(SpeakSettings.RewindAmount.SMART)
+    override fun previous() = rewind(SpeakSettings.RewindAmount.SMART)
+    override fun fastForward() = forward(SpeakSettings.RewindAmount.ONE_VERSE)
+    override fun rewind() = rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+}
 
-class MediaButtonHandler(val speakControl: SpeakControl) {
+/** Null means this change must leave the media session's current state intact. */
+internal fun mediaStateFor(change: SpeakChange.State): MediaPlaybackState? = when {
+    change.isPaused -> MediaPlaybackState.PAUSED
+    change.isStopped -> MediaPlaybackState.STOPPED
+    change.isSpeaking -> MediaPlaybackState.PLAYING
+    else -> null
+}
+
+class MediaButtonHandler(speakControl: SpeakControl, private val session: MediaSession) {
     companion object {
         const val TAG = "MediaButtons"
         var handler: MediaButtonHandler? = null
-        fun initialize(speakControl: SpeakControl) {
-            if(!application.isRunningTests && CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)) {
-                handler = MediaButtonHandler(speakControl)
+        fun initialize(speakControl: SpeakControl, session: MediaSession) {
+            if (!application.isRunningTests && CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)) {
+                handler = MediaButtonHandler(speakControl, session)
             }
         }
         fun release() {
@@ -66,116 +85,25 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
 
     private val subscriptions = Subscriptions()
 
-    private val state: PlaybackStateCompat = PlaybackStateCompat.Builder()
-        .setActions(
-            PlaybackStateCompat.ACTION_PLAY_PAUSE or PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE
-                or PlaybackStateCompat.ACTION_STOP or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-                or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_FAST_FORWARD
-                or PlaybackStateCompat.ACTION_REWIND
-        )
-        .setState(PlaybackStateCompat.STATE_STOPPED, 0, 1f)
-        .build()
-
-    private val nothingPlaying: MediaMetadataCompat = MediaMetadataCompat.Builder()
-        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "")
-        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
-        .build()
-
-    val cb = object : MediaSessionCompat.Callback() {
-        override fun onPause() {
-            Log.i(TAG, "onPause")
-            speakControl.pause()
-        }
-
-        override fun onPlay() {
-            Log.i(TAG, "onPlay")
-            if(!CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)) return
-            speakControl.continueLastPosition()
-        }
-
-        override fun onStop() {
-            Log.i(TAG, "onStop")
-            speakControl.stop()
-        }
-
-        override fun onSkipToNext() {
-            Log.i(TAG, "onSkipToNext")
-            speakControl.forward(SpeakSettings.RewindAmount.SMART)
-        }
-
-        override fun onSkipToPrevious() {
-            Log.i(TAG, "onSkipToPrevious")
-            speakControl.rewind(SpeakSettings.RewindAmount.SMART)
-        }
-
-        override fun onFastForward() {
-            Log.i(TAG, "onFastForward")
-            speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-        }
-
-        override fun onRewind() {
-            Log.i(TAG, "onFastForward")
-            speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-        }
-    }
-    var ms = MediaSessionCompat(application, TAG).apply {
-        setCallback(cb)
-        setPlaybackState(state)
-        isActive = true
-        setMetadata(nothingPlaying)
-    }
-
     init {
-        subscriptions.add(CurrentActivityHolder.appPositionChanges.subscribe { position ->
-            if(position == AppPosition.FOREGROUND && speakControl.isSpeaking) {
-                makeTriggerSound()
-            }
-        })
+        session.activate(SpeakMediaCommands(
+            speakControl::pause, speakControl::continueLastPosition, speakControl::stop,
+            speakControl::forward, speakControl::rewind,
+        ) { CommonUtils.settings.getBoolean("enable_bluetooth_pref", true) })
         subscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
             when (change) {
                 SpeakChange.Status -> Unit
                 is SpeakChange.State -> {
-                    val event = change
-                    Log.i(TAG, "playback state ${event.speakState}")
-                    when {
-                        event.isPaused -> setState(PlaybackStateCompat.STATE_PAUSED)
-                        event.isStopped -> setState(PlaybackStateCompat.STATE_STOPPED)
-                        event.isSpeaking -> setState(PlaybackStateCompat.STATE_PLAYING)
-                    }
-                    makeTriggerSound()
+                    Log.i(TAG, "playback state ${change.speakState}")
+                    mediaStateFor(change)?.let(session::setPlaybackState)
                 }
-                is SpeakChange.Progress -> {
-                    val ev = change
-                    ms.setMetadata(
-                        MediaMetadataCompat.Builder(nothingPlaying)
-                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, ev.book.name)
-                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, ev.key.getName())
-                            .build()
-                    )
-                }
+                is SpeakChange.Progress -> session.setNowPlaying(change.key.getName(), change.book.name)
             }
         })
     }
 
-    private fun makeTriggerSound() {
-        // Hack to make media button listening work!
-        // https://stackoverflow.com/questions/45960265/android-o-oreo-8-and-higher-media-buttons-issue
-        if(!CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)) return
-        MediaPlayer.create(application, R.raw.silence)?.run {
-            setOnCompletionListener { release() }
-            start()
-        }
-    }
-
-    fun setState(s: Int) {
-        return ms.setPlaybackState(PlaybackStateCompat.Builder(state).setState(s, 0, 1f).build())
-    }
-
     fun release() {
         subscriptions.cancelAll()
-        ms.run {
-            isActive = false
-            release()
-        }
+        session.release()
     }
 }

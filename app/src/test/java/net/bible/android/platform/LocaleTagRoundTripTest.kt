@@ -16,6 +16,7 @@ import java.util.Locale
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class LocaleTagRoundTripTest {
+    @Suppress("DEPRECATION") // Legacy constructor inputs exercise the existing TTS locale round trip.
     private val locales = listOf(
         Locale("iw"), Locale("he"), Locale("grc"), Locale("en", "GB"),
         Locale.forLanguageTag("zh-Hant-TW"), Locale("fi"), Locale.ENGLISH, Locale.getDefault(),

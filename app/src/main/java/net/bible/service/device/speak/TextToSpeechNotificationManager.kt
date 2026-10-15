@@ -302,7 +302,7 @@ class TextToSpeechNotificationManager : KoinComponent {
             .setShowActionsInCompactView(2)
 
         if(!CommonUtils.isDiscrete) {
-            MediaButtonHandler.handler?.ms?.sessionToken?.apply { style.setMediaSession(this) }
+            net.bible.android.platform.AndroidMediaSession.current?.ms?.sessionToken?.apply { style.setMediaSession(this) }
         }
 
         val builder = NotificationCompat.Builder(app, if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SPEAK_NOTIFICATIONS_CHANNEL)
