@@ -22,7 +22,7 @@ import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper
 
 import net.bible.service.format.SaxTextPolicy
 import org.crosswire.jsword.book.OSISUtil
-import org.xml.sax.Attributes
+import fi.sykero.kdom.sax.Attributes
 
 /**
  * Convert OSIS input into text (for copying and sharing verses)
@@ -35,14 +35,14 @@ class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean, textPolicy: SaxTex
     private var currentVerseNumber: Int = 0
     private var writeChapter: String = ""
 
-    override fun startElement(namespaceURI: String?,
-                              sName: String?, // simple name
+    override fun startElement(namespaceURI: String,
+                              sName: String, // simple name
                               qName: String, // qualified name
-                              attrs: Attributes?) {
+                              attrs: Attributes) {
 
         when (getName(sName, qName)) {
             OSISUtil.OSIS_ELEMENT_CHAPTER -> {
-                if (attrs != null && showVerseNumbers) {
+                if (showVerseNumbers) {
                     val oldChapterNumber = currentChapterNumber
                     currentChapterNumber = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
                     if (oldChapterNumber > 0 && currentChapterNumber > oldChapterNumber) {
@@ -51,12 +51,12 @@ class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean, textPolicy: SaxTex
                 }
             }
             OSISUtil.OSIS_ELEMENT_VERSE -> {
-                if (attrs != null && showVerseNumbers) {
+                if (showVerseNumbers) {
                     val osisID = attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID)
                     currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(osisID)
 
                     // if block necessary for JUnit tests and quite possibly will be needed in some cases in production
-                    if (currentChapterNumber == 0) {
+                    if (currentChapterNumber == 0 && osisID != null) {
                         val parts = osisID.split("\\.".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
                         if (parts.size > 2) {
                             val chapter = parts[parts.size - 2]

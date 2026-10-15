@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import fi.sykero.kdom.input.build
 import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -31,7 +32,7 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import net.bible.service.llm.AgentTool
 import net.bible.android.database.IdType
-import net.bible.service.common.useSaxBuilder
+import net.bible.service.common.useKdomBuilder
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.OsisToPlainText
 import net.bible.service.llm.AgentPrompt
@@ -713,7 +714,7 @@ class AgentExecutor(
             // Add selected content if available (converted from OSIS XML to plain text)
             if (context.selectedContent != null) {
                 val plainText = try {
-                    val fragment = useSaxBuilder { it.build(StringReader(context.selectedContent)).rootElement }
+                    val fragment = useKdomBuilder { it.build(StringReader(context.selectedContent)).rootElement }
                     OsisToPlainText.convert(fragment, injectAnchors = !prompt.isTextTransformation)
                 } catch (_: Exception) {
                     context.selectedContent

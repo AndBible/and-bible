@@ -24,7 +24,7 @@ class BibleSpeakPhrasesTest {
                 advanced.replaceDivineName = replace
                 val handler = OsisToBibleSpeak(SpeakSettings(), phrases, advanced, 4000, SaxTextPolicy.MODERN)
                 handler.startDocument()
-                handler.startElement("", "", "divineName", null)
+                handler.startElement("", "", "divineName", fi.sykero.kdom.sax.AttributesImpl())
                 handler.characters("NAME".toCharArray(), 0, 4)
                 handler.endElement("", "", "divineName")
                 handler.endDocument()

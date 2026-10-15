@@ -17,13 +17,14 @@
 
 package net.bible.service.llm.tools.read
 
+import fi.sykero.kdom.input.build
 import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
 import net.bible.service.llm.encodeUriComponent
 import kotlinx.serialization.Serializable
-import net.bible.service.common.useSaxBuilder
+import net.bible.service.common.useKdomBuilder
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -227,7 +228,7 @@ object GetCommentariesTool : Tool, KoinComponent {
                             xml == null -> null
                             useXml -> xml
                             else -> OsisToPlainText.convert(
-                                useSaxBuilder { it.build(StringReader(xml)).rootElement },
+                                useKdomBuilder { it.build(StringReader(xml)).rootElement },
                                 injectAnchors = true
                             )
                         }

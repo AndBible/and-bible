@@ -17,8 +17,8 @@
 package net.bible.service.format.osistohtml.osishandlers
 
 import net.bible.service.format.osistohtml.TextWriter
-import org.xml.sax.Attributes
-import org.xml.sax.helpers.DefaultHandler
+import fi.sykero.kdom.sax.Attributes
+import fi.sykero.kdom.sax.DefaultHandler
 
 /**
  * Convert OSIS input into Canonical text (used when creating search index)
@@ -40,8 +40,8 @@ open class OsisSaxHandler : DefaultHandler() {
         return writer.html
     }
 
-    protected fun getName(eName: String?, qName: String): String {
-        return if (eName != null && eName.length > 0) {
+    protected fun getName(eName: String, qName: String): String {
+        return if (eName.isNotEmpty()) {
             eName
         } else {
             qName // not namespace-aware
@@ -59,10 +59,7 @@ open class OsisSaxHandler : DefaultHandler() {
      * @param checkValue
      * @return
      */
-    protected fun isAttrValue(attrs: Attributes?, attrName: String?, checkValue: String): Boolean {
-        if (attrs == null) {
-            return false
-        }
+    protected fun isAttrValue(attrs: Attributes, attrName: String, checkValue: String): Boolean {
         val value = attrs.getValue(attrName)
         return checkValue == value
     }

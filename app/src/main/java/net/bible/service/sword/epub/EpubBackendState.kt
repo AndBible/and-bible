@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.epub
 
+import fi.sykero.kdom.input.build
 import net.bible.service.db.blockingAtEdge
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
@@ -31,8 +32,8 @@ import net.bible.android.SharedConstants
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubMeta
-import net.bible.service.common.useSaxBuilder
-import net.bible.service.common.useXPathInstance
+import net.bible.service.common.useKdomBuilder
+import net.bible.service.common.XmlQueries
 import net.bible.service.sword.BookAndKey
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -42,8 +43,7 @@ import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
-import org.jdom2.Namespace
-import org.jdom2.filter.Filters
+import fi.sykero.kdom.Namespace
 import java.io.File
 import java.io.StringReader
 import java.net.URLDecoder
@@ -82,73 +82,34 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     private val tocNamespace = Namespace.getNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/")
 
     private val metaInfoFile = File(epubDir, "META-INF/container.xml")
-    private val metaInfo = useSaxBuilder {  it.build(metaInfoFile) }
-    private val contentFileName = useXPathInstance { xp ->
-        xp.compile("//ns:rootfile", Filters.element(), null, containerNamespace)
-            .evaluateFirst(metaInfo)
-            .getAttribute("full-path").value
-    }
+    private val metaInfo = useKdomBuilder {  it.build(metaInfoFile) }
+    private val contentFileName = XmlQueries.rootfiles(metaInfo, containerNamespace).first().getAttribute("full-path")!!.value
 
     private val contentXmlFile = File(epubDir, contentFileName)
     val rootFolder: File = contentXmlFile.parentFile!!
 
-    private val content = useSaxBuilder { it.build(contentXmlFile) }
-    internal val fileToId = useXPathInstance { xp ->
-        xp.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
-            .evaluate(content).associate {
-                val fileName = URLDecoder.decode(it.getAttribute("href").value, "UTF-8")
-                fileName to it.getAttribute("id").value
-            }
+    private val content = useKdomBuilder { it.build(contentXmlFile) }
+    internal val fileToId = XmlQueries.manifestItems(content, epubNamespace).associate {
+        val fileName = URLDecoder.decode(it.getAttribute("href")!!.value, "UTF-8")
+        fileName to it.getAttribute("id")!!.value
     }
 
     internal val idToFile = fileToId.entries.associate { it.value to it.key }
 
-    private val tocFile = useXPathInstance { xp ->
-        val elem =
-            xp.compile(
-                "//ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']",
-                Filters.element(),
-                null,
-                epubNamespace
-            ).evaluateFirst(content) ?:
-            xp.compile(
-                "//ns:manifest/ns:item[@id='toc']",
-                Filters.element(),
-                null,
-                epubNamespace
-            ).evaluateFirst(content) ?:
-            xp.compile(
-                "//ns:manifest/ns:item[@properties='nav']",
-                Filters.element(),
-                null,
-                epubNamespace
-            ).evaluateFirst(content)
+    private val tocFile = XmlQueries.tocItem(content, epubNamespace)?.getAttribute("href")?.value?.let { File(rootFolder, it) }
 
-        elem?.getAttribute("href")?.value?.run { File(rootFolder, this) }
+    private val toc = tocFile?.run { useKdomBuilder { it.build(this) } }
+
+    internal val fileToTitle = toc?.let { document ->
+        XmlQueries.navPointContents(document, tocNamespace).reversed().associate {
+            val textElem = XmlQueries.navLabelTexts(it, tocNamespace).first()
+            val fileAndId = getFileAndId(it.getAttribute("src")!!.value)
+            val fileName = fileAndId?.first?.let { name -> URLDecoder.decode(name, "UTF-8") }
+            fileName to textElem.text
+        }
     }
 
-    private val toc = tocFile?.run { useSaxBuilder { it.build(this) } }
-
-    internal val fileToTitle = toc?.run { useXPathInstance { xp ->
-        xp.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
-            .evaluate(this)
-            .reversed()
-            .associate {
-                val textElem =
-                    useXPathInstance { xp2 ->
-                        xp2.compile("../ns:navLabel/ns:text", Filters.element(), null, tocNamespace)
-                            .evaluateFirst(it)
-                    }
-                val fileAndId = getFileAndId(it.getAttribute("src").value)
-                val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
-                fileName to textElem.text
-            }
-    } }
-
-    private fun queryMetadata(key: String): String? = useXPathInstance { xp ->
-        xp.compile ("//dc:$key", Filters.element(), null, dcNamespace)
-            .evaluateFirst(content)?.value
-    }
+    private fun queryMetadata(key: String): String? = XmlQueries.dcElements(content, key, dcNamespace).firstOrNull()?.value
 
     private fun fragmentBlocking(key: Key): EpubFragment? = blockingAtEdge { dao.getFragment(key.getOsisRef().toLong()) } // L1-edge: JSword synchronous Backend contract
 
@@ -173,18 +134,11 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
         // Check if toc is null and return an empty list if it is
         if (toc == null) return emptyList()
 
-        val content = useXPathInstance { xp ->
-            xp.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
-                .evaluate(toc)
-        }
+        val content = XmlQueries.navPointContents(toc, tocNamespace)
         val book = Books.installed().getBook(getBookMetaData().initials)
         return content.mapNotNull { c ->
-            val label =
-                useXPathInstance { xp2 ->
-                    xp2.compile("../ns:navLabel/ns:text", Filters.element(), null, tocNamespace)
-                        .evaluateFirst(c)
-                }?.text
-            val fileAndId = getFileAndId(c.getAttribute("src").value)
+            val label = XmlQueries.navLabelTexts(c, tocNamespace).firstOrNull()?.text
+            val fileAndId = getFileAndId(c.getAttribute("src")!!.value)
             val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
             val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
             val id = fileToId[fileName] ?: return@mapNotNull null
@@ -227,9 +181,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
 
     val cardinality get() = keys.size
 
-    internal val originalIds: List<String> get() = useXPathInstance { xp ->
-        xp.compile("//ns:spine/ns:itemref", Filters.element(), null, epubNamespace).evaluate(content)
-    }.map { it.getAttribute("idref").value }
+    internal val originalIds: List<String> get() = XmlQueries.spineItemrefs(content, epubNamespace).map { it.getAttribute("idref")!!.value }
 
     val keys: List<Key> get() = blockingAtEdge { dao.fragments() }.map { getKey(it) } // L1-edge: JSword synchronous Backend contract
 
@@ -319,9 +271,9 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
                 val frag = frags[i]
                 job.work = i
                 val reader = StringReader(readFragment(frag))
-                val doc = useSaxBuilder { it.build(reader) }
-                for(bva in useXPathInstance { xp -> xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc) }) {
-                    val ordinal = bva.getAttribute("ordinal").value.toInt()
+                val doc = useKdomBuilder { it.build(reader) }
+                for(bva in XmlQueries.bvas(doc, xhtmlNamespace)) {
+                    val ordinal = bva.getAttribute("ordinal")!!.value.toInt()
                     search.addContent(bva.text, frag.id, ordinal)
                 }
             }
@@ -423,10 +375,8 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
         var failed = false
         for (frag in dao.fragments()) {
             try {
-                val doc = useSaxBuilder { it.build(StringReader(readFragment(frag))) }
-                for (bva in useXPathInstance { xp ->
-                    xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc)
-                }) {
+                val doc = useKdomBuilder { it.build(StringReader(readFragment(frag))) }
+                for (bva in XmlQueries.bvas(doc, xhtmlNamespace)) {
                     total += bva.text.length
                 }
             } catch (e: Exception) {

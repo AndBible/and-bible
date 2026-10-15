@@ -24,8 +24,8 @@ import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.*
 import net.bible.service.format.osistohtml.OSISUtil2
 import org.crosswire.jsword.book.OSISUtil
-import org.xml.sax.Attributes
-import org.xml.sax.helpers.DefaultHandler
+import fi.sykero.kdom.sax.Attributes
+import fi.sykero.kdom.sax.DefaultHandler
 import java.util.*
 
 val PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph")
@@ -50,8 +50,8 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
         elementStack.pop()
     }
 
-    private fun getName(eName: String?, qName: String): String {
-        return if (eName != null && eName.length > 0) {
+    private fun getName(eName: String, qName: String): String {
+        return if (eName.isNotEmpty()) {
             eName
         } else {
             qName // not namespace-aware
@@ -61,7 +61,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     override fun startElement(namespaceURI: String,
                               sName: String, // simple name
                               qName: String, // qualified name
-                              attrs: Attributes?) {
+                              attrs: Attributes) {
         val name = getName(sName, qName) // element name
 
         val peekVisible = elementStack.peek().visible
@@ -70,7 +70,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
             anyTextWritten = false
             elementStack.push(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
-            if((attrs?.getValue("type")?: "") == "study" && speakSettings.playbackSettings.speakFootnotes) {
+            if((attrs.getValue("type")?: "") == "study" && speakSettings.playbackSettings.speakFootnotes) {
                 speakCommands.add(PreFootnoteCommand(speakSettings))
                 elementStack.push(StackEntry(true, TagType.FOOTNOTE))
             }
@@ -87,8 +87,8 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
             speakCommands.add(PreTitleCommand(speakSettings))
             titleLevel++
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
-            val type = attrs?.getValue("type") ?: ""
-            val isVerseBeginning = attrs?.getValue("sID") != null
+            val type = attrs.getValue("type") ?: ""
+            val isVerseBeginning = attrs.getValue("sID") != null
             val isParagraphType = PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
                 speakCommands.add(ParagraphChangeCommand())

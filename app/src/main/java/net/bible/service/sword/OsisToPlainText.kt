@@ -19,9 +19,9 @@ package net.bible.service.sword
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.jdom2.Content
-import org.jdom2.Element
-import org.jdom2.Text
+import fi.sykero.kdom.Content
+import fi.sykero.kdom.Element
+import fi.sykero.kdom.Text
 
 /** Output format for content tools (getVerseContent, getCommentaries, getDictionaryEntry). */
 @Serializable

@@ -46,7 +46,7 @@ import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.basic.DefaultBookMetaData
 import org.crosswire.jsword.book.sword.processing.RawTextToXmlProcessor
 import org.crosswire.jsword.passage.Key
-import org.jdom2.Content
+import fi.sykero.kdom.Content
 import net.bible.service.db.DatabaseContainer
 import org.junit.After
 import org.junit.Rule

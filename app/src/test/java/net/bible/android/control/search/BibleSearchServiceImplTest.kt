@@ -10,7 +10,7 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
-import org.jdom2.Element
+import fi.sykero.kdom.Element
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith

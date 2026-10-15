@@ -35,9 +35,9 @@ class OsisToSpeakTextSaxHandlerTest {
     @Throws(Exception::class)
     fun testTopLevelReferenceIsWritten() {
         osisToSpeakTextSaxHandler!!.startDocument()
-        osisToSpeakTextSaxHandler!!.startElement(null, null, "reference", null)
+        osisToSpeakTextSaxHandler!!.startElement("", "", "reference", fi.sykero.kdom.sax.AttributesImpl())
         osisToSpeakTextSaxHandler!!.characters("something".toCharArray(), 0, 9)
-        osisToSpeakTextSaxHandler!!.endElement(null, null, "reference")
+        osisToSpeakTextSaxHandler!!.endElement("", "", "reference")
         osisToSpeakTextSaxHandler!!.endDocument()
         Assert.assertThat(osisToSpeakTextSaxHandler!!.writer.html, CoreMatchers.equalTo("something"))
     }
@@ -46,13 +46,13 @@ class OsisToSpeakTextSaxHandlerTest {
     @Throws(Exception::class)
     fun testNoteWithReferenceIsAlsoWritten() {
         osisToSpeakTextSaxHandler!!.startDocument()
-        osisToSpeakTextSaxHandler!!.startElement(null, null, "note", null)
+        osisToSpeakTextSaxHandler!!.startElement("", "", "note", fi.sykero.kdom.sax.AttributesImpl())
         osisToSpeakTextSaxHandler!!.characters("inNoteBeforeRef".toCharArray(), 0, 15)
-        osisToSpeakTextSaxHandler!!.startElement(null, null, "reference", null)
+        osisToSpeakTextSaxHandler!!.startElement("", "", "reference", fi.sykero.kdom.sax.AttributesImpl())
         osisToSpeakTextSaxHandler!!.characters("something".toCharArray(), 0, 9)
-        osisToSpeakTextSaxHandler!!.endElement(null, null, "reference")
+        osisToSpeakTextSaxHandler!!.endElement("", "", "reference")
         osisToSpeakTextSaxHandler!!.characters("inNoteAfterRef".toCharArray(), 0, 14)
-        osisToSpeakTextSaxHandler!!.endElement(null, null, "note")
+        osisToSpeakTextSaxHandler!!.endElement("", "", "note")
         osisToSpeakTextSaxHandler!!.endDocument()
         Assert.assertThat(osisToSpeakTextSaxHandler!!.writer.html, CoreMatchers.equalTo("something"))
     }

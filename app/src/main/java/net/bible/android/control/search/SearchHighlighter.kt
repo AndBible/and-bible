@@ -24,8 +24,8 @@ import net.bible.service.common.htmlToSpan
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.search.prepareSearchWord
-import org.jdom2.Element
-import org.jdom2.Text
+import fi.sykero.kdom.Element
+import fi.sykero.kdom.Text
 import java.util.regex.Pattern
 
 /**

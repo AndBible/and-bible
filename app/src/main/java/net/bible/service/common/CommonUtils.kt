@@ -156,8 +156,8 @@ import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import org.jdom2.input.SAXBuilder
-import org.jdom2.xpath.XPathFactory
+import fi.sykero.kdom.input.build
+import fi.sykero.kdom.input.KdomBuilder
 import org.spongycastle.util.io.pem.PemReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -1872,22 +1872,12 @@ suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -
     map {async {semaphore.withPermit { action(it) } } }.awaitAll()
 }
 
-private val builders = ArrayBlockingQueue<SAXBuilder>(32)
+private val builders = ArrayBlockingQueue<KdomBuilder>(32)
 
-fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
-    val builder = builders.poll()?: SAXBuilder().also {
-        it.setFeature("http://xml.org/sax/features/external-general-entities", false)
-    }
+fun <R> useKdomBuilder(block: (it: KdomBuilder) -> R): R {
+    val builder = builders.poll()?: KdomBuilder(allowDocType = true)
     val rv = block(builder)
     builders.offer(builder)
-    return rv
-}
-
-private val xPathInstances = ArrayBlockingQueue<XPathFactory>(32)
-fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
-    val xPath = xPathInstances.poll()?: XPathFactory.instance()
-    val rv = block(xPath)
-    xPathInstances.offer(xPath)
     return rv
 }
 

@@ -33,8 +33,8 @@ import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
-import org.jdom2.output.Format
-import org.jdom2.output.XMLOutputter
+import fi.sykero.kdom.output.Format
+import fi.sykero.kdom.output.XMLOutputter
 import kotlinx.serialization.json.JsonObject
 import net.bible.service.llm.tools.*
 

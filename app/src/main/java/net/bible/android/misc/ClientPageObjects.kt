@@ -28,13 +28,12 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BibleBook
-import org.jdom2.Element
-import org.jdom2.Text
-import org.jdom2.output.Format
-import org.jdom2.output.XMLOutputter
-import org.jdom2.output.support.AbstractXMLOutputProcessor
-import org.jdom2.output.support.FormatStack
-import java.io.Writer
+import fi.sykero.kdom.Element
+import fi.sykero.kdom.Text
+import fi.sykero.kdom.output.Format
+import fi.sykero.kdom.output.XMLOutputter
+import fi.sykero.kdom.output.support.AbstractXMLOutputProcessor
+import fi.sykero.kdom.output.support.FormatStack
 
 
 val sanitizeRegex = Regex("""[^\p{L}\d]""")
@@ -69,7 +68,7 @@ fun wrapString(str_: String?): String =
 fun elementToString(e: Element): String {
     val format = Format.getRawFormat()
     val processor = object: AbstractXMLOutputProcessor() {
-        override fun printText(out: Writer, fstack: FormatStack, text: Text) {
+        override fun printText(out: Appendable, fstack: FormatStack, text: Text) {
             // We might have html-encoded characters in OSIS text.
             // Let's un-encode them first, lest we will end up with double-encoded strings
             // such as &amp;quot;

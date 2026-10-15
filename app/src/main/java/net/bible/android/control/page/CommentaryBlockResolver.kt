@@ -16,16 +16,17 @@
  */
 package net.bible.android.control.page
 
+import fi.sykero.kdom.input.build
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.service.common.useSaxBuilder
+import net.bible.service.common.useKdomBuilder
 import net.bible.service.sword.OsisToPlainText
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
-import org.jdom2.output.Format
-import org.jdom2.output.XMLOutputter
+import fi.sykero.kdom.output.Format
+import fi.sykero.kdom.output.XMLOutputter
 import java.io.StringReader
 
 /**
@@ -47,7 +48,7 @@ internal fun renderCommentaryFragmentXml(book: Book, key: Key): String? {
  */
 internal fun renderComparable(book: Book, verse: Verse): String? {
     val xml = renderCommentaryFragmentXml(book, verse) ?: return null
-    val text = OsisToPlainText.convert(useSaxBuilder { it.build(StringReader(xml)).rootElement }).trim()
+    val text = OsisToPlainText.convert(useKdomBuilder { it.build(StringReader(xml)).rootElement }).trim()
     return text.ifBlank { null }
 }
 

@@ -21,7 +21,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper.osisIdToVerseNum
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.OSISUtil
-import org.xml.sax.Attributes
+import fi.sykero.kdom.sax.Attributes
 import java.util.*
 
 /**
@@ -65,10 +65,10 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
      * the list of all Attributes declared for the Current Element in the XML File.
     */
     private var insideVerse = false;
-    override fun startElement(namespaceURI: String?,
-                          sName: String?,  // simple name
+    override fun startElement(namespaceURI: String,
+                          sName: String,  // simple name
                           qName: String,  // qualified name
-                          attrs: Attributes?) {
+                          attrs: Attributes) {
         val name: String = getName(sName, qName) // element name
         debug(name, attrs, true)
 
@@ -76,21 +76,19 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
         if (!compatibleOffsets && isAttrValue(attrs, "canonical", "true")) {
             writeContentStack.push(CONTENT_STATE.WRITE)
         } else if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
-            if (attrs != null) {
-                currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
-            }
+            currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
             writeContentStack.push(CONTENT_STATE.WRITE)
             insideVerse = true
             spaceJustWritten = true
         } else if (name == "milestone") {
-            write(attrs?.getValue("marker")?:"")
+            write(attrs.getValue("marker")?:"")
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             writeContentStack.push(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_Q) {
-            write(attrs?.getValue("marker")?:"")
+            write(attrs.getValue("marker")?:"")
             writeContentStack.push(CONTENT_STATE.WRITE)
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             // text content of top level references should be output but in notes it should not
@@ -115,8 +113,8 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
      * Called when the Ending of the current Element is reached. For example in the
      * above explanation, this method is called when </Title> tag is reached
     */
-    override open fun endElement(namespaceURI: String?,
-                        sName: String?,  // simple name
+    override open fun endElement(namespaceURI: String,
+                        sName: String,  // simple name
                         qName: String // qualified name
     ) {
         val name: String = getName(sName, qName)
@@ -139,9 +137,9 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
     /*
      * Handle characters encountered in tags
     */
-    override fun characters(buf: CharArray?, offset: Int, len: Int) {
+    override fun characters(buf: CharArray, offset: Int, len: Int) {
         if (CONTENT_STATE.WRITE == writeContentStack.peek()) {
-            var s = String(buf!!, offset, len)
+            var s = String(buf, offset, len)
             if (textPolicy.restoreLeadingSpace) {
                 if (s.length > 0 && s[0] == ' ') {
                     // fromHtml strips leading whitespaces, which is not desirable
