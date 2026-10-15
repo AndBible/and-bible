@@ -27,6 +27,8 @@
     <!-- Required by Compose Multiplatform on high-refresh (ProMotion) iPhones. -->
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
+    <key>AndBibleICloudContainer</key>
+    <string>iCloud.org.andbible.ios</string>
     <key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
         <string>org.andbible.ios.remote-sync-refresh</string>

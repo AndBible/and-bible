@@ -37,6 +37,7 @@ targets:
         # Xcode 26 sandboxes run-script phases by default; gradle needs to write outside DerivedData.
         ENABLE_USER_SCRIPT_SANDBOXING: "NO"
         CODE_SIGN_STYLE: Automatic
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]": iosApp/iosApp.entitlements
         # Simulator-only PoC: no team/signing needed.
         "CODE_SIGNING_REQUIRED[sdk=iphonesimulator*]": "NO"
         "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
