@@ -1,5 +1,7 @@
 package net.bible.sharedcore.platform.files
 
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.log.LogLevel
 import okio.Buffer
 import okio.IOException
 import okio.Source
@@ -37,6 +39,31 @@ class BackupFileSnifferTest {
 
     @Test fun unrelatedHeader() {
         assertEquals(BackupFileType.UNKNOWN, sniff("not a backup file"))
+    }
+
+    @Test fun swallowedFailuresAreLoggedWithTheirCauseButUnknownHeadersAreSilent() {
+        val originalSink = Log.sinkOverride
+        val logged = mutableListOf<Pair<LogLevel, Throwable?>>()
+        Log.sinkOverride = { level, _, _, cause -> logged += level to cause }
+        try {
+            val openFailure = IOException("open failure")
+            assertEquals(BackupFileType.UNKNOWN, BackupFileSniffer.sniff { throw openFailure })
+            val readFailure = IOException("read failure")
+            val readSource = object : Source by Buffer() {
+                override fun read(sink: Buffer, byteCount: Long): Long = throw readFailure
+            }
+            assertEquals(BackupFileType.UNKNOWN, BackupFileSniffer.sniff { readSource })
+            val closeFailure = IOException("close failure")
+            val closeSource = object : Source by Buffer().writeUtf8("SQLite format 3\u0000") {
+                override fun close() { throw closeFailure }
+            }
+            assertEquals(BackupFileType.UNKNOWN, BackupFileSniffer.sniff { closeSource })
+            assertEquals(BackupFileType.UNKNOWN, sniff("unrecognized"))
+            assertEquals(BackupFileType.UNKNOWN, sniff(""))
+            assertEquals(listOf<Pair<LogLevel, Throwable?>>(LogLevel.ERROR to openFailure, LogLevel.ERROR to readFailure, LogLevel.ERROR to closeFailure), logged)
+        } finally {
+            Log.sinkOverride = originalSink
+        }
     }
 
     @Test fun openingFailure() {

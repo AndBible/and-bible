@@ -638,7 +638,9 @@ class BackupControl(
 
     suspend fun restoreAppDatabaseFromSourceWithUI(host: BackupHost, source: PickedSource): Boolean {
         val filetype = withContext(Dispatchers.IO) {
-            val input = runCatching { host.openInput(source) }.getOrNull()
+            val input = runCatching { host.openInput(source) }
+                .onFailure { Log.e(TAG, "Unexpected exception when opening backup for file type detection", it) }
+                .getOrNull()
             if (input == null) BackupFileType.UNKNOWN else BackupFileSniffer.sniff { input }
         }
         Log.i(TAG, "Filetype: $filetype")

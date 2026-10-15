@@ -48,6 +48,37 @@ class BackupControlDeliveryTest {
         Dispatchers.resetMain()
     }
 
+    @Test fun sniffOpenFailureIsLoggedBeforeUnknownFallsBackToZipRestore() = kotlinx.coroutines.runBlocking {
+        val failure = okio.IOException("provider unavailable")
+        val stop = IllegalStateException("stop before zip restore")
+        var opens = 0
+        val logged = mutableListOf<Throwable?>()
+        val originalSink = net.bible.sharedcore.log.Log.sinkOverride
+        val host = object : BackupHost by Host(DeliveryResult.CANCELLED) {
+            override suspend fun openInput(source: PickedSource): Source {
+                opens++
+                if (opens == 1) throw failure
+                throw stop
+            }
+        }
+        // Capture at the next dispatch, before the ZIP branch can log its separate open failure.
+        val resultAtFallback = mutableListOf<Throwable?>()
+        val observingHost = object : BackupHost by host {
+            override suspend fun openInput(source: PickedSource): Source {
+                if (opens == 1) resultAtFallback += logged
+                return host.openInput(source)
+            }
+        }
+        net.bible.sharedcore.log.Log.sinkOverride = { _, _, _, cause -> synchronized(logged) { logged += cause } }
+        try {
+            runCatching { backup.restoreAppDatabaseFromSourceWithUI(observingHost, PickedSource("test", null, null)) }
+            assertEquals(2, opens)
+            assertTrue(resultAtFallback.any { it === failure })
+        } finally {
+            net.bible.sharedcore.log.Log.sinkOverride = originalSink
+        }
+    }
+
     private class Host(val result: DeliveryResult) : BackupHost {
         val errors = mutableListOf<String>()
         val mimes = mutableListOf<Pair<String, String>>()

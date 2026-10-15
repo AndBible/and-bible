@@ -1,5 +1,6 @@
 package net.bible.sharedcore.platform.files
 
+import net.bible.sharedcore.log.Log
 import okio.Source
 import okio.buffer
 
@@ -24,6 +25,7 @@ object BackupFileSniffer {
             }
         }
     } catch (e: Exception) {
+        Log.e("BackupFileSniffer", "Unexpected exception when determining file type", e)
         BackupFileType.UNKNOWN
     }
 }
