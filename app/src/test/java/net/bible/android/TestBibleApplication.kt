@@ -102,6 +102,11 @@ class TestBibleApplication : BibleApplication() {
         presenterReleased = false
         // At the start, not in onTerminate: a test may terminate the application mid-way with its activity still live.
         CurrentActivityHolder.forgetActivitiesForTest()
+        // A process-wide `var` in ActivityBase.kt: while true, the first activity's fixNightMode() arms a delayed
+        // recreate(), which throws once the test has destroyed that activity ("Cannot recreate activity since it's
+        // destroyed already") -- in onTerminate, failing every later test. Only the JVM's first activity ever saw
+        // it, so whether a test broke depended on suite order.
+        net.bible.android.view.activity.base.firstTime = false
         // The production handler is process-global; Robolectric creates an application per test.
         // Never leave its reporting/delegation chain installed in the shared test JVM.
         val originalHandler = Thread.getDefaultUncaughtExceptionHandler()
