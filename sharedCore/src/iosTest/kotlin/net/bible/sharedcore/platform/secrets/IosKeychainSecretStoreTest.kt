@@ -80,23 +80,35 @@ class IosKeychainSecretStoreTest {
         val bytes = byteArrayOf(0xc3.toByte(), 0x28)
         val data = bytes.usePinned { NSData.create(bytes = it.addressOf(0), length = bytes.size.toULong()) }
         val query = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, kCFTypeDictionaryKeyCallBacks.ptr, kCFTypeDictionaryValueCallBacks.ptr)!!
-        val attributes = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, kCFTypeDictionaryKeyCallBacks.ptr, kCFTypeDictionaryValueCallBacks.ptr)!!
-        val serviceRef = CFBridgingRetain(NSString.create(string = service))
-        val keyRef = CFBridgingRetain(NSString.create(string = key))
-        val dataRef = CFBridgingRetain(data)
         try {
-            CFDictionarySetValue(query, kSecClass, kSecClassGenericPassword)
-            CFDictionarySetValue(query, kSecAttrService, serviceRef)
-            CFDictionarySetValue(query, kSecAttrAccount, keyRef)
-            CFDictionarySetValue(attributes, kSecValueData, dataRef)
-            assertEquals(errSecSuccess, SecItemUpdate(query, attributes))
-            assertFailsWith<SecretStoreException> { store.get(key) }
+            val attributes = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, kCFTypeDictionaryKeyCallBacks.ptr, kCFTypeDictionaryValueCallBacks.ptr)!!
+            try {
+                val serviceRef = CFBridgingRetain(NSString.create(string = service))
+                try {
+                    val keyRef = CFBridgingRetain(NSString.create(string = key))
+                    try {
+                        val dataRef = CFBridgingRetain(data)
+                        try {
+                            CFDictionarySetValue(query, kSecClass, kSecClassGenericPassword)
+                            CFDictionarySetValue(query, kSecAttrService, serviceRef)
+                            CFDictionarySetValue(query, kSecAttrAccount, keyRef)
+                            CFDictionarySetValue(attributes, kSecValueData, dataRef)
+                            assertEquals(errSecSuccess, SecItemUpdate(query, attributes))
+                            assertFailsWith<SecretStoreException> { store.get(key) }
+                        } finally {
+                            CFBridgingRelease(dataRef)
+                        }
+                    } finally {
+                        CFBridgingRelease(keyRef)
+                    }
+                } finally {
+                    CFBridgingRelease(serviceRef)
+                }
+            } finally {
+                CFRelease(attributes)
+            }
         } finally {
-            CFRelease(attributes)
             CFRelease(query)
-            CFBridgingRelease(dataRef)
-            CFBridgingRelease(keyRef)
-            CFBridgingRelease(serviceRef)
         }
     }
 }
