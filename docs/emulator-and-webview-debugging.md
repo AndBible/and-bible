@@ -34,13 +34,52 @@ scripts/with-container-adb.sh scripts/andbible-emu.sh boot
 scripts/with-container-adb.sh ./gradlew connectedCheck
 ```
 
+## Emulator version and GPU mode
+
+The in-container emulator used to die with exit code 139 (SIGSEGV) every few minutes of testing,
+and its host process grew by ~250 MB per app restart. Both come from gfxstream, the emulator's
+host-side graphics renderer, in emulator 37.2.12 (the stable build in October 2026):
+
+- **Leak.** Each guest process that dies with a GL context (an app force-stop, `pm clear`, a
+  WebView renderer exit) leaves ~16 host threads (SwiftShader worker pools, named `RenderThread`)
+  and ~250 MB behind. After ~70 restarts qemu used 11 GB for a 4 GB AVD.
+- **Crash.** A guest process dying while another one starts (force-stop + relaunch) races
+  `FrameBuffer::cleanupProcGLObjects` against `ColorBufferGl::create` on another render thread,
+  which then runs GL with no current context and crashes in `TextureResize::TextureResize`
+  (`strlen(NULL)`). Captured with gdb on 2026-10-16; host load widens the race window.
+- `-gpu guest` does not help: on 37.x it still renders on the host (swangle), with the same leak.
+
+Emulator **37.3.4** has neither problem in the same tests (25 force-stop cycles that crashed 37.2.12
+at cycle 6; a 30-minute soak with `pm clear` every fifth cycle under extra CPU load). The jailbee
+golden image therefore installs the SDK itself, with that emulator build pinned
+(`.jailbee/install.d/94-android-sdk.sh`, `/opt/android-sdk`), instead of mounting the host SDK.
+`scripts/andbible-emu.sh boot` warns when it finds an older emulator.
+
+GPU mode (`ANDBIBLE_EMU_GPU`, default `auto`):
+
+| Mode | When | Notes |
+|------|------|-------|
+| `host` | a GPU render node (`/dev/dri/renderD*`) plus `weston` and `Xwayland` exist | Mesa on the host GPU. `andbible-emu.sh` starts a headless weston with Xwayland, because the emulator's `-gpu host` on Linux needs a GLX display. Boots in ~17 s; no SwiftShader thread pools at all. |
+| `swiftshader_indirect` | fallback | CPU rendering, roughly 2 cores busy while the app draws. Fine on 37.3.4. |
+
+Two more boot failures that `boot` now prevents: a killed emulator leaves its AVD lock behind
+("Another emulator instance is running"), and a `netsimd` (the emulators' shared network daemon)
+left half shut down by an earlier emulator makes the next one hang until its watchdog exits 139
+("detected a hanging thread 'QEMU2 main loop'"). When no qemu is running, `boot` removes both.
+
+Check a running emulator with `scripts/andbible-emu.sh health` (version, GPU, qemu threads and
+RSS, exit code). A thread count or RSS that grows with every app restart means the leak is back.
+
 ## Creating the AVD: `scripts/emulator-avds.sh`
 
-Creates the `screenshot_phone` AVD (Pixel 6 Pro, API 36, `google_apis` x86_64, 6 GB userdata).
-Idempotent. It needs `$ANDROID_HOME` with cmdline-tools and the system image
-`system-images;android-36;google_apis;x86_64`. It never installs the image: if the SDK is
-read-only (it is in the container) it prints the `sdkmanager` command to run on the host. The SDK
-location is typically `~/Android/Sdk`.
+Creates an AVD, default `screenshot_phone` (Pixel 6 Pro, API 36, `google_apis` x86_64, 6 GB
+userdata), in `$ANDROID_AVD_HOME`. Idempotent; `andbible-emu.sh boot` calls it when the AVD is
+missing. It needs `$ANDROID_HOME` with cmdline-tools and the system image
+`system-images;android-36;google_apis;x86_64`, which the golden image has.
+
+In jailbee `ANDROID_AVD_HOME` is container-local (`~/.local/share/android-avd`), so every container
+starts from a fresh AVD. AVDs used to live in the shared `~/.android`, where containers collided
+("Another emulator instance is running") and old AVDs piled up on the host disk.
 
 ## Driving the emulator: `scripts/andbible-emu.sh`
 
@@ -48,7 +87,8 @@ Small helpers, all against the 5038 server:
 
 | Subcommand | Purpose |
 |------------|---------|
-| `boot <avd>` / `kill` | boot detached and wait for `sys.boot_completed` / stop it and verify qemu is gone |
+| `boot [avd]` / `kill` | boot detached (GPU mode and proxy as above) and wait for `sys.boot_completed` / stop it and verify qemu is gone |
+| `health` | emulator version, GPU mode, qemu threads and RSS, last exit code |
 | `install <apk>` | `adb install -r -d` |
 | `wipe [pkg]` | `pm clear`, for a true first run |
 | `push-module <zip> [pkg]` | push a Sword module zip (`mods.d/` + `modules/`) into the app's module dir |
@@ -58,8 +98,16 @@ Small helpers, all against the 5038 server:
 | `crashes [pkg]`, `logmark` | FATAL/ANR lines since the last mark; clear logcat |
 
 The default package is the debug build, `net.bible.android.activity.debug`. If the emulator
-vanishes mid-session with no OOM, boot it again and redo the current step. Note that `start`
-force-stops the app, so any in-app position is lost.
+vanishes mid-session, `health` shows the exit code; boot it again and redo the current step, and
+re-check pushed files (`push-module` runs `adb shell sync`, but a crash loses unflushed writes).
+Note that `start` force-stops the app, so any in-app position is lost.
+
+**Network.** In strict egress the guest reaches the network only through the container's proxy.
+`boot` sets the guest's global proxy (`settings put global http_proxy`) to `$HTTPS_PROXY`
+(`ANDBIBLE_EMU_PROXY` overrides it; empty disables) and checks that a tunnel works; `health` repeats
+the check. Apps and the WebView then send `CONNECT host:443`, which the hostname allowlist accepts.
+The emulator's own `-http-proxy` is not used: it tunnels every guest connection as
+`CONNECT <ip>:443`, which a hostname allowlist rejects.
 
 ## Seeding a debuggable BibleView: `scripts/seed-emulator-webview-debug.sh`
 
@@ -75,9 +123,8 @@ The test Sword modules are not redistributable, so they are not in the repositor
 copy at `.local/testmods.zip` (a ready `.sword` tree: `mods.d/` + `modules/`). `.local/` is
 gitignored. Without a module the app shows no Bible text and there is nothing to debug.
 
-The `~/.android` cache holds the AVDs and their userdata, so the installed app and pushed modules
-survive a container recreate when that directory is shared. A read-only SDK cannot be updated from
-inside the container; install missing system images on the host.
+The AVD is container-local, so a new container is seeded again (about a minute). The shared
+`~/.android` keeps the debug signing key, so `adb install -r` of a new build still works.
 
 ## WebView DevTools from the shell: `scripts/webview-cdp.sh`
 
