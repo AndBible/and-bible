@@ -99,7 +99,10 @@ class KtorDownloadHttp(private val client: HttpClient, private val timeoutMs: ()
         throw when {
             e.isCancellation() -> e
             e is DownloadTransportException || e is HttpStatusException -> e
-            e is SocketTimeoutException || e is ConnectTimeoutException || e is HttpRequestTimeoutException -> DownloadTimeoutException(e)
+            // Streaming engines can wrap socket timeouts in a closed-channel exception.
+            generateSequence(e) { it.cause }.any {
+                it is SocketTimeoutException || it is ConnectTimeoutException || it is HttpRequestTimeoutException
+            } -> DownloadTimeoutException(e)
             e is Exception -> DownloadTransportException(e.message, e)
             else -> e
         }
