@@ -106,7 +106,9 @@ class AndroidHttpClientsTest {
             assertTrue("Expected initialized short-profile timeout, got $error", error is java.net.SocketTimeoutException)
             shortClient.close()
             runBlocking {
-                shortClient.engine.coroutineContext[kotlinx.coroutines.Job]!!.join()
+                kotlinx.coroutines.withTimeout(5_000) {
+                    shortClient.engine.coroutineContext[kotlinx.coroutines.Job]!!.join()
+                }
                 val response = KtorLlmHttpTransport(clients::clientFor).get(url, emptyMap(), profile)
                 assertEquals(200, response.code)
             }

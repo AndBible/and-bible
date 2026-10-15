@@ -58,7 +58,9 @@ class KtorDownloadHttpContractTest : DownloadHttpContract() {
             assertEquals(200, KtorDownloadHttp(download) { 5_000 }.headers("${server.base}/ok").status)
             assertEquals(200, transport.get("${server.base}/ok", emptyMap(), profile).code)
             download.close()
-            download.engine.coroutineContext[Job]!!.join()
+            kotlinx.coroutines.withTimeout(5_000) {
+                download.engine.coroutineContext[Job]!!.join()
+            }
             assertFalse(base.dispatcher.executorService.isShutdown)
             assertEquals(200, transport.get("${server.base}/ok", emptyMap(), profile).code)
         }
