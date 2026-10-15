@@ -1,7 +1,7 @@
 package net.bible.android.platform
 
 import android.content.SharedPreferences
-import net.bible.service.llm.SecretStore
+import net.bible.sharedcore.platform.secrets.SecretStore
 
 /** Retains the legacy API-key preference storage and asynchronous disk writes. */
 class AndroidSecretStore(private val prefs: SharedPreferences) : SecretStore {

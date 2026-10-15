@@ -9,7 +9,7 @@ import net.bible.android.view.activity.ai.LlmProviderServiceImpl
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProviderConfig
-import net.bible.service.llm.SecretStore
+import net.bible.sharedcore.platform.secrets.SecretStore
 import net.bible.service.llm.apiKey
 import net.bible.service.llm.setApiKey
 import net.bible.service.llm.removeApiKey

@@ -55,7 +55,7 @@ import java.util.Locale
 import java.util.TimeZone
 import java.io.File
 import net.bible.service.llm.AiSettings
-import net.bible.service.llm.SecretStore
+import net.bible.sharedcore.platform.secrets.SecretStore
 import net.bible.service.llm.LlmStrings
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.DynamicModelService

@@ -137,7 +137,7 @@ fun buildCoreModule() = module {
     single<net.bible.android.control.speak.SpeakSettingsStore> { net.bible.android.platform.AndroidSpeakSettingsStore() }
 
     single<AppSettings> { CommonUtils.settings }
-    single<net.bible.service.llm.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
+    single<net.bible.sharedcore.platform.secrets.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
     single { net.bible.service.common.RecentDocumentsStore(get()) }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
@@ -188,7 +188,7 @@ fun buildCoreModule() = module {
     }
     single<net.bible.service.cloudsync.CloudAdapterFactory> { net.bible.android.platform.AndroidCloudAdapterFactory(androidContext()) }
     single { net.bible.android.platform.AndroidSyncScheduler(androidContext()) }
-    single<net.bible.service.cloudsync.SyncScheduler> { get<net.bible.android.platform.AndroidSyncScheduler>() }
+    single<net.bible.sharedcore.platform.sync.SyncScheduler> { get<net.bible.android.platform.AndroidSyncScheduler>() }
     single<net.bible.service.cloudsync.CloudSyncProvider> { net.bible.service.cloudsync.CloudSyncProvider { get() } }
     single<net.bible.service.cloudsync.DocumentSyncProvider> { net.bible.service.cloudsync.DocumentSyncProvider { get() } }
     single {

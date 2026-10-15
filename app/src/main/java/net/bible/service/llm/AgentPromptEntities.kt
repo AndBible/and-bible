@@ -32,6 +32,7 @@ import androidx.room3.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
 import net.bible.service.llm.agent.PermissionMode
+import net.bible.sharedcore.platform.secrets.SecretStore
 
 /** UI-only grouping for tool permission screens. Does not affect database storage or agent logic. */
 enum class ToolCategory {

@@ -38,7 +38,7 @@ import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.apiKey
-import net.bible.service.llm.SecretStore
+import net.bible.sharedcore.platform.secrets.SecretStore
 import net.bible.service.llm.removeApiKey
 import net.bible.service.llm.setApiKey
 import net.bible.sharedcore.ai.AvailableModelVd

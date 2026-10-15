@@ -28,6 +28,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.tools.ToolDefinition
+import net.bible.sharedcore.platform.secrets.SecretStore
 
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger

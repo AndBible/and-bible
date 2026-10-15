@@ -76,8 +76,8 @@ class TestBibleApplication : BibleApplication() {
     private var terminationPending = false
     private var startupRegistrationOwner: net.bible.sharedcore.platform.OrderedLauncher? = null
     private var previousManagerLauncher: net.bible.sharedcore.platform.OrderedLauncher? = null
-    private var previousSecretStore: net.bible.service.llm.SecretStore? = null
-    private var fixtureSecretStore: net.bible.service.llm.SecretStore? = null
+    private var previousSecretStore: net.bible.sharedcore.platform.secrets.SecretStore? = null
+    private var fixtureSecretStore: net.bible.sharedcore.platform.secrets.SecretStore? = null
     private var presenterReleased = false
     override val isRunningTests: Boolean = true
 
@@ -130,7 +130,7 @@ class TestBibleApplication : BibleApplication() {
         previousSecretStore = koin.get()
         fixtureSecretStore = net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences)
         koin.loadModules(listOf(org.koin.dsl.module {
-            single<net.bible.service.llm.SecretStore> { checkNotNull(fixtureSecretStore) }
+            single<net.bible.sharedcore.platform.secrets.SecretStore> { checkNotNull(fixtureSecretStore) }
             single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
             // Singletons keep the launcher they were built with, and the fixture replaces aiScope after a terminate.
@@ -242,9 +242,9 @@ class TestBibleApplication : BibleApplication() {
                 if (MyDocumentBookManager.launcher === aiLauncher) {
                     MyDocumentBookManager.launcher = checkNotNull(previousManagerLauncher)
                 }
-                if (koin.getOrNull<net.bible.service.llm.SecretStore>() === fixtureSecretStore) {
+                if (koin.getOrNull<net.bible.sharedcore.platform.secrets.SecretStore>() === fixtureSecretStore) {
                     koin.loadModules(listOf(org.koin.dsl.module {
-                        single<net.bible.service.llm.SecretStore> { checkNotNull(previousSecretStore) }
+                        single<net.bible.sharedcore.platform.secrets.SecretStore> { checkNotNull(previousSecretStore) }
                     }))
                 }
                 koin.loadModules(listOf(org.koin.dsl.module {

@@ -7,6 +7,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.sync.SyncScheduler
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.test.testAppSettings
 import net.bible.test.testCoreStrings

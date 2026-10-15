@@ -300,7 +300,7 @@ class CoreModuleResolveTest {
             assertSame(cloud, first.koin.get<net.bible.service.cloudsync.CloudSyncProvider>().get())
             assertSame(documents, first.koin.get<net.bible.service.cloudsync.DocumentSyncProvider>().get())
             assertNotNull(first.koin.get<net.bible.android.control.versification.BookInstallWatcher>())
-            assertSame(first.koin.get<net.bible.android.platform.AndroidSyncScheduler>(), first.koin.get<net.bible.service.cloudsync.SyncScheduler>())
+            assertSame(first.koin.get<net.bible.android.platform.AndroidSyncScheduler>(), first.koin.get<net.bible.sharedcore.platform.sync.SyncScheduler>())
             org.junit.Assert.assertNotSame(cloud, second.koin.get<net.bible.service.cloudsync.CloudSync>())
             org.junit.Assert.assertNotSame(documents, second.koin.get<net.bible.service.cloudsync.documents.DocumentSync>())
         } finally {

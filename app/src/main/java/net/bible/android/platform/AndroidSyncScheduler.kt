@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Build
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import net.bible.service.cloudsync.SyncScheduler
+import net.bible.sharedcore.platform.sync.SyncScheduler
 import net.bible.service.cloudsync.SyncService
 import net.bible.sharedcore.log.Log
 
