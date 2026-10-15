@@ -17,6 +17,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders as KtorHeaders
 import io.ktor.http.fromHttpToGmtDate
 import io.ktor.utils.io.readAvailable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 /** Download-client configuration shared by every platform; the host supplies the engine and its UA (spec D3-3). */
 fun HttpClientConfig<*>.downloadClientDefaults(userAgent: String?) {
@@ -53,25 +55,37 @@ class KtorDownloadHttp(private val client: HttpClient, private val timeoutMs: ()
     override suspend fun <T> open(url: String, block: suspend (DownloadResponse) -> T): T {
         requireHttps(url)
         var callerFailure: Throwable? = null
-        val result = transport {
-            client.prepareGet(url) { idleTimeouts() }.execute { r ->
-                val h = r.checkedHeaders()
-                val channel = r.bodyAsChannel()
-                val response = object : DownloadResponse {
-                    override val headers = h
-                    override suspend fun read(buf: ByteArray): Int = transport {
-                        val count = channel.readAvailable(buf, 0, buf.size)
-                        if (count == 0 && channel.isClosedForRead) -1 else count
+        val result = try {
+            transport {
+                client.prepareGet(url) { idleTimeouts() }.execute { r ->
+                    val h = r.checkedHeaders()
+                    val channel = r.bodyAsChannel()
+                    val response = object : DownloadResponse {
+                        override val headers = h
+                        override suspend fun read(buf: ByteArray): Int = transport {
+                            val count = channel.readAvailable(buf, 0, buf.size)
+                            if (count == 0 && channel.isClosedForRead) -1 else count
+                        }
+                    }
+                    try {
+                        block(response)
+                    } catch (e: Throwable) {
+                        if (e.isCancellation()) {
+                            callerFailure = e
+                            throw e
+                        }
+                        callerFailure = e
+                        null
                     }
                 }
-                try {
-                    block(response)
-                } catch (e: Throwable) {
-                    if (e.isCancellation()) throw e
-                    callerFailure = e
-                    null
-                }
             }
+        } catch (e: Throwable) {
+            val callerCancellation = callerFailure
+            if (callerCancellation != null) {
+                currentCoroutineContext().ensureActive()
+                throw callerCancellation
+            }
+            throw e
         }
         callerFailure?.let { throw it }
         @Suppress("UNCHECKED_CAST")

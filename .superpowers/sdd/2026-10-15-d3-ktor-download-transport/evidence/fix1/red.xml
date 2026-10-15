@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="KtorDownloadHttpTest[jvm]" tests="13" skipped="0" failures="1" errors="0" timestamp="2026-10-15T17:05:06.212Z" hostname="and-bible-ios-4" time="0.575">
+  <properties/>
+  <testcase name="missingOrBadHeadersFollowUrlConnectionDefaults[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.334"/>
+  <testcase name="callerCancellationExceptionWithCausePassesThroughUnchanged[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.017">
+    <failure message="java.lang.AssertionError: Expected an exception of class java.util.concurrent.CancellationException to be thrown, but was net.bible.sharedcore.http.DownloadTransportException: caller failure" type="java.lang.AssertionError">java.lang.AssertionError: Expected an exception of class java.util.concurrent.CancellationException to be thrown, but was net.bible.sharedcore.http.DownloadTransportException: caller failure
+	at org.junit.Assert.fail(Assert.java:89)
+	at kotlin.test.junit.JUnitAsserter.fail(JUnitSupport.kt:64)
+	at kotlin.test.AssertionsKt__AssertionsImplKt.checkResultIsFailure(AssertionsImpl.kt:28)
+	at kotlin.test.AssertionsKt.checkResultIsFailure(Unknown Source)
+	at net.bible.sharedcore.http.KtorDownloadHttpTest$callerCancellationExceptionWithCausePassesThroughUnchanged$1.invokeSuspend(KtorDownloadHttpTest.kt:123)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source)
+	at net.bible.sharedcore.http.KtorDownloadHttpTest.callerCancellationExceptionWithCausePassesThroughUnchanged(KtorDownloadHttpTest.kt:119)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.runRequest(JUnitTestExecutor.java:175)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.accept(JUnitTestExecutor.java:84)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.accept(JUnitTestExecutor.java:47)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestDefinitionProcessor.processTestDefinition(AbstractJUnitTestDefinitionProcessor.java:65)
+	at org.gradle.api.internal.tasks.testing.SuiteTestDefinitionProcessor.processTestDefinition(SuiteTestDefinitionProcessor.java:53)
+	at jdk.internal.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88)
+	at jdk.proxy1/jdk.proxy1.$Proxy4.processTestDefinition(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:178)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:126)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+Caused by: net.bible.sharedcore.http.DownloadTransportException: caller failure
+	at net.bible.sharedcore.http.KtorDownloadHttp.transport(KtorDownloadHttp.kt:89)
+	at net.bible.sharedcore.http.KtorDownloadHttp.access$transport(KtorDownloadHttp.kt:30)
+	at net.bible.sharedcore.http.KtorDownloadHttp$transport$1.invokeSuspend(KtorDownloadHttp.kt)
+	... 57 more
+Caused by: java.lang.IllegalStateException: caller failure
+	at net.bible.sharedcore.http.KtorDownloadHttpTest$callerCancellationExceptionWithCausePassesThroughUnchanged$1.invokeSuspend(KtorDownloadHttpTest.kt:120)
+	... 57 more
+</failure>
+  </testcase>
+  <testcase name="idleTimeoutsArePerRequestWithoutATotalTimeout[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.015"/>
+  <testcase name="openStreamsTheBody[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.046"/>
+  <testcase name="headIsARealHeadAndCarriesTheReasonForNon200[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.011"/>
+  <testcase name="exceptionsFromTheCallerBlockPassThroughUnchanged[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.003"/>
+  <testcase name="coroutineCancellationPropagatesAndReleasesRequest[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.041"/>
+  <testcase name="textReturnsBodyOnlyFor200[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.033"/>
+  <testcase name="headersUseGetAndParseLastModifiedAndLength[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.03"/>
+  <testcase name="socketTimeoutBecomesDownloadTimeout[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.008"/>
+  <testcase name="httpsToHttpRedirectIsRejected[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.012"/>
+  <testcase name="nonHttpsIsRejectedBeforeAnyRequest[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.001"/>
+  <testcase name="otherEngineFailuresBecomeTransportExceptions[jvm]" classname="net.bible.sharedcore.http.KtorDownloadHttpTest" time="0.011"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+]]></system-err>
+</testsuite>

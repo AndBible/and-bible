@@ -20,6 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class KtorDownloadHttpTest {
@@ -115,10 +116,27 @@ class KtorDownloadHttpTest {
         assertFailsWith<Mine> { http { respond("x") }.open("https://example.org/a") { throw Mine() } }
     } }
 
-    @Test fun cancellationPropagatesUnwrapped() { runBlocking {
-        val call = async { http { awaitCancellation() }.headers("https://example.org/a") }
-        yield()
+    @Test fun callerCancellationExceptionWithCausePassesThroughUnchanged() { runBlocking {
+        val cause = IllegalStateException("caller failure")
+        val cancellation = CancellationException("caller cancelled", cause)
+        val thrown = assertFailsWith<CancellationException> {
+            http { respond("x") }.open("https://example.org/a") { throw cancellation }
+        }
+        assertSame(cancellation, thrown)
+    } }
+
+    @Test fun coroutineCancellationPropagatesAndReleasesRequest() { runBlocking {
+        val requestStarted = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val requestStopped = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val call = async {
+            http {
+                requestStarted.complete(Unit)
+                try { awaitCancellation() } finally { requestStopped.complete(Unit) }
+            }.open("https://example.org/a") { awaitCancellation() }
+        }
+        requestStarted.await()
         call.cancel()
         assertFailsWith<CancellationException> { call.await() }
+        requestStopped.await()
     } }
 }

@@ -41,3 +41,35 @@ The 12 passing tests cover GET header metadata, absent/malformed metadata defaul
 
 - The scoped JVM tests were run; the requested full suite and `:sharedCore:compileKotlinIosSimulatorArm64 :sharedCore:compileKotlinIosArm64` remain for the controller, per task instructions.
 - No independent review was run, as explicitly directed.
+
+## Fix Round 1: Preserve Caller Cancellation (2026-10-15)
+
+### Regression and RED
+
+Added `callerCancellationExceptionWithCausePassesThroughUnchanged`, which throws a specific `CancellationException` with an `IllegalStateException` cause from `open`'s caller block and asserts the same object is rethrown. Added `coroutineCancellationPropagatesAndReleasesRequest`, which cancels a real in-flight MockEngine request and waits for the engine handler's `finally` block.
+
+Command (raw log: `evidence/fix1/red.log`; JUnit XML: `evidence/fix1/red.xml`):
+
+```text
+./gradlew -Dorg.gradle.native=false :sharedCore:jvmTest --tests "*KtorDownloadHttpTest"
+```
+
+Expected RED observed: `13 tests completed, 1 failed`; the identity regression failed with `DownloadTransportException` caused by the original `IllegalStateException`. This confirms Ktor's statement execution unwraps the caused cancellation and the adapter previously mapped it as an ordinary transport failure.
+
+### Fix and GREEN
+
+`open` now records a `CancellationException` thrown by the caller block before rethrowing it through Ktor. If `execute` throws, the adapter checks the current coroutine context with `ensureActive()` first (so actual coroutine cancellation remains authoritative), then rethrows the recorded caller cancellation object unchanged. Request execution remains within `execute`'s response block, and normal coroutine cancellation still cancels/releases the request as asserted by the new cleanup regression.
+
+Command (raw log: `evidence/fix1/green.log`; JUnit XML: `evidence/fix1/green.xml`):
+
+```text
+./gradlew -Dorg.gradle.native=false :sharedCore:jvmTest --tests "*KtorDownloadHttpTest"
+```
+
+Output: `BUILD SUCCESSFUL in 30s`. JUnit XML reports `tests=13`, `failures=0`, `errors=0`, `skipped=0`. The compiler-error attempt during adjustment of the nested `try`/`catch` was not accepted as verification; after correcting block structure, the full scoped test class passed.
+
+### Review and gates
+
+Self-review confirmed the caller cancellation identity is restored only when the caller block recorded one, and a cancelled coroutine fails `ensureActive()` rather than having its cancellation replaced. The in-flight cancellation test verifies MockEngine cleanup. The controller's full JVM and both iOS compile gates were green on the initial commit; reruns after this fix are required and remain controller-owned. No independent reviewer/subagent was used.
+
+Fix commit: pending.
