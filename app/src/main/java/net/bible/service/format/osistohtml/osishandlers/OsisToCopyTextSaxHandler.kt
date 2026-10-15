@@ -56,7 +56,7 @@ class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean, textPolicy: SaxTex
                     currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(osisID)
 
                     // if block necessary for JUnit tests and quite possibly will be needed in some cases in production
-                    if (currentChapterNumber == 0) {
+                    if (currentChapterNumber == 0 && osisID != null) {
                         val parts = osisID.split("\\.".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
                         if (parts.size > 2) {
                             val chapter = parts[parts.size - 2]

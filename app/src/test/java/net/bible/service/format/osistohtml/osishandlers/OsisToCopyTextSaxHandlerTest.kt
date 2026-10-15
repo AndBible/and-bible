@@ -56,6 +56,23 @@ class OsisToCopyTextSaxHandlerTest {
     }
 
     @Test
+    fun missingOsisIdWithVerseNumbersStillCompletesDocument() {
+        val handler = osisToCopyTextSaxHandlerVerseNumbersOn
+        handler.startElement("", "", "verse", AttributesImpl())
+        handler.characters("text".toCharArray(), 0, 4)
+        handler.endElement("", "", "verse")
+        // A subsequent ordinary verse must still infer its chapter and keep normal numbering.
+        handler.startElement("", "", "verse", AttributesImpl().apply {
+            addAttribute("", "osisID", "osisID", "CDATA", "Rom.8.28")
+        })
+        handler.characters("ordinary".toCharArray(), 0, 8)
+        handler.endElement("", "", "verse")
+        handler.endDocument()
+
+        assertThat(handler.writer.html, equalTo("0. text 28. ordinary "))
+    }
+
+    @Test
     @Throws(Exception::class)
     fun testMultipleVerses() {
         osisToCopyTextSaxHandlerVerseNumbersOn.startElement("", "", "chapter",
