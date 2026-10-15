@@ -74,6 +74,25 @@ class BibleViewScrollbarTest {
         }
     }
 
+    @Test fun destroyRemovesTheRegisteredJavascriptBridge() = withView { view ->
+        view.window.bibleView = view
+        BibleView::class.java.getDeclaredField("pageTiltScroller").apply {
+            isAccessible = true
+            set(view, net.bible.android.view.activity.page.screen.PageTiltScroller(view, PageTiltScrollControl()))
+        }
+        view.setBibleJavascriptInterface(BibleJavascriptInterface(view))
+        val shadow = org.robolectric.Shadows.shadowOf(view)
+        assertNotNull("Bridge is registered under the name exposed to JavaScript", shadow.getJavascriptInterface("androidBridge"))
+
+        try {
+            view.window.destroy()
+
+            assertNull("Destroy must remove the endpoint registered as androidBridge", shadow.getJavascriptInterface("androidBridge"))
+        } finally {
+            view.destroy()
+        }
+    }
+
     @Test fun monoHidesBothBarsAndRestoresOriginalStateInEveryOtherMode() = withView { view ->
         val names = listOf("mVerticalThumb", "mVerticalTrack", "mHorizontalThumb", "mHorizontalTrack")
         val originals = names.associateWith { part(view, it) }

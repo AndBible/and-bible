@@ -990,7 +990,7 @@ class BibleView(
         toBeDestroyed = true
         gestureListener.destroy()
         pageTiltScroller.destroy()
-        removeJavascriptInterface("android")
+        removeJavascriptInterface("androidBridge")
     }
 
     private val subscriptions = Subscriptions()
