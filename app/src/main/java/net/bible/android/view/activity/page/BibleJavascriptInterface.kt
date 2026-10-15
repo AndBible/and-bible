@@ -23,7 +23,7 @@ import net.bible.android.platform.AndroidBackupHost
 import android.content.ClipData
 import android.content.Intent
 import net.bible.sharedcore.log.Log
-import android.webkit.JavascriptInterface
+import net.bible.sharedcore.bibleview.BibleBridge
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -124,7 +124,7 @@ internal fun refChooserVerseName(verseStr: String?): String {
 
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
-) : KoinComponent {
+) : KoinComponent, BibleBridge {
     private val swordContentFacade: SwordContentFacade by inject()
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     private val progressJsActions: ProgressJsActions by inject()
@@ -154,8 +154,7 @@ class BibleJavascriptInterface(
     var notificationsEnabled = false
     val scope get() = hostActivity.lifecycleScope
 
-    @JavascriptInterface
-    fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
+    override fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
         val doc = bibleView.firstDocument
         if (doc is BibleDocument || doc is MyNotesDocument) {
             currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
@@ -179,34 +178,29 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun setClientReady() {
+    override fun setClientReady() {
         Log.i(TAG, "set client ready")
 
         bibleView.setClientReady()
     }
 
-    @JavascriptInterface
-    fun setLimitAmbiguousModalSize(value: Boolean) {
+    override fun setLimitAmbiguousModalSize(value: Boolean) {
         Log.i(TAG, "setLimitAmbiguousModalSize")
         bibleView.workspaceSettings.limitAmbiguousModalSize = value
         WorkspaceChanges.notifySettingsEdited()
     }
 
-    @JavascriptInterface
-    fun requestMoreToBeginning(callId: Long) {
+    override fun requestMoreToBeginning(callId: Long) {
         Log.i(TAG, "Request more text at top")
         bibleView.requestMoreToBeginning(callId)
     }
 
-    @JavascriptInterface
-    fun requestMoreToEnd(callId: Long) {
+    override fun requestMoreToEnd(callId: Long) {
         Log.i(TAG, "Request more text at end")
         bibleView.requestMoreToEnd(callId)
     }
 
-    @JavascriptInterface
-    fun goToNextChapter() {
+    override fun goToNextChapter() {
         Log.i(TAG, "Go to next chapter")
         val manager = currentPageManager
         val page = manager.currentPage
@@ -224,8 +218,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun goToPreviousChapter() {
+    override fun goToPreviousChapter() {
         Log.i(TAG, "Go to previous chapter")
         val manager = currentPageManager
         val page = manager.currentPage
@@ -243,8 +236,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun parseRef(callId: Long, s: String) {
+    override fun parseRef(callId: Long, s: String) {
         Log.i(TAG, "Request more text at end")
         bibleView.parseRef(callId, s)
     }
@@ -267,8 +259,7 @@ class BibleJavascriptInterface(
      * answers JS with no verse rather than launching anything, the same shape as round 15b's
      * History sheet.
      */
-    @JavascriptInterface
-    fun refChooserDialog(callId: Long) {
+    override fun refChooserDialog(callId: Long) {
         scope.launch {
             val verseStr = hostCallbacks.composeReadingViewHost()
                 ?.openVerseChooserSheetForResult()
@@ -280,28 +271,23 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun saveBookmarkNote(bookmarkId: String, note: String?) {
+    override fun saveBookmarkNote(bookmarkId: String, note: String?) {
         bookmarkJsActions.saveBibleBookmarkNote(bibleView.window.id, IdType(bookmarkId), note)
     }
 
-    @JavascriptInterface
-    fun saveGenericBookmarkNote(bookmarkId: String, note: String?) {
+    override fun saveGenericBookmarkNote(bookmarkId: String, note: String?) {
         bookmarkJsActions.saveGenericBookmarkNote(bibleView.window.id, IdType(bookmarkId), note)
     }
 
-    @JavascriptInterface
-    fun removeBookmark(bookmarkId: String) {
+    override fun removeBookmark(bookmarkId: String) {
         bookmarkJsActions.deleteBibleBookmarks(bibleView.window.id, listOf(IdType(bookmarkId)))
     }
 
-    @JavascriptInterface
-    fun removeGenericBookmark(bookmarkId: String) {
+    override fun removeGenericBookmark(bookmarkId: String) {
         bookmarkJsActions.deleteGenericBookmarks(bibleView.window.id, listOf(IdType(bookmarkId)))
     }
 
-    @JavascriptInterface
-    fun assignLabels(bookmarkId: String) {
+    override fun assignLabels(bookmarkId: String) {
         // Ordered after this window's earlier writes, so the label dialog sees them.
         bookmarkJsActions.launch(bibleView.window.id) {
             val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
@@ -309,45 +295,38 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun genericAssignLabels(bookmarkId: String) {
+    override fun genericAssignLabels(bookmarkId: String) {
         bookmarkJsActions.launch(bibleView.window.id) {
             val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId)) ?: return@launch
             bibleView.assignLabels(bookmark)
         }
     }
 
-    @JavascriptInterface
-    fun setBookmarkEditAction(bookmarkId: String, valueStr: String) {
+    override fun setBookmarkEditAction(bookmarkId: String, valueStr: String) {
         val editAction = json.decodeFromString<EditAction>(serializer(), valueStr)
         bookmarkJsActions.updateBookmarkEditAction(bibleView.window.id, IdType(bookmarkId), editAction)
     }
 
-    @JavascriptInterface
-    fun console(loggerName: String, message: String) {
+    override fun console(loggerName: String, message: String) {
         Log.i(TAG, "Console[$loggerName] $message")
     }
 
-    @JavascriptInterface
-    fun selectionCleared() {
+    override fun selectionCleared() {
         Log.i(TAG, "Selection cleared!")
         bibleView.stopSelection()
     }
 
-    @JavascriptInterface
-    fun reportInputFocus(newValue: Boolean) {
+    override fun reportInputFocus(newValue: Boolean) {
         Log.i(TAG, "Focus mode now $newValue")
     }
 
-    @JavascriptInterface
-    fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
+    override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
         val book = Books.installed().getBook(bookInitials) as SwordGenBook
         val backend = book.backend as EpubBackend
         bibleView.openEpubLink(book, backend, toKeyStr, toId)
     }
 
-    @JavascriptInterface
-    fun openExternalLink(link: String) {
+    override fun openExternalLink(link: String) {
         when {
             link.startsWith("B:") -> {
                 // MyBible links
@@ -419,34 +398,27 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun openDownloads() {
+    override fun openDownloads() {
         if (!downloadControl.checkDownloadOkay()) return
         val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.download(addons = true))
         hostActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
     }
 
-    @JavascriptInterface
-    fun setEditing(enabled: Boolean) {
+    override fun setEditing(enabled: Boolean) {
         bibleView.editingTextInJs = enabled
     }
 
-    @JavascriptInterface
-    fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
+    override fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
         bookmarkJsActions.createStudyPadEntry(bibleView.window.id, IdType(labelId), entryType, if (entryType == "none") null else IdType(afterEntryId))
     }
 
-    @JavascriptInterface
-    fun deleteStudyPadEntry(studyPadId: String) { bookmarkJsActions.deleteStudyPadEntry(bibleView.window.id, IdType(studyPadId)) }
+    override fun deleteStudyPadEntry(studyPadId: String) { bookmarkJsActions.deleteStudyPadEntry(bibleView.window.id, IdType(studyPadId)) }
 
-    @JavascriptInterface
-    fun removeBookmarkLabel(bookmarkId: String, labelId: String) { bookmarkJsActions.removeBibleBookmarkLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId)) }
+    override fun removeBookmarkLabel(bookmarkId: String, labelId: String) { bookmarkJsActions.removeBibleBookmarkLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId)) }
 
-    @JavascriptInterface
-    fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String) { bookmarkJsActions.removeGenericBookmarkLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId)) }
+    override fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String) { bookmarkJsActions.removeGenericBookmarkLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId)) }
 
-    @JavascriptInterface
-    fun updateOrderNumber(labelId: String, data: String) {
+    override fun updateOrderNumber(labelId: String, data: String) {
         val deserialized: Map<String, List<Pair<String, Int>>> = json.decodeFromString(serializer(), data)
         bookmarkJsActions.updateOrderNumbers(
             bibleView.window.id, IdType(labelId),
@@ -456,51 +428,43 @@ class BibleJavascriptInterface(
         )
     }
 
-    @JavascriptInterface
-    fun setStudyPadCursor(labelId: String, orderNumber: Int) {
+    override fun setStudyPadCursor(labelId: String, orderNumber: Int) {
         val windowRepository = bookmarkControl.windowControl.windowRepository
         val workspaceSettings = windowRepository.workspaceSettings
         workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
         WorkspaceChanges.notifySettingsEdited()
     }
 
-    @JavascriptInterface
     fun getActiveLanguages(): String {
         //Get the languages for each of the installed bibles and return the language codes as a json list.
         val languages = SwordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
         return "[" + languages.distinct().joinToString(",") + "]"
     }
 
-    @JavascriptInterface
-    fun toast(text: String) {
+    override fun toast(text: String) {
         UserMessages.toast(text)
     }
 
-    @JavascriptInterface
-    fun updateStudyPadTextEntry(data: String) {
+    override fun updateStudyPadTextEntry(data: String) {
         val entry: BookmarkEntities.StudyPadTextEntryWithText = json.decodeFromString(serializer(), data)
         bookmarkJsActions.updateStudyPadTextEntry(bibleView.window.id, entry)
     }
 
-    @JavascriptInterface
-    fun updateStudyPadTextEntryText(id: String, text: String) {
+    override fun updateStudyPadTextEntryText(id: String, text: String) {
         bookmarkJsActions.updateStudyPadTextEntryText(bibleView.window.id, IdType(id), text)
     }
 
-    @JavascriptInterface
-    fun updateBookmarkToLabel(data: String) {
+    override fun updateBookmarkToLabel(data: String) {
         val entry: BookmarkEntities.BibleBookmarkToLabel = json.decodeFromString(serializer(), data)
         bookmarkJsActions.updateBibleBookmarkToLabel(bibleView.window.id, entry)
     }
 
-    @JavascriptInterface
-    fun updateGenericBookmarkToLabel(data: String) {
+    override fun updateGenericBookmarkToLabel(data: String) {
         val entry: BookmarkEntities.GenericBookmarkToLabel = json.decodeFromString(serializer(), data)
         bookmarkJsActions.updateGenericBookmarkToLabel(bibleView.window.id, entry)
     }
 
-    @JavascriptInterface
-    fun shareBookmarkVerse(bookmarkId: String) {
+    override fun shareBookmarkVerse(bookmarkId: String) {
         bookmarkJsActions.launch(bibleView.window.id) {
             val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
             scope.launch(Dispatchers.Main) {
@@ -516,8 +480,7 @@ class BibleJavascriptInterface(
         return value
     }
 
-    @JavascriptInterface
-    fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+    override fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             hostCallbacks.composeReadingViewHost()?.showShareSheet(
                 swordContentFacade.buildShareVersesInput(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
@@ -525,47 +488,39 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+    override fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             bibleView.copySelectionToClipboard(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
         }
     }
 
-    @JavascriptInterface
-    fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
+    override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
         bibleView.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }
 
-    @JavascriptInterface
-    fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
+    override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
         bibleView.makeBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }
 
-    @JavascriptInterface
-    fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+    override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         bibleView.addParagraphBreakBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
     }
 
-    @JavascriptInterface
-    fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
+    override fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
         bibleView.addParagraphBreakBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
     }
 
-    @JavascriptInterface
-    fun createWholePageBookmark(bookInitials: String, bookKey: String) {
+    override fun createWholePageBookmark(bookInitials: String, bookKey: String) {
         bibleView.createWholePageBookmark(bookInitials, bookKey)
     }
 
-    @JavascriptInterface
-    fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
+    override fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
     }
 
-    @JavascriptInterface
-    fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
+    override fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, verseOrdinal, endOrdinal)
         progressJsActions.addTargetIfNeededThen(bibleView.window.id, verseRange, scope, Dispatchers.Main) {
             bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
@@ -579,32 +534,27 @@ class BibleJavascriptInterface(
         return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, effectiveEnd))
     }
 
-    @JavascriptInterface
-    fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+    override fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
         progressJsActions.markMemorized(bibleView.window.id, verseRange)
     }
 
-    @JavascriptInterface
-    fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+    override fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
         progressJsActions.addTarget(bibleView.window.id, verseRange)
     }
 
-    @JavascriptInterface
-    fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+    override fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
         progressJsActions.unmarkMemorized(bibleView.window.id, verseRange)
     }
 
-    @JavascriptInterface
-    fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+    override fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
         progressJsActions.removeTargetByRange(bibleView.window.id, verseRange)
     }
 
-    @JavascriptInterface
-    fun setReadingProgressSettings(json: String) {
+    override fun setReadingProgressSettings(json: String) {
         ReadingProgressSettings.setBundleFromJson(json)
         ReadingProgressSettings.notifyChanged()
     }
@@ -619,8 +569,7 @@ class BibleJavascriptInterface(
      * `startActivityForResult(..., STD_REQUEST_CODE)` is unchanged and still matters: this screen
      * returns `ActivityResultKind.ReadingProgress` to `MainBibleActivity.onActivityResult`.
      */
-    @JavascriptInterface
-    fun openReadingProgress(tab: Int) {
+    override fun openReadingProgress(tab: Int) {
         scope.launch(Dispatchers.Main) {
             val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.readingProgress(tab))
             hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
@@ -632,8 +581,7 @@ class BibleJavascriptInterface(
      * returns `RESULT_CANCELED` into `MainBibleActivity.kt:2882-2890`'s early branch. That is
      * pre-existing, harmless and deliberately NOT changed here.
      */
-    @JavascriptInterface
-    fun openReadingProgressSettings() {
+    override fun openReadingProgressSettings() {
         scope.launch(Dispatchers.Main) {
             val intent = ScreenLauncher.intentFor(hostActivity, Screen.ReadingProgressSettings)
             hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
@@ -645,8 +593,7 @@ class BibleJavascriptInterface(
      * resolved server-side to a (title, message, helpUrl) triple so
      * that the JS side cannot inject arbitrary URLs.
      */
-    @JavascriptInterface
-    fun showHelpDialog(scopeKey: String) {
+    override fun showHelpDialog(scopeKey: String) {
         val (titleRes, messageRes, helpUrl) = when (scopeKey) {
             "memorize" -> Triple(R.string.help, R.string.help_memorize_text, DocsLinks.page("memorize"))
             else -> {
@@ -664,8 +611,7 @@ class BibleJavascriptInterface(
      * (autoTrackDone) prevents duplicate auto-track inserts. The `source` parameter is
      * the string name of a [ReadingSource] value; unknown strings fall back to MANUAL.
      */
-    @JavascriptInterface
-    fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
+    override fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val verse = Verse(v11n, startOrdinal)
@@ -673,8 +619,7 @@ class BibleJavascriptInterface(
         progressJsActions.recordChapterRead(bibleView.window.id, v11n, verse.book, chapter, bookInitials, readingSource)
     }
 
-    @JavascriptInterface
-    fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) {
+    override fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val kjvBook = Verse(v11n, startOrdinal).toV11n(KJVA).book
@@ -683,13 +628,11 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun saveState(newState: String) {
+    override fun saveState(newState: String) {
         bibleView.window.pageManager.jsState = newState
     }
 
-    @JavascriptInterface
-    fun openStudyPad(labelId: String, bookmarkId: String) {
+    override fun openStudyPad(labelId: String, bookmarkId: String) {
         // After this window's queued writes (e.g. the note save JS sent just before), so the opened
         // document is loaded with them.
         bookmarkJsActions.afterQueuedWrites(bibleView.window.id, scope, Dispatchers.Main) {
@@ -697,15 +640,13 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun openMyNotes(v11n: String, ordinal: Int) {
+    override fun openMyNotes(v11n: String, ordinal: Int) {
         bookmarkJsActions.afterQueuedWrites(bibleView.window.id, scope, Dispatchers.Main) {
             linkControl.openMyNotes(v11n, ordinal)
         }
     }
 
-    @JavascriptInterface
-    fun openAiDocPage(documentInitials: String, pageKey: String) {
+    override fun openAiDocPage(documentInitials: String, pageKey: String) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(documentInitials) ?: return@launch
             val key = try {
@@ -723,8 +664,7 @@ class BibleJavascriptInterface(
     // (`app/bibleview-js/src/composables/android.ts:127` declared it with no call site; grep
     // confirmed), so this was dead on both sides of the JS bridge.
 
-    @JavascriptInterface
-    fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
+    override fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val v11n = Versifications.instance().getVersification(v11nName)
@@ -736,8 +676,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
+    override fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val v11n = Versifications.instance().getVersification(v11nName)
@@ -750,8 +689,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
+    override fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials)
             val origKey = try {
@@ -770,61 +708,51 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun setAsPrimaryLabel(bookmarkId: String, labelId: String) {
+    override fun setAsPrimaryLabel(bookmarkId: String, labelId: String) {
         bookmarkJsActions.setAsPrimaryLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId), generic = false) {
             bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
         }
     }
 
-    @JavascriptInterface
-    fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String) {
+    override fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String) {
         bookmarkJsActions.setAsPrimaryLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId), generic = true) {
             bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
         }
     }
 
-    @JavascriptInterface
-    fun toggleBookmarkLabel(bookmarkId: String, labelId: String) {
+    override fun toggleBookmarkLabel(bookmarkId: String, labelId: String) {
         bookmarkJsActions.toggleBibleBookmarkLabel(bibleView.window.id, IdType(bookmarkId), labelId)
     }
 
-    @JavascriptInterface
-    fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) {
+    override fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) {
         bookmarkJsActions.toggleGenericBookmarkLabel(bibleView.window.id, IdType(bookmarkId), labelId)
     }
 
-    @JavascriptInterface
-    fun setBookmarkCustomIcon(bookmarkId: String, value: String?) {
+    override fun setBookmarkCustomIcon(bookmarkId: String, value: String?) {
         bookmarkJsActions.setBibleBookmarkCustomIcon(bibleView.window.id, IdType(bookmarkId), value)
     }
 
-    @JavascriptInterface
-    fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) {
+    override fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) {
         bookmarkJsActions.setGenericBookmarkCustomIcon(bibleView.window.id, IdType(bookmarkId), value)
     }
 
-    @JavascriptInterface
-    fun reportModalState(value: Boolean) {
+    override fun reportModalState(value: Boolean) {
         bibleView.modalOpen = value
     }
 
-    @JavascriptInterface
-    fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
+    override fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
         bookmarkJsActions.setBibleBookmarkWholeVerse(bibleView.window.id, IdType(bookmarkId), value,
             onRefused = { UserMessages.toast(R.string.cant_change_wholeverse) },
             onTurnedOn = { UserMessages.toast(R.string.whole_verse_turned_on) })
     }
 
-    @JavascriptInterface
-    fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
+    override fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
         bookmarkJsActions.setGenericBookmarkWholeVerse(bibleView.window.id, IdType(bookmarkId), value,
             onRefused = { UserMessages.toast(R.string.cant_change_wholeverse) },
             onTurnedOn = { UserMessages.toast(R.string.whole_verse_turned_on) })
     }
 
-    @JavascriptInterface
-    fun toggleCompareDocument(documentId: String) {
+    override fun toggleCompareDocument(documentId: String) {
         Log.i(TAG, "toggleCompareDocument")
         val hideDocs = bibleView.workspaceSettings.hideCompareDocuments
         if(hideDocs.contains(documentId)) {
@@ -838,15 +766,13 @@ class BibleJavascriptInterface(
     /** [content] is now parsed as the app's small HTML subset (`AbHtmlText`/`parseHtmlRuns`) rather
      *  than shown as literal plain text -- harmless for the callers today (no `<`/`&` in their
      *  strings), but a caller adding one later would see it interpreted, not escaped. */
-    @JavascriptInterface
-    fun helpDialog(content: String, title: String?) {
+    override fun helpDialog(content: String, title: String?) {
         // Platform-dialog removal Task 18: the reading view owns this dialog now (a `ReadingDialog`
         // over the pane, not a `ReadingOverlay` -- see `ComposeReadingViewHost.ReadingDialog`'s kdoc).
         hostCallbacks.composeReadingViewHost()?.showHelp(title, content)
     }
 
-    @JavascriptInterface
-    fun helpBookmarks() {
+    override fun helpBookmarks() {
         val verseTip = hostActivity.getString(R.string.verse_tip)
         val bookmarksMyNotesHelp = hostActivity.getString(R.string.help_bookmarks_text)
         val message = "<i><a href=\"$bookmarksMyNotesPlaylist\">${hostActivity.getString(R.string.watch_tutorial_video)}</a></i>" +
@@ -856,8 +782,7 @@ class BibleJavascriptInterface(
         hostCallbacks.composeReadingViewHost()?.showHelp(hostActivity.getString(R.string.bookmarks_and_mynotes_title), message)
     }
 
-    @JavascriptInterface
-    fun shareHtml(html: String) {
+    override fun shareHtml(html: String) {
         val targetDir = File(SharedConstants.internalFilesDir, "backup/")
         targetDir.mkdirs()
         val targetFile = File(targetDir, "shared.html")
@@ -885,8 +810,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun onKeyDown(key: String) {
+    override fun onKeyDown(key: String) {
         Log.i(TAG, "key $key")
         scope.launch(Dispatchers.Main) {
             when (key) {
@@ -957,15 +881,13 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun crash() {
+    override fun crash() {
         scope.launch {
             hostCallbacks.crashAllBibleViews()
         }
     }
 
-    @JavascriptInterface
-    fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) {
+    override fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         scope.launch(Dispatchers.Main) {
             hostCallbacks.showLlmPromptSelector(
                 Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal), text = text),
@@ -974,8 +896,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String) {
+    override fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         scope.launch(Dispatchers.Main) {
             hostCallbacks.showLlmPromptSelector(
                 Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal), text = text),
@@ -996,8 +917,7 @@ class BibleJavascriptInterface(
      * Trigger LLM prompt selector for the note editor context.
      * Called from Vue.js MarkdownEditor/HtmlEditor AI button.
      */
-    @JavascriptInterface
-    fun noteEditorLlmAction(contextJson: String) {
+    override fun noteEditorLlmAction(contextJson: String) {
         scope.launch(Dispatchers.Main) {
             val ctx = json.decodeFromString<NoteEditorLlmContext>(serializer(), contextJson)
 
@@ -1032,8 +952,7 @@ class BibleJavascriptInterface(
 
     private val windowControl get() = bibleView.windowControl
 
-    @JavascriptInterface
-    fun getMyDocumentPageRawContent(callId: Long, bookInitials: String, pageKey: String) {
+    override fun getMyDocumentPageRawContent(callId: Long, bookInitials: String, pageKey: String) {
         scope.launch {
             val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey)
             val jsonResult = if (result != null) {
@@ -1045,8 +964,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun shareMyDocumentContent(bookInitials: String, pageKey: String) {
+    override fun shareMyDocumentContent(bookInitials: String, pageKey: String) {
         scope.launch {
             val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey) ?: return@launch
             withContext(Dispatchers.Main) {
@@ -1060,8 +978,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun copyMyDocumentContent(bookInitials: String, pageKey: String) {
+    override fun copyMyDocumentContent(bookInitials: String, pageKey: String) {
         scope.launch {
             val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey) ?: return@launch
             withContext(Dispatchers.Main) {
@@ -1070,30 +987,26 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) {
+    override fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) {
         MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
             MyDocumentBookManager.savePageContent(IdType(pageId), content, title)
         }
     }
 
-    @JavascriptInterface
-    fun reloadMyDocumentPage(bookInitials: String) {
+    override fun reloadMyDocumentPage(bookInitials: String) {
         MyDocumentBookManager.launcher.launch("mydocument-window-${bibleView.window.id}") {
             MyDocumentBookManager.refreshDocument(bookInitials)
         }
     }
 
-    @JavascriptInterface
-    fun regenerateMyDocumentPage(pageId: String) {
+    override fun regenerateMyDocumentPage(pageId: String) {
         val id = IdType(pageId)
         scope.launch(Dispatchers.Main) {
             hostCallbacks.showRegenerate(id, bibleView)
         }
     }
 
-    @JavascriptInterface
-    fun deleteMyDocumentPage(pageId: String) {
+    override fun deleteMyDocumentPage(pageId: String) {
         val id = IdType(pageId)
         scope.launch(Dispatchers.Main) {
             // Platform-dialog removal Task 18: the QUESTION moves to the reading view's own dialog
@@ -1118,8 +1031,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun openPromptEditor(promptId: String) {
+    override fun openPromptEditor(promptId: String) {
         scope.launch(Dispatchers.Main) {
             // Screen.PromptEdit is migrated (Task 7) -- ScreenLauncher.MIGRATED can only carry an
             // argument-less route, so a caller needing promptId must build the concrete route

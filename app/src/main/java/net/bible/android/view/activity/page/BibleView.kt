@@ -933,7 +933,12 @@ class BibleView(
 
     fun setBibleJavascriptInterface(bibleJavascriptInterface: BibleJavascriptInterface) {
         this.bibleJavascriptInterface = bibleJavascriptInterface
-        addJavascriptInterface(bibleJavascriptInterface, "android")
+        val dispatcher = net.bible.sharedcore.bibleview.BridgeDispatcher(
+            bridge = bibleJavascriptInterface,
+            respondNull = { callId -> executeJavascriptOnUiThread("bibleView.response($callId, null);") },
+            log = { Log.e(TAG, it) },
+        )
+        addJavascriptInterface(AndroidBridgeEndpoint(dispatcher, bibleJavascriptInterface::getActiveLanguages), "androidBridge")
     }
 
     @SuppressLint("SetJavaScriptEnabled")
