@@ -89,10 +89,10 @@ class BibleBridgeDecoderTest {
         assertTrue(bridge.calls.isEmpty())
     }
 
-    @Test fun callIdOfReadsOnlyANumericFirstArgument() {
+    @Test fun callIdOfRecoversNullAsZeroAndRejectsMissingOrWronglyTypedIds() {
         assertEquals(7L, BibleBridgeDecoder.callIdOf(args(7, "x")))
         assertNull(BibleBridgeDecoder.callIdOf(args("7")))
-        assertNull(BibleBridgeDecoder.callIdOf(args(null)))
+        assertEquals(0L, BibleBridgeDecoder.callIdOf(args(null)))
         assertNull(BibleBridgeDecoder.callIdOf(args(true)))
         assertNull(BibleBridgeDecoder.callIdOf(emptyList()))
     }

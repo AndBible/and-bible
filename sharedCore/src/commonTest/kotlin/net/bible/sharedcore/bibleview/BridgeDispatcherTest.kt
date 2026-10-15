@@ -39,6 +39,20 @@ class BridgeDispatcherTest {
         assertEquals(listOf(7L), answered)
     }
 
+    @Test fun nullCallIdOnBadArityAnswersZero() {
+        assertIs<BridgeResult.Error>(dispatcher.dispatch("""{"method":"parseRef","args":[null]}"""))
+        assertEquals(listOf(0L), answered)
+    }
+
+    @Test fun throwingDeferredHandlerWithNullCallIdAnswersZero() {
+        val throwing = object : UnimplementedBibleBridge({}, {}) {
+            override fun parseRef(callId: Long, s: String) = throw IllegalStateException("boom")
+        }
+        val d = BridgeDispatcher(throwing, { answered += it }, { logged += it })
+        assertIs<BridgeResult.Error>(d.dispatch("""{"method":"parseRef","args":[null,"Gen 1"]}"""))
+        assertEquals(listOf(0L), answered)
+    }
+
     @Test fun badArgumentsOnPlainCallDoNotAnswer() {
         assertIs<BridgeResult.Error>(dispatcher.dispatch("""{"method":"removeBookmark","args":[null]}"""))
         assertTrue(answered.isEmpty())

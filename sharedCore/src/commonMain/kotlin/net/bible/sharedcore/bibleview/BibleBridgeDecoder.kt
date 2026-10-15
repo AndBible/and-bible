@@ -162,10 +162,11 @@ object BibleBridgeDecoder {
         return true
     }
 
-    /** The `callId` of a deferred call, or null when the first argument is absent or not a number. */
+    /** The deferred `callId`, or null when absent or wrongly typed; explicit JSON null coerces to 0. */
     fun callIdOf(args: List<JsonElement>): Long? {
         val p = args.firstOrNull() as? JsonPrimitive ?: return null
-        if (p is JsonNull || p.isString || p.booleanOrNull != null) return null
+        if (p is JsonNull) return 0L
+        if (p.isString || p.booleanOrNull != null) return null
         p.longOrNull?.let { return it }
         val number = p.doubleOrNull ?: return null
         return number.toLong() // Match BridgeArgs.long() truncation and saturation.
