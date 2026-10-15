@@ -85,7 +85,16 @@ fun PlatformProbeScreen(darkTheme: Boolean = isSystemInDarkTheme()) {
                     Button(onClick = action("Speech") { probe.pause("Flush") }, enabled = !busy) { Text("Flush queue") }
                 }
                 item { ProbeAction("Media session", logs["Media"], !busy, action("Media") { probe.media() }) }
-                item { ProbeAction("Keychain round trip", logs["Keychain"], !busy, action("Keychain") { probe.keychain() }) }
+                item {
+                    ProbeAction("Keychain: write diagnostic value", logs["Keychain"], !busy,
+                        action("Keychain") { probe.keychainWrite() })
+                    Button(enabled = !busy, onClick = action("Keychain") { probe.keychainRead() }) {
+                        Text("Keychain: read existing after restart")
+                    }
+                    Button(enabled = !busy, onClick = action("Keychain") { probe.keychainCleanup() }) {
+                        Text("Keychain: remove diagnostic value")
+                    }
+                }
                 item { ProbeAction("Environment dump", logs["Environment"], !busy, action("Environment") { probe.environment() }) }
                 item { ProbeAction("Pick file", logs["Picker"], !busy, action("Picker") { probe.pick() }) }
                 item { ProbeAction("Share generated text", logs["Share"], !busy, action("Share") { probe.deliver(SaveOrShare.SHARE) }) }
@@ -232,11 +241,18 @@ private class ProbeServices(
         session.setPlaybackState(MediaPlaybackState.PLAYING)
     }
 
-    suspend fun keychain() = withContext(Dispatchers.IO) {
-        try {
-            secrets.put("probe", "platform-probe")
-            log("Keychain", "Read back: ${secrets.get("probe")}")
-        } finally { secrets.remove("probe") }
+    suspend fun keychainWrite() = withContext(Dispatchers.IO) {
+        secrets.put("probe", "platform-probe")
+        log("Keychain", "Diagnostic value written. Restart, then read existing without writing.")
+    }
+
+    suspend fun keychainRead() = withContext(Dispatchers.IO) {
+        log("Keychain", "Existing diagnostic value matches: ${secrets.get("probe") == "platform-probe"}")
+    }
+
+    suspend fun keychainCleanup() = withContext(Dispatchers.IO) {
+        secrets.remove("probe")
+        log("Keychain", "Diagnostic value removed.")
     }
 
     suspend fun environment() = withContext(Dispatchers.IO) {

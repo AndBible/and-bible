@@ -19,7 +19,10 @@ object IosPresenter {
             .firstOrNull { it.activationState == UISceneActivationStateForegroundActive } ?: return null
         var controller = scene.windows.filterIsInstance<UIWindow>()
             .firstOrNull { it.isKeyWindow() }?.rootViewController ?: return null
-        while (true) controller = controller.presentedViewController ?: return controller
+        while (true) {
+            if (controller.isBeingDismissed() || controller.isBeingPresented() || controller.transitionCoordinator != null) return null
+            controller = controller.presentedViewController ?: return controller
+        }
     }
 }
 
@@ -41,7 +44,11 @@ internal class FilePresentation<T>(
             // Cancellation may originate off-main. This independent dispatch must survive it.
             CoroutineScope(Dispatchers.Main).launch { finish(cancelled) }
         }
-        if (continuation?.isActive != true) { finish(cancelled); return }
+        if (continuation?.isActive != true || from.isBeingDismissed() || from.isBeingPresented() ||
+            from.transitionCoordinator != null || from.presentedViewController != null || from.view.window == null) {
+            finish(cancelled)
+            return
+        }
         try {
             from.presentViewController(sheet, animated = true, completion = null)
             sheet.presentationController?.delegate = this
@@ -63,10 +70,13 @@ internal class FilePresentation<T>(
         sheet?.popoverPresentationController?.delegate = null
         val cleanup = release
         release = null
+        val completed = {
+            cleanup?.invoke()
+            if (pending.isActive) pending.resume(result)
+        }
         if (sheet?.presentingViewController != null) {
-            sheet.dismissViewControllerAnimated(true) { cleanup?.invoke() }
-        } else cleanup?.invoke()
-        if (pending.isActive) pending.resume(result)
+            sheet.dismissViewControllerAnimated(true, completed)
+        } else completed()
     }
 
     override fun documentPicker(controller: UIDocumentPickerViewController, didPickDocumentsAtURLs: List<*>) {

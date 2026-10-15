@@ -4,7 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.runTest
-import platform.UIKit.UIViewController
+import platform.UIKit.*
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.buffer
@@ -43,6 +43,37 @@ class IosFilePickerTest {
             assertEquals(1, releases)
         }
     }
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    @Test fun consecutiveRealPresentationsResumeOnlyAfterDismissal() = runTest {
+        withContext(Dispatchers.Main) {
+            val window = platform.UIKit.UIWindow(frame = platform.UIKit.UIScreen.mainScreen.bounds)
+            val host = UIViewController()
+            window.rootViewController = host
+            window.makeKeyAndVisible()
+            try {
+                repeat(2) {
+                    val sheet = platform.UIKit.UIDocumentPickerViewController(
+                        forOpeningContentTypes = listOf(UTTypeData), asCopy = true)
+                    val result = suspendCancellableCoroutine { continuation ->
+                        val presentation = FilePresentation(sheet, continuation, DeliveryResult.CANCELLED)
+                        presentation.present(host)
+                        // Use UIKit's actual presentation completion, not an unpresented stand-in.
+                        fun finishWhenPresented() {
+                            val transition = sheet.transitionCoordinator
+                            if (transition != null) {
+                                transition.animateAlongsideTransition(null) { presentation.finish(DeliveryResult.DELIVERED) }
+                            } else presentation.finish(DeliveryResult.DELIVERED)
+                        }
+                        platform.darwin.dispatch_async(platform.darwin.dispatch_get_main_queue()) { finishWhenPresented() }
+                    }
+                    assertEquals(DeliveryResult.DELIVERED, result)
+                    assertNull(host.presentedViewController)
+                    assertNull(sheet.presentingViewController)
+                }
+            } finally { window.hidden = true; window.rootViewController = null }
+        }
+    }
+
     @Test fun noPresenterCancelsPicker() = runTest {
         assertNull(IosFilePicker { null }.pickBackupFile())
     }
