@@ -6,8 +6,9 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.bible.sharedcore.http.DownloadHttp
 import net.bible.sharedcore.http.DownloadTimeoutException
 import net.bible.sharedcore.http.HttpHeaders
@@ -20,23 +21,25 @@ import org.crosswire.common.util.TransportCancelledException
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * Bridges JSword's blocking download port to suspend HTTP until the JSword suspend port (K5b).
- * The owner scope lives for the app lifetime; each body owns and cancels its own producer.
+ * Maps DownloadHttp to JSword's suspend download port. The calls delegate directly: the caller's coroutine
+ * suspends on them, so cancelling it cancels the transfer and surfaces as a CancellationException.
+ * DownloadHttp streams a body only inside a callback, so a pull-style [HttpBody] needs a producer: the owner
+ * scope lives for the app lifetime and each body owns and cancels its own producer.
  * Metadata starts the request but does not consume body bytes. Reading uses a bounded queue,
  * so a module's size never determines memory use. Timeouts come from DownloadHttp's provider;
  * the port's timeoutMs arguments always equal that provider's WebResource timeout.
  */
-class BlockingHttpTransport(
+class SuspendHttpTransport(
     private val http: DownloadHttp,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) : HttpTransport {
-    override fun head(uri: KUri, timeoutMs: Int): HttpHead = blocking {
+    override suspend fun head(uri: KUri, timeoutMs: Int): HttpHead = mapped {
         val h = http.head(uri.toString())
         if (h.status == 200) HttpHead(h.status, null, h.contentLength.toIntLength(), h.lastModified)
         else HttpHead(h.status, h.reason, 0, 0)
     }
 
-    override fun get(uri: KUri, timeoutMs: Int): HttpBody = StreamingBody(uri.toString())
+    override suspend fun get(uri: KUri, timeoutMs: Int): HttpBody = StreamingBody(uri.toString())
 
     private inner class StreamingBody(url: String) : HttpBody {
         private val headers = CompletableDeferred<HttpHeaders>()
@@ -73,10 +76,17 @@ class BlockingHttpTransport(
             }
         }
 
-        private fun <T> bodyBlocking(block: suspend () -> T): T = try {
+        /**
+         * A timeout or a cancelled producer ends the body with [TransportCancelledException] (closing it), as the
+         * blocking port did; the calling coroutine's own cancellation stays a CancellationException.
+         */
+        private suspend fun <T> bodyCall(block: suspend () -> T): T = try {
             checkOpen()
-            blocking(block)
+            mapped(block)
         } catch (error: TransportCancelledException) {
+            close()
+            throw error
+        } catch (error: CancellationException) {
             close()
             throw error
         }
@@ -85,16 +95,16 @@ class BlockingHttpTransport(
             if (closed) throw TransportCancelledException(CancellationException("HTTP body closed"))
         }
 
-        private fun meta(): HttpHeaders = bodyBlocking {
+        private suspend fun meta(): HttpHeaders = bodyCall {
             producer.start()
             headers.await()
         }
 
-        override val status: Int get() = meta().status
-        override val contentLength: Int get() = meta().contentLength.toIntLength()
-        override val lastModified: Long get() = meta().lastModified
+        override suspend fun status(): Int = meta().status
+        override suspend fun contentLength(): Int = meta().contentLength.toIntLength()
+        override suspend fun lastModified(): Long = meta().lastModified
 
-        override fun prepareRead() {
+        override suspend fun prepareRead() {
             val h = meta()
             if (h.status >= 400) {
                 producer.cancel()
@@ -103,11 +113,11 @@ class BlockingHttpTransport(
             readRequested.complete(Unit)
         }
 
-        override fun read(buf: ByteArray): Int {
+        override suspend fun read(buf: ByteArray): Int {
             checkOpen()
             if (buf.isEmpty()) return 0
             prepareRead()
-            val chunk = pending ?: bodyBlocking {
+            val chunk = pending ?: bodyCall {
                 val result = chunks.receiveCatching()
                 result.exceptionOrNull()?.let { throw it }
                 result.getOrNull()
@@ -131,13 +141,19 @@ class BlockingHttpTransport(
         }
     }
 
-    private fun <T> blocking(block: suspend () -> T): T = try {
-        runBlocking { block() }
+    /**
+     * Runs [block] and maps a timeout (or an interrupt) to [TransportCancelledException]. A CancellationException
+     * is the caller's own cancellation when the calling coroutine is no longer active and passes through;
+     * otherwise a producer was cancelled underneath an active caller and it maps like a timeout.
+     */
+    private suspend fun <T> mapped(block: suspend () -> T): T = try {
+        block()
     } catch (error: InterruptedException) {
         throw TransportCancelledException(error)
     } catch (error: DownloadTimeoutException) {
         throw TransportCancelledException(error)
     } catch (error: CancellationException) {
+        currentCoroutineContext().ensureActive()
         throw TransportCancelledException(error)
     }
 }
