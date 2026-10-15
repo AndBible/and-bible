@@ -64,6 +64,17 @@ class IosFilePickerTest {
         assertEquals(DeliveryResult.FAILED, result)
         assertEquals(0, presenterCalls)
     }
+    @Test fun traversalExportNameFailsWithoutChangingSource() = runTest {
+        val path = NSTemporaryDirectory().toPath() / NSUUID().UUIDString
+        try {
+            FileSystem.SYSTEM.write(path) { writeUtf8("original") }
+            assertEquals(DeliveryResult.FAILED, IosFileDelivery { UIViewController() }.deliver(
+                path.toString(), "../backup.zip", SaveOrShare.SAVE,
+                "application/zip", "application/zip", null, null, "Export"
+            ))
+            assertEquals("original", FileSystem.SYSTEM.read(path) { readUtf8() })
+        } finally { FileSystem.SYSTEM.delete(path, mustExist = false) }
+    }
     @Test fun existingDeliveryWithoutPresenterIsCancelled() = runTest {
         val path = NSTemporaryDirectory().toPath() / NSUUID().UUIDString
         try {

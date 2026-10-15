@@ -12,11 +12,10 @@ import okio.Source
 import platform.Foundation.NSURL
 import platform.UIKit.UIDocumentPickerViewController
 import platform.UIKit.UIViewController
-import platform.UniformTypeIdentifiers.UTType
-import platform.UniformTypeIdentifiers.UTTypeData
+import platform.UniformTypeIdentifiers.*
 
 internal fun contentTypesFor(mime: String): List<UTType> =
-    listOf(pickerMimeType(mime)?.let { UTType.typeWithMIMEType(it) } ?: UTTypeData)
+    listOf(pickerMimeType(mime)?.let { UTType.typeWithMIMEType(it) }?.takeUnless { it.dynamic } ?: UTTypeData)
 
 class IosFilePicker(private val presenter: () -> UIViewController? = IosPresenter::topViewController) : FilePicker {
     override suspend fun pickBackupFile(mime: String): PickedSource? = withContext(Dispatchers.Main) {
