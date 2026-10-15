@@ -91,7 +91,7 @@ class WindowSourceIdentityTest : KoinComponent {
         c.pause()
 
         // Another source (e.g., settings activity) takes the shared windowControl
-        val foreignRepo = WindowRepository(kotlinx.coroutines.CoroutineScope(Dispatchers.Main))
+        val foreignRepo = net.bible.test.testWindowRepository()
         wc.windowRepository = foreignRepo
         assertNotSame(hostRepo, wc.windowRepository, "precondition: repository swap must happen")
         println("afterPauseAndResumeTheyAreStillOne: another source took the repository")

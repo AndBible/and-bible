@@ -65,7 +65,7 @@ class StudyPadCursorIntegrationTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl!!.windowRepository = net.bible.test.testWindowRepository()
         windowRepository.initialize()
 
         bookmarkControl = BookmarkControl(windowControl!!, testAppSettings(), testCoreStrings(), testOrderedLauncher(), net.bible.android.platform.androidSaxTextPolicy())
@@ -402,7 +402,7 @@ class StudyPadCursorIntegrationTest {
         windowRepository.saveIntoDb()
 
         // Create new window repository (simulates app restart)
-        val newWindowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        val newWindowRepository = net.bible.test.testWindowRepository()
         newWindowRepository.initialize()
 
         // Verify cursor persisted
@@ -429,7 +429,7 @@ class StudyPadCursorIntegrationTest {
         windowRepository.saveIntoDb()
 
         // Load in new repository
-        val newWindowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        val newWindowRepository = net.bible.test.testWindowRepository()
         newWindowRepository.initialize()
 
         // Verify all cursors persisted

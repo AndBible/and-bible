@@ -76,7 +76,7 @@ class ToolbarStateServiceImplTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
 
         val koin = GlobalContext.get()
@@ -183,7 +183,7 @@ class ToolbarStateServiceImplTest {
 
     @Test
     fun activeWindowChange_inASwappedInRepository_stillRefreshes() {
-        val swapped = WindowRepository(CoroutineScope(Dispatchers.Main))
+        val swapped = net.bible.test.testWindowRepository()
         windowControl.windowRepository = swapped
         swapped.initialize()
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)

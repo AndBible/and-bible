@@ -59,7 +59,7 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl!!.windowRepository = net.bible.test.testWindowRepository()
         windowRepository.initialize()
         windowRepository.workspaceSettings.autoPin = true
         windowControl!!.activeWindow.isPinMode = true

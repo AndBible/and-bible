@@ -127,7 +127,7 @@ open class SpeakIntegrationTestBase {
         speakControl = koin.get()
         windowControl = koin.get()
         speakSettingsService = koin.get()
-        windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository.initialize()
         book = Books.installed().getBook("FinRK") as SwordBook
     }

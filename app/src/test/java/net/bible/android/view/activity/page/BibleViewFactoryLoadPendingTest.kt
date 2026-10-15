@@ -39,7 +39,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class BibleViewFactoryLoadPendingTest {
     private fun window(): Window {
-        val repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        val repo = net.bible.test.testWindowRepository()
         return Window(
             WorkspaceEntities.Window(
                 workspaceId = IdType(), isSynchronized = false, isPinMode = false,

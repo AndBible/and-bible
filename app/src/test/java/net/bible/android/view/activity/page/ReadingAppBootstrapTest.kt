@@ -59,7 +59,7 @@ import org.robolectric.annotation.Config
  *
  * **Why this counts construction SITES rather than asserting that a repository exists.** §2.3's
  * failure mode is silent. `WindowControl.kt`'s `windowRepository` getter falls back to
- * `WindowRepository(CoroutineScope(Dispatchers.Main))` — an *uninitialised* repository on a scope
+ * `net.bible.test.testWindowRepository()` — an *uninitialised* repository on a scope
  * nobody owns — instead of throwing, so "a repository exists" is true even when the bootstrap never
  * ran, and equally true when TWO of them ran and the second quietly replaced the first. The visible
  * symptom is not a crash: it is an empty workspace on a screen that looks fully loaded.

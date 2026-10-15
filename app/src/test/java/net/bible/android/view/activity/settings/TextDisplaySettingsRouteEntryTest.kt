@@ -65,7 +65,7 @@ class TextDisplaySettingsRouteEntryTest {
 
     @Before fun setUp() {
         val windowControl = CommonUtils.windowControl
-        windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = net.bible.test.testWindowRepository()
         windowControl.activeWindow              // auto-creates window 1 + workspace
         sharedService = TextDisplaySettingsServiceImpl()
     }

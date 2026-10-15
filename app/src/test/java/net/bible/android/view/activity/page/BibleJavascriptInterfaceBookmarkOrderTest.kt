@@ -67,7 +67,7 @@ class BibleJavascriptInterfaceBookmarkOrderTest {
 
     @Before fun setUp() {
         windowControl = WindowControl()
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         windowControl.windowRepository = repo
         originalRepo = CommonUtils.windowControl.windowRepository
         CommonUtils.windowControl.windowRepository = repo

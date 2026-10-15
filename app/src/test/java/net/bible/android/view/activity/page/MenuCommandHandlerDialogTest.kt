@@ -64,7 +64,7 @@ class MenuCommandHandlerDialogTest {
     @Before
     fun setUp() {
         val windowControl: WindowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 

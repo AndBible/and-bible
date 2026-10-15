@@ -54,7 +54,7 @@ class LinkControlStudyPadTest {
     @Before
     fun setUp() {
         runBlocking { bookmarkControl.insertOrUpdateLabel(label) }
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
         val kjv = Books.installed().getBook("KJV") as SwordBook

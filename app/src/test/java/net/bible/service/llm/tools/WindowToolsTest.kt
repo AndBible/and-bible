@@ -65,7 +65,7 @@ class WindowToolsTest {
         // WindowControl from a dead container while the tools use the current one — the
         // windowRepository set here would then be invisible to the tools.
         windowControl = GlobalContext.get().get<WindowControl>()
-        windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository.initialize()
     }
 

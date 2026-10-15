@@ -197,7 +197,7 @@ class WindowControlPageChangeTest {
 
     @Test fun ignoresAWindowOfAnotherRepository() {
         val (a, b) = twoSyncedWindows()
-        val otherRepo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        val otherRepo = net.bible.test.testWindowRepository()
         val foreign = Window(WorkspaceEntities.Window(workspaceId = IdType(), isSynchronized = true,
             isPinMode = false, isLinksWindow = false,
             windowLayout = WorkspaceEntities.WindowLayout(WindowState.VISIBLE.toString()), id = IdType()),

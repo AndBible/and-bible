@@ -33,7 +33,7 @@ class RestoreReleaseTest {
     @Before fun setUp() {
         DatabaseResetter.resetDatabase()
         CommonUtils.settings.setBoolean("first-time", false)
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
         repo.initialize()
         repo.name = "A"

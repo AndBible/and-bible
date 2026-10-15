@@ -115,7 +115,7 @@ class CurrentPageManagerNoActivityTest {
 
     @Test
     fun aKeylessSwitchWithNoActivityInFrontDoesNotCrash() {
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = windowRepository
         windowRepository.initialize()
         val dictionary = requireNotNull(Books.installed().getBook("TestDict")) { "TestDict test module must be installed" }

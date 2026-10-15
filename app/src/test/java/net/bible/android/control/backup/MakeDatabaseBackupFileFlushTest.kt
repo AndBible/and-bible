@@ -43,7 +43,7 @@ class MakeDatabaseBackupFileFlushTest {
         wasReady = DatabaseContainer.ready
         DatabaseContainer.ready = true // the backup flushes/vacuums only when the DB is ready
         CommonUtils.settings.setBoolean("first-time", false)
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
         repo.initialize()
     }

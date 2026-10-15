@@ -59,7 +59,7 @@ class WindowSynchronisationTest {
     @Throws(Exception::class)
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl!!.windowRepository = net.bible.test.testWindowRepository()
         CommonUtils.settings.setBoolean("first-time", false)
         windowRepository.initialize()
     }

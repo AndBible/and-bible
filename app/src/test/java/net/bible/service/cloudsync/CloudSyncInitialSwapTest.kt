@@ -38,7 +38,7 @@ class CloudSyncInitialSwapTest {
         // db handle works but whose file is not at this test's getDatabasePath. Start from no instance.
         DatabaseResetter.resetDatabase()
         CommonUtils.settings.setBoolean("first-time", false)
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
         repo.initialize()
         repo.name = "A"

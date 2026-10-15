@@ -76,7 +76,7 @@ class WindowTest {
             CurrentPageManager(bibleTraverser, bookmarkControl, windowControl!!)
         }
         windowControl = CommonUtils.windowControl
-        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl!!.windowRepository = net.bible.test.testWindowRepository()
         windowRepository.initialize()
     }
 

@@ -74,7 +74,7 @@ class RefChooserSheetTest {
     @Before
     fun setUp() {
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 

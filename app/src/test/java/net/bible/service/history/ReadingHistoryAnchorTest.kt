@@ -183,7 +183,7 @@ class ReadingHistoryAnchorTest {
     fun setUp() {
         resetReadingSeams()
         windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
         historyManager = HistoryManager(windowControl, net.bible.android.platform.AndroidHistoryPlatform())

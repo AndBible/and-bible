@@ -49,7 +49,7 @@ class OldMonolithicRestoreRollbackTest {
         wasReady = DatabaseContainer.ready
         DatabaseContainer.ready = true // the restore opens and migrates only when the DB is ready
         CommonUtils.settings.setBoolean("first-time", false)
-        repo = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
         repo.initialize()
         repo.name = "Before restore"

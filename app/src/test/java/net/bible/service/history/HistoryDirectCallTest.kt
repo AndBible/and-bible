@@ -44,7 +44,7 @@ class HistoryDirectCallTest {
         ReadingViewVisibility.setVisible(false)
         ReadingHostPresence.setForeground(null)
         originalRepository = CommonUtils.windowControl.windowRepository
-        repository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        repository = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repository
         repository.initialize()
         HistoryManager.resetInstanceForTest()
