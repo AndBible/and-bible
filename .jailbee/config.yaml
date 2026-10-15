@@ -7,9 +7,10 @@
 # of anything below go in `jailbee config edit --local`.
 #
 # Host prerequisites for this config:
-#   * the Android SDK at ~/Android/Sdk (mounted read-only below)
 #   * a running host adb server (`adb start-server`), see "adb" below
-#   * optional: /dev/kvm for the in-container emulator
+#   * optional: /dev/kvm for the in-container emulator, and a GPU render node
+#     (/dev/dri/renderD*, passed through by jailbee) for its hardware rendering
+# The Android SDK itself is part of the golden image (.jailbee/install.d/94-android-sdk.sh).
 
 new:
   clone_from: local
@@ -40,16 +41,16 @@ jetbrains:
   ide: studio
 
 # ---------------------------------------------------------------------------
-# Host integration: SDK, adb, KVM
+# Host integration: adb, KVM
 # ---------------------------------------------------------------------------
 
-# The Android SDK is bind-mounted read-only so Gradle finds platforms and
-# build-tools without reinstalling them in every container. System images for
-# the emulator must therefore be installed on the host SDK.
+# The Android SDK is NOT mounted from the host: it is installed into the golden
+# image at /opt/android-sdk (.jailbee/install.d/94-android-sdk.sh), writable by
+# the dev user and with a pinned emulator build. The host SDK's emulator
+# (37.2.12) crashes in containers; see docs/emulator-and-webview-debugging.md.
 # Personal mounts (~/.gnupg, ~/.gitconfig, JetBrains Toolbox) belong in
 # ~/.config/jailbee/global.yaml.
-host_mounts:
-  - { host: ~/Android/Sdk, container: /home/dev/Android/Sdk, readonly: true }
+host_mounts: []
 
 # Maintainer-only: the ostickethelper config and password file for
 # support.andbible.org (.jailbee/install.d/98-ostickethelper.sh). Not attached
@@ -106,7 +107,9 @@ shared_caches:
   # ~/.android keeps the generated debug.keystore identical across sessions.
   # Otherwise every session gets a new debug signing key, and `adb install -r`
   # of a debug build fails with INSTALL_FAILED_UPDATE_INCOMPATIBLE against the
-  # previous session's install.
+  # previous session's install. AVDs do NOT live here (ANDROID_AVD_HOME below):
+  # shared AVDs collided between containers ("Another emulator instance is
+  # running") and piled up on the host disk.
   - { name: android-home, host_subpath: android-home, container_path: ~/.android }
   # Kotlin/Native toolchain and dependencies (iOS targets).
   - { name: konan, host_subpath: konan, container_path: ~/.konan }
@@ -165,8 +168,10 @@ egress_allow:
   - play.google.com:443
   - shop.andbible.org:443
   # AndBible module repositories (catalogue refresh and module downloads,
-  # e.g. in the in-container emulator)
+  # e.g. in the in-container emulator; app/src/main/res/raw/repositories.txt)
   - andbible.org:443
+  - andbible.github.io:443   # AndBible, AndBible Extra and Beta catalogues + app data feeds
+  - ibt.org.ru:443           # ibtrussia.org (IBT catalogue) redirects here
   - support.andbible.org:443
   # Legacy user documentation (Read the Docs, until the cutover)
   - docs.andbible.org:443
@@ -181,11 +186,13 @@ egress_allow:
 
 # Injected via the Incus base profile, so visible in every process (shell,
 # tmux, autostart steps, the IDE). There is deliberately no ADB_SERVER_SOCKET
-# here; see `host_ports`.
+# here; see `host_ports`. ANDROID_AVD_HOME is container-local on purpose (see
+# `shared_caches`): scripts/andbible-emu.sh creates the AVD on first boot.
 container:
   env:
-    ANDROID_HOME: /home/dev/Android/Sdk
-    ANDROID_SDK_ROOT: /home/dev/Android/Sdk
+    ANDROID_HOME: /opt/android-sdk
+    ANDROID_SDK_ROOT: /opt/android-sdk
+    ANDROID_AVD_HOME: /home/dev/.local/share/android-avd
 
 # ---------------------------------------------------------------------------
 # Golden image
@@ -216,6 +223,14 @@ golden:
     - android-tools-adb   # adb client; the server runs on the host
     - xz-utils            # `xz` for .jailbee/install.d/95-typst.sh (tar -xJf)
     - ffmpeg              # teaser/short videos: frames rendered with Chrome (97-playwright) -> mp4
+    # In-container emulator with hardware GL (scripts/andbible-emu.sh): `-gpu host` needs a
+    # GLX display, which a headless weston + Xwayland provides on the GPU render node (Mesa).
+    - weston
+    - xwayland
+    - libgl1-mesa-dri
+    - libegl-mesa0
+    - mesa-vulkan-drivers
+    - gdb                 # backtraces of a crashing emulator (sudo gdb -p <qemu pid>)
     # Shared libraries of Playwright's headless Chromium (.jailbee/install.d/97-playwright.sh)
     - libasound2t64
     - libatk-bridge2.0-0t64
