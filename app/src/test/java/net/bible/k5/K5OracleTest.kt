@@ -134,6 +134,38 @@ class K5OracleTest {
         for (book in listOf(finpr, kjv)) for (ref in listOf("Gen.1.1", "Ps.3.1", "Matt.5.3", "John.3.16", "Rev.22.21")) assertTrue(verses(book).any { it.getOsisID() == ref })
     }
 
+    @Test fun everyInstalledBibleSampleIsStrictlyReadableAndRequiredCoverageIsExplicit() {
+        val bibles = Books.installed().getBooks().filterIsInstance<SwordBook>().filter { it.bookCategory == BookCategory.BIBLE }.sortedBy { it.initials }
+        assertTrue(bibles.any { it.initials == "ISV" })
+        assertTrue(bibles.any { it.initials == "FinPR" })
+        for (book in bibles.sortedBy { if (it.initials == "ISV") 0 else 1 }) {
+            val selected = verses(book)
+            // Read the actual strict producer before planner assertions: this reproduces partial-module failure.
+            for (verse in selected) SwordContentFacade.readOsisFragment(book, verse, strings)
+            assertEquals(book.initials, 200, selected.size)
+            assertEquals(book.initials, 200, selected.map { it.getOsisID() }.distinct().size)
+            for (verse in selected) assertTrue("${book.initials}/${verse.getOsisID()}", book.contains(verse))
+            for (ref in probes) {
+                val verse = VerseRangeFactory.fromString(book.versification, ref).start
+                val available = book.contains(verse)
+                assertEquals("${book.initials}/$ref", available, selected.any { it.getOsisID() == ref })
+                assertTrue(probeCoverage(book).contains("$ref\tforced-reference\t${if (available) "available" else "unavailable"}\t"))
+            }
+        }
+        validateRequiredCoverage(bibles.associateWith { verses(it) })
+        val partial = bibles.single { it.initials == "ISV" }
+        assertThrows(IllegalStateException::class.java) { validateRequiredCoverage(mapOf(partial to verses(partial))) }
+    }
+
+    private val probes = listOf("Gen.1.1", "Ps.3.1", "Matt.5.3", "John.3.16", "Rev.22.21", "Ps.3.0")
+    private fun probeCoverage(book: SwordBook): String = probes.joinToString("") { ref ->
+        val available = book.contains(VerseRangeFactory.fromString(book.versification, ref).start)
+        row(book.initials, ref, "forced-reference", if (available) "available" else "unavailable", if (available) "Included in verse sample" else "Module has no entry")
+    }
+    private fun validateRequiredCoverage(plans: Map<SwordBook, List<Verse>>) {
+        for (ref in probes.take(5)) check(plans.values.any { verses -> verses.any { it.getOsisID() == ref } }) { "Required reference $ref has no supporting installed Bible" }
+    }
+
     private fun titleCoverage(book: SwordBook): String {
         val title = VerseRangeFactory.fromString(book.versification, "Ps.3.0").start
         return row(book.initials, "Ps.3.0", "extra-title-probe", if (book.contains(title)) "available" else "unavailable", if (book.contains(title)) "Included in verse sample" else "Module has no entry")
@@ -194,8 +226,12 @@ class K5OracleTest {
             val sections = linkedMapOf("clientpage.tsv" to clientPages(sample))
             val speak = StringBuilder(); val copy = StringBuilder(); val canonical = StringBuilder(); val highlight = StringBuilder(); val llm = StringBuilder(); val commentary = StringBuilder()
             val bibles = books.filterIsInstance<SwordBook>().filter { it.bookCategory == BookCategory.BIBLE }
+            val versePlans = books.filterIsInstance<SwordBook>().filter { it.bookCategory == BookCategory.BIBLE || it.bookCategory == BookCategory.COMMENTARY }.associateWith { verses(it) }
+            validateRequiredCoverage(bibles.associateWith { versePlans.getValue(it) })
+            // Validate real entries before producers that intentionally degrade read errors to empty output.
+            for ((book, selected) in versePlans) for (verse in selected) SwordContentFacade.readOsisFragment(book, verse, strings)
             for (book in bibles) {
-                val verses = verses(book)
+                val verses = versePlans.getValue(book)
                 for (verse in verses) {
                     speak.append(row(book.initials, verse.getOsisID(), speakText(book, verse)))
                     canonical.append(row(book.initials, verse.getOsisID(), SwordContentFacade.getCanonicalText(book, verse, strings = strings, saxTextPolicy = androidSaxTextPolicy())))
@@ -229,14 +265,14 @@ class K5OracleTest {
             if (commentaries.isEmpty()) commentary.append(row("SKIP", "commentary", "No commentary-capable module installed"))
             for (book in commentaries) {
                 val resolver = CommentaryBlockResolver(SwordCommentaryWalker(book, org.koin.core.context.GlobalContext.get().get()))
-                for (verse in verses(book).take(20)) {
+                for (verse in versePlans.getValue(book).take(20)) {
                     val block = resolver.resolveBlock(verse)
                     commentary.append(row(book.initials, verse.getOsisID(), block.start.getOsisID(), block.end.getOsisID(), block.content.orEmpty()))
                 }
             }
             sections["speak.tsv"] = speak.toString(); sections["copy.tsv"] = copy.toString(); sections["canonical.tsv"] = canonical.toString()
             sections["search-highlight.tsv"] = highlight.toString(); sections["llm.tsv"] = llm.toString(); sections["commentary-blocks.tsv"] = commentary.toString(); sections["epub.tsv"] = epub()
-            sections["coverage.tsv"] = books.joinToString("") { row(it.initials, it.bookCategory.name, sample.getValue(it).size.toString()) } + bibles.joinToString("") { titleCoverage(it) }
+            sections["coverage.tsv"] = books.joinToString("") { row(it.initials, it.bookCategory.name, sample.getValue(it).size.toString()) } + bibles.joinToString("") { probeCoverage(it) + row(it.initials, "verse-sample", versePlans.getValue(it).size.toString()) }
             val dir = File(write ?: check!!)
             if (write != null) { dir.mkdirs(); sections.forEach { (name, text) -> File(dir, name).writeText(text) } }
             else { val failures = differences(dir, sections); assertTrue(failures.joinToString("\n"), failures.isEmpty()) }
@@ -326,11 +362,12 @@ class K5OracleTest {
     }
 
     private fun verses(book: SwordBook): List<Verse> {
-        val mandatory = listOf("Gen.1.1", "Ps.3.1", "Matt.5.3", "John.3.16", "Rev.22.21")
-        val title = VerseRangeFactory.fromString(book.versification, "Ps.3.0").start
-        val extra = if (book.contains(title)) listOf(title) else emptyList()
-        val sampled = sample(book, 200).filterIsInstance<Verse>()
-        return (mandatory.map { VerseRangeFactory.fromString(book.versification, it).start } + extra + sampled).distinctBy { it.getOsisID() }.take(200)
+        val forced = probes.map { VerseRangeFactory.fromString(book.versification, it).start }.filter { book.contains(it) }
+        val available = (book.getGlobalKeyList() as Iterable<Key>).filterIsInstance<Verse>().filter { book.contains(it) }.distinctBy { it.getOsisID() }
+        val step = maxOf(1, (available.size + 199) / 200)
+        val spaced = available.filterIndexed { index, _ -> index % step == 0 }
+        // Preserve the evenly spaced sample first; refill from available entries if spacing rounded down.
+        return (forced + spaced + available).distinctBy { it.getOsisID() }.take(200)
     }
 
     private fun withExtraModules(action: () -> Unit) {
