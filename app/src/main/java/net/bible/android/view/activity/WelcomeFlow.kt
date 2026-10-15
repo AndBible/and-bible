@@ -18,7 +18,6 @@ package net.bible.android.view.activity
 
 import net.bible.android.platform.AndroidBackupHost
 
-import net.bible.service.db.blockingDb
 import android.app.Activity
 import android.content.Intent
 import androidx.annotation.DrawableRes
@@ -31,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import java.util.Locale
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
@@ -62,9 +62,30 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
 
     // A host restored on WELCOME after process death never ran StartupActivity's DB open (fix batch 1 §2.6).
     private val docsDao get() = DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao()
-    private val previousInstallDetected: Boolean get() = blockingDb { docsDao.getKnownInstalled() }.isNotEmpty()
+    /** Whether the repo database knows documents from an earlier install (Redownload is offered then). */
+    suspend fun previousInstallDetected(): Boolean = docsDao.getKnownInstalled().isNotEmpty()
 
-    private val controllerLazy = lazy { StartupWelcomeController(::loadInfo) }
+    /**
+     * The last answer of [previousInstallDetected]. [loadInfo] is synchronous (the controller computes its
+     * first state at construction), so the answer is read by [refreshInfo]: when the controller is built and
+     * on every later refresh.
+     */
+    private var previousInstall = false
+
+    private val controllerLazy = lazy {
+        StartupWelcomeController(::loadInfo).also {
+            host.lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) { refreshInfo() }
+        }
+    }
+
+    /**
+     * Re-reads what the controller's info depends on the database for, then refreshes it. The host calls
+     * this wherever it used to call `controller.refresh()` (the answer changes after a download or restore).
+     */
+    suspend fun refreshInfo() {
+        previousInstall = previousInstallDetected()
+        controller.refresh()
+    }
 
     val controller: StartupWelcomeController get() = controllerLazy.value
 
@@ -92,7 +113,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
         return StartupWelcomeInfo(
             versionText = host.getString(R.string.version_text, CommonUtils.applicationVersionName),
             supportedFormatsText = formats,
-            previousInstallDetected = previousInstallDetected,
+            previousInstallDetected = previousInstall,
             easyStartAvailable = Locale.getDefault().language == "en",
             // Batch 6 A6: the Homepage / GitHub buttons open AndBible URLs.
             homepageButtonsVisible = !CommonUtils.isDiscrete,
@@ -164,7 +185,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
     }
 
     private fun onRedownload() {
-        redownloadBooks = blockingDb { docsDao.getKnownInstalled() }.sortedBy { it.language }
+        host.lifecycleScope.launch { redownloadBooks = docsDao.getKnownInstalled().sortedBy { it.language } }
     }
 
     private fun launchRedownload(books: List<SwordDocumentInfo>) =

@@ -76,7 +76,7 @@ class ExecutePromptLostRaceTest {
     @Test fun aCallThatLosesTheRaceReportsItAndSkipsOnStarted() {
         val winner = Job()
         // The repository id is empty until initialized; executePrompt would otherwise initialize it mid-test.
-        windowControl.windowRepository.initialize()
+        windowControl.windowRepository.initializeAtEdge()
         assertTrue(AgentSessionManager.getOrCreateSession(ws).tryStart(AgentContext(promptId = IdType()), winner))
         var started = false
         val result = onIoIdlingMain {
@@ -99,7 +99,7 @@ class ExecutePromptLostRaceTest {
      * completed; the failure is therefore captured inside the coroutine instead of read from the result.
      */
     @Test fun aThrowingOnStartedLeavesTheSessionStopped() {
-        windowControl.windowRepository.initialize()
+        windowControl.windowRepository.initializeAtEdge()
         val failure = AtomicReference<Throwable?>()
         val d = CoroutineScope(Dispatchers.IO).async {
             try {

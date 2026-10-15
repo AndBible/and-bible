@@ -49,7 +49,7 @@ class WindowRepositoryTest {
     fun setUp() {
         windowControl = CommonUtils.windowControl
         windowControl!!.windowRepository = net.bible.test.testWindowRepository()
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
     }
 
     @After

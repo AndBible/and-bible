@@ -122,6 +122,7 @@ class ReadingHistoryAnchorTest {
     fun closingTheHistoryHostJoinsItsActualWindowOwnerBeforeFixtureReset() {
         val koin = org.koin.core.context.GlobalContext.get()
         val original = koin.get<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val tdsSnapshot = net.bible.test.KoinFactorySnapshot.of<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
         val armed = java.util.concurrent.atomic.AtomicBoolean(false)
         val entered = java.util.concurrent.CountDownLatch(1)
         val release = kotlinx.coroutines.CompletableDeferred<Unit>()
@@ -129,7 +130,7 @@ class ReadingHistoryAnchorTest {
             override val current: WorkspaceEntities.TextDisplaySettings
                 get() {
                     if (Thread.currentThread().name.startsWith("DefaultDispatcher") && armed.compareAndSet(true, false)) {
-                        net.bible.service.db.blockingDb {
+                        net.bible.service.db.blockingAtEdge {
                             entered.countDown()
                             release.await()
                         }
@@ -165,9 +166,7 @@ class ReadingHistoryAnchorTest {
                 if (!closed) controller.close()
                 owner?.let { job -> DatabaseResetter.runResetBlocking { job.cancel(); job.join() } }
             } finally {
-                koin.loadModules(listOf(org.koin.dsl.module {
-                    single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { original }
-                }))
+                tdsSnapshot.restore()
             }
         }
     }
@@ -185,7 +184,7 @@ class ReadingHistoryAnchorTest {
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
         historyManager = HistoryManager(windowControl, net.bible.android.platform.AndroidHistoryPlatform())
     }
 

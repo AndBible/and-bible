@@ -84,6 +84,8 @@ class TestBibleApplication : BibleApplication() {
     override fun getLocalizedResources(language: String): Resources = application.resources
 
     override fun onCreate() {
+        net.bible.test.DatabaseResetter.requireNoRetainedWorkers()
+        net.bible.test.ReadingFixtureOwners.requireEmpty()
         check(!terminationPending && startupRegistrationOwner == null) {
             "Previous fixture termination/startup has not completed; retry onTerminate first"
         }
@@ -131,6 +133,10 @@ class TestBibleApplication : BibleApplication() {
             single<net.bible.service.llm.SecretStore> { checkNotNull(fixtureSecretStore) }
             single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
+            // Singletons keep the launcher they were built with, and the fixture replaces aiScope after a terminate.
+            single { net.bible.service.common.GlobalTextDisplaySettingsStore(aiLauncher, dao = { DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() }) }
+            single { net.bible.service.common.ReadingProgressSettingsStore(aiLauncher, dao = { DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao() }) }
+            single { net.bible.android.control.page.window.WorkspacePersistence(aiLauncher) { DatabaseContainer.instance.workspaceDb.workspaceDao() } }
             single<net.bible.service.llm.AiSettings> {
                 net.bible.service.llm.AiSettingsStore(
                     { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, aiLauncher, aiScope,
@@ -163,6 +169,7 @@ class TestBibleApplication : BibleApplication() {
     suspend fun drainAiSettingsFixture() {
         aiLauncher.join("ai-settings")
         aiLauncher.join("mydocument-sync")
+        aiLauncher.join("global-tds")
         val children = aiScope.coroutineContext[kotlinx.coroutines.Job]!!.children.toList()
         children.forEach { it.cancel() }
         children.forEach { it.join() }
@@ -194,12 +201,24 @@ class TestBibleApplication : BibleApplication() {
         }
         if (terminated) return
         terminationPending = true
+        // Test factories/controller helpers retain stopped, unactivated and private owners.
+        CurrentActivityHolder.liveActivitiesForTest().forEach { activity ->
+            if (activity is net.bible.android.view.activity.nav.NavHostComposeActivity)
+                net.bible.test.ReadingFixtureOwners.retain(activity)
+        }
+        var readingDrained = false
+        cleanup {
+            net.bible.test.DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+            readingDrained = true
+        }
+        if (!readingDrained) throw failure ?: IllegalStateException("Reading fixture ownership incomplete")
         val job = aiScope.coroutineContext[kotlinx.coroutines.Job]!!
         cleanup {
             net.bible.test.DatabaseResetter.runResetBlocking {
                 try {
                     aiLauncher.join("ai-settings")
                     aiLauncher.join("mydocument-sync")
+                    aiLauncher.join("global-tds")
                 } finally {
                     job.cancel()
                     job.join()
@@ -231,6 +250,9 @@ class TestBibleApplication : BibleApplication() {
                 koin.loadModules(listOf(org.koin.dsl.module {
                     single<net.bible.sharedcore.platform.AppCoroutineScope> { checkNotNull(previousAppScope) }
                     single<net.bible.sharedcore.platform.OrderedLauncher> { checkNotNull(previousLauncher) }
+                    single { net.bible.service.common.GlobalTextDisplaySettingsStore(checkNotNull(previousLauncher), dao = { DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() }) }
+                    single { net.bible.service.common.ReadingProgressSettingsStore(checkNotNull(previousLauncher), dao = { DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao() }) }
+                    single { net.bible.android.control.page.window.WorkspacePersistence(checkNotNull(previousLauncher)) { DatabaseContainer.instance.workspaceDb.workspaceDao() } }
                     single<net.bible.service.llm.AiSettings> {
                         net.bible.service.llm.AiSettingsStore(
                             { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),

@@ -37,7 +37,6 @@ import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.agent.RawLlmLog
 import java.io.File
 import java.util.Date
-import net.bible.service.db.blockingDb
 
 object AiBugReport {
 

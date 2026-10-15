@@ -110,7 +110,7 @@ class DatabaseContainer {
             // Room opens the old file only to run its legacy migrations; its connection must be closed
             // before the split reopens the same file outside Room.
             getOldDatabase().apply {
-                try { blockingDb { useWriterConnection { } } } finally { close() }
+                try { blockingAtEdge { useWriterConnection { } } } finally { close() } // L1-edge: DatabaseContainer synchronous lifecycle (open probe)
             }
             openSqlite(oldDbFile.path).use {
                 val migrations = DatabaseSplitMigrations(it, application)
@@ -168,7 +168,8 @@ class DatabaseContainer {
 
     @Volatile var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
 
-    fun resetAiSettingsDb(): AiSettingsDatabase = blockingDb {
+    @VisibleForTesting
+    fun resetAiSettingsDb(): AiSettingsDatabase = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses resetAiSettingsDbOwned
         aiLifetime.replace { resetAiSettingsDbOwned(it) }
     }
 
@@ -192,7 +193,7 @@ class DatabaseContainer {
 
     init {
         if(!application.isRunningTests) {
-            blockingDb {
+            blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (open: trigger setup)
                 for (dbDef in getDatabaseAccessorFactories(this@DatabaseContainer).map { it.invoke() }) {
                     dropTriggers(dbDef)
                     createTriggers(dbDef)
@@ -223,7 +224,7 @@ class DatabaseContainer {
     val settingsStore: SettingsStore = SettingsStore(
         RoomSettingsBackend(settingsDb), settingsScope,
         onWriteError = { w, e -> Log.e(TAG, "Settings write failed for key ${w.key}", e) },
-    ).also { blockingDb { it.load() } }
+    ).also { blockingAtEdge { it.load() } } // L1-edge: DatabaseContainer synchronous lifecycle (open: settings-store load)
 
     private fun backupDatabaseIfNeeded() {
         if(application.isRunningTests) return
@@ -313,7 +314,8 @@ class DatabaseContainer {
      * then are logged by the store's `onWriteError` and dropped.
      * Closing an already closed database is a no-op, so [closeAll] after this is safe.
      */
-    internal fun closeForReplace(fileName: String) = blockingDb {
+    @VisibleForTesting
+    internal fun closeForReplace(fileName: String) = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses closeForReplaceOwned
         aiLifetime.replace { closeForReplaceOwned(fileName, it) }
     }
 
@@ -329,7 +331,8 @@ class DatabaseContainer {
      * dropped (a closed Room 3 database does not reopen). The window is milliseconds, and restore paths already
      * treat writes there as a hazard. Databases already closed by [closeForReplace] are closed again harmlessly.
      */
-    internal fun closeAll() = blockingDb { aiLifetime.replace { closeAllOwned(it) } }
+    @VisibleForTesting
+    internal fun closeAll() = blockingAtEdge { aiLifetime.replace { closeAllOwned(it) } } // L1-edge: test-only synchronous wrapper; production uses closeAllOwned
 
     private suspend fun closeAllOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         aiLifetime.requireOwner(token)
@@ -402,6 +405,18 @@ class DatabaseContainer {
         suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T =
             aiLifetime.replace { replacingDatabasesOwned(it, block) }
 
+        /** Test seam: called when a restore starts waiting for the workspace write queue. */
+        @VisibleForTesting
+        internal var onWorkspaceDrainEntered: (() -> Unit)? = null
+
+        private suspend fun drainWorkspaceWrites() {
+            onWorkspaceDrainEntered?.invoke()
+            val persistence = runCatching {
+                org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.android.control.page.window.WorkspacePersistence>()
+            }.getOrNull()
+            persistence?.awaitPersisted()
+        }
+
         /** Nested replacement must pass the active owner's token; independent calls queue at admission. */
         internal suspend fun <T> replacingDatabases(
             token: net.bible.service.llm.AiDatabaseLifetime.Replacement?,
@@ -418,6 +433,10 @@ class DatabaseContainer {
             replaceEpochCounter.incrementAndGet()
             var completed = false
             try {
+                // No new workspace write passes its guard from here on; one that already did may still be
+                // mid-DAO-call, so let it finish before the files are touched. The restore never runs inside
+                // the "workspace" key (queued blocks are plain DAO calls), so this cannot wait on itself.
+                drainWorkspaceWrites()
                 return block(token).also { completed = true }
             } finally {
                 // F115: a block that throws or is cancelled mid-copy may leave `_instance` holding a database it
@@ -432,7 +451,7 @@ class DatabaseContainer {
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        internal fun forgetReplacesForTest() { replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { DatabaseContainer() } }
+        internal fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { DatabaseContainer() } }
 
         /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
         @VisibleForTesting
@@ -444,7 +463,8 @@ class DatabaseContainer {
          * just to close it; a restore whose migration threw would then throw again from its own cleanup.
          * Also the old monolithic restore's close before its snapshot (F120).
          */
-        internal fun dropInstanceWithoutOpening() = blockingDb {
+        @VisibleForTesting
+        internal fun dropInstanceWithoutOpening() = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses dropInstanceWithoutOpeningOwned
             aiLifetime.replace { dropInstanceWithoutOpeningOwned(it) }
         }
 
@@ -507,6 +527,9 @@ class DatabaseContainer {
             }
         }
 
+        /** Bound for the ordered store write queues when the caller gave no timeout. */
+        private const val ORDERED_WRITES_EXIT_WAIT_MS = 5_000L
+
         /**
          * Persists queued settings writes; call before a path that ends the process (`exitProcess`). No-op if the
          * database is not open; never builds a container and never throws. With [timeoutMs] it gives up waiting
@@ -516,17 +539,32 @@ class DatabaseContainer {
         fun flushSettingsBeforeExit(timeoutMs: Long? = null) {
             if (!ready) return
             try {
-                blockingDb {
-                    val store = _instance?.settingsStore ?: return@blockingDb
-                    if (timeoutMs == null) store.flush()
-                    else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
+                blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close: flush before exit, also the crash handler)
+                    val store = _instance?.settingsStore
+                    if (store != null) {
+                        if (timeoutMs == null) store.flush()
+                        else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
+                    }
+                    // The ordered write-through keys (workspace, global text display, reading progress) queue their
+                    // writes off the caller's thread; a few ms before exit they would otherwise die with the process.
+                    val launcher = runCatching {
+                        org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.sharedcore.platform.OrderedLauncher>()
+                    }.getOrNull() ?: return@blockingAtEdge
+                    val keys = listOf(
+                        net.bible.android.control.page.window.WorkspacePersistence.KEY,
+                        net.bible.service.common.GlobalTextDisplaySettingsStore.KEY,
+                        net.bible.service.common.ReadingProgressSettingsStore.KEY,
+                    )
+                    if (withTimeoutOrNull(timeoutMs ?: ORDERED_WRITES_EXIT_WAIT_MS) { keys.forEach { launcher.join(it) } } == null)
+                        Log.w(TAG, "Ordered write queues did not drain before exit")
                 }
             } catch (e: Throwable) { Log.e(TAG, "Settings flush failed", e) }
         }
 
         suspend fun sync() = instance.sync()
         suspend fun vacuum() = instance.vacuum()
-        fun reset() = blockingDb { aiLifetime.replace { resetOwned(it) } }
+        @VisibleForTesting
+        fun reset() = blockingAtEdge { aiLifetime.replace { resetOwned(it) } } // L1-edge: test-only synchronous wrapper; production uses resetOwned
 
         internal suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)

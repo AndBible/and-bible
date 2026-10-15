@@ -40,7 +40,7 @@ class CommentaryTextPolicyTest {
             assertEquals(SaxTextPolicy.MODERN, net.bible.android.platform.androidSaxTextPolicy())
             koin.loadModules(listOf(module { single { SaxTextPolicy.LEGACY } }))
             control.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val page = repo.activeWindow.pageManager.currentCommentary
             val v11n = Versifications.instance().getVersification("KJV")
             val verse = Verse(v11n, BibleBook.GEN, 1, 1)

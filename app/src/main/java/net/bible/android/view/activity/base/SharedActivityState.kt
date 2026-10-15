@@ -48,8 +48,6 @@ class SharedActivityState {
     fun resetSubscribersForTest() { _fullScreenChanged = EventSource() }
 
     companion object {
-        @JvmStatic
-		var currentWorkspaceName = ""
         val instance = SharedActivityState()
 
     }

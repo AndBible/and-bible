@@ -140,7 +140,7 @@ class ReadingSearchEntryPointsTest {
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -164,7 +164,7 @@ class ReadingSearchEntryPointsTest {
 
     /** Builds a real [ComposeReadingViewHost] against the test [activity] (never `.install()`ed —
      *  see the class kdoc's precedent). */
-    private fun host() = ComposeReadingViewHost(activity)
+    private fun host() = net.bible.test.fixtureReadingHost(activity)
 
     /**
      * KJV ships `Feature=StrongsNumbers` (verified against this environment's `~/.sword` fixture),
@@ -649,10 +649,10 @@ class ReadingSearchEntryPointsTest {
         ).create()
         try {
             val offRoute = controller.get()
-            offRoute.composeReadingViewHost = ComposeReadingViewHost(offRoute)
+            offRoute.composeReadingViewHost = net.bible.test.fixtureReadingHost(offRoute)
             block(offRoute)
         } finally {
-            controller.close()
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
         }
     }
 
@@ -740,7 +740,7 @@ class ReadingSearchEntryPointsTest {
             readingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
             block(readingHost)
         } finally {
-            controller.close()
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
             ReadingViewVisibility.setVisible(false)
             ReadingHostPresence.setForeground(null)
         }
@@ -757,7 +757,7 @@ class ReadingSearchEntryPointsTest {
             val readingHost = controller.create().start().resume().visible().get()
             net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
             if (readingHost.composeReadingViewHost == null) {
-                readingHost.composeReadingViewHost = ComposeReadingViewHost(readingHost)
+                readingHost.composeReadingViewHost = net.bible.test.fixtureReadingHost(readingHost)
             }
 
             val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
@@ -766,7 +766,7 @@ class ReadingSearchEntryPointsTest {
             assertTrue(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
             assertNull(shadowOf(readingHost).nextStartedActivityForResult)
         } finally {
-            controller.close()
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
             ReadingViewVisibility.setVisible(false)
             ReadingHostPresence.setForeground(null)
         }
@@ -806,7 +806,7 @@ class ReadingSearchEntryPointsTest {
                 readingHost.composeReadingViewHost = originalReadingViewHost
                 assertSame(originalReadingViewHost, readingHost.composeReadingViewHost, "restore the host Activity owns")
             }
-            controller.close()
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
             ReadingViewVisibility.setVisible(false)
             ReadingHostPresence.setForeground(null)
         }

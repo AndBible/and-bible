@@ -280,7 +280,7 @@ class ReadingCommandsHostDelegationGuardTest {
      * rebuilding the view or refreshing the restore rail would be a silent no-op arrived at from
      * the other direction.
      *
-     * Scanned inside the SETTER's own braces, not the whole file: `loadFromDb` and `buildView`
+     * Scanned inside `switchWorkspace`'s own braces, not the whole file: `loadFromDb` and `buildView`
      * appear nowhere else in it today, but a file-wide `contains` would start passing on an
      * unrelated future call and could never fail again.
      */
@@ -288,7 +288,7 @@ class ReadingCommandsHostDelegationGuardTest {
     fun theWorkspaceSwitchStillPerformsEveryStep() {
         val setter = currentWorkspaceIdSetterBody()
         listOf(
-            "windowRepository().loadFromDb(value)" to
+            "windowRepository().loadFromDb(id)" to
                 "without it the switch changes nothing at all",
             "hostCallbacks.documentViewManager().buildView(forceUpdate = true)" to
                 "without it the panes keep rendering the outgoing workspace's windows",
@@ -304,13 +304,12 @@ class ReadingCommandsHostDelegationGuardTest {
         }
     }
 
-    /** The body of `ReadingCommands.currentWorkspaceId`'s setter, by brace matching from `set(value) {`. */
+    /** The body of `ReadingCommands.switchWorkspace`, by brace matching from its opening `{`. */
     private fun currentWorkspaceIdSetterBody(): String {
         val src = readingCommandsFile.readText()
-        val declaration = src.indexOf("internal var currentWorkspaceId: IdType")
-        assertTrue(declaration >= 0, "currentWorkspaceId is gone or renamed — this scan would be vacuous")
-        val open = src.indexOf("set(value) {", declaration)
-        assertTrue(open >= 0, "currentWorkspaceId has no setter body — this scan would be vacuous")
+        val declaration = src.indexOf("internal suspend fun switchWorkspace(id: IdType)")
+        assertTrue(declaration >= 0, "switchWorkspace is gone or renamed — this scan would be vacuous")
+        val open = declaration
         var i = src.indexOf('{', open)
         var depth = 0
         val start = i
@@ -321,6 +320,6 @@ class ReadingCommandsHostDelegationGuardTest {
             }
             i++
         }
-        throw AssertionError("unbalanced braces in currentWorkspaceId's setter")
+        throw AssertionError("unbalanced braces in switchWorkspace")
     }
 }

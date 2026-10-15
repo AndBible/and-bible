@@ -71,4 +71,23 @@ echo 'fun z() = 3 // L1-pending: unknown-domain' > "$T3/app/src/main/java/net/bi
 "$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 && { echo "FAIL: @no-pending missed alternate marker formatting"; exit 1; }
 rm "$T3/app/src/main/java/net/bible/android/view/x/V.kt"
 "$HERE/l1-readiness.sh" --root "$T3" --check >/dev/null 2>&1 || { echo "FAIL: @no-pending failed with no markers"; exit 1; }
+
+# @no-unmarked-bridges: an unmarked blockingAtEdge in an unmapped file fails --check; a marked one passes.
+# The check stays off until the sentinel is present, and BlockingDb.kt (the definitions) is excluded by path.
+T4="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3" "$T4"' EXIT
+mkdir -p "$T4/scripts" "$T4/app/src/main/java/net/bible/android/view/x" "$T4/app/src/main/java/net/bible/service/db"
+: > "$T4/scripts/l1-readiness-domains.txt"; : > "$T4/scripts/l1-readiness-platform.txt"; : > "$T4/scripts/l1-readiness-done.txt"
+echo 'fun unmarked() = blockingAtEdge { 1 }' > "$T4/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
+  || { echo "FAIL: --check failed on an unmarked bridge before @no-unmarked-bridges"; exit 1; }
+echo '@no-unmarked-bridges' >> "$T4/scripts/l1-readiness-done.txt"
+"$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
+  && { echo "FAIL: @no-unmarked-bridges missed an unmarked blockingAtEdge"; exit 1; }
+echo 'fun marked() = blockingAtEdge { 1 } // L1-edge: framework callback' > "$T4/app/src/main/java/net/bible/android/view/x/V.kt"
+"$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
+  || { echo "FAIL: @no-unmarked-bridges failed on a marked blockingAtEdge"; exit 1; }
+echo 'fun <T> blockingAtEdge(block: suspend () -> T): T = TODO()
+fun <T> blockingDb(block: suspend () -> T): T = TODO()' > "$T4/app/src/main/java/net/bible/service/db/BlockingDb.kt"
+"$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
+  || { echo "FAIL: @no-unmarked-bridges counted BlockingDb.kt's own definitions"; exit 1; }
 echo "l1-readiness self-test OK"

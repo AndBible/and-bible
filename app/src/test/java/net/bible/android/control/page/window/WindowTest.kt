@@ -77,7 +77,7 @@ class WindowTest {
         }
         windowControl = CommonUtils.windowControl
         windowControl!!.windowRepository = net.bible.test.testWindowRepository()
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
     }
 
     @After
@@ -155,13 +155,13 @@ class WindowTest {
         }
         try {
             windowControl!!.windowRepository = repository
-            repository.initialize()
+            repository.initializeAtEdge()
             outgoing += repository.sortedWindows
             outgoing.forEach(::prime)
             val workspace = WorkspaceEntities.Workspace("replacement")
             runBlocking { net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(workspace) }
 
-            repository.loadFromDb(workspace.id)
+            kotlinx.coroutines.runBlocking { repository.loadFromDb(workspace.id) }
             assertThat(repository.id, equalTo(workspace.id))
             val replacement = repository.activeWindow
             prime(replacement)

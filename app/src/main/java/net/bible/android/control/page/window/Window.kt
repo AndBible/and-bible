@@ -26,8 +26,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentPageManager
@@ -39,9 +37,7 @@ import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.page.windowControl
 import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
@@ -64,6 +60,7 @@ class Window (
     var isLinksWindow: Boolean = entity.isLinksWindow,
 ) : KoinComponent {
     private val advancedSpeakSettings: AdvancedSpeakSettings by inject()
+    private val strings: net.bible.sharedcore.platform.CoreStrings by inject()
     private var targetLinksWindowId: IdType? = entity.targetLinksWindowId
     var savedEntity = entity.deepCopy()
     var syncGroup = entity.syncGroup
@@ -223,7 +220,7 @@ class Window (
 
 
     @Volatile
-    var bibleView: BibleView? = null
+    var bibleView: WindowView? = null
 
     /** Releases this owner even when its view will be rebound to a replacement window. */
     fun destroy(destroyView: Boolean = true) {
@@ -261,7 +258,7 @@ class Window (
         val sourceDocument = currentPage.currentDocument
         val sourceKey = currentPage.key?.getOsisRef()
         suspend fun isCurrentRequest(): Boolean {
-            // key can enter an independent blockingDb bridge; do not start it after cancellation.
+            // key can enter an independent blockingAtEdge bridge; do not start it after cancellation.
             currentCoroutineContext().ensureActive()
             return generation == contentLoadGeneration &&
                 pageManager.currentPage === currentPage && currentPage.currentDocument === sourceDocument &&
@@ -415,7 +412,7 @@ class Window (
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
-            ErrorDocument(BibleApplication.application.resources.getString(R.string.error_page_too_large), ErrorSeverity.ERROR)
+            ErrorDocument(strings.errorPageTooLarge, ErrorSeverity.ERROR)
         }
     }
 
@@ -426,7 +423,7 @@ class Window (
     fun updateOrScroll() {
         if((displayedKey != pageManager.currentPage.key
             || displayedBook != pageManager.currentPage.currentDocument)
-            || (windowControl.windowSync.lastForceSyncAll > lastUpdated)
+            || (windowRepository.windowSync.lastForceSyncAll > lastUpdated)
         ) {
             loadText()
         } else {

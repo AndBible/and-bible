@@ -511,11 +511,13 @@ class MyDocumentBookManagerTest {
             val oldKey = window.pageManager.currentPage.singleKey!!.getOsisRef()
             assertEquals("Gen.1.1", oldKey)
             activity.hostWindowRepository.saveIntoDb(false)
+            kotlinx.coroutines.runBlocking { activity.hostWindowRepository.persistence.awaitPersisted() } // ordered write-through since L1a.8
             val owner = net.bible.android.control.page.window.WindowRepository(syncScope)
             currentWindowControl.windowRepository = owner
             assertTrue(currentWindowControl.windowRepository !== activity.hostWindowRepository)
             countResumeReloads = true
             controller.resume()
+            net.bible.test.settleWorkspaceSwitches()
             assertTrue("actual reclaim must reload the workspace", resumeReloads > 0)
             val restoredWindow = activity.hostWindowRepository.activeWindow.targetLinksWindow
             val depth = 0

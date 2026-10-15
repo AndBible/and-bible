@@ -598,6 +598,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
 
     private val windowState: WindowStateServiceImpl by inject()
+    private val recentDocumentsStore: RecentDocumentsStore by inject()
     private val subscriptions = Subscriptions()
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
@@ -919,7 +920,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // resolved against this FULL list, so a language whose only document is locked does not
             // silently lose the user's saved filter.
             installed = rows,
-            recentInitials = RecentDocumentsStore.read(),
+            recentInitials = recentDocumentsStore.read(),
             forVerseIds = forVerseIds,
             lastLanguage = lastLanguage,
             lastTypeFilter = lastTypeFilter,
@@ -1755,7 +1756,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     // "History (%1$s: Window %2$d)" and the goldens depend on both.
                     title = activity.hostContext.getString(
                         R.string.history_for,
-                        SharedActivityState.currentWorkspaceName,
+                        activity.hostWindowRepository.name,
                         windowControl.activeWindowPosition + 1,
                     ),
                     onDismiss = { closeQuickSheet() },
@@ -1773,12 +1774,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             }
             ReadingQuickSheet.Workspaces -> {
                 val controller = remember(sheet) {
-                    WorkspaceQuickController(workspaceService) { id ->
+                    WorkspaceQuickController(workspaceService, activity.lifecycleScope) { id ->
                         closeQuickSheet()
                         // C1: the quick sheet never pauses the activity, so nothing else flushes the
                         // outgoing workspace's windows/page-managers/history before switching. Use
                         // the save-then-switch entry point, never plain switchToWorkspace here.
-                        activity.readingCommands.quickSwitchToWorkspace(id)
+                        activity.lifecycleScope.launch { activity.readingCommands.quickSwitchToWorkspace(id) }
                     }
                 }
                 val rows by controller.rows.collectAsState()
@@ -2121,7 +2122,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         var selectedBookNo = 0
         var selectedChapter = 1
         val v11n = navigationControl.versification
-        val workspaceName = SharedActivityState.currentWorkspaceName
+        val workspaceName = activity.hostWindowRepository.name
         return GridChoosePassageController(
             scope = scope,
             initialOptions = initialGridOptions(navigationControl, isScripture),

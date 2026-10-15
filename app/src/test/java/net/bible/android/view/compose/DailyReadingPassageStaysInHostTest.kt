@@ -95,6 +95,12 @@ class DailyReadingPassageStaysInHostTest {
         val loaded = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay")
             .run { isAccessible = true; get(controller.get()) as kotlinx.coroutines.flow.StateFlow<*> }
         net.bible.test.awaitHostCondition("day 5's readings must load") { loaded.value.toString().contains("day=5") }
+        // Reaching the route is not the day being loaded: the host's `readingsDto` (which `read()` silently
+        // requires) is set only after the async DAO/status reads finish, and an early read(1) is a no-op.
+        // The controller itself is built by the destination's first frames, so look it up inside the wait.
+        net.bible.test.awaitHostUntil("daily reading day must be loaded") {
+            runCatching { controller.get().dailyReadingControllerForTest() }.getOrNull()?.ui?.value?.readings?.isNotEmpty() == true
+        }
         idleMain()
     }
 
@@ -129,6 +135,8 @@ class DailyReadingPassageStaysInHostTest {
         idleMain()
         openDay(controller)
         activity.dailyReadingControllerForTest().read(1)
+        // read() suspends on a getReadingStatus cache miss, so finish() lands asynchronously.
+        net.bible.test.awaitHostUntil("host must finish") { activity.isFinishing }
 
         // read() marks the reading and moves the passage in a suspending lifecycleScope job; finish() comes after it.
         net.bible.test.awaitHostCondition("Passage from a start-destination day finishes the host") { activity.isFinishing }

@@ -45,7 +45,7 @@ class MakeDatabaseBackupFileFlushTest {
         CommonUtils.settings.setBoolean("first-time", false)
         repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
     }
 
     @After fun tearDown() {

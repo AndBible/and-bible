@@ -43,7 +43,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNo
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.blockingDb
+import net.bible.service.db.blockingAtEdge
 import net.bible.sharedcore.event.Subscription
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.VerseRangeFactory
@@ -97,7 +97,7 @@ class BookmarkControlSideEffectsTest {
     @Test fun aSubscriberThatBridgesFromInsideItsHandlerNeitherDeadlocksNorThrows() = runTest {
         control.insertOrUpdateLabel(Label(new = true).apply { name = "existing" })
         var result: Result<List<Label>>? = null
-        subscriptions += control.changes.subscribe { if (it is BookmarkChange.LabelUpserted) result = runCatching { blockingDb { control.allLabels() } } }
+        subscriptions += control.changes.subscribe { if (it is BookmarkChange.LabelUpserted) result = runCatching { blockingAtEdge { control.allLabels() } } }
 
         val worker = Thread { runBlocking { control.insertOrUpdateLabel(Label(new = true).apply { name = "second" }) } }
         worker.start()
@@ -123,7 +123,7 @@ class BookmarkControlSideEffectsTest {
         val handlerFailures = mutableListOf<Throwable>()
         subscriptions += control.changes.subscribe {
             try {
-                labelSeenByHandler += blockingDb { control.labelById(label.id) }
+                labelSeenByHandler += blockingAtEdge { control.labelById(label.id) }
             } catch (e: Throwable) { handlerFailures += e }
         }
 

@@ -35,9 +35,10 @@ class RestoreReleaseTest {
         CommonUtils.settings.setBoolean("first-time", false)
         repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "A"
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
     }
 
     @After fun tearDown() {
@@ -90,8 +91,9 @@ class RestoreReleaseTest {
 
     @Test fun afterAThrowingRestoreAndItsReloadSavingWorksAgain() {
         runCatching { runBlocking { org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
-        repo.loadFromDb(repo.id) // what databaseRestored triggers on the host
+        kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) } // what databaseRestored triggers on the host
         repo.name = "D"; repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
         assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 }

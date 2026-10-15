@@ -7,6 +7,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.backup.*
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.platform.exportStudyPads
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import org.junit.Assert.*

@@ -211,7 +211,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
     @Test fun theArmsAreSharedRatherThanRetyped() {
         for (applier in listOf("applyWorkspaceChangedResult", "preferenceSettingsChanged")) {
             assertTrue(
-                Regex("""internal fun $applier""").containsMatchIn(readingCommandsSrc) ||
+                Regex("""internal (suspend )?fun $applier""").containsMatchIn(readingCommandsSrc) ||
                     Regex("""    internal fun $applier""").containsMatchIn(readingCommandsSrc),
                 "$applier is no longer implemented in ReadingCommands",
             )

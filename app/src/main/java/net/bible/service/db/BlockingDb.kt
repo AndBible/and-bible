@@ -32,7 +32,7 @@ import kotlin.coroutines.CoroutineContext
 private val inTransactionOnThread = ThreadLocal<Boolean?>()
 
 /**
- * Marks the threads a transaction body runs on, so [blockingDb] can refuse to run there.
+ * Marks the threads a transaction body runs on, so [blockingAtEdge] can refuse to run there.
  * Being a [ThreadContextElement] it is re-applied on every resumption, so the mark follows the
  * body across `withContext` thread hops.
  */
@@ -44,14 +44,15 @@ object DbTransactionMarker : AbstractCoroutineContextElement(Key), ThreadContext
 }
 
 class BlockingDbInTransaction : IllegalStateException(
-    "blockingDb called inside a database transaction: a nested runBlocking cannot use the transaction's " +
+    "blockingAtEdge called inside a database transaction: a nested runBlocking cannot use the transaction's " +
         "connection and would wait for it forever. Make the caller suspend instead.")
 
 /**
- * The one sanctioned bridge from blocking code to suspend DAO functions while callers migrate to
- * coroutines (D1 spec §3 D1.2; removed in L1). Throws [BlockingDbInTransaction] inside a marked transaction.
+ * The only bridge allowed after L1a (spec §2 M1 exception): a synchronous Android/JSword edge that cannot
+ * suspend. Every call carries a same-line `// L1-edge: <reason>`; `scripts/l1-readiness.sh --check` enforces it.
+ * Throws [BlockingDbInTransaction] inside a marked transaction (the guard of the retired `blockingDb`).
  */
-fun <T> blockingDb(block: suspend CoroutineScope.() -> T): T {
+fun <T> blockingAtEdge(block: suspend CoroutineScope.() -> T): T {
     if (inTransactionOnThread.get() == true) throw BlockingDbInTransaction()
     return runBlocking(block = block)
 }
@@ -62,7 +63,7 @@ suspend fun <R> RoomDatabase.roomTransaction(block: suspend () -> R): R =
 
 /**
  * `useWriterConnection`, marked like [roomTransaction] (D1 final review I3). The databases run in TRUNCATE journal
- * mode, so Room 3's pool has ONE connection: a [blockingDb] on the same database inside [block] would wait for that
+ * mode, so Room 3's pool has ONE connection: a [blockingAtEdge] on the same database inside [block] would wait for that
  * connection forever. Marked, it throws [BlockingDbInTransaction] instead. Every non-empty connection block in app
  * code goes through this or [useReaderConnectionMarked].
  */

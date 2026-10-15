@@ -81,7 +81,7 @@ class WindowControlPageChangeTest {
         windowControl.windowRepository = repo
         originalRepo = CommonUtils.windowControl.windowRepository
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
     }
 
     @After fun tearDown() {

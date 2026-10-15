@@ -18,7 +18,6 @@ package net.bible.service.sword
 
 import org.crosswire.common.util.toKLocale
 
-import net.bible.service.db.blockingDb
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.android.control.speak.SpeakPlatform

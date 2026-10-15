@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
@@ -110,6 +111,7 @@ class ReadingDocumentRefreshOnReturnTest {
     fun teardownJoinsAnActualWindowReaderBeforeReset() {
         val koin = org.koin.core.context.GlobalContext.get()
         val original = koin.get<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val tdsSnapshot = net.bible.test.KoinFactorySnapshot.of<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
         val armed = java.util.concurrent.atomic.AtomicBoolean(false)
         val entered = java.util.concurrent.CountDownLatch(1)
         val release = kotlinx.coroutines.CompletableDeferred<Unit>()
@@ -118,7 +120,7 @@ class ReadingDocumentRefreshOnReturnTest {
                 get() {
                     if (Thread.currentThread().name.startsWith("DefaultDispatcher") && armed.compareAndSet(true, false)) {
                         // Like the real source, this synchronous bridge does not inherit the Window job.
-                        net.bible.service.db.blockingDb {
+                        net.bible.service.db.blockingAtEdge {
                             entered.countDown()
                             release.await()
                         }
@@ -153,9 +155,7 @@ class ReadingDocumentRefreshOnReturnTest {
             try {
                 owner?.let { job -> DatabaseResetter.runResetBlocking { job.cancel(); job.join() } }
             } finally {
-                koin.loadModules(listOf(org.koin.dsl.module {
-                    single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { original }
-                }))
+                tdsSnapshot.restore()
             }
         }
     }
@@ -189,6 +189,106 @@ class ReadingDocumentRefreshOnReturnTest {
             DatabaseResetter.runResetBlocking { tail.join(); owner.coroutineContext[kotlinx.coroutines.Job]?.join() }
             ReadingHostPresence.setForeground(null)
             ReadingViewVisibility.setVisible(false)
+        }
+    }
+
+    @Test fun failedPauseRetainsControllerDestructionBeforeResetAndRestart() {
+        val controller = composedHost()
+        val activity = controller.get()
+        val bootstrap = activity.readingAppBootstrap
+        val repositoryField = bootstrap.javaClass.getDeclaredField("windowRepository").apply { isAccessible = true }
+        val repository = repositoryField.get(bootstrap)
+        val networkField = bootstrap.javaClass.getDeclaredField("networkCallbackRegistered").apply { isAccessible = true }
+        val lifecycle = activity.lifecycleScope.coroutineContext[kotlinx.coroutines.Job]!!
+        var restored = false
+        var reset = false
+        var primary: Throwable? = null
+        val afterCloseFailure = IllegalArgumentException("secondary close cleanup failure")
+        try {
+            assertTrue(networkField.getBoolean(bootstrap), "real host registered its callback")
+            // Actual onPause saves via the bootstrap repository before onDestroy can unregister.
+            repositoryField.set(bootstrap, null)
+            val failure = runCatching {
+                net.bible.test.closeReadingHostsBeforeReset(controllers,
+                    afterClose = { throw afterCloseFailure },
+                    restoreBeforeReset = { restored = true }, reset = { reset = true })
+            }.exceptionOrNull()
+            assertTrue(failure is UninitializedPropertyAccessException)
+            assertTrue(failure!!.stackTrace.any { it.methodName == "onPause" })
+            assertTrue(failure.suppressed.any { it === afterCloseFailure }, "primary close error retains secondary cleanup failure")
+            assertTrue(networkField.getBoolean(bootstrap), "failed pause did not reach callback disposal")
+            assertTrue(lifecycle.isCompleted, "completed Jobs cannot substitute for destruction")
+            assertFalse(restored, "pending controller must block graph restoration")
+            assertFalse(reset)
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { net.bible.test.ReadingFixtureOwners.requireEmpty() }
+            val app = net.bible.android.BibleApplication.application as TestBibleApplication
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { app.onCreate() }
+            var nativeResetReached = false
+            org.junit.Assert.assertThrows(UninitializedPropertyAccessException::class.java) {
+                DatabaseResetter.runResetBlocking {
+                    net.bible.test.ReadingFixtureOwners.drain()
+                    commitReset { nativeResetReached = true }
+                }
+            }
+            assertFalse(nativeResetReached, "safe oracle: no close admission before controller retry")
+            assertFalse(restored)
+            repositoryField.set(bootstrap, repository)
+            DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+            assertFalse(networkField.getBoolean(bootstrap), "retry reaches real callback disposal")
+            assertTrue(activity.isDestroyed)
+            assertTrue(controllers.isEmpty(), "central retry retires the exact caller registration")
+            assertTrue(restored)
+            net.bible.test.ReadingFixtureOwners.requireEmpty()
+        } catch (e: Throwable) { primary = e; throw e }
+        finally {
+            repositoryField.set(bootstrap, repository)
+            try { closeHostsAndReset(reset = {}) }
+            catch (e: Throwable) { if (primary == null) throw e else if (primary !== e) primary.addSuppressed(e) }
+        }
+    }
+
+    @Test fun successfulDrainRetainsFailedImmediateRestorationUntilRetry() {
+        val activity = composedHost().get()
+        val lifecycle = activity.lifecycleScope.coroutineContext[kotlinx.coroutines.Job]!!
+        // Anonymous sentinel cannot be copied by coroutine stack-trace recovery.
+        val failure = object : IllegalArgumentException("immediate restoration failed") {}
+        var fail = true
+        var attempts = 0
+        var restored = false
+        var reset = false
+        var primary: Throwable? = null
+        try {
+            val thrown = runCatching {
+                net.bible.test.closeReadingHostsBeforeReset(controllers,
+                    restoreBeforeReset = { attempts++; if (fail) throw failure; restored = true },
+                    reset = { reset = true })
+            }.exceptionOrNull()
+            org.junit.Assert.assertSame(failure, thrown)
+            assertTrue(lifecycle.isCompleted)
+            assertTrue(activity.isDestroyed)
+            assertFalse(reset)
+            assertFalse(restored)
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { net.bible.test.ReadingFixtureOwners.requireEmpty() }
+            val app = net.bible.android.BibleApplication.application as TestBibleApplication
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { app.onCreate() }
+            var nativeResetReached = false
+            org.junit.Assert.assertSame(failure, runCatching {
+                DatabaseResetter.runResetBlocking {
+                    net.bible.test.ReadingFixtureOwners.drain()
+                    commitReset { nativeResetReached = true }
+                }
+            }.exceptionOrNull())
+            assertFalse(nativeResetReached)
+            fail = false
+            DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+            assertTrue(restored)
+            assertTrue(attempts >= 3, "initial attempt, rejected retry and successful retry")
+            net.bible.test.ReadingFixtureOwners.requireEmpty()
+        } catch (e: Throwable) { primary = e; throw e }
+        finally {
+            fail = false
+            try { DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() } }
+            catch (e: Throwable) { if (primary == null) throw e else if (primary !== e) primary.addSuppressed(e) }
         }
     }
 

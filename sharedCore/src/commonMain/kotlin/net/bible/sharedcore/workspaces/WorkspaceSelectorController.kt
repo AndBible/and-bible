@@ -1,6 +1,12 @@
 package net.bible.sharedcore.workspaces
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,6 +23,7 @@ import net.bible.sharedcore.search.SearchModeController
 class WorkspaceSelectorController(
     private val service: WorkspaceService,
     private val scope: CoroutineScope,
+    private val writeScope: CoroutineScope = scope,
     private val onResult: (workspaceId: String?, changed: Boolean) -> Unit,
     private val onCancel: () -> Unit,
     private val onEditSettings: (id: String) -> Unit,
@@ -44,12 +51,42 @@ class WorkspaceSelectorController(
     private val _pendingSelect = MutableStateFlow<String?>(null); val pendingSelectId: StateFlow<String?> = _pendingSelect.asStateFlow()
     private val _canDelete = MutableStateFlow(false); val canDelete: StateFlow<Boolean> = _canDelete.asStateFlow()
 
+    private var loadJob: Job? = null
+
+    /** Serialises the service's writes (clone/create/apply/delete) so they reach the database in call order. */
+    private val writes = Mutex()
+
+    /**
+     * Writes run in [writeScope], not [scope]: a clone or a Save the user asked for must reach the database even
+     * if the host is destroyed mid-flight (a dark-mode flip does that), and the host's own `onDestroy` cleanup
+     * ([discardCreated]) must still be able to run after [scope] is cancelled. The staging state is only touched
+     * from write coroutines and the UI thread, so a host passes a [writeScope] that runs on its main dispatcher.
+     */
+    private fun launchWrite(block: suspend () -> Unit) {
+        writeScope.launch(start = CoroutineStart.UNDISPATCHED) { writes.withLock { block() } }
+    }
+
+    /** Tells the host a flush finished; dropped when the host's [scope] is already gone (nobody is left to navigate). */
+    private fun reportToHost(report: () -> Unit) {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) { if (isActive) report() }
+    }
+
+    /**
+     * Resets the staging and (re)loads the rows. The list is empty until the service answers; a newer
+     * [load] supersedes an older one still in flight (its late result is dropped).
+     */
     fun load() {
-        working.clear(); working.addAll(service.loadAll())
+        loadJob?.cancel()
+        working.clear()
         created.clear(); deleted.clear(); renamed.clear(); changed.clear()
         _query.value = ""; _filtering.value = false; _dirty.value = false; _copy.value = null; _pendingSelect.value = null
         searchMode.reset()
         publish()
+        loadJob = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            val rows = writes.withLock { service.loadAll() }
+            working.clear(); working.addAll(rows)
+            publish()
+        }
     }
 
     private fun publish() {
@@ -90,14 +127,14 @@ class WorkspaceSelectorController(
         renamed[id] = name; changed.add(id); _dirty.value = true; publish()
     }
 
-    fun clone(sourceId: String, name: String) {
+    fun clone(sourceId: String, name: String) = launchWrite {
         val v = service.cloneWorkspace(sourceId, name)
         val at = working.indexOfFirst { it.id == sourceId }
         working.add(if (at >= 0) at + 1 else working.size, v)
         created.add(v.id); _dirty.value = true; publish()
     }
 
-    fun createNew(name: String) {
+    fun createNew(name: String) = launchWrite {
         val v = service.createWorkspace(name)
         // NOTE: unlike clone(), classic createNewWorkspace() does NOT track the new workspace in
         // workspacesCreated — only cloneWorkspace() does. A created-and-persisted workspace must
@@ -153,22 +190,42 @@ class WorkspaceSelectorController(
 
     fun selectWorkspace(id: String) {
         if (_dirty.value) { _pendingSelect.value = id }
-        else { service.applyChanges(order(), deleted.toList(), renamed.toMap(), changed.toSet()); onResult(id, false) }
+        else applyThen { onResult(id, false) }
+    }
+
+    /** True from the first Save/select flush on, so a double tap flushes and reports once. */
+    private var applying = false
+
+    /**
+     * Flushes the staged edits, then (and only then) runs [then]. The staging is snapshotted at call time.
+     * The session's clones are saved with it, so they stop being discardable at once: a host destroyed
+     * mid-flush must not delete what the user just saved. A failed flush re-arms the controller.
+     */
+    private fun applyThen(then: () -> Unit) {
+        if (applying) return
+        applying = true
+        val order = order(); val del = deleted.toList(); val ren = renamed.toMap(); val chg = changed.toSet()
+        created.clear()
+        launchWrite {
+            try { service.applyChanges(order, del, ren, chg) } catch (t: Throwable) { applying = false; throw t }
+            reportToHost(then)
+        }
     }
 
     fun confirmPendingSelect(save: Boolean) {
         val id = _pendingSelect.value ?: return
         _pendingSelect.value = null
-        if (save) { service.applyChanges(order(), deleted.toList(), renamed.toMap(), changed.toSet()); onResult(id, true) }
-        else { service.deleteCreated(created.toList()); onResult(id, false) }
+        if (save) applyThen { onResult(id, true) }
+        else launchWrite {
+            val ids = created.toList(); created.clear()
+            service.deleteCreated(ids)
+            reportToHost { onResult(id, false) }
+        }
     }
 
     fun dismissPendingSelect() { _pendingSelect.value = null }
 
-    fun save() {
-        service.applyChanges(order(), deleted.toList(), renamed.toMap(), changed.toSet())
-        onResult(null, true)
-    }
+    fun save() = applyThen { onResult(null, true) }
 
     fun cancel() { discardCreated(); onCancel() }
 
@@ -184,10 +241,11 @@ class WorkspaceSelectorController(
      * Idempotent: [created] is cleared, so a later [cancel] on the same controller does not ask the
      * service to delete the same rows twice.
      */
-    fun discardCreated() {
-        if (created.isEmpty()) return
-        service.deleteCreated(created.toList())
+    fun discardCreated() = launchWrite {
+        // Snapshotted under the write lock, so a clone still in flight when this is called is included.
+        val ids = created.toList()
         created.clear()
+        if (ids.isNotEmpty()) service.deleteCreated(ids)
     }
 
     private fun order(): List<String> = working.map { it.id }

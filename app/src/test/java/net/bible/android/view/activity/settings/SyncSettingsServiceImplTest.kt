@@ -29,6 +29,15 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
+import net.bible.test.awaitFixtureWrites
+import kotlinx.coroutines.async
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.cancelAndJoin
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -143,6 +152,98 @@ class SyncSettingsServiceImplTest {
         assertFalse(db.documentSyncPreferencesDao().get()!!.autoDownload)
     }
 
+    @Test fun persistenceBarrierWaitsForTheSettingsOwnedCurrentWrite() = runBlocking {
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val owner = CoroutineScope(SupervisorJob() + Dispatchers.Default).also {
+            scopes.add(it)
+            net.bible.test.ReadingFixtureOwners.retain(listOf(it))
+        }
+        val launcher = net.bible.sharedcore.platform.OrderedLauncher(owner)
+        val dao = object : net.bible.android.database.DocumentSyncPreferencesDao by db.documentSyncPreferencesDao() {
+            override suspend fun set(prefs: net.bible.android.database.DocumentSyncPreferences) {
+                entered.complete(Unit)
+                release.await()
+                db.documentSyncPreferencesDao().set(prefs)
+            }
+        }
+        val fresh = DocumentSyncSettings({ dao }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
+        var primary: Throwable? = null
+        val barrierScope = CoroutineScope(SupervisorJob() + Dispatchers.Default).also {
+            scopes.add(it)
+            net.bible.test.ReadingFixtureOwners.retain(listOf(it))
+        }
+        var barrier: kotlinx.coroutines.Deferred<Unit>? = null
+        try {
+            fresh.ensureLoaded()
+            fresh.wifiOnly = false
+            assertFalse("snapshot publication precedes persistence", fresh.wifiOnly)
+            withTimeout(5000) { entered.await() }
+            barrier = barrierScope.async(start = CoroutineStart.UNDISPATCHED) { fresh.awaitFixtureWrites() }
+            // UNDISPATCHED reaches the actual join before returning; the DAO is still held.
+            assertFalse("foreign queue cannot establish current-write persistence", barrier.isCompleted)
+            release.complete(Unit)
+            withTimeout(5000) { barrier.await() }
+            assertFalse(db.documentSyncPreferencesDao().get()!!.wifiOnly)
+        } catch (failure: Throwable) {
+            primary = failure
+            throw failure
+        } finally {
+            release.complete(Unit)
+            net.bible.test.finishFixtureScopes(listOf(owner, barrierScope), primary)
+        }
+    }
+
+    @Test fun heldRealWriteCleanupRetainsItsOwnerAndStillDisposesBarrierScope() {
+        val db = net.bible.service.db.DatabaseContainer.instance.documentSyncDb
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val owner = CoroutineScope(SupervisorJob() + Dispatchers.Default).also { scopes.add(it) }
+        val barrierOwner = CoroutineScope(SupervisorJob() + Dispatchers.Default).also { scopes.add(it) }
+        val launcher = net.bible.sharedcore.platform.OrderedLauncher(owner)
+        val dao = object : net.bible.android.database.DocumentSyncPreferencesDao by db.documentSyncPreferencesDao() {
+            override suspend fun set(prefs: net.bible.android.database.DocumentSyncPreferences) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                    entered.complete(Unit)
+                    release.await()
+                    db.documentSyncPreferencesDao().set(prefs)
+                }
+            }
+        }
+        val fresh = DocumentSyncSettings({ dao }, { db.cloudListingStateDao() },
+            { db.cloudDocumentSyncTimestampDao() }, launcher,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
+        val primary = AssertionError("primary assertion survives slow DAO cleanup")
+        try {
+            runBlocking { fresh.ensureLoaded() }
+            fresh.wifiOnly = false
+            runBlocking { withTimeout(5000) { entered.await() } }
+            val barrier = barrierOwner.async(start = CoroutineStart.UNDISPATCHED) { fresh.awaitFixtureWrites() }
+            net.bible.test.finishFixtureScopes(listOf(owner, barrierOwner), primary, timeoutMs = 50)
+            assertTrue(primary.suppressed.isNotEmpty())
+            assertFalse("real held DAO owner remains retained", owner.coroutineContext[Job]!!.isCompleted)
+            assertTrue("second scope disposed after first timeout", barrierOwner.coroutineContext[Job]!!.isCompleted)
+            assertTrue(barrier.isCancelled)
+            org.junit.Assert.assertThrows(IllegalStateException::class.java) { net.bible.test.ReadingFixtureOwners.requireEmpty() }
+            org.junit.Assert.assertSame("no teardown under held writer", db,
+                net.bible.service.db.DatabaseContainer.instance.documentSyncDb)
+            release.complete(Unit)
+            net.bible.test.finishFixtureScopes(listOf(owner, barrierOwner))
+            DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+            assertFalse(runBlocking { db.documentSyncPreferencesDao().get()!! }.wifiOnly)
+        } finally {
+            release.complete(Unit)
+            // Independent safety cleanup keeps omission experiments from leaking either scope.
+            owner.coroutineContext[Job]!!.cancel()
+            barrierOwner.coroutineContext[Job]!!.cancel()
+            net.bible.test.finishFixtureScopes(listOf(owner, barrierOwner))
+            DatabaseResetter.runResetBlocking { net.bible.test.ReadingFixtureOwners.drain() }
+        }
+    }
+
     @Test fun rapidLoadedTogglesKeepSubmissionOrderWithDelayedWorker() = kotlinx.coroutines.runBlocking {
         settings.ensureLoaded()
         val ui = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
@@ -154,8 +255,7 @@ class SyncSettingsServiceImplTest {
         service.setDocumentSyncToggle("sync_documents_wifi_only", false)
         assertFalse("last submitted write is visible without scheduling worker", settings.wifiOnly)
         worker.scheduler.runCurrent()
-        org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.OrderedLauncher>(
-            net.bible.sharedcore.platform.OrderedLauncher::class.java).join("document-sync-settings")
+        settings.awaitFixtureWrites()
         assertFalse(net.bible.service.db.DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao().get()!!.wifiOnly)
     }
 

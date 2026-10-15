@@ -17,4 +17,7 @@ llm
 page
 search
 event
+core
 @no-pending
+window
+@no-unmarked-bridges

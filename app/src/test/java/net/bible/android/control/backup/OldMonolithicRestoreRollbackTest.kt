@@ -51,9 +51,10 @@ class OldMonolithicRestoreRollbackTest {
         CommonUtils.settings.setBoolean("first-time", false)
         repo = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
         repo.name = "Before restore"
         repo.saveIntoDb(false)
+        runBlocking { repo.persistence.awaitPersisted() } // the save is an ordered write-through since L1a.8
         DatabaseContainer.reset() // close + flush, so the files can be fingerprinted
     }
 

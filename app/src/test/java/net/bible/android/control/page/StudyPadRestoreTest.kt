@@ -47,7 +47,7 @@ class StudyPadRestoreTest {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         repo = WindowRepository(scope)
         CommonUtils.windowControl.windowRepository = repo
-        repo.initialize()
+        repo.initializeAtEdge()
     }
 
     @After fun tearDown() {
@@ -79,7 +79,8 @@ class StudyPadRestoreTest {
         val id = repo.activeWindow.id
         repo.activeWindow.pageManager.currentGeneralBook.anchorOrdinal = OrdinalRange(7)
         repo.saveIntoDb(false)
-        repo.loadFromDb(repo.id)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
+        kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         val page = repo.getWindow(id)!!.pageManager.currentGeneralBook
         assertEquals(factory.journalDocument, page.currentDocument)
         assertEquals(label.id, (page.key as StudyPadKey).label.id)
@@ -89,8 +90,9 @@ class StudyPadRestoreTest {
     @Test fun `reload of a deleted label does not restore the journal`() {
         val label = openStudyPad()
         repo.saveIntoDb(false)
+        kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
         runBlocking { dao.delete(label) }
-        repo.loadFromDb(repo.id)
+        kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         assertNotEquals(factory.journalDocument, repo.activeWindow.pageManager.currentGeneralBook.currentDocument)
         assertFalse(repo.activeWindow.pageManager.currentGeneralBook.key is StudyPadKey)
     }

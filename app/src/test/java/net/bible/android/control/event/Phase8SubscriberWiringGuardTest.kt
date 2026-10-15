@@ -19,7 +19,7 @@ class Phase8SubscriberWiringGuardTest {
         val p = "android/view/activity/page/BibleView.kt"
         assertContains(p, "AndBibleAddons.reloaded.subscribe {", "reload_addons, synchronous like the old on{}")
         assertContains(p, "WorkspaceChanges.changes.subscribe { if (it == WorkspaceChange.SettingsEdited) updateConfig() }", "SettingsEdited reaches updateConfig")
-        assertContains(p, "CommonUtils.aiSettings.configChanged.subscribe { updateConfig() }", "Review Focus 3: llmConfigured")
+        assertContains(p, "CommonUtils.llmConfiguredChanges.subscribe { updateConfig() }", "Review Focus 3: llmConfigured follows the refreshed value")
     }
 
     @Test fun aiServicesRegisterConfigRefreshWithApplicationOwner() {

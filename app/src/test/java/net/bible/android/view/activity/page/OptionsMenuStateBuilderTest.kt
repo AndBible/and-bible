@@ -86,7 +86,7 @@ class OptionsMenuStateBuilderTest {
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -296,7 +296,7 @@ class OptionsMenuStateBuilderTest {
 
     @Test
     fun aSheetEditableTextOptionGoesToTheHost() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
         val pref = FontSizePreference(workspaceSettingsBundle())
 
@@ -371,7 +371,7 @@ class OptionsMenuStateBuilderTest {
      */
     @Test
     fun hideLabelsStillLaunchesManageLabelsEvenWithAHostInstalled() {
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = net.bible.test.fixtureReadingHost(activity)
         val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.BOOKMARKS_HIDELABELS)
 
         val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { activity.hostWindowRepository }, { activity.composeReadingViewHost }, { _, _ -> pref }, "textOptionItem:0")
@@ -394,7 +394,7 @@ class OptionsMenuStateBuilderTest {
      */
     @Test
     fun windowPaneSheetEditableTextOptionGoesToTheHost() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         val window = windowRepository.activeWindow
@@ -448,7 +448,7 @@ class OptionsMenuStateBuilderTest {
 
     @Test
     fun strongsLongPressOpensTheTextSettingsSheetNotAPlatformDialog() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.composeStrongsLong()

@@ -66,7 +66,7 @@ class MenuCommandHandlerDialogTest {
         val windowControl: WindowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup().get()
         CurrentActivityHolder.activate(activity)

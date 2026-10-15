@@ -56,7 +56,7 @@ class LinkControlStudyPadTest {
         runBlocking { bookmarkControl.insertOrUpdateLabel(label) }
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
         val kjv = Books.installed().getBook("KJV") as SwordBook
         val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
         windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)

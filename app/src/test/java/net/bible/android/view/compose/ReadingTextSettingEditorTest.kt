@@ -85,7 +85,7 @@ class ReadingTextSettingEditorTest {
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -102,7 +102,7 @@ class ReadingTextSettingEditorTest {
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
-    private fun host() = ComposeReadingViewHost(activity)
+    private fun host() = net.bible.test.fixtureReadingHost(activity)
 
     @Test
     fun showTextSettingEditorOpensTheStackAtThatPage() {

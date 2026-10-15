@@ -113,7 +113,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.service.db.blockingDb
+import net.bible.service.db.blockingAtEdge
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.device.speak.TextToSpeechNotificationManager
@@ -417,11 +417,13 @@ object CommonUtils : CommonUtilsBase() {
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
 
 
-        /** Check if any LlmProviderConfig exists in the database. */
+        /**
+         * True when any LlmProviderConfig exists. Read on the UI thread, so it reads the app-wide
+         * [net.bible.sharedcore.ai.PromptService.configured] snapshot (refreshed when the AI configuration changes)
+         * instead of the database; [initializeAppCoroutine] awaits its first refresh.
+         */
         val llmConfigured: Boolean
-            get() = try {
-                blockingDb { DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() } > 0
-            } catch (_: Exception) { false }
+            get() = promptService.configured.value
 
     }
 
@@ -438,14 +440,52 @@ object CommonUtils : CommonUtilsBase() {
      */
     val aiSettings: net.bible.service.llm.AiSettings get() = org.koin.java.KoinJavaComponent.get(net.bible.service.llm.AiSettings::class.java)
 
+    private val promptService: net.bible.sharedcore.ai.PromptService
+        get() = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.ai.PromptService::class.java)
+
+    private val llmConfiguredSource = net.bible.sharedcore.event.EventSource<Unit>()
+    private var llmBridgeJob: kotlinx.coroutines.Job? = null
+    private var llmBridgeFor: net.bible.sharedcore.ai.PromptService? = null
+
+    /**
+     * Fires after [net.bible.sharedcore.ai.PromptService.configured] changed value, so a listener reading
+     * [AndBibleSettings.llmConfigured] sees the new value (unlike `aiSettings.configChanged`, which fires before the
+     * asynchronous refresh). Reading it starts the bridge; it restarts when the service or its scope was replaced.
+     */
+    val llmConfiguredChanges: net.bible.sharedcore.event.Events<Unit> get() {
+        val service = promptService
+        synchronized(llmConfiguredSource) {
+            if (llmBridgeJob?.isActive != true || llmBridgeFor !== service) {
+                llmBridgeJob?.cancel()
+                llmBridgeFor = service
+                var last = service.configured.value
+                val scope = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppCoroutineScope>(net.bible.sharedcore.platform.AppCoroutineScope::class.java)
+                llmBridgeJob = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                    service.configured.collect { if (it != last) { last = it; llmConfiguredSource.emit(Unit) } }
+                }
+            }
+        }
+        return llmConfiguredSource
+    }
+
+    internal suspend fun runEachCatching(vararg steps: suspend () -> Unit) {
+        for (step in steps) {
+            try { step() }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { Log.e(TAG, "Snapshot store step failed", e) }
+        }
+    }
+
+    private val readingProgressSettingsStore: ReadingProgressSettingsStore
+        get() = org.koin.java.KoinJavaComponent.get(ReadingProgressSettingsStore::class.java)
+
+    /** The snapshot held by [GlobalTextDisplaySettingsStore]; loaded in [initializeAppCoroutine]. */
     var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() = DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().let { dao ->
-            blockingDb { dao.get() }?.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
-        }
-        set(value) {
-            val dao = DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao()
-            blockingDb { dao.set(GlobalTextDisplaySettings(textDisplaySettings = value)) }
-        }
+        get() = globalTextDisplaySettingsStore.current
+        set(value) = globalTextDisplaySettingsStore.set(value)
+
+    private val globalTextDisplaySettingsStore: GlobalTextDisplaySettingsStore
+        get() = org.koin.java.KoinJavaComponent.get(GlobalTextDisplaySettingsStore::class.java)
 
     val localePref: String?
         get() = realSharedPreferences.getString("locale_pref", null)
@@ -1082,6 +1122,7 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
+            loadSnapshotStoresInBackground()
             if (ttsNotificationManager == null) {
                 ttsNotificationManager = TextToSpeechNotificationManager()
             }
@@ -1112,7 +1153,7 @@ object CommonUtils : CommonUtilsBase() {
 
         if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
             if(!application.isRunningTests) {
-                for (it in blockingDb { docDao.getUnlocked() }) {
+                for (it in blockingAtEdge { docDao.getUnlocked() }) { // L1-edge: synchronous app bootstrap (widget/media-button entry before any coroutine)
                     val book = Books.installed().getBook(it.initials)
                     book!!.unlock(it.cipherKey)
                 }
@@ -1121,9 +1162,54 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    /**
+     * A host recreated directly (process death) only runs [initializeApp], never [initializeAppCoroutine]. Start the
+     * snapshot loads here without blocking; writes that arrive before they finish are applied to the loaded rows.
+     * The job is owned by [DatabaseContainer.aiLifetime]: every database reset, close or restore cancels and joins it
+     * before closing (a Room 3 close under its in-flight read is a native crash). A cancelled load leaves the store
+     * unloaded (factory defaults) until a later [initializeAppCoroutine] loads it; the host bootstrap joins this job
+     * through [awaitSnapshotLoadsAtEdge].
+     */
+    @androidx.annotation.VisibleForTesting
+    internal fun loadSnapshotStoresInBackground(): kotlinx.coroutines.Job {
+        val scope = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppCoroutineScope>(net.bible.sharedcore.platform.AppCoroutineScope::class.java)
+        return scope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
+            runEachCatching(
+                { globalTextDisplaySettingsStore.load() },
+                { readingProgressSettingsStore.load() },
+                { promptService.refresh() },
+            )
+        }.also {
+            snapshotLoadJob = it
+            DatabaseContainer.aiLifetime.ownUntilReplace(it)
+            it.start()
+        }
+    }
+
+    @Volatile private var snapshotLoadJob: kotlinx.coroutines.Job? = null
+
+    /**
+     * The cold-start barrier for the snapshot stores: the process-death path never runs [initializeAppCoroutine], so
+     * the host bootstrap joins the background load here before anything reads a store (otherwise a first render reads
+     * factory defaults and nothing re-renders when the load lands). Bounded by one row read per store. A cancelled
+     * load (a reset or restore took ownership) completes the join at once instead of hanging; the stores then keep
+     * their defaults until a later load.
+     */
+    internal fun awaitSnapshotLoadsAtEdge() {
+        val job = snapshotLoadJob ?: return
+        if (job.isCompleted) return
+        blockingAtEdge { job.join() } // L1-edge: cold-start barrier for the snapshot stores (host bootstrap, process-death path)
+    }
+
     suspend fun initializeAppCoroutine() {
         DatabaseContainer.ready = true
         aiSettings.ensureLoaded()
+        // Per-step isolation, as in the background variant: an unreadable AI/settings row must not abort startup.
+        runEachCatching(
+            { globalTextDisplaySettingsStore.load() },
+            { readingProgressSettingsStore.load() },
+            { promptService.refresh() },
+        )
         MyDocumentBookManager.launcher.join("mydocument-sync")
         if(!initialized) {
             try {
@@ -1205,7 +1291,7 @@ object CommonUtils : CommonUtilsBase() {
     val defaultVerse: VerseRange get() = net.bible.android.control.page.defaultVerse()
 
     private fun prepareExampleBookmarksAndWorkspaces() {
-        blockingDb { prepareExampleBookmarks() }
+        blockingAtEdge { prepareExampleBookmarks() } // L1-edge: synchronous first-run bootstrap (prepareData runs on the host UI thread before the window repository exists)
         prepareExampleWorkspaces()
     }
 
@@ -1287,9 +1373,9 @@ object CommonUtils : CommonUtilsBase() {
 
     private fun prepareExampleWorkspaces() {
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        val ws = blockingDb { workspaceDao.allWorkspaces() }
+        val ws = blockingAtEdge { workspaceDao.allWorkspaces() } // L1-edge: synchronous first-run bootstrap (prepareData)
         if(ws.isNotEmpty()) {
-            blockingDb { workspaceDao.updateWorkspaces(ws) }
+            blockingAtEdge { workspaceDao.updateWorkspaces(ws) } // L1-edge: synchronous first-run bootstrap (prepareData)
             settings.setBoolean("first-time", false)
         } else {
             val workspaceSettings = WorkspaceEntities.WorkspaceSettings()
@@ -1297,7 +1383,7 @@ object CommonUtils : CommonUtilsBase() {
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
             )
-            blockingDb { newWorkspaces.forEach { workspaceDao.insertWorkspace(it) } }
+            blockingAtEdge { newWorkspaces.forEach { workspaceDao.insertWorkspace(it) } } // L1-edge: synchronous first-run bootstrap (prepareData)
             val workspaceIds = newWorkspaces.map { it.id }
             settings.setString("current_workspace_id", workspaceIds[0].toString())
         }

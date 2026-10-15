@@ -185,7 +185,7 @@ class ToolbarStateServiceImplTest {
     fun activeWindowChange_inASwappedInRepository_stillRefreshes() {
         val swapped = net.bible.test.testWindowRepository()
         windowControl.windowRepository = swapped
-        swapped.initialize()
+        swapped.initializeAtEdge()
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
         service.refresh()
         val second = swapped.addNewWindow()

@@ -67,7 +67,7 @@ class WindowContentLoadRaceTest {
         whenever(heldDb.myDocumentDao()).thenReturn(heldDao)
         try {
             control.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val window = repo.activeWindow
             val host = mock<ReadingHostActivity>()
             whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
@@ -120,7 +120,7 @@ class WindowContentLoadRaceTest {
         var view: BibleView? = null
         try {
             control.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val window = repo.activeWindow
             val host = mock<ReadingHostActivity>()
             whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
@@ -182,6 +182,7 @@ class WindowContentLoadRaceTest {
         val originalRepo = control.windowRepository
         val koin = GlobalContext.get()
         val originalSource = koin.get<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
+        val tdsSnapshot = net.bible.test.KoinFactorySnapshot.of<net.bible.android.control.page.GlobalTextDisplaySettingsSource>()
         val settings = originalSource.current
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
@@ -204,7 +205,7 @@ class WindowContentLoadRaceTest {
                     if (Thread.currentThread().stackTrace.any { it.className == Window::class.java.name && it.methodName.contains("isCurrentRequest") } && guardReads.incrementAndGet() == 2) {
                         // Hold the actual post-fetch key/settings read, whose blocking bridge has
                         // an independent Job. A ready view makes the next boundary non-suspending.
-                        net.bible.service.db.blockingDb {
+                        net.bible.service.db.blockingAtEdge {
                             entered.complete(Unit)
                             release.await()
                         }
@@ -217,7 +218,7 @@ class WindowContentLoadRaceTest {
                 single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { source }
             }))
             control.windowRepository = repo
-            repo.initialize()
+            repo.initializeAtEdge()
             val window = repo.activeWindow
             val host = mock<ReadingHostActivity>()
             whenever(host.hostContext).thenReturn(RuntimeEnvironment.getApplication())
@@ -251,9 +252,7 @@ class WindowContentLoadRaceTest {
                 view?.destroy()
             } finally {
                 control.windowRepository = originalRepo
-                koin.loadModules(listOf(org.koin.dsl.module {
-                    single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> { originalSource }
-                }))
+                tdsSnapshot.restore()
             }
         }
     }

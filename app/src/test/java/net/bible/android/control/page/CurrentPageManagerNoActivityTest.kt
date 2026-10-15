@@ -117,7 +117,7 @@ class CurrentPageManagerNoActivityTest {
     fun aKeylessSwitchWithNoActivityInFrontDoesNotCrash() {
         windowRepository = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
         val dictionary = requireNotNull(Books.installed().getBook("TestDict")) { "TestDict test module must be installed" }
         val pageManager = CommonUtils.windowControl.activeWindowPageManager
         val saved = ArrayList(holderActivities())

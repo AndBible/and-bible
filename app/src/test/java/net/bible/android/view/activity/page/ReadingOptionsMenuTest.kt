@@ -86,7 +86,7 @@ class ReadingOptionsMenuTest {
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
 
         // Built WITHOUT `.create()`, for the reasons OptionsMenuStateBuilderTest's kdoc gives.
         activity = Robolectric.buildActivity(
@@ -204,7 +204,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun openOverflowMenuBuildsTheItemsAndExpandsTheComposeMenu() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         assertFalse(host.overflowExpandedForTest, "sanity: starts closed")
 
         host.openOverflowMenu()
@@ -230,7 +230,7 @@ class ReadingOptionsMenuTest {
      */
     @Test
     fun openOverflowMenuLeavesFullscreenSoThereIsAToolbarToAnchorTheMenuOn() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.fullScreen = true
         assertTrue(activity.fullScreen, "sanity: the fixture really is in fullscreen")
 
@@ -253,7 +253,7 @@ class ReadingOptionsMenuTest {
      */
     @Test
     fun openOverflowMenuDoesNothingWhileTheToolbarIsInSearchMode() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         host.searchController.open()
         assertTrue(host.searchController.searchModeActive.value, "sanity: search mode is active")
 
@@ -298,7 +298,7 @@ class ReadingOptionsMenuTest {
             "sanity: the test Sword modules must offer more than the 2 that QuickDocPicker would " +
                 "switch between directly; found ${documentControl.biblesForVerse.size}",
         )
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.composeBibleLongClick()
@@ -346,7 +346,7 @@ class ReadingOptionsMenuTest {
                 "switch-directly threshold of 2, or this test cannot see the regression; got " +
                 "${commentaries.map { it.initials }} + ${extras.map { it.initials }}",
         )
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
         val before = documentControl.currentDocument?.initials
 
@@ -412,7 +412,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun bibleShortPressOpensTheBibleSheetEvenWhileReadingAnotherCategory() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
         // Review Focus 4: the current document is outside the scope.
         activity.readingCommands.setCurrentDocument(SwordDocumentFacade.getBooks(BookCategory.DICTIONARY).first())
@@ -425,7 +425,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun commentaryShortPressOpensTheCommentarySheet() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.composeCommentaryClick()
@@ -435,7 +435,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun aScopeWithNoDocumentsOpensTheTypedChooserInsteadOfNothing() {
-        val host = ComposeReadingViewHost(activity)
+        val host = net.bible.test.fixtureReadingHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.openScopedDocumentSheet(DocumentSheetScope.COMMENTARY, emptyList())

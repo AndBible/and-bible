@@ -1,6 +1,7 @@
 package net.bible.sharedcore.workspaces
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
@@ -24,18 +25,23 @@ class WorkspaceSelectorControllerTest {
 
         override fun currentWorkspaceId() = working.firstOrNull { it.isCurrent }?.id ?: working.first().id
         override fun saveCurrentIntoDb() { savedIntoDb = true }
-        override fun loadAll() = working.toList()
-        override fun createWorkspace(name: String): WorkspaceRowVd {
+        var loadGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+        var applyGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+        override suspend fun loadAll(): List<WorkspaceRowVd> { loadGate?.await(); return working.toList() }
+        override suspend fun createWorkspace(name: String): WorkspaceRowVd {
             val v = vd("${nextNewId++}", name); working.add(v); return v
         }
-        override fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd {
+        var cloneGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+        override suspend fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd {
+            cloneGate?.await()
             val v = vd("${nextNewId++}", name)
             working.add(working.indexOfFirst { it.id == sourceId } + 1, v); return v
         }
-        override fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
+        override suspend fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
+            applyGate?.await()
             appliedOrder = orderedIds; appliedDeleted = deletedIds; appliedRenamed = renamed; appliedChanged = changedIds
         }
-        override fun deleteCreated(ids: List<String>) { deletedCreated = ids }
+        override suspend fun deleteCreated(ids: List<String>) { deletedCreated = ids }
         override fun settingTypeLabels(sourceId: String) = listOf("Font", "Colors", "Margins")
         override fun copySettings(sourceId: String, typeIndices: List<Int>, targetIds: List<String>): List<WorkspaceRowVd> {
             copyCall = Triple(sourceId, typeIndices, targetIds); return targetIds.mapNotNull { t -> working.firstOrNull { it.id == t } }
@@ -53,8 +59,12 @@ class WorkspaceSelectorControllerTest {
     private var canceled = false
     private var editSettingsId: String? = null
 
+    /** The host's scope (cancelled when the host is destroyed) and the must-complete scope that outlives it. */
+    private var hostScope = kotlinx.coroutines.CoroutineScope(UnconfinedTestDispatcher())
+    private val writeScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + UnconfinedTestDispatcher())
+
     private fun controller(svc: FakeService) = WorkspaceSelectorController(
-        service = svc, scope = kotlinx.coroutines.CoroutineScope(UnconfinedTestDispatcher()),
+        service = svc, scope = hostScope, writeScope = writeScope,
         onResult = { id, ch -> resultId = id; resultChanged = ch },
         onCancel = { canceled = true },
         onEditSettings = { editSettingsId = it },
@@ -65,6 +75,121 @@ class WorkspaceSelectorControllerTest {
         assertEquals(listOf("1", "2"), c.workspaces.value.map { it.id })
         assertFalse(c.dirty.value)
         assertTrue(c.canDelete.value)
+    }
+
+    @Test fun a_held_load_shows_empty_then_the_rows() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1", current = true), vd("2")))
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.loadGate = gate
+        val c = controller(svc)
+        assertEquals(emptyList<String>(), c.workspaces.value.map { it.id }, "nothing is published while the load is held")
+        gate.complete(Unit)
+        assertEquals(listOf("1", "2"), c.workspaces.value.map { it.id })
+        assertFalse(c.dirty.value)
+    }
+
+    @Test fun a_newer_load_wins_over_a_still_held_older_one() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1")))
+        val c = controller(svc)
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.loadGate = gate
+        c.load()                                   // held
+        svc.loadGate = null
+        svc.working = mutableListOf(vd("9"))
+        c.load()                                   // completes at once
+        gate.complete(Unit)
+        assertEquals(listOf("9"), c.workspaces.value.map { it.id })
+    }
+
+    @Test fun save_reports_the_result_only_after_applyChanges_completed() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
+        c.rename("1", "x")
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.applyGate = gate
+        c.save()
+        assertNull(resultChanged, "the host must not leave before the flush finished")
+        gate.complete(Unit)
+        assertEquals(true, resultChanged)
+        assertEquals(mapOf("1" to "x"), svc.appliedRenamed)
+    }
+
+    @Test fun discardCreated_is_idempotent_and_deletes_once() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1")))
+        val c = controller(svc); c.clone("1", "tmp")
+        val id = c.workspaces.value.first { it.name == "tmp" }.id
+        c.discardCreated()
+        assertEquals(listOf(id), svc.deletedCreated)
+        svc.deletedCreated = null
+        c.discardCreated()
+        assertNull(svc.deletedCreated)
+    }
+
+    @Test fun a_save_still_reaches_the_service_when_the_host_scope_is_cancelled_mid_flush() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
+        c.rename("1", "x")
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.applyGate = gate
+        c.save()
+        hostScope.cancel()                          // the host is destroyed while the flush is in flight
+        gate.complete(Unit)
+        assertEquals(mapOf("1" to "x"), svc.appliedRenamed, "the user's Save must not be lost")
+        assertNull(resultChanged, "a destroyed host is not told anything")
+    }
+
+    @Test fun a_saved_visit_is_not_discarded_when_the_host_is_destroyed_mid_flush() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
+        c.clone("1", "kept")
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.applyGate = gate
+        c.save()
+        hostScope.cancel()
+        c.discardCreated()                          // what the host's onDestroy does
+        gate.complete(Unit)
+        assertNull(svc.deletedCreated, "the clone was saved, so onDestroy must not delete it")
+    }
+
+    @Test fun a_clone_in_flight_survives_the_host_scope_and_is_tracked_for_discard() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1")))
+        val c = controller(svc)
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.cloneGate = gate
+        c.clone("1", "tmp")
+        hostScope.cancel()
+        gate.complete(Unit)
+        c.discardCreated()
+        assertEquals(listOf("100"), svc.deletedCreated, "the committed clone must be tracked so the discard removes it")
+    }
+
+    @Test fun double_tapping_save_reports_the_result_once() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
+        c.rename("1", "x")
+        var results = 0
+        val counting = WorkspaceSelectorController(
+            service = svc, scope = hostScope, writeScope = writeScope,
+            onResult = { _, _ -> results++ }, onCancel = {}, onEditSettings = {},
+        ).also { it.load(); it.rename("1", "x") }
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.applyGate = gate
+        counting.save(); counting.save()
+        gate.complete(Unit)
+        assertEquals(1, results)
+    }
+
+    @Test fun discardCreated_with_a_cancelled_host_scope_and_a_write_holding_the_lock_still_deletes_everything() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1")))
+        val c = controller(svc)
+        c.clone("1", "a"); c.clone("1", "b")
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        svc.cloneGate = gate
+        c.clone("1", "c")                           // holds the write lock
+        hostScope.cancel()                          // onDestroy: lifecycleScope is already cancelled
+        c.discardCreated()
+        gate.complete(Unit)
+        assertEquals(listOf("100", "101", "102"), svc.deletedCreated)
     }
 
     @Test fun single_workspace_cannot_delete() = runTest(UnconfinedTestDispatcher()) {

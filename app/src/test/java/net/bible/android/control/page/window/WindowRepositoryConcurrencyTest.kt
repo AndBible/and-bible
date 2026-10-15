@@ -56,7 +56,7 @@ class WindowRepositoryConcurrencyTest {
         CommonUtils.settings.setBoolean("first-time", false)
         windowControl = CommonUtils.windowControl
         windowControl!!.windowRepository = net.bible.test.testWindowRepository()
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
     }
 
     @After

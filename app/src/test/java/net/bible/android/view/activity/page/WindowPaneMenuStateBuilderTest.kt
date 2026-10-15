@@ -74,7 +74,7 @@ class WindowPaneMenuStateBuilderTest {
         windowControl = CommonUtils.windowControl
         windowRepository = net.bible.test.testWindowRepository()
         windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        windowRepository.initializeAtEdge()
         windowRepository.workspaceSettings.autoPin = true
 
         val koin = GlobalContext.get()

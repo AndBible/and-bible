@@ -77,4 +77,48 @@ class AiDatabaseLifetimeTest {
         second.join()
         assertTrue(secondEntered)
     }
+
+    /** An owned read cannot be interrupted mid-step (native): replace waits for it before its block closes anything. */
+    @Test fun replacementJoinsAnOwnedJobBeforeItsBlockRuns() = runBlocking {
+        val lifetime = AiDatabaseLifetime()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        var stepEnded = false
+        val job = launch(Dispatchers.Default, start = CoroutineStart.LAZY) {
+            entered.complete(Unit)
+            withContext(NonCancellable) { release.await(); stepEnded = true }
+        }
+        lifetime.ownUntilReplace(job)
+        job.start()
+        entered.await()
+        var stepEndedWhenBlockRan: Boolean? = null
+        val replacement = launch(Dispatchers.Default) { lifetime.replace { stepEndedWhenBlockRan = stepEnded } }
+        delay(200)
+        assertNull("replace ran its block under the in-flight step", stepEndedWhenBlockRan)
+        release.complete(Unit)
+        replacement.join()
+        assertEquals(true, stepEndedWhenBlockRan)
+    }
+
+    /** An owned job queued for admission behind the replace would deadlock a plain join; it is cancelled instead. */
+    @Test fun anOwnedJobWaitingForAdmissionIsCancelledNotDeadlocked() = runBlocking {
+        val lifetime = AiDatabaseLifetime()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val holder = launch { lifetime.use { entered.complete(Unit); release.await() } }
+        entered.await()
+        val replacement = launch { lifetime.replace { } }
+        yield()
+        // Queued for admission behind the replacement: once the replace holds admission, a bare join would wait forever.
+        var used = false
+        val job = launch(start = CoroutineStart.LAZY) { lifetime.use { used = true } }
+        lifetime.ownUntilReplace(job)
+        job.start()
+        yield()
+        release.complete(Unit)
+        withTimeout(10_000) { replacement.join() }
+        holder.join()
+        assertTrue(job.isCancelled)
+        assertFalse(used)
+    }
 }

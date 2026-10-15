@@ -12,7 +12,7 @@ import java.util.zip.ZipInputStream
 
 /** Platform-independent archive and URL utilities; retains the legacy file semantics. */
 object ArchiveUtils {
-    private const val TAG = "CommonUtils"
+    private const val TAG = "ArchiveUtils"
     fun md5Hash(str: String): String {
         val md = MessageDigest.getInstance("MD5")
         val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))

@@ -1,5 +1,9 @@
 package net.bible.sharedcore.workspaces
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class WorkspaceQuickController(
     private val service: WorkspaceService,
+    private val scope: CoroutineScope,
     private val onSwitch: (String) -> Unit,
 ) {
     private val _rows = MutableStateFlow<List<WorkspaceRowVd>>(emptyList())
@@ -22,7 +27,13 @@ class WorkspaceQuickController(
 
     init { reload() }
 
-    fun reload() { _rows.value = service.loadAll() }
+    private var loadJob: Job? = null
+
+    /** Rows stay as they were until the load completes; a newer reload supersedes an older one still in flight. */
+    fun reload() {
+        loadJob?.cancel()
+        loadJob = scope.launch(start = CoroutineStart.UNDISPATCHED) { _rows.value = service.loadAll() }
+    }
 
     fun select(id: String) {
         if (_rows.value.firstOrNull { it.id == id }?.isCurrent == true) return

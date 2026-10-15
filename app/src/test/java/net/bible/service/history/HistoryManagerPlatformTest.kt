@@ -65,7 +65,7 @@ class HistoryManagerPlatformTest {
         originalRepository = CommonUtils.windowControl.windowRepository
         repository = net.bible.test.testWindowRepository()
         CommonUtils.windowControl.windowRepository = repository
-        repository.initialize()
+        repository.initializeAtEdge()
         HistoryManager.resetInstanceForTest()
         val kjv = requireNotNull(Books.installed().getBook("KJV"))
         window.pageManager.currentBible.setCurrentDocumentAndKey(

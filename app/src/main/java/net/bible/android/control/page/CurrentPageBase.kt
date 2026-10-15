@@ -60,6 +60,7 @@ abstract class CurrentPageBase protected constructor(
     protected val strings: CoreStrings by inject(CoreStrings::class.java)
     protected val notifier: UserNotifier by inject(UserNotifier::class.java)
     private val settings: AppSettings by inject(AppSettings::class.java)
+    private val recentDocuments: RecentDocumentsStore by inject(RecentDocumentsStore::class.java)
 
     override var isInhibitChangeNotifications: Boolean = false
 
@@ -274,7 +275,7 @@ abstract class CurrentPageBase protected constructor(
         // Round 15b: the ONE leaf every document switch funnels through — CurrentPageManager's
         // setCurrentDocument (:162, both branches) and setCurrentDocumentAndKey (:208) both land
         // here. Feeds the document quick sheet's Recent tab (spec §4.5).
-        RecentDocumentsStore.record(doc?.initials)
+        recentDocuments.record(doc?.initials)
         val prevDoc = _currentDocument
         if (doc != _currentDocument && !isShareKeyBetweenDocs && key != null && !doc!!.contains(key)) {
             doSetKey(null)

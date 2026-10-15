@@ -138,8 +138,35 @@ fun buildCoreModule() = module {
 
     single<AppSettings> { CommonUtils.settings }
     single<net.bible.service.llm.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
+    single { net.bible.service.common.RecentDocumentsStore(get()) }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
+    single {
+        net.bible.service.common.GlobalTextDisplaySettingsStore(
+            get(),
+            { net.bible.service.db.DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao() },
+            DatabaseContainer.databaseRestored,
+            get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
+            get<AppCoroutineScope>(),
+            { net.bible.service.db.DatabaseContainer.instance.workspaceDb.invalidationTracker.createFlow("GlobalTextDisplaySettings").map { Unit } },
+        )
+    }
+    single {
+        net.bible.service.common.ReadingProgressSettingsStore(
+            get(),
+            { net.bible.service.db.DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao() },
+            DatabaseContainer.databaseRestored,
+            get<net.bible.service.cloudsync.CloudSync>().workspaceRefreshRequired,
+            get<AppCoroutineScope>(),
+            { net.bible.service.db.DatabaseContainer.instance.progressDb.invalidationTracker.createFlow("GlobalReadingProgressSettings").map { Unit } },
+        )
+    }
+    single {
+        net.bible.android.control.page.window.WorkspacePersistence(get()) {
+            // The DAO is resolved per write: DatabaseContainer.reset()/restore replaces workspaceDb.
+            DatabaseContainer.instance.workspaceDb.workspaceDao()
+        }
+    }
     single<net.bible.service.llm.AiSettings> {
         net.bible.service.llm.AiSettingsStore(
             { DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, get(), get(), get(),
@@ -180,8 +207,12 @@ fun buildCoreModule() = module {
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> {
-        net.bible.android.platform.AndroidGlobalTextDisplaySettingsSource()
+        net.bible.android.platform.AndroidGlobalTextDisplaySettingsSource { get() }
     }
+    single<net.bible.android.control.page.window.WindowSettingsPicker> {
+        net.bible.android.platform.AndroidWindowSettingsPicker(get())
+    }
+    single<net.bible.android.control.page.window.SettingLabels> { net.bible.android.platform.AndroidSettingLabels() }
     single<net.bible.service.llm.LlmStrings> { net.bible.android.platform.AndroidLlmStrings(androidContext()) }
     single<net.bible.service.sword.HtmlToPlainText> {
         net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }

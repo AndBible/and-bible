@@ -29,3 +29,16 @@ window	android/control/page/window
 window	android/view/activity/workspaces/WorkspaceServiceImpl.kt
 search	android/control/search
 event	android/control/event
+core	service/common/ABStringUtils.kt
+core	service/common/AndRuntimeException.kt
+core	service/common/DebounceOperators.kt
+core	service/common/TitleSplitter.kt
+core	service/common/ArchiveUtils.kt
+core	service/common/RecentDocumentsStore.kt
+core	service/common/ReadingProgressSettings.kt
+core	service/common/ReadingProgressSettingsStore.kt
+core	service/common/GlobalTextDisplaySettingsStore.kt
+core	service/db/OpenSqlite.kt
+core	service/db/RoomSettingsBackend.kt
+core	service/db/SqliteConnectionExt.kt
+core	service/db/ExportStudyPads.kt

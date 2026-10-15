@@ -98,8 +98,14 @@ class ReadingHostSaveOnPauseTest {
 
     private fun savedBiblePage(activity: NavHostComposeActivity) =
         assertNotNull(
-            runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao()
-                .pageManager(activity.hostWindowRepository.activeWindow.id) },
+            runBlocking {
+                // The save is an ordered write-through (Task 10): wait for it before reading the row.
+                org.koin.java.KoinJavaComponent.get<net.bible.android.control.page.window.WorkspacePersistence>(
+                    net.bible.android.control.page.window.WorkspacePersistence::class.java,
+                ).awaitPersisted()
+                DatabaseContainer.instance.workspaceDb.workspaceDao()
+                    .pageManager(activity.hostWindowRepository.activeWindow.id)
+            },
         ).biblePage
 
     @Test
@@ -116,7 +122,7 @@ class ReadingHostSaveOnPauseTest {
 
         // ...and a repository reloaded from the DB (what a new host / process death does) sees it --
         // built exactly as ReadingAppBootstrap.createWindowRepository() builds one.
-        val reloaded = WindowRepository(activity.lifecycleScope).apply { initialize() }
+        val reloaded = WindowRepository(activity.lifecycleScope).apply { initializeAtEdge() }
         assertEquals("KJV", reloaded.activeWindow.pageManager.currentBible.currentDocument?.initials)
     }
 

@@ -17,33 +17,35 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class RecentDocumentsStoreTest {
+    private val store = RecentDocumentsStore(CommonUtils.settings)
+
     @Test fun anUnsetKeyReadsAsEmpty() {
         CommonUtils.settings.setString(RecentDocumentsStore.KEY, null)
-        assertEquals(emptyList<String>(), RecentDocumentsStore.read())
+        assertEquals(emptyList<String>(), store.read())
     }
 
     @Test fun malformedJsonReadsAsEmptyRatherThanThrowing() {
         CommonUtils.settings.setString(RecentDocumentsStore.KEY, "{not a list")
-        assertEquals(emptyList<String>(), RecentDocumentsStore.read())
+        assertEquals(emptyList<String>(), store.read())
     }
 
     @Test fun recordingRoundTrips() {
         CommonUtils.settings.setString(RecentDocumentsStore.KEY, null)
-        RecentDocumentsStore.record("KJV")
-        RecentDocumentsStore.record("ESV")
-        assertEquals(listOf("ESV", "KJV"), RecentDocumentsStore.read())
+        store.record("KJV")
+        store.record("ESV")
+        assertEquals(listOf("ESV", "KJV"), store.read())
     }
 
     @Test fun recordingNullIsIgnored() {
         CommonUtils.settings.setString(RecentDocumentsStore.KEY, null)
-        RecentDocumentsStore.record("KJV")
-        RecentDocumentsStore.record(null)
-        assertEquals(listOf("KJV"), RecentDocumentsStore.read())
+        store.record("KJV")
+        store.record(null)
+        assertEquals(listOf("KJV"), store.read())
     }
 
     @Test fun theStoreNeverGrowsPastTheCap() {
         CommonUtils.settings.setString(RecentDocumentsStore.KEY, null)
-        repeat(RecentDocuments.MAX + 5) { RecentDocumentsStore.record("D$it") }
-        assertEquals(RecentDocuments.MAX, RecentDocumentsStore.read().size)
+        repeat(RecentDocuments.MAX + 5) { store.record("D$it") }
+        assertEquals(RecentDocuments.MAX, store.read().size)
     }
 }

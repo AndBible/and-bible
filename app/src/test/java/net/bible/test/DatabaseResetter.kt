@@ -17,6 +17,7 @@
 
 package net.bible.test
 
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -35,11 +36,24 @@ import java.lang.reflect.Field
  * Created by mjden on 31/08/2017.
  */
 object DatabaseResetter {
+    private data class Worker(val scope: CoroutineScope)
+    private val retainedWorkers = mutableListOf<Worker>()
+
+    internal fun requireNoRetainedWorkers() {
+        synchronized(retainedWorkers) {
+            retainedWorkers.removeAll { it.scope.coroutineContext[kotlinx.coroutines.Job]!!.isCompleted }
+            check(retainedWorkers.isEmpty()) { "Retained reset worker requires cleanup retry before restart" }
+        }
+    }
+
     /** Optional test observer of an already-started exact producer drain. */
     internal var drainObserver: ((List<kotlinx.coroutines.Job>, kotlinx.coroutines.Deferred<Unit>) -> Unit)? = null
+    internal var settingsDrainObserver: ((net.bible.sharedcore.platform.OrderedLauncher, kotlinx.coroutines.Deferred<Unit>) -> Unit)? = null
+    internal var beforeCloseObserver: (() -> Unit)? = null
 
     @JvmStatic
     fun resetDatabase(vararg scopes_: CoroutineScope) {
+        ReadingFixtureOwners.retain(scopes_.toList())
         val scopes = ArrayList<CoroutineScope>()
         scopes.addAll(scopes_)
         scopes.add(GlobalScope)
@@ -64,10 +78,23 @@ object DatabaseResetter {
         runResetBlocking {
             (net.bible.android.BibleApplication.application as? net.bible.android.TestBibleApplication)
                 ?.drainAiSettingsFixture()
+            // This activated-activity fallback is not a complete fixture owner inventory:
+            // standalone, unactivated and stopped hosts require exact fixture retention.
+            // The historical escaped query has not been correlated to a particular host/container.
+            net.bible.android.view.activity.base.CurrentActivityHolder.liveActivitiesForTest().forEach { activity ->
+                if (activity is net.bible.android.view.activity.nav.NavHostComposeActivity) ReadingFixtureOwners.retain(activity)
+                else ReadingFixtureOwners.retain(listOf(activity.lifecycleScope))
+            }
+            val hostJobs = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                ReadingFixtureOwners.disposeAndSnapshot()
+            }
             // Cancel producers, then wait for their finally blocks and late submissions before draining.
             val appScope = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
             val appJob = appScope?.coroutineContext?.get(kotlinx.coroutines.Job)
-            val jobs = (scopes_.mapNotNull { it.coroutineContext[kotlinx.coroutines.Job] } +
+            val windowControl = currentWindowControl(koin)
+            val windowRepo = windowControl?.currentWindowRepositoryOrNull
+            val windowRepoJob = windowRepo?.scope?.coroutineContext?.get(kotlinx.coroutines.Job)
+            val jobs = (hostJobs + listOfNotNull(windowRepoJob) + scopes_.mapNotNull { it.coroutineContext[kotlinx.coroutines.Job] } +
                 (appJob?.children?.toList() ?: emptyList())).distinct()
             checkpoint("cancel-producers", "appContext=${appScope?.coroutineContext} explicitContexts=${scopes_.map { it.coroutineContext }} jobs=${jobs.joinToString { jobState(it) }}")
             jobs.forEach { it.cancel() }
@@ -81,6 +108,9 @@ object DatabaseResetter {
                 drainObserver?.invoke(jobs, drain)
                 drain.await()
             }
+            // Its scope is now cancelled and joined: do not leave it installed for the next test.
+            if (windowRepo != null) windowControl.forgetWindowRepositoryIfCurrent(windowRepo)
+            ReadingFixtureOwners.drain()
             checkpoint("producers-joined")
             // The shared WindowControl outlives the test, and its repository now holds windows the fresh
             // DB lacks. A host taking ownership flushes the previous owner (CR-1 I1), which would hit
@@ -93,17 +123,44 @@ object DatabaseResetter {
             val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
             if (settings == null) commitReset { DatabaseContainer.reset() }
-            else resetDocumentSyncFixture(settings, koin.get()) { DatabaseContainer.reset() }
+            else {
+                // The settings object keeps the launcher it was constructed with. After the first test
+                // that is the production launcher, not the Koin override the fixture later drains.
+                val ownedLauncher = settings.fixtureLauncher()
+                resetDocumentSyncFixture(settings, ownedLauncher) { DatabaseContainer.reset() }
+            }
         }
         DatabaseContainer.forgetReplacesForTest()
         //resetSingleton(DatabaseContainer::class.java, "instance")
+    }
+
+    /**
+     * The Koin [WindowControl] if it already exists. Never creates the singleton or a repository.
+     */
+    @OptIn(org.koin.core.annotation.KoinInternalApi::class)
+    private fun currentWindowControl(koin: org.koin.core.Koin?): net.bible.android.control.page.window.WindowControl? {
+        val factory = koin?.instanceRegistry?.instances?.values?.firstOrNull {
+            it.beanDefinition.primaryType == net.bible.android.control.page.window.WindowControl::class
+        } ?: return null
+        val context = org.koin.core.instance.ResolutionContext(koin.logger, koin.scopeRegistry.rootScope, net.bible.android.control.page.window.WindowControl::class)
+        if (!factory.isCreated(context)) return null
+        return factory.get(context) as net.bible.android.control.page.window.WindowControl
     }
 
     /** Drive one Main task at a time; idle() can loop forever with a Compose popup open. */
     internal fun runResetBlocking(timeoutMs: Long = 30_000, block: suspend ResetDecision.() -> Unit) {
         val decision = ResetDecision()
         val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
-        val cleanup = scope.async(decision) { decision.block() }
+        val prior = synchronized(retainedWorkers) { retainedWorkers.toList() }
+        val cleanup = scope.async(decision) {
+            prior.forEach { worker ->
+                // Aborted workers may still be inside NonCancellable preparation. No new block
+                // (and hence no new close or global restoration) starts before exact completion.
+                worker.scope.coroutineContext[kotlinx.coroutines.Job]!!.join()
+            }
+            synchronized(retainedWorkers) { retainedWorkers.removeAll(prior.toSet()) }
+            decision.block()
+        }
         val main = android.os.Looper.getMainLooper()
         val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(timeoutMs)
         try {
@@ -142,7 +199,12 @@ object DatabaseResetter {
                 if (interrupted) Thread.currentThread().interrupt()
             }
             throw failure
-        } finally { scope.cancel() }
+        } finally {
+            scope.cancel()
+            if (!scope.coroutineContext[kotlinx.coroutines.Job]!!.isCompleted) {
+                synchronized(retainedWorkers) { retainedWorkers += Worker(scope) }
+            }
+        }
     }
 
     /** Deadline is abortable only before the irreversible DB reset starts. */
@@ -193,13 +255,18 @@ object DatabaseResetter {
         val mutex = mutexField.get(settings) as kotlinx.coroutines.sync.Mutex
         val queueScope = launcher.javaClass.getDeclaredField("scope").apply { isAccessible = true }.get(launcher) as CoroutineScope
         checkpoint("settings-tail", "queue=${System.identityHashCode(launcher)} capturedQueue=${System.identityHashCode(capturedLauncher)} queueContext=${queueScope.coroutineContext} tail=${tail?.let { jobState(it) }} mutexLocked=${mutex.isLocked}")
-        launcher.join("document-sync-settings")
+        kotlinx.coroutines.coroutineScope {
+            val drain = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { launcher.join("document-sync-settings") }
+            settingsDrainObserver?.invoke(launcher, drain)
+            drain.await()
+        }
         checkpoint("settings-mutex", "mutexLocked=${mutex.isLocked}")
         mutex.lock()
         checkpoint("settings-reset")
         try {
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
             val commit: suspend () -> Unit = {
+                beforeCloseObserver?.invoke()
                 reset()
                 val field = settings.javaClass.getDeclaredField("state").apply { isAccessible = true }
                 @Suppress("UNCHECKED_CAST")

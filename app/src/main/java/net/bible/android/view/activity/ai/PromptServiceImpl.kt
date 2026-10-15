@@ -80,6 +80,7 @@ import net.bible.sharedcore.settings.SettingsItem
 class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinComponent {
     private val settings: AiSettings by inject()
     private val appScope: AppCoroutineScope by inject()
+    private val cloudSync: net.bible.service.cloudsync.CloudSync by inject()
     private val overrideDao get() = DatabaseContainer.instance.aiSettingsDb.builtinPromptOverrideDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
@@ -119,6 +120,9 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
         appScope.launch { settings.ensureLoaded(); refresh() }
         // The application job owns subscriptions as well as refresh work.
         settings.configChanged.collectOwned(appScope) { refresh() }
+        // The AI database is replaced in-process by a restore and by a sync initial download; neither emits configChanged.
+        DatabaseContainer.databaseRestored.collectOwned(appScope) { refresh() }
+        cloudSync.workspaceRefreshRequired.collectOwned(appScope) { refresh() }
     }
 
     private suspend fun llmConfigured(): Boolean = try {

@@ -19,24 +19,19 @@ package net.bible.android.control.page.window
 
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.bible.android.activity.R
 import net.bible.android.control.PageChange
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
-import net.bible.android.database.SettingsBundle
-import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.settings.getPrefItem
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.service.common.firstBibleDoc
+import net.bible.sharedcore.platform.AppCoroutineScope
+import org.koin.core.context.GlobalContext
 import net.bible.service.sword.BookAndKey
 
 import org.crosswire.jsword.book.Book
@@ -52,6 +47,19 @@ import org.crosswire.jsword.passage.VerseKey
  */
 open class WindowControl constructor() {
     private var _windowRepository: WindowRepository? = null
+
+    /**
+     * Read-only peek at the repository currently held, without creating one (unlike [windowRepository]'s
+     * lazy getter). Lets the test database reset own the scope `Window.loadText` launches into.
+     */
+    @VisibleForTesting
+    internal val currentWindowRepositoryOrNull: WindowRepository? get() = _windowRepository
+
+    /** Drops [expected] if it is still the installed repository, so the lazy getter builds a live one next. */
+    @VisibleForTesting
+    internal fun forgetWindowRepositoryIfCurrent(expected: WindowRepository) {
+        if (_windowRepository === expected) _windowRepository = null
+    }
 
     open var windowRepository: WindowRepository
         get() = _windowRepository ?: WindowRepository(CoroutineScope(Dispatchers.Main)) .apply { _windowRepository = this }
@@ -316,39 +324,29 @@ open class WindowControl constructor() {
         windowRepository.notifyWindowsChanged()
     }
 
-    val scope get() = CurrentActivityHolder.currentActivity!!.lifecycleScope
+    /**
+     * The copy-settings picker; the Android implementation is `AndroidWindowSettingsPicker`. Resolved on each use
+     * (this object is built while Koin is starting, and tests replace the Koin objects per test); tests assign a fake.
+     */
+    @VisibleForTesting
+    internal var settingsPicker: WindowSettingsPicker = WindowSettingsPicker { w, t -> koinPicker.chooseSettingsToCopy(w, t) }
+    private val koinPicker: WindowSettingsPicker get() = GlobalContext.get().get()
+
+    private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = GlobalContext.get().get()
 
     /**
-     * The copy-settings picker (spec §3.2 finding 9 — one of three hand-written copies of the same
-     * select-all/none toggle). Converted to [Dialogs.multiselect] (Task 19): Cancel and "OK with
-     * nothing checked" both now come back as an empty list, where the old `BooleanArray?` told them
-     * apart (`null` on Cancel). Every caller below already treats an empty selection as "nothing to
-     * copy" (or is made to, in this batch) — the `null` distinction bought no different USER-visible
-     * behaviour, only an occasional redundant `updateAllWindowsTextDisplaySettings()` broadcast on an
-     * explicit no-op selection, which this collapses away too.
+     * The copy-settings launches replace the former `CurrentActivityHolder.currentActivity!!.lifecycleScope`:
+     *  - the dialog runs inside [WindowSettingsPicker], which owns the activity it needs;
+     *  - the copies themselves are in-memory mutations plus ordered write-through (workspace persistence, the
+     *    global store), so they run on [AppCoroutineScope] (Main), and complete even if the activity goes away
+     *    while the dialog is open.
      */
-    private suspend fun chooseSettingsToCopy(window: Window): List<WorkspaceEntities.TextDisplaySettings.Types> {
-        val context = CurrentActivityHolder.currentActivity!!
-        val types = WorkspaceEntities.TextDisplaySettings.Types.values().toList()
-        return Dialogs.multiselect(
-            context,
-            context.getString(R.string.copy_settings_title),
-            types,
-            itemToString = {
-                // OptionsMenuItemInterface.title is nullable in general (a handful of item kinds
-                // have none); every TextDisplaySettings.Types row does carry one in practice -- the
-                // old AlertDialog.Builder.setMultiChoiceItems(Array<String?>, ...) call this replaces
-                // was a Java API and never enforced the non-null Kotlin type multiselect()'s
-                // itemToString needs, so this fallback is new only in the sense that it now has to be
-                // written down, not in the sense that it can be reached.
-                getPrefItem(SettingsBundle(level = SettingsLevel.WORKSPACE, workspaceId = windowRepository.id, workspaceName = windowRepository.name,
-                    workspaceSettings = window.pageManager.textDisplaySettings, globalSettings = CommonUtils.globalTextDisplaySettings), it).title ?: it.name
-            },
-        )
-    }
+    private val appScope: AppCoroutineScope get() = GlobalContext.get().get()
 
+    private suspend fun chooseSettingsToCopy(window: Window): List<WorkspaceEntities.TextDisplaySettings.Types> =
+        settingsPicker.chooseSettingsToCopy(window, WorkspaceEntities.TextDisplaySettings.Types.values().toList())
 
-    fun copySettingsToWorkspace(window: Window)  = scope.launch(Dispatchers.Main) {
+    fun copySettingsToWorkspace(window: Window)  = appScope.launch(Dispatchers.Main) {
         val checkedTypes = chooseSettingsToCopy(window)
         if (checkedTypes.isEmpty()) return@launch
         val target = windowRepository.textDisplaySettings
@@ -361,12 +359,12 @@ open class WindowControl constructor() {
         windowRepository.updateAllWindowsTextDisplaySettings()
     }
 
-    fun copySettingsToGlobal(window: Window) = scope.launch(Dispatchers.Main) {
+    fun copySettingsToGlobal(window: Window) = appScope.launch(Dispatchers.Main) {
         val dirtyTypes = chooseSettingsToCopy(window).toSet()
         // Reachable with nothing checked; an empty dirtyTypes would otherwise write the global row
         // back unchanged and run a full workspaces x windows x pageManager database scan for nothing.
         if (dirtyTypes.isEmpty()) return@launch
-        val global = CommonUtils.globalTextDisplaySettings
+        val global = globalSettingsStore.current
 
         // Resolve through window -> workspace -> global before copying, so a window that INHERITS a
         // type cannot reset the global to the factory default by writing null into it.
@@ -376,7 +374,7 @@ open class WindowControl constructor() {
             globalSettings = global,
         )
         val newGlobal = WorkspaceEntities.TextDisplaySettings.globalWithCopiedValues(global, resolved, dirtyTypes)
-        CommonUtils.globalTextDisplaySettings = newGlobal
+        globalSettingsStore.set(newGlobal)
 
         windowRepository.propagateGlobalTextDisplaySettingsChange(dirtyTypes, newGlobal)
         windowRepository.updateAllWindowsTextDisplaySettings()
@@ -385,7 +383,7 @@ open class WindowControl constructor() {
     fun copySettingsToWindow(window: Window, order: Int) {
         val secondWindow = windowRepository.visibleWindows[order]
 
-        scope.launch(Dispatchers.Main) {
+        appScope.launch(Dispatchers.Main) {
             val checkedTypes = chooseSettingsToCopy(window)
             if (checkedTypes.isEmpty()) return@launch
             val target = secondWindow.pageManager.textDisplaySettings

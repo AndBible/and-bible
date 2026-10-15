@@ -175,6 +175,8 @@ class ReadingHostNonStdResultTest {
         )
 
         controller.resume()
+
+        net.bible.test.settleWorkspaceSwitches()
         assertEquals(
             target.id, activity.hostWindowRepository.id,
             "…and applied once this host has resumed. Before T8d the result hit the " +
@@ -198,7 +200,7 @@ class ReadingHostNonStdResultTest {
             workspaceResult(target.id.toString(), changed = true),
         )
         controller.resume()
-
+        net.bible.test.settleWorkspaceSwitches()
         assertEquals(before, activity.hostWindowRepository.id)
     }
 
@@ -355,6 +357,8 @@ class ReadingHostNonStdResultTest {
         assertEquals(0, synchronizeWindows, "held until onResume, like every other Activity result")
 
         controller.resume()
+
+        net.bible.test.settleWorkspaceSwitches()
         assertEquals(1, synchronizeWindows)
     }
 

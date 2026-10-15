@@ -185,6 +185,7 @@ import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.androidBibleView
 import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
@@ -241,7 +242,7 @@ import net.bible.service.sword.hasUsableBible
 import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.backup.BackupServiceImpl
-import net.bible.service.db.exportStudyPads
+import net.bible.android.platform.exportStudyPads
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
 import net.bible.service.llm.PromptRepository
@@ -512,7 +513,6 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.jdom2.Element
 import org.koin.android.ext.android.inject
-import net.bible.service.db.blockingDb
 
 /**
  * The single Android host for the Compose navigation graph. Screens migrated off their own
@@ -1216,7 +1216,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun readingViewKeyPressed(key: ReadingViewKey): Boolean = when (key) {
         ReadingViewKey.VolumeUp, ReadingViewKey.VolumeDown ->
             if (readingViewOwnsVolumeKeys()) {
-                windowControl.activeWindow.bibleView?.let { readingViewScrollFor(key)(it) } ?: false
+                windowControl.activeWindow.androidBibleView?.let { readingViewScrollFor(key)(it) } ?: false
             } else {
                 false
             }
@@ -1262,7 +1262,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun readingViewScreenTurnedOn() {
         ScreenSettings.refreshNightMode()
         refreshIfNightModeChange()
-        windowControl.activeWindow.bibleView?.onScreenTurnedOn()
+        windowControl.activeWindow.androidBibleView?.onScreenTurnedOn()
     }
 
     /**
@@ -1281,7 +1281,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Classic `MainBibleActivity.onScreenTurnedOff` (`:2688`). */
     private fun readingViewScreenTurnedOff() {
-        windowControl.activeWindow.bibleView?.onScreenTurnedOff()
+        windowControl.activeWindow.androidBibleView?.onScreenTurnedOff()
     }
 
     // ——— The reading view's window chrome (reading-host re-typing R4) ———————————————————————————
@@ -1385,7 +1385,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             ReadingViewVisibility.setActivityVisible(this, true)
         }
         readingAppBootstrap.prepareData()
-        readingAppBootstrap.createWindowRepository()
+        val repository = readingAppBootstrap.createWindowRepository()
+        // Bootstrapped during a restore: the repository holds provisional state. If the restore already ended, its
+        // notification may have gone out before this host listened, so reload now (else the notification does it).
+        if (repository.staleAfterRestore && !DatabaseContainer.replacing) {
+            lifecycleScope.launch { readingCommands.applyRestoredDatabase() }
+        }
         readingAppBootstrap.setSoftKeyboardMode()
         bootstrapUiOwed = true
         applyBootstrapUiIfForeground()
@@ -1999,9 +2004,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // `onScreenTurnedOn`, and anything either reaches may read `windowControl.windowRepository`.
         val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
-        if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
-        applyBootstrapUiIfForeground()
-        applyPendingActivityResult()
+        // The workspace reload suspends (its read leaves the main thread), and everything after it must still
+        // see the reloaded workspace. `lifecycleScope` starts on Main.immediate, so with no reload to wait for
+        // this runs inline exactly as before.
+        lifecycleScope.launch {
+            if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
+            applyBootstrapUiIfForeground()
+            applyPendingActivityResult()
+        }
     }
 
     /**
@@ -2395,8 +2405,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Classic's `WORKSPACE_CHANGED` arm, applied NOW -- see [deliverReadingResult]. */
     private fun applyInGraphWorkspaceResult(resultCode: Int, data: Intent?) {
         val extras = data?.extras ?: return
-        if (!readingCommands.applyWorkspaceChangedResult(resultCode, extras)) {
-            Log.i(TAG_READING_RESULTS, "An in-graph workspace answer named no change; nothing applied.")
+        lifecycleScope.launch {
+            if (!readingCommands.applyWorkspaceChangedResult(resultCode, extras)) {
+                Log.i(TAG_READING_RESULTS, "An in-graph workspace answer named no change; nothing applied.")
+            }
         }
     }
 
@@ -2549,8 +2561,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     Log.w(TAG_START_ROUTE, "A WORKSPACE_CHANGED result carried no extras; not applied.")
                     return
                 }
-                if (!readingCommands.applyWorkspaceChangedResult(pending.resultCode, extras)) {
-                    Log.i(TAG_START_ROUTE, "A WORKSPACE_CHANGED result named no change; nothing applied.")
+                lifecycleScope.launch {
+                    if (!readingCommands.applyWorkspaceChangedResult(pending.resultCode, extras)) {
+                        Log.i(TAG_START_ROUTE, "A WORKSPACE_CHANGED result named no change; nothing applied.")
+                    }
                 }
             }
             IntentHelper.REFRESH_DISPLAY_ON_FINISH,
@@ -2890,9 +2904,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * off the reading route rather than falling back to another host's repository, and ~45 of this
      * host's routes are not reading routes.
      */
-    private fun reconcileReadingStateOnResume(needRefresh: Boolean) {
+    private suspend fun reconcileReadingStateOnResume(needRefresh: Boolean) {
         if (needRefresh) {
-            readingCommands.currentWorkspaceId = readingCommands.currentWorkspaceId // reload from db
+            readingCommands.switchWorkspace(readingCommands.currentWorkspaceId) // reload from db
         } else if (updateDocumentsPending) {
             updateDocuments()
         }
@@ -3010,15 +3024,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         })
         hostSubscriptions.add(DatabaseContainer.workspacesSynced.subscribeOnMain { updated ->
             if (!readingAppBootstrapped) return@subscribeOnMain
-            readingCommands.applyWorkspacesUpdatedViaSync(updated)
+            lifecycleScope.launch { readingCommands.applyWorkspacesUpdatedViaSync(updated) }
         })
         hostSubscriptions.add(cloudSync.workspaceRefreshRequired.subscribeOnMain {
             if (!readingAppBootstrapped) return@subscribeOnMain
-            readingCommands.applyWorkspaceRefreshRequired()
+            lifecycleScope.launch { readingCommands.applyWorkspaceRefreshRequired() }
         })
         hostSubscriptions.add(DatabaseContainer.databaseRestored.subscribeOnMain {
             if (!readingAppBootstrapped) return@subscribeOnMain
-            readingCommands.applyRestoredDatabase()
+            lifecycleScope.launch { readingCommands.applyRestoredDatabase() }
         })
     }
 
@@ -3215,14 +3229,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * (Correction 5): an in-graph navigate produces no `onResume`, so the flag would outlive this transition
      * and suppress the next real calculator prompt.
      */
-    internal fun welcomeAfterFlow() {
+    internal fun welcomeAfterFlow(): kotlinx.coroutines.Job {
         val flow = welcomeFlow
-        lifecycleScope.launch(Dispatchers.Main) {
+        return lifecycleScope.launch(Dispatchers.Main) {
             CommonUtils.initializeAppCoroutine()
             unlockLockedBiblesIfNoneUsable(net.bible.service.sword.BookUnlocker { CommonUtils.unlockDocument(this@NavHostComposeActivity, it) }, usable = usableBibleGate)
             if (!usableBibleGate()) {
                 flow.controller.setProgress(null)
-                flow.controller.refresh()
+                flow.refreshInfo()
                 return@launch
             }
             // Fix round 1: not re-entrant by construction -- the unlock prompt suspends, so two overlapping
@@ -6073,13 +6087,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
          *  post `MyDocumentChange.AiDocPages` for the deletions. */
         fun applyMyDocumentsChanges(ordered: List<MyDocItem>, changed: Set<Long>, deleted: Set<Long>) {
             val removedDocs = deleted.mapNotNull { session.entityByLong[it] }
-            val deletedPageIds = blockingDb {
-                removedDocs.flatMap { doc -> myDocumentDao.pagesForDocument(doc.id).map { it.id } }
-            }
-            // MyDocumentBookManager bridges by itself, so it is called outside the DAO bridges.
-            val freshDocs = blockingDb { removedDocs.mapNotNull { myDocumentDao.documentById(it.id) } }
-            freshDocs.forEach { MyDocumentBookManager.unregisterDocument(it.initials) }
-            blockingDb { freshDocs.forEach { myDocumentDao.delete(it) } }
+            // The entity edits are in-memory and immediate, so the screen that follows already sees them.
             val toUpdate = ArrayList<MyDocument>()
             ordered.forEachIndexed { index, item ->
                 val doc = session.entityByLong[item.id] ?: return@forEachIndexed
@@ -6088,8 +6096,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 doc.description = item.description.ifEmpty { null }
                 if (item.id in changed) { doc.updatedAt = System.currentTimeMillis(); toUpdate.add(doc) }
             }
-            if (toUpdate.isNotEmpty()) blockingDb { myDocumentDao.updateDocuments(toUpdate) }
-            if (deletedPageIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedPageIds))
+            // Must-complete: the user's Save must reach the database even if this host is destroyed
+            // right after it, so it runs in the application scope rather than lifecycleScope.
+            // The ordered "mydocument-sync" key keeps two quick Saves in order, and keeps them behind a sync's own writes.
+            MyDocumentBookManager.launcher.launch("mydocument-sync") {
+                val deletedPageIds = removedDocs.flatMap { doc -> myDocumentDao.pagesForDocument(doc.id).map { it.id } }
+                val freshDocs = removedDocs.mapNotNull { myDocumentDao.documentById(it.id) }
+                // JSword's Activator and SwordGenBook are not thread-safe: registration changes stay on Main.
+                withContext(Dispatchers.Main) { freshDocs.forEach { MyDocumentBookManager.unregisterDocument(it.initials) } }
+                freshDocs.forEach { myDocumentDao.delete(it) }
+                if (toUpdate.isNotEmpty()) myDocumentDao.updateDocuments(toUpdate)
+                if (deletedPageIds.isNotEmpty()) withContext(Dispatchers.Main) {
+                    MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedPageIds))
+                }
+            }
         }
 
         session.controller = MyDocumentsController(
@@ -8042,27 +8062,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = downloadSession ?: return
         val book = session.booksById[docId] ?: return
         Log.i(TAG_DOWNLOAD, "Document selected:" + book.initials)
-        try {
-            manageDownload(session, book)
-        } catch (e: Exception) {
-            Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
-            Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            try {
+                manageDownload(session, book)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
+                Toast.makeText(this@NavHostComposeActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     /** Classic `manageDownload` (`:633-654`), including its confirm-before-download AlertDialog. */
-    private fun manageDownload(session: DownloadSession, documentToDownload: Book?) {
+    private suspend fun manageDownload(session: DownloadSession, documentToDownload: Book?) {
         if (documentToDownload != null &&
             downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus != DocumentInstallStatus.BEING_INSTALLED &&
             !documentToDownload.isPseudoBook
         ) {
             if (documentToDownload.isInstalled && DatabaseContainer.ready &&
-                blockingDb { downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) } > 0
+                downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) > 0
             ) {
-                lifecycleScope.launch {
-                    if (CommonUtils.documentUpgradeConfirmation(this@NavHostComposeActivity)) {
-                        doDownload(session, documentToDownload)
-                    }
+                if (CommonUtils.documentUpgradeConfirmation(this@NavHostComposeActivity)) {
+                    doDownload(session, documentToDownload)
                 }
             } else {
                 session.controller.requestDownloadConfirm(
@@ -9282,7 +9304,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         var selectedBookNo = 0
         var selectedChapter = 1
         val baseTitle = getString(R.string.choosePassageBookName)
-        val workspaceName = SharedActivityState.currentWorkspaceName
+        val workspaceName = hostWindowRepository.name
         return GridChoosePassageController(
             scope = scope,
             initialOptions = initialGridOptions(navigationControl, isScripture),
@@ -9661,6 +9683,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val controller = WorkspaceSelectorController(
             service = workspaceService,
             scope = lifecycleScope,
+            // Saves and clones must outlive this host (a dark-mode flip recreates it mid-flush); the Main dispatcher
+            // keeps the controller's staging state on the UI thread.
+            writeScope = CoroutineScope(appScope.coroutineContext + Dispatchers.Main),
             onResult = { workspaceId, changed ->
                 workspaceSelectorController = null
                 onResult(workspaceId, changed)
