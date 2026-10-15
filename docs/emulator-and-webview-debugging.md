@@ -53,6 +53,7 @@ Emulator **37.3.4** has neither problem in the same tests (25 force-stop cycles 
 at cycle 6; a 30-minute soak with `pm clear` every fifth cycle under extra CPU load). The jailbee
 golden image therefore installs the SDK itself, with that emulator build pinned
 (`.jailbee/install.d/94-android-sdk.sh`, `/opt/android-sdk`), instead of mounting the host SDK.
+Do not `sdkmanager --update` there: it would replace the pinned emulator with the stable one.
 `scripts/andbible-emu.sh boot` warns when it finds an older emulator.
 
 GPU mode (`ANDBIBLE_EMU_GPU`, default `auto`):
@@ -60,7 +61,7 @@ GPU mode (`ANDBIBLE_EMU_GPU`, default `auto`):
 | Mode | When | Notes |
 |------|------|-------|
 | `host` | a GPU render node (`/dev/dri/renderD*`) plus `weston` and `Xwayland` exist | Mesa on the host GPU. `andbible-emu.sh` starts a headless weston with Xwayland, because the emulator's `-gpu host` on Linux needs a GLX display. Boots in ~17 s; no SwiftShader thread pools at all. |
-| `swiftshader_indirect` | fallback | CPU rendering, roughly 2 cores busy while the app draws. Fine on 37.3.4. |
+| `swiftshader_indirect` | fallback, also automatic when `host` fails to start | CPU rendering, roughly 2 cores busy while the app draws. Stable on 37.3.4 (56 mixed cycles under load); qemu RSS still grows ~10 MB per app restart, so reboot the emulator after a few hundred. |
 
 Two more boot failures that `boot` now prevents: a killed emulator leaves its AVD lock behind
 ("Another emulator instance is running"), and a `netsimd` (the emulators' shared network daemon)

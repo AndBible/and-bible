@@ -83,6 +83,8 @@ ensure_gpu_display() {
         [ -n "$d" ] && { echo "$d"; return 0; }
     fi
     export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+    mkdir -p "$XDG_RUNTIME_DIR" 2>/dev/null || true
+    [ -f "$pidf" ] && kill "$(cat "$pidf")" 2>/dev/null
     env -u DISPLAY -u WAYLAND_DISPLAY setsid nohup weston --backend=headless --renderer=gl \
         --socket=wl-andbible-emu --xwayland --idle-time=0 >"$log" 2>&1 </dev/null &
     echo $! >"$pidf"; disown
@@ -91,13 +93,16 @@ ensure_gpu_display() {
         [ -n "$d" ] && { echo "$d"; return 0; }
         sleep 0.5
     done
+    kill "$(cat "$pidf")" 2>/dev/null; rm -f "$pidf"
     return 1
 }
 
 # host:port of the proxy the guest should use ("" for none).
 guest_proxy() {
     local p="${ANDBIBLE_EMU_PROXY-${HTTPS_PROXY:-${https_proxy:-}}}"
-    p="${p#*://}"; p="${p%%/*}"
+    p="${p#*://}"; p="${p%%/*}"; p="${p##*@}"   # Android's setting takes neither scheme nor credentials
+    # The container's loopback is 10.0.2.2 from inside the guest.
+    case "$p" in 127.0.0.1:*|localhost:*) p="10.0.2.2:${p##*:}" ;; esac
     echo "$p"
 }
 
@@ -144,10 +149,10 @@ boot)
     # half shut down; the next emulator then hangs connecting to it, and the emulator's own
     # watchdog kills it with exit 139 ("detected a hanging thread 'QEMU2 main loop'").
     if ! pgrep -x "$QEMU" >/dev/null; then
-        rm -f "$avd_home/$avd.avd/"*.lock
+        rm -rf "$avd_home/$avd.avd/"*.lock
         pkill -x netsimd && sleep 1
         pkill -9 -x netsimd || true
-        rm -f "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/netsim.ini"
+        rm -f "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"/netsim.ini{,.init.lock}
     fi
     proxy="$(guest_proxy)"
     log="/tmp/emulator-$avd.log"
@@ -182,7 +187,7 @@ boot)
     if ! launch "$gpu"; then
         if [ "$gpu" = host ] && [ "${ANDBIBLE_EMU_GPU:-auto}" = auto ]; then
             echo "andbible-emu: -gpu host failed; retrying with swiftshader_indirect" >&2
-            rm -f "$avd_home/$avd.avd/"*.lock
+            rm -rf "$avd_home/$avd.avd/"*.lock
             pkill -9 -x netsimd || true
             launch swiftshader_indirect || die "did not boot; tail $log"
         else
@@ -204,14 +209,14 @@ boot)
     ;;
 health)
     echo "emulator $(emulator_version) in $sdk; AVD home $avd_home"
-    for log in /tmp/emulator-*.log; do
-        [ -f "$log" ] || continue
+    log="$(ls -t /tmp/emulator-*.log 2>/dev/null | head -1)"
+    if [ -n "$log" ]; then
         echo "$log: $(grep -m1 -o 'gles_mode_selected:[a-z_]*' "$log") $(grep -m1 -o 'Graphics Adapter Android Emulator OpenGL ES Translator.*' "$log" | sed 's/.*Translator //') $(grep '^EMULATOR-EXIT=' "$log" || echo running)"
-    done
+    fi
     if adb devices | awk 'NR>1 && $2=="device"' | grep -q .; then
         p="$(adb shell settings get global http_proxy | tr -d '\r')"
         case "$p" in
-            null|"") echo "guest proxy: none" ;;
+            null|:0|"") echo "guest proxy: none" ;;
             *) proxy_works "$p" && echo "guest proxy $p: works" || echo "guest proxy $p: NOT reachable" ;;
         esac
     fi
@@ -224,9 +229,9 @@ health)
 kill)
     adb emu kill >/dev/null 2>&1 || true
     for _ in $(seq 30); do pgrep -x "$QEMU" >/dev/null || break; sleep 2; done
-    if pgrep -x "$QEMU" >/dev/null; then pkill -x "$QEMU"; sleep 5; fi
+    if pgrep -x "$QEMU" >/dev/null; then pkill -x "$QEMU" || true; sleep 5; fi
     # A hung renderer ignores SIGTERM.
-    if pgrep -x "$QEMU" >/dev/null; then pkill -9 -x "$QEMU"; sleep 2; fi
+    if pgrep -x "$QEMU" >/dev/null; then pkill -9 -x "$QEMU" || true; sleep 2; fi
     pkill -x netsimd || true
     pgrep -x "$QEMU" >/dev/null && die "qemu still running" || echo "no emulator running"
     ;;
@@ -334,6 +339,6 @@ crashes)
         | tr -d '\r' | grep -v '^---------' | head -60 || true
     ;;
 *)
-    sed -n '2,38p' "$0"; exit 2
+    sed -n '2,41p' "$0"; exit 2
     ;;
 esac
