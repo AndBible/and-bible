@@ -3,6 +3,10 @@ import SharedUi
 
 @main
 struct iOSApp: App {
+    init() {
+        IosPlatformBootstrap.shared.registerBackgroundTasks()
+    }
+
     var body: some Scene {
         WindowGroup {
             ComposeView()
