@@ -9,6 +9,8 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.poc.IosPocApp
 import net.bible.sharedui.poc.PocScenario
+import net.bible.sharedui.probe.PlatformProbeScreen
+import kotlin.native.Platform
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.webview.IosBibleWebViewFactory
@@ -33,6 +35,10 @@ fun MainViewController(): UIViewController {
         val env = remember { NSProcessInfo.processInfo.environment }
         val scenario = remember { PocScenario.fromName(env["SCREENSHOT_SCENARIO"] as? String) }
         val dark = remember { (env["POC_DARK"] as? String) == "1" }
+        if (scenario.shouldShowPlatformProbe(Platform.isDebugBinary, env["PLATFORM_PROBE"] as? String)) {
+            PlatformProbeScreen(darkTheme = dark)
+            return@ComposeUIViewController
+        }
         val documentJson = remember {
             NSBundle.mainBundle.pathForResource("poc-document", "json", "bibleview-js")
                 ?.let { NSString.stringWithContentsOfFile(it, NSUTF8StringEncoding, null) } ?: "{}"

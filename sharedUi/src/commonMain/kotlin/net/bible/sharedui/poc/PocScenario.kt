@@ -7,7 +7,13 @@ enum class PocScenario(val id: String, val windowCount: Int, val startRoute: Str
     SPLIT3("split3", 3, "reading"),
     BOOKMARKS("bookmarks", 1, "bookmarks"),
     HISTORY("history", 1, "history"),
-    SETTINGS("settings", 1, "settings");
+    SETTINGS("settings", 1, "settings"),
+    // iOS dispatches the probe before the PoC host; other hosts retain a registered route.
+    PROBE("probe", 1, "reading");
+
+    /** Both diagnostic entry routes are disabled in a release binary. */
+    fun shouldShowPlatformProbe(debugBinary: Boolean, environmentFlag: String?): Boolean =
+        debugBinary && (environmentFlag == "1" || this == PROBE)
 
     companion object {
         fun fromName(name: String?): PocScenario = entries.firstOrNull { it.id == name } ?: SINGLE
