@@ -11,6 +11,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
@@ -20,6 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -124,6 +130,63 @@ class KtorDownloadHttpTest {
         }
         assertSame(cancellation, thrown)
     } }
+
+    @Test fun causedCancellationBeforeTextHeadersRemainsCancellation() = runBlocking {
+        assertCancellationBeforeHeaders { it.text("https://example.org/a") }
+    }
+
+    @Test fun causedCancellationBeforeHeadHeadersRemainsCancellation() = runBlocking {
+        assertCancellationBeforeHeaders { it.head("https://example.org/a") }
+    }
+
+    @Test fun causedCancellationBeforeGetHeadersRemainsCancellation() = runBlocking {
+        assertCancellationBeforeHeaders { it.headers("https://example.org/a") }
+    }
+
+    @Test fun causedCancellationBeforeOpenBlockRemainsCancellation() = runBlocking {
+        var blockEntered = false
+        assertCancellationBeforeHeaders {
+            it.open("https://example.org/a") { blockEntered = true }
+        }
+        assertFalse(blockEntered)
+    }
+
+    @Test fun cancellationWithTimeoutCauseBeforeHeadersIsNotAnIdleTimeout() = runBlocking {
+        assertCancellationBeforeHeaders(SocketTimeoutException("cancellation cause, not idle timeout")) {
+            it.text("https://example.org/a")
+        }
+    }
+
+    private suspend fun assertCancellationBeforeHeaders(
+        cause: Throwable = java.io.IOException("external cancellation cause"),
+        request: suspend (DownloadHttp) -> Unit
+    ) = coroutineScope {
+        withTimeout(5_000) {
+            val started = CompletableDeferred<Unit>()
+            val stopped = CompletableDeferred<Unit>()
+            val caught = CompletableDeferred<Throwable?>()
+            val transport = http {
+                started.complete(Unit)
+                try { awaitCancellation() } finally { stopped.complete(Unit) }
+            }
+            val cancellation = CancellationException("external cancellation", cause)
+            val call = launch {
+                // Capture at the port boundary: await/join on a cancelled job can mask a wrongly mapped exception.
+                caught.complete(try { request(transport); null } catch (e: Throwable) { e })
+            }
+            try {
+                started.await()
+                call.cancel(cancellation)
+                val thrown = caught.await()
+                stopped.await()
+                call.join()
+                assertTrue(thrown is CancellationException, "Expected cancellation inside request, got $thrown")
+                assertSame(cancellation, thrown)
+            } finally {
+                call.cancelAndJoin()
+            }
+        }
+    }
 
     @Test fun coroutineCancellationPropagatesAndReleasesRequest() { runBlocking {
         val requestStarted = kotlinx.coroutines.CompletableDeferred<Unit>()

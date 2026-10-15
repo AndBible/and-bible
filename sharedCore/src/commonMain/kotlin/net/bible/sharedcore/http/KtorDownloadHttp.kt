@@ -13,7 +13,7 @@ import io.ktor.client.request.prepareGet
 import io.ktor.client.request.prepareHead
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.bodyAsBytes
 import io.ktor.http.HttpHeaders as KtorHeaders
 import io.ktor.http.fromHttpToGmtDate
 import io.ktor.utils.io.readAvailable
@@ -47,7 +47,7 @@ class KtorDownloadHttp(private val client: HttpClient, private val timeoutMs: ()
         return transport {
             client.prepareGet(url) { idleTimeouts() }.execute { r ->
                 val h = r.checkedHeaders()
-                HttpTextResult(h.status, if (h.status == 200) r.bodyAsText() else null)
+                HttpTextResult(h.status, if (h.status == 200) r.bodyAsBytes().decodeToString() else null)
             }
         }
     }
@@ -96,6 +96,8 @@ class KtorDownloadHttp(private val client: HttpClient, private val timeoutMs: ()
     private suspend fun <T> transport(block: suspend () -> T): T = try {
         block()
     } catch (e: Throwable) {
+        // Ktor may unwrap cancellation to its cause before the response block starts.
+        currentCoroutineContext().ensureActive()
         throw when {
             e.isCancellation() -> e
             e is DownloadTransportException || e is HttpStatusException -> e

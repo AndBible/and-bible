@@ -46,6 +46,27 @@ abstract class DownloadHttpContract {
         assertEquals(404, no.status); assertNull(no.body)
     }
 
+    @Test fun textDecodesUtf8DespiteConflictingCharset() = scenario { server ->
+        // Non-ASCII JSON distinguishes UTF-8 bytes from the misleading server-wide charset.
+        val body = "{\"description\":\"ä\"}"
+        server.route("/charset") {
+            it.reply(200, body.toByteArray(Charsets.UTF_8), mapOf("Content-Type" to "application/json; charset=ISO-8859-1"))
+        }
+        val result = runBlocking { http(server).text("${server.base}/charset") }
+        assertEquals(200, result.status)
+        assertEquals(body, result.body)
+    }
+
+    @Test fun textDecodesUtf8DespiteUnsupportedCharset() = scenario { server ->
+        val body = "{\"description\":\"ä\"}"
+        server.route("/charset") {
+            it.reply(200, body.toByteArray(Charsets.UTF_8), mapOf("Content-Type" to "application/json; charset=not-a-real-charset"))
+        }
+        val result = runBlocking { http(server).text("${server.base}/charset") }
+        assertEquals(200, result.status)
+        assertEquals(body, result.body)
+    }
+
     /** Spec §5.2 item 3: legacy has no timeout and hangs; ktor fails within the idle timeout. */
     @Test fun stalledTextFetchTimesOut() = scenario { server ->
         val release = CountDownLatch(1)
