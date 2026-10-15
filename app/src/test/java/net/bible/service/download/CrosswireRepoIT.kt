@@ -45,7 +45,7 @@ class CrosswireRepoIT {
 
     @Test
     @Throws(InstallException::class)
-    fun getRepoBooks() {
+    fun getRepoBooks() = kotlinx.coroutines.runBlocking {
         val repoBooks = crosswireRepo.getRepoBooks(true)
         assertThat(repoBooks.size, greaterThan(100))
     }

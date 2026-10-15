@@ -9,7 +9,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.platform.AndroidHttpClients
-import net.bible.android.platform.BlockingHttpTransport
+import net.bible.android.platform.SuspendHttpTransport
 import net.bible.sharedcore.http.KtorDownloadHttp
 import okhttp3.OkHttpClient
 import org.crosswire.common.util.HttpTransport
@@ -28,7 +28,7 @@ class KtorHttpTransportContractTest : HttpTransportContract() {
             .hostnameVerifier { host, _ -> host == "127.0.0.1" }
             .build().also { bases += it }
         val client = AndroidHttpClients(base).downloadClient.also { clients += it }
-        return BlockingHttpTransport(KtorDownloadHttp(client) { WebResource.getTimeout() }, scope)
+        return SuspendHttpTransport(KtorDownloadHttp(client) { WebResource.getTimeout() }, scope)
     }
 
     @After fun closeResources() {

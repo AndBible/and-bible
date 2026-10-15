@@ -53,7 +53,7 @@ class TestHttpsServer : AutoCloseable {
     }
 
     /** Installs this server's trust into HttpsURLConnection's process-wide defaults for [block] only. */
-    fun <T> withLegacyTrust(block: () -> T): T {
+    inline fun <T> withLegacyTrust(block: () -> T): T {
         val oldFactory: SSLSocketFactory = HttpsURLConnection.getDefaultSSLSocketFactory()
         val oldVerifier: HostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier()
         try {

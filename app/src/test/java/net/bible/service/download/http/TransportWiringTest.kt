@@ -7,7 +7,7 @@ import net.bible.android.control.coreModule
 import net.bible.android.control.speak.SpeakSettingsStore
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.platform.AndroidSpeakSettingsStore
-import net.bible.android.platform.BlockingHttpTransport
+import net.bible.android.platform.SuspendHttpTransport
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.http.DownloadHttp
@@ -88,7 +88,7 @@ class TransportWiringTest {
             val boundary = module {
                 single<SpeakSettingsStore> {
                     reachedPostKoinConsumer = true
-                    assertTrue("transport must be installed before the first post-Koin consumer", WebResource.transport is BlockingHttpTransport)
+                    assertTrue("transport must be installed before the first post-Koin consumer", WebResource.transport is SuspendHttpTransport)
                     assertEquals(5000, WebResource.getTimeout())
                     AndroidSpeakSettingsStore()
                 }
@@ -103,8 +103,8 @@ class TransportWiringTest {
 
             assertTrue("folder initialisation must succeed without Koin", swordLoaded.getBoolean(SwordEnvironmentInitialisation))
             assertTrue(reachedPostKoinConsumer)
-            assertTrue(WebResource.transport is BlockingHttpTransport)
-            val httpField = BlockingHttpTransport::class.java.getDeclaredField("http").apply { isAccessible = true }
+            assertTrue(WebResource.transport is SuspendHttpTransport)
+            val httpField = SuspendHttpTransport::class.java.getDeclaredField("http").apply { isAccessible = true }
             assertSame("JSword must use the host's shared DownloadHttp", GlobalContext.get().get<DownloadHttp>(), httpField.get(WebResource.transport))
         } finally {
             try {
