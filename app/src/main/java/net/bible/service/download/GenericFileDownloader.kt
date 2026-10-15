@@ -19,7 +19,6 @@ package net.bible.service.download
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.service.common.FileManager.copyFile
@@ -36,6 +35,7 @@ import java.io.IOException
 import java.net.URI
 import java.net.URL
 import java.util.*
+import kotlin.coroutines.cancellation.CancellationException
 import net.bible.sharedcore.http.DownloadHttp
 import org.koin.java.KoinJavaComponent
 
@@ -95,23 +95,25 @@ class GenericFileDownloader(
     }
 
     /** Last-Modified via a GET-headers probe; null when the probe fails. */
-    fun lastModified(url: URL): Long? =
+    suspend fun lastModified(url: URL): Long? =
         try {
-            runBlocking { http.headers(url.toString()).lastModified } // L1-edge: JSword synchronous Installer callers
+            http.headers(url.toString()).lastModified
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Could not check last modified time for $url")
             null
         }
 
     suspend fun downloadFile(source: URL, target: File, description: String, reportError: Boolean = true) = withContext(Dispatchers.IO) {
-        downloadFileSync(
+        downloadFileWithProgress(
             source = source,
             target = target,
             description = description,
             reportError = reportError
         )
     }
-    fun downloadFileSync(
+    suspend fun downloadFileWithProgress(
         source: URL,
         target: File,
         description: String = "",
@@ -165,6 +167,10 @@ class GenericFileDownloader(
             if(reportError) addError(source.toURI())
             Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
+        } catch (e: CancellationException) {
+            // the calling coroutine was cancelled: end the job too, so its listeners see it finish
+            job.cancel()
+            throw e
         } finally {
             job.done()
             // tidy up after ourselves
@@ -182,7 +188,7 @@ class GenericFileDownloader(
     }
 
     @Throws(InstallException::class)
-    private fun copy(job: Progress?, source: URI, dest: URI?) {
+    private suspend fun copy(job: Progress?, source: URI, dest: URI?) {
         Log.i(TAG, "Downloading $source to $dest")
         if (job != null) {
             // TRANSLATOR: Progress label for downloading one or more files.

@@ -124,33 +124,33 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
 
     override fun getBook(name: String): Book? = getBooks().find { it.name == name }
 
-    override fun getSize(book: Book): Int {
+    override suspend fun getSize(book: Book): Int {
         // Note: This is completely unused in JSword API currently
         val url = URL(book.myBibleDownloadUrl)
         return NetUtil.getSize(url.toURI())
     }
 
     // Note: This is completely unused in JSword API currently
-    override fun isNewer(book: Book): Boolean = false
+    override suspend fun isNewer(book: Book): Boolean = false
 
-    override fun reloadBookList() {
+    override suspend fun reloadBookList() {
         val url = URL(manifestUrl)
-        downloader.downloadFileSync(url, localManifestFile, "MyBible manifest") // L1-edge: JSword synchronous Installer.reloadBookList
+        downloader.downloadFileWithProgress(url, localManifestFile, "MyBible manifest")
         spec = readSpec()
     }
 
-    override fun indexLastUpdated(): Long = downloader.lastModified(URL(manifestUrl)) ?: 0L
+    override suspend fun indexLastUpdated(): Long = downloader.lastModified(URL(manifestUrl)) ?: 0L
 
-    override fun install(book: Book) = install(book, null)
+    override suspend fun install(book: Book) = install(book, null)
 
-    override fun install(book: Book, jobId: String?) {
+    override suspend fun install(book: Book, jobId: String?) {
         Log.i(TAG, "Installing MyBible book ${book.initials}, $jobId")
         val tmpDir = File(environment.cacheDir, "mybible")
         tmpDir.mkdirs()
         val url = book.myBibleDownloadUrl
         val moduleSpec = moduleSpecs.find { it.download_url == url } ?: throw InstallException("Spec error")
         val tmpFile = File(tmpDir, moduleSpec.file_name)
-        val success = downloader.downloadFileSync(URL(url), tmpFile, // L1-edge: JSword synchronous Installer.install
+        val success = downloader.downloadFileWithProgress(URL(url), tmpFile,
             jobId = jobId,
             description = "MyBible manifest",
             notifyUser = true
@@ -166,7 +166,7 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
         }
     }
 
-    override fun downloadSearchIndex(book: Book, tempDest: URI) {}
+    override suspend fun downloadSearchIndex(book: Book, tempDest: URI) {}
 
     override fun close() {}
 }
