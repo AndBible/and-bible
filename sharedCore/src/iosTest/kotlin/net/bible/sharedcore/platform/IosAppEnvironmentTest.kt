@@ -129,7 +129,7 @@ class IosAppEnvironmentTest {
         } finally { environment.close() }
     }
 
-    @Test fun closeIsIdempotent() {
+    @Test fun repeatedCloseDoesNotThrow() {
         val environment = IosAppEnvironment(MemorySecrets(), { false })
         environment.close()
         environment.close()
