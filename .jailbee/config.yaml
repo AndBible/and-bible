@@ -25,7 +25,6 @@ defaults:
   memory: 32GiB
   cpu: 8
   network: strict
-  storage_pool: default
 
 # ---------------------------------------------------------------------------
 # IDE
