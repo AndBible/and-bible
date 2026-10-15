@@ -128,10 +128,12 @@ class FileTreeCloudStoreTest {
 
     @Test fun everyMutationIsCoordinatedAndCoordinationFailurePreventsMutation() = runTest {
         val paths = mutableListOf<Path>()
+        val operations = mutableListOf<FileCoordination.Mutation>()
         var failure: IOException? = null
         val coordination = object : FileCoordination by FileCoordination.PassThrough {
             override fun <T> write(path: Path, operation: FileCoordination.Mutation, block: (Path) -> T): T {
                 failure?.let { throw it }
+                operations += operation
                 paths += path
                 return block(path)
             }
@@ -141,6 +143,8 @@ class FileTreeCloudStoreTest {
         coordinated.upload("file", source("content"), "folder")
         coordinated.delete("folder")
         assertEquals(listOf(root / "folder", root / "folder/file", root / "folder"), paths)
+        assertEquals(listOf(FileCoordination.Mutation.CREATE, FileCoordination.Mutation.REPLACE,
+            FileCoordination.Mutation.DELETE), operations)
         failure = IOException("coordination denied")
         assertSame(failure, assertFailsWith<IOException> { coordinated.createNewFolder("denied") })
         assertFalse(fs.exists(root / "denied"))

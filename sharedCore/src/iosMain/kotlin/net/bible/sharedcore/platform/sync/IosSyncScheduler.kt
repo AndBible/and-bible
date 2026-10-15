@@ -71,18 +71,18 @@ internal class IosBackgroundWork(
         result.invokeOnCompletion { error ->
             if (error is CancellationException) worker.cancel()
         }
+        // Install before setup too: a throwing begin must still release worker ownership.
+        worker.invokeOnCompletion { error ->
+            if (error != null && error !is CancellationException) {
+                Log.w(TAG, "Background work failed", error)
+            }
+            lock.withLock { stopped = true; finish(false) }
+        }
         try {
             installExpiration {
                 // Publish false before cancellation can race the coroutine's completion.
                 finish(false)
                 worker.cancel()
-            }
-            // Install first: an already-cancelled scope invokes this hook immediately.
-            worker.invokeOnCompletion { error ->
-                if (error != null && error !is CancellationException) {
-                    Log.w(TAG, "Background work failed", error)
-                }
-                lock.withLock { stopped = true; finish(false) }
             }
             if (!finished) worker.start() else worker.cancel()
         } catch (error: Throwable) {

@@ -19,9 +19,10 @@ class IosAudioFocusTest {
         val newEvents = mutableListOf<Boolean>()
         val posted = platform.Foundation.NSCondition()
         var done = false
+        var deliveredOnMain = true
         try {
             kotlin.test.assertTrue(focus.requestAudioFocus {
-                kotlin.test.assertTrue(platform.Foundation.NSThread.isMainThread)
+                deliveredOnMain = deliveredOnMain && platform.Foundation.NSThread.isMainThread
                 oldEvents += it
             })
             platform.darwin.dispatch_async(platform.darwin.dispatch_get_global_queue(0, 0u)) {
@@ -31,12 +32,17 @@ class IosAudioFocusTest {
                 posted.lock(); done = true; posted.signal(); posted.unlock()
             }
             posted.lock()
-            while (!done) posted.wait()
-            posted.unlock()
+            try {
+                val deadline = platform.Foundation.NSDate.dateWithTimeIntervalSinceNow(5.0)
+                while (!done) {
+                    kotlin.test.assertTrue(posted.waitUntilDate(deadline), "Background notification must complete")
+                }
+            } finally { posted.unlock() }
             focus.abandonAudioFocus()
             kotlin.test.assertTrue(focus.requestAudioFocus { newEvents += it })
             platform.Foundation.NSRunLoop.mainRunLoop.runUntilDate(
                 platform.Foundation.NSDate.dateWithTimeIntervalSinceNow(0.1))
+            kotlin.test.assertTrue(deliveredOnMain)
             assertEquals(emptyList(), oldEvents)
             assertEquals(emptyList(), newEvents)
             center.postNotificationName(AVAudioSessionRouteChangeNotification, session, mapOf(

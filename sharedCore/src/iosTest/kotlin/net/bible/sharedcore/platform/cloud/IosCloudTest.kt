@@ -19,6 +19,20 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class IosCloudTest {
+    @Test fun missingErrorsRequireTheCorrectFoundationDomainAndCode() {
+        val missing = listOf(
+            platform.Foundation.NSError(platform.Foundation.NSCocoaErrorDomain, platform.Foundation.NSFileNoSuchFileError, null),
+            platform.Foundation.NSError(platform.Foundation.NSCocoaErrorDomain, platform.Foundation.NSFileReadNoSuchFileError, null),
+            platform.Foundation.NSError(platform.Foundation.NSPOSIXErrorDomain, platform.posix.ENOENT.toLong(), null),
+        )
+        missing.forEach { assertTrue(it.asFileException() is okio.FileNotFoundException) }
+        listOf(
+            platform.Foundation.NSError(platform.Foundation.NSCocoaErrorDomain, platform.Foundation.NSFileReadNoPermissionError, null),
+            platform.Foundation.NSError(platform.Foundation.NSURLErrorDomain, -1009, null),
+            platform.Foundation.NSError("unrelated", platform.Foundation.NSFileReadNoSuchFileError, null),
+        ).forEach { assertFalse(it.asFileException() is okio.FileNotFoundException) }
+    }
+
     @Test fun invalidContainerCompletesWithoutAccount() = runTest {
         val container = IosUbiquityContainer("iCloud.invalid.i1test")
         container.prefetch()
