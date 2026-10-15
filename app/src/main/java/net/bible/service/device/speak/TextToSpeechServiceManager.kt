@@ -19,10 +19,10 @@ package net.bible.service.device.speak
 
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.speak.AdvancedSpeakSettings
-import net.bible.android.control.speak.SpeakEngine
-import net.bible.android.control.speak.SpeakEngineListener
+import net.bible.sharedcore.platform.speak.SpeakEngine
+import net.bible.sharedcore.platform.speak.SpeakEngineListener
 import net.bible.android.control.speak.SpeakSetupProblem
-import net.bible.android.control.speak.SpeakLanguageResult
+import net.bible.sharedcore.platform.speak.SpeakLanguageResult
 import net.bible.android.control.speak.SpeakPlatform
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
@@ -245,7 +245,7 @@ class TextToSpeechServiceManager constructor(
                                 locale = localePreferenceList[i]
                                 Log.i(TAG, "Checking for locale:$locale")
                                 try {
-                                    val result = tts.setLanguage(locale)
+                                    val result = tts.setLanguage(locale.toLanguageTag())
                                     localeOK = result != SpeakLanguageResult.MISSING_DATA && result != SpeakLanguageResult.NOT_SUPPORTED
                                     if (localeOK) {
                                         Log.i(TAG, "Successful locale:$locale")

@@ -4,6 +4,9 @@ import kotlinx.coroutines.launch
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.speak.*
+import net.bible.sharedcore.platform.speak.SpeakEngine
+import net.bible.sharedcore.platform.speak.SpeakEngineListener
+import net.bible.sharedcore.platform.speak.SpeakLanguageResult
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.test.testCoreStrings
 import org.junit.Assert.*
@@ -23,7 +26,8 @@ class FakeSpeakEngine(var languages: Map<Locale, SpeakLanguageResult>) : SpeakEn
     override fun speakText(text: String, utteranceId: String) { calls += "speak:$text"; utteranceIds += utteranceId }
     override fun playEarcon(earcon: String, volume: Float, utteranceId: String) { calls += "earcon:$earcon" }
     override fun playSilence(durationMs: Long, utteranceId: String) { calls += "silence:$durationMs" }
-    override fun setLanguage(locale: Locale): SpeakLanguageResult {
+    override fun setLanguage(languageTag: String): SpeakLanguageResult {
+        val locale = Locale.forLanguageTag(languageTag)
         requestedLocales += locale
         return languages[locale] ?: SpeakLanguageResult.NOT_SUPPORTED
     }

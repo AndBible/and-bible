@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import net.bible.android.activity.R
-import net.bible.android.control.speak.SpeakEngine
-import net.bible.android.control.speak.SpeakEngineListener
-import net.bible.android.control.speak.SpeakLanguageResult
+import net.bible.sharedcore.platform.speak.SpeakEngine
+import net.bible.sharedcore.platform.speak.SpeakEngineListener
+import net.bible.sharedcore.platform.speak.SpeakLanguageResult
 import net.bible.service.device.speak.TextToSpeechServiceManager
 import net.bible.sharedcore.log.Log
 import java.util.Locale
@@ -50,11 +50,14 @@ class AndroidSpeakEngine(context: Context, preferredPackage: String?, listener: 
         tts.playEarcon(earcon, TextToSpeech.QUEUE_ADD, params, utteranceId)
     }
     override fun playSilence(durationMs: Long, utteranceId: String) { tts.playSilentUtterance(durationMs, TextToSpeech.QUEUE_ADD, utteranceId) }
-    override fun setLanguage(locale: Locale): SpeakLanguageResult = when (tts.setLanguage(locale)) {
-        TextToSpeech.LANG_AVAILABLE, TextToSpeech.LANG_COUNTRY_AVAILABLE, TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE -> SpeakLanguageResult.AVAILABLE
-        TextToSpeech.LANG_MISSING_DATA -> SpeakLanguageResult.MISSING_DATA
-        TextToSpeech.LANG_NOT_SUPPORTED -> SpeakLanguageResult.NOT_SUPPORTED
-        else -> SpeakLanguageResult.OTHER
+    override fun setLanguage(languageTag: String): SpeakLanguageResult {
+        val locale = Locale.forLanguageTag(languageTag)
+        return when (tts.setLanguage(locale)) {
+            TextToSpeech.LANG_AVAILABLE, TextToSpeech.LANG_COUNTRY_AVAILABLE, TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE -> SpeakLanguageResult.AVAILABLE
+            TextToSpeech.LANG_MISSING_DATA -> SpeakLanguageResult.MISSING_DATA
+            TextToSpeech.LANG_NOT_SUPPORTED -> SpeakLanguageResult.NOT_SUPPORTED
+            else -> SpeakLanguageResult.OTHER
+        }
     }
     override fun setSpeechRate(rate: Float) { tts.setSpeechRate(rate) }
     @Suppress("DEPRECATION")

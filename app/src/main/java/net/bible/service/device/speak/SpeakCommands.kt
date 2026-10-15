@@ -17,8 +17,8 @@
 
 package net.bible.service.device.speak
 
-import net.bible.android.control.speak.SpeakEngine
-import net.bible.android.control.speak.SpeakLanguageResult
+import net.bible.sharedcore.platform.speak.SpeakEngine
+import net.bible.sharedcore.platform.speak.SpeakLanguageResult
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.bookmarks.SpeakSettings
 import java.util.*
@@ -54,7 +54,7 @@ abstract class EarconCommand(private val earcon: String, val enabled: Boolean): 
 
 class ChangeLanguageCommand(val language: Locale): SpeakCommand {
     override fun speak(engine: SpeakEngine, utteranceId: String) {
-        val result = engine.setLanguage(language)
+        val result = engine.setLanguage(language.toLanguageTag())
         if(result != SpeakLanguageResult.AVAILABLE) {
             Log.e(TAG, "Language $language not available!")
         }

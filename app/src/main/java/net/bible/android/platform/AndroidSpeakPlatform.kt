@@ -16,6 +16,8 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.speak.*
+import net.bible.sharedcore.platform.speak.SpeakEngine
+import net.bible.sharedcore.platform.speak.SpeakEngineListener
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.nav.NavHostComposeActivity

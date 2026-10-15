@@ -112,10 +112,10 @@ open class SpeakIntegrationTestBase {
         // Koin instance production uses restores correct behaviour.
         val koin = GlobalContext.get()
         bookmarkControl = koin.get()
-        val fakeEngine = FakeSpeakEngine(mapOf(Locale("fi", "FI") to net.bible.android.control.speak.SpeakLanguageResult.AVAILABLE,
-            Locale("fi") to net.bible.android.control.speak.SpeakLanguageResult.AVAILABLE,
-            Locale.UK to net.bible.android.control.speak.SpeakLanguageResult.AVAILABLE,
-            Locale.ENGLISH to net.bible.android.control.speak.SpeakLanguageResult.AVAILABLE))
+        val fakeEngine = FakeSpeakEngine(mapOf(Locale("fi", "FI") to net.bible.sharedcore.platform.speak.SpeakLanguageResult.AVAILABLE,
+            Locale("fi") to net.bible.sharedcore.platform.speak.SpeakLanguageResult.AVAILABLE,
+            Locale.UK to net.bible.sharedcore.platform.speak.SpeakLanguageResult.AVAILABLE,
+            Locale.ENGLISH to net.bible.sharedcore.platform.speak.SpeakLanguageResult.AVAILABLE))
         fakePlatform = FakeSpeakPlatform(fakeEngine, autoInit = true)
         org.koin.core.context.loadKoinModules(org.koin.dsl.module {
             single<net.bible.android.control.speak.SpeakPlatform> { fakePlatform }

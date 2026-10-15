@@ -1,6 +1,8 @@
 package net.bible.android.control.speak
 
-import java.util.Locale
+import net.bible.sharedcore.platform.speak.AudioFocus
+import net.bible.sharedcore.platform.speak.SpeakEngine
+import net.bible.sharedcore.platform.speak.SpeakEngineListener
 
 const val SPEAK_KEY = "speak"
 
@@ -10,30 +12,8 @@ interface SpeakSettingsStore {
     fun save(json: String)
 }
 
-enum class SpeakLanguageResult { AVAILABLE, MISSING_DATA, NOT_SUPPORTED, OTHER }
-
 /** A device speech setup problem (not an AndBible bug), told to the user by the platform. */
 enum class SpeakSetupProblem { ENGINE_NOT_AVAILABLE, LANGUAGE_NOT_AVAILABLE, AUDIO_FOCUS_DENIED }
-
-/** The TTS engine, narrowed to the operations used by speech commands and playback. */
-interface SpeakEngine {
-    fun speakText(text: String, utteranceId: String)
-    fun playEarcon(earcon: String, volume: Float, utteranceId: String)
-    fun playSilence(durationMs: Long, utteranceId: String)
-    fun setLanguage(locale: Locale): SpeakLanguageResult
-    fun setSpeechRate(rate: Float)
-    fun flush()
-    fun stop()
-    fun shutdown()
-    val maxSpeechInputLength: Int
-}
-
-interface SpeakEngineListener {
-    fun onInit(success: Boolean)
-    fun onUtteranceStart(utteranceId: String)
-    fun onUtteranceDone(utteranceId: String)
-    fun onUtteranceError(utteranceId: String)
-}
 
 data class SpeakPhrases(
     val first: String, val second: String, val third: String, val fourth: String,
@@ -42,15 +22,12 @@ data class SpeakPhrases(
     val divineNameReplace: List<String> = emptyList(),
 )
 
-interface SpeakPlatform {
+interface SpeakPlatform : AudioFocus {
     val maxSpeechInputLength: Int
     /** Read on every access so playback notices changes in the system engine preference. */
     val preferredEnginePackage: String?
     /** Registers earcons before reporting successful initialization on the engine callback thread. */
     fun createEngine(listener: SpeakEngineListener): SpeakEngine
-    fun requestAudioFocus(onFocusChange: (gained: Boolean) -> Unit): Boolean
-    fun abandonAudioFocus()
-    fun startPhoneCallMonitoring(onCallStateChanged: (active: Boolean) -> Unit)
     fun onPrepareForSpeaking()
     fun attachMediaControls(control: SpeakControl)
     fun detachMediaControls()
