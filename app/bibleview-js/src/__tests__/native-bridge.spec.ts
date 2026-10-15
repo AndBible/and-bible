@@ -92,6 +92,33 @@ describe("native bridge", () => {
         expect(posted).toContainEqual({method: "console", args: ["error", "boom (a.js:3)"]});
     });
 
+    it("forwards exactly one error after repeated installation and proxy recreation", () => {
+        const posted: unknown[] = [];
+        w.webkit = {messageHandlers: {bridge: {postMessage: (m: unknown) => posted.push(m)}}};
+        installNativeBridge(w);
+        const first = w.android;
+        installNativeBridge(w);
+        expect(w.android).toBe(first);
+        // Recreating the proxy must not register a second global listener.
+        delete w.android;
+        installNativeBridge(w);
+        window.dispatchEvent(new ErrorEvent("error", {message: "once", filename: "b.js", lineno: 1}));
+        expect(posted).toEqual([{method: "console", args: ["error", "once (b.js:1)"]}]);
+    });
+
+    it("forwards unhandled rejections once through the current transport", () => {
+        const ios: unknown[] = [];
+        const android: string[] = [];
+        w.webkit = {messageHandlers: {bridge: {postMessage: (m: unknown) => ios.push(m)}}};
+        installNativeBridge(w);
+        w.androidBridge = {postMessage: (m: string) => android.push(m), getActiveLanguages: () => "[]"};
+        // jsdom does not expose PromiseRejectionEvent; dispatch the browser event with its reason.
+        const event = Object.assign(new Event("unhandledrejection"), {reason: "rejected later"});
+        window.dispatchEvent(event);
+        expect(android).toEqual(['{"method":"console","args":["error","unhandled rejection: rejected later"]}']);
+        expect(ios).toEqual([]);
+    });
+
     it("does not replace an existing window.android", () => {
         const existing = {toast: () => {}};
         w.android = existing;
