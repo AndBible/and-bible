@@ -38,7 +38,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.File
 import java.net.URI
 import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 
 @Serializable
 class MyBibleModuleSpec (
@@ -140,18 +139,7 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
         spec = readSpec()
     }
 
-    override fun indexLastUpdated(): Long {
-        val url = URL(manifestUrl)
-        return try {
-            val httpsURLConnection = url.openConnection() as HttpsURLConnection
-            val lastModified: Long = httpsURLConnection.lastModified
-            httpsURLConnection.disconnect()
-            lastModified
-        } catch (e: Exception) {
-            Log.e(TAG, "Could not check last modified time for $url")
-            0L
-        }
-    }
+    override fun indexLastUpdated(): Long = downloader.lastModified(URL(manifestUrl)) ?: 0L
 
     override fun install(book: Book) = install(book, null)
 
