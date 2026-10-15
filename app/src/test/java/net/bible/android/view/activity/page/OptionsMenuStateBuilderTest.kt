@@ -35,6 +35,8 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.sharedcore.ai.PromptService
+import org.koin.java.KoinJavaComponent
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScope
@@ -201,6 +203,8 @@ class OptionsMenuStateBuilderTest {
         runBlocking {
             DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
                 .insert(LlmProviderConfig(providerType = "GEMINI", displayName = "Test Gemini"))
+            // Direct DAO writes do not notify the menu's configured snapshot.
+            KoinJavaComponent.get<PromptService>(PromptService::class.java).refresh()
         }
 
         assertEquals("ic_full_screen_24", itemById("fullscreen").iconKey)

@@ -31,8 +31,8 @@ class Phase8SubscriberWiringGuardTest {
     @Test fun promptRepositoryDropsItsCacheOnReload() =
         assertContains("service/llm/PromptRepository.kt", "AndBibleAddons.reloaded.subscribe { addonPromptsCache = null }", "was on<ReloadAddonsEvent>")
 
-    @Test fun mediaButtonHandlerSoundsOnForegroundSynchronously() =
-        assertContains("service/device/speak/MediaButtonHandler.kt", "CurrentActivityHolder.appPositionChanges.subscribe {", "was on<AppToBackgroundEvent>, an edge (Review Focus 2)")
+    @Test fun androidMediaSessionSoundsOnForegroundSynchronously() =
+        assertContains("android/platform/AndroidMediaSession.kt", "CurrentActivityHolder.appPositionChanges.subscribe {", "was on<AppToBackgroundEvent>, an edge (Review Focus 2)")
 
     @Test fun aTapCallsTheHostDirectly() =
         assertContains("android/view/activity/page/BibleGestureListener.kt", "mainBibleActivity.onBibleViewTouched()", "replaces the BibleViewTouched post")
