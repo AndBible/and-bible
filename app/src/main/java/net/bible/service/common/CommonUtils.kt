@@ -155,7 +155,6 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import org.jdom2.input.SAXBuilder
-import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -1891,14 +1890,6 @@ fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
     }
     val rv = block(builder)
     builders.offer(builder)
-    return rv
-}
-
-private val xPathInstances = ArrayBlockingQueue<XPathFactory>(32)
-fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
-    val xPath = xPathInstances.poll()?: XPathFactory.instance()
-    val rv = block(xPath)
-    xPathInstances.offer(xPath)
     return rv
 }
 
