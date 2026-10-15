@@ -121,19 +121,42 @@ abstract class HttpTransportContract {
         assertArrayEquals(ByteArray(8) { it.toByte() }, dest.readBytes())
     }
 
-    @Test fun interruptDuringReadEndsAsCancelled() = scenario(timeoutMs = 2_000) { server, dir ->
+    @Test fun interruptDuringStalledReadHasExplicitLegacyTimeoutOutcome() = scenario(timeoutMs = if (legacy) 2_000 else 10_000) { server, dir ->
         val release = CountDownLatch(1)
+        val stalledReadEntered = CountDownLatch(1)
         server.route("/hang") { ex ->
             ex.sendResponseHeaders(200, 10); ex.responseBody.write(ByteArray(2)); ex.responseBody.flush()
-            release.await(5, TimeUnit.SECONDS)
+            release.await(20, TimeUnit.SECONDS)
+        }
+        // Signal the read AFTER receiving the initial bytes, not merely request/server entry.
+        val delegate = WebResource.transport!!
+        WebResource.transport = object : HttpTransport by delegate {
+            override fun get(uri: URI, timeoutMs: Int): org.crosswire.common.util.HttpBody {
+                val response = delegate.get(uri, timeoutMs)
+                return object : org.crosswire.common.util.HttpBody by response {
+                    private var receivedBytes = false
+                    override fun read(buf: ByteArray): Int {
+                        if (receivedBytes) stalledReadEntered.countDown()
+                        return response.read(buf).also { if (it > 0) receivedBytes = true }
+                    }
+                }
+            }
         }
         var outcome: Throwable? = null
         val worker = Thread { outcome = runCatching { copy("${server.base}/hang", File(dir, "h")) }.exceptionOrNull() }
         worker.start()
         try {
-            Thread.sleep(300); worker.interrupt()
-            worker.join(4_000)
-            assertFalse("download thread must finish", worker.isAlive)
+            assertTrue("must reach stalled body read", stalledReadEntered.await(5, TimeUnit.SECONDS))
+            worker.interrupt()
+            if (legacy) {
+                worker.join(300)
+                assertTrue("legacy ignores interruption until its idle timeout", worker.isAlive)
+                worker.join(4_000)
+            } else {
+                // A 10-second idle timeout cannot satisfy this prompt-interruption window.
+                worker.join(1_000)
+            }
+            assertFalse("download thread must finish (promptly for nonlegacy)", worker.isAlive)
             assertTrue("expected cancel, got $outcome", outcome is DownloadCancelledException)
         } finally {
             release.countDown()
@@ -149,6 +172,9 @@ abstract class HttpTransportContract {
         }
         val dest = File(dir, "g")
         copy("${server.base}/g", dest, withMeter = false)
+        val requestedGzip = server.requests.single().headers["accept-encoding"].orEmpty().any { "gzip" in it }
+        if (legacy) assertFalse("legacy receives the plain response without gzip negotiation", requestedGzip)
+        else assertTrue("must exercise the gzip-encoded response, not the plain fallback", requestedGzip)
         assertArrayEquals(body, dest.readBytes())
     }
 
