@@ -158,7 +158,7 @@ class IosSpeakEngineTest {
         assertEquals(4000, engine.maxSpeechInputLength)
     }
 
-    @Test fun rateIsClamped() = withEngine { engine, listener ->
+    @Test fun extremeRatesReachTerminalEvents() = withEngine { engine, listener ->
         engine.setSpeechRate(100f)
         engine.speakText("a", "1")
         engine.setSpeechRate(0f)
