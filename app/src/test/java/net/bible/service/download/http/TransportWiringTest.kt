@@ -64,6 +64,18 @@ class TransportWiringTest {
         @Suppress("UNCHECKED_CAST")
         val reporters = reporterField.get(null) as MutableList<org.crosswire.common.util.ReporterListener>
         val oldReporters = reporters.toList()
+        val progressManager = net.bible.service.device.ProgressNotificationManager.instance
+        val progressFields = listOf("notificationManager", "workListener").map { name ->
+            progressManager.javaClass.getDeclaredField(name).apply { isAccessible = true }
+        }
+        val oldProgressOwners = progressFields.map { it.get(progressManager) }
+        val oldProgressSet = progressManager.progs
+        val oldProgress = oldProgressSet.toSet()
+        val workListenersField = org.crosswire.common.progress.JobManager::class.java
+            .getDeclaredField("listeners").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        val workListeners = workListenersField.get(null) as MutableList<org.crosswire.common.progress.WorkListener?>
+        val oldWorkListeners = workListeners.toList()
         var detached = false
         var reachedPostKoinConsumer = false
         try {
@@ -101,27 +113,38 @@ class TransportWiringTest {
                 if (detached) {
                     try {
                         GlobalContext.getOrNull()?.let { koin ->
-                            koin.getOrNull<net.bible.android.platform.AndroidHttpClients>()?.downloadClient?.let { client ->
-                                client.close()
-                                kotlinx.coroutines.runBlocking {
-                                    kotlinx.coroutines.withTimeout(5_000) {
-                                        client.engine.coroutineContext[kotlinx.coroutines.Job]!!.join()
-                                    }
-                                }
-                            }
-                            koin.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
-                                ?.coroutineContext?.get(kotlinx.coroutines.Job)?.let { job ->
-                                    job.cancel()
+                            try {
+                                koin.getOrNull<net.bible.android.platform.AndroidHttpClients>()?.downloadClient?.let { client ->
+                                    client.close()
                                     kotlinx.coroutines.runBlocking {
-                                        kotlinx.coroutines.withTimeout(5_000) { job.join() }
+                                        kotlinx.coroutines.withTimeout(5_000) {
+                                            client.engine.coroutineContext[kotlinx.coroutines.Job]!!.join()
+                                        }
                                     }
                                 }
+                            } finally {
+                                // A failed engine shutdown must not leave the private scope running.
+                                koin.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
+                                    ?.coroutineContext?.get(kotlinx.coroutines.Job)?.let { job ->
+                                        job.cancel()
+                                        kotlinx.coroutines.runBlocking {
+                                            kotlinx.coroutines.withTimeout(5_000) { job.join() }
+                                        }
+                                    }
+                            }
                         }
                     } finally {
                         GlobalContext.stopKoin()
                     }
                 }
             } finally {
+                // Do not close the shared manager: close() cancels pre-existing progress jobs.
+                workListeners.clear()
+                workListeners.addAll(oldWorkListeners)
+                progressFields.zip(oldProgressOwners).forEach { (field, owner) -> field.set(progressManager, owner) }
+                oldProgressSet.clear()
+                oldProgressSet.addAll(oldProgress)
+                progressManager.progs = oldProgressSet
                 coreModule.mappings.clear()
                 coreModule.mappings.putAll(savedMappings)
                 contextFields.zip(savedContext).forEach { (field, value) -> field.set(null, value) }
@@ -138,5 +161,12 @@ class TransportWiringTest {
                 Thread.setDefaultUncaughtExceptionHandler(oldHandler)
             }
         }
+        progressFields.zip(oldProgressOwners).forEach { (field, owner) ->
+            assertSame("progress ${field.name} ownership must survive cold startup teardown", owner, field.get(progressManager))
+        }
+        assertEquals("startup must not leave extra progress callbacks", oldWorkListeners.size, workListeners.size)
+        oldWorkListeners.zip(workListeners).forEach { (before, after) -> assertSame(before, after) }
+        assertSame(oldProgressSet, progressManager.progs)
+        assertEquals("pre-existing progress must not be cancelled or removed", oldProgress, progressManager.progs)
     }
 }
