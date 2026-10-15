@@ -34,9 +34,8 @@ jobs:
         run: ./gradlew -Dorg.gradle.native=false :jsword:iosSimulatorArm64Test
       - name: kdom common tests on the iOS simulator
         run: ./gradlew -Dorg.gradle.native=false :kdom:iosSimulatorArm64Test
-      - name: sharedCore NSLog regression test on the iOS simulator
-        # Only NsLogTest: the rest of :sharedCore's commonTest has never run on iOS.
-        run: ./gradlew -Dorg.gradle.native=false :sharedCore:iosSimulatorArm64Test --tests 'net.bible.sharedcore.log.NsLogTest'
+      - name: sharedCore common and iOS tests on the iOS simulator
+        run: ./gradlew -Dorg.gradle.native=false :sharedCore:iosSimulatorArm64Test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
