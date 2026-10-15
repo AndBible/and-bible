@@ -19,6 +19,7 @@ package net.bible.service.download
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.service.common.FileManager.copyFile
@@ -35,7 +36,8 @@ import java.io.IOException
 import java.net.URI
 import java.net.URL
 import java.util.*
-import javax.net.ssl.HttpsURLConnection
+import net.bible.sharedcore.http.DownloadHttp
+import org.koin.java.KoinJavaComponent
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -45,7 +47,8 @@ class GenericFileDownloader(
     private val settings: net.bible.sharedcore.platform.AppSettings,
     private val notifier: net.bible.sharedcore.platform.UserNotifier,
     private val strings: net.bible.sharedcore.platform.CoreStrings,
-    private val onErrorsChange: (() -> Unit)? = null
+    private val onErrorsChange: (() -> Unit)? = null,
+    private val http: DownloadHttp = KoinJavaComponent.get(DownloadHttp::class.java),
 ) {
     val errors = TreeSet<URI>()
 
@@ -91,12 +94,10 @@ class GenericFileDownloader(
         }
     }
 
-    private fun lastUpdated(url: URL): Long? =
+    /** Last-Modified via a GET-headers probe; null when the probe fails. */
+    fun lastModified(url: URL): Long? =
         try {
-            val httpsURLConnection = url.openConnection() as HttpsURLConnection
-            val lastModified: Long = httpsURLConnection.lastModified
-            httpsURLConnection.disconnect()
-            lastModified
+            runBlocking { http.headers(url.toString()).lastModified } // L1-edge: JSword synchronous Installer callers
         } catch (e: Exception) {
             Log.e(TAG, "Could not check last modified time for $url")
             null
@@ -118,7 +119,7 @@ class GenericFileDownloader(
         jobId: String? = null,
         notifyUser: Boolean = false,
     ): Boolean {
-        val lastUpdated = lastUpdated(source)
+        val lastUpdated = lastModified(source)
         if(target.canRead()) {
             val lastChecked = settings.getLong("last-downloaded-${source}", 0)
             if (lastUpdated != null && lastUpdated <= lastChecked) return true

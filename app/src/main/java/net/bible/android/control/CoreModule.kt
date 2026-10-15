@@ -130,7 +130,12 @@ fun buildCoreModule() = module {
     // DownloadControl (was ApplicationModule.provideDownloadControl)
     single { net.bible.service.download.FakeBookFactory(get()) }
     single { DownloadControl(get(), get(), get()) }
-    single<net.bible.service.download.ManifestFetcher> { net.bible.service.download.JvmManifestFetcher() }
+    single<net.bible.sharedcore.http.DownloadHttp> {
+        net.bible.sharedcore.http.KtorDownloadHttp(get<net.bible.android.platform.AndroidHttpClients>().downloadClient) {
+            org.crosswire.common.util.WebResource.getTimeout()
+        }
+    }
+    single<net.bible.service.download.ManifestFetcher> { net.bible.service.download.KtorManifestFetcher(get()) }
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
 
     single { net.bible.android.control.speak.AdvancedSpeakSettings(get()) }
@@ -272,8 +277,9 @@ fun buildCoreModule() = module {
     singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() }
     singleOf(::WorkspaceServiceImpl) { bind<WorkspaceService>() }
     singleOf(::AiSettingsServiceImpl) { bind<AiSettingsService>() }
+    single { net.bible.android.platform.AndroidHttpClients() }
     single<net.bible.sharedcore.llm.http.LlmHttpTransport> {
-        net.bible.sharedcore.llm.http.KtorLlmHttpTransport(net.bible.android.platform.AndroidLlmHttpClients()::clientFor)
+        net.bible.sharedcore.llm.http.KtorLlmHttpTransport(get<net.bible.android.platform.AndroidHttpClients>()::clientFor)
     }
     singleOf(::LlmProviderServiceImpl) { bind<LlmProviderService>() }
     singleOf(::LlmModelServiceImpl) { bind<LlmModelService>() }

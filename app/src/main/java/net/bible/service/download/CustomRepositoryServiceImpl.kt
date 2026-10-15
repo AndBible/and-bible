@@ -46,7 +46,7 @@ import java.net.URL
  * probe (`tryReadManifest`/`checkCanRead`/`readManifest`) lifted verbatim, minus the UI-only
  * `valid`/`loadingIndicator` toggles the Activity used to flip.
  */
-class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher = JvmManifestFetcher()) : CustomRepositoryService {
+class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : CustomRepositoryService {
     private val dao get() = DatabaseContainer.instance.repoDb.customRepositoryDao()
 
     override suspend fun list(): List<CustomRepositoryData> = withContext(Dispatchers.IO) {

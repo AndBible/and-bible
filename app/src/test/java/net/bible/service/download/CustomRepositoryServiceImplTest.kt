@@ -45,7 +45,7 @@ class CustomRepositoryServiceImplTest {
     @After fun tearDown() = DatabaseContainer.reset()
 
     @Test fun aDuplicateNameIsRejectedWithFalseOnTheProductionDriver() = runBlocking {
-        val service = CustomRepositoryServiceImpl()
+        val service = CustomRepositoryServiceImpl(org.koin.java.KoinJavaComponent.get(ManifestFetcher::class.java))
         val repo = CustomRepositoryData(name = "d1-dup-repo", type = "HTTPS", host = "example.org")
         assertTrue(service.upsert(repo))
         assertFalse(service.upsert(repo))

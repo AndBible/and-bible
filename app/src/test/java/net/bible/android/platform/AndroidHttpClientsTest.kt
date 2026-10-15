@@ -9,15 +9,35 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.After
+import okhttp3.OkHttpClient
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
 
-class AndroidLlmHttpClientsTest {
+class AndroidHttpClientsTest {
+    private val bases = mutableListOf<OkHttpClient>()
+
+    private fun factory(): AndroidHttpClients = AndroidHttpClients(OkHttpClient().also { bases += it })
+
+    private fun closeClient(client: io.ktor.client.HttpClient) {
+        client.close()
+        runBlocking {
+            kotlinx.coroutines.withTimeout(5_000) { client.engine.coroutineContext[kotlinx.coroutines.Job]!!.join() }
+        }
+    }
+
+    @After fun closeBases() {
+        bases.forEach {
+            it.dispatcher.executorService.shutdownNow()
+            it.connectionPool.evictAll()
+        }
+    }
+
     // Removing engine readTimeout makes this call wait 2s and return rather than fail promptly.
     @Test fun shortReadTimeoutReachesEngine() = withSlowServer { url ->
-        val clients = AndroidLlmHttpClients()
+        val clients = factory()
         val profile = LlmTimeouts(1_000, 300, null)
         val client = clients.clientFor(profile)
         try {
@@ -27,24 +47,24 @@ class AndroidLlmHttpClientsTest {
             assertTrue("Expected timeout, got $error", error is java.net.SocketTimeoutException)
             assertFalse(error is CancellationException)
             assertTrue("Timeout took ${elapsedMs}ms", elapsedMs < 1_500)
-        } finally { client.close() }
+        } finally { closeClient(client) }
     }
 
     // Applying the wrong cached profile (300ms) breaks this request against the same delayed fixture.
     @Test fun longerReadTimeoutAllowsResponse() = withSlowServer { url ->
-        val clients = AndroidLlmHttpClients()
+        val clients = factory()
         val profile = LlmTimeouts(1_000, 5_000, null)
         val client = clients.clientFor(profile)
         try {
             val response = runBlocking { KtorLlmHttpTransport { client }.get(url, emptyMap(), profile) }
             assertEquals(200, response.code)
             assertEquals("slow response", response.body)
-        } finally { client.close() }
+        } finally { closeClient(client) }
     }
 
     // A single cached client for all profiles makes the second call inherit the short timeout.
     @Test fun differentProfilesRetainTheirTimeoutsInTheSameFactory() = withSlowServer { url ->
-        val clients = AndroidLlmHttpClients()
+        val clients = factory()
         val shortProfile = LlmTimeouts(1_000, 300, null)
         val longProfile = LlmTimeouts(1_000, 5_000, null)
         val shortClient = clients.clientFor(shortProfile)
@@ -61,16 +81,41 @@ class AndroidLlmHttpClientsTest {
                 assertEquals("slow response", response.body)
                 assertSame(shortClient, clients.clientFor(shortProfile))
                 assertSame(longClient, clients.clientFor(longProfile))
-            } finally { longClient.close() }
-        } finally { shortClient.close() }
+            } finally { closeClient(longClient) }
+        } finally { closeClient(shortClient) }
     }
 
     @Test fun clientsAreCachedPerProfile() {
-        val clients = AndroidLlmHttpClients()
+        val clients = factory()
         val client = clients.clientFor(LlmTimeouts.CHAT)
         try {
             assertSame(client, clients.clientFor(LlmTimeouts(120_000, 90_000, 120_000)))
-        } finally { client.close() }
+        } finally { closeClient(client) }
+    }
+
+    // Closing an initialized engine must not invalidate another profile.
+    @Test fun closingOneClientKeepsOthersWorking() = withSlowServer { url ->
+        val clients = factory()
+        val shortClient = clients.clientFor(LlmTimeouts(1_000, 300, null))
+        val profile = LlmTimeouts(1_000, 5_000, null)
+        val longClient = clients.clientFor(profile)
+        try {
+            val error = runCatching {
+                runBlocking { KtorLlmHttpTransport(clients::clientFor).get(url, emptyMap(), LlmTimeouts(1_000, 300, null)) }
+            }.exceptionOrNull()
+            assertTrue("Expected initialized short-profile timeout, got $error", error is java.net.SocketTimeoutException)
+            shortClient.close()
+            runBlocking {
+                kotlinx.coroutines.withTimeout(5_000) {
+                    shortClient.engine.coroutineContext[kotlinx.coroutines.Job]!!.join()
+                }
+                val response = KtorLlmHttpTransport(clients::clientFor).get(url, emptyMap(), profile)
+                assertEquals(200, response.code)
+            }
+        } finally {
+            closeClient(shortClient)
+            closeClient(longClient)
+        }
     }
 
     private fun withSlowServer(test: (String) -> Unit) {

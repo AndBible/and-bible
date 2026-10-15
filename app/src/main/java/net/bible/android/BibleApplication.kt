@@ -177,6 +177,9 @@ open class BibleApplication : Application() {
             }
         }
 
+        // Folder initialisation precedes Koin; install its transport at the first safe point instead.
+        SwordEnvironmentInitialisation.installDownloadTransport()
+
         net.bible.android.database.bookmarks.SpeakSettings.store = GlobalContext.get().get()
         net.bible.service.sword.mydocument.MyDocumentBookManager.launcher = GlobalContext.get().get()
 

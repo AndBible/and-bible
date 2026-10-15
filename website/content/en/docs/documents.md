@@ -116,6 +116,12 @@ To download a document from the provided repositories:
 2. Click *Download documents*.
 3. Search for, and click on a document to install it.
 
+Repository and module downloads require HTTPS. A repository must not redirect a
+secure download to an insecure HTTP address. If a connection cannot be established
+or stops sending data for five seconds, the download times out; a large download
+can continue for longer as long as data keeps arriving. If a download fails, check
+your connection and try again.
+
 ## Load Documents
 
 To load a document from your device’s filesystem:
