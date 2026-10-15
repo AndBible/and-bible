@@ -33,7 +33,6 @@ class IosFileDelivery(private val presenter: () -> UIViewController? = IosPresen
                 logFileFailure("Delivery source is not a regular file")
                 return@withContext DeliveryResult.FAILED
             }
-            val host = presenter() ?: return@withContext DeliveryResult.CANCELLED
             val exported = if (source.name == fileName) source else {
                 // A fresh private directory avoids clobbering another concurrent export or the source.
                 require(fileName.isNotBlank() && fileName != "." && fileName != ".." &&
@@ -46,6 +45,8 @@ class IosFileDelivery(private val presenter: () -> UIViewController? = IosPresen
                 }
             }
             val url = NSURL.fileURLWithPath(exported.toString())
+            // Copying suspends; resolve the current modal stack only after preparation is finished.
+            val host = presenter() ?: return@withContext DeliveryResult.CANCELLED
             suspendCancellableCoroutine { continuation ->
                 val sheet = when (mode) {
                     SaveOrShare.SAVE -> UIDocumentPickerViewController(forExportingURLs = listOf(url), asCopy = true)

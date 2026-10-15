@@ -75,6 +75,36 @@ class IosFilePickerTest {
             assertEquals("original", FileSystem.SYSTEM.read(path) { readUtf8() })
         } finally { FileSystem.SYSTEM.delete(path, mustExist = false) }
     }
+    @Test fun presenterIsResolvedAfterCopyAndCancellationRemovesStaging() = runTest {
+        val temporary = NSTemporaryDirectory().toPath()
+        val source = temporary / NSUUID().UUIDString
+        val before = FileSystem.SYSTEM.list(temporary).toSet()
+        var prepared: okio.Path? = null
+        var calls = 0
+        try {
+            FileSystem.SYSTEM.write(source) { writeUtf8("complete backup") }
+            val delivery = IosFileDelivery {
+                calls++
+                val directory = FileSystem.SYSTEM.list(temporary).single {
+                    it !in before && it.name.startsWith("andbible-export-")
+                }
+                prepared = directory
+                assertEquals("complete backup", FileSystem.SYSTEM.read(directory / "renamed.zip") { readUtf8() })
+                null
+            }
+            assertEquals(DeliveryResult.CANCELLED, delivery.deliver(
+                source.toString(), "renamed.zip", SaveOrShare.SAVE,
+                "application/zip", "application/zip", null, null, "Export"
+            ))
+            assertEquals(1, calls)
+            assertTrue(prepared != null)
+            assertTrue(!FileSystem.SYSTEM.exists(prepared))
+            assertEquals("complete backup", FileSystem.SYSTEM.read(source) { readUtf8() })
+        } finally {
+            prepared?.let { FileSystem.SYSTEM.deleteRecursively(it, mustExist = false) }
+            FileSystem.SYSTEM.delete(source, mustExist = false)
+        }
+    }
     @Test fun existingDeliveryWithoutPresenterIsCancelled() = runTest {
         val path = NSTemporaryDirectory().toPath() / NSUUID().UUIDString
         try {
