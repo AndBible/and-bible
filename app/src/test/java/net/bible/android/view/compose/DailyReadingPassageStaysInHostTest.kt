@@ -90,6 +90,11 @@ class DailyReadingPassageStaysInHostTest {
             ),
         )
         net.bible.test.awaitHostRoute(controller.get(), NavRoutes.dailyReading(plan = PLAN, day = 5))
+        // The route alone is not enough on a host that STARTED on this day (it is already there): read() is a no-op
+        // until the day's readings are loaded, and they load on IO after the route.
+        val loaded = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay")
+            .run { isAccessible = true; get(controller.get()) as kotlinx.coroutines.flow.StateFlow<*> }
+        net.bible.test.awaitHostCondition("day 5's readings must load") { loaded.value.toString().contains("day=5") }
         idleMain()
     }
 
