@@ -52,6 +52,12 @@ class LicenseHtmlRunsTest {
         assertTrue(text.contains("This product includes software developed by the JDOM Project (http://www.jdom.org/)."))
         assertTrue(runs.any { it.href == "https://github.com/Sykero-Software/kdom" && it.text.contains("https://github.com/Sykero-Software/kdom") })
         assertTrue(text.indexOf("GNU GENERAL PUBLIC LICENSE") < text.indexOf("kdom"))
+        val kdom = java.io.File("../kdom")
+        fun words(value: String) = value.replace(Regex("\\s+"), " ").trim()
+        for (name in listOf("LICENSE", "NOTICE")) {
+            assertTrue("complete kdom $name must be delivered to the user",
+                words(text).contains(words(java.io.File(kdom, name).readText())))
+        }
     }
 
     @Test fun theWholeLicenseParsesWithNoLeftoverMarkup() {
