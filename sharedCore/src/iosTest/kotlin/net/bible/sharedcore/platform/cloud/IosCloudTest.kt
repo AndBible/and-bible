@@ -67,7 +67,27 @@ class IosCloudTest {
                 var caught: Throwable? = null
                 try { IosFileCoordination().ensureDownloaded(directory / "missing", 0) }
                 catch (error: Throwable) { caught = error }
-                assertTrue(caught is okio.IOException)
+                assertTrue(caught is okio.FileNotFoundException)
+            }
+        }
+    }
+
+    @Test fun missingStoreDownloadClosesOwnedSinkIncludingDeletedParent() = runTest {
+        withContext(Dispatchers.IO) {
+            inTemporaryDirectory { directory ->
+                val root = directory / "cloud"
+                FileSystem.SYSTEM.createDirectory(root)
+                val store = FileTreeCloudStore(FileSystem.SYSTEM, { root }, IosFileCoordination(), now = { 1L })
+                store.createNewFolder("parent")
+                store.delete("parent")
+                for (id in listOf("missing", "parent/missing")) {
+                    var closed = false
+                    val sink = object : okio.Sink by Buffer() {
+                        override fun close() { closed = true }
+                    }
+                    kotlin.test.assertFailsWith<okio.FileNotFoundException> { store.download(id, sink) }
+                    assertTrue(closed)
+                }
             }
         }
     }

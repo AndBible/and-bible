@@ -21,6 +21,32 @@ class FileTreeCloudStoreTest {
         fs.write(it) { writeUtf8(content) }
     }
 
+    @Test fun trustedRootAliasIsCanonicalButInnerLinksAreRejected() = runTest {
+        fs.allowSymlinks = true
+        val canonical = "/private/var/mobile/cloud".toPath()
+        fs.createDirectories(canonical)
+        fs.createSymlink("/var".toPath(), "/private/var".toPath())
+        val paths = mutableListOf<Path>()
+        val coordination = object : FileCoordination by FileCoordination.PassThrough {
+            override fun <T> write(path: Path, operation: FileCoordination.Mutation, block: (Path) -> T): T {
+                paths += path
+                return block(path)
+            }
+        }
+        val aliased = FileTreeCloudStore(fs, { "/var/mobile/cloud".toPath() }, coordination, now = { clock++ })
+        aliased.upload("safe", source("content"), "")
+        assertEquals(listOf(canonical / "safe"), paths)
+        val output = Buffer()
+        aliased.download("safe", output)
+        assertEquals("content", output.readUtf8())
+        fs.createSymlink(canonical / "inner", canonical)
+        assertFailsWith<IOException> { aliased.download("inner/safe", Buffer()) }
+        assertFailsWith<IOException> { aliased.createNewFolder("child", "inner") }
+        assertFailsWith<IOException> { aliased.listFiles() }
+        assertFailsWith<IOException> { aliased.delete("") }
+        assertTrue(fs.exists(canonical / "safe"))
+    }
+
     @Test fun signedOutOperationsFail() = runTest {
         val signedOut = FileTreeCloudStore(fs, { null }, now = { clock++ })
         assertFalse(signedOut.signedIn)
@@ -80,7 +106,7 @@ class FileTreeCloudStoreTest {
             override fun <T> read(path: Path, block: (Path) -> T): T {
                 calls += "read"; return block(path)
             }
-            override fun <T> write(path: Path, block: (Path) -> T): T {
+            override fun <T> write(path: Path, operation: FileCoordination.Mutation, block: (Path) -> T): T {
                 calls += "write"; return block(path)
             }
             override suspend fun ensureDownloaded(path: Path, timeoutMs: Long) {
@@ -98,6 +124,47 @@ class FileTreeCloudStoreTest {
         assertTrue(progress.zipWithNext().all { (a, b) -> a < b })
         assertEquals(content.length.toLong(), progress.last())
         assertEquals(listOf("write", "download", "read"), calls)
+    }
+
+    @Test fun everyMutationIsCoordinatedAndCoordinationFailurePreventsMutation() = runTest {
+        val paths = mutableListOf<Path>()
+        var failure: IOException? = null
+        val coordination = object : FileCoordination by FileCoordination.PassThrough {
+            override fun <T> write(path: Path, operation: FileCoordination.Mutation, block: (Path) -> T): T {
+                failure?.let { throw it }
+                paths += path
+                return block(path)
+            }
+        }
+        val coordinated = FileTreeCloudStore(fs, { root }, coordination, now = { clock++ })
+        coordinated.createNewFolder("folder")
+        coordinated.upload("file", source("content"), "folder")
+        coordinated.delete("folder")
+        assertEquals(listOf(root / "folder", root / "folder/file", root / "folder"), paths)
+        failure = IOException("coordination denied")
+        assertSame(failure, assertFailsWith<IOException> { coordinated.createNewFolder("denied") })
+        assertFalse(fs.exists(root / "denied"))
+        store.upload("retained", source("original"), "")
+        assertSame(failure, assertFailsWith<IOException> { coordinated.delete("retained") })
+        assertEquals("original", fs.read(root / "retained") { readUtf8() })
+    }
+
+    @Test fun commonStoreKeepsCurrentAndCoordinatesConflictCleanup() = runTest {
+        store.upload("file", source("current"), "")
+        val events = mutableListOf<String>()
+        val coordination = object : FileCoordination by FileCoordination.PassThrough {
+            override fun hasConflicts(path: Path): Boolean { events += "detect"; return true }
+            override fun <T> write(path: Path, operation: FileCoordination.Mutation, block: (Path) -> T): T {
+                assertEquals(FileCoordination.Mutation.UPDATE, operation)
+                events += "begin"
+                return block(path).also { events += "end" }
+            }
+            override fun discardOtherVersions(path: Path) { events += "discard" }
+        }
+        val output = Buffer()
+        FileTreeCloudStore(fs, { root }, coordination, now = { clock++ }).download("file", output)
+        assertEquals("current", output.readUtf8())
+        assertEquals(listOf("detect", "begin", "discard", "end"), events)
     }
 
     @Test fun missingItemsAndParents() = runTest {
@@ -220,7 +287,7 @@ class FileTreeCloudStoreTest {
         source("private")
         val coordination = object : FileCoordination {
             override fun <T> read(path: Path, block: (Path) -> T) = block("/source".toPath())
-            override fun <T> write(path: Path, block: (Path) -> T) = block("/source".toPath())
+            override fun <T> write(path: Path, operation: FileCoordination.Mutation, block: (Path) -> T) = block("/source".toPath())
             override suspend fun ensureDownloaded(path: Path, timeoutMs: Long) = Unit
         }
         val redirected = FileTreeCloudStore(fs, { root }, coordination, now = { clock++ })
@@ -246,7 +313,7 @@ class FileTreeCloudStoreTest {
     @Test fun downloadWaitsForPlaceholderBeforeCheckingExistence() = runTest {
         val coordination = object : FileCoordination {
             override fun <T> read(path: Path, block: (Path) -> T) = block(path)
-            override fun <T> write(path: Path, block: (Path) -> T) = block(path)
+            override fun <T> write(path: Path, operation: FileCoordination.Mutation, block: (Path) -> T) = block(path)
             override suspend fun ensureDownloaded(path: Path, timeoutMs: Long) {
                 fs.write(path) { writeUtf8("arrived") }
             }

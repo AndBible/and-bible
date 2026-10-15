@@ -28,9 +28,9 @@ class FileTreeCloudStore(
     private fun currentRoot(): Path {
         val path = root() ?: throw IOException("not signed in")
         if (!path.isAbsolute) throw IOException("cloud root must be absolute")
-        val normalized = path.normalized()
-        rejectSymlinks(normalized)
-        return normalized
+        // The provider root is trusted: Apple commonly aliases /var to /private/var.
+        // Only ids and paths below this canonical boundary are untrusted.
+        return fs.canonicalize(path)
     }
 
     private fun rejectSymlinks(path: Path) {
@@ -132,13 +132,21 @@ class FileTreeCloudStore(
                     }
                 }
             }
+            // Keep the just-read current version; the platform only applies this decision.
+            if (coordination.hasConflicts(path)) {
+                coordination.write(path) { local ->
+                    coordination.discardOtherVersions(coordinatedPath(base, local))
+                }
+            }
         }
     }
 
     override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
         val base = currentRoot()
         val id = childId(parentId ?: "", name)
-        fs.createDirectories(resolve(base, id))
+        coordination.write(resolve(base, id), FileCoordination.Mutation.CREATE) { local ->
+            fs.createDirectories(coordinatedPath(base, local))
+        }
         return describe(base, id)
     }
 
@@ -146,7 +154,7 @@ class FileTreeCloudStore(
         val base = currentRoot()
         val id = childId(parentId, name)
         val target = resolve(base, id)
-        coordination.write(target) { local ->
+        coordination.write(target, FileCoordination.Mutation.REPLACE) { local ->
             val checked = coordinatedPath(base, local)
             val temporary = resolve(base, checked.relativeTo(base).toString() + ".tmp-${now()}")
             if (fs.exists(temporary)) throw IOException("temporary file already exists: $temporary")
@@ -188,7 +196,10 @@ class FileTreeCloudStore(
             rejectSymlinks(path)
             if (fs.metadata(path).isDirectory) fs.list(path).forEach { checkTree(it) }
         }
-        checkTree(path)
-        fs.deleteRecursively(path, mustExist = true)
+        coordination.write(path, FileCoordination.Mutation.DELETE) { local ->
+            val checked = coordinatedPath(base, local)
+            checkTree(checked)
+            fs.deleteRecursively(checked, mustExist = true)
+        }
     }
 }
