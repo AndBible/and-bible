@@ -1,5 +1,6 @@
 package net.bible.sharedcore.platform.sync
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -57,6 +58,8 @@ internal class IosBackgroundWork(
         val worker = scope.launch(start = CoroutineStart.LAZY) {
             val ok = try {
                 action()
+            } catch (_: CancellationException) {
+                false
             } catch (error: Throwable) {
                 Log.w(TAG, "Background work failed", error)
                 false
@@ -71,7 +74,9 @@ internal class IosBackgroundWork(
             }
             // Install first: an already-cancelled scope invokes this hook immediately.
             worker.invokeOnCompletion { error ->
-                if (error != null) Log.w(TAG, "Background work cancelled or failed", error)
+                if (error != null && error !is CancellationException) {
+                    Log.w(TAG, "Background work failed", error)
+                }
                 finish(false)
             }
             if (!finished) worker.start() else worker.cancel()
