@@ -4,11 +4,48 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import platform.AVFAudio.*
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSNumber
+import platform.Foundation.dateWithTimeIntervalSinceNow
+import platform.Foundation.runUntilDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalForeignApi::class)
 class IosAudioFocusTest {
+    @Test fun backgroundNotificationCannotReachReplacementGeneration() {
+        val center = NSNotificationCenter()
+        val session = AVAudioSession.sharedInstance()
+        val focus = IosAudioFocus({ session }, center)
+        val oldEvents = mutableListOf<Boolean>()
+        val newEvents = mutableListOf<Boolean>()
+        val posted = platform.Foundation.NSCondition()
+        var done = false
+        try {
+            kotlin.test.assertTrue(focus.requestAudioFocus {
+                kotlin.test.assertTrue(platform.Foundation.NSThread.isMainThread)
+                oldEvents += it
+            })
+            platform.darwin.dispatch_async(platform.darwin.dispatch_get_global_queue(0, 0u)) {
+                center.postNotificationName(AVAudioSessionInterruptionNotification, session, mapOf(
+                    AVAudioSessionInterruptionTypeKey to NSNumber(unsignedLong = AVAudioSessionInterruptionTypeBegan),
+                ))
+                posted.lock(); done = true; posted.signal(); posted.unlock()
+            }
+            posted.lock()
+            while (!done) posted.wait()
+            posted.unlock()
+            focus.abandonAudioFocus()
+            kotlin.test.assertTrue(focus.requestAudioFocus { newEvents += it })
+            platform.Foundation.NSRunLoop.mainRunLoop.runUntilDate(
+                platform.Foundation.NSDate.dateWithTimeIntervalSinceNow(0.1))
+            assertEquals(emptyList(), oldEvents)
+            assertEquals(emptyList(), newEvents)
+            center.postNotificationName(AVAudioSessionRouteChangeNotification, session, mapOf(
+                AVAudioSessionRouteChangeReasonKey to NSNumber(unsignedLong = AVAudioSessionRouteChangeReasonOldDeviceUnavailable),
+            ))
+            assertEquals(listOf(false), newEvents)
+        } finally { focus.abandonAudioFocus() }
+    }
+
     @Test fun notificationsTranslateFocusAndAbandonRemovesObservers() {
         val center = NSNotificationCenter()
         val session = AVAudioSession.sharedInstance()

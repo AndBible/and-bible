@@ -28,9 +28,10 @@ class IosSpeakEngine(
     listener: SpeakEngineListener,
     private val earconFiles: Map<String, String>,
     private val deviceLocaleTag: () -> String = { NSLocale.currentLocale.localeIdentifier.replace('_', '-') },
+    synthesizer: AVSpeechSynthesizer = AVSpeechSynthesizer(),
 ) : SpeakEngine {
     private sealed class Item(val id: String) {
-        class Utterance(val text: String, id: String) : Item(id)
+        class Utterance(val speech: AVSpeechUtterance, id: String) : Item(id)
         class Earcon(val path: String, val volume: Float, id: String) : Item(id)
         class Silence(val ms: Long, id: String) : Item(id)
     }
@@ -44,7 +45,7 @@ class IosSpeakEngine(
     private var player: AVAudioPlayer? = null
     private var playerDelegate: AVAudioPlayerDelegateProtocol? = null
     private val utterances = HashMap<AVSpeechUtterance, Pair<Item, Long>>()
-    private var synthesizer: AVSpeechSynthesizer? = AVSpeechSynthesizer()
+    private var synthesizer: AVSpeechSynthesizer? = synthesizer
     // Apple delegate properties are weak; retain both delegates for their complete operation lifetime.
     private val speechDelegate = object : NSObject(), AVSpeechSynthesizerDelegateProtocol {
         @ObjCSignatureOverride
@@ -68,7 +69,13 @@ class IosSpeakEngine(
     }
 
     override val maxSpeechInputLength = 4000
-    override fun speakText(text: String, utteranceId: String) = enqueue(Item.Utterance(text, utteranceId))
+    override fun speakText(text: String, utteranceId: String) {
+        val speech = AVSpeechUtterance.speechUtteranceWithString(text).apply {
+            rate = this@IosSpeakEngine.rate
+            this@IosSpeakEngine.voice?.let { voice = it }
+        }
+        enqueue(Item.Utterance(speech, utteranceId))
+    }
     override fun playEarcon(earcon: String, volume: Float, utteranceId: String) {
         val path = earconFiles[earcon]
         enqueue(if (path == null) Item.Silence(0, utteranceId) else Item.Earcon(path, volume, utteranceId))
@@ -121,9 +128,7 @@ class IosSpeakEngine(
         try {
             when (item) {
                 is Item.Utterance -> {
-                    val utterance = AVSpeechUtterance.speechUtteranceWithString(item.text)
-                    utterance.rate = rate
-                    voice?.let { utterance.voice = it }
+                    val utterance = item.speech
                     utterances[utterance] = item to gen
                     synthesizer?.speakUtterance(utterance) ?: done(item, gen, error = true)
                 }

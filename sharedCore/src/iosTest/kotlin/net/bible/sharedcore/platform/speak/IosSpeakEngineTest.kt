@@ -55,6 +55,32 @@ class IosSpeakEngineTest {
         try { block(engine, listener) } finally { engine.shutdown(); FileSystem.SYSTEM.delete(path) }
     }
 
+    @Test fun queuedSpeechKeepsEnqueueVoiceAndRate() {
+        val spoken = mutableListOf<platform.AVFAudio.AVSpeechUtterance>()
+        val synthesizer = object : platform.AVFAudio.AVSpeechSynthesizer() {
+            override fun speakUtterance(utterance: platform.AVFAudio.AVSpeechUtterance) { spoken += utterance }
+        }
+        val engine = IosSpeakEngine(RecordingListener(), emptyMap(), synthesizer = synthesizer)
+        try {
+            engine.playSilence(50, "barrier")
+            engine.setLanguage("en-US")
+            engine.setSpeechRate(0.5f)
+            engine.speakText("first", "1")
+            engine.setLanguage("fi-FI")
+            engine.setSpeechRate(1.5f)
+            engine.speakText("second", "2")
+            pump(0.2)
+            assertEquals(1, spoken.size)
+            val first = spoken.single()
+            assertEquals(platform.AVFAudio.AVSpeechUtteranceDefaultSpeechRate * 0.5f, first.rate)
+            assertEquals(AVSpeechSynthesisVoice.voiceWithLanguage("en-US")?.identifier, first.voice?.identifier)
+            synthesizer.delegate?.speechSynthesizer(synthesizer, didFinishSpeechUtterance = first)
+            assertEquals(2, spoken.size)
+            assertEquals(platform.AVFAudio.AVSpeechUtteranceDefaultSpeechRate * 1.5f, spoken.last().rate)
+            assertEquals(AVSpeechSynthesisVoice.voiceWithLanguage("fi-FI")?.identifier, spoken.last().voice?.identifier)
+        } finally { engine.shutdown() }
+    }
+
     @Test fun queueOrderIsPreserved() = withEngine { engine, listener ->
         engine.speakText("a", "1")
         engine.playEarcon("[pre-title]", 0.2f, "2")

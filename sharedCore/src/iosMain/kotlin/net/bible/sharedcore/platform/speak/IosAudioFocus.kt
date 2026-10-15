@@ -11,6 +11,9 @@ import platform.AVFAudio.*
 import platform.Foundation.NSError
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSNumber
+import platform.Foundation.NSThread
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 import platform.darwin.NSObjectProtocol
 
 /** Translates audio-session notifications; the consumer owns resume policy and Main-thread access. */
@@ -19,11 +22,15 @@ class IosAudioFocus(
     private val session: () -> AVAudioSession = { AVAudioSession.sharedInstance() },
     private val center: NSNotificationCenter = NSNotificationCenter.defaultCenter,
 ) : AudioFocus {
+    private var generation = 0L
     private var activeSession: AVAudioSession? = null
     private var callback: ((Boolean) -> Unit)? = null
     private val observers = mutableListOf<NSObjectProtocol>()
 
     override fun requestAudioFocus(onFocusChange: (Boolean) -> Unit): Boolean {
+        check(NSThread.isMainThread)
+        removeObservers()
+        val gen = generation
         val audio = activeSession ?: session()
         val configured = memScoped {
             val error = alloc<ObjCObjectVar<NSError?>>().apply { value = null }
@@ -48,28 +55,36 @@ class IosAudioFocus(
             observers += center.addObserverForName(AVAudioSessionInterruptionNotification, audio, null) { notification ->
                 val info = notification?.userInfo
                 when ((info?.get(AVAudioSessionInterruptionTypeKey) as? NSNumber)?.unsignedLongValue) {
-                    AVAudioSessionInterruptionTypeBegan -> callback?.invoke(false)
+                    AVAudioSessionInterruptionTypeBegan -> deliver(gen, false)
                     AVAudioSessionInterruptionTypeEnded -> {
                         val options = (info[AVAudioSessionInterruptionOptionKey] as? NSNumber)?.unsignedLongValue ?: 0uL
-                        if (options and AVAudioSessionInterruptionOptionShouldResume != 0uL) callback?.invoke(true)
+                        if (options and AVAudioSessionInterruptionOptionShouldResume != 0uL) deliver(gen, true)
                     }
                 }
             }
             observers += center.addObserverForName(AVAudioSessionRouteChangeNotification, audio, null) { notification ->
                 val reason = (notification?.userInfo?.get(AVAudioSessionRouteChangeReasonKey) as? NSNumber)?.unsignedLongValue
-                if (reason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable) callback?.invoke(false)
+                if (reason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable) deliver(gen, false)
             }
         }
         return true
     }
 
+    private fun deliver(gen: Long, gained: Boolean) {
+        fun notifyCurrent() { if (gen == generation) callback?.invoke(gained) }
+        if (NSThread.isMainThread) notifyCurrent()
+        else dispatch_async(dispatch_get_main_queue()) { notifyCurrent() }
+    }
+
     private fun removeObservers() {
+        generation++
         observers.forEach(center::removeObserver)
         observers.clear()
         callback = null
     }
 
     override fun abandonAudioFocus() {
+        check(NSThread.isMainThread)
         removeObservers()
         val audio = activeSession ?: return
         activeSession = null

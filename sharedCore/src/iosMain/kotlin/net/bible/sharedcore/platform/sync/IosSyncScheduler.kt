@@ -21,10 +21,10 @@ class IosSyncScheduler(
     private val end: (ULong) -> Unit = { UIApplication.sharedApplication.endBackgroundTask(it) },
 ) : SyncScheduler {
     private val lock = NSRecursiveLock()
-    private var pending: Deferred<Boolean>? = null
+    private var pending: IosBackgroundWork? = null
 
     override fun startDatabaseSync(): Deferred<Boolean> = lock.withLock {
-        pending?.takeUnless { it.isCompleted }?.let { return@withLock it }
+        pending?.takeUnless { it.isStopped }?.let { return@withLock it.result }
         var identifier: ULong? = null
         var ended = false
         fun endOnce() {
@@ -34,7 +34,7 @@ class IosSyncScheduler(
             if (id != UIBackgroundTaskInvalid) end(id)
         }
         val work = IosBackgroundWork(scope, sync, lock) { endOnce() }
-        pending = work.result
+        pending = work
         work.start { expire ->
             identifier = begin(expire)
             // Expiry can arrive inside begin, before UIKit returns its identifier.
@@ -53,6 +53,8 @@ internal class IosBackgroundWork(
 ) {
     val result = CompletableDeferred<Boolean>()
     private var finished = false
+    private var stopped = false
+    val isStopped: Boolean get() = lock.withLock { stopped }
 
     fun start(installExpiration: (() -> Unit) -> Unit) = lock.withLock {
         val worker = scope.launch(start = CoroutineStart.LAZY) {
@@ -66,6 +68,9 @@ internal class IosBackgroundWork(
             }
             finish(ok)
         }
+        result.invokeOnCompletion { error ->
+            if (error is CancellationException) worker.cancel()
+        }
         try {
             installExpiration {
                 // Publish false before cancellation can race the coroutine's completion.
@@ -77,7 +82,7 @@ internal class IosBackgroundWork(
                 if (error != null && error !is CancellationException) {
                     Log.w(TAG, "Background work failed", error)
                 }
-                finish(false)
+                lock.withLock { stopped = true; finish(false) }
             }
             if (!finished) worker.start() else worker.cancel()
         } catch (error: Throwable) {

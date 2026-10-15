@@ -17,6 +17,32 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IosSyncSchedulerTest {
+    @Test fun cancellingReturnedHandleOwnsWorkerAndBlocksReplacementUntilStopped() = runTest {
+        var calls = 0
+        var stopped = 0
+        var ends = 0
+        val scheduler = IosSyncScheduler(this, {
+            calls++
+            try { CompletableDeferred<Boolean>().await() } finally { stopped++ }
+        }, { 1uL }, { ends++ })
+        val first = scheduler.startDatabaseSync()
+        runCurrent()
+        first.cancel()
+        assertSame(first, scheduler.startDatabaseSync(), "Cancellation is not worker completion")
+        assertEquals(1, calls)
+        runCurrent()
+        assertEquals(1, stopped)
+        assertEquals(1, ends)
+        val second = scheduler.startDatabaseSync()
+        assertNotSame(first, second)
+        runCurrent()
+        assertEquals(2, calls)
+        second.cancel()
+        runCurrent()
+        assertEquals(2, stopped)
+        assertEquals(2, ends)
+    }
+
     @Test fun coalescesAndStartsANewRunAfterCompletion() = runTest {
         val gate = CompletableDeferred<Boolean>()
         var calls = 0
@@ -92,6 +118,8 @@ class IosSyncSchedulerTest {
         val first = scheduler.startDatabaseSync()
         runCurrent()
         expirations[0]()
+        assertSame(first, scheduler.startDatabaseSync())
+        runCurrent()
         val second = scheduler.startDatabaseSync()
         assertNotSame(first, second)
         runCurrent()
