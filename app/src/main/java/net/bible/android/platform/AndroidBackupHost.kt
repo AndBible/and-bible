@@ -1,5 +1,8 @@
 package net.bible.android.platform
 
+import net.bible.sharedcore.platform.files.PickedSource
+import net.bible.sharedcore.platform.files.SaveOrShare
+import net.bible.sharedcore.platform.files.DeliveryResult
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -12,7 +15,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.backup.*
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -20,7 +22,8 @@ import org.koin.java.KoinJavaComponent
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.io.InputStream
+import okio.Source
+import okio.source
 
 /** Android picker/share implementation owned by the current UI host. */
 class AndroidBackupHost(private val activityProvider: () -> ActivityBase) : BackupHost {
@@ -69,10 +72,8 @@ class AndroidBackupHost(private val activityProvider: () -> ActivityBase) : Back
         val result = activityProvider().awaitIntent(Intent(Intent.ACTION_GET_CONTENT).apply { type = mime })
         return if (result.resultCode == Activity.RESULT_OK) fromUri(result.data?.data!!) else null
     }
-    override suspend fun openInput(source: PickedSource): InputStream =
-        BibleApplication.application.contentResolver.openInputStream(Uri.parse(source.token)) ?: throw IOException("Failed to open input stream")
-
-    override suspend fun sniffFileType(source: PickedSource): BackupFileType = CommonUtils.determineFileType(Uri.parse(source.token))
+    override suspend fun openInput(source: PickedSource): Source =
+        (BibleApplication.application.contentResolver.openInputStream(Uri.parse(source.token)) ?: throw IOException("Failed to open input stream")).source()
 
     override suspend fun showErrorReport(message: String, cause: Throwable?) {
         ErrorReportControl.showErrorDialog(activityProvider(), message, exception = cause)

@@ -1,5 +1,8 @@
 package net.bible.service.db
 
+import net.bible.sharedcore.platform.files.PickedSource
+import net.bible.sharedcore.platform.files.SaveOrShare
+import net.bible.sharedcore.platform.files.DeliveryResult
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.test.resetMain
@@ -17,7 +20,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
-import java.io.InputStream
+import okio.Source
 import java.util.zip.ZipFile
 
 @RunWith(RobolectricTestRunner::class)
@@ -56,8 +59,7 @@ class ExportStudyPadsTest {
                 return DeliveryResult.DELIVERED
             }
             override suspend fun pickBackupFile(mime: String): PickedSource? = error("unused")
-            override suspend fun openInput(source: PickedSource): InputStream = error("unused")
-            override suspend fun sniffFileType(source: PickedSource): BackupFileType = error("unused")
+            override suspend fun openInput(source: PickedSource): Source = error("unused")
             override suspend fun showErrorReport(message: String, cause: Throwable?) = error(message)
             override suspend fun restoreModules() = error("unused")
         }

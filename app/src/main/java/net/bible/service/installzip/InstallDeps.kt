@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.backup.BackupFileType
+import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.android.database.BookmarkDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME

@@ -18,7 +18,7 @@
 package net.bible.service.installzip
 
 import net.bible.android.SharedConstants
-import net.bible.android.control.backup.BackupFileType
+import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import java.io.File
 

@@ -117,7 +117,7 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.backup.SaveOrShare
+import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.document.canDelete

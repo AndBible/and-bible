@@ -27,7 +27,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.backup.BackupFileType
+import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import org.junit.After
 import org.junit.Assert.assertEquals

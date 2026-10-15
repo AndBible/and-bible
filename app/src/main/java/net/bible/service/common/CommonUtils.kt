@@ -17,6 +17,8 @@
 
 package net.bible.service.common
 
+import net.bible.sharedcore.platform.files.BackupFileSniffer
+import okio.source
 import android.Manifest
 import android.app.Activity
 import android.app.Application
@@ -80,7 +82,7 @@ import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
-import net.bible.android.control.backup.BackupFileType
+import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
@@ -1735,21 +1737,8 @@ object CommonUtils : CommonUtilsBase() {
     fun gunzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gunzipFile(sourceFile, destinationFile)
 
     suspend fun determineFileType(uri: Uri): BackupFileType = withContext(Dispatchers.IO) {
-        try {
-            application.contentResolver.openInputStream(uri)?.use { inputStream ->
-                val header = ByteArray(16)
-                inputStream.read(header)
-                val headerString = String(header)
-                if (headerString == "SQLite format 3\u0000")
-                    BackupFileType.SQLITE3
-                else if (headerString.startsWith("PK\u0003\u0004")) {
-                    BackupFileType.ZIP
-                } else
-                    BackupFileType.UNKNOWN
-            } ?: BackupFileType.UNKNOWN
-        } catch (e: Exception) {
-            Log.e(TAG, "Unexpected exception when determining file type", e)
-            BackupFileType.UNKNOWN
+        BackupFileSniffer.sniff {
+            application.contentResolver.openInputStream(uri)?.source() ?: throw okio.IOException("no stream")
         }
     }
 

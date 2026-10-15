@@ -2,7 +2,7 @@ package net.bible.android.platform
 
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.BackupHost
-import net.bible.android.control.backup.SaveOrShare
+import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.exportStudyPads

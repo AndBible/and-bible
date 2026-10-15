@@ -1,5 +1,7 @@
 package net.bible.android.control.backup
 
+import net.bible.sharedcore.platform.files.SaveOrShare
+import net.bible.sharedcore.platform.files.DeliveryResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

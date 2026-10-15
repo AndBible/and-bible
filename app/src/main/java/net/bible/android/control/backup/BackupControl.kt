@@ -17,6 +17,12 @@
 
 package net.bible.android.control.backup
 
+import net.bible.sharedcore.platform.files.BackupFileSniffer
+import okio.buffer
+import net.bible.sharedcore.platform.files.PickedSource
+import net.bible.sharedcore.platform.files.SaveOrShare
+import net.bible.sharedcore.platform.files.DeliveryResult
+import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.sharedcore.platform.CoreStrings
 
 import net.bible.android.control.document.DocumentChanges
@@ -96,7 +102,6 @@ const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 
 const val ZIP_MIMETYPE = "application/zip"
 
-enum class SaveOrShare {SAVE, SHARE}
 
 /** What to do with the result of the save/share picker (F125). */
 internal enum class PickerOutcome { CANCELLED, FAILED, DONE }
@@ -223,7 +228,7 @@ class BackupControl(
     }
 
     private suspend fun restoreOldMonolithicDatabaseFromInputStream(host: BackupHost, source: PickedSource): Boolean {
-        val inputStream = host.openInput(source)
+        val inputStream = host.openInput(source).buffer().inputStream()
         return restoreOldMonolithicDatabase(inputStream)
     }
 
@@ -632,7 +637,10 @@ class BackupControl(
     }
 
     suspend fun restoreAppDatabaseFromSourceWithUI(host: BackupHost, source: PickedSource): Boolean {
-        val filetype = host.sniffFileType(source)
+        val filetype = withContext(Dispatchers.IO) {
+            val input = runCatching { host.openInput(source) }.getOrNull()
+            if (input == null) BackupFileType.UNKNOWN else BackupFileSniffer.sniff { input }
+        }
         Log.i(TAG, "Filetype: $filetype")
         return if (filetype == BackupFileType.SQLITE3) {
             restoreOldMonolithicDatabaseFromSourceWithUI(host, source)
@@ -726,7 +734,7 @@ class BackupControl(
             unzipFolder.mkdirs()
 
             try {
-                val inputStream = host.openInput(source)
+                val inputStream = host.openInput(source).buffer().inputStream()
                 tmpFile.outputStream().use { inputStream.copyTo(it) }
                 net.bible.service.common.ArchiveUtils.unzipFile(tmpFile, unzipFolder)
             } catch (e: Exception) {

@@ -26,7 +26,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.backup.BackupFileType
+import net.bible.sharedcore.platform.files.BackupFileType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

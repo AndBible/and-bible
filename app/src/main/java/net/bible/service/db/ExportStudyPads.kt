@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
-import net.bible.android.control.backup.SaveOrShare
+import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.joinColumnNames

@@ -1,5 +1,8 @@
 package net.bible.android.control.backup
 
+import net.bible.sharedcore.platform.files.PickedSource
+import net.bible.sharedcore.platform.files.SaveOrShare
+import net.bible.sharedcore.platform.files.DeliveryResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.*
@@ -20,7 +23,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.File
-import java.io.InputStream
+import okio.Source
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -53,8 +56,7 @@ class BackupControlDeliveryTest {
             return result
         }
         override suspend fun pickBackupFile(mime: String): PickedSource? = error("unused")
-        override suspend fun openInput(source: PickedSource): InputStream = error("unused")
-        override suspend fun sniffFileType(source: PickedSource): BackupFileType = error("unused")
+        override suspend fun openInput(source: PickedSource): Source = error("unused")
         override suspend fun restoreModules() = Unit
         override suspend fun showErrorReport(message: String, cause: Throwable?) { errors += message }
     }
