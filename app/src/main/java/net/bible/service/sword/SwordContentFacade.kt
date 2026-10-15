@@ -16,6 +16,7 @@
  */
 package net.bible.service.sword
 
+import fi.sykero.kdom.input.build
 import org.crosswire.common.util.toKLocale
 
 import net.bible.sharedcore.platform.CoreStrings
@@ -28,7 +29,7 @@ import net.bible.android.MyLocaleProvider
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.control.speak.AdvancedSpeakSettings
-import net.bible.service.common.useSaxBuilder
+import net.bible.service.common.useKdomBuilder
 import net.bible.sharedcore.reading.ShareVersesEntry
 import net.bible.sharedcore.reading.ShareVersesInput
 import net.bible.service.device.speak.SpeakCommand
@@ -59,11 +60,11 @@ import org.crosswire.jsword.versification.BibleNames
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.VersificationConverter
-import org.jdom2.Document
-import org.jdom2.Element
-import org.jdom2.Namespace
-import org.jdom2.Text
-import org.xml.sax.ContentHandler
+import fi.sykero.kdom.Document
+import fi.sykero.kdom.Element
+import fi.sykero.kdom.Namespace
+import fi.sykero.kdom.Text
+import fi.sykero.kdom.sax.ContentHandler
 import java.io.StringReader
 import java.util.*
 import kotlin.math.min
@@ -71,7 +72,7 @@ import kotlin.math.min
 
 open class OsisError(xmlMessage: String, val stringMsg: String) : Exception(xmlMessage) {
     constructor(msg: String): this(msg, msg)
-    val xml: Element = useSaxBuilder { it.build(StringReader("<div>$xmlMessage</div>")).rootElement }
+    val xml: Element = useKdomBuilder { it.build(StringReader("<div>$xmlMessage</div>")).rootElement }
 }
 
 class DocumentNotFound(xmlMessage: String, stringMsg: String) : OsisError(xmlMessage, stringMsg) {
@@ -335,7 +336,7 @@ class SwordContentFacade(
 
             for(content in net.bible.service.common.XmlQueries.textsOutsideNotes(frag)) {
                 if(content.text.trim().isEmpty()) continue
-                val parent = content.parentElement
+                val parent = content.parentElement!!
                 val textContents = splitSentences(content.text)
                 if (textContents.isNotEmpty()) {
                     var pos = parent.indexOf(content)
@@ -407,7 +408,7 @@ class SwordContentFacade(
                     Log.e(TAG, "Could not read fragment", e)
                     return@run emptyMap()
                 }
-                val texts = net.bible.service.common.XmlQueries.bvasBelow(frag, xhtmlNamespace).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
+                val texts = net.bible.service.common.XmlQueries.bvasBelow(frag, xhtmlNamespace).associate { it.getAttribute("ordinal")!!.value.toInt() to getTextRecursively(it) }
                 plainTextCache.put(cacheKey, texts)
                 texts
             }

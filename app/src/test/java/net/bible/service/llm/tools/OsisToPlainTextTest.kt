@@ -18,15 +18,16 @@
 package net.bible.service.llm.tools
 
 import net.bible.service.sword.OsisToPlainText
-import org.jdom2.input.SAXBuilder
+import fi.sykero.kdom.input.build
+import fi.sykero.kdom.input.KdomBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.StringReader
 
 class OsisToPlainTextTest {
 
-    private fun parse(xml: String): org.jdom2.Element {
-        return SAXBuilder().build(StringReader(xml)).rootElement
+    private fun parse(xml: String): fi.sykero.kdom.Element {
+        return KdomBuilder().build(StringReader(xml)).rootElement
     }
 
     @Test

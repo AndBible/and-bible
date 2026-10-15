@@ -22,7 +22,7 @@ import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper
 
 import net.bible.service.format.SaxTextPolicy
 import org.crosswire.jsword.book.OSISUtil
-import org.xml.sax.Attributes
+import fi.sykero.kdom.sax.Attributes
 
 /**
  * Convert OSIS input into text (for copying and sharing verses)

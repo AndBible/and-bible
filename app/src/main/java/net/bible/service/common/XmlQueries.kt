@@ -1,10 +1,11 @@
 package net.bible.service.common
 
-import org.jdom2.Document
-import org.jdom2.Element
-import org.jdom2.Namespace
-import org.jdom2.Parent
-import org.jdom2.Text
+import fi.sykero.kdom.query.*
+import fi.sykero.kdom.Document
+import fi.sykero.kdom.Element
+import fi.sykero.kdom.Namespace
+import fi.sykero.kdom.Parent
+import fi.sykero.kdom.Text
 
 /** Domain queries with eager results: callers may detach or move nodes while iterating. */
 object XmlQueries {

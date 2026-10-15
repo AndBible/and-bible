@@ -18,7 +18,7 @@ package net.bible.service.format.osistohtml.osishandlers
 
 import net.bible.service.format.SaxTextPolicy
 import org.crosswire.jsword.book.OSISUtil
-import org.xml.sax.Attributes
+import fi.sykero.kdom.sax.Attributes
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

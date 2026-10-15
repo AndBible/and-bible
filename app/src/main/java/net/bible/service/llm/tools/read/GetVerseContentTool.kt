@@ -34,8 +34,8 @@ import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
-import org.jdom2.output.Format
-import org.jdom2.output.XMLOutputter
+import fi.sykero.kdom.output.Format
+import fi.sykero.kdom.output.XMLOutputter
 import kotlinx.serialization.json.JsonObject
 import net.bible.service.llm.tools.*
 

@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.epub
 
+import fi.sykero.kdom.input.build
 import net.bible.service.db.blockingAtEdge
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.EpubFragment
@@ -24,11 +25,11 @@ import net.bible.android.database.EpubHtmlToFrag
 import net.bible.android.database.StyleSheet
 import net.bible.android.misc.elementToString
 import net.bible.service.installzip.InstallZipProgress
-import net.bible.service.common.useSaxBuilder
+import net.bible.service.common.useKdomBuilder
 import net.bible.service.common.XmlQueries
 import net.bible.service.sword.SwordContentFacade
-import org.jdom2.Document
-import org.jdom2.Element
+import fi.sykero.kdom.Document
+import fi.sykero.kdom.Element
 import java.io.File
 import java.net.URLDecoder
 import java.util.zip.GZIPOutputStream
@@ -49,12 +50,12 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
 
     fun fixReferences(e: Element): Element {
         for(img in XmlQueries.svgImagesWithHref(e, svgNamespace, xlinkNamespace)) {
-            val src = img.getAttribute("href", xlinkNamespace).value
+            val src = img.getAttribute("href", xlinkNamespace)!!.value
             val finalSrc = epubSrc(src)
             img.setAttribute("href", finalSrc, xlinkNamespace)
         }
         for(img in XmlQueries.imgs(e, xhtmlNamespace)) {
-            val src = img.getAttribute("src").value
+            val src = img.getAttribute("src")!!.value
             val finalSrc = epubSrc(src)
             img.setAttribute("src", finalSrc)
         }
@@ -75,7 +76,7 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
         return e
     }
 
-    return useSaxBuilder { it.build(file) }
+    return useKdomBuilder { it.build(file) }
         .let {
             val processed = fixReferences(it.rootElement)
             val body = XmlQueries.body(processed, xhtmlNamespace)
@@ -167,8 +168,8 @@ fun EpubBackendState.optimizeEpub() {
     fun getOrdinalRange(doc: Document): IntRange? {
         val bvas = XmlQueries.bvas(doc, xhtmlNamespace)
         if(bvas.size == 0) return null
-        return bvas.first().getAttribute("ordinal").intValue ..
-            bvas.last().getAttribute("ordinal").intValue
+        return bvas.first().getAttribute("ordinal")!!.intValue ..
+            bvas.last().getAttribute("ordinal")!!.intValue
     }
 
     fun splitIntoFragments(originalId: String, origDocument: Document, maxOrdinal: Int): List<EpubFragment> {
@@ -183,7 +184,7 @@ fun EpubBackendState.optimizeEpub() {
 
     fun findIds(frag: EpubFragment): List<String> {
         val elemsWithId = XmlQueries.elementsWithId(frag.element!!)
-        return elemsWithId.map { it.getAttribute("id").value }
+        return elemsWithId.map { it.getAttribute("id")!!.value }
     }
 
     fun writeFragment(frag: EpubFragment) {
@@ -223,7 +224,7 @@ fun EpubBackendState.optimizeEpub() {
         val head = origDocument.rootElement.children.find { it.name == "head" }!!
         val styleSheets = head.children
             .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
-            .mapNotNull { StyleSheet(k, it.getAttribute("href").value) }.toTypedArray()
+            .mapNotNull { StyleSheet(k, it.getAttribute("href")!!.value) }.toTypedArray()
 
         blockingAtEdge { // L1-edge: JSword BookType.getBackend (first open optimizes)
             val ids = writeDao.insert(*fragments.toTypedArray())

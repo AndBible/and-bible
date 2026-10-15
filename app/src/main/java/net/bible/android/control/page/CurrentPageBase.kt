@@ -46,7 +46,7 @@ import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
-import org.jdom2.Element
+import fi.sykero.kdom.Element
 
 /** Common functionality for different document page types
  *

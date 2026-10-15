@@ -58,8 +58,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.VerseRange
 import net.bible.android.control.versification.toVerseRange
-import org.jdom2.output.Format
-import org.jdom2.output.XMLOutputter
+import fi.sykero.kdom.output.Format
+import fi.sykero.kdom.output.XMLOutputter
 import net.bible.android.database.mydocument.AiCachedPageWithContent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers

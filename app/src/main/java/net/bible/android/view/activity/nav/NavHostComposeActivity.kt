@@ -511,7 +511,7 @@ import net.bible.sharedui.navigation.nav.chooserNavGraph
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
-import org.jdom2.Element
+import fi.sykero.kdom.Element
 import org.koin.android.ext.android.inject
 
 /**

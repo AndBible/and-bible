@@ -8,13 +8,14 @@ import net.bible.service.device.speak.TextCommand
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import org.crosswire.common.xml.JDOMSAXEventProvider
-import org.jdom2.input.SAXBuilder
+import fi.sykero.kdom.input.build
+import fi.sykero.kdom.input.KdomBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.xml.sax.helpers.DefaultHandler
+import fi.sykero.kdom.sax.DefaultHandler
 import java.io.StringReader
 
 @RunWith(RobolectricTestRunner::class)
@@ -22,7 +23,7 @@ import java.io.StringReader
 class HtmlSaxCharRefTest {
     @Test @Config(sdk = [23]) fun actualXmlCharacterReferencesKeepApi23LegacySpeech() {
         for ((reference, captured) in listOf("&#13;" to "a\rb", "&#133;" to "a\u0085b", "&amp;#133;" to "a&#133;b")) {
-            val document = SAXBuilder().build(StringReader("<verse>a${reference}b</verse>"))
+            val document = KdomBuilder().build(StringReader("<verse>a${reference}b</verse>"))
             val policy = net.bible.android.platform.androidSaxTextPolicy()
             assertEquals(SaxTextPolicy.LEGACY, policy)
             val canonical = OsisToCanonicalTextSaxHandler(textPolicy = policy)
@@ -46,7 +47,7 @@ class HtmlSaxCharRefTest {
     private fun verifyEscapedFrameworkEntities(policy: SaxTextPolicy) {
         val differences = mutableListOf<String>()
         for (name in listOf("check", "checkmark", "ohm", "Afr", "b.alpha", "Tab", "NewLine", "phi")) {
-            val document = SAXBuilder().build(StringReader("<verse osisID=\"Gen.1.1\">a&amp;${name};b</verse>"))
+            val document = KdomBuilder().build(StringReader("<verse osisID=\"Gen.1.1\">a&amp;${name};b</verse>"))
             val provider = JDOMSAXEventProvider(document)
             val chunks = mutableListOf<String>()
             provider.provideSAXEvents(object : DefaultHandler() {
@@ -71,7 +72,7 @@ class HtmlSaxCharRefTest {
     @Test fun actualXmlCharacterReferencesReachBothModernHandlers() {
         val differences = mutableListOf<String>()
         for ((reference, captured) in listOf("&#13;" to "a\rb", "&#133;" to "a\u0085b", "&amp;#133;" to "a&#133;b")) {
-            val document = SAXBuilder().build(StringReader("<verse>a${reference}b</verse>"))
+            val document = KdomBuilder().build(StringReader("<verse>a${reference}b</verse>"))
             val provider = JDOMSAXEventProvider(document)
             val chunks = mutableListOf<String>()
             provider.provideSAXEvents(object : DefaultHandler() {

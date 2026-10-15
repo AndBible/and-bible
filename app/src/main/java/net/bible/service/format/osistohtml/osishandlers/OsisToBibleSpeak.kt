@@ -24,8 +24,8 @@ import net.bible.android.control.speak.AdvancedSpeakSettings
 import net.bible.service.device.speak.*
 import net.bible.service.format.osistohtml.OSISUtil2
 import org.crosswire.jsword.book.OSISUtil
-import org.xml.sax.Attributes
-import org.xml.sax.helpers.DefaultHandler
+import fi.sykero.kdom.sax.Attributes
+import fi.sykero.kdom.sax.DefaultHandler
 import java.util.*
 
 val PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph")

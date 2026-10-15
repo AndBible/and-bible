@@ -21,7 +21,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper.osisIdToVerseNum
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.OSISUtil
-import org.xml.sax.Attributes
+import fi.sykero.kdom.sax.Attributes
 import java.util.*
 
 /**

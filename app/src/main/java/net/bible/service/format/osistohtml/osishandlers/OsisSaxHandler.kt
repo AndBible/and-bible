@@ -17,8 +17,8 @@
 package net.bible.service.format.osistohtml.osishandlers
 
 import net.bible.service.format.osistohtml.TextWriter
-import org.xml.sax.Attributes
-import org.xml.sax.helpers.DefaultHandler
+import fi.sykero.kdom.sax.Attributes
+import fi.sykero.kdom.sax.DefaultHandler
 
 /**
  * Convert OSIS input into Canonical text (used when creating search index)

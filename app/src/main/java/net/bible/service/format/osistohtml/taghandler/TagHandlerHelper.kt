@@ -18,7 +18,7 @@ package net.bible.service.format.osistohtml.taghandler
 
 import net.bible.sharedcore.log.Log
 import org.apache.commons.lang3.StringUtils
-import org.xml.sax.Attributes
+import fi.sykero.kdom.sax.Attributes
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

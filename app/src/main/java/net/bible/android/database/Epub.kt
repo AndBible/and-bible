@@ -32,7 +32,7 @@ import androidx.room3.Transaction
 import androidx.room3.ColumnTypeConverters
 import net.bible.android.database.migrations.Migration
 import net.bible.android.database.migrations.makeMigration
-import org.jdom2.Element
+import fi.sykero.kdom.Element
 
 @Entity
 class EpubHtmlToFrag(

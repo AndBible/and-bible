@@ -36,7 +36,7 @@ class OsisToCanonicalTextSaxHandlerTest {
     @Test
     @Throws(Exception::class)
     fun testTopLevelReferenceIsWritten() {
-        osisToCanonicalTextSaxHandler!!.startElement("", "", "reference", org.xml.sax.helpers.AttributesImpl())
+        osisToCanonicalTextSaxHandler!!.startElement("", "", "reference", fi.sykero.kdom.sax.AttributesImpl())
         osisToCanonicalTextSaxHandler!!.characters("something".toCharArray(), 0, 9)
         osisToCanonicalTextSaxHandler!!.endElement("", "", "reference")
         Assert.assertThat(osisToCanonicalTextSaxHandler!!.writer.html, CoreMatchers.equalTo("something"))
@@ -45,8 +45,8 @@ class OsisToCanonicalTextSaxHandlerTest {
     @Test
     @Throws(Exception::class)
     fun testReferenceInNoteIsNotWritten() {
-        osisToCanonicalTextSaxHandler!!.startElement("", "", "note", org.xml.sax.helpers.AttributesImpl())
-        osisToCanonicalTextSaxHandler!!.startElement("", "", "reference", org.xml.sax.helpers.AttributesImpl())
+        osisToCanonicalTextSaxHandler!!.startElement("", "", "note", fi.sykero.kdom.sax.AttributesImpl())
+        osisToCanonicalTextSaxHandler!!.startElement("", "", "reference", fi.sykero.kdom.sax.AttributesImpl())
         osisToCanonicalTextSaxHandler!!.characters("something".toCharArray(), 0, 9)
         osisToCanonicalTextSaxHandler!!.endElement("", "", "reference")
         osisToCanonicalTextSaxHandler!!.endElement("", "", "note")
@@ -56,7 +56,7 @@ class OsisToCanonicalTextSaxHandlerTest {
     @Test
     @Throws(Exception::class)
     fun testExtraSpacesAreRemoved() {
-        osisToCanonicalTextSaxHandler!!.startElement("", "", "verse", org.xml.sax.helpers.AttributesImpl())
+        osisToCanonicalTextSaxHandler!!.startElement("", "", "verse", fi.sykero.kdom.sax.AttributesImpl())
         osisToCanonicalTextSaxHandler!!.characters("  ".toCharArray(), 0, 2)
         osisToCanonicalTextSaxHandler!!.characters(" ".toCharArray(), 0, 1)
         osisToCanonicalTextSaxHandler!!.characters("Be exalted,".toCharArray(), 0, 11)

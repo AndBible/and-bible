@@ -4,12 +4,14 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.k5.K5EpubFixture
 import net.bible.service.sword.SwordContentFacade
-import org.jdom2.Content
-import org.jdom2.Document
-import org.jdom2.Element
-import org.jdom2.Namespace
-import org.jdom2.Parent
+import fi.sykero.kdom.Content
+import fi.sykero.kdom.Document
+import fi.sykero.kdom.Element
+import fi.sykero.kdom.Namespace
+import fi.sykero.kdom.Parent
 import org.jdom2.filter.Filters
+import fi.sykero.kdom.query.*
+import fi.sykero.kdom.input.build
 import org.jdom2.xpath.XPathFactory
 import org.junit.Assert.*
 import org.junit.Test
@@ -30,7 +32,7 @@ class XmlQueriesJaxenParityTest {
     private val svg = Namespace.getNamespace("svg", "http://www.w3.org/2000/svg")
     private val xlink = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink")
 
-    private fun parse(xml: String): Document = useSaxBuilder { it.build(StringReader(xml)) }
+    private fun parse(xml: String): Document = useKdomBuilder { it.build(StringReader(xml)) }
 
     // Include content positions (not just names/values), so duplicate siblings and result order remain observable.
     private fun pathKey(node: Content): String {
@@ -39,15 +41,44 @@ class XmlQueriesJaxenParityTest {
         return if (parent is Element) pathKey(parent) + "/" + step else step
     }
 
+    // Independent jaxen sees a JDOM mirror of the entire context, including detached ancestry.
+    private fun reference(context: Parent): Any {
+        val output = fi.sykero.kdom.output.XMLOutputter()
+        val indices = mutableListOf<Int>()
+        var top = context
+        while (top is Element && top.parent != null) {
+            val parent = top.parent!!
+            indices.add(parent.indexOf(top))
+            top = parent
+        }
+        val xml = when (top) {
+            is Document -> output.outputString(top)
+            is Element -> output.outputString(top)
+            else -> error("Unexpected context")
+        }
+        val mirror = org.jdom2.input.SAXBuilder().apply {
+            setFeature("http://xml.org/sax/features/external-general-entities", false)
+        }.build(StringReader(xml))
+        var node: org.jdom2.Parent = if (top is Document) mirror else mirror.rootElement.detach()
+        for (index in indices.asReversed()) node = node.getContent(index) as org.jdom2.Parent
+        return node
+    }
+
+    private fun referencePathKey(node: org.jdom2.Content): String {
+        val parent = node.parent
+        val step = "${node.javaClass.simpleName}[${parent?.indexOf(node) ?: 0}]:${node.value}"
+        return if (parent is org.jdom2.Element) referencePathKey(parent) + "/" + step else step
+    }
+
     private fun parity(expression: String, context: Any, actual: List<Element>, vararg ns: Namespace) {
-        val expected = XPathFactory.instance().compile(expression, Filters.element(), null, *ns).evaluate(context)
-        assertEquals("$expression from ${context.javaClass.simpleName}", expected.map(::pathKey), actual.map(::pathKey))
-        expected.zip(actual).forEach { (a, b) -> assertSame(a, b) }
+        val expected = XPathFactory.instance().compile(expression, Filters.element(), null, *ns.map { org.jdom2.Namespace.getNamespace(it.prefix, it.uri) }.toTypedArray()).evaluate(reference(context as Parent))
+        assertEquals("$expression from ${context.javaClass.simpleName}", expected.map(::referencePathKey), actual.map(::pathKey))
+        assertEquals("No duplicate node identities", actual.size, actual.toSet().size)
     }
 
     private fun textParity(context: Element) {
-        val expected = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text()).evaluate(context)
-        assertEquals(expected.map(::pathKey), XmlQueries.textsOutsideNotes(context).map(::pathKey))
+        val expected = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text()).evaluate(reference(context))
+        assertEquals(expected.map(::referencePathKey), XmlQueries.textsOutsideNotes(context).map(::pathKey))
     }
 
     private fun documentParity(doc: Document) {
@@ -84,8 +115,8 @@ class XmlQueriesJaxenParityTest {
     private fun splitParity(doc: Document, ordinal: Int) {
         val expression = "//*[descendant::ns:BVA[@ordinal='$ordinal'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]"
         parity(expression, doc, XmlQueries.splitPoints(doc, ordinal, html), html)
-        val expected = XPathFactory.instance().compile(expression, Filters.element(), null, html).evaluateFirst(doc)
-        assertSame(expected, XmlQueries.splitPoint(doc, ordinal, html))
+        val expected = XPathFactory.instance().compile(expression, Filters.element(), null, org.jdom2.Namespace.getNamespace(html.prefix, html.uri)).evaluateFirst(reference(doc))
+        assertEquals(expected?.let(::referencePathKey), XmlQueries.splitPoint(doc, ordinal, html)?.let(::pathKey))
     }
 
     @Test fun allQueriesMatchOriginalExpressionsOnDeterministicFixture() {
@@ -93,7 +124,7 @@ class XmlQueriesJaxenParityTest {
         try {
             ZipFile(K5EpubFixture.create(tmp)).use { zip ->
                 for (name in listOf("META-INF/container.xml", "content.opf", "toc.ncx", "nav.xhtml", "ch1.xhtml", "ch2.xhtml", "image.svg")) {
-                    val doc = useSaxBuilder { builder -> zip.getInputStream(zip.getEntry(name)).use { builder.build(it) } }
+                    val doc = useKdomBuilder { builder -> zip.getInputStream(zip.getEntry(name)).use { builder.build(it) } }
                     documentParity(doc)
                     // Relative queries work on detached trees; absolute queries must NOT search a detached root.
                     val body = doc.rootElement.getChild("body", html) ?: doc.rootElement
@@ -103,14 +134,14 @@ class XmlQueriesJaxenParityTest {
                     }
                     XmlQueries.navPointContents(doc, ncx).forEach { content ->
                         parity("../ns:navLabel/ns:text", content, XmlQueries.navLabelTexts(content, ncx), ncx)
-                        val detachedParent = content.parentElement.clone().detach()
+                        val detachedParent = content.parentElement!!.clone().detach()
                         val detachedContent = detachedParent.getChild("content", ncx)
-                        parity("../ns:navLabel/ns:text", detachedContent, XmlQueries.navLabelTexts(detachedContent, ncx), ncx)
+                        parity("../ns:navLabel/ns:text", detachedContent!!, XmlQueries.navLabelTexts(detachedContent!!, ncx), ncx)
                     }
                     if (name.startsWith("ch")) {
                         SwordContentFacade.addAnchors(body, "en", true)
                         for (context in listOf(doc, body, body.children.first(), body.clone().detach())) contextParity(context)
-                        val ordinals = XmlQueries.bvas(doc, html).map { it.getAttributeValue("ordinal").toInt() }
+                        val ordinals = XmlQueries.bvas(doc, html).map { it.getAttributeValue("ordinal")!!.toInt() }
                         assertTrue("Anchored fixture must exercise nonempty BVA queries", ordinals.isNotEmpty())
                         for (ordinal in listOf(ordinals.first(), ordinals[ordinals.size / 2], ordinals.last(), -1)) splitParity(doc, ordinal)
                     }
@@ -136,15 +167,15 @@ class XmlQueriesJaxenParityTest {
             assertTrue("Long fixture must reach splitIntoN, not just unsplit chapters", fragments.size > 2)
             var checkedLongFragments = 0
             for (file in fragments) {
-                val doc = useSaxBuilder { builder ->
+                val doc = useKdomBuilder { builder ->
                     java.util.zip.GZIPInputStream(file.inputStream()).use { builder.build(it) }
                 }
-                val ordinals = XmlQueries.bvas(doc, html).map { it.getAttributeValue("ordinal").toInt() }
+                val ordinals = XmlQueries.bvas(doc, html).map { it.getAttributeValue("ordinal")!!.toInt() }
                 assertTrue(ordinals.isNotEmpty())
                 for (ordinal in listOf(ordinals.first(), ordinals[ordinals.size / 2], ordinals.last(), -1)) {
                     splitParity(doc, ordinal)
                 }
-                if (XmlQueries.elementsWithId(doc).any { it.getAttributeValue("id").startsWith("long-") }) {
+                if (XmlQueries.elementsWithId(doc).any { it.getAttributeValue("id")!!.startsWith("long-") }) {
                     checkedLongFragments++
                 }
                 contextParity(doc)
@@ -223,7 +254,7 @@ class XmlQueriesJaxenParityTest {
         assertEquals(listOf("1", "2"), XmlQueries.bvas(p, html).map { it.getAttributeValue("ordinal") })
         assertEquals(listOf("1"), XmlQueries.bvasBelow(p, html).map { it.getAttributeValue("ordinal") })
         assertEquals("FirstNamespaced included", XmlQueries.textsOutsideNotes(p).joinToString("") { it.text })
-        assertTrue(XmlQueries.textsOutsideNotes(p.getChild("note", Namespace.NO_NAMESPACE)).isEmpty())
+        assertTrue(XmlQueries.textsOutsideNotes(p.getChild("note", Namespace.NO_NAMESPACE)!!).isEmpty())
         textParity(p)
         splitParity(doc, 1)
         contextParity(body.clone().detach())

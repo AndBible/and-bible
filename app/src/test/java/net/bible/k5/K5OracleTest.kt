@@ -34,7 +34,8 @@ import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRangeFactory
-import org.jdom2.input.SAXBuilder
+import fi.sykero.kdom.input.build
+import fi.sykero.kdom.input.KdomBuilder
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Assume.assumeTrue
@@ -62,8 +63,8 @@ class K5OracleTest {
             val first = K5EpubFixture.create(File(tmp, "a")).readBytes()
             assertArrayEquals(first, K5EpubFixture.create(File(tmp, "b")).readBytes())
             ZipFile(File(tmp, "a/k5.epub")).use { zip ->
-                val doc = SAXBuilder().build(zip.getInputStream(zip.getEntry("ch2.xhtml")))
-                assertEquals(1200, doc.rootElement.getChild("body", doc.rootElement.namespace).getChildren("p", doc.rootElement.namespace).size)
+                val doc = KdomBuilder().build(zip.getInputStream(zip.getEntry("ch2.xhtml")))
+                assertEquals(1200, doc.rootElement.getChild("body", doc.rootElement.namespace)!!.getChildren("p", doc.rootElement.namespace).size)
             }
         } finally { tmp.deleteRecursively() }
     }
@@ -370,8 +371,8 @@ class K5OracleTest {
                     val range = backend.getOrdinalRange(key)
                     val fragment = File(dir, "optimized/${key.getOsisRef().toLong().toString().padStart(3, '0')}.xhtml.gz")
                     append(row("fragment", fragment.name, digest(fragment.readBytes()), range.first.toString(), range.last.toString()))
-                    val xml = SAXBuilder().build(java.io.StringReader("<root>$text</root>"))
-                    fun ids(element: org.jdom2.Element) { element.getAttributeValue("id")?.let { append(row("id", key.getOsisRef(), it)) }; element.children.forEach { ids(it) } }
+                    val xml = KdomBuilder().build(java.io.StringReader("<root>$text</root>"))
+                    fun ids(element: fi.sykero.kdom.Element) { element.getAttributeValue("id")?.let { append(row("id", key.getOsisRef(), it)) }; element.children.forEach { ids(it) } }
                     ids(xml.rootElement)
                     append(row("rendered", key.getOsisRef(), OsisFragment(SwordContentFacade.readOsisFragment(book, key, strings), key, book).xmlStr))
                 }

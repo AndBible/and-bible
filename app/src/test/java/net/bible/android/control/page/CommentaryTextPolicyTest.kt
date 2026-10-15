@@ -15,7 +15,8 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
-import org.jdom2.input.SAXBuilder
+import fi.sykero.kdom.input.build
+import fi.sykero.kdom.input.KdomBuilder
 import org.junit.*
 import org.junit.Assert.*
 import org.junit.runner.RunWith
@@ -47,10 +48,10 @@ class CommentaryTextPolicyTest {
             val book = mock<Book>()
             whenever(book.bookMetaData).thenReturn(Books.installed().getBook("KJV")!!.bookMetaData)
             whenever(book.getOsisIterator(anyOrNull(), any(), any())).thenAnswer {
-                val element = SAXBuilder().build(StringReader(
+                val element = KdomBuilder().build(StringReader(
                     "<verse osisID=\"Gen.1.1\">a&amp;quot;quoted&amp;quot;b</verse>"
                 )).rootElement.detach()
-                mutableListOf<org.jdom2.Content>(element).iterator()
+                mutableListOf<fi.sykero.kdom.Content>(element).iterator()
             }
             page.setCurrentDocumentAndKey(koin.get<FakeBookFactory>().memorizeDocument, verse)
             page.sourceBookAndKey = BookAndKey(VerseRange(v11n, verse), book)

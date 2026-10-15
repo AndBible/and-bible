@@ -35,7 +35,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
-import org.jdom2.input.JDOMParseException
+import fi.sykero.kdom.input.JDOMParseException
 import org.koin.java.KoinJavaComponent
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment

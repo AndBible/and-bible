@@ -43,6 +43,17 @@ class LicenseHtmlRunsTest {
     private val leftoverLi = Regex("""<li[\s>]""")
     private val leftoverHeading = Regex("""<h[1-6][\s>]""")
 
+    @Test fun kdomNoticeRetainsItsLinkLicenceAndAcknowledgement() {
+        val html = RuntimeEnvironment.getApplication().resources
+            .openRawResource(R.raw.license).readBytes().decodeToString()
+        val runs = parseHtmlRuns(html)
+        val text = runs.joinToString("") { it.text }
+        assertTrue(text.contains("JDOM licence (Apache 1.1 style)"))
+        assertTrue(text.contains("This product includes software developed by the JDOM Project (http://www.jdom.org/)."))
+        assertTrue(runs.any { it.href == "https://github.com/Sykero-Software/kdom" && it.text.contains("https://github.com/Sykero-Software/kdom") })
+        assertTrue(text.indexOf("GNU GENERAL PUBLIC LICENSE") < text.indexOf("kdom"))
+    }
+
     @Test fun theWholeLicenseParsesWithNoLeftoverMarkup() {
         val html = RuntimeEnvironment.getApplication().resources
             .openRawResource(R.raw.license).readBytes().decodeToString()
