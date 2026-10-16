@@ -174,7 +174,7 @@ class SharedDataReadinessTest {
             "DbDate.kt", "DocumentSearch.kt", "DocumentSyncEntities.kt", "Epub.kt", "IdType.kt",
             "OldMonolithicAppDatabase.kt", "PlatformRandom.kt", "Settings.kt", "SwordDocumentInfo.kt", "SyncableRoomDatabase.kt",
             "WorkspaceDao.kt", "WorkspaceEntities.kt", "bookmarks/BookmarkEntities.kt",
-            "bookmarks/BookmarksDao.kt", "bookmarks/SpeakSettings.kt",
+            "bookmarks/BookmarkOsisFragment.kt", "bookmarks/BookmarksDao.kt", "bookmarks/SpeakSettings.kt",
             "migrations/AiSettingsMigrations.kt", "migrations/BookmarkMigrations.kt",
             "migrations/DEPRECATED_BookmarkDatabaseDefinition.kt", "migrations/DEPRECATED_MyNoteDatabaseDefinition.kt",
             "migrations/DatabaseSplitMigrations.kt", "migrations/MyDocumentMigrations.kt",
@@ -203,12 +203,7 @@ class SharedDataReadinessTest {
         val ALLOWED_VIOLATIONS: Map<String, Set<String>> = mapOf(
             "$DATABASE_DIRECTORY/Converters.kt" to setOf(
                 "net.bible.service.llm.ApiFormat", "net.bible.service.llm.agent.PermissionMode"),
-            "$DATABASE_DIRECTORY/CustomRepository.kt" to setOf("java.util.*"),
-            "$DATABASE_DIRECTORY/WorkspaceEntities.kt" to setOf("java.util.*"),
-            "$DATABASE_DIRECTORY/bookmarks/BookmarkEntities.kt" to setOf("java.util.*", "net.bible.android.misc.OsisFragment"),
-            "$DATABASE_DIRECTORY/bookmarks/BookmarksDao.kt" to setOf("java.util.*"),
             "$DATABASE_DIRECTORY/bookmarks/SpeakSettings.kt" to setOf("java.lang.IllegalArgumentException"),
-            "$DATABASE_DIRECTORY/migrations/DatabaseSplitMigrations.kt" to setOf("android.app.Application"),
             "app/src/main/java/net/bible/service/llm/AgentPromptEntities.kt" to setOf("net.bible.service.llm.agent.PermissionMode")
         )
     }

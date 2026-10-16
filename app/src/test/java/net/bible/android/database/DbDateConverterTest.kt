@@ -22,7 +22,9 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
+import net.bible.service.db.queryLong
 import net.bible.service.db.sqliteDriverFactory
+import net.bible.service.db.useReaderConnectionMarked
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -68,5 +70,14 @@ class DbDateConverterTest {
         val millis = -1_000_000_000_000L // 1938, before the epoch
         dao.updatePlan(ReadingPlan("negative-date", DbDate(millis), planCurrentDay = 1))
         assertEquals(millis, dao.getPlan("negative-date")!!.planStartDate.getTime())
+    }
+
+    @Test fun storedColumnHoldsTheRawEpochMillis() = runBlocking {
+        val millis = -1_000_000_000_000L
+        db.readingPlanDao().updatePlan(ReadingPlan("raw-column", DbDate(millis), planCurrentDay = 1))
+        val stored = db.useReaderConnectionMarked {
+            it.queryLong("SELECT planStartDate FROM ReadingPlan WHERE planCode = 'raw-column'")
+        }
+        assertEquals(millis, stored)
     }
 }
