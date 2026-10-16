@@ -28,6 +28,8 @@ PACKAGES=(
   "platforms;android-36"
   "build-tools;36.0.0"
   "system-images;android-36;google_apis;x86_64"
+)
+EXTRA_IMAGES=(
   "system-images;android-28;google_apis;x86_64"
   "system-images;android-29;google_apis;x86_64"
   "system-images;android-30;google_apis;x86_64"
@@ -62,15 +64,32 @@ if [ -n "$proxy" ]; then
   sdk_args+=(--proxy=http --proxy_host="${hp%:*}" --proxy_port="${hp##*:}")
 fi
 
-echo "94-android-sdk: ${PACKAGES[*]}"
 # `yes` dies of SIGPIPE when sdkmanager stops reading; that must not fail the pipeline.
 { yes || true; } | "$sdkmanager" "${sdk_args[@]}" --licenses >/dev/null
-if ! "$sdkmanager" "${sdk_args[@]}" --install "${PACKAGES[@]}" >"$tmp/sdkmanager.log" 2>&1; then
-  tail -20 "$tmp/sdkmanager.log" >&2
-  exit 1
-fi
-for d in platform-tools platforms/android-36 build-tools/36.0.0 system-images/android-{36,28,29,30,34}/google_apis/x86_64; do
-  [ -d "$SDK/$d" ] || { tail -20 "$tmp/sdkmanager.log" >&2; echo "94-android-sdk: $d missing after install" >&2; exit 1; }
+# One package per sdkmanager call: a system image is a ~1.5 GB silent download, so the build log
+# shows which one is running, how long each took and, on failure, the disk state.
+install_pkg() {
+  local start=$SECONDS
+  echo "94-android-sdk: installing $1 ($(df -h --output=avail "$SDK" | tail -1 | tr -d ' ') free)"
+  # cmdline-tools 23's sdkmanager (a wrapper over `android sdk`) exits 0 even for an unknown
+  # package, so success is the package's directory, not the exit code.
+  if ! "$sdkmanager" "${sdk_args[@]}" --install "$1" >"$tmp/sdkmanager.log" 2>&1 \
+      || [ ! -d "$SDK/${1//;//}" ]; then
+    tail -20 "$tmp/sdkmanager.log"
+    df -h "$SDK" /tmp
+    return 1
+  fi
+  echo "94-android-sdk: $1 done in $((SECONDS - start)) s"
+}
+for p in "${PACKAGES[@]}"; do install_pkg "$p" || exit 1; done
+for d in platform-tools platforms/android-36 build-tools/36.0.0 system-images/android-36/google_apis/x86_64; do
+  [ -d "$SDK/$d" ] || { echo "94-android-sdk: $d missing after install"; exit 1; }
+done
+# Extra images for the AVD profiles of scripts/emulator-avds.sh. Not fatal: an image that fails
+# here is installed later in the container (`sdkmanager 'system-images;android-NN;google_apis;x86_64'`;
+# dl.google.com is in the egress allowlist), so it must not cost the whole golden build.
+for p in "${EXTRA_IMAGES[@]}"; do
+  install_pkg "$p" || echo "94-android-sdk: WARNING: $p not installed; install it in the container"
 done
 
 # Pinned emulator. The system image's dependency pulls the stable emulator; keep its
