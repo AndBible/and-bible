@@ -66,6 +66,13 @@ class SearchPreviewCostProbeTest {
         }
     }
 
+    private fun outline(e: Element, depth: Int = 0, out: StringBuilder = StringBuilder()): StringBuilder {
+        if (depth > 4) return out
+        out.append("  ".repeat(depth)).append(e.name).append(" text=").append(e.content.filterIsInstance<Text>().sumOf { it.text.length }).append('\n')
+        e.children.take(6).forEach { outline(it, depth + 1, out) }
+        return out
+    }
+
     @Test fun mhcPreviewCost() {
         val corpusEnv = System.getenv("ANDBIBLE_K6_CORPUS")
         assumeTrue("ANDBIBLE_K6_CORPUS not set; opt-in probe", corpusEnv != null)
@@ -94,8 +101,11 @@ class SearchPreviewCostProbeTest {
 
             var readNs = 0L; var highlightNs = 0L; var htmlNs = 0L
             var maxReadNs = 0L; var maxHighlightNs = 0L; var maxHtmlNs = 0L
+            var prodChars = 0L; var emptyProd = 0; var fullNs = 0L; var maxFullNs = 0L
             var totalChars = 0L; var maxChars = 0; var errors = 0
             val distinct = HashSet<String>()
+            var rows0 = 0
+            val diag = StringBuilder()
             for (m in matches) {
                 try {
                     var t = System.nanoTime()
@@ -108,13 +118,30 @@ class SearchPreviewCostProbeTest {
                     val hl = System.nanoTime() - t
                     highlightNs += hl; maxHighlightNs = maxOf(maxHighlightNs, hl)
 
-                    val flat = StringBuilder().also { sb -> osis.getChildren("verse").forEach { flatten(it, sb) } }.toString()
+                    val prodText = styled.plainText()
+                    prodChars += prodText.length
+                    if (prodText.isEmpty()) emptyProd++
+                    // What-if: the MHC fragment has no <verse> children, so the production walk sees nothing. Wrap a clone
+                    // of the whole fragment in a synthetic <verse> to measure a walk that does see the text.
+                    val wrapped = if (osis.getChildren("verse").isEmpty())
+                        Element("div").addContent(Element("verse").addContent(osis.clone())) else osis
+                    t = System.nanoTime()
+                    val styledFull = SearchHighlighter.highlight(wrapped, terms, emptyList())
+                    val full = System.nanoTime() - t
+                    fullNs += full; maxFullNs = maxOf(maxFullNs, full)
+                    val flat = StringBuilder().also { sb -> wrapped.getChildren("verse").forEach { flatten(it, sb) } }.toString()
                     t = System.nanoTime()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) Html.fromHtml(flat, Html.FROM_HTML_MODE_LEGACY) else Html.fromHtml(flat)
                     val html = System.nanoTime() - t
                     htmlNs += html; maxHtmlNs = maxOf(maxHtmlNs, html)
 
-                    val text = styled.plainText()
+                    val text = styledFull.plainText()
+                    if (rows0 < 3) {
+                        rows0++
+                        if (rows0 == 1) diag.append(outline(osis))
+                        diag.appendLine("row $rows0: key=${m.key.getOsisID()} book=${m.book.initials} osis=<${osis.name}> children=${osis.children.map { it.name }.take(8)} " +
+                            "flatLen=${flat.length} flatHead=${flat.take(80).replace('\n', ' ')} previewLen(full)=${text.length} prodLen=${prodText.length} previewHead=${text.take(80).replace('\n', ' ')}")
+                    }
                     distinct += text
                     totalChars += text.length
                     maxChars = maxOf(maxChars, text.length)
@@ -135,8 +162,10 @@ class SearchPreviewCostProbeTest {
                 appendLine("SearchHighlighter.highlight total ms: ${ms(highlightNs)}  max ms: ${ms(maxHighlightNs)}")
                 appendLine("  Html.fromHtml (htmlToSpan step, re-run) total ms: ${ms(htmlNs)}  max ms: ${ms(maxHtmlNs)}")
                 appendLine("read+highlight total ms: ${ms(readNs + highlightNs)}; highlight share: ${if (readNs + highlightNs > 0) "%.1f%%".format(Locale.ROOT, 100.0 * highlightNs / (readNs + highlightNs)) else "n/a"}; read share: ${if (readNs + highlightNs > 0) "%.1f%%".format(Locale.ROOT, 100.0 * readNs / (readNs + highlightNs)) else "n/a"}")
-                appendLine("distinct preview texts: ${distinct.size} of $rows rows (ratio ${if (rows > 0) "%.3f".format(Locale.ROOT, distinct.size.toDouble() / rows) else "n/a"})")
-                appendLine("preview chars: total $totalChars  mean ${if (rows > 0) totalChars / rows else 0}  max $maxChars")
+                appendLine("what-if (whole fragment wrapped in <verse>): highlight total ms: ${ms(fullNs)}  max ms: ${ms(maxFullNs)}; production-path previews empty: $emptyProd of $rows (production chars total $prodChars)")
+                appendLine("distinct preview texts (what-if full text): ${distinct.size} of $rows rows (ratio ${if (rows > 0) "%.3f".format(Locale.ROOT, distinct.size.toDouble() / rows) else "n/a"})")
+                append(diag)
+                appendLine("preview chars (what-if full text): total $totalChars  mean ${if (rows > 0) totalChars / rows else 0}  max $maxChars")
             }
             println(summary)
             File(System.getProperty("user.dir"), "../.local/k6-followups").canonicalFile.apply {
