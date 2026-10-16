@@ -42,6 +42,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.webkit.ConsoleMessage
 import android.widget.Toast
+import android.webkit.ValueCallback
 import android.webkit.JsResult
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
@@ -55,7 +56,7 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.PathHandler
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -162,7 +163,9 @@ import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.util.*
 import kotlin.math.abs
-import kotlin.math.min
+import net.bible.sharedcore.bibleview.BibleViewJsChannel
+import net.bible.sharedcore.bibleview.JsCall
+import net.bible.sharedcore.bibleview.JsHost
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext
@@ -348,7 +351,17 @@ class BibleView(
 
     @Volatile private var latestDocumentStr: String? = null
     @Volatile private var needsDocument: Boolean = false
-    @Volatile private var htmlLoadingOngoing: Boolean = true
+    private inner class WebViewJsHost : JsHost {
+        override val isMainThread: Boolean get() = Looper.myLooper() == Looper.getMainLooper()
+        override val isAttached: Boolean get() = isAttachedToWindow
+        override val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+        override fun post(block: () -> Unit) { this@BibleView.post { block() } }
+        override fun evaluate(js: String, callback: ((String) -> Unit)?) {
+            evaluateJavascript(js, callback?.let { cb -> ValueCallback<String> { cb(it) } })
+        }
+    }
+
+    internal val jsChannel = BibleViewJsChannel(WebViewJsHost()) { Log.e(TAG, it) }
 
     var window: Window
         get() = windowRef.get()!!
@@ -1752,7 +1765,7 @@ class BibleView(
                 latestDocumentStr = docStr
                 needsDocument = true
                 enableZoomForMap(pageControl.currentPageManager.isMapShown)
-                if (!htmlLoadingOngoing) replaceDocument()
+                if (!jsChannel.loading) replaceDocument()
             }
         }
     }
@@ -2130,8 +2143,8 @@ class BibleView(
     }
 
     private fun doCheckWindows() {
-        if(!htmlLoadingOngoing && checkWindows) {
-            executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
+        if(!jsChannel.loading && checkWindows) {
+            jsChannel.executeNow(JsCall("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});"))
             if (window.pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
@@ -2158,7 +2171,7 @@ class BibleView(
         if(contentVisible) {
             updateTextDisplaySettings(true)
         }
-        flushTasks()
+        jsChannel.flush()
     }
 
     override fun scrollOrJumpToVerse(key: Key, forceNow: Boolean) {
@@ -2229,60 +2242,9 @@ class BibleView(
     override fun highlightBibleOrdinalRange(range: IntRange) {
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
     }
-    fun executeJavascriptOnUiThread(javascript: String): Boolean {
-        if(htmlLoadingOngoing) {
-            Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
-            return false
-        }
-        runOnUiThread { executeJavascript(javascript) }
-        return true
-    }
+    fun executeJavascriptOnUiThread(javascript: String): Boolean = jsChannel.execute(JsCall(javascript))
 
-    private val taskQueue = LinkedList<() -> Unit>()
-
-    private val uiThreadLock = object {}
-    private fun runOnUiThread(runnable: () -> Unit) = synchronized(uiThreadLock) {
-        // If there are any tasks, we must put them to queue, to make sure they are run in the correct order
-        val wasEmpty = taskQueue.isEmpty()
-        val isAttached = isAttachedToWindow
-
-        if(Looper.myLooper() == Looper.getMainLooper() && wasEmpty && isAttached) {
-            Log.i(TAG, "TaskQueue Executing runnable immediately")
-            runnable()
-        } else {
-            Log.i(TAG, "TaskQueue Adding runnable to queue")
-            taskQueue.addLast(runnable)
-            if (wasEmpty && isAttached) {
-                Log.i(TAG, "TaskQueue Scheduling flushing tasks")
-                post { flushTasks() }
-            }
-        }
-    }
-
-    private fun flushTasks()  = synchronized(uiThreadLock) {
-        Log.i(TAG, "TaskQueue flushTasks ${taskQueue.size}")
-        while (taskQueue.size > 0) {
-            taskQueue.pop().invoke()
-        }
-        Log.i(TAG, "TaskQueue flushTasks done.")
-    }
-
-    private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
-        Log.i(TAG, "Executing JS: ${javascript.slice(0 until  min(javascript.length, 500))}")
-        if(htmlLoadingOngoing) {
-            Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
-            return;
-        }
-        evaluateJavascript("$javascript;", callBack)
-    }
-
-    private suspend fun evaluateJavascriptAsync(javascript: String): String {
-        val result = CompletableDeferred<String>()
-        withContext(Dispatchers.Main) {
-            evaluateJavascript(javascript) { result.complete(it) }
-        }
-        return result.await()
-    }
+    private suspend fun evaluateJavascriptAsync(javascript: String): String = jsChannel.evaluate(javascript)
 
     private val isBible get() = firstDocument is BibleDocument
     private val isCommentary get() = (firstDocument as? OsisDocument)?.book?.bookCategory == BookCategory.COMMENTARY
@@ -2412,8 +2374,8 @@ class BibleView(
 
     override fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
-    fun setClientReady() = runOnUiThread {
-        htmlLoadingOngoing = false
+    fun setClientReady() = jsChannel.runOnMain {
+        jsChannel.markClientReady()
         replaceDocument()
         updateActive()
     }
