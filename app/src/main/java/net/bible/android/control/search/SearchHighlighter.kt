@@ -24,6 +24,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.search.prepareSearchWord
+import net.bible.sharedcore.search.strongsHighlightPatterns
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Text
 import java.util.regex.Pattern
@@ -37,7 +38,8 @@ import java.util.regex.Pattern
  *  - **word-term** ([terms] non-empty, [lemmaTerms] empty): the tree is flattened to plain text and every
  *    match of a search term is marked `highlight = true`.
  *  - **Strong's lemma** ([lemmaTerms] non-empty): the tree walk bolds any element whose `lemma` attribute
- *    matches one of the Strong's patterns, marked `bold = true`.
+ *    matches one of the Strong's patterns, marked `bold = true`. Each lemma term may be a whole decorated
+ *    query (`+strong:h0*7225 -strong:h0*430`); it is turned into patterns by `strongsHighlightPatterns`.
  *
  * Callers derive [terms]/[lemmaTerms] with the commonMain helpers (`prepareSearchTerms` / `splitSearchTerms`);
  * a Strong's search (search string contains `strong:`) supplies [lemmaTerms] and no [terms].
@@ -48,7 +50,8 @@ object SearchHighlighter : SearchTextHighlighter {
 
     override fun highlight(osis: Element, terms: List<String>, lemmaTerms: List<String>): StyledText {
         val isStrongsSearch = lemmaTerms.isNotEmpty()
-        val strongsPatterns = lemmaTerms.map { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
+        val strongsPatterns = lemmaTerms.flatMap { strongsHighlightPatterns(it) }
+            .map { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
         val verseString = StringBuilder()
 
         val verses = osis.getChildren("verse")

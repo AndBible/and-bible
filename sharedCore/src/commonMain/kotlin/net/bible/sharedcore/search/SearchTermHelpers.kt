@@ -34,6 +34,35 @@ val splitSearchTermsRegex = Regex("""\s+(?=(?:"(?:\\"|[^"])+"|[^"])+$)""")
 // Eg: 'moses "burning bush"' -> "moses" and "burning bush"
 fun splitSearchTerms(searchTerms: String): List<String> = splitSearchTermsRegex.split(searchTerms)
 
+/**
+ * Regex sources (compile case-insensitively) that match the `lemma` attribute of a word carrying one of the
+ * positive Strong's terms of [lemmaQuery], one pattern per `strong:` token.
+ *
+ * [lemmaQuery] may be the whole decorated query (`+strong:h0*7225 "strong:g0*2316" -strong:h0*430`): tokens
+ * are split outside quotes, quotes and a leading `+` are dropped, `-` (excluded) and non-Strong's tokens are
+ * ignored. The number is matched with optional leading zeros (`0*`) and a trailing `\b`, so `strong:h0*72`
+ * does not match H7225; only a `*` at the very END of the token is the user's wildcard (`\w*`), a `?` is `\w`.
+ */
+fun strongsHighlightPatterns(lemmaQuery: String): List<String> =
+    splitSearchTerms(lemmaQuery.trim()).mapNotNull { raw ->
+        val token = raw.replace("\"", "").removePrefix("+")
+        if (!token.startsWith("strong:", ignoreCase = true)) return@mapNotNull null
+        val body = token.substring("strong:".length)
+        if (body.isEmpty()) return@mapNotNull null
+        val prefix = body[0]
+        val prefixSource = if (prefix.lowercaseChar() == 'h' || prefix.lowercaseChar() == 'g') "[hg]" else Regex.escape(prefix.toString())
+        val number = body.substring(1).replace(Regex("^(?:0\\*|0)+"), "")
+        val source = StringBuilder("strong:").append(prefixSource).append("0*")
+        number.forEachIndexed { i, c ->
+            when {
+                c == '*' && i == number.lastIndex -> source.append("\\w*")
+                c == '?' -> source.append("\\w")
+                else -> source.append(Regex.escape(c.toString()))
+            }
+        }
+        source.append("\\b").toString()
+    }
+
 fun prepareSearchWord(searchWord_: String): String {
     // Need to clean up the search word itself before trying to find the searchWord in the text
     // Eg: '+"burning bush"' -> 'burning bush'

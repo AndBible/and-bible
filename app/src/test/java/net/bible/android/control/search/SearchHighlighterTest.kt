@@ -70,4 +70,18 @@ class SearchHighlighterTest {
         assertTrue("lemma-matched word must be bold", godRun.bold)
         assertFalse("lemma match must not set highlight", godRun.highlight)
     }
+
+    @Test
+    fun allWordsStrongsSearchBoldsWithoutBlankPreview() {
+        val word = Element("w").apply {
+            setAttribute("lemma", "strong:H07225")
+            addContent(Text("God"))
+        }
+        val osis = osisWith(Text("In the beginning "), word, Text(" created"))
+
+        val result = SearchHighlighter.highlight(osis, terms = emptyList(), lemmaTerms = listOf("+strong:h0*7225"))
+
+        assertTrue("preview must not be blank", result.plainText().isNotEmpty())
+        assertTrue("lemma-matched word must be bold", result.runs.first { it.text.contains("God") }.bold)
+    }
 }
