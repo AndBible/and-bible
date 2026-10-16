@@ -23,7 +23,6 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_CREATE
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_READWRITE
-import java.io.File
 
 /**
  * Driver for every non-Room open and every Room builder ([buildAppDatabase]). The unit tests use the bundled
@@ -44,10 +43,3 @@ fun openSqlite(path: String, readOnly: Boolean = false): SQLiteConnection {
         driver.open(path)
     }
 }
-
-/**
- * `PRAGMA user_version` of the SQLite file [file]. Opened read-write like the `openDatabase(OPEN_READWRITE)`
- * that this replaced, so a hot journal left by a crash is rolled back first; unlike it, a missing file is created
- * (every caller checks the file exists first).
- */
-fun readUserVersion(file: File): Int = openSqlite(file.path).use { it.queryLong("PRAGMA user_version")!!.toInt() }

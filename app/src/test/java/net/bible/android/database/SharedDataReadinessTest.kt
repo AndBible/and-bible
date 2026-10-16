@@ -188,7 +188,9 @@ class SharedDataReadinessTest {
             "app/src/main/java/net/bible/service/db/SqliteConnectionExt.kt",
             "app/src/main/java/net/bible/service/db/OpenSqlite.kt",
             "app/src/main/java/net/bible/service/db/RoomSettingsBackend.kt",
-            "app/src/main/java/net/bible/service/llm/AgentPromptEntities.kt"
+            "app/src/main/java/net/bible/service/llm/AgentPromptEntities.kt",
+            "app/src/main/java/net/bible/service/cloudsync/documents/DocumentSyncMeta.kt",
+            "app/src/main/java/net/bible/android/control/speak/SpeakSettingsStore.kt"
         )
 
         // Platform seams whose JVM backing is validated exactly and separately; replaced by expect/actual in Task 6.
@@ -199,8 +201,6 @@ class SharedDataReadinessTest {
 
         // Exact import targets, including existing wildcards; removals fail until the entry is removed.
         val ALLOWED_VIOLATIONS: Map<String, Set<String>> = mapOf(
-            "$DATABASE_DIRECTORY/CachedCloudDocument.kt" to setOf(
-                "net.bible.service.cloudsync.documents.DocumentSyncMeta", "net.bible.service.cloudsync.documents.DocumentType"),
             "$DATABASE_DIRECTORY/Converters.kt" to setOf(
                 "net.bible.service.llm.ApiFormat", "net.bible.service.llm.agent.PermissionMode"),
             "$DATABASE_DIRECTORY/CustomRepository.kt" to setOf("java.util.*"),
@@ -209,7 +209,6 @@ class SharedDataReadinessTest {
             "$DATABASE_DIRECTORY/bookmarks/BookmarksDao.kt" to setOf("java.util.*"),
             "$DATABASE_DIRECTORY/bookmarks/SpeakSettings.kt" to setOf("java.lang.IllegalArgumentException"),
             "$DATABASE_DIRECTORY/migrations/DatabaseSplitMigrations.kt" to setOf("android.app.Application"),
-            "app/src/main/java/net/bible/service/db/OpenSqlite.kt" to setOf("java.io.File"),
             "app/src/main/java/net/bible/service/llm/AgentPromptEntities.kt" to setOf("net.bible.service.llm.agent.PermissionMode")
         )
     }
