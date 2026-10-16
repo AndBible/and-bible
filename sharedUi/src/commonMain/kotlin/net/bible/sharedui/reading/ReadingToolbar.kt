@@ -109,6 +109,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.SearchFieldImeRequest
@@ -207,9 +208,6 @@ private val ToolbarHeight = 56.dp
 
 /** Touch-target width for a single icon button (home / quick button / overflow). */
 private val ToolbarButtonWidth = 48.dp
-
-/** Classic's own help link (`Search.kt:283`), kept verbatim so the help says the same thing. */
-private const val LUCENE_QUERY_SYNTAX_URL = "https://lucene.apache.org/core/2_9_4/queryparsersyntax.html"
 
 /** The EPUB search engine's own syntax reference (`EpubSearchComposeActivity.help`'s link). */
 private const val FTS5_QUERY_SYNTAX_URL = "https://www.sqlite.org/fts5.html#full_text_query_syntax"
@@ -531,14 +529,14 @@ fun ReadingToolbar(
             // search is actually helped — the toolbar IS the EPUB search form. Showing the Lucene
             // body here documented an engine this session is not using.
             val forEpub = searchBar.forEpub
-            val linkLabel = if (forEpub) strings.helpFts5 else strings.helpApacheLucene
+            val linkLabel = if (forEpub) strings.helpFts5 else strings.helpSearchSyntax
             AbInfoDialog(
                 title = strings.help,
                 body = "${if (forEpub) strings.helpSearchEpub else strings.helpSearchBible}" +
                     "\n\n${strings.helpSearchDetails(linkLabel)}",
                 onDismiss = { searchHelpOpen = false },
                 readMoreLabel = linkLabel,
-                readMoreUrl = if (forEpub) FTS5_QUERY_SYNTAX_URL else LUCENE_QUERY_SYNTAX_URL,
+                readMoreUrl = if (forEpub) FTS5_QUERY_SYNTAX_URL else DocsLinks.page("search", "advanced-search"),
             )
         }
         return

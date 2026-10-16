@@ -122,6 +122,7 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
 import net.bible.service.sword.epub.isEpub
@@ -1142,6 +1143,8 @@ object CommonUtils : CommonUtilsBase() {
             // Reading startup awaits this queue in initializeAppCoroutine before restoring windows.
             myDocumentRegistration = MyDocumentBookManager.launcher.launch("mydocument-sync") {
                 MyDocumentBookManager.registerAllDocuments()
+                // every book is registered now: safe to sweep legacy search indexes of uninstalled books
+                SwordEnvironmentInitialisation.deleteOrphanLegacyIndexesInBackground()
             }
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
@@ -1243,6 +1246,7 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledCsvPromptBooks()
             }
             MyDocumentBookManager.registerAllDocuments()
+            SwordEnvironmentInitialisation.deleteOrphanLegacyIndexesInBackground()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.

@@ -655,7 +655,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">El text de cerca pot incloure caràcters especials com *, AND, OR, NOT</string>
   <string name="help_search_details">Consulta %s per a més detalls.</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">Sintaxi de consulta de text complet FTS5</string>
   <string name="help_workspaces_title">Espais de treball</string>
   <string name="help_workspaces_text">Els espais de treball permeten tenir múltiples entorns de treball dependents del context. Les funcions dels espais de treball són accessibles a través de l\'element Espais de treball al menú d\'opcions (cantonada superior dreta). Una manera ràpida d\'accedir als espais de treball és amb el gest de lliscar cap avall des de la barra d\'eines. També pots usar els gestos de lliscar a l\'esquerra i a la dreta sobre la barra d\'eines per canviar a l\'espai de treball anterior o al següent.</string>

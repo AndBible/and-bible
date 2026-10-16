@@ -723,7 +723,6 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
   <!--TODO: to be removed-->
   <string name="help_search_text2">Zoekterm mag speciale tekens bevatten, zoals *, AND, OR, NOT</string>
   <string name="help_search_details">Zie %s voor meer details.</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 Volledige tekst Query Syntax</string>
   <string name="help_workspaces_title">Werkbladen</string>
   <string name="help_workspaces_text">

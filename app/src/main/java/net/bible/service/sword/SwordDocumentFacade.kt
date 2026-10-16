@@ -30,7 +30,8 @@ import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
-import net.bible.service.sword.index.AndroidIndexPolicy
+import net.bible.android.BibleApplication
+import net.bible.service.sword.index.SearchIndexingService
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
@@ -150,14 +151,20 @@ object SwordDocumentFacade {
     @Throws(BookException::class)
     fun deleteDocument(document: Book) { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document.initials)
-        // delete index first if it exists but wrap in try to ensure an attempt is made to delete the document
+        // Drop a queued index build and cancel a running one first (deleteIndex is safe when nothing exists: it cancels
+        // the job and deletes nothing; a first build has no final file yet, so `isIndexed` must not gate it). Wrapped in
+        // try to ensure an attempt is made to delete the document.
         try {
-            val imanager = IndexManagerFactory.getIndexManager()
-            if (imanager.isIndexed(realDocument)) {
-                imanager.deleteIndex(realDocument)
-            }
+            SearchIndexingService.dequeue(document.initials)
+            IndexManagerFactory.getIndexManager().deleteIndex(realDocument)
         } catch (e: Exception) { // just log index delete error, deleting doc is the important thing
             Log.e(TAG, "Error deleting document index", e)
+        }
+        // the previous search engine's index directory goes with the document (best effort)
+        try {
+            (IndexManagerFactory.getIndexManager() as? org.crosswire.jsword.index.fts.FtsIndexManager)?.deleteLegacyLuceneIndex(realDocument!!)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting legacy index", e)
         }
         document.driver!!.delete(realDocument!!)
     }
@@ -169,10 +176,10 @@ object SwordDocumentFacade {
             realDocument.epubBackend?.state?.deleteSearchIndex()
             return
         }
-        val indexManager = IndexManagerFactory.getIndexManager()
-        if (indexManager.isIndexed(realDocument)) {
-            indexManager.deleteIndex(realDocument)
-        }
+        document?.initials?.let { SearchIndexingService.dequeue(it) }
+        if (realDocument == null) return // nothing to delete (callers may pass null or a book that is no longer installed)
+        // unconditional: during a first build no final file exists yet, and the running build must still be cancelled
+        IndexManagerFactory.getIndexManager().deleteIndex(realDocument)
     }
 
     @Throws(BookException::class)
@@ -209,9 +216,8 @@ object SwordDocumentFacade {
                 if(book.isEpub) {
                     book.epubBackend!!.state.buildSearchIndex()
                 } else {
-                    val indexManager = IndexManagerFactory.getIndexManager()
-                    indexManager.indexPolicy = AndroidIndexPolicy()
-                    indexManager.scheduleIndexCreation(book)
+                    // Built by the foreground indexing service, one book at a time; the index manager sets the status.
+                    SearchIndexingService.enqueue(BibleApplication.application, book)
                 }
             } catch (e: Exception) {
                 book.indexStatus = IndexStatus.UNDONE

@@ -705,7 +705,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <!--TODO: to be removed-->
   <string name="help_search_text2">Teks pencarian dapat menyertakan karakter khusus seperti *, AND, OR, NOT</string>
   <string name="help_search_details">Silakan lihat %s untuk detail lebih lanjut.</string>
-  <string name="help_apache_lucene">Apache Lucene - Sintaksis Parser Kueri</string>
   <string name="help_fts5">Sintaksis Kueri Teks Lengkap FTS5</string>
   <string name="help_workspaces_title">Ruang Kerja</string>
   <string name="help_workspaces_text">Ruang kerja memungkinkan memiliki beberapa lingkungan kerja yang bergantung pada konteks. Fungsi ruang kerja dapat diakses melalui item Ruang Kerja di menu opsi (sudut kanan atas). Cara cepat untuk mengakses ruang kerja adalah dengan gerakan geser ke bawah dari toolbar. Anda juga dapat menggunakan gerakan geser ke kiri dan ke kanan di atas toolbar untuk beralih ke ruang kerja sebelumnya / berikutnya.</string>

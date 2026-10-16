@@ -704,7 +704,6 @@ Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pi
   <!--TODO: to be removed-->
   <string name="help_search_text2">Etsittävä teksti voi sisältää erikoismerkkejä kuten *, AND, OR, NOT</string>
   <string name="help_search_details">Katso lisätietoja: %s</string>
-  <string name="help_apache_lucene">Apache Lucene kyselysyntaksi</string>
   <string name="help_fts5">FTS5 kyselykieli</string>
   <string name="help_workspaces_title">Työtilat</string>
   <string name="help_workspaces_text">

@@ -117,6 +117,8 @@
     <string name="search_options">Search settings</string>
     <string name="search_submit">Search</string>
     <string name="search_clear">Clear search text</string>
+    <string name="search_engine_changed_reindex">The search engine has been updated. The search index needs to be created again; this may take a while.</string>
+    <string name="search_unsupported_syntax">This search uses syntax that is not supported: %s</string>
     <!-- F6: shown while indexing runs inside the reading view's search sheet. Distinct from
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place. -->
@@ -128,6 +130,7 @@
     <!-- Same message when the document has no name to show — reachable when the reading view has no
          current document at all (e.g. an error page), which is itself one of the unsearchable cases. -->
     <string name="search_not_available">This document cannot be searched</string>
+    <string name="search_indexing_notification_title">Creating search index</string>
     <string name="choose_translations">Choose translations…</string>
     <string name="multi_search_results">%1$d verses in %2$d translations</string>
     <string name="search_index_not_created">no index</string>
@@ -942,7 +945,7 @@
     <string name="help_search_bible">Choose how the words are matched: All words finds verses containing every word, Any word finds verses containing at least one, and Phrase finds the words next to each other in that order.\n\nWithin a search you can also use * and ? as wildcards (for example bless* matches blessed and blessing), combine terms with AND, OR and NOT, and search Strong\'s numbers directly (for example strong:h0430).</string>
     <string name="help_search_epub">Choose how the words are matched: All words finds passages containing every word, Any word finds passages containing at least one, and Phrase finds the words next to each other in that order.\n\nRaw query syntax passes your text to the search engine unchanged, so you can write your own query: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" for an exact phrase, bless* to match any word starting with bless, and grace NEAR faith to find them close together.</string>
     <string name="help_search_details">Please see %s for more details.</string>
-    <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
+    <string name="help_search_syntax">Search syntax</string>
     <string name="help_fts5">FTS5 Full-text Query Syntax</string>
     <string name="help_workspaces_title">Workspaces</string>
     <string name="help_workspaces_text">

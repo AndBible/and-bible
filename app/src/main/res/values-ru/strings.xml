@@ -742,7 +742,6 @@ http://www.heartlight.org, разрешение предоставлено
   <!--TODO: to be removed-->
   <string name="help_search_text2">Строка поиска может включать спецсимволы, такие как *, AND, OR, NOT</string>
   <string name="help_search_details">Пожалуйста смотрите подробности в %s.</string>
-  <string name="help_apache_lucene">Apache Lucene — синтаксис парсера запросов</string>
   <string name="help_fts5">Синтаксис полнотекстовых запросов FTS5</string>
   <string name="help_workspaces_title">Рабочие области</string>
   <string name="help_workspaces_text">

@@ -751,7 +751,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">Căutarea textului poate include caractere speciale precum *, AND, OR, NOT</string>
   <string name="help_search_details">A se vedea %s pentru mai multe detalii.</string>
-  <string name="help_apache_lucene">Apache Lucene - Sintaxa analizorului de căutare</string>
   <string name="help_fts5">FTS5 Sintaxa căutării în tot textul</string>
   <string name="help_workspaces_title">Spații de studiu</string>
   <string name="help_workspaces_text">

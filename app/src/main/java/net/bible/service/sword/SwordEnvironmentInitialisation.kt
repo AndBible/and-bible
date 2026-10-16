@@ -39,12 +39,16 @@ import org.crosswire.common.util.ReporterEvent
 import org.crosswire.common.util.ReporterListener
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.BookException
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.crosswire.jsword.book.sword.SwordConstants
-import org.crosswire.jsword.index.lucene.LuceneIndexManager
+import org.crosswire.jsword.index.IndexManagerFactory
+import org.crosswire.jsword.index.fts.FtsIndexManager
+import org.crosswire.jsword.index.fts.SearchFields
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.PassageType
 import java.io.File
+import kotlin.concurrent.thread
 
 private const val FIVE_MINUTES_MS: Long = 1000 * 60 * 5
 /**
@@ -54,6 +58,7 @@ private const val FIVE_MINUTES_MS: Long = 1000 * 60 * 5
  */
 object SwordEnvironmentInitialisation {
     private var isSwordLoaded = false
+    private val sweepStarted = java.util.concurrent.atomic.AtomicBoolean(false)
     private val tag = SwordEnvironmentInitialisation::class.java.name
     fun initialiseJSwordFolders() {
         try {
@@ -68,7 +73,7 @@ object SwordEnvironmentInitialisation {
                 // modules
                 ensureDirExists(File(moduleDir, SwordConstants.DIR_DATA))
                 // indexes
-                ensureDirExists(File(moduleDir, LuceneIndexManager.DIR_LUCENE))
+                ensureDirExists(File(moduleDir, SearchFields.DIR_SEARCH))
                 // Optimize for less memory
                 PassageKeyFactory.setDefaultType(PassageType.MIX)
                 // the following are required to set the read and write dirs for module properties, initialised during the following call to setHome
@@ -88,6 +93,38 @@ object SwordEnvironmentInitialisation {
             }
         } catch (e: Exception) {
             Log.e(tag, "Error initialising", e)
+        }
+    }
+
+    /**
+     * Startup clean-up of search index files, once, on a background thread: deletes the legacy Lucene index
+     * directories (`lucene/<driver>/<initials>`) and the SQLite index files (`search/<driver>/<initials>.sqlite`) of
+     * documents that are no longer installed, and frees the disk space of the legacy Lucene indexes of installed
+     * documents (their CONTENTS go, e.g. 606 MB for one commentary). The empty directory of an installed document is
+     * deliberately kept: it tells the app that the search engine changed and the document's search index must be
+     * created again; it is deleted when that rebuild finishes (inside `FtsIndexManager`) or when the document is deleted.
+     * A no-op if JSword was never initialised, and runs at most once per process.
+     *
+     * Ordering: must be called only after EVERY installed book is registered (the SWORD books, the manually installed
+     * MyBible/MySword/eSword/EPUB/TTF/CSV books and the my-documents), otherwise those books look like orphans and
+     * lose their legacy directory. `CommonUtils.initializeApp` / `initializeAppCoroutine` call it right after the last
+     * registration; `BibleApplication.onCreate` is too early.
+     */
+    fun deleteOrphanLegacyIndexesInBackground() {
+        if (!isSwordLoaded || !sweepStarted.compareAndSet(false, true)) return
+        thread(name = "legacy-index-sweep", isDaemon = true) {
+            try {
+                val manager = IndexManagerFactory.getIndexManager() as? FtsIndexManager ?: return@thread
+                val installed = Books.installed().getBooks()
+                val deleted = manager.deleteOrphanLegacyLuceneIndexes(installed)
+                if (deleted > 0) Log.i(tag, "Deleted $deleted orphan legacy Lucene index directories")
+                val emptied = manager.emptyLegacyLuceneIndexes(installed)
+                if (emptied > 0) Log.i(tag, "Freed the disk space of $emptied legacy Lucene indexes of installed documents")
+                val orphanIndexes = manager.deleteOrphanIndexes(installed)
+                if (orphanIndexes > 0) Log.i(tag, "Deleted the search index files of $orphanIndexes uninstalled documents")
+            } catch (e: Exception) {
+                Log.e(tag, "Legacy Lucene index sweep failed", e)
+            }
         }
     }
 

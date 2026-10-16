@@ -6884,6 +6884,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             documentId = doc.initials,
             documentName = doc.name,
             isRebuild = searchIndexService.hasIndex(doc.initials),
+            engineChanged = searchIndexService.hasLegacyIndex(doc.initials),
         )
     }
 

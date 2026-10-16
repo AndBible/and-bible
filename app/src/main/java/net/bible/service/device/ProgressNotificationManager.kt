@@ -63,6 +63,8 @@ class ProgressNotificationManager {
 
             override fun workProgressed(ev: WorkEvent) = synchronized(this) {
                 val prog = ev.job
+                // search index builds are shown by SearchIndexingService's own foreground notification
+                if (prog.jobID.startsWith(SEARCH_INDEX_JOB_PREFIX)) return@synchronized
                 val done = prog.work
                 progs.add(prog)
 
@@ -158,6 +160,8 @@ class ProgressNotificationManager {
 
     companion object {
         private const val TAG = "ProgressNotificatnMngr"
+
+        private val SEARCH_INDEX_JOB_PREFIX = Progress.CREATE_INDEX.substringBefore("%s")
 
         const val PROGRESS_NOTIFICATION_CHANNEL="proggress-notifications"
 

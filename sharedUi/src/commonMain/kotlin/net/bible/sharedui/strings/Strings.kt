@@ -164,7 +164,9 @@ interface Strings {
     val helpSearchEpub: String
 
     fun helpSearchDetails(link: String): String
-    val helpApacheLucene: String
+
+    /** Link label for the Bible-search help: the user-docs "Search syntax" section. */
+    val helpSearchSyntax: String
 
     /** Content description for an overflow (⋮) button. */
     val menu: String
@@ -175,6 +177,9 @@ interface Strings {
      * and is false here — the search runs in place when indexing finishes.
      */
     val searchIndexingThenSearch: String
+    /** Appended to the create-index prompt of a document that was indexed by the previous search engine. */
+    val searchEngineChangedReindex: String
+    fun searchUnsupportedSyntax(syntax: String): String
 
     /**
      * F6 Task 10: the reading-view search snackbar shown when `open()` finds the active document
@@ -189,6 +194,9 @@ interface Strings {
      * `Unavailable`. Without it the snackbar read " cannot be searched".
      */
     val searchNotAvailable: String
+
+    /** Title of the foreground search-indexing notification (R.string.search_indexing_notification_title). */
+    val searchIndexingNotificationTitle: String
 
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String

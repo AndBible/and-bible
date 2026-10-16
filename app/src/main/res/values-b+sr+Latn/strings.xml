@@ -745,7 +745,6 @@ Pored obeleživača, moguće je i ubaciti tekst po volji u radnoj svesci.</strin
   <!--TODO: to be removed-->
   <string name="help_search_text2">Tekst pretrage može da sadrži specijalne znakove poput *, AND, OR, NOT</string>
   <string name="help_search_details">Pogledajte %s za više detalja.</string>
-  <string name="help_apache_lucene">Apache Lucene - Sintaksa upita parsera</string>
   <string name="help_fts5">FTS5 Sintaksa pretraga punog teksta</string>
   <string name="help_workspaces_title">Radne površi</string>
   <string name="help_workspaces_text">

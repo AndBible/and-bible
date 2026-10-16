@@ -54,6 +54,8 @@ import net.bible.sharedui.strings.LocalStrings
  *
  * @param isRebuild selects the prompt wording and the confirm label (a rebuild of an existing but
  *   unusable index versus a first build).
+ * @param engineChanged the document was indexed by the previous search engine: the prompt explains that
+ *   the index must be created again.
  * @param indexing switches the panel from the prompt to progress; the caller owns that transition
  *   because it also owns the JSword job it started.
  * @param error non-null shows the failure dialog **over a sheet that stays open** — the "job says
@@ -69,6 +71,7 @@ fun SearchIndexPanel(
     onCreate: () -> Unit,
     onCancel: () -> Unit,
     onDismissError: () -> Unit,
+    engineChanged: Boolean = false,
 ) {
     val strings = LocalStrings.current
     Column(Modifier.fillMaxWidth().padding(16.dp)) {
@@ -82,7 +85,8 @@ fun SearchIndexPanel(
             }
         } else {
             Text(
-                text = if (isRebuild) strings.rebuildIndexFor(documentName) else strings.createIndexFor(documentName),
+                text = (if (isRebuild) strings.rebuildIndexFor(documentName) else strings.createIndexFor(documentName)) +
+                    if (engineChanged) "\n\n" + strings.searchEngineChangedReindex else "",
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.height(16.dp))

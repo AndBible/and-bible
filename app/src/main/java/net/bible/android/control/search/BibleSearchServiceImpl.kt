@@ -16,7 +16,11 @@
  */
 package net.bible.android.control.search
 
+import android.content.Context
 import net.bible.sharedcore.log.Log
+import net.bible.sharedui.strings.AndroidStrings
+import net.bible.service.sword.epub.isEpub
+import org.crosswire.jsword.book.BookException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.AppSettings
@@ -39,6 +43,9 @@ import net.bible.sharedcore.search.SearchType as SharedSearchType
 import net.bible.sharedcore.search.SearchBibleSection as SharedSearchBibleSection
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
 
+/** A search the user must change: carries the localized message the shared controller shows. */
+class SearchSyntaxException(message: String, cause: Throwable) : Exception(message, cause)
+
 /**
  * Host (`:app`) implementation of the portable [BibleSearchService] seam. It wraps the existing
  * [SearchControl] JSword logic and, for each grouped result, reads the OSIS fragment and turns the
@@ -50,11 +57,12 @@ class BibleSearchServiceImpl(
     private val highlighter: SearchTextHighlighter,
     private val settings: AppSettings,
     private val strings: net.bible.sharedcore.platform.CoreStrings,
+    private val context: Context,
 ) : BibleSearchService {
 
     override fun validateIndex(request: SearchRequest): Boolean =
         request.translationIds.all {
-            SwordDocumentFacade.getDocumentByInitials(it)?.indexStatus == IndexStatus.DONE
+            isUsable(it)
         }
 
     override fun decorate(request: SearchRequest): String =
@@ -78,7 +86,14 @@ class BibleSearchServiceImpl(
 
         // Reuse the verbatim JSword grouping/partition/cap logic (SwordContentFacade.search,
         // Scripture.isScripture, MAX_SEARCH_RESULTS) then decorate each row with StyledText.
-        val dto = searchControl.getMultiSearchResults(request.translationIds, decorated)
+        val dto = try {
+            searchControl.getMultiSearchResults(request.translationIds, decorated)
+        } catch (e: BookException) {
+            // The shared controller shows the message of whatever is thrown. Other failures (a query that does
+            // not parse, an index that cannot be opened) keep their JSword message.
+            val unsupported = unsupportedSyntaxIn(e) ?: throw e
+            throw SearchSyntaxException(AndroidStrings(context).searchUnsupportedSyntax(unsupported.syntax), e)
+        }
         val main = dto.mainSearchResults.map { it.toRow(terms, lemmaTerms) }
         val other = dto.otherSearchResults.map { it.toRow(terms, lemmaTerms) }
         MultiSearchResults(main = main, other = other, total = dto.size)
@@ -108,8 +123,15 @@ class BibleSearchServiceImpl(
 
     override fun unindexedAmong(translationIds: List<String>): List<String> =
         translationIds.filter {
-            SwordDocumentFacade.getDocumentByInitials(it)?.indexStatus != IndexStatus.DONE
+            !isUsable(it)
         }
+
+    /** DONE status and an index the current engine can open (an index of an older schema needs a rebuild). */
+    private fun isUsable(docId: String): Boolean {
+        val book = SwordDocumentFacade.getDocumentByInitials(docId) ?: return false
+        if (book.indexStatus != IndexStatus.DONE) return false
+        return book !is SwordBook || book.isEpub || hasUsableSearchIndex(book)
+    }
 
     private fun GroupedSearchResult.toRow(terms: List<String>, lemmaTerms: List<String>): SwordResultRow {
         val matches = translationMatches.map { tm ->

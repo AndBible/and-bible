@@ -718,7 +718,6 @@ En plus des signets, un bloc-note peut contenir des entrées de texte personnali
   <!--TODO: to be removed-->
   <string name="help_search_text2">Le texte recherché peut inclure des caractères spéciaux tels que *, AND, OR, NOT.</string>
   <string name="help_search_details">Veillez voir %s pour plus de détails.</string>
-  <string name="help_apache_lucene">Apache Lucene - Syntaxe de l’analyseur de requêtes</string>
   <string name="help_fts5">Syntaxe de requête en texte intégral FTS5</string>
   <string name="help_workspaces_title">Espaces</string>
   <string name="help_workspaces_text">

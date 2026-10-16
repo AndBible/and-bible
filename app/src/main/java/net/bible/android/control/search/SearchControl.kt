@@ -31,7 +31,7 @@ import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
-import org.crosswire.jsword.index.lucene.LuceneIndex
+import org.crosswire.jsword.index.fts.SearchFields
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -152,6 +152,8 @@ class SearchControl constructor(
                     }
                 }
             } catch (e: BookException) {
+                // An unsupported query is the user's to fix: surface it instead of an empty result.
+                if (unsupportedSyntaxIn(e) != null) throw e
                 Log.e(TAG, "Error searching ${book.initials}: ${e.message}")
             }
         }
@@ -261,8 +263,8 @@ class SearchControl constructor(
         // find-all-occurrences uses its own key (its selection is a Strong's-enabled subset).
         const val SEARCH_TRANSLATIONS_PREF = "search_selected_translations"
         const val STRONGS_SEARCH_TRANSLATIONS_PREF = "search_results_strongs_translations"
-        private const val STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG + ":"
-        private const val STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG + "COLON"
+        private const val STRONG_COLON_STRING = SearchFields.STRONG + ":"
+        private const val STRONG_COLON_STRING_PLACE_HOLDER = SearchFields.STRONG + "COLON"
         const val MAX_SEARCH_RESULTS = 5000
         private const val TAG = "SearchControl"
     }

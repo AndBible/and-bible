@@ -738,7 +738,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--TODO: to be removed-->
   <string name="help_search_text2">Iskalno besedilo lahko vključuje posebne znake, kot so *, AND, OR, NOT</string>
   <string name="help_search_details">Za več podrobnosti glejte  %s.</string>
-  <string name="help_apache_lucene">Apache Lucene - Sintaksa razčlenjevalnika poizvedb</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">Delovni prostori</string>
   <string name="help_workspaces_text">

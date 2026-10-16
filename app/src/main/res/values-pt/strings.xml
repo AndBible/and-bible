@@ -716,7 +716,6 @@ As Áreas de estudo são projetadas para tornar mais fácil escrever notas de se
   <!--TODO: to be removed-->
   <string name="help_search_text2">O texto de pesquisa pode incluir caracteres especiais como *, AND, OR, NOT</string>
   <string name="help_search_details">Para mais pormenores, ver %s.</string>
-  <string name="help_apache_lucene">Apache Lucene - Sintaxe do analisador de consulta</string>
   <string name="help_fts5">FTS5 Sintaxe de consulta de texto integral</string>
   <string name="help_workspaces_title">Ambientes de trabalho</string>
   <string name="help_workspaces_text">

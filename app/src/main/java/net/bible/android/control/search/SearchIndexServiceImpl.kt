@@ -35,6 +35,12 @@ class SearchIndexServiceImpl(
         return SwordDocumentFacade.hasIndex(book)
     }
 
+    override fun hasLegacyIndex(docId: String): Boolean {
+        val book = SwordDocumentFacade.getDocumentByInitials(docId) ?: return false
+        val manager = ftsIndexManager() ?: return false
+        return manager.hasLegacyLuceneIndex(book) && !hasUsableSearchIndex(book)
+    }
+
     override fun createIndex(docId: String) {
         try {
             // start background thread to create index (verbatim from classic SearchIndex.onIndex)

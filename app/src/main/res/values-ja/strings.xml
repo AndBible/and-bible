@@ -655,7 +655,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">検索テキストには *, AND, OR, NOT などの特殊文字を使用できます</string>
   <string name="help_search_details">詳細については %s をご参照ください。</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 全文検索クエリ構文</string>
   <string name="help_workspaces_title">ワークスペース</string>
   <string name="help_workspaces_text">ワークスペースにより、複数のコンテキスト依存の作業環境を持つことができます。ワークスペース機能には、オプションメニュー（右上隅）の「ワークスペース」項目からアクセスできます。ツールバーから下方向にスワイプすると素早くアクセスできます。ツールバー上で左右にスワイプすると、前後のワークスペースに切り替えることもできます。</string>
