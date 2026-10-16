@@ -154,6 +154,8 @@ import net.bible.android.view.activity.settings.buildColorSettingsLabels
 import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
 import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.DisplayColorMode
+import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.speakHelpVideo
@@ -4544,6 +4546,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         BottomSheetScaffold(
                             scaffoldState = searchSheetState,
                             sheetPeekHeight = 0.dp,
+                            // The mounted hidden sheet's shadow otherwise spills onto pure-MONO paper.
+                            sheetShadowElevation = if (LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME)
+                                0.dp else BottomSheetDefaults.Elevation,
                             // BottomSheetScaffold applies no window insets (material3 1.4.0) and this tree is
                             // edge-to-edge: clear the nav bar / cutout ourselves.
                             snackbarHost = { SnackbarHost(searchSnackbarHostState, Modifier.readingSheetInsetPadding()) },
