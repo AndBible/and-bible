@@ -192,4 +192,20 @@ class MyDocumentPagesControllerTest {
         c.setQuery("bbb")
         assertTrue(c.selection.value.isEmpty())
     }
+
+    @Test fun snapshot_round_trips_search_and_selection_and_drops_unknown_rows() {
+        val c = controller()
+        c.setPages(listOf(page(0, "Alpha"), page(1, "Beta"), page(2, "Gamma")))
+        c.openSearch(); c.setQuery("eta"); c.toggleSelect(1)
+        val snap = c.snapshot()
+        assertEquals(MyDocumentPagesSnapshot("eta", true, setOf(1L)), snap)
+
+        val fresh = controller()
+        fresh.setPages(listOf(page(0, "Alpha"), page(1, "Beta")), restored = snap.copy(selection = setOf(1L, 9L)))
+        assertEquals("eta", fresh.query.value)
+        assertTrue(fresh.searchModeActive.value)
+        assertEquals(setOf(1L), fresh.selection.value)
+        assertEquals(listOf("Beta"), fresh.pages.value.map { it.name })
+        assertFalse(fresh.dirty.value)
+    }
 }

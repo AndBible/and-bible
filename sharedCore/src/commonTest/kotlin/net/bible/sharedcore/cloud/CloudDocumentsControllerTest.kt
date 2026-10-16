@@ -324,4 +324,18 @@ class CloudDocumentsControllerTest {
         c.setGroupBy(DocGroupBy.STATUS)
         assertEquals(c.displayed.value.map { it.initials }, c.grouped.value.flatMap { g -> g.rows.map { it.initials } })
     }
+
+    @Test fun filter_snapshot_restores_status_and_category_before_and_after_items_arrive() {
+        val c = controller()
+        c.setCategoryFilter(DocCategory.COMMENTARY)
+        c.setStatusFilter(CloudDocFilter.UPDATES)
+        val snap = c.filterSnapshot()
+        assertEquals(CloudDocumentsFilterSnapshot(CloudDocFilter.UPDATES, DocCategory.COMMENTARY), snap)
+
+        val fresh = controller()
+        fresh.restoreFilters(snap)
+        fresh.setItems(listOf(item("a", category = DocCategory.BIBLE), item("b", category = DocCategory.COMMENTARY)))
+        assertEquals(CloudDocFilter.UPDATES, fresh.statusFilter.value)
+        assertEquals(DocCategory.COMMENTARY, fresh.categoryFilter.value)
+    }
 }

@@ -43,6 +43,9 @@ sealed interface CloudDocumentsDialog {
     data class ConfirmBlock(val initials: List<String>, val message: String) : CloudDocumentsDialog
 }
 
+/** The status and type (category) filters worth carrying across an Activity recreation. */
+data class CloudDocumentsFilterSnapshot(val status: CloudDocFilter, val category: DocCategory?)
+
 /**
  * How long [CloudDocumentsController.moveSortCriterion] waits after the LAST swap of a drag
  * gesture before committing (persisting + refiltering) the reordered criteria — mirrors
@@ -204,6 +207,15 @@ class CloudDocumentsController(
             val present = items.mapTo(mutableSetOf()) { it.initials }
             _selectedIds.value = _selectedIds.value.intersect(present)
         }
+        refilter(resetSelection = false)
+    }
+
+    fun filterSnapshot() = CloudDocumentsFilterSnapshot(_statusFilter.value, _categoryFilter.value)
+
+    /** Re-applies saved filters on a fresh controller (before or after the first [setItems]). */
+    fun restoreFilters(snapshot: CloudDocumentsFilterSnapshot) {
+        _statusFilter.value = snapshot.status
+        _categoryFilter.value = snapshot.category
         refilter(resetSelection = false)
     }
 

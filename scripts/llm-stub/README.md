@@ -98,6 +98,29 @@ latest user/tool message is a tool result returns text, avoiding an infinite
 agent loop; a later user turn can request another tool. State is request-local,
 so independent conversations do not consume each other's tool response.
 
+### `toolchain` and `studypad`: create-then-finish tool runs
+
+`--mode toolchain --chain '[{"tool":NAME,"args":{...}}, ...]'` emits one function
+call per request, in order, then the plain text answer. The stub is stateless: it
+counts the `role:"tool"` messages after the last user message (none = step 0, N =
+step N), so a new user turn restarts the chain. Streaming and non-streaming both work.
+
+String values anywhere in `args` may contain `{key}` (for example `{labelId}`). It is
+filled from the latest `role:"tool"` message of the request: (1) parse the content as
+JSON (whole text, else from the first `{`, so a trailing loop-hint is tolerated) and
+take the first string/number under `key` at any depth; (2) regex
+`"key"\s*:\s*"([^"]+)"`; (3) regex `key[=:]\s*(\S+)`. An unresolvable placeholder is
+left verbatim. The real `createStudyPad` result is
+`{"status":"success","data":{"labelId":"<32 hex>","labelName":...,"itemsCreated":N,...}}`
+(`ToolResult.toJson()`), so step (1) matches.
+
+`--mode studypad` is the preset for check BM-2: `createStudyPad` (name `Stub StudyPad`,
+one text item) then `finishWithStudyPad` with `{labelId}`:
+
+```bash
+python3 -I scripts/llm-stub/llm_stub.py --port 8123 --mode studypad
+```
+
 - `GET /models` and `/v1/models`: OpenAI `object:list`, one `stub-model`.
 - `POST /chat/completions` and `/v1/chat/completions`: OpenAI
   `choices[0].message`, `finish_reason` (`stop` or `tool_calls`), dummy usage.

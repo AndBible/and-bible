@@ -24,6 +24,9 @@
 #   scripts/andbible-emu.sh shot <name>         screenshot -> .local/emu-verify/shots/<name>.png
 #   scripts/andbible-emu.sh crashes [pkg]       FATAL/ANR lines from logcat since last `logmark`
 #   scripts/andbible-emu.sh logmark             clear logcat (start of a box)
+#   scripts/andbible-emu.sh place-widget <desc-regex> [nth]
+#                                               drag a widget from the launcher picker to the home screen;
+#                                               prints the new appwidget id
 #
 # Package defaults to the standard debug build, net.bible.android.activity.debug.
 # The discrete debug build is com.app.calculator.debug.
@@ -345,7 +348,54 @@ crashes)
     { timeout 20 adb logcat -d -b crash; timeout 20 adb logcat -d -b main,system | grep -E 'ANR in|DataBaseNotReady'; } \
         | tr -d '\r' | grep -v '^---------' | head -60 || true
     ;;
+place-widget)
+    # place-widget <content-desc-regex> [nth] : drag a widget from the launcher's picker to the home
+    # screen. Matches the picker entries' content-desc (e.g. '2 wide by 2 high'); [nth] picks the
+    # n-th match (default 1). ANDBIBLE_WIDGET_APP (default 'Bible Study') is the picker section to
+    # expand. Prints the new appwidget id, exit 0 only if one appeared for the package.
+    pat="${1:?content-desc regex}"; nth="${2:-1}"
+    wapp="${ANDBIBLE_WIDGET_APP:-Bible Study}"; wpkg="${ANDBIBLE_WIDGET_PKG:-$PKG_DEFAULT}"
+    wids() { adb shell dumpsys appwidget | tr -d '\r' | awk -v p="$wpkg" '
+        /^Widgets:/ {w=1; next} /^[A-Za-z]/ {w=0}
+        w && /^  \[[0-9]+\] id=/ {sub(/.*id=/, ""); id=$1}
+        w && /provider=/ && index($0, p "/") {print id}' | LC_ALL=C sort; }
+    pick() { "$0" texts | python3 -c '
+import re, sys
+pat, nth = re.compile(sys.argv[1]), int(sys.argv[2])
+m = [l for l in sys.stdin if pat.search(l.split(" | ")[1])]
+if len(m) < nth: sys.exit(1)
+x1, y1, x2, y2 = map(int, re.findall(r"\d+", re.findall(r"\[\d+,\d+\]\[\d+,\d+\]", m[nth-1])[-1]))
+print((x1 + x2) // 2, (y1 + min(y2, 3000)) // 2)' "$pat" "$nth"; }
+    before="$(wids)"
+    adb shell input keyevent KEYCODE_HOME; sleep 2
+    opened=
+    for xy in "720 1500" "720 2100" "300 1700" "1100 1700"; do
+        adb shell input swipe $xy $xy 1200; sleep 2
+        if "$0" tap-text '^Widgets$' >/dev/null 2>&1; then opened=1; break; fi
+        adb shell input keyevent KEYCODE_HOME; sleep 1
+    done
+    [ -n "$opened" ] || die "could not open the launcher's Widgets picker"
+    sleep 2
+    src="$(pick || true)"
+    if [ -z "$src" ]; then
+        "$0" tap-text "^$wapp" >/dev/null 2>&1 || die "no picker section /$wapp/"
+        sleep 2
+        for _ in 1 2 3 4; do
+            src="$(pick || true)"; [ -n "$src" ] && break
+            adb shell input swipe 720 2400 720 1200 500; sleep 1
+        done
+    fi
+    [ -n "$src" ] || die "no picker entry matches /$pat/ (#$nth)"
+    drop="${ANDBIBLE_WIDGET_DROP_XY:-720 1200}"
+    adb shell input draganddrop $src $drop 1500; sleep 3
+    "$0" tap-text '^(Create|Allow|Add)$' >/dev/null 2>&1 || true
+    sleep 2
+    after="$(wids)"
+    new="$(comm --nocheck-order -13 <(echo "$before") <(echo "$after") | head -1)"
+    [ -n "$new" ] || die "no new widget id for $wpkg after the drop"
+    echo "$new"
+    ;;
 *)
-    sed -n '2,41p' "$0"; exit 2
+    sed -n '2,44p' "$0"; exit 2
     ;;
 esac

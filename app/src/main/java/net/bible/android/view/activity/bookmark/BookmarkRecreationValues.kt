@@ -14,6 +14,24 @@ internal data class MyDocumentsSearchValue(val query: String, val searchOpen: Bo
     fun toSnapshot() = net.bible.sharedcore.mydocuments.MyDocumentsSearchSnapshot(query, searchOpen, selectedInitials)
 }
 
+/** Pages screen search + selection; [selectedPageIds] are persistent page ids, not load-order tokens. */
+@Serializable
+internal data class MyDocumentPagesValue(
+    val documentId: String,
+    val query: String,
+    val searchOpen: Boolean,
+    val selectedPageIds: Set<String>,
+)
+
+/** CloudDocuments type/status filters. */
+@Serializable
+internal data class CloudFiltersValue(
+    val status: net.bible.sharedcore.cloud.CloudDocFilter,
+    val category: net.bible.sharedcore.navigation.DocCategory?,
+) {
+    fun toSnapshot() = net.bible.sharedcore.cloud.CloudDocumentsFilterSnapshot(status, category)
+}
+
 @Serializable
 internal data class BookmarksValue(
     val filter: Int,

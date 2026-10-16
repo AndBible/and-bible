@@ -3076,6 +3076,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             CommonUtils.json.encodeToString(BookmarkRecreationState.serializer(), bookmarkRecreationSnapshot())
         }.onSuccess { outState.putString(STATE_BOOKMARK_RECREATION, it) }
             .onFailure { Log.w(TAG_BOOKMARKS, "Not saving bookmark recreation state", it) }
+        pendingMyDocumentExports.saveTo(outState)
         val route = if (readingAppBootstrapped) NavRoutes.READING else startRoute
         if (route != null) outState.putString(STATE_START_ROUTE, route)
         // T8d: what the reading view is owed on its way back has to survive a recreate(), because
@@ -3312,6 +3313,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 .onFailure { Log.w(TAG_BOOKMARKS, "Ignoring unreadable bookmark recreation state", it) }
                 .getOrNull()
         }
+        pendingMyDocumentExports.restoreFrom(savedInstanceState)
         initRoute = savedInstanceState?.getString(STATE_START_ROUTE) ?: intent.getStringExtra(EXTRA_ROUTE)
         initialisedAfterStart = savedInstanceState?.getBoolean(STATE_INITIALISED_AFTER_START, false) ?: false
         // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before
@@ -3991,23 +3993,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     val onImportMyDocumentPage: () -> Unit =
                         { importMyDocumentPageLauncher.launch(arrayOf("text/*")) }
                     val onExportMyDocumentPage: (Long) -> Unit = { id -> exportMyDocumentPage(id) }
-                    val onExportSelectedMyDocumentPages: (List<Long>) -> Unit = { ids ->
-                        pendingMyDocumentPagesExportIds = ids
-                        exportMyDocumentPagesTreeLauncher.launch(null)
-                    }
+                    val onExportSelectedMyDocumentPages: (List<Long>) -> Unit = { ids -> launchMyDocumentPagesExport(ids) }
                     // Same shape one level up: MyDocumentsDeps' own onImport/onExport/onExportSelected
                     // AND the MyDocumentsController myDocumentsControllerFor builds are wired to the
                     // SAME instances -- see MyDocumentsDeps' own kdoc.
                     val onImportMyDocument: () -> Unit =
                         { importMyDocumentsFilesLauncher.launch(arrayOf("text/*")) }
-                    val onExportMyDocument: (Long) -> Unit = { id ->
-                        pendingMyDocumentExportId = id
-                        exportMyDocumentTreeLauncher.launch(null)
-                    }
-                    val onExportSelectedMyDocuments: (List<Long>) -> Unit = { ids ->
-                        pendingMyDocumentExportIds = ids
-                        exportMyDocumentsBatchTreeLauncher.launch(null)
-                    }
+                    val onExportMyDocument: (Long) -> Unit = { id -> launchMyDocumentsExport(listOf(id), batch = false) }
+                    val onExportSelectedMyDocuments: (List<Long>) -> Unit = { ids -> launchMyDocumentsExport(ids, batch = true) }
                     MyDocumentsNavDeps(
                         exitHost = { finish() },
                         setWindowTitle = { title -> setTitle(title) },
@@ -4391,6 +4384,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val editorKey: String? = null,
         val editorDraft: net.bible.android.view.activity.bookmark.LabelDraftValue? = null,
         val documentsSearch: net.bible.android.view.activity.bookmark.MyDocumentsSearchValue? = null,
+        val pages: net.bible.android.view.activity.bookmark.MyDocumentPagesValue? = null,
+        val cloudFilters: net.bible.android.view.activity.bookmark.CloudFiltersValue? = null,
     )
 
     /**
@@ -4436,8 +4431,23 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             documentsSearch = myDocumentsSession?.takeIf { it.loaded }?.controller?.searchSnapshot()?.let {
                 net.bible.android.view.activity.bookmark.MyDocumentsSearchValue(it.query, it.searchOpen, it.selectedInitials)
             } ?: restoredBookmarks?.documentsSearch,
+            pages = myDocumentPagesSession?.takeIf { it.loaded && isOnRoute(NavRoutes.MY_DOCUMENT_PAGES_PATTERN) }?.let { session ->
+                val snapshot = session.controller.snapshot()
+                val idByToken = myDocumentPagesEntityByLong.mapValues { it.value.id.toString() }
+                net.bible.android.view.activity.bookmark.MyDocumentPagesValue(
+                    session.documentId, snapshot.query, snapshot.searchOpen,
+                    snapshot.selection.mapNotNull { idByToken[it] }.toSet(),
+                )
+            } ?: restoredBookmarks?.pages,
+            // The entry belongs to the screen only while it is on top; a stale entry from an earlier visit is not saved.
+            cloudFilters = cloudDocumentsEntryRef?.takeIf { isOnRoute(NavRoutes.CLOUD_DOCUMENTS_PATTERN) }?.controller?.filterSnapshot()?.let {
+                net.bible.android.view.activity.bookmark.CloudFiltersValue(it.status, it.category)
+            } ?: restoredBookmarks?.cloudFilters,
         )
     }
+
+    private fun isOnRoute(pattern: String): Boolean =
+        navController?.currentDestination?.route?.substringBefore('?') == pattern.substringBefore('?')
 
     /**
      * The memo behind [BookmarksDeps.controllerFor], and the in-flight state of whichever label-manager
@@ -5890,6 +5900,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var myDocumentPagesEntityByLong: Map<Long, MyDocumentPage> = emptyMap()
     private var myDocumentPagesDocumentInitials: String = ""
 
+    /** The `MyDocumentPages` entry currently built; replaced by every [myDocumentPagesControllerFor] call. */
+    private class MyDocumentPagesSession(val documentId: String) {
+        lateinit var controller: MyDocumentPagesController
+        /** True once the first load ran, i.e. the controller holds real state worth snapshotting. */
+        var loaded = false
+    }
+    private var myDocumentPagesSession: MyDocumentPagesSession? = null
+
     /** The current session's own `addPage`, captured so [importMyDocumentPageFile] -- which runs
      *  from a host-level launcher callback, outside the arm's own closures -- can add an imported
      *  page to the right controller. Refreshed by every [myDocumentPagesControllerFor] call. */
@@ -5898,7 +5916,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** [net.bible.sharedcore.mydocuments.MyDocumentPagesController.onExportSelected]'s pending ids,
      *  moved host-side beside [exportMyDocumentPagesTreeLauncher] -- classic's own
      *  `MyDocumentPagesComposeActivity.pendingExportIds` field. */
-    private var pendingMyDocumentPagesExportIds: List<Long> = emptyList()
+    private val pendingMyDocumentExports = PendingMyDocumentExports()
+
+    /** Remember the picked pages by PERSISTENT id (see [PendingMyDocumentExports]) and open the folder picker. */
+    private fun launchMyDocumentPagesExport(tokens: List<Long>) {
+        val ids = tokens.mapNotNull { myDocumentPagesEntityByLong[it]?.id?.toString() }
+        if (ids.isEmpty()) return reportLostMyDocumentExport()
+        pendingMyDocumentExports.pageIds = ids
+        exportMyDocumentPagesTreeLauncher.launch(null)
+    }
+
+    /** Remember the picked documents by PERSISTENT id (see [PendingMyDocumentExports]) and open the folder picker. */
+    private fun launchMyDocumentsExport(tokens: List<Long>, batch: Boolean) {
+        val ids = tokens.mapNotNull { myDocumentsSession?.entityByLong?.get(it)?.id?.toString() }
+        if (ids.isEmpty()) return reportLostMyDocumentExport()
+        pendingMyDocumentExports.documentIds = ids
+        pendingMyDocumentExports.documentsBatch = batch
+        exportMyDocumentTreeLauncher.launch(null)
+    }
 
     /**
      * Builds the pages-within-a-document editor's controller for one destination entry. Mirror of
@@ -5924,6 +5959,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         myDocumentPagesEntityByLong = emptyMap()
 
         lateinit var controller: MyDocumentPagesController
+        val session = MyDocumentPagesSession(documentId)
+        myDocumentPagesSession = session
 
         fun nextLongId(): Long = (myDocumentPagesEntityByLong.keys.maxOrNull() ?: -1L) + 1L
 
@@ -6005,9 +6042,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             },
         )
 
+        session.controller = controller
         lifecycleScope.launch {
+            // The old screen's dispose-time autosave runs under this key; read only after it, or a
+            // recreation with unsaved edits loads pre-save rows and a later Save writes them back.
+            MyDocumentBookManager.launcher.join("mydocument-pages-$docId")
             val list = withContext(Dispatchers.IO) { myDocumentDao.pagesForDocument(docId) }
             myDocumentPagesEntityByLong = list.mapIndexed { i, p -> i.toLong() to p }.toMap()
+            // Selection is saved by persistent page id: the load-order tokens change when pages are reordered or deleted.
+            val restoredPages = restoredBookmarks?.pages?.takeIf { it.documentId == documentId }
+            val tokenById = list.mapIndexed { i, p -> p.id.toString() to i.toLong() }.toMap()
             controller.setPages(
                 list.mapIndexed { i, p ->
                     MyDocPageItem(
@@ -6017,7 +6061,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         isAiGenerated = p.sourcePromptId != null,
                     )
                 },
+                restored = restoredPages?.let { r ->
+                    net.bible.sharedcore.mydocuments.MyDocumentPagesSnapshot(
+                        r.query, r.searchOpen, r.selectedPageIds.mapNotNull { tokenById[it] }.toSet(),
+                    )
+                },
             )
+            // Consumed: later visits to a Pages screen of this host start fresh, like classic.
+            if (restoredBookmarks?.pages != null) restoredBookmarks = restoredBookmarks?.copy(pages = null)
+            session.loaded = true
         }
 
         return controller
@@ -6084,20 +6136,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private val exportMyDocumentPagesTreeLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-            val ids = pendingMyDocumentPagesExportIds
-            pendingMyDocumentPagesExportIds = emptyList()
-            if (uri != null && ids.isNotEmpty()) exportMyDocumentPagesToFolder(ids, uri)
+            val ids = pendingMyDocumentExports.takePageIds()
+            if (uri != null) {
+                if (ids.isNotEmpty()) exportMyDocumentPagesToFolder(ids, uri) else reportLostMyDocumentExport()
+            }
         }
 
     /** Export several pages into one chosen folder. Ported verbatim from classic
      *  `MyDocumentPagesComposeActivity.exportPagesToFolder` (`:497`). */
-    private fun exportMyDocumentPagesToFolder(ids: List<Long>, treeUri: Uri) {
+    private fun exportMyDocumentPagesToFolder(ids: List<String>, treeUri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val treeDoc = DocumentFile.fromTreeUri(this@NavHostComposeActivity, treeUri) ?: return@launch
                 for ((index, id) in ids.withIndex()) {
-                    val page = myDocumentPagesEntityByLong[id] ?: continue
-                    val withContent = myDocumentDao.pageByIdWithContent(page.id) ?: continue
+                    val page = myDocumentDao.pageByIdWithContent(IdType.fromString(id)) ?: continue
                     val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
                     val mimeType = if (ext == "html") "text/html" else "text/markdown"
                     val orderPrefix = String.format("%02d", index + 1)
@@ -6107,7 +6159,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         .ifEmpty { getString(R.string.my_document_export_fallback_name) }
                     val file = treeDoc.createFile(mimeType, "$orderPrefix-$sanitizedTitle.$ext") ?: continue
                     contentResolver.openOutputStream(file.uri)?.use { out ->
-                        out.write((withContent.content ?: "").toByteArray(Charsets.UTF_8))
+                        out.write((page.content ?: "").toByteArray(Charsets.UTF_8))
                     }
                 }
                 withContext(Dispatchers.Main) {
@@ -6223,12 +6275,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             // See this function's own kdoc: the real "open" handling lives in the arm, not here.
             onOpen = {},
             onImport = { importMyDocumentsFilesLauncher.launch(arrayOf("text/*")) },
-            onExport = { id -> pendingMyDocumentExportId = id; exportMyDocumentTreeLauncher.launch(null) },
+            onExport = { id -> launchMyDocumentsExport(listOf(id), batch = false) },
             onCreate = { name -> createMyDocument(session, name) },
-            onExportSelected = { ids ->
-                pendingMyDocumentExportIds = ids
-                exportMyDocumentsBatchTreeLauncher.launch(null)
-            },
+            onExportSelected = { ids -> launchMyDocumentsExport(ids, batch = true) },
             onSave = { ordered, changed, deleted -> applyMyDocumentsChanges(ordered, changed, deleted) },
         )
         myDocumentsSession = session
@@ -6275,8 +6324,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
-    private var pendingMyDocumentExportId: Long? = null
-    private var pendingMyDocumentExportIds: List<Long> = emptyList()
+    /** A folder was picked but the export target is gone: never drop it silently. */
+    private fun reportLostMyDocumentExport() {
+        Log.e(TAG_MY_DOCUMENTS, "Export folder picked but no pending export target survived")
+        Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+    }
 
     /** SAF-picked URIs awaiting a user-entered name; [myDocumentImportNamePrompt] is shown while
      *  non-null -- classic's `pendingImportUris` (`MyDocumentsComposeActivity.kt:76`). */
@@ -6317,19 +6369,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private val exportMyDocumentTreeLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-            val id = pendingMyDocumentExportId
-            pendingMyDocumentExportId = null
-            val session = myDocumentsSession
-            if (uri != null && id != null && session != null) {
-                session.entityByLong[id]?.let { exportMyDocumentToFolder(it, uri) }
+            // Resolved by persistent id from the DB, not through [myDocumentsSession]: after an
+            // Activity recreation (picker still open) the session is rebuilt and may not be loaded.
+            val batch = pendingMyDocumentExports.documentsBatch
+            val ids = pendingMyDocumentExports.takeDocumentIds()
+            if (uri != null) {
+                when {
+                    ids.isEmpty() -> reportLostMyDocumentExport()
+                    batch -> exportMyDocumentsToFolder(ids, uri)
+                    else -> exportMyDocumentByIdToFolder(ids.first(), uri)
+                }
             }
-        }
-
-    private val exportMyDocumentsBatchTreeLauncher =
-        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-            val ids = pendingMyDocumentExportIds
-            pendingMyDocumentExportIds = emptyList()
-            if (uri != null && ids.isNotEmpty()) exportMyDocumentsToFolder(ids, uri)
         }
 
     /**
@@ -6410,6 +6460,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
+    /** Resolve the single pending document by persistent id (the session may not be loaded after a
+     *  recreate) and export it; an unresolvable id shows the generic error toast. */
+    private fun exportMyDocumentByIdToFolder(id: String, treeUri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val document = myDocumentDao.documentById(IdType.fromString(id))
+            if (document == null) withContext(Dispatchers.Main) { reportLostMyDocumentExport() }
+            else exportMyDocumentToFolder(document, treeUri)
+        }
+    }
+
     /** Export one document's pages to a chosen tree folder. Ported verbatim from classic
      *  `MyDocumentsComposeActivity.exportDocumentToFolder` (`:411-439`); the per-page write loop is
      *  shared with the batch path via [writeMyDocumentPagesInto]. */
@@ -6443,13 +6503,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * documents can hold same-named pages, and a flat batch export would collide. Ported verbatim
      * from classic `MyDocumentsComposeActivity.exportDocumentsToFolder` (`:276-308`).
      */
-    private fun exportMyDocumentsToFolder(ids: List<Long>, treeUri: Uri) {
-        val session = myDocumentsSession ?: return
+    private fun exportMyDocumentsToFolder(ids: List<String>, treeUri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val treeDoc = DocumentFile.fromTreeUri(this@NavHostComposeActivity, treeUri) ?: return@launch
                 for (id in ids) {
-                    val document = session.entityByLong[id] ?: continue
+                    val document = myDocumentDao.documentById(IdType.fromString(id)) ?: continue
                     // Fetch first, and skip a page-less document BEFORE creating its subdirectory --
                     // otherwise a batch containing an empty document leaves a stray empty folder.
                     val pages = myDocumentDao.pagesWithContentForDocument(document.id)
@@ -8622,6 +8681,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             },
             scope = lifecycleScope,
         )
+        // Consumed once: a later leave-and-reopen within this host starts fresh, like classic. The sign-in
+        // error dialog is deliberately not carried: it is re-raised by the gate's sign-in attempt, which is
+        // a real network step that cannot be skipped just because the Activity was recreated.
+        restoredBookmarks?.cloudFilters?.let {
+            entry.controller.restoreFilters(it.toSnapshot())
+            restoredBookmarks = restoredBookmarks?.copy(cloudFilters = null)
+        }
         cloudDocumentsEntryRef = entry
         return entry.controller
     }

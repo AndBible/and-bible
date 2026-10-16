@@ -59,7 +59,13 @@ class ReadingProgressControllerTest {
         var unmarkedCalls = mutableListOf<Pair<Int, Int>>()
         var removedTargetIds = mutableListOf<String>()
 
-        override suspend fun memorizeSummary() = memorizeSummary
+        /** When set, [memorizeSummary] suspends on it (after reading its value) to simulate a slow load. */
+        var summaryGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
+        override suspend fun memorizeSummary(): MemorizeSummaryData {
+            val value = memorizeSummary
+            summaryGate?.await()
+            return value
+        }
         override suspend fun bookMemorizationProgress() = books
         override suspend fun chapterMemorizationProgress(bookId: String) =
             ChapterDetail(bookId, "Genesis", listOf(ChapterHeat(1, 3, 2)), 3, listOf(1, 2, 3))
@@ -146,6 +152,39 @@ class ReadingProgressControllerTest {
         fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 999, targetMemorized = 0, targetTotal = 0)
         c.selectTab(ReadingTab.MEMORIZE)
         assertEquals(5, c.model.value.memorize?.memorizedCount)
+    }
+
+    @Test fun load_refreshes_already_loaded_memorize_data_on_reopen() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope)
+        c.selectTab(ReadingTab.MEMORIZE)
+        assertEquals(5, c.model.value.memorize?.memorizedCount)
+        fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 7, targetMemorized = 4, targetTotal = 10)
+        c.load() // screen re-opened (the host caches the controller across opens)
+        assertEquals(7, c.model.value.memorize?.memorizedCount)
+        assertEquals(4, c.model.value.memorize?.targetMemorized)
+    }
+
+    @Test fun load_refreshes_stale_memorize_data_even_when_reopened_on_reading_tab() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope)
+        c.selectTab(ReadingTab.MEMORIZE)
+        c.selectTab(ReadingTab.READING)
+        fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 8, targetMemorized = 0, targetTotal = 0)
+        c.load()
+        c.selectTab(ReadingTab.MEMORIZE)
+        assertEquals(8, c.model.value.memorize?.memorizedCount)
+    }
+
+    @Test fun overlapping_memorize_loads_only_publish_the_latest() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope)
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        fake.summaryGate = gate // first (old) load reads 5, then hangs
+        c.selectTab(ReadingTab.MEMORIZE)
+        fake.summaryGate = null
+        fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 9, targetMemorized = 0, targetTotal = 0)
+        c.loadMemorize() // newer load publishes 9
+        assertEquals(9, c.model.value.memorize?.memorizedCount)
+        gate.complete(Unit) // old load finishes last: must not overwrite
+        assertEquals(9, c.model.value.memorize?.memorizedCount)
     }
 
     @Test fun setMemOverview_false_loads_passages_and_targets_and_persists() = runTest(UnconfinedTestDispatcher()) {

@@ -43,6 +43,7 @@ import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
 import net.bible.sharedcore.event.Subscription
 import net.bible.android.control.report.BugReport
+import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.util.locale.LocaleHelper
@@ -326,6 +327,8 @@ open class BibleApplication : Application() {
             // re-draw what is showing.
             SpeakWidgetManager.instance?.refreshTexts()
             TextToSpeechNotificationManager.refreshInstanceForLocale()
+            // The in-app transport bar caches its (localized) status text; rebuild it.
+            SpeakTransportServiceImpl.instance?.refreshForLocale()
         }
     }
 
