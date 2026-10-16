@@ -23,25 +23,8 @@ import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import androidx.room3.withWriteTransaction
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.AbstractCoroutineContextElement
-import kotlin.coroutines.CoroutineContext
-
-private val inTransactionOnThread = ThreadLocal<Boolean?>()
-
-/**
- * Marks the threads a transaction body runs on, so [blockingAtEdge] can refuse to run there.
- * Being a [ThreadContextElement] it is re-applied on every resumption, so the mark follows the
- * body across `withContext` thread hops.
- */
-object DbTransactionMarker : AbstractCoroutineContextElement(Key), ThreadContextElement<Boolean?> {
-    object Key : CoroutineContext.Key<DbTransactionMarker>
-    override fun updateThreadContext(context: CoroutineContext): Boolean? =
-        inTransactionOnThread.get().also { inTransactionOnThread.set(true) }
-    override fun restoreThreadContext(context: CoroutineContext, oldState: Boolean?) = inTransactionOnThread.set(oldState)
-}
 
 class BlockingDbInTransaction : IllegalStateException(
     "blockingAtEdge called inside a database transaction: a nested runBlocking cannot use the transaction's " +
@@ -53,7 +36,7 @@ class BlockingDbInTransaction : IllegalStateException(
  * Throws [BlockingDbInTransaction] inside a marked transaction (the guard of the retired `blockingDb`).
  */
 fun <T> blockingAtEdge(block: suspend CoroutineScope.() -> T): T {
-    if (inTransactionOnThread.get() == true) throw BlockingDbInTransaction()
+    if (isInDbTransactionOnThread()) throw BlockingDbInTransaction()
     return runBlocking(block = block)
 }
 
