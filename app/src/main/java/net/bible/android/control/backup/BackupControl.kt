@@ -966,7 +966,7 @@ class BackupControl(
                     continue
                 }
 
-                val file = File(targetDirectory, name)
+                val file = File(targetDirectory, net.bible.service.installzip.moduleArchiveTargetName(name))
                 if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
                     confFiles.add(file)
 

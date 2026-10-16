@@ -23,6 +23,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.exec
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertFalse
@@ -133,5 +134,46 @@ class ModuleArchiveExtractionTest {
         org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ FileInputStream(zip) })
 
         assertTrue(File(downloadDir, "modules/texts/only-data.dat").exists())
+    }
+
+    private fun myBibleBytes(): ByteArray {
+        val f = File.createTempFile("mb-fixture", ".SQLite3")
+        try {
+            net.bible.service.db.openSqlite(f.path).use { c ->
+                c.exec("CREATE TABLE info (name TEXT, value TEXT)")
+                c.exec("INSERT INTO info VALUES ('description', 'KJV')")
+                c.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
+            }
+            return f.readBytes()
+        } finally { f.delete() }
+    }
+
+    /** DL-15: a MyBible module at the archive root belongs in `mybible/`, auxiliary files alongside. */
+    @Test
+    fun rootLevelMyBibleModuleInstallsUnderMyBibleDirWithAuxiliaryFiles() = runBlocking {
+        File(downloadDir, "mybible").deleteRecursively()
+        val bytes = myBibleBytes()
+        val zip = buildZip("root-mybible.zip", listOf(
+            "KJV.SQLite3" to bytes,
+            "KJV.commentaries.SQLite3" to bytes,
+        ))
+
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ FileInputStream(zip) })
+
+        assertArrayEquals(bytes, File(downloadDir, "mybible/KJV.SQLite3").readBytes())
+        assertArrayEquals(bytes, File(downloadDir, "mybible/KJV.commentaries.SQLite3").readBytes())
+        assertFalse(File(downloadDir, "KJV.SQLite3").exists())
+    }
+
+    /** Control: the existing `mybible/`-prefixed layout is unchanged. */
+    @Test
+    fun prefixedMyBibleModuleStillInstallsUnderMyBibleDir() = runBlocking {
+        File(downloadDir, "mybible").deleteRecursively()
+        val bytes = myBibleBytes()
+        val zip = buildZip("prefixed-mybible.zip", listOf("mybible/KJV2.SQLite3" to bytes))
+
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).extractAndRegisterModuleArchive({ FileInputStream(zip) })
+
+        assertArrayEquals(bytes, File(downloadDir, "mybible/KJV2.SQLite3").readBytes())
     }
 }
