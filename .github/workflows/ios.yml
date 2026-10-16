@@ -6,6 +6,7 @@ on:
     paths:
       - "sharedUi/**"
       - "sharedCore/**"
+      - "sharedData/**"
       - "iosApp/**"
       - "app/bibleview-js/**"
       - "gradle/libs.versions.toml"
@@ -36,6 +37,8 @@ jobs:
         run: ./gradlew -Dorg.gradle.native=false :kdom:iosSimulatorArm64Test
       - name: sharedCore common and iOS tests on the iOS simulator
         run: ./gradlew -Dorg.gradle.native=false :sharedCore:iosSimulatorArm64Test
+      - name: sharedData common tests on the iOS simulator
+        run: ./gradlew -Dorg.gradle.native=false :sharedData:iosSimulatorArm64Test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -44,6 +47,7 @@ jobs:
             jsword/build/reports/tests/iosSimulatorArm64Test
             kdom/build/reports/tests/iosSimulatorArm64Test
             sharedCore/build/reports/tests/iosSimulatorArm64Test
+            sharedData/build/reports/tests/iosSimulatorArm64Test
   ios:
     runs-on: macos-15
     timeout-minutes: 90

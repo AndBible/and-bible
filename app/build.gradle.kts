@@ -491,6 +491,7 @@ dependencies {
     }
 
     implementation(project(":sharedCore"))
+    implementation(project(":sharedData"))
 
     implementation(project(":sharedUi"))
     implementation(platform(libs.androidx.compose.bom))
