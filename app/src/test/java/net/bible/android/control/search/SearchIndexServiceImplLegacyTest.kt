@@ -83,6 +83,19 @@ class SearchIndexServiceImplLegacyTest {
         assertTrue(service.hasIndex("KJV"))
     }
 
+    @Test fun aBookWithoutADriverFallsBackToItsIndexStatus() {
+        fun fake(status: IndexStatus): org.crosswire.jsword.book.Book {
+            val md = org.mockito.Mockito.mock(org.crosswire.jsword.book.BookMetaData::class.java)
+            org.mockito.Mockito.`when`(md.driverName).thenReturn(null)
+            val b = org.mockito.Mockito.mock(org.crosswire.jsword.book.Book::class.java)
+            org.mockito.Mockito.`when`(b.bookMetaData).thenReturn(md)
+            org.mockito.Mockito.`when`(b.indexStatus).thenReturn(status)
+            return b
+        }
+        assertTrue(hasUsableSearchIndex(fake(IndexStatus.DONE)))
+        assertFalse(hasUsableSearchIndex(fake(IndexStatus.UNDONE)))
+    }
+
     @Test fun orphanSweepKeepsTheLegacyDirectoryOfAnInstalledNonSwordBook() {
         val dir = Files.createTempDirectory("legacy-keep").toFile().also { tempFiles += it }
         val file = File(dir, "legacykeep.SQLite3")

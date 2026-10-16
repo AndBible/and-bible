@@ -20,6 +20,7 @@ import org.crosswire.jsword.index.IndexManagerFactory
 import org.crosswire.jsword.index.fts.FtsIndexManager
 import org.crosswire.jsword.index.fts.UnsupportedSearchSyntaxException
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.index.IndexStatus
 
 /**
  * The [UnsupportedSearchSyntaxException] anywhere in the cause chain of [e], if any. `Book.find` can wrap it
@@ -45,6 +46,8 @@ internal fun ftsIndexManager(): FtsIndexManager? = IndexManagerFactory.getIndexM
  * but cannot be opened, so [FtsIndexManager.needsReindexing] is consulted as well.
  */
 internal fun hasUsableSearchIndex(book: Book): Boolean {
+    // A book without a driver (a fake or synthetic book) has no index location: its status is all there is.
+    if (book.bookMetaData.driverName == null) return book.indexStatus == IndexStatus.DONE
     val manager = ftsIndexManager() ?: return IndexManagerFactory.getIndexManager().isIndexed(book)
     return manager.isIndexed(book) && !manager.needsReindexing(book)
 }
