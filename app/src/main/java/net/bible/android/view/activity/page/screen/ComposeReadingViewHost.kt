@@ -79,6 +79,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -430,6 +431,15 @@ class HostedStateRefresher(
  */
 internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Boolean =
     !fullScreen && transportVisible
+
+/**
+ * Shadow elevation of the (mounted, hidden) search sheet. The hidden sheet's shadow spills onto the
+ * reader's bottom row on paper-white greyscale, so both greyscale-base modes (black-and-white e-ink
+ * and pure monochrome) draw none; Normal and Color e-ink keep the Material default.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun searchSheetShadowElevation(mode: DisplayColorMode): Dp =
+    if (mode.isGreyBase) 0.dp else BottomSheetDefaults.Elevation
 
 /**
  * The `menuWindowId`/`paneMenuWindowId` a surface should receive: the open window's id only when
@@ -4547,8 +4557,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                             scaffoldState = searchSheetState,
                             sheetPeekHeight = 0.dp,
                             // The mounted hidden sheet's shadow otherwise spills onto pure-MONO paper.
-                            sheetShadowElevation = if (LocalDisplayColorMode.current == DisplayColorMode.MONOCHROME)
-                                0.dp else BottomSheetDefaults.Elevation,
+                            sheetShadowElevation = searchSheetShadowElevation(LocalDisplayColorMode.current),
                             // BottomSheetScaffold applies no window insets (material3 1.4.0) and this tree is
                             // edge-to-edge: clear the nav bar / cutout ourselves.
                             snackbarHost = { SnackbarHost(searchSnackbarHostState, Modifier.readingSheetInsetPadding()) },
