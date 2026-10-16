@@ -109,7 +109,7 @@ Only run Android builds when testing Android-specific integration.
 ### Core Application
 - `app/src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt`: Central activity managing windows and navigation
 - `app/src/main/java/net/bible/android/control/page/window/WindowRepository.kt`: Core workspace and window state management
-- `app/src/main/java/net/bible/android/database/WorkspaceEntities.kt`: Database schema definitions
+- `sharedData/src/commonMain/kotlin/net/bible/android/database/WorkspaceEntities.kt`: Database schema definitions
 - `app/src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt`: WebView bridge with @JavascriptInterface methods
 - `app/src/main/java/net/bible/android/control/bookmark/BookmarkControl.kt`: Manages bookmarks, labels, StudyPads, and MyNotes
 - `app/src/main/java/net/bible/service/db/DatabaseContainer.kt`: Singleton managing multiple Room databases
@@ -302,16 +302,17 @@ All entities use `IdType` (UUID-based) for primary keys.
 4. Build APK: `./gradlew assembleStandardGithubDebug`
 
 ### Adding Database Migrations
-1. Update entity classes in `WorkspaceEntities.kt` or `BookmarkEntities.kt`
+1. Update entity classes in `WorkspaceEntities.kt` or `BookmarkEntities.kt` (module `:sharedData`,
+   `sharedData/src/commonMain/kotlin/net/bible/android/database/`)
 2. Increment database version constant (e.g., `WORKSPACE_DATABASE_VERSION`)
-3. Create migration class in `app/src/main/java/net/bible/android/database/migrations/`
+3. Create migration class in `sharedData/src/commonMain/kotlin/net/bible/android/database/migrations/`
 4. Add the migration to its database's own migrations array (e.g. `bookmarkMigrations` in
    `BookmarkMigrations.kt`, `workspacesMigrations` in `WorkspacesMigrations.kt`) — that array
    is the actual registration point; `DatabaseContainer.kt` just spreads it
    (`.addMigrations(*bookmarkMigrations)`) and needs no edit of its own.
-5. Commit the KSP-generated schema export it produces at `app/schemas/<Database class>/<new
-   version>.json` (e.g. `app/schemas/net.bible.android.database.BookmarkDatabase/13.json`). It is
-   generated on build (`room.schemaLocation`, `app/build.gradle.kts`) but is not auto-staged by git —
+5. Commit the KSP-generated schema export it produces at `sharedData/schemas/<Database class>/<new
+   version>.json` (e.g. `sharedData/schemas/net.bible.android.database.BookmarkDatabase/13.json`). It is
+   generated on build of `:sharedData` (`room.schemaLocation`, `sharedData/build.gradle.kts`) but is not auto-staged by git —
    forgetting it leaves the new version's schema unfrozen, and any test that reads a schema export by
    path (the migration-test pattern below) or a future migration test spanning this version will not
    find it.

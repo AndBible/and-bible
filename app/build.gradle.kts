@@ -24,7 +24,6 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.accrescent.bundletool)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.roborazzi)
@@ -186,9 +185,6 @@ android {
         buildConfigField("String", "CommitDate", "\"${getGitCommitDate()}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "org.andbible.tests"
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
     }
 
     signingConfigs {
@@ -430,9 +426,7 @@ androidComponents {
 
 
 dependencies {
-    // Room 3 (D1.5); its compiler reads the room.schemaLocation KSP arg (no androidx.room3 Gradle plugin).
-    ksp(libs.androidx.room3.compiler)
-
+    // Room 3 is processed (KSP, schema export) only in :sharedData; :app uses its generated databases.
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")

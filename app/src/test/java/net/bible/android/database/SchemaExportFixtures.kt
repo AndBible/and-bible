@@ -38,15 +38,15 @@ import net.bible.service.sword.epub.getEpubDatabase
 import java.io.File
 
 /**
- * Builds database files from the committed Room schema exports in `app/schemas/`.
+ * Builds database files from the committed Room schema exports in `sharedData/schemas/`.
  * Unit tests run with the module directory (`app/`) as the working directory.
  */
 object SchemaExportFixtures {
     private fun export(dbClass: String, version: Int): JsonObject =
-        Json.parseToJsonElement(File("schemas/$dbClass/$version.json").readText()).jsonObject["database"]!!.jsonObject
+        Json.parseToJsonElement(File("../sharedData/schemas/$dbClass/$version.json").readText()).jsonObject["database"]!!.jsonObject
 
     fun exportedVersions(dbClass: String): List<Int> =
-        File("schemas/$dbClass").listFiles()!!.mapNotNull { it.name.removeSuffix(".json").toIntOrNull() }.sorted()
+        File("../sharedData/schemas/$dbClass").listFiles()!!.mapNotNull { it.name.removeSuffix(".json").toIntOrNull() }.sorted()
 
     fun identityHash(dbClass: String, version: Int): String =
         export(dbClass, version)["identityHash"]!!.jsonPrimitive.content
