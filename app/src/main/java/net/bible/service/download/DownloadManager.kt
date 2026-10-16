@@ -29,6 +29,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.install.InstallException
 import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.install.Installer
+import org.crosswire.jsword.book.install.sword.AbstractSwordInstaller
 import org.crosswire.jsword.book.install.sword.HttpsSwordInstaller
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
@@ -101,9 +102,10 @@ class DownloadManager(
                 // Now we can get the list of books
                 Log.d(TAG, "getting downloadable books")
 
-                // getBooks() never downloads: a missing catalog cache lists nothing, so it must be reloaded here,
-                // also when the stored timestamp says the repository was loaded before (the cache may have been cleared)
-                val cacheMissing = installer.getBooks().size == 0
+                // An empty SWORD catalog is valid; only a missing or unreadable cache needs recovery.
+                // The timestamp alone cannot prove presence because the cache may have been cleared.
+                val cacheMissing = if (installer is AbstractSwordInstaller) !installer.hasCachedBookList()
+                    else installer.getBooks().isEmpty()
                 if (refresh || cacheMissing) {
                     Log.w(TAG, "Reloading book list")
 

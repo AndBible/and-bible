@@ -71,11 +71,12 @@ class RepoServerFixture private constructor(
         }
 
         /** [routes] registers extra handlers (for example `/pkg/K4Latin1.zip`) before the repository is created. */
-        suspend fun create(routes: (TestHttpsServer) -> Unit = {}): RepoServerFixture {
+        suspend fun create(catalogBytes: ByteArray = catalogFile.readBytes(), routes: (TestHttpsServer) -> Unit = {}): RepoServerFixture {
             check(catalogFile.canRead()) { "K5b catalog fixture missing: ${catalogFile.absolutePath}" }
             val server = TestHttpsServer()
             server.route("/cat/mods.d.tar.gz") {
-                it.reply(200, catalogFile.readBytes(), mapOf("Last-Modified" to "Sun, 13 Sep 2020 12:26:40 GMT"))
+                it.reply(200, if (it.requestMethod == "HEAD") byteArrayOf() else catalogBytes,
+                    mapOf("Last-Modified" to "Sun, 13 Sep 2020 12:26:40 GMT"))
             }
             routes(server)
             val base = OkHttpClient.Builder()
