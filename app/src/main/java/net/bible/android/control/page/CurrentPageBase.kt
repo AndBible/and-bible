@@ -29,6 +29,7 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import net.bible.service.download.isRemoved
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.epub.isEpubInstallPending
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
@@ -259,7 +260,9 @@ abstract class CurrentPageBase protected constructor(
                     if (installed !== previous) _currentDocument = installed
                 }
             }
-            if (_currentDocument?.isRemoved == true) {
+            // A replacement in progress keeps the EPUB identity; the block above resolves it once registered.
+            if (_currentDocument?.isRemoved == true &&
+                _currentDocument?.takeIf { it.isEpub }?.let { isEpubInstallPending(it.initials) } != true) {
                 _currentDocument = getDefaultBook()
             }
             return _currentDocument

@@ -136,10 +136,24 @@ private fun moduleOwner(dir: File) = epubModuleOwners.getOrPut(epubInitials(dir.
     kotlinx.coroutines.sync.Mutex()
 }
 
+/** Initials whose install or same-name replacement currently owns the module, possibly with no registered Book. */
+private val pendingEpubInstalls = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+/**
+ * True while an install of [initials] is in progress. A replaced module is briefly absent from the registry while
+ * its old owner drains; this distinguishes that gap from a permanent deletion.
+ */
+fun isEpubInstallPending(initials: String): Boolean = initials in pendingEpubInstalls
+
 suspend fun installEpubModule(dir: File, block: () -> Boolean): Boolean = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
     val owner = moduleOwner(dir)
+    val initials = epubInitials(dir.name)
     owner.lock()
-    try { block() } finally { owner.unlock() }
+    pendingEpubInstalls.add(initials)
+    try { block() } finally {
+        pendingEpubInstalls.remove(initials)
+        owner.unlock()
+    }
 }
 
 /** Retire the registered owner before removing external files and the internal metadata cache. */

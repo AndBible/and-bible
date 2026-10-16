@@ -67,10 +67,18 @@ val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.o
 
 class KeyAndText(val key: BookAndKey, val text: String)
 
+private val ownerGenerations = java.util.concurrent.atomic.AtomicLong()
+
 class EpubBackendState(private val epubDir: File, internal val strings: CoreStrings, private val env: AppEnvironment): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData, strings: CoreStrings, env: AppEnvironment): this(epubDir, strings, env) {
         this._metadata = metadata
     }
+
+    /**
+     * Unique per opened module owner. A same-initials replacement gets a new value, so render caches keyed by it
+     * cannot hand a late result from the retired owner to its replacement.
+     */
+    internal val ownerGeneration: Long = ownerGenerations.incrementAndGet()
 
     private val lifetime = java.lang.Object()
     private var retired = false
