@@ -8,6 +8,9 @@ gradle = "9.5.1"                 # informational; the wrapper is the source of t
 room3 = "3.0.3"                  # D1.5: Room 3 (androidx.room3) with the bundled SQLite driver
 coroutines = "1.11.0"            # bumped from 1.10.2 to the reference level
 kotlinxSerialization = "1.8.1"
+# L1b.5: YAML parser for the LLM tool schemas (KMP: jvm + iosArm64/iosSimulatorArm64); snakeyaml stays as test oracle
+kaml = "0.104.0"
+snakeyaml = "2.2"
 # L1a.6: first ktor; OkHttp engine on Android, Darwin engine wired in I1
 ktor = "3.5.2"
 atomicfu = "0.33.0"
@@ -51,6 +54,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
 androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

@@ -102,4 +102,12 @@ class YamlToJsonParityTest {
             assertTrue("schemas using YAML-1.1-only scalars: $offenders", offenders.isEmpty())
         }
     }
+
+    @Test
+    fun yaml11ScalarDifferenceIsDocumented() {
+        // kaml is YAML 1.2: `yes` stays a string, snakeyaml (1.1) yields a boolean. Pin both so a parser
+        // change that alters this is noticed; the schema scan in yesIsHandledLikeSnakeYaml covers real data.
+        assertEquals(JsonPrimitive("yes"), yamlToJson("default: yes")["default"])
+        assertEquals(JsonPrimitive(true), snakeYamlOracle("default: yes")["default"])
+    }
 }

@@ -443,7 +443,7 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")
-    implementation("org.yaml:snakeyaml:2.2")
+    implementation(libs.kaml)
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
         // Google Drive API
@@ -498,6 +498,7 @@ dependencies {
 
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
 
+    testImplementation(libs.snakeyaml) // oracle for YamlToJsonParityTest
     testImplementation("org.jdom:jdom2:2.0.6.1")
     testImplementation("jaxen:jaxen:2.0.0")
 
