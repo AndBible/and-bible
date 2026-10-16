@@ -590,7 +590,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     }
 
     private val lastTouched: Long get() {
-        return windowRepository.windowList.mapNotNull { it.androidBibleView?.lastTouched }.max()
+        return lastTouchedOf(windowRepository.windowList.mapNotNull { it.androidBibleView?.lastTouched })
     }
 
     private val syncInterval get() =
@@ -648,3 +648,9 @@ internal fun noticeLogoRes(discrete: Boolean): Int =
  * never shown when [discrete] (the maintainer's decision, spec §0).
  */
 internal fun shouldShowBetaNotice(isBeta: Boolean, discrete: Boolean): Boolean = isBeta && !discrete
+
+/**
+ * Most recent touch time among the attached BibleViews. With none attached (e.g. the sync settings
+ * screen is in front) nothing was touched, so 0 lets the sync interval fall back to the last sync time.
+ */
+internal fun lastTouchedOf(touched: List<Long>): Long = touched.maxOrNull() ?: 0L
