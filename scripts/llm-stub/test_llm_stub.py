@@ -203,7 +203,8 @@ class TlsTests(unittest.TestCase):
 
 
 class InstallerSafetyTests(unittest.TestCase):
-    def run_installer(self, serial, hardware="ranchu", avd_name="private-e3", expected_name="private-e3"):
+    def run_installer(self, serial, hardware="ranchu", avd_name="private-e3", expected_name="private-e3",
+                      zygote_query="ok"):
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
             log = folder / "calls.jsonl"
@@ -218,8 +219,13 @@ elif a[-2:] == ["getprop", "ro.hardware"]: print(os.environ["FAKE_HARDWARE"])
 elif a[-2:] == ["getprop", "ro.boot.qemu.avd_name"]: print(os.environ["FAKE_AVD"])
 elif a[-2:] == ["getprop", "ro.build.version.sdk"]: print("36")
 elif a[-2:] == ["id", "-u"]: print("0")
-elif a[-2:] == ["pidof", "zygote64"]: print("111")
-elif a[-2:] == ["pidof", "zygote"]: print("112")
+elif (a[-2:] == ["pidof", "zygote64"] or "pidof zygote64" in a[-1]): print("111")
+elif (a[-2:] == ["pidof", "zygote"] or "pidof zygote)" in a[-1]):
+    mode = os.environ["ZYGOTE_QUERY"]
+    if mode in ("1", "124", "127"):
+        print("adb query failed", file=sys.stderr)
+        sys.exit(int(mode))
+    print("ABSENT" if mode == "absent" else "112")
 ''')
             adb.chmod(0o755)
             # openssl reads a real freshly generated CA, not a canned hash.
@@ -228,6 +234,7 @@ elif a[-2:] == ["pidof", "zygote"]: print("112")
                            capture_output=True, check=True, timeout=15)
             env = {**os.environ, "PATH": str(folder) + ":" + os.environ["PATH"],
                    "CALL_LOG": str(log), "FAKE_HARDWARE": hardware, "FAKE_AVD": avd_name,
+                   "ZYGOTE_QUERY": zygote_query,
                    "ANDROID_ADB_SERVER_PORT": "5037", "ADB_SERVER_SOCKET": "tcp:host:5037"}
             result = subprocess.run(["bash", str(HERE / "install-ca-on-avd.sh"), serial,
                                      expected_name, str(certs / "ca.crt")],
@@ -243,6 +250,21 @@ elif a[-2:] == ["pidof", "zygote"]: print("112")
                 result, calls = self.run_installer(serial, hardware, actual)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertFalse(any(c[1][-1:] in (["root"], ["remount"]) for c in calls))
+
+    def test_second_zygote_query_error_never_reports_success(self):
+        for status in ("1", "124", "127"):
+            with self.subTest(status=status):
+                result, calls = self.run_installer("emulator-5554", zygote_query=status)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn("Installed ", result.stdout)
+                self.assertIn("failed to query zygote", result.stderr)
+                self.assertTrue(any("nsenter -t 111 -m" in " ".join(args) for _, args in calls))
+
+    def test_missing_second_zygote_is_not_a_query_failure(self):
+        result, calls = self.run_installer("emulator-5554", zygote_query="absent")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Installed ", result.stdout)
+        self.assertFalse(any("nsenter -t 112 -m" in " ".join(args) for _, args in calls))
 
     def test_routes_all_writes_to_private_adb_and_mounts_apex_for_both_zygotes(self):
         result, calls = self.run_installer("emulator-5554")

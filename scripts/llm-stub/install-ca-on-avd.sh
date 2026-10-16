@@ -36,7 +36,12 @@ if [ "$sdk" -ge 34 ]; then
     adb_private shell "test -d $apex && mkdir -p $store && cp $apex/* $store/ && cp /system/etc/security/cacerts/$hash.0 $store/ && chown -R 0:0 $store && chmod 755 $store && chmod 644 $store/* && chcon -R u:object_r:system_file:s0 $store && mount --bind $store $apex"
     found=0
     for zygote in zygote64 zygote; do
-        pids="$(adb_private shell pidof "$zygote" | tr -d '\r')" || pids=
+        # Translate only remote pidof's no-match status to a sentinel. A failed
+        # adb/timeout must remain an error even if the other zygote was mounted.
+        pids="$(adb_private shell "pids=\$(pidof $zygote); status=\$?; if [ \$status -eq 0 ]; then printf '%s\\n' \"\$pids\"; elif [ \$status -eq 1 ]; then echo ABSENT; else exit \$status; fi" | tr -d '\r')" \
+            || die "failed to query $zygote; APEX CA installation is incomplete"
+        [ "$pids" = ABSENT ] && continue
+        [ -n "$pids" ] || die "empty PID query result for $zygote"
         for pid in $pids; do
             [[ "$pid" =~ ^[0-9]+$ ]] || die 'invalid zygote PID'
             adb_private shell "nsenter -t $pid -m -- mount --bind $store $apex && nsenter -t $pid -m -- test -r $apex/$hash.0"
