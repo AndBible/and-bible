@@ -177,6 +177,7 @@ object SwordDocumentFacade {
             return
         }
         document?.initials?.let { SearchIndexingService.dequeue(it) }
+        if (realDocument == null) return // nothing to delete (callers may pass null or a book that is no longer installed)
         // unconditional: during a first build no final file exists yet, and the running build must still be cancelled
         IndexManagerFactory.getIndexManager().deleteIndex(realDocument)
     }

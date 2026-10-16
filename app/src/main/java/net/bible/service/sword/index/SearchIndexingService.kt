@@ -146,8 +146,13 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
     override fun onTimeout(startId: Int, fgsType: Int) {
         Log.w(TAG, "Foreground service time limit reached (type $fgsType); indexing continues without the service")
         currentBook = null
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopForegroundCompat()
         stopSelf()
+    }
+
+    private fun stopForegroundCompat() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) stopForeground(STOP_FOREGROUND_REMOVE)
+        else @Suppress("DEPRECATION") stopForeground(true)
     }
 
     override fun onBookStarted(book: Book) {
@@ -160,8 +165,7 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
     override fun onIdle() {
         queue.runIfIdle {
             currentBook = null
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) stopForeground(STOP_FOREGROUND_REMOVE)
-            else @Suppress("DEPRECATION") stopForeground(true)
+            stopForegroundCompat()
             stopSelf()
         }
     }
