@@ -116,8 +116,9 @@ drafting an area.
   its GitHub issue, so the latest comment date is the latest report.
   **Exception:** if you verified in the dev code that the defect is still there *and* the fix is
   Size S, keep it at **P3** (not P1/P2). Examples: #3039 zip duplicate entry (last report 2024-03),
-  #2518 global `lastForceSyncAll`. The age policy is for bugs only. Feature and improvement requests
-  are judged on value.
+  #2518 global `lastForceSyncAll`. The age policy is for **user-reported** bugs only. The
+  maintainer's own technical notes (no user report; for example #3392 Nextcloud error handling) and
+  feature or improvement requests are judged on value.
 - **Judge against `dev`, not `current-stable`.** The Compose port on dev changed a lot of code and
   probably fixed old problems. Little bug-fixing goes into current-stable any more; a Compose beta
   from dev is next. Verify every "still there" and "done" claim in dev. Phrase comments for the
@@ -206,6 +207,9 @@ good ones: `enrich/3135-body.md` (crash with fixed and unfixed entry points) and
 - Closing a crash as fixed because one code path now catches it. Check every entry point; the
   welcome-screen restore had no `try`.
 - Spending time investigating an old bug the age policy would close anyway.
+- Staging after changing decisions the maintainer has not seen. Any change after a review round
+  (new verdicts, new comment texts, priority changes) needs another review round: a table of the
+  changes and the new comment texts, then approval, then staging.
 
 ### How to check "done" in this codebase
 
