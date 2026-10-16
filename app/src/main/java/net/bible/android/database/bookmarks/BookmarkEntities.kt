@@ -17,7 +17,6 @@
 
 package net.bible.android.database.bookmarks
 
-import net.bible.android.database.DbDate
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.Index
@@ -40,15 +39,14 @@ import net.bible.android.database.argb
 import net.bible.android.database.blueOf
 import net.bible.android.database.greenOf
 import net.bible.android.database.redOf
+import net.bible.android.database.DbDate
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
-import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
-import java.util.*
 import kotlin.math.abs
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)!!
@@ -349,7 +347,7 @@ class BookmarkEntities {
 
         @Ignore
         override var fullText: String? = null
-        @Ignore var osisFragment: OsisFragment? = null
+        @Ignore var osisFragment: BookmarkOsisFragment? = null
 
         override val bookmarkEntity get() = BibleBookmark(
             kjvOrdinalStart,
@@ -576,7 +574,7 @@ class BookmarkEntities {
         @Ignore override var fullText: String? = null
         @Ignore override var startText: String? = null
         @Ignore override var endText: String? = null
-        @Ignore var osisFragment: OsisFragment? = null
+        @Ignore var osisFragment: BookmarkOsisFragment? = null
         override val highlightedText: String get() = "$startText<b>$text</b>$endText"
 
         override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {

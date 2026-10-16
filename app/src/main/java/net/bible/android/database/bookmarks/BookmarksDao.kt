@@ -17,7 +17,6 @@
 
 package net.bible.android.database.bookmarks
 
-import net.bible.android.database.DbDate
 import androidx.room3.Dao
 import androidx.room3.Delete
 import androidx.room3.Insert
@@ -25,6 +24,7 @@ import androidx.room3.Query
 import androidx.room3.Update
 import androidx.room3.Upsert
 import net.bible.android.common.toV11n
+import net.bible.android.database.DbDate
 import net.bible.android.database.IdType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -44,7 +44,6 @@ import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkNote
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import java.util.*
 
 const val MAX_SEARCH_RESULTS = 100
 
