@@ -18,8 +18,32 @@ class BibleViewEventNamesParityTest {
 
     @Test fun noHandWrittenEmitsRemain() {
         val src = File("src/main/java").walk().filter { it.extension == "kt" }
-            .filter { Regex("""bibleView\.(emit\(['"]|response\()""").containsMatchIn(it.readText()) }
+            .filter { hasRawBibleViewCall(it.readText()) }
             .map { it.name }.toList()
         assertEquals(emptyList<String>(), src)
     }
+
+    @Test fun rawCallMatcherAllowsWhitespaceButNotTypedOrUnrelatedCalls() {
+        listOf(
+            "bibleView.emit('raw')",
+            "bibleView.emit( \"raw\")",
+            "bibleView.emit(\n  'raw')",
+            "bibleView.emit(\n  \"raw\")",
+            "bibleView.response( 1, null)",
+            "bibleView.response(\n  1, null)",
+        ).also { rawCalls ->
+            assertEquals(emptyList<String>(), rawCalls.filterNot(::hasRawBibleViewCall))
+        }
+
+        listOf(
+            "BibleViewEvents.emit(\"typed\")",
+            "bibleView.emitTyped(\"typed\")",
+            "other.response(1, null)",
+        ).forEach { source ->
+            assertTrue("Expected non-raw call to be allowed: $source", !hasRawBibleViewCall(source))
+        }
+    }
+
+    private fun hasRawBibleViewCall(source: String): Boolean =
+        Regex("""bibleView\.(emit\s*\(\s*['"]|response\s*\()""").containsMatchIn(source)
 }
