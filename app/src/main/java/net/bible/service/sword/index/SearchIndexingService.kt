@@ -262,15 +262,17 @@ internal class IndexingQueue(
 
     private fun drain() {
         while (true) {
-            var idleObserver: IndexingObserver? = null
             val initials = synchronized(lock) {
                 val next = pending.keys.firstOrNull()
                 if (next == null) {
                     running = false
                     current = null
                     currentInitials = null
-                    idleObserver = observer
+                    val o = observer
                     observer = null
+                    // Told under the lock (it is re-entrant): anyone who sees the queue idle (awaitIdle, runIfIdle)
+                    // also sees the observer already stopped, and no enqueue can slip in between.
+                    o?.let { runCatching { it.onIdle() } }
                     lock.notifyAll()
                 } else {
                     val instance = pending.remove(next)
@@ -279,10 +281,7 @@ internal class IndexingQueue(
                 }
                 next
             }
-            if (initials == null) {
-                idleObserver?.let { runCatching { it.onIdle() } }
-                return
-            }
+            if (initials == null) return
             buildOne(initials)
         }
     }
