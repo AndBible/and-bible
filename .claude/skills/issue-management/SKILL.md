@@ -119,6 +119,15 @@ drafting an area.
   #2518 global `lastForceSyncAll`. The age policy is for **user-reported** bugs only. The
   maintainer's own technical notes (no user report; for example #3392 Nextcloud error handling) and
   feature or improvement requests are judged on value.
+- **Prefill the age policy before drafting an area:**
+  `cd docs/superpowers/tools/triage && uv run --no-project --with pyyaml python prefill.py <area>`.
+  - It appends a `stale-info` decision with the standard comment ("last reported in <Month YYYY> ...")
+    for every user-reported bug of the area with no report or comment for 12 months.
+  - It prints the maintainer notes (left for judgement) and the recent bugs.
+  - Existing decisions are kept verbatim, and a rerun adds nothing.
+  - Then read only the prefilled items quickly. Override one only for the exception (verified in dev +
+    Size S -> keep P3) or when it duplicates a newer issue. Spend the real reading time on the recent
+    bugs, the maintainer notes and the feature requests.
 - **Judge against `dev`, not `current-stable`.** The Compose port on dev changed a lot of code and
   probably fixed old problems. Little bug-fixing goes into current-stable any more; a Compose beta
   from dev is next. Verify every "still there" and "done" claim in dev. Phrase comments for the
