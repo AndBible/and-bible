@@ -167,7 +167,12 @@ boot)
         # setsid, NOT the Bash tool's run_in_background: a background task's process tree is
         # reaped later and takes the emulator with it (looks like an emulator crash).
         # The wrapper appends "EMULATOR-EXIT=<code>" to the log: 139 = the emulator SIGSEGV'd.
-        env -u WAYLAND_DISPLAY ${display:+DISPLAY=$display} ANDROID_HOME="$sdk" ANDROID_SDK_ROOT="$sdk" \
+        # No proxy variables: the emulator starts netsimd (the guest's WiFi, its default
+        # network), which takes an ambient http_proxy as its --http-proxy and then CONNECTs every
+        # guest TCP connection to a bare IP, which a hostname allowlist refuses ("Connection
+        # refused" in the guest, even for 10.0.2.2). The guest's own global proxy covers egress.
+        env -u WAYLAND_DISPLAY -u http_proxy -u HTTP_PROXY -u https_proxy -u HTTPS_PROXY \
+            -u no_proxy -u NO_PROXY -u all_proxy -u ALL_PROXY ${display:+DISPLAY=$display} ANDROID_HOME="$sdk" ANDROID_SDK_ROOT="$sdk" \
             setsid nohup bash -c '"$0" "$@"; echo "EMULATOR-EXIT=$? at $(date +%T)"' \
             "$sdk/emulator/emulator" "${args[@]}" >"$log" 2>&1 </dev/null & disown
         for _ in $(seq 72); do

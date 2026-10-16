@@ -50,7 +50,7 @@ stale AVD lock and a wedged `netsimd`, and warns if the emulator is older than 3
 | `EMULATOR-EXIT=139` after "detected a hanging thread" (boot or later) | wedged `netsimd` | `kill`, then `boot` again (boot clears it) |
 | "Another emulator instance is running" | lock left by a killed emulator | `kill`, then `boot` |
 | `health` RenderThread count or RSS climbs with every app restart (37.2.12 leaked ~16 threads and ~250 MB per restart; healthy plateaus after a few) | the leak is back (old emulator or new bug) | Record `health` output and the emulator version; reboot the emulator |
-| App downloads fail | guest proxy unreachable (`health` says NOT reachable) | Check `HTTPS_PROXY` and `egress_allow` for the host |
+| App downloads fail | guest proxy unreachable (`health` says NOT reachable) | Check `/proc/$(pgrep -x netsimd)/environ` has no proxy vars (boot unsets them; netsimd would CONNECT bare IPs), then `HTTPS_PROXY` and `egress_allow` |
 | "Failed to get EGL display" / no renderer | no GLX display for `-gpu host` | `ANDBIBLE_EMU_GPU=swiftshader_indirect scripts/andbible-emu.sh boot`; see `/tmp/andbible-emu-weston.log` |
 
 A crash you cannot explain from this table: get a backtrace with `sudo gdb -p <qemu pid>`
