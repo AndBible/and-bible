@@ -24,6 +24,11 @@
 #   scripts/andbible-emu.sh shot <name>         screenshot -> .local/emu-verify/shots/<name>.png
 #   scripts/andbible-emu.sh crashes [pkg]       FATAL/ANR lines from logcat since last `logmark`
 #   scripts/andbible-emu.sh logmark             clear logcat (start of a box)
+#   scripts/andbible-emu.sh key <EV_KEY names>  press the named keys in order, release in reverse, via the
+#                                               emulator console (adb emu event send); e.g. key KEY_A,
+#                                               key KEY_LEFTALT KEY_O. Prove delivery with a letter first.
+#   scripts/andbible-emu.sh emushot <name>      emulator-side screenshot (adb emu screenrecord screenshot),
+#                                               stored as .local/emu-verify/shots/<name>.png; for FLAG_SECURE screens
 #
 # Package defaults to the standard debug build, net.bible.android.activity.debug.
 # The discrete debug build is com.app.calculator.debug.
@@ -345,7 +350,26 @@ crashes)
     { timeout 20 adb logcat -d -b crash; timeout 20 adb logcat -d -b main,system | grep -E 'ANR in|DataBaseNotReady'; } \
         | tr -d '\r' | grep -v '^---------' | head -60 || true
     ;;
+key)
+    [ $# -ge 1 ] || die "usage: key <EV_KEY name>..."
+    keys=("$@")
+    for k in "${keys[@]}"; do adb emu event send "EV_KEY:$k:1" >/dev/null; done
+    adb emu event send "EV_SYN:SYN_REPORT:0" >/dev/null
+    for ((i = ${#keys[@]} - 1; i >= 0; i--)); do adb emu event send "EV_KEY:${keys[i]}:0" >/dev/null; done
+    adb emu event send "EV_SYN:SYN_REPORT:0" >/dev/null
+    echo "sent ${keys[*]}"
+    ;;
+emushot)
+    name="${1:?name}"; mkdir -p "$kit/shots"
+    tmp="$(mktemp -d)"
+    adb emu screenrecord screenshot "$tmp" >/dev/null
+    sleep 2
+    f="$(ls -t "$tmp"/*.png 2>/dev/null | head -1)"
+    [ -n "$f" ] || die "emulator produced no screenshot in $tmp"
+    mv "$f" "$kit/shots/$name.png"; rmdir "$tmp" 2>/dev/null || true
+    echo "$kit/shots/$name.png"
+    ;;
 *)
-    sed -n '2,41p' "$0"; exit 2
+    sed -n '2,47p' "$0"; exit 2
     ;;
 esac

@@ -136,6 +136,18 @@ emulator with every `*_proxy` variable unset: the guest's default network is the
 set, every guest TCP connection over WiFi ends in "Connection refused", even to `10.0.2.2`, while the
 cellular `eth0` path still works (verified on a fresh strict container, 2026-10-16).
 
+## Hardware keys and secure screens: `key` and `emushot`
+
+`scripts/andbible-emu.sh key <EV_KEY names>` presses the named Linux input keys in order and releases
+them in reverse through the emulator console (`adb emu event send EV_KEY:<KEY>:1 ...`, `EV_SYN`), so
+the app sees a real keyboard: `key KEY_A`, `key KEY_BACK`, `key KEY_SEARCH`, `key KEY_LEFTALT KEY_O`.
+Unlike `adb shell input keyevent` it goes through the virtual keyboard device. Before classifying app
+behaviour, prove delivery with a harmless key (a letter into a focused search field, read back).
+
+`scripts/andbible-emu.sh emushot <name>` takes the screenshot on the emulator side
+(`adb emu screenrecord screenshot`) and stores it like `shot`. It is meant for FLAG_SECURE (discrete)
+screens, where `screencap` is black; see the E4a results for whether it bypasses the flag.
+
 ## Seeding a debuggable BibleView: `scripts/seed-emulator-webview-debug.sh`
 
 ```bash
