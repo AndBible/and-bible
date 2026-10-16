@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlinMultiplatformLibrary)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -40,5 +41,15 @@ kotlin {
             implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
             implementation(libs.ktor.client.mock)
         }
+    }
+}
+
+// iOS simulator tests: log each test start and the full failure, so a hung or crashed test is named in the CI log.
+tasks.withType<AbstractTestTask>().matching { it.name == "iosSimulatorArm64Test" }.configureEach {
+    testLogging {
+        showStandardStreams = true
+        showStackTraces = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        events("started", "passed", "failed", "skipped")
     }
 }

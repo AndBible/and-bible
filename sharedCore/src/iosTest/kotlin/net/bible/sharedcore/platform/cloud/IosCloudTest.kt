@@ -137,7 +137,7 @@ class IosCloudTest {
 
     private suspend fun inTemporaryDirectory(block: suspend (Path) -> Unit) {
         val directory = NSTemporaryDirectory().toPath() / "i1-cloud-${NSUUID().UUIDString}"
-        FileSystem.SYSTEM.createDirectory(directory)
+        FileSystem.SYSTEM.createDirectories(directory)
         try { block(directory) }
         finally { FileSystem.SYSTEM.deleteRecursively(directory, mustExist = false) }
     }

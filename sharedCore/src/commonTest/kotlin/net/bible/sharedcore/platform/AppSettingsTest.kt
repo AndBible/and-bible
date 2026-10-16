@@ -2,7 +2,9 @@ package net.bible.sharedcore.platform
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.serialization.Serializable
 
+@Serializable
 private enum class Fruit { APPLE, PEAR }
 
 class AppSettingsTest {

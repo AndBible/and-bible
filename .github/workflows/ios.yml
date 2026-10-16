@@ -35,6 +35,7 @@ jobs:
       - name: kdom common tests on the iOS simulator
         run: ./gradlew -Dorg.gradle.native=false :kdom:iosSimulatorArm64Test
       - name: sharedCore common and iOS tests on the iOS simulator
+        timeout-minutes: 20
         run: ./gradlew -Dorg.gradle.native=false :sharedCore:iosSimulatorArm64Test
       - uses: actions/upload-artifact@v4
         if: always()
