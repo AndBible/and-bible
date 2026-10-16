@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsService {
@@ -27,6 +28,7 @@ class FakeSyncSettingsService(initial: SyncSettingsSnapshot) : SyncSettingsServi
     override fun setDocumentSyncToggle(key: String, value: Boolean) { calls += "docToggle:$key=$value" }
     override fun setText(key: String, value: String): Boolean { calls += "text:$key=$value"; return textResult }
     var textResult = true
+    override fun forgetCertificate() { calls += "forgetCert" }
     override fun setAdapter(value: String) { calls += "adapter=$value" }
     override suspend fun resetSync() { calls += "reset" }
     override fun formatEnableDocumentsMessage(summary: DocSyncSummaryData) = "docs-msg"
@@ -43,13 +45,19 @@ fun syncSnap(
     wifiOnlyVisible: Boolean = false,
     adapterEnabled: Boolean = true,
     folderPath: String = "f",
+    serverUrl: String = "https://s",
+    serverUrlHint: String? = null,
+    httpsOnly: Boolean = false,
+    certificateVisible: Boolean = false,
+    certificateSummary: String = "",
+    adapter: String = "NEXT_CLOUD",
 ) = SyncSettingsSnapshot(
-    adapter = "NEXT_CLOUD",
+    adapter = adapter,
     adapterChoices = listOf(Choice2("GOOGLE_DRIVE", "Google Drive"), Choice2("NEXT_CLOUD", "Nextcloud")),
     adapterSummary = "adapter summary",
     adapterEnabled = adapterEnabled,
     cloudInfoSummary = null,
-    serverUrl = "https://s", username = "u", password = "p", folderPath = folderPath,
+    serverUrl = serverUrl, username = "u", password = "p", folderPath = folderPath,
     credsVisible = credsVisible, credsEnabled = credsEnabled,
     resetVisible = resetVisible, cloudInfoVisible = cloudInfoVisible,
     categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { false },
@@ -58,6 +66,8 @@ fun syncSnap(
     documentCategoryVisible = documentCategoryVisible,
     autoDownload = true, autoUpload = true, autoDelete = true, wifiOnly = true,
     autoTogglesVisible = autoTogglesVisible, wifiOnlyVisible = wifiOnlyVisible,
+    serverUrlHint = serverUrlHint, httpsOnly = httpsOnly,
+    certificateVisible = certificateVisible, certificateSummary = certificateSummary,
 )
 
 class SyncSettingsControllerTest {
@@ -76,6 +86,51 @@ class SyncSettingsControllerTest {
         assertFalse("cloud_sync_reset" in keys)       // resetVisible=false
         assertFalse("document_sync_category" in keys)  // documentCategoryVisible=false
         assertFalse("sync_enable_readingplans" in keys) // always omitted
+    }
+
+    @Test fun certificateRow_hiddenByDefault_visibleWithPin() {
+        val hidden = controller(FakeSyncSettingsService(syncSnap()))
+        assertFalse(hidden.state.value.screen.items.first { it.key == "webdav_sync_cert" }.visible)
+        val shown = controller(FakeSyncSettingsService(syncSnap(certificateVisible = true, certificateSummary = "AB:CD…")))
+        val row = shown.state.value.screen.items.first { it.key == "webdav_sync_cert" }
+        assertTrue(row.visible)
+        assertEquals("AB:CD…", (row as SettingsItem.NavigationRow).summary)
+    }
+
+    @Test fun certificateRow_orderedAfterFolderPath() {
+        val keys = controller(FakeSyncSettingsService(syncSnap(certificateVisible = true))).state.value.screen.visibleItems.map { it.key }
+        assertEquals(keys.indexOf("cloud_sync_folder_path") + 1, keys.indexOf("webdav_sync_cert"))
+    }
+
+    @Test fun certificateRow_forgetFlow() {
+        val svc = FakeSyncSettingsService(syncSnap(certificateVisible = true))
+        val c = controller(svc)
+        c.onNavigate("webdav_sync_cert")
+        assertTrue(c.state.value.dialog is SyncDialog.ForgetCertificate)
+        c.confirmForgetCertificate()
+        assertTrue("forgetCert" in svc.calls)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun invalidUrl_webDav_showsHttpsMessage() {
+        val svc = FakeSyncSettingsService(syncSnap(httpsOnly = true)).apply { textResult = false }
+        val c = controller(svc)
+        c.onTextInput("cloud_sync_server_url", "http://nas")
+        assertEquals(SyncSettingsLabels.forTest().httpsRequiredMessage, (c.state.value.dialog as SyncDialog.UrlError).message)
+    }
+
+    @Test fun invalidUrl_notWebDav_showsGenericMessage() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { textResult = false }
+        val c = controller(svc)
+        c.onTextInput("cloud_sync_server_url", "nope")
+        assertEquals(SyncSettingsLabels.forTest().invalidUrlMessage, (c.state.value.dialog as SyncDialog.UrlError).message)
+    }
+
+    @Test fun serverUrlHint_shownOnlyWhenUrlBlank() {
+        val blank = controller(FakeSyncSettingsService(syncSnap(serverUrl = "", serverUrlHint = "hint")))
+        assertEquals("hint", (blank.state.value.screen.items.first { it.key == "cloud_sync_server_url" } as SettingsItem.TextInputRow).summary)
+        val filled = controller(FakeSyncSettingsService(syncSnap(serverUrl = "https://x", serverUrlHint = "hint")))
+        assertNull((filled.state.value.screen.items.first { it.key == "cloud_sync_server_url" } as SettingsItem.TextInputRow).summary)
     }
 
     @Test fun credsHiddenForGoogleDrive() {
@@ -208,13 +263,13 @@ class SyncSettingsControllerTest {
         assertEquals(emptyList(), items.filterIsInstance<SettingsItem.Category>().filter { it.iconKeyOrNull() != null }.map { it.key })
     }
 
-    @Test fun theEighteenPortedSyncRowsAreAllPresent() {
+    @Test fun theNineteenSyncRowsAreAllPresent() {
         val rows = controller(FakeSyncSettingsService(syncSnap())).state.value.screen.items
             .filter { it !is SettingsItem.Category }.map { it.key }
         assertEquals(
             listOf(
                 "sync_adapter", "cloud_sync_reset", "cloud_sync_info", "cloud_sync_server_url",
-                "cloud_sync_username", "cloud_sync_password", "cloud_sync_folder_path",
+                "cloud_sync_username", "cloud_sync_password", "cloud_sync_folder_path", "webdav_sync_cert",
                 "sync_enable_bookmarks", "sync_enable_workspaces", "sync_enable_mydocuments",
                 "sync_enable_ai_settings", "sync_enable_progress", "sync_enable_documents",
                 "sync_documents_auto_download", "sync_documents_auto_upload",
