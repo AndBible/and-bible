@@ -1137,13 +1137,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         else finish()
     }
 
-    /**
-     * The device SEARCH key -- classic `MainBibleActivity.onKeyUp`, F6 Task 8b entry point 6, missed by
-     * the port and found when slice 8 F2 rehosted `ReadingSearchEntryPointsTest`: retarget into the
-     * reading view's own search when a Compose reading view is mounted, else the classic search
-     * Intent. Only on the reading destination, as classic answered it only by being the reading
-     * Activity; every other destination reaches `super` unchanged.
-     */
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         // E4a RV-8: the focused BibleView (WebView) consumes SEARCH's key-up before it can bubble up to
         // `onKeyUp`, so the key only worked on a fresh start. Answer it here, ahead of the view tree.
@@ -1153,6 +1146,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         return super.dispatchKeyEvent(event)
     }
 
+    /**
+     * The device SEARCH key -- classic `MainBibleActivity.onKeyUp`, F6 Task 8b entry point 6, missed by
+     * the port and found when slice 8 F2 rehosted `ReadingSearchEntryPointsTest`: retarget into the
+     * reading view's own search when a Compose reading view is mounted, else the classic search
+     * Intent. Only on the reading destination, as classic answered it only by being the reading
+     * Activity; every other destination reaches `super` unchanged.
+     */
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_SEARCH && readingDestinationIsCurrent() &&
             windowControl.activeWindowPageManager.currentPage.isSearchable
