@@ -34,6 +34,8 @@ import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import net.bible.sharedcore.platform.OrderedLauncher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
@@ -79,30 +81,66 @@ class LabelEditPersistenceTest {
             .apply { isAccessible = true }.invoke(host, LabelEditResult.Saved(data.toJSON()))
     }
 
+    /** Deterministic barrier: the early writes run FIFO on the "workspace" key, so this returns after them. */
+    private fun awaitQueuedWrites() = runBlocking {
+        withTimeout(10_000) { GlobalContext.get().get<OrderedLauncher>().launch("workspace") {}.join() }
+    }
+
+    private fun newHost() = Robolectric.buildActivity(NavHostComposeActivity::class.java)
+
     @Test fun `OK in Edit label persists an existing label before the manager is left`() {
         val original = Label(name = "D5 existing", color = 0xFF0000FF.toInt())
         runBlocking { dao.insert(original) }
-        val host = Robolectric.buildActivity(NavHostComposeActivity::class.java).get()
-        openSession(host, original, isNew = false)
+        val activity = newHost()
+        try {
+            val host = activity.get()
+            openSession(host, original, isNew = false)
 
-        val newColor = 0xFFFF9800.toInt()
-        pressOk(host, original.copy(color = newColor))
-        // No saveManageLabelsAndExit here: the user is still on the label list ("force-stop" point).
+            val newColor = 0xFFFF9800.toInt()
+            pressOk(host, original.copy(color = newColor))
+            // No saveManageLabelsAndExit: the user is still on the label list (the "force-stop" point).
 
-        runBlocking {
-            withTimeout(10_000) { while (dao.labelById(original.id)!!.color != newColor) delay(20) }
+            awaitQueuedWrites()
+            assertEquals(newColor, runBlocking { dao.labelById(original.id)!!.color })
+        } finally {
+            activity.close()
         }
-        assertEquals(newColor, runBlocking { dao.labelById(original.id)!!.color })
     }
 
-    @Test fun `OK on a new label stays staged until the manager is left`() {
+    @Test fun `a new label stays staged across two OKs and the exit save inserts it once`() {
         val fresh = Label(new = true, name = "D5 fresh")
-        val host = Robolectric.buildActivity(NavHostComposeActivity::class.java).get()
-        openSession(host, fresh, isNew = true)
+        val activity = newHost()
+        try {
+            val host = activity.get()
+            openSession(host, fresh, isNew = true)
 
-        pressOk(host, fresh.copy(color = 0xFF4CAF50.toInt(), new = true))
-        runBlocking { delay(500) }
+            pressOk(host, fresh.copy(color = 0xFF4CAF50.toInt(), new = true))
+            awaitQueuedWrites()
+            assertNull("first OK must not write a new label", runBlocking { dao.labelById(fresh.id) })
 
-        assertEquals(null, runBlocking { dao.labelById(fresh.id) })
+            // Re-edit the same still-new label (the manager's list now shows it as a normal row).
+            val pendingClass = Class.forName("net.bible.android.view.activity.nav.NavHostComposeActivity\$PendingLabelEdit")
+            val sessionField = NavHostComposeActivity::class.java.getDeclaredField("manageLabelsSession").apply { isAccessible = true }
+            @Suppress("UNCHECKED_CAST") val session = (sessionField.get(host) as Pair<String, Any>).second
+            val staged = (session.javaClass.getDeclaredField("labelsById").apply { isAccessible = true }
+                .get(session) as Map<String, Label>)[fresh.id.toString()]!!
+            session.javaClass.getDeclaredField("pendingEdit").apply { isAccessible = true }
+                .set(session, pendingClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(staged, false))
+            pressOk(host, staged.copy(color = 0xFF9C27B0.toInt(), new = true))
+            awaitQueuedWrites()
+            assertNull("second OK must not write a still-new label", runBlocking { dao.labelById(fresh.id) })
+
+            // The exit save inserts it exactly once.
+            NavHostComposeActivity::class.java.getDeclaredMethod(
+                "saveManageLabelsAndExit", session.javaClass, kotlin.jvm.functions.Function1::class.java,
+            ).apply { isAccessible = true }.invoke(host, session, { _: Any -> })
+            runBlocking {
+                withTimeout(10_000) { while (dao.labelById(fresh.id) == null) delay(20) }
+            }
+            assertEquals(1, runBlocking { dao.allLabelsSortedByName() }.count { it.name == "D5 fresh" })
+            assertEquals(0xFF9C27B0.toInt(), runBlocking { dao.labelById(fresh.id)!!.color })
+        } finally {
+            activity.close()
+        }
     }
 }

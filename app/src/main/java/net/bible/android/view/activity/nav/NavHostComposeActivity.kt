@@ -4961,14 +4961,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 autoAssignPrimaryFlag = newLabelData.isAutoAssignPrimary,
             )
 
-            // SU-14 D5: an EXISTING label is written the moment the editor's OK arrives, not only at
-            // the manager's exit (saveManageLabelsAndExit), so a process kill while the user is still
-            // on the list cannot lose a colour/style edit the list already shows. The exit write
-            // stays (it is idempotent). A NEW label stays staged: its temporary id is remapped at
-            // exit and it only exists once the manager is saved. FIFO with the override write below.
-            if (!pending.isNew) {
-                orderedLauncher.launch("workspace") { bookmarkControl.insertOrUpdateLabel(updatedLabel) }
-            }
+            // SU-14 D5: a label that already exists in Room (`!updatedLabel.new`: judged on the entity,
+            // not on this edit, because a label created during this visit is still `new` on its second
+            // OK) is written the moment the editor's OK arrives, not only at the manager's exit
+            // (saveManageLabelsAndExit), so a process kill while the user is still on the list cannot
+            // lose an edit the list already shows. The exit write stays (idempotent update). A label
+            // that is still new stays staged: it is inserted, and its temporary id remapped, at exit.
+            // `insertOrUpdateLabel` emits LabelUpserted itself, so it replaces `notifyLabelChanged`;
+            // with an override it runs AFTER the override write, keeping override-before-notification.
+            val earlyWrite = !updatedLabel.new
 
             // Workspace override (classic `ManageLabels.kt:637-649`).
             val returnedOverride = newLabelData.workspaceOverride
@@ -4980,9 +4981,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     } else {
                         dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
                     }
-                    bookmarkControl.notifyLabelChanged(updatedLabel)
+                    if (earlyWrite) bookmarkControl.insertOrUpdateLabel(updatedLabel)
+                    else bookmarkControl.notifyLabelChanged(updatedLabel)
                     controller.refresh() // Re-derive the indicator after persistence.
                 }
+            } else if (earlyWrite) {
+                orderedLauncher.launch("workspace") { bookmarkControl.insertOrUpdateLabel(updatedLabel) }
             }
         }
     }

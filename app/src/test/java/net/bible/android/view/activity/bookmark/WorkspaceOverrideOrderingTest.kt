@@ -87,7 +87,7 @@ class WorkspaceOverrideOrderingTest {
             NavHostComposeActivity::class.java.getDeclaredField("manageLabelsSession").apply { isAccessible = true }.set(host, "fifo" to session)
             val pendingClass = Class.forName("net.bible.android.view.activity.nav.NavHostComposeActivity\$PendingLabelEdit")
             fun apply(value: WorkspaceEntities.WorkspaceLabelOverride) {
-                val pending = pendingClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(label, true) // staged label: this test is about the override queue only
+                val pending = pendingClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(label, false)
                 sessionClass.getDeclaredField("pendingEdit").apply { isAccessible = true }.set(session, pending)
                 val data = LabelEditContract.LabelData(false, label, false, false, false, false, workspaceOverride = value)
                 NavHostComposeActivity::class.java.getDeclaredMethod("applyLabelEditResult", LabelEditResult::class.java)
