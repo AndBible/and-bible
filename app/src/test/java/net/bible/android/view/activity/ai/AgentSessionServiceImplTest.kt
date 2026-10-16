@@ -137,12 +137,16 @@ class AgentSessionServiceImplTest {
 
     @Test
     fun aRealCurrentWorkspaceSessionRefreshesRunningThenStoppedSnapshot() = runBlocking {
-        val ws = CommonUtils.windowControl.windowRepository.id
-        // Do not overwrite a session left by another test; restore this absent state in finally.
+        // A new service resolves the current Koin binding, unlike CommonUtils's memoized one.
+        val repo = org.koin.core.context.GlobalContext.get()
+            .get<net.bible.android.control.page.window.WindowControl>().windowRepository
+        val original = repo.id
+        val ws = IdType()
         assertNull(AgentSessionManager.getSession(ws))
-        val service = AgentSessionServiceImpl()
-        val session = AgentSessionManager.getOrCreateSession(ws)
         try {
+            repo.id = ws
+            val service = AgentSessionServiceImpl()
+            val session = AgentSessionManager.getOrCreateSession(ws)
             assertTrue(session.tryStart(AgentContext(promptId = IdType())))
             shadowOf(Looper.getMainLooper()).idle()
             kotlinx.coroutines.withTimeout(5000) { service.snapshot.first { it.running } }
@@ -155,6 +159,7 @@ class AgentSessionServiceImplTest {
             assertFalse(service.snapshot.value.running)
             assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
         } finally {
+            repo.id = original
             AgentSessionManager.clearSession(ws)
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -186,7 +191,8 @@ class AgentSessionServiceImplTest {
     /** F127: a stop reason belongs to its workspace; a switch must not show another workspace's reason. */
     @Test
     fun theStopReasonFollowsTheWorkspaceAcrossASwitch() = runBlocking {
-        val repo = CommonUtils.windowControl.windowRepository
+        val repo = org.koin.core.context.GlobalContext.get()
+            .get<net.bible.android.control.page.window.WindowControl>().windowRepository
         val original = repo.id
         val a = IdType()
         val b = IdType()
