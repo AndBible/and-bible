@@ -41,7 +41,6 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import java.util.Date
 
 
 class Converters {
@@ -91,10 +90,10 @@ class Converters {
     fun fromTextContentType(value: TextContentType?) = value?.name
 
     @ColumnTypeConverter
-    fun fromTimestamp(value: Long): Date = Date(value)
+    fun fromTimestamp(value: Long): DbDate = DbDate(value)
 
     @ColumnTypeConverter
-    fun dateToTimestamp(date: Date): Long = date.time
+    fun dateToTimestamp(date: DbDate): Long = date.getTime()
 
     @ColumnTypeConverter
     fun verseRangeToStr(v: VerseRange?): String? =

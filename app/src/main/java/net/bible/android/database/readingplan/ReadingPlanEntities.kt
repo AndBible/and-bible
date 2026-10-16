@@ -22,7 +22,7 @@ import androidx.room3.Entity
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
 import net.bible.android.database.IdType
-import java.util.Date
+import net.bible.android.database.DbDate
 
 class ReadingPlanEntities {
 
@@ -32,7 +32,7 @@ class ReadingPlanEntities {
     @Entity(indices = [Index("planCode", unique = true)])
     data class ReadingPlan(
         val planCode: String,
-        var planStartDate: Date,
+        var planStartDate: DbDate,
         @ColumnInfo(defaultValue = "1") var planCurrentDay: Int = 1,
         @PrimaryKey val id: IdType = IdType()
     )

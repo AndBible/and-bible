@@ -17,6 +17,7 @@
 
 package net.bible.android.database.bookmarks
 
+import net.bible.android.database.DbDate
 import androidx.room3.Dao
 import androidx.room3.Delete
 import androidx.room3.Insert
@@ -253,10 +254,10 @@ interface BookmarkDao {
     }
 
     @Query("UPDATE BibleBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
-    suspend fun updateBibleBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
+    suspend fun updateBibleBookmarkDate(id: IdType, lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()))
 
     @Query("UPDATE GenericBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
-    suspend fun updateGenericBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
+    suspend fun updateGenericBookmarkDate(id: IdType, lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()))
 
     suspend fun deleteBookmarks(bs: List<BaseBookmarkWithNotes>) = when(bs.first()) {
         is BibleBookmarkWithNotes -> deleteBookmarksById(bs.map {it.id})

@@ -706,7 +706,7 @@ class WorkspaceEntities {
     )
     data class HistoryItem(
         val windowId: IdType,
-        val createdAt: Date,
+        val createdAt: DbDate,
         val document: String,
         val key: String,
         @ColumnInfo(defaultValue = "NULL")

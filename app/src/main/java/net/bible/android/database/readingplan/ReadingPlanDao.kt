@@ -26,7 +26,7 @@ import androidx.room3.Query
 import net.bible.android.database.IdType
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
-import java.util.Date
+import net.bible.android.database.DbDate
 
 /**
  * Dao for readingplan and readingplan_status tables
@@ -79,7 +79,7 @@ interface ReadingPlanDao {
         """)
     suspend fun updatePlan(
         planCode: String,
-        planStartDate: Date,
+        planStartDate: DbDate,
         planCurrentDay: Int,
         id: IdType
     )

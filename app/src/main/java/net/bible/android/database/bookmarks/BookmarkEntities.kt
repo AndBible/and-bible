@@ -17,6 +17,7 @@
 
 package net.bible.android.database.bookmarks
 
+import net.bible.android.database.DbDate
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.Index
@@ -147,13 +148,13 @@ class BookmarkEntities {
 
     interface BaseBookmark {
         var id: IdType
-        var createdAt: Date
+        var createdAt: DbDate
 
         var startOffset: Int?
         var endOffset: Int?
 
         var primaryLabelId: IdType?
-        var lastUpdatedOn: Date
+        var lastUpdatedOn: DbDate
         var wholeVerse: Boolean
         var playbackSettings: PlaybackSettings?
         var customIcon: String?
@@ -180,12 +181,12 @@ class BookmarkEntities {
         val bookmarkEntity: BaseBookmark
         val noteEntity: BaseBookmarkNotes?
         var id: IdType
-        var createdAt: Date
+        var createdAt: DbDate
         var startOffset: Int?
         var endOffset: Int?
         var primaryLabelId: IdType?
         var notes: String?
-        var lastUpdatedOn: Date
+        var lastUpdatedOn: DbDate
         var wholeVerse: Boolean
         var textRange: TextRange?
         var playbackSettings: PlaybackSettings?
@@ -216,13 +217,13 @@ class BookmarkEntities {
         var v11n: Versification,
         override var playbackSettings: PlaybackSettings?,
         override var id: IdType = IdType(),
-        override var createdAt: Date = Date(System.currentTimeMillis()),
+        override var createdAt: DbDate = DbDate(System.currentTimeMillis()),
         var book: AbstractPassageBook? = null,
         override var startOffset: Int?,
         override var endOffset: Int?,
         override var primaryLabelId: IdType? = null,
         override var notes: String? = null,
-        override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        override var lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
         override var wholeVerse: Boolean = false,
         var type: BookmarkType? = null,
         override var customIcon: String? = null,
@@ -241,13 +242,13 @@ class BookmarkEntities {
             v11n: Versification = KJVA,
             playbackSettings: PlaybackSettings? = null,
             id: IdType = IdType(),
-            createdAt: Date = Date(System.currentTimeMillis()),
+            createdAt: DbDate = DbDate(System.currentTimeMillis()),
             book: AbstractPassageBook? = null,
             startOffset: Int? = null,
             endOffset: Int? = null,
             primaryLabelId: IdType? = null,
             notes: String? = null,
-            lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+            lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
             wholeVerse: Boolean = true,
             type: BookmarkType? = null,
             customIcon: String? = null,
@@ -409,7 +410,7 @@ class BookmarkEntities {
 
         @PrimaryKey override var id: IdType = IdType(),
 
-        override var createdAt: Date = Date(System.currentTimeMillis()),
+        override var createdAt: DbDate = DbDate(System.currentTimeMillis()),
 
         var book: AbstractPassageBook? = null,
 
@@ -418,7 +419,7 @@ class BookmarkEntities {
 
         @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
 
-        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
@@ -454,7 +455,7 @@ class BookmarkEntities {
     data class GenericBookmarkWithNotes(
         override var id: IdType = IdType(),
         var key: String,
-        override var createdAt: Date = Date(System.currentTimeMillis()),
+        override var createdAt: DbDate = DbDate(System.currentTimeMillis()),
         var bookInitials: String,
 
         var ordinalStart: Int?,
@@ -464,7 +465,7 @@ class BookmarkEntities {
 
         override var primaryLabelId: IdType? = null,
         override var notes: String? = null,
-        override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        override var lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
         override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings?,
         override var customIcon: String? = null,
@@ -478,7 +479,7 @@ class BookmarkEntities {
         constructor(
             id: IdType = IdType(),
             key: String,
-            createdAt: Date = Date(System.currentTimeMillis()),
+            createdAt: DbDate = DbDate(System.currentTimeMillis()),
             bookInitials: String,
             ordinalStart: Int?,
             ordinalEnd: Int?,
@@ -488,7 +489,7 @@ class BookmarkEntities {
             notes: String? = null,
             wholeVerse: Boolean = false,
             playbackSettings: PlaybackSettings? = null,
-            lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+            lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
             customIcon: String? = null,
             editAction: EditAction? = null,
             sourcePromptId: IdType? = null,
@@ -514,14 +515,14 @@ class BookmarkEntities {
         constructor(
             id: IdType = IdType(),
             key: String,
-            createdAt: Date = Date(System.currentTimeMillis()),
+            createdAt: DbDate = DbDate(System.currentTimeMillis()),
             book: Book,
             ordinalStart: Int?,
             ordinalEnd: Int?,
             textRange: TextRange?,
             primaryLabelId: IdType? = null,
             notes: String? = null,
-            lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+            lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
             wholeVerse: Boolean = false,
             playbackSettings: PlaybackSettings? = null,
             customIcon: String? = null,
@@ -629,7 +630,7 @@ class BookmarkEntities {
     data class GenericBookmark(
         @PrimaryKey override var id: IdType = IdType(),
         var key: String,
-        override var createdAt: Date = Date(System.currentTimeMillis()),
+        override var createdAt: DbDate = DbDate(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "''") var bookInitials: String,
 
         var ordinalStart: Int?,
@@ -638,7 +639,7 @@ class BookmarkEntities {
         override var endOffset: Int?,
 
         @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
-        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,

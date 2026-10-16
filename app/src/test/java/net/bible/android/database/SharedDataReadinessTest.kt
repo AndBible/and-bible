@@ -171,7 +171,7 @@ class SharedDataReadinessTest {
         // Explicit inventory: missing/deleted files fail instead of silently shrinking the gate.
         val MOVE_SET: List<String> = listOf(
             "ArgbColor.kt", "CachedCloudDocument.kt", "Converters.kt", "CustomRepository.kt", "Databases.kt",
-            "DocumentSearch.kt", "DocumentSyncEntities.kt", "Epub.kt", "IdType.kt",
+            "DbDate.kt", "DocumentSearch.kt", "DocumentSyncEntities.kt", "Epub.kt", "IdType.kt",
             "OldMonolithicAppDatabase.kt", "PlatformRandom.kt", "Settings.kt", "SwordDocumentInfo.kt", "SyncableRoomDatabase.kt",
             "WorkspaceDao.kt", "WorkspaceEntities.kt", "bookmarks/BookmarkEntities.kt",
             "bookmarks/BookmarksDao.kt", "bookmarks/SpeakSettings.kt",
@@ -193,6 +193,7 @@ class SharedDataReadinessTest {
 
         // Platform seams whose JVM backing is validated exactly and separately; replaced by expect/actual in Task 6.
         val PLATFORM_BACKED: Map<String, Set<String>> = mapOf(
+            "$DATABASE_DIRECTORY/DbDate.kt" to setOf("java.util.Date"),
             "$DATABASE_DIRECTORY/PlatformRandom.kt" to setOf("java.security.SecureRandom")
         )
 
@@ -201,15 +202,13 @@ class SharedDataReadinessTest {
             "$DATABASE_DIRECTORY/CachedCloudDocument.kt" to setOf(
                 "net.bible.service.cloudsync.documents.DocumentSyncMeta", "net.bible.service.cloudsync.documents.DocumentType"),
             "$DATABASE_DIRECTORY/Converters.kt" to setOf(
-                "java.util.Date", "net.bible.service.llm.ApiFormat", "net.bible.service.llm.agent.PermissionMode"),
+                "net.bible.service.llm.ApiFormat", "net.bible.service.llm.agent.PermissionMode"),
             "$DATABASE_DIRECTORY/CustomRepository.kt" to setOf("java.util.*"),
             "$DATABASE_DIRECTORY/WorkspaceEntities.kt" to setOf("java.util.*"),
             "$DATABASE_DIRECTORY/bookmarks/BookmarkEntities.kt" to setOf("java.util.*", "net.bible.android.misc.OsisFragment"),
             "$DATABASE_DIRECTORY/bookmarks/BookmarksDao.kt" to setOf("java.util.*"),
             "$DATABASE_DIRECTORY/bookmarks/SpeakSettings.kt" to setOf("java.lang.IllegalArgumentException"),
             "$DATABASE_DIRECTORY/migrations/DatabaseSplitMigrations.kt" to setOf("android.app.Application"),
-            "$DATABASE_DIRECTORY/readingplan/ReadingPlanDao.kt" to setOf("java.util.Date"),
-            "$DATABASE_DIRECTORY/readingplan/ReadingPlanEntities.kt" to setOf("java.util.Date"),
             "app/src/main/java/net/bible/service/db/OpenSqlite.kt" to setOf("java.io.File"),
             "app/src/main/java/net/bible/service/llm/AgentPromptEntities.kt" to setOf("net.bible.service.llm.agent.PermissionMode")
         )
