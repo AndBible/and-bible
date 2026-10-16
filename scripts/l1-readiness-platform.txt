@@ -28,7 +28,7 @@ service/db/AppDatabaseFiles.kt	Android database file locations
 service/db/ImportDb.kt	Android database import host (file picker results, ContentResolver, restore replacement)
 service/db/oldmigrations/OldMigrations.kt	Legacy Android SQLite migrations run on the original database files
 service/db/oldmigrations/DEPRECATED_ReadingPlanDatabaseDefinition.kt	Legacy Android SQLite schema kept for the old migrations
-service/db/BlockingDb.kt	Holds blockingAtEdge and the transaction markers (excluded from the unmarked-bridge check by path)
+service/db/BlockingDb.kt	Holds blockingAtEdge (the transaction marker moved to :sharedData) (excluded from the unmarked-bridge check by path)
 service/device/LightSensor.kt	Android SensorManager host
 service/device/ProgressNotificationManager.kt	Android notification host
 service/device/ScreenSettings.kt	Android screen brightness/orientation settings host

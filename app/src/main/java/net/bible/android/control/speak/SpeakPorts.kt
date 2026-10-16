@@ -6,12 +6,6 @@ import net.bible.sharedcore.platform.speak.SpeakEngineListener
 
 const val SPEAK_KEY = "speak"
 
-/** Raw JSON storage kept separate from the settings database for early widget startup. */
-interface SpeakSettingsStore {
-    fun load(): String?
-    fun save(json: String)
-}
-
 /** A device speech setup problem (not an AndBible bug), told to the user by the platform. */
 enum class SpeakSetupProblem { ENGINE_NOT_AVAILABLE, LANGUAGE_NOT_AVAILABLE, AUDIO_FOCUS_DENIED }
 

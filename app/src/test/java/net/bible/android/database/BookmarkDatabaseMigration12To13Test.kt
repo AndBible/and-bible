@@ -108,7 +108,7 @@ class BookmarkDatabaseMigration12To13Test {
         // Unit tests run with the module directory (app/) as the working directory — the same
         // assumption HeatGridColumnsTest and ImePaddingPredicateDriftTest already rely on.
         val schema = Json.parseToJsonElement(
-            File("schemas/net.bible.android.database.BookmarkDatabase/12.json").readText()
+            File("../sharedData/schemas/net.bible.android.database.BookmarkDatabase/12.json").readText()
         ).jsonObject["database"]!!.jsonObject
         val statements = buildList {
             schema["entities"]!!.jsonArray.forEach { entity ->

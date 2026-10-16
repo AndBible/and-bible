@@ -18,6 +18,7 @@
 package net.bible.android.misc
 
 import kotlinx.serialization.serializer
+import net.bible.android.database.bookmarks.BookmarkOsisFragment
 import net.bible.android.database.json
 import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.jsword.book.Book
@@ -84,7 +85,7 @@ class OsisFragment(
     val xml: Element,
     val key: Key,
     private val book: Book
-) {
+) : BookmarkOsisFragment {
     val xmlStr = elementToString(xml)
     private val keyStr: String get () = "${book.initials}--${key.uniqueId}"
 
@@ -121,7 +122,7 @@ class OsisFragment(
         return try {VerseRangeFactory.fromString(book.versification, annotateRef) } catch (e: NoSuchVerseException) { null }
     }
 
-    val toHashMap: Map<String, String> get() {
+    override val toHashMap: Map<String, String> get() {
         val ordinalRangeStr = json.encodeToString(
             serializer(),
             if(key is VerseRange) listOf(key.start.ordinal, key.end.ordinal) else null

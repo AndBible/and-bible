@@ -36,6 +36,8 @@ import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.apiKey
+import net.bible.service.llm.create
+import net.bible.service.llm.resolveAvailableModels
 import net.bible.sharedcore.platform.secrets.SecretStore
 import net.bible.sharedcore.ai.AvailableModelVd
 import net.bible.sharedcore.ai.LlmModelService

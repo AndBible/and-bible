@@ -113,7 +113,7 @@ class DatabaseContainer {
                 try { blockingAtEdge { useWriterConnection { } } } finally { close() } // L1-edge: DatabaseContainer synchronous lifecycle (open probe)
             }
             openSqlite(oldDbFile.path).use {
-                val migrations = DatabaseSplitMigrations(it, application)
+                val migrations = DatabaseSplitMigrations(it) { name -> application.getDatabasePath(name).absolutePath }
                 migrations.migrateAll()
             }
             deleteAppDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file, any journal/WAL leftovers and Room's .lck
