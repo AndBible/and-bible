@@ -188,16 +188,20 @@ class InstallCancelTest {
         try {
             val book = book(fixture)
             val statuses = mutableListOf<DocumentStatus>()
-            val messages = mutableListOf<String>()
+            val messages = mutableListOf<Pair<String, Throwable?>>()
+            val strings = get<CoreStrings>(CoreStrings::class.java)
             val notifier = object : UserNotifier {
                 override fun showInfo(message: String, long: Boolean) = Unit
-                override fun showError(message: String, cause: Throwable?) { messages.add(message) }
+                override fun showError(message: String, cause: Throwable?) { messages.add(message to cause) }
             }
-            val queue = DownloadQueue(statuses::add, notifier, get(CoreStrings::class.java))
+            val queue = DownloadQueue(statuses::add, notifier, strings)
             queue.addDocumentToDownloadQueue(book, fixture.repository)
             assertEquals(listOf(DocumentInstallStatus.ERROR_DOWNLOADING), statuses.map { it.documentInstallStatus })
             assertEquals(1, messages.size)
-            assertTrue("user sees a nonempty error", messages.single().isNotBlank())
+            assertEquals("transport failure must not be described as HTTP 200", strings.errorDownloading, messages.single().first)
+            val error = messages.single().second
+            assertTrue("notifier must retain the timeout cause: $error", error?.cause is net.bible.sharedcore.http.DownloadTimeoutException)
+            assertTrue("notifier must retain the provider cause", error!!.cause!!.cause != null)
             assertTrue("caller must stay active", isActive)
             assertFalse(queue.isInQueue(book))
             assertTrue(queue.isErrorDownloading(book))
