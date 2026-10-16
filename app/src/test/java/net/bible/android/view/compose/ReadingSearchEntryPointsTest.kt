@@ -821,6 +821,34 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
+    /** E4a review: a CANCELED SEARCH key-up (the gesture was aborted) must not open Search. */
+    @Test fun cancelledSearchKeyUpDoesNotOpenSearch() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val readingHost = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            if (readingHost.composeReadingViewHost == null) {
+                readingHost.composeReadingViewHost = net.bible.test.fixtureReadingHost(readingHost)
+            }
+            val cancelled = KeyEvent(0L, 0L, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_SEARCH, 0, 0, 0, 0, KeyEvent.FLAG_CANCELED)
+            assertTrue(cancelled.isCanceled, "sanity: the event is cancelled")
+
+            readingHost.dispatchKeyEvent(cancelled)
+
+            assertFalse(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
+            assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
     @Test fun searchKeyNavigatesTheGraphToSearchWhenNotHosted() {
         firstTime = false
         resetComposeUiDispatcher()
