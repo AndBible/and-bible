@@ -35,7 +35,10 @@ function transport(w: BridgeWindow): Post | null {
 }
 
 export function installNativeBridge(w: BridgeWindow = window as BridgeWindow): void {
-    if (w.android) return;
+    const existing = w.android;
+    // Chromium also defines window.android; only an app bridge has this startup method.
+    if (typeof existing?.setClientReady === "function") return;
+    const webview = existing?.webview;
     const post: Post = (method, args) => {
         const clean = args.map(a => (a === undefined ? null : a));
         const t = transport(w);
@@ -46,6 +49,7 @@ export function installNativeBridge(w: BridgeWindow = window as BridgeWindow): v
         get(_target, prop) {
             // Not bridge methods: keeps the proxy from looking thenable/serialisable/iterable to the runtime.
             if (typeof prop === "symbol" || prop === "then" || prop === "toJSON") return undefined;
+            if (prop === "webview" && webview !== undefined) return webview;
             if (prop === "getActiveLanguages") {
                 // The one synchronous call; postMessage cannot return a value.
                 return () => (w.androidBridge ? w.androidBridge.getActiveLanguages() : (w.__activeLanguages__ || '["en"]'));

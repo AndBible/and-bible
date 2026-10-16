@@ -119,8 +119,32 @@ describe("native bridge", () => {
         expect(ios).toEqual([]);
     });
 
-    it("does not replace an existing window.android", () => {
-        const existing = {toast: () => {}};
+    it("installs over Chromium's Android namespace and forwards startup once", () => {
+        const posted: string[] = [];
+        const webview = {getExperimentalMediaIntegrityTokenProvider: () => {}};
+        class Android {}
+        Object.defineProperty(Android.prototype, "webview", {get: () => webview});
+        const namespace = new Android();
+        expect(Object.keys(namespace)).toEqual([]);
+        Object.defineProperty(w, "android", {value: namespace, writable: true, configurable: true});
+        w.androidBridge = {postMessage: (m: string) => posted.push(m), getActiveLanguages: () => '["en"]'};
+
+        installNativeBridge(w);
+        expect(typeof w.android.setClientReady).toBe("function");
+        w.android.setClientReady();
+        const proxy = w.android;
+        installNativeBridge(w);
+        expect(w.android).toBe(proxy);
+        expect(w.android.webview).toBe(webview);
+        window.dispatchEvent(new ErrorEvent("error", {message: "startup", filename: "main.js", lineno: 1}));
+        expect(posted).toEqual([
+            '{"method":"setClientReady","args":[]}',
+            '{"method":"console","args":["error","startup (main.js:1)"]}',
+        ]);
+    });
+
+    it("does not replace a genuine legacy AndBible bridge", () => {
+        const existing = {setClientReady: () => {}, toast: () => {}};
         w.android = existing;
         installNativeBridge(w);
         expect(w.android).toBe(existing);
