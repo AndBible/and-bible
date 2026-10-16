@@ -74,6 +74,7 @@ class RepoServerFixture private constructor(
         suspend fun create(
             catalogBytes: ByteArray = catalogFile.readBytes(),
             headStatus: Int = 200,
+            timeoutMs: Int = 5_000,
             routes: (TestHttpsServer) -> Unit = {},
         ): RepoServerFixture {
             check(catalogFile.canRead()) { "K5b catalog fixture missing: ${catalogFile.absolutePath}" }
@@ -94,7 +95,7 @@ class RepoServerFixture private constructor(
             // transport maps to the loopback server; the unique host also gives each fixture its own empty catalog cache
             val fakeHost = "k5b-${System.nanoTime()}.test"
             val port = server.base.substringAfterLast(':').toInt()
-            WebResource.transport = LoopbackRewrite(SuspendHttpTransport(KtorDownloadHttp(client) { 5_000 }, scope), fakeHost, port)
+            WebResource.transport = LoopbackRewrite(SuspendHttpTransport(KtorDownloadHttp(client) { timeoutMs }, scope), fakeHost, port)
             val repoName = "K5b fixture $fakeHost"
             DatabaseContainer.instance.repoDb.customRepositoryDao().insert(
                 CustomRepository(

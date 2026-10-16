@@ -77,12 +77,15 @@ class SuspendHttpTransport(
         }
 
         /**
-         * A timeout or a cancelled producer ends the body with [TransportCancelledException] (closing it), as the
-         * blocking port did; the calling coroutine's own cancellation stays a CancellationException.
+         * A timeout closes the body but remains a download error, not user cancellation. A cancelled producer
+         * maps to [TransportCancelledException]; the calling coroutine's own cancellation passes through.
          */
         private suspend fun <T> bodyCall(block: suspend () -> T): T = try {
             checkOpen()
             mapped(block)
+        } catch (error: DownloadTimeoutException) {
+            close()
+            throw error
         } catch (error: TransportCancelledException) {
             close()
             throw error
@@ -142,15 +145,13 @@ class SuspendHttpTransport(
     }
 
     /**
-     * Runs [block] and maps a timeout (or an interrupt) to [TransportCancelledException]. A CancellationException
-     * is the caller's own cancellation when the calling coroutine is no longer active and passes through;
-     * otherwise a producer was cancelled underneath an active caller and it maps like a timeout.
+     * Maps interrupts and producer cancellation to [TransportCancelledException], but leaves timeout errors intact.
+     * A CancellationException is the caller's own cancellation when its coroutine is no longer active and passes
+     * through; otherwise a producer was cancelled underneath an active caller.
      */
     private suspend fun <T> mapped(block: suspend () -> T): T = try {
         block()
     } catch (error: InterruptedException) {
-        throw TransportCancelledException(error)
-    } catch (error: DownloadTimeoutException) {
         throw TransportCancelledException(error)
     } catch (error: CancellationException) {
         currentCoroutineContext().ensureActive()

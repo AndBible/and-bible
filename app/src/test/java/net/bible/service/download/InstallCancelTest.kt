@@ -175,6 +175,39 @@ class InstallCancelTest {
         }
     }
 
+    @Test fun stalledDownloadQueueReportsErrorAndNotifiesWithoutCancellingCaller() = runBlocking {
+        val release = CountDownLatch(1)
+        val fixture = RepoServerFixture.create(timeoutMs = 500) { server ->
+            server.route("/pkg/K4Latin1.zip") { exchange ->
+                exchange.sendResponseHeaders(200, zip.size.toLong())
+                exchange.responseBody.write(zip, 0, chunk)
+                exchange.responseBody.flush()
+                release.await(5, TimeUnit.SECONDS)
+            }
+        }
+        try {
+            val book = book(fixture)
+            val statuses = mutableListOf<DocumentStatus>()
+            val messages = mutableListOf<String>()
+            val notifier = object : UserNotifier {
+                override fun showInfo(message: String, long: Boolean) = Unit
+                override fun showError(message: String, cause: Throwable?) { messages.add(message) }
+            }
+            val queue = DownloadQueue(statuses::add, notifier, get(CoreStrings::class.java))
+            queue.addDocumentToDownloadQueue(book, fixture.repository)
+            assertEquals(listOf(DocumentInstallStatus.ERROR_DOWNLOADING), statuses.map { it.documentInstallStatus })
+            assertEquals(1, messages.size)
+            assertTrue("user sees a nonempty error", messages.single().isNotBlank())
+            assertTrue("caller must stay active", isActive)
+            assertFalse(queue.isInQueue(book))
+            assertTrue(queue.isErrorDownloading(book))
+            assertNothingInstalled()
+        } finally {
+            release.countDown()
+            fixture.close()
+        }
+    }
+
     private suspend fun slowZipFixture() = SuspendFixture(RepoServerFixture.create { slowZip(it) })
 
     /** Adapts [RepoServerFixture.close] (suspend) to a scoped block. */

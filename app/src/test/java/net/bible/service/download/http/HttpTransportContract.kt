@@ -4,6 +4,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
+import net.bible.sharedcore.http.DownloadTimeoutException
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -111,7 +113,7 @@ abstract class HttpTransportContract {
         catch (e: LucidException) { assertTrue(e.message!!.contains("Unable to find")) }
     }
 
-    @Test fun stalledBodyTimesOutAsCancelled() = scenario(timeoutMs = 300) { server, dir ->
+    @Test fun stalledBodyTimeoutIsAnErrorForAnActiveCaller() = scenario(timeoutMs = 300) { server, dir ->
         val release = CountDownLatch(1)
         server.route("/stall") { ex ->
             ex.responseHeaders.add("Content-Length", "10")
@@ -120,8 +122,19 @@ abstract class HttpTransportContract {
             release.await(5, TimeUnit.SECONDS)
         }
         val start = System.nanoTime()
-        try { copy("${server.base}/stall", File(dir, "s")); fail("expected DownloadCancelledException") }
-        catch (e: DownloadCancelledException) { /* legacy: SocketTimeoutException is an InterruptedIOException */ }
+        try {
+            val error = runCatching { copy("${server.base}/stall", File(dir, "s")) }.exceptionOrNull()
+            if (legacy) {
+                // Historical URLConnection behavior: SocketTimeoutException is an InterruptedIOException.
+                assertTrue("legacy timeout classification: $error", error is DownloadCancelledException)
+            } else {
+                assertFalse("idle timeout is not user cancellation: $error", error is DownloadCancelledException)
+                assertTrue("expected download error, got $error", error is DownloadException)
+                assertTrue("timeout cause must survive WebResource: $error", error!!.cause is DownloadTimeoutException)
+                assertTrue("provider cause must survive", error.cause!!.cause != null)
+            }
+            assertTrue("a timeout must not cancel its caller", isActive)
+        }
         finally { release.countDown() }
         assertTrue(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) < 2_000)
     }
@@ -172,6 +185,30 @@ abstract class HttpTransportContract {
             assertTrue("a cancelled caller must finish promptly", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) < 2_000)
             assertTrue("expected CancellationException, got $outcome", outcome is CancellationException)
             assertFalse("a caller cancel is not a download cancel: $outcome", outcome is DownloadCancelledException)
+        } finally {
+            release.countDown()
+        }
+    }
+
+    @Test fun cancellingTheCallerBeforeHeadersClosesTheRequestPromptly() = scenario(timeoutMs = 10_000) { server, dir ->
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        server.route("/no-headers") {
+            entered.countDown()
+            release.await(5, TimeUnit.SECONDS)
+        }
+        val outcome = CompletableDeferred<Throwable?>()
+        val caller = launch(Dispatchers.IO) {
+            outcome.complete(runCatching { copy("${server.base}/no-headers", File(dir, "h")) }.exceptionOrNull())
+        }
+        try {
+            assertTrue("request must reach the server", entered.await(5, TimeUnit.SECONDS))
+            val cancellation = CancellationException("caller explicitly cancelled before headers")
+            caller.cancel(cancellation)
+            val error = withTimeout(2_000) { outcome.await() }
+            assertTrue("expected caller cancellation, got $error", error is CancellationException)
+            assertFalse("not a user/download cancellation", error is DownloadCancelledException)
+            assertTrue("original cancellation must survive", generateSequence(error) { it.cause }.any { it === cancellation })
         } finally {
             release.countDown()
         }
