@@ -3,6 +3,7 @@ package net.bible.sharedcore.search
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SearchTermHelpersTest {
@@ -79,5 +80,41 @@ class SearchTermHelpersTest {
     @Test
     fun regexMetacharactersAreQuoted() {
         strongsHighlightPatterns("strong:h(7225").forEach { Regex(it, RegexOption.IGNORE_CASE) }
+    }
+
+    private fun highlightMatches(term: String, text: String): List<String> =
+        Regex(termHighlightPattern(term)!!, RegexOption.IGNORE_CASE).findAll(text).map { it.value }.toList()
+
+    @Test
+    fun latinTermKeepsWordBoundary() {
+        assertEquals(listOf("God"), highlightMatches("God", "God created"))
+        assertEquals(emptyList(), highlightMatches("God", "Godly"))
+    }
+
+    @Test
+    fun latinWildcardKeepsSuffix() {
+        assertEquals(listOf("believeth"), highlightMatches("believ*", "he believeth now"))
+    }
+
+    @Test
+    fun cjkTermMatchesInsideText() {
+        assertEquals(listOf("上帝"), highlightMatches("上帝", "神爱世人上帝的话"))
+    }
+
+    @Test
+    fun thaiTermWithCombiningMarksHighlightedWhole() {
+        assertEquals(listOf("พระเจ้า"), highlightMatches("พระเจ้า", "ในปฐมกาลพระเจ้าทรงสร้าง"))
+    }
+
+    @Test
+    fun latinTermKeepsWordBoundaryNextToCjk() {
+        assertEquals(emptyList(), highlightMatches("God", "Godhead上帝"))
+        assertEquals(listOf("God"), highlightMatches("God", "God上帝"))
+        assertEquals(listOf("God"), highlightMatches("God", "上帝God"))
+    }
+
+    @Test
+    fun emptyTermGivesNull() {
+        assertNull(termHighlightPattern("+\"\""))
     }
 }

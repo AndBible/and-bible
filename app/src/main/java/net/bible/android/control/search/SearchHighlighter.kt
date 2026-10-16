@@ -23,8 +23,8 @@ import net.bible.sharedcore.log.Log
 import net.bible.service.common.htmlToSpan
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
-import net.bible.sharedcore.search.prepareSearchWord
 import net.bible.sharedcore.search.strongsHighlightPatterns
+import net.bible.sharedcore.search.termHighlightPattern
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Text
 import java.util.regex.Pattern
@@ -81,12 +81,7 @@ object SearchHighlighter : SearchTextHighlighter {
         if (!isStrongsSearch) {
             try {
                 for (originalSearchWord in terms) {
-                    var searchWord = prepareSearchWord(originalSearchWord)
-                    searchWord = if (originalSearchWord.contains("*")) {
-                        "\\b$searchWord[\\w'\\-]*\\b"
-                    } else {
-                        "\\b$searchWord\\b"
-                    }
+                    val searchWord = termHighlightPattern(originalSearchWord) ?: continue
                     val m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(text)
                     while (m.find()) {
                         for (i in m.start() until m.end()) highlight[i] = true

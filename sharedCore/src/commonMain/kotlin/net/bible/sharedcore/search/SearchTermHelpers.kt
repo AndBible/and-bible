@@ -80,3 +80,38 @@ fun prepareSearchWord(searchWord_: String): String {
     }
     return searchWord
 }
+
+/**
+ * True for characters of scripts written without spaces between words (Thai, Lao, Myanmar, Khmer, Hiragana,
+ * Katakana, Han). Code point ranges, because `Character.UnicodeScript` is not available in common code.
+ */
+internal fun isUnspacedScript(c: Char): Boolean = c.code.let {
+    it in 0x0E00..0x0EFF || it in 0x1000..0x109F || it in 0x1780..0x17FF ||
+        it in 0x3040..0x30FF || it in 0x3400..0x4DBF || it in 0x4E00..0x9FFF || it in 0xF900..0xFAFF
+}
+
+/** The same ranges as [isUnspacedScript], as the inside of a regex character class. */
+private const val UNSPACED_CLASS =
+    "\\u0E00-\\u0EFF\\u1000-\\u109F\\u1780-\\u17FF\\u3040-\\u30FF\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAFF"
+
+/**
+ * Regex source (compile case-insensitively) that highlights [originalTerm] in result previews, or `null` when
+ * the term is empty after [prepareSearchWord].
+ *
+ * A term containing an unspaced-script character (Thai, CJK, ...) is matched bare: there is no `\b` inside a run
+ * of such letters, and Thai combining marks would create boundaries in the middle of a word. Other terms keep
+ * word-boundary matching (`\b$word\b`, or `\b$word[\w'\-]*\b` for a `*` wildcard); a boundary also counts next
+ * to an unspaced-script character, so `God` is found in `God上帝` but not in `Godhead上帝`.
+ */
+fun termHighlightPattern(originalTerm: String): String? {
+    val word = prepareSearchWord(originalTerm)
+    if (word.isEmpty()) return null
+    if (word.any { isUnspacedScript(it) }) return word
+    val start = "(?:\\b|(?<=[$UNSPACED_CLASS]))"
+    val end = "(?:\\b|(?=[$UNSPACED_CLASS]))"
+    return if (originalTerm.contains("*")) {
+        "$start$word(?:(?![$UNSPACED_CLASS])[\\w'\\-])*$end"
+    } else {
+        "$start$word$end"
+    }
+}

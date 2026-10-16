@@ -84,4 +84,22 @@ class SearchHighlighterTest {
         assertTrue("preview must not be blank", result.plainText().isNotEmpty())
         assertTrue("lemma-matched word must be bold", result.runs.first { it.text.contains("God") }.bold)
     }
+
+    @Test
+    fun chineseTermIsHighlighted() {
+        val osis = osisWith(Text("神爱世人上帝的话"))
+
+        val result = SearchHighlighter.highlight(osis, terms = listOf("上帝"), lemmaTerms = emptyList())
+
+        assertTrue(result.runs.any { it.text == "上帝" && it.highlight })
+    }
+
+    @Test
+    fun thaiTermIsHighlighted() {
+        val osis = osisWith(Text("ในปฐมกาลพระเจ้าทรงสร้าง"))
+
+        val result = SearchHighlighter.highlight(osis, terms = listOf("พระเจ้า"), lemmaTerms = emptyList())
+
+        assertTrue(result.runs.any { it.text == "พระเจ้า" && it.highlight })
+    }
 }
