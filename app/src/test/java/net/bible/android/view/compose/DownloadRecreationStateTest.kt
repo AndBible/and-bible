@@ -1,6 +1,10 @@
 package net.bible.android.view.compose
 
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -40,6 +44,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowLooper
 
 /**
  * BM-13 for the Download screen: the live search query and an unsaved new custom-repository draft must
@@ -110,7 +115,7 @@ class DownloadRecreationStateTest {
     /** Lets the arm's recording effect observe a controller edit, as the next frame would for a user. */
     private fun settleFrames() {
         repeat(5) {
-            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            ShadowLooper.idleMainLooper()
             advance()
             compose.waitForIdle()
         }
@@ -138,6 +143,8 @@ class DownloadRecreationStateTest {
         assertNotSame(old, restored)
         awaitHostCondition("live query restored into the fresh controller", ::advance) { restored.query.value == "KJV" }
         assertTrue(restored.searchModeActive.value)
+        // Not asserted: a filtered catalogue. The test host has no repository data (no network), so the
+        // catalogue is empty and a filter over it would prove nothing; the query is what the filter reads.
     }
 
     @Test fun freshIntentSearchArgumentStillSeeds() {
@@ -153,11 +160,15 @@ class DownloadRecreationStateTest {
         val restored = awaitController(recreated)
         awaitHostCondition("recreation keeps the live query", ::advance) { restored.query.value == "KJV" }
 
-        // A fresh launch with a different search argument must show that argument, not the old live query.
-        val fresh = launch(NavRoutes.download(search = "Psalms"))
-        val seeded = awaitController(fresh)
-        awaitHostCondition("fresh intent argument seeds", ::advance) { seeded.query.value == "Psalms" }
-        assertTrue(seeded.searchModeActive.value)
+        // A fresh intent delivered to the RECREATED host (live query "KJV" restored, saved state present)
+        // with a different search argument must show that argument: the restore may not beat it.
+        hosts.last().newIntent(
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.download(search = "Psalms")),
+        )
+        awaitHostCondition("fresh intent argument seeds over the restored query", ::advance) {
+            restored.query.value == "Psalms"
+        }
+        assertTrue(restored.searchModeActive.value)
     }
 
     @Test fun newCustomRepositoryDraftSurvivesRecreationAndStaysDirty() {
@@ -169,24 +180,25 @@ class DownloadRecreationStateTest {
         awaitController(activity)
         (field(activity, "navController") as NavHostController).navigate(NavRoutes.customRepositoryEditor(null))
         awaitHostRoute(activity, NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN, ::advance)
-        compose.onNode(hasSetTextAction() and androidx.compose.ui.test.hasText("Repository URL")).performTextReplacement("https://g3.invalid/repo")
+        compose.onNode(hasSetTextAction() and hasText("Repository URL")).performTextReplacement("https://g3.invalid/repo")
         awaitHostCondition("manifest validated, Save enabled", ::advance) {
-            compose.onAllNodes(isEnabled() and androidx.compose.ui.test.hasContentDescription("OK"))
+            compose.onAllNodes(isEnabled() and hasContentDescription("OK"))
                 .fetchSemanticsNodes().isNotEmpty()
         }
 
         val recreated = recreate(activity, NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN)
         awaitHostCondition("URL kept and Save enabled after recreation", ::advance) {
-            compose.onAllNodes(androidx.compose.ui.test.hasText("https://g3.invalid/repo")).fetchSemanticsNodes().isNotEmpty() &&
-                compose.onAllNodes(isEnabled() and androidx.compose.ui.test.hasContentDescription("OK"))
+            compose.onAllNodes(hasText("https://g3.invalid/repo")).fetchSemanticsNodes().isNotEmpty() &&
+                compose.onAllNodes(isEnabled() and hasContentDescription("OK"))
                     .fetchSemanticsNodes().isNotEmpty()
         }
-        // Cancel (Back) while dirty asks to discard and writes no repository.
+        // Back while dirty asks to discard; confirming leaves the editor and writes no repository.
         recreated.onBackPressedDispatcher.onBackPressed()
         awaitHostCondition("dirty draft asks to discard", ::advance) {
-            compose.onAllNodes(androidx.compose.ui.test.hasText("Discard unsaved changes?", substring = true))
-                .fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodes(hasText("Discard unsaved changes?", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
+        compose.onNodeWithText("Yes").performClick()
+        awaitHostRoute(recreated, NavRoutes.DOWNLOAD_PATTERN, ::advance)
         assertTrue("nothing was saved", service.upserts.isEmpty())
     }
 }

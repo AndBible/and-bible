@@ -59,6 +59,14 @@ class CustomRepositoryEditorControllerTest {
         assertTrue(c.state.value.canSave)
         assertTrue(c.state.value.isDirty)
     }
+    @Test fun restoredDraftShowsItsPackageDirImmediatelyAndKeepsItWhenValidationIsInvalid() = runTest {
+        val c = CustomRepositoryEditorController(svc(), this, RepositoryResult())
+        c.restoreDraft("http://bad", "/custom")
+        assertEquals("/custom", c.state.value.packageDirectory)
+        testScheduler.advanceUntilIdle()
+        assertEquals(Validation.Invalid, c.state.value.validation)
+        assertEquals("/custom", c.state.value.packageDirectory)
+    }
     @Test fun restoredDraftWithoutPackageDirUsesTheResolvedOne() = runTest {
         val c = CustomRepositoryEditorController(svc(), this, RepositoryResult())
         c.restoreDraft("https://ok/", null); testScheduler.advanceUntilIdle()

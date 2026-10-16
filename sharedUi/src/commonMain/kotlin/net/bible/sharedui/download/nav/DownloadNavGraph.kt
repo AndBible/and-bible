@@ -48,6 +48,7 @@ import androidx.navigation.navArgument
 import androidx.savedstate.read
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.cloud.CloudDocFilter
 import net.bible.sharedcore.cloud.CloudDocItem
@@ -55,6 +56,7 @@ import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.download.CustomRepositoryController
 import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.RepositoryResult
+import net.bible.sharedcore.download.Validation
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocTypeFilter
@@ -596,10 +598,14 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         }
         val state by controller.state.collectAsState()
         // Recorded AFTER the restore above, so a rebuilt controller's initial state cannot overwrite it.
-        // The directory is empty until the first validation resolves one; that is not a user draft.
-        LaunchedEffect(state.url, state.packageDirectory) {
+        // The directory is kept only once validation resolved it for THIS url (until then the state
+        // holds the previous url's, or none), and a changed url drops the previous url's directory.
+        LaunchedEffect(state.url, state.packageDirectory, state.validation) {
+            if (draftUrl != state.url.takeIf { it.isNotEmpty() }) draftPackageDir = null
             draftUrl = state.url.takeIf { it.isNotEmpty() }
-            draftPackageDir = state.packageDirectory.takeIf { it.isNotEmpty() }
+            if (state.validation == Validation.Valid && state.packageDirectory.isNotEmpty()) {
+                draftPackageDir = state.packageDirectory
+            }
         }
         var showDiscardConfirm by rememberSaveable { mutableStateOf(false) }
         val strings = LocalStrings.current
@@ -785,7 +791,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         }
 
         LaunchedEffect(seedKey) {
-            kotlinx.coroutines.flow.combine(controller.query, controller.searchModeActive) { q, open -> q to open }
+            combine(controller.query, controller.searchModeActive) { q, open -> q to open }
                 .collect { (q, open) ->
                     if (seededRouteStateFor != seedKey) return@collect
                     liveQuery = q

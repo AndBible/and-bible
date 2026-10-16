@@ -52,15 +52,15 @@ class CustomRepositoryEditorController(
 
     private var validationJob: Job? = null
 
+    /** A restored draft's package directory: shown at once, and kept over the one validation resolves. */
+    private var pendingPackageDir: String? = null
+
     init {
         val manifestUrl = initial.repository?.manifestUrl
         if (manifestUrl != null && manifestUrl.isNotBlank()) {
             setUrl(manifestUrl)
         }
     }
-
-    /** A package directory the user typed, to apply once [restoreDraft]'s URL validation resolves. */
-    private var pendingPackageDir: String? = null
 
     /**
      * Re-applies an unsaved draft after the host was recreated: the URL is validated afresh against the
@@ -70,6 +70,7 @@ class CustomRepositoryEditorController(
      */
     fun restoreDraft(url: String, packageDir: String?) {
         pendingPackageDir = packageDir
+        if (packageDir != null) _state.value = _state.value.copy(packageDirectory = packageDir)
         setUrl(url)
     }
 
