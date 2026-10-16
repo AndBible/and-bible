@@ -462,12 +462,15 @@ class ClientAiDocMarker(
     private val v11n: Versification?
 ) : SynchronousDocument {
     override val asHashMap: Map<String, String> get() {
-        val startOrdinal = if (v11n != null && marker.kjvOrdinalStart != null) {
-            Verse(KJVA, marker.kjvOrdinalStart).toV11n(v11n).ordinal
-        } else marker.kjvOrdinalStart
-        val endOrdinal = if (v11n != null && marker.kjvOrdinalEnd != null) {
-            Verse(KJVA, marker.kjvOrdinalEnd).toV11n(v11n).ordinal
-        } else marker.kjvOrdinalEnd
+        // Read once: a public property of another module (:sharedData) cannot be smart-cast.
+        val kjvStart = marker.kjvOrdinalStart
+        val kjvEnd = marker.kjvOrdinalEnd
+        val startOrdinal = if (v11n != null && kjvStart != null) {
+            Verse(KJVA, kjvStart).toV11n(v11n).ordinal
+        } else kjvStart
+        val endOrdinal = if (v11n != null && kjvEnd != null) {
+            Verse(KJVA, kjvEnd).toV11n(v11n).ordinal
+        } else kjvEnd
 
         val verseRangeAbbreviated = if (startOrdinal != null && endOrdinal != null) {
             val targetV11n = v11n ?: KJVA

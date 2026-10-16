@@ -230,6 +230,17 @@ golden:
     - libegl-mesa0
     - mesa-vulkan-drivers
     - gdb                 # backtraces of a crashing emulator (sudo gdb -p <qemu pid>)
+    - unzip               # Sword test modules (`unzip -o -d ~/.sword testmods.zip`), module zips
+    # Local Nextcloud for cloud-sync emulator checks (`php -S` + the tarball kit in
+    # .local/emu-verify/nextcloud; no web server or database server needed: SQLite).
+    - php-cli
+    - php-sqlite3
+    - php-xml
+    - php-mbstring
+    - php-gd
+    - php-zip
+    - php-curl
+    - php-intl
     # Shared libraries of Playwright's headless Chromium (.jailbee/install.d/97-playwright.sh)
     - libasound2t64
     - libatk-bridge2.0-0t64

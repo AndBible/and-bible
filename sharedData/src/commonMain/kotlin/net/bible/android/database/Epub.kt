@@ -1,0 +1,148 @@
+/*
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.android.database
+
+import androidx.room3.ConstructedBy
+import androidx.room3.RoomDatabaseConstructor
+import androidx.sqlite.execSQL
+import androidx.room3.Dao
+import androidx.room3.Database
+import androidx.room3.Entity
+import androidx.room3.Ignore
+import androidx.room3.Index
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.PrimaryKey
+import androidx.room3.Query
+import androidx.room3.RoomDatabase
+import androidx.room3.Transaction
+import androidx.room3.ColumnTypeConverters
+import net.bible.android.database.migrations.Migration
+import net.bible.android.database.migrations.makeMigration
+import fi.sykero.kdom.Element
+
+@Entity
+class EpubHtmlToFrag(
+    @PrimaryKey val htmlId: String, // contains epub doc id (and possibly #htmlId)
+    val fragId: Long,
+)
+
+@Entity
+class EpubFragment(
+    val originalId: String,
+    val ordinalStart: Int,
+    val ordinalEnd: Int,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
+) {
+    @Ignore var element: Element? = null
+    val fragFileName: String get() = id.toString().padStart(3, '0') + ".xhtml.gz"
+    override fun toString(): String {
+        return "$id $originalId $ordinalStart $ordinalEnd"
+    }
+}
+
+@Entity(indices = [Index("origId")])
+class StyleSheet(
+    val origId: String,
+    val styleSheetFile: String,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
+)
+
+@Entity
+class EpubMeta(
+    @PrimaryKey val id: Int = 0,
+    val totalCharacters: Int,
+)
+
+@Dao
+interface EpubDao {
+    @Insert suspend fun insert(vararg items: EpubFragment): List<Long>
+    @Insert suspend fun insert(vararg items: StyleSheet): List<Long>
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(vararg items: EpubHtmlToFrag)
+
+    @Query(
+        "SELECT f.* FROM EpubFragment f " +
+        "JOIN EpubHtmlToFrag e2f ON e2f.fragId = f.id " +
+        "WHERE e2f.htmlId=:htmlId"
+    )
+    suspend fun getFragment(htmlId: String): EpubFragment?
+
+    @Query("SELECT * from EpubFragment WHERE id=:id")
+    suspend fun getFragment(id: Long): EpubFragment?
+
+    @Query("SELECT f.* FROM EpubFragment f")
+    suspend fun fragments(): List<EpubFragment>
+
+    @Query("SELECT f.* FROM EpubHtmlToFrag f")
+    suspend fun epubHtmlToFrags(): List<EpubHtmlToFrag>
+
+    @Query("SELECT * FROM StyleSheet WHERE origId=:origId")
+    suspend fun styleSheets(origId: String): List<StyleSheet>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(meta: EpubMeta)
+
+    @Query("SELECT * FROM EpubMeta WHERE id = 0")
+    suspend fun getMeta(): EpubMeta?
+
+    @Query("DELETE FROM EpubFragment") suspend fun deleteAllFragments()
+    @Query("DELETE FROM EpubHtmlToFrag") suspend fun deleteAllHtmlToFrags()
+    @Query("DELETE FROM StyleSheet") suspend fun deleteAllStyleSheets()
+    @Query("DELETE FROM EpubMeta") suspend fun deleteAllMeta()
+
+    /**
+     * Remove all previously-optimized data. Called before re-optimizing so that stale
+     * fragment rows (whose files were deleted when the optimized dir was wiped) cannot
+     * survive and later point the reader at non-existent fragment files.
+     */
+    @Transaction
+    suspend fun clear() {
+        deleteAllFragments()
+        deleteAllHtmlToFrags()
+        deleteAllStyleSheets()
+        deleteAllMeta()
+    }
+}
+
+
+const val EPUB_DATABASE_VERSION = 2
+
+private val addEpubMeta = makeMigration(1..2) { db ->
+    db.execSQL("CREATE TABLE IF NOT EXISTS `EpubMeta` (`id` INTEGER NOT NULL, `totalCharacters` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+}
+
+val epubMigrations = arrayOf<Migration>(addEpubMeta)
+
+@Database(
+    entities = [
+        EpubHtmlToFrag::class,
+        EpubFragment::class,
+        StyleSheet::class,
+        EpubMeta::class,
+    ],
+    version = EPUB_DATABASE_VERSION
+)
+@ColumnTypeConverters(Converters::class)
+@ConstructedBy(EpubDatabaseConstructor::class)
+abstract class EpubDatabase: RoomDatabase() {
+    abstract fun epubDao(): EpubDao
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object EpubDatabaseConstructor : RoomDatabaseConstructor<EpubDatabase> {
+    override fun initialize(): EpubDatabase
+}

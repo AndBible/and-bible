@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SchemaIdentityTest {
-    // Literals copied from app/schemas/<db>/<current>.json at D1 start (2026-10-08). Do not regenerate.
+    // Literals copied from sharedData/schemas/<db>/<current>.json at D1 start (2026-10-08). Do not regenerate.
     private val pinned = mapOf(
         "net.bible.android.database.BookmarkDatabase" to "2c61bc5841977a8107fe17de4db1713d",
         "net.bible.android.database.ReadingPlanDatabase" to "d465b2a4bc2012fff3a69d3eaff9b5ff",

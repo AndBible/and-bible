@@ -23,10 +23,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -585,26 +582,12 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         // selection included, routes through `controller.save()`, so there is no path for an
         // exit-time write to miss and no reason for the arm to write at all.
         //
-        // rememberSaveable, NOT remember: this arm's composition is DISPOSED while the label editor
-        // sits on top of it (the reason SettingsNavGraph's search filter is saveable too), so a
-        // plain remember would re-seed the controller on every return from the editor.
-        //
-        // The flag is "have we seeded AT ALL", not "do we know the seed VALUE", and that distinction
-        // is the whole of it. Remembering the value only stops the SETTING being re-READ; the effect
-        // still re-ran on every return and re-APPLIED the original seed over a mode the user had
-        // changed since -- four taps in STUDYPAD mode (open StudyPads, switch to CONTENT, open the
-        // editor from the search bar's +, come back) and the mode silently flipped to NAME_START,
-        // taking the visible result set with it. The controller is the live owner of the mode once
-        // it has been seeded; this effect's whole job is the FIRST application, so it must run at
-        // most once per destination.
-        var seeded by rememberSaveable { mutableStateOf(false) }
+        // The controller owns the one-shot alongside the actual mode value. A restored working
+        // snapshot already has that value; an entry-local saved boolean could outlive a lost host.
         LaunchedEffect(controller) {
-            if (!isStudyPad || seeded) return@LaunchedEffect
-            seeded = true
-            val mode = SearchMode.entries.getOrElse(d.initialSearchMode()) { SearchMode.NAME_START }
-            // Guarded because setSearchMode re-dispatches the search; classic could seed
-            // unconditionally only because it ran once, before the first collection.
-            if (controller.searchMode.value != mode) controller.setSearchMode(mode)
+            if (isStudyPad) controller.seedSearchMode {
+                SearchMode.entries.getOrElse(d.initialSearchMode()) { SearchMode.NAME_START }
+            }
         }
 
         // ——— the channel's IN-GRAPH branch, consumed ———

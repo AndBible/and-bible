@@ -29,6 +29,7 @@
 # The discrete debug build is com.app.calculator.debug.
 #
 # boot environment:
+#   ANDBIBLE_EMU_WRITABLE_SYSTEM  1 adds -writable-system (disposable AVD CA testing only).
 #   ANDBIBLE_EMU_GPU   auto (default) | host | swiftshader_indirect | <any -gpu mode>.
 #                      auto = host when a GPU render node, weston and Xwayland are available
 #                      (hardware GL through a headless weston + Xwayland display), else
@@ -163,6 +164,7 @@ boot)
             display="$(ensure_gpu_display)" || { echo "andbible-emu: no headless GPU display (see /tmp/andbible-emu-weston.log)" >&2; return 1; }
         fi
         local args=(-avd "$avd" -no-window -no-snapshot-save -no-boot-anim -no-audio -partition-size 2048 -gpu "$gpu")
+        if [ "${ANDBIBLE_EMU_WRITABLE_SYSTEM:-0}" = 1 ]; then args+=(-writable-system); fi
         echo "andbible-emu: emulator $(emulator_version), -gpu $gpu${display:+ (DISPLAY $display)}${proxy:+, proxy $proxy}"
         # setsid, NOT the Bash tool's run_in_background: a background task's process tree is
         # reaped later and takes the emulator with it (looks like an emulator crash).
