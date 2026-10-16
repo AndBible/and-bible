@@ -1,5 +1,6 @@
 package net.bible.sharedcore.platform.search
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,7 +16,7 @@ class IosSearchIndexingRunnerTest {
 
     @Test fun normalCompletionEndsTheTaskOnceAndReturnsTheResult() = runTest {
         var cancels = 0
-        val result = runner.run(cancelBuild = { cancels++ }) { "built" }
+        val result = runner.run(cancelBuild = { cancels++ }) { _ -> "built" }
         assertEquals("built", result)
         assertEquals(listOf(7uL), ended)
         assertEquals(0, cancels)
@@ -26,7 +27,7 @@ class IosSearchIndexingRunnerTest {
 
     @Test fun exceptionStillEndsTheTaskOnceAndPropagates() = runTest {
         assertFailsWith<IllegalStateException> {
-            runner.run(cancelBuild = {}) { error("build failed") }
+            runner.run(cancelBuild = {}) { _ -> error("build failed") }
         }
         assertEquals(listOf(7uL), ended)
     }
@@ -34,9 +35,11 @@ class IosSearchIndexingRunnerTest {
     @Test fun expiryCancelsTheBuildAndEndsTheTaskBeforeTheBuildReturns() = runTest {
         var cancels = 0
         var endedWhenExpiryReturned = -1
-        runner.run(cancelBuild = { cancels++ }) {
+        runner.run(cancelBuild = { cancels++ }) { isExpired ->
+            assertEquals(false, isExpired())
             expire!!.invoke()
             endedWhenExpiryReturned = ended.size
+            assertEquals(true, isExpired())
             expire!!.invoke() // UIKit may not repeat, but a repeat must be harmless
         }
         assertEquals(1, cancels)
@@ -44,16 +47,19 @@ class IosSearchIndexingRunnerTest {
         assertEquals(listOf(7uL), ended, "the build returning afterwards must not end the task again")
     }
 
-    @Test fun expiryInsideBeginCancelsBeforeTheBuildStarts() = runTest {
-        var cancels = 0
-        var cancelsSeenByBuild = -1
+    @Test fun expiryInsideBeginSkipsTheBuildEvenWhenCancelFindsNoJob() = runTest {
+        var cancelCalls = 0
+        var buildStarted = false
         val early = IosSearchIndexingRunner(
             begin = { handler -> handler(); 3uL },
             end = { ended += it },
         )
-        early.run(cancelBuild = { cancels++ }) { cancelsSeenByBuild = cancels }
-        assertEquals(1, cancels)
-        assertEquals(1, cancelsSeenByBuild)
+        // Like JobManager.findJob(...)?.cancel() before the job exists: a no-op.
+        assertFailsWith<CancellationException> {
+            early.run(cancelBuild = { cancelCalls++ }) { _ -> buildStarted = true }
+        }
+        assertEquals(false, buildStarted)
+        assertEquals(1, cancelCalls)
         assertEquals(listOf(3uL), ended)
     }
 
@@ -62,12 +68,12 @@ class IosSearchIndexingRunnerTest {
             begin = { platform.UIKit.UIBackgroundTaskInvalid },
             end = { ended += it },
         )
-        denied.run(cancelBuild = {}) { }
+        denied.run(cancelBuild = {}) { _ -> }
         assertEquals(emptyList(), ended)
     }
 
     @Test fun throwingCancelStillEndsTheTask() = runTest {
-        runner.run(cancelBuild = { error("cancel failed") }) {
+        runner.run(cancelBuild = { error("cancel failed") }) { _ ->
             assertFailsWith<IllegalStateException> { expire!!.invoke() }
         }
         assertEquals(listOf(7uL), ended)

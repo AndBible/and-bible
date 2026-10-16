@@ -1,5 +1,6 @@
 package net.bible.sharedcore.platform.search
 
+import kotlinx.coroutines.CancellationException
 import net.bible.sharedcore.platform.sync.withLock
 import platform.Foundation.NSRecursiveLock
 import platform.UIKit.UIApplication
@@ -12,11 +13,22 @@ import platform.UIKit.UIBackgroundTaskInvalid
  * ```
  * runner.run(
  *     cancelBuild = { JobManager.findJob(Progress.CREATE_INDEX.replace("%s", book.initials))?.cancel() },
- * ) { withContext(Dispatchers.Default) { IndexManagerFactory.getIndexManager().scheduleIndexCreation(book) } }
+ * ) { isExpired ->
+ *     withContext(Dispatchers.Default) { IndexManagerFactory.getIndexManager().scheduleIndexCreation(book) }
+ * }
  * ```
  * `scheduleIndexCreation` blocks until the build ends and reports failures through the Reporter instead of throwing.
- * Cancelling the `CREATE_INDEX-<initials>` job makes the build end with status UNDONE and removes its `.creating`
- * file, so an expired allowance never leaves a half-written index.
+ *
+ * Expiry is sticky. If UIKit expires the task before [build] starts, [build] is not called and [run] throws
+ * [CancellationException]. [cancelBuild] must be idempotent and tolerate a missing job: the `CREATE_INDEX-<initials>`
+ * job exists only once `scheduleIndexCreation` has registered it, so an expiry in that early window finds no job and
+ * cancels nothing. The runner cannot re-issue it (no polling); [build] receives `isExpired` for callers that can
+ * check it at a better point. The window is small and the consequence bounded: the build then runs on, unprotected.
+ *
+ * When the job exists, cancelling it only sets its flag; the build winds down asynchronously (status UNDONE, its
+ * `.creating` file deleted in `scheduleIndexCreation`'s `finally`), possibly after the background task has ended. If
+ * the process is suspended first, a leftover `.creating` file stays until the next build of that book, which deletes
+ * it before starting, so it self-heals; an interrupted build never leaves a final index file.
  *
  * The background task is ended exactly once, whichever comes first: the build returning or throwing, or UIKit's
  * expiration handler. The expiration handler must end the task before it returns (UIKit terminates the app
@@ -29,7 +41,7 @@ class IosSearchIndexingRunner(
     private val end: (ULong) -> Unit = { UIApplication.sharedApplication.endBackgroundTask(it) },
 ) {
     /** Runs [build] under a background task; [cancelBuild] is called (at most once) when UIKit expires the task. */
-    suspend fun <T> run(cancelBuild: () -> Unit, build: suspend () -> T): T {
+    suspend fun <T> run(cancelBuild: () -> Unit, build: suspend (isExpired: () -> Boolean) -> T): T {
         val lock = NSRecursiveLock()
         var identifier: ULong? = null
         var expired = false
@@ -66,7 +78,8 @@ class IosSearchIndexingRunner(
             }
         }
         try {
-            return build()
+            if (lock.withLock { expired }) throw CancellationException("Background time expired before the build started")
+            return build { lock.withLock { expired } }
         } finally {
             endOnce()
         }
