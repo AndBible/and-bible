@@ -92,6 +92,9 @@ class SpeakTransportServiceImpl(
         _state.value = build(visible = visible)
     }
 
+    /** Rebuilds the cached state (status text is locale-dependent) after an in-app language change. */
+    fun refreshForLocale() { refresh() }
+
     private fun refresh() { _state.value = build(visible = _state.value.visible) }
 
     private fun build(visible: Boolean) = SpeakTransportStateVd(
