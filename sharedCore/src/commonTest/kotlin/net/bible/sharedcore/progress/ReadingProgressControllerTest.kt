@@ -148,6 +148,26 @@ class ReadingProgressControllerTest {
         assertEquals(5, c.model.value.memorize?.memorizedCount)
     }
 
+    @Test fun load_refreshes_already_loaded_memorize_data_on_reopen() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope)
+        c.selectTab(ReadingTab.MEMORIZE)
+        assertEquals(5, c.model.value.memorize?.memorizedCount)
+        fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 7, targetMemorized = 4, targetTotal = 10)
+        c.load() // screen re-opened (the host caches the controller across opens)
+        assertEquals(7, c.model.value.memorize?.memorizedCount)
+        assertEquals(4, c.model.value.memorize?.targetMemorized)
+    }
+
+    @Test fun load_refreshes_stale_memorize_data_even_when_reopened_on_reading_tab() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope)
+        c.selectTab(ReadingTab.MEMORIZE)
+        c.selectTab(ReadingTab.READING)
+        fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 8, targetMemorized = 0, targetTotal = 0)
+        c.load()
+        c.selectTab(ReadingTab.MEMORIZE)
+        assertEquals(8, c.model.value.memorize?.memorizedCount)
+    }
+
     @Test fun setMemOverview_false_loads_passages_and_targets_and_persists() = runTest(UnconfinedTestDispatcher()) {
         val fake = Fake()
         var persisted: Boolean? = null
