@@ -30,7 +30,8 @@ import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
-import net.bible.service.sword.index.AndroidIndexPolicy
+import net.bible.android.BibleApplication
+import net.bible.service.sword.index.SearchIndexingService
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
@@ -215,9 +216,8 @@ object SwordDocumentFacade {
                 if(book.isEpub) {
                     book.epubBackend!!.state.buildSearchIndex()
                 } else {
-                    val indexManager = IndexManagerFactory.getIndexManager()
-                    indexManager.indexPolicy = AndroidIndexPolicy()
-                    indexManager.scheduleIndexCreation(book)
+                    // Built by the foreground indexing service, one book at a time; the index manager sets the status.
+                    SearchIndexingService.enqueue(BibleApplication.application, book.initials)
                 }
             } catch (e: Exception) {
                 book.indexStatus = IndexStatus.UNDONE

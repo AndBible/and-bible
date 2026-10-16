@@ -193,6 +193,9 @@ interface Strings {
      */
     val searchNotAvailable: String
 
+    /** Title of the foreground search-indexing notification (R.string.search_indexing_notification_title). */
+    val searchIndexingNotificationTitle: String
+
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String
     val helpFts5: String

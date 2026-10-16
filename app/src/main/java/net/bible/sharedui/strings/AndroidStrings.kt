@@ -132,6 +132,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun searchNotAvailableForDocument(name: String): String =
         context.getString(R.string.search_not_available_for_document, name)
     override val searchNotAvailable: String get() = context.getString(R.string.search_not_available)
+    override val searchIndexingNotificationTitle: String get() = context.getString(R.string.search_indexing_notification_title)
 
     // Batch 5 (Plan B) — EPUB search
     override val ftsQuery: String get() = context.getString(R.string.search_fts_query)
