@@ -6034,6 +6034,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         session.controller = controller
         lifecycleScope.launch {
+            // The old screen's dispose-time autosave runs under this key; read only after it, or a
+            // recreation with unsaved edits loads pre-save rows and a later Save writes them back.
+            MyDocumentBookManager.launcher.join("mydocument-pages-$docId")
             val list = withContext(Dispatchers.IO) { myDocumentDao.pagesForDocument(docId) }
             myDocumentPagesEntityByLong = list.mapIndexed { i, p -> i.toLong() to p }.toMap()
             // Selection is saved by persistent page id: the load-order tokens change when pages are reordered or deleted.

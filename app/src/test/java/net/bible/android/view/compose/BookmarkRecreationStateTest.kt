@@ -283,6 +283,37 @@ class BookmarkRecreationStateTest {
         assertFalse(restored.dirty.value)
     }
 
+    @Test fun myDocumentPagesRecreationLoadsTheTitleTheOldScreensAutosaveWrote() {
+        val dao = net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val doc = net.bible.android.database.mydocument.MyDocument(name = "BM13 Autosave Doc", initials = "MyDoc_BM13_Auto", orderNumber = 0)
+        runBlocking {
+            dao.insert(doc)
+            listOf("Alpha", "Beta").forEachIndexed { i, title ->
+                dao.insertPageWithContent(net.bible.android.database.mydocument.MyDocumentPage(
+                    documentId = doc.id, title = title, pageKey = "bm13a_$i", orderNumber = i,
+                ), "body $i")
+            }
+        }
+        val activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(
+                ApplicationProvider.getApplicationContext(),
+                NavRoutes.myDocumentPages(doc.id.toString(), doc.initials, doc.name),
+            ),
+        ).also { hosts += it }.create().start().resume().visible().get()
+        awaitHostRoute(activity, NavRoutes.MY_DOCUMENT_PAGES_PATTERN, ::advance)
+        awaitHostCondition("pages initial load", ::advance) { pagesControllerOrNull(activity)?.totalCount?.value == 2 }
+        val old = requireNotNull(pagesControllerOrNull(activity))
+        old.rename(old.pages.value.first { it.name == "Beta" }.id, "Beta renamed")
+        assertTrue(old.dirty.value)
+
+        val recreated = recreate(activity, NavRoutes.MY_DOCUMENT_PAGES_PATTERN)
+        awaitHostCondition("recreated pages load", ::advance) { pagesControllerOrNull(recreated)?.totalCount?.value == 2 }
+        val restored = requireNotNull(pagesControllerOrNull(recreated))
+        assertEquals(listOf("Alpha", "Beta renamed"), restored.pages.value.map { it.name })
+        assertFalse("the loaded baseline already includes the acknowledged autosave", restored.dirty.value)
+    }
+
     @Test fun cloudDocumentsFiltersSurviveRecreation() {
         val activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
