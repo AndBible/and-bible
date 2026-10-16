@@ -59,6 +59,20 @@ class CustomRepositoryEditorController(
         }
     }
 
+    /** A package directory the user typed, to apply once [restoreDraft]'s URL validation resolves. */
+    private var pendingPackageDir: String? = null
+
+    /**
+     * Re-applies an unsaved draft after the host was recreated: the URL is validated afresh against the
+     * live service, and [packageDir] (when the user had one) wins over the directory the manifest
+     * resolves, so the draft is restored rather than replaced by the resolved defaults. The dirty
+     * baseline stays [initial].
+     */
+    fun restoreDraft(url: String, packageDir: String?) {
+        pendingPackageDir = packageDir
+        setUrl(url)
+    }
+
     fun setUrl(url: String) {
         _state.value = _state.value.copy(url = url)
         validationJob?.cancel()
@@ -69,6 +83,7 @@ class CustomRepositoryEditorController(
     }
 
     fun setPackageDir(dir: String) {
+        pendingPackageDir = null
         _state.value = _state.value.copy(packageDirectory = dir)
         recomputeDirty()
     }
@@ -88,7 +103,7 @@ class CustomRepositoryEditorController(
             is ManifestResult.Valid -> _state.value = _state.value.copy(
                 validation = Validation.Valid,
                 resolved = result.repository,
-                packageDirectory = result.repository.packageDirectory,
+                packageDirectory = pendingPackageDir ?: result.repository.packageDirectory,
                 canSave = true,
             )
             ManifestResult.Invalid -> _state.value = _state.value.copy(
@@ -97,6 +112,7 @@ class CustomRepositoryEditorController(
                 canSave = false,
             )
         }
+        pendingPackageDir = null
         recomputeDirty()
     }
 

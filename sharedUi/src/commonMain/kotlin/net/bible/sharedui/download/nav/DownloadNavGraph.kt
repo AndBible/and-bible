@@ -586,8 +586,21 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val resolved = initial ?: return@composable
         // No `onResult` lambda: the controller's constructor is (service, scope, initial)
         // (CustomRepositoryEditorController.kt:40), and every exit below delivers explicitly.
-        val controller = remember(id, resolved) { d.controllerFor(resolved) }
+        // BM-13: the unsaved draft is Activity-recreation state. The controller is rebuilt from the
+        // route's baseline (`resolved`, so the dirty comparison stays against the stored repository),
+        // then the saved draft is re-applied and re-validated against the fresh service binding.
+        var draftUrl by rememberSaveable(id) { mutableStateOf<String?>(null) }
+        var draftPackageDir by rememberSaveable(id) { mutableStateOf<String?>(null) }
+        val controller = remember(id, resolved) {
+            d.controllerFor(resolved).also { c -> draftUrl?.let { c.restoreDraft(it, draftPackageDir) } }
+        }
         val state by controller.state.collectAsState()
+        // Recorded AFTER the restore above, so a rebuilt controller's initial state cannot overwrite it.
+        // The directory is empty until the first validation resolves one; that is not a user draft.
+        LaunchedEffect(state.url, state.packageDirectory) {
+            draftUrl = state.url.takeIf { it.isNotEmpty() }
+            draftPackageDir = state.packageDirectory.takeIf { it.isNotEmpty() }
+        }
         var showDiscardConfirm by rememberSaveable { mutableStateOf(false) }
         val strings = LocalStrings.current
 
@@ -746,16 +759,39 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         // `closeSearch()` clears the query as well as closing the bar
         // (SearchModeController.clearOnClose), which is exactly a fresh launch's state.
         var seededRouteStateFor by rememberSaveable { mutableStateOf<String?>(null) }
+        // BM-13: the live search the user is looking at, plus the ARGUMENTS it was typed under. A
+        // recreation rebuilds the session (new seedKey) with the same arguments, so it must restore
+        // this rather than re-seed the route's original query; a fresh intent carries different
+        // arguments and still seeds its own. Recorded only once this key has seeded, so the rebuilt
+        // controller's blank query cannot overwrite it.
+        var liveQuery by rememberSaveable { mutableStateOf<String?>(null) }
+        var liveSearchOpen by rememberSaveable { mutableStateOf(false) }
+        var liveArgsKey by rememberSaveable { mutableStateOf<String?>(null) }
+        val argsKey = downloadGateKey(firstDownload, downloadRecommended, search, addons, documentIds)
         LaunchedEffect(seedKey) {
             if (seededRouteStateFor == seedKey) return@LaunchedEffect
             seededRouteStateFor = seedKey
+            val restoreQuery = liveQuery.takeIf { liveArgsKey == argsKey }
             controller.setTypeFilter(d.initialTypeFilter(addons))
-            if (search != null) {
+            if (restoreQuery != null) {
+                controller.setQuery(restoreQuery)
+                if (liveSearchOpen) controller.openSearch()
+            } else if (search != null) {
                 controller.setQuery(search)
                 controller.openSearch()
             } else {
                 controller.closeSearch()
             }
+        }
+
+        LaunchedEffect(seedKey) {
+            kotlinx.coroutines.flow.combine(controller.query, controller.searchModeActive) { q, open -> q to open }
+                .collect { (q, open) ->
+                    if (seededRouteStateFor != seedKey) return@collect
+                    liveQuery = q
+                    liveSearchOpen = open
+                    liveArgsKey = argsKey
+                }
         }
 
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
