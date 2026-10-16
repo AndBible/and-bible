@@ -716,7 +716,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">البحث النصي يمكن أن يتضمن محارف خاصة مثل *، ?, AND، OR، NOT</string>
   <string name="help_search_details">الرجاء النظر إلى %s من أجل تفاصيل أكثر.</string>
-  <string name="help_apache_lucene">Apache Lucene - صيغة محلل الاستعلام</string>
   <string name="help_fts5">صيغة استعلام النص الكامل FTS5</string>
   <string name="help_workspaces_title">مساحات العمل</string>
   <string name="help_workspaces_text">تتيح مساحات العمل الحصول على بيئات عمل متعددة تعتمد على السياق. يمكن الوصول إلى وظائف مساحات العمل عبر عنصر \"مساحات العمل\" في قائمة الخيارات (الزاوية العلوية اليمنى). الطريقة السريعة للوصول إلى مساحات العمل هي بالتمرير للأسفل من شريط الأدوات. يمكنك أيضاً استخدام إيماءتي التمرير للوصول إلى مساحة العمل السابقة أو التالية.</string>

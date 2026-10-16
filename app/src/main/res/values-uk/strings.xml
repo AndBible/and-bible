@@ -738,7 +738,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">Текст пошуку може містити спеціальні символи: *, AND, OR, NOT</string>
   <string name="help_search_details">Будь ласка, перегляньте %s для отримання додаткової інформації</string>
-  <string name="help_apache_lucene">Apache Lucene — синтаксис аналізатора запитів</string>
   <string name="help_fts5">Синтаксис повнотекстових запитів FTS5</string>
   <string name="help_workspaces_title">Робочі області</string>
   <string name="help_workspaces_text">

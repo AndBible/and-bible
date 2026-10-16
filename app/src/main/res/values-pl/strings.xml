@@ -692,7 +692,6 @@ Bloczki notatek mają na celu ułatwić pisanie kazań lub tworzenie osobistych 
   <!--TODO: to be removed-->
   <string name="help_search_text2">Wyszukiwana fraza może zawierać operatory specjalne takie jak: *, AND, OR, NOT.</string>
   <string name="help_search_details">Zajrzyj do %s, aby dowiedzieć się więcej.</string>
-  <string name="help_apache_lucene">składni wyszukiwania Apache Lucene</string>
   <string name="help_fts5">składni wyszukiwania tekstu FTS5</string>
   <string name="help_workspaces_title">Obszary robocze</string>
   <string name="help_workspaces_text">

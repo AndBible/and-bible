@@ -729,7 +729,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <!--TODO: to be removed-->
   <string name="help_search_text2">శోధన వచనంలో *, AND, OR, NOT వంటి ప్రత్యేక అక్షరాలు ఉండవచ్చు</string>
   <string name="help_search_details">దయచేసి మరిన్ని వివరాల కోసం %s చూడండి.</string>
-  <string name="help_apache_lucene">అపాచీ లూసీన్ - క్వెరీ పార్సర్ సింటాక్స్</string>
   <string name="help_fts5">FTS5 పూర్తి-వచన ప్రశ్న సింటాక్స్</string>
   <string name="help_workspaces_title">కార్యస్థలాలు</string>
   <string name="help_workspaces_text">

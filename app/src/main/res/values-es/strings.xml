@@ -744,7 +744,6 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
   <!--TODO: to be removed-->
   <string name="help_search_text2">El texto de búsqueda puede incluir caracteres especiales como *, AND, OR, NOT</string>
   <string name="help_search_details">Consulte %s para obtener más detalles.</string>
-  <string name="help_apache_lucene">Apache Lucene - Sintaxis del analizador de consultas</string>
   <string name="help_fts5">FTS5 Sintaxis de consulta de texto completo</string>
   <string name="help_workspaces_title">Espacios</string>
   <string name="help_workspaces_text">

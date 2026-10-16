@@ -749,7 +749,6 @@ i GT och NT varje dag.
   <!--TODO: to be removed-->
   <string name="help_search_text2">Söktexten kan innehålla specialtecken som *, AND, OR, NOT</string>
   <string name="help_search_details">Se %s för mer information.</string>
-  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">Arbetsytor</string>
   <string name="help_workspaces_text">

@@ -164,7 +164,9 @@ interface Strings {
     val helpSearchEpub: String
 
     fun helpSearchDetails(link: String): String
-    val helpApacheLucene: String
+
+    /** Link label for the Bible-search help: the user-docs "Search syntax" section. */
+    val helpSearchSyntax: String
 
     /** Content description for an overflow (⋮) button. */
     val menu: String

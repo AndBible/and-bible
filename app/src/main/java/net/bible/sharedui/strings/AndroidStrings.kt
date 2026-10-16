@@ -124,7 +124,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val helpSearchEpub: String get() = context.getString(R.string.help_search_epub)
     override fun helpSearchDetails(link: String): String =
         context.getString(R.string.help_search_details, link)
-    override val helpApacheLucene: String get() = context.getString(R.string.help_apache_lucene)
+    override val helpSearchSyntax: String get() = context.getString(R.string.help_search_syntax)
     override val menu: String get() = context.getString(R.string.menu)
     override val searchIndexingThenSearch: String get() = context.getString(R.string.search_indexing_then_search)
     override val searchEngineChangedReindex: String get() = context.getString(R.string.search_engine_changed_reindex)

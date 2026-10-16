@@ -735,7 +735,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <!--TODO: to be removed-->
   <string name="help_search_text2">Arama metni *, AND, OR, NOT gibi özel karakterler içerebilir</string>
   <string name="help_search_details">Daha fazla ayrıntı için lütfen %s adresine bakın.</string>
-  <string name="help_apache_lucene">Apache Lucene - 查询解析器语法</string>
   <string name="help_fts5">FTS5 全文查询语法</string>
   <string name="help_workspaces_title">工作检视</string>
   <string name="help_workspaces_text">

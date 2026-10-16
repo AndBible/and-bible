@@ -721,7 +721,6 @@ A könyvjelzők mellett egyéni szövegbejegyzések is hozzáadhatók a jegyzetl
   <!--TODO: to be removed-->
   <string name="help_search_text2">A keresett szöveg tartalmazhat speciális karaktereket, például *, AND, OR, NOT</string>
   <string name="help_search_details">További részletekért lásd: %s.</string>
-  <string name="help_apache_lucene">Apache Lucene - Lekérdezési szintaxis</string>
   <string name="help_fts5">FTS5 teljes szöveges lekérdezési szintaxis</string>
   <string name="help_workspaces_title">Munkamenetek</string>
   <string name="help_workspaces_text">

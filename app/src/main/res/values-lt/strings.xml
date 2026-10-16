@@ -741,7 +741,6 @@ Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškin
   <!--TODO: to be removed-->
   <string name="help_search_text2">Ieškomame tekste gali būti ypatingi simboliai, pvz.: *, AND, OR, NOT</string>
   <string name="help_search_details">Išsamesnei informacijai, žiūrėkite %s.</string>
-  <string name="help_apache_lucene">Apache Lucene - Užklausų analizatoriaus sintaksė</string>
   <string name="help_fts5">FTS5 absoliučiųjų užklausų sintaksė</string>
   <string name="help_workspaces_title">Darbo sritys</string>
   <string name="help_workspaces_text">

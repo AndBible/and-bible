@@ -713,7 +713,6 @@
   <!--TODO: to be removed-->
   <string name="help_search_text2">טקסט החיפוש יכול לכלול תווים מיוחדים כמו *, AND, OR, NOT</string>
   <string name="help_search_details">ראה %s לפרטים נוספים.</string>
-  <string name="help_apache_lucene">Apache Lucene - תחביר מנתח שאילתות</string>
   <string name="help_fts5">תחביר שאילתת טקסט מלא FTS5</string>
   <string name="help_workspaces_title">סביבות עבודה</string>
   <string name="help_workspaces_text">ניתן לנהל סביבות עבודה מתוך תפריט האופציות - שלוש נקודות, פינה ימנית עליונה. החלקה שמאלה על סרגל הכלים מעבירה בין סביבות עבודה.</string>
