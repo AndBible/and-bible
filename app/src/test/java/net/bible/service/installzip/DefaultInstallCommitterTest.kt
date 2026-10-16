@@ -18,6 +18,17 @@
 package net.bible.service.installzip
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.test.DatabaseResetter.resetDatabase
+import org.crosswire.common.activate.Activator
+import org.crosswire.common.util.NetUtilJvm
+import org.crosswire.jsword.book.sword.BookType
+import org.crosswire.jsword.book.sword.SwordBookDriver
+import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
+import org.junit.Assert.assertNotSame
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -129,6 +140,98 @@ class DefaultInstallCommitterTest {
             "registered module should be readable",
             book!!.getRawText(book.getKey("strong")).contains("The test definition body.")
         )
+    }
+
+    @Test
+    fun lockedSwordReinstallPreservesMetadataAndUnlocksReplacement() = verifyEncryptedReinstall("")
+
+    @Test
+    fun archiveCipherKeyDoesNotReplaceRetainedUserKey() = verifyEncryptedReinstall("different-archive-key")
+
+    private fun verifyEncryptedReinstall(archiveKey: String) = runBlocking {
+        val scope = net.bible.sharedcore.platform.AppCoroutineScope()
+        val launcher = OrderedLauncher(scope)
+        val watcher = BookInstallWatcher(launcher,
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
+        val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+        val registeredField = BookInstallWatcher::class.java.getDeclaredField("registered").apply { isAccessible = true }
+        val previousListener = registeredField.get(null) as org.crosswire.jsword.book.BooksListener?
+        watcher.startListening()
+        // Use checked-in, genuinely encrypted K4 bytes, not plaintext with a locked flag.
+        val root = File(requireNotNull(System.getProperty("k5.project.root")))
+        val fixtureRoot = File(root, "jsword/src/commonTest/resources/k4-modules/space dir/ä")
+        val conf = File(fixtureRoot, "mods.d/K4Cipher.conf").readText()
+            .replace("[K4Cipher]", "[E2Cipher]")
+            .replace("./modules/K4Cipher", "./modules/texts/ztext/e2cipher")
+            .replace("CipherKey=k4-Test-key", "CipherKey=")
+        val entries = listOf("mods.d/E2Cipher.conf" to conf.toByteArray(Charsets.UTF_8)) +
+            listOf("ot.bzz", "ot.bzv", "ot.bzs", "nt.bzz", "nt.bzv", "nt.bzs").map {
+                "modules/texts/ztext/e2cipher/$it" to File(fixtureRoot, "modules/K4Cipher/$it").readBytes()
+            }
+        val zip = buildZip("commit-locked-sword.zip", entries)
+        val key = "k4-Test-key"
+        val plaintext = "In the beginning was the Word, and the Word was with God, and the Word was God."
+        var fresh: org.crosswire.jsword.book.Book? = null
+        try {
+            committer.commitSwordZip(zip, entries.size) {}
+            withTimeout(30_000) { watcher.updateRow("E2Cipher") { null } }
+            val original = Books.installed().getBook("E2Cipher")!!
+            assertTrue("first install must really be locked", original.isLocked)
+            assertTrue(original.unlock(key))
+            assertTrue(original.getRawText(original.getKey("John 1:1")).contains(plaintext))
+            watcher.updateRow("E2Cipher") { it!!.copy(repository = "FixtureRepo", cipherKey = key) }
+            Activator.deactivate(original)
+
+            val replacementEntries = entries.toMutableList().apply {
+                this[0] = "mods.d/E2Cipher.conf" to conf.replace("CipherKey=", "CipherKey=$archiveKey").toByteArray(Charsets.UTF_8)
+            }
+            buildZip(zip.name, replacementEntries)
+            committer.commitSwordZip(zip, entries.size) {}
+            withTimeout(30_000) { watcher.updateRow("E2Cipher") { null } }
+            val replacement = Books.installed().getBook("E2Cipher")!!
+            assertNotSame("registration must replace the old cached book", original, replacement)
+            // Assert before checking the row: queue completion alone must not mask a locked new Book.
+            assertFalse("retained key must unlock the newly registered book", replacement.isLocked)
+            assertEquals("archive key must not displace retained user key", key, replacement.unlockKey)
+            assertTrue("replacement must decrypt real ciphertext",
+                replacement.getRawText(replacement.getKey("John 1:1")).contains(plaintext))
+            val row = dao.getBook("E2Cipher")!!
+            assertEquals("FixtureRepo", row.repository)
+            assertEquals(key, row.cipherKey)
+
+            val diskConf = File(SharedConstants.modulesDir, "mods.d/E2Cipher.conf")
+            assertTrue("restoring app key must not rewrite archive config",
+                diskConf.readText().contains("CipherKey=$archiveKey\n"))
+            val metadata = SwordBookMetaDataJvm.create(diskConf, NetUtilJvm.getURI(SharedConstants.modulesDir))
+            metadata.setDriver(SwordBookDriver.instance())
+            val diskBook = BookType.fromString("zText")!!.createBook(metadata)
+            fresh = diskBook
+            assertEquals("independent disk-loaded book must use archive config", archiveKey.isEmpty(), diskBook.isLocked)
+            assertEquals(archiveKey, diskBook.unlockKey)
+            assertTrue(diskBook.unlock(row.cipherKey))
+            assertTrue("persisted key must decrypt a fresh disk-loaded book",
+                diskBook.getRawText(diskBook.getKey("John 1:1")).contains(plaintext))
+        } finally {
+            fresh?.let { Activator.deactivate(it) }
+            Books.installed().getBook("E2Cipher")?.let {
+                Activator.deactivate(it)
+                Books.installed().removeBook(it)
+            }
+            withTimeout(30_000) {
+                launcher.join("book-install")
+                launcher.join("book-install-auto-upload")
+            }
+            File(SharedConstants.modulesDir, "mods.d/E2Cipher.conf").delete()
+            File(SharedConstants.modulesDir, "modules/texts/ztext/e2cipher").deleteRecursively()
+            zip.delete()
+            Books.installed().removeBooksListener(watcher.listener)
+            previousListener?.let { Books.installed().addBooksListener(it) }
+            registeredField.set(null, previousListener)
+            scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
+            resetDatabase()
+        }
     }
 
     @Test

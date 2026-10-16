@@ -188,7 +188,7 @@ class BookInstallWatcherTest {
      * runs on another coroutine and is given time to land; an amendment that bypasses the watcher's queue either
      * finds no row (repository lost) or is overwritten by the delete-and-reinsert (cipher key lost).
      */
-    private fun installThenAmend(preexisting: SwordDocumentInfo?, amend: suspend (BookInstallWatcher, Book) -> Unit): SwordDocumentInfo? =
+    private fun installThenAmend(preexisting: SwordDocumentInfo?, removeFirst: Boolean = false, amend: suspend (BookInstallWatcher, Book) -> Unit): SwordDocumentInfo? =
         runBlocking {
             val appScope = AppCoroutineScope()
             val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
@@ -204,6 +204,7 @@ class BookInstallWatcherTest {
             val book = Books.installed().getBooks().first()
             preexisting?.let { docDao.insert(it.copy(initials = book.initials)) }
             try {
+                if (removeFirst) watcher.listener.bookRemoved(BooksEvent(Books.installed(), book, false))
                 watcher.listener.bookAdded(BooksEvent(Books.installed(), book, true))
                 withTimeout(30_000) { firstWriteHeld.await() }
                 val amendment = async(Dispatchers.Default) { amend(watcher, book) }
@@ -222,6 +223,35 @@ class BookInstallWatcherTest {
         }
 
     @Test
+    fun `plain reinstall preserves app metadata and refreshes module description`() {
+        val old = SwordDocumentInfo("x", "Old name", "OLD", "Old language", "OldRepo", "old-key")
+        val row = installThenAmend(old) { _, _ -> }
+        val book = Books.installed().getBooks().first()
+        assertEquals("OldRepo", row?.repository)
+        assertEquals("old-key", row?.cipherKey)
+        assertEquals(book.name, row?.name)
+        assertEquals(book.abbreviation, row?.abbreviation)
+        assertEquals(book.language.name, row?.language)
+    }
+
+    @Test
+    fun `new install uses empty app metadata`() {
+        val row = installThenAmend(null) { _, _ -> }
+        assertNotNull(row)
+        assertEquals("", row?.repository)
+        assertNull(row?.cipherKey)
+    }
+
+    @Test
+    fun `genuine uninstall before install discards prior app metadata`() {
+        val old = SwordDocumentInfo("x", "Old", "OLD", "English", "OldRepo", "old-key")
+        val row = installThenAmend(old, removeFirst = true) { _, _ -> }
+        assertNotNull(row)
+        assertEquals("", row?.repository)
+        assertNull(row?.cipherKey)
+    }
+
+    @Test
     fun `repository recorded after install survives the queued row insert`() {
         val row = installThenAmend(null) { watcher, book ->
             DownloadManager.recordRepository(watcher, book.initials, "CrossWire")
@@ -236,9 +266,20 @@ class BookInstallWatcherTest {
     }
 
     @Test
-    fun `cipher key stored after a reinstall survives the delete-and-reinsert`() {
+    fun `sync cipher amendment after reinstall keeps retained repository`() {
         val old = SwordDocumentInfo("x", "Old", "OLD", "English", "OldRepo", "old-key")
         val row = installThenAmend(old) { watcher, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).persistCipherKey(watcher, book, "new-key") }
         assertEquals("new-key", row?.cipherKey)
+        assertEquals("OldRepo", row?.repository)
+    }
+
+    @Test
+    fun `network repository amendment after reinstall keeps retained cipher key`() {
+        val old = SwordDocumentInfo("x", "Old", "OLD", "English", "OldRepo", "old-key")
+        val row = installThenAmend(old) { watcher, book ->
+            DownloadManager.recordRepository(watcher, book.initials, "NewRepo")
+        }
+        assertEquals("NewRepo", row?.repository)
+        assertEquals("old-key", row?.cipherKey)
     }
 }

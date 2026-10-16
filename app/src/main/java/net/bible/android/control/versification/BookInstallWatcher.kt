@@ -117,17 +117,23 @@ class BookInstallWatcher(
 
     private suspend fun addBookToDb(book: Book) {
         beforeWrite()
-        // if book is already installed, we remove it, else it deletes nothing
         Log.i(DownloadManager.TAG, "Adding ${book.name} to document backup database")
-        docDao.deleteByOsisId(book.initials)
-        // insert the new book info into backup db
+        // Replacement emits only bookAdded: keep app-owned fields, not the old module description.
+        // A genuine preceding bookRemoved has already deleted the row under this same ordered key.
+        val previous = docDao.getBook(book.initials)
         docDao.insert(SwordDocumentInfo(
             book.initials,
             book.name,
             book.abbreviation,
             book.language.name,
-            ""
+            previous?.repository ?: "",
+            previous?.cipherKey,
         ))
+        // Registration creates new metadata/backend state. Restore the user's retained key there too,
+        // even if the replacement archive supplies another key; do not rely on old plaintext caches.
+        if (book.isEnciphered) {
+            previous?.cipherKey?.takeIf { it.isNotEmpty() }?.let { book.unlock(it) }
+        }
     }
 
     /**
@@ -136,8 +142,8 @@ class BookInstallWatcher(
      * JSword fires [BooksListener.bookAdded] synchronously inside `install()`, but the row insert it causes is
      * queued under [DB_KEY]. Code that amends the row right after an install (the repository name in
      * `DownloadManager.installBook`, the cipher key in `DocumentSync`) must therefore queue behind it:
-     * a direct DAO read/update could run before the insert (row missing: change lost) or be overwritten by it
-     * (reinstall: delete-and-reinsert without the field).
+     * a direct DAO read/update could run before the insert (row missing: change lost) or race its snapshot
+     * of the retained app-owned fields during reinstall.
      *
      * [update] gets the current row (null when there is none) and returns the row to store, or null to leave
      * the table unchanged. The write runs in the application scope, so cancelling a caller cannot skip it.
