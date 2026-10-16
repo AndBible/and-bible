@@ -18,6 +18,7 @@
 package net.bible.sharedcore.progress
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +39,8 @@ import kotlinx.coroutines.launch
  * [setMemOverview]) reloads it. [showMorePassages]/[showMoreTargets] just grow the paging window
  * over the already-fetched full lists ([allPassages]/[allTargets]) and republish — no reload.
  * [load] (run on every screen open) re-runs [loadMemorize] whenever memorize data was already
- * loaded or the Memorize tab is showing, so a cached controller never serves stale data. It also triggers [loadMemorize] when the controller is constructed (or deep-linked) directly
+ * loaded or the Memorize tab is showing, so a cached controller never serves stale data. It
+ * also triggers [loadMemorize] when the controller is constructed (or deep-linked) directly
  * into [ReadingTab.MEMORIZE], since in that case the initial tab composition never fires
  * [selectTab]'s `onClick`.
  */
@@ -60,6 +62,7 @@ class ReadingProgressController(
     }
 
     private var overviewActive = initialOverviewActive
+    private var memorizeJob: Job? = null
     private var allPassages: List<PassageRow> = emptyList()
     private var allTargets: List<TargetRow> = emptyList()
     private var passagesShown = PAGE_SIZE
@@ -172,7 +175,9 @@ class ReadingProgressController(
      * side's data is left as-is (not cleared) so switching back doesn't need a reload.
      */
     fun loadMemorize() {
-        scope.launch {
+        // Only the latest load may publish: an older, slower job must not overwrite newer data.
+        memorizeJob?.cancel()
+        memorizeJob = scope.launch {
             val summary = service.memorizeSummary()
             val prev = _model.value.memorize
             var otBooks = prev?.otBooks ?: emptyList()

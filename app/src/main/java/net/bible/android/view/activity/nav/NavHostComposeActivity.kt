@@ -5920,14 +5920,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Remember the picked pages by PERSISTENT id (see [PendingMyDocumentExports]) and open the folder picker. */
     private fun launchMyDocumentPagesExport(tokens: List<Long>) {
-        pendingMyDocumentExports.pageIds = tokens.mapNotNull { myDocumentPagesEntityByLong[it]?.id?.toString() }
+        val ids = tokens.mapNotNull { myDocumentPagesEntityByLong[it]?.id?.toString() }
+        if (ids.isEmpty()) return reportLostMyDocumentExport()
+        pendingMyDocumentExports.pageIds = ids
         exportMyDocumentPagesTreeLauncher.launch(null)
     }
 
     /** Remember the picked documents by PERSISTENT id (see [PendingMyDocumentExports]) and open the folder picker. */
     private fun launchMyDocumentsExport(tokens: List<Long>, batch: Boolean) {
-        pendingMyDocumentExports.documentIds =
-            tokens.mapNotNull { myDocumentsSession?.entityByLong?.get(it)?.id?.toString() }
+        val ids = tokens.mapNotNull { myDocumentsSession?.entityByLong?.get(it)?.id?.toString() }
+        if (ids.isEmpty()) return reportLostMyDocumentExport()
+        pendingMyDocumentExports.documentIds = ids
         pendingMyDocumentExports.documentsBatch = batch
         exportMyDocumentTreeLauncher.launch(null)
     }
@@ -6147,7 +6150,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 val treeDoc = DocumentFile.fromTreeUri(this@NavHostComposeActivity, treeUri) ?: return@launch
                 for ((index, id) in ids.withIndex()) {
                     val page = myDocumentDao.pageByIdWithContent(IdType.fromString(id)) ?: continue
-                    val withContent = page
                     val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
                     val mimeType = if (ext == "html") "text/html" else "text/markdown"
                     val orderPrefix = String.format("%02d", index + 1)
@@ -6157,7 +6159,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         .ifEmpty { getString(R.string.my_document_export_fallback_name) }
                     val file = treeDoc.createFile(mimeType, "$orderPrefix-$sanitizedTitle.$ext") ?: continue
                     contentResolver.openOutputStream(file.uri)?.use { out ->
-                        out.write((withContent.content ?: "").toByteArray(Charsets.UTF_8))
+                        out.write((page.content ?: "").toByteArray(Charsets.UTF_8))
                     }
                 }
                 withContext(Dispatchers.Main) {
@@ -6458,9 +6460,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
-    /** Export one document's pages to a chosen tree folder. Ported verbatim from classic
-     *  `MyDocumentsComposeActivity.exportDocumentToFolder` (`:411-439`); the per-page write loop is
-     *  shared with the batch path via [writeMyDocumentPagesInto]. */
+    /** Resolve the single pending document by persistent id (the session may not be loaded after a
+     *  recreate) and export it; an unresolvable id shows the generic error toast. */
     private fun exportMyDocumentByIdToFolder(id: String, treeUri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             val document = myDocumentDao.documentById(IdType.fromString(id))
@@ -6469,6 +6470,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
+    /** Export one document's pages to a chosen tree folder. Ported verbatim from classic
+     *  `MyDocumentsComposeActivity.exportDocumentToFolder` (`:411-439`); the per-page write loop is
+     *  shared with the batch path via [writeMyDocumentPagesInto]. */
     private fun exportMyDocumentToFolder(document: MyDocument, treeUri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
