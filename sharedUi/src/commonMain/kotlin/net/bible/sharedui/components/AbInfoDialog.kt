@@ -44,8 +44,10 @@ import net.bible.sharedui.strings.LocalStrings
  *
  * When both [readMoreLabel] and [readMoreUrl] are non-null, an underlined, theme-tinted "read more"
  * link is rendered below the (still height-bounded/scrollable) body; tapping it opens [readMoreUrl]
- * via [LocalUriHandler] (Compose Multiplatform's built-in, iOS-clean URL opener — see
- * `AiProvidersScreen`/`EasySetupWizard` for prior usage). Underlining (not just a tinted color) keeps
+ * through [LocalAbLinkOpener] when an enclosing [AbLinkRouting] provides one (so the discrete build's
+ * "External link?" question applies), else falls back to [LocalUriHandler]. The dialog window
+ * re-provides a bare platform [LocalUriHandler] that shadows the host's override (C1), so the
+ * custom local is the only one that reaches the click. Underlining (not just a tinted color) keeps
  * the affordance legible in monochrome/e-ink theme modes. Since round 15a the scroll/height bound
  * sits on the whole [Column] (body + [content] + the "read more" link) rather than on the body
  * [Text] alone, so the "read more" link now scrolls WITH the content instead of staying pinned below
@@ -68,6 +70,7 @@ fun AbInfoDialog(
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val uriHandler = LocalUriHandler.current
+    val linkOpener = LocalAbLinkOpener.current
     AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -87,7 +90,7 @@ fun AbInfoDialog(
                         text = readMoreLabel,
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable { uriHandler.openUri(readMoreUrl) },
+                        modifier = Modifier.clickable { linkOpener?.open(readMoreUrl) ?: uriHandler.openUri(readMoreUrl) },
                     )
                 }
             }
