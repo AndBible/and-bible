@@ -138,10 +138,11 @@ cellular `eth0` path still works (verified on a fresh strict container, 2026-10-
 
 ## Hardware keys and secure screens: `key` and `emushot`
 
-`scripts/andbible-emu.sh key <EV_KEY names>` presses the named Linux input keys in order and releases
-them in reverse through the emulator console (`adb emu event send EV_KEY:<KEY>:1 ...`, `EV_SYN`), so
-the app sees a real keyboard: `key KEY_A`, `key KEY_BACK`, `key KEY_SEARCH`, `key KEY_LEFTALT KEY_O`.
-Unlike `adb shell input keyevent` it goes through the virtual keyboard device. Before classifying app
+`scripts/andbible-emu.sh key <KEY_ names>` presses the named Linux input keys in order and releases
+them in reverse with `sendevent` on the guest's "AT Translated Set 2 keyboard" device (needs `adb root`,
+i.e. a userdebug image), so the app sees a real keyboard: `key KEY_A`, `key KEY_BACK`, `key KEY_SEARCH`,
+`key KEY_LEFTALT KEY_O`. `adb emu event send EV_KEY:...` was tried first and does not reach the guest on
+emulator 37.3.4 (E4a G2). Unlike `adb shell input keyevent` it goes through a real keyboard device. Before classifying app
 behaviour, prove delivery with a harmless key (a letter into a focused search field, read back).
 
 `scripts/andbible-emu.sh emushot <name>` takes the screenshot on the emulator side

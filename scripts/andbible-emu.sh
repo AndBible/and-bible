@@ -24,8 +24,8 @@
 #   scripts/andbible-emu.sh shot <name>         screenshot -> .local/emu-verify/shots/<name>.png
 #   scripts/andbible-emu.sh crashes [pkg]       FATAL/ANR lines from logcat since last `logmark`
 #   scripts/andbible-emu.sh logmark             clear logcat (start of a box)
-#   scripts/andbible-emu.sh key <EV_KEY names>  press the named keys in order, release in reverse, via the
-#                                               emulator console (adb emu event send); e.g. key KEY_A,
+#   scripts/andbible-emu.sh key <KEY_ names>   press the named Linux keys in order, release in reverse, via
+#                                               sendevent on the guest's AT keyboard (adb root needed); e.g. key KEY_A,
 #                                               key KEY_LEFTALT KEY_O. Prove delivery with a letter first.
 #   scripts/andbible-emu.sh emushot <name>      emulator-side screenshot (adb emu screenrecord screenshot),
 #                                               stored as .local/emu-verify/shots/<name>.png; for FLAG_SECURE screens
@@ -351,13 +351,23 @@ crashes)
         | tr -d '\r' | grep -v '^---------' | head -60 || true
     ;;
 key)
-    [ $# -ge 1 ] || die "usage: key <EV_KEY name>..."
-    keys=("$@")
-    for k in "${keys[@]}"; do adb emu event send "EV_KEY:$k:1" >/dev/null; done
-    adb emu event send "EV_SYN:SYN_REPORT:0" >/dev/null
-    for ((i = ${#keys[@]} - 1; i >= 0; i--)); do adb emu event send "EV_KEY:${keys[i]}:0" >/dev/null; done
-    adb emu event send "EV_SYN:SYN_REPORT:0" >/dev/null
-    echo "sent ${keys[*]}"
+    # `adb emu event send EV_KEY:...` does not reach the guest on emulator 37.3.4 (verified by E4a G2), so
+    # the events are injected with sendevent on the guest's AT keyboard; needs a userdebug image (adb root).
+    [ $# -ge 1 ] || die "usage: key <KEY_NAME>..."
+    codes=()
+    for k in "$@"; do
+        c="$(grep -E "^#define[[:space:]]+$k[[:space:]]" /usr/include/linux/input-event-codes.h | awk '{print $3}' | head -1)"
+        [ -n "$c" ] || die "unknown key name $k (see /usr/include/linux/input-event-codes.h)"
+        codes+=("$c")
+    done
+    adb root >/dev/null 2>&1 || true; adb wait-for-device
+    dev="$(adb shell getevent -il </dev/null | tr -d '\r' | awk '/^add device/ {d=$4} /AT Translated Set 2 keyboard/ {print d; exit}')"
+    [ -n "$dev" ] || die "no AT keyboard input device in the guest"
+    cmd=""
+    for c in "${codes[@]}"; do cmd="$cmd sendevent $dev 1 $c 1; sendevent $dev 0 0 0;"; done
+    for ((i = ${#codes[@]} - 1; i >= 0; i--)); do cmd="$cmd sendevent $dev 1 ${codes[i]} 0; sendevent $dev 0 0 0;"; done
+    adb shell "$cmd"
+    echo "sent $* via $dev"
     ;;
 emushot)
     name="${1:?name}"; mkdir -p "$kit/shots"
