@@ -68,8 +68,17 @@ Two more boot failures that `boot` now prevents: a killed emulator leaves its AV
 left half shut down by an earlier emulator makes the next one hang until its watchdog exits 139
 ("detected a hanging thread 'QEMU2 main loop'"). When no qemu is running, `boot` removes both.
 
-Check a running emulator with `scripts/andbible-emu.sh health` (version, GPU, qemu threads and
-RSS, exit code). A thread count or RSS that grows with every app restart means the leak is back.
+Check a running emulator with `scripts/andbible-emu.sh health` (version, GPU, AVD and uptime, qemu
+threads and RSS, GPU buffers, exit code). A thread count or RSS that grows with every app restart
+means the leak is back.
+
+**Memory.** One emulator costs about 6 GB of host RAM: qemu's RSS (about 4.5 GB for a 4 GB guest)
+plus its GPU buffers. With `-gpu host` on the integrated Intel GPU those buffers are ordinary RAM
+but not part of qemu's RSS (`health` reads them from the render node's DRM fdinfo: 1.8 GB after 14
+hours of verification on 2026-10-17). Containers share the machine's RAM, so emulators left
+running add up: on 2026-10-16 four containers with emulators nearly filled the host. Hence `boot`
+refuses while any qemu runs in the container (not only when adb lists a device), and an emulator
+is stopped with `kill` as soon as its work is done.
 
 ## Creating the AVD: `scripts/emulator-avds.sh`
 
@@ -110,8 +119,8 @@ Small helpers, all against the 5038 server:
 
 | Subcommand | Purpose |
 |------------|---------|
-| `boot [avd]` / `kill` | boot detached (GPU mode and proxy as above) and wait for `sys.boot_completed` / stop it and verify qemu is gone |
-| `health` | emulator version, GPU mode, qemu threads and RSS, last exit code |
+| `boot [avd]` / `kill` | boot detached (GPU mode and proxy as above) and wait for `sys.boot_completed`; refuses while any qemu runs / stop it and verify qemu is gone |
+| `health` | emulator version, GPU mode, AVD and uptime, qemu threads and RSS, GPU buffers, last exit code |
 | `install <apk>` | `adb install -r -d` |
 | `wipe [pkg]` | `pm clear`, for a true first run |
 | `push-module <zip> [pkg]` | push a Sword module zip (`mods.d/` + `modules/`) into the app's module dir |

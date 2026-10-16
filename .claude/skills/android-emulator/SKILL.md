@@ -41,6 +41,12 @@ stale AVD lock and a wedged `netsimd`, and warns if the emulator is older than 3
 - The AVD lives in `$ANDROID_AVD_HOME` (container-local). Do not create AVDs in, or wipe,
   `~/.android/avd`: that directory is shared with the host and other containers.
 - After pushing files, `adb shell sync` (`push-module` does it). A crash loses unflushed writes.
+- One emulator per container, started only by `boot` (never `emulator` directly). To switch AVD
+  or Android version, `kill` first; `boot` refuses while any qemu runs.
+- `kill` the emulator as soon as the emulator work is done, including when a session or a
+  verification run ends. An idle emulator still holds about 6 GB of the machine's shared RAM, and
+  forgotten ones in several containers add up. If you leave it running on purpose (the next step
+  needs it), say so in your report.
 
 ## When something goes wrong
 
@@ -49,7 +55,8 @@ stale AVD lock and a wedged `netsimd`, and warns if the emulator is older than 3
 | `health` says emulator < 37.3.4, or it exits 139 after app restarts | gfxstream leak/crash in 37.2.x | Use the golden image's `/opt/android-sdk` (the script's default); report if the image lacks it |
 | `EMULATOR-EXIT=139` after "detected a hanging thread" (boot or later) | wedged `netsimd` | `kill`, then `boot` again (boot clears it) |
 | "Another emulator instance is running" | lock left by a killed emulator | `kill`, then `boot` |
-| `health` RenderThread count or RSS climbs with every app restart (37.2.12 leaked ~16 threads and ~250 MB per restart; healthy plateaus after a few) | the leak is back (old emulator or new bug) | Record `health` output and the emulator version; reboot the emulator |
+| `boot`: "an emulator is already running (AVD x, up t)" | an earlier emulator in this container, maybe from another session | Check it is not in use (ask if unsure), then `kill` and `boot` |
+| `health` RenderThread count, RSS or GPU buffers climb with every app restart (37.2.12 leaked ~16 threads and ~250 MB per restart; healthy plateaus after a few; GPU buffers 1.8 GB after 14 h on 37.3.4) | the leak is back (old emulator or new bug) | Record `health` output and the emulator version; reboot the emulator |
 | App downloads fail | guest proxy unreachable (`health` says NOT reachable) | Check `/proc/$(pgrep -x netsimd)/environ` has no proxy vars (boot unsets them; netsimd would CONNECT bare IPs), then `HTTPS_PROXY` and `egress_allow` |
 | "Failed to get EGL display" / no renderer | no GLX display for `-gpu host` | `ANDBIBLE_EMU_GPU=swiftshader_indirect scripts/andbible-emu.sh boot`; see `/tmp/andbible-emu-weston.log` |
 

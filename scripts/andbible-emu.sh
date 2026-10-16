@@ -6,9 +6,11 @@
 # Usage:
 #
 #   scripts/andbible-emu.sh boot [avd]          boot detached (default AVD screenshot_phone, created
-#                                               if missing), wait for sys.boot_completed
+#                                               if missing), wait for sys.boot_completed; refuses
+#                                               while any qemu runs (one emulator per container)
 #   scripts/andbible-emu.sh kill                stop the running emulator, verify qemu is gone
-#   scripts/andbible-emu.sh health              emulator version, GPU mode, qemu threads/RSS, exit code
+#   scripts/andbible-emu.sh health              emulator version, GPU mode, AVD, qemu threads/RSS,
+#                                               GPU buffers, exit code
 #   scripts/andbible-emu.sh install <apk>       adb install -r -d (never gradle install*)
 #   scripts/andbible-emu.sh wipe [pkg]          pm clear (data + granted state) -> true first run
 #   scripts/andbible-emu.sh push-module <zip> [pkg]
@@ -65,6 +67,48 @@ avd_home="${ANDROID_AVD_HOME:-$HOME/.android/avd}"
 mkdir -p "$avd_home"
 # qemu's process name, truncated by the kernel to 15 characters (pgrep -x needs it exactly).
 QEMU=qemu-system-x86
+
+# boot's refusal when an emulator already runs: what, why, and what to do.
+refuse_second_emulator() {
+    cat >&2 <<EOM
+andbible-emu: not booting: an emulator is already running in this container ($1).
+  Why: one emulator per container. Each holds about 6 GB of the machine's shared RAM (qemu plus
+  GPU buffers), and emulators left running in several containers have nearly filled the host.
+  Do:
+  - To keep using it, skip boot: the other subcommands already talk to it ('$0 health').
+  - To switch AVD or Android version, or if it is yours and no longer needed:
+    '$0 kill', then boot again.
+  - If it may belong to another session in this container, ask before killing it.
+EOM
+    exit 1
+}
+
+# "AVD <name>, up <elapsed>" for a qemu pid.
+qemu_desc() {
+    local avd
+    avd="$(tr '\0' '\n' < "/proc/$1/cmdline" 2>/dev/null | sed -n '/^-avd$/{n;p;q}')"
+    echo "AVD ${avd:-unknown}, up $(ps -o etime= -p "$1" | tr -d ' ')"
+}
+
+# GPU (i915/xe GEM) memory a qemu holds through its render-node descriptors. On an integrated GPU
+# this is ordinary RAM, yet it is not part of qemu's RSS. Descriptors of one DRM client report the
+# same totals, so count each drm-client-id once.
+gpu_buffers() {
+    local fd
+    for fd in /proc/$1/fd/*; do
+        case "$(readlink "$fd" 2>/dev/null)" in
+            /dev/dri/*) cat "/proc/$1/fdinfo/${fd##*/}" 2>/dev/null ;;
+        esac
+    done | awk '
+        /^drm-client-id:/ { id = $2 }
+        /^drm-total-system0:/ { total[id] = $2 }
+        /^drm-resident-system0:/ { res[id] = $2 }
+        END {
+            for (i in total) { n++; t += total[i]; r += res[i] }
+            if (!n) { print "GPU buffers: not reported (no render node with DRM fdinfo open)"; exit }
+            printf "GPU buffers %d MB (%d MB resident; %d DRM client%s)\n", t / 1024, r / 1024, n, n == 1 ? "" : "s"
+        }'
+}
 
 emulator_version() { sed -n 's/^Pkg.Revision=//p' "$sdk/emulator/source.properties" 2>/dev/null; }
 
@@ -139,8 +183,14 @@ esac
 case "$cmd" in
 boot)
     avd="${1:-screenshot_phone}"
+    # One emulator per container: each holds ~4.5 GB RSS plus GPU buffers, and forgotten ones add
+    # up across containers. adb alone misses one that is booting, offline or started without this
+    # script, so look for qemu itself.
+    if q="$(pgrep -x "$QEMU" | head -1)"; then
+        refuse_second_emulator "$(qemu_desc "$q")"
+    fi
     if adb devices | awk 'NR>1 && $2=="device"' | grep -q .; then
-        die "an emulator is already running — run '$0 kill' first (one at a time)"
+        refuse_second_emulator "adb lists a device"
     fi
     [ -x "$sdk/emulator/emulator" ] || die "$sdk/emulator/emulator missing (ANDROID_HOME=$sdk)"
     check_emulator_version
@@ -219,7 +269,7 @@ boot)
     ;;
 health)
     echo "emulator $(emulator_version) in $sdk; AVD home $avd_home"
-    log="$(ls -t /tmp/emulator-*.log 2>/dev/null | head -1)"
+    log="$(ls -t /tmp/emulator-*.log 2>/dev/null | head -1 || true)"
     if [ -n "$log" ]; then
         echo "$log: $(grep -m1 -o 'gles_mode_selected:[a-z_]*' "$log") $(grep -m1 -o 'Graphics Adapter Android Emulator OpenGL ES Translator.*' "$log" | sed 's/.*Translator //') $(grep '^EMULATOR-EXIT=' "$log" || echo running)"
     fi
@@ -231,7 +281,8 @@ health)
         esac
     fi
     if q="$(pgrep -x "$QEMU" | head -1)"; then
-        echo "qemu pid $q: $(ls /proc/$q/task | wc -l) threads ($(cat /proc/$q/task/*/comm 2>/dev/null | grep -c RenderThread) RenderThread), RSS $(( $(awk '/VmRSS/{print $2}' /proc/$q/status) / 1024 )) MB"
+        echo "qemu pid $q ($(qemu_desc "$q")): $(ls /proc/$q/task | wc -l) threads ($(cat /proc/$q/task/*/comm 2>/dev/null | grep -c RenderThread || true) RenderThread), RSS $(( $(awk '/VmRSS/{print $2}' /proc/$q/status) / 1024 )) MB"
+        gpu_buffers "$q"
     else
         echo "no qemu running"
     fi
