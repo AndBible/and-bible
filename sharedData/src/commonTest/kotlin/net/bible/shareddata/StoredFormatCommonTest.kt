@@ -9,6 +9,9 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.bookmarks.PlaybackSettings
+import net.bible.android.database.bookmarks.SpeakSettings
+import org.crosswire.jsword.passage.VerseRangeFactory
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentTool
@@ -86,6 +89,34 @@ class StoredFormatCommonTest {
                 "{\"00112233-4455-6677-8899-aabbccddeeff\":4}",
                 db.rawText("SELECT workspace_settings_studyPadCursors FROM Workspace"),
             )
+        }
+    }
+
+    @Test
+    fun playbackAndSpeakSettingsAreStoredAsExactJsonText() = runTest {
+        // Literals are written from the @Serializable declarations (field names and declaration order,
+        // encodeDefaults = true, the transient isMemorizationLoop absent, VerseRange as "<v11n>::<osisRef>").
+        val playbackJson = "{\"speakChapterChanges\":true,\"speakTitles\":true,\"speakFootnotes\":false,\"speed\":130," +
+            "\"bookId\":\"KJV\",\"bookmarkWasCreated\":true,\"verseRange\":\"KJVA::Gen.1.1-Gen.1.3\"}"
+        val playback = PlaybackSettings(speed = 130, bookId = "KJV", bookmarkWasCreated = true,
+            verseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1-Gen.1.3"))
+        val speakJson = "{\"playbackSettings\":$playbackJson,\"sleepTimer\":7,\"lastSleepTimer\":20," +
+            "\"queue\":false,\"repeat\":true,\"numPagesToSpeakId\":0}"
+        withDb<BookmarkDatabase> { db ->
+            db.bookmarkDao().insert(
+                BookmarkEntities.BibleBookmark(
+                    kjvOrdinalStart = 1, kjvOrdinalEnd = 1, ordinalStart = 1, ordinalEnd = 1, v11n = KJVA,
+                    playbackSettings = playback, id = OTHER_ID, startOffset = null, endOffset = null, customIcon = null,
+                )
+            )
+            assertEquals(playbackJson, db.rawText("SELECT playbackSettings FROM BibleBookmark"))
+        }
+        withDb<WorkspaceDatabase> { db ->
+            val speak = SpeakSettings(playbackSettings = playback, sleepTimer = 7, lastSleepTimer = 20, queue = false, repeat = true)
+            db.workspaceDao().insertWorkspace(
+                WorkspaceEntities.Workspace("W", id = FIXED_ID, workspaceSettings = WorkspaceEntities.WorkspaceSettings(speakSettings = speak))
+            )
+            assertEquals(speakJson, db.rawText("SELECT workspace_settings_speakSettings FROM Workspace"))
         }
     }
 

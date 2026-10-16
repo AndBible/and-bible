@@ -51,8 +51,9 @@ class MigrationChainCommonTest {
                         exportedIdentityHash(spec.fqn, spec.currentVersion), db.storedIdentityHash(),
                         "${spec.fqn} v$v identity hash after open",
                     )
-                    // Room's identity check does not look at column defaults or types, so compare the migrated
-                    // structure with a file freshly created from the current export.
+                    // Extra safety check on top of Room's own validation: compare the migrated structure (columns,
+                    // types, nullability, primary keys, index columns) with a file freshly created from the current
+                    // export. Column defaults and index names are deliberately not compared (see schemaShape).
                     val reference = "reference-${spec.fqn}-$v.sqlite3"
                     createFromExport(spec.fqn, spec.currentVersion, "$dir/$reference")
                     val referenceDb = spec.open(dir, reference)
