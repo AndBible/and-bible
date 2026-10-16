@@ -309,7 +309,8 @@ class DocumentSync(
     /**
      * Persists and applies the encryption key for a freshly downloaded SWORD module. Without this
      * an encrypted module syncs but stays locked, rendering no readable content. The key travels
-     * in the document's [DocumentSyncMeta] (the user's own private cloud account).
+     * in the document's [DocumentSyncMeta] (the user's own private cloud account). The row write is
+     * queued on the watcher's key behind the install's insert, so the insert cannot overwrite it.
      */
     internal suspend fun applyCipherKey(initials: String, cipherKey: String?) {
         documentSettings.ensureLoaded()
@@ -320,19 +321,6 @@ class DocumentSync(
             val book = Books.installed().getBook(initials) ?: return@updateRow null
             book.unlock(cipherKey)
             existing?.copy(cipherKey = cipherKey)
-                ?: SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "", cipherKey)
-        }
-    }
-
-    /**
-     * bookAdded queues a row insert (cipherKey = null) during install; the key update is queued behind it on
-     * the watcher's key ([BookInstallWatcher.updateRow]), so the insert cannot overwrite it or run after it.
-     * Normally updates that row; inserts one as a fallback if it is missing.
-     */
-    internal suspend fun persistCipherKey(watcher: BookInstallWatcher, book: Book, cipherKey: String) {
-        documentSettings.ensureLoaded()
-        watcher.updateRow(book.initials) { existing ->
-            existing?.apply { this.cipherKey = cipherKey }
                 ?: SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "", cipherKey)
         }
     }

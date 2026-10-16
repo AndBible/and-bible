@@ -261,9 +261,15 @@ abstract class CurrentPageBase protected constructor(
                 }
             }
             // A replacement in progress keeps the EPUB identity; the block above resolves it once registered.
-            if (_currentDocument?.isRemoved == true &&
-                _currentDocument?.takeIf { it.isEpub }?.let { isEpubInstallPending(it.initials) } != true) {
-                _currentDocument = getDefaultBook()
+            if (_currentDocument?.isRemoved == true) {
+                val removed = _currentDocument!!
+                // Re-check the registry after the pending test: the replacement may register between the two reads.
+                val pending = removed.isEpub && isEpubInstallPending(removed.initials)
+                val replacement = if (removed.isEpub) Books.installed().getBook(removed.initials) else null
+                when {
+                    replacement != null && replacement !== removed -> _currentDocument = replacement
+                    !pending -> _currentDocument = getDefaultBook()
+                }
             }
             return _currentDocument
         }

@@ -157,7 +157,11 @@ class BookInstallWatcher(
         return false
     }
 
-    /** Deciphers and decompresses the first populated block from disk, bypassing the block cache. */
+    /**
+     * Deciphers and decompresses the first populated block from disk, bypassing the block cache.
+     * Only [ZVerseBackend] modules (zText/zCom) can be probed; other backends (raw, zLD, GenBook)
+     * return true and rely on JSword's own [Book.unlock] check.
+     */
     private fun decodesWithoutBlockCache(book: Book): Boolean {
         val backend = (book as? AbstractBook)?.backend as? ZVerseBackend ?: return true
         val keys = book.getGlobalKeyList()

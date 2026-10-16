@@ -261,14 +261,14 @@ class BookInstallWatcherTest {
 
     @Test
     fun `cipher key stored after a sync install survives the queued row insert`() {
-        val row = installThenAmend(null) { watcher, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).persistCipherKey(watcher, book, "secret") }
+        val row = installThenAmend(null) { _, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).applyCipherKey(book.initials, "secret") }
         assertEquals("secret", row?.cipherKey)
     }
 
     @Test
     fun `sync cipher amendment after reinstall keeps retained repository`() {
         val old = SwordDocumentInfo("x", "Old", "OLD", "English", "OldRepo", "old-key")
-        val row = installThenAmend(old) { watcher, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).persistCipherKey(watcher, book, "new-key") }
+        val row = installThenAmend(old) { _, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).applyCipherKey(book.initials, "new-key") }
         assertEquals("new-key", row?.cipherKey)
         assertEquals("OldRepo", row?.repository)
     }
