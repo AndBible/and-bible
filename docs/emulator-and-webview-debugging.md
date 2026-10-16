@@ -108,7 +108,11 @@ Note that `start` force-stops the app, so any in-app position is lost.
 (`ANDBIBLE_EMU_PROXY` overrides it; empty disables) and checks that a tunnel works; `health` repeats
 the check. Apps and the WebView then send `CONNECT host:443`, which the hostname allowlist accepts.
 The emulator's own `-http-proxy` is not used: it tunnels every guest connection as
-`CONNECT <ip>:443`, which a hostname allowlist rejects.
+`CONNECT <ip>:443`, which a hostname allowlist rejects. For the same reason `boot` starts the
+emulator with every `*_proxy` variable unset: the guest's default network is the netsim WiFi, and
+`netsimd` (started by the emulator) takes an ambient `http_proxy` as its own `--http-proxy`. With it
+set, every guest TCP connection over WiFi ends in "Connection refused", even to `10.0.2.2`, while the
+cellular `eth0` path still works (verified on a fresh strict container, 2026-10-16).
 
 ## Seeding a debuggable BibleView: `scripts/seed-emulator-webview-debug.sh`
 
