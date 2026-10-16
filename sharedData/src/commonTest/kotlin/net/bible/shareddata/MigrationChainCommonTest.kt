@@ -7,6 +7,7 @@ import net.bible.shareddata.fixtures.CURRENT_DB_SPECS
 import net.bible.shareddata.fixtures.createFromExport
 import net.bible.shareddata.fixtures.exportedIdentityHash
 import net.bible.shareddata.fixtures.exportedVersions
+import net.bible.shareddata.fixtures.schemaShape
 import net.bible.shareddata.fixtures.storedIdentityHash
 import net.bible.shareddata.fixtures.userVersion
 import kotlin.test.Test
@@ -50,10 +51,25 @@ class MigrationChainCommonTest {
                         exportedIdentityHash(spec.fqn, spec.currentVersion), db.storedIdentityHash(),
                         "${spec.fqn} v$v identity hash after open",
                     )
+                    // Room's identity check does not look at column defaults or types, so compare the migrated
+                    // structure with a file freshly created from the current export.
+                    val reference = "reference-${spec.fqn}-$v.sqlite3"
+                    createFromExport(spec.fqn, spec.currentVersion, "$dir/$reference")
+                    val referenceDb = spec.open(dir, reference)
+                    try {
+                        val expectedShape = referenceDb.schemaShape()
+                        val actualShape = db.schemaShape()
+                        assertTrue(
+                            expectedShape == actualShape,
+                            "${spec.fqn} v$v migrated structure differs from the current export: missing ${expectedShape - actualShape}, unexpected ${actualShape - expectedShape}",
+                        )
+                    } finally {
+                        referenceDb.close()
+                    }
                     tested++
                     perDb[spec.fqn.substringAfterLast('.')] = (perDb[spec.fqn.substringAfterLast('.')] ?: 0) + 1
                 } catch (e: Throwable) {
-                    failures += "${spec.fqn} v$v: ${e::class.simpleName}: ${e.message?.take(200)}"
+                    failures += "${spec.fqn} v$v: ${e::class.simpleName}: ${e.message?.take(600)}"
                 } finally {
                     db?.close()
                 }

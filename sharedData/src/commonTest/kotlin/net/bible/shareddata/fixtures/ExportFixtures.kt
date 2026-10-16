@@ -165,3 +165,39 @@ suspend fun RoomDatabase.rawBlob(sql: String): ByteArray? = useReaderConnection 
 suspend fun RoomDatabase.rawExec(sql: String) {
     useWriterConnection { c -> c.usePrepared(sql) { st -> st.step() } }
 }
+
+/** Every row of [sql] with all [columns] read as text (null stays null). */
+suspend fun RoomDatabase.rawRows(sql: String, columns: Int): List<List<String?>> = useReaderConnection { c ->
+    c.usePrepared(sql) { st ->
+        buildList {
+            while (st.step()) add(List(columns) { if (st.isNull(it)) null else st.getText(it) })
+        }
+    }
+}
+
+/**
+ * The structure of every table of an open database as a comparable set: one entry per column
+ * (`table.column:type:notnull:pk`) and one per index (`table unique, columns`; index names are not compared, tables renamed by old migrations keep their old index names). Column order is not part of
+ * it, because `ALTER TABLE ADD COLUMN` legitimately appends where a fresh CREATE would not. Column defaults are
+ * not part of it either: the exports omit `DEFAULT NULL` and the shipped migrations add defaults that a fresh
+ * CREATE of the current schema does not have (e.g. `ChapterReadHistory.cycle`), which is existing behaviour.
+ */
+suspend fun RoomDatabase.schemaShape(): Set<String> {
+    val shape = mutableSetOf<String>()
+    val tables = rawRows(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name != 'room_master_table'", 1,
+    ).map { it[0]!! }
+    for (t in tables) {
+        rawRows("PRAGMA table_info(`$t`)", 6).forEach { r ->
+            shape += "$t.${r[1]}:${r[2]?.uppercase()}:${r[3]}:${r[5]}"
+        }
+        rawRows("PRAGMA index_list(`$t`)", 5).forEach { r ->
+            if (r[3] == "c") {
+                val cols = rawRows("PRAGMA index_info(`${r[1]}`)", 3).joinToString(",") { it[2]!! }
+                shape += "$t index unique=${r[2]} on $cols"
+            }
+        }
+    }
+    shape += rawRows("SELECT name FROM sqlite_master WHERE type = 'view'", 1).map { "view ${it[0]}" }
+    return shape
+}
