@@ -27,6 +27,7 @@
 #   scripts/andbible-emu.sh key <KEY_ names>   press the named Linux keys in order, release in reverse, via
 #                                               sendevent on the guest's AT keyboard (adb root needed); e.g. key KEY_A,
 #                                               key KEY_LEFTALT KEY_O. Prove delivery with a letter first.
+#                                               NOTE: leaves adbd running as root; `adb unroot` undoes it.
 #   scripts/andbible-emu.sh emushot <name>      emulator-side screenshot (adb emu screenrecord screenshot),
 #                                               stored as .local/emu-verify/shots/<name>.png; for FLAG_SECURE screens
 #
@@ -356,12 +357,17 @@ key)
     [ $# -ge 1 ] || die "usage: key <KEY_NAME>..."
     codes=()
     for k in "$@"; do
-        c="$(grep -E "^#define[[:space:]]+$k[[:space:]]" /usr/include/linux/input-event-codes.h | awk '{print $3}' | head -1)"
-        [ -n "$c" ] || die "unknown key name $k (see /usr/include/linux/input-event-codes.h)"
+        hdr=/usr/include/linux/input-event-codes.h
+        c="$(grep -E "^#define[[:space:]]+$k[[:space:]]" "$hdr" | awk '{print $3}' | head -1 || true)"
+        # A `#define KEY_X KEY_Y` alias yields a name: resolve one level.
+        case "$c" in KEY_*|BTN_*) c="$(grep -E "^#define[[:space:]]+$c[[:space:]]" "$hdr" | awk '{print $3}' | head -1 || true)" ;; esac
+        case "$c" in ''|*[!0-9xXa-fA-F]*) c="" ;; esac
+        [ -n "$c" ] || die "unknown key name $k (or an alias that does not resolve to a number; see /usr/include/linux/input-event-codes.h)"
         codes+=("$c")
     done
     adb root >/dev/null 2>&1 || true; adb wait-for-device
-    dev="$(adb shell getevent -il </dev/null | tr -d '\r' | awk '/^add device/ {d=$4} /AT Translated Set 2 keyboard/ {print d; exit}')"
+    devlist="$(adb shell getevent -il </dev/null | tr -d '\r' || true)"
+    dev="$(printf '%s\n' "$devlist" | awk '/^add device/ {d=$4} /AT Translated Set 2 keyboard/ && !found {print d; found=1}')"
     [ -n "$dev" ] || die "no AT keyboard input device in the guest"
     cmd=""
     for c in "${codes[@]}"; do cmd="$cmd sendevent $dev 1 $c 1; sendevent $dev 0 0 0;"; done
@@ -374,12 +380,12 @@ emushot)
     tmp="$(mktemp -d)"
     adb emu screenrecord screenshot "$tmp" >/dev/null
     sleep 2
-    f="$(ls -t "$tmp"/*.png 2>/dev/null | head -1)"
+    f="$(ls -t "$tmp"/*.png 2>/dev/null | head -1 || true)"
     [ -n "$f" ] || die "emulator produced no screenshot in $tmp"
     mv "$f" "$kit/shots/$name.png"; rmdir "$tmp" 2>/dev/null || true
     echo "$kit/shots/$name.png"
     ;;
 *)
-    sed -n '2,47p' "$0"; exit 2
+    sed -n '2,48p' "$0"; exit 2
     ;;
 esac
