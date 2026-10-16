@@ -18,6 +18,8 @@
 package net.bible.service.installzip
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.withTimeout
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.service.db.DatabaseContainer
@@ -148,13 +150,39 @@ class DefaultInstallCommitterTest {
     @Test
     fun archiveCipherKeyDoesNotReplaceRetainedUserKey() = verifyEncryptedReinstall("different-archive-key")
 
-    private fun verifyEncryptedReinstall(archiveKey: String) = runBlocking {
+    @Test
+    fun invalidRetainedKeyFallsBackToWorkingArchiveKey() = verifyEncryptedReinstall("k4-Test-key", invalidRetained = true)
+
+    @Test
+    fun cloudKeyApplicationIsOrderedAfterHeldInstallWrite() = verifyEncryptedReinstall("", cloudKey = true)
+
+    @Test
+    fun swordCommitWaitsForHeldKeyRestoration() = verifyEncryptedReinstall("", holdCompletion = true)
+
+    private fun verifyEncryptedReinstall(
+        archiveKey: String,
+        invalidRetained: Boolean = false,
+        cloudKey: Boolean = false,
+        holdCompletion: Boolean = false,
+    ) = runBlocking {
         val scope = net.bible.sharedcore.platform.AppCoroutineScope()
         val launcher = OrderedLauncher(scope)
         val watcher = BookInstallWatcher(launcher,
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
+        val committer = DefaultInstallCommitter(
+            org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java)) { watcher }
+        val sync = net.bible.service.cloudsync.documents.DocumentSync(
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.CloudSyncProvider::class.java),
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java), watcher,
+            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java),
+            { org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java) })
+        val held = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
         val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
         val registeredField = BookInstallWatcher::class.java.getDeclaredField("registered").apply { isAccessible = true }
         val previousListener = registeredField.get(null) as org.crosswire.jsword.book.BooksListener?
@@ -181,15 +209,54 @@ class DefaultInstallCommitterTest {
             assertTrue("first install must really be locked", original.isLocked)
             assertTrue(original.unlock(key))
             assertTrue(original.getRawText(original.getKey("John 1:1")).contains(plaintext))
-            watcher.updateRow("E2Cipher") { it!!.copy(repository = "FixtureRepo", cipherKey = key) }
+            watcher.updateRow("E2Cipher") { it!!.copy(repository = "FixtureRepo",
+                cipherKey = if (invalidRetained || cloudKey) "invalid-old-key" else key) }
             Activator.deactivate(original)
 
             val replacementEntries = entries.toMutableList().apply {
                 this[0] = "mods.d/E2Cipher.conf" to conf.replace("CipherKey=", "CipherKey=$archiveKey").toByteArray(Charsets.UTF_8)
             }
             buildZip(zip.name, replacementEntries)
-            committer.commitSwordZip(zip, entries.size) {}
-            withTimeout(30_000) { watcher.updateRow("E2Cipher") { null } }
+            if (holdCompletion || cloudKey) {
+                org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+                    net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java).ensureLoaded()
+                watcher.beforeWrite = { held.complete(Unit); release.await() }
+                // Lock state of the registered Book at the exact moment commitSwordZip returns.
+                val lockedAtCompletion = kotlinx.coroutines.CompletableDeferred<Boolean>()
+                val commitJob = async(kotlinx.coroutines.Dispatchers.Default) {
+                    committer.commitSwordZip(zip, entries.size) {}
+                    lockedAtCompletion.complete(Books.installed().getBook("E2Cipher")!!.isLocked)
+                }
+                withTimeout(30_000) { held.await() }
+                var cloudJob: kotlinx.coroutines.Deferred<Unit>? = null
+                try {
+                    if (cloudKey) {
+                        cloudJob = async(start = CoroutineStart.UNDISPATCHED) {
+                            sync.applyCipherKey("E2Cipher", key)
+                        }
+                        // Settings are loaded, so applyCipherKey ran synchronously up to its queued write.
+                        // Unlocking the Book there, ahead of the held install write that restores the
+                        // older stored key on the same Book, would let that write override the newer key.
+                        assertEquals("cloud key must not touch the Book ahead of the held install write",
+                            "", Books.installed().getBook("E2Cipher")!!.unlockKey ?: "")
+                    }
+                    if (holdCompletion) {
+                        // Extraction is done once the write is held; an unguarded commit returns at once.
+                        val earlyLocked = kotlinx.coroutines.withTimeoutOrNull(2_000) { lockedAtCompletion.await() }
+                        assertEquals("commit must not complete while key restoration is held", null, earlyLocked)
+                    }
+                } finally {
+                    release.complete(Unit)
+                    withTimeout(30_000) { commitJob.await(); cloudJob?.await() }
+                    watcher.beforeWrite = {}
+                }
+                if (holdCompletion) {
+                    assertFalse("commit must return only after the retained key unlocked the new Book",
+                        lockedAtCompletion.await())
+                }
+            } else committer.commitSwordZip(zip, entries.size) {}
+            // The earlier reads left plaintext in JSword's pooled block cache; decode from disk instead.
+            dropPooledFileStates("E2Cipher")
             val replacement = Books.installed().getBook("E2Cipher")!!
             assertNotSame("registration must replace the old cached book", original, replacement)
             // Assert before checking the row: queue completion alone must not mask a locked new Book.
@@ -201,6 +268,7 @@ class DefaultInstallCommitterTest {
             assertEquals("FixtureRepo", row.repository)
             assertEquals(key, row.cipherKey)
 
+            dropPooledFileStates("E2Cipher")
             val diskConf = File(SharedConstants.modulesDir, "mods.d/E2Cipher.conf")
             assertTrue("restoring app key must not rewrite archive config",
                 diskConf.readText().contains("CipherKey=$archiveKey\n"))
@@ -214,6 +282,8 @@ class DefaultInstallCommitterTest {
             assertTrue("persisted key must decrypt a fresh disk-loaded book",
                 diskBook.getRawText(diskBook.getKey("John 1:1")).contains(plaintext))
         } finally {
+            release.complete(Unit)
+            watcher.beforeWrite = {}
             fresh?.let { Activator.deactivate(it) }
             Books.installed().getBook("E2Cipher")?.let {
                 Activator.deactivate(it)
@@ -231,6 +301,26 @@ class DefaultInstallCommitterTest {
             registeredField.set(null, previousListener)
             scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
             resetDatabase()
+        }
+    }
+
+    /**
+     * Closes and forgets JSword's pooled open-file states of [initials]. They are shared by every Book
+     * of that name and cache the last decoded block, which would let a read "succeed" from plaintext
+     * decoded before the reinstall instead of from the files now on disk.
+     */
+    private fun dropPooledFileStates(initials: String) {
+        val manager = org.crosswire.jsword.book.sword.state.OpenFileStateManager.instance()
+        val field = manager.javaClass.getDeclaredField("metaToStates").apply { isAccessible = true }
+        val lock = manager.javaClass.getDeclaredField("lock").apply { isAccessible = true }.get(manager)!!
+        synchronized(lock) {
+            @Suppress("UNCHECKED_CAST")
+            val states = field.get(manager) as MutableMap<org.crosswire.jsword.book.BookMetaData,
+                ArrayDeque<org.crosswire.jsword.book.sword.state.OpenFileState>>
+            states.entries.filter { it.key.initials == initials }.forEach { (_, pooled) ->
+                pooled.forEach { it.releaseResources() }
+                pooled.clear()
+            }
         }
     }
 

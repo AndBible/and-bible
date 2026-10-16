@@ -311,12 +311,17 @@ class DocumentSync(
      * an encrypted module syncs but stays locked, rendering no readable content. The key travels
      * in the document's [DocumentSyncMeta] (the user's own private cloud account).
      */
-    private suspend fun applyCipherKey(initials: String, cipherKey: String?) {
+    internal suspend fun applyCipherKey(initials: String, cipherKey: String?) {
         documentSettings.ensureLoaded()
         if (cipherKey == null) return
-        val book = Books.installed().getBook(initials) ?: return
-        book.unlock(cipherKey)
-        persistCipherKey(watcher, book, cipherKey)
+        // Unlock inside the ordered row write, not before it: a still-queued install write restores
+        // the previously stored key on the same Book and would otherwise overwrite this newer key.
+        watcher.updateRow(initials) { existing ->
+            val book = Books.installed().getBook(initials) ?: return@updateRow null
+            book.unlock(cipherKey)
+            existing?.copy(cipherKey = cipherKey)
+                ?: SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "", cipherKey)
+        }
     }
 
     /**

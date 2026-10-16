@@ -35,7 +35,10 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksEvent
 import org.crosswire.jsword.book.BooksListener
+import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.ZVerseBackend
+import org.crosswire.jsword.book.sword.state.OpenFileStateManager
 import org.crosswire.jsword.versification.VersificationsMapper
 
 /**
@@ -121,20 +124,64 @@ class BookInstallWatcher(
         // Replacement emits only bookAdded: keep app-owned fields, not the old module description.
         // A genuine preceding bookRemoved has already deleted the row under this same ordered key.
         val previous = docDao.getBook(book.initials)
+        // The user's retained key wins over the archive's own key, but only when it actually works:
+        // a failed unlock clears the key, so fall back to a working archive key rather than lose it.
+        var retainedKey = previous?.cipherKey
+        if (book.isEnciphered && !retainedKey.isNullOrEmpty()) {
+            val archiveKey = book.unlockKey
+            if (!tryCipherKey(book, retainedKey)
+                && !archiveKey.isNullOrEmpty() && archiveKey != retainedKey && tryCipherKey(book, archiveKey)) {
+                retainedKey = archiveKey
+            }
+        }
         docDao.insert(SwordDocumentInfo(
             book.initials,
             book.name,
             book.abbreviation,
             book.language.name,
             previous?.repository ?: "",
-            previous?.cipherKey,
+            retainedKey,
         ))
-        // Registration creates new metadata/backend state. Restore the user's retained key there too,
-        // even if the replacement archive supplies another key; do not rely on old plaintext caches.
-        if (book.isEnciphered) {
-            previous?.cipherKey?.takeIf { it.isNotEmpty() }?.let { book.unlock(it) }
+    }
+
+    /**
+     * Unlocks [book] with [key] and checks that [key] really decodes the module; a rejected key leaves
+     * the book locked. JSword's own check in [Book.unlock] is not enough on its own: the pooled
+     * zText/zCom file state (shared by every Book of the same name) caches the last decoded block,
+     * so after the previous installation was read it "verifies" any key against stale plaintext.
+     */
+    private fun tryCipherKey(book: Book, key: String): Boolean {
+        if (!book.unlock(key)) return false
+        if (decodesWithoutBlockCache(book)) return true
+        book.bookMetaData.resetLock()
+        return false
+    }
+
+    /** Deciphers and decompresses the first populated block from disk, bypassing the block cache. */
+    private fun decodesWithoutBlockCache(book: Book): Boolean {
+        val backend = (book as? AbstractBook)?.backend as? ZVerseBackend ?: return true
+        val keys = book.getGlobalKeyList()
+        if (keys.getCardinality() == 0) return true
+        val state = backend.initState()
+        return try {
+            state.lastBlockNum = -1
+            state.lastTestament = null
+            state.lastUncompressed = null
+            backend.readRawContent(state, keys.get(0))
+            true
+        } catch (e: Exception) {
+            Log.w(TAG, "Cipher key does not decode ${book.initials}: ${e.message}")
+            false
+        } finally {
+            OpenFileStateManager.instance().release(state)
         }
     }
+
+    /**
+     * Suspends until every install/uninstall row write queued so far (including retained cipher key
+     * restoration) has run. Must not be called from inside the watcher's own ordered writes.
+     */
+    suspend fun awaitPendingInstalls() = launcher.join(DB_KEY)
 
     /**
      * Changes the backup-db row of [initials] AFTER every install/uninstall write already queued.

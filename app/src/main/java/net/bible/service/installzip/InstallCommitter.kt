@@ -86,6 +86,10 @@ class DefaultInstallCommitter(
     private val backup: BackupControl,
     private val strings: net.bible.sharedcore.platform.CoreStrings,
     private val environment: net.bible.sharedcore.platform.AppEnvironment,
+    /** Resolved lazily, only by [commitSwordZip], so the other commit paths never touch Koin. */
+    private val installWatcher: () -> net.bible.android.control.versification.BookInstallWatcher = {
+        org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java)
+    },
 ) : InstallCommitter {
 
     override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
@@ -94,6 +98,10 @@ class DefaultInstallCommitter(
             totalEntries = totalEntries,
             onProgress = { percent -> onProgress(percent) },
         )
+        // Registration fired bookAdded synchronously, which queued the row write that restores the
+        // retained cipher key. Success must not be published while the new Book is still locked.
+        // Safe: this runs in the install coroutine, never inside the watcher's own ordered queue.
+        installWatcher().awaitPendingInstalls()
     }
 
     override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean): Boolean {
