@@ -3072,9 +3072,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * [onCreate] only does for that route.
      */
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString("bookmark-recreation", CommonUtils.json.encodeToString(
-            BookmarkRecreationState.serializer(), bookmarkRecreationSnapshot(),
-        ))
+        runCatching {
+            CommonUtils.json.encodeToString(BookmarkRecreationState.serializer(), bookmarkRecreationSnapshot())
+        }.onSuccess { outState.putString(STATE_BOOKMARK_RECREATION, it) }
+            .onFailure { Log.w(TAG_BOOKMARKS, "Not saving bookmark recreation state", it) }
         val route = if (readingAppBootstrapped) NavRoutes.READING else startRoute
         if (route != null) outState.putString(STATE_START_ROUTE, route)
         // T8d: what the reading view is owed on its way back has to survive a recreate(), because
@@ -3306,7 +3307,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // A state loss is recoverable; a launch crash loop is not.
-        restoredBookmarks = savedInstanceState?.getString("bookmark-recreation")?.let {
+        restoredBookmarks = savedInstanceState?.getString(STATE_BOOKMARK_RECREATION)?.let {
             runCatching { CommonUtils.json.decodeFromString(BookmarkRecreationState.serializer(), it) }
                 .onFailure { Log.w(TAG_BOOKMARKS, "Ignoring unreadable bookmark recreation state", it) }
                 .getOrNull()
@@ -4376,19 +4377,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // SpeakControl, the workspace settings, an `Activity` for the CSV chooser, and an
     // `android.app.AlertDialog` -- which is the line that decides what is a deps slot and what is not.
 
-    /**
-     * The memo behind [BookmarksDeps.controllerFor], and the in-flight state of whichever label-manager
-     * round trip is open.
-     *
-     * [pendingAssign] is what makes ONE result channel serve classic's TWO round trips: the assign one
-     * (`BookmarksComposeActivity.kt:199-223`) has to write the returned label set onto the bookmarks the
-     * user had selected when it started, and the manage one (`:257-271`) only updates the workspace. A
-     * `ManageLabelsResult` carries the returned JSON and nothing else, so the DISTINCTION has to be
-     * remembered at the point the payload was built -- which is here, the same shape
-     * [ManageLabelsSession.pendingEdit] uses for the editor round trip one level down. The bookmark
-     * ENTITIES are held rather than their ids because that is what classic held across its own
-     * `awaitIntent`; re-resolving ids afterwards would depend on the list not having reloaded meanwhile.
-     */
     @kotlinx.serialization.Serializable
     private data class BookmarkRecreationState(
         val filter: Int? = null,
@@ -4405,11 +4393,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val documentsSearch: net.bible.android.view.activity.bookmark.MyDocumentsSearchValue? = null,
     )
 
+    /**
+     * The value snapshot [onCreate] decoded from the saved state: a fallback each destination consumes when
+     * it re-composes, and which later saves keep carrying until then. The manager/editor fields are cleared
+     * at their exits; [BookmarkRecreationState.list] and [BookmarkRecreationState.documentsSearch] are not,
+     * because those roots are never re-entered (one session per host).
+     */
     private var restoredBookmarks: BookmarkRecreationState? = null
     private var labelEditSession: Pair<String, LabelEditController>? = null
 
     private fun bookmarkRecreationSnapshot(): BookmarkRecreationState {
-        val manager = manageLabelsSession
+        // A manager whose Save has started must not be offered again: the restored working set would still
+        // hold new=true labels and a second Save would insert them twice.
+        val savingManager = manageLabelsSession?.second?.writes?.isStarted == true
+        val manager = manageLabelsSession?.takeUnless { savingManager }
         val bookmarks = bookmarksSession
         val editor = labelEditSession
         return BookmarkRecreationState(
@@ -4421,17 +4418,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 it.pendingAssign?.map { b -> b.id.toString() } ?: it.restoredAssignIds
             } else restoredBookmarks?.pendingAssignIds,
             awaitingManager = bookmarks?.second?.awaitingManageLabels ?: (restoredBookmarks?.awaitingManager == true),
-            managerKey = manager?.first ?: restoredBookmarks?.managerKey,
+            managerKey = manager?.first ?: restoredBookmarks?.managerKey.takeIf { manageLabelsSession == null },
             manager = manager?.second?.controller?.snapshot()?.let {
                 net.bible.android.view.activity.bookmark.ManageLabelsValue.from(it)
-            } ?: restoredBookmarks?.manager,
+            } ?: restoredBookmarks?.manager.takeIf { manageLabelsSession == null },
             // Only labels the user changed need the Bundle; every other one is reloaded from the database.
             labels = manager?.second?.let { m ->
                 val changedIds = m.controller.resultChanged()
                 m.labelsById.filterKeys { it in changedIds }.values.toList()
-            } ?: restoredBookmarks?.labels.orEmpty(),
-            pendingLabel = manager?.second?.pendingEdit?.label ?: if (manager == null) restoredBookmarks?.pendingLabel else null,
-            pendingLabelIsNew = manager?.second?.pendingEdit?.isNew ?: (manager == null && restoredBookmarks?.pendingLabelIsNew == true),
+            } ?: restoredBookmarks?.labels.orEmpty().takeIf { manageLabelsSession == null }.orEmpty(),
+            pendingLabel = manager?.second?.pendingEdit?.label ?: if (manageLabelsSession == null) restoredBookmarks?.pendingLabel else null,
+            pendingLabelIsNew = manager?.second?.pendingEdit?.isNew ?: (manageLabelsSession == null && restoredBookmarks?.pendingLabelIsNew == true),
             editorKey = editor?.first,
             editorDraft = editor?.second?.state?.value?.let {
                 net.bible.android.view.activity.bookmark.LabelDraftValue.from(it)
@@ -4442,6 +4439,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         )
     }
 
+    /**
+     * The memo behind [BookmarksDeps.controllerFor], and the in-flight state of whichever label-manager
+     * round trip is open.
+     *
+     * [pendingAssign] is what makes ONE result channel serve classic's TWO round trips: the assign one
+     * (`BookmarksComposeActivity.kt:199-223`) has to write the returned label set onto the bookmarks the
+     * user had selected when it started, and the manage one (`:257-271`) only updates the workspace. A
+     * `ManageLabelsResult` carries the returned JSON and nothing else, so the DISTINCTION has to be
+     * remembered at the point the payload was built -- which is here, the same shape
+     * [ManageLabelsSession.pendingEdit] uses for the editor round trip one level down. The bookmark
+     * ENTITIES are held rather than their ids because that is what classic held across its own
+     * `awaitIntent`; re-resolving ids afterwards would depend on the list not having reloaded meanwhile.
+     */
     private class BookmarksSession {
         lateinit var controller: BookmarksController
         var restoredAssignIds: List<String>? = null
@@ -4722,8 +4732,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * was new were simply locals that survived the suspension. The editor is a destination now and
      * the result arrives later, through the channel, so the two have to be remembered across that
      * gap. One nullable field is enough because only one editor can be open at a time -- it is a
-     * child destination, not a second window. A process death loses it, exactly as it lost classic's
-     * suspended coroutine.
+     * child destination, not a second window. It is part of the saved-state snapshot ([BookmarkRecreationState]),
+     * so a recreation (or process death) restores it with the manager's working set.
      */
     private class ManageLabelsSession(
         val data: ManageLabelsContract.ManageLabelsData,
@@ -10096,6 +10106,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** [onSaveInstanceState]'s key for [initialisedAfterStart] (slice 8 E2 fix round 1). */
         private const val STATE_INITIALISED_AFTER_START = "nav_initialised_after_start"
+
+        /** [onSaveInstanceState]'s key for the bookmark/label/MyDocuments value snapshot ([BookmarkRecreationState]). */
+        private const val STATE_BOOKMARK_RECREATION = "bookmark-recreation"
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
         private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"

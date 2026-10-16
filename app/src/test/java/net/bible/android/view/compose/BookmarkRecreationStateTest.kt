@@ -241,9 +241,15 @@ class BookmarkRecreationStateTest {
         assertTrue("DAO reorder changed the positional token; selection must follow initials", beta.id != restored.documents.value.single().id)
     }
 
+    private fun savedPayload(): String {
+        val saved = Bundle()
+        hosts.last().saveInstanceState(saved)
+        return saved.getString("bookmark-recreation").orEmpty()
+    }
+
     @Test fun savedStateDoesNotGrowWithUnchangedLabels() {
         runBlocking {
-            repeat(400) { i ->
+            repeat(50) { i ->
                 control.insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "BM13 bulk label $i" })
             }
         }
@@ -252,12 +258,43 @@ class BookmarkRecreationStateTest {
         bookmarks(activity).enterSelection(bookmark.id.toString())
         bookmarks(activity).assignSelected()
         awaitHostRoute(activity, NavRoutes.MANAGE_LABELS_PATTERN, ::advance)
-        awaitHostCondition("manager loaded every label", ::advance) { manager(activity).currentLabelItems().size >= 400 }
-        val saved = Bundle()
-        hosts.last().saveInstanceState(saved)
-        val payload = saved.getString("bookmark-recreation").orEmpty()
-        assertTrue("unchanged labels must be reloaded from the database, not Bundled (was ${payload.length} chars)",
-            payload.length < 20_000)
+        awaitHostCondition("manager loaded the first 50 labels", ::advance) { manager(activity).currentLabelItems().size >= 50 }
+        val small = savedPayload().length
+
+        runBlocking {
+            repeat(350) { i ->
+                control.insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "BM13 bulk label extra $i" })
+            }
+        }
+        // A recreation reloads every label from the database into the restored manager.
+        val recreated = recreate(activity, NavRoutes.MANAGE_LABELS_PATTERN)
+        awaitHostCondition("recreated manager loaded all 400 labels", ::advance) {
+            managerOrNull(recreated)?.currentLabelItems()?.size?.let { it >= 400 } == true
+        }
+        val large = savedPayload().length
+        assertTrue("saved state must not scale with unchanged labels: 50 -> $small chars, 400 -> $large chars",
+            large - small < 1_000)
+    }
+
+    @Test fun aManagerWhoseSaveHasStartedIsNotOfferedForReplayAfterRecreation() {
+        val bookmark = seedBookmark()
+        val activity = host()
+        openNewAssignedLabel(activity, bookmark.id.toString())
+        compose.onNodeWithContentDescription("OK").performClick() // stage the new label in the manager
+        awaitHostRoute(activity, NavRoutes.MANAGE_LABELS_PATTERN, ::advance)
+        awaitHostCondition("editor result staged in the manager", ::advance) { manager(activity).resultChanged().isNotEmpty() }
+        val before = savedPayload()
+        assertTrue("positive control: the staged new label is in the working set", before.contains("\"new\":true"))
+
+        // Mark this visit's save as started without releasing it: the real in-flight Save window.
+        val sessionPair = field(activity, "manageLabelsSession") as Pair<*, *>
+        val writes = requireNotNull(field(requireNotNull(sessionPair.second), "writes"))
+        writes.javaClass.getMethod("start", List::class.java, List::class.java, List::class.java)
+            .invoke(writes, emptyList<Any>(), emptyList<Any>(), emptyList<Any>())
+
+        val during = savedPayload()
+        assertFalse("a started save must not hand its working set to the next host: $during", during.contains("\"new\":true"))
+        assertFalse(during.contains("\"changed\":[\""))
     }
 
     @Test fun malformedBookmarkRecreationBundleFallsBackToAFreshHost() {

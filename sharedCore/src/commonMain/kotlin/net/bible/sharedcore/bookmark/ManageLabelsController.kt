@@ -26,7 +26,6 @@ data class ManageLabelsSnapshot(
     val searchMode: SearchMode,
     val filters: Set<LabelFilter>,
     val searchOpen: Boolean,
-    val order: List<String>?,
 )
 
 /** Which modal the ManageLabels list is currently showing (screen-local, driven by the controller). */
@@ -126,7 +125,6 @@ class ManageLabelsController(
             _searchText.value = it.search
             _searchMode.value = it.searchMode
             _filters.value = it.filters
-            lastOrder = it.order
             if (it.searchOpen) searchBarMode.open()
         }
         scope.launch {
@@ -141,7 +139,7 @@ class ManageLabelsController(
     fun snapshot() = ManageLabelsSnapshot(
         selected.toSet(), autoAssign.toSet(), changed.toSet(), deleted.toSet(), deletedWithOrphaned.toSet(),
         autoAssignPrimary, bookmarkPrimary, labels.filter { it.id in changed }, _searchText.value, _searchMode.value,
-        _filters.value, searchModeActive.value, lastOrder,
+        _filters.value, searchModeActive.value,
     )
 
     /**

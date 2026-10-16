@@ -105,18 +105,17 @@ internal data class ManageLabelsValue(
     val searchMode: SearchMode,
     val filters: Set<LabelFilter>,
     val searchOpen: Boolean,
-    val order: List<String>?,
 ) {
     fun toSnapshot() = ManageLabelsSnapshot(
         selected, autoAssign, changed, deleted, deletedWithOrphaned, autoAssignPrimary, bookmarkPrimary,
-        labels.map { it.toItem() }, search, searchMode, filters, searchOpen, order,
+        labels.map { it.toItem() }, search, searchMode, filters, searchOpen,
     )
 
     companion object {
         fun from(snapshot: ManageLabelsSnapshot) = with(snapshot) {
             ManageLabelsValue(
                 selected, autoAssign, changed, deleted, deletedWithOrphaned, autoAssignPrimary, bookmarkPrimary,
-                labels.map(LabelItemValue::from), search, searchMode, filters, searchOpen, order,
+                labels.map(LabelItemValue::from), search, searchMode, filters, searchOpen,
             )
         }
     }
