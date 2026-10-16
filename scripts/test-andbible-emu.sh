@@ -59,6 +59,9 @@ sleep 0.5
 out=$(emu boot) && fail "boot started a second emulator: $out"
 grep -q "already running" <<<"$out" || fail "boot gate message: $out"
 grep -q "fake_avd_api36" <<<"$out" || fail "boot gate does not name the running AVD: $out"
+grep -q "Why:.*6 GB" <<<"$out" || fail "boot gate does not say why: $out"
+grep -q "andbible-emu.sh kill" <<<"$out" || fail "boot gate does not say what to do: $out"
+grep -q "another session" <<<"$out" || fail "boot gate does not warn about another session's emulator: $out"
 
 # 3. health reports the qemu's GPU buffers (they are not part of its RSS).
 out=$(emu health) || fail "health with qemu exited nonzero: $out"

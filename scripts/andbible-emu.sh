@@ -65,6 +65,21 @@ mkdir -p "$avd_home"
 # qemu's process name, truncated by the kernel to 15 characters (pgrep -x needs it exactly).
 QEMU=qemu-system-x86
 
+# boot's refusal when an emulator already runs: what, why, and what to do.
+refuse_second_emulator() {
+    cat >&2 <<EOM
+andbible-emu: not booting: an emulator is already running in this container ($1).
+  Why: one emulator per container. Each holds about 6 GB of the machine's shared RAM (qemu plus
+  GPU buffers), and emulators left running in several containers have nearly filled the host.
+  Do:
+  - To keep using it, skip boot: the other subcommands already talk to it ('$0 health').
+  - To switch AVD or Android version, or if it is yours and no longer needed:
+    '$0 kill', then boot again.
+  - If it may belong to another session in this container, ask before killing it.
+EOM
+    exit 1
+}
+
 # "AVD <name>, up <elapsed>" for a qemu pid.
 qemu_desc() {
     local avd
@@ -169,10 +184,10 @@ boot)
     # up across containers. adb alone misses one that is booting, offline or started without this
     # script, so look for qemu itself.
     if q="$(pgrep -x "$QEMU" | head -1)"; then
-        die "an emulator is already running ($(qemu_desc "$q")) — run '$0 kill' first (one at a time)"
+        refuse_second_emulator "$(qemu_desc "$q")"
     fi
     if adb devices | awk 'NR>1 && $2=="device"' | grep -q .; then
-        die "an emulator is already running — run '$0 kill' first (one at a time)"
+        refuse_second_emulator "adb lists a device"
     fi
     [ -x "$sdk/emulator/emulator" ] || die "$sdk/emulator/emulator missing (ANDROID_HOME=$sdk)"
     check_emulator_version
