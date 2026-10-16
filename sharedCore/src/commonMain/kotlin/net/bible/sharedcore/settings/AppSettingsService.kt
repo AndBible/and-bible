@@ -72,6 +72,7 @@ data class AppSettingsSnapshot(
     val betaFeaturesVisible: Boolean,                  // crash_app + show_errorbox
     val sdcardPermissionVisible: Boolean,
     val openLinksVisible: Boolean,
+    val debugToolsVisible: Boolean,                    // test_error_dialog rows (host: BuildConfig.DEBUG)
 )
 
 /** value/label pair mirrored from a classic entries/entryValues array pair. */

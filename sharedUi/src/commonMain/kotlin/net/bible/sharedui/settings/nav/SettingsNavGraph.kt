@@ -132,6 +132,8 @@ class AppSettingsDeps(
     val onOpenTextDisplaySettings: () -> Unit,
     val onOpenLinksSettings: () -> Unit,
     val onCrashApp: () -> Unit,
+    val onTestErrorDialog: () -> Unit,
+    val onTestErrorDialogQueue: () -> Unit,
     val resetContentDescription: String,
     val onResume: () -> Unit,
     val askBeforeOpeningLink: () -> Boolean,
@@ -435,6 +437,8 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
                     AppSettingsNav.DISCRETE_HELP -> controller.showDiscreteHelp(d.discreteHelpHtml())
                     AppSettingsNav.OPEN_LINKS -> d.onOpenLinksSettings()
                     AppSettingsNav.CRASH_APP -> d.onCrashApp()
+                    AppSettingsNav.TEST_ERROR_DIALOG -> d.onTestErrorDialog()
+                    AppSettingsNav.TEST_ERROR_DIALOG_QUEUE -> d.onTestErrorDialogQueue()
                 }
             },
             onReset = controller::requestReset,

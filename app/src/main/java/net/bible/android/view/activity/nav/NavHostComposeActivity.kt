@@ -3773,6 +3773,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             },
                             onOpenLinksSettings = { openLinksSettings() },
                             onCrashApp = { crashApp() },
+                            onTestErrorDialog = {
+                                Dialogs.showErrorMsg("Test error (debug build)", RuntimeException("E4 test exception"))
+                            },
+                            onTestErrorDialogQueue = {
+                                Dialogs.showErrorMsg("Test error 1 of 2", RuntimeException("E4 test exception"))
+                                Dialogs.showErrorMsg("Test error 2 of 2", RuntimeException("E4 test exception"))
+                            },
                             // One getString, unlike the ~90 the label bundle needs — cheap enough
                             // to stay eager.
                             resetContentDescription = getString(R.string.reset_settings),
@@ -7407,6 +7414,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         openLinksSummary = getString(R.string.open_bible_links_summary),
         crashAppTitle = getString(R.string.crash_app),
         crashAppSummary = getString(R.string.crash_app_summary),
+        testErrorDialogTitle = getString(R.string.test_error_dialog),
+        testErrorDialogSummary = getString(R.string.test_error_dialog_summary),
+        testErrorDialogQueueTitle = getString(R.string.test_error_dialog_queue),
+        testErrorDialogQueueSummary = getString(R.string.test_error_dialog_queue_summary),
 
         syncShortcutTitle = getString(R.string.cloud_sync_title),
         syncShortcutSummary = getString(R.string.sync_settings_shortcut_summary),

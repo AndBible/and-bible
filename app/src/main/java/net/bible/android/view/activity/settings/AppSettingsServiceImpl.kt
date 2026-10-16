@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -260,6 +261,7 @@ class AppSettingsServiceImpl(
             betaFeaturesVisible = CommonUtils.isBeta,
             sdcardPermissionVisible = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q,
             openLinksVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+            debugToolsVisible = BuildConfig.DEBUG,
         )
     }
 

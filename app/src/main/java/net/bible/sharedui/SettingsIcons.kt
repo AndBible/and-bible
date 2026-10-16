@@ -127,7 +127,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "enable_bluetooth_pref" -> R.drawable.ic_baseline_media_bluetooth_on_24
     "show_errorbox" -> R.drawable.ic_bug_report_white_24dp
     "open_links" -> R.drawable.ic_link_black_24dp
-    "crash_app" -> R.drawable.ic_bug_report_white_24dp
+    "crash_app", "test_error_dialog", "test_error_dialog_queue" -> R.drawable.ic_bug_report_white_24dp
 
     // Round 14b — reading progress, mirroring res/xml/reading_progress_settings.xml verbatim.
     "auto_mark_memorized" -> R.drawable.ic_baseline_check_circle_24
