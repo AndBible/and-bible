@@ -113,6 +113,7 @@ class AppSettingsGoldenTest {
         betaFeaturesVisible = true,
         sdcardPermissionVisible = true,
         openLinksVisible = true,
+        debugToolsVisible = false,
     )
 
     /** Edge state F1: no dictionary modules installed — the whole Dictionaries category disappears. */

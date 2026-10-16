@@ -21,6 +21,8 @@ object AppSettingsNav {
     const val DISCRETE_HELP = "discrete_help"
     const val OPEN_LINKS = "open_links"
     const val CRASH_APP = "crash_app"
+    const val TEST_ERROR_DIALOG = "test_error_dialog"
+    const val TEST_ERROR_DIALOG_QUEUE = "test_error_dialog_queue"
 }
 
 /** Which modal the main app settings screen is currently showing (screen-local, driven by the
@@ -461,6 +463,20 @@ class AppSettingsController(
                 summary = labels.crashAppSummary,
                 visible = s.betaFeaturesVisible,
                 iconKey = AppSettingsNav.CRASH_APP,
+            ),
+            SettingsItem.NavigationRow(
+                key = AppSettingsNav.TEST_ERROR_DIALOG,
+                title = labels.testErrorDialogTitle,
+                summary = labels.testErrorDialogSummary,
+                visible = s.debugToolsVisible,
+                iconKey = AppSettingsNav.TEST_ERROR_DIALOG,
+            ),
+            SettingsItem.NavigationRow(
+                key = AppSettingsNav.TEST_ERROR_DIALOG_QUEUE,
+                title = labels.testErrorDialogQueueTitle,
+                summary = labels.testErrorDialogQueueSummary,
+                visible = s.debugToolsVisible,
+                iconKey = AppSettingsNav.TEST_ERROR_DIALOG_QUEUE,
             ),
         )
         return SettingsScreenState(title = labels.screenTitle, items = items)

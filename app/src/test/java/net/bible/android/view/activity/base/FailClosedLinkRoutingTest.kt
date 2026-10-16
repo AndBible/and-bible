@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.activity.base
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -26,6 +29,10 @@ import net.bible.android.activity.R
 import net.bible.service.common.CommonUtils
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.AbHtmlText
+import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbLinkRouting
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -68,5 +75,45 @@ class FailClosedLinkRoutingTest {
         // was never opened directly (which would have thrown, with no CurrentActivityHolder set up).
         val context = ApplicationProvider.getApplicationContext<android.app.Application>()
         compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+    }
+
+    private class RecordingUriHandler : UriHandler {
+        val opened = mutableListOf<String>()
+        override fun openUri(uri: String) { opened += uri }
+    }
+
+    private fun setInfoDialog(askFirst: Boolean, opened: MutableList<String>, platform: RecordingUriHandler) {
+        compose.setContent {
+            AbAppTheme {
+                CompositionLocalProvider(LocalUriHandler provides platform) {
+                    AbLinkRouting(askFirst = askFirst, onOpenExternal = { opened += it }) {
+                        AbInfoDialog(
+                            title = "Help", body = "Body", onDismiss = {},
+                            readMoreLabel = "Read more", readMoreUrl = "https://example.org/x",
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Test fun infoDialogReadMoreGoesThroughTheLinkOpener() {
+        val opened = mutableListOf<String>()
+        val platform = RecordingUriHandler()
+        setInfoDialog(askFirst = false, opened = opened, platform = platform)
+        compose.onNodeWithText("Read more").performClick()
+        assertEquals(listOf("https://example.org/x"), opened)
+        assertTrue("platform UriHandler must not be used", platform.opened.isEmpty())
+    }
+
+    @Test fun infoDialogReadMoreAsksFirstWhenRoutingSaysSo() {
+        val opened = mutableListOf<String>()
+        val platform = RecordingUriHandler()
+        setInfoDialog(askFirst = true, opened = opened, platform = platform)
+        compose.onNodeWithText("Read more").performClick()
+        val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        assertTrue(opened.isEmpty())
+        assertTrue(platform.opened.isEmpty())
     }
 }

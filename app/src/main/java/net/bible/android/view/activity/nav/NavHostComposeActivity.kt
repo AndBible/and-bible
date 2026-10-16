@@ -1137,6 +1137,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         else finish()
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // E4a RV-8: the focused BibleView (WebView) consumes SEARCH's key-up before it can bubble up to
+        // `onKeyUp`, so the key only worked on a fresh start. Answer it here, ahead of the view tree.
+        if (event.keyCode == KeyEvent.KEYCODE_SEARCH && event.action == KeyEvent.ACTION_UP && !event.isCanceled && onKeyUp(event.keyCode, event)) {
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     /**
      * The device SEARCH key -- classic `MainBibleActivity.onKeyUp`, F6 Task 8b entry point 6, missed by
      * the port and found when slice 8 F2 rehosted `ReadingSearchEntryPointsTest`: retarget into the
@@ -1145,7 +1154,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Activity; every other destination reaches `super` unchanged.
      */
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_SEARCH && readingDestinationIsCurrent() &&
+        if (keyCode == KeyEvent.KEYCODE_SEARCH && !event.isCanceled && readingDestinationIsCurrent() &&
             windowControl.activeWindowPageManager.currentPage.isSearchable
         ) {
             if (!readingCommands.composeSearchIfHosted()) {
@@ -3775,6 +3784,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             },
                             onOpenLinksSettings = { openLinksSettings() },
                             onCrashApp = { crashApp() },
+                            onTestErrorDialog = {
+                                Dialogs.showErrorMsg("Test error (debug build)", RuntimeException("E4 test exception"))
+                            },
+                            onTestErrorDialogQueue = {
+                                Dialogs.showErrorMsg("Test error 1 of 2", RuntimeException("E4 test exception"))
+                                Dialogs.showErrorMsg("Test error 2 of 2", RuntimeException("E4 test exception"))
+                            },
                             // One getString, unlike the ~90 the label bundle needs — cheap enough
                             // to stay eager.
                             resetContentDescription = getString(R.string.reset_settings),
@@ -7467,6 +7483,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         openLinksSummary = getString(R.string.open_bible_links_summary),
         crashAppTitle = getString(R.string.crash_app),
         crashAppSummary = getString(R.string.crash_app_summary),
+        testErrorDialogTitle = getString(R.string.test_error_dialog),
+        testErrorDialogSummary = getString(R.string.test_error_dialog_summary),
+        testErrorDialogQueueTitle = getString(R.string.test_error_dialog_queue),
+        testErrorDialogQueueSummary = getString(R.string.test_error_dialog_queue_summary),
 
         syncShortcutTitle = getString(R.string.cloud_sync_title),
         syncShortcutSummary = getString(R.string.sync_settings_shortcut_summary),

@@ -98,6 +98,25 @@ class DialogsShimTest {
     }
 
     @Test
+    fun showErrorMsgWithAnExceptionOffersReportError() {
+        activity()
+        Dialogs.showErrorMsg("Test error 1 of 2", RuntimeException("E4 test exception"))
+        Dialogs.showErrorMsg("Test error 2 of 2", RuntimeException("E4 test exception"))
+        idle()
+        val reportText = androidx.test.core.app.ApplicationProvider.getApplicationContext<TestBibleApplication>()
+            .getString(net.bible.android.activity.R.string.report_error)
+        val first = dialogs.pending.value!!
+        val head = first.request as AppDialogRequest.Message
+        assertEquals("Test error 1 of 2", head.message)
+        assertEquals(reportText, head.neutralText)
+        assertFalse(head.cancellable)
+        // Queue: the second error waits behind the first and only shows once the first is answered.
+        dialogs.respond(first.id, AppDialogResult.Ok)
+        idle()
+        assertEquals("Test error 2 of 2", (dialogs.pending.value!!.request as AppDialogRequest.Message).message)
+    }
+
+    @Test
     fun okayCallbackRunsOnceOnOk() {
         activity()
         var calls = 0

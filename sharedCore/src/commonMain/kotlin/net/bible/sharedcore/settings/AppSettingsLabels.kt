@@ -109,6 +109,10 @@ data class AppSettingsLabels(
     val openLinksSummary: String,
     val crashAppTitle: String,
     val crashAppSummary: String,
+    val testErrorDialogTitle: String,
+    val testErrorDialogSummary: String,
+    val testErrorDialogQueueTitle: String,
+    val testErrorDialogQueueSummary: String,
 
     // Nav-shortcut labels (rows that navigate to another settings screen)
     val syncShortcutTitle: String,
@@ -217,6 +221,10 @@ data class AppSettingsLabels(
             openLinksSummary = "Choose how external links are opened",
             crashAppTitle = "Crash app",
             crashAppSummary = "Trigger a test crash",
+            testErrorDialogTitle = "Test error dialog",
+            testErrorDialogSummary = "Show an error with a Report error button",
+            testErrorDialogQueueTitle = "Test error dialog queue",
+            testErrorDialogQueueSummary = "Show two errors one after the other",
 
             syncShortcutTitle = "Cloud sync",
             syncShortcutSummary = "Configure cloud synchronization",

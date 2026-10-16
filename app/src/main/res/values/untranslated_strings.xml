@@ -119,6 +119,10 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="welcome_redownload_hint">Previous documents found</string>
 	<string name="welcome_redownload_hint_action">Redownload</string>
 	<string name="crash_app">Crash app!</string>
+	<string name="test_error_dialog">Test error dialog</string>
+	<string name="test_error_dialog_summary">Show an error with a Report error button</string>
+	<string name="test_error_dialog_queue">Test error dialog queue</string>
+	<string name="test_error_dialog_queue_summary">Show two errors one after the other</string>
 	<string name="crash_app_summary">Crash app after 10 seconds. Debugging feature, visible only in debug builds.</string>
 	<string name="apk_file">andbible.apk</string>
 	<string name="error_opening_link">Unable to open link. No app found to handle: %s</string>

@@ -28,6 +28,7 @@ class AppSettingsControllerTest {
         betaFeaturesVisible: Boolean = false,
         sdcardPermissionVisible: Boolean = false,
         openLinksVisible: Boolean = false,
+        debugToolsVisible: Boolean = false,
         displayColorMode: String = "normal",
     ) = AppSettingsSnapshot(
         greekDicts = emptySet(), hebrewDicts = emptySet(), greekMorph = emptySet(),
@@ -59,6 +60,7 @@ class AppSettingsControllerTest {
         discreteTogglesVisible = discreteTogglesVisible,
         betaFeaturesVisible = betaFeaturesVisible, sdcardPermissionVisible = sdcardPermissionVisible,
         openLinksVisible = openLinksVisible,
+        debugToolsVisible = debugToolsVisible,
     )
 
     private fun controller(s: AppSettingsService) =
@@ -118,6 +120,28 @@ class AppSettingsControllerTest {
         assertTrue(keys.contains("calculator_pin"))
     }
 
+    @Test fun testErrorRowsAreVisibleOnlyInDebugBuilds() {
+        val keys = listOf(AppSettingsNav.TEST_ERROR_DIALOG, AppSettingsNav.TEST_ERROR_DIALOG_QUEUE)
+        val debug = controller(FakeAppSettingsService(snap(debugToolsVisible = true)))
+        keys.forEach { k -> assertTrue(debug.state.value.visibleItems.any { it.key == k }, k) }
+        // Beta alone must not expose them: they are gated on the debug flag, not on betaFeaturesVisible.
+        val beta = controller(FakeAppSettingsService(snap(betaFeaturesVisible = true, debugToolsVisible = false)))
+        keys.forEach { k ->
+            val row = beta.state.value.items.single { it.key == k }
+            assertFalse(row.visible, k)
+            assertFalse(beta.state.value.visibleItems.any { it.key == k }, k)
+        }
+    }
+
+    @Test fun testErrorRowsSitBesideCrashApp() {
+        val c = controller(FakeAppSettingsService(snap(betaFeaturesVisible = true, debugToolsVisible = true)))
+        val keys = c.state.value.items.map { it.key }
+        val i = keys.indexOf(AppSettingsNav.CRASH_APP)
+        assertTrue(i >= 0)
+        assertEquals(AppSettingsNav.TEST_ERROR_DIALOG, keys[i + 1])
+        assertEquals(AppSettingsNav.TEST_ERROR_DIALOG_QUEUE, keys[i + 2])
+    }
+
     @Test fun betaAndSdcardAndOpenLinksGating() {
         val c = controller(FakeAppSettingsService(snap()))  // all beta/sdcard/openlinks false
         val keys = c.state.value.visibleItems.map { it.key }
@@ -174,13 +198,13 @@ class AppSettingsControllerTest {
         assertEquals(emptyList(), wrong)
     }
 
-    @Test fun fortyTwoRowsCarryAnIconKey() {
+    @Test fun fortyFourRowsCarryAnIconKey() {
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
             ),
         ).state.value.items
-        assertEquals(42, items.count { it.iconKeyOrNull() != null })
+        assertEquals(44, items.count { it.iconKeyOrNull() != null })
     }
 
     /**
@@ -245,6 +269,8 @@ class AppSettingsControllerTest {
             "show_errorbox",
             "open_links",
             "crash_app",
+            "test_error_dialog",
+            "test_error_dialog_queue",
         )
         val c = controller(
             FakeAppSettingsService(
