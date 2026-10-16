@@ -20,6 +20,12 @@ package net.bible.service.db
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
+/**
+ * Deliberately an empty context. Kotlin/Native has no `ThreadContextElement` (kotlinx.coroutines 1.11.0), and the
+ * substitutes are unsound: a plain thread-local or global flag is lost on a dispatcher switch or leaks to the thread
+ * the body left. The guard is also unnecessary on iOS: `blockingAtEdge` is an Android/JSword-only edge, so iOS code
+ * must never call a blocking database bridge.
+ */
 actual val DbTransactionMarker: CoroutineContext = EmptyCoroutineContext
 
 actual fun isInDbTransactionOnThread(): Boolean = false

@@ -26,5 +26,10 @@ import kotlin.coroutines.CoroutineContext
  */
 expect val DbTransactionMarker: CoroutineContext
 
-/** True while the current thread runs a body marked with [DbTransactionMarker]. Always false on iOS. */
+/**
+ * True while the current thread runs a body marked with [DbTransactionMarker]. Always false on iOS: Kotlin/Native has
+ * no `ThreadContextElement` (kotlinx.coroutines 1.11.0) and the substitutes are unsound (lost on a dispatcher switch
+ * or leaked to the thread the body left). That is acceptable because `blockingAtEdge` is an Android/JSword-only edge;
+ * iOS code must never call a blocking database bridge.
+ */
 expect fun isInDbTransactionOnThread(): Boolean
