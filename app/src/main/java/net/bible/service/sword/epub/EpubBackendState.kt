@@ -67,12 +67,60 @@ val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.o
 
 class KeyAndText(val key: BookAndKey, val text: String)
 
+private val ownerGenerations = java.util.concurrent.atomic.AtomicLong()
+
 class EpubBackendState(private val epubDir: File, internal val strings: CoreStrings, private val env: AppEnvironment): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData, strings: CoreStrings, env: AppEnvironment): this(epubDir, strings, env) {
         this._metadata = metadata
     }
 
-    override fun close() {}
+    /**
+     * Unique per opened module owner. A same-initials replacement gets a new value, so render caches keyed by it
+     * cannot hand a late result from the retired owner to its replacement.
+     */
+    internal val ownerGeneration: Long = ownerGenerations.incrementAndGet()
+
+    private val lifetime = java.lang.Object()
+    private var retired = false
+    private var closed = false
+    private var activeUsers = 0
+
+    private fun acquireUse() = synchronized(lifetime) {
+        check(!retired) { "EPUB backend has been retired" }
+        activeUsers++
+    }
+
+    private fun releaseUse() = synchronized(lifetime) {
+        activeUsers--
+        lifetime.notifyAll()
+    }
+
+    // A lease spans the whole operation, including suspension and fragment file reads.
+    private inline fun <T> withOpen(block: () -> T): T {
+        acquireUse()
+        try { return block() } finally { releaseUse() }
+    }
+
+    override fun close() {
+        synchronized(lifetime) {
+            if (retired) {
+                while (!closed) lifetime.wait()
+                return
+            }
+            retired = true
+            while (activeUsers != 0) lifetime.wait()
+            try {
+                search.close()
+            } finally {
+                try {
+                    readDb.close()
+                } finally {
+                    closed = true
+                    lifetime.notifyAll()
+                }
+            }
+        }
+    }
 
     private var _metadata: SwordBookMetaData? = null
 
@@ -117,11 +165,13 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
 
     fun fileForOriginalId(id: String): File? = idToFile[id]?.let {File(rootFolder, it) }
 
-    suspend fun styleSheets(key: Key): List<File> {
-        val frag = fragment(key)?: return emptyList()
-        val file = fileForOriginalId(frag.originalId)?: return emptyList()
-        val parentFolder = file.parentFile
-        return dao.styleSheets(frag.originalId).map { File(parentFolder, it.styleSheetFile).canonicalFile }
+    suspend fun styleSheetContent(key: Key): String = withOpen {
+        val frag = fragment(key) ?: return@withOpen ""
+        val file = fileForOriginalId(frag.originalId) ?: return@withOpen ""
+        dao.styleSheets(frag.originalId)
+            .map { File(file.parentFile, it.styleSheetFile).canonicalFile }
+            .filter { it.exists() }
+            .joinToString("\n") { it.readText() }
     }
 
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
@@ -131,30 +181,34 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     }
 
     suspend fun tocKeys(): List<Key> {
-        // Check if toc is null and return an empty list if it is
-        if (toc == null) return emptyList()
+        return withOpen {
+            // Check if toc is null and return an empty list if it is
+            if (toc == null) return emptyList()
 
-        val content = XmlQueries.navPointContents(toc, tocNamespace)
-        val book = Books.installed().getBook(getBookMetaData().initials)
-        return content.mapNotNull { c ->
-            val label = XmlQueries.navLabelTexts(c, tocNamespace).firstOrNull()?.text
-            val fileAndId = getFileAndId(c.getAttribute("src")!!.value)
-            val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
-            val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
-            val id = fileToId[fileName] ?: return@mapNotNull null
-            val keyStr: String = if(htmlId == null) {
-                id
-            } else {
-                "$id#$htmlId"
+            val content = XmlQueries.navPointContents(toc, tocNamespace)
+            val book = Books.installed().getBook(getBookMetaData().initials)
+            return content.mapNotNull { c ->
+                val label = XmlQueries.navLabelTexts(c, tocNamespace).firstOrNull()?.text
+                val fileAndId = getFileAndId(c.getAttribute("src")!!.value)
+                val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
+                val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
+                val id = fileToId[fileName] ?: return@mapNotNull null
+                val keyStr: String = if(htmlId == null) {
+                    id
+                } else {
+                    "$id#$htmlId"
+                }
+                val frag = dao.getFragment(keyStr)
+                frag?.let { BookAndKey(getKey(it, label = label), book, htmlId = htmlId) }
             }
-            val frag = dao.getFragment(keyStr)
-            frag?.let { BookAndKey(getKey(it, label = label), book, htmlId = htmlId) }
         }
     }
 
     fun read(key: Key): String {
-        val frag = fragmentBlocking(key)?: return ""
-        return readFragment(frag)
+        return withOpen {
+            val frag = fragmentBlocking(key)?: return ""
+            return readFragment(frag)
+        }
     }
 
     private fun readFragment(frag: EpubFragment): String {
@@ -183,7 +237,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
 
     internal val originalIds: List<String> get() = XmlQueries.spineItemrefs(content, epubNamespace).map { it.getAttribute("idref")!!.value }
 
-    val keys: List<Key> get() = blockingAtEdge { dao.fragments() }.map { getKey(it) } // L1-edge: JSword synchronous Backend contract
+    val keys: List<Key> get() = withOpen { blockingAtEdge { dao.fragments() }.map { getKey(it) } } // L1-edge: JSword synchronous Backend contract
 
     internal val fragDir get() = File(epubDir,  "optimized")
     internal val versionFile = File(fragDir, "version.txt")
@@ -234,73 +288,101 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
 
     private val dao = readDb.epubDao()
 
-    val isIndexed get() = search.isIndexed
+    val isIndexed get() = synchronized(lifetime) { if (retired) false else search.isIndexed }
 
     fun deleteSearchIndex() {
-        search.deleteIndex()
+        withOpen { search.deleteIndex() }
     }
 
     suspend fun buildSearchIndex() = withContext(Dispatchers.IO) {
-        // Not just `return`: an existing index must also be REPORTED as done, so that any caller
-        // polling `indexStatus` learns the truth rather than waiting out a timeout.
-        //
-        // NOTE, because an earlier version of this comment claimed otherwise: this branch is NOT
-        // reachable from the reading view's index prompt. `SearchIndexServiceImpl.createIndex:42`
-        // calls `SwordDocumentFacade.deleteDocumentIndex` FIRST, which for an EPUB drops the FTS5
-        // table outright (`EpubSearch.deleteIndex` is a `DROP TABLE`), so `search.isIndexed` is
-        // always false by the time this runs from that path. The branch guards a direct caller that
-        // has not deleted first — it is correct and cheap, but it has no test and no device-checklist
-        // item, and nothing in the F43 batch exercises it.
-        if (search.isIndexed) {
-            getBookMetaData().indexStatus = IndexStatus.DONE
-            return@withContext
-        }
-        getBookMetaData().indexStatus = IndexStatus.CREATING
-        // Reset failures so the app-owned index job can be retried; always finish its progress row.
-        var job: Progress? = null
-        try {
-            val jobName = strings.creatingIndexFor(getBookMetaData().name)
-            job = org.crosswire.common.progress.JobManagerJvm.createJob("index-creation-${epubDir.path}", jobName, null)
-            job.isNotifyUser = true
-            job.beginJob(jobName)
-            search.createTable()
-            val frags = dao.fragments()
-            job.totalWork = frags.size
-            for(i in frags.indices) {
-                currentCoroutineContext().ensureActive()
-                val frag = frags[i]
-                job.work = i
-                val reader = StringReader(readFragment(frag))
-                val doc = useKdomBuilder { it.build(reader) }
-                for(bva in XmlQueries.bvas(doc, xhtmlNamespace)) {
-                    val ordinal = bva.getAttribute("ordinal")!!.value.toInt()
-                    search.addContent(bva.text, frag.id, ordinal)
-                }
+        withOpen {
+            // Not just `return`: an existing index must also be REPORTED as done, so that any caller
+            // polling `indexStatus` learns the truth rather than waiting out a timeout.
+            //
+            // NOTE, because an earlier version of this comment claimed otherwise: this branch is NOT
+            // reachable from the reading view's index prompt. `SearchIndexServiceImpl.createIndex:42`
+            // calls `SwordDocumentFacade.deleteDocumentIndex` FIRST, which for an EPUB drops the FTS5
+            // table outright (`EpubSearch.deleteIndex` is a `DROP TABLE`), so `search.isIndexed` is
+            // always false by the time this runs from that path. The branch guards a direct caller that
+            // has not deleted first — it is correct and cheap, but it has no test and no device-checklist
+            // item, and nothing in the F43 batch exercises it.
+            if (search.isIndexed) {
+                getBookMetaData().indexStatus = IndexStatus.DONE
+                return@withOpen
             }
-            getBookMetaData().indexStatus = IndexStatus.DONE
-        } catch (e: Exception) {
-            Log.e(TAG, "buildSearchIndex failed for ${getBookMetaData().initials}", e)
-            // Table existence is the completion signal, so never retain an interrupted build.
-            search.deleteIndex()
-            getBookMetaData().indexStatus = IndexStatus.UNDONE
-            if (e is CancellationException) throw e
-        } finally {
-            job?.done()
+            getBookMetaData().indexStatus = IndexStatus.CREATING
+            // Reset failures so the app-owned index job can be retried; always finish its progress row.
+            var job: Progress? = null
+            try {
+                val jobName = strings.creatingIndexFor(getBookMetaData().name)
+                job = org.crosswire.common.progress.JobManagerJvm.createJob("index-creation-${epubDir.path}", jobName, null)
+                job.isNotifyUser = true
+                job.beginJob(jobName)
+                search.createTable()
+                val frags = dao.fragments()
+                job.totalWork = frags.size
+                for(i in frags.indices) {
+                    currentCoroutineContext().ensureActive()
+                    val frag = frags[i]
+                    job.work = i
+                    val reader = StringReader(readFragment(frag))
+                    val doc = useKdomBuilder { it.build(reader) }
+                    for(bva in XmlQueries.bvas(doc, xhtmlNamespace)) {
+                        val ordinal = bva.getAttribute("ordinal")!!.value.toInt()
+                        search.addContent(bva.text, frag.id, ordinal)
+                    }
+                }
+                getBookMetaData().indexStatus = IndexStatus.DONE
+            } catch (e: Exception) {
+                Log.e(TAG, "buildSearchIndex failed for ${getBookMetaData().initials}", e)
+                // Table existence is the completion signal, so never retain an interrupted build.
+                getBookMetaData().indexStatus = IndexStatus.UNDONE
+                try {
+                    search.deleteIndex()
+                } catch (cleanup: Exception) {
+                    e.addSuppressed(cleanup)
+                }
+                if (e is CancellationException) throw e
+            } finally {
+                job?.done()
+            }
         }
     }
 
     suspend fun search(search: String): List<KeyAndText> = withContext(Dispatchers.IO) {
-        val book = Books.installed().getBook(getBookMetaData().initials)
-        val hits = this@EpubBackendState.search.search(search)
-        hits.mapNotNull {
-            val frag = dao.getFragment(it.fragId) ?: return@mapNotNull null
-            val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
-            KeyAndText(key, it.text)
+        withOpen {
+            val book = Books.installed().getBook(getBookMetaData().initials)
+            val hits = this@EpubBackendState.search.search(search)
+            hits.mapNotNull {
+                val frag = dao.getFragment(it.fragId) ?: return@mapNotNull null
+                val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
+                KeyAndText(key, it.text)
+            }
         }
     }
 
-    fun getResource(resourcePath: String) =
-        File(rootFolder, resourcePath)
+    /** The WebView owns the returned stream; retirement waits until it is closed. */
+    fun openResource(resourcePath: String): java.io.InputStream? {
+        try { acquireUse() } catch (_: IllegalStateException) { return null }
+        try {
+            val file = File(rootFolder, resourcePath)
+            if (!file.canRead()) {
+                releaseUse()
+                return null
+            }
+            return object : java.io.FilterInputStream(file.inputStream()) {
+                private val released = java.util.concurrent.atomic.AtomicBoolean()
+                override fun close() {
+                    if (released.compareAndSet(false, true)) {
+                        try { super.close() } finally { releaseUse() }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            releaseUse()
+            throw e
+        }
+    }
 
     override fun getBookMetaData(): SwordBookMetaData {
         return _metadata?: synchronized(this) {
@@ -326,7 +408,9 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
         }
     }
 
-    override fun releaseResources() = close()
+    // JSword pools this same state after reads, rather than owning a distinct handle.
+    // Only module retirement owns its lifetime; pool expiry must not retire a live book.
+    override fun releaseResources() {}
 
     private var _lastAccess: Long  = 0L
     override fun getLastAccess(): Long = _lastAccess
@@ -335,33 +419,37 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     }
 
     fun delete() {
-        epubDir.deleteRecursively()
-        readDb.close()
-        env.deleteDatabase(appDbFilename)
+        deleteEpubModule(epubDir)
     }
 
     suspend fun getKey(originalKey: String, htmlId: String): Key? {
-        val frag = dao.getFragment(if(htmlId.isNotEmpty()) "$originalKey#$htmlId" else originalKey)
-        return frag?.let {getKey(it)}
+        return withOpen {
+            val frag = dao.getFragment(if(htmlId.isNotEmpty()) "$originalKey#$htmlId" else originalKey)
+            return frag?.let {getKey(it)}
+        }
     }
 
     suspend fun getOrdinalRange(key: Key): IntRange {
-        val frag = fragment(key) ?: return 0..0
-        return frag.ordinalStart .. frag.ordinalEnd
+        return withOpen {
+            val frag = fragment(key) ?: return 0..0
+            return frag.ordinalStart .. frag.ordinalEnd
+        }
     }
 
     /** Total ordinal span of the whole book (anchor ordinals restart per spine item). */
-    suspend fun bookOrdinalSpan(): Int = dao.fragments().sumOf { it.ordinalEnd - it.ordinalStart + 1 }
+    suspend fun bookOrdinalSpan(): Int = withOpen { dao.fragments().sumOf { it.ordinalEnd - it.ordinalStart + 1 } }
 
     /** Sum of the ordinal spans of all fragments preceding [key] in book order. */
     suspend fun fragmentOffset(key: Key): Int {
-        val targetId = fragment(key)?.id ?: return 0
-        var offset = 0
-        for (frag in dao.fragments().sortedBy { it.id }) {
-            if (frag.id == targetId) break
-            offset += frag.ordinalEnd - frag.ordinalStart + 1
+        return withOpen {
+            val targetId = fragment(key)?.id ?: return 0
+            var offset = 0
+            for (frag in dao.fragments().sortedBy { it.id }) {
+                if (frag.id == targetId) break
+                offset += frag.ordinalEnd - frag.ordinalStart + 1
+            }
+            return offset
         }
-        return offset
     }
 
     /**
@@ -370,25 +458,27 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
      * This avoids forcing a re-optimization of already-installed EPUBs.
      */
     suspend fun totalCharacters(): Int = withContext(Dispatchers.IO) {
-        dao.getMeta()?.let { return@withContext it.totalCharacters }
-        var total = 0
-        var failed = false
-        for (frag in dao.fragments()) {
-            try {
-                val doc = useKdomBuilder { it.build(StringReader(readFragment(frag))) }
-                for (bva in XmlQueries.bvas(doc, xhtmlNamespace)) {
-                    total += bva.text.length
+        withOpen {
+            dao.getMeta()?.let { return@withOpen it.totalCharacters }
+            var total = 0
+            var failed = false
+            for (frag in dao.fragments()) {
+                try {
+                    val doc = useKdomBuilder { it.build(StringReader(readFragment(frag))) }
+                    for (bva in XmlQueries.bvas(doc, xhtmlNamespace)) {
+                        total += bva.text.length
+                    }
+                } catch (e: Exception) {
+                    // A single unreadable/corrupt fragment must not abort the whole-book
+                    // character count (used only for the reading-progress indicator).
+                    Log.e(TAG, "Failed to read fragment ${frag.id} while computing totalCharacters; skipping", e)
+                    failed = true
                 }
-            } catch (e: Exception) {
-                // A single unreadable/corrupt fragment must not abort the whole-book
-                // character count (used only for the reading-progress indicator).
-                Log.e(TAG, "Failed to read fragment ${frag.id} while computing totalCharacters; skipping", e)
-                failed = true
             }
+            // Only cache the result when every fragment was read successfully; otherwise a
+            // transient/repairable inconsistency would freeze an inaccurate count forever.
+            if (!failed) dao.insert(EpubMeta(totalCharacters = total))
+            total
         }
-        // Only cache the result when every fragment was read successfully; otherwise a
-        // transient/repairable inconsistency would freeze an inaccurate count forever.
-        if (!failed) dao.insert(EpubMeta(totalCharacters = total))
-        total
     }
 }

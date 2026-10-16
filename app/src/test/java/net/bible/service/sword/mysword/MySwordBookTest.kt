@@ -108,6 +108,25 @@ class MySwordBookTest {
     }
 
     @Test
+    fun rightToLeftFlagOrRtlLanguageMakesModuleRightToLeft() {
+        val flagged = backend(module(
+            "flag.bbl.mybible",
+            "CREATE TABLE Details (Title TEXT, Language TEXT, RightToLeft INTEGER)",
+            "INSERT INTO Details VALUES ('Flagged', 'heb', 1)",
+            "CREATE TABLE Bible (Book INTEGER, Chapter INTEGER, Verse INTEGER, Scripture TEXT)",
+        )).bookMetaData
+        val byLanguage = backend(module(
+            "lang.bbl.mybible",
+            "CREATE TABLE Details (Title TEXT, Language TEXT)",
+            "INSERT INTO Details VALUES ('Arabic', 'ar')",
+            "CREATE TABLE Bible (Book INTEGER, Chapter INTEGER, Verse INTEGER, Scripture TEXT)",
+        )).bookMetaData
+        assertEquals(false, flagged.isLeftToRight)
+        assertEquals(false, byLanguage.isLeftToRight)
+        assertEquals(true, backend(bible()).bookMetaData.isLeftToRight)
+    }
+
+    @Test
     fun missingDetailsColumnsFallBackToDefaults() {
         val file = module(
             "bare.bbl.mybible",

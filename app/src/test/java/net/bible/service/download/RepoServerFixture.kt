@@ -71,11 +71,18 @@ class RepoServerFixture private constructor(
         }
 
         /** [routes] registers extra handlers (for example `/pkg/K4Latin1.zip`) before the repository is created. */
-        suspend fun create(routes: (TestHttpsServer) -> Unit = {}): RepoServerFixture {
+        suspend fun create(
+            catalogBytes: ByteArray = catalogFile.readBytes(),
+            headStatus: Int = 200,
+            timeoutMs: Int = 5_000,
+            routes: (TestHttpsServer) -> Unit = {},
+        ): RepoServerFixture {
             check(catalogFile.canRead()) { "K5b catalog fixture missing: ${catalogFile.absolutePath}" }
             val server = TestHttpsServer()
             server.route("/cat/mods.d.tar.gz") {
-                it.reply(200, catalogFile.readBytes(), mapOf("Last-Modified" to "Sun, 13 Sep 2020 12:26:40 GMT"))
+                val isHead = it.requestMethod == "HEAD"
+                it.reply(if (isHead) headStatus else 200, if (isHead) byteArrayOf() else catalogBytes,
+                    if (!isHead || headStatus == 200) mapOf("Last-Modified" to "Sun, 13 Sep 2020 12:26:40 GMT") else emptyMap())
             }
             routes(server)
             val base = OkHttpClient.Builder()
@@ -88,7 +95,7 @@ class RepoServerFixture private constructor(
             // transport maps to the loopback server; the unique host also gives each fixture its own empty catalog cache
             val fakeHost = "k5b-${System.nanoTime()}.test"
             val port = server.base.substringAfterLast(':').toInt()
-            WebResource.transport = LoopbackRewrite(SuspendHttpTransport(KtorDownloadHttp(client) { 5_000 }, scope), fakeHost, port)
+            WebResource.transport = LoopbackRewrite(SuspendHttpTransport(KtorDownloadHttp(client) { timeoutMs }, scope), fakeHost, port)
             val repoName = "K5b fixture $fakeHost"
             DatabaseContainer.instance.repoDb.customRepositoryDao().insert(
                 CustomRepository(

@@ -27,6 +27,7 @@ import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
 import net.bible.service.sword.SqliteSwordDriver
+import net.bible.service.sword.isRtlLanguage
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -63,6 +64,9 @@ SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
 Versification=KJVA"""
+    if (data.rightToLeft || isRtlLanguage(data.language)) {
+        conf += "\nDirection=RtoL"
+    }
     if (data.hasStrongs) {
         conf += "\nGlobalOptionFilter = OSISStrongs"
     }

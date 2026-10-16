@@ -28,6 +28,8 @@ import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import net.bible.service.download.isRemoved
+import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.epub.isEpubInstallPending
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
@@ -253,8 +255,21 @@ abstract class CurrentPageBase protected constructor(
                     _currentDocument = real
                 }
             }
+            _currentDocument?.takeIf { it.isEpub }?.let { previous ->
+                Books.installed().getBook(previous.initials)?.let { installed ->
+                    if (installed !== previous) _currentDocument = installed
+                }
+            }
+            // A replacement in progress keeps the EPUB identity; the block above resolves it once registered.
             if (_currentDocument?.isRemoved == true) {
-                _currentDocument = getDefaultBook()
+                val removed = _currentDocument!!
+                // Re-check the registry after the pending test: the replacement may register between the two reads.
+                val pending = removed.isEpub && isEpubInstallPending(removed.initials)
+                val replacement = if (removed.isEpub) Books.installed().getBook(removed.initials) else null
+                when {
+                    replacement != null && replacement !== removed -> _currentDocument = replacement
+                    !pending -> _currentDocument = getDefaultBook()
+                }
             }
             return _currentDocument
         }

@@ -39,6 +39,7 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
 import net.bible.service.sword.epub.EpubBackend
+import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.epub.xhtmlNamespace
 import org.crosswire.common.xml.JDOMSAXEventProvider
@@ -159,9 +160,20 @@ class SwordContentFacade(
 
             return key
         }
+        /**
+         * Render-cache key. An EPUB key also names its module owner: a render of a replaced owner that finishes
+         * after its same-initials replacement was published must not be served for the replacement.
+         * Keeps the "$initials-" prefix that [evictBook] relies on.
+         */
+        private fun renderCacheKey(book: Book?, key: Key?): String {
+            val owner = book?.takeIf { it.isEpub }?.epubBackend?.state?.ownerGeneration
+            return if (owner == null) "${book?.initials}-${key?.getOsisRef()}"
+            else "${book.initials}-@$owner-${key?.getOsisRef()}"
+        }
+
         @Throws(OsisError::class)
         fun readOsisFragment(book: Book?, key: Key?, strings: CoreStrings): Element {
-            val cacheKey = "${book?.initials}-${key?.getOsisRef()}"
+            val cacheKey = renderCacheKey(book, key)
 
             if(book == null || key == null) {
                 Log.e(TAG, "Key or book was null")
@@ -400,7 +412,7 @@ class SwordContentFacade(
 
 
         private fun cachedText(book: Book, key: Key, strings: CoreStrings): Map<Int, String> = synchronized(this) {
-            val cacheKey = "${book.initials}-${key.getOsisRef()}"
+            val cacheKey = renderCacheKey(book, key)
             plainTextCache.get(cacheKey) ?: run {
                 val frag = try {
                     readOsisFragment(book, key, strings)

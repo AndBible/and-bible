@@ -100,6 +100,18 @@ class ESwordBookReaderTest {
     }
 
     @Test
+    fun rightToLeftDetailsFlagMakesModuleRightToLeft() {
+        val rtl = backend(module(
+            "heb.bblx",
+            "CREATE TABLE Details (Description TEXT, RightToLeft INTEGER)",
+            "INSERT INTO Details VALUES ('Hebrew', 1)",
+            "CREATE TABLE Bible (Book INTEGER, Chapter INTEGER, Verse INTEGER, Scripture TEXT)",
+        )).bookMetaData
+        assertEquals(false, rtl.isLeftToRight)
+        assertEquals(true, backend(bible()).bookMetaData.isLeftToRight)
+    }
+
+    @Test
     fun metadataComesFromDetailsTable() {
         val md = backend(bible()).bookMetaData
         assertEquals("ESword-esv", md.initials)

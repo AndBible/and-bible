@@ -63,9 +63,14 @@ class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private va
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
                     downloadError.add(repoIdentity)
-                    val downloadStatusStr = strings.httpStatusText(e.statusCode)
-                    val errorMessage = strings.errorDownloadingStatus( e.uri.toString(), downloadStatusStr, e.statusCode)
-                    notifier.showError(errorMessage)
+                    if (e.statusCode in 200..299) {
+                        // A successful response followed by a broken transfer is not an HTTP status error.
+                        notifier.showError(strings.errorDownloading, e)
+                    } else {
+                        val downloadStatusStr = strings.httpStatusText(e.statusCode)
+                        val errorMessage = strings.errorDownloadingStatus(e.uri.toString(), downloadStatusStr, e.statusCode)
+                        notifier.showError(errorMessage)
+                    }
                 } catch (e: InstallException) {
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))

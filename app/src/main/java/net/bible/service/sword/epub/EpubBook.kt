@@ -85,8 +85,8 @@ class EpubSwordDriver: AbstractBookDriver() {
     }
 
     override fun delete(book: Book) {
-        ((book as? SwordGenBook)?.backend as? EpubBackend)?.delete()
-        Books.installed().removeBook(book)
+        val backend = (book as? SwordGenBook)?.backend as? EpubBackend
+        if (backend != null) backend.delete() else Books.installed().removeBook(book)
     }
 }
 
@@ -111,8 +111,8 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
 
     suspend fun tocKeys(): List<Key> = state.tocKeys()
 
-    fun getResource(resourcePath: String): File = state.getResource(resourcePath)
-    suspend fun styleSheets(key: Key): List<File> = state.styleSheets(key)
+    fun openResource(resourcePath: String) = state.openResource(resourcePath)
+    suspend fun styleSheetContent(key: Key) = state.styleSheetContent(key)
     override fun readRawContent(state: EpubBackendState, key: Key?): String = state.read(key!!)
     fun delete() = state.delete()
     suspend fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
@@ -130,33 +130,84 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     }
 }
 
+/** Per-module ownership, independent of registry membership while an old owner drains. */
+private val epubModuleOwners = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
+private fun moduleOwner(dir: File) = epubModuleOwners.getOrPut(epubInitials(dir.name)) {
+    kotlinx.coroutines.sync.Mutex()
+}
+
+/** Initials whose install or same-name replacement currently owns the module, possibly with no registered Book. */
+private val pendingEpubInstalls = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
 /**
- * Remove an EPUB module completely: the (external) epub directory *and* its Room database
- * in internal storage. The database must be deleted explicitly — [File.deleteRecursively] on
- * the epub dir leaves the database orphaned, and a later re-download of a same-named epub
- * would reuse it via [getEpubDatabase], resurrecting stale fragment rows that reference
- * fragment files the fresh optimization never wrote (which then crash the reader).
+ * True while an install of [initials] is in progress. A replaced module is briefly absent from the registry while
+ * its old owner drains; this distinguishes that gap from a permanent deletion.
  */
+fun isEpubInstallPending(initials: String): Boolean = initials in pendingEpubInstalls
+
+/**
+ * Runs [block] (the install or replacement) while holding the module owner lock and marking the install pending.
+ * Do not call [deleteEpubModule] from inside [block]: it takes the same lock and would deadlock.
+ */
+suspend fun installEpubModule(dir: File, block: () -> Boolean): Boolean = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+    val owner = moduleOwner(dir)
+    val initials = epubInitials(dir.name)
+    owner.lock()
+    pendingEpubInstalls.add(initials)
+    try { block() } finally {
+        pendingEpubInstalls.remove(initials)
+        owner.unlock()
+    }
+}
+
+/** Retire the registered owner before removing external files and the internal metadata cache. */
 fun deleteEpubModule(epubDir: File) {
+    val owner = moduleOwner(epubDir)
+    kotlinx.coroutines.runBlocking { owner.lock() } // JSword driver delete is synchronous.
+    try { deleteOwnedEpubModule(epubDir) } finally { owner.unlock() }
+}
+
+/** Deletes the module's files and retires its owner; the caller must already hold the module owner lock. */
+internal fun deleteOwnedEpubModule(epubDir: File) {
+    val oldBook = Books.installed().getBook(epubInitials(epubDir.name))
+    oldBook?.epubBackend?.state?.let { state ->
+        Books.installed().removeBook(oldBook)
+        state.close()
+    }
     epubDir.deleteRecursively()
     val appDbFilename = "epub-${epubInitials(epubDir.name)}.sqlite3"
     deleteAppDatabase(appDbFilename)
 }
 
 fun addEpubBook(epubDir: File, strings: CoreStrings, environment: AppEnvironment) {
+    val owner = moduleOwner(epubDir)
+    if (!owner.tryLock()) return // Discovery must not reopen a retiring or partially extracted module.
+    try {
+        try {
+            addOwnedEpubBook(epubDir, strings, environment)
+        } catch (e: Exception) {
+            deleteOwnedEpubModule(epubDir)
+            throw e
+        }
+    } finally {
+        owner.unlock()
+    }
+}
+
+internal fun addOwnedEpubBook(epubDir: File, strings: CoreStrings, environment: AppEnvironment) {
     if(!(epubDir.canRead() && epubDir.isDirectory)) return
 
     val optimizeLockFile = File(epubDir, "optimize.lock")
     if(optimizeLockFile.exists()) {
         // Optimization has failed, better we remove module so that
         // it does crash every time. Hoping user also sends bug report about crash...
-        deleteEpubModule(epubDir)
+        deleteOwnedEpubModule(epubDir)
         return
     }
 
+    if (Books.installed().getBook(epubInitials(epubDir.name)) != null) return
     val state = EpubBackendState(epubDir, strings, environment)
     val metadata = state.getBookMetaData()
-    if(Books.installed().getBook(metadata.initials) != null) return
     val backend = EpubBackend(state, metadata)
     val book = SwordGenBook(metadata, backend)
 
@@ -189,15 +240,12 @@ fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironm
             addEpubBook(f, strings, environment)
         } catch (e: JDOMParseException) {
             Log.e(TAG, "addEpubBook catched JDOMParseException", e)
-            deleteEpubModule(f)
             ok = false
         } catch (e: IOException) {
             Log.e(TAG, "addEpubBook catched IOException", e)
-            deleteEpubModule(f)
             ok = false
         } catch (e: Exception) {
             Log.e(TAG, "addEpubBook catched another exception", e)
-            deleteEpubModule(f)
             ok = false
         }
     }

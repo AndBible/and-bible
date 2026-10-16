@@ -8,6 +8,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -168,13 +169,15 @@ class SuspendHttpTransportTest {
         finished(fake)
     }
 
-    @Test fun streamTimeoutMapsToTransportCancelled() = runBlocking {
+    @Test fun streamTimeoutPreservesTheErrorAndLeavesCallerActive() = runBlocking {
         val failure = DownloadTimeoutException(null)
         val fake = FakeHttp(chunks = 0, failure = failure)
-        val error = runCatching { body(fake).read(ByteArray(1)) }.exceptionOrNull()
-        assertTrue("got $error", error is TransportCancelledException)
-        assertSame(failure, error!!.cause)
+        val body = body(fake)
+        val error = runCatching { body.read(ByteArray(1)) }.exceptionOrNull()
+        assertSame(failure, error)
+        assertTrue(isActive)
         finished(fake)
+        assertTrue("timeout closes the body", runCatching { body.status() }.exceptionOrNull() is TransportCancelledException)
     }
 
     @Test fun producerCancellationMapsToTransportCancelled() = runBlocking {
@@ -215,11 +218,13 @@ class SuspendHttpTransportTest {
         assertTrue("got $error", error is TransportCancelledException)
     }
 
-    @Test fun headTimeoutMapsToTransportCancelled() = runBlocking {
+    @Test fun headTimeoutPreservesTheErrorAndLeavesCallerActive() = runBlocking {
+        val failure = DownloadTimeoutException(IOException("socket timeout"))
         val http = object : FakeHttp() {
-            override suspend fun head(url: String): HttpHeaders = throw DownloadTimeoutException(null)
+            override suspend fun head(url: String): HttpHeaders = throw failure
         }
-        assertTrue(runCatching { SuspendHttpTransport(http, scope).head(uri, 5_000) }.exceptionOrNull() is TransportCancelledException)
+        assertSame(failure, runCatching { SuspendHttpTransport(http, scope).head(uri, 5_000) }.exceptionOrNull())
+        assertTrue(isActive)
     }
 
     @Test fun headAndBodyLengthFollowUrlConnectionBoundaries() = runBlocking {

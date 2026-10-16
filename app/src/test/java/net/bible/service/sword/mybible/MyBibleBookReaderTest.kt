@@ -118,6 +118,19 @@ class MyBibleBookReaderTest {
     }
 
     @Test
+    fun rtlLanguageModuleIsRightToLeftAndLtrLanguageStaysLeftToRight() {
+        val hebrew = backend(module(
+            "heb.SQLite3",
+            "CREATE TABLE info (name TEXT, value TEXT)",
+            "INSERT INTO info VALUES ('language', 'he')",
+            "CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)",
+        )).bookMetaData
+        assertEquals("he", hebrew.getProperty("Lang"))
+        assertEquals(false, hebrew.isLeftToRight)
+        assertEquals(true, backend(bible()).bookMetaData.isLeftToRight)
+    }
+
+    @Test
     fun missingInfoRowsFallBackToDefaults() {
         val md = backend(module("bare.SQLite3", "CREATE TABLE info (name TEXT, value TEXT)", "CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")).bookMetaData
         assertEquals("", md.getProperty("Description"))

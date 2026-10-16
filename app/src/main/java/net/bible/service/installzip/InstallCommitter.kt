@@ -27,8 +27,10 @@ import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
-import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
-import net.bible.service.sword.epub.deleteEpubModule
+import net.bible.service.sword.epub.addOwnedEpubBook
+import net.bible.service.sword.epub.deleteOwnedEpubModule
+import net.bible.service.sword.epub.epubInitials
+import net.bible.service.sword.epub.installEpubModule
 import net.bible.service.sword.esword.addESwordBook
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addMySwordBook
@@ -84,6 +86,10 @@ class DefaultInstallCommitter(
     private val backup: BackupControl,
     private val strings: net.bible.sharedcore.platform.CoreStrings,
     private val environment: net.bible.sharedcore.platform.AppEnvironment,
+    /** Resolved lazily, only by [commitSwordZip], so the other commit paths never touch Koin. */
+    private val installWatcher: () -> net.bible.android.control.versification.BookInstallWatcher = {
+        org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java)
+    },
 ) : InstallCommitter {
 
     override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
@@ -92,16 +98,27 @@ class DefaultInstallCommitter(
             totalEntries = totalEntries,
             onProgress = { percent -> onProgress(percent) },
         )
+        // Registration fired bookAdded synchronously, which queued the row write that restores the
+        // retained cipher key. Success must not be published while the new Book is still locked.
+        // Safe: this runs in the install coroutine, never inside the watcher's own ordered queue.
+        installWatcher().awaitPendingInstalls()
     }
 
     override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean): Boolean {
         val dir = File(File(SharedConstants.modulesDir, "epub"), displayName)
-        if (deleteExisting) {
-            deleteEpubModule(dir)
+        return installEpubModule(dir) {
+            if (deleteExisting) deleteOwnedEpubModule(dir)
+            dir.mkdirs()
+            try {
+                unzipInputStream(localFile.inputStream(), dir)
+                addOwnedEpubBook(dir, strings, environment)
+                org.crosswire.jsword.book.Books.installed().getBook(epubInitials(dir.name)) != null
+            } catch (e: Exception) {
+                deleteOwnedEpubModule(dir)
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                false
+            }
         }
-        dir.mkdirs()
-        unzipInputStream(localFile.inputStream(), dir)
-        return addManuallyInstalledEpubBooks(strings, environment)
     }
 
     override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) {

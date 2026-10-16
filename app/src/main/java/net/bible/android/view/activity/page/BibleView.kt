@@ -1264,9 +1264,8 @@ class BibleView(
     inner class EpubResourcesAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse {
             val book = (firstDocument as? OsisDocument)?.book ?: return notFound
-            val file: File = ((book as? SwordGenBook)?.backend as? EpubBackend)?.getResource(path) ?: return notFound
-            if(!file.canRead()) return notFound
-            return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
+            val stream = ((book as? SwordGenBook)?.backend as? EpubBackend)?.openResource(path) ?: return notFound
+            return WebResourceResponse(URLConnection.guessContentTypeFromName(path), null, stream)
         }
     }
 
@@ -1285,17 +1284,12 @@ class BibleView(
                 if (!book.isEpub) return notFound
                 val key = try { book.getKey(keyStr) } catch (e: NoSuchKeyException) {return notFound}
 
-                val styleSheets =
-                    (if(book is SwordGenBook) {
-                        val backend = book.backend
-                        if (backend is EpubBackend) {
-                            blockingAtEdge { backend.styleSheets(key) } // L1-edge: WebView shouldInterceptRequest
-                        } else null
-                    }  else null) ?: return notFound
-
-                val content = styleSheets.filter() { it.exists() }
-                    .joinToString("\n") { String(it.readBytes()) }
-                    .replace(colorRe, "")
+                val backend = (book as? SwordGenBook)?.backend as? EpubBackend ?: return notFound
+                val content = try {
+                    blockingAtEdge { backend.styleSheetContent(key) } // L1-edge: WebView shouldInterceptRequest
+                } catch (_: IllegalStateException) {
+                    return notFound // A request for a retired page must not read replacement assets.
+                }.replace(colorRe, "")
                     .replace(bodyRe, "")
                     .replace(lineHeightRe, "")
 
@@ -1307,9 +1301,8 @@ class BibleView(
                 val relativePath = resourceMatch.groupValues[2]
                 val book = Books.installed().getBook(bookInitials)?: return notFound
                 if (!book.isEpub) return notFound
-                val file: File = ((book as? SwordGenBook)?.backend as? EpubBackend)?.getResource(relativePath) ?: return notFound
-                if(!file.canRead()) return notFound
-                return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
+                val stream = ((book as? SwordGenBook)?.backend as? EpubBackend)?.openResource(relativePath) ?: return notFound
+                return WebResourceResponse(URLConnection.guessContentTypeFromName(relativePath), null, stream)
             }
             val parts = path.split("/", limit = 2);
             if(parts.size != 2) return notFound

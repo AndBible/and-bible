@@ -97,10 +97,17 @@ class EpubSearchTest {
     }
 
     @Test
+    fun anUnopenableFileCannotSilentlyAcceptIndexMutations() {
+        val s = EpubSearch(File(File(dir, "missing-folder"), "search.sqlite3"))
+        assertThrows(IllegalStateException::class.java) { s.createTable() }
+        assertThrows(IllegalStateException::class.java) { s.addContent("x", 1L, 1) }
+    }
+
+    @Test
     fun anUnopenableFileDegradesToNotIndexedAndNoResults() {
         val s = EpubSearch(File(File(dir, "missing-folder"), "search.sqlite3"))
         assertFalse(s.isIndexed)
         assertEquals(emptyList<EpubSearchResult>(), s.search("x"))
-        assertEquals(null, s.addContent("x", 1L, 1))
+        assertThrows(IllegalStateException::class.java) { s.addContent("x", 1L, 1) }
     }
 }

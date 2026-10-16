@@ -35,7 +35,8 @@ class ReadingProgressSettingsStoreTest {
     private val synced = EventSource<Unit>()
     /** A NEW flow per call, like `invalidationTracker.createFlow` on whichever database is current. */
     private val flows = java.util.concurrent.CopyOnWriteArrayList<MutableSharedFlow<Unit>>()
-    private val invalidations get() = flows.first()
+    /** The store creates its flow when the observer coroutine starts, which can lag a loaded machine; wait for it. */
+    private val invalidations get() = runBlocking { withTimeout(10_000) { while (flows.isEmpty()) kotlinx.coroutines.delay(10) }; flows.first() }
     private val observerScope = AppCoroutineScope()
 
     @Before fun setUp() {
