@@ -4961,6 +4961,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 autoAssignPrimaryFlag = newLabelData.isAutoAssignPrimary,
             )
 
+            // SU-14 D5: an EXISTING label is written the moment the editor's OK arrives, not only at
+            // the manager's exit (saveManageLabelsAndExit), so a process kill while the user is still
+            // on the list cannot lose a colour/style edit the list already shows. The exit write
+            // stays (it is idempotent). A NEW label stays staged: its temporary id is remapped at
+            // exit and it only exists once the manager is saved. FIFO with the override write below.
+            if (!pending.isNew) {
+                orderedLauncher.launch("workspace") { bookmarkControl.insertOrUpdateLabel(updatedLabel) }
+            }
+
             // Workspace override (classic `ManageLabels.kt:637-649`).
             val returnedOverride = newLabelData.workspaceOverride
             if (returnedOverride != null) {
