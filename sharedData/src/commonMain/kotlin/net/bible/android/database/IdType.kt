@@ -83,7 +83,16 @@ class MyUUID(
         return result
     }
 
-    override fun compareTo(other: MyUUID): Int = compareValuesBy(this, other, {mostSignificantBits}, {leastSignificantBits})
+    /**
+     * Unsigned order: most significant bits first, then least significant bits, each compared as unsigned.
+     * This equals the lexicographic order of [toByteArray] (SQLite BLOB `memcmp` order) and of [toString],
+     * and is consistent with [equals]: it returns 0 only for equal ids.
+     */
+    override fun compareTo(other: MyUUID): Int = compareValuesBy(
+        this, other,
+        { it.mostSignificantBits.toULong() },
+        { it.leastSignificantBits.toULong() },
+    )
 
     companion object {
         fun randomUUID(): MyUUID = fromByteArray(secureRandomBytes(16))
@@ -145,6 +154,7 @@ data class IdType(
     private val myUUID: MyUUID? = MyUUID.randomUUID(),
 ): Comparable<IdType> {
     constructor(s: String?): this(if(s == null) null else try {MyUUID.fromString(s)} catch (e: IllegalArgumentException) {null})
+    /** The empty id sorts first, as SQLite orders `''` before any 16-byte BLOB. */
     override fun compareTo(other: IdType): Int = compareValuesBy(this, other) { it.myUUID }
     override fun toString(): String = myUUID?.toString()?: ""
     val isEmpty get() = myUUID == null
