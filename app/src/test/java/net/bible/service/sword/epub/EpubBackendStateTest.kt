@@ -272,12 +272,19 @@ class EpubBackendStateTest {
             assertTrue(committer().commitEpub(epubArchive(name, "quiet"), name, true))
             val oldBook = books.getBook(epubInitials(name))!!
             val old = oldBook.epubBackend!!.state
+            val page = net.bible.android.control.page.CurrentPageManager(
+                org.mockito.Mockito.mock(net.bible.android.control.versification.BibleTraverser::class.java),
+                org.mockito.Mockito.mock(net.bible.android.control.bookmark.BookmarkControl::class.java),
+                org.mockito.Mockito.mock(net.bible.android.control.page.window.WindowControl::class.java),
+            ).currentGeneralBook
+            page.onlySetCurrentDocument(oldBook)
             old.buildSearchIndex()
             assertEquals(1, old.search("quiet").size)
             assertTrue(old.read(old.keys.first()).contains("quiet"))
             assertTrue(committer().commitEpub(epubArchive(name, "quartz"), name, true))
             val fresh = books.getBook(epubInitials(name))!!.epubBackend!!.state
             // Content is the primary contract, not merely a different object identity.
+            assertTrue("active page renders replacement without restart", page.currentDocument!!.getRawText(fresh.keys.first()).contains("quartz"))
             assertReplacementContent(fresh, name)
             org.junit.Assert.assertNotSame(old, fresh)
             org.junit.Assert.assertThrows(IllegalStateException::class.java) { old.read(old.get(0)) }
@@ -333,6 +340,173 @@ class EpubBackendStateTest {
             appJob.cancel()
             appJob.join()
             books.removeBooksListener(listener)
+            books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+        }
+    }
+
+    @Test
+    fun overlappingCommitAndDiscoveryCannotBypassRetiringOwner() = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "ep3-multiple.epub"
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val removed = java.util.concurrent.CountDownLatch(1)
+        val books = org.crosswire.jsword.book.Books.installed()
+        val strings = object : net.bible.sharedcore.platform.CoreStrings by testCoreStrings() {
+            override fun creatingIndexFor(name: String): String {
+                entered.countDown()
+                check(release.await(15, java.util.concurrent.TimeUnit.SECONDS))
+                return name
+            }
+        }
+        val listener = object : org.crosswire.jsword.book.BooksListener {
+            override fun bookAdded(ev: org.crosswire.jsword.book.BooksEvent) {}
+            override fun bookRemoved(ev: org.crosswire.jsword.book.BooksEvent) { removed.countDown() }
+        }
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
+        val tasks = mutableListOf<kotlinx.coroutines.Job>()
+        createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
+        try {
+            assertTrue(committer(strings).commitEpub(epubArchive(name, "quiet"), name, true))
+            val oldBook = books.getBook(epubInitials(name))!!
+            net.bible.service.sword.SwordDocumentFacade.ensureIndexCreation(oldBook,
+                net.bible.sharedcore.platform.AppCoroutineScope(scope.coroutineContext))
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            val b = epubArchive(name, "quartz")
+            val c = epubArchive(name, "cobalt")
+            books.addBooksListener(listener)
+            val first = scope.async { committer().commitEpub(b, name, true) }.also { tasks.add(it) }
+            assertTrue(removed.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            // Discovery is synchronous: it must skip a module whose replacement owns the path.
+            addEpubBook(File(epubRoot, name), testCoreStrings(), AndroidAppEnvironment(application))
+            assertEquals("discovery must not republish retiring A", null, books.getBook(epubInitials(name)))
+            val second = scope.async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                committer().commitEpub(c, name, true)
+            }.also { tasks.add(it) }
+            assertFalse("second replacement waits for first path owner", second.isCompleted)
+            release.countDown()
+            assertTrue(first.await())
+            assertTrue(second.await())
+            val final = books.getBook(epubInitials(name))!!.epubBackend!!.state
+            assertTrue(final.read(final.keys.first()).contains("cobalt"))
+            final.buildSearchIndex()
+            assertEquals(1, final.search("cobalt").size)
+            assertTrue(final.search("quiet").isEmpty())
+            assertTrue(final.search("quartz").isEmpty())
+        } finally {
+            release.countDown()
+            tasks.forEach { it.join() }
+            scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
+            scope.coroutineContext[kotlinx.coroutines.Job]!!.join()
+            books.removeBooksListener(listener)
+            books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+        }
+    }
+
+    @Test
+    fun resourceResponseRetainsOriginalBytesWhileReplacementWaitsForStreamClose() = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "ep3-asset.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        val removed = java.util.concurrent.CountDownLatch(1)
+        val listener = object : org.crosswire.jsword.book.BooksListener {
+            override fun bookAdded(ev: org.crosswire.jsword.book.BooksEvent) {}
+            override fun bookRemoved(ev: org.crosswire.jsword.book.BooksEvent) { removed.countDown() }
+        }
+        var replacement: kotlinx.coroutines.Deferred<Boolean>? = null
+        var stream: java.io.InputStream? = null
+        createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
+        try {
+            assertTrue(committer().commitEpub(epubArchive(name, "quiet"), name, true))
+            File(epubRoot, "$name/OEBPS/asset.txt").writeText("quiet asset")
+            val response = net.bible.android.view.activity.page.BibleView.ModuleStylesAssetHandler()
+                .handle("epub/${epubInitials(name)}/asset.txt")
+            stream = response.data
+            assertEquals('q'.code, stream.read())
+            books.addBooksListener(listener)
+            val b = epubArchive(name, "quartz")
+            replacement = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).async {
+                committer().commitEpub(b, name, true)
+            }
+            assertTrue(removed.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            assertFalse("replacement must retain active asset stream", replacement.isCompleted)
+            assertTrue("asset must remain linked until stream closes", File(epubRoot, "$name/OEBPS/asset.txt").exists())
+            assertEquals("uiet asset", stream.readBytes().toString(Charsets.UTF_8))
+            stream.close()
+            assertTrue(replacement.await())
+        } finally {
+            stream?.close()
+            replacement?.await()
+            books.removeBooksListener(listener)
+            books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+        }
+    }
+
+    @Test
+    fun cssResponseReadsOriginalBytesBeforeReplacementCanUnlink() = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "ep3-css.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val removed = java.util.concurrent.CountDownLatch(1)
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
+        var reader: kotlinx.coroutines.Deferred<android.webkit.WebResourceResponse>? = null
+        var replacement: kotlinx.coroutines.Deferred<Boolean>? = null
+        val listener = object : org.crosswire.jsword.book.BooksListener {
+            override fun bookAdded(ev: org.crosswire.jsword.book.BooksEvent) {}
+            override fun bookRemoved(ev: org.crosswire.jsword.book.BooksEvent) { removed.countDown() }
+        }
+        createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
+        try {
+            assertTrue(committer().commitEpub(epubArchive(name, "quiet"), name, true))
+            val old = books.getBook(epubInitials(name))!!.epubBackend!!.state
+            File(epubRoot, "$name/OEBPS/test.css").writeText("p { font-family: quiet; }")
+            val field = EpubBackendState::class.java.getDeclaredField("dao").apply { isAccessible = true }
+            val dao = field.get(old) as net.bible.android.database.EpubDao
+            field.set(old, object : net.bible.android.database.EpubDao by dao {
+                override suspend fun styleSheets(origId: String): List<net.bible.android.database.StyleSheet> {
+                    entered.countDown()
+                    check(release.await(10, java.util.concurrent.TimeUnit.SECONDS))
+                    return listOf(net.bible.android.database.StyleSheet(origId, "test.css"))
+                }
+            })
+            val key = old.keys.first().getOsisRef()
+            reader = scope.async {
+                net.bible.android.view.activity.page.BibleView.ModuleStylesAssetHandler()
+                    .handle("epub/${epubInitials(name)}/$key/style.css")
+            }
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            val b = epubArchive(name, "quartz")
+            books.addBooksListener(listener)
+            replacement = scope.async { committer().commitEpub(b, name, true) }
+            assertTrue(removed.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            assertFalse(replacement.isCompleted)
+            release.countDown()
+            assertEquals("p { font-family: quiet; }", reader.await().data.use { it.readBytes().toString(Charsets.UTF_8) })
+            assertTrue(replacement.await())
+        } finally {
+            release.countDown()
+            reader?.await()?.data?.close()
+            replacement?.await()
+            scope.coroutineContext[kotlinx.coroutines.Job]!!.cancel()
+            scope.coroutineContext[kotlinx.coroutines.Job]!!.join()
+            books.removeBooksListener(listener)
+            books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
+        }
+    }
+
+    @Test
+    fun driverDeleteRemovesBookOnceAndAllowsCallerCleanup() = kotlinx.coroutines.runBlocking<Unit> {
+        val name = "ep3-driver-delete.epub"
+        val books = org.crosswire.jsword.book.Books.installed()
+        createdDbFilenames.add("epub-${epubInitials(name)}.sqlite3")
+        try {
+            assertTrue(committer().commitEpub(epubArchive(name, "quiet"), name, true))
+            val book = books.getBook(epubInitials(name))!!
+            book.driver!!.delete(book)
+            // The caller's post-delete cleanup is reachable only if the driver returns normally.
+            assertEquals(null, books.getBook(epubInitials(name)))
+            assertFalse(File(epubRoot, name).exists())
+            assertFalse(File(AndroidAppEnvironment(application).databasePath("epub-${epubInitials(name)}.sqlite3")).exists())
+        } finally {
             books.getBook(epubInitials(name))?.let { it.epubBackend!!.state.close(); books.removeBook(it) }
         }
     }

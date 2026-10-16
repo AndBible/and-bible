@@ -28,6 +28,7 @@ import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import net.bible.service.download.isRemoved
+import net.bible.service.sword.epub.isEpub
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
@@ -251,6 +252,11 @@ abstract class CurrentPageBase protected constructor(
                 val real = Books.installed().getBook(pseudo.initials)
                 if(real != null) {
                     _currentDocument = real
+                }
+            }
+            _currentDocument?.takeIf { it.isEpub }?.let { previous ->
+                Books.installed().getBook(previous.initials)?.let { installed ->
+                    if (installed !== previous) _currentDocument = installed
                 }
             }
             if (_currentDocument?.isRemoved == true) {

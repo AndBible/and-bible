@@ -77,20 +77,20 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     private var closed = false
     private var activeUsers = 0
 
+    private fun acquireUse() = synchronized(lifetime) {
+        check(!retired) { "EPUB backend has been retired" }
+        activeUsers++
+    }
+
+    private fun releaseUse() = synchronized(lifetime) {
+        activeUsers--
+        lifetime.notifyAll()
+    }
+
     // A lease spans the whole operation, including suspension and fragment file reads.
     private inline fun <T> withOpen(block: () -> T): T {
-        synchronized(lifetime) {
-            check(!retired) { "EPUB backend has been retired" }
-            activeUsers++
-        }
-        try {
-            return block()
-        } finally {
-            synchronized(lifetime) {
-                activeUsers--
-                lifetime.notifyAll()
-            }
-        }
+        acquireUse()
+        try { return block() } finally { releaseUse() }
     }
 
     override fun close() {
@@ -157,13 +157,13 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
 
     fun fileForOriginalId(id: String): File? = idToFile[id]?.let {File(rootFolder, it) }
 
-    suspend fun styleSheets(key: Key): List<File> {
-        return withOpen {
-            val frag = fragment(key)?: return emptyList()
-            val file = fileForOriginalId(frag.originalId)?: return emptyList()
-            val parentFolder = file.parentFile
-            return dao.styleSheets(frag.originalId).map { File(parentFolder, it.styleSheetFile).canonicalFile }
-        }
+    suspend fun styleSheetContent(key: Key): String = withOpen {
+        val frag = fragment(key) ?: return@withOpen ""
+        val file = fileForOriginalId(frag.originalId) ?: return@withOpen ""
+        dao.styleSheets(frag.originalId)
+            .map { File(file.parentFile, it.styleSheetFile).canonicalFile }
+            .filter { it.exists() }
+            .joinToString("\n") { it.readText() }
     }
 
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
@@ -353,8 +353,28 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
         }
     }
 
-    fun getResource(resourcePath: String) =
-        File(rootFolder, resourcePath)
+    /** The WebView owns the returned stream; retirement waits until it is closed. */
+    fun openResource(resourcePath: String): java.io.InputStream? {
+        try { acquireUse() } catch (_: IllegalStateException) { return null }
+        try {
+            val file = File(rootFolder, resourcePath)
+            if (!file.canRead()) {
+                releaseUse()
+                return null
+            }
+            return object : java.io.FilterInputStream(file.inputStream()) {
+                private val released = java.util.concurrent.atomic.AtomicBoolean()
+                override fun close() {
+                    if (released.compareAndSet(false, true)) {
+                        try { super.close() } finally { releaseUse() }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            releaseUse()
+            throw e
+        }
+    }
 
     override fun getBookMetaData(): SwordBookMetaData {
         return _metadata?: synchronized(this) {

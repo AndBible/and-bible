@@ -27,8 +27,10 @@ import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
-import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
-import net.bible.service.sword.epub.deleteEpubModule
+import net.bible.service.sword.epub.addOwnedEpubBook
+import net.bible.service.sword.epub.deleteOwnedEpubModule
+import net.bible.service.sword.epub.epubInitials
+import net.bible.service.sword.epub.installEpubModule
 import net.bible.service.sword.esword.addESwordBook
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addMySwordBook
@@ -96,12 +98,19 @@ class DefaultInstallCommitter(
 
     override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean): Boolean {
         val dir = File(File(SharedConstants.modulesDir, "epub"), displayName)
-        if (deleteExisting) {
-            deleteEpubModule(dir)
+        return installEpubModule(dir) {
+            if (deleteExisting) deleteOwnedEpubModule(dir)
+            dir.mkdirs()
+            try {
+                unzipInputStream(localFile.inputStream(), dir)
+                addOwnedEpubBook(dir, strings, environment)
+                org.crosswire.jsword.book.Books.installed().getBook(epubInitials(dir.name)) != null
+            } catch (e: Exception) {
+                deleteOwnedEpubModule(dir)
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                false
+            }
         }
-        dir.mkdirs()
-        unzipInputStream(localFile.inputStream(), dir)
-        return addManuallyInstalledEpubBooks(strings, environment)
     }
 
     override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) {
