@@ -20,7 +20,7 @@ package net.bible.service.sword.epub
 import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteException
 import net.bible.service.db.exec
-import net.bible.service.db.insertOr
+import net.bible.service.db.queryLong
 import net.bible.service.db.openSqlite
 import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
@@ -38,6 +38,8 @@ class EpubSearch(val file: File) {
         Log.e("EpubSearch", "Could not open database ${file.path}")
         null
     }
+    fun close() = db?.let { c -> synchronized(c) { c.close() } }
+
     val isIndexed: Boolean get() = db?.let { c ->
         synchronized(c) {
             c.queryFirst("SELECT name FROM sqlite_master WHERE type='table' AND name=?", "SearchIndex") { true } ?: false
@@ -48,7 +50,7 @@ class EpubSearch(val file: File) {
         synchronized(c) { c.exec("""DROP TABLE IF EXISTS SearchIndex""") }
     }
 
-    fun createTable() = db?.let { c ->
+    fun createTable() = checkNotNull(db) { "EPUB search database is unavailable" }.let { c ->
         synchronized(c) {
             c.exec("""
                 CREATE VIRTUAL TABLE SearchIndex USING FTS5(contentText, frag_id UNINDEXED, ordinal UNINDEXED);
@@ -56,9 +58,11 @@ class EpubSearch(val file: File) {
         }
     }
 
-    fun addContent(content: String, fragId:Long, ordinal: Int) = db?.let { c ->
+    fun addContent(content: String, fragId:Long, ordinal: Int) = checkNotNull(db) { "EPUB search database is unavailable" }.let { c ->
         synchronized(c) {
-            c.insertOr("IGNORE", "SearchIndex", "contentText" to content, "frag_id" to fragId, "ordinal" to ordinal)
+            // Unlike the legacy insertOr helper, an index mutation must propagate SQLite failures.
+            c.exec("INSERT INTO SearchIndex (contentText, frag_id, ordinal) VALUES (?, ?, ?)", content, fragId, ordinal)
+            c.queryLong("SELECT last_insert_rowid()")!!
         }
     }
 

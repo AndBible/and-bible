@@ -138,6 +138,11 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
  * fragment files the fresh optimization never wrote (which then crash the reader).
  */
 fun deleteEpubModule(epubDir: File) {
+    val oldBook = Books.installed().getBook(epubInitials(epubDir.name))
+    oldBook?.epubBackend?.state?.let { state ->
+        Books.installed().removeBook(oldBook)
+        state.close()
+    }
     epubDir.deleteRecursively()
     val appDbFilename = "epub-${epubInitials(epubDir.name)}.sqlite3"
     deleteAppDatabase(appDbFilename)
@@ -154,9 +159,9 @@ fun addEpubBook(epubDir: File, strings: CoreStrings, environment: AppEnvironment
         return
     }
 
+    if (Books.installed().getBook(epubInitials(epubDir.name)) != null) return
     val state = EpubBackendState(epubDir, strings, environment)
     val metadata = state.getBookMetaData()
-    if(Books.installed().getBook(metadata.initials) != null) return
     val backend = EpubBackend(state, metadata)
     val book = SwordGenBook(metadata, backend)
 
