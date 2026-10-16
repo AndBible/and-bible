@@ -20,9 +20,12 @@ package net.bible.service.sword.mybible
 import androidx.sqlite.SQLiteException
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.db.ReadOnlyWalFixture
+import net.bible.service.db.WAL_ONLY_VERSE
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -213,5 +216,27 @@ class MyBibleBookReaderTest {
             state.sqlDb.exec("INSERT INTO verses VALUES (1, 1, 3, 'x')")
         }
         assertEquals(2, b.getCardinality())
+    }
+
+    @Test
+    fun readOnlyWalModuleIsRegisteredWithMetadataAndText() {
+        val moduleDir = File(dir, "ro-wal").also { it.mkdirs() }
+        val file = File(moduleDir, "e5walmod.SQLite3")
+        ReadOnlyWalFixture.walWithoutShm(file, dir)
+        try {
+            org.junit.Assume.assumeTrue("directory stays writable for this user (root?)", ReadOnlyWalFixture.lockDown(moduleDir))
+            addMyBibleBook(file)
+            val book = Books.installed().getBook("MyBible-e5walmod")
+            org.junit.Assert.assertNotNull("book must be registered", book)
+            book!!
+            try {
+                val text = book.getRawText(verse(BibleBook.GEN, 1, 2))
+                org.junit.Assert.assertTrue(text, text.contains(WAL_ONLY_VERSE))
+            } finally {
+                Books.installed().removeBook(book)
+            }
+        } finally {
+            ReadOnlyWalFixture.unlock(moduleDir)
+        }
     }
 }

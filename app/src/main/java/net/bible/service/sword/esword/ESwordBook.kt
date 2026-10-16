@@ -22,7 +22,8 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
 import net.bible.android.SharedConstants
-import net.bible.service.db.openSqlite
+import net.bible.service.db.openReadOnlyModuleDb
+import net.bible.android.BibleApplication
 import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
@@ -94,7 +95,7 @@ class SqliteVerseBackendState(private val sqliteFile: File) : OpenFileState {
         get() = synchronized(this) {
             _sqlDb ?: run {
                 Log.i(TAG, "initDatabase ${sqliteFile.name}")
-                val db = openSqlite(sqliteFile.path, readOnly = true)
+                val db = openReadOnlyModuleDb(sqliteFile, File(BibleApplication.application.cacheDir, "readonly-wal"))
                 _sqlDb = db
                 db
             }
