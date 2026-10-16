@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
@@ -72,6 +73,7 @@ class SpeakTransportServiceImpl(
     override val state: StateFlow<SpeakTransportStateVd> = _state.asStateFlow()
 
     init {
+        instance = this
         refreshBookmarkVisibility()
         // Process lifetime (Koin single): never cancelled.
         SpeakChanges.changes.subscribeOnMain { refresh() }
@@ -95,7 +97,7 @@ class SpeakTransportServiceImpl(
     /** Rebuilds the cached state (status text is locale-dependent) after an in-app language change. */
     fun refreshForLocale() { refresh() }
 
-    private fun refresh() { _state.value = build(visible = _state.value.visible) }
+    private fun refresh() { _state.update { build(visible = it.visible) } }
 
     private fun build(visible: Boolean) = SpeakTransportStateVd(
         visible = visible,
@@ -151,5 +153,10 @@ class SpeakTransportServiceImpl(
         if (advancedSpeakSettings.synchronize) {
             platform.bringReadingToFront()
         }
+    }
+
+    companion object {
+        /** The live process-wide service, set on construction (never instantiated from outside Koin); null before first use. */
+        @Volatile var instance: SpeakTransportServiceImpl? = null
     }
 }

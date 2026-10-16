@@ -327,8 +327,8 @@ open class BibleApplication : Application() {
             // re-draw what is showing.
             SpeakWidgetManager.instance?.refreshTexts()
             TextToSpeechNotificationManager.refreshInstanceForLocale()
-            // The in-app transport bar caches its (localized) status text; rebuild it. Koin may not be started yet.
-            runCatching { GlobalContext.getOrNull()?.getOrNull<SpeakTransportServiceImpl>() }.getOrNull()?.refreshForLocale()
+            // The in-app transport bar caches its (localized) status text; rebuild it.
+            SpeakTransportServiceImpl.instance?.refreshForLocale()
         }
     }
 

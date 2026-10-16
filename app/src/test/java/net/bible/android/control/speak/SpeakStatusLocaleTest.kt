@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.speak
 
+import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
@@ -35,26 +36,44 @@ import java.util.Locale
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SpeakStatusLocaleTest {
     private val app get() = ApplicationProvider.getApplicationContext<BibleApplication>()
+
+    /**
+     * The Application the process-wide Koin graph was started with. The :app suite runs in one JVM and Koin
+     * outlives the per-test Application, so the service's strings resolve against this one, not [app].
+     */
+    private val koinApp get() = GlobalContext.get().get<Context>() as BibleApplication
     private val defaultLocale = Locale.getDefault()
 
     @After
     fun tearDown() {
-        app.applyUiLocale("", refresh = false)
-        Locale.setDefault(defaultLocale)
-        DatabaseResetter.resetDatabase()
+        try {
+            app.applyUiLocale("", refresh = false)
+            koinApp.applyUiLocale("", refresh = false)
+            Locale.setDefault(defaultLocale)
+        } finally {
+            SpeakTransportServiceImpl.instance = null
+            DatabaseResetter.resetDatabase()
+        }
     }
 
     @Test
     fun transportStatusTextFollowsTheInAppLanguageWithoutASpeakEvent() {
-        app.applyUiLocale("en")
         val service = GlobalContext.get().get<SpeakTransportServiceImpl>()
-        service.refreshForLocale()
+        // The Koin single may predate this test (init ran earlier), so register it as the live instance explicitly.
+        SpeakTransportServiceImpl.instance = service
+        koinApp.applyUiLocale("en")
         assertEquals("- stopped -", service.state.value.statusText)
 
-        app.applyUiLocale("fi")
+        koinApp.applyUiLocale("fi")
         assertEquals("- pysäytetty -", service.state.value.statusText)
 
-        app.applyUiLocale("en")
+        koinApp.applyUiLocale("en")
         assertEquals("- stopped -", service.state.value.statusText)
+    }
+
+    @Test
+    fun languageChangeWithoutATransportServiceInstanceDoesNotThrow() {
+        SpeakTransportServiceImpl.instance = null
+        koinApp.applyUiLocale("fi")
     }
 }
