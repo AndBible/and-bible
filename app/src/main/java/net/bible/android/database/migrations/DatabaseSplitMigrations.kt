@@ -17,7 +17,6 @@
 
 package net.bible.android.database.migrations
 
-import android.app.Application
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import kotlinx.serialization.Serializable
@@ -44,7 +43,7 @@ const val GENERATE_UUID4_SQL = "randomblob(16)"
  * [oldDb] must be a connection opened outside Room (`openSqlite`), with no transaction open: it ATTACHes
  * each new file in turn.
  */
-class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, val app: Application) {
+class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, private val dbPath: (String) -> String) {
 
     private fun setPragmas(db: SQLiteConnection) = db.execSQL("PRAGMA user_version = 1")
 
@@ -64,7 +63,7 @@ class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, val app: Appl
     }
 
     private fun bookmarkDb() {
-        val dbFileName = app.getDatabasePath(BookmarkDatabase.dbFileName).absolutePath
+        val dbFileName = dbPath(BookmarkDatabase.dbFileName)
         openSqlite(dbFileName).use { _db ->
             _db.execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` BLOB NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `startOffset` INTEGER, `endOffset` INTEGER, `primaryLabelId` BLOB DEFAULT NULL, `notes` TEXT DEFAULT NULL, `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0, `wholeVerse` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`primaryLabelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `Bookmark` (`kjvOrdinalStart`)");
@@ -150,7 +149,7 @@ class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, val app: Appl
     }
 
     private fun readingPlanDb() {
-        val dbFileName = app.getDatabasePath(ReadingPlanDatabase.dbFileName).absolutePath
+        val dbFileName = dbPath(ReadingPlanDatabase.dbFileName)
         openSqlite(dbFileName).use { _db ->
             _db.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPlan` (`planCode` TEXT NOT NULL, `planStartDate` INTEGER NOT NULL, `planCurrentDay` INTEGER NOT NULL DEFAULT 1, `id` BLOB NOT NULL, PRIMARY KEY(`id`))");
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlan_planCode` ON `ReadingPlan` (`planCode`)");
@@ -207,7 +206,7 @@ class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, val app: Appl
     }
 
     private fun workspaceDb() {
-        val dbFileName = app.getDatabasePath(WorkspaceDatabase.dbFileName).absolutePath
+        val dbFileName = dbPath(WorkspaceDatabase.dbFileName)
         openSqlite(dbFileName).use { _db ->
             _db.execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` BLOB NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `unPinnedWeight` REAL DEFAULT NULL, `maximizedWindowId` BLOB, `primaryTargetLinksWindowId` BLOB DEFAULT NULL, `text_display_settings_strongsMode` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_expandXrefs` INTEGER DEFAULT NULL, `text_display_settings_showXrefs` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `workspace_settings_enableTiltToScroll` INTEGER DEFAULT 0, `workspace_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `workspace_settings_autoPin` INTEGER DEFAULT 1, `workspace_settings_speakSettings` TEXT DEFAULT NULL, `workspace_settings_recentLabels` TEXT DEFAULT NULL, `workspace_settings_favouriteLabels` TEXT DEFAULT NULL, `workspace_settings_autoAssignLabels` TEXT DEFAULT NULL, `workspace_settings_autoAssignPrimaryLabel` BLOB DEFAULT NULL, `workspace_settings_hideCompareDocuments` TEXT DEFAULT NULL, `workspace_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0, `workspace_settings_workspaceColor` INTEGER DEFAULT NULL, PRIMARY KEY(`id`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `Window` (`workspaceId` BLOB NOT NULL, `isSynchronized` INTEGER NOT NULL, `isPinMode` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` BLOB NOT NULL, `orderNumber` INTEGER NOT NULL, `targetLinksWindowId` BLOB DEFAULT NULL, `syncGroup` INTEGER NOT NULL DEFAULT 0, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
@@ -368,7 +367,7 @@ class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, val app: Appl
     }
 
     private fun repoDb() {
-        val dbFileName = app.getDatabasePath(RepoDatabase.dbFileName).absolutePath
+        val dbFileName = dbPath(RepoDatabase.dbFileName)
         openSqlite(dbFileName).use { db -> db.run {
             execSQL("CREATE TABLE IF NOT EXISTS `CustomRepository` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `type` TEXT NOT NULL, `host` TEXT NOT NULL, `catalogDirectory` TEXT NOT NULL, `packageDirectory` TEXT NOT NULL, `manifestUrl` TEXT)");
             execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_CustomRepository_name` ON `CustomRepository` (`name`)");
@@ -394,7 +393,7 @@ class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, val app: Appl
     }
 
     private fun settingsDb() {
-        val dbFileName = app.getDatabasePath(SettingsDatabase.dbFileName).absolutePath
+        val dbFileName = dbPath(SettingsDatabase.dbFileName)
         openSqlite(dbFileName).use { db ->
             db.run {
                 execSQL("CREATE TABLE IF NOT EXISTS `BooleanSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))");
