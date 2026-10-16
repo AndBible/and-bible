@@ -12,6 +12,8 @@ plugins {
 val generateSchemaFixtures by tasks.registering {
     val schemasDir = layout.projectDirectory.dir("schemas")
     val outDir = layout.buildDirectory.dir("generated/schemaFixtures/commonTest/kotlin")
+    // KSP writes new schema exports into schemas/ (after a version bump); read them in the same build.
+    mustRunAfter(tasks.matching { it.name.startsWith("ksp") && !it.name.contains("Test", ignoreCase = true) })
     inputs.dir(schemasDir)
     outputs.dir(outDir)
     doLast {

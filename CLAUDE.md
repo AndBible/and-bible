@@ -316,6 +316,10 @@ All entities use `IdType` (UUID-based) for primary keys.
    forgetting it leaves the new version's schema unfrozen, and any test that reads a schema export by
    path (the migration-test pattern below) or a future migration test spanning this version will not
    find it.
+   Then run `./gradlew :sharedData:jvmTest` (`MigrationChainCommonTest` opens every exported version of
+   every current database through its migrations). A **new database** also needs `@ConstructedBy`, an
+   `expect object <Db>Constructor` in `:sharedData`, and an entry in `CURRENT_DB_SPECS`
+   (`sharedData/src/commonTest/.../fixtures/ExportFixtures.kt`).
 6. Check whether the table you're changing is **pinned somewhere that names its columns
    explicitly**, not just referenced generically:
    - An **older migration with an explicit column list** — e.g. `deduplicateSpecialLabels` in
