@@ -17,7 +17,6 @@
 
 package net.bible.service.llm.agent
 
-import kotlinx.serialization.Serializable
 import net.bible.service.llm.AgentTool
 
 data class AgentPermission(
