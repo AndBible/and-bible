@@ -22,8 +22,8 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 - **Database Architecture**: Multiple Room databases (`WorkspaceDatabase`, `BookmarkDatabase`, etc.) managed by `DatabaseContainer.kt` singleton
 
 ### Android ↔ Vue.js Communication
-- Android → Vue.js: `evaluateJavascriptOnUiThread("bibleView.emit('event', data)")`
-- Vue.js → Android: `window.android.*` methods via `BibleJavascriptInterface.kt`
+- Android → Vue.js: typed `BibleViewEvents` (`:sharedCore`, `net.bible.sharedcore.bibleview`) sent through `BibleView.emit(...)`
+- Vue.js → Android/iOS: `window.android.*`, a Proxy installed by `app/bibleview-js/src/bridge/native-bridge.ts`, routed by the common `BridgeDispatcher` to `BibleBridge` (Android implementation: `BibleJavascriptInterface.kt`). See [docs/bibleview-bridge.md](docs/bibleview-bridge.md).
 - Data serialization: Kotlin `asHashMap` properties → TypeScript interfaces in `documents.ts` and `client-objects.ts`
 
 ## Build System
@@ -256,6 +256,8 @@ import {faEdit} from "@fortawesome/free-solid-svg-icons";
 ```
 
 ### Android ↔ Vue.js Communication
+New bridge method or event: follow [docs/bibleview-bridge.md](docs/bibleview-bridge.md).
+
 ```typescript
 // Vue.js → Android calls
 window.android.scrolledToOrdinal(key, ordinal)

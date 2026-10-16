@@ -7,18 +7,18 @@ import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import androidx.compose.ui.platform.testTag
 import kotlinx.cinterop.ExperimentalForeignApi
+import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.sharedcore.bibleview.BridgeDispatcher
+import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.poc.LocalPocPaneCreated
 import net.bible.sharedui.poc.PocBibleViewController
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSBundle
-import platform.Foundation.NSString
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLComponents
 import platform.Foundation.NSURLQueryItem
-import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.setValue
-import platform.Foundation.stringWithContentsOfFile
 import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationDelegateProtocol
 import platform.WebKit.WKUserScript
@@ -63,39 +63,27 @@ private object IosWebViewHolder {
         entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
     }
 
-    private fun bundleScript(name: String): String =
-        NSBundle.mainBundle.pathForResource(name, "js", BUNDLE_DIR)
-            ?.let { NSString.stringWithContentsOfFile(it, NSUTF8StringEncoding, null) } ?: ""
-
     private fun create(controller: PocBibleViewController): PaneEntry {
         val windowId = controller.windowId
         lateinit var webView: WKWebView
-        val sink = JsSink { js ->
+        val sink: (JsCall) -> Unit = { call ->
             dispatch_async(dispatch_get_main_queue()) {
                 try {
-                    webView.evaluateJavaScript(js, null)
+                    webView.evaluateJavaScript(call.js, null)
                 } catch (t: Throwable) {
                     nsLog("bridge[$windowId]: evaluateJavaScript failure $t")
                 }
             }
         }
-        val handlers = controller.handlers + ("console" to BridgeHandler { args, _ ->
-            nsLog("js[$windowId]: ${args.joinToString(" ")}")
-        })
-        val dispatcher = BridgeDispatcher(sink, { msg -> nsLog("bridge[$windowId]: $msg") }, handlers)
+        val log: (String) -> Unit = { msg -> nsLog("bridge[$windowId]: $msg") }
+        val bridge = controller.bridge(sink, log)
+        val dispatcher = BridgeDispatcher(bridge, { callId -> sink(BibleViewEvents.response(callId, null)) }, log)
         val handler = IosBridgeMessageHandler(dispatcher)
         val navDelegate = IosNavDelegate(windowId)
 
         val config = WKWebViewConfiguration()
         config.preferences.setValue(true, forKey = "allowFileAccessFromFileURLs")
         config.userContentController.apply {
-            addUserScript(
-                WKUserScript(
-                    source = bundleScript("ios-shim"),
-                    injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
-                    forMainFrameOnly = true,
-                ),
-            )
             addUserScript(
                 WKUserScript(
                     source = "window.__activeLanguages__ = '[\"en\"]';",

@@ -2,12 +2,14 @@ package net.bible.sharedui.poc
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
-import net.bible.sharedui.webview.BridgeHandler
-import net.bible.sharedui.webview.emitJs
+import net.bible.sharedcore.bibleview.BibleBridge
+import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.sharedcore.bibleview.JsCall
+import net.bible.sharedcore.bibleview.JsExpr
+import net.bible.sharedcore.bibleview.UnimplementedBibleBridge
 
 /** Ordinal of Ephesians 2:1 in the PoC fixture (app/bibleview-js/ios/poc-document.json). */
 const val POC_FIRST_VERSE_ORDINAL = 36294
@@ -38,16 +40,21 @@ class PocBibleViewController(
         put("initial", true)
     }.toString()
 
-    val handlers: Map<String, BridgeHandler> = mapOf(
-        "setClientReady" to BridgeHandler { _, js ->
-            js.evaluate(emitJs("set_config", configJson()))
-            js.evaluate(emitJs("clear_document"))
-            js.evaluate(emitJs("add_documents", documentJson))
-        },
-        "scrolledToOrdinal" to BridgeHandler { args, _ ->
-            val ordinal = (args.getOrNull(1) as? JsonPrimitive)?.content?.toIntOrNull()
-            if (ordinal != null && ordinal >= POC_FIRST_VERSE_ORDINAL) verse.value = ordinal - POC_FIRST_VERSE_ORDINAL + 1
-        },
-        "console" to BridgeHandler { _, _ -> },
-    )
+    /** This pane's bridge: the PoC answers start-up, scrolling and console; everything else is a logged no-op. */
+    fun bridge(js: (JsCall) -> Unit, log: (String) -> Unit): BibleBridge =
+        object : UnimplementedBibleBridge(log, { callId -> js(BibleViewEvents.response(callId, null)) }) {
+            override fun setClientReady() {
+                js(BibleViewEvents.setConfig(JsExpr(configJson())))
+                js(BibleViewEvents.clearDocument())
+                js(BibleViewEvents.addDocuments(JsExpr(documentJson)))
+            }
+
+            override fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
+                if (ordinal >= POC_FIRST_VERSE_ORDINAL) verse.value = ordinal - POC_FIRST_VERSE_ORDINAL + 1
+            }
+
+            override fun console(loggerName: String, message: String) {
+                log("js[$windowId]: $loggerName $message")
+            }
+        }
 }

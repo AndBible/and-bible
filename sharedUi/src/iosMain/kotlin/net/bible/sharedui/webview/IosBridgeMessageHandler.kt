@@ -2,6 +2,7 @@ package net.bible.sharedui.webview
 
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
+import net.bible.sharedcore.bibleview.BridgeDispatcher
 import net.bible.sharedcore.log.nsLog
 import platform.Foundation.NSJSONSerialization
 import platform.Foundation.NSString

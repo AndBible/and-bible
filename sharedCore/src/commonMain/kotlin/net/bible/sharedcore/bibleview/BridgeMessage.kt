@@ -1,4 +1,4 @@
-package net.bible.sharedui.webview
+package net.bible.sharedcore.bibleview
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
-/** One `window.android.<method>(args…)` call from BibleView, as posted by the iOS shim. */
+/** One `window.android.<method>(args…)` call from BibleView, as posted by the bundled shim. */
 data class BridgeMessage(val method: String, val args: List<JsonElement>)
 
 sealed interface BridgeResult {
