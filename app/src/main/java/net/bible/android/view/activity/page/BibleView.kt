@@ -164,6 +164,9 @@ import java.net.URLConnection
 import java.util.*
 import kotlin.math.abs
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
+import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.sharedcore.bibleview.JsExpr
+import net.bible.sharedcore.bibleview.SetupContent
 import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.bibleview.JsHost
 import org.koin.core.component.KoinComponent
@@ -554,8 +557,8 @@ class BibleView(
 
             bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
             if(initialLabels.isEmpty() || openNotes) {
-                executeJavascriptOnUiThread(
-                    "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
+                emit(
+                    BibleViewEvents.bookmarkClicked(bookmark.id.toString(), openNotes)
                 )
             }
         }
@@ -587,8 +590,8 @@ class BibleView(
 
             bookmarkControl.addOrUpdateGenericBookmark(bookmark, initialLabels)
             if (initialLabels.isEmpty()) {
-                executeJavascriptOnUiThread(
-                    "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true});"
+                emit(
+                    BibleViewEvents.bookmarkClicked(bookmark.id.toString(), null)
                 )
             }
         }
@@ -865,13 +868,13 @@ class BibleView(
         currentSelectionText = null
         currentSelectionRef = null
         menuPrepared = false
-        if(removeRanges) executeJavascriptOnUiThread("bibleView.emit('remove_ranges')")
+        if(removeRanges) emit(BibleViewEvents.removeRanges())
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private inner class ActionModeCallback2(val callback: ActionMode.Callback): ActionMode.Callback2() {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            executeJavascriptOnUiThread("bibleView.emit('set_action_mode', true);")
+            emit(BibleViewEvents.setActionMode(true))
             val wasUpdated2 = callback.onCreateActionMode(mode, menu)
             val wasUpdated1 = false
             return wasUpdated1 || wasUpdated2
@@ -895,7 +898,7 @@ class BibleView(
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
-            executeJavascriptOnUiThread("bibleView.emit('set_action_mode', false);")
+            emit(BibleViewEvents.setActionMode(false))
             return callback.onDestroyActionMode(mode)
         }
 
@@ -923,7 +926,7 @@ class BibleView(
     // This can be removed after Lollipop support is dropped.
     private inner class ActionModeCallback(val callback: ActionMode.Callback): ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            executeJavascriptOnUiThread("bibleView.emit('set_action_mode', true);")
+            emit(BibleViewEvents.setActionMode(true))
             callback.onCreateActionMode(mode, menu)
             return true
         }
@@ -939,7 +942,7 @@ class BibleView(
         }
 
         override fun onDestroyActionMode(mode: ActionMode?) {
-            executeJavascriptOnUiThread("bibleView.emit('set_action_mode', false);")
+            emit(BibleViewEvents.setActionMode(false))
             return callback.onDestroyActionMode(mode)
         }
     }
@@ -948,7 +951,7 @@ class BibleView(
         this.bibleJavascriptInterface = bibleJavascriptInterface
         val dispatcher = net.bible.sharedcore.bibleview.BridgeDispatcher(
             bridge = bibleJavascriptInterface,
-            respondNull = { callId -> executeJavascriptOnUiThread("bibleView.response($callId, null);") },
+            respondNull = { callId -> emit(BibleViewEvents.response(callId, null)) },
             log = { Log.e(TAG, it) },
         )
         addJavascriptInterface(AndroidBridgeEndpoint(dispatcher, bibleJavascriptInterface::getActiveLanguages), "androidBridge")
@@ -1031,10 +1034,7 @@ class BibleView(
             if(value == field) return
             if(value) {
                 subscriptions.add(AndBibleAddons.reloaded.subscribe {
-                    val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
-                    val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
-                    val styleModuleNames = json.encodeToString(serializer(), AndBibleAddons.styleModuleNames)
-                    executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames, styleModuleNames: $styleModuleNames});")
+                    emit(BibleViewEvents.reloadAddons(AndBibleAddons.fontModuleNames, AndBibleAddons.featureModuleNames, AndBibleAddons.styleModuleNames))
                 })
                 subscriptions.add(WorkspaceChanges.changes.subscribe { if (it == WorkspaceChange.SettingsEdited) updateConfig() })
                 // updateConfig carries llmConfigured: follow the value itself (aiSettings.configChanged fires before it is refreshed).
@@ -1082,11 +1082,10 @@ class BibleView(
 
         if (change.markers.isNotEmpty()) {
             val markerStr = change.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")
-            executeJavascriptOnUiThread("""bibleView.emit("add_or_update_ai_doc_markers", $markerStr);""")
+            emit(BibleViewEvents.addOrUpdateAiDocMarkers(JsExpr(markerStr)))
         }
         if (change.deletedPageIds.isNotEmpty()) {
-            val idsStr = json.encodeToString(serializer(), change.deletedPageIds.map { it.toString() })
-            executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
+            emit(BibleViewEvents.deleteAiDocMarkers(change.deletedPageIds.map { it.toString() }))
         }
     }
 
@@ -1114,12 +1113,10 @@ class BibleView(
                 }.map { it.asJson }
 
                 val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
-                executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
+                emit(BibleViewEvents.addOrUpdateBookmarks(JsExpr(bookmarkStr)))
             }
             is BookmarkChange.NoteModified -> {
-                executeJavascriptOnUiThread("""
-                    bibleView.emit("bookmark_note_modified", {id: "${change.bookmarkId}", lastUpdatedOn: ${change.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), change.notes)}});
-                """)
+                emit(BibleViewEvents.bookmarkNoteModified(change.bookmarkId.toString(), change.lastUpdatedOn, change.notes))
             }
             is BookmarkChange.StudyPadOrder -> {
                 val doc = firstDocument
@@ -1128,14 +1125,7 @@ class BibleView(
                 val bookmarkToLabels = json.encodeToString(serializer(), change.bookmarkToLabelsOrderChanged)
                 val genericBookmarkToLabels = json.encodeToString(serializer(), change.genericBookmarkToLabelsOrderChanged)
                 val studyPadItems = json.encodeToString(serializer(), change.studyPadOrderChanged)
-                executeJavascriptOnUiThread("""
-                    bibleView.emit("add_or_update_study_pad",  {
-                        studyPadTextEntry: $studyPadTextEntryJson,
-                        bookmarkToLabelsOrdered: $bookmarkToLabels,
-                        genericBookmarkToLabelsOrdered: $genericBookmarkToLabels,
-                        studyPadItemsOrdered: $studyPadItems
-                        });
-                """)
+                emit(BibleViewEvents.addOrUpdateStudyPad(JsExpr(studyPadTextEntryJson), JsExpr(bookmarkToLabels), JsExpr(genericBookmarkToLabels), JsExpr(studyPadItems)))
             }
             is BookmarkChange.BookmarkToLabelUpserted -> {
                 val doc = firstDocument
@@ -1145,15 +1135,11 @@ class BibleView(
                     is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), change.bookmarkToLabel)
                     else -> throw RuntimeException("Illegal type")
                 }
-                executeJavascriptOnUiThread("""
-                    bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
-                """)
+                emit(BibleViewEvents.addOrUpdateBookmarkToLabel(JsExpr(bookmarkToLabelStr)))
             }
             is BookmarkChange.StudyPadTextEntryDeleted -> {
                 if(firstDocument !is StudyPadDocument) return
-                executeJavascriptOnUiThread("""
-                    bibleView.emit("delete_study_pad_text_entry", "${change.studyPadTextEntryId}");
-                """)
+                emit(BibleViewEvents.deleteStudyPadTextEntry(change.studyPadTextEntryId.toString()))
             }
             is BookmarkChange.LabelUpserted -> {
                 val workspaceId = windowControl.windowRepository.id
@@ -1161,22 +1147,22 @@ class BibleView(
                 labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
                 val overriddenLabel = change.label.withStyleOverrides(labelOverridesMap[change.label.id])
                 val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
-                executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
+                emit(BibleViewEvents.updateLabels(JsExpr("[$labelStr]")))
             }
             is BookmarkChange.BookmarksDeleted -> {
                 val bookmarkIds = json.encodeToString(serializer(), change.bookmarkIds)
-                executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
+                emit(BibleViewEvents.deleteBookmarks(JsExpr(bookmarkIds)))
             }
             is BookmarkChange.LabelsDeleted -> {
                 val labelIds = json.encodeToString(serializer(), change.labelIds)
-                executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
+                emit(BibleViewEvents.deleteLabels(JsExpr(labelIds)))
             }
         }
     }
 
     private fun onReadingProgressSettingsChanged() {
         val settingsJson = ReadingProgressSettings.getBundleAsJson()
-        executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
+        emit(BibleViewEvents.updateReadingProgressSettings(JsExpr(settingsJson)))
         updateConfig()
     }
 
@@ -1192,23 +1178,20 @@ class BibleView(
             }
             else -> null
         }
-        fun convertOrdinals(kjvOrdinals: List<Int>): String {
+        fun convertOrdinals(kjvOrdinals: List<Int>): List<Int> {
             val converted = if (v11n != null) {
                 kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
             } else {
                 kjvOrdinals
             }
-            return json.encodeToString(serializer(), converted)
+            return converted
         }
 
         val addedMemorized = convertOrdinals(event.addedMemorized)
         val removedMemorized = convertOrdinals(event.removedMemorized)
         val addedTargets = convertOrdinals(event.addedTargets)
         val removedTargets = convertOrdinals(event.removedTargets)
-        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
-            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
-            addedTargets: $addedTargets, removedTargets: $removedTargets
-        });""")
+        emit(BibleViewEvents.updateMemorizationData(addedMemorized, removedMemorized, addedTargets, removedTargets))
     }
 
     private fun onChapterReadStatusChanged(event: ProgressChange.ChapterReadStatus) {
@@ -1218,9 +1201,7 @@ class BibleView(
         // filter by KJV book ordinal here — the Vue-side tracker only checks chapter number.
         val docKjvBookOrdinal = doc.verseRange.toV11n(KJVA).start.book.ordinal
         if (docKjvBookOrdinal != event.kjvBookOrdinal) return
-        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-            chapter: ${event.chapter}, count: ${event.count}
-        });""")
+        emit(BibleViewEvents.updateChapterReadStatus(event.chapter, event.count))
     }
 
     private fun onActiveCycleChanged() {
@@ -1233,9 +1214,7 @@ class BibleView(
         scope.launch {
             for (chapter in chapters) {
                 val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
-                executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-                    chapter: $chapter, count: $count
-                });""")
+                emit(BibleViewEvents.updateChapterReadStatus(chapter, count))
             }
         }
     }
@@ -1805,7 +1784,7 @@ class BibleView(
     private val isActive get() = windowControl.activeWindow.id == window.id
 
     private fun updateActive() =
-        executeJavascriptOnUiThread("""bibleView.emit('set_active', {isActive: $isActive, hasActiveIndicator: $hasActiveIndicator})""")
+        emit(BibleViewEvents.setActive(isActive, hasActiveIndicator))
 
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
@@ -1817,7 +1796,7 @@ class BibleView(
         favouriteLabels.refresh { bookmarkControl.favouriteLabels().map { it.id } }
     }
 
-    private fun getUpdateConfigCommand(initial: Boolean): String {
+    private fun getUpdateConfigCommand(initial: Boolean): JsCall {
         val favouriteLabels = json.encodeToString(serializer(), favouriteLabels.ids)
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val studyPadCursors = json.encodeToString(serializer(), workspaceSettings.studyPadCursors)
@@ -1843,8 +1822,8 @@ class BibleView(
             colorMode = CommonUtils.settings.displayColorMode,
             style = CommonUtils.settings.themePaletteStyle,
         )
-        return """
-                bibleView.emit('set_config', {
+        return BibleViewEvents.setConfig(JsExpr("""
+                {
                     config: ${displaySettings.toJson()},
                     appSettings: {
                         activeWindow: $isActive,
@@ -1874,15 +1853,15 @@ class BibleView(
                         notesContentType: "${CommonUtils.settings.notesContentType}",
                     },
                     initial: $initial,
-                    });
-                """
+                    }
+                """))
     }
 
     // Synchronous, so set_config keeps its place in the JS task queue relative to what is emitted
     // right after it (an `initial` config must never land after a later one). Favourites come from
     // the [favouriteLabels] cache.
     private fun updateConfig(initial: Boolean = false) {
-        executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
+        emit(getUpdateConfigCommand(initial))
     }
 
     fun updateBackgroundColor() {
@@ -1896,7 +1875,7 @@ class BibleView(
     private var labelsUploaded = false
 
     override fun adjustLoadingCount(adj: Int): Boolean {
-        return executeJavascriptOnUiThread("""bibleView.emit("adjust_loading_count", ${adj})""")
+        return emit(BibleViewEvents.adjustLoadingCount(adj))
     }
 
     private fun replaceDocument() {
@@ -1917,7 +1896,7 @@ class BibleView(
 
         if(!labelsUploaded) {
             val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map { ClientBookmarkLabel(it) })
-            executeJavascriptOnUiThread("""bibleView.emit("update_labels", ${bookmarkLabels})""")
+            emit(BibleViewEvents.updateLabels(JsExpr(bookmarkLabels)))
             labelsUploaded = true
        }
 
@@ -1927,24 +1906,21 @@ class BibleView(
                 "o-${abs(doc.entryId.hashCode())}"
             else initialHtmlId
 
-        executeJavascriptOnUiThread("""
-            bibleView.emit("clear_document");
-            ${getUpdateConfigCommand(true)}
-            bibleView.emit("add_documents", $documentStr);
-            bibleView.emit("setup_content", {
-                jumpToOrdinal: ${verse?.ordinal},
-                jumpToAnchor: ${initialAnchorOrdinal?.start},
-                jumpToId: ${wrapString(jumpToId)},
-                topOffset: $topOffset,
-                bottomOffset: $bottomOffset,
-                ordinalStart: ${initialAnchorOrdinal?.start},
-                ordinalEnd: ${initialAnchorOrdinal?.end},
-                highlight: ${initialAnchorOrdinal?.end != null},
-                bookInitials: ${wrapString(window.pageManager.currentPage.currentDocument?.initials)},
-                osisRef: ${wrapString(window.pageManager.currentPage.key?.getOsisRef())},
-            });            
-            bibleView.emit("set_title", "BibleView-${window.displayId}");
-            """
+        emit(
+            BibleViewEvents.clearDocument() + getUpdateConfigCommand(true) +
+                BibleViewEvents.addDocuments(JsExpr("$documentStr")) +
+                BibleViewEvents.setupContent(SetupContent(
+                    jumpToOrdinal = verse?.ordinal,
+                    jumpToAnchor = initialAnchorOrdinal?.start,
+                    jumpToId = jumpToId,
+                    topOffset = topOffset,
+                    bottomOffset = bottomOffset,
+                    ordinalStart = initialAnchorOrdinal?.start,
+                    ordinalEnd = initialAnchorOrdinal?.end,
+                    highlight = initialAnchorOrdinal?.end != null,
+                    bookInitials = window.pageManager.currentPage.currentDocument?.initials,
+                    osisRef = window.pageManager.currentPage.key?.getOsisRef(),
+                )) + BibleViewEvents.setTitle("BibleView-${window.displayId}")
         )
     }
 
@@ -2091,7 +2067,7 @@ class BibleView(
 
     private fun updateOffsets(immediate: Boolean = false) {
         if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${hostCallbacks.imeHeight() > 0}});")
+            emit(BibleViewEvents.setOffsets(topOffset, bottomOffset, immediate, hostCallbacks.imeHeight() > 0))
     }
 
     /**
@@ -2144,7 +2120,7 @@ class BibleView(
 
     private fun doCheckWindows() {
         if(!jsChannel.loading && checkWindows) {
-            jsChannel.executeNow(JsCall("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});"))
+            jsChannel.executeNow(BibleViewEvents.setOffsetsWithoutScroll(topOffset, bottomOffset))
             if (window.pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
@@ -2202,11 +2178,7 @@ class BibleView(
         val jumpToId = "o-${toVerse.ordinal}"
         val now = !contentVisible || forceNow
         val highlight = !contentVisible || endVerse != null
-        fun boolString(value: Boolean?): String {
-            if(value == null) return "null"
-            return if(value) "true" else "false"
-        }
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
+        emit(BibleViewEvents.scrollToVerse(jumpToId, now, highlight, toVerse.ordinal, endVerse?.ordinal))
         if(isActive) {
             PassageChangeMediator.onCurrentVerseChanged(window)
         }
@@ -2221,28 +2193,24 @@ class BibleView(
         }
         
         val now = !contentVisible || forceNow
-        fun boolString(value: Boolean?): String {
-            if(value == null) return "null"
-            return if(value) "true" else "false"
-        }
 
         val highlight = !contentVisible || ordinal?.end != null
         val jumpToId = if(ordinal != null) "o-${ordinal.start}" else htmlId!!
 
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, bookInitials: '$bookInitials', osisRef: '$osisRef', ordinalStart: ${ordinal?.start}, ordinalEnd: ${ordinal?.end}});")
+        emit(BibleViewEvents.scrollToVerseIn(jumpToId, now, highlight, bookInitials, osisRef, ordinal?.start, ordinal?.end))
         if(isActive) {
             PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
 
     override fun highlightOrdinalRange(bookInitials: String, osisRef: String, range: IntRange) {
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, bookInitials: '$bookInitials', osisRef: '$osisRef', ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
+        emit(BibleViewEvents.scrollToVerseIn(null, false, true, bookInitials, osisRef, range.first, range.last))
     }
 
     override fun highlightBibleOrdinalRange(range: IntRange) {
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
+        emit(BibleViewEvents.scrollToVerse(null, false, true, range.first, range.last))
     }
-    fun executeJavascriptOnUiThread(javascript: String): Boolean = jsChannel.execute(JsCall(javascript))
+    fun emit(call: JsCall): Boolean = jsChannel.execute(call)
 
     private suspend fun evaluateJavascriptAsync(javascript: String): String = jsChannel.evaluate(javascript)
 
@@ -2267,7 +2235,7 @@ class BibleView(
                 chapterLoadJobs.clear()
             }
         }
-        executeJavascriptOnUiThread("bibleView.emit('reset_loading_count')")
+        emit(BibleViewEvents.resetLoadingCount())
     }
 
     fun requestMoreToBeginning(callId: Long) = synchronized(requestMoreLock) {
@@ -2275,7 +2243,7 @@ class BibleView(
         if (isBible) {
             val newChap = minChapter - 1
             if (newChap < 1) {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             addChapter(newChap)
@@ -2283,32 +2251,32 @@ class BibleView(
             val currentPage = window.pageManager.currentBible
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getDocumentForChapter(newChap)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
+                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
             }
         } else if (isCommentary) {
             val currentPage = window.pageManager.currentCommentary
             val first = firstKey as? Verse ?: run {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             val prevStart = currentPage.prevBlockStart(first) ?: run {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             firstKey = prevStart
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(prevStart)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
+                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
             }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
             firstKey ?: run {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             val prevKey = currentPage.getKeyPlus(firstKey, -1)
             if(prevKey == firstKey) {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
 
@@ -2316,7 +2284,7 @@ class BibleView(
 
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(prevKey)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
+                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
             }
         }
     }
@@ -2329,45 +2297,45 @@ class BibleView(
             val verse = currentPage.currentBibleVerse.verse
             val lastChap = verse.versification.getLastChapter(verse.book)
             if (newChap > lastChap) {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             addChapter(newChap)
 
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getDocumentForChapter(newChap)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
+                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
             }
         } else if (isCommentary) {
             val currentPage = window.pageManager.currentCommentary
             val last = lastKey as? Verse ?: run {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             val nextStart = currentPage.nextBlockStart(last) ?: run {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             lastKey = nextStart
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(nextStart)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
+                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
             }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
             lastKey ?: run {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             val nextKey = currentPage.getKeyPlus(lastKey, 1)
             if(nextKey == lastKey) {
-                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                emit(BibleViewEvents.response(callId, null))
                 return@synchronized
             }
             lastKey = nextKey
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(nextKey)
-                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.contentJson()});")
+                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
             }
         }
     }
@@ -2383,7 +2351,7 @@ class BibleView(
     var modalOpen = false
 
     private fun closeModals() {
-        executeJavascriptOnUiThread("bibleView.emit('close_modals')")
+        emit(BibleViewEvents.closeModals())
     }
 
     fun backButtonPressed(): Boolean {
@@ -2395,17 +2363,17 @@ class BibleView(
     }
 
     fun volumeUpPressed(): Boolean {
-        executeJavascriptOnUiThread("bibleView.emit('scroll_up')")
+        emit(BibleViewEvents.scrollUp())
         return true
     }
 
     fun volumeDownPressed(): Boolean {
-        executeJavascriptOnUiThread("bibleView.emit('scroll_down')")
+        emit(BibleViewEvents.scrollDown())
         return true
     }
 
     fun exportHtml() {
-        executeJavascriptOnUiThread("bibleView.emit('export_html')")
+        emit(BibleViewEvents.exportHtml())
     }
 
     override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
@@ -2417,7 +2385,7 @@ class BibleView(
 
     fun parseRef(callId: Long, s: String) {
         val ref = wrapString(linkControl.resolveRef(s, (firstDocument as? BibleDocument)?.swordBook)?.getOsisRef())
-        executeJavascriptOnUiThread("bibleView.response($callId, $ref);")
+        emit(BibleViewEvents.response(callId, JsExpr(ref)))
     }
 
     var onDestroy: (() -> Unit)? = null

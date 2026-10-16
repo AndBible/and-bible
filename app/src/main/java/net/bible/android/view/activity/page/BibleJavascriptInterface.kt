@@ -17,6 +17,8 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.sharedcore.bibleview.JsExpr
 import net.bible.android.view.activity.search.searchIntent
 import net.bible.android.platform.AndroidBackupHost
 
@@ -267,7 +269,7 @@ class BibleJavascriptInterface(
 
             val verseName = refChooserVerseName(verseStr)
 
-            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verseName');")
+            bibleView.emit(BibleViewEvents.responseString(callId, verseName))
         }
     }
 
@@ -960,7 +962,7 @@ class BibleJavascriptInterface(
             } else {
                 "null"
             }
-            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, $jsonResult);")
+            bibleView.emit(BibleViewEvents.response(callId, JsExpr(jsonResult)))
         }
     }
 

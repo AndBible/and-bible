@@ -31,11 +31,28 @@ import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLog
+import android.webkit.WebView
+import android.webkit.ValueCallback
+import org.robolectric.annotation.Implements
+import org.robolectric.annotation.Implementation
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowWebView
 import net.bible.sharedcore.event.EventSource
 
+/** Records emitted scripts after real subscriber and channel processing. */
+@Implements(WebView::class)
+class BookmarkScriptWebView : ShadowWebView() {
+    val scripts = mutableListOf<String>()
+
+    @Implementation
+    override fun evaluateJavascript(script: String, callback: ValueCallback<String>?) {
+        scripts += script
+        super.evaluateJavascript(script, callback)
+    }
+}
+
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [35])
+@Config(application = TestBibleApplication::class, sdk = [35], shadows = [BookmarkScriptWebView::class])
 @OptIn(ExperimentalCoroutinesApi::class)
 class BibleViewBookmarkChangeOrderTest {
     private val bodyJobs = mutableListOf<Job>()
@@ -89,6 +106,7 @@ class BibleViewBookmarkChangeOrderTest {
             view = BibleView(host, callbacks, WeakReference(repo.activeWindow), control,
                 GlobalContext.get().get(), PageTiltScrollControl(), GlobalContext.get().get(),
                 bookmarks, GlobalContext.get().get(), GlobalContext.get().get())
+            val scripts = Shadow.extract<BookmarkScriptWebView>(view).scripts
             fixtureJobs += checkNotNull(view.scope.coroutineContext[Job])
             val ownedView = view
             net.bible.test.ReadingFixtureOwners.retain(listOf(ownedView.scope)) {
@@ -101,9 +119,7 @@ class BibleViewBookmarkChangeOrderTest {
                 isAccessible = true
                 set(view, PageTiltScroller(view, PageTiltScrollControl()))
             }
-            BibleView::class.java.getDeclaredField("htmlLoadingOngoing").apply {
-                isAccessible = true; set(view, false)
-            }
+            view.jsChannel.markClientReady()
             // Hold the real subscriber's DAO read, not an imitation of the event handler.
             val entered = CompletableDeferred<Unit>()
             val realDao = originalDb.workspaceDao()
@@ -137,9 +153,7 @@ class BibleViewBookmarkChangeOrderTest {
             runCurrent()
             gate.complete(Unit)
             runCurrent()
-            ShadowLog.clear()
-            BibleView::class.java.getDeclaredMethod("flushTasks").apply { isAccessible = true; invoke(view) }
-            val scripts = ShadowLog.getLogs().map { it.msg }.filter { it.startsWith("Executing JS:") }
+            view.jsChannel.flush()
             val labelIndex = scripts.indexOfFirst { it.contains("update_labels") }
             val bookmarkIndex = scripts.indexOfFirst { it.contains("add_or_update_bookmarks") }
             assertTrue("Both actual WebView commands must execute: $scripts", labelIndex >= 0 && bookmarkIndex >= 0)

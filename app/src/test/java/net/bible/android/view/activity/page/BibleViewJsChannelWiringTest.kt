@@ -5,6 +5,7 @@ import android.os.Looper
 import android.view.ViewGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.PageTiltScrollControl
@@ -84,16 +85,26 @@ class BibleViewJsChannelWiringTest {
         }
     }
 
+    // A quoted document id must remain one JS string; interpolation used to produce invalid JS.
+    @Test fun highlightEscapesDocumentIdentity() = withView { view, _ ->
+        view.setClientReady()
+        view.highlightOrdinalRange("Book'\"\\", "Gen.1.1", 7..9)
+        assertEquals(
+            "bibleView.emit(\"scroll_to_verse\", null, {\"now\": false, \"highlight\": true, \"bookInitials\": \"Book'\\\"\\\\\", \"osisRef\": \"Gen.1.1\", \"ordinalStart\": 7, \"ordinalEnd\": 9});",
+            shadowOf(view).lastEvaluatedJavascript,
+        )
+    }
+
     @Test fun loadingGateFollowsSetClientReady() = withView { view, _ ->
         assertTrue(view.isAttachedToWindow)
         assertTrue(view.jsChannel.loading)
-        assertFalse(view.executeJavascriptOnUiThread("1"))
+        assertFalse(view.emit(BibleViewEvents.scrollUp()))
         assertNull(shadowOf(view).lastEvaluatedJavascript)
         view.setClientReady()
         shadowOf(Looper.getMainLooper()).idle()
         assertFalse(view.jsChannel.loading)
-        assertTrue(view.executeJavascriptOnUiThread("1"))
-        assertEquals("1;", shadowOf(view).lastEvaluatedJavascript)
+        assertTrue(view.emit(BibleViewEvents.scrollUp()))
+        assertEquals("bibleView.emit(\"scroll_up\");", shadowOf(view).lastEvaluatedJavascript)
     }
 
     @Test fun detachedReadinessFlushesWhenReattached() = withView { view, activity ->
@@ -101,21 +112,21 @@ class BibleViewJsChannelWiringTest {
         view.setClientReady()
         shadowOf(Looper.getMainLooper()).idle()
         assertTrue(view.jsChannel.loading)
-        assertFalse(view.executeJavascriptOnUiThread("dropped"))
+        assertFalse(view.emit(BibleViewEvents.scrollUp()))
         activity.setContentView(view)
         assertFalse(view.jsChannel.loading)
-        assertTrue(view.executeJavascriptOnUiThread("reattached"))
-        assertEquals("reattached;", shadowOf(view).lastEvaluatedJavascript)
+        assertTrue(view.emit(BibleViewEvents.scrollUp()))
+        assertEquals("bibleView.emit(\"scroll_up\");", shadowOf(view).lastEvaluatedJavascript)
     }
 
     @Test fun backgroundCallPostsToTheAttachedWebView() = withView { view, _ ->
         view.setClientReady()
         val before = shadowOf(view).lastEvaluatedJavascript
         var accepted = false
-        Thread { accepted = view.executeJavascriptOnUiThread("background") }.apply { start(); join() }
+        Thread { accepted = view.emit(BibleViewEvents.scrollUp()) }.apply { start(); join() }
         assertTrue(accepted)
         assertEquals(before, shadowOf(view).lastEvaluatedJavascript)
         shadowOf(Looper.getMainLooper()).idle()
-        assertEquals("background;", shadowOf(view).lastEvaluatedJavascript)
+        assertEquals("bibleView.emit(\"scroll_up\");", shadowOf(view).lastEvaluatedJavascript)
     }
 }
