@@ -78,9 +78,12 @@ the move-readiness KMP allowlist, `KMPALLOW` in `scripts/l1-move-readiness.sh`).
 - Apply it in phase 1 in place, so phase 2 is renames only. `:app` already uses the annotation in
   `grep -rl "import androidx.annotation.VisibleForTesting" app/src/main | wc -l` = 26 files.
 - Do not widen an `internal` member that no `:app` test touches; it stays `internal`.
-- D2 adds the `androidx.annotation` dependency to `:sharedLogic` `commonMain` when it first needs it
-  (not yet declared in any `build.gradle.kts`: `grep -rn "androidx.annotation" --include=*.kts --include=*.toml .`
-  finds nothing; verify the KMP artifact version then).
+- `androidx.annotation` is not declared in any `build.gradle.kts` (`grep -rn "androidx.annotation"
+  --include=*.kts --include=*.toml .` finds nothing) but is expected to reach `:sharedLogic` transitively:
+  `:sharedData` exposes `api(libs.androidx.room3.runtime)`, and room3-runtime lists
+  `androidx.annotation:annotation`; the KMP variant `annotation-iosarm64` 1.9.1 is in the Gradle cache. D2
+  declares the dependency explicitly only if wanted, and must verify the `:sharedLogic` compile (all
+  targets) with `@VisibleForTesting` in use.
 - `:app` keeps its Robolectric tests; tests are not moved.
 
 Census (command: `scripts/l1-lib.sh` `files_of` per domain, then
@@ -102,6 +105,14 @@ names a test really uses.
 - cleans the moved helper for common code and adds the new file to `scripts/l1-move-allow.txt` (so the
   move-readiness `app` column stops counting imports of it; it moves with the domains in phase 2).
   This allow-list step is a decision made here; the spec says only that the allow-list holds what D2 moves.
+
+Merge order for `CommonUtils.kt` (decision made here): the extraction hunks of G1, G2 and G3 sit a few lines
+apart (declaration lines 1853, 1868, 1870, 1874, 1879, 1881, 1888, 1893, 1923 at HEAD, from
+`grep -nE '^(const val CALC|val firstBibleDoc|suspend fun <T, V> Collection|private val builders|fun <R> useKdomBuilder|suspend fun Book.getBookAndKey|suspend fun BookAndKey)' service/common/CommonUtils.kt`)
+and will conflict textually if merged independently. So the controller merges the `CommonUtils.kt` edits one
+group at a time in the order D2, G1, G2, G3. Each group, after the previous group's merge, rebases and
+re-checks its line anchors at the new HEAD before its own merge. The new helper files themselves never
+conflict; only the deletions from `CommonUtils.kt` do.
 
 Helper families per group, checked against `CommonUtils.kt` at HEAD
 (`grep -n '^fun \|^val \|^suspend fun \|^const val \|^enum \|^data class' service/common/CommonUtils.kt`,
@@ -147,8 +158,7 @@ D2-moved paths, so those never count in the `app` column.
 | `service/device/ProgressNotificationManager.kt` | sword 1 | G1 | judgment: sword-only |
 | `service/sword/SwordEnvironmentInitialisation.kt` | document 1 | G1 | judgment: document is G1 |
 | `service/common/Logger.kt` | navigation 1 | G1 | judgment: G1 swaps the call for `net.bible.sharedcore.log.Log`, `Logger.kt` untouched |
-| `android/control/report/ErrorReportControl.kt` | link 1 | G1 | judgment: link is G1 (needs a port) |
-| `android/control/report/ErrorReportControl.kt`: `LAST_CRASH_STACKTRACE_FILE` | backup 1 | G2 | the constant moves to a new file in the package (family rule) |
+| `android/control/report/ErrorReportControl.kt` (`ErrorReportControl`; `LAST_CRASH_STACKTRACE_FILE` at line ~69) | link 1; backup 1 (the constant) | G2 | judgment: single owner because G2 must move the constant out of the file; G1 (link) only imports `ErrorReportControl` unchanged, or puts a port in front of its own call site |
 | `android/control/report/AiBugReport.kt` | llm 1 | G3 | judgment: llm is G3 |
 | `android/control/PassageChangeMediator.kt` | page 5, window 2 (7) | G3 | spec |
 | `android/control/PageChange.kt` | page 1, window 1 | G3 | spec |
@@ -215,9 +225,8 @@ core	16	16	2	0	3
   `yes` stays a string (YAML 1.2), and quoted `"123"` / `"true"` become a number / boolean in the JSON
   output.
 - **Markdown**: decided as a **port**. `MarkdownRenderer` is an interface in `:sharedCore` `platform`;
-  `MarkdownToXhtml` is its Android implementation, bound in `CoreModule`. commonmark stays in `:app`
-  (the iOS side supplies its
-  own implementation of the port). JetBrains `markdown` 0.7.18 was tried and differed from the commonmark oracle on all 12
+  `MarkdownToXhtml` is its Android implementation, bound in `CoreModule`. commonmark stays in `:app`;
+  the iOS side supplies its own implementation of the port. JetBrains `markdown` 0.7.18 was tried and differed from the commonmark oracle on all 12
   parity fixtures.
 - **App directories**: `AppDirectories` port in `:sharedCore`; `AndroidAppDirectories` delegates to
   `SharedConstants`.
@@ -226,4 +235,8 @@ core	16	16	2	0	3
 
 - Decisions marked "judgment" in section 6 and the allow-list step in section 5 are this page's calls where
   the spec is silent; the controller may overrule before plans are written.
+- `LAST_CRASH_STACKTRACE_FILE`: G2 extracts it from `ErrorReportControl.kt` into a new file in
+  `net.bible.android.control.report` and is the only plan that edits `ErrorReportControl.kt`; G1 (link) edits
+  only its own call site.
+- `CommonUtils.kt` edits merge one group at a time in the order D2, G1, G2, G3 (section 5).
 - Release timing (S13) is open; the controller checks it with the user before the first phase-1 merge.
