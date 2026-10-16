@@ -125,6 +125,21 @@ vanishes mid-session, `health` shows the exit code; boot it again and redo the c
 re-check pushed files (`push-module` runs `adb shell sync`, but a crash loses unflushed writes).
 Note that `start` force-stops the app, so any in-app position is lost.
 
+**Home-screen widgets: `place-widget`.** `scripts/andbible-emu.sh place-widget <content-desc-regex> [nth]`
+long-presses an empty home-screen spot, opens the launcher's "Widgets" picker, expands the app's
+section (`ANDBIBLE_WIDGET_APP`, default "Bible Study"), drags the `nth` entry whose content-description
+matches to the home screen with `input draganddrop` and confirms a bind dialog. All five AndBible
+entries share one label, so tell them apart by size: `'2 wide by 2 high'` entry 2 is the bookmark
+widget, entry 1 the speak-text widget. It prints the new appwidget id and exits 0 only if
+`dumpsys appwidget` lists a new id for the package. To clear all placed widgets:
+`adb shell pm clear com.google.android.apps.nexuslauncher`.
+
+**Local Nextcloud: `scripts/nextcloud-local.sh`.** `install|start|stop|status|selftest` for a throwaway
+Nextcloud 35 (PHP built-in server, SQLite) from the pre-provisioned tarball in
+`.local/emu-verify/nextcloud/`; admin `admin` / `andbible-test-pw`, data in `~/nextcloud-emu/`. The guest
+reaches it at `http://10.0.2.2:8080`. `selftest` needs `"installed":true` from `status.php` and a 207 from
+a DAV PROPFIND. Stop it and restore the guest `http_proxy` when you are done.
+
 **Network.** In strict egress the guest reaches the network only through the container's proxy.
 `boot` sets the guest's global proxy (`settings put global http_proxy`) to `$HTTPS_PROXY`
 (`ANDBIBLE_EMU_PROXY` overrides it; empty disables) and checks that a tunnel works; `health` repeats
