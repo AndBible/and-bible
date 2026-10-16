@@ -1,1 +1,0 @@
-/home/dev/.konan/kotlin-native-prebuilt-linux-x86_64-2.4.21
