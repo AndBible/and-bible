@@ -478,6 +478,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             onNavigate = controller::onNavigate,
             onConfirmReset = controller::confirmReset,
             onConfirmEnableDocuments = controller::confirmEnableDocuments,
+            onConfirmForgetCertificate = controller::confirmForgetCertificate,
             onDismissDialog = controller::dismissDialog,
         )
     }

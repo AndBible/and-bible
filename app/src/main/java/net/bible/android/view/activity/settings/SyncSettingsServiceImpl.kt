@@ -34,9 +34,13 @@ import net.bible.service.cloudsync.SyncSettingsPlatform
 import net.bible.service.cloudsync.DocumentSyncProvider
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.computeDocumentSyncSummary
+import net.bible.service.cloudsync.webdav.WebDavConfig
+import net.bible.service.cloudsync.webdav.Propagation
+import net.bible.service.cloudsync.webdav.formatFingerprint
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.webdav.WebDavUrl
 import net.bible.sharedcore.settings.Choice2
 import net.bible.sharedcore.settings.DocSyncSummaryData
 import net.bible.sharedcore.settings.SyncCategoryKeys
@@ -70,6 +74,13 @@ class SyncSettingsServiceImpl(
 
     init { refresh() }
 
+    private val isWebDav get() = cloudSync.adapterId == "WEBDAV"
+    private val webDavState get() = platform.webDavState
+
+    /** Row keys stay `cloud_sync_*`; WebDAV stores its own copy under `webdav_sync_*`. */
+    private fun storageKey(rowKey: String) =
+        if (isWebDav && rowKey.startsWith("cloud_sync_")) rowKey.replaceFirst("cloud_sync_", "webdav_sync_") else rowKey
+
     private fun adapterSummary(): String {
         val current = cloudSync.adapterId
         var result = strings.syncIntroduction
@@ -91,16 +102,17 @@ class SyncSettingsServiceImpl(
         val documentsEnabled = documentSettings.enabled
         val displayed = SyncCategoryKeys.DISPLAY.map { SyncableDatabaseDefinition.nameToCategory[it.removePrefix("sync_enable_").uppercase()]!! }
         val lastSynchronized = displayed.associateWith { categories.lastSynchronized(it) }
+        val certPin = if (isWebDav) webDavState.certPin else null
         return SyncSettingsSnapshot(
             adapter = cloudSync.adapterId,
             adapterChoices = cloudSync.adapterChoices.map { Choice2(it.value, it.label) },
             adapterSummary = adapterSummary(),
             adapterEnabled = !signedIn,
             cloudInfoSummary = cloudInfoSummary,
-            serverUrl = platform.credential("cloud_sync_server_url"),
-            username = platform.credential("cloud_sync_username"),
-            password = platform.credential("cloud_sync_password"),
-            folderPath = platform.credential("cloud_sync_folder_path"),
+            serverUrl = platform.credential(storageKey("cloud_sync_server_url")),
+            username = platform.credential(storageKey("cloud_sync_username")),
+            password = platform.credential(storageKey("cloud_sync_password")),
+            folderPath = platform.credential(storageKey("cloud_sync_folder_path")),
             credsVisible = !isGoogleDrive,
             credsEnabled = !signedIn,
             resetVisible = isCloudSyncEnabled && signedIn,
@@ -120,6 +132,11 @@ class SyncSettingsServiceImpl(
             wifiOnly = documentSettings.wifiOnly,
             autoTogglesVisible = documentsEnabled,
             wifiOnlyVisible = documentsEnabled,
+            serverUrlHint = if (isWebDav) platform.webDavServerUrlHint else null,
+            httpsOnly = isWebDav,
+            certificateVisible = certPin != null,
+            certificateEnabled = !signedIn,
+            certificateSummary = certPin?.let { formatFingerprint(it.sha256).take(23) + "…" } ?: "",
         )
     }
 
@@ -201,14 +218,31 @@ class SyncSettingsServiceImpl(
         }
     }
 
-    override fun setText(key: String, value: String): Boolean {
+    override fun setText(key: String, rawValue: String): Boolean {
+        // WebDAV addresses are often pasted with a trailing space/newline; trim before validating and storing.
+        val value = if (isWebDav && key == "cloud_sync_server_url") rawValue.trim() else rawValue
         if (key == "cloud_sync_server_url") {
-            val isHttpOrHttps = value.startsWith("http://") || value.startsWith("https://")
-            val valid = platform.isValidUrl(value) && isHttpOrHttps && !value.endsWith("/login") && !value.contains(" ")
+            val valid = if (isWebDav) WebDavUrl.validate(value) else {
+                val isHttpOrHttps = value.startsWith("http://") || value.startsWith("https://")
+                platform.isValidUrl(value) && isHttpOrHttps && !value.endsWith("/login") && !value.contains(" ")
+            }
             if (!valid) return false
         }
-        platform.setCredential(key, value)
+        platform.setCredential(storageKey(key), value)
+        // A different server/folder invalidates the collection-mtime calibration.
+        if (isWebDav && (key == "cloud_sync_server_url" || key == "cloud_sync_folder_path")) {
+            webDavState.propagation = Propagation.UNKNOWN
+        }
+        // A pin is bound to its host: after a host change it can never match, so drop it.
+        if (isWebDav && key == "cloud_sync_server_url") {
+            val pin = webDavState.certPin
+            if (pin != null && WebDavConfig(value, "", "", "").host != pin.host) webDavState.certPin = null
+        }
         return true
+    }
+
+    override fun forgetCertificate() {
+        webDavState.certPin = null
     }
 
     override fun setAdapter(value: String) {

@@ -71,6 +71,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "cloud_sync_username" -> R.drawable.outline_shield_24
     "cloud_sync_password" -> R.drawable.outline_shield_24
     "cloud_sync_folder_path" -> R.drawable.outline_shield_24
+    "webdav_sync_cert" -> R.drawable.ic_baseline_lock_24
     "sync_enable_bookmarks" -> R.drawable.ic_bookmark_24dp
     "sync_enable_workspaces" -> R.drawable.ic_baseline_workspace_24
     "sync_enable_mydocuments" -> R.drawable.ic_baseline_description_gray_24

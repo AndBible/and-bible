@@ -30,15 +30,15 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.atomicfu)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.ktor.client.core)
-        }
-        jvmTest.dependencies {
-            implementation(libs.ktor.client.mock)
+            api(libs.ktor.client.core)       // HttpClient / HttpClientEngine appear in WebDavClient's API
+            implementation(libs.ktor.client.auth)
+            implementation(libs.xmlutil.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
             implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
+            implementation(libs.ktor.client.mock)
         }
     }
 }

@@ -102,7 +102,7 @@ class CloudSync(
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
-    val signedIn get() = _adapter != null && adapter.signedIn
+    val signedIn get() = _adapter?.signedIn == true
 
     internal val cloudAdapter: CloudAdapter? get() = _adapter
 
@@ -122,10 +122,14 @@ class CloudSync(
             return null
         }
         var errorMessage: String? = null
+        var cancelledByUser = false
         val success = signInMutex.withLock {
             _adapter = adapters.create(adapterId)
             try {
                 adapter.signIn()
+            } catch (e: CloudSyncUserCancelledException) {
+                cancelledByUser = true
+                false
             } catch (e: Exception){
                 errorMessage = e.message
                 false
@@ -133,7 +137,7 @@ class CloudSync(
         }
         if(!success) {
             _adapter = null
-            dialogs.await(AppDialogRequest.Message(null, strings.signInFailed + " " + (errorMessage?:""), strings.okay, cancellable = false))
+            if (!cancelledByUser) dialogs.await(AppDialogRequest.Message(null, strings.signInFailed + " " + (errorMessage?:""), strings.okay, cancellable = false))
         }
         return success
     }
@@ -391,6 +395,22 @@ class CloudSync(
         syncMutex.withLock {  }
     }
 
+    /** Drops the adapter so the next foreground sync signs in again (and can prompt), keeping all sync state. */
+    internal fun dropAdapterForReconnect() { _adapter = null }
+
+    /**
+     * Notifies once per sync. Only records [needsReconnect]; the adapter is dropped after every
+     * category has finished (see [synchronize]) so concurrent categories never see a null adapter.
+     */
+    private fun reportUserFacing(
+        e: CloudSyncUserFacingException,
+        reported: java.util.concurrent.atomic.AtomicBoolean,
+        needsReconnect: java.util.concurrent.atomic.AtomicBoolean,
+    ) {
+        if (e.requiresReconnect) needsReconnect.set(true)
+        if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message ?: "", showReportButton = false)
+    }
+
     internal suspend fun synchronize() = withContext(Dispatchers.IO) {
         documentSettings.ensureLoaded()
         if(!signedIn) {
@@ -405,60 +425,77 @@ class CloudSync(
             Log.i(TAG, "Synchronizing starts")
             val timerStart = System.currentTimeMillis()
 
-            DatabaseContainer.databaseAccessorFactories.asyncMap {
-                val dbDef = it.invoke()
-                if(!dbDef.category.isSyncEnabled(settings)) return@asyncMap
-                if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) return@asyncMap
-                try {
-                    initializeSync(dbDef)
-                } catch (e: CancelStartedSync) {
-                    Log.e(TAG, "Sync cancelled ${dbDef.categoryName}")
-                    return@asyncMap
-                } catch (e: IOException) {
-                    Log.e(TAG, "IOException (probably network down)", e)
-                    return@asyncMap
-                } catch (e: Exception) {
-                    Log.e(TAG, "Some other exception happened in initializeSync!", e)
-                    UserMessages.errorNotification(strings.syncError)
-                    return@asyncMap
-                }
-                try {
-                    createAndUploadNewPatch(dbDef)
-                } catch (e: IOException) {
-                    Log.e(TAG, "IOException", e)
-                    return@asyncMap
-                } catch (e: Exception) {
-                    Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
-                    UserMessages.errorNotification(strings.syncError)
-                }
-                try {
-                    try {
-                        downloadAndApplyNewPatches(dbDef)
-                    } catch (e: PatchFilesSkipped) {
-                        Log.i(TAG, "Patch files skipped! Retrying download and apply!")
-                        dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, 0)
-                        downloadAndApplyNewPatches(dbDef)
-                    }
-                } catch (e: IOException) {
-                    Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
-                } catch (e: IncompatiblePatchVersion) {
-                    UserMessages.errorNotification(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false)
-                    dbDef.dao.setConfig("disabledForVersion", dbDef.version().toLong())
-                    return@asyncMap
-                } catch (e: Exception) {
-                    Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
-                    UserMessages.errorNotification(strings.syncError)
-                }
-            }
+            val reported = java.util.concurrent.atomic.AtomicBoolean(false)
+            val needsReconnect = java.util.concurrent.atomic.AtomicBoolean(false)
             try {
-                documents.get().runSync(
-                    download = documentSettings.autoDownload,
-                    upload = documentSettings.autoUpload,
-                    delete = documentSettings.autoDelete,
-                    manual = false,
-                )
-            } catch (e: Exception) {
-                Log.e(TAG, "Document sync pull failed", e)
+                DatabaseContainer.databaseAccessorFactories.asyncMap {
+                    val dbDef = it.invoke()
+                    if(!dbDef.category.isSyncEnabled(settings)) return@asyncMap
+                    if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) return@asyncMap
+                    try {
+                        initializeSync(dbDef)
+                    } catch (e: CancelStartedSync) {
+                        Log.e(TAG, "Sync cancelled ${dbDef.categoryName}")
+                        return@asyncMap
+                    } catch (e: IOException) {
+                        Log.e(TAG, "IOException (probably network down)", e)
+                        return@asyncMap
+                    } catch (e: CloudSyncUserFacingException) {
+                        reportUserFacing(e, reported, needsReconnect)
+                        return@asyncMap
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Some other exception happened in initializeSync!", e)
+                        UserMessages.errorNotification(strings.syncError)
+                        return@asyncMap
+                    }
+                    try {
+                        createAndUploadNewPatch(dbDef)
+                    } catch (e: IOException) {
+                        Log.e(TAG, "IOException", e)
+                        return@asyncMap
+                    } catch (e: CloudSyncUserFacingException) {
+                        reportUserFacing(e, reported, needsReconnect)
+                        return@asyncMap
+                    } catch (e: Exception) {
+                        Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
+                        UserMessages.errorNotification(strings.syncError)
+                    }
+                    try {
+                        try {
+                            downloadAndApplyNewPatches(dbDef)
+                        } catch (e: PatchFilesSkipped) {
+                            Log.i(TAG, "Patch files skipped! Retrying download and apply!")
+                            dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, 0)
+                            downloadAndApplyNewPatches(dbDef)
+                        }
+                    } catch (e: IOException) {
+                        Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
+                    } catch (e: IncompatiblePatchVersion) {
+                        UserMessages.errorNotification(cantFetchString(strings.syncCategoryContents(dbDef.category.name)), showReportButton = false)
+                        dbDef.dao.setConfig("disabledForVersion", dbDef.version().toLong())
+                        return@asyncMap
+                    } catch (e: CloudSyncUserFacingException) {
+                        reportUserFacing(e, reported, needsReconnect)
+                        return@asyncMap
+                    } catch (e: Exception) {
+                        Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
+                        UserMessages.errorNotification(strings.syncError)
+                    }
+                }
+                try {
+                    documents.get().runSync(
+                        download = documentSettings.autoDownload,
+                        upload = documentSettings.autoUpload,
+                        delete = documentSettings.autoDelete,
+                        manual = false,
+                    )
+                } catch (e: CloudSyncUserFacingException) {
+                    reportUserFacing(e, reported, needsReconnect)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Document sync pull failed", e)
+                }
+            } finally {
+                if (needsReconnect.get()) dropAdapterForReconnect()
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }

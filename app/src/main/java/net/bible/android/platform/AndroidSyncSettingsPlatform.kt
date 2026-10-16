@@ -5,6 +5,8 @@ import android.text.format.Formatter
 import android.webkit.URLUtil
 import net.bible.android.activity.R
 import net.bible.service.cloudsync.SyncSettingsPlatform
+import net.bible.service.cloudsync.webdav.PrefsWebDavStateStore
+import net.bible.service.cloudsync.webdav.WebDavStateStore
 import net.bible.service.common.CommonUtils
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,6 +21,8 @@ class AndroidSyncSettingsPlatform(private val context: Context) : SyncSettingsPl
     override fun formatFileSize(bytes: Long): String = Formatter.formatShortFileSize(context, bytes)
     override fun formatSyncTime(timestamp: Long): String =
         SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
+    override val webDavState: WebDavStateStore get() = PrefsWebDavStateStore(CommonUtils.realSharedPreferences)
+    override val webDavServerUrlHint: String get() = context.getString(R.string.webdav_server_url_hint)
 }
 
 /** The disguised variant must not reveal the Bible app name in the Drive explanation. */

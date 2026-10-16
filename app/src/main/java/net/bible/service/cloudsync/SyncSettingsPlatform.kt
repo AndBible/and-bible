@@ -1,6 +1,7 @@
 package net.bible.service.cloudsync
 
 import net.bible.android.database.SyncDao
+import net.bible.service.cloudsync.webdav.WebDavStateStore
 import net.bible.sharedcore.platform.AppSettings
 
 /** Platform-only credential storage, URL recognition and display formatting. */
@@ -10,6 +11,9 @@ interface SyncSettingsPlatform {
     fun isValidUrl(value: String): Boolean
     fun formatFileSize(bytes: Long): String
     fun formatSyncTime(timestamp: Long): String
+    /** The WebDAV adapter's persisted calibration and certificate pin. */
+    val webDavState: WebDavStateStore
+    val webDavServerUrlHint: String
 }
 
 /** Reads category metadata through the suspend DAO contract, including on a UI dispatcher. */
