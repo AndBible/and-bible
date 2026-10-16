@@ -44,18 +44,21 @@ used anywhere in a term, at the start, in the middle or at the end:
 
 ### Combining words
 
-Use `AND`, `OR` and `NOT` to combine terms, and parentheses to group them:
+Use `AND`, `OR` and `NOT` to combine terms, and parentheses to group them. These operators, the
+symbols below and the parentheses only work when the search mode is 'Any word'. In the 'All words'
+mode every word you type is required, so `grace OR faith` is searched as the three required words
+"grace", "OR" and "faith" and finds nothing:
 
 - `grace AND faith` finds verses that contain both words
 - `grace OR faith` finds verses that contain either word
 - `grace NOT faith` finds verses that contain "grace" but not "faith"
 - `(grace OR mercy) AND faith` finds verses that contain "faith" together with "grace" or "mercy"
 
-The symbols `&&` (AND), `||` (OR) and `!` (NOT) work as well. A `+` in front of a word means the
+In 'Any word' mode the symbols `&&` (AND), `||` (OR) and `!` (NOT) work as well. A `+` in front of a word means the
 word must be present, and a `-` means it must not be present: `+grace -faith`.
 
 Put words in double quotes to search for them as a phrase, that is, next to each other in that
-order: `"hope of glory"`.
+order: `"hope of glory"`. (The 'Phrase' search mode does the same for everything you type.)
 
 ### Search Option Compatibility
 
@@ -107,9 +110,11 @@ Use `strong:` followed by a Strong's number to find verses where that number app
 Some syntax is not supported. If you use it, the search does not run and a message says that the
 search uses syntax that is not supported. The following are not supported:
 
-- searching a field other than `strong:`, for example `book:john`
 - boosting a term with `^`, for example `grace^2`
 - range queries such as `[grace TO hope]`
+
+In the search screen a colon is treated as a space, so `book:john` simply searches for the two words
+"book" and "john". Only `strong:` followed by a Strong's number is recognised as a field.
 
 ### Search index
 
