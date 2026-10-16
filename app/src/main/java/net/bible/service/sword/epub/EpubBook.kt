@@ -145,6 +145,10 @@ private val pendingEpubInstalls = java.util.concurrent.ConcurrentHashMap.newKeyS
  */
 fun isEpubInstallPending(initials: String): Boolean = initials in pendingEpubInstalls
 
+/**
+ * Runs [block] (the install or replacement) while holding the module owner lock and marking the install pending.
+ * Do not call [deleteEpubModule] from inside [block]: it takes the same lock and would deadlock.
+ */
 suspend fun installEpubModule(dir: File, block: () -> Boolean): Boolean = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
     val owner = moduleOwner(dir)
     val initials = epubInitials(dir.name)
@@ -163,6 +167,7 @@ fun deleteEpubModule(epubDir: File) {
     try { deleteOwnedEpubModule(epubDir) } finally { owner.unlock() }
 }
 
+/** Deletes the module's files and retires its owner; the caller must already hold the module owner lock. */
 internal fun deleteOwnedEpubModule(epubDir: File) {
     val oldBook = Books.installed().getBook(epubInitials(epubDir.name))
     oldBook?.epubBackend?.state?.let { state ->

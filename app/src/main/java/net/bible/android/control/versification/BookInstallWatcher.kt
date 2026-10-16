@@ -166,7 +166,12 @@ class BookInstallWatcher(
         val backend = (book as? AbstractBook)?.backend as? ZVerseBackend ?: return true
         val keys = book.getGlobalKeyList()
         if (keys.getCardinality() == 0) return true
-        val state = backend.initState()
+        // Opening the module files can fail for an unreadable archive; that must read as "does not decode",
+        // not abort the whole row write (which would also drop the retained repository and key).
+        val state = try { backend.initState() } catch (e: Exception) {
+            Log.w(TAG, "Cannot open ${book.initials} to probe the cipher key: ${e.message}")
+            return false
+        }
         return try {
             state.lastBlockNum = -1
             state.lastTestament = null
