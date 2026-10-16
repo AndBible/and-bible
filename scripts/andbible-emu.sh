@@ -358,7 +358,7 @@ place-widget)
     wids() { adb shell dumpsys appwidget | tr -d '\r' | awk -v p="$wpkg" '
         /^Widgets:/ {w=1; next} /^[A-Za-z]/ {w=0}
         w && /^  \[[0-9]+\] id=/ {sub(/.*id=/, ""); id=$1}
-        w && /provider=/ && index($0, p "/") {print id}' | sort -n; }
+        w && /provider=/ && index($0, p "/") {print id}' | LC_ALL=C sort; }
     pick() { "$0" texts | python3 -c '
 import re, sys
 pat, nth = re.compile(sys.argv[1]), int(sys.argv[2])
@@ -391,7 +391,7 @@ print((x1 + x2) // 2, (y1 + min(y2, 3000)) // 2)' "$pat" "$nth"; }
     "$0" tap-text '^(Create|Allow|Add)$' >/dev/null 2>&1 || true
     sleep 2
     after="$(wids)"
-    new="$(comm -13 <(echo "$before") <(echo "$after") | head -1)"
+    new="$(comm --nocheck-order -13 <(echo "$before") <(echo "$after") | head -1)"
     [ -n "$new" ] || die "no new widget id for $wpkg after the drop"
     echo "$new"
     ;;

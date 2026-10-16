@@ -28,6 +28,23 @@ die() { echo "nextcloud-local: $*" >&2; exit 1; }
 
 running() { [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; }
 
+# True if the pid's command line mentions php (guards against a pid reused by another process).
+is_php() { tr '\0' ' ' <"/proc/$1/cmdline" 2>/dev/null | grep -q php; }
+
+# True if status.php answers on the port.
+answering() { curl -s --noproxy '*' -o /dev/null "http://127.0.0.1:$port/status.php"; }
+
+# Install may only wipe $base when it is clearly ours: a nextcloud-emu path, a dir with a
+# nextcloud/config subfolder, or an empty/nonexistent path.
+safe_to_wipe() {
+    [ -n "$base" ] || return 1
+    case "$base" in */nextcloud-emu) return 0 ;; esac
+    [ -d "$base/nextcloud/config" ] && return 0
+    [ -e "$base" ] || return 0
+    [ -d "$base" ] && [ -z "$(ls -A "$base")" ] && return 0
+    return 1
+}
+
 occ() { (cd "$base/nextcloud" && php occ "$@"); }
 
 case "${1:-}" in
@@ -40,6 +57,7 @@ case "${1:-}" in
         if [ -f "$base/nextcloud/config/config.php" ] && occ status 2>/dev/null | grep -q 'installed: true'; then
             echo "already installed in $base"; exit 0
         fi
+        safe_to_wipe || die "refusing to rm -rf '$base': not a nextcloud-emu path, no nextcloud/config inside, and not empty"
         rm -rf "$base"; mkdir -p "$base/data"
         tar -xjf "$tarball" -C "$base"
         occ maintenance:install --database sqlite --admin-user "$admin" --admin-pass "$pass" \
@@ -55,19 +73,30 @@ case "${1:-}" in
         PHP_CLI_SERVER_WORKERS=4 setsid nohup php -S 0.0.0.0:"$port" -t "$base/nextcloud" \
             >"$base/php.log" 2>&1 &
         echo $! >"$pidfile"
+        up=
         for _ in $(seq 1 30); do
-            curl -s --noproxy '*' -o /dev/null "http://127.0.0.1:$port/status.php" && break
+            if answering; then up=1; break; fi
             sleep 1
         done
+        [ -n "$up" ] || { echo "nextcloud-local: no answer on :$port/status.php after 30s (see $base/php.log)" >&2; exit 1; }
         echo "started (pid $(cat "$pidfile")) on :$port"
         ;;
     stop)
         if running; then
             pid="$(cat "$pidfile")"
-            pkill -P "$pid" 2>/dev/null || true
-            kill "$pid" 2>/dev/null || true
-            rm -f "$pidfile"
-            echo "stopped"
+            if is_php "$pid"; then
+                pkill -P "$pid" 2>/dev/null || true
+                kill "$pid" 2>/dev/null || true
+                for _ in $(seq 1 10); do
+                    answering || break
+                    sleep 1
+                done
+                rm -f "$pidfile"
+                echo "stopped"
+            else
+                rm -f "$pidfile"
+                echo "pid $pid is not php; pidfile removed, nothing killed"
+            fi
         else
             rm -f "$pidfile"; echo "not running"
         fi
