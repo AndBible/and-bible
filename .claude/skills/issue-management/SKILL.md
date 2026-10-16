@@ -101,3 +101,124 @@ duplicate older ones. Stage fixes as a batch.
   its original-description details block. PR closure depends on completion of
   target enrichment and board setup, not just issue creation. No already-candidate
   shortcut is implemented. Reconcile partial new-issue creation after board failure.
+
+## Calibration notes (O7, area sync-backup, 2026-10-16)
+
+Learned from the calibration area: 43 items, maintainer-reviewed. Decision file:
+`docs/superpowers/triage/decisions/sync-backup.yaml`. It is the worked example; read it before
+drafting an area.
+
+### Policies the maintainer set
+
+- **Age policy for bugs.** If a bug has had no new report or comment for **12 months**, close it as
+  `stale-info` with a friendly "please reopen or comment if it still happens with a current version"
+  comment. Do not investigate it further. Support tickets (osTicket) about a known bug are noted on
+  its GitHub issue, so the latest comment date is the latest report.
+  **Exception:** if you verified in the dev code that the defect is still there *and* the fix is
+  Size S, keep it at **P3** (not P1/P2). Examples: #3039 zip duplicate entry (last report 2024-03),
+  #2518 global `lastForceSyncAll`. The age policy is for bugs only. Feature and improvement requests
+  are judged on value.
+- **Judge against `dev`, not `current-stable`.** The Compose port on dev changed a lot of code and
+  probably fixed old problems. Little bug-fixing goes into current-stable any more; a Compose beta
+  from dev is next. Verify every "still there" and "done" claim in dev. Phrase comments for the
+  current or upcoming version, never "fixed in stable".
+- **Implemented but unreleased** (on dev, not an ancestor of `origin/current-stable`) is not `done`.
+  It is `keep` + `status: In review` + a short comment ("implemented, being tested, closed when it
+  ships"). Drop `Sponsor me!` from it. Example: #3837 WebDAV. Close it with flow 5 after the release.
+- The maintainer reviews from a Finnish summary. For each item it gives **what the issue is about**
+  in one sentence, then the verdict and why, so nobody needs to open the tickets. Lead with the
+  ranking principle (P1/P2/P3/Someday) and end with a "look at these first" list (low/medium
+  confidence, wontfix, merges).
+
+### Verdict boundaries, with examples from this area
+
+- `done`: name the commit and the first release tag containing it. Check with
+  `git merge-base --is-ancestor <sha> origin/current-stable` and
+  `git tag --contains <sha> | grep ^v | head -1`. Examples:
+  - #657: restore asks what to restore (`f6f4dd1dd`, 5.0.740), and per-database reset (`d00534fad`,
+    5.1.1098).
+  - #2634: sync on network restore (`d816a834f`, 5.0.840).
+  
+  If the fix only partly covers the request (#2097: notes export per StudyPad, not all at once),
+  use `confidence: medium` and invite a new issue for the rest.
+- `duplicate`: when several issues report the same crash, pick one **target that stays open**
+  (usually the one with the clearest trace or the most tickets), enrich it, and close the rest into
+  it. #1726, #3138 and #3230 → #3039. A crash with several entry points where most are already
+  fixed also becomes a duplicate of the issue for the remaining one: #1899, #3026 and #3159 →
+  #3135, because only the welcome-screen restore is still unguarded. Say in the comment which path
+  is already fixed.
+- `obsolete`: the platform or path is gone. Examples: #2748, where Windows Subsystem for Android is
+  discontinued; #1972, a crash upgrading straight from a pre-4.0 database. Point to the alternative
+  if there is one.
+- `wontfix`: only where the maintainer already said "not on the roadmap", or the idea goes against
+  the design. Example: #1931, search indexes in the module backup. Always `confidence: medium` or
+  lower, so the maintainer sees it.
+- `stale-info`: cannot be reproduced, the reporter has gone quiet or confirmed it works, or the age
+  policy applies. Examples: #1822 (reporter confirmed it works), #2076 (not reproducible), #3089
+  (age policy).
+- `keep` vs `candidate`: `candidate` = P1/P2 **and** worth an enriched body. A recent report
+  that is already precise and structured (timbze's #3863 and #3884) stays `keep` P2/S **without**
+  rewriting; it still appears in Quick wins through its board fields.
+- **Misassigned area:** decide the item anyway and set the right `Area:` label. Example: #940 and
+  #2518 are about *window* sync, not cloud sync, so they move to `Area: Windows & workspaces`.
+
+### Labels
+
+- Labels are the full target set: always one `Type:` and one `Area:`.
+- Remove `Affects: Alpha` from bugs whose alpha is long released.
+- Remove `Waiting for information` when nobody is actually asked anything.
+- Remove `Type: Discussion` from a concrete feature request.
+- A maintainer note that is really a refactor or deprecation gets `Type: Code improvement`.
+  Example: #2301 `fullBackupContent`.
+- `Sponsor me!` + `Estimate needed` go only on feature requests that are larger and wanted by
+  users. Examples: #3757 preference sync, #3425 sync subscriptions. Never on bugs.
+
+### Good closing comments (quoted)
+
+> Both parts of this are in the app now. Restoring a database backup asks which parts to restore
+> (bookmarks, workspaces, reading plans, ...) since 5.0, and Backup & Restore has a per-database
+> reset since 5.1.1098, which can reset just the workspaces and windows while keeping bookmarks
+> and notes. See https://andbible.org/docs/backup_restore/
+
+> Installing a zip from such a file now shows an error instead of crashing (5.0.874, #3160). The
+> remaining crash, restoring a database from the welcome screen when the file cannot be read, is
+> tracked in #3135.
+
+These comments are specific: they name the version and what the user can do now. Do not write
+the marker line yourself; stage.py appends `_— issue triage, Oct 2026_`.
+
+### A good enriched body
+
+See `docs/superpowers/triage/enrich/3039-body.md`. It merges four issues and seven tickets in the
+Summary, gives the failing call chain under Steps to reproduce (honest: "not reproduced locally
+yet"), names the exact functions and two likely root causes under Proposed change, notes the
+second caller that the fix also protects (document sync), and has one real open question. Other
+good ones: `enrich/3135-body.md` (crash with fixed and unfixed entry points) and
+`enrich/3079-body.md` (two crash paths, one of them already mitigated).
+
+### Common mistakes caught in calibration
+
+- Claiming `done` from a commit on dev without checking it is released. Use `In review` instead.
+- Getting a function's owner wrong in an enriched body: `determineFileType` is `CommonUtils`, not
+  `BackupControl`. Grep every symbol you name.
+- Taking the area from the snapshot as a given. Read what the issue is actually about: "sync" can
+  mean window sync.
+- Closing a crash as fixed because one code path now catches it. Check every entry point; the
+  welcome-screen restore had no `try`.
+- Spending time investigating an old bug the age policy would close anyway.
+
+### How to check "done" in this codebase
+
+- Code: `app/src/main/java/net/bible/...`. Sync is in `service/cloudsync/` (adapters `googledrive`,
+  `nextcloud`, `webdav`; document sync in `documents/`). Backup is
+  `android/control/backup/BackupControl.kt` and `service/backup/BackupServiceImpl.kt`. Migrations
+  are in `android/database/migrations/`.
+- History: `git log -S'<symbol>' --format='%h %ad %s' --date=short -- app/src/main/java | tail -1`
+  finds when a symbol was introduced. `git log --grep='#NNN'` finds commits that name the issue
+  (fix commits start with `Fixes #NNN`).
+- Released or not: the `merge-base` and `tag --contains` commands under `done` above.
+- User docs (`website/content/en/docs/*.md`, live at `https://andbible.org/docs/<page>/`) give a
+  link for the closing comment. A docs page for a dev-only feature is not live yet.
+- Closed issues: grep `snapshot/closed-index.tsv` for the exception or feature name. A crash
+  closed as fixed that is reported again is a recurrence: keep it and link the old issues
+  (#3204 → #3029, #3075).
