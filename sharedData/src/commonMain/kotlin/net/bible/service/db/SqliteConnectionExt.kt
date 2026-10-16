@@ -145,7 +145,7 @@ suspend fun PooledConnection.columnNamesJoined(tableName: String, schema: String
     joinColumnNames(columnNames(tableName, schema))
 
 /** Bound for one cleanup statement (see [withCleanup]). */
-internal const val CLEANUP_TIMEOUT_MS = 5_000L
+const val CLEANUP_TIMEOUT_MS = 5_000L
 
 /** [withCleanup] on a Room writer connection. */
 suspend fun <T> PooledConnection.withCleanup(vararg cleanupSql: String, body: suspend () -> T): T =
@@ -161,7 +161,7 @@ suspend fun <T> PooledConnection.withCleanup(vararg cleanupSql: String, body: su
  * but it cannot interrupt a statement already blocked inside native SQLite code; such a statement still blocks the
  * caller until SQLite returns (busy_timeout bounds lock waits).
  */
-internal suspend fun <T> runWithCleanup(
+suspend fun <T> runWithCleanup(
     cleanupSql: List<String>,
     execute: suspend (String) -> Unit,
     body: suspend () -> T,

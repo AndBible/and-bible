@@ -107,7 +107,7 @@ data class SpeakSettings(
     }
 
     companion object {
-        internal lateinit var store: net.bible.android.control.speak.SpeakSettingsStore
+        lateinit var store: net.bible.android.control.speak.SpeakSettingsStore
         var currentSettings: SpeakSettings? = null
 
         fun fromJson(jsonString: String): SpeakSettings {
