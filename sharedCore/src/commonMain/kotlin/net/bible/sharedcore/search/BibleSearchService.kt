@@ -22,4 +22,10 @@ interface BibleSearchService {
 interface SearchIndexService {
     fun hasIndex(docId: String): Boolean
     fun createIndex(docId: String)   // kickoff only; progress = Screen.SearchIndexProgress (Batch 1)
+
+    /**
+     * True when the document was indexed by the previous search engine (its legacy index directory still exists)
+     * and has no valid new index: the index prompt then explains that the search engine changed.
+     */
+    fun hasLegacyIndex(docId: String): Boolean = false
 }

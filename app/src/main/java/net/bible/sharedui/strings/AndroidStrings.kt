@@ -127,6 +127,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val helpApacheLucene: String get() = context.getString(R.string.help_apache_lucene)
     override val menu: String get() = context.getString(R.string.menu)
     override val searchIndexingThenSearch: String get() = context.getString(R.string.search_indexing_then_search)
+    override val searchEngineChangedReindex: String get() = context.getString(R.string.search_engine_changed_reindex)
+    override fun searchUnsupportedSyntax(syntax: String): String = context.getString(R.string.search_unsupported_syntax, syntax)
     override fun searchNotAvailableForDocument(name: String): String =
         context.getString(R.string.search_not_available_for_document, name)
     override val searchNotAvailable: String get() = context.getString(R.string.search_not_available)

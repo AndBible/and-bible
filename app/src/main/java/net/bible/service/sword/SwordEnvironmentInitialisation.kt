@@ -39,12 +39,16 @@ import org.crosswire.common.util.ReporterEvent
 import org.crosswire.common.util.ReporterListener
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.BookException
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.crosswire.jsword.book.sword.SwordConstants
-import org.crosswire.jsword.index.lucene.LuceneIndexManager
+import org.crosswire.jsword.index.IndexManagerFactory
+import org.crosswire.jsword.index.fts.FtsIndexManager
+import org.crosswire.jsword.index.fts.SearchFields
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.PassageType
 import java.io.File
+import kotlin.concurrent.thread
 
 private const val FIVE_MINUTES_MS: Long = 1000 * 60 * 5
 /**
@@ -68,7 +72,7 @@ object SwordEnvironmentInitialisation {
                 // modules
                 ensureDirExists(File(moduleDir, SwordConstants.DIR_DATA))
                 // indexes
-                ensureDirExists(File(moduleDir, LuceneIndexManager.DIR_LUCENE))
+                ensureDirExists(File(moduleDir, SearchFields.DIR_SEARCH))
                 // Optimize for less memory
                 PassageKeyFactory.setDefaultType(PassageType.MIX)
                 // the following are required to set the read and write dirs for module properties, initialised during the following call to setHome
@@ -88,6 +92,26 @@ object SwordEnvironmentInitialisation {
             }
         } catch (e: Exception) {
             Log.e(tag, "Error initialising", e)
+        }
+    }
+
+    /**
+     * Deletes the legacy Lucene index directories (`lucene/<driver>/<initials>`) of documents that are no longer
+     * installed, once, on a background thread. Directories of installed documents are deliberately kept: they tell
+     * the app that the search engine changed and the document's search index must be created again; each one is
+     * deleted when that rebuild finishes (inside `FtsIndexManager`) or when the document is deleted.
+     * A no-op if JSword was never initialised.
+     */
+    fun deleteOrphanLegacyIndexesInBackground() {
+        if (!isSwordLoaded) return
+        thread(name = "legacy-index-sweep", isDaemon = true) {
+            try {
+                val manager = IndexManagerFactory.getIndexManager() as? FtsIndexManager ?: return@thread
+                val deleted = manager.deleteOrphanLegacyLuceneIndexes(Books.installed().getBooks())
+                if (deleted > 0) Log.i(tag, "Deleted $deleted orphan legacy Lucene index directories")
+            } catch (e: Exception) {
+                Log.e(tag, "Legacy Lucene index sweep failed", e)
+            }
         }
     }
 

@@ -175,6 +175,9 @@ interface Strings {
      * and is false here — the search runs in place when indexing finishes.
      */
     val searchIndexingThenSearch: String
+    /** Appended to the create-index prompt of a document that was indexed by the previous search engine. */
+    val searchEngineChangedReindex: String
+    fun searchUnsupportedSyntax(syntax: String): String
 
     /**
      * F6 Task 10: the reading-view search snackbar shown when `open()` finds the active document

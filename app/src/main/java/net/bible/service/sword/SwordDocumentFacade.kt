@@ -159,6 +159,12 @@ object SwordDocumentFacade {
         } catch (e: Exception) { // just log index delete error, deleting doc is the important thing
             Log.e(TAG, "Error deleting document index", e)
         }
+        // the previous search engine's index directory goes with the document (best effort)
+        try {
+            (IndexManagerFactory.getIndexManager() as? org.crosswire.jsword.index.fts.FtsIndexManager)?.deleteLegacyLuceneIndex(realDocument!!)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting legacy index", e)
+        }
         document.driver!!.delete(realDocument!!)
     }
 

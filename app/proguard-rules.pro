@@ -12,12 +12,7 @@
 
 # Add any project specific keep options here:
 
-# do not use mmseg4j SOLR integration
--dontwarn org.apache.solr.**
--dontwarn com.chenlb.mmseg4j.solr.*
 
-# we use mmseg4j instead of jsword's default SmartChineseAnalyzer
--dontwarn org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer
 -dontwarn java.lang.management.ManagementFactory
 
 # do not use JDOM2 jaxen xpath facility
@@ -43,9 +38,6 @@
    public *;
 }
 
--keepclassmembers class org.apache.lucene.index.IndexReader {
-   public *;
-}
 
 
 # Keep all the GreenRobot event handling onEvent functions
@@ -65,39 +57,12 @@
 # keep dynamically loaded Jsword classes (loaded via .plugin files using reflection)
 -keep class org.crosswire.jsword.book.install.sword.HttpsSwordInstallerFactory { *; }
 -keep class org.crosswire.jsword.book.install.sword.HttpSwordInstallerFactory { *; }
--keep class org.crosswire.jsword.index.lucene.analysis.** { *; }
 -keep class org.crosswire.jsword.book.sword.SwordBookDriver { *; }
--keep class org.crosswire.jsword.index.lucene.LuceneIndexManager { *; }
--keep class org.crosswire.jsword.index.lucene.LuceneQueryBuilder { *; }
--keep class org.crosswire.jsword.index.lucene.LuceneQueryDecorator { *; }
--keep class org.crosswire.jsword.index.lucene.LuceneSearcher { *; }
 -keep class org.crosswire.jsword.book.filter.** { *; }
 -keep class org.crosswire.jsword.book.basic.DefaultBookmark { *; }
 -keep class org.crosswire.common.config.** { *; }
 
-# This class has a number of dynamic invocation so let's not
-# touch it
-# DO WE NEED THESE 2 LINES
--keep class org.apache.lucene.util.Attribute* { *; }
--keep class org.apache.lucene.analysis.tokenattributes.TermAttribute { *; }
-# Keep all Lucene classes - uses heavy reflection (VirtualMethod, codecs, analyzers)
--keep class org.apache.lucene.** { *; }
-# Lucene classes
--keep class org.apache.lucene.codecs.Codec { *; }
--keep class * extends org.apache.lucene.codecs.Codec { *; }
--keep class org.apache.lucene.codecs.PostingsFormat { *; }
--keep class * extends org.apache.lucene.codecs.PostingsFormat { *; }
--keep class org.apache.lucene.codecs.DocValuesFormat { *; }
--keep class * extends org.apache.lucene.codecs.DocValuesFormat { *; }
--keep class org.apache.lucene.analysis.tokenattributes.** { *; }
--keep class org.apache.lucene.**Attribute { *; }
--keep class * implements org.apache.lucene.**Attribute { *; }
-# required for non-English searches
--keep class * extends org.tartarus.snowball.SnowballProgram { *; }
 
--keepclassmembers class * extends org.tartarus.snowball.SnowballProgram {
-    *;
-}
 
 -dontwarn javax.management.MBeanServerConnection
 -dontwarn javax.management.MBeanServer

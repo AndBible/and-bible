@@ -3668,6 +3668,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // could do with a document Lucene cannot read.
                 onCancel = { leaveSearch() },
                 onDismissError = searchIndexProgress::dismissError,
+                engineChanged = searchIndexService.hasLegacyIndex(indexDocId),
             )
             return
         }

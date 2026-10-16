@@ -42,7 +42,7 @@ import net.bible.service.llm.tools.*
 /**
  * Tool for searching Bible text.
  *
- * Uses the Lucene index to search for words or phrases.
+ * Uses the full-text search index (SQLite FTS5) to search for words or phrases.
  */
 object SearchBibleTool : Tool, KoinComponent {
     private val strings: LlmStrings by inject()
@@ -80,7 +80,7 @@ object SearchBibleTool : Tool, KoinComponent {
     private var cachedSearch: CachedSearch? = null
 
     override val description = """
-        Search for words or phrases in Bible translations using a Lucene full-text index.
+        Search for words or phrases in Bible translations using a full-text index.
         Returns a list of verses matching the query. Only indexed books can be searched.
         getInstalledDocuments isIndexed tells which documents can be used for searching.
         Supports pagination via offset parameter.
@@ -98,8 +98,15 @@ object SearchBibleTool : Tool, KoinComponent {
         - Single word: love
         - Exact phrase: "the Lord is my shepherd"
         - Boolean: love AND truth, mercy OR grace, love NOT hate
-        - Prefix wildcard: redeem* (matches redeem, redeemed, redeemer, etc.)
+        - Wildcards anywhere in a word: redeem* (redeem, redeemed, redeemer, ...), wom?n, *ness
         - Required/excluded: +faith -works
+        - Boolean symbols: &&, ||, !, and parentheses for grouping: (faith OR hope) AND love
+        - Fuzzy: love~ (similar words, default similarity 0.5) or love~0.8 (the number must be below 1)
+        - Proximity: "God light"~5 (the words within 5 words of each other)
+        - Strong's number: strong:h7225
+        - Range of books: +[Gen-Mal] restricts the search to those books
+        Not supported (the search then fails with an explanatory error): other fields such as heading:x,
+        ^ boosts and [a TO b] ranges.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -107,7 +114,7 @@ object SearchBibleTool : Tool, KoinComponent {
         properties:
           query:
             type: string
-            description: "Search query. Supports Lucene syntax: single words, \"exact phrases\" in quotes, boolean operators (AND, OR, NOT), prefix wildcards (redeem*), and required/excluded terms (+word, -word)."
+            description: "Search query. Supports single words, \"exact phrases\" in quotes, boolean operators (AND, OR, NOT, &&, ||, !), parentheses, wildcards (redeem*, wom?n), fuzzy (love~), proximity (\"a b\"~5), strong:h7225 and required/excluded terms (+word, -word). Fields other than strong:, ^ boosts and [a TO b] ranges are not supported."
           books:
             type: array
             items:
@@ -209,7 +216,10 @@ object SearchBibleTool : Tool, KoinComponent {
                 ))
             }
         } catch (e: Exception) {
-            ToolResult.error("Search failed: ${e.message}", "SEARCH_ERROR")
+            // The exception text names the unsupported fragment; it is returned to the model as is.
+            val unsupported = net.bible.android.control.search.unsupportedSyntaxIn(e)
+            if (unsupported != null) ToolResult.error(unsupported.message ?: "Unsupported search syntax", "UNSUPPORTED_SYNTAX")
+            else ToolResult.error("Search failed: ${e.message}", "SEARCH_ERROR")
         }
     }
 

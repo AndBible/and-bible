@@ -188,6 +188,7 @@ open class BibleApplication : Application() {
 
         // BookInstallWatcher is Koin-resolved, so it can only start once Koin is up (not inside initialiseJSwordFolders)
         SwordEnvironmentInitialisation.startBookInstallWatcher()
+        SwordEnvironmentInitialisation.deleteOrphanLegacyIndexesInBackground()
 
         // some changes may be required for different versions
         upgradeSharedPreferences()
