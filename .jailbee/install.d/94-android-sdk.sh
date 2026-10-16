@@ -11,7 +11,9 @@
 #
 # Env: CONTAINER_UID, CONTAINER_GID — runs as root in the golden-build container.
 # Installs: /opt/android-sdk (owned by the dev user): cmdline-tools, platform-tools,
-#   platforms;android-36, build-tools;36.0.0, system-images;android-36;google_apis;x86_64,
+#   platforms;android-36, build-tools;36.0.0, google_apis x86_64 system images for API 36
+#   (default AVD) and API 28, 29, 30, 34 (old-WebView, API 30-34 inset/cutout and tablet
+#   profiles of scripts/emulator-avds.sh; about 5 GB together),
 #   emulator 37.3.4 (pinned zip; replaces whatever sdkmanager pulled in as a dependency).
 set -euo pipefail
 
@@ -26,6 +28,10 @@ PACKAGES=(
   "platforms;android-36"
   "build-tools;36.0.0"
   "system-images;android-36;google_apis;x86_64"
+  "system-images;android-28;google_apis;x86_64"
+  "system-images;android-29;google_apis;x86_64"
+  "system-images;android-30;google_apis;x86_64"
+  "system-images;android-34;google_apis;x86_64"
 )
 
 if [ "$(uname -m)" != x86_64 ]; then
@@ -63,7 +69,7 @@ if ! "$sdkmanager" "${sdk_args[@]}" --install "${PACKAGES[@]}" >"$tmp/sdkmanager
   tail -20 "$tmp/sdkmanager.log" >&2
   exit 1
 fi
-for d in platform-tools platforms/android-36 build-tools/36.0.0 system-images/android-36/google_apis/x86_64; do
+for d in platform-tools platforms/android-36 build-tools/36.0.0 system-images/android-{36,28,29,30,34}/google_apis/x86_64; do
   [ -d "$SDK/$d" ] || { tail -20 "$tmp/sdkmanager.log" >&2; echo "94-android-sdk: $d missing after install" >&2; exit 1; }
 done
 

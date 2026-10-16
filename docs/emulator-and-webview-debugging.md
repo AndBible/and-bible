@@ -75,8 +75,30 @@ RSS, exit code). A thread count or RSS that grows with every app restart means t
 
 Creates an AVD, default `screenshot_phone` (Pixel 6 Pro, API 36, `google_apis` x86_64, 6 GB
 userdata), in `$ANDROID_AVD_HOME`. Idempotent; `andbible-emu.sh boot` calls it when the AVD is
-missing. It needs `$ANDROID_HOME` with cmdline-tools and the system image
-`system-images;android-36;google_apis;x86_64`, which the golden image has.
+missing. It needs `$ANDROID_HOME` with cmdline-tools and the profile's system image; the golden
+image has the `google_apis` x86_64 images for API 36, 28, 29, 30 and 34.
+
+Other names are profiles (`scripts/emulator-avds.sh --list`; an unknown name gets the default
+profile):
+
+| AVD | API | Device | Use |
+|---|---|---|---|
+| `screenshot_phone` | 36 | Pixel 6 Pro | default |
+| `t9_api28` | 28 | Pixel 3 | stock WebView 69, below the app's floor of 83 (old-WebView notice) |
+| `t9_api29` | 29 | Pixel 3 | stock WebView 74 |
+| `t9_api30`, `t9_api34` | 30, 34 | Pixel 4, Pixel 6 | the API 30-34 inset and cutout path |
+| `emu_api30_tablet` | 30 | 10.1in WXGA, 1280x800 @213 | tablet; `wm size 800x1280` + `wm density 300` for a phone-shaped display |
+| `tablet_api36` | 36 | Pixel Tablet | tablet on the current API |
+
+For a working BibleView on API 28/29, sideload the AOSP WebView 91 (`android12-release`; 128 crashes
+on API 29). The `google_apis` images are `userdebug`, so the unsigned provider is accepted:
+
+```bash
+curl -fsSL 'https://android.googlesource.com/platform/external/chromium-webview/+/refs/heads/android12-release/prebuilt/x86_64/webview.apk?format=TEXT' | base64 -d > webview-91.apk
+adb install -r -d webview-91.apk
+adb shell cmd webviewupdate set-webview-implementation com.android.webview
+adb shell dumpsys webviewupdate | grep 'Current WebView'
+```
 
 In jailbee `ANDROID_AVD_HOME` is container-local (`~/.local/share/android-avd`), so every container
 starts from a fresh AVD. AVDs used to live in the shared `~/.android`, where containers collided
