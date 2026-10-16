@@ -27,6 +27,7 @@ import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
 import net.bible.service.sword.SqliteSwordDriver
+import net.bible.service.sword.isRtlLanguage
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -63,6 +64,9 @@ SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
 Versification=KJVA"""
+    if(data.rightToLeft || isRtlLanguage(data.language)) {
+        conf += "\nDirection=RtoL"
+    }
     if(data.isStrongsDict) {
         conf += "\nFeature=GreekDef"
         conf += "\nFeature=HebrewDef"
@@ -150,7 +154,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
                 val descriptionColumn = names.indexOf("description")
                 val abbreviationColumn = names.indexOf("abbreviation")
                 val versionColumn = names.indexOf("version")
-                val rightToLeftColumn = names.indexOf("rightToLeft")
+                val rightToLeftColumn = names.indexOf("righttoleft")
                 val strongColumn = names.indexOf("strong")
                 val languageColumn = names.indexOf("language")
 
