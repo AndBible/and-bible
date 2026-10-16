@@ -17,6 +17,8 @@
 
 package net.bible.android.database.progress
 
+import androidx.room3.ConstructedBy
+import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.Database
 import androidx.room3.ColumnTypeConverters
 import net.bible.android.database.Converters
@@ -40,6 +42,7 @@ const val PROGRESS_DATABASE_VERSION = 9
     version = PROGRESS_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(ProgressDatabaseConstructor::class)
 abstract class ProgressDatabase : SyncableRoomDatabase() {
     abstract fun progressDao(): ProgressDao
     abstract fun globalReadingProgressSettingsDao(): GlobalReadingProgressSettingsDao
@@ -47,4 +50,9 @@ abstract class ProgressDatabase : SyncableRoomDatabase() {
     companion object {
         const val dbFileName = "progress.sqlite3"
     }
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object ProgressDatabaseConstructor : RoomDatabaseConstructor<ProgressDatabase> {
+    override fun initialize(): ProgressDatabase
 }

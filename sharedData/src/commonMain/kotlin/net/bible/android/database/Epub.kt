@@ -17,6 +17,8 @@
 
 package net.bible.android.database
 
+import androidx.room3.ConstructedBy
+import androidx.room3.RoomDatabaseConstructor
 import androidx.sqlite.execSQL
 import androidx.room3.Dao
 import androidx.room3.Database
@@ -135,6 +137,12 @@ val epubMigrations = arrayOf<Migration>(addEpubMeta)
     version = EPUB_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(EpubDatabaseConstructor::class)
 abstract class EpubDatabase: RoomDatabase() {
     abstract fun epubDao(): EpubDao
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object EpubDatabaseConstructor : RoomDatabaseConstructor<EpubDatabase> {
+    override fun initialize(): EpubDatabase
 }

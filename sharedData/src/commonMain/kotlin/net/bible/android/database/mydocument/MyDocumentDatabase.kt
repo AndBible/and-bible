@@ -17,6 +17,8 @@
 
 package net.bible.android.database.mydocument
 
+import androidx.room3.ConstructedBy
+import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.Database
 import androidx.room3.ColumnTypeConverters
 import net.bible.android.database.Converters
@@ -44,10 +46,16 @@ const val MY_DOCUMENT_DATABASE_VERSION = 4
     version = MY_DOCUMENT_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(MyDocumentDatabaseConstructor::class)
 abstract class MyDocumentDatabase : SyncableRoomDatabase() {
     abstract fun myDocumentDao(): MyDocumentDao
 
     companion object {
         const val dbFileName = "mydocuments.sqlite3"
     }
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object MyDocumentDatabaseConstructor : RoomDatabaseConstructor<MyDocumentDatabase> {
+    override fun initialize(): MyDocumentDatabase
 }

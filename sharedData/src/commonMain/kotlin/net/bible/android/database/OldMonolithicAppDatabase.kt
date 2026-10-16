@@ -16,6 +16,8 @@
  */
 package net.bible.android.database
 
+import androidx.room3.ConstructedBy
+import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.Database
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
@@ -25,4 +27,10 @@ const val OLD_DATABASE_VERSION = 69
 @Entity class Dummy(@PrimaryKey(autoGenerate = true) var id: Long = 0)
 
 @Database(version = OLD_DATABASE_VERSION, entities = [Dummy::class])
+@ConstructedBy(OldMonolithicAppDatabaseConstructor::class)
 abstract class OldMonolithicAppDatabase: RoomDatabase()
+
+@Suppress("KotlinNoActualForExpect")
+expect object OldMonolithicAppDatabaseConstructor : RoomDatabaseConstructor<OldMonolithicAppDatabase> {
+    override fun initialize(): OldMonolithicAppDatabase
+}

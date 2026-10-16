@@ -17,6 +17,8 @@
 
 package net.bible.android.database
 
+import androidx.room3.ConstructedBy
+import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import androidx.room3.ColumnTypeConverters
@@ -69,6 +71,7 @@ import net.bible.service.llm.PromptCategoryDao
     version = BOOKMARK_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(BookmarkDatabaseConstructor::class)
 abstract class BookmarkDatabase: SyncableRoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     companion object {
@@ -87,6 +90,7 @@ abstract class BookmarkDatabase: SyncableRoomDatabase() {
     version = READING_PLAN_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(ReadingPlanDatabaseConstructor::class)
 abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     companion object {
@@ -109,6 +113,7 @@ abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
     version = WORKSPACE_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(WorkspaceDatabaseConstructor::class)
 abstract class WorkspaceDatabase: SyncableRoomDatabase() {
     abstract fun workspaceDao(): WorkspaceDao
     abstract fun globalTextDisplaySettingsDao(): GlobalTextDisplaySettingsDao
@@ -133,6 +138,7 @@ const val TEMPORARY_DATABASE_VERSION = 1
     version = TEMPORARY_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(TemporaryDatabaseConstructor::class)
 abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
 }
@@ -160,6 +166,7 @@ const val DOCUMENT_SYNC_DATABASE_VERSION = 1
     version = DOCUMENT_SYNC_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(DocumentSyncDatabaseConstructor::class)
 abstract class DocumentSyncDatabase: RoomDatabase() {
     abstract fun cloudDocumentCacheDao(): CloudDocumentCacheDao
     abstract fun documentSyncPreferencesDao(): DocumentSyncPreferencesDao
@@ -177,6 +184,7 @@ const val REPO_DATABASE_VERSION = 1
     version = REPO_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(RepoDatabaseConstructor::class)
 abstract class RepoDatabase: RoomDatabase() {
     abstract fun swordDocumentInfoDao(): SwordDocumentInfoDao
     abstract fun customRepositoryDao(): CustomRepositoryDao
@@ -197,6 +205,7 @@ const val SETTINGS_DATABASE_VERSION = 1
     ],
     version = SETTINGS_DATABASE_VERSION
 )
+@ConstructedBy(SettingsDatabaseConstructor::class)
 abstract class SettingsDatabase: RoomDatabase() {
     abstract fun booleanSettingDao(): BooleanSettingDao
     abstract fun stringSettingDao(): StringSettingDao
@@ -226,6 +235,7 @@ const val AI_SETTINGS_DATABASE_VERSION = 23
     version = AI_SETTINGS_DATABASE_VERSION
 )
 @ColumnTypeConverters(Converters::class)
+@ConstructedBy(AiSettingsDatabaseConstructor::class)
 abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     abstract fun agentPromptDao(): AgentPromptDao
     abstract fun llmProviderConfigDao(): LlmProviderConfigDao
@@ -238,4 +248,44 @@ abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     companion object {
         const val dbFileName = "ai_settings.sqlite3"
     }
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object BookmarkDatabaseConstructor : RoomDatabaseConstructor<BookmarkDatabase> {
+    override fun initialize(): BookmarkDatabase
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object ReadingPlanDatabaseConstructor : RoomDatabaseConstructor<ReadingPlanDatabase> {
+    override fun initialize(): ReadingPlanDatabase
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object WorkspaceDatabaseConstructor : RoomDatabaseConstructor<WorkspaceDatabase> {
+    override fun initialize(): WorkspaceDatabase
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object TemporaryDatabaseConstructor : RoomDatabaseConstructor<TemporaryDatabase> {
+    override fun initialize(): TemporaryDatabase
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object DocumentSyncDatabaseConstructor : RoomDatabaseConstructor<DocumentSyncDatabase> {
+    override fun initialize(): DocumentSyncDatabase
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object RepoDatabaseConstructor : RoomDatabaseConstructor<RepoDatabase> {
+    override fun initialize(): RepoDatabase
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object SettingsDatabaseConstructor : RoomDatabaseConstructor<SettingsDatabase> {
+    override fun initialize(): SettingsDatabase
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object AiSettingsDatabaseConstructor : RoomDatabaseConstructor<AiSettingsDatabase> {
+    override fun initialize(): AiSettingsDatabase
 }
