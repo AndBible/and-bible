@@ -202,6 +202,8 @@ class BookInstallWatcherTest {
                 }
             }
             val book = Books.installed().getBooks().first()
+            // The amendment may unlock the shared test module with a made-up key; restore the real key so later tests can read it.
+            val originalKey = book.bookMetaData.unlockKey
             preexisting?.let { docDao.insert(it.copy(initials = book.initials)) }
             try {
                 if (removeFirst) watcher.listener.bookRemoved(BooksEvent(Books.installed(), book, false))
@@ -218,6 +220,8 @@ class BookInstallWatcherTest {
             } finally {
                 release.complete(Unit)
                 appScope.coroutineContext[Job]!!.cancel()
+                val meta = book.bookMetaData as org.crosswire.jsword.book.sword.SwordBookMetaData
+                if (originalKey == null) meta.removeProperty("CipherKey") else meta.unlock(originalKey)
             }
             docDao.getBook(book.initials)
         }
