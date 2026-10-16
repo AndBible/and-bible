@@ -155,22 +155,6 @@ data class LlmProviderConfig(
         val provider = resolveProvider()
         return if (provider == LlmProvider.CUSTOM) apiFormat ?: ApiFormat.OPENAI else provider.apiFormat
     }
-
-    fun resolveAdapter(): LlmApiAdapter = when (resolveApiFormat()) {
-        ApiFormat.OPENAI -> {
-            val provider = resolveProvider()
-            val cacheControl = provider != LlmProvider.CUSTOM && provider.supportsCacheControl
-            OpenAiApiAdapter(supportsCacheControl = cacheControl)
-        }
-        ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
-    }
-
-    /** All available models for this provider (enum + dynamic). Used for "add model" picker. */
-    fun resolveAvailableModels(): List<String> {
-        val provider = resolveProvider()
-        val dynamic = DynamicModelService.getCachedModels(provider.name)
-        return dynamic?.map { it.id } ?: provider.models
-    }
 }
 
 /**
@@ -205,26 +189,7 @@ data class LlmConfiguredModel(
     /** Display name for UI. Currently just modelId; override later if custom names are needed. */
     val displayName: String get() = modelId
 
-    companion object {
-        /** Create a configured model with pricing auto-filled from known sources. */
-        fun create(
-            providerConfigId: IdType,
-            modelId: String,
-            orderNumber: Int = 0,
-        ): LlmConfiguredModel {
-            val pricing = LlmProvider.findPricing(modelId)
-                ?: DynamicModelService.getPricingForModel(modelId)
-            return LlmConfiguredModel(
-                providerConfigId = providerConfigId,
-                modelId = modelId,
-                orderNumber = orderNumber,
-                inputPricePerMillion = pricing?.inputPerMillion ?: 0.0,
-                outputPricePerMillion = pricing?.outputPerMillion ?: 0.0,
-                cacheCreationPricePerMillion = pricing?.cacheCreationPerMillion ?: 0.0,
-                cacheReadPricePerMillion = pricing?.cacheReadPerMillion ?: 0.0,
-            )
-        }
-    }
+    companion object
 }
 
 fun LlmProviderConfig.apiKey(secrets: SecretStore): String =
