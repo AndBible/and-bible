@@ -25,7 +25,7 @@ import androidx.room3.Insert
 import androidx.room3.PrimaryKey
 import androidx.room3.Query
 
-@Entity(tableName = "Document") @Fts4
+@Entity(tableName = "Document") @Fts4(contentEntity = Any::class)
 data class DocumentSearch(
     var osisId: String,
     var abbreviation: String,

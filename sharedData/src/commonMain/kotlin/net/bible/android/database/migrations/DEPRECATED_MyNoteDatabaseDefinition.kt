@@ -102,15 +102,7 @@ private constructor() {
 
     companion object {
         private const val TAG = "MyNoteDatabaseDef"
-        private var sSingleton: DEPRECATED_MyNoteDatabaseDefinition? = null
-        @JvmStatic
-		@get:Synchronized
-        val instance: DEPRECATED_MyNoteDatabaseDefinition
-            get() {
-                if (sSingleton == null) {
-                    sSingleton = DEPRECATED_MyNoteDatabaseDefinition()
-                }
-                return sSingleton!!
-            }
+        /** Stateless singleton; `lazy` is thread-safe, replacing the former `@Synchronized` getter. */
+        val instance: DEPRECATED_MyNoteDatabaseDefinition by lazy { DEPRECATED_MyNoteDatabaseDefinition() }
     }
 }

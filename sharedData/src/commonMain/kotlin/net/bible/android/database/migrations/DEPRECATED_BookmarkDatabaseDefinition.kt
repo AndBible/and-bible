@@ -145,15 +145,7 @@ class DEPRECATED_BookmarkDatabaseDefinition {
 
     companion object {
         private const val TAG = "BookmarkDatabaseDefn"
-        private var sSingleton: DEPRECATED_BookmarkDatabaseDefinition? = null
-        @JvmStatic
-		@get:Synchronized
-        val instance: DEPRECATED_BookmarkDatabaseDefinition
-            get() {
-                if (sSingleton == null) {
-                    sSingleton = DEPRECATED_BookmarkDatabaseDefinition()
-                }
-                return sSingleton!!
-            }
+        /** Stateless singleton; `lazy` is thread-safe, replacing the former `@Synchronized` getter. */
+        val instance: DEPRECATED_BookmarkDatabaseDefinition by lazy { DEPRECATED_BookmarkDatabaseDefinition() }
     }
 }
