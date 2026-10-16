@@ -17,8 +17,7 @@
 
 package net.bible.android.database
 
-/** Platform-independent replacements for the [android.graphics.Color] helpers used by stored colour ints. */
-
+// Platform-independent replacements for the android.graphics.Color helpers used by stored colour ints.
 fun argb(alpha: Int, red: Int, green: Int, blue: Int): Int =
     (alpha shl 24) or (red shl 16) or (green shl 8) or blue
 

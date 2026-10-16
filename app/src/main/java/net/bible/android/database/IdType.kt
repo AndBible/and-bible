@@ -120,7 +120,11 @@ class MyUUID(
 
         private const val BITS_PER_BYTE = 8
 
-        /** Same acceptance as the former `Long.decode("0x" + s)`: non-empty ASCII hex digits only, no sign. */
+        /**
+         * Accepts non-empty ASCII hex digits only, no sign. This is stricter than the former
+         * `Long.decode("0x" + s)`, which also accepted non-ASCII Unicode digits (e.g. "0x１" == 1);
+         * those are rejected here.
+         */
         private fun parseHexComponent(s: String): Long {
             if (s.isEmpty() || !s.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) {
                 throw NumberFormatException("Invalid hex component: \"$s\"")

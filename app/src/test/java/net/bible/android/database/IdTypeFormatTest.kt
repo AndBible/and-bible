@@ -41,7 +41,7 @@ class IdTypeFormatTest {
 
     @Test fun fromStringRejectsMalformedText() {
         for (bad in listOf("", "1-2-3-4", "1-2-3-4-5-6", "zz-1-2-3-4", "--1-2-3", "+1-2-3-4-5", "-1-2-3-4-5",
-            "0x1-2-3-4-5", "1-2-3-4-ffffffffffffffff")) {
+            "0x1-2-3-4-5", "1-2-3-4-ffffffffffffffff", "１-2-3-4-5")) {
             assertThrows("input '$bad'", IllegalArgumentException::class.java) { MyUUID.fromString(bad) }
         }
     }
