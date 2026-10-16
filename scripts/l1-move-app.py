@@ -40,9 +40,10 @@ def is_allowed(rel):
 
 PKG = re.compile(r"^package\s+([\w.]+)")
 # 'fun X.name' / 'fun <T> X.name' / 'val X.name': the declared name is the last identifier before ( or : or =.
-EXT = re.compile(r"^(?:\w+\s+)*(?:fun|val|var)\s+(?:<[^>]*>\s*)?[\w<>?,. ]+?\.(\w+)\s*[(:=<{]")
+EXT = re.compile(r"^(?:@\w+(?:\([^)]*\))?\s+)*(?:\w+\s+)*(?:fun|val|var)\s+(?:<[^>]*>\s*)?[\w<>?,. ]+?\.(\w+)\s*[(:=<{]")
 PLAIN = re.compile(
-    r"^(?:(?:public|internal|private|protected|abstract|open|sealed|data|enum|annotation|inline|value|"
+    r"^(?:@\w+(?:\([^)]*\))?\s+)*"
+    r"(?:(?:public|fun|internal|private|protected|abstract|open|sealed|data|enum|annotation|inline|value|"
     r"expect|actual|const|lateinit|suspend|tailrec|operator|infix|external)\s+)*"
     r"(?:class|interface|object|typealias|val|var|fun)\s+(?:<[^>]*>\s*)?(\w+)"
 )
@@ -97,7 +98,8 @@ n = 0
 for path in (l.strip() for l in sys.stdin if l.strip()):
     with open(path, encoding="utf-8", errors="replace") as fh:
         for i, line in enumerate(fh, 1):
-            m = IMPORT.match(line.strip())
+            clean = re.sub(r"/\*.*?\*/|//.*$", "", line).strip().rstrip(";").strip()
+            m = IMPORT.match(clean)
             if m and resolves(m.group(1)):
                 n += 1
                 if show:
