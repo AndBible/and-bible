@@ -16,8 +16,7 @@
  */
 package net.bible.android.database.migrations
 
-import android.provider.BaseColumns
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import net.bible.service.db.queryRows
@@ -48,7 +47,7 @@ class DEPRECATED_BookmarkDatabaseDefinition {
     interface Clause
     interface BookmarkColumn {
         companion object {
-            const val _ID = BaseColumns._ID
+            const val _ID = "_id"
             const val KEY = "key"
             const val VERSIFICATION = "versification"
             const val CREATED_ON = "created_on"
@@ -65,7 +64,7 @@ class DEPRECATED_BookmarkDatabaseDefinition {
 
     interface LabelColumn {
         companion object {
-            const val _ID = BaseColumns._ID
+            const val _ID = "_id"
             const val NAME = "name"
             const val BOOKMARK_STYLE = "bookmark_style"
         }

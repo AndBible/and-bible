@@ -1,6 +1,7 @@
 package net.bible.android.database
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
@@ -20,10 +21,20 @@ class SharedDataReadinessTest {
     @Test fun noForbiddenImportsBeyondAllowList() {
         val sources = MOVE_SET.associateWith { File(root, it).readText() }
         val declarations = sources.values.flatMap { declarations(it) }.toSet()
-        val actual = sources.mapValues { (_, source) -> forbiddenImports(source, declarations) }
+        val actual = sources.filterKeys { it !in PLATFORM_BACKED }
+            .mapValues { (_, source) -> forbiddenImports(source, declarations) }
             .filterValues { it.isNotEmpty() }
         println("Current readiness violations: $actual")
         assertEquals("Unexpected or stale readiness exceptions", ALLOWED_VIOLATIONS, actual)
+    }
+
+    /** Platform seams are exempt from [ALLOWED_VIOLATIONS] but must use exactly their approved backing, nothing else. */
+    @Test fun platformBackedFilesUseOnlyTheirApprovedBacking() {
+        val declarations = MOVE_SET.flatMap { declarations(File(root, it).readText()) }.toSet()
+        for ((file, approved) in PLATFORM_BACKED) {
+            assertEquals(file, approved, forbiddenImports(File(root, file).readText(), declarations))
+            assertTrue("$file must be in MOVE_SET", file in MOVE_SET)
+        }
     }
 
     @Test fun guardSeesPlantedViolation() {
@@ -159,9 +170,9 @@ class SharedDataReadinessTest {
 
         // Explicit inventory: missing/deleted files fail instead of silently shrinking the gate.
         val MOVE_SET: List<String> = listOf(
-            "CachedCloudDocument.kt", "Converters.kt", "CustomRepository.kt", "Databases.kt",
+            "ArgbColor.kt", "CachedCloudDocument.kt", "Converters.kt", "CustomRepository.kt", "Databases.kt",
             "DocumentSearch.kt", "DocumentSyncEntities.kt", "Epub.kt", "IdType.kt",
-            "OldMonolithicAppDatabase.kt", "Settings.kt", "SwordDocumentInfo.kt", "SyncableRoomDatabase.kt",
+            "OldMonolithicAppDatabase.kt", "PlatformRandom.kt", "Settings.kt", "SwordDocumentInfo.kt", "SyncableRoomDatabase.kt",
             "WorkspaceDao.kt", "WorkspaceEntities.kt", "bookmarks/BookmarkEntities.kt",
             "bookmarks/BookmarksDao.kt", "bookmarks/SpeakSettings.kt",
             "migrations/AiSettingsMigrations.kt", "migrations/BookmarkMigrations.kt",
@@ -180,23 +191,23 @@ class SharedDataReadinessTest {
             "app/src/main/java/net/bible/service/llm/AgentPromptEntities.kt"
         )
 
+        // Platform seams whose JVM backing is validated exactly and separately; replaced by expect/actual in Task 6.
+        val PLATFORM_BACKED: Map<String, Set<String>> = mapOf(
+            "$DATABASE_DIRECTORY/PlatformRandom.kt" to setOf("java.security.SecureRandom")
+        )
+
         // Exact import targets, including existing wildcards; removals fail until the entry is removed.
         val ALLOWED_VIOLATIONS: Map<String, Set<String>> = mapOf(
             "$DATABASE_DIRECTORY/CachedCloudDocument.kt" to setOf(
                 "net.bible.service.cloudsync.documents.DocumentSyncMeta", "net.bible.service.cloudsync.documents.DocumentType"),
             "$DATABASE_DIRECTORY/Converters.kt" to setOf(
-                "android.util.Log", "java.util.Date", "net.bible.service.llm.ApiFormat", "net.bible.service.llm.agent.PermissionMode"),
-            "$DATABASE_DIRECTORY/CustomRepository.kt" to setOf("android.util.Log", "java.util.*"),
-            "$DATABASE_DIRECTORY/IdType.kt" to setOf("java.lang.Long.decode", "java.lang.Long.toHexString", "java.security.SecureRandom"),
-            "$DATABASE_DIRECTORY/WorkspaceEntities.kt" to setOf("android.graphics.Color", "java.util.*"),
-            "$DATABASE_DIRECTORY/bookmarks/BookmarkEntities.kt" to setOf("android.graphics.Color", "java.util.*", "net.bible.android.misc.OsisFragment"),
+                "java.util.Date", "net.bible.service.llm.ApiFormat", "net.bible.service.llm.agent.PermissionMode"),
+            "$DATABASE_DIRECTORY/CustomRepository.kt" to setOf("java.util.*"),
+            "$DATABASE_DIRECTORY/WorkspaceEntities.kt" to setOf("java.util.*"),
+            "$DATABASE_DIRECTORY/bookmarks/BookmarkEntities.kt" to setOf("java.util.*", "net.bible.android.misc.OsisFragment"),
             "$DATABASE_DIRECTORY/bookmarks/BookmarksDao.kt" to setOf("java.util.*"),
             "$DATABASE_DIRECTORY/bookmarks/SpeakSettings.kt" to setOf("java.lang.IllegalArgumentException"),
-            "$DATABASE_DIRECTORY/migrations/DEPRECATED_BookmarkDatabaseDefinition.kt" to setOf("android.provider.BaseColumns", "android.util.Log"),
-            "$DATABASE_DIRECTORY/migrations/DEPRECATED_MyNoteDatabaseDefinition.kt" to setOf("android.provider.BaseColumns", "android.util.Log"),
             "$DATABASE_DIRECTORY/migrations/DatabaseSplitMigrations.kt" to setOf("android.app.Application"),
-            "$DATABASE_DIRECTORY/migrations/OldMonolithicAppDatabaseMigrations.kt" to setOf("android.util.Log"),
-            "$DATABASE_DIRECTORY/migrations/Utilities.kt" to setOf("android.util.Log"),
             "$DATABASE_DIRECTORY/readingplan/ReadingPlanDao.kt" to setOf("java.util.Date"),
             "$DATABASE_DIRECTORY/readingplan/ReadingPlanEntities.kt" to setOf("java.util.Date"),
             "app/src/main/java/net/bible/service/db/OpenSqlite.kt" to setOf("java.io.File"),

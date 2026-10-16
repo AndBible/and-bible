@@ -17,7 +17,6 @@
 
 package net.bible.android.database
 
-import android.graphics.Color
 import androidx.room3.ColumnInfo
 import androidx.room3.Embedded
 import androidx.room3.Entity
@@ -38,7 +37,7 @@ val json = Json {
     allowStructuredMapKeys = true
     encodeDefaults = true
 }
-val defaultWorkspaceColor = Color.parseColor("#ff444444")
+val defaultWorkspaceColor = parseArgbHex("#ff444444")
 
 class WorkspaceEntities {
     data class Page(

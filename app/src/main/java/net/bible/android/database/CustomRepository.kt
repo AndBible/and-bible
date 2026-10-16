@@ -17,7 +17,7 @@
 
 package net.bible.android.database
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.room3.Dao
 import androidx.room3.Delete
 import androidx.room3.Entity

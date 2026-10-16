@@ -28,13 +28,17 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
-import android.graphics.Color
 import androidx.room3.ColumnInfo
 import androidx.room3.DatabaseView
 import androidx.room3.Embedded
 import androidx.room3.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
+import net.bible.android.database.alphaOf
+import net.bible.android.database.argb
+import net.bible.android.database.blueOf
+import net.bible.android.database.greenOf
+import net.bible.android.database.redOf
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
@@ -76,26 +80,26 @@ const val AI_DOC_LABEL_ID = "00000000-0000-ab1e-0000-a1d0c00001a1"
 
 fun intToColorArray(colorInt: Int): ArrayList<Int> {
     val ar = ArrayList<Int>()
-    ar.add(Color.red(colorInt))
-    ar.add(Color.green(colorInt))
-    ar.add(Color.blue(colorInt))
-    ar.add(Color.alpha(colorInt))
+    ar.add(colorInt.redOf())
+    ar.add(colorInt.greenOf())
+    ar.add(colorInt.blueOf())
+    ar.add(colorInt.alphaOf())
     return ar
 }
 
 enum class BookmarkStyle(val backgroundColor: Int) {
-    YELLOW_STAR(Color.argb(255, 255, 255, 0)),
-    RED_HIGHLIGHT(Color.argb(255, 213, 0, 0)),
-    YELLOW_HIGHLIGHT(Color.argb(255, 255, 255, 0)),
-    GREEN_HIGHLIGHT(Color.argb(255, 0, 255, 0)),
-    BLUE_HIGHLIGHT(Color.argb(255, 145, 167, 255)),
-    ORANGE_HIGHLIGHT(Color.argb(255, 255, 165, 0)),
-    PURPLE_HIGHLIGHT(Color.argb(255, 128, 0, 128)),
-    UNDERLINE(Color.argb(255, 128, 99, 128)),
+    YELLOW_STAR(argb(255, 255, 255, 0)),
+    RED_HIGHLIGHT(argb(255, 213, 0, 0)),
+    YELLOW_HIGHLIGHT(argb(255, 255, 255, 0)),
+    GREEN_HIGHLIGHT(argb(255, 0, 255, 0)),
+    BLUE_HIGHLIGHT(argb(255, 145, 167, 255)),
+    ORANGE_HIGHLIGHT(argb(255, 255, 165, 0)),
+    PURPLE_HIGHLIGHT(argb(255, 128, 0, 128)),
+    UNDERLINE(argb(255, 128, 99, 128)),
 
     // Special hard-coded style for Speak bookmarks. This must be last one here.
     // This is removed from the style lists.
-    SPEAK(Color.argb(255, 255, 0, 0));
+    SPEAK(argb(255, 255, 0, 0));
     val colorArray: List<Int> get() = intToColorArray(backgroundColor)
 }
 

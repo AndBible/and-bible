@@ -16,7 +16,7 @@
  */
 package net.bible.android.database.migrations
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import net.bible.service.db.exec

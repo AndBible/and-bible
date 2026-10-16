@@ -18,7 +18,7 @@
 package net.bible.android.database
 
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.room3.ColumnTypeConverter
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.serializer

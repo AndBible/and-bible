@@ -23,9 +23,6 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import java.lang.Long.decode
-import java.lang.Long.toHexString
-import java.security.SecureRandom
 
 object UUIDSerializer : KSerializer<MyUUID> {
     override val descriptor = PrimitiveSerialDescriptor("MyUUID", PrimitiveKind.STRING)
@@ -38,8 +35,6 @@ object IdTypeSerializer : KSerializer<IdType> {
     override fun deserialize(decoder: Decoder): IdType = IdType.fromString(decoder.decodeString())
     override fun serialize(encoder: Encoder, value: IdType) = encoder.encodeString(value.toString())
 }
-
-private val randomGenerator = SecureRandom()
 
 /**
  * Like UUID but not quite UUID. Just 128 bit random binary.
@@ -64,8 +59,7 @@ class MyUUID(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as MyUUID
+        if (other !is MyUUID) return false
         if (mostSignificantBits != other.mostSignificantBits) return false
         if (leastSignificantBits != other.leastSignificantBits) return false
         return true
@@ -79,12 +73,12 @@ class MyUUID(
         val result = ByteArray(16)
         for (i in 8 - 1 downTo 0) {
             result[i] = (l and 0xFFL).toByte()
-            l = l shr java.lang.Byte.SIZE
+            l = l shr BITS_PER_BYTE
         }
         l = l2
         for (i in 16 - 1 downTo 8) {
             result[i] = (l and 0xFFL).toByte()
-            l = l shr java.lang.Byte.SIZE
+            l = l shr BITS_PER_BYTE
         }
         return result
     }
@@ -92,19 +86,18 @@ class MyUUID(
     override fun compareTo(other: MyUUID): Int = compareValuesBy(this, other, {mostSignificantBits}, {leastSignificantBits})
 
     companion object {
-        fun randomUUID(): MyUUID = MyUUID(randomGenerator.nextLong(), randomGenerator.nextLong())
+        fun randomUUID(): MyUUID = fromByteArray(secureRandomBytes(16))
         fun fromString(name: String): MyUUID {
             val components = name.split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             require(components.size == 5) { "Invalid UUID string: $name" }
-            for (i in 0..4) components[i] = "0x" + components[i]
-            var mostSigBits = decode(components[0]).toLong()
+            var mostSigBits = parseHexComponent(components[0])
             mostSigBits = mostSigBits shl 16
-            mostSigBits = mostSigBits or decode(components[1]).toLong()
+            mostSigBits = mostSigBits or parseHexComponent(components[1])
             mostSigBits = mostSigBits shl 16
-            mostSigBits = mostSigBits or decode(components[2]).toLong()
-            var leastSigBits = decode(components[3]).toLong()
+            mostSigBits = mostSigBits or parseHexComponent(components[2])
+            var leastSigBits = parseHexComponent(components[3])
             leastSigBits = leastSigBits shl 48
-            leastSigBits = leastSigBits or decode(components[4]).toLong()
+            leastSigBits = leastSigBits or parseHexComponent(components[4])
             return MyUUID(mostSigBits, leastSigBits)
         }
 
@@ -114,19 +107,30 @@ class MyUUID(
             }
             var bits1 = 0L
             for (i in 0 until 8) {
-                bits1 = bits1 shl java.lang.Byte.SIZE
+                bits1 = bits1 shl BITS_PER_BYTE
                 bits1 = bits1 or (value[i].toInt() and 0xFF).toLong()
             }
             var bits2 = 0L
             for (i in 8 until 16) {
-                bits2 = bits2 shl java.lang.Byte.SIZE
+                bits2 = bits2 shl BITS_PER_BYTE
                 bits2 = bits2 or (value[i].toInt() and 0xFF).toLong()
             }
             return MyUUID(bits1, bits2)
         }
+
+        private const val BITS_PER_BYTE = 8
+
+        /** Same acceptance as the former `Long.decode("0x" + s)`: non-empty ASCII hex digits only, no sign. */
+        private fun parseHexComponent(s: String): Long {
+            if (s.isEmpty() || !s.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) {
+                throw NumberFormatException("Invalid hex component: \"$s\"")
+            }
+            return s.toLong(16)
+        }
+
         fun digits(value: Long, digits: Int): String {
             val hi = 1L shl (digits * 4)
-            return toHexString(hi or (value and (hi - 1))).substring(1)
+            return (hi or (value and (hi - 1))).toString(16).substring(1)
         }
     }
 }
@@ -148,7 +152,7 @@ data class IdType(
     }
     fun toByteArray(): ByteArray? = myUUID?.toByteArray()
     /** Hex string suitable for SQL X'...' literals. */
-    fun toHex(): String = toByteArray()!!.joinToString("") { "%02x".format(it) }
+    fun toHex(): String = toByteArray()!!.joinToString("") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }
     companion object {
         fun empty() = IdType(null as String?)
         fun fromString(value: String) = if(value.isEmpty()) empty() else IdType(MyUUID.fromString(value))
