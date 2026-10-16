@@ -162,6 +162,10 @@ abstract class HttpTransportContract {
         val caller = launch(Dispatchers.IO) { outcomeOfCopy.complete(runCatching { copy("${server.base}/hang", File(dir, "h")) }.exceptionOrNull()) }
         try {
             assertTrue("must reach stalled body read", stalledReadEntered.await(5, TimeUnit.SECONDS))
+            // The latch fires when the wrapper's read STARTS; wait until the reader really sits in the socket read
+            // (the server has sent its 2 bytes and now stalls), because the cancel must be tested against a blocked
+            // reader, not against the race to get there first.
+            kotlinx.coroutines.delay(500)
             val start = System.nanoTime()
             caller.cancel()
             val outcome = withTimeout(3_000) { outcomeOfCopy.await() }
