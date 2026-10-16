@@ -13,6 +13,21 @@ import net.bible.sharedcore.search.SearchModeController
  *  see [ManageLabelsController.reset]; the screen uses it to pick the right question. */
 enum class ManageLabelsResetKind { WORKSPACE, HIDE_LABELS }
 
+data class ManageLabelsSnapshot(
+    val selected: Set<String>,
+    val autoAssign: Set<String>,
+    val changed: Set<String>,
+    val deleted: Set<String>,
+    val deletedWithOrphaned: Set<String>,
+    val autoAssignPrimary: String?,
+    val bookmarkPrimary: String?,
+    val labels: List<LabelItem>,
+    val search: String,
+    val searchMode: SearchMode,
+    val filters: Set<LabelFilter>,
+    val searchOpen: Boolean,
+)
+
 /** Which modal the ManageLabels list is currently showing (screen-local, driven by the controller). */
 sealed interface ManageLabelsDialog {
     data object None : ManageLabelsDialog
@@ -42,6 +57,7 @@ class ManageLabelsController(
     private val onSelectStudyPad: (labelId: String, firstMatchEntryId: String?) -> Unit,
     private val onSave: () -> Unit,
     private val onReset: () -> Unit,
+    private val restored: ManageLabelsSnapshot? = null,
 ) {
     private val selected = initialSelected.toMutableSet()
     private val autoAssign = initialAutoAssign.toMutableSet()
@@ -99,7 +115,32 @@ class ManageLabelsController(
 
     // Rows stay empty until the first load lands (one frame on device); the rows are then built
     // exactly as a synchronous constructor built them.
-    init { scope.launch { load(); rebuild(reorder = true) } }
+    init {
+        restored?.let {
+            selected.clear(); selected.addAll(it.selected)
+            autoAssign.clear(); autoAssign.addAll(it.autoAssign)
+            changed.addAll(it.changed); deleted.addAll(it.deleted); deletedWithOrphaned.addAll(it.deletedWithOrphaned)
+            autoAssignPrimary = it.autoAssignPrimary; bookmarkPrimary = it.bookmarkPrimary
+            labels.addAll(it.labels)
+            _searchText.value = it.search
+            _searchMode.value = it.searchMode
+            _filters.value = it.filters
+            if (it.searchOpen) searchBarMode.open()
+        }
+        scope.launch {
+            load(); rebuild(reorder = restored == null)
+            // A restored StudyPad CONTENT query shows content hits, not the name-filter fallback.
+            if (restored != null && mode == ManageLabelsMode.STUDYPAD && _searchMode.value == SearchMode.CONTENT &&
+                _searchText.value.length >= 3) dispatchSearchOrRebuild()
+        }
+    }
+
+    /** Value-only working set; services, callbacks and jobs always belong to the new host. */
+    fun snapshot() = ManageLabelsSnapshot(
+        selected.toSet(), autoAssign.toSet(), changed.toSet(), deleted.toSet(), deletedWithOrphaned.toSet(),
+        autoAssignPrimary, bookmarkPrimary, labels.filter { it.id in changed }, _searchText.value, _searchMode.value,
+        _filters.value, searchModeActive.value,
+    )
 
     /**
      * Reads the service's label data. The label list itself is read only once (later changes come
@@ -293,6 +334,14 @@ class ManageLabelsController(
     // ---- actions ----
     fun setSearch(t: String) { _searchText.value = t; dispatchSearchOrRebuild() }
     fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; dispatchSearchOrRebuild() }
+
+    private var searchModeSeeded = restored != null
+    fun seedSearchMode(initialMode: () -> SearchMode) {
+        if (searchModeSeeded) return
+        searchModeSeeded = true
+        val mode = initialMode()
+        if (_searchMode.value != mode) setSearchMode(mode)
+    }
     /** The search-options sheet's filter toggles. A filter changes the row-key SET, so this always
      *  re-sorts: `stickyOrder` would refuse to reuse the old sequence anyway, and saying so here is
      *  clearer than relying on that. */

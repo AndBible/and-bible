@@ -20,6 +20,14 @@ sealed interface BookmarksDialog {
  * [BookmarksService] seam to (re)load the rows on [scope] — the actual Room/JSword work, and pref
  * persistence, live in the seam / host, keeping this class portable to iOS.
  */
+data class BookmarksSnapshot(
+    val filter: Int,
+    val query: String,
+    val searchOpen: Boolean,
+    val selection: Set<String>,
+    val expanded: Set<String>,
+)
+
 class BookmarksController(
     private val service: BookmarksService,
     private val scope: CoroutineScope,
@@ -30,6 +38,7 @@ class BookmarksController(
     private val onExportCsv: () -> Unit,
     private val onImportCsv: () -> Unit,
     private val onManageLabels: () -> Unit,
+    restored: BookmarksSnapshot? = null,
 ) {
     /** Empty until the initial load in `init` has read them (the service call is `suspend`). */
     private val _filterLabels = MutableStateFlow<List<BookmarkFilterLabel>>(emptyList())
@@ -70,6 +79,13 @@ class BookmarksController(
     // rows load, all on [scope] (the service calls are `suspend`). Rows were already loaded
     // asynchronously, so the screen shows its loading state for the same first frames as before.
     init {
+        restored?.let {
+            _selectedFilterIndex.value = it.filter
+            _searchText.value = it.query
+            _selection.value = it.selection
+            _expandedIds.value = it.expanded
+            if (it.searchOpen) searchMode.open()
+        }
         _loading.value = true
         scope.launch {
             val labels = service.filterLabels()
@@ -79,7 +95,13 @@ class BookmarksController(
         }
     }
 
+    fun snapshot() = BookmarksSnapshot(
+        selectedFilterIndex.value, searchText.value, searchModeActive.value, selection.value, expandedIds.value,
+    )
+
+    private var loadGeneration = 0L
     private fun reload() {
+        val generation = ++loadGeneration
         _loading.value = true
         val filterIndex = _selectedFilterIndex.value
         val sort = _sortMode.value
@@ -87,6 +109,7 @@ class BookmarksController(
         val showNotes = _showNotes.value
         scope.launch {
             val r = service.loadRows(filterIndex, sort, search, showNotes)
+            if (generation != loadGeneration) return@launch
             _rows.value = r
             _loading.value = false
         }
