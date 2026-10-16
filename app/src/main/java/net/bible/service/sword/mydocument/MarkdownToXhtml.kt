@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mydocument
 
+import net.bible.sharedcore.platform.MarkdownRenderer
 import org.apache.commons.text.StringEscapeUtils
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.parser.Parser
@@ -29,8 +30,18 @@ import org.commonmark.renderer.html.HtmlRenderer
  * - Void elements are self-closing (`<br />`, `<hr />`, `<img ... />`)
  * - HTML named entities are converted to Unicode characters
  * - Only the 5 XML built-in entities are preserved (`&amp;`, `&lt;`, `&gt;`, `&quot;`, `&apos;`)
+ *
+ * L1b phase 0 decision: PORT, not a common library. This is the Android implementation of
+ * [MarkdownRenderer] (bound in `CoreModule`). JetBrains `org.jetbrains:markdown` 0.7.18 (GFM flavour; it does
+ * resolve for iosArm64/iosSimulatorArm64) was tried against `MarkdownToXhtmlParityTest` and differed on all
+ * 12 fixtures: a `<body>` wrapper, no newlines between block elements, GFM table `align` dropped on the first
+ * column plus `class="intellij-row-even"` rows, raw HTML such as `<tag-like>` escaped, and empty input
+ * rendered as `<body></body>`. Matching commonmark byte for byte would mean re-implementing the renderer,
+ * far beyond a small post-processing step, so commonmark-java stays and iOS supplies its own renderer.
  */
-object MarkdownToXhtml {
+object MarkdownToXhtml : MarkdownRenderer {
+    override fun toXhtml(markdown: String): String = convert(markdown)
+
     private val extensions = listOf(TablesExtension.create())
     private val parser = Parser.builder().extensions(extensions).build()
     private val renderer = HtmlRenderer.builder().extensions(extensions).build()

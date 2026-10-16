@@ -69,6 +69,12 @@ class MarkdownToXhtmlParityTest {
     }
 
     @Test
+    fun portMethodMatchesOracle() {
+        val md = "# T\n\n| a | b |\n|:-|-:|\n| 1 | 2 |\n"
+        assertEquals(Oracle.convert(md), (MarkdownToXhtml as net.bible.sharedcore.platform.MarkdownRenderer).toXhtml(md))
+    }
+
+    @Test
     fun hardBreakStaysXhtml() {
         val out = MarkdownToXhtml.convert("a  \nb")
         assertTrue(out, out.contains("<br />"))
