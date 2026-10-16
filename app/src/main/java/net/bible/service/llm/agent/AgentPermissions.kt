@@ -20,15 +20,6 @@ package net.bible.service.llm.agent
 import kotlinx.serialization.Serializable
 import net.bible.service.llm.AgentTool
 
-/** Controls when the user is asked for permission before write tools execute. */
-@Serializable
-enum class PermissionMode {
-    ALWAYS_ASK,
-    ASK_ONCE_PER_RUN,
-    ALLOW_ALL,
-    DENY_ALL
-}
-
 data class AgentPermission(
     val toolName: String,
     val description: String,
