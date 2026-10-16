@@ -401,9 +401,13 @@ class BibleJavascriptInterface(
     }
 
     override fun openDownloads() {
-        if (!downloadControl.checkDownloadOkay()) return
-        val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.download(addons = true))
-        hostActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+        // DL-8: called on the JavaBridge thread; the reading host answers this launch by navigating
+        // its graph, which is main-thread-only.
+        scope.launch(Dispatchers.Main) {
+            if (!downloadControl.checkDownloadOkay()) return@launch
+            val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.download(addons = true))
+            hostActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+        }
     }
 
     override fun setEditing(enabled: Boolean) {
