@@ -6710,7 +6710,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private fun offerReadingPlanSelector(): Boolean {
         if (readingPlanSelectorOffered) {
-            finish()
+            returnToReadingOrFinish() // not finish(): in the single host that would close the reader too
             return false
         }
         readingPlanSelectorOffered = true
@@ -6762,7 +6762,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         lifecycleScope.launch {
             try {
                 val nextDayToShow = readingPlanWrites.done(dto.readingPlanInfo, dayLoaded)
-                if (nextDayToShow > 0) loadReadingPlanDay(planCodeLoaded, nextDayToShow) else finish()
+                if (nextDayToShow > 0) loadReadingPlanDay(planCodeLoaded, nextDayToShow)
+                // -1: plan finished or user up to date. Classic finish()ed its own Activity back to the
+                // reader; here that closes the reader's host (SU-15g D1), so pop to it instead.
+                else returnToReadingOrFinish()
             } catch (e: Exception) {
                 Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
                 dailyReadingController?.showError()

@@ -82,19 +82,19 @@ class DailyReadingPassageStaysInHostTest {
      * host-side (`loadReadingPlanDay`). Await its suspend read and actual navigation, not merely
      * the main looper: the DAO resumes from IO before the destination can be composed.
      */
-    private fun openDay(controller: ActivityController<NavHostComposeActivity>) {
+    private fun openDay(controller: ActivityController<NavHostComposeActivity>, day: Int = 5) {
         controller.newIntent(
             NavHostComposeActivity.intentFor(
                 ApplicationProvider.getApplicationContext(),
-                NavRoutes.dailyReading(plan = PLAN, day = 5),
+                NavRoutes.dailyReading(plan = PLAN, day = day),
             ),
         )
-        net.bible.test.awaitHostRoute(controller.get(), NavRoutes.dailyReading(plan = PLAN, day = 5))
+        net.bible.test.awaitHostRoute(controller.get(), NavRoutes.dailyReading(plan = PLAN, day = day))
         // The route alone is not enough on a host that STARTED on this day (it is already there): read() is a no-op
         // until the day's readings are loaded, and they load on IO after the route.
         val loaded = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay")
             .run { isAccessible = true; get(controller.get()) as kotlinx.coroutines.flow.StateFlow<*> }
-        net.bible.test.awaitHostCondition("day 5's readings must load") { loaded.value.toString().contains("day=5") }
+        net.bible.test.awaitHostCondition("day 5's readings must load") { loaded.value.toString().contains("day=$day") }
         // Reaching the route is not the day being loaded: the host's `readingsDto` (which `read()` silently
         // requires) is set only after the async DAO/status reads finish, and an early read(1) is a no-op.
         // The controller itself is built by the destination's first frames, so look it up inside the wait.
@@ -124,6 +124,61 @@ class DailyReadingPassageStaysInHostTest {
         assertFalse(activity.isFinishing, "Passage finished the host that owns the reading view -- F94's launcher")
         assertEquals(NavRoutes.READING, activity.currentRouteForTest()?.substringBefore('?'))
     }
+
+    /**
+     * SU-15g D1: puts the plan on [day] with a start date [daysAgo] days back, so that Done on [day] either
+     * has a due next day (daysAgo large) or leaves the user up to date (daysAgo == day - 1).
+     */
+    private fun planOnDay(day: Int, daysAgo: Int) = kotlinx.coroutines.runBlocking {
+        val control = org.koin.core.context.GlobalContext.get().get<net.bible.android.control.readingplan.ReadingPlanControl>()
+        control.setReadingPlan(PLAN)
+        val info = control.getDaysReading(1).readingPlanInfo
+        val start = java.util.Calendar.getInstance().apply { add(java.util.Calendar.DATE, -daysAgo) }
+        control.setStartDate(info, start.time)
+        if (day > 1) control.done(info, day - 1, true)
+    }
+
+    private fun doneFrom(day: Int, daysAgo: Int): NavHostComposeActivity {
+        planOnDay(day, daysAgo)
+        val controller = host().apply { create().start().resume().visible() }
+        val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity)
+        idleMain()
+        openDay(controller, day)
+        activity.dailyReadingControllerForTest().done()
+        return activity
+    }
+
+    private fun assertBackInTheReader(activity: NavHostComposeActivity) {
+        net.bible.test.awaitHostCondition("Done returns to the reading view") {
+            activity.isFinishing || activity.currentRouteForTest()?.substringBefore('?') == NavRoutes.READING
+        }
+        idleMain()
+        assertFalse(activity.isFinishing, "Done finished the host that owns the reading view (SU-15g D1)")
+        assertEquals(NavRoutes.READING, activity.currentRouteForTest()?.substringBefore('?'))
+    }
+
+    @Test
+    fun doneOnTheCurrentDayWithNoNextDayReturnsToTheReader() {
+        assertBackInTheReader(doneFrom(day = 5, daysAgo = 4))
+    }
+
+    @Test
+    fun doneOnTheLastPlanDayReturnsToTheReader() {
+        // y1ot1nt1_OTandNT has 365 days; Done on the last one resets the plan (nextDayToShow -1).
+        assertBackInTheReader(doneFrom(day = 365, daysAgo = 364))
+    }
+
+    @Test
+    fun doneWithANextDayShowsThatDay() {
+        val activity = doneFrom(day = 5, daysAgo = 9)
+        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 6))
+        assertFalse(activity.isFinishing)
+        val dayLoaded = { NavHostComposeActivity::class.java.getDeclaredField("dayLoaded").run { isAccessible = true; getInt(activity) } }
+        net.bible.test.awaitHostCondition("day 6 must load") { dayLoaded() == 6 }
+        assertEquals("readingPlan/day", activity.currentRouteForTest()?.substringBefore('?'))
+    }
+
 
     /** Review Focus 2: with no `reading` beneath (started on the day), finishing is still right. */
     @Test
