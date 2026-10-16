@@ -139,6 +139,96 @@ class StubTests(unittest.TestCase):
             followup = self.stream_chunks(port, [{"role": "tool", "content": "Created"}])
             self.assertEqual("".join(c["delta"].get("content", "") for c in followup), ANSWER)
 
+    CHAIN = json.dumps([
+        {"tool": "createStudyPad", "args": {"name": "Chain", "items": [{"type": "text", "text": "x"}]}},
+        {"tool": "finishWithStudyPad", "args": {"labelId": "{labelId}", "message": "id={labelId}"}},
+    ])
+    LABEL = "0123456789abcdef0123456789abcdef"
+
+    def chain_messages(self, *results):
+        messages = list(prompt()["messages"])
+        for index, content in enumerate(results):
+            messages.append({"role": "assistant", "content": None})
+            messages.append({"role": "tool", "tool_call_id": f"call_stub_{index + 1}", "content": content})
+        return messages
+
+    def test_toolchain_emits_steps_in_order_with_labelid_substituted(self):
+        real = json.dumps({"status": "success", "data": {"labelId": self.LABEL, "labelName": "Chain"}})
+        with running_stub("--insecure-http", "--mode", "toolchain", "--chain", self.CHAIN) as (port, _):
+            _, _, raw = request(port, body=prompt())
+            choice = json.loads(raw)["choices"][0]
+            self.assertEqual(choice["finish_reason"], "tool_calls")
+            function = choice["message"]["tool_calls"][0]["function"]
+            self.assertEqual(function["name"], "createStudyPad")
+            self.assertEqual(json.loads(function["arguments"])["name"], "Chain")
+            _, _, raw = request(port, body=prompt(messages=self.chain_messages(real)))
+            choice = json.loads(raw)["choices"][0]
+            self.assertEqual(choice["finish_reason"], "tool_calls")
+            function = choice["message"]["tool_calls"][0]["function"]
+            self.assertEqual(function["name"], "finishWithStudyPad")
+            self.assertEqual(json.loads(function["arguments"]),
+                             {"labelId": self.LABEL, "message": f"id={self.LABEL}"})
+            done = self.chain_messages(real, '{"status":"success","data":{"finished":true}}')
+            _, _, raw = request(port, body=prompt(messages=done))
+            choice = json.loads(raw)["choices"][0]
+            self.assertEqual(choice["finish_reason"], "stop")
+            self.assertEqual(choice["message"]["content"], ANSWER)
+            # A new user turn restarts the chain.
+            done.append({"role": "user", "content": "Again"})
+            _, _, raw = request(port, body=prompt(messages=done))
+            self.assertEqual(json.loads(raw)["choices"][0]["message"]["tool_calls"][0]["function"]["name"],
+                             "createStudyPad")
+
+    def test_toolchain_extraction_fallbacks_and_trailing_hint(self):
+        with running_stub("--insecure-http", "--mode", "toolchain", "--chain", self.CHAIN) as (port, _):
+            for content in (
+                    '{"status":"success","data":{"labelId":"%s"}}\n\nHint: do not loop' % self.LABEL,
+                    'oops "labelId" : "%s" trailing' % self.LABEL,
+                    'created labelId=%s ok' % self.LABEL):
+                _, _, raw = request(port, body=prompt(messages=self.chain_messages(content)))
+                args = json.loads(json.loads(raw)["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"])
+                self.assertEqual(args["labelId"], self.LABEL, content)
+
+    def test_toolchain_streams_each_step(self):
+        real = json.dumps({"status": "success", "data": {"labelId": self.LABEL}})
+        with running_stub("--insecure-http", "--mode", "toolchain", "--chain", self.CHAIN) as (port, _):
+            for messages, name in ((None, "createStudyPad"), (self.chain_messages(real), "finishWithStudyPad")):
+                choices = self.stream_chunks(port, messages)
+                calls = [tc for c in choices for tc in c["delta"].get("tool_calls", [])]
+                self.assertEqual(calls[0]["function"]["name"], name)
+                self.assertEqual(choices[-1]["finish_reason"], "tool_calls")
+                args = json.loads("".join(c["function"].get("arguments", "") for c in calls))
+                if name == "finishWithStudyPad":
+                    self.assertEqual(args["labelId"], self.LABEL)
+            done = self.chain_messages(real, "ok")
+            choices = self.stream_chunks(port, done)
+            self.assertEqual("".join(c["delta"].get("content", "") for c in choices), ANSWER)
+            self.assertEqual(choices[-1]["finish_reason"], "stop")
+
+    def test_studypad_mode_is_the_bm2_chain(self):
+        real = json.dumps({"status": "success", "data": {"labelId": self.LABEL}})
+        with running_stub("--insecure-http", "--mode", "studypad") as (port, _):
+            _, _, raw = request(port, body=prompt())
+            function = json.loads(raw)["choices"][0]["message"]["tool_calls"][0]["function"]
+            self.assertEqual(function["name"], "createStudyPad")
+            args = json.loads(function["arguments"])
+            self.assertTrue(args["name"])
+            self.assertEqual(args["items"][0]["type"], "text")
+            self.assertTrue(args["items"][0]["text"])
+            _, _, raw = request(port, body=prompt(messages=self.chain_messages(real)))
+            function = json.loads(raw)["choices"][0]["message"]["tool_calls"][0]["function"]
+            self.assertEqual(function["name"], "finishWithStudyPad")
+            args = json.loads(function["arguments"])
+            self.assertEqual(args["labelId"], self.LABEL)
+            self.assertTrue(args["message"])
+
+    def test_toolchain_invalid_chain_fails_fast(self):
+        for extra in ([], ["--chain", "nope"], ["--chain", "[]"], ["--chain", '[{"args":{}}]']):
+            process = subprocess.run([sys.executable, "-I", str(HERE / "llm_stub.py"), "--insecure-http",
+                                      "--mode", "toolchain", *extra], capture_output=True, text=True, timeout=5)
+            self.assertNotEqual(process.returncode, 0, extra)
+            self.assertIn("--chain", process.stderr)
+
     def test_delay_also_applies_before_first_stream_event(self):
         with running_stub("--insecure-http", "--mode", "delay", "--delay-seconds", "0.2") as (port, _):
             conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
