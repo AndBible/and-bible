@@ -171,9 +171,14 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                     val state = SqliteVerseBackendState(file)
                     try {
                         val tables = state.rows("select name from sqlite_master where type = 'table'") { it.getText(0) }
-                        if (tables.none { it in listOf("verses", "commentaries", "dictionary") }) {
-                            throw InstallException("Unsupported MyBible module")
+                        // Match the reader's category precedence and validate columns even for empty tables.
+                        val contentQuery = when {
+                            "verses" in tables -> "select _rowid_, book_number, chapter, verse, text from verses limit 0"
+                            "commentaries" in tables -> "select _rowid_, book_number, chapter_number_from, verse_number_from, chapter_number_to, verse_number_to, text from commentaries limit 0"
+                            "dictionary" in tables -> "select _rowid_, topic, definition from dictionary limit 0"
+                            else -> throw InstallException("Unsupported MyBible module")
                         }
+                        state.rows(contentQuery) { Unit }
                         state.getBookMetaData()
                     } catch (e: SQLiteException) {
                         throw InstallException("Invalid MyBible module", e)

@@ -168,6 +168,25 @@ class MyBibleInstallerTest {
         assertRejected(sqlite(supported = false))
     }
 
+    private suspend fun assertMalformedTableRejected(table: String) {
+        sqlite(supported = false)
+        val file = File(temp, "fixture.SQLite3")
+        openSqlite(file.path).use { it.exec("CREATE TABLE $table (bogus TEXT)") }
+        assertRejected(file.readBytes())
+    }
+
+    @Test fun dictionaryMissingRequiredColumnsIsRejected() = runBlocking {
+        assertMalformedTableRejected("dictionary")
+    }
+
+    @Test fun bibleMissingRequiredColumnsIsRejected() = runBlocking {
+        assertMalformedTableRejected("verses")
+    }
+
+    @Test fun commentaryMissingRequiredColumnsIsRejected() = runBlocking {
+        assertMalformedTableRejected("commentaries")
+    }
+
     @Test fun zipWithoutSupportedModuleFails() = runBlocking {
         assertRejected(zip("readme.txt", "not a module".toByteArray()))
     }
