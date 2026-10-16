@@ -3305,8 +3305,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // A state loss is recoverable; a launch crash loop is not.
         restoredBookmarks = savedInstanceState?.getString("bookmark-recreation")?.let {
-            CommonUtils.json.decodeFromString(BookmarkRecreationState.serializer(), it)
+            runCatching { CommonUtils.json.decodeFromString(BookmarkRecreationState.serializer(), it) }
+                .onFailure { Log.w(TAG_BOOKMARKS, "Ignoring unreadable bookmark recreation state", it) }
+                .getOrNull()
         }
         initRoute = savedInstanceState?.getString(STATE_START_ROUTE) ?: intent.getStringExtra(EXTRA_ROUTE)
         initialisedAfterStart = savedInstanceState?.getBoolean(STATE_INITIALISED_AFTER_START, false) ?: false
@@ -4422,14 +4425,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             manager = manager?.second?.controller?.snapshot()?.let {
                 net.bible.android.view.activity.bookmark.ManageLabelsValue.from(it)
             } ?: restoredBookmarks?.manager,
-            labels = manager?.second?.labelsById?.values?.toList() ?: restoredBookmarks?.labels.orEmpty(),
+            // Only labels the user changed need the Bundle; every other one is reloaded from the database.
+            labels = manager?.second?.let { m ->
+                val changedIds = m.controller.resultChanged()
+                m.labelsById.filterKeys { it in changedIds }.values.toList()
+            } ?: restoredBookmarks?.labels.orEmpty(),
             pendingLabel = manager?.second?.pendingEdit?.label ?: if (manager == null) restoredBookmarks?.pendingLabel else null,
             pendingLabelIsNew = manager?.second?.pendingEdit?.isNew ?: (manager == null && restoredBookmarks?.pendingLabelIsNew == true),
             editorKey = editor?.first,
             editorDraft = editor?.second?.state?.value?.let {
                 net.bible.android.view.activity.bookmark.LabelDraftValue.from(it)
             },
-            documentsSearch = myDocumentsSession?.controller?.searchSnapshot()?.let {
+            documentsSearch = myDocumentsSession?.takeIf { it.loaded }?.controller?.searchSnapshot()?.let {
                 net.bible.android.view.activity.bookmark.MyDocumentsSearchValue(it.query, it.searchOpen, it.selectedInitials)
             } ?: restoredBookmarks?.documentsSearch,
         )
@@ -4588,6 +4595,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
             withContext(Dispatchers.Main) {
                 session.pendingAssign = bookmarks
+                session.restoredAssignIds = null
                 session.awaitingManageLabels = true
                 navigateToManageLabels(payload)
             }
@@ -4604,6 +4612,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 mode = ManageLabelsContract.Mode.WORKSPACE,
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
             session.pendingAssign = null
+            session.restoredAssignIds = null
             session.awaitingManageLabels = true
             navigateToManageLabels(payload)
         }
@@ -6144,6 +6153,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private class MyDocumentsSession {
         lateinit var controller: MyDocumentsController
         var entityByLong: Map<Long, MyDocument> = emptyMap()
+        /** True once the first load ran, i.e. the controller holds real state worth snapshotting. */
+        var loaded = false
     }
 
     /**
@@ -6231,6 +6242,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 },
                 restored = restoredBookmarks?.documentsSearch?.toSnapshot(),
             )
+            session.loaded = true
         }
 
         return session.controller

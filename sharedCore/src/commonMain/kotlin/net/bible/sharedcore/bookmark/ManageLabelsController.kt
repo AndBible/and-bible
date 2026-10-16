@@ -129,13 +129,17 @@ class ManageLabelsController(
             lastOrder = it.order
             if (it.searchOpen) searchBarMode.open()
         }
-        scope.launch { load(); rebuild(reorder = restored == null) }
+        scope.launch {
+            load(); rebuild(reorder = restored == null)
+            // A restored StudyPad CONTENT query shows content hits, not the name-filter fallback.
+            if (restored != null && mode == ManageLabelsMode.STUDYPAD && _searchMode.value == SearchMode.CONTENT) dispatchSearchOrRebuild()
+        }
     }
 
     /** Value-only working set; services, callbacks and jobs always belong to the new host. */
     fun snapshot() = ManageLabelsSnapshot(
         selected.toSet(), autoAssign.toSet(), changed.toSet(), deleted.toSet(), deletedWithOrphaned.toSet(),
-        autoAssignPrimary, bookmarkPrimary, labels.toList(), _searchText.value, _searchMode.value,
+        autoAssignPrimary, bookmarkPrimary, labels.filter { it.id in changed }, _searchText.value, _searchMode.value,
         _filters.value, searchModeActive.value, lastOrder,
     )
 

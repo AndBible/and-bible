@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
+import android.os.Bundle
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
@@ -240,6 +241,35 @@ class BookmarkRecreationStateTest {
         assertTrue("DAO reorder changed the positional token; selection must follow initials", beta.id != restored.documents.value.single().id)
     }
 
+    @Test fun savedStateDoesNotGrowWithUnchangedLabels() {
+        runBlocking {
+            repeat(400) { i ->
+                control.insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "BM13 bulk label $i" })
+            }
+        }
+        val bookmark = seedBookmark()
+        val activity = host()
+        bookmarks(activity).enterSelection(bookmark.id.toString())
+        bookmarks(activity).assignSelected()
+        awaitHostRoute(activity, NavRoutes.MANAGE_LABELS_PATTERN, ::advance)
+        awaitHostCondition("manager loaded every label", ::advance) { manager(activity).currentLabelItems().size >= 400 }
+        val saved = Bundle()
+        hosts.last().saveInstanceState(saved)
+        val payload = saved.getString("bookmark-recreation").orEmpty()
+        assertTrue("unchanged labels must be reloaded from the database, not Bundled (was ${payload.length} chars)",
+            payload.length < 20_000)
+    }
+
+    @Test fun malformedBookmarkRecreationBundleFallsBackToAFreshHost() {
+        val saved = Bundle().apply { putString("bookmark-recreation", "{not-json") }
+        resetComposeUiDispatcher()
+        val restored = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.bookmarks()),
+        ).also { hosts += it }.create(saved).start().resume().visible().get()
+        awaitHostRoute(restored, NavRoutes.BOOKMARKS_PATTERN, ::advance)
+    }
+
     @Test fun recreatedAssignedLabelSavesThroughItsRestoredManagerAndBookmarkRequest() {
         val bookmark = seedBookmark()
         val activity = host()
@@ -296,6 +326,11 @@ class BookmarkRecreationStateTest {
         assertFalse(manager(recreated).currentLabelItems().any { it.name == "BM13 unsaved assigned label" })
         manager(recreated).save()
         awaitHostRoute(recreated, NavRoutes.BOOKMARKS_PATTERN, ::advance)
+        // The (non-)assignment is applied asynchronously on IO; settle the host before asserting absence.
+        val settleUntil = System.nanoTime() + 1_000_000_000L
+        while (System.nanoTime() < settleUntil) {
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).runOneTask(); Thread.sleep(20)
+        }
         assertTrue(runBlocking { control.labelsForBookmark(bookmark) }.isEmpty())
         assertTrue(runBlocking { control.allLabels().none { it.name == "BM13 unsaved assigned label" } })
     }
