@@ -3072,6 +3072,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * [onCreate] only does for that route.
      */
     override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("bookmark-recreation", CommonUtils.json.encodeToString(
+            BookmarkRecreationState.serializer(), bookmarkRecreationSnapshot(),
+        ))
         val route = if (readingAppBootstrapped) NavRoutes.READING else startRoute
         if (route != null) outState.putString(STATE_START_ROUTE, route)
         // T8d: what the reading view is owed on its way back has to survive a recreate(), because
@@ -3302,6 +3305,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        restoredBookmarks = savedInstanceState?.getString("bookmark-recreation")?.let {
+            CommonUtils.json.decodeFromString(BookmarkRecreationState.serializer(), it)
+        }
         initRoute = savedInstanceState?.getString(STATE_START_ROUTE) ?: intent.getStringExtra(EXTRA_ROUTE)
         initialisedAfterStart = savedInstanceState?.getBoolean(STATE_INITIALISED_AFTER_START, false) ?: false
         // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before
@@ -4380,8 +4386,58 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * ENTITIES are held rather than their ids because that is what classic held across its own
      * `awaitIntent`; re-resolving ids afterwards would depend on the list not having reloaded meanwhile.
      */
+    @kotlinx.serialization.Serializable
+    private data class BookmarkRecreationState(
+        val filter: Int? = null,
+        val list: net.bible.android.view.activity.bookmark.BookmarksValue? = null,
+        val pendingAssignIds: List<String>? = null,
+        val awaitingManager: Boolean = false,
+        val managerKey: String? = null,
+        val manager: net.bible.android.view.activity.bookmark.ManageLabelsValue? = null,
+        val labels: List<BookmarkEntities.Label> = emptyList(),
+        val pendingLabel: BookmarkEntities.Label? = null,
+        val pendingLabelIsNew: Boolean = false,
+        val editorKey: String? = null,
+        val editorDraft: net.bible.android.view.activity.bookmark.LabelDraftValue? = null,
+        val documentsSearch: net.bible.android.view.activity.bookmark.MyDocumentsSearchValue? = null,
+    )
+
+    private var restoredBookmarks: BookmarkRecreationState? = null
+    private var labelEditSession: Pair<String, LabelEditController>? = null
+
+    private fun bookmarkRecreationSnapshot(): BookmarkRecreationState {
+        val manager = manageLabelsSession
+        val bookmarks = bookmarksSession
+        val editor = labelEditSession
+        return BookmarkRecreationState(
+            filter = bookmarks?.first ?: restoredBookmarks?.filter,
+            list = bookmarks?.second?.controller?.snapshot()?.let {
+                net.bible.android.view.activity.bookmark.BookmarksValue.from(it)
+            } ?: restoredBookmarks?.list,
+            pendingAssignIds = if (bookmarks != null) bookmarks.second.let {
+                it.pendingAssign?.map { b -> b.id.toString() } ?: it.restoredAssignIds
+            } else restoredBookmarks?.pendingAssignIds,
+            awaitingManager = bookmarks?.second?.awaitingManageLabels ?: (restoredBookmarks?.awaitingManager == true),
+            managerKey = manager?.first ?: restoredBookmarks?.managerKey,
+            manager = manager?.second?.controller?.snapshot()?.let {
+                net.bible.android.view.activity.bookmark.ManageLabelsValue.from(it)
+            } ?: restoredBookmarks?.manager,
+            labels = manager?.second?.labelsById?.values?.toList() ?: restoredBookmarks?.labels.orEmpty(),
+            pendingLabel = manager?.second?.pendingEdit?.label ?: if (manager == null) restoredBookmarks?.pendingLabel else null,
+            pendingLabelIsNew = manager?.second?.pendingEdit?.isNew ?: (manager == null && restoredBookmarks?.pendingLabelIsNew == true),
+            editorKey = editor?.first,
+            editorDraft = editor?.second?.state?.value?.let {
+                net.bible.android.view.activity.bookmark.LabelDraftValue.from(it)
+            },
+            documentsSearch = myDocumentsSession?.controller?.searchSnapshot()?.let {
+                net.bible.android.view.activity.bookmark.MyDocumentsSearchValue(it.query, it.searchOpen, it.selectedInitials)
+            } ?: restoredBookmarks?.documentsSearch,
+        )
+    }
+
     private class BookmarksSession {
         lateinit var controller: BookmarksController
+        var restoredAssignIds: List<String>? = null
         var pendingAssign: List<BookmarkEntities.BaseBookmarkWithNotes>? = null
 
         /**
@@ -4435,6 +4491,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         CommonUtils.settings.setLong("bookmarks-last-used", System.currentTimeMillis())
 
         val session = BookmarksSession()
+        restoredBookmarks?.takeIf { it.filter == initialFilterIndex }?.let {
+            session.restoredAssignIds = it.pendingAssignIds
+            session.awaitingManageLabels = it.awaitingManager
+        }
         session.controller = BookmarksController(
             service = bookmarksService,
             scope = lifecycleScope,
@@ -4450,6 +4510,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             onExportCsv = { exportBookmarksCsv(session) },
             onImportCsv = { importBookmarksCsv(session) },
             onManageLabels = { requestManageLabels(session, navigateToManageLabels) },
+            restored = restoredBookmarks?.takeIf { it.filter == initialFilterIndex }?.list?.toSnapshot(),
         )
         bookmarksSession = initialFilterIndex to session
         return session.controller
@@ -4561,14 +4622,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun applyBookmarksManageLabelsResult(result: ManageLabelsResult) {
         val session = bookmarksSession?.second ?: return
         val bookmarks = session.pendingAssign
+        val restoredIds = session.restoredAssignIds
         session.pendingAssign = null
+        session.restoredAssignIds = null
         session.awaitingManageLabels = false
 
         val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
-        if (bookmarks != null) {
+        if (bookmarks != null || restoredIds != null) {
             lifecycleScope.launch(Dispatchers.IO) {
+                val targets = bookmarks ?: restoredIds.orEmpty().mapNotNull { id ->
+                    bookmarkControl.bibleBookmarkById(IdType(id)) ?: bookmarkControl.genericBookmarkById(IdType(id))
+                }
                 // The owner hydrates each bookmark and announces the batch once (F54).
-                bookmarkControl.changeLabelsForBookmarks(bookmarks, resultData.selectedLabels.toList())
+                bookmarkControl.changeLabelsForBookmarks(targets, resultData.selectedLabels.toList())
                 windowControl.windowRepository.updateRecentLabels(resultData.selectedLabels.toList())
                 windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                 withContext(Dispatchers.Main) { session.controller.refresh() }
@@ -4682,12 +4748,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     ): ManageLabelsController {
         manageLabelsSession?.let { (key, existing) -> if (key == data) return existing.controller }
 
+        // Restore the absent parent request with this Activity's navigation bindings before results can arrive.
+        restoredBookmarks?.filter?.takeIf { bookmarksSession == null }?.let { filter ->
+            bookmarksControllerFor(filter,
+                { result -> navController?.let { bookmarkResults.deliver(it, result) } },
+                { payload -> navController?.navigate(NavRoutes.manageLabels(payload)) },
+            )
+        }
+        val restored = restoredBookmarks?.takeIf { it.managerKey == data }
         val parsed = ManageLabelsContract.ManageLabelsData.fromJSON(data)
         val session = ManageLabelsSession(
             data = parsed,
             labelsById = mutableMapOf(),
             writes = ManageLabelsWrites(bookmarkControl, appScope),
         )
+        restored?.let {
+            session.labelsById.putAll(it.labels.associateBy { label -> label.id.toString() })
+            session.pendingEdit = it.pendingLabel?.let { label -> PendingLabelEdit(label, it.pendingLabelIsNew) }
+        }
         // labelsById is filled by the controller's own initial label load (on lifecycleScope, so on
         // Main), from the same entities its rows are built from. An entry an editor round trip already
         // put there wins over the loaded copy.
@@ -4719,6 +4797,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             onSelectStudyPad = { id, entryId -> lifecycleScope.launch { selectStudyPad(session, id, entryId, onResult) } },
             onSave = { saveManageLabelsAndExit(session, onResult) },
             onReset = { resetManageLabels(session, onResult) },
+            restored = restored?.manager?.toSnapshot(),
         )
         manageLabelsSession = data to session
         return session.controller
@@ -4975,6 +5054,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onResult: (ManageLabelsResult) -> Unit,
     ) {
         manageLabelsSession = null
+        restoredBookmarks = restoredBookmarks?.copy(
+            managerKey = null, manager = null, labels = emptyList(), pendingLabel = null, pendingLabelIsNew = false,
+        )
         manageLabelsHelpOpen = false
         manageLabelsExportOpen = false
         onResult(ManageLabelsResult(session.data.toJSON()))
@@ -5141,11 +5223,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onResult: (NavLabelEditResult) -> Unit,
     ): LabelEditController {
         val labelData = LabelEditContract.LabelData.fromJSON(data)
+        val restoredDraft = restoredBookmarks?.takeIf { it.editorKey == data }?.editorDraft?.toState()
         return LabelEditController(
             LabelEditMapper.toState(labelData),
             labelEditService,
             lifecycleScope,
+            restoredDraft,
         ) { result ->
+            labelEditSession = null
+            restoredBookmarks = restoredBookmarks?.copy(editorKey = null, editorDraft = null)
             when (result) {
                 is ControllerLabelEditResult.Save ->
                     onResult(NavLabelEditResult.Saved(LabelEditMapper.applyToData(labelData, result.state).toJSON()))
@@ -5156,7 +5242,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 }
                 ControllerLabelEditResult.Cancel -> onResult(NavLabelEditResult.Cancelled)
             }
-        }
+        }.also { labelEditSession = data to it }
     }
 
     /**
@@ -6127,6 +6213,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         myDocumentsSession = session
 
         lifecycleScope.launch {
+            // The old composition queues its must-complete autosave on disposal. Re-read only
+            // after that ordered work; replaying old changed/deleted tokens would apply it twice.
+            MyDocumentBookManager.launcher.join("mydocument-sync")
             val docs = withContext(Dispatchers.IO) { myDocumentDao.allDocuments() }
             session.entityByLong = docs.mapIndexed { i, d -> i.toLong() to d }.toMap()
             session.controller.setDocuments(
@@ -6140,6 +6229,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         canDelete = MyDocumentBookManager.canDeleteDocument(d),
                     )
                 },
+                restored = restoredBookmarks?.documentsSearch?.toSnapshot(),
             )
         }
 

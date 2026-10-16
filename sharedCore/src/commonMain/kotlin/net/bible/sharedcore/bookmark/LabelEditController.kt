@@ -23,10 +23,14 @@ class LabelEditController(
     initial: LabelEditState,
     private val service: LabelEditService,
     private val scope: CoroutineScope,
+    restoredDraft: LabelEditState?,
     private val onFinish: (LabelEditResult) -> Unit,
 ) {
+    constructor(initial: LabelEditState, service: LabelEditService, scope: CoroutineScope, onFinish: (LabelEditResult) -> Unit) :
+        this(initial, service, scope, null, onFinish)
+
     private val initialState = initial
-    private val _state = MutableStateFlow(initial)
+    private val _state = MutableStateFlow(restoredDraft ?: initial)
     val state: StateFlow<LabelEditState> = _state.asStateFlow()
 
     private val _deletePrompt = MutableStateFlow<DeletePrompt?>(null)
