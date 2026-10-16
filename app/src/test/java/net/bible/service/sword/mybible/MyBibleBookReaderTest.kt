@@ -34,6 +34,9 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -224,14 +227,14 @@ class MyBibleBookReaderTest {
         val file = File(moduleDir, "e5walmod.SQLite3")
         ReadOnlyWalFixture.walWithoutShm(file, dir)
         try {
-            org.junit.Assume.assumeTrue("directory stays writable for this user (root?)", ReadOnlyWalFixture.lockDown(moduleDir))
+            assumeTrue("directory stays writable for this user (root?)", ReadOnlyWalFixture.lockDown(moduleDir))
             addMyBibleBook(file)
             val book = Books.installed().getBook("MyBible-e5walmod")
-            org.junit.Assert.assertNotNull("book must be registered", book)
+            assertNotNull("book must be registered", book)
             book!!
             try {
                 val text = book.getRawText(verse(BibleBook.GEN, 1, 2))
-                org.junit.Assert.assertTrue(text, text.contains(WAL_ONLY_VERSE))
+                assertTrue(text, text.contains(WAL_ONLY_VERSE))
             } finally {
                 Books.installed().removeBook(book)
             }
