@@ -1,0 +1,5 @@
+service/db/DatabaseContainer.kt	D2 moves it: Room builders and database lifecycle host
+service/db/AppDatabaseFiles.kt	D2 moves it: database file locations
+service/db/ReadUserVersion.kt	D2 moves it: PRAGMA user_version reader
+service/db/BlockingDb.kt	D2 moves it: blockingDb/blockingAtEdge bridge definitions
+service/db/oldmigrations	D2 moves it: legacy SQLite migrations and the deprecated reading-plan schema
