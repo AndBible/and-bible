@@ -4391,6 +4391,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val editorKey: String? = null,
         val editorDraft: net.bible.android.view.activity.bookmark.LabelDraftValue? = null,
         val documentsSearch: net.bible.android.view.activity.bookmark.MyDocumentsSearchValue? = null,
+        val pages: net.bible.android.view.activity.bookmark.MyDocumentPagesValue? = null,
+        val cloudFilters: net.bible.android.view.activity.bookmark.CloudFiltersValue? = null,
     )
 
     /**
@@ -4436,8 +4438,23 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             documentsSearch = myDocumentsSession?.takeIf { it.loaded }?.controller?.searchSnapshot()?.let {
                 net.bible.android.view.activity.bookmark.MyDocumentsSearchValue(it.query, it.searchOpen, it.selectedInitials)
             } ?: restoredBookmarks?.documentsSearch,
+            pages = myDocumentPagesSession?.takeIf { it.loaded && isOnRoute(NavRoutes.MY_DOCUMENT_PAGES_PATTERN) }?.let { session ->
+                val snapshot = session.controller.snapshot()
+                val idByToken = myDocumentPagesEntityByLong.mapValues { it.value.id.toString() }
+                net.bible.android.view.activity.bookmark.MyDocumentPagesValue(
+                    session.documentId, snapshot.query, snapshot.searchOpen,
+                    snapshot.selection.mapNotNull { idByToken[it] }.toSet(),
+                )
+            } ?: restoredBookmarks?.pages,
+            // The entry belongs to the screen only while it is on top; a stale entry from an earlier visit is not saved.
+            cloudFilters = cloudDocumentsEntryRef?.takeIf { isOnRoute(NavRoutes.CLOUD_DOCUMENTS_PATTERN) }?.controller?.filterSnapshot()?.let {
+                net.bible.android.view.activity.bookmark.CloudFiltersValue(it.status, it.category)
+            } ?: restoredBookmarks?.cloudFilters,
         )
     }
+
+    private fun isOnRoute(pattern: String): Boolean =
+        navController?.currentDestination?.route?.substringBefore('?') == pattern.substringBefore('?')
 
     /**
      * The memo behind [BookmarksDeps.controllerFor], and the in-flight state of whichever label-manager
@@ -5890,6 +5907,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var myDocumentPagesEntityByLong: Map<Long, MyDocumentPage> = emptyMap()
     private var myDocumentPagesDocumentInitials: String = ""
 
+    /** The `MyDocumentPages` entry currently built; replaced by every [myDocumentPagesControllerFor] call. */
+    private class MyDocumentPagesSession(val documentId: String) {
+        lateinit var controller: MyDocumentPagesController
+        /** True once the first load ran, i.e. the controller holds real state worth snapshotting. */
+        var loaded = false
+    }
+    private var myDocumentPagesSession: MyDocumentPagesSession? = null
+
     /** The current session's own `addPage`, captured so [importMyDocumentPageFile] -- which runs
      *  from a host-level launcher callback, outside the arm's own closures -- can add an imported
      *  page to the right controller. Refreshed by every [myDocumentPagesControllerFor] call. */
@@ -5924,6 +5949,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         myDocumentPagesEntityByLong = emptyMap()
 
         lateinit var controller: MyDocumentPagesController
+        val session = MyDocumentPagesSession(documentId)
+        myDocumentPagesSession = session
 
         fun nextLongId(): Long = (myDocumentPagesEntityByLong.keys.maxOrNull() ?: -1L) + 1L
 
@@ -6005,9 +6032,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             },
         )
 
+        session.controller = controller
         lifecycleScope.launch {
             val list = withContext(Dispatchers.IO) { myDocumentDao.pagesForDocument(docId) }
             myDocumentPagesEntityByLong = list.mapIndexed { i, p -> i.toLong() to p }.toMap()
+            // Selection is saved by persistent page id: the load-order tokens change when pages are reordered or deleted.
+            val restoredPages = restoredBookmarks?.pages?.takeIf { it.documentId == documentId }
+            val tokenById = list.mapIndexed { i, p -> p.id.toString() to i.toLong() }.toMap()
             controller.setPages(
                 list.mapIndexed { i, p ->
                     MyDocPageItem(
@@ -6017,7 +6048,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         isAiGenerated = p.sourcePromptId != null,
                     )
                 },
+                restored = restoredPages?.let { r ->
+                    net.bible.sharedcore.mydocuments.MyDocumentPagesSnapshot(
+                        r.query, r.searchOpen, r.selectedPageIds.mapNotNull { tokenById[it] }.toSet(),
+                    )
+                },
             )
+            // Consumed: later visits to a Pages screen of this host start fresh, like classic.
+            if (restoredBookmarks?.pages != null) restoredBookmarks = restoredBookmarks?.copy(pages = null)
+            session.loaded = true
         }
 
         return controller
@@ -8621,6 +8660,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             },
             scope = lifecycleScope,
         )
+        // Consumed once: a later leave-and-reopen within this host starts fresh, like classic. The sign-in
+        // error dialog is deliberately not carried: it is re-raised by the gate's sign-in attempt, which is
+        // a real network step that cannot be skipped just because the Activity was recreated.
+        restoredBookmarks?.cloudFilters?.let {
+            entry.controller.restoreFilters(it.toSnapshot())
+            restoredBookmarks = restoredBookmarks?.copy(cloudFilters = null)
+        }
         cloudDocumentsEntryRef = entry
         return entry.controller
     }

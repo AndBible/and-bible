@@ -17,6 +17,13 @@ data class MyDocPageItem(
 )
 
 /**
+ * The Pages screen's UI state worth carrying across an Activity recreation. [selection] holds the
+ * controller's own row ids, which are load-order tokens: the host translates them to and from
+ * persistent page identities (see `MyDocumentPagesValue`), exactly as it does for My Documents.
+ */
+data class MyDocumentPagesSnapshot(val query: String, val searchOpen: Boolean, val selection: Set<Long>)
+
+/**
  * Controller for the pages-within-a-document editor. Owns the ordered view-data + dirty flag + the
  * changed/toDelete id-sets. Rename/delete/reorder mutate locally and are flushed by [save] via
  * [onSave] — the same deferred-save model as [MyDocumentsController]. Navigation + SAF + DB-create
@@ -65,13 +72,17 @@ class MyDocumentPagesController(
     private val _selection = MutableStateFlow<Set<Long>>(emptySet())
     val selection: StateFlow<Set<Long>> = _selection.asStateFlow()
 
-    fun setPages(items: List<MyDocPageItem>) {
+    fun snapshot() = MyDocumentPagesSnapshot(_query.value, searchModeActive.value, _selection.value)
+
+    /** [restored] re-applies a search/selection saved across a recreation; selection entries naming no loaded row are dropped. */
+    fun setPages(items: List<MyDocPageItem>, restored: MyDocumentPagesSnapshot? = null) {
         working.clear(); working.addAll(items)
         changed.clear(); toDelete.clear()
         _dirty.value = false
-        _query.value = ""
+        _query.value = restored?.query.orEmpty()
         searchMode.reset()
-        _selection.value = emptySet()
+        if (restored?.searchOpen == true) searchMode.open()
+        _selection.value = items.map { it.id }.filter { it in restored?.selection.orEmpty() }.toSet()
         publish()
     }
 

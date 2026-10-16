@@ -241,6 +241,68 @@ class BookmarkRecreationStateTest {
         assertTrue("DAO reorder changed the positional token; selection must follow initials", beta.id != restored.documents.value.single().id)
     }
 
+    private fun pagesControllerOrNull(host: NavHostComposeActivity): net.bible.sharedcore.mydocuments.MyDocumentPagesController? =
+        field(host, "myDocumentPagesSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentPagesController }
+
+    @Test fun myDocumentPagesSearchAndSelectionSurviveRecreation() {
+        val dao = net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val doc = net.bible.android.database.mydocument.MyDocument(name = "BM13 Pages Doc", initials = "MyDoc_BM13_Pages", orderNumber = 0)
+        runBlocking {
+            dao.insert(doc)
+            listOf("Alpha", "Beta", "Gamma").forEachIndexed { i, title ->
+                dao.insertPageWithContent(net.bible.android.database.mydocument.MyDocumentPage(
+                    documentId = doc.id, title = title, pageKey = "bm13_$i", orderNumber = i,
+                ), "body $i")
+            }
+        }
+        val activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(
+                ApplicationProvider.getApplicationContext(),
+                NavRoutes.myDocumentPages(doc.id.toString(), doc.initials, doc.name),
+            ),
+        ).also { hosts += it }.create().start().resume().visible().get()
+        awaitHostRoute(activity, NavRoutes.MY_DOCUMENT_PAGES_PATTERN, ::advance)
+        awaitHostCondition("pages real DAO initial load", ::advance) { pagesControllerOrNull(activity)?.totalCount?.value == 3 }
+        val old = requireNotNull(pagesControllerOrNull(activity))
+        old.openSearch()
+        old.setQuery("eta")
+        val beta = old.pages.value.single()
+        assertEquals("Beta", beta.name)
+        old.toggleSelect(beta.id)
+        assertEquals(setOf(beta.id), old.selection.value)
+
+        val recreated = recreate(activity, NavRoutes.MY_DOCUMENT_PAGES_PATTERN)
+        awaitHostCondition("recreated pages completes real DAO load", ::advance) { pagesControllerOrNull(recreated)?.totalCount?.value == 3 }
+        val restored = requireNotNull(pagesControllerOrNull(recreated))
+        assertNotSame(old, restored)
+        assertEquals("eta", restored.query.value)
+        assertTrue(restored.searchModeActive.value)
+        assertEquals(listOf("Beta"), restored.pages.value.map { it.name })
+        assertEquals(setOf("Beta"), restored.pages.value.filter { it.id in restored.selection.value }.map { it.name }.toSet())
+        assertFalse(restored.dirty.value)
+    }
+
+    @Test fun cloudDocumentsFiltersSurviveRecreation() {
+        val activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.cloudDocuments()),
+        ).also { hosts += it }.create().start().resume().visible().get()
+        fun cloudOrNull(host: NavHostComposeActivity): net.bible.sharedcore.cloud.CloudDocumentsController? =
+            field(host, "cloudDocumentsEntryRef")?.let { field(it, "controller") as net.bible.sharedcore.cloud.CloudDocumentsController }
+        awaitHostCondition("cloud controller built", ::advance) { cloudOrNull(activity) != null }
+        val old = requireNotNull(cloudOrNull(activity))
+        old.setCategoryFilter(net.bible.sharedcore.navigation.DocCategory.COMMENTARY)
+        old.setStatusFilter(net.bible.sharedcore.cloud.CloudDocFilter.UPDATES)
+
+        val recreated = recreate(activity, NavRoutes.CLOUD_DOCUMENTS_PATTERN)
+        awaitHostCondition("recreated cloud controller built", ::advance) { cloudOrNull(recreated) != null }
+        val restored = requireNotNull(cloudOrNull(recreated))
+        assertNotSame(old, restored)
+        assertEquals(net.bible.sharedcore.navigation.DocCategory.COMMENTARY, restored.categoryFilter.value)
+        assertEquals(net.bible.sharedcore.cloud.CloudDocFilter.UPDATES, restored.statusFilter.value)
+    }
+
     private fun savedPayload(): String {
         val saved = Bundle()
         hosts.last().saveInstanceState(saved)
