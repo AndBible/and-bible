@@ -17,11 +17,15 @@
 
 package net.bible.android.database
 
-import java.util.Date
-
 /**
- * Date type of the move set. On the JVM it is exactly [java.util.Date]; it becomes an `expect class` when the
- * move set goes common. Moved code calls `getTime()` rather than the Kotlin `.time` property so that the common
- * declaration needs only the functions `DbDate()`, `DbDate(millis)` and `getTime()`.
+ * Date type of the database layer, stored as epoch milliseconds. On the JVM and Android it is exactly
+ * `java.util.Date`; on iOS it is a millisecond-backed class with value equality. Callers use the functions
+ * `DbDate()`, `DbDate(millis)` and `getTime()` only.
  */
-typealias DbDate = Date
+expect class DbDate : Comparable<DbDate> {
+    /** The current time. */
+    constructor()
+    constructor(millis: Long)
+
+    fun getTime(): Long
+}

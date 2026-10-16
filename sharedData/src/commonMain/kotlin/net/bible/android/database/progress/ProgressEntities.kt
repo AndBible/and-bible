@@ -17,6 +17,7 @@
 
 package net.bible.android.database.progress
 
+import net.bible.android.database.currentTimeMillis
 import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.Ignore
@@ -39,7 +40,7 @@ enum class ReadingSource {
 data class MemorizedVerse(
     @PrimaryKey var id: IdType = IdType(),
     val kjvOrdinal: Int,
-    val memorizedAt: Long = System.currentTimeMillis(),
+    val memorizedAt: Long = currentTimeMillis(),
 ) {
     @get:Ignore
     val verse: Verse
@@ -51,7 +52,7 @@ data class MemorizationTarget(
     @PrimaryKey var id: IdType = IdType(),
     val kjvOrdinalStart: Int,
     val kjvOrdinalEnd: Int,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = currentTimeMillis(),
 ) {
     @get:Ignore
     val verseRange: VerseRange
@@ -72,7 +73,7 @@ data class ChapterReadHistory(
     val kjvBookOrdinal: Int,
     val chapter: Int,
     val cycle: Int = 1,
-    val readAt: Long = System.currentTimeMillis(),
+    val readAt: Long = currentTimeMillis(),
     /** The SWORD book initials of the Bible version used when this chapter was tapped (empty for migrated records). */
     val bookInitials: String = "",
     /** How this read was recorded — manual tap or one of the auto-track sources. Defaults to MANUAL for migrated/legacy callers. */

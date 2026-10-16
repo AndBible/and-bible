@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.android.database.currentTimeMillis
 import androidx.room3.ColumnInfo
 import androidx.room3.Dao
 import androidx.room3.Delete
@@ -306,7 +307,7 @@ data class AgentPrompt(
     var promptTemplate: String = "",
     var showIn: Set<PromptContext> = emptySet(),
     @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
-    @ColumnInfo(defaultValue = "0") var createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(defaultValue = "0") var createdAt: Long = currentTimeMillis(),
     /**
      * Controls cache key matching strictness:
      * - true (default): Cache key = promptId + full context hash (Bible version, selected text, etc.)
@@ -496,7 +497,7 @@ data class LlmRawLogRecord(
     val modelName: String = "",
     /** LlmProvider enum name, denormalized so logs remain readable after provider deletion. */
     val providerType: String = "",
-    val timestamp: Long = System.currentTimeMillis(),
+    val timestamp: Long = currentTimeMillis(),
     val totalInputTokens: Long = 0,
     val totalOutputTokens: Long = 0,
     @ColumnInfo(defaultValue = "0.0") val estimatedCostUsd: Double = 0.0,

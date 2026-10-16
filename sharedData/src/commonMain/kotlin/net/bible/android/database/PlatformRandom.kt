@@ -17,9 +17,5 @@
 
 package net.bible.android.database
 
-import java.security.SecureRandom
-
-private val secureRandom = SecureRandom()
-
-/** Cryptographically secure random bytes. JVM implementation for now; becomes an `expect`/`actual` pair when the move set goes common. */
-fun secureRandomBytes(size: Int): ByteArray = ByteArray(size).also { secureRandom.nextBytes(it) }
+/** Cryptographically secure random bytes from the platform's secure source. */
+expect fun secureRandomBytes(size: Int): ByteArray

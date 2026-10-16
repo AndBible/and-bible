@@ -17,6 +17,7 @@
 
 package net.bible.android.database.bookmarks
 
+import net.bible.android.database.currentTimeMillis
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.Index
@@ -215,13 +216,13 @@ class BookmarkEntities {
         var v11n: Versification,
         override var playbackSettings: PlaybackSettings?,
         override var id: IdType = IdType(),
-        override var createdAt: DbDate = DbDate(System.currentTimeMillis()),
+        override var createdAt: DbDate = DbDate(currentTimeMillis()),
         var book: AbstractPassageBook? = null,
         override var startOffset: Int?,
         override var endOffset: Int?,
         override var primaryLabelId: IdType? = null,
         override var notes: String? = null,
-        override var lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
+        override var lastUpdatedOn: DbDate = DbDate(currentTimeMillis()),
         override var wholeVerse: Boolean = false,
         var type: BookmarkType? = null,
         override var customIcon: String? = null,
@@ -240,13 +241,13 @@ class BookmarkEntities {
             v11n: Versification = KJVA,
             playbackSettings: PlaybackSettings? = null,
             id: IdType = IdType(),
-            createdAt: DbDate = DbDate(System.currentTimeMillis()),
+            createdAt: DbDate = DbDate(currentTimeMillis()),
             book: AbstractPassageBook? = null,
             startOffset: Int? = null,
             endOffset: Int? = null,
             primaryLabelId: IdType? = null,
             notes: String? = null,
-            lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
+            lastUpdatedOn: DbDate = DbDate(currentTimeMillis()),
             wholeVerse: Boolean = true,
             type: BookmarkType? = null,
             customIcon: String? = null,
@@ -408,7 +409,7 @@ class BookmarkEntities {
 
         @PrimaryKey override var id: IdType = IdType(),
 
-        override var createdAt: DbDate = DbDate(System.currentTimeMillis()),
+        override var createdAt: DbDate = DbDate(currentTimeMillis()),
 
         var book: AbstractPassageBook? = null,
 
@@ -417,7 +418,7 @@ class BookmarkEntities {
 
         @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
 
-        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: DbDate = DbDate(currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
@@ -453,7 +454,7 @@ class BookmarkEntities {
     data class GenericBookmarkWithNotes(
         override var id: IdType = IdType(),
         var key: String,
-        override var createdAt: DbDate = DbDate(System.currentTimeMillis()),
+        override var createdAt: DbDate = DbDate(currentTimeMillis()),
         var bookInitials: String,
 
         var ordinalStart: Int?,
@@ -463,7 +464,7 @@ class BookmarkEntities {
 
         override var primaryLabelId: IdType? = null,
         override var notes: String? = null,
-        override var lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
+        override var lastUpdatedOn: DbDate = DbDate(currentTimeMillis()),
         override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings?,
         override var customIcon: String? = null,
@@ -477,7 +478,7 @@ class BookmarkEntities {
         constructor(
             id: IdType = IdType(),
             key: String,
-            createdAt: DbDate = DbDate(System.currentTimeMillis()),
+            createdAt: DbDate = DbDate(currentTimeMillis()),
             bookInitials: String,
             ordinalStart: Int?,
             ordinalEnd: Int?,
@@ -487,7 +488,7 @@ class BookmarkEntities {
             notes: String? = null,
             wholeVerse: Boolean = false,
             playbackSettings: PlaybackSettings? = null,
-            lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
+            lastUpdatedOn: DbDate = DbDate(currentTimeMillis()),
             customIcon: String? = null,
             editAction: EditAction? = null,
             sourcePromptId: IdType? = null,
@@ -513,14 +514,14 @@ class BookmarkEntities {
         constructor(
             id: IdType = IdType(),
             key: String,
-            createdAt: DbDate = DbDate(System.currentTimeMillis()),
+            createdAt: DbDate = DbDate(currentTimeMillis()),
             book: Book,
             ordinalStart: Int?,
             ordinalEnd: Int?,
             textRange: TextRange?,
             primaryLabelId: IdType? = null,
             notes: String? = null,
-            lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
+            lastUpdatedOn: DbDate = DbDate(currentTimeMillis()),
             wholeVerse: Boolean = false,
             playbackSettings: PlaybackSettings? = null,
             customIcon: String? = null,
@@ -628,7 +629,7 @@ class BookmarkEntities {
     data class GenericBookmark(
         @PrimaryKey override var id: IdType = IdType(),
         var key: String,
-        override var createdAt: DbDate = DbDate(System.currentTimeMillis()),
+        override var createdAt: DbDate = DbDate(currentTimeMillis()),
         @ColumnInfo(defaultValue = "''") var bookInitials: String,
 
         var ordinalStart: Int?,
@@ -637,7 +638,7 @@ class BookmarkEntities {
         override var endOffset: Int?,
 
         @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
-        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: DbDate = DbDate(currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,

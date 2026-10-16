@@ -17,6 +17,7 @@
 
 package net.bible.android.database.mydocument
 
+import net.bible.android.database.currentTimeMillis
 import androidx.room3.DatabaseView
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
@@ -50,8 +51,8 @@ data class MyDocument(
     var description: String? = null,
     var initials: String,              // JSword initials, e.g., "MyDoc_abc123" (generated)
     var orderNumber: Int = 0,
-    var createdAt: Long = System.currentTimeMillis(),
-    var updatedAt: Long = System.currentTimeMillis(),
+    var createdAt: Long = currentTimeMillis(),
+    var updatedAt: Long = currentTimeMillis(),
     var sourcePromptId: IdType? = null // Which prompt created this document (null = user-created)
 )
 
@@ -80,8 +81,8 @@ data class MyDocumentPage(
     override var pageKey: String,               // Unique key within the document
     override var contentType: MyDocumentContentType = MyDocumentContentType.MARKDOWN,
     override var orderNumber: Int,
-    override var createdAt: Long = System.currentTimeMillis(),
-    override var updatedAt: Long = System.currentTimeMillis(),
+    override var createdAt: Long = currentTimeMillis(),
+    override var updatedAt: Long = currentTimeMillis(),
     override var sourcePromptId: IdType? = null,  // Which prompt created this page (null = user-created)
     override var languageCode: String? = null     // Language of the page content (for TTS locale selection)
 ): BaseMyDocumentPage

@@ -17,6 +17,7 @@
 
 package net.bible.android.database.bookmarks
 
+import net.bible.android.database.currentTimeMillis
 import androidx.room3.Dao
 import androidx.room3.Delete
 import androidx.room3.Insert
@@ -253,10 +254,10 @@ interface BookmarkDao {
     }
 
     @Query("UPDATE BibleBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
-    suspend fun updateBibleBookmarkDate(id: IdType, lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()))
+    suspend fun updateBibleBookmarkDate(id: IdType, lastUpdatedOn: DbDate = DbDate(currentTimeMillis()))
 
     @Query("UPDATE GenericBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
-    suspend fun updateGenericBookmarkDate(id: IdType, lastUpdatedOn: DbDate = DbDate(System.currentTimeMillis()))
+    suspend fun updateGenericBookmarkDate(id: IdType, lastUpdatedOn: DbDate = DbDate(currentTimeMillis()))
 
     suspend fun deleteBookmarks(bs: List<BaseBookmarkWithNotes>) = when(bs.first()) {
         is BibleBookmarkWithNotes -> deleteBookmarksById(bs.map {it.id})
@@ -341,12 +342,12 @@ interface BookmarkDao {
 
     suspend fun saveBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String) {
         _saveBookmarkNote(bookmarkId, notes, contentType)
-        saveBookmarkLastUpdatedOn(bookmarkId, System.currentTimeMillis())
+        saveBookmarkLastUpdatedOn(bookmarkId, currentTimeMillis())
     }
 
     suspend fun saveGenericBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String) {
         _saveGenericBookmarkNote(bookmarkId, notes, contentType)
-        saveGenericBookmarkLastUpdatedOn(bookmarkId, System.currentTimeMillis())
+        saveGenericBookmarkLastUpdatedOn(bookmarkId, currentTimeMillis())
     }
 
     // Labels
