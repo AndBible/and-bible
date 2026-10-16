@@ -94,7 +94,7 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
     private val _groups = MutableStateFlow<List<PromptGroupVd>>(emptyList())
     override val groups: StateFlow<List<PromptGroupVd>> = _groups.asStateFlow()
 
-    private val _hasHiddenPrompts = MutableStateFlow(computeHasHiddenPrompts())
+    private val _hasHiddenPrompts = MutableStateFlow(false)
     override val hasHiddenPrompts: StateFlow<Boolean> = _hasHiddenPrompts.asStateFlow()
 
     private val mutationLock = Any()
