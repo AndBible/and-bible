@@ -145,7 +145,7 @@ suspend fun PooledConnection.columnNamesJoined(tableName: String, schema: String
     joinColumnNames(columnNames(tableName, schema))
 
 /** Bound for one cleanup statement (see [withCleanup]). */
-const val CLEANUP_TIMEOUT_MS = 5_000L
+internal const val CLEANUP_TIMEOUT_MS = 5_000L
 
 /** [withCleanup] on a Room writer connection. */
 suspend fun <T> PooledConnection.withCleanup(vararg cleanupSql: String, body: suspend () -> T): T =

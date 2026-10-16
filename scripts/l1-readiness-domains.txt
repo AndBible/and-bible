@@ -38,7 +38,4 @@ core	service/common/RecentDocumentsStore.kt
 core	service/common/ReadingProgressSettings.kt
 core	service/common/ReadingProgressSettingsStore.kt
 core	service/common/GlobalTextDisplaySettingsStore.kt
-core	service/db/OpenSqlite.kt
-core	service/db/RoomSettingsBackend.kt
-core	service/db/SqliteConnectionExt.kt
 core	service/db/ExportStudyPads.kt

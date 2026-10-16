@@ -23,4 +23,4 @@ import kotlin.time.Clock
  * Wall-clock epoch milliseconds; the common replacement for the JVM system-clock call in column defaults and
  * DAO helpers. Same value and unit as the JVM call.
  */
-fun currentTimeMillis(): Long = Clock.System.now().toEpochMilliseconds()
+internal fun currentTimeMillis(): Long = Clock.System.now().toEpochMilliseconds()
