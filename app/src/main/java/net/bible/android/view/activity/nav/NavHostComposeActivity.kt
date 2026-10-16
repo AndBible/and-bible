@@ -6705,11 +6705,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * Classic's two-step "no plan" behaviour, collapsed into one host-owned decision — see
      * [DailyReadingDeps.onPlanMissing]. True = the caller should offer the selector; false = the
-     * selector was already declined once and this host is finishing (classic's
-     * `if (!readingPlanControl.isReadingPlanSelected) finish()`).
+     * selector was already declined once, so the flag is reset and the user is returned to the reader
+     * (classic's `if (!readingPlanControl.isReadingPlanSelected) finish()`; the host only finishes when
+     * it started on the day itself). The reset lets a later "Reading plan" open offer the selector again.
      */
     private fun offerReadingPlanSelector(): Boolean {
         if (readingPlanSelectorOffered) {
+            readingPlanSelectorOffered = false
             returnToReadingOrFinish() // not finish(): in the single host that would close the reader too
             return false
         }

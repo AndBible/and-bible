@@ -47,6 +47,8 @@ import kotlin.test.assertTrue
  * F94 (fix batch 1, spec §2.2): daily reading's Passage / Reset were classic
  * `DailyReadingComposeActivity`'s `finish()`. Pushed above `reading` in this host, that closes the
  * reading view's own host.
+ *
+ * SU-15g D1: the same applies to Done (plan finished / up to date) and to declining the plan selector.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -94,7 +96,7 @@ class DailyReadingPassageStaysInHostTest {
         // until the day's readings are loaded, and they load on IO after the route.
         val loaded = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay")
             .run { isAccessible = true; get(controller.get()) as kotlinx.coroutines.flow.StateFlow<*> }
-        net.bible.test.awaitHostCondition("day 5's readings must load") { loaded.value.toString().contains("day=$day") }
+        net.bible.test.awaitHostCondition("day $day's readings must load") { loaded.value.toString().contains("day=$day") }
         // Reaching the route is not the day being loaded: the host's `readingsDto` (which `read()` silently
         // requires) is set only after the async DAO/status reads finish, and an early read(1) is a no-op.
         // The controller itself is built by the destination's first frames, so look it up inside the wait.
@@ -172,11 +174,42 @@ class DailyReadingPassageStaysInHostTest {
     @Test
     fun doneWithANextDayShowsThatDay() {
         val activity = doneFrom(day = 5, daysAgo = 9)
-        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 6))
         assertFalse(activity.isFinishing)
         val dayLoaded = { NavHostComposeActivity::class.java.getDeclaredField("dayLoaded").run { isAccessible = true; getInt(activity) } }
         net.bible.test.awaitHostCondition("day 6 must load") { dayLoaded() == 6 }
         assertEquals("readingPlan/day", activity.currentRouteForTest()?.substringBefore('?'))
+    }
+
+
+    /** Declining the selector returns to the reader; opening Reading plan again must offer the selector again. */
+    @Test
+    fun decliningThePlanSelectorReturnsToTheReaderAndTheSelectorIsOfferedAgain() {
+        CommonUtils.settings.removeString("reading_plan")
+        val controller = host().apply { create().start().resume().visible() }
+        val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity)
+        idleMain()
+        fun route() = activity.currentRouteForTest()?.substringBefore('?')
+        fun openReadingPlan() = controller.newIntent(
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading()),
+        )
+        fun decline() {
+            net.bible.test.awaitHostCondition("selector is offered") { route() == NavRoutes.READING_PLAN_SELECTOR }
+            idleMain() // let the selector's back handlers register
+            activity.onBackPressedDispatcher.onBackPressed()
+            net.bible.test.awaitHostCondition("declined selector returns to the reader; route=${route()}") { activity.isFinishing || route() == NavRoutes.READING }
+            idleMain()
+        }
+        openReadingPlan()
+        decline() // first decline pops the selector, the day re-loads and the second arm leaves
+        assertFalse(activity.isFinishing, "declining the selector finished the host that owns the reader")
+        assertEquals(NavRoutes.READING, route())
+
+        openReadingPlan()
+        net.bible.test.awaitHostCondition("selector offered again after a decline") {
+            route() == NavRoutes.READING_PLAN_SELECTOR
+        }
+        assertEquals(NavRoutes.READING_PLAN_SELECTOR, route())
     }
 
 
