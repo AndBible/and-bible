@@ -113,4 +113,5 @@ interface CoreStrings {
     val sendExportFile: String // R.string.send_export_file
     val exportDestinationTitle: String // R.string.export_destination_title
     val exportDestinationMessage: String // R.string.export_destination_message
+    fun searchUnsupportedSyntax(syntax: String): String // R.string.search_unsupported_syntax
 }
