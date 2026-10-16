@@ -97,10 +97,12 @@ object SwordEnvironmentInitialisation {
     }
 
     /**
-     * Deletes the legacy Lucene index directories (`lucene/<driver>/<initials>`) of documents that are no longer
-     * installed, once, on a background thread. Directories of installed documents are deliberately kept: they tell
-     * the app that the search engine changed and the document's search index must be created again; each one is
-     * deleted when that rebuild finishes (inside `FtsIndexManager`) or when the document is deleted.
+     * Startup clean-up of search index files, once, on a background thread: deletes the legacy Lucene index
+     * directories (`lucene/<driver>/<initials>`) and the SQLite index files (`search/<driver>/<initials>.sqlite`) of
+     * documents that are no longer installed, and frees the disk space of the legacy Lucene indexes of installed
+     * documents (their CONTENTS go, e.g. 606 MB for one commentary). The empty directory of an installed document is
+     * deliberately kept: it tells the app that the search engine changed and the document's search index must be
+     * created again; it is deleted when that rebuild finishes (inside `FtsIndexManager`) or when the document is deleted.
      * A no-op if JSword was never initialised, and runs at most once per process.
      *
      * Ordering: must be called only after EVERY installed book is registered (the SWORD books, the manually installed
@@ -113,8 +115,13 @@ object SwordEnvironmentInitialisation {
         thread(name = "legacy-index-sweep", isDaemon = true) {
             try {
                 val manager = IndexManagerFactory.getIndexManager() as? FtsIndexManager ?: return@thread
-                val deleted = manager.deleteOrphanLegacyLuceneIndexes(Books.installed().getBooks())
+                val installed = Books.installed().getBooks()
+                val deleted = manager.deleteOrphanLegacyLuceneIndexes(installed)
                 if (deleted > 0) Log.i(tag, "Deleted $deleted orphan legacy Lucene index directories")
+                val emptied = manager.emptyLegacyLuceneIndexes(installed)
+                if (emptied > 0) Log.i(tag, "Freed the disk space of $emptied legacy Lucene indexes of installed documents")
+                val orphanIndexes = manager.deleteOrphanIndexes(installed)
+                if (orphanIndexes > 0) Log.i(tag, "Deleted the search index files of $orphanIndexes uninstalled documents")
             } catch (e: Exception) {
                 Log.e(tag, "Legacy Lucene index sweep failed", e)
             }

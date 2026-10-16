@@ -86,8 +86,8 @@ class SearchIndexingServiceTest {
             built += book.initials
             book.indexStatus = IndexStatus.DONE
         }
-        SearchIndexingService.enqueue(context, "KJV")
-        SearchIndexingService.enqueue(context, "Geneva")
+        SearchIndexingService.enqueue(context, kjv)
+        SearchIndexingService.enqueue(context, geneva)
         startService()
         gate.countDown()
         awaitIdle()
@@ -99,7 +99,7 @@ class SearchIndexingServiceTest {
 
     @Test fun enqueueStartsTheForegroundService() {
         SearchIndexingService.builder = { it.indexStatus = IndexStatus.DONE }
-        SearchIndexingService.enqueue(context, "KJV")
+        SearchIndexingService.enqueue(context, kjv)
         val started = shadowOf(context as android.app.Application).nextStartedService
         assertEquals(SearchIndexingService::class.java.name, started.component!!.className)
         awaitIdle()
@@ -113,8 +113,8 @@ class SearchIndexingServiceTest {
             built += book.initials
             book.indexStatus = IndexStatus.DONE
         }
-        SearchIndexingService.enqueue(context, "KJV")
-        SearchIndexingService.enqueue(context, "KJV") // while the first is queued or creating
+        SearchIndexingService.enqueue(context, kjv)
+        SearchIndexingService.enqueue(context, kjv) // while the first is queued or creating
         gate.countDown()
         awaitIdle()
         assertEquals(listOf("KJV"), built.toList())
@@ -128,8 +128,8 @@ class SearchIndexingServiceTest {
             book.indexStatus = IndexStatus.DONE
         }
         kjv.indexStatus = IndexStatus.SCHEDULED
-        SearchIndexingService.enqueue(context, "KJV")
-        SearchIndexingService.enqueue(context, "Geneva")
+        SearchIndexingService.enqueue(context, kjv)
+        SearchIndexingService.enqueue(context, geneva)
         startService()
         awaitIdle()
         assertEquals(listOf("KJV", "Geneva"), built.toList())
@@ -141,9 +141,9 @@ class SearchIndexingServiceTest {
     @Test fun aBookRequestedAgainAfterItsBuildIsBuiltAgain() {
         val built = CopyOnWriteArrayList<String>()
         SearchIndexingService.builder = { book -> built += book.initials; book.indexStatus = IndexStatus.DONE }
-        SearchIndexingService.enqueue(context, "KJV")
+        SearchIndexingService.enqueue(context, kjv)
         awaitIdle()
-        SearchIndexingService.enqueue(context, "KJV")
+        SearchIndexingService.enqueue(context, kjv)
         awaitIdle()
         assertEquals(listOf("KJV", "KJV"), built.toList())
     }
@@ -156,7 +156,7 @@ class SearchIndexingServiceTest {
             release.await(10, TimeUnit.SECONDS)
             book.indexStatus = IndexStatus.DONE
         }
-        SearchIndexingService.enqueue(context, "KJV")
+        SearchIndexingService.enqueue(context, kjv)
         startService()
         assertTrue(inBuild.await(10, TimeUnit.SECONDS))
         // the service enters the foreground with the notification of the book being built
@@ -170,12 +170,12 @@ class SearchIndexingServiceTest {
 
     @Test fun aBookThatIsNoLongerInstalledIsSkipped() {
         val built = CopyOnWriteArrayList<String>()
-        SearchIndexingService.builder = { book -> built += book.initials; book.indexStatus = IndexStatus.DONE }
-        SearchIndexingService.enqueue(context, "NoSuchBook")
-        SearchIndexingService.enqueue(context, "KJV")
-        awaitIdle()
+        val queue = IndexingQueue(resolve = { Books.installed().getBook(it) }, build = { book -> built += book.initials; book.indexStatus = IndexStatus.DONE })
+        assertTrue(queue.offer("NoSuchBook", null))
+        assertTrue(queue.offer("KJV", null))
+        assertTrue(queue.awaitIdle(10_000))
         assertEquals(listOf("KJV"), built.toList())
-        assertFalse(SearchIndexingService.isBusy)
+        assertFalse(queue.isBusy)
     }
 
     @Test fun anInstanceNotInTheInstalledRegistryIsStillBuilt() {
@@ -209,7 +209,7 @@ class SearchIndexingServiceTest {
     @Test fun aStaleIdleNotificationDoesNotStopTheServiceWhileABuildRuns() {
         val release = CountDownLatch(1)
         SearchIndexingService.builder = { book -> release.await(10, TimeUnit.SECONDS); book.indexStatus = IndexStatus.DONE }
-        SearchIndexingService.enqueue(context, "KJV")
+        SearchIndexingService.enqueue(context, kjv)
         startService()
         controller!!.get().onIdle() // as a worker that went idle just before the enqueue would call it
         assertFalse("service stopped under a running build", shadowOf(controller!!.get()).isStoppedBySelf)
@@ -218,10 +218,31 @@ class SearchIndexingServiceTest {
         assertTrue(shadowOf(controller!!.get()).isStoppedBySelf)
     }
 
+    @Test fun theForegroundTimeoutStopsTheServiceButTheBuildContinuesInProcess() {
+        val inBuild = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val built = CopyOnWriteArrayList<String>()
+        SearchIndexingService.builder = { book ->
+            inBuild.countDown()
+            release.await(10, TimeUnit.SECONDS)
+            built += book.initials
+            book.indexStatus = IndexStatus.DONE
+        }
+        SearchIndexingService.enqueue(context, kjv)
+        SearchIndexingService.enqueue(context, geneva)
+        startService()
+        assertTrue(inBuild.await(10, TimeUnit.SECONDS))
+        controller!!.get().onTimeout(1, 1)
+        assertTrue("service must stop itself on the Android 15 timeout", shadowOf(controller!!.get()).isStoppedBySelf)
+        release.countDown()
+        awaitIdle()
+        assertEquals(listOf("KJV", "Geneva"), built.toList())
+    }
+
     @Test fun theDefaultBuilderBuildsARealIndex() {
         SearchIndexingService.builder = savedBuilder
         FtsTestSupport.dropIndex(turntb)
-        SearchIndexingService.enqueue(context, "TurNTB")
+        SearchIndexingService.enqueue(context, turntb)
         startService()
         awaitIdle()
         assertEquals(IndexStatus.DONE, turntb.indexStatus)

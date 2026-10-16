@@ -34,6 +34,12 @@ internal object FtsTestSupport {
         return File(File(root, book.bookMetaData.driverName!!), book.initials)
     }
 
+    /** The SQLite index file of [book]: `search/<driver>/<initials>.sqlite` (ordinary initials only). */
+    fun indexFile(book: Book): File {
+        val root = CWProject.instance().getWritableProjectSubdirPath(SearchFields.DIR_SEARCH, false)!!.toString()
+        return File(File(root, book.bookMetaData.driverName!!), "${book.initials}.sqlite")
+    }
+
     /** Builds the index synchronously (the manager completes it before returning) unless a valid one exists. */
     fun ensureIndexed(book: Book) {
         if (manager.isIndexed(book) && !manager.needsReindexing(book)) {

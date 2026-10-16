@@ -151,12 +151,12 @@ object SwordDocumentFacade {
     @Throws(BookException::class)
     fun deleteDocument(document: Book) { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document.initials)
-        // delete index first if it exists but wrap in try to ensure an attempt is made to delete the document
+        // Drop a queued index build and cancel a running one first (deleteIndex is safe when nothing exists: it cancels
+        // the job and deletes nothing; a first build has no final file yet, so `isIndexed` must not gate it). Wrapped in
+        // try to ensure an attempt is made to delete the document.
         try {
-            val imanager = IndexManagerFactory.getIndexManager()
-            if (imanager.isIndexed(realDocument)) {
-                imanager.deleteIndex(realDocument)
-            }
+            SearchIndexingService.dequeue(document.initials)
+            IndexManagerFactory.getIndexManager().deleteIndex(realDocument)
         } catch (e: Exception) { // just log index delete error, deleting doc is the important thing
             Log.e(TAG, "Error deleting document index", e)
         }
@@ -177,10 +177,8 @@ object SwordDocumentFacade {
             return
         }
         document?.initials?.let { SearchIndexingService.dequeue(it) }
-        val indexManager = IndexManagerFactory.getIndexManager()
-        if (indexManager.isIndexed(realDocument)) {
-            indexManager.deleteIndex(realDocument)
-        }
+        // unconditional: during a first build no final file exists yet, and the running build must still be cancelled
+        IndexManagerFactory.getIndexManager().deleteIndex(realDocument)
     }
 
     @Throws(BookException::class)

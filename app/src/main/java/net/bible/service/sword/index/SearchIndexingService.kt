@@ -76,14 +76,10 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
         )
 
         /**
-         * Queues the index build of the installed book [initials] and starts the foreground service (once; later
-         * requests while it runs just add to the queue). Does nothing for a book already queued or being built.
-         */
-        fun enqueue(context: Context, initials: String) = enqueue(context, initials, null)
-
-        /**
-         * As [enqueue] by initials, but carrying the [book] instance: it is built when it is not (or no longer) in the
-         * installed registry, and its status is the one reset to `UNDONE` if the build cannot run.
+         * Queues the index build of [book] and starts the foreground service (once; later requests while it runs just
+         * add to the queue). Does nothing for a book already queued or being built. The book instance is carried so
+         * its status is the one reset to `UNDONE` if the build cannot run, and it is built even when it is no longer in
+         * the installed registry, so a caller that deletes the document must [dequeue] it.
          */
         fun enqueue(context: Context, book: Book) = enqueue(context, book.initials, book)
 
@@ -138,6 +134,20 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
         }
         if (!queue.attach(this)) onIdle()
         return START_NOT_STICKY
+    }
+
+    /**
+     * Android 15 (API 35) limits `dataSync` foreground services to about 6 hours per day and calls this when the
+     * budget is used up; the service must then stop at once or the system raises an exception. The indexing queue is
+     * process-wide and independent of the service, so the running build simply continues in-process (without the
+     * notification) and the queued books follow; the next [enqueue] starts the service again. The method does not
+     * exist before API 35, so on older devices it is never called.
+     */
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        Log.w(TAG, "Foreground service time limit reached (type $fgsType); indexing continues without the service")
+        currentBook = null
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     override fun onBookStarted(book: Book) {

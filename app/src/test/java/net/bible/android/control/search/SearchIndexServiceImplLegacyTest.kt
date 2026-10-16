@@ -153,4 +153,53 @@ class SearchIndexServiceImplLegacyTest {
         }
         assertFalse(legacy.exists())
     }
+
+    @Test fun startupSweepFreesTheLegacyContentsOfAnInstalledBookButKeepsTheSignal() {
+        val legacy = FtsTestSupport.legacyDir(kjv)
+        makeLegacy(legacy)
+        File(legacy, "sub").mkdirs(); File(legacy, "sub/_0.cfs").writeText("big")
+        assertEquals(1, FtsTestSupport.manager.emptyLegacyLuceneIndexes(Books.installed().getBooks()))
+        assertTrue(legacy.isDirectory)
+        assertEquals(0, legacy.list()!!.size)
+        // the "engine changed" prompt is unchanged: the directory still exists and there is no usable new index
+        assertTrue(service.hasLegacyIndex("KJV"))
+        assertFalse(service.hasIndex("KJV"))
+    }
+
+    @Test fun deletingADocumentDequeuesItsIndexBuildAndRemovesItsIndexFile() {
+        val dir = Files.createTempDirectory("legacy-queue").toFile().also { tempFiles += it }
+        val genesis = bibleBookToMyBibleInt.getValue(BibleBook.GEN)
+        val file = File(dir, "legacyqueue.SQLite3")
+        openSqlite(file.path).use { c ->
+            c.exec("CREATE TABLE info (name TEXT, value TEXT)")
+            c.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
+            c.exec("INSERT INTO verses VALUES ($genesis, 1, 1, 'In the beginning')")
+        }
+        addMyBibleBook(file)
+        val book = Books.installed().getBook("MyBible-legacyqueue")!!
+        val gate = java.util.concurrent.CountDownLatch(1)
+        val built = java.util.concurrent.CopyOnWriteArrayList<String>()
+        val savedBuilder = net.bible.service.sword.index.SearchIndexingService.builder
+        net.bible.service.sword.index.SearchIndexingService.builder = { b ->
+            gate.await(10, java.util.concurrent.TimeUnit.SECONDS)
+            built += b.initials
+        }
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        try {
+            net.bible.service.sword.index.SearchIndexingService.enqueue(context, kjv) // occupies the worker
+            net.bible.service.sword.index.SearchIndexingService.enqueue(context, book) // queued behind it
+            // an orphan file as a first build that was cut short leaves it
+            val orphan = FtsTestSupport.indexFile(book).also { tempFiles += it }
+            orphan.parentFile.mkdirs(); orphan.writeText("partial")
+            SwordDocumentFacade.deleteDocument(book)
+            gate.countDown()
+            assertTrue(net.bible.service.sword.index.SearchIndexingService.awaitIdleForTest(30_000))
+            assertEquals(listOf("KJV"), built.toList())
+            assertFalse("orphan index file", orphan.exists())
+        } finally {
+            net.bible.service.sword.index.SearchIndexingService.builder = savedBuilder
+            net.bible.service.sword.index.SearchIndexingService.resetForTest()
+            Books.installed().getBook("MyBible-legacyqueue")?.let { Books.installed().removeBook(it) }
+        }
+    }
 }
