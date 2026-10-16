@@ -178,6 +178,46 @@ class SearchIndexingServiceTest {
         assertFalse(SearchIndexingService.isBusy)
     }
 
+    @Test fun anInstanceNotInTheInstalledRegistryIsStillBuilt() {
+        val built = CopyOnWriteArrayList<String>()
+        val queue = IndexingQueue(resolve = { null }, build = { book -> built += book.initials; book.indexStatus = IndexStatus.DONE })
+        kjv.indexStatus = IndexStatus.SCHEDULED
+        assertTrue(queue.offer("KJV", kjv))
+        assertTrue(queue.awaitIdle(10_000))
+        assertEquals(listOf("KJV"), built.toList())
+        assertEquals(IndexStatus.DONE, kjv.indexStatus)
+    }
+
+    @Test fun aQueuedBookRemovedBeforeItsTurnIsNotBuiltAndEndsUndone() {
+        val built = CopyOnWriteArrayList<String>()
+        val gate = CountDownLatch(1)
+        SearchIndexingService.builder = { book ->
+            gate.await(10, TimeUnit.SECONDS)
+            built += book.initials
+            book.indexStatus = IndexStatus.DONE
+        }
+        geneva.indexStatus = IndexStatus.SCHEDULED
+        SearchIndexingService.enqueue(context, kjv)
+        SearchIndexingService.enqueue(context, geneva)
+        SearchIndexingService.dequeue("Geneva")
+        gate.countDown()
+        awaitIdle()
+        assertEquals(listOf("KJV"), built.toList())
+        assertEquals(IndexStatus.UNDONE, geneva.indexStatus)
+    }
+
+    @Test fun aStaleIdleNotificationDoesNotStopTheServiceWhileABuildRuns() {
+        val release = CountDownLatch(1)
+        SearchIndexingService.builder = { book -> release.await(10, TimeUnit.SECONDS); book.indexStatus = IndexStatus.DONE }
+        SearchIndexingService.enqueue(context, "KJV")
+        startService()
+        controller!!.get().onIdle() // as a worker that went idle just before the enqueue would call it
+        assertFalse("service stopped under a running build", shadowOf(controller!!.get()).isStoppedBySelf)
+        release.countDown()
+        awaitIdle()
+        assertTrue(shadowOf(controller!!.get()).isStoppedBySelf)
+    }
+
     @Test fun theDefaultBuilderBuildsARealIndex() {
         SearchIndexingService.builder = savedBuilder
         FtsTestSupport.dropIndex(turntb)

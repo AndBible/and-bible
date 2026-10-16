@@ -79,8 +79,22 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
          * Queues the index build of the installed book [initials] and starts the foreground service (once; later
          * requests while it runs just add to the queue). Does nothing for a book already queued or being built.
          */
-        fun enqueue(context: Context, initials: String) {
-            if (!queue.offer(initials)) return
+        fun enqueue(context: Context, initials: String) = enqueue(context, initials, null)
+
+        /**
+         * As [enqueue] by initials, but carrying the [book] instance: it is built when it is not (or no longer) in the
+         * installed registry, and its status is the one reset to `UNDONE` if the build cannot run.
+         */
+        fun enqueue(context: Context, book: Book) = enqueue(context, book.initials, book)
+
+        /**
+         * Drops a queued, not yet started build of [initials] (status `UNDONE`). A running build is cancelled by the
+         * index manager's `deleteIndex` instead.
+         */
+        fun dequeue(initials: String) = queue.remove(initials)
+
+        private fun enqueue(context: Context, initials: String, instance: Book?) {
+            if (!queue.offer(initials, instance)) return
             try {
                 val intent = Intent(context, SearchIndexingService::class.java)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent)
@@ -132,11 +146,14 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
         notificationManager.notify(NOTIFICATION_ID, notification(book, null))
     }
 
+    /** Stops only if still idle, atomically with the queue: a request that landed since keeps the service up. */
     override fun onIdle() {
-        currentBook = null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) stopForeground(STOP_FOREGROUND_REMOVE)
-        else @Suppress("DEPRECATION") stopForeground(true)
-        stopSelf()
+        queue.runIfIdle {
+            currentBook = null
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) stopForeground(STOP_FOREGROUND_REMOVE)
+            else @Suppress("DEPRECATION") stopForeground(true)
+            stopSelf()
+        }
     }
 
     override fun workProgressed(ev: WorkEvent) {
@@ -191,7 +208,7 @@ internal class IndexingQueue(
     private val build: (Book) -> Unit,
 ) {
     private val lock = Object()
-    private val pending = LinkedHashSet<String>()
+    private val pending = LinkedHashMap<String, Book?>()
     private var current: Book? = null
     private var currentInitials: String? = null
     private var running = false
@@ -200,14 +217,24 @@ internal class IndexingQueue(
     val isBusy: Boolean get() = synchronized(lock) { running }
 
     /** False when [initials] is already queued or being built. Starts the worker if it is not running. */
-    fun offer(initials: String): Boolean = synchronized(lock) {
-        if (initials == currentInitials || !pending.add(initials)) return false
+    fun offer(initials: String, instance: Book? = null): Boolean = synchronized(lock) {
+        if (initials == currentInitials || pending.containsKey(initials)) return false
+        pending[initials] = instance
         if (!running) {
             running = true
             Thread(::drain, "search-indexing").apply { isDaemon = true }.start()
         }
         true
     }
+
+    /** Removes a queued build that has not started; its instance (if known) ends `UNDONE`. */
+    fun remove(initials: String) {
+        val instance = synchronized(lock) { if (pending.containsKey(initials)) pending.remove(initials) else return }
+        instance?.indexStatus = IndexStatus.UNDONE
+    }
+
+    /** Runs [block] under the queue lock if no work is queued or running (nothing can be enqueued meanwhile). */
+    fun runIfIdle(block: () -> Unit) = synchronized(lock) { if (!running) block() }
 
     fun currentBook(): Book? = synchronized(lock) { current }
 
@@ -237,7 +264,7 @@ internal class IndexingQueue(
         while (true) {
             var idleObserver: IndexingObserver? = null
             val initials = synchronized(lock) {
-                val next = pending.firstOrNull()
+                val next = pending.keys.firstOrNull()
                 if (next == null) {
                     running = false
                     current = null
@@ -246,9 +273,9 @@ internal class IndexingQueue(
                     observer = null
                     lock.notifyAll()
                 } else {
-                    pending.remove(next)
+                    val instance = pending.remove(next)
                     currentInitials = next
-                    current = resolve(next)
+                    current = resolve(next) ?: instance
                 }
                 next
             }
@@ -263,6 +290,7 @@ internal class IndexingQueue(
     private fun buildOne(initials: String) {
         val book = synchronized(lock) { current }
         if (book == null) {
+            // Not installed and no instance: nothing reachable to reset (an instance-carrying request never gets here).
             Log.w(TAG, "Skipping $initials: not installed")
             return
         }

@@ -176,6 +176,7 @@ object SwordDocumentFacade {
             realDocument.epubBackend?.state?.deleteSearchIndex()
             return
         }
+        document?.initials?.let { SearchIndexingService.dequeue(it) }
         val indexManager = IndexManagerFactory.getIndexManager()
         if (indexManager.isIndexed(realDocument)) {
             indexManager.deleteIndex(realDocument)
@@ -217,7 +218,7 @@ object SwordDocumentFacade {
                     book.epubBackend!!.state.buildSearchIndex()
                 } else {
                     // Built by the foreground indexing service, one book at a time; the index manager sets the status.
-                    SearchIndexingService.enqueue(BibleApplication.application, book.initials)
+                    SearchIndexingService.enqueue(BibleApplication.application, book)
                 }
             } catch (e: Exception) {
                 book.indexStatus = IndexStatus.UNDONE
