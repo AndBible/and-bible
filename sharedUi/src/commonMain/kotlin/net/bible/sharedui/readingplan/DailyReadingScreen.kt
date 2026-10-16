@@ -1,5 +1,6 @@
 package net.bible.sharedui.readingplan
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,9 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Today
+import androidx.compose.material3.ButtonDefaults
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.LocalAbColors
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -165,6 +169,11 @@ fun DailyReadingScreen(
             Button(
                 onClick = onDone,
                 enabled = ui.allRead,
+                colors = if (isPureMonochrome()) ButtonDefaults.buttonColors(
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContentColor = LocalAbColors.current.monoDisabled,
+                ) else ButtonDefaults.buttonColors(),
+                border = if (isPureMonochrome() && !ui.allRead) BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface) else null,
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             ) { Text(strings.done) }
         }

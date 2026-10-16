@@ -35,7 +35,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.AlertDialog
+import net.bible.sharedui.components.AbAlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -372,7 +372,7 @@ private fun RegenerateDialog(
     var instructions by remember { mutableStateOf("") }
     var keepPrevious by remember { mutableStateOf(false) }
     var freshRun by remember { mutableStateOf(false) }
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(strings.aiRegenerateTitle) },
         text = {

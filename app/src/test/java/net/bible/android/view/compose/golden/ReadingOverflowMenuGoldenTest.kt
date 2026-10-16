@@ -85,12 +85,26 @@ class ReadingOverflowMenuGoldenTest {
     }
 
     @Test fun items_matrix() =
-        captureMatrix("ReadingOverflowMenu", "items") {
+        captureMatrix("ReadingOverflowMenu", "items", content = itemsContent())
+
+    @Test fun recentSection_matrix() =
+        captureMatrix("ReadingOverflowMenu", "recentSection", content = recentSectionContent())
+
+    private fun itemsContent(): @androidx.compose.runtime.Composable () -> Unit = {
             Column { ReadingOverflowMenuRows(items, onItemClick = {}, icon = { key -> icon(key) }) }
         }
 
-    @Test fun recentSection_matrix() =
-        captureMatrix("ReadingOverflowMenu", "recentSection") {
+    private fun recentSectionContent(): @androidx.compose.runtime.Composable () -> Unit = {
             Column { ReadingOverflowMenuRows(itemsWithRecentSection, onItemClick = {}, icon = { key -> icon(key) }) }
         }
+
+    @Test
+    fun items_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingOverflowMenu", "items", mode, content = itemsContent()) }
+    }
+
+    @Test
+    fun recentSection_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingOverflowMenu", "recentSection", mode, content = recentSectionContent()) }
+    }
 }

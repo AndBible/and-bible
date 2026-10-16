@@ -21,10 +21,18 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.materialkolor.Contrast
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
-import androidx.compose.ui.graphics.toArgb
+import com.materialkolor.hct.Hct
+import com.materialkolor.palettes.TonalPalette
+import com.materialkolor.scheme.DynamicScheme
+import com.materialkolor.scheme.Variant
+import com.materialkolor.toColorScheme
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.common.ThemePaletteStyle
+import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.theme.toGrayscaleArgb
 
@@ -79,6 +87,51 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
     surfaceContainerLowest = grayed(surfaceContainerLowest, mode),
 )
 
+/** materialkolor's style for each user-facing [ThemePaletteStyle]; exhaustive `when`, no else. */
+internal fun ThemePaletteStyle.toPaletteStyle(): PaletteStyle = when (this) {
+    ThemePaletteStyle.TONAL_SPOT_GREY -> PaletteStyle.TonalSpot // base variant; abColorScheme routes it to greySafeTonalSpot
+    ThemePaletteStyle.FIDELITY -> PaletteStyle.Fidelity
+    ThemePaletteStyle.TONAL_SPOT -> PaletteStyle.TonalSpot
+    ThemePaletteStyle.CONTENT -> PaletteStyle.Content
+    ThemePaletteStyle.NEUTRAL -> PaletteStyle.Neutral
+    ThemePaletteStyle.MONOCHROME -> PaletteStyle.Monochrome
+    ThemePaletteStyle.VIBRANT -> PaletteStyle.Vibrant
+    ThemePaletteStyle.EXPRESSIVE -> PaletteStyle.Expressive
+    ThemePaletteStyle.RAINBOW -> PaletteStyle.Rainbow
+    ThemePaletteStyle.FRUIT_SALAD -> PaletteStyle.FruitSalad
+}
+
+private fun seeded(seedArgb: Int, dark: Boolean, style: PaletteStyle): ColorScheme =
+    // Named arguments only: the positional list carries six optional role overrides between
+    // `isAmoled` and `style`. `isAmoled` has NO default in the real signature — pass it explicitly.
+    dynamicColorScheme(seedColor = Color(seedArgb), isDark = dark, isAmoled = false, style = style)
+
+/**
+ * materialkolor TonalSpot with every palette's chroma capped at the seed's own HCT chroma.
+ *
+ * TonalSpot keeps only the seed's hue and forces fixed chromas (36/16/24/6/8). An achromatic seed
+ * has an arbitrary hue (0 for black, ~209.5 for the greys), so plain TonalSpot turns black pink and
+ * greys teal, and it over-saturates low-chroma colours (brown -> orange). Capping fixes both while
+ * keeping TonalSpot's normalised tones; for a seed with chroma >= 36 it is identical to TonalSpot.
+ * Mirrors materialkolor's `SchemeTonalSpot` constructor (2.1.1) apart from the caps.
+ */
+private fun greySafeTonalSpot(seedArgb: Int, dark: Boolean): ColorScheme {
+    val seed = Hct.fromInt(seedArgb)
+    fun palette(hue: Double, tonalSpotChroma: Double) =
+        TonalPalette.fromHueAndChroma(hue, minOf(tonalSpotChroma, seed.chroma))
+    return DynamicScheme(
+        sourceColorHct = seed,
+        variant = Variant.TONAL_SPOT,
+        isDark = dark,
+        contrastLevel = Contrast.Default.value,
+        primaryPalette = palette(seed.hue, 36.0),
+        secondaryPalette = palette(seed.hue, 16.0),
+        tertiaryPalette = palette((seed.hue + 60.0) % 360.0, 24.0),
+        neutralPalette = palette(seed.hue, 6.0),
+        neutralVariantPalette = palette(seed.hue, 8.0),
+    ).toColorScheme(isAmoled = false)
+}
+
 /**
  * The single seed → [ColorScheme] derivation for the whole app (A/B batch 4b).
  *
@@ -93,31 +146,55 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
  * pass in makes that drift impossible by construction rather than by a second condition that both
  * call sites must remember to write.
  *
- * - **No seed** (null, or `DEFAULT_WORKSPACE_COLOR_ARGB` — see [isWorkspaceColorSet]) → today's
- *   stock Material 3 scheme, unchanged. This is an identity requirement, not an approximation:
- *   it is what keeps every existing golden and every colourless workspace pixel-identical. (In
- *   NORMAL the greyscale pass is a no-op, so the identity holds exactly.)
- * - **BW** → the seed is ignored. A hue carries no information on a black-and-white screen, and
- *   seeding would give each workspace *different greys*, i.e. different contrast for the same UI
- *   on exactly the devices where contrast matters most.
- * - **COLOR_EINK** → seeded, *then* greyscaled like every other role (spec §5), matching the line
- *   `accentArgbFor` already draws: the base scheme greys, the deliberate accents stay coloured.
+ * - **NORMAL** -> a missing seed uses [DEFAULT_WORKSPACE_COLOR_ARGB], derived with [style].
+ *   The default style is [ThemePaletteStyle.TONAL_SPOT_GREY] ([greySafeTonalSpot]): TonalSpot's soft
+ *   look without its grey bug; Fidelity (the previous default) was too heavy. Goldens and previews
+ *   with `seedArgb = null` render the default grey theme, exactly as the app does.
+ * - **MONOCHROME** -> two-tone ink/paper scheme, with transparent scrim; seed and style ignored.
+ * - **BW** -> the seed and style are ignored: the stock scheme is greyscaled so contrast is
+ *   consistent across workspaces on black-and-white screens.
+ * - **COLOR_EINK** -> a set colour (see [isWorkspaceColorSet]) seeds TonalSpot regardless of
+ *   [style], then the scheme is greyscaled. An unset colour uses the stock scheme, greyscaled.
+ *   This keeps equal contrast for every workspace colour on e-ink; deliberate accents stay coloured.
  */
-fun abColorScheme(seedArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): ColorScheme {
+fun abColorScheme(
+    seedArgb: Int?,
+    dark: Boolean,
+    colorMode: DisplayColorMode,
+    style: ThemePaletteStyle = ThemePaletteStyle.DEFAULT,
+): ColorScheme {
     val stock = if (dark) darkColorScheme() else lightColorScheme()
-    val seeded = if (!isWorkspaceColorSet(seedArgb) || colorMode == DisplayColorMode.BW) {
-        stock
-    } else {
-        // Named arguments only: the positional list carries six optional role overrides between
-        // `isAmoled` and `style` (signature read out of the artifact with javap, Step 2). Unlike the
-        // role overrides, `isAmoled` has NO default in the real signature (confirmed by the Kotlin
-        // compiler's own overload-resolution error when it was omitted) — it must be passed explicitly.
-        dynamicColorScheme(
-            seedColor = Color(seedArgb!!),
-            isDark = dark,
-            isAmoled = false,
-            style = PaletteStyle.TonalSpot,
-        )
+    return when (colorMode) {
+        DisplayColorMode.NORMAL -> {
+            val seed = seedArgb ?: DEFAULT_WORKSPACE_COLOR_ARGB
+            if (style == ThemePaletteStyle.TONAL_SPOT_GREY) greySafeTonalSpot(seed, dark)
+            else seeded(seed, dark, style.toPaletteStyle())
+        }
+        DisplayColorMode.MONOCHROME -> monochromeScheme(dark)
+        DisplayColorMode.BW -> stock.grayscale(colorMode)
+        DisplayColorMode.COLOR_EINK ->
+            (if (isWorkspaceColorSet(seedArgb)) seeded(seedArgb!!, dark, PaletteStyle.TonalSpot) else stock)
+                .grayscale(colorMode)
     }
-    return if (colorMode == DisplayColorMode.NORMAL) seeded else seeded.grayscale(colorMode)
+}
+
+/** Every role is ink or paper; selection inverts and sheet/dialog edges replace the scrim. */
+private fun monochromeScheme(dark: Boolean): ColorScheme {
+    val ink = monoInk(dark)
+    val paper = monoPaper(dark)
+    val base = if (dark) darkColorScheme() else lightColorScheme()
+    return base.copy(
+        primary = ink, onPrimary = paper, primaryContainer = ink, onPrimaryContainer = paper,
+        inversePrimary = paper,
+        secondary = ink, onSecondary = paper, secondaryContainer = paper, onSecondaryContainer = ink,
+        tertiary = ink, onTertiary = paper, tertiaryContainer = paper, onTertiaryContainer = ink,
+        background = paper, onBackground = ink,
+        surface = paper, onSurface = ink, surfaceVariant = paper, onSurfaceVariant = ink,
+        surfaceTint = paper, inverseSurface = ink, inverseOnSurface = paper,
+        error = ink, onError = paper, errorContainer = paper, onErrorContainer = ink,
+        outline = ink, outlineVariant = ink, scrim = Color.Transparent,
+        surfaceBright = paper, surfaceDim = paper,
+        surfaceContainer = paper, surfaceContainerHigh = paper, surfaceContainerHighest = paper,
+        surfaceContainerLow = paper, surfaceContainerLowest = paper,
+    )
 }

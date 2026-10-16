@@ -1,6 +1,7 @@
 package net.bible.sharedcore.ai
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,6 +73,9 @@ class AiModelsController(
     private val _dialog = MutableStateFlow<ModelEditState?>(null)
     val dialog: StateFlow<ModelEditState?> = _dialog.asStateFlow()
 
+    /** The in-flight [LlmModelService.availableModelsFor] for the provider picked last (CR-8). */
+    private var modelsJob: Job? = null
+
     init {
         scope.launch { service.models.collect { _models.value = sortDefaultFirst(it) } }
     }
@@ -138,9 +142,12 @@ class AiModelsController(
                 modelId = "",
             )
         )
-        scope.launch {
+        // CR-8: a fetch for an earlier pick must never publish into a later one. Cancel it, and
+        // check the provider on resume as well, because a non-cancellable fetch can still return.
+        modelsJob?.cancel()
+        modelsJob = scope.launch {
             val available = service.availableModelsFor(providerId)
-            val cur = _dialog.value ?: return@launch
+            val cur = _dialog.value?.takeIf { it.providerId == providerId } ?: return@launch
             publish(cur.copy(availableModels = available, loadingModels = false))
         }
     }
@@ -193,7 +200,11 @@ class AiModelsController(
 
     fun setDefault(id: String) = service.setDefault(id)
 
-    fun dismissDialog() { _dialog.value = null }
+    fun dismissDialog() {
+        modelsJob?.cancel()
+        modelsJob = null
+        _dialog.value = null
+    }
 
     private fun publish(next: ModelEditState) {
         val isCustom = next.modelId == CUSTOM_MODEL_ID

@@ -156,6 +156,26 @@ class CloudDocumentsGoldenTest {
     // cloud_populated's EINK mode. This dedicated case pins ALL EIGHT statuses in BW — one row each
     // via statusRows — proving every status (incl. WONT_SYNC + REMOVED_STILL_INSTALLED) reads by
     // icon + text with colour degraded to grayscale.
+    @Test fun cloud_status_monochrome() {
+        auditMono("CloudDocuments", "allStatuses", 900, emptyList()) {
+            screen(displayed = statusRows)
+        }
+        MONO_MODES.forEach { mode ->
+            val image = javax.imageio.ImageIO.read(java.io.File("build/mono-audit/CloudDocuments_allStatuses_${mode.tag}.png"))
+            val ink = if (mode.dark) 0xFFFFFFFF.toInt() else 0xFF000000.toInt()
+            statusRows.indices.forEach { index ->
+                val expected = if (index < 4) ink else 0xFF808080.toInt()
+                // Two-line rows keep all status icons 72dp apart; inspect only the trailing status icon,
+                // excluding both text and overflow. Require solid pixels, not an AA edge match.
+                val colors = (178 + index * 72 until 198 + index * 72).flatMap { y ->
+                    (236 until 256).map { x -> image.getRGB(x, y) }
+                }
+                org.junit.Assert.assertTrue("Status ${statusRows[index].name} in ${mode.tag}",
+                    colors.count { it == expected } >= 2)
+            }
+        }
+    }
+
     @Test fun cloud_status_bw() = captureGolden("CloudDocuments", "status", GoldenMode.BW, heightDp = 900) { screen(displayed = statusRows) }
 
     // Captured via AbArrangementSheetContent directly, never inside AbArrangementSheet: an open

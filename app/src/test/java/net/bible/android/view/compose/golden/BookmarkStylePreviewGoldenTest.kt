@@ -7,6 +7,8 @@ import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedui.bookmark.BookmarkStylePreview
 import net.bible.sharedui.components.AbColor
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.bookmark.bookmarkMarkerTint
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -35,7 +37,7 @@ class BookmarkStylePreviewGoldenTest {
                     // Color(colorArgb) mirrors what LabelEditScreen's real preview call passes for
                     // a non-null custom icon (the label's own colour, since this background is the
                     // neutral card, not a same-coloured disc).
-                    iconSlot = { bookmarkIcon(null, Color(AbColor.palette.first())) },
+                    iconSlot = { bookmarkIcon(null, if (isPureMonochrome()) bookmarkMarkerTint(AbColor.palette.first()) else Color(AbColor.palette.first())) },
                 )
             }
         }
@@ -52,7 +54,7 @@ class BookmarkStylePreviewGoldenTest {
                     colorArgb = AbColor.palette.first(),
                     sampleText = "For God so loved the world",
                     decoratePartially = true,
-                    iconSlot = { bookmarkIcon(null, Color(AbColor.palette.first())) },
+                    iconSlot = { bookmarkIcon(null, if (isPureMonochrome()) bookmarkMarkerTint(AbColor.palette.first()) else Color(AbColor.palette.first())) },
                 )
             }
         }
@@ -64,4 +66,12 @@ class BookmarkStylePreviewGoldenTest {
      *  colour, matching the reader. */
     @Test fun bookmarkStylePreview_partial() =
         captureMatrix("BookmarkStylePreview", "partial", heightDp = 400, content = allFourPartial)
+
+    @Test fun bookmarkStylePreview_all_mono() {
+        MONO_MODES.forEach { captureGolden("BookmarkStylePreview", "all", it, heightDp = 400, content = allFour) }
+    }
+
+    @Test fun bookmarkStylePreview_partial_mono() {
+        MONO_MODES.forEach { captureGolden("BookmarkStylePreview", "partial", it, heightDp = 400, content = allFourPartial) }
+    }
 }

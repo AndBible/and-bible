@@ -123,6 +123,7 @@ fun SheetConfirmRow(
     cancelLabel: String,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
+    confirmEnabled: Boolean = true,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
@@ -130,7 +131,7 @@ fun SheetConfirmRow(
     ) {
         Spacer(Modifier.weight(1f))
         TextButton(onClick = onCancel) { Text(cancelLabel) }
-        TextButton(onClick = onConfirm) { Text(confirmLabel) }
+        TextButton(onClick = onConfirm, enabled = confirmEnabled) { Text(confirmLabel) }
     }
 }
 
@@ -183,6 +184,42 @@ fun SheetPageSwitchConfirmRow(
         TextButton(onClick = onCancel) { Text(cancelLabel) }
         TextButton(onClick = onConfirm) { Text(confirmLabel) }
     }
+}
+
+/**
+ * The page body of a [SettingsItem.TextInputRow] editor: the text field plus its Apply/Cancel row.
+ * Split out of [GenericSettingsEditorSheet] so it can be driven directly (a test or golden needs no
+ * open `ModalBottomSheet`). It takes the sheet's [ColumnScope] receiver so the children land in the
+ * same column as before the split, with no extra layout node.
+ *
+ * [onApply] receives the value to store: trimmed when the row is [SettingsItem.TextInputRow.nonNegativeIntOnly].
+ * [onCancel] is called for Cancel only; the caller owns navigation.
+ */
+@Composable
+fun ColumnScope.TextInputRowEditorContent(
+    row: SettingsItem.TextInputRow,
+    onApply: (String) -> Unit,
+    onCancel: () -> Unit,
+) {
+    val strings = LocalStrings.current
+    var current by remember(row.key, row.value) { mutableStateOf(row.value) }
+    AbTextInputContent(
+        initial = row.value,
+        onValueChange = { current = it },
+        numeric = row.numeric,
+        masked = row.masked,
+    )
+    // CR-9: a row that only takes a non-negative integer cannot apply anything else, so
+    // the sheet never closes on a value the screen would silently drop.
+    val applied = if (row.nonNegativeIntOnly) current.trim() else current
+    val valid = !row.nonNegativeIntOnly || (applied.toIntOrNull()?.let { it >= 0 } == true)
+    SheetConfirmRow(
+        confirmLabel = strings.settingsEditorApply,
+        cancelLabel = strings.cancel,
+        onConfirm = { onApply(applied) },
+        onCancel = onCancel,
+        confirmEnabled = valid,
+    )
 }
 
 /**
@@ -261,21 +298,11 @@ fun GenericSettingsEditorSheet(
                     )
                 }
             }
-            is SettingsItem.TextInputRow -> {
-                var current by remember(row.key, row.value) { mutableStateOf(row.value) }
-                AbTextInputContent(
-                    initial = row.value,
-                    onValueChange = { current = it },
-                    numeric = row.numeric,
-                    masked = row.masked,
-                )
-                SheetConfirmRow(
-                    confirmLabel = strings.settingsEditorApply,
-                    cancelLabel = strings.cancel,
-                    onConfirm = { onTextInput(row.key, current); editor.pop() },
-                    onCancel = { editor.pop() },
-                )
-            }
+            is SettingsItem.TextInputRow -> TextInputRowEditorContent(
+                row = row,
+                onApply = { onTextInput(row.key, it); editor.pop() },
+                onCancel = { editor.pop() },
+            )
             is SettingsItem.MultiSelectRow -> {
                 var current by remember(row.key, row.selectedValues) {
                     mutableStateOf(row.selectedValues.toList())

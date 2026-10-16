@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-# Create the screenshot_phone AVD (Pixel 6 Pro, API 36 google_apis x86_64). Idempotent.
+# Create an AVD (Pixel 6 Pro, API 36 google_apis x86_64), default name screenshot_phone.
+# Idempotent. AVDs go to $ANDROID_AVD_HOME (default ~/.android/avd).
 #
-#   scripts/emulator-avds.sh [--help]
+#   scripts/emulator-avds.sh [name] [--help]
 #
 # Needs $ANDROID_HOME with cmdline-tools and the system image
 #   system-images;android-36;google_apis;x86_64
-# The SDK may be read-only (it is in the container), so this script never installs
-# the image: if it is missing it prints the command to run on the host.
+# The jailbee golden image has both in /opt/android-sdk. If the image is missing this script
+# prints the sdkmanager command instead of installing it.
 set -euo pipefail
 
+name=screenshot_phone
 case "${1:-}" in
-    -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
     "") ;;
-    *) echo "unknown arg $1 (see --help)" >&2; exit 2 ;;
+    -*) echo "unknown arg $1 (see --help)" >&2; exit 2 ;;
+    *) name="$1" ;;
 esac
 
 [[ -n "${ANDROID_HOME:-}" ]] || { echo "ERROR: ANDROID_HOME is not set." >&2; exit 1; }
@@ -21,12 +24,13 @@ AVDMGR="$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager"
 
 IMG="system-images;android-36;google_apis;x86_64"
 if [[ ! -d "$ANDROID_HOME/system-images/android-36/google_apis/x86_64" ]]; then
-    echo "ERROR: system image missing. Install it on the HOST (the SDK is read-only here):" >&2
+    echo "ERROR: system image missing. Install it with:" >&2
     echo "  sdkmanager '$IMG'" >&2
     exit 1
 fi
 
-name=screenshot_phone
+# avdmanager falls back to ~/.android/avd when ANDROID_AVD_HOME does not exist yet.
+mkdir -p "${ANDROID_AVD_HOME:-$HOME/.android/avd}"
 if "$AVDMGR" list avd 2>/dev/null | grep -q "Name: $name"; then
     echo "AVD $name already exists"
     exit 0
@@ -36,7 +40,7 @@ echo "no" | "$AVDMGR" create avd --name "$name" --package "$IMG" --device pixel_
 
 # 6 GB userdata: /sdcard is a FUSE mount over /data/media on API 31+, so external
 # storage shares this partition; the default leaves no headroom for APK installs.
-config="$HOME/.android/avd/${name}.avd/config.ini"
+config="${ANDROID_AVD_HOME:-$HOME/.android/avd}/${name}.avd/config.ini"
 if [[ -f "$config" ]]; then
     if grep -q '^disk.dataPartition.size' "$config"; then
         sed -i 's|^disk.dataPartition.size.*|disk.dataPartition.size = 6442450944|' "$config"

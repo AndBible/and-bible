@@ -45,6 +45,8 @@ sealed interface SettingsItem {
         val numeric: Boolean = false,
         /** Obscure characters (password field). Renders AbTextInputDialog with PasswordVisualTransformation. */
         val masked: Boolean = false,
+        /** Apply is enabled only for a non-negative integer, applied trimmed (CR-9). */
+        val nonNegativeIntOnly: Boolean = false,
         /** Optional key into the host's [net.bible.sharedui.settings.LocalSettingsIcon] seam for a leading icon. */
         val iconKey: String? = null,
         override val visible: Boolean = true,

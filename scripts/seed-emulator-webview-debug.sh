@@ -7,15 +7,14 @@
 #
 # --build runs the (slow, ~6 min) gradle assemble if no debug APK is present.
 #
-# WHAT PERSISTS ACROSS CONTAINERS (so this is often a no-op after the first run):
-#   ~/.android            shared host cache -> the AVDs AND their userdata, i.e. the
-#                         installed app and any pushed Sword modules survive a container
-#                         recreate, as does the debug signing key
+# WHAT PERSISTS ACROSS CONTAINERS:
+#   ~/.android            shared host cache -> the debug signing key (adb install -r keeps
+#                         working across containers)
 #   <repo>/.local         gitignored in the repo clone; copy testmods.zip (and the emu-verify
 #                         kit, if used) into it on the host BEFORE creating the container
 # WHAT DOES NOT:
-#   ~/Android/Sdk is mounted READ-ONLY, so a missing system image CANNOT be installed
-#   from in here — sdkmanager will fail. Install it on the HOST, then re-run.
+#   the AVD and its userdata live in $ANDROID_AVD_HOME, container-local in jailbee, so a new
+#   container starts from a fresh AVD (installed app and modules are seeded again here).
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 repo="$PWD"
@@ -39,33 +38,10 @@ unset ADB_SERVER_SOCKET
 
 say() { printf '==> %s\n' "$*"; }
 
-# 1. AVD ---------------------------------------------------------------------
-if [ ! -d "$HOME/.android/avd/$avd.avd" ]; then
-    say "AVD $avd missing — creating (needs the system image present in the RO host SDK)"
-    "$repo/scripts/emulator-avds.sh" || {
-        echo "AVD creation failed. If it complained about a system image, install it ON THE HOST:" >&2
-        echo "  sdkmanager 'system-images;android-36;google_apis;x86_64'   # SDK is read-only in here" >&2
-        exit 1
-    }
-else
-    say "AVD $avd present (persisted via the ~/.android shared cache)"
-fi
-
-# 2. Emulator ----------------------------------------------------------------
+# 1+2. AVD + emulator ---------------------------------------------------------
 if ! command adb devices | awk 'NR>1 && $2=="device"' | grep -q .; then
-    say "booting $avd detached"
-    # setsid: a run_in_background/nohup launch gets reaped with its task tree and the
-    # emulator dies mid-session, looking like a crash.
-    setsid nohup "$HOME/Android/Sdk/emulator/emulator" -avd "$avd" \
-        -no-window -no-snapshot-save -no-boot-anim -no-audio -partition-size 2048 \
-        -gpu swiftshader_indirect >"/tmp/emulator-$avd.log" 2>&1 </dev/null & disown
-    for _ in $(seq 72); do
-        [ "$(command adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] && break
-        sleep 5
-    done
-    [ "$(command adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] \
-        || { echo "emulator did not boot; see /tmp/emulator-$avd.log" >&2; exit 1; }
-    say "booted"
+    say "booting $avd (scripts/andbible-emu.sh boot creates the AVD if it is missing)"
+    "$repo/scripts/andbible-emu.sh" boot "$avd"
 else
     say "emulator already up"
 fi
@@ -127,6 +103,7 @@ PY
     command adb shell chmod 777 "$mods_dir/mods.d" "$mods_dir/modules" \
         "$mods_dir/modules/texts" "$mods_dir/modules/texts/ztext" \
         "$mods_dir/modules/texts/ztext/$lower"
+    command adb shell sync                      # an emulator crash loses unflushed /sdcard writes
     command adb shell am force-stop "$pkg"      # JSword scans mods.d at startup only
 else
     say "module $module already on the device"

@@ -69,5 +69,16 @@ class SearchIndexProgressController(
 
     fun showError() { _error.value = SearchIndexError.FAILED }
     fun dismissError() { _error.value = null }
+
+    /**
+     * The standalone progress route's dismiss (CR-2): a failed build has nothing left to wait for and
+     * nothing to retry from this screen, so acknowledging the error leaves it the way "Continue in
+     * background" does. The reading sheet keeps [dismissError], which stays on its error panel.
+     */
+    fun dismissErrorAndLeave() {
+        dismissError()
+        onHide()
+    }
+
     fun hide() { onHide() }
 }

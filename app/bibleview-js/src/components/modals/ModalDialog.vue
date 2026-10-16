@@ -275,4 +275,18 @@ $border-radius2: $border-radius - 1.5pt;
   }
 }
 
+
+// Pure mode must win over night and noAnimation without changing BW.
+@each $theme, $ink, $paper in (".pureMonochrome", black, white), (".pureMonochrome.night", white, black) {
+  #{$theme} {
+    .modal-content, .modal-header, .modal-body, .modal-footer {
+      background-color: $paper;
+      color: $ink;
+      border-color: $ink;
+    }
+    .modal-content { box-shadow: none; animation: none; }
+    .modal-header { --header-backround: #{$paper}; border-bottom: 1px solid $ink; }
+  }
+}
+
 </style>

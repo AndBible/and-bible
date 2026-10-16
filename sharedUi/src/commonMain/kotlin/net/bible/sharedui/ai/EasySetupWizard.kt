@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import net.bible.sharedui.components.AbAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -79,7 +79,7 @@ data class EasySetupState(
 }
 
 /**
- * The easy-setup wizard: 3 steps, each an M3 [AlertDialog], driven entirely by [state] (stateless —
+ * The easy-setup wizard: 3 steps, each an M3 [AbAlertDialog], driven entirely by [state] (stateless —
  * this composable holds no state of its own). Mirrors the classic `EasySetupDialogs.kt` flow (the
  * disclaimer gate itself is enforced by the host BEFORE this wizard is shown, per the task brief):
  *
@@ -129,7 +129,7 @@ fun EasySetupWizard(
                 )
             }
         }
-        EasySetupStep.DONE -> AlertDialog(
+        EasySetupStep.DONE -> AbAlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(strings.easySetupDoneTitle) },
             text = { Text(strings.easySetupDoneMessage) },
@@ -152,7 +152,7 @@ private fun EasySetupKeyDialog(
     val strings = LocalStrings.current
     val uriHandler = LocalUriHandler.current
 
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("${strings.easySetupEnterApiKey} — ${setup.label}") },
         text = {

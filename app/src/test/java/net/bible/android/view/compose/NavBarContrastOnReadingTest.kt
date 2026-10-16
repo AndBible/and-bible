@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import android.content.res.Configuration
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
@@ -63,6 +64,75 @@ class NavBarContrastOnReadingTest {
     }
 
     private fun idleMain() = shadowOf(Looper.getMainLooper()).idle()
+
+    @Test
+    fun pureMonoNonReadingRoutesStayScrimFreeAfterRealDecorDispatch() {
+        val settings = net.bible.service.common.CommonUtils.settings
+        val oldMode = settings.getString("display_color_mode", null)
+        try {
+            for (mode in net.bible.service.common.DisplayColorMode.entries) {
+                settings.setString("display_color_mode", mode.value)
+                val controller = Robolectric.buildActivity(
+                    NavHostComposeActivity::class.java,
+                    NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+                ).also { controllers += it }.create().start().resume().visible()
+                val activity = controller.get()
+                idleMain()
+                assertFalse(activity.window.isNavigationBarContrastEnforced)
+                for (route in listOf(NavRoutes.WORKSPACE_SELECTOR, NavRoutes.SETTINGS, NavRoutes.READING)) {
+                    activity.navigateInGraph(route)
+                    idleMain()
+                    val config = Configuration(activity.resources.configuration).apply {
+                        orientation = Configuration.ORIENTATION_LANDSCAPE
+                    }
+                    activity.onConfigurationChanged(config)
+                    activity.window.decorView.dispatchConfigurationChanged(config)
+                    idleMain()
+                    val expected = mode != net.bible.service.common.DisplayColorMode.MONOCHROME && route != NavRoutes.READING
+                    kotlin.test.assertEquals(expected, activity.window.isNavigationBarContrastEnforced, "$mode $route")
+                }
+                controller.close()
+                controllers.remove(controller)
+            }
+        } finally {
+            settings.setString("display_color_mode", oldMode)
+        }
+    }
+
+    @Test
+    fun decorConfigurationDispatchPreservesRouteContrastPolicy() {
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).also { controllers += it }.create().start().resume().visible()
+        val activity = controller.get()
+        idleMain()
+        assertFalse(activity.window.isNavigationBarContrastEnforced)
+
+        fun rotate(orientation: Int) {
+            val config = Configuration(activity.resources.configuration).apply {
+                this.orientation = orientation
+            }
+            // Activity and decor are separate framework dispatches. Include the real AndroidX
+            // child installed by enableEdgeToEdge, not a fake write to the contrast property.
+            activity.onConfigurationChanged(config)
+            activity.window.decorView.dispatchConfigurationChanged(config)
+            idleMain()
+        }
+
+        rotate(Configuration.ORIENTATION_LANDSCAPE)
+        assertFalse(activity.window.isNavigationBarContrastEnforced, "reading rotation must not restore the scrim")
+
+        activity.navigateInGraph(NavRoutes.SETTINGS)
+        idleMain()
+        rotate(Configuration.ORIENTATION_PORTRAIT)
+        assertTrue(activity.window.isNavigationBarContrastEnforced, "settings rotation keeps contrast enforcement")
+
+        activity.navigateInGraph(NavRoutes.READING)
+        idleMain()
+        rotate(Configuration.ORIENTATION_LANDSCAPE)
+        assertFalse(activity.window.isNavigationBarContrastEnforced, "returning to reading still owns the rotated bar")
+    }
 
     @Test
     fun contrastIsOffOnReadingAndBackOnElsewhere() {

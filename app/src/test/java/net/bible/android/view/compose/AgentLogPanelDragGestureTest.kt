@@ -23,11 +23,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
 import net.bible.service.common.DisplayColorMode
@@ -44,8 +49,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 /**
  * The one thing the pure `:sharedCore` reducer tests cannot see: that the handle's `draggable` and
@@ -64,6 +67,16 @@ class AgentLogPanelDragGestureTest {
 
     private val collapsedDp = 48f
     private val maxDp = 600f
+
+    @Test
+    fun theExpandControlReportsWhetherThePanelIsOpen() {
+        val r = Recorder()
+        compose.setContent { PanelUnderTest(r) { r.state = it } }
+        compose.onNodeWithContentDescription("Expand/collapse agent log").assertIsOn()
+        compose.runOnIdle { r.state = r.state.copy(expanded = false) }
+        compose.onNodeWithContentDescription("Expand/collapse agent log").assertIsOff().performClick()
+        compose.runOnIdle { assertEquals(1, r.clicks) }
+    }
 
     /** The reducer, driven by the real panel — the same arithmetic `AgentLogController` runs. */
     private class Recorder {

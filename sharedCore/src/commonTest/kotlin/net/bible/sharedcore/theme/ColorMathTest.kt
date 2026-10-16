@@ -8,6 +8,11 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ColorMathTest {
+    @Test fun accent_greys_in_monochrome_exactly_like_bw() {
+        val base = 0xFF2196F3.toInt()
+        assertEquals(accentArgbFor(base, DisplayColorMode.BW), accentArgbFor(base, DisplayColorMode.MONOCHROME))
+    }
+
     @Test fun grayscale_collapses_rgb_to_equal_channels() {
         val g = toGrayscaleArgb(0xFFCC3300.toInt())
         val r = (g shr 16) and 0xFF; val gr = (g shr 8) and 0xFF; val b = g and 0xFF

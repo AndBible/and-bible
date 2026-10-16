@@ -124,4 +124,32 @@ class ReadingToolbarGoldenTest {
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun workspace_color() = captureMatrix("ReadingToolbar", "workspace_color", content = screen(workspaceColorState))
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun full_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "full", mode, content = screen(fullState)) }
+    }
+
+    @Test
+    fun narrow_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "narrow", mode, content = screen(narrowState)) }
+    }
+
+    @Test
+    fun syncing_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "syncing", mode, content = screen(fullState.copy(syncRunning = true))) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun dimmed_strongs_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "dimmed_strongs", mode, content = screen(dimmedStrongsState)) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun workspace_color_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "workspace_color", mode, content = screen(workspaceColorState)) }
+    }
 }

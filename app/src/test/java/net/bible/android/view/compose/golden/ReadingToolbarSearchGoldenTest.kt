@@ -95,4 +95,37 @@ class ReadingToolbarSearchGoldenTest {
                 ),
             ),
         )
+
+    @Test
+    fun search_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingToolbar", "search", mode, heightDp = 56, content = toolbar()) }
+    }
+
+    @Test
+    fun searchEmpty_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+            "ReadingToolbar", "searchEmpty", mode, heightDp = 56,
+            content = toolbar(searchBar = bar(query = "", recentTerms = emptyList())),
+        ) }
+    }
+
+    @Test
+    fun searchWithResults_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+            "ReadingToolbar", "searchWithResults", mode, heightDp = 56,
+            content = toolbar(searchBar = bar().copy(resultsAvailable = true)),
+        ) }
+    }
+
+    @Test
+    fun searchWorkspaceColour_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+            "ReadingToolbar", "searchWorkspaceColour", mode, heightDp = 56,
+            content = toolbar(
+                state = ToolbarState.EMPTY.copy(
+                    pageTitle = "Genesis 1", searchable = true, workspaceColorArgb = 0xFF7B1FA2.toInt(),
+                ),
+            ),
+        ) }
+    }
 }

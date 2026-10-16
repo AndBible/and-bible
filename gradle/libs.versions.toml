@@ -17,6 +17,8 @@ appcompat = "1.7.1"
 lifecycle = "2.9.1"
 material = "1.12.0"
 koin = "4.1.0"                   # added in Task 2 (latest stable 4.x; adjust if a newer 4.x resolves)
+ktor = "3.3.3"                   # WebDAV sync client (spec 2026-10-09-webdav-sync-design)
+xmlutil = "0.91.1"               # KMP XML reader for WebDAV multistatus
 accrescentBundletool = "0.2.4"
 composeBom = "2026.06.00"        # added in Task 6 (:app Compose host BOM)
 activityCompose = "1.13.0"
@@ -70,6 +72,12 @@ materialkolor = { module = "com.materialkolor:material-kolor", version.ref = "ma
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 jetbrains-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+# WebDAV sync client (sharedCore) — Task 1
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "xmlutil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

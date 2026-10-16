@@ -62,4 +62,25 @@ class SearchIndexProgressControllerTest {
         c.hide()
         assertTrue(hidden)
     }
+
+    /** CR-2: on the standalone route, dismissing a failed build leaves, as "Continue in background" does. */
+    @Test
+    fun dismissErrorAndLeave_clearsTheErrorAndLeaves() {
+        var hidden = 0
+        val c = SearchIndexProgressController(onHide = { hidden++ })
+        c.showError()
+        c.dismissErrorAndLeave()
+        assertNull(c.error.value)
+        assertEquals(1, hidden)
+    }
+
+    /** The reading sheet's dismiss stays put: it keeps its own error-panel behaviour. */
+    @Test
+    fun dismissError_doesNotLeave() {
+        var hidden = 0
+        val c = SearchIndexProgressController(onHide = { hidden++ })
+        c.showError()
+        c.dismissError()
+        assertEquals(0, hidden)
+    }
 }

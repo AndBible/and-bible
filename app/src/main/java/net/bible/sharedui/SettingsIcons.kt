@@ -71,6 +71,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "cloud_sync_username" -> R.drawable.outline_shield_24
     "cloud_sync_password" -> R.drawable.outline_shield_24
     "cloud_sync_folder_path" -> R.drawable.outline_shield_24
+    "webdav_sync_cert" -> R.drawable.ic_baseline_lock_24
     "sync_enable_bookmarks" -> R.drawable.ic_bookmark_24dp
     "sync_enable_workspaces" -> R.drawable.ic_baseline_workspace_24
     "sync_enable_mydocuments" -> R.drawable.ic_baseline_description_gray_24
@@ -112,6 +113,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "disable_bible_bookmark_modal_buttons" -> R.drawable.ic_one_tap_bible_24
     "disable_gen_bookmark_modal_buttons" -> R.drawable.ic_one_tap_other_24
     "display_color_mode" -> R.drawable.ic_eink_24dp
+    "theme_palette_style" -> R.drawable.ic_color_settings_24dp
     "eink_mode" -> R.drawable.ic_eink_24dp
     "disable_animations" -> R.drawable.ic_animate_24dp
     "discrete_help" -> R.drawable.ic_warning_red_24dp

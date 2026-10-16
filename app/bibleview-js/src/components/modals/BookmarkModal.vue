@@ -77,7 +77,7 @@
         </div>
         <div v-for="label in labels.filter(l => l.isRealLabel)" :key="`label-${bookmark.id}-${label.id}`"
              class="link-line">
-          <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon
+          <span class="link-icon" :style="appSettings.pureMonochromeMode ? undefined : `color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon
               icon="file-alt"/></span>
           <a :href="`journal://?id=${label.id}&entryId=${bookmark.id}`">{{
               sprintf(strings.openStudyPad, label.name)
@@ -188,7 +188,7 @@ function closeBookmark() {
     originalNotes = null;
 }
 
-const {adjustedColor, strings, sprintf, formatTimestamp} = useCommon();
+const {adjustedColor, strings, sprintf, formatTimestamp, appSettings} = useCommon();
 
 const changeNote = (text: string) => {
     if (bookmark.value) {
@@ -292,5 +292,23 @@ async function toggleInfo(event: MouseEvent | TouchEvent) {
   top: 0;
   width: 20px;
   height: 2em;
+}
+
+// Include the document link rendered with v-html outside .links as well as StudyPad links.
+.pureMonochrome .info :deep(a),
+.pureMonochrome .info .link-icon {
+  color: black;
+}
+.pureMonochrome.night .info :deep(a),
+.pureMonochrome.night .info .link-icon {
+  color: white;
+}
+
+// The title's edge cover must match ModalDialog's paper, not the legacy header fade.
+.pureMonochrome .bookmark-title .overlay {
+  background: white;
+}
+.pureMonochrome.night .bookmark-title .overlay {
+  background: black;
 }
 </style>

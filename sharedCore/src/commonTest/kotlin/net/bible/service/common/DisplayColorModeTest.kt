@@ -23,6 +23,25 @@ import kotlin.test.assertNull
 
 class DisplayColorModeTest {
     @Test
+    fun parsesMonochrome() {
+        assertEquals(DisplayColorMode.MONOCHROME, DisplayColorMode.fromValue("monochrome"))
+    }
+
+    @Test
+    fun greyBaseIsBwAndMonochromeOnly() {
+        assertEquals(
+            setOf(DisplayColorMode.BW, DisplayColorMode.MONOCHROME),
+            DisplayColorMode.entries.filter { it.isGreyBase }.toSet(),
+        )
+    }
+
+    @Test
+    fun onyxDefaultsToMonochromeOthersToNormal() {
+        assertEquals(DisplayColorMode.MONOCHROME, DisplayColorMode.defaultFor(isOnyx = true))
+        assertEquals(DisplayColorMode.NORMAL, DisplayColorMode.defaultFor(isOnyx = false))
+    }
+
+    @Test
     fun parsesKnownValues() {
         assertEquals(DisplayColorMode.NORMAL, DisplayColorMode.fromValue("normal"))
         assertEquals(DisplayColorMode.BW, DisplayColorMode.fromValue("bw"))

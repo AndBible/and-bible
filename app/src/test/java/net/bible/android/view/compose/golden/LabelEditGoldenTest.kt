@@ -111,6 +111,9 @@ class LabelEditGoldenTest {
     // (each a preview + 4 radio rows) -- much taller than the six switches this originally
     // replaced. The primary state has no "this bookmark"/"this workspace" groups
     // (isAssigning=false, hasWorkspaceContext=false).
+    @Test fun dependent_mono_audit() = auditMono("LabelEdit", "dependent", 1500, emptyList(), screen(sample(ws = true).copy(autoAssign = false, autoAssignPrimary = false), workspaceExpanded = true))
+    @Test fun dependent_mono_reference() = MONO_MODES.forEach { captureGolden("LabelEdit", "dependent", it, heightDp = 1500, content = screen(sample(ws = true).copy(autoAssign = false, autoAssignPrimary = false), workspaceExpanded = true)) }
+
     @Test fun labelEdit_primary() =
         captureMatrix("LabelEdit", "primary", heightDp = 1000, content = screen(sample()))
 

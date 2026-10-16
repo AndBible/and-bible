@@ -46,7 +46,7 @@ interface PromptService {
     fun modelChoices(): List<net.bible.sharedcore.settings.SettingsItem.Choice>  // model override options
     fun savePrompt(data: PromptEditData): String       // returns saved prompt id
     fun deletePromptById(id: String)
-    fun copyPrompt(id: String): String                 // returns new copy id
+    fun copyPrompt(id: String): String?                // new copy id; null if the source prompt is gone
     // Built-in prompt "Save" path (model override only, no copy-to-customize): upserts a
     // BuiltinPromptOverride row for promptId; null modelId clears the override.
     fun setBuiltinPromptModelOverride(promptId: String, modelId: String?)

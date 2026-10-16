@@ -68,7 +68,8 @@ fun deriveToolbarFromTheme(enabledFeatures: Set<String>): Boolean =
 /**
  * The one place `:app` reads the app-global theme inputs.
  *
- * Every Compose host used to repeat the same four reads (night mode, colour mode, animations) plus
+ * The app-global inputs are night mode, colour mode, animations, palette style.
+ * Every Compose host used to repeat the same reads (night mode, colour mode, animations) plus
  * `ProvideAppLocals`; none of them is a per-host decision, and A/B batch 4b added a fourth input
  * (the workspace-colour seed) that would have had to be pasted into 47 more places. `AbTheme`
  * itself stays pure and explicit — it is the iOS- and golden-facing API and must not learn about
@@ -110,6 +111,7 @@ fun AbAppTheme(darkTheme: Boolean? = null, content: @Composable () -> Unit) {
             darkTheme = darkTheme ?: ScreenSettings.nightMode,
             colorMode = CommonUtils.settings.displayColorMode,
             disableAnimations = CommonUtils.settings.disableAnimations,
+            paletteStyle = CommonUtils.settings.themePaletteStyle,
             content = content,
         )
     }

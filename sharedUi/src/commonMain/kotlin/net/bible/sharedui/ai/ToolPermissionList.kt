@@ -33,7 +33,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.DropdownMenu
+import net.bible.sharedui.components.AbDropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -307,7 +307,7 @@ private fun CategoryPermissionControl(
             IconButton(onClick = { expanded = true }) {
                 Icon(icon, contentDescription = "$kindLabel: $label")
             }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            AbDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 options.forEach { option ->
                     AbMenuItem(
                         text = option.label,
@@ -394,7 +394,7 @@ private fun WriteToolPermissionControl(
         IconButton(onClick = { expanded = true }) {
             Icon(imageVector = currentOption.icon, contentDescription = currentOption.label)
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
                 AbMenuItem(
                     text = option.label,

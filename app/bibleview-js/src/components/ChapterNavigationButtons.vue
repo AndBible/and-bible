@@ -119,12 +119,17 @@ const { strings } = useCommon();
   }
 
   &:not(:disabled):active {
-    background: rgba(128, 128, 128, 0.2);
+    background: rgba(var(--accent-rgb-mid), 0.2);
     opacity: 0.8;
 
     .monochrome & {
       opacity: 1;
     }
   }
+}
+.pureMonochrome .nav-btn, .pureMonochrome.night .nav-btn {
+  transition: none;
+  &:disabled { opacity: 1; color: #808080; }
+  &:not(:disabled):active { background: transparent; }
 }
 </style>

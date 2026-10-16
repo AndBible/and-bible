@@ -42,6 +42,28 @@ private class FakeDictionaryOptionsProvider(
 class AppSettingsServiceImplTest {
     @After fun tearDown() = DatabaseResetter.resetDatabase()
 
+    @Test fun realReadersKeepOnyxDefaultAndPersistedChoices() {
+        val originalBrand = android.os.Build.BRAND
+        val originalChoice = CommonUtils.settings.getString("display_color_mode", null)
+        try {
+            for (brand in listOf("onyx", "google")) {
+                org.robolectric.shadows.ShadowBuild.setBrand(brand)
+                CommonUtils.settings.removeString("display_color_mode")
+                val expected = if (brand == "onyx") "monochrome" else "normal"
+                assertEquals(expected, CommonUtils.settings.displayColorMode.value)
+                assertEquals(expected, AppSettingsServiceImpl().snapshot.value.displayColorMode)
+                for (choice in listOf("bw", "monochrome")) {
+                    AppSettingsServiceImpl().setString("display_color_mode", choice)
+                    assertEquals(choice, CommonUtils.settings.displayColorMode.value)
+                    assertEquals(choice, AppSettingsServiceImpl().snapshot.value.displayColorMode)
+                }
+            }
+        } finally {
+            org.robolectric.shadows.ShadowBuild.setBrand(originalBrand)
+            CommonUtils.settings.setString("display_color_mode", originalChoice)
+        }
+    }
+
     private val abcOptions = listOf(DictOption("A", "A"), DictOption("B", "B"), DictOption("C", "C"))
 
     // --- (a) PreferenceStore routing: realShared keys must NOT land in CommonUtils.settings ---

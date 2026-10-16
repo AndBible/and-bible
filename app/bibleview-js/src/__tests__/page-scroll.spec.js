@@ -22,6 +22,7 @@ import {
     calcPageScrollDistance,
     calcRelativePageNumbers,
     helperLinePercents,
+    calcActiveCornerBottomOffset,
 } from "@/composables/page-scroll";
 
 // A bible viewport with a 50px reading top margin and one without it, but with
@@ -155,5 +156,20 @@ describe("calcMaxScrollY", () => {
     it("is zero rather than negative when the bottom bar covers more than the text", () => {
         expect(calcMaxScrollY(200, 1000, 900)).toBe(100);
         expect(calcMaxScrollY(50, 1000, 900)).toBe(0);
+    });
+});
+
+describe("calcActiveCornerBottomOffset", () => {
+    it("lifts the bottom corners above the bar that covers the bottom window", () => {
+        expect(calcActiveCornerBottomOffset(true, 96)).toBe(96);
+    });
+    it("leaves other windows at the screen edge, whatever the shared offset is", () => {
+        expect(calcActiveCornerBottomOffset(false, 96)).toBe(0);
+    });
+    it("is zero when the bottom window's bar is not visible", () => {
+        expect(calcActiveCornerBottomOffset(true, 0)).toBe(0);
+    });
+    it("never goes negative", () => {
+        expect(calcActiveCornerBottomOffset(true, -5)).toBe(0);
     });
 });

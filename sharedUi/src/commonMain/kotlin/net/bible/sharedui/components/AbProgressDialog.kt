@@ -19,7 +19,6 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +30,7 @@ import androidx.compose.ui.window.DialogProperties
 /** A modal, non-dismissible wait — the `Hourglass` / `ProgressDialog` replacement (spec §6.3, D7). */
 @Composable
 fun AbProgressDialog(message: String, title: String? = null) {
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = {},
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
         title = if (title != null) { { Text(title) } } else null,
