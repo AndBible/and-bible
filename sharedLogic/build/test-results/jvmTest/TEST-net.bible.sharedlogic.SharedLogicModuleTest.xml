@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="SharedLogicModuleTest[jvm]" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-16T22:55:55.824Z" hostname="and-bible-ios-4" time="0.172">
+  <properties/>
+  <testcase name="sharedLogicModuleLoadsInAnIsolatedKoinApplication[jvm]" classname="net.bible.sharedlogic.SharedLogicModuleTest" time="0.164"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
