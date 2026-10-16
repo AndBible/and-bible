@@ -80,6 +80,10 @@ fun interface Callback { fun run() }
 @Suppress("x") object Annotated
 class Semi
 class Commented
+EOS
+cat > "$S/service/common/Ext.kt" <<'EOS'
+package net.bible.service.common
+val String.getterProp get() = this
 class Block
 EOS
 cat > "$S/android/control/demo/Demo.kt" <<'EOS'
@@ -92,9 +96,14 @@ import net.bible.service.common.Semi;
 import net.bible.service.common.Commented // trailing
 import net.bible.service.common.Block /* trailing */
 import net.bible.service.common.interface
+import net.bible.service.common.getterProp
+// java.util.Foo in a comment is ignored
+fun inline() = java.util.concurrent.atomic.AtomicLong()
+fun inline3() = org.koin.java.KoinJavaComponent.get<X>()
+val ok = my.java.util.X
 EOS
 out=$("$HERE/l1-move-readiness.sh" --root "$T" --domain demo 2>/dev/null)
 row=$(echo "$out" | awk -F'\t' '$1=="demo"')
-expect=$'demo\t0\t0\t0\t0\t7'
+expect=$'demo\t1\t0\t1\t0\t8'
 [ "$row" = "$expect" ] || { echo "FAIL: variants got [$row] expected [$expect]"; exit 1; }
 echo "l1-move-readiness self-test OK"

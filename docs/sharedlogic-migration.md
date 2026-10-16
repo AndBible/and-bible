@@ -26,7 +26,9 @@ Rule: a platform-specific piece found in a domain becomes an interface. Put it i
 (`net.bible.sharedcore.platform`) only if `:sharedUi` needs the type, otherwise in `:sharedLogic`. The
 Android implementation lives in `:app`; the binding goes in the `:app` platform part of `CoreModule`
 (`app/src/main/java/net/bible/android/control/CoreModule.kt`; D2 splits that file into platform and shared
-parts, until then the bindings sit next to the others).
+parts, until then the bindings sit next to the others). Phase 0 made two exceptions to that rule by
+choice (per the spec): `AppDirectories` and `MarkdownRenderer` sit in `:sharedCore` although `:sharedUi`
+does not need them.
 
 Ports that exist after phase 0 (`ls sharedCore/src/commonMain/kotlin/net/bible/sharedcore/platform/`):
 
@@ -136,7 +138,7 @@ Members of `object CommonUtils` itself (cloudsync/sword use `isDiscrete`, `tmpDi
 ## 6. File-ownership table (spec section 6, re-derived at HEAD)
 
 Source: the offending imports behind the `app` column of `scripts/l1-move-readiness.sh`, listed with
-`l1-move-app.py ROOT --lines` per domain (92 rows; the column total below also equals 92). "Importers" are
+`l1-move-app.py ROOT --lines` per domain (96 rows; the column total below also equals 96). "Importers" are
 the domains with an explicit, non-wildcard import; same-package and wildcard uses are not seen (the compiler
 finds those). One owner per file; a non-owner changes only its own call sites (it asks the controller for
 anything inside the file).
@@ -165,6 +167,8 @@ D2-moved paths, so those never count in the `app` column.
 | `android/misc/ClientPageObjects.kt` (`OsisFragment`, `elementToString`, `sanitizeId`, `uniqueId`, `wrapString`) | bookmark 1, page 4 (`OsisFragment`); sword 1, page 1, page 1, page 2 | G3 | spec |
 | `service/device/ScreenSettings.kt` | window 1 | G3 | spec |
 | `service/common/CommonUtils.kt`: `firstBibleDoc` | page 1, window 1 | G3 | spec (family `FirstBibleDoc.kt`) |
+| `service/common/CommonUtils.kt`: `displayName` (`BookmarkEntities.Label.displayName`, a getter-style extension property) | bookmark 2, page 1, sword 1 (`StudyPadKey.kt`, a cross-group importer) | G3 | spec (family `LabelDisplayName.kt`, section 5); sword (G1) only keeps its import valid, as for `shortName` |
+| `android/view/activity/bookmark/LabelEditMapper.kt` (`LabelEditMapper`) | none in a domain by import: bookmark's `ManageLabelsServiceImpl.kt` shares its package (a same-package use the column cannot see); the explicit importer is the non-domain `NavHostComposeActivity.kt` | G3 | judgment: non-domain file used by the bookmark domain, bookmark is G3 |
 | `service/common/CommonUtils.kt`: `shortName`, `tinyName`, `next`, `prev`, `ordinalRangeFor` | shortName: speak, sword, page; tinyName: speak, page; next/prev/ordinalRangeFor: speak | G3 | spec ("text/ordinal extension functions"); sword's one import is the G1 consumer, G3 keeps the import valid |
 | `sharedui/AbAppTheme.kt` (`deriveToolbarFromTheme`) | page 1 | G3 | judgment: page is G3 |
 | `service/common/FileManager.kt` (`FileManager`, `FileManager.copyFile`) | backup 1, download 1 | G2 | spec |
@@ -175,14 +179,16 @@ D2-moved paths, so those never count in the `app` column.
 | `service/common/ArchiveUtils.kt` | in the `core` domain, not an `app` import | G2 | spec; G2 adds okio overloads first, G1 switches callers after G2 merges |
 | ZIP/GZIP common code (S12), jsword `common.compress` | - | G2 | spec |
 
-Check: sum of the `app` column = 92 = number of rows in the offending-import listing (section 7).
+Check: sum of the `app` column = 96 = number of rows in the offending-import listing (section 7).
 
 ## 7. Move-readiness baseline
 
 `scripts/l1-move-readiness.sh` run at HEAD (columns: JVM imports, JVM-only API uses, JVM-only third-party
-imports, android/androidx outside the KMP allowlist, imports of non-domain `:app` symbols). `llm jvm3p` is
-1 here against 2 in the commit message of the check's own commit, because Task 5 moved YAML off snakeyaml
-(section 8). Notes:
+imports, android/androidx outside the KMP allowlist, imports of non-domain `:app` symbols). The `jvm` and
+`jvm3p` columns count import lines plus inline fully-qualified uses on non-import, non-comment lines
+(`java.util.concurrent.atomic.AtomicLong()`, `org.koin.java.KoinJavaComponent`); the earlier import-only
+numbers were lower for that reason (and `llm jvm3p` also dropped because Task 5 moved YAML off snakeyaml,
+section 8). Notes:
 
 - The `app` column counts only explicit imports; same-package and wildcard references are invisible to it
   (the compile finds them).
@@ -198,24 +204,24 @@ imports, android/androidx outside the KMP allowlist, imports of non-domain `:app
 domain	jvm	jvmapi	jvm3p	android	app
 progress	4	2	0	0	0
 versification	1	3	0	0	1
-bookmark	11	0	0	0	1
+bookmark	11	0	0	0	3
 readingplan	24	4	1	0	1
 history	6	3	0	0	0
 document	0	1	0	0	1
 navigation	4	0	0	0	1
 link	6	4	2	0	1
-speak	9	62	0	0	5
-backup	16	1	0	0	10
+speak	10	62	0	0	5
+backup	18	1	0	0	10
 download	19	8	2	0	2
-installzip	14	1	0	0	7
-cloudsync	22	16	2	10	5
-sword	35	66	8	12	26
-llm	36	26	1	0	4
-page	6	16	4	0	19
-window	1	8	0	0	5
+installzip	15	1	1	0	7
+cloudsync	35	16	2	10	5
+sword	43	66	8	12	27
+llm	37	26	4	0	4
+page	7	16	8	0	20
+window	4	8	0	0	5
 search	0	1	1	0	0
 event	0	0	0	0	0
-core	16	16	2	0	3
+core	16	16	3	0	3
 ```
 
 ## 8. YAML and Markdown outcome (S9)
@@ -228,6 +234,8 @@ core	16	16	2	0	3
   `MarkdownToXhtml` is its Android implementation, bound in `CoreModule`. commonmark stays in `:app`;
   the iOS side supplies its own implementation of the port. JetBrains `markdown` 0.7.18 was tried and differed from the commonmark oracle on all 12
   parity fixtures.
+- **kaml / Kotlin version**: kaml was built with Kotlin 2.2.21; only its module metadata was verified
+  against our Kotlin 2.4.21. Its iOS compile against 2.4.21 is owed in phase 2.
 - **App directories**: `AppDirectories` port in `:sharedCore`; `AndroidAppDirectories` delegates to
   `SharedConstants`.
 

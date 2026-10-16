@@ -40,7 +40,7 @@ def is_allowed(rel):
 
 PKG = re.compile(r"^package\s+([\w.]+)")
 # 'fun X.name' / 'fun <T> X.name' / 'val X.name': the declared name is the last identifier before ( or : or =.
-EXT = re.compile(r"^(?:@\w+(?:\([^)]*\))?\s+)*(?:\w+\s+)*(?:fun|val|var)\s+(?:<[^>]*>\s*)?[\w<>?,. ]+?\.(\w+)\s*[(:=<{]")
+EXT = re.compile(r"^(?:@\w+(?:\([^)]*\))?\s+)*(?:\w+\s+)*(?:fun|val|var)\s+(?:<[^>]*>\s*)?[\w<>?,. ]+?\.(\w+)(?:\s*[(:=<{]|\s+get\b)")
 PLAIN = re.compile(
     r"^(?:@\w+(?:\([^)]*\))?\s+)*"
     r"(?:(?:public|fun|internal|private|protected|abstract|open|sealed|data|enum|annotation|inline|value|"
