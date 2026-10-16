@@ -26,7 +26,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.system.Versifications
-import java.lang.IllegalArgumentException
 
 const val TAG = "SpeakSettings"
 

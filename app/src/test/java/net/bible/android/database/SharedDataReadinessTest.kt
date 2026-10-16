@@ -189,6 +189,10 @@ class SharedDataReadinessTest {
             "app/src/main/java/net/bible/service/db/OpenSqlite.kt",
             "app/src/main/java/net/bible/service/db/RoomSettingsBackend.kt",
             "app/src/main/java/net/bible/service/llm/AgentPromptEntities.kt",
+            "app/src/main/java/net/bible/service/llm/ApiFormat.kt",
+            "app/src/main/java/net/bible/service/llm/LlmProvider.kt",
+            "app/src/main/java/net/bible/service/llm/SecretStore.kt",
+            "app/src/main/java/net/bible/service/llm/agent/PermissionMode.kt",
             "app/src/main/java/net/bible/service/cloudsync/documents/DocumentSyncMeta.kt",
             "app/src/main/java/net/bible/android/control/speak/SpeakSettingsStore.kt"
         )
@@ -200,11 +204,6 @@ class SharedDataReadinessTest {
         )
 
         // Exact import targets, including existing wildcards; removals fail until the entry is removed.
-        val ALLOWED_VIOLATIONS: Map<String, Set<String>> = mapOf(
-            "$DATABASE_DIRECTORY/Converters.kt" to setOf(
-                "net.bible.service.llm.ApiFormat", "net.bible.service.llm.agent.PermissionMode"),
-            "$DATABASE_DIRECTORY/bookmarks/SpeakSettings.kt" to setOf("java.lang.IllegalArgumentException"),
-            "app/src/main/java/net/bible/service/llm/AgentPromptEntities.kt" to setOf("net.bible.service.llm.agent.PermissionMode")
-        )
+        val ALLOWED_VIOLATIONS: Map<String, Set<String>> = emptyMap()
     }
 }
