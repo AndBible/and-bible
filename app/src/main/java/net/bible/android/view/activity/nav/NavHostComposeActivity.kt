@@ -1144,6 +1144,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Intent. Only on the reading destination, as classic answered it only by being the reading
      * Activity; every other destination reaches `super` unchanged.
      */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // E4a RV-8: the focused BibleView (WebView) consumes SEARCH's key-up before it can bubble up to
+        // `onKeyUp`, so the key only worked on a fresh start. Answer it here, ahead of the view tree.
+        if (event.keyCode == KeyEvent.KEYCODE_SEARCH && event.action == KeyEvent.ACTION_UP && onKeyUp(event.keyCode, event)) {
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_SEARCH && readingDestinationIsCurrent() &&
             windowControl.activeWindowPageManager.currentPage.isSearchable

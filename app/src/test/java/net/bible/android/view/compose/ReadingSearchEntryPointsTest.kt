@@ -772,6 +772,55 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
+    /**
+     * E4a RV-8: once the BibleView (a WebView) holds key focus it consumes SEARCH's key-up before the
+     * Activity's `onKeyUp`, so the key did nothing. The stand-in focused view consumes every key like
+     * the WebView does; the key must still reach the host's search through `dispatchKeyEvent`.
+     */
+    @Test fun searchKeyOpensHostSearchWhileAKeyConsumingViewHasFocus() {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val readingHost = controller.create().start().resume().visible().get()
+            net.bible.test.awaitReadingGraph(readingHost) { compose.waitForIdle() }
+            if (readingHost.composeReadingViewHost == null) {
+                readingHost.composeReadingViewHost = net.bible.test.fixtureReadingHost(readingHost)
+            }
+            val consumed = mutableListOf<Int>()
+            val focused = android.view.View(readingHost).apply {
+                isFocusable = true
+                setOnKeyListener { _, _, event -> consumed += event.action; true }
+            }
+            readingHost.addContentView(focused, android.view.ViewGroup.LayoutParams(10, 10))
+            assertTrue(focused.requestFocus(), "sanity: stand-in holds focus")
+
+            assertSame(focused, readingHost.window.decorView.findFocus(), "focus owner")
+            // Key dispatch only descends into laid-out (bounded) views.
+            readingHost.window.decorView.apply {
+                measure(
+                    android.view.View.MeasureSpec.makeMeasureSpec(1080, android.view.View.MeasureSpec.EXACTLY),
+                    android.view.View.MeasureSpec.makeMeasureSpec(1920, android.view.View.MeasureSpec.EXACTLY),
+                )
+                layout(0, 0, 1080, 1920)
+            }
+            assertTrue(readingHost.window.decorView.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_A)), "decor dispatch")
+            assertTrue(consumed.isNotEmpty(), "sanity: the focused view receives dispatched keys, as the WebView does")
+            readingHost.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_SEARCH))
+            val handled = readingHost.dispatchKeyEvent(searchKeyEvent())
+
+            assertTrue(handled)
+            assertTrue(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
+        } finally {
+            net.bible.test.closeReadingHostsBeforeReset(mutableListOf(controller), reset = {})
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
+    }
+
     @Test fun searchKeyNavigatesTheGraphToSearchWhenNotHosted() {
         firstTime = false
         resetComposeUiDispatcher()
