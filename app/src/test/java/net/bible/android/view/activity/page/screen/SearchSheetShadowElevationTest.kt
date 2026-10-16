@@ -24,7 +24,7 @@ class SearchSheetShadowElevationTest {
 
     @Test fun everyModeIsCoveredByAnExpectation() {
         val expectedFlat = setOf(DisplayColorMode.MONOCHROME, DisplayColorMode.BW)
-        DisplayColorMode.values().forEach {
+        DisplayColorMode.entries.forEach {
             val flat = searchSheetShadowElevation(it) == 0.dp
             assertEquals(it.name, it in expectedFlat, flat)
         }

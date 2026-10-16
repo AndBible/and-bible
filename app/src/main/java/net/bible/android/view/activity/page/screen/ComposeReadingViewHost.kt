@@ -4556,7 +4556,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         BottomSheetScaffold(
                             scaffoldState = searchSheetState,
                             sheetPeekHeight = 0.dp,
-                            // The mounted hidden sheet's shadow otherwise spills onto pure-MONO paper.
+                            // The mounted hidden sheet's shadow otherwise spills onto grey-base (MONO and B&W) paper.
                             sheetShadowElevation = searchSheetShadowElevation(LocalDisplayColorMode.current),
                             // BottomSheetScaffold applies no window insets (material3 1.4.0) and this tree is
                             // edge-to-edge: clear the nav bar / cutout ourselves.
