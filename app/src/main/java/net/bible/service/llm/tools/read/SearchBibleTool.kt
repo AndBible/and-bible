@@ -106,7 +106,7 @@ object SearchBibleTool : Tool, KoinComponent {
         - Strong's number: strong:h7225
         - Range of books: +[Gen-Mal] restricts the search to those books
         Not supported (the search then fails with an explanatory error): other fields such as heading:x,
-        ^ boosts and [a TO b] ranges.
+        ^ boosts, [a TO b] ranges, strong:"a b" (several numbers) and strong:term~.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""

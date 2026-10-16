@@ -83,6 +83,29 @@ class SearchIndexServiceImplLegacyTest {
         assertTrue(service.hasIndex("KJV"))
     }
 
+    @Test fun orphanSweepKeepsTheLegacyDirectoryOfAnInstalledNonSwordBook() {
+        val dir = Files.createTempDirectory("legacy-keep").toFile().also { tempFiles += it }
+        val file = File(dir, "legacykeep.SQLite3")
+        openSqlite(file.path).use { c ->
+            c.exec("CREATE TABLE info (name TEXT, value TEXT)")
+            c.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
+        }
+        addMyBibleBook(file)
+        val book = Books.installed().getBook("MyBible-legacykeep")!!
+        val legacy = FtsTestSupport.legacyDir(book).also { tempFiles += it }
+        makeLegacy(legacy)
+        try {
+            // the keep list must be built after the manual books are registered (see
+            // SwordEnvironmentInitialisation.deleteOrphanLegacyIndexesInBackground)
+            FtsTestSupport.manager.deleteOrphanLegacyLuceneIndexes(Books.installed().getBooks())
+            assertTrue(legacy.exists())
+            FtsTestSupport.manager.deleteOrphanLegacyLuceneIndexes(Books.installed().getBooks().filter { it != book })
+            assertFalse(legacy.exists())
+        } finally {
+            Books.installed().removeBook(book)
+        }
+    }
+
     @Test fun orphanSweepDeletesOnlyDirectoriesOfBooksThatAreNotInstalled() {
         val legacy = FtsTestSupport.legacyDir(kjv)
         val orphan = File(legacy.parentFile, "NoLongerInstalled")

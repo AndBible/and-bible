@@ -58,6 +58,7 @@ private const val FIVE_MINUTES_MS: Long = 1000 * 60 * 5
  */
 object SwordEnvironmentInitialisation {
     private var isSwordLoaded = false
+    private val sweepStarted = java.util.concurrent.atomic.AtomicBoolean(false)
     private val tag = SwordEnvironmentInitialisation::class.java.name
     fun initialiseJSwordFolders() {
         try {
@@ -100,10 +101,15 @@ object SwordEnvironmentInitialisation {
      * installed, once, on a background thread. Directories of installed documents are deliberately kept: they tell
      * the app that the search engine changed and the document's search index must be created again; each one is
      * deleted when that rebuild finishes (inside `FtsIndexManager`) or when the document is deleted.
-     * A no-op if JSword was never initialised.
+     * A no-op if JSword was never initialised, and runs at most once per process.
+     *
+     * Ordering: must be called only after EVERY installed book is registered (the SWORD books, the manually installed
+     * MyBible/MySword/eSword/EPUB/TTF/CSV books and the my-documents), otherwise those books look like orphans and
+     * lose their legacy directory. `CommonUtils.initializeApp` / `initializeAppCoroutine` call it right after the last
+     * registration; `BibleApplication.onCreate` is too early.
      */
     fun deleteOrphanLegacyIndexesInBackground() {
-        if (!isSwordLoaded) return
+        if (!isSwordLoaded || !sweepStarted.compareAndSet(false, true)) return
         thread(name = "legacy-index-sweep", isDaemon = true) {
             try {
                 val manager = IndexManagerFactory.getIndexManager() as? FtsIndexManager ?: return@thread
