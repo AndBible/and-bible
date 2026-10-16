@@ -344,6 +344,29 @@ class ReadingSearchEntryPointsTest {
         assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
     }
 
+    /**
+     * E2 EP-11 (device FAIL): "Find all occurrences" in the links window did NOTHING once the
+     * Strong's Bible was indexed. Tapping the link makes the links window active
+     * (`BibleView.onTouchEvent`), so the reading-view search resolved the Strong's DICTIONARY as its
+     * document — `SearchKind.Unavailable` — and opened nothing, yet reported the request handled, so
+     * `LinkControl.showAllOccurrences` returned without its classic search route. Exercised through
+     * [net.bible.android.platform.AndroidLinkPlatform], the exact seam `LinkControl` calls.
+     */
+    @Test fun strongsFindAllFromADictionaryWindowFallsBackToTheClassicSearch() {
+        activity.composeReadingViewHost = host()
+        val dictionary = Books.installed().getBook("StrongsGreek")
+        assertNotNull(dictionary, "test Sword modules must include StrongsGreek")
+        windowRepository.activeWindow.pageManager.setCurrentDocumentAndKey(dictionary, dictionary.getKey("02316"))
+
+        val handled = net.bible.android.platform.AndroidLinkPlatform()
+            .searchStrongsInReadingView("g02316", listOf("KJV"))
+
+        assertFalse(handled, "a search the reading view cannot run must fall back to the caller's route")
+        val host = activity.composeReadingViewHost!!
+        assertFalse(host.searchController.searchModeActive.value)
+        assertNull(host.searchUnavailableDocName.value, "no 'cannot be searched' message for a Bible search")
+    }
+
     // ---- The one-shot decoration overrides (why entry points 7 and 8 are correct) --------------
 
     /**

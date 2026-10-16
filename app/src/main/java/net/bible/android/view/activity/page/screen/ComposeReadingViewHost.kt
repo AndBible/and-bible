@@ -221,12 +221,14 @@ import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedcore.search.SearchIndexService
+import net.bible.sharedcore.search.SearchKind
 import net.bible.sharedcore.search.SearchQueryController
 import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.forEpubOf
+import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.search.searchTranslationIds
 import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.SettingsEditorPage
@@ -2404,9 +2406,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * find-all is a Bible concept: it searches Strong's-enabled BIBLES, not the open document, so an
      * EPUB on screen must not swallow the request silently (F43 Task 6 fix round 1 — this used to
      * fall off the end returning `Unit`, which the caller could not distinguish from success).
+     * It declines the same way when the active document cannot be searched at all (a dictionary or
+     * general book): the find-all link lives in the links window, and tapping it makes that
+     * dictionary window active, so the reading-view search would open nothing (E2 EP-11).
      */
     fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean {
-        if (documentControl.currentDocument?.isEpub == true) return false
+        val current = documentControl.currentDocument
+        if (current?.isEpub == true) return false
+        if (searchKindFor(searchDocumentInfo(current)) == SearchKind.Unavailable) return false
         refreshSearchTranslations()
         // Per-open refresh, exactly as in [openSearch] — see review item 7 there.
         searchQueries.reloadRecentTerms()
