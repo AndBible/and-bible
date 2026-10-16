@@ -23,7 +23,9 @@ import kotlinx.serialization.SerializationException
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.android.SharedConstants
 import net.bible.android.database.repoJson
-import net.bible.service.common.ArchiveUtils.unzipFile
+import androidx.sqlite.SQLiteException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import net.bible.service.download.GenericFileDownloader
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.AbstractBookList
@@ -38,6 +40,8 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.File
 import java.net.URI
 import java.net.URL
+import java.io.IOException
+import java.util.zip.ZipFile
 
 @Serializable
 class MyBibleModuleSpec (
@@ -156,13 +160,68 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
             notifyUser = true
         )
         if(success && tmpFile.canRead()) {
-            val dir = File(myBibleDir, book.initials)
-            dir.mkdirs()
-            unzipFile(tmpFile, dir, filePrefix = moduleSpec.file_name.replace(".zip", ""))
-            tmpFile.delete()
-            addManuallyInstalledMyBibleBooks()
+            val staging = File.createTempFile("install-", "", tmpDir).apply {
+                if (!delete() || !mkdir()) throw InstallException("Unable to stage MyBible module")
+            }
+            try {
+                prepareModuleFiles(tmpFile, staging, moduleSpec.file_name)
+                val modules = staging.walkTopDown().filter { it.isFile && it.extension.equals("SQLite3", true) }.toList()
+                if (modules.isEmpty()) throw InstallException("No supported MyBible module in download")
+                modules.forEach { file ->
+                    val state = SqliteVerseBackendState(file)
+                    try {
+                        val tables = state.rows("select name from sqlite_master where type = 'table'") { it.getText(0) }
+                        if (tables.none { it in listOf("verses", "commentaries", "dictionary") }) {
+                            throw InstallException("Unsupported MyBible module")
+                        }
+                        state.getBookMetaData()
+                    } catch (e: SQLiteException) {
+                        throw InstallException("Invalid MyBible module", e)
+                    } finally {
+                        state.close()
+                    }
+                }
+                // Validate the complete payload before exposing any files to the installed-book scan.
+                currentCoroutineContext().ensureActive()
+                val dir = File(myBibleDir, book.initials)
+                dir.mkdirs()
+                modules.forEach { file ->
+                    val target = File(dir, file.relativeTo(staging).path)
+                    target.parentFile?.mkdirs()
+                    file.copyTo(target, overwrite = true)
+                }
+                addManuallyInstalledMyBibleBooks()
+            } catch (e: IOException) {
+                throw InstallException("Unable to install MyBible module", e)
+            } finally {
+                staging.deleteRecursively()
+                tmpFile.delete()
+            }
         } else {
             throw DownloadCancelledException(URI(url))
+        }
+    }
+
+    private suspend fun prepareModuleFiles(download: File, staging: File, filename: String) {
+        val sqliteHeader = "SQLite format 3\u0000".toByteArray(Charsets.US_ASCII)
+        val header = ByteArray(sqliteHeader.size)
+        download.inputStream().use { java.io.DataInputStream(it).readFully(header) }
+        if (header.contentEquals(sqliteHeader)) {
+            download.copyTo(File(staging, File(filename).name))
+        } else {
+            ZipFile(download).use { zip ->
+                for (entry in zip.entries()) {
+                    currentCoroutineContext().ensureActive()
+                    if (entry.isDirectory) continue
+                    // Preserve the legacy filename prefix while rejecting archive traversal.
+                    val target = File(staging, filename.replace(".zip", "") + entry.name.replace('\\', '/'))
+                    if (!target.canonicalPath.startsWith(staging.canonicalPath + File.separator)) {
+                        throw InstallException("Invalid MyBible archive path")
+                    }
+                    target.parentFile?.mkdirs()
+                    zip.getInputStream(entry).use { input -> target.outputStream().use { input.copyTo(it) } }
+                }
+            }
         }
     }
 
