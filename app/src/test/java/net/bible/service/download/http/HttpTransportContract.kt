@@ -1,5 +1,12 @@
 package net.bible.service.download.http
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.HttpTransport
 import org.crosswire.common.util.LucidException
@@ -22,36 +29,44 @@ import java.util.TimeZone
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.zip.GZIPOutputStream
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 
 /** WebResource/NetUtil behaviour through JSword's HttpTransport port; run on legacy and on ktor. */
 abstract class HttpTransportContract {
     abstract val legacy: Boolean
     abstract fun transport(server: TestHttpsServer): HttpTransport
-    open fun <T> withTrust(server: TestHttpsServer, block: () -> T): T = block()
+    open suspend fun <T> withTrust(server: TestHttpsServer, block: suspend () -> T): T = block()
 
     protected val body = ByteArray(100_000) { (it % 251).toByte() }
     protected val lastModifiedMillis = 1_600_000_000_000L
     protected val lastModifiedHeader: String = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US)
         .apply { timeZone = TimeZone.getTimeZone("GMT") }.format(lastModifiedMillis)
 
-    protected fun <T> scenario(timeoutMs: Int = 5_000, block: (TestHttpsServer, File) -> T): T {
-        val oldTransport = WebResource.transport
-        val oldTimeout = WebResource.getTimeout()
-        val dir = kotlin.io.path.createTempDirectory("d3").toFile()
-        try {
-            return TestHttpsServer().use { server ->
-                WebResource.setTimeout(timeoutMs)
-                WebResource.transport = transport(server)
-                withTrust(server) { block(server, dir) }
+    /**
+     * Runs [block] against a fresh server and the transport under test. The scenarios wait on real sockets and real
+     * timeouts, so the body runs on [Dispatchers.IO] inside `runTest` (a test dispatcher would skip virtual time).
+     */
+    protected fun scenario(timeoutMs: Int = 5_000, block: suspend CoroutineScope.(TestHttpsServer, File) -> Unit): Unit = runTest(timeout = 60.seconds) {
+        withContext(Dispatchers.IO) {
+            val oldTransport = WebResource.transport
+            val oldTimeout = WebResource.getTimeout()
+            val dir = kotlin.io.path.createTempDirectory("d3").toFile()
+            try {
+                TestHttpsServer().use { server ->
+                    WebResource.setTimeout(timeoutMs)
+                    WebResource.transport = transport(server)
+                    withTrust(server) { block(this@withContext, server, dir) }
+                }
+            } finally {
+                WebResource.transport = oldTransport
+                WebResource.setTimeout(oldTimeout)
+                dir.deleteRecursively()
             }
-        } finally {
-            WebResource.transport = oldTransport
-            WebResource.setTimeout(oldTimeout)
-            dir.deleteRecursively()
         }
     }
 
-    protected fun copy(url: String, dest: File, withMeter: Boolean = true): Int? {
+    protected suspend fun copy(url: String, dest: File, withMeter: Boolean = true): Int? {
         val job = if (withMeter) JobManager.createJob("d3") else null
         try {
             WebResource(URI(url)).copy(dest.toURI(), job)
@@ -121,7 +136,8 @@ abstract class HttpTransportContract {
         assertArrayEquals(ByteArray(8) { it.toByte() }, dest.readBytes())
     }
 
-    @Test fun interruptDuringStalledReadHasExplicitLegacyTimeoutOutcome() = scenario(timeoutMs = if (legacy) 2_000 else 10_000) { server, dir ->
+    /** The caller's cancellation (not a timeout) aborts a stalled read promptly, on legacy and on ktor alike. */
+    @Test fun cancellingTheCallerDuringAStalledReadEndsPromptlyWithCancellationException() = scenario(timeoutMs = 10_000) { server, dir ->
         val release = CountDownLatch(1)
         val stalledReadEntered = CountDownLatch(1)
         server.route("/hang") { ex ->
@@ -131,37 +147,33 @@ abstract class HttpTransportContract {
         // Signal the read AFTER receiving the initial bytes, not merely request/server entry.
         val delegate = WebResource.transport!!
         WebResource.transport = object : HttpTransport by delegate {
-            override fun get(uri: URI, timeoutMs: Int): org.crosswire.common.util.HttpBody {
+            override suspend fun get(uri: URI, timeoutMs: Int): org.crosswire.common.util.HttpBody {
                 val response = delegate.get(uri, timeoutMs)
                 return object : org.crosswire.common.util.HttpBody by response {
                     private var receivedBytes = false
-                    override fun read(buf: ByteArray): Int {
+                    override suspend fun read(buf: ByteArray): Int {
                         if (receivedBytes) stalledReadEntered.countDown()
                         return response.read(buf).also { if (it > 0) receivedBytes = true }
                     }
                 }
             }
         }
-        var outcome: Throwable? = null
-        val worker = Thread { outcome = runCatching { copy("${server.base}/hang", File(dir, "h")) }.exceptionOrNull() }
-        worker.start()
+        val outcomeOfCopy = CompletableDeferred<Throwable?>()
+        val caller = launch(Dispatchers.IO) { outcomeOfCopy.complete(runCatching { copy("${server.base}/hang", File(dir, "h")) }.exceptionOrNull()) }
         try {
             assertTrue("must reach stalled body read", stalledReadEntered.await(5, TimeUnit.SECONDS))
-            worker.interrupt()
-            if (legacy) {
-                worker.join(300)
-                assertTrue("legacy ignores interruption until its idle timeout", worker.isAlive)
-                worker.join(4_000)
-            } else {
-                // A 10-second idle timeout cannot satisfy this prompt-interruption window.
-                worker.join(1_000)
-            }
-            assertFalse("download thread must finish (promptly for nonlegacy)", worker.isAlive)
-            assertTrue("expected cancel, got $outcome", outcome is DownloadCancelledException)
+            // The latch fires when the wrapper's read STARTS; wait until the reader really sits in the socket read
+            // (the server has sent its 2 bytes and now stalls), because the cancel must be tested against a blocked
+            // reader, not against the race to get there first.
+            kotlinx.coroutines.delay(500)
+            val start = System.nanoTime()
+            caller.cancel()
+            val outcome = withTimeout(3_000) { outcomeOfCopy.await() }
+            assertTrue("a cancelled caller must finish promptly", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) < 2_000)
+            assertTrue("expected CancellationException, got $outcome", outcome is CancellationException)
+            assertFalse("a caller cancel is not a download cancel: $outcome", outcome is DownloadCancelledException)
         } finally {
             release.countDown()
-            worker.join(5_000)
-            assertFalse("download thread must be cleaned up", worker.isAlive)
         }
     }
 
@@ -238,7 +250,7 @@ abstract class HttpTransportContract {
 
     @Test fun webResourceSizeUsesHead() = scenario { server, _ ->
         server.route("/h") { it.reply(200, if (it.requestMethod == "HEAD") ByteArray(0) else body, mapOf("Content-Length" to body.size.toString())) }
-        assertEquals(body.size, WebResource(URI("${server.base}/h")).size)
+        assertEquals(body.size, WebResource(URI("${server.base}/h")).getSize())
         assertEquals("HEAD", server.requests.single { it.path == "/h" }.method)
     }
 

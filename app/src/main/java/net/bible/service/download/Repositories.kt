@@ -28,13 +28,13 @@ class Repository(
     private val downloadManager: DownloadManager,
 ) {
 
-    fun getRepoBooks(refresh: Boolean): List<Book> {
+    suspend fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(supportedDocumentsFilter, refresh)
         storeRepoNameInMetaData(bookList)
         return bookList
     }
 
-    private fun getBookList(bookFilter: BookFilter, refresh: Boolean): List<Book> {
+    private suspend fun getBookList(bookFilter: BookFilter, refresh: Boolean): List<Book> {
         return downloadManager.getDownloadableBooks(bookFilter, repoName, refresh)
     }
 

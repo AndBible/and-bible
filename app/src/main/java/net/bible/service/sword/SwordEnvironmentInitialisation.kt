@@ -25,7 +25,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.versification.BookInstallWatcher
-import net.bible.android.platform.BlockingHttpTransport
+import net.bible.android.platform.SuspendHttpTransport
 import net.bible.sharedcore.http.DownloadHttp
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.ensureDirExists
@@ -93,7 +93,7 @@ object SwordEnvironmentInitialisation {
 
     /** Installs the shared download transport after Koin starts, before any download consumer is resolved. */
     fun installDownloadTransport() {
-        WebResource.transport = BlockingHttpTransport(get<DownloadHttp>(DownloadHttp::class.java))
+        WebResource.transport = SuspendHttpTransport(get<DownloadHttp>(DownloadHttp::class.java))
     }
 
     /**

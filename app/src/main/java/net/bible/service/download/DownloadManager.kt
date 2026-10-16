@@ -32,6 +32,7 @@ import org.crosswire.jsword.book.install.Installer
 import org.crosswire.jsword.book.install.sword.HttpsSwordInstaller
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Originally copied from BookInstaller it calls Sword routines related to installation and removal of books and indexes
@@ -86,7 +87,7 @@ class DownloadManager(
         = installManager.getInstaller(repo.repoName)
 
     @Throws(InstallException::class)
-    fun getDownloadableBooks(filter: BookFilter?, repo: String, refresh: Boolean): List<Book> {
+    suspend fun getDownloadableBooks(filter: BookFilter?, repo: String, refresh: Boolean): List<Book> {
         var documents: List<Book> = emptyList()
         var installer: Installer? = null
         try {
@@ -100,11 +101,14 @@ class DownloadManager(
                 // Now we can get the list of books
                 Log.d(TAG, "getting downloadable books")
 
-                if (refresh || installer.getBooks().size == 0) {
+                // getBooks() never downloads: a missing catalog cache lists nothing, so it must be reloaded here,
+                // also when the stored timestamp says the repository was loaded before (the cache may have been cleared)
+                val cacheMissing = installer.getBooks().size == 0
+                if (refresh || cacheMissing) {
                     Log.w(TAG, "Reloading book list")
 
                     val indexLastUpdated = installer.indexLastUpdated()!!
-                    if(indexLastUpdated == 0L || indexLastUpdated > settings.getLong("repo-$repo-updated", 0)) {
+                    if(cacheMissing || indexLastUpdated == 0L || indexLastUpdated > settings.getLong("repo-$repo-updated", 0)) {
                         installer.reloadBookList()
                         settings.setLong("repo-$repo-updated", indexLastUpdated)
                     }
@@ -113,6 +117,9 @@ class DownloadManager(
                 installer.getBooks(filter) //$NON-NLS-1$
             }
             markSuccess(repo)
+        } catch (e: CancellationException) {
+            // the caller gave up: not a repository failure
+            throw e
         } catch (e: Exception) {
             markFailed(repo)
             // ignore error because some minor repos are unreliable

@@ -7,11 +7,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.platform.AndroidHttpClients
-import net.bible.android.platform.BlockingHttpTransport
+import net.bible.android.platform.SuspendHttpTransport
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.KtorManifestFetcher
 import net.bible.sharedcore.http.DownloadHttp
@@ -31,6 +32,7 @@ import java.io.File
 import java.net.ServerSocket
 import java.net.URL
 import java.util.concurrent.CancellationException
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -40,7 +42,7 @@ class DownloadConsumersTest {
         strings = get(CoreStrings::class.java), http = http,
     )
 
-    private fun withKtorTransport(block: (TestHttpsServer, DownloadHttp, CoroutineScope) -> Unit) {
+    private fun withKtorTransport(block: suspend (TestHttpsServer, DownloadHttp, CoroutineScope) -> Unit): Unit = runTest(timeout = 60.seconds) {
         TestHttpsServer().use { server ->
             val base = OkHttpClient.Builder()
                 .sslSocketFactory(server.sslContext.socketFactory, server.trustManager)
@@ -50,7 +52,7 @@ class DownloadConsumersTest {
             val http = KtorDownloadHttp(client) { 5_000 }
             val previous = WebResource.transport
             try {
-                WebResource.transport = BlockingHttpTransport(http, scope)
+                WebResource.transport = SuspendHttpTransport(http, scope)
                 block(server, http, scope)
             } finally {
                 WebResource.transport = previous
@@ -76,7 +78,7 @@ class DownloadConsumersTest {
         server.route("/no") { it.reply(404, "not a manifest".toByteArray()) }
         val closedPort = ServerSocket(0).use { it.localPort }
         val fetcher = KtorManifestFetcher(http)
-        runBlocking {
+        run {
             assertEquals(200, fetcher.status("${server.base}/ok"))
             assertEquals("manifest", fetcher.body("${server.base}/ok"))
             assertEquals(404, fetcher.status("${server.base}/no"))
@@ -100,17 +102,17 @@ class DownloadConsumersTest {
         val key = "last-downloaded-$url"
         try {
             val target = File(dir, "file.json")
-            assertTrue(downloader(http, scope).downloadFileSync(url, target))
+            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target))
             assertEquals("first", target.readText())
             assertEquals(1_600_000_000_000L, settings.getLong(key, -1))
             assertEquals(2, server.requests.size)
             body = "must not replace unchanged file"
-            assertTrue(downloader(http, scope).downloadFileSync(url, target))
+            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target))
             assertEquals("first", target.readText())
             assertEquals(3, server.requests.size)
             modified = "Mon, 14 Sep 2020 12:26:40 GMT"
             body = "second"
-            assertTrue(downloader(http, scope).downloadFileSync(url, target))
+            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target))
             assertEquals("second", target.readText())
             assertEquals(1_600_086_400_000L, settings.getLong(key, -1))
             assertEquals(5, server.requests.size)
@@ -137,7 +139,7 @@ class DownloadConsumersTest {
         try {
             val target = File(dir, "retry").apply { writeText("old") }
             settings.setLong(key, Long.MAX_VALUE)
-            assertTrue(downloader(http, scope).downloadFileSync(url, target))
+            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target))
             assertEquals("replacement", target.readText())
             assertEquals(2, calls)
         } finally {
@@ -165,7 +167,7 @@ class DownloadConsumersTest {
             override suspend fun text(url: String): net.bible.sharedcore.http.HttpTextResult = throw cancellation
         }
         val fetcher = KtorManifestFetcher(cancelled)
-        runBlocking {
+        run {
             for (call in listOf<suspend () -> Any?>({ fetcher.status("https://example.org") }, { fetcher.body("https://example.org") })) {
                 try {
                     call()

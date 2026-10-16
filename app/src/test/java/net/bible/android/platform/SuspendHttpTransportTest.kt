@@ -5,9 +5,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import net.bible.sharedcore.http.DownloadHttp
 import net.bible.sharedcore.http.DownloadResponse
@@ -26,7 +28,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
 
-class BlockingHttpTransportTest {
+class SuspendHttpTransportTest {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val bodies = mutableListOf<HttpBody>()
     private val uri = URI("https://x/a")
@@ -70,10 +72,10 @@ class BlockingHttpTransportTest {
         }
     }
 
-    private fun body(http: DownloadHttp): HttpBody =
-        BlockingHttpTransport(http, scope).get(uri, 5_000).also { bodies += it }
+    private suspend fun body(http: DownloadHttp): HttpBody =
+        SuspendHttpTransport(http, scope).get(uri, 5_000).also { bodies += it }
 
-    private fun finished(http: FakeHttp) = runBlocking { withTimeout(2_000) { http.finished.await() } }
+    private suspend fun finished(http: FakeHttp) = withTimeout(2_000) { http.finished.await() }
 
     @After fun closeResources() {
         bodies.forEach { it.close() }
@@ -81,22 +83,22 @@ class BlockingHttpTransportTest {
         runBlocking { withTimeout(2_000) { scope.coroutineContext[Job]!!.join() } }
     }
 
-    @Test fun getCloseWithoutStartNeverOpensRequest() {
+    @Test fun getCloseWithoutStartNeverOpensRequest() = runBlocking {
         val fake = FakeHttp()
         val body = body(fake)
         assertEquals(0, fake.opened.get())
         body.close()
         assertEquals(0, fake.opened.get())
-        assertTrue(runCatching { body.status }.exceptionOrNull() is TransportCancelledException)
+        assertTrue(runCatching { body.status() }.exceptionOrNull() is TransportCancelledException)
     }
 
-    @Test fun metadataIsLazyAndProbeCloseDoesNotReadBytes() {
+    @Test fun metadataIsLazyAndProbeCloseDoesNotReadBytes() = runBlocking {
         val fake = FakeHttp()
         val body = body(fake)
         assertEquals(0, fake.opened.get())
-        assertEquals(10, body.contentLength)
-        assertEquals(200, body.status)
-        assertEquals(5L, body.lastModified)
+        assertEquals(10, body.contentLength())
+        assertEquals(200, body.status())
+        assertEquals(5L, body.lastModified())
         assertEquals(1, fake.opened.get())
         assertFalse("metadata must not start response.read", fake.readEntered.await(150, TimeUnit.MILLISECONDS))
         body.close()
@@ -104,16 +106,16 @@ class BlockingHttpTransportTest {
         assertEquals(0, fake.produced.get())
     }
 
-    @Test fun errorStatusFailsPrepareReadAndReleasesWithoutReading() {
+    @Test fun errorStatusFailsPrepareReadAndReleasesWithoutReading() = runBlocking {
         val fake = FakeHttp(HttpHeaders(404, 3, 0, "Not Found"))
         val body = body(fake)
-        assertEquals(404, body.status)
+        assertEquals(404, body.status())
         assertTrue(runCatching { body.prepareRead() }.exceptionOrNull() is IOException)
         finished(fake)
         assertEquals(0, fake.produced.get())
     }
 
-    @Test fun largeBodyStreamsWithBoundedMemoryAndPartialReads() {
+    @Test fun largeBodyStreamsWithBoundedMemoryAndPartialReads() = runBlocking {
         val fake = FakeHttp(HttpHeaders(200, -1, 0, null), chunks = 1_000)
         val body = body(fake)
         body.prepareRead()
@@ -134,7 +136,7 @@ class BlockingHttpTransportTest {
         finished(fake)
     }
 
-    @Test fun earlyCloseReleasesBackpressuredProducer() {
+    @Test fun earlyCloseReleasesBackpressuredProducer() = runBlocking {
         val fake = FakeHttp(chunks = 1_000)
         val body = body(fake)
         body.prepareRead()
@@ -144,20 +146,20 @@ class BlockingHttpTransportTest {
         assertTrue(runCatching { body.read(ByteArray(10)) }.exceptionOrNull() is TransportCancelledException)
     }
 
-    @Test fun readStartsStreamWithoutExplicitPrepareRead() {
+    @Test fun readStartsStreamWithoutExplicitPrepareRead() = runBlocking {
         val fake = FakeHttp(chunks = 0)
         assertEquals(-1, body(fake).read(ByteArray(1)))
         finished(fake)
     }
 
-    @Test fun emptyBufferDoesNotConsumeBytesOrReturnEof() {
+    @Test fun emptyBufferDoesNotConsumeBytesOrReturnEof() = runBlocking {
         val fake = FakeHttp()
         val body = body(fake)
         assertEquals(0, body.read(ByteArray(0)))
         assertEquals(10, body.read(ByteArray(10)))
     }
 
-    @Test fun streamFailureAfterBufferedBytesPreservesCause() {
+    @Test fun streamFailureAfterBufferedBytesPreservesCause() = runBlocking {
         val failure = IOException("broken stream")
         val fake = FakeHttp(failure = failure)
         val body = body(fake)
@@ -166,7 +168,7 @@ class BlockingHttpTransportTest {
         finished(fake)
     }
 
-    @Test fun streamTimeoutMapsToTransportCancelled() {
+    @Test fun streamTimeoutMapsToTransportCancelled() = runBlocking {
         val failure = DownloadTimeoutException(null)
         val fake = FakeHttp(chunks = 0, failure = failure)
         val error = runCatching { body(fake).read(ByteArray(1)) }.exceptionOrNull()
@@ -175,7 +177,7 @@ class BlockingHttpTransportTest {
         finished(fake)
     }
 
-    @Test fun producerCancellationMapsToTransportCancelled() {
+    @Test fun producerCancellationMapsToTransportCancelled() = runBlocking {
         val failure = CancellationException("cancelled")
         val fake = FakeHttp(chunks = 0, failure = failure)
         val error = runCatching { body(fake).read(ByteArray(1)) }.exceptionOrNull()
@@ -184,65 +186,51 @@ class BlockingHttpTransportTest {
         finished(fake)
     }
 
-    @Test fun interruptedMetadataCancelsProducerBeforeClose() = interrupted(hangMetadata = true)
-    @Test fun interruptedReadCancelsProducerBeforeClose() = interrupted(hangMetadata = false)
+    @Test fun cancelledMetadataCallerCancelsProducerBeforeClose() = cancelled(hangMetadata = true)
+    @Test fun cancelledReadCallerCancelsProducerBeforeClose() = cancelled(hangMetadata = false)
 
-    private fun interrupted(hangMetadata: Boolean) {
+    /** Cancelling the calling coroutine ends the call with a CancellationException and releases the open block, with no close(). */
+    private fun cancelled(hangMetadata: Boolean) = runBlocking {
         val fake = FakeHttp(hang = true, hangMetadata = hangMetadata)
         val body = body(fake)
         if (!hangMetadata) body.prepareRead()
-        var outcome: Throwable? = null
-        val readCalled = CountDownLatch(1)
-        val worker = Thread {
-            outcome = runCatching {
-                if (hangMetadata) body.status else {
-                    readCalled.countDown()
-                    body.read(ByteArray(10))
-                }
-            }.exceptionOrNull()
+        val result = CompletableDeferred<Throwable?>()
+        val caller = launch(Dispatchers.IO) {
+            result.complete(runCatching { if (hangMetadata) body.status() else body.read(ByteArray(10)) }.exceptionOrNull())
         }
-        worker.start()
-        try {
+        withContext(Dispatchers.IO) {
             assertTrue(fake.entered.await(2, TimeUnit.SECONDS))
-            if (!hangMetadata) {
-                assertTrue(fake.readEntered.await(2, TimeUnit.SECONDS))
-                assertTrue(readCalled.await(2, TimeUnit.SECONDS))
-            }
-            worker.interrupt()
-            worker.join(1_000)
-            assertFalse("interrupted caller must return promptly", worker.isAlive)
-            assertTrue("got $outcome", outcome is TransportCancelledException)
-            finished(fake) // No close: interruption itself must release the open block.
-        } finally {
-            body.close()
-            worker.interrupt()
-            worker.join(2_000)
-            assertFalse(worker.isAlive)
+            if (!hangMetadata) assertTrue(fake.readEntered.await(2, TimeUnit.SECONDS))
         }
+        caller.cancel()
+        val outcome = withTimeout(1_000) { result.await() }
+        assertTrue("got $outcome", outcome is CancellationException)
+        assertFalse("a cancelled caller is not a transport cancellation", outcome is TransportCancelledException)
+        finished(fake) // No close(): the caller's cancellation itself must release the open block.
     }
 
-    @Test fun cancelledOwnerScopeDoesNotLeaveMetadataWaiting() {
+    @Test fun cancelledOwnerScopeDoesNotLeaveMetadataWaiting() = runBlocking {
         scope.cancel()
-        val error = runCatching { body(FakeHttp()).status }.exceptionOrNull()
+        val error = runCatching { body(FakeHttp()).status() }.exceptionOrNull()
         assertTrue("got $error", error is TransportCancelledException)
     }
 
-    @Test fun headTimeoutMapsToTransportCancelled() {
+    @Test fun headTimeoutMapsToTransportCancelled() = runBlocking {
         val http = object : FakeHttp() {
             override suspend fun head(url: String): HttpHeaders = throw DownloadTimeoutException(null)
         }
-        assertTrue(runCatching { BlockingHttpTransport(http, scope).head(uri, 5_000) }.exceptionOrNull() is TransportCancelledException)
+        assertTrue(runCatching { SuspendHttpTransport(http, scope).head(uri, 5_000) }.exceptionOrNull() is TransportCancelledException)
     }
 
-    @Test fun headAndBodyLengthFollowUrlConnectionBoundaries() {
+    @Test fun headAndBodyLengthFollowUrlConnectionBoundaries() = runBlocking {
         for ((length, expected) in listOf(-2L to -1, -1L to -1, 0L to 0, Int.MAX_VALUE.toLong() to Int.MAX_VALUE, 2_147_483_648L to -1)) {
             val fake = FakeHttp(HttpHeaders(200, length, 123))
-            val head = BlockingHttpTransport(fake, scope).head(uri, 5_000)
+            val head = SuspendHttpTransport(fake, scope).head(uri, 5_000)
             assertEquals(expected, head.contentLength)
             assertEquals(123L, head.lastModified)
-            assertEquals(expected, body(fake).contentLength)
+            assertEquals(expected, body(fake).contentLength())
         }
-        val head = BlockingHttpTransport(FakeHttp(HttpHeaders(500, 15, 123, "Error")), scope).head(uri, 5_000)
+        val head = SuspendHttpTransport(FakeHttp(HttpHeaders(500, 15, 123, "Error")), scope).head(uri, 5_000)
         assertEquals(500, head.status)
         assertEquals("Error", head.reason)
         assertEquals(0, head.contentLength)

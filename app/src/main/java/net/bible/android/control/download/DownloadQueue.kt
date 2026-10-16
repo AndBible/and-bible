@@ -28,6 +28,7 @@ import org.crosswire.jsword.book.install.DownloadCancelledException
 import org.crosswire.jsword.book.install.DownloadException
 import org.crosswire.jsword.book.install.InstallException
 import java.lang.Exception
+import kotlin.coroutines.cancellation.CancellationException
 import java.util.*
 
 /**
@@ -53,6 +54,11 @@ class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private va
                 } catch (e: DownloadCancelledException) {
                     Log.e(TAG, "Cancelled downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.INSTALL_CANCELLED, 0))
+                } catch (e: CancellationException) {
+                    // the caller's own coroutine was cancelled (a user cancel arrives as DownloadCancelledException above)
+                    Log.i(TAG, "Download of $document was cancelled with its caller")
+                    onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.INSTALL_CANCELLED, 0))
+                    throw e
                 } catch (e: DownloadException) {
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
