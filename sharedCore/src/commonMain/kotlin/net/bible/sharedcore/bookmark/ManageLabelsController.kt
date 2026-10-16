@@ -132,7 +132,8 @@ class ManageLabelsController(
         scope.launch {
             load(); rebuild(reorder = restored == null)
             // A restored StudyPad CONTENT query shows content hits, not the name-filter fallback.
-            if (restored != null && mode == ManageLabelsMode.STUDYPAD && _searchMode.value == SearchMode.CONTENT) dispatchSearchOrRebuild()
+            if (restored != null && mode == ManageLabelsMode.STUDYPAD && _searchMode.value == SearchMode.CONTENT &&
+                _searchText.value.length >= 3) dispatchSearchOrRebuild()
         }
     }
 
