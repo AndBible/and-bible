@@ -1,0 +1,102 @@
+# THROWAWAY SPIKE (I3 legacy migration, 2026-10-17). Delete once the spike is evaluated.
+#
+# Question: can Kotlin read the Swift app's SwiftData (Core Data SQLite) stores directly, or does the
+# migration need SwiftData itself to decode them? This job builds the Swift app's own host-side fixture
+# tool at the shipped commit, seeds every UI-test scenario into separate data containers with the
+# app's real SwiftData models, and uploads the resulting store files for offline analysis. Two runner
+# images give two Core Data generations (macOS 15 ~ iOS 18, macOS 26 ~ iOS 26).
+name: iOS I3 SwiftData spike
+on:
+  workflow_dispatch:
+  push:
+    branches: [ios]
+    paths:
+      - ".github/workflows/ios-i3-swiftdata-spike.yml"
+concurrency: {group: "ios-i3-spike-${{ github.ref }}", cancel-in-progress: true}
+env:
+  LEGACY_REPO: AndBible/and-bible-ios
+  LEGACY_REF: 5b14d179
+jobs:
+  seed-stores:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-26]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - name: Check out the Swift app at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.LEGACY_REPO }}
+          ref: ${{ env.LEGACY_REF }}
+          path: legacy
+          fetch-depth: 0
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with: {xcode-version: latest-stable}
+      - name: Record toolchain
+        run: |
+          mkdir -p out
+          { sw_vers; xcodebuild -version; swift --version; uname -m; } | tee out/toolchain.txt
+      - name: Restore libsword build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            legacy/libsword/sword-src
+            legacy/libsword/build
+            legacy/libsword/libsword.xcframework
+          key: ${{ matrix.runner }}-i3-spike-libsword-macos-slice-${{ hashFiles('legacy/libsword/build-ios.sh') }}
+      - name: libsword build prerequisites
+        run: |
+          command -v cmake >/dev/null 2>&1 || brew install cmake
+          command -v svn >/dev/null 2>&1 || brew install subversion
+      - name: Build libsword XCFramework (with macOS slice for the host tool)
+        working-directory: legacy/libsword
+        env: {INCLUDE_MACOS_SLICE: "1"}
+        run: |
+          if ls libsword.xcframework/macos-*/libsword.a >/dev/null 2>&1; then
+            echo "Using cached libsword.xcframework"
+          else
+            ./build-ios.sh
+          fi
+          ls libsword.xcframework
+      - name: Build UITestFixtureTool
+        working-directory: legacy
+        run: swift build --package-path . --product UITestFixtureTool
+      - name: Seed every scenario into its own data container
+        working-directory: legacy
+        run: |
+          set +e
+          tool="$PWD/.build/debug/UITestFixtureTool"
+          sword="$PWD/Sources/BibleUI/Tests/BibleUITests/Fixtures/sword"
+          scenarios=$(sed -n '/^private enum FixtureScenario/,/^}/p' Tests/Support/UITestFixtureTool/main.swift \
+            | grep -oE '"[a-z0-9-]+"' | tr -d '"' | grep -v -E 'performance-bookmarks-(1000|10000)')
+          for s in $scenarios; do
+            c="$RUNNER_TEMP/containers/$s"
+            mkdir -p "$c/Documents" "$c/Library/Application Support"
+            CFFIXED_USER_HOME="$c" "$tool" seed --data-container "$c" --scenario "$s" \
+              --sword-fixture-path "$sword" > "$GITHUB_WORKSPACE/out/seed-$s.log" 2>&1
+            echo "$s exit=$?" | tee -a "$GITHUB_WORKSPACE/out/seed-summary.txt"
+          done
+          exit 0
+      - name: Collect store files and schema dumps
+        run: |
+          cd "$RUNNER_TEMP/containers"
+          for c in */; do
+            s="${c%/}"
+            dest="$GITHUB_WORKSPACE/out/stores/$s"
+            mkdir -p "$dest"
+            cp -p "$c"Library/Application\ Support/*.store* "$dest"/ 2>/dev/null
+            cp -p "$c"Documents/*.sqlite* "$dest"/ 2>/dev/null
+            for f in "$dest"/*.store; do
+              [ -f "$f" ] || continue
+              { echo "== $f"; sqlite3 "$f" ".schema"; } >> "$GITHUB_WORKSPACE/out/schema-$s.txt"
+            done
+          done
+          find "$GITHUB_WORKSPACE/out" -type f | sort > "$GITHUB_WORKSPACE/out/files.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: i3-swiftdata-spike-${{ matrix.runner }}
+          path: out
