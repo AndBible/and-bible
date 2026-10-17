@@ -39,6 +39,14 @@ Ports that exist after phase 0 (`ls sharedCore/src/commonMain/kotlin/net/bible/s
 | `AppEnvironment` | `platform/AppEnvironment.kt` | `AndroidAppEnvironment(androidContext())`; `CoreModule.kt` line 215 |
 | `FilePorts` (`FilePicker`, `FileDelivery`) | `platform/files/FilePorts.kt` | Android pickers/share sheet |
 | `MarkdownRenderer` | `platform/MarkdownRenderer.kt` | `net.bible.service.sword.mydocument.MarkdownToXhtml`; `CoreModule.kt` line 213 |
+| `PlatformLocales` (G1) | `:sharedLogic` `platform/PlatformLocales.kt` | `net.bible.android.platform.AndroidPlatformLocales`; keeps legacy `iw`/`in`/`ji` codes (never `KLocale.default()`) |
+| `AddonCatalog` (G1) | `:sharedLogic` `platform/AddonCatalog.kt` | `AndroidAddonCatalog` (delegates to `AndBibleAddons`) |
+| `LocalCalendar` (G1) | `:sharedLogic` `platform/LocalCalendar.kt` | `AndroidLocalCalendar` (the old `Calendar`/`SimpleDateFormat` code, verbatim) |
+
+Common primitives from G1 (`:sharedLogic`, package `net.bible.sharedlogic`): `sync.withMonitor` /
+`monitorWait` / `monitorNotifyAll` / `bookNameMonitor` (on JVM/Android exactly the JVM monitor, so they exclude
+against plain `synchronized`; `bookNameMonitor` is `org.crosswire.jsword.versification.BookName::class.java`),
+`util.decodeUrl` (= `URLDecoder.decode(s, "UTF-8")`), `util.currentTimeMillis`.
 
 Ports still to be created by the groups (named in S8): foreground indexing (`SearchIndexingService`, G1),
 certificate pinning (`webdav/PinnedTrust`), WebDAV sign-in UI and `SharedPreferences` in `WebDavConfig`
