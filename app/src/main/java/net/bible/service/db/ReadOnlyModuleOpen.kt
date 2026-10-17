@@ -57,7 +57,7 @@ fun openReadOnlyModuleDb(file: File, snapshotRoot: File): SQLiteConnection {
         if (!wal.isFile || shm.exists() || dir == null || dir.canWrite()) throw e
         Log.w(TAG, "Read-only WAL module without -shm, opening a snapshot of $file", e)
         try {
-            return openAndProbe(snapshot(file, wal, snapshotRoot))
+            return openSnapshot(file, wal, snapshotRoot)
         } catch (interrupted: InterruptedException) {
             Thread.currentThread().interrupt()
             e.addSuppressed(interrupted)
@@ -90,7 +90,16 @@ private class Stamp(val size: Long, val mtime: Long) {
     fun matches(f: File) = f.isFile && f.length() == size && f.lastModified() == mtime
 }
 
-private fun snapshot(file: File, wal: File, snapshotRoot: File): File = synchronized(snapshotLock) {
+/**
+ * Builds (or reuses) the snapshot and opens it, all under [snapshotLock]. Opening must be inside the lock too:
+ * the first connection to a fresh snapshot runs WAL recovery on a new `-shm`, and concurrent first openers
+ * (several backend states per module) fail with SQLITE_BUSY, or see a directory another thread is rebuilding.
+ */
+private fun openSnapshot(file: File, wal: File, snapshotRoot: File): SQLiteConnection = synchronized(snapshotLock) {
+    openAndProbe(snapshot(file, wal, snapshotRoot))
+}
+
+private fun snapshot(file: File, wal: File, snapshotRoot: File): File {
     val key = MessageDigest.getInstance("SHA-1").digest(file.absolutePath.toByteArray())
         .joinToString("") { "%02x".format(it) }
     val dir = File(snapshotRoot, key)
@@ -108,5 +117,6 @@ private fun snapshot(file: File, wal: File, snapshotRoot: File): File = synchron
         dir.deleteRecursively()
         throw IOException("$file changed while it was being copied")
     }
-    copy
+
+    return copy
 }
