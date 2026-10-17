@@ -104,9 +104,11 @@ names a test really uses.
 - moves its own helpers into a new file in the same package (`net.bible.service.common`), named after the
   helper family, so callers keep compiling and FQNs do not change;
 - never edits another group's helpers;
-- cleans the moved helper for common code and adds the new file to `scripts/l1-move-allow.txt` (so the
-  move-readiness `app` column stops counting imports of it; it moves with the domains in phase 2).
-  This allow-list step is a decision made here; the spec says only that the allow-list holds what D2 moves.
+- cleans the moved helper for common code and adds the new file to the domain map
+  `scripts/l1-readiness-domains.txt` under the domain it belongs to, in the group's own comment block
+  (`# G1`, `# G2`, `# G3`), so the move-readiness check counts the new file's own blockers and its
+  importers stop counting it in the `app` column; it moves with its domain in phase 2.
+  Revised 2026-10-17 (section 10): `scripts/l1-move-allow.txt` holds only the paths D2 moves.
 
 Merge order for `CommonUtils.kt` (decision made here): the extraction hunks of G1, G2 and G3 sit a few lines
 apart (declaration lines 1853, 1868, 1870, 1874, 1879, 1881, 1888, 1893, 1923 at HEAD, from
@@ -246,5 +248,35 @@ core	16	16	3	0	3
 - `LAST_CRASH_STACKTRACE_FILE`: G2 extracts it from `ErrorReportControl.kt` into a new file in
   `net.bible.android.control.report` and is the only plan that edits `ErrorReportControl.kt`; G1 (link) edits
   only its own call site.
-- `CommonUtils.kt` edits merge one group at a time in the order D2, G1, G2, G3 (section 5).
-- Release timing (S13) is open; the controller checks it with the user before the first phase-1 merge.
+- `CommonUtils.kt` edits merge one group at a time (section 5; section 10 for the final rule).
+- Release timing (S13): decided 2026-10-17, no release from `ios`; phase-1 in-place edits stay mechanical and minimal.
+
+## 10. Phase-1 reconciliation (controller, 2026-10-17)
+
+Decisions taken when the four phase-1 plans were written side by side; they override the plans where
+they disagree.
+
+- **Locks.** A *shared monitor* (an object whose monitor is taken in more than one file or by jsword:
+  `BookName::class.java`, `Book` / `currentDocument` instances) is taken with G1's `withMonitor(target)` and
+  `bookNameMonitor` (`:sharedLogic`, G1 part A). On Android it is the same JVM monitor as `synchronized`, so
+  converted and unconverted sites keep excluding each other. A *class-private* lock may use atomicfu
+  (`SynchronizedObject` + `synchronized` marked `// L1-common-ok: atomicfu lock`, or
+  `reentrantLock().withLock`), after checking that no other file synchronizes on the same object. Each group
+  converts only its own sites; G3's `BookName`/`currentDocument` sites wait for G1 part A. No lock is removed.
+- **Blocking edges.** `blockingAtEdge` stays in `:app` (spec S10 superseded by the D1b follow-up decision);
+  D2 adds a readiness check that fails on `runBlocking`/`blockingAtEdge` in any `commonMain`/`iosMain`.
+  Domain files with `L1-edge` calls (sword: G1, window: G3) move each call into a small `:app` platform file
+  listed in `scripts/l1-readiness-platform.txt`, marker and reason included; turning them into suspend paths
+  is the edge-reduction backlog after L1b.
+- **Scripts.** D2 owns `scripts/l1-*.sh`, `l1-lib.sh`, `l1-move-app.py` and their self-tests, and extends the
+  move-readiness `jvmapi` column with `Math.`, `Charsets.`, `OutOfMemoryError`, `GlobalContext` and
+  unqualified `@Volatile`. The other groups edit only data files (domain map, done lists, platform list), in
+  their own comment blocks. A group's acceptance is its rows at 0 at HEAD after rebasing on D2.
+- **Cross-owner edits.** Allowed only when call-site-only (import, argument, one line), listed in the plan's
+  hand-over table, with `call-site edit in <owner> file` in the commit message.
+- **Merge order.** The full-suite baseline plan first, then D2, then G1 part A early (it carries
+  `withMonitor`), then the rest one at a time as they finish. `CommonUtils.kt` deletions merge one group at a
+  time, each rebased and re-anchored at HEAD (section 5's order is preferred, any serial order works).
+  Tasks that overlap E5 (emulator-debt fixes) start after E5 merges, and E5's tests are in their gate.
+- **`oldmigrations/`** stays in `:app` permanently (Android-only legacy); `DatabaseContainer` reaches it
+  through its host port.
