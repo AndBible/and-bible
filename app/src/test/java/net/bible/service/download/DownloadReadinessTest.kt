@@ -1,5 +1,6 @@
 package net.bible.service.download
 
+import net.bible.service.db.reset
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication

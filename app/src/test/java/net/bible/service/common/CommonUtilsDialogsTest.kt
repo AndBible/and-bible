@@ -16,6 +16,7 @@
  */
 package net.bible.service.common
 
+import net.bible.service.db.reset
 import net.bible.android.AppDialogControllerResetRule
 import android.Manifest
 import android.os.Looper

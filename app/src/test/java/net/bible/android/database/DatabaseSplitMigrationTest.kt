@@ -17,6 +17,7 @@
 
 package net.bible.android.database
 
+import net.bible.service.db.reset
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication

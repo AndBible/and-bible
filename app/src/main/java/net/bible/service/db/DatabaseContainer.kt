@@ -82,35 +82,7 @@ val ALL_DB_FILENAMES = arrayOf(
 
 class DataBaseNotReady: Exception()
 
-class DatabaseContainer {
-    init {
-        backupDatabaseIfNeeded()
-        // The cloud-document cache DB was renamed to document-sync.sqlite3; drop the orphaned file.
-        if (!host.isRunningTests) host.deleteDatabase("cloud-documents-cache.sqlite3")
-        migrateOldDatabaseIfNeeded()
-    }
-
-    private fun getOldDatabase(): OldMonolithicAppDatabase =
-        buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *host.legacyMonolithicMigrations)
-
-    private fun migrateOldDatabaseIfNeeded() {
-        val oldDbFile = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
-        if(oldDbFile.exists()) {
-            for (name in host.databaseList().filterNot { it == OLD_MONOLITHIC_DATABASE_NAME }) {
-                host.deleteDatabase(name)
-            }
-            // Room opens the old file only to run its legacy migrations; its connection must be closed
-            // before the split reopens the same file outside Room.
-            getOldDatabase().apply {
-                try { blockingAtEdge { useWriterConnection { } } } finally { close() } // L1-edge: DatabaseContainer synchronous lifecycle (open probe)
-            }
-            openSqlite(oldDbFile.path).use {
-                val migrations = DatabaseSplitMigrations(it) { name -> File(host.databasePath(name)).absolutePath }
-                migrations.migrateAll()
-            }
-            deleteAppDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file, any journal/WAL leftovers and Room's .lck
-        }
-    }
+class DatabaseContainer private constructor() {
     // The six syncable databases below are @Volatile (D1 final review I2): CloudSync's first sync swaps a field
     // (resetXDb) from an IO thread while other threads read it, and a stale read would reach the closed instance,
     // which under Room 3 throws instead of reopening.
@@ -160,11 +132,6 @@ class DatabaseContainer {
 
     @Volatile var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
 
-    @VisibleForTesting
-    fun resetAiSettingsDb(): AiSettingsDatabase = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses resetAiSettingsDbOwned
-        aiLifetime.replace { resetAiSettingsDbOwned(it) }
-    }
-
     internal fun resetAiSettingsDbOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement): AiSettingsDatabase {
         aiLifetime.requireOwner(token)
         aiSettingsDb.close()
@@ -181,17 +148,6 @@ class DatabaseContainer {
         progressDb.close()
         progressDb = getProgressDb()
         return progressDb
-    }
-
-    init {
-        if(!host.isRunningTests) {
-            blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (open: trigger setup)
-                for (dbDef in getDatabaseAccessorFactories(this@DatabaseContainer).map { it.invoke() }) {
-                    dropTriggers(dbDef)
-                    createTriggers(dbDef)
-                }
-            }
-        }
     }
 
     val downloadDocumentsDb: TemporaryDatabase =
@@ -216,47 +172,7 @@ class DatabaseContainer {
     val settingsStore: SettingsStore = SettingsStore(
         RoomSettingsBackend(settingsDb), settingsScope,
         onWriteError = { w, e -> Log.e(TAG, "Settings write failed for key ${w.key}", e) },
-    ).also { blockingAtEdge { it.load() } } // L1-edge: DatabaseContainer synchronous lifecycle (open: settings-store load)
-
-    private fun backupDatabaseIfNeeded() {
-        if(host.isRunningTests) return
-        val oldDb = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
-        if(oldDb.exists() && recoverIfCorrupt(oldDb) == null) {
-            backupOldDatabase(oldDb)
-        } else {
-            backupNewDatabaseIfNeeded()
-        }
-    }
-
-    private fun backupOldDatabase(oldDb: File) {
-        val dbVersion = readUserVersion(oldDb)
-        Log.i(TAG, "backupping old database of version $dbVersion)")
-        val backupPath = host.dbBackupPath
-        val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
-        val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
-        oldDb.copyTo(backupFile, true)
-    }
-
-    private fun backupNewDatabaseIfNeeded() {
-        Log.i(TAG, "backupDatabaseIfNeeded")
-        val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(File(host.databasePath(it))) }
-
-        val maxVersions = ALL_DB_FILENAMES.map { maxDatabaseVersion(it) }
-        val needBackup = maxVersions != versions
-
-        if(needBackup) {
-            // Not makeDatabaseBackupFile: with ready cleared it would skip its vacuum and checkpoint anyway.
-            val backupZipFile = withReadyCleared { host.zipDatabaseFilesForUpgradeBackup()?.let { File(it) } }
-            backupZipFile ?: return
-            val versionString = versions.joinToString("-")
-            Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
-            val backupPath = host.dbBackupPath
-            val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
-            val backupFile = File(backupPath, "dbBackup-${host.applicationVersionNumber}-$versionString-$timeStamp${host.databaseBackupSuffix}")
-            backupZipFile.copyTo(backupFile, true)
-            backupZipFile.delete()
-        }
-    }
+    )
 
     // Computed, not captured: the resetXDb() functions (a first cloud sync swapping in the downloaded file) replace
     // the instances, and a captured array would keep vacuuming/closing the closed old one (a closed Room 3 database
@@ -306,11 +222,6 @@ class DatabaseContainer {
      * then are logged by the store's `onWriteError` and dropped.
      * Closing an already closed database is a no-op, so [closeAll] after this is safe.
      */
-    @VisibleForTesting
-    internal fun closeForReplace(fileName: String) = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses closeForReplaceOwned
-        aiLifetime.replace { closeForReplaceOwned(fileName, it) }
-    }
-
     internal suspend fun closeForReplaceOwned(fileName: String, token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         aiLifetime.requireOwner(token)
         if (fileName == SettingsDatabase.dbFileName) settingsStore.flush()
@@ -321,12 +232,9 @@ class DatabaseContainer {
      * Flushes the settings store, cancels its writer and closes every database. Setting writes made by other
      * threads between the flush/scope-cancel and `_instance = null` update only the old store's memory and are
      * dropped (a closed Room 3 database does not reopen). The window is milliseconds, and restore paths already
-     * treat writes there as a hazard. Databases already closed by [closeForReplace] are closed again harmlessly.
+     * treat writes there as a hazard. Databases already closed by `closeForReplace` are closed again harmlessly.
      */
-    @VisibleForTesting
-    internal fun closeAll() = blockingAtEdge { aiLifetime.replace { closeAllOwned(it) } } // L1-edge: test-only synchronous wrapper; production uses closeAllOwned
-
-    private suspend fun closeAllOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+    internal suspend fun closeAllOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         aiLifetime.requireOwner(token)
         // Flush BEFORE cancelling the scope: writes still queued at cancel are dropped.
         settingsStore.flush()
@@ -339,6 +247,88 @@ class DatabaseContainer {
     }
 
     companion object {
+        /**
+         * Opens the container in the one order that matters: backup, orphan delete, legacy split, construct,
+         * trigger setup, settings load. Suspends instead of blocking; the host's `openContainer` bridges it.
+         */
+        suspend fun create(): DatabaseContainer {
+            backupDatabaseIfNeeded()
+            // The cloud-document cache DB was renamed to document-sync.sqlite3; drop the orphaned file.
+            if (!host.isRunningTests) host.deleteDatabase("cloud-documents-cache.sqlite3")
+            migrateOldDatabaseIfNeeded()
+            val container = DatabaseContainer()
+            if (!host.isRunningTests) {
+                for (dbDef in getDatabaseAccessorFactories(container).map { it.invoke() }) {
+                    dropTriggers(dbDef)
+                    createTriggers(dbDef)
+                }
+            }
+            container.settingsStore.load()
+            return container
+        }
+
+        private fun getOldDatabase(): OldMonolithicAppDatabase =
+            buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *host.legacyMonolithicMigrations)
+
+        private suspend fun migrateOldDatabaseIfNeeded() {
+            val oldDbFile = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
+            if(oldDbFile.exists()) {
+                for (name in host.databaseList().filterNot { it == OLD_MONOLITHIC_DATABASE_NAME }) {
+                    host.deleteDatabase(name)
+                }
+                // Room opens the old file only to run its legacy migrations; its connection must be closed
+                // before the split reopens the same file outside Room.
+                getOldDatabase().apply {
+                    try { useWriterConnection { } } finally { close() }
+                }
+                openSqlite(oldDbFile.path).use {
+                    val migrations = DatabaseSplitMigrations(it) { name -> File(host.databasePath(name)).absolutePath }
+                    migrations.migrateAll()
+                }
+                deleteAppDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file, any journal/WAL leftovers and Room's .lck
+            }
+        }
+
+        private fun backupDatabaseIfNeeded() {
+            if(host.isRunningTests) return
+            val oldDb = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
+            if(oldDb.exists() && recoverIfCorrupt(oldDb) == null) {
+                backupOldDatabase(oldDb)
+            } else {
+                backupNewDatabaseIfNeeded()
+            }
+        }
+
+        private fun backupOldDatabase(oldDb: File) {
+            val dbVersion = readUserVersion(oldDb)
+            Log.i(TAG, "backupping old database of version $dbVersion)")
+            val backupPath = host.dbBackupPath
+            val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
+            val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
+            oldDb.copyTo(backupFile, true)
+        }
+
+        private fun backupNewDatabaseIfNeeded() {
+            Log.i(TAG, "backupDatabaseIfNeeded")
+            val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(File(host.databasePath(it))) }
+
+            val maxVersions = ALL_DB_FILENAMES.map { maxDatabaseVersion(it) }
+            val needBackup = maxVersions != versions
+
+            if(needBackup) {
+                // Not makeDatabaseBackupFile: with ready cleared it would skip its vacuum and checkpoint anyway.
+                val backupZipFile = withReadyCleared { host.zipDatabaseFilesForUpgradeBackup()?.let { File(it) } }
+                backupZipFile ?: return
+                val versionString = versions.joinToString("-")
+                Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
+                val backupPath = host.dbBackupPath
+                val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
+                val backupFile = File(backupPath, "dbBackup-${host.applicationVersionNumber}-$versionString-$timeStamp${host.databaseBackupSuffix}")
+                backupZipFile.copyTo(backupFile, true)
+                backupZipFile.delete()
+            }
+        }
+
         /** The platform side of the container; installed once at startup by [installHost]. */
         @Volatile private var _host: DatabaseHost? = null
         val host: DatabaseHost get() = _host ?: throw IllegalStateException("DatabaseHost not installed")
@@ -446,23 +436,17 @@ class DatabaseContainer {
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        internal fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { DatabaseContainer() } }
+        internal fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { host.openContainer() } }
 
         /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
         @VisibleForTesting
-        internal var containerFactory: () -> DatabaseContainer = { DatabaseContainer() }
+        internal var containerFactory: () -> DatabaseContainer = { host.openContainer() }
 
         /**
-         * Failure-path variant of [reset]: closes only an instance that already exists. [reset] goes through
-         * the `instance` getter, which BUILDS a container (open, migrate, backup) when `_instance` is null,
-         * just to close it; a restore whose migration threw would then throw again from its own cleanup.
-         * Also the old monolithic restore's close before its snapshot (F120).
+         * Failure-path variant of `reset`: closes only an instance that already exists (the test bridge builds on
+         * this). A restore whose migration threw must not build a container just to close it. Also the old
+         * monolithic restore's close before its snapshot (F120).
          */
-        @VisibleForTesting
-        internal fun dropInstanceWithoutOpening() = blockingAtEdge { // L1-edge: test-only synchronous wrapper; production uses dropInstanceWithoutOpeningOwned
-            aiLifetime.replace { dropInstanceWithoutOpeningOwned(it) }
-        }
-
         internal suspend fun dropInstanceWithoutOpeningOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)
             val current = synchronized(this) { _instance }
@@ -535,9 +519,6 @@ class DatabaseContainer {
 
         suspend fun sync() = instance.sync()
         suspend fun vacuum() = instance.vacuum()
-        @VisibleForTesting
-        fun reset() = blockingAtEdge { aiLifetime.replace { resetOwned(it) } } // L1-edge: test-only synchronous wrapper; production uses resetOwned
-
         internal suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)
             val current = synchronized(this) {
@@ -614,7 +595,7 @@ class DatabaseContainer {
                     deviceId = host.deviceIdentifier,
                     localDb = aiSettingsDb,
                     dbFactory = { n -> getAiSettingsDb(n) },
-                    _resetLocalDb = { resetAiSettingsDb() },
+                    _resetLocalDb = { error("AI settings database resets only through resetOwned (replacingDatabases)") },
                     localDbFile = File(host.databasePath(AiSettingsDatabase.dbFileName)),
                     category = SyncableDatabaseDefinition.AI_SETTINGS,
                     resetOwned = { token -> resetAiSettingsDbOwned(token) },

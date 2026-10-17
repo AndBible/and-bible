@@ -30,8 +30,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private const val TAG = "AndroidDatabaseHost"
-
 /** The Android [DatabaseHost]: Context file locations, [CommonUtils] and the Koin graph. */
 class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseHost {
     override val isRunningTests: Boolean get() = application.isRunningTests
@@ -65,7 +63,7 @@ class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseH
             blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close: flush before exit, also the crash handler)
                 if (store != null) {
                     if (timeoutMs == null) store.flush()
-                    else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
+                    else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w("DbContainer", "Settings flush timed out")
                 }
                 // The ordered write-through keys (workspace, global text display, reading progress) queue their
                 // writes off the caller's thread; a few ms before exit they would otherwise die with the process.
@@ -78,13 +76,13 @@ class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseH
                     net.bible.service.common.ReadingProgressSettingsStore.KEY,
                 )
                 if (withTimeoutOrNull(timeoutMs ?: ORDERED_WRITES_EXIT_WAIT_MS) { keys.forEach { launcher.join(it) } } == null)
-                    Log.w(TAG, "Ordered write queues did not drain before exit")
+                    Log.w("DbContainer", "Ordered write queues did not drain before exit")
             }
-        } catch (e: Throwable) { Log.e(TAG, "Settings flush failed", e) }
+        } catch (e: Throwable) { Log.e("DbContainer", "Settings flush failed", e) }
     }
 
-    // Task 3 replaces this with the properly ordered cold open; until then it is today's container construction.
-    override fun openContainer(): DatabaseContainer = DatabaseContainer()
+    override fun openContainer(): DatabaseContainer =
+        blockingAtEdge { DatabaseContainer.create() } // L1-edge: synchronous DatabaseContainer.instance getter (cold open)
 
     private companion object {
         /** Bound for the ordered store write queues when the caller gave no timeout. */

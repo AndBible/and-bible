@@ -1,5 +1,6 @@
 package net.bible.service.common
 
+import net.bible.service.db.reset
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.service.db.DatabaseContainer

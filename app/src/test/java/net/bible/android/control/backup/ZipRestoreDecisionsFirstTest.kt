@@ -1,5 +1,6 @@
 package net.bible.android.control.backup
 
+import net.bible.service.db.reset
 import androidx.room3.useReaderConnection
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication

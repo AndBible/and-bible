@@ -1,5 +1,6 @@
 package net.bible.android.control.backup
 
+import net.bible.service.db.reset
 import android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
