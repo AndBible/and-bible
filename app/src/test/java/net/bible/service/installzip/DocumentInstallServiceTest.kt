@@ -159,7 +159,8 @@ class DocumentInstallServiceTest {
             shadowOf(service).lastForegroundNotification
         )
 
-        assertTrue("installedChanged must fire once the job reaches a terminal phase (off-main)", streamLatch.await(5, TimeUnit.SECONDS))
+        // Cold-JVM install takes ~5 s on its own (6.3 s test time alone); a forked full-suite run exceeded the old 5 s budget.
+        assertTrue("installedChanged must fire once the job reaches a terminal phase (off-main)", streamLatch.await(30, TimeUnit.SECONDS))
         streamSub.cancel()
 
         assertNotNull(
