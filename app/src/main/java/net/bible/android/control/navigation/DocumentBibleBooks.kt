@@ -24,7 +24,6 @@ import org.crosswire.jsword.versification.system.SystemSynodal
 import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Verse
-import java.util.*
 
 /**
  * Calculate which books are actually included in a Bible document.
@@ -71,7 +70,7 @@ class DocumentBibleBooks(private val document: AbstractPassageBook) {
     }
 
     fun getBookList(): List<BibleBook> {
-        return Collections.unmodifiableList(_bookList)
+        return _bookList
     }
 
     fun setContainsOnlyScripture(containsOnlyScripture: Boolean) {

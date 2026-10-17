@@ -208,10 +208,11 @@ fun buildCoreModule() = module {
     single { net.bible.service.cloudsync.CloudSync(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { net.bible.service.cloudsync.documents.DocumentSync(get(), get(), get(), get(), get(), { get() }) }
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
-    single { BookInstallWatcher(get(), get(), get(), get()) }
+    single { BookInstallWatcher(get(), get(), get(), get(), get()) }
     single<UserNotifier> { AndroidUserNotifier() }
     single<MarkdownRenderer> { net.bible.service.sword.mydocument.MarkdownToXhtml }
     single<net.bible.sharedcore.platform.AppDirectories> { net.bible.android.AndroidAppDirectories() }
+    single<net.bible.sharedlogic.platform.AddonCatalog> { net.bible.android.platform.AndroidAddonCatalog() }
     single<net.bible.sharedlogic.platform.PlatformLocales> { net.bible.android.platform.AndroidPlatformLocales() }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }

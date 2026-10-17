@@ -18,7 +18,7 @@ package net.bible.android.control.navigation
 
 import androidx.collection.LruCache
 import org.crosswire.jsword.book.basic.AbstractPassageBook
-import net.bible.service.common.Logger
+import net.bible.sharedcore.log.Log
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksListener
@@ -35,14 +35,13 @@ open class DocumentBibleBooksFactory constructor() {
             return DocumentBibleBooks(document)
         }
     }
-    private val log = Logger(this.javaClass.name)
 
     init {
         initialise()
     }
 
     fun initialise() {
-        log.debug("Initialising DocumentBibleBooksFactory cache")
+        Log.i(TAG, "Initialising DocumentBibleBooksFactory cache")
         flushCacheIfBooksChange()
     }
 
@@ -73,5 +72,6 @@ open class DocumentBibleBooksFactory constructor() {
 
     companion object {
         private const val CACHE_SIZE = 10
+        private const val TAG = "DocumentBibleBooksFactory"
     }
 }

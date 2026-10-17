@@ -21,12 +21,14 @@ import kotlinx.coroutines.Job
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.sharedlogic.platform.AddonCatalog
+import net.bible.sharedlogic.sync.withMonitor
+import kotlin.concurrent.Volatile
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.isSyncableDocument
 import net.bible.service.cloudsync.documents.shouldAutoUpload
-import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
@@ -49,6 +51,7 @@ class BookInstallWatcher(
     private val syncStarter: DocumentSyncStarter,
     private val documentSync: net.bible.service.cloudsync.DocumentSyncProvider,
     private val documentSettings: DocumentSyncSettings,
+    private val addonCatalog: AddonCatalog,
 ) {
     /** For tests only: runs at the start of every backup-db write, inside the ordered launch. */
     @VisibleForTesting
@@ -62,7 +65,7 @@ class BookInstallWatcher(
      * one watcher listener, the latest, stays registered.
      */
     fun startListening() {
-        synchronized(Companion) {
+        withMonitor(Companion) {
             registered?.let { Books.installed().removeBooksListener(it) }
             Books.installed().removeBooksListener(listener)
             Books.installed().addBooksListener(listener)
@@ -104,14 +107,14 @@ class BookInstallWatcher(
                     syncStarter.pushDocuments(listOf(book.initials))
                 }
             }
-            AndBibleAddons.clearCaches()
+            addonCatalog.clearCaches()
             SwordContentFacade.clearCaches()
         }
 
         override fun bookRemoved(ev: BooksEvent) {
             // Document sync: local uninstall does NOT propagate to the cloud by default.
             // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
-            AndBibleAddons.clearCaches()
+            addonCatalog.clearCaches()
             val book = ev.book!!
             launcher.launch(DB_KEY) { removeBookFromDb(book) }
             SwordContentFacade.clearCaches()
@@ -223,8 +226,7 @@ class BookInstallWatcher(
     /**
      * pre-initialise mappings to prevent pauses during interaction
      */
-    @Synchronized
-    private fun initialiseRequiredMapping(book: Book) {
+    private fun initialiseRequiredMapping(book: Book) = withMonitor(this) {
         if (book is SwordBook) {
             val versification = book.versification
             // initialise in a background thread to allow normal startup to continue
@@ -236,7 +238,7 @@ class BookInstallWatcher(
     }
 
     private companion object {
-        /** Listener most recently registered by any instance; guarded by synchronized(Companion). */
+        /** Listener most recently registered by any instance; guarded by withMonitor(Companion). */
         @Volatile
         var registered: BooksListener? = null
 

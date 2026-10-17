@@ -20,7 +20,6 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import org.crosswire.jsword.versification.BibleBook
 import net.bible.android.control.versification.Scripture
-import java.util.ArrayList
 
 /**
  * Enable separation of Scripture books

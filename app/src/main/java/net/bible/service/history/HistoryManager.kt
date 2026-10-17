@@ -28,12 +28,10 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
-import java.lang.Exception
 
 
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.Stack
+import net.bible.sharedlogic.sync.withMonitor
+import kotlin.concurrent.Volatile
 
 
 /**
@@ -48,7 +46,7 @@ class HistoryManager constructor(
     private val platform: HistoryPlatform,
 ) {
 
-    private val windowHistoryStackMap = HashMap<IdType, Stack<HistoryItem>>()
+    private val windowHistoryStackMap = HashMap<IdType, ArrayList<HistoryItem>>()
 
     private var isGoingBack = false
 
@@ -59,13 +57,13 @@ class HistoryManager constructor(
         return allHistory
     }
 
-    private fun getHistoryStack(windowNo: IdType): Stack<HistoryItem> {
+    private fun getHistoryStack(windowNo: IdType): ArrayList<HistoryItem> {
         var historyStack = windowHistoryStackMap[windowNo]
         if (historyStack == null) {
-            synchronized(windowHistoryStackMap) {
+            withMonitor(windowHistoryStackMap) {
                 historyStack = windowHistoryStackMap[windowNo]
                 if (historyStack == null) {
-                    historyStack = Stack()
+                    historyStack = ArrayList()
                     windowHistoryStackMap[windowNo] = historyStack!!
                 }
             }
@@ -91,7 +89,7 @@ class HistoryManager constructor(
     }
 
     fun restoreFrom(window: Window, historyItems: List<WorkspaceEntities.HistoryItem>) {
-        val stack = Stack<HistoryItem>()
+        val stack = ArrayList<HistoryItem>()
         for(entity in historyItems) {
             val doc = Books.installed().getBook(entity.document) ?: continue
             val key = try {
@@ -137,7 +135,7 @@ class HistoryManager constructor(
     }
 
     fun popHistoryItem() {
-        getHistoryStack(windowControl.activeWindow.id).pop()
+        getHistoryStack(windowControl.activeWindow.id).let { it.removeAt(it.lastIndex) }
     }
 
     private fun createHistoryItem(window: Window, screenToken: Any?): HistoryItem? {
@@ -177,7 +175,7 @@ class HistoryManager constructor(
                 isGoingBack = true
 
                 // pop the previous item
-                val previousItem = historyStack.pop()
+                val previousItem = historyStack.removeAt(historyStack.lastIndex)
 
                 if (previousItem != null) {
                     Log.i(TAG, "Going back to:$previousItem")
@@ -202,14 +200,13 @@ class HistoryManager constructor(
     /**
      * Add item and check size of stack
      */
-    @Synchronized
-    private fun add(stack: Stack<HistoryItem>, item: HistoryItem?) {
+    private fun add(stack: ArrayList<HistoryItem>, item: HistoryItem?) = withMonitor(this) {
         if (item != null) {
-            if (stack.isEmpty() || item != stack.peek()) {
+            if (stack.isEmpty() || item != stack.last()) {
                 Log.i(TAG, "Adding $item to history")
                 Log.i(TAG, "Stack size:" + stack.size)
 
-                stack.push(item)
+                stack.add(item)
 
                 while (stack.size > MAX_HISTORY) {
                     Log.i(TAG, "Shrinking large stack")

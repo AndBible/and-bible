@@ -26,7 +26,6 @@ import org.crosswire.jsword.versification.Versification
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.isSpecial
-import java.util.*
 
 /**
  * Used by Passage navigation ui
@@ -70,7 +69,7 @@ class NavigationControl constructor(
     /** default book for use when jumping into the middle of passage selection
      */
     val defaultBibleBookNo: Int
-        get() = Arrays.binarySearch(BibleBook.values(), pageControl.currentBibleVerse.book)
+        get() = BibleBook.values().binarySearch(pageControl.currentBibleVerse.book)
 
     /** default chapter for use when jumping into the middle of passage selection
      */
@@ -90,7 +89,7 @@ class NavigationControl constructor(
 
     private fun getSortedBibleBooks(bibleBookList: MutableList<BibleBook>, versification: Versification): MutableList<BibleBook> {
         if (bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL) {
-            Collections.sort(bibleBookList, BibleBookAlphabeticalComparator(versification))
+            bibleBookList.sortWith(BibleBookAlphabeticalComparator(versification))
         }
         return bibleBookList
     }
