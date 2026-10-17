@@ -270,8 +270,8 @@ class SyncPatchTransactionTest {
         }
     }
 
-    /** A patch from the new writer, re-encoded the way `java.util.zip` wrote it, applies on the new reader and vice versa. */
-    @Test fun patchFromNewCodeAppliesOnOldReader() = run {
+    /** A patch re-encoded by the JDK gzip writer (`java.util.zip`) applies on the new reader; the other direction is covered above. */
+    @Test fun patchWrittenByJdkGzipAppliesOnNewReader() = run {
         val env = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppEnvironment>(net.bible.sharedcore.platform.AppEnvironment::class.java)
         val dbDef1 = accessor(fromSchemaExport = true)
         val dbDef2 = accessor(fromSchemaExport = false)

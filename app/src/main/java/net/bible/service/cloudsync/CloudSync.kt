@@ -334,7 +334,7 @@ class CloudSync(
         val initialDbVersion = openSqlite(tmpFile.toString()).use { it.queryLong("PRAGMA user_version")!!.toInt() }
         val localVersion = dbDef.version()
         if(initialDbVersion > localVersion) {
-            FileSystem.SYSTEM.delete(tmpFile)
+            runCatching { FileSystem.SYSTEM.delete(tmpFile) }
             dialogs.await(AppDialogRequest.Message(null, cantFetchString(strings.syncCategoryContents(dbDef.category.name)), strings.okay, cancellable = false))
             dbDef.category.setSyncEnabled(settings, false)
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > $localVersion")
@@ -373,8 +373,9 @@ class CloudSync(
             // [workspaceRefreshRequired] -> `loadFromDb`.
             DatabaseContainer.replacingDatabases(replacement) { token ->
                 dbDef.localDb.close()
+                FileSystem.SYSTEM.delete(dbDef.localDbFile.toOkioPath(), mustExist = false) // replace the file, not rewrite it in place
                 FileSystem.SYSTEM.copy(downloaded, dbDef.localDbFile.toOkioPath()) // L1b-handover(D2): SyncableDatabaseAccessor.localDbFile becomes Path
-                FileSystem.SYSTEM.delete(downloaded)
+                runCatching { FileSystem.SYSTEM.delete(downloaded) } // best-effort: must not leave the local db closed
                 dbDef.resetLocalDbOwned(token)
                 afterReset()
             }
@@ -602,7 +603,7 @@ class CloudSync(
         }
 
         applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray())
-        downloadedFiles.forEach { FileSystem.SYSTEM.delete(it) }
+        downloadedFiles.forEach { runCatching { FileSystem.SYSTEM.delete(it) } }
         dbDef.reactToUpdates(lastSynchronized)
         dbDef.dao.addStatuses(syncStatuses)
     }
@@ -618,13 +619,13 @@ class CloudSync(
             adapter.upload(fileName, file, syncDeviceFolderId)
         } catch (e: Exception) {
             Log.e(TAG, "Uploading failed due to error", e)
-            FileSystem.SYSTEM.delete(file)
+            runCatching { FileSystem.SYSTEM.delete(file) }
             throw e
         }
         Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.size()} bytes, ${result.createdTime}")
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, lastWritten)
         dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, count, file.size(), result.createdTime))
-        FileSystem.SYSTEM.delete(file)
+        runCatching { FileSystem.SYSTEM.delete(file) }
     }
 
     suspend fun hasChanges(): Boolean =

@@ -395,6 +395,7 @@ class SyncSettingsServiceImplTest {
             on { signedIn } doReturn true
         }
         val savedLocale = java.util.Locale.getDefault()
+        val savedAdapter = field.get(cloudSync)
         field.set(cloudSync, adapter)
         CommonUtils.settings.setBoolean("sync_enable_bookmarks", true)
         try {
@@ -409,7 +410,7 @@ class SyncSettingsServiceImplTest {
             }
         } finally {
             java.util.Locale.setDefault(savedLocale)
-            field.set(cloudSync, null)
+            field.set(cloudSync, savedAdapter)
         }
     }
 }

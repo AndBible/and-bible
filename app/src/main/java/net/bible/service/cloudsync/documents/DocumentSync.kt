@@ -266,7 +266,7 @@ class DocumentSync(
             )
             store.uploadDocument(meta, archive)
             documentSettings.setSyncTimestamp(book.initials, meta.timestamp)
-        } finally { FileSystem.SYSTEM.delete(archive) }
+        } finally { runCatching { FileSystem.SYSTEM.delete(archive) } }
     }
 
     /**
@@ -307,7 +307,7 @@ class DocumentSync(
                 documentSettings.setSyncTimestamp(initials, meta.timestamp)
             }
         } finally {
-            FileSystem.SYSTEM.delete(archive)
+            runCatching { FileSystem.SYSTEM.delete(archive) }
             synchronized(installingLock) { installingFromSync.remove(initials) } // L1-common-ok: atomicfu lock
         }
     }

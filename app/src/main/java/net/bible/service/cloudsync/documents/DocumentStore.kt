@@ -71,7 +71,7 @@ class DocumentStore(
             DocumentSyncMeta.fromJson(FileSystem.SYSTEM.read(tmp) { readUtf8() })
         } catch (e: Exception) {
             Log.e(TAG, "Failed reading meta ${metaFile.id}", e); null
-        } finally { FileSystem.SYSTEM.delete(tmp) }
+        } finally { runCatching { FileSystem.SYSTEM.delete(tmp) } }
     }
 
     /** Reads the current meta.json for one document by initials (single folder), or null if absent. */
@@ -117,7 +117,7 @@ class DocumentStore(
         try {
             FileSystem.SYSTEM.write(tmp) { writeUtf8(meta.toJson()) }
             adapter.upload(DOCUMENT_META_FILENAME, tmp, folderId)
-        } finally { FileSystem.SYSTEM.delete(tmp) }
+        } finally { runCatching { FileSystem.SYSTEM.delete(tmp) } }
     }
 
     suspend fun uploadDocument(meta: DocumentSyncMeta, archive: Path) {
@@ -148,7 +148,7 @@ class DocumentStore(
         } catch (e: Exception) {
             // The temp file was created before the download; delete it so a failed (e.g. network
             // drop) download doesn't leak a potentially large orphan in the tmp dir.
-            FileSystem.SYSTEM.delete(tmp)
+            runCatching { FileSystem.SYSTEM.delete(tmp) }
             throw e
         }
         return tmp

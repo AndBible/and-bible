@@ -53,6 +53,18 @@ class ArchiveUtilsTest {
         assertEquals("6c32ac9736a5b1fb333b006d8385e18e", ArchiveUtils.md5Hash("\u00e4\uD835\uDD04"))
     }
 
+    @Test fun unzipSkipsFileEntryWithEmptyNormalisedName() {
+        val zip = folder.newFile("dot.zip")
+        ZipOutputStream(zip.outputStream()).use { output ->
+            output.putNextEntry(ZipEntry("."))
+            output.write("x".toByteArray())
+            output.closeEntry()
+        }
+        val destination = folder.newFolder("dotDestination")
+        ArchiveUtils.unzip(zip.toOkioPath(), destination.toOkioPath())
+        assertEquals(0, destination.listFiles()!!.size)
+    }
+
     @Test fun unzipWritesBackslashNamesAsSubdirs() {
         val zip = folder.newFile("backslash.zip")
         ZipOutputStream(zip.outputStream()).use { output ->

@@ -27,7 +27,7 @@ object ArchiveUtils {
 
     /**
      * Extracts every non-directory entry under [destinationDir] (names get `\` -> `/`, parents are created,
-     * existing files are overwritten). An unsafe entry name (absolute or containing `..`) fails with
+     * existing files are overwritten). A non-directory entry whose normalised name is empty (such as `.`) is skipped. An unsafe entry name (absolute or containing `..`) fails with
      * [okio.IOException]; entries before it stay written. Closes [source].
      */
     fun unzip(source: Source, destinationDir: Path, filePrefix: String = "") {

@@ -27,7 +27,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter
 import okio.Path.Companion.toOkioPath
-import okio.Path.Companion.toOkioPath
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm

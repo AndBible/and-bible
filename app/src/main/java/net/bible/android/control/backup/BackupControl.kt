@@ -546,6 +546,7 @@ class BackupControl(
      */
     private fun writeZipAtomically(zipFile: Path, write: (ZipWriter) -> Unit) {
         val tmp = zipFile.parent!! / "${zipFile.name}.tmp"
+        // a failed backup must not leave a stale archive that could be shared as a fresh backup
         fileSystem.delete(zipFile, mustExist = false)
         try {
             ZipWriter(fileSystem.sink(tmp)).use(write)
@@ -578,7 +579,7 @@ class BackupControl(
     }
 
     fun clearBackupDir() {
-        fileSystem.deleteRecursively(internalDbBackupDir, mustExist = false)
+        deleteTreeQuietly(internalDbBackupDir)
 
         val fileList = fileSystem.listOrNull(env.dbBackupPath.toPath()) ?: return
         val now = Clock.System.now().toEpochMilliseconds()
