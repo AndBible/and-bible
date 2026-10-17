@@ -42,7 +42,12 @@ class InstallZipFixtureTest {
     private val dirs = mutableListOf<File>()
     private var wasReady = false
 
+    private var originalDownloadDir: File? = null
+    private var booksBefore: Set<org.crosswire.jsword.book.Book> = emptySet()
+
     @Before fun setUp() {
+        originalDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
+        booksBefore = Books.installed().getBooks().toSet()
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         DatabaseResetter.resetDatabase()
         wasReady = DatabaseContainer.ready
@@ -50,6 +55,9 @@ class InstallZipFixtureTest {
     }
 
     @After fun tearDown() {
+        // Books registered by the commit routines (background image, sqlite) must not leak into other classes.
+        Books.installed().getBooks().filter { it !in booksBefore }.forEach { Books.installed().removeBook(it) }
+        originalDownloadDir?.let { SwordBookPathJvm.setDownloadDir(it) }
         DatabaseResetter.resetDatabase()
         DatabaseContainer.ready = wasReady
         dirs.forEach { it.deleteRecursively() }
