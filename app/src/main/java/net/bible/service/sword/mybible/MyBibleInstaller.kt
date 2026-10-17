@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mybible
 
+import okio.use
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException

@@ -17,6 +17,8 @@
 
 package net.bible.service.llm
 
+import okio.use
+import kotlinx.coroutines.IO
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException

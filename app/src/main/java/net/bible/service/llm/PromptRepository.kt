@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import okio.use
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.platform.AppEnvironment
 

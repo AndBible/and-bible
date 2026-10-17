@@ -17,6 +17,7 @@
 
 package net.bible.service.db
 
+import kotlinx.coroutines.IO
 import androidx.room3.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

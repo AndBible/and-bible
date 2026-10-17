@@ -17,6 +17,7 @@
 
 package net.bible.service.cloudsync
 
+import kotlinx.coroutines.IO
 import okio.Path.Companion.toPath
 import okio.Path
 import okio.FileSystem

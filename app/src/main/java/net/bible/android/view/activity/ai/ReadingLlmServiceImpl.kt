@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.IO
 import net.bible.sharedcore.platform.AppSettings
 
 import net.bible.service.llm.AiSettings

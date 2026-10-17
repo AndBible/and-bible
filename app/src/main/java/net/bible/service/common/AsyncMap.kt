@@ -1,5 +1,6 @@
 package net.bible.service.common
 
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

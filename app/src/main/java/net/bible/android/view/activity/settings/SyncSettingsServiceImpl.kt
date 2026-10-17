@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.settings
 
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.sync.Mutex

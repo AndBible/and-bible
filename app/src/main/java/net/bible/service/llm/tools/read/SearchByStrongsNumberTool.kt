@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import kotlinx.coroutines.IO
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings

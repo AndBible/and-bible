@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.IO
 import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.platform.AppSettings
 

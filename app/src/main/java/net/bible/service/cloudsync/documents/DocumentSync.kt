@@ -19,6 +19,7 @@
 
 package net.bible.service.cloudsync.documents
 
+import kotlinx.coroutines.IO
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import okio.FileSystem

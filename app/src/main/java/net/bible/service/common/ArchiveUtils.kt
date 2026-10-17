@@ -1,5 +1,6 @@
 package net.bible.service.common
 
+import okio.use
 import net.bible.sharedcore.log.Log
 import okio.FileSystem
 import okio.Path

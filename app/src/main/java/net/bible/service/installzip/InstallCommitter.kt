@@ -17,6 +17,7 @@
 
 package net.bible.service.installzip
 
+import okio.use
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition

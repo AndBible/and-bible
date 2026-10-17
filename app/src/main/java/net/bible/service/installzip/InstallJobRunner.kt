@@ -17,6 +17,7 @@
 
 package net.bible.service.installzip
 
+import okio.use
 import kotlinx.coroutines.ensureActive
 import okio.Buffer
 import okio.FileSystem

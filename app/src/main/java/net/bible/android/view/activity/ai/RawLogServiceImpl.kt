@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.IO
 import net.bible.sharedlogic.util.currentTimeMillis
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings

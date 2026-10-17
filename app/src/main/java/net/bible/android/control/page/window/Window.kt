@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import kotlinx.coroutines.IO
 import net.bible.sharedlogic.util.currentTimeMillis
 import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic

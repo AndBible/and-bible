@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import kotlinx.coroutines.IO
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.platform.AppEnvironment
 

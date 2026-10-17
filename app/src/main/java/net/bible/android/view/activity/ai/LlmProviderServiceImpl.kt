@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.sync.withLock
 import net.bible.service.llm.collectOwned
 import kotlinx.coroutines.launch

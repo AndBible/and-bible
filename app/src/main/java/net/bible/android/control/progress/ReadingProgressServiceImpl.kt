@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.progress
 
+import kotlinx.coroutines.IO
 import net.bible.sharedlogic.util.currentTimeMillis
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers

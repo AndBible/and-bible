@@ -16,6 +16,7 @@
  */
 package net.bible.service.sword.backgroundimage
 
+import okio.use
 import net.bible.service.sword.ContentSource
 import net.bible.sharedcore.log.Log
 import net.bible.sharedlogic.platform.AddonCatalog

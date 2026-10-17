@@ -17,6 +17,8 @@
 
 package net.bible.service.db
 
+import okio.use
+import kotlinx.coroutines.IO
 import androidx.annotation.VisibleForTesting
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection

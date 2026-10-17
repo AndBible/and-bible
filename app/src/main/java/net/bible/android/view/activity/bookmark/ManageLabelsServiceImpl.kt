@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.bookmark
 
+import kotlinx.coroutines.IO
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
