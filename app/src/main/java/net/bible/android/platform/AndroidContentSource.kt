@@ -4,10 +4,11 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import net.bible.service.sword.ContentSource
+import okio.source
 
 /** Keeps URI handling and cursor ownership on the Android side of the import port. */
 class AndroidContentSource(private val resolver: ContentResolver) : ContentSource {
-    override fun openInputStream(uri: String) = resolver.openInputStream(Uri.parse(uri))
+    override fun openSource(uri: String) = resolver.openInputStream(Uri.parse(uri))?.source()
 
     override fun displayName(uri: String): String? =
         resolver.query(Uri.parse(uri), null, null, null, null)?.use {

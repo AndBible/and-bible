@@ -18,9 +18,9 @@ package net.bible.service.sword
 
 import fi.sykero.kdom.input.build
 import org.crosswire.common.util.KLocale
-import org.crosswire.common.util.toKLocale
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import net.bible.sharedlogic.sync.bookNameMonitor
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedlogic.sync.withMonitor
 
 import net.bible.sharedcore.platform.CoreStrings
@@ -69,14 +69,12 @@ import fi.sykero.kdom.Element
 import fi.sykero.kdom.Namespace
 import fi.sykero.kdom.Text
 import fi.sykero.kdom.sax.ContentHandler
-import java.io.StringReader
-import java.util.*
 import kotlin.math.min
 
 
 open class OsisError(xmlMessage: String, val stringMsg: String) : Exception(xmlMessage) {
     constructor(msg: String): this(msg, msg)
-    val xml: Element = useKdomBuilder { it.build(StringReader("<div>$xmlMessage</div>")).rootElement }
+    val xml: Element = useKdomBuilder { it.build("<div>$xmlMessage</div>").rootElement }
 }
 
 class DocumentNotFound(xmlMessage: String, stringMsg: String) : OsisError(xmlMessage, stringMsg) {
@@ -174,7 +172,6 @@ class SwordContentFacade(
             else "${book.initials}-@$owner-${key?.getOsisRef()}"
         }
 
-        @Throws(OsisError::class)
         fun readOsisFragment(book: Book?, key: Key?, strings: CoreStrings): Element {
             val cacheKey = renderCacheKey(book, key)
 
@@ -324,7 +321,7 @@ class SwordContentFacade(
         // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
         fun addAnchors(frag: Element, lang: String, isEpub: Boolean = false): Int {
             var ordinal = 0
-            val startTime = System.currentTimeMillis()
+            val startTime = currentTimeMillis()
 
             fun addContent(span: Element, textContent: String) {
                 if(isEpub) {
@@ -365,11 +362,10 @@ class SwordContentFacade(
                 }
             }
 
-            val delta = System.currentTimeMillis() - startTime
+            val delta = currentTimeMillis() - startTime
             Log.i(TAG, "Parsing took ${delta/1000.0} seconds")
             return ordinal
         }
-        @Throws(OsisError::class)
         private fun readXmlTextStandardJSwordMethod(book: Book, key: Key, strings: CoreStrings): Element {
             Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.getOsisRef()}")
             return try {
@@ -463,7 +459,6 @@ class SwordContentFacade(
          * @param key
          * a reference, appropriate for the book, of one or more entries
          */
-        @Throws(NoSuchKeyException::class, BookException::class, OsisError::class)
         fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false, strings: CoreStrings, saxTextPolicy: net.bible.service.format.SaxTextPolicy): String {
             return try {
                 val data = BookData(book, key)
@@ -499,7 +494,6 @@ class SwordContentFacade(
             }
         }
 
-        @Throws(BookException::class)
         fun search(bible: Book, searchText: String?): Key {
             // example of fetching Strongs ref - only works with downloaded indexes!
             // Book book = getDocumentByInitials("KJV");
@@ -623,7 +617,7 @@ class SwordContentFacade(
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
         }
-        val bookLocale = Books.installed().getBook(selection.bookInitials)?.language?.code?.let { Locale(it) }
+        val bookLocale = Books.installed().getBook(selection.bookInitials)?.language?.code?.let { KLocale(it) }
         val isRtl = isRtlLanguage(bookLocale?.language)
 
         val versionText = if (showVersion) (Books.installed().getBook(selection.bookInitials)?.abbreviation) else ""
@@ -636,14 +630,14 @@ class SwordContentFacade(
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     try {
-                        val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale?.toKLocale())
+                        val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
                         "$verseRangeName"
                     } finally {
                         BookName.setFullBookName(oldValue)
                     }
                 }
             } else {
-                val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale?.toKLocale())
+                val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
                 "$verseRangeName"
             }
         } else
@@ -750,7 +744,7 @@ class SwordContentFacade(
     fun buildShareVersesInput(selection: ShareSelection): ShareVersesInput {
         val book = (Books.installed().getBook(selection.bookInitials) as? SwordBook)
         val verseRange = selection.verseRange
-        val bookLocale = Books.installed().getBook(selection.bookInitials)?.language?.code?.let { Locale(it) }
+        val bookLocale = Books.installed().getBook(selection.bookInitials)?.language?.code?.let { KLocale(it) }
 
         // Batch 6 A6: empty when discrete -- ShareVersesOptions.buildText appends no advert for a blank line.
         val advertiseText = if (environment.isDiscrete) "" else "${
@@ -785,7 +779,7 @@ class SwordContentFacade(
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             try {
-                "${verseRange.getNameInLocale(null, bookLocale?.toKLocale())}"
+                "${verseRange.getNameInLocale(null, bookLocale)}"
             } finally {
                 BookName.setFullBookName(oldValue)
             }
@@ -794,7 +788,7 @@ class SwordContentFacade(
         // the app-wide BookName.isFullBookName() setting already is. Evaluated right after the
         // synchronized block above (no intervening suspension), so it sees the SAME ambient value
         // getSelectionText would have used had it taken this branch instead.
-        val referenceFull = "${verseRange.getNameInLocale(null, bookLocale?.toKLocale())}"
+        val referenceFull = "${verseRange.getNameInLocale(null, bookLocale)}"
 
         return ShareVersesInput(
             verses = verses,

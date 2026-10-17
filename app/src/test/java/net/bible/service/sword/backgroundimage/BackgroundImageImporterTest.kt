@@ -37,7 +37,10 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
-import java.io.ByteArrayInputStream
+import okio.Buffer
+import okio.ForwardingSource
+import okio.Source
+import okio.source
 import org.junit.Assert.assertNull
 
 /**
@@ -88,7 +91,7 @@ class BackgroundImageImporterTest {
     }
 
     private fun source(file: File) = object : ContentSource {
-        override fun openInputStream(uri: String) = file.inputStream()
+        override fun openSource(uri: String) = file.source()
         override fun displayName(uri: String) = "bg.png"
         override fun mimeType(uri: String) = "image/png"
     }
@@ -117,7 +120,7 @@ class BackgroundImageImporterTest {
         val bytes = onePixelPng()
         var closed = 0
         val source = object : ContentSource {
-            override fun openInputStream(uri: String) = object : ByteArrayInputStream(bytes) {
+            override fun openSource(uri: String) = object : ForwardingSource(Buffer().write(bytes)) {
                 override fun close() { closed++; super.close() }
             }
             override fun displayName(uri: String) = "bg"
@@ -135,7 +138,7 @@ class BackgroundImageImporterTest {
     @Test fun absentInputDoesNotRegisterOrCreateAFile() {
         val before = dir.listFiles()!!.toSet()
         val source = object : ContentSource {
-            override fun openInputStream(uri: String): java.io.InputStream? = null
+            override fun openSource(uri: String): Source? = null
             override fun displayName(uri: String) = "missing.png"
             override fun mimeType(uri: String) = "image/png"
         }

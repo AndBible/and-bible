@@ -22,6 +22,8 @@ import net.bible.android.SharedConstants
 import net.bible.service.common.AndBibleAddons
 import java.io.File
 import java.io.FileOutputStream
+import okio.buffer
+import okio.sink
 
 private const val TAG = "BackgroundImageImporter"
 private val imageExtensions = setOf("jpg", "jpeg", "png", "webp")
@@ -40,8 +42,8 @@ object BackgroundImageImporter {
         return try {
             val outDir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).apply { mkdirs() }
             val outFile = uniqueFile(outDir, fileName(source, uri))
-            val input = source.openInputStream(uri) ?: return null
-            input.use { FileOutputStream(outFile).use { output -> it.copyTo(output) } }
+            val input = source.openSource(uri) ?: return null
+            input.buffer().use { FileOutputStream(outFile).use { output -> it.readAll(output.sink()) } }
             addManuallyInstalledBackgroundImageBooks()
             AndBibleAddons.clearCaches()
             outFile

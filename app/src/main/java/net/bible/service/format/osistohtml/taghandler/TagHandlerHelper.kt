@@ -17,7 +17,6 @@
 package net.bible.service.format.osistohtml.taghandler
 
 import net.bible.sharedcore.log.Log
-import org.apache.commons.lang3.StringUtils
 import fi.sykero.kdom.sax.Attributes
 
 /**
@@ -53,7 +52,7 @@ object TagHandlerHelper {
         var attribContainsExpectedValue = false
         val attrValue = attrs.getValue(attributeName)
         if (attrValue != null) {
-            attribContainsExpectedValue = StringUtils.containsIgnoreCase(attrValue, desiredValue)
+            attribContainsExpectedValue = desiredValue != null && attrValue.contains(desiredValue, ignoreCase = true)
         }
         return attribContainsExpectedValue
     }
@@ -65,10 +64,9 @@ object TagHandlerHelper {
      * @param attrs
      * @return
      */
-    @JvmStatic
     fun isAttr(attributeName: String, attrs: Attributes): Boolean {
         val attrValue = attrs.getValue(attributeName)
-        return StringUtils.isNotEmpty(attrValue)
+        return !attrValue.isNullOrEmpty()
     }
 
     /** return verse from osis id of format book.chap.verse
@@ -76,7 +74,6 @@ object TagHandlerHelper {
      * @param osisID osis Id
      * @return verse number
      */
-    @JvmStatic
     fun osisIdToVerseNum(osisID: String?): Int {
         /* You have to use "\\.", the first backslash is interpreted as an escape by the
         Java compiler, so you have to use two to get a String that contains one

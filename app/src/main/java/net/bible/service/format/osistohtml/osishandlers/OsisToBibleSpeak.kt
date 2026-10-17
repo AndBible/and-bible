@@ -26,16 +26,15 @@ import net.bible.service.format.osistohtml.OSISUtil2
 import org.crosswire.jsword.book.OSISUtil
 import fi.sykero.kdom.sax.Attributes
 import fi.sykero.kdom.sax.DefaultHandler
-import java.util.*
 
-val PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph")
+val PARAGRAPH_TYPE_LIST = listOf("paragraph", "x-p", "x-end-paragraph")
 
 class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, private val advancedSpeakSettings: AdvancedSpeakSettings, maxSpeechInputLength: Int, private val textPolicy: SaxTextPolicy) : DefaultHandler() {
     val speakCommands = SpeakCommandArray(maxSpeechInputLength)
 
     private enum class TagType {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
     private data class StackEntry(val visible: Boolean, val tagType: TagType=TagType.NORMAL)
-    private val elementStack = Stack<StackEntry>()
+    private val elementStack = ArrayList<StackEntry>()
     private val divineNameOriginal = phrases.divineNameOriginal
     private val divineNameReplace = phrases.divineNameReplace
     private var titleLevel = 0
@@ -43,11 +42,11 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     private var anyTextWritten = false
 
     override fun startDocument() {
-        elementStack.push(StackEntry(true))
+        elementStack.add(StackEntry(true))
     }
 
     override fun endDocument() {
-        elementStack.pop()
+        elementStack.removeAt(elementStack.lastIndex)
     }
 
     private fun getName(eName: String, qName: String): String {
@@ -64,26 +63,26 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                               attrs: Attributes) {
         val name = getName(sName, qName) // element name
 
-        val peekVisible = elementStack.peek().visible
+        val peekVisible = elementStack.last().visible
 
         if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
             anyTextWritten = false
-            elementStack.push(StackEntry(true))
+            elementStack.add(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             if((attrs.getValue("type")?: "") == "study" && speakSettings.playbackSettings.speakFootnotes) {
                 speakCommands.add(PreFootnoteCommand(speakSettings))
-                elementStack.push(StackEntry(true, TagType.FOOTNOTE))
+                elementStack.add(StackEntry(true, TagType.FOOTNOTE))
             }
             else {
-                elementStack.push(StackEntry(false))
+                elementStack.add(StackEntry(false))
             }
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
-            elementStack.push(StackEntry(false))
+            elementStack.add(StackEntry(false))
         }  else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
-            elementStack.push(StackEntry(peekVisible, TagType.DIVINE_NAME))
+            elementStack.add(StackEntry(peekVisible, TagType.DIVINE_NAME))
             divineNameLevel ++
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
-            elementStack.push(StackEntry(peekVisible, TagType.TITLE))
+            elementStack.add(StackEntry(peekVisible, TagType.TITLE))
             speakCommands.add(PreTitleCommand(speakSettings))
             titleLevel++
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
@@ -92,10 +91,10 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
             val isParagraphType = PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
                 speakCommands.add(ParagraphChangeCommand())
-                elementStack.push(StackEntry(peekVisible, TagType.PARAGRAPH))
+                elementStack.add(StackEntry(peekVisible, TagType.PARAGRAPH))
             }
             else {
-                elementStack.push(StackEntry(peekVisible))
+                elementStack.add(StackEntry(peekVisible))
             }
         } else if (name == OSISUtil.OSIS_ELEMENT_L
                 || name == OSISUtil.OSIS_ELEMENT_LB ||
@@ -103,9 +102,9 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
             if(anyTextWritten) {
                 speakCommands.add(ParagraphChangeCommand())
             }
-            elementStack.push(StackEntry(peekVisible, TagType.PARAGRAPH))
+            elementStack.add(StackEntry(peekVisible, TagType.PARAGRAPH))
         } else {
-            elementStack.push(StackEntry(peekVisible))
+            elementStack.add(StackEntry(peekVisible))
         }
     }
 
@@ -113,7 +112,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
                             simplifiedName: String,
                             qualifiedName: String
     ) {
-        val state = elementStack.pop()
+        val state = elementStack.removeAt(elementStack.lastIndex)
 
         if(state.tagType == TagType.PARAGRAPH) {
             if(anyTextWritten) {
@@ -144,7 +143,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
     }
 
     private fun addText(text: String) {
-        val currentState = elementStack.peek()
+        val currentState = elementStack.last()
         var s = text
         s = s.replace("”", "\"")
         s = s.replace("“", "\"")

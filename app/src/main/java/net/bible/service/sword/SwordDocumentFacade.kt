@@ -122,7 +122,6 @@ object SwordDocumentFacade {
         return Books.installed().getBook(initials)
     }
 
-    @Throws(InstallException::class)
     suspend fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): MutableList<Book>  = coroutineScope{
         Log.d(TAG, "Getting downloadable documents.  Refresh:$refresh")
         return@coroutineScope try {
@@ -148,7 +147,6 @@ object SwordDocumentFacade {
         }
     }
 
-    @Throws(BookException::class)
     fun deleteDocument(document: Book) { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document.initials)
         // Drop a queued index build and cancel a running one first (deleteIndex is safe when nothing exists: it cancels
@@ -169,7 +167,6 @@ object SwordDocumentFacade {
         document.driver!!.delete(realDocument!!)
     }
 
-    @Throws(BookException::class)
     fun deleteDocumentIndex(document: Book?) { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document?.initials)
         if(realDocument?.isEpub == true) {
@@ -182,7 +179,6 @@ object SwordDocumentFacade {
         IndexManagerFactory.getIndexManager().deleteIndex(realDocument)
     }
 
-    @Throws(BookException::class)
     fun hasIndex(document: Book?): Boolean { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document?.initials)
         if(realDocument?.isEpub == true) {
@@ -198,7 +194,6 @@ object SwordDocumentFacade {
     /** this custom index creation has been optimised for slow, low memory devices
      * If an index is in progress then nothing will happen
      */
-    @Throws(BookException::class)
     fun ensureIndexCreation(book: Book, appScope: AppCoroutineScope) {
         Log.d(TAG, "ensureIndexCreation")
         // ensure this isn't just the user re-clicking the Index button
