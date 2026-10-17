@@ -21,6 +21,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.VerseRange
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -38,19 +39,20 @@ import org.robolectric.RobolectricTestRunner
 /** Spec section 2.1-2.2: events emitted through the real (mocked-TTS) SpeakControl. */
 @RunWith(RobolectricTestRunner::class)
 class SpeakChangesTest : SpeakIntegrationTestBase() {
-    private val seen = mutableListOf<SpeakChange>()
-    private val settingsSeen = mutableListOf<SpeakSettingsChange>()
-    private val subs = mutableListOf<Subscription>()
+    // Events are delivered from the thread that saves settings or speaks; readers take toList() snapshots.
+    private val seen = CopyOnWriteArrayList<SpeakChange>()
+    private val settingsSeen = CopyOnWriteArrayList<SpeakSettingsChange>()
+    private val subs = CopyOnWriteArrayList<Subscription>()
 
     private fun watch() {
         subs += SpeakChanges.changes.subscribe { seen += it }
         subs += SpeakSettingsChanges.changes.subscribe { settingsSeen += it }
     }
 
-    @After fun cancel() { subs.forEach { it.cancel() } }
+    @After fun cancel() { subs.toList().forEach { it.cancel() } }
 
     private fun verse(ref: String) = (book.getKey(ref) as RangedPassage).getVerseAt(0)
-    private fun states() = seen.filterIsInstance<SpeakChange.State>().map { it.speakState }
+    private fun states() = seen.toList().filterIsInstance<SpeakChange.State>().map { it.speakState }
 
     @Test
     fun speakPauseContinueStopEmitTheStatesInOrder() {
@@ -88,7 +90,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
             assertTrue(command.text.isNotBlank())
             seen.clear()
             provider.startUtterance(id)
-            val progress = seen.filterIsInstance<SpeakChange.Progress>().single()
+            val progress = seen.toList().filterIsInstance<SpeakChange.Progress>().single()
             assertSame(book, progress.book)
             assertSame(command, progress.speakCommand)
             assertTrue(progress.key is VerseRange)
@@ -110,7 +112,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         assertTrue("Real dictionary text must be queued", command.text.isNotBlank())
         watch()
         provider.startUtterance(id)
-        val progress = seen.filterIsInstance<SpeakChange.Progress>().single()
+        val progress = seen.toList().filterIsInstance<SpeakChange.Progress>().single()
         assertSame(dictionary, progress.book)
         assertSame(command, progress.speakCommand)
         val emittedKey = progress.key as BookAndKey
@@ -129,7 +131,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         val (id, command) = nextText(provider, "legacy")
         watch()
         provider.startUtterance(id)
-        val progress = seen.filterIsInstance<SpeakChange.Progress>()
+        val progress = seen.toList().filterIsInstance<SpeakChange.Progress>()
         assertEquals(2, progress.size)
         progress.forEach {
             assertSame(book, it.book)
@@ -159,7 +161,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         val s = SpeakSettings.load()
         s.sleepTimer = s.sleepTimer + 5
         s.save()
-        val change = settingsSeen.single()
+        val change = settingsSeen.toList().single()
         assertEquals(s.sleepTimer, change.speakSettings.sleepTimer)
         assertEquals(true, change.sleepTimerChanged)
         assertEquals(false, change.updateBookmark)
@@ -170,7 +172,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         SpeakSettings.load().save() // make currentSettings equal to what we save next
         watch()
         SpeakSettings.load().save()
-        assertEquals(emptyList<SpeakSettingsChange>(), settingsSeen)
+        assertEquals(emptyList<SpeakSettingsChange>(), settingsSeen.toList())
     }
     @Test
     fun settingsChangeWhileSpeakingPausesAndContinuesInsideSave() {
