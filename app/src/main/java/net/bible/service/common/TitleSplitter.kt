@@ -17,8 +17,6 @@
 package net.bible.service.common
 
 import net.bible.service.common.TitleSplitter
-import org.apache.commons.lang3.StringUtils
-import java.lang.StringBuilder
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -70,7 +68,7 @@ class TitleSplitter {
             if (i >= startToAddRemainingFrom) {
                 partLen++
             }
-            result.append(StringUtils.left(parts[i], partLen))
+            result.append(parts[i].take(partLen))
         }
         return result.toString()
     }
@@ -78,7 +76,7 @@ class TitleSplitter {
     private fun checkMaximumPartLength(parts: Array<String>, maximumLength: Int = MAX_PART_LENGTH): Array<String> {
         for (i in parts.indices) {
             if (parts[i].length > maximumLength) {
-                parts[i] = StringUtils.left(parts[i], maximumLength)
+                parts[i] = parts[i].take(maximumLength)
             }
         }
         return parts

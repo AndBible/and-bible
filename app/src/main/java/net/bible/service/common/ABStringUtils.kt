@@ -16,22 +16,20 @@
  */
 package net.bible.service.common
 
-import org.apache.commons.lang3.StringUtils
-
-object ABStringUtils : StringUtils() {
+object ABStringUtils {
     /** It doesn't make sense to say a string is not all uppercase just becasue it contains characters like numbers that can't be uppercase
      *
      * @param cs
      * @return
      */
     fun isAllUpperCaseWherePossible(cs: CharSequence): Boolean {
-        if (isEmpty(cs)) {
+        if (cs.isEmpty()) {
             return false
         }
         val sz = cs.length
         for (i in 0 until sz) {
             val ch = cs[i]
-            if (Character.isLowerCase(ch)) {
+            if (ch.isLowerCase()) {
                 return false
             }
         }

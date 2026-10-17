@@ -52,7 +52,7 @@ object ReadingProgressSettings {
 
     fun notifyChanged() = _changed.emit(Unit)
 
-    private val store: ReadingProgressSettingsStore get() = org.koin.java.KoinJavaComponent.get(ReadingProgressSettingsStore::class.java)
+    private val store: ReadingProgressSettingsStore get() = org.koin.mp.KoinPlatform.getKoin().get<ReadingProgressSettingsStore>()
 
     private fun getOrDefault(): GlobalReadingProgressSettings = store.current
 
