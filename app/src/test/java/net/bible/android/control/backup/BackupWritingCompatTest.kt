@@ -71,16 +71,16 @@ class BackupWritingCompatTest {
     private fun namesOf(file: File): List<String> =
         ZipInputStream(FileInputStream(file)).use { zis -> generateSequence { zis.nextEntry }.map { it.name }.toList() }
 
-    private fun isv() = Books.installed().getBook("ISV") ?: error("test module ISV not installed in ~/.sword")
+    private fun kjv() = Books.installed().getBook("KJV") ?: error("test module KJV not installed in ~/.sword")
 
     private fun newZip(name: String) = File(CommonUtils.tmpDir, name).also { it.delete() }
 
     @Test fun moduleBackupEntryNamesMatchFixture() = runBlocking {
         val zip = newZip("compat-module.abmd.zip")
-        backup.createSingleModuleZip(isv(), zip.toOkioPath())
+        backup.createSingleModuleZip(kjv(), zip.toOkioPath())
         val names = namesOf(zip)
         assertEquals(ANDBIBLE_BACKUP_MANIFEST_FILENAME, names.first())
-        assertEquals(namesOf(File(fixtureDir, "module-backup.abmd.zip")).sorted(), names.sorted())
+        assertEquals(namesOf(File(fixtureDir, "old-release/module-backup.abmd.zip")).sorted(), names.sorted())
         assertEquals(names.size, names.toSet().size)
     }
 
@@ -94,9 +94,9 @@ class BackupWritingCompatTest {
 
     @Test fun moduleBackupIsReadByJdkZipFile() = runBlocking {
         val zip = newZip("compat-jdk.abmd.zip")
-        backup.createSingleModuleZip(isv(), zip.toOkioPath())
+        backup.createSingleModuleZip(kjv(), zip.toOkioPath())
         ZipFile(zip).use { zf ->
-            val fixture = ZipFile(File(fixtureDir, "module-backup.abmd.zip"))
+            val fixture = ZipFile(File(fixtureDir, "old-release/module-backup.abmd.zip"))
             fixture.use { fx ->
                 for (expected in fx.entries().toList().filter { it.name != ANDBIBLE_BACKUP_MANIFEST_FILENAME }) {
                     val actual = zf.getEntry(expected.name)
@@ -112,7 +112,7 @@ class BackupWritingCompatTest {
     }
 
     @Test fun newModuleBackupRestoresThroughOldExtractionCode() = runBlocking {
-        val book = isv()
+        val book = kjv()
         val zip = newZip("compat-restore.abmd.zip")
         backup.createSingleModuleZip(book, zip.toOkioPath())
         val sourceRoot = SwordBookMetaDataJvm.getConfigFile(book.bookMetaData as SwordBookMetaData)!!.parentFile!!.parentFile!!
@@ -121,22 +121,22 @@ class BackupWritingCompatTest {
         assertTrue("restore must go to another directory than the source", target.canonicalPath != sourceRoot.canonicalPath)
         Books.installed().removeBook(book)
         try {
-            assertTrue(backup.installModuleArchive(zip.toOkioPath(), "ISV"))
+            assertTrue(backup.installModuleArchive(zip.toOkioPath(), "KJV"))
 
             for ((name, bytes) in original) assertTrue("$name restored identically", bytes.contentEquals(File(target, name).readBytes()))
-            assertNotNull(Books.installed().getBook("ISV"))
+            assertNotNull(Books.installed().getBook("KJV"))
         } finally {
-            Books.installed().getBook("ISV")?.let { Books.installed().removeBook(it) }
+            Books.installed().getBook("KJV")?.let { Books.installed().removeBook(it) }
             Books.installed().addBook(book)
-            File(target, "mods.d/isv.conf").delete()
-            File(target, "modules/texts/ztext/isv").deleteRecursively()
+            File(target, "mods.d/kjv.conf").delete()
+            File(target, "modules/texts/ztext/kjv").deleteRecursively()
         }
     }
 
     @Test fun fileVanishingDuringBackupFailsWithoutFinalArchive() = runBlocking {
-        val book = isv()
+        val book = kjv()
         val root = SwordBookMetaDataJvm.getConfigFile(book.bookMetaData as SwordBookMetaData)!!.parentFile!!.parentFile!!
-        val victim = File(root, "modules/texts/ztext/isv/nt.bzs")
+        val victim = File(root, "modules/texts/ztext/kjv/nt.bzs")
         val saved = victim.readBytes()
         val zip = File(CommonUtils.tmpDir, MODULE_BACKUP_NAME).also { it.delete() }
         backup.onModuleFilesListed = { victim.delete() }

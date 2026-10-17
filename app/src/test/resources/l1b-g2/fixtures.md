@@ -15,17 +15,6 @@ Written by the java.util.zip code before the ZipWriter/ZipReader swap (generator
   - `db/mydocuments.sqlite3` 114688 1467d17830840b49160eb31c5d8d5c3b546acf7393b2dbe8c3f8a2e7681d6a90
   - `db/progress.sqlite3` 86016 5882404558b1035665b94849f5f99091d7ef4f2cd41b685787e942ab01895ab2
 
-## module-backup.abmd.zip
-
-- Producer: BackupControl.createSingleModuleZip(book ISV)
-- File SHA-256: 16f86384a0be4eb221e138ba5ecb737dc1d64fbdfd7377b0b992f46eeab8184d
-- Entries (name, size, SHA-256):
-  - `AndBibleBackupManifest.json` 89 8bdedd0f03732483cf87c5f98b4ca6224932a4d4c5ff99543542beb466ca8db9
-  - `mods.d/isv.conf` 1161 4154a70db61d421253a722a9ed53d62b781c3131386d70744a56581a85df63cc
-  - `modules/texts/ztext/isv/nt.bzz` 518203 d476a7dd076a07cc612ec957e8d51d0bc7464761e0fce474ae83f8e376370043
-  - `modules/texts/ztext/isv/nt.bzs` 324 b2d4f718b141373915412337fdc0b4ea36ff2b1a6f7f7cc26d09616d30f79d62
-  - `modules/texts/ztext/isv/nt.bzv` 82460 83c7bdba9a1c97f20948ee674c4eeecff149a4f2caed062d6e80dde58402cf76
-
 ## studypad-export.abdb.zip
 
 - Producer: exportStudyPads(label "G2 export pad")

@@ -131,15 +131,19 @@ class ArchiveUtilsTest {
         assertEquals("new", File(destination, "x.txt").readText())
     }
 
-    @Test fun unzipReadsTask1ModuleBackupFixture() {
+    @Test fun unzipReadsOldReleaseModuleBackupFixture() {
         val expected = mapOf(
-            "AndBibleBackupManifest.json" to "8bdedd0f03732483cf87c5f98b4ca6224932a4d4c5ff99543542beb466ca8db9",
-            "mods.d/isv.conf" to "4154a70db61d421253a722a9ed53d62b781c3131386d70744a56581a85df63cc",
-            "modules/texts/ztext/isv/nt.bzz" to "d476a7dd076a07cc612ec957e8d51d0bc7464761e0fce474ae83f8e376370043",
-            "modules/texts/ztext/isv/nt.bzs" to "b2d4f718b141373915412337fdc0b4ea36ff2b1a6f7f7cc26d09616d30f79d62",
-            "modules/texts/ztext/isv/nt.bzv" to "83c7bdba9a1c97f20948ee674c4eeecff149a4f2caed062d6e80dde58402cf76",
+            "AndBibleBackupManifest.json" to "9d3d48d424f67f9299d32e684cec966156ecb2e891db427f2cc1adf76860fc63",
+            "mods.d/kjv.conf" to "6d1936b9a09be3b51f62497dbc5e20aebf7a8f53c63bd94dac7fcd4cc8ad812f",
+            "modules/texts/ztext/kjv/kjvpref.rtf" to "4a98197967259d6dc0ebc2482bc96631d2d8a3aeae55a88e55075c3fe99550eb",
+            "modules/texts/ztext/kjv/nt.bzz" to "edb0ca76f00c3ff8ef60d6d338507cffaefbdf438bb672ad0eddc8bdd30de949",
+            "modules/texts/ztext/kjv/ot.bzz" to "97a7ba7e8250a36190c24122afe7c213727f5204d154b989bbdd35e4a8160918",
+            "modules/texts/ztext/kjv/nt.bzv" to "28d78d603333dd8612598b7dc447d960a40b289120d5f17e226ac1708ed9918a",
+            "modules/texts/ztext/kjv/ot.bzv" to "a878075030340b66dfc01a3d31cc9845f24c1f726e6e8aa06cec70e76a5112d7",
+            "modules/texts/ztext/kjv/ot.bzs" to "8e5b1476478aa8d86e019fc29ecb0d8ff547d05ecb0f9c07d7e4f6289cb47901",
+            "modules/texts/ztext/kjv/nt.bzs" to "c9a1be9dcb248e0dffb41b9559aa1485bd920a8c314d67d5688fbd44fa593b44",
         )
-        val fixture = File(javaClass.classLoader!!.getResource("l1b-g2/module-backup.abmd.zip")!!.toURI())
+        val fixture = File(javaClass.classLoader!!.getResource("l1b-g2/old-release/module-backup.abmd.zip")!!.toURI())
         val destination = folder.newFolder("fixtureDestination")
         ArchiveUtils.unzip(fixture.toOkioPath(), destination.toOkioPath())
         for ((name, sha) in expected) {

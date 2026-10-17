@@ -235,31 +235,23 @@ class RestorePathsTest {
         }
     }
 
-    @Test fun moduleFixtureInstallsThroughExtractAndRegister() {
+    @Test fun oldReleaseModuleBackupInstalls() {
         val target = SwordBookPathJvm.getSwordDownloadDir()
-        withModuleInstalled(fixture("module-backup.abmd.zip"), "ISV", "isv.conf") {
-            assertTrue(File(target, "mods.d/isv.conf").isFile)
-            val bzz = File(target, "modules/texts/ztext/isv/nt.bzz")
-            assertEquals(518203L, bzz.length())
+        withModuleInstalled(fixture("old-release/module-backup.abmd.zip"), "KJV", "kjv.conf") {
+            assertTrue(File(target, "mods.d/kjv.conf").isFile)
+            assertTrue(File(target, "modules/texts/ztext/kjv").listFiles()!!.isNotEmpty())
+            val bzz = File(target, "modules/texts/ztext/kjv/nt.bzz")
+            assertEquals(1378807L, bzz.length())
             assertEquals(
-                "d476a7dd076a07cc612ec957e8d51d0bc7464761e0fce474ae83f8e376370043",
+                "edb0ca76f00c3ff8ef60d6d338507cffaefbdf438bb672ad0eddc8bdd30de949",
                 java.security.MessageDigest.getInstance("SHA-256").digest(bzz.readBytes()).joinToString("") { "%02x".format(it) },
             )
             assertFalse(File(target, "AndBibleBackupManifest.json").exists())
         }
     }
 
-    @Test fun oldReleaseModuleBackupInstalls() {
-        val target = SwordBookPathJvm.getSwordDownloadDir()
-        withModuleInstalled(fixture("old-release/module-backup.abmd.zip"), "KJV", "kjv.conf") {
-            assertTrue(File(target, "mods.d/kjv.conf").isFile)
-            assertTrue(File(target, "modules/texts/ztext/kjv").listFiles()!!.isNotEmpty())
-            assertFalse(File(target, "AndBibleBackupManifest.json").exists())
-        }
-    }
-
     @Test fun anArchiveThatIsNotAZipFailsToInstallWithoutACrash() {
-        val junk = File(fixture("module-backup.abmd.zip").parentFile, "junk.abmd.zip").apply { writeBytes(ByteArray(300) { (it * 7).toByte() }) }
+        val junk = File(fixture("old-release/module-backup.abmd.zip").parentFile, "junk.abmd.zip").apply { writeBytes(ByteArray(300) { (it * 7).toByte() }) }
         assertFalse(installFixture(junk))
     }
 
@@ -268,7 +260,7 @@ class RestorePathsTest {
     }
 
     @Test fun aTruncatedArchiveFailsToInstallWithoutACrash() {
-        val full = fixture("module-backup.abmd.zip")
+        val full = fixture("old-release/module-backup.abmd.zip")
         val cut = File(full.parentFile, "cut.abmd.zip").apply { writeBytes(full.readBytes().copyOf(1000)) }
         assertFalse(installFixture(cut))
     }

@@ -29,8 +29,8 @@ class AndBibleBackupManifestTest {
     private fun fixture(name: String) =
         requireNotNull(javaClass.classLoader!!.getResourceAsStream("l1b-g2/$name")) { name }.source().buffer()
 
-    @Test fun fromZipReadsTask1ModuleBackupManifest() {
-        val manifest = AndBibleBackupManifest.fromZip(fixture("module-backup.abmd.zip"))
+    @Test fun fromZipReadsOldReleaseModuleBackupManifest() {
+        val manifest = AndBibleBackupManifest.fromZip(fixture("old-release/module-backup.abmd.zip"))
         assertNotNull(manifest)
         assertEquals(BackupType.MODULE_BACKUP, manifest!!.backupType)
         assertNull(manifest.contains)

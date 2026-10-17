@@ -88,8 +88,8 @@ class InstallZipFixtureTest {
         }
     }.toOkioPath()
 
-    @Test fun scanOfTask1ModuleFixtureIsValid() {
-        val scan = scanSwordZip(fixture("module-backup.abmd.zip"))
+    @Test fun scanOfOldReleaseModuleFixtureIsValid() {
+        val scan = scanSwordZip(fixture("old-release/module-backup.abmd.zip"))
         assertFalse(scan.invalid)
         assertFalse(scan.isEpub)
         assertTrue(scan.totalEntries > 2)
