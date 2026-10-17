@@ -531,6 +531,7 @@ class SpeakControl constructor(
             sleepAt = kotlin.time.Clock.System.now().toEpochMilliseconds() + delayMs
             sleepJob = appScope.launch {
                 delay(delayMs)
+                // pause -> stopTimer() cancels this very job; the reset below still runs because load/save never suspend.
                 pause(false, false)
                 val s = SpeakSettings.load()
                 s.sleepTimer = 0

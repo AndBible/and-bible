@@ -50,8 +50,9 @@ class SpeakLockingTest : SpeakIntegrationTestBase() {
         return BookAndKey(key, dictionary, OrdinalRange(ordinal, ordinal))
     }
 
-    /** Runs [block] on a thread and fails if it does not finish in [millis] (a re-entrancy deadlock). */
-    private fun assertCompletes(millis: Long = 5000, block: () -> Unit) {
+    /** Runs [block] on a thread and fails if it does not finish in [millis] (a re-entrancy deadlock).
+     * The bound is generous because the first setupReading loads the Sword book. */
+    private fun assertCompletes(millis: Long = 30_000, block: () -> Unit) {
         val error = AtomicReference<Throwable?>()
         val t = thread(isDaemon = true) { try { block() } catch (e: Throwable) { error.set(e) } }
         t.join(millis)

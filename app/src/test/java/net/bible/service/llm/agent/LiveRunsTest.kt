@@ -53,19 +53,25 @@ class LiveRunsTest {
         val threads = 8
         val perThread = 10_000
         val emptied = java.util.concurrent.atomic.AtomicInteger(0)
+        val errors = java.util.Collections.synchronizedList(mutableListOf<Throwable>())
         val start = java.util.concurrent.CountDownLatch(1)
         val workers = (0 until threads).map {
             Thread {
                 start.await()
-                repeat(perThread) {
-                    val job = Job()
-                    runs.add(job)
-                    if (runs.finish(job)) emptied.incrementAndGet()
+                try {
+                    repeat(perThread) {
+                        val job = Job()
+                        runs.add(job)
+                        if (runs.finish(job)) emptied.incrementAndGet()
+                    }
+                } catch (e: Throwable) {
+                    errors.add(e)
                 }
             }.also { it.start() }
         }
         start.countDown()
         workers.forEach { it.join() }
+        assertTrue("worker threads threw: $errors", errors.isEmpty())
         val last = Job()
         runs.add(last)
         assertTrue("the set ends empty after the last finish", runs.finish(last))
