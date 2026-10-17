@@ -336,7 +336,7 @@ class DatabaseContainer private constructor() {
                 val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
                 val backupFile = backupPath.toPath() / "dbBackup-${host.applicationVersionNumber}-$versionString-$timeStamp${host.databaseBackupSuffix}"
                 copyOverwriting(backupZipFile, backupFile)
-                FileSystem.SYSTEM.delete(backupZipFile, mustExist = false)
+                try { FileSystem.SYSTEM.delete(backupZipFile, mustExist = false) } catch (_: okio.IOException) { }
             }
         }
 

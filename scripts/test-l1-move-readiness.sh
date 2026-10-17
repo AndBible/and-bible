@@ -130,4 +130,14 @@ EOS
 out=$("$HERE/l1-move-readiness.sh" --root "$T" --domain demo 2>/dev/null)
 api=$(echo "$out" | awk -F'\t' '$1=="demo"{print $3}')
 [ "$api" = 7 ] || { echo "FAIL: jvmapi blind spots got [$api] expected [7]"; exit 1; }
+# org.koin.android (androidContext() and friends) in a domain file counts as a jvm3p violation.
+rm -f "$S/android/control/demo/Vol.kt"
+cat > "$S/android/control/demo/Demo.kt" <<'EOS'
+package net.bible.android.control.demo
+import org.koin.android.ext.koin.androidContext
+fun k() = 1
+EOS
+out=$("$HERE/l1-move-readiness.sh" --root "$T" --domain demo 2>/dev/null)
+tp=$(echo "$out" | awk -F'\t' '$1=="demo"{print $4}')
+[ "$tp" = 1 ] || { echo "FAIL: org.koin.android got jvm3p [$tp] expected [1]"; exit 1; }
 echo "l1-move-readiness self-test OK"

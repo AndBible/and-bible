@@ -30,9 +30,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/** The Android [DatabaseHost]: Context file locations, [CommonUtils] and the Koin graph. */
 private const val TAG = "DbContainer"
 
+/** The Android [DatabaseHost]: Context file locations, [CommonUtils] and the Koin graph. */
 class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseHost {
     override val isRunningTests: Boolean get() = application.isRunningTests
     override fun databasePath(name: String): String = application.getDatabasePath(name).path

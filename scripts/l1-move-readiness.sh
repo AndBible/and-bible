@@ -36,12 +36,12 @@ PLATFORM="$ROOT/scripts/l1-readiness-platform.txt"
 JVM='^import[[:space:]]+(java|javax)\.'
 JVMAPI='synchronized\(|@Synchronized|(^|[^A-Za-z_.])System\.|::class\.java|String\.format|(^|[^A-Za-z_.])Thread[.(]|@JvmStatic|@Throws\(|(^|[^A-Za-z_.])Math\.|(^|[^A-Za-z_.])Charsets\.|OutOfMemoryError|(^|[^A-Za-z_.])GlobalContext\b|org\.koin\.core\.context\.GlobalContext'
 OKMARK='//[[:space:]]*L1-common-ok:'
-JVM3P='^import[[:space:]]+(org\.apache\.commons|org\.commonmark|org\.yaml|okhttp3|org\.json|com\.google|org\.koin\.java)\.'
+JVM3P='^import[[:space:]]+(org\.apache\.commons|org\.commonmark|org\.yaml|okhttp3|org\.json|com\.google|org\.koin\.java|org\.koin\.android)\.'
 ANDROID='^import[[:space:]]+(android|androidx)\.|(^|[^A-Za-z_.])R\.[a-z]+\.|BuildConfig'
 # Inline fully-qualified uses: same packages, not preceded by an identifier char or dot, on lines that are
 # neither import/package statements nor comment lines (so imports are not counted twice).
 JVM_INLINE='(^|[^A-Za-z0-9_.])javax?\.[a-z]'
-JVM3P_INLINE='(^|[^A-Za-z0-9_.])(org\.apache\.commons|org\.commonmark|org\.yaml|okhttp3|org\.json|com\.google|org\.koin\.java)\.'
+JVM3P_INLINE='(^|[^A-Za-z0-9_.])(org\.apache\.commons|org\.commonmark|org\.yaml|okhttp3|org\.json|com\.google|org\.koin\.java|org\.koin\.android)\.'
 NONCODE='^[[:space:]]*((import|package)[[:space:]]|//|/\*|\*)'
 KMPALLOW='^import[[:space:]]+androidx\.(room3|sqlite|annotation|collection)\.'
 
