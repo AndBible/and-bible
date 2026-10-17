@@ -20,7 +20,7 @@ package net.bible.service.llm.tools.read
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
@@ -76,7 +76,7 @@ object SearchStudyPadsTool : Tool, KoinComponent {
         required: [query]
     """)
 
-    private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
+    private val bookmarkControl get() = KoinPlatform.getKoin().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override fun formatArgsForLog(arguments: JsonObject): String? {
         val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null

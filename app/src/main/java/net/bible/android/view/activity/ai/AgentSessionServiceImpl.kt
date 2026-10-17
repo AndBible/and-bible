@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.platform.AppSettings
 
 import kotlinx.coroutines.Dispatchers
@@ -54,7 +55,8 @@ import org.koin.core.component.inject
  * [LogEntryKind]/[LogEntryStatus]), verified in Task B1. `internal` so the test can call it directly
  * without going through a running [AgentSessionServiceImpl] instance.
  */
-internal fun mapEntry(e: AgentLogEntry): AgentLogEntryVd = AgentLogEntryVd(
+@VisibleForTesting
+fun mapEntry(e: AgentLogEntry): AgentLogEntryVd = AgentLogEntryVd(
     id = e.id.toString(),
     kind = LogEntryKind.valueOf(e.type.name),
     status = LogEntryStatus.valueOf(e.status.name),
@@ -65,7 +67,8 @@ internal fun mapEntry(e: AgentLogEntry): AgentLogEntryVd = AgentLogEntryVd(
 )
 
 /** Names are 1:1 ([AgentStopReason] ↔ [AgentStopReasonVd]). */
-internal fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.valueOf(name)
+@VisibleForTesting
+fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.valueOf(name)
 
 /**
  * Android impl of [AgentSessionService], bridging [AgentSessionManager.changes] and [aiSettings.defaultModelChanged]

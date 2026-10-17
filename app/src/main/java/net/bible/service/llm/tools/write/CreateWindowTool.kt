@@ -20,7 +20,7 @@ package net.bible.service.llm.tools.write
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -89,7 +89,7 @@ object CreateWindowTool : Tool, KoinComponent {
             description: "If true, create the window minimized (hidden). Default: false."
     """)
 
-    private val windowControl get() = GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
+    private val windowControl get() = KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
 

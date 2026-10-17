@@ -37,6 +37,8 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
+import okio.sink
+import okio.source
 import org.koin.java.KoinJavaComponent
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -157,7 +159,7 @@ class BookmarkCsvFlow(private val bookmarkControl: BookmarkControl) {
     private suspend fun exportToUri(context: Context, uri: Uri, bookmarks: List<BibleBookmarkWithNotes>, selectedColumns: List<String>) = context.run {
         withContext(Dispatchers.IO) {
             contentResolver.openOutputStream(uri)?.use { outputStream ->
-                BookmarkCsvUtils.exportBookmarksToCsv(outputStream, bookmarks, bookmarkControl, selectedColumns)
+                BookmarkCsvUtils.exportBookmarksToCsv(outputStream.sink(), bookmarks, bookmarkControl, selectedColumns)
             } ?: throw IllegalArgumentException("Could not open output stream for URI: $uri")
             withContext(Dispatchers.Main) {
                 Toast.makeText(
@@ -176,7 +178,7 @@ class BookmarkCsvFlow(private val bookmarkControl: BookmarkControl) {
     internal suspend fun importFromUri(context: Context, uri: Uri) = context.run {
         withContext(Dispatchers.IO) {
             contentResolver.openInputStream(uri)?.use { inputStream ->
-                val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+                val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream.source(), bookmarkControl)
 
                 withContext(Dispatchers.Main) {
                     if (result.errors > 0) {

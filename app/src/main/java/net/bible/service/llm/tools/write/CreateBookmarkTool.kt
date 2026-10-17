@@ -22,7 +22,7 @@ import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.TextRange
@@ -121,11 +121,11 @@ object CreateBookmarkTool : Tool, KoinComponent {
 
     /** Test seam (F121): how the saved range is described (OSIS reference, localized name). */
     @VisibleForTesting
-    internal var describeRange: (VerseRange) -> Pair<String, String> = { it.getOsisRef() to it.getName() }
+    var describeRange: (VerseRange) -> Pair<String, String> = { it.getOsisRef() to it.getName() }
 
     override val requiresPermission = true
 
-    private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
+    private val bookmarkControl get() = KoinPlatform.getKoin().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null

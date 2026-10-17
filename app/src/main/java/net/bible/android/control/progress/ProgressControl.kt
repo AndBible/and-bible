@@ -30,11 +30,12 @@ import net.bible.android.database.progress.ReadingSource
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
+import net.bible.sharedlogic.platform.LocalCalendar
+import org.koin.mp.KoinPlatform
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
-import java.util.Calendar
 
 data class RangeDifferenceResult(
     val remaining: List<Pair<Int, Int>>,
@@ -88,6 +89,8 @@ sealed interface ProgressChange {
 }
 
 object ProgressControl {
+    private val calendar: LocalCalendar get() = KoinPlatform.getKoin().get()
+
     private val _changes = EventSource<ProgressChange>()
     /** Every read-status, active-cycle and memorization change, in the order it happened (replaces three bus events). */
     val changes: Events<ProgressChange> get() = _changes
@@ -167,7 +170,8 @@ object ProgressControl {
                 kjvBookOrdinal = kjvBook.ordinal,
                 chapter = chapter,
                 cycle = cycle,
-                readAt = System.currentTimeMillis(),
+                // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+                readAt = kotlin.time.Clock.System.now().toEpochMilliseconds(),
                 bookInitials = bookInitials,
                 source = source,
             )
@@ -213,12 +217,10 @@ object ProgressControl {
      *
      * [dayTimestamp] is the local-midnight timestamp of the target day (in UTC ms), as produced
      * by [bucketByLocalDay] / [CalendarHeatmapView]. The end of the window is computed via
-     * [Calendar.add] so DST transitions (23h or 25h "days") are handled correctly.
+     * [LocalCalendar.plusLocalDays] so DST transitions (23h or 25h "days") are handled correctly.
      */
     suspend fun getReadHistoryForDay(dayTimestamp: Long, cycle: Int? = null): List<ChapterReadEntry> {
-        val cal = Calendar.getInstance().apply { timeInMillis = dayTimestamp }
-        cal.add(Calendar.DAY_OF_YEAR, 1)
-        val nextDayMs = cal.timeInMillis
+        val nextDayMs = calendar.plusLocalDays(dayTimestamp, 1)
         return dao.getHistoryForDay(dayTimestamp, nextDayMs, cycle ?: getCurrentCycle()).map { it.toEntry() }
     }
 
@@ -278,9 +280,8 @@ object ProgressControl {
      * [bucketByLocalDay] for the rationale.
      */
     suspend fun getDistinctReadDays(cycle: Int? = null): Int {
-        val cal = Calendar.getInstance()
         return dao.getAllReadingTimestampsForCycle(cycle ?: getCurrentCycle())
-            .mapTo(HashSet()) { localDayStart(it, cal) }
+            .mapTo(HashSet()) { localDayStart(it) }
             .size
     }
 
@@ -353,16 +354,8 @@ object ProgressControl {
 
     /**
      * Returns the local-midnight (in UTC ms) of the day containing [timestamp].
-     * The reusable [cal] avoids per-call allocation when bucketing many timestamps.
      */
-    private fun localDayStart(timestamp: Long, cal: Calendar): Long {
-        cal.timeInMillis = timestamp
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
-        return cal.timeInMillis
-    }
+    private fun localDayStart(timestamp: Long): Long = calendar.startOfLocalDay(timestamp)
 
     /**
      * Buckets timestamps into local calendar days and returns counts per day, sorted by day.
@@ -370,14 +363,13 @@ object ProgressControl {
      * Bucketing happens here (not in SQL) because SQLite has no notion of the device timezone:
      * an expression like `(readAt / 86400000) * 86400000` always groups by *UTC* days, which
      * misaligns the heatmap for users not on UTC — see issue AndBible/and-bible#3800.
-     * [Calendar] also handles DST transitions correctly.
+     * [LocalCalendar] also handles DST transitions correctly.
      */
     private fun bucketByLocalDay(timestamps: List<Long>): List<DailyReadingCount> {
         if (timestamps.isEmpty()) return emptyList()
-        val cal = Calendar.getInstance()
         val counts = HashMap<Long, Int>()
         for (ts in timestamps) {
-            val key = localDayStart(ts, cal)
+            val key = localDayStart(ts)
             counts[key] = (counts[key] ?: 0) + 1
         }
         return counts.entries.sortedBy { it.key }.map { DailyReadingCount(it.key, it.value) }

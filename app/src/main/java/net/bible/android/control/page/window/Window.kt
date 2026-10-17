@@ -17,6 +17,10 @@
 
 package net.bible.android.control.page.window
 
+import androidx.annotation.VisibleForTesting
+import kotlinx.atomicfu.atomic
+import kotlin.concurrent.Volatile
+import net.bible.sharedlogic.util.requestGarbageCollection
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.sharedcore.log.Log
@@ -241,8 +245,9 @@ class Window (
     val initialized get() = lastUpdated != 0L
     private val updateScope get() = windowRepository.scope
 
-    private val contentLoadSequence = java.util.concurrent.atomic.AtomicLong()
-    internal val contentLoadGeneration: Long get() = contentLoadSequence.get()
+    private val contentLoadSequence = atomic(0L)
+    @VisibleForTesting
+    val contentLoadGeneration: Long get() = contentLoadSequence.value
 
     fun loadText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
@@ -312,7 +317,8 @@ class Window (
             val viewReady = waitForBibleView()
             if (!isCurrentRequest()) return@launch
 
-            lastUpdated = System.currentTimeMillis()
+            // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+            lastUpdated = kotlin.time.Clock.System.now().toEpochMilliseconds()
             lastChecksum = checksum
 
             onLoadDelivered(viewReady)
@@ -331,17 +337,18 @@ class Window (
      * restore). `BibleViewFactory` re-runs [loadText] when it creates the next view. Cleared by
      * [takeLoadPending] and by any successful document load.
      */
-    private val loadPendingFlag = java.util.concurrent.atomic.AtomicBoolean(false)
+    private val loadPendingFlag = atomic(false)
 
     var loadPending: Boolean
-        get() = loadPendingFlag.get()
-        internal set(value) = loadPendingFlag.set(value)
+        get() = loadPendingFlag.value
+        @VisibleForTesting set(value) { loadPendingFlag.value = value }
 
     /** Returns [loadPending] and clears it, atomically. */
     fun takeLoadPending(): Boolean = loadPendingFlag.getAndSet(false)
 
     /** A load that reached a BibleView supersedes any dropped one. */
-    internal fun onLoadDelivered(viewReady: Boolean) {
+    @VisibleForTesting
+    fun onLoadDelivered(viewReady: Boolean) {
         if (viewReady) loadPending = false
     }
 
@@ -349,7 +356,8 @@ class Window (
     internal var bibleViewWaitTimeoutMillis = 5000L
 
     /** Waits for a BibleView; on timeout sets [loadPending] and returns false. */
-    internal suspend fun waitForBibleView(): Boolean {
+    @VisibleForTesting
+    suspend fun waitForBibleView(): Boolean {
         var time = 0L
         val delayMillis = 50L
         while(bibleView == null) {
@@ -358,9 +366,9 @@ class Window (
             if(time > bibleViewWaitTimeoutMillis) {
                 // Set the flag first, then re-check: a view created in between either sees the flag
                 // (and reloads) or is seen here (and the flag is cleared again).
-                loadPendingFlag.set(true)
+                loadPendingFlag.value = true
                 if (bibleView != null) {
-                    loadPendingFlag.set(false)
+                    loadPendingFlag.value = false
                     return true
                 }
                 Log.e(TAG, "waitForBibleView timed out")
@@ -409,9 +417,9 @@ class Window (
             val document = currentPage.currentDocument
             Log.i(TAG, "Loading document:$document key:${currentPage.key}")
             currentPage.currentPageContent()
-        } catch (oom: OutOfMemoryError) {
+        } catch (oom: OutOfMemoryError) { // L1-common-ok: OutOfMemoryError compiles in commonMain
             Log.e(TAG, "Out of memory error", oom)
-            System.gc()
+            requestGarbageCollection()
             ErrorDocument(strings.errorPageTooLarge, ErrorSeverity.ERROR)
         }
     }

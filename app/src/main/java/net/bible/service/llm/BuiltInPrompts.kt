@@ -24,7 +24,7 @@ import org.koin.core.component.inject
 import net.bible.android.database.IdType
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.llm.tools.ToolRegistry
-import java.util.UUID
+import net.bible.sharedlogic.text.NameBasedUuid
 
 /**
  * Built-in prompts that are hardcoded and read-only.
@@ -44,8 +44,7 @@ object BuiltInPrompts : KoinComponent {
      * Uses UUID v3 (name-based with MD5) for consistency.
      */
     private fun stableId(key: String): IdType {
-        val uuid = UUID.nameUUIDFromBytes("andbible-builtin:$key".toByteArray())
-        return IdType.fromString(uuid.toString())
+        return IdType.fromString(NameBasedUuid.v3("andbible-builtin:$key".encodeToByteArray()))
     }
 
     // Stable IDs for all built-in prompts

@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.progress
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.progress.ProgressControl.ChapterReadEntry
@@ -35,17 +36,18 @@ import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.progress.ReadingSummary
 import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.sharedcore.progress.TargetRow
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
+import net.bible.sharedlogic.platform.LocalCalendar
 import org.crosswire.jsword.passage.Verse
+import org.koin.mp.KoinPlatform
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
-import java.util.Calendar
-import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Host (`:app`) implementation of the portable [ReadingProgressService] seam. Wraps the classic
- * [ProgressControl] (JSword/Room/`Calendar`/`DateFormat`) and maps its results to the plain
+ * [ProgressControl] (JSword/Room/`LocalCalendar`/`DateFormat`) and maps its results to the plain
  * `:sharedCore` view-data types, so the shared Compose reading-progress UI needs no JSword or
  * Android platform types.
  *
@@ -58,12 +60,20 @@ import java.util.concurrent.ConcurrentHashMap
 class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) : ReadingProgressService {
     private val kjva get() = Versifications.instance().getVersification("KJVA")!!
 
+    /** "Now" in epoch millis; tests replace it with a fixed instant. */
+    // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+    @VisibleForTesting
+    var nowMs: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() }
+
+    private val calendar: LocalCalendar get() = KoinPlatform.getKoin().get()
+
     /**
      * Last-loaded read-history entries, keyed by [ChapterReadEntry.id]'s string form. A
-     * [ConcurrentHashMap] because this is a Koin singleton field mutated from multiple `suspend`
-     * functions that all run on the shared multi-threaded [Dispatchers.IO] pool.
+     * A plain [HashMap] guarded by [cacheLock] because this is a Koin singleton field mutated from
+     * multiple `suspend` functions that all run on the shared multi-threaded [Dispatchers.IO] pool.
      */
-    private val historyCache = ConcurrentHashMap<String, ChapterReadEntry>()
+    private val historyCache = HashMap<String, ChapterReadEntry>()
+    private val cacheLock = reentrantLock()
 
     // --- cycles ---
 
@@ -132,15 +142,8 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
      * week row.
      */
     override suspend fun readingCalendarSkeleton(): CalendarSkeleton = withContext(Dispatchers.IO) {
-        val cal = Calendar.getInstance()
-        val today = cal.clone() as Calendar
-
-        cal.add(Calendar.WEEK_OF_YEAR, -52)
-        cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
+        val now = nowMs()
+        var ms = calendar.startOfLocalWeek(calendar.plusWeeks(now, -52))
 
         val slots = mutableListOf<DaySlot>()
         val monthLabels = mutableListOf<MonthLabel>()
@@ -148,17 +151,17 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
 
         for (week in 0 until 53) {
             for (day in 0 until 7) {
-                if (cal.after(today)) break
+                if (ms > now) break
 
-                slots.add(DaySlot(week, day, cal.timeInMillis))
+                slots.add(DaySlot(week, day, ms))
 
-                if (day == 0 && cal.get(Calendar.MONTH) != lastMonth) {
-                    lastMonth = cal.get(Calendar.MONTH)
-                    val monthName = cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) ?: ""
+                if (day == 0 && calendar.localMonth(ms) != lastMonth) {
+                    lastMonth = calendar.localMonth(ms)
+                    val monthName = calendar.shortMonthName(ms)
                     monthLabels.add(MonthLabel(week, monthName))
                 }
 
-                cal.add(Calendar.DAY_OF_YEAR, 1)
+                ms = calendar.plusLocalDays(ms, 1)
             }
         }
 
@@ -171,10 +174,8 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
     }
 
     override suspend fun dailyReadCounts(cycle: Int): Map<Long, Int> {
-        val cal = Calendar.getInstance()
-        val endMs = cal.timeInMillis
-        cal.add(Calendar.WEEK_OF_YEAR, -52)
-        val startMs = cal.timeInMillis
+        val endMs = nowMs()
+        val startMs = calendar.plusWeeks(endMs, -52)
         return ProgressControl.getReadingCalendar(startMs, endMs, cycle).associate { it.dayTimestamp to it.count }
     }
 
@@ -182,7 +183,7 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
 
     private fun ChapterReadEntry.toReadHistoryEntry(): ReadHistoryEntry {
         val idStr = id.toString()
-        historyCache[idStr] = this
+        cacheLock.withLock { historyCache[idStr] = this }
         return ReadHistoryEntry(
             id = idStr,
             // Classic parity: ReadHistoryDialog.kt uses BibleBook.entries.getOrNull(...) with a
@@ -206,10 +207,10 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
         ProgressControl.getReadHistoryForDay(dayTimestamp, cycle).map { it.toReadHistoryEntry() }
 
     override suspend fun deleteReadHistoryEntries(ids: List<String>, cycle: Int) {
-        val entries = ids.mapNotNull { historyCache[it] }
+        val entries = ids.mapNotNull { cacheLock.withLock { historyCache[it] } }
         if (entries.isEmpty()) return
         ProgressControl.deleteReadHistoryEntries(entries, cycle)
-        entries.forEach { historyCache.remove(it.id.toString()) }
+        entries.forEach { e -> cacheLock.withLock { historyCache.remove(e.id.toString()) } }
     }
 
     // --- display helpers ---
@@ -232,7 +233,7 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
     // --- memorize ---
 
     private fun formatRelative(timestampMs: Long): String =
-        dateTimeFormats.relativeTimeSpan(timestampMs, System.currentTimeMillis())
+        dateTimeFormats.relativeTimeSpan(timestampMs, nowMs())
 
     override suspend fun memorizeSummary(): MemorizeSummaryData {
         val memorizedCount = ProgressControl.getTotalMemorizedVerses()
@@ -283,10 +284,8 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
     }
 
     override suspend fun dailyMemorizationCounts(): Map<Long, Int> {
-        val cal = Calendar.getInstance()
-        val endMs = cal.timeInMillis
-        cal.add(Calendar.WEEK_OF_YEAR, -52)
-        val startMs = cal.timeInMillis
+        val endMs = nowMs()
+        val startMs = calendar.plusWeeks(endMs, -52)
         return ProgressControl.getMemorizationCalendar(startMs, endMs).associate { it.dayTimestamp to it.count }
     }
 

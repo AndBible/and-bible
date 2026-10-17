@@ -42,7 +42,9 @@ import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
-import java.util.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 import net.bible.android.control.page.CurrentCommentaryPage
@@ -73,8 +75,8 @@ class SpeakControl constructor(
 ) : KoinComponent {
 
     val bookmarkControl: BookmarkControl by inject()
-    private var sleepTimer = lazy { Timer("TTS sleep timer") }
-    private var timerTask: TimerTask? = null
+    private var sleepJob: Job? = null
+    private var sleepAt: Long? = null
     private var _speakPageManager: CurrentPageManager? = null
 
     private var originalSettingsBeforeMemLoop: SpeakSettings? = null
@@ -122,12 +124,9 @@ class SpeakControl constructor(
                 .currentPage
                 .currentDocument
 
-    val sleepTimerActivationTime: Date?
-        get() = if (timerTask == null) {
-            null
-        } else {
-            Date(timerTask!!.scheduledExecutionTime())
-        }
+    /** Epoch milliseconds at which the sleep timer fires, or null when no timer is scheduled. */
+    val sleepTimerActivationTime: Long?
+        get() = if (sleepJob == null) null else sleepAt
 
     private val currentlyPlayingBook: Book?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingBook
@@ -174,9 +173,6 @@ class SpeakControl constructor(
     protected fun finalize() {
         // Allow timer threads to be stopped on GC (good for tests)
         stopTimer()
-        if(sleepTimer.isInitialized()) {
-            sleepTimer.value.cancel()
-        }
         platform.detachMediaControls()
     }
 
@@ -530,27 +526,28 @@ class SpeakControl constructor(
         if (sleepTimerAmount > 0) {
             Log.i(TAG, "Activating sleep timer")
             notifier.showInfo(strings.sleepTimerStarted(sleepTimerAmount))
-            timerTask = object : TimerTask() {
-                override fun run() {
-                    pause(false, false)
-                    val s = SpeakSettings.load()
-                    s.sleepTimer = 0
-                    s.save()
-                }
+            val delayMs = (sleepTimerAmount * 60000).toLong()
+            // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+            sleepAt = kotlin.time.Clock.System.now().toEpochMilliseconds() + delayMs
+            sleepJob = appScope.launch {
+                delay(delayMs)
+                // pause -> stopTimer() cancels this very job; the reset below still runs because load/save never suspend.
+                pause(false, false)
+                val s = SpeakSettings.load()
+                s.sleepTimer = 0
+                s.save()
             }
-            sleepTimer.value.schedule(timerTask, (sleepTimerAmount * 60000).toLong())
         }
     }
 
     private fun stopTimer() {
-        if (timerTask != null) {
-            timerTask!!.cancel()
-        }
-        timerTask = null
+        sleepJob?.cancel()
+        sleepJob = null
+        sleepAt = null
     }
 
     fun sleepTimerActive(): Boolean {
-        return timerTask != null
+        return sleepJob != null
     }
 
     fun speakFromBookmark(dto: BookmarkEntities.BaseBookmarkWithNotes) {

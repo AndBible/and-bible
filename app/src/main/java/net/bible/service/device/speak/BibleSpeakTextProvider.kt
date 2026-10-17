@@ -17,7 +17,8 @@
 
 package net.bible.service.device.speak
 
-import org.crosswire.common.util.toKLocale
+import androidx.annotation.VisibleForTesting
+import org.crosswire.common.util.KLocale
 
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.android.control.speak.SPEAK_KEY
@@ -43,8 +44,9 @@ import net.bible.android.control.speak.AdvancedSpeakSettings
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
-import java.util.Locale
 import kotlin.collections.HashMap
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 
 class BibleSpeakTextProvider(
     private val bibleTraverser: BibleTraverser,
@@ -57,6 +59,8 @@ class BibleSpeakTextProvider(
     private val swordContentFacade: SwordContentFacade,
 ) : SpeakTextProvider {
     private val appSettings = settings
+    // no suspend calls inside withLock (atomicfu withLock lacks the compiler's suspension check)
+    private val lock = reentrantLock()
     private var revision = 0L
     private fun checkRevision(expected: Long) {
         if (revision != expected) throw kotlinx.coroutines.CancellationException("Obsolete Bible cursor")
@@ -111,33 +115,35 @@ class BibleSpeakTextProvider(
             verse
         }
     private var readList = SpeakCommandArray(platform.maxSpeechInputLength)
-    internal var settings = SpeakSettings.load()
+    @VisibleForTesting
+    var settings = SpeakSettings.load()
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
 
-    @Synchronized
     override fun updateSettings(change: SpeakSettingsChange) {
-        this.settings = change.speakSettings
-        Log.i(TAG, "SpeakSettings updated: $change")
-        val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
-        if(change.updateBookmark && bookmark != null) {
-            // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
-            // (of which we will continue playback if unpaused)
+        lock.withLock {
+            this.settings = change.speakSettings
+            Log.i(TAG, "SpeakSettings updated: $change")
+            val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
+            if(change.updateBookmark && bookmark != null) {
+                // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
+                // (of which we will continue playback if unpaused)
 
-            val oldPlaybackSettings = bookmark.playbackSettings
-            val newPlaybackSettings = change.speakSettings.playbackSettings.copy()
-            // Let's retain bookId and bookmarkWasCreated
+                val oldPlaybackSettings = bookmark.playbackSettings
+                val newPlaybackSettings = change.speakSettings.playbackSettings.copy()
+                // Let's retain bookId and bookmarkWasCreated
 
-            if (oldPlaybackSettings != null) {
-                newPlaybackSettings.apply {
-                    bookId = oldPlaybackSettings.bookId
-                    bookmarkWasCreated = oldPlaybackSettings.bookmarkWasCreated
+                if (oldPlaybackSettings != null) {
+                    newPlaybackSettings.apply {
+                        bookId = oldPlaybackSettings.bookId
+                        bookmarkWasCreated = oldPlaybackSettings.bookmarkWasCreated
+                    }
                 }
-            }
-            bookmark.playbackSettings = newPlaybackSettings
-            launcher.launch(SPEAK_KEY) {
-                bookmark.new = !bookmarkControl.isBookmarkPersisted(bookmark.id)
-                bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+                bookmark.playbackSettings = newPlaybackSettings
+                launcher.launch(SPEAK_KEY) {
+                    bookmark.new = !bookmarkControl.isBookmarkPersisted(bookmark.id)
+                    bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+                }
             }
         }
     }
@@ -146,11 +152,11 @@ class BibleSpeakTextProvider(
         this.book = book
         phrases = platform.phrasesFor(book.language.code)
 
-        val locale = Locale(book.language.code)
+        val locale = KLocale(book.language.code)
         bibleBooks.clear()
 
         for(bibleBook in book.versification.bookIterator) {
-            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale.toKLocale())
+            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale)
             bookName = bookName.replace("1.", phrases.first)
             bookName = bookName.replace("2.", phrases.second)
             bookName = bookName.replace("3.", phrases.third)
@@ -160,15 +166,16 @@ class BibleSpeakTextProvider(
         }
     }
 
-    @Synchronized
     fun setupReading(book: SwordBook, verse: Verse) {
-        reset()
-        loadedBookmark = null
-        setupBook(book)
+        lock.withLock {
+            reset()
+            loadedBookmark = null
+            setupBook(book)
 
-        currentVerse = verse
-        startVerse = verse
-        endVerse = verse
+            currentVerse = verse
+            startVerse = verse
+            endVerse = verse
+        }
     }
 
     // For tests. In production this is always null.
@@ -240,17 +247,22 @@ class BibleSpeakTextProvider(
         }
     }
 
+    private data class CursorSnapshot(
+        val expected: Long,
+        val calculation: Calculation,
+        val pending: SpeakCommandArray,
+        val remaining: SpeakCommandArray,
+    )
+
     override suspend fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean, isValid: () -> Boolean): SpeakCommand {
-        val expected: Long
-        val calculation: Calculation
-        val pending: SpeakCommandArray
-        val remaining: SpeakCommandArray
-        synchronized(this) {
-            expected = revision
-            calculation = Calculation(State(book, startVerse, endVerse, currentVerse),
-                settings.copy(playbackSettings = settings.playbackSettings.copy()), phrases, bibleBooks.toMap())
-            pending = currentCommands.copy()
-            remaining = readList.copy()
+        val (expected, calculation, pending, remaining) = lock.withLock {
+            CursorSnapshot(
+                revision,
+                Calculation(State(book, startVerse, endVerse, currentVerse),
+                    settings.copy(playbackSettings = settings.playbackSettings.copy()), phrases, bibleBooks.toMap()),
+                currentCommands.copy(),
+                readList.copy(),
+            )
         }
         var cursor = calculation.state
         while (pending.isEmpty()) {
@@ -259,7 +271,7 @@ class BibleSpeakTextProvider(
             pending.addAll(result.second)
         }
         val command = pending.removeAt(0)
-        return synchronized(this) {
+        return lock.withLock {
             checkRevision(expected)
             if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete Bible request")
             calculation.rendered.forEach { (key, value) -> verseRenderLruCache.put(key, value) }
@@ -307,12 +319,13 @@ class BibleSpeakTextProvider(
 
     val verseRange: VerseRange get() = VerseRange(currentState.book.versification, currentState.startVerse, currentState.endVerse)
 
-    @Synchronized
     override fun pause() {
-        reset()
-        currentVerse = startVerse
-        updateBookmark()
-        isSpeaking = false
+        lock.withLock {
+            reset()
+            currentVerse = startVerse
+            updateBookmark()
+            isSpeaking = false
+        }
     }
 
     private fun updateBookmark() {
@@ -335,41 +348,41 @@ class BibleSpeakTextProvider(
 
     override var isSpeaking: Boolean = false
 
-    @Synchronized
     override fun stop() {
-        reset()
-        if(isSpeaking) {
-            updateBookmark()
+        lock.withLock {
+            reset()
+            if(isSpeaking) {
+                updateBookmark()
+            }
+            isSpeaking = false
+            bookmark = null
         }
-        isSpeaking = false
-        bookmark = null
     }
 
-    @Synchronized
     override fun prepareForStartSpeaking() {
-        val loaded = loadedBookmark
-        if (loaded != null) {
-            val playback = loaded.playbackSettings?.copy()
-            if (playback != null && advanced.restoreSettingsFromBookmarks) {
-                playback.bookId = null
-                playback.bookmarkWasCreated = null
-                settings.playbackSettings = playback
-                settings.save()
+        lock.withLock {
+            val loaded = loadedBookmark
+            if (loaded != null) {
+                val playback = loaded.playbackSettings?.copy()
+                if (playback != null && advanced.restoreSettingsFromBookmarks) {
+                    playback.bookId = null
+                    playback.bookmarkWasCreated = null
+                    settings.playbackSettings = playback
+                    settings.save()
+                }
+                bookmark = loaded
             }
-            bookmark = loaded
+            isSpeaking = true
         }
-        isSpeaking = true
     }
 
     private var loadedBookmark: BibleBookmarkWithNotes? = null
 
     override suspend fun loadBookmarkState() {
-        val expected: Long
-        val verse: Verse
-        synchronized(this) { expected = revision; verse = currentVerse }
+        val (expected, verse) = lock.withLock { Pair(revision, currentVerse) }
         val found = bookmarkControl.speakBookmarkForVerse(verse)
         val loaded = if (found != null && bookmarkControl.labelsForBookmark(found).any { it.id == bookmarkControl.speakLabel().id }) found else null
-        synchronized(this) { checkRevision(expected); loadedBookmark = loaded }
+        lock.withLock { checkRevision(expected); loadedBookmark = loaded }
     }
 
     private suspend fun removeBookmark(previous: BibleBookmarkWithNotes?): Boolean {
@@ -403,17 +416,14 @@ class BibleSpeakTextProvider(
         if (autoBookmark || wasRemoved) {
             val saved = bookmarkControl.addOrUpdateBibleBookmark(target)
             bookmarkControl.setLabelsForBookmark(saved, listOf(bookmarkControl.speakLabel()))
-            synchronized(this) { if (bookmark === target) bookmark = saved }
+            lock.withLock { if (bookmark === target) bookmark = saved }
         }
     }
 
     override suspend fun rewind(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) = rewind(amount, false, isValid)
 
     suspend fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean, isValid: () -> Boolean = { true }) {
-        val expected: Long
-        val origin: State
-        val lastTitle: Verse?
-        synchronized(this) { expected = revision; origin = currentState; lastTitle = lastVerseWithTitle }
+        val (expected, origin, lastTitle) = lock.withLock { Triple(revision, currentState, lastVerseWithTitle) }
         val minimum = Verse(origin.startVerse.versification, origin.startVerse.book, 1, 1)
         var target = when (amount ?: SpeakSettings.RewindAmount.SMART) {
             SpeakSettings.RewindAmount.SMART -> if (lastTitle != null && lastTitle != origin.startVerse) lastTitle
@@ -424,7 +434,7 @@ class BibleSpeakTextProvider(
         }
         if (autoRewind && target.ordinal < minimum.ordinal) target = minimum
         if (target.verse == 0) target = bibleTraverser.getNextVerse(origin.book, target)
-        synchronized(this) {
+        lock.withLock {
             checkRevision(expected)
             if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete Bible movement")
             reset()
@@ -445,16 +455,14 @@ class BibleSpeakTextProvider(
     }
 
     override suspend fun forward(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) {
-        val expected: Long
-        val origin: State
-        synchronized(this) { expected = revision; origin = currentState }
+        val (expected, origin) = lock.withLock { Pair(revision, currentState) }
         var target = when (amount ?: SpeakSettings.RewindAmount.SMART) {
             SpeakSettings.RewindAmount.SMART -> bibleTraverser.getNextChapter(origin.book, origin.startVerse)
             SpeakSettings.RewindAmount.ONE_VERSE -> bibleTraverser.getNextVerse(origin.book, origin.startVerse)
             SpeakSettings.RewindAmount.NONE -> throw RuntimeException("Invalid settings")
         }
         if (target.verse == 0) target = bibleTraverser.getNextVerse(origin.book, target)
-        synchronized(this) {
+        lock.withLock {
             checkRevision(expected)
             if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete Bible movement")
             reset()
@@ -468,41 +476,43 @@ class BibleSpeakTextProvider(
 
     override fun finishedUtterance(utteranceId: String) {}
 
-    @Synchronized
     override fun startUtterance(utteranceId: String) {
-        val state = utteranceState[utteranceId]
-        currentUtteranceId = utteranceId
-        if(state != null) {
-            Log.i(TAG, "startUtterance $utteranceId $state")
-            if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
-                lastVerseWithTitle = state.startVerse
+        lock.withLock {
+            val state = utteranceState[utteranceId]
+            currentUtteranceId = utteranceId
+            if(state != null) {
+                Log.i(TAG, "startUtterance $utteranceId $state")
+                if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
+                    lastVerseWithTitle = state.startVerse
+                }
+                val key = VerseRange(state.book.versification, state.startVerse, state.endVerse)
+                val command = state.command!!
+                SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command))
             }
-            val key = VerseRange(state.book.versification, state.startVerse, state.endVerse)
-            val command = state.command!!
-            SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command))
         }
     }
 
-    @Synchronized
     override fun reset() {
-        revision++
-        val state = utteranceState[currentUtteranceId]
-        Log.i(TAG, "Resetting. state: $currentUtteranceId $state")
-        if(state != null) {
-            startVerse = state.startVerse
-            currentVerse = state.currentVerse
-            endVerse = state.endVerse
-            book = state.book
+        lock.withLock {
+            revision++
+            val state = utteranceState[currentUtteranceId]
+            Log.i(TAG, "Resetting. state: $currentUtteranceId $state")
+            if(state != null) {
+                startVerse = state.startVerse
+                currentVerse = state.currentVerse
+                endVerse = state.endVerse
+                book = state.book
+            }
+            lastVerseWithTitle = null
+            if(this::startVerse.isInitialized) {
+                endVerse = startVerse
+            }
+            readList.clear()
+            currentCommands.clear()
+            utteranceState.clear()
+            currentUtteranceId = ""
+            verseRenderLruCache.evictAll()
         }
-        lastVerseWithTitle = null
-        if(this::startVerse.isInitialized) {
-            endVerse = startVerse
-        }
-        readList.clear()
-        currentCommands.clear()
-        utteranceState.clear()
-        currentUtteranceId = ""
-        verseRenderLruCache.evictAll()
     }
 
     override fun getCurrentlyPlayingKey(): Verse = startVerse

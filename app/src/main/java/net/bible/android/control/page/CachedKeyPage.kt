@@ -22,11 +22,10 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.sharedcore.event.Subscription
 import net.bible.service.sword.mydocument.isMyDocument
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
-import java.util.*
+import net.bible.sharedlogic.util.requestGarbageCollection
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -37,7 +36,7 @@ abstract class CachedKeyPage internal constructor(
 ) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
 
-    @VisibleForTesting internal fun hasCachedKeyListForTest() = mCachedGlobalKeyList != null
+    @VisibleForTesting fun hasCachedKeyListForTest() = mCachedGlobalKeyList != null
 
     private val documentUpdates: Subscription = MyDocumentBookManager.changes.subscribe { change ->
         // Clears the key cache when pages in the current MyDocument change.
@@ -75,17 +74,17 @@ abstract class CachedKeyPage internal constructor(
                     // this cache is cleared in setCurrentDoc
                     keylist = ArrayList()
                     for (key in doc.getGlobalKeyList()) { // root key has no name and can be ignored but also check for any other keys with no name
-                        if (!StringUtils.isEmpty(key.getName())) {
+                        if (!key.getName().isNullOrEmpty()) {
                             keylist.add(key)
                         }
                     }
-                } catch (oom: OutOfMemoryError) {
-                    System.gc()
+                } catch (oom: OutOfMemoryError) { // L1-common-ok: OutOfMemoryError compiles in commonMain
+                    requestGarbageCollection()
                     Log.e(TAG, "out of memory", oom)
                     throw oom
                 } catch (e: Exception) {
                     keylist = null
-                    System.gc()
+                    requestGarbageCollection()
                     Log.e(TAG, "Error getting keys for $doc", e)
                     notifier.showError(strings.errorOccurred, e)
                 }
@@ -111,8 +110,8 @@ abstract class CachedKeyPage internal constructor(
         // move forward or backward to new posn
         var newKeyPos = keyPos + num
         // check bounds
-        newKeyPos = Math.min(newKeyPos, keyList.size - 1)
-        newKeyPos = Math.max(newKeyPos, 0)
+        newKeyPos = kotlin.math.min(newKeyPos, keyList.size - 1)
+        newKeyPos = kotlin.math.max(newKeyPos, 0)
         // get the actual key at that posn
         return keyList[newKeyPos]
     }

@@ -66,10 +66,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.atomicfu.AtomicBoolean
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
+import kotlin.concurrent.Volatile
+import org.crosswire.common.util.CopyOnWriteList
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -123,17 +125,17 @@ class AgentSession(
     val workspaceId: IdType,
     private val emit: (AgentSessionChange) -> Unit = { AgentSessionManager.emitChange(it) },
 ) {
-    private val _logEntries = CopyOnWriteArrayList<AgentLogEntry>()
+    private val _logEntries = CopyOnWriteList<AgentLogEntry>()
     val logEntries: List<AgentLogEntry> get() = _logEntries
 
     /** Raw LLM conversation log for debug inspection. */
     var rawLlmLog: RawLlmLog? = null
         private set
 
-    private val running = AtomicBoolean(false)
+    private val running = atomic(false)
 
     /** True between a successful [tryStart] and [stop]. */
-    val isRunning: Boolean get() = running.get()
+    val isRunning: Boolean get() = running.value
 
     /** Cumulative session cost in USD, updated on each API call. */
     @Volatile
@@ -178,7 +180,7 @@ class AgentSession(
         val stopped = this.job
         this.job = null
         stopped?.cancel()
-        running.set(false)
+        running.value = false
         emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
     }
 
@@ -241,7 +243,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     val changes: Events<AgentSessionChange> get() = changeSource
 
-    internal fun emitChange(change: AgentSessionChange) = changeSource.emit(change)
+    @VisibleForTesting
+    fun emitChange(change: AgentSessionChange) = changeSource.emit(change)
 
     /** The agent waits for (or stopped waiting for) an Activity to ask the user. */
     fun notifyPermissionWaiting(workspaceId: IdType, waiting: Boolean, toolName: String? = null) =
@@ -268,7 +271,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
         if (workspaceId == null) return block()
-        val state = AtomicInteger(DECISION_IDLE)
+        val state = atomic(DECISION_IDLE)
         fun close(emitFalse: Boolean) {
             if (state.getAndSet(DECISION_CLOSED) == DECISION_ANNOUNCED && emitFalse)
                 notifyPermissionWaiting(workspaceId, false)
@@ -289,7 +292,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             block()
         } catch (e: CancellationException) {
             subscription.cancel()
-            state.set(DECISION_CLOSED)
+            state.value = DECISION_CLOSED
             throw e
         } catch (e: Throwable) {
             subscription.cancel()
@@ -309,7 +312,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
     @VisibleForTesting
     fun resetSubscribersForTest() { changeSource = EventSource() }
 
-    private val activeSessions = ConcurrentHashMap<IdType, AgentSession>()
+    private val sessionsLock = reentrantLock()
+    private val activeSessions = mutableMapOf<IdType, AgentSession>()
     private var initialized = false
 
     private val initializationMutex = kotlinx.coroutines.sync.Mutex()
@@ -321,18 +325,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    @Synchronized
-    fun getOrCreateSession(workspaceId: IdType): AgentSession {
-        return activeSessions.getOrPut(workspaceId) { AgentSession(workspaceId) }
+    fun getOrCreateSession(workspaceId: IdType): AgentSession = sessionsLock.withLock {
+        activeSessions.getOrPut(workspaceId) { AgentSession(workspaceId) }
     }
 
-    @Synchronized
-    fun getSession(workspaceId: IdType): AgentSession? {
-        return activeSessions[workspaceId]
+    fun getSession(workspaceId: IdType): AgentSession? = sessionsLock.withLock {
+        activeSessions[workspaceId]
     }
 
     fun isRunning(workspaceId: IdType): Boolean {
-        return activeSessions[workspaceId]?.isRunning == true
+        return sessionsLock.withLock { activeSessions[workspaceId] }?.isRunning == true
     }
 
     fun addLogEntry(workspaceId: IdType, entry: AgentLogEntry) {
@@ -340,25 +342,26 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     fun stopAgent(workspaceId: IdType) {
-        val session = activeSessions[workspaceId] ?: return
+        val session = sessionsLock.withLock { activeSessions[workspaceId] } ?: return
         if (session.isRunning) {
             session.stop("Cancelled by user")
         }
     }
 
-    @Synchronized
     fun clearSession(workspaceId: IdType) {
-        activeSessions[workspaceId]?.let { session ->
-            if (session.isRunning) {
-                session.stop("Session cleared")
+        sessionsLock.withLock {
+            activeSessions[workspaceId]?.let { session ->
+                if (session.isRunning) {
+                    session.stop("Session cleared")
+                }
+                session.clearLog()
             }
-            session.clearLog()
+            activeSessions.remove(workspaceId)
         }
-        activeSessions.remove(workspaceId)
     }
 
     fun getLogEntries(workspaceId: IdType): List<AgentLogEntry> {
-        return activeSessions[workspaceId]?.logEntries ?: emptyList()
+        return sessionsLock.withLock { activeSessions[workspaceId] }?.logEntries ?: emptyList()
     }
 
     /**
@@ -419,7 +422,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
 
         // Track write tools usage
-        val usedWriteToolsTracker = AtomicBoolean(false)
+        val usedWriteToolsTracker = atomic(false)
 
         // Execute via AgentExecutor
         val effectiveMaxIterations = prompt.maxIterations ?: aiSettings.maxIterations
@@ -483,7 +486,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * fails and AI doc markers end up stored without KJVA ordinals (which makes
      * them invisible in BibleView).
      */
-    internal fun keyToVerseRange(key: Key?): VerseRange? = when (key) {
+    @VisibleForTesting
+    fun keyToVerseRange(key: Key?): VerseRange? = when (key) {
         null -> null
         is VerseRange -> key
         is Verse -> VerseRange(key.versification, key, key)
@@ -503,13 +507,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val verseRange = keyToVerseRange(keyToUse)
 
         val selectedText = if (keyToUse != null) {
-            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = org.koin.core.context.GlobalContext.get().get<SwordContentFacade>().saxTextPolicy) }
+            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = org.koin.mp.KoinPlatform.getKoin().get<SwordContentFacade>().saxTextPolicy) }
             catch (e: Exception) { Log.w(TAG, "Could not get canonical text", e); "" }
         } else ""
 
         val osisContent = if (keyToUse != null) {
             try {
-                val fragment = SwordContentFacade.readOsisFragment(book, keyToUse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
+                val fragment = SwordContentFacade.readOsisFragment(book, keyToUse, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
                 XMLOutputter(Format.getRawFormat()).outputString(fragment)
             } catch (e: Exception) { Log.w(TAG, "Could not get OSIS content", e); null }
         } else null
@@ -529,14 +533,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
         } else null
 
         val selectedText = if (book != null && verseRange != null) {
-            SwordContentFacade.getTextWithinOrdinalsAsString(book, verseRange, ordinalRange, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()).joinToString(" ")
+            SwordContentFacade.getTextWithinOrdinalsAsString(book, verseRange, ordinalRange, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>()).joinToString(" ")
         } else ""
 
         val osisContent = if (book != null) {
             try {
                 val keyForOsis = verseRange ?: pageKey
                 if (keyForOsis != null) {
-                    val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
+                    val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
                     XMLOutputter(Format.getRawFormat()).outputString(fragment)
                 } else null
             } catch (e: Exception) { Log.w(TAG, "Could not get OSIS content", e); null }
@@ -721,7 +725,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 // Track write tools usage
                 if (isSuccess) {
                     if (tool?.requiresPermission == true) {
-                        usedWriteToolsTracker.set(true)
+                        usedWriteToolsTracker.value = true
                     }
                 }
             }
@@ -868,7 +872,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private suspend fun cleanupOldRawLogs() {
         try {
             val retentionDays = aiSettings.rawLogRetentionDays ?: return
-            val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
+            val cutoff = kotlin.time.Clock.System.now().toEpochMilliseconds() - retentionDays.toLong() * 24 * 60 * 60 * 1000 // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
             DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff)
         } catch (e: CancellationException) {
             throw e
@@ -892,7 +896,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             title = title,
             sourcePromptId = context.promptId,
             cacheableContext = cacheableContext,
-            usedWriteTools = usedWriteToolsTracker.get(),
+            usedWriteTools = usedWriteToolsTracker.value,
             sourceModelName = model.takeIf { it.isNotBlank() }
         )
         session.addLogEntry(AgentLogEntry.info(
@@ -979,7 +983,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         aiSettings.ensureLoaded()
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
-        val session = activeSessions[workspaceId]
+        val session = sessionsLock.withLock { activeSessions[workspaceId] }
         if (session?.isRunning == true) {
             withContext(Dispatchers.Main) {
                 platform.showShortMessage(strings.agentAlreadyRunning)

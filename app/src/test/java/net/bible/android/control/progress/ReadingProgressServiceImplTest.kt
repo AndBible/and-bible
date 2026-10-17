@@ -122,6 +122,70 @@ class ReadingProgressServiceImplTest {
         assertTrue(skeleton.slots.zipWithNext().all { (a, b) -> a.dayTimestamp < b.dayTimestamp })
     }
 
+    @Test fun calendarSkeletonIsUnchangedAcrossDst() = runBlocking {
+        val prevZone = java.util.TimeZone.getDefault()
+        val prevLocale = java.util.Locale.getDefault()
+        try {
+            java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Europe/Helsinki"))
+            val nows = listOf(
+                java.time.ZonedDateTime.of(2026, 3, 29, 12, 0, 0, 0, java.time.ZoneId.of("Europe/Helsinki")),
+                java.time.ZonedDateTime.of(2026, 10, 25, 12, 0, 0, 0, java.time.ZoneId.of("Europe/Helsinki")),
+                java.time.ZonedDateTime.of(2026, 3, 29, 0, 10, 0, 0, java.time.ZoneId.of("Europe/Helsinki")),
+            ).map { it.toInstant().toEpochMilli() }
+            for (locale in listOf(java.util.Locale.forLanguageTag("fi-FI"), java.util.Locale.US)) {
+                java.util.Locale.setDefault(locale)
+                for (now in nows) {
+                    service.nowMs = { now }
+                    val actual = service.readingCalendarSkeleton()
+                    val (slots, months) = oldSkeleton(now)
+                    assertEquals("slots $locale $now", slots, actual.slots.map { it.dayTimestamp })
+                    assertEquals("months $locale $now", months, actual.monthLabels.map { it.weekIndex to it.name })
+                    assertEquals(listOf("", "M", "", "W", "", "F", ""), actual.dayOfWeekLabels)
+                }
+            }
+
+            // Golden captured by running this test once against the pre-LocalCalendar code.
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("fi-FI"))
+            service.nowMs = { nows[0] }
+            val golden = service.readingCalendarSkeleton()
+            assertEquals(GOLDEN_MONTHS_FI, golden.monthLabels.map { it.weekIndex to it.name })
+            assertEquals(GOLDEN_SLOT_COUNT, golden.slots.size)
+            assertEquals(GOLDEN_FIRST_SLOT, golden.slots.first().dayTimestamp)
+            assertEquals(GOLDEN_LAST_SLOT, golden.slots.last().dayTimestamp)
+        } finally {
+            java.util.TimeZone.setDefault(prevZone)
+            java.util.Locale.setDefault(prevLocale)
+        }
+    }
+
+    /** Inline copy of the Calendar-based skeleton algorithm as it was before LocalCalendar. */
+    private fun oldSkeleton(now: Long): Pair<List<Long>, List<Pair<Int, String>>> {
+        val cal = java.util.Calendar.getInstance().apply { timeInMillis = now }
+        val today = cal.clone() as java.util.Calendar
+        cal.add(java.util.Calendar.WEEK_OF_YEAR, -52)
+        cal.set(java.util.Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        cal.set(java.util.Calendar.MINUTE, 0)
+        cal.set(java.util.Calendar.SECOND, 0)
+        cal.set(java.util.Calendar.MILLISECOND, 0)
+        val slots = mutableListOf<Long>()
+        val months = mutableListOf<Pair<Int, String>>()
+        var lastMonth = -1
+        for (week in 0 until 53) {
+            for (day in 0 until 7) {
+                if (cal.after(today)) break
+                slots.add(cal.timeInMillis)
+                if (day == 0 && cal.get(java.util.Calendar.MONTH) != lastMonth) {
+                    lastMonth = cal.get(java.util.Calendar.MONTH)
+                    months.add(week to (cal.getDisplayName(
+                        java.util.Calendar.MONTH, java.util.Calendar.SHORT, java.util.Locale.getDefault()) ?: ""))
+                }
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 1)
+            }
+        }
+        return slots to months
+    }
+
     // --- memorize (Task 8b-2) ---
 
     @Test fun emptyDb_memorizeSummary_is_zero() = runBlocking {
@@ -143,5 +207,16 @@ class ReadingProgressServiceImplTest {
     @Test fun emptyDb_memorizedPassages_and_targets_are_empty() = runBlocking {
         assertTrue(service.memorizedPassages().isEmpty())
         assertTrue(service.memorizeTargets().isEmpty())
+    }
+
+    private companion object {
+        val GOLDEN_MONTHS_FI: List<Pair<Int, String>> = listOf(
+            0 to "maalisk.", 2 to "huhtik.", 6 to "toukok.", 10 to "kesäk.", 15 to "heinäk.", 19 to "elok.",
+            23 to "syysk.", 28 to "lokak.", 32 to "marrask.", 36 to "jouluk.", 41 to "tammik.", 45 to "helmik.",
+            49 to "maalisk.",
+        )
+        const val GOLDEN_SLOT_COUNT = 371
+        const val GOLDEN_FIRST_SLOT = 1742767200000L
+        const val GOLDEN_LAST_SLOT = 1774735200000L
     }
 }

@@ -145,7 +145,7 @@ object EditMyDocumentPageTool : Tool, KoinComponent {
             if (args.orderNumber != null) {
                 page.orderNumber = args.orderNumber
             }
-            page.updatedAt = System.currentTimeMillis()
+            page.updatedAt = kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
             dao.update(page)
 
             if (args.content != null) {

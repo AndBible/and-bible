@@ -25,7 +25,7 @@ import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.passage.VerseRange
-import java.security.MessageDigest
+import okio.ByteString.Companion.encodeUtf8
 
 /** Type of note editor entity for text transformation routing. */
 enum class NoteEditorEntityType {
@@ -146,8 +146,7 @@ data class CacheableContext(
     /** SHA-256 hash (first 16 bytes, hex) for strict cache matching. */
     fun computeHash(): String {
         val jsonStr = json.encodeToString(this)
-        val bytes = MessageDigest.getInstance("SHA-256").digest(jsonStr.toByteArray())
-        return bytes.take(16).joinToString("") { "%02x".format(it) }
+        return jsonStr.encodeUtf8().sha256().substring(0, 16).hex()
     }
 
     fun toJson(): String = json.encodeToString(this)

@@ -60,7 +60,7 @@ class AiMutationOrderingTest {
         dao.insert(old)
         dao.insert(fresh)
         CommonUtils.aiSettings.rawLogRetentionDays = 1
-        val service = RawLogServiceImpl(strings)
+        val service = RawLogServiceImpl(strings, org.koin.mp.KoinPlatform.getKoin().get())
         service.deleteOlderThan(CommonUtils.aiSettings.rawLogRetentionDays!!)
         assertNull(dao.getById(old.id))
         assertNotNull(dao.getById(fresh.id))
@@ -204,7 +204,7 @@ class AiMutationOrderingTest {
         org.mockito.Mockito.`when`(db.llmRawLogRecordDao()).thenReturn(held)
         container.aiSettingsDb = db
         try {
-            val service = RawLogServiceImpl(strings)
+            val service = RawLogServiceImpl(strings, org.koin.mp.KoinPlatform.getKoin().get())
             val owner = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
             val old = owner.launch { service.refresh() }
             captured.await()

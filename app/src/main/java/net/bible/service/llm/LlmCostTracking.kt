@@ -135,17 +135,20 @@ object LlmCostTracker : org.koin.core.component.KoinComponent {
         dao.deleteByModel(configuredModelId)
     }
 
+    private val localeSupport: net.bible.sharedlogic.platform.LocaleSupport
+        get() = org.koin.mp.KoinPlatform.getKoin().get()
+
     fun formatCost(cost: Double): String =
-        if (cost < 0.01 && cost > 0) "\$%.3f".format(cost) else "\$%.2f".format(cost)
+        if (cost < 0.01 && cost > 0) "\$" + localeSupport.formatFixed(cost, 3) else "\$" + localeSupport.formatFixed(cost, 2)
 
     /** Format a per-million-token price compactly, e.g. "$3.00", "< $0.01". */
     fun formatPriceCompact(pricePerMillion: Double): String =
         if (pricePerMillion < 0.01 && pricePerMillion > 0) "< \$0.01"
-        else "\$%.2f".format(pricePerMillion)
+        else "\$" + localeSupport.formatFixed(pricePerMillion, 2)
 
     fun formatTokenCount(count: Long): String = when {
-        count >= 1_000_000 -> "%.1fM".format(count / 1_000_000.0)
-        count >= 1_000 -> "%.1fk".format(count / 1_000.0)
+        count >= 1_000_000 -> localeSupport.formatFixed(count / 1_000_000.0, 1) + "M"
+        count >= 1_000 -> localeSupport.formatFixed(count / 1_000.0, 1) + "k"
         else -> count.toString()
     }
 

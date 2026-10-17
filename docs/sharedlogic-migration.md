@@ -42,19 +42,28 @@ Ports that exist after phase 0 (`ls sharedCore/src/commonMain/kotlin/net/bible/s
 | `DatabaseHost` (D2) | `:sharedLogic` `service/db/DatabaseHost.kt` | `net.bible.service.db.AndroidDatabaseHost`, installed by `DatabaseContainer.installHost(...)` first in `BibleApplication.onCreate` (not a Koin binding: `DatabaseContainer` is needed before Koin starts) |
 | `PlatformLocales` (G1) | `:sharedLogic` `platform/PlatformLocales.kt` | `net.bible.android.platform.AndroidPlatformLocales`; keeps legacy `iw`/`in`/`ji` codes (never `KLocale.default()`) |
 | `AddonCatalog` (G1) | `:sharedLogic` `platform/AddonCatalog.kt` | `AndroidAddonCatalog` (delegates to `AndBibleAddons`) |
-| `LocalCalendar` (G1) | `:sharedLogic` `platform/LocalCalendar.kt` | `AndroidLocalCalendar` (the old `Calendar`/`SimpleDateFormat` code, verbatim) |
+| `LocalCalendar` (G1 + G3) | `:sharedLogic` `platform/LocalCalendar.kt` | `AndroidLocalCalendar` (`java.util.Calendar`/`SimpleDateFormat`, DST-aware; G1's reading-plan members and G3's progress members in ONE interface and class) |
 | `SearchIndexScheduler` (G1) | `:sharedLogic` `platform/SearchIndexScheduler.kt` | `net.bible.android.platform.AndroidSearchIndexScheduler` (starts the foreground `SearchIndexingService`); the queue itself (`IndexingQueue`) is common |
 | `ReadOnlyModuleDbOpener` (G1) | `:sharedLogic` `platform/ReadOnlyModuleDbOpener.kt` | `AndroidReadOnlyModuleDbOpener` (calls `openReadOnlyModuleDb`, the platform file `service/db/ReadOnlyModuleOpen.kt`); resolved through `KoinPlatform` at first read, never during `initialiseJSwordFolders` |
 | `ContentSource` (G1; `openSource(uri): Source?`) | `service/sword/SwordPorts.kt` (domain file, moves with `sword`) | `AndroidContentSource` (content resolver stream as an okio `Source`) |
 | `OverridableLocaleProvider` (G1) | `service/sword/OverridableLocaleProvider.kt` (domain file) | `MyLocaleProvider` in `BibleApplication.kt` (`override: KLocale?`) |
+| `LocaleSupport` (+ `LocaleValue`) | `:sharedLogic` `platform/LocaleSupport.kt` | `net.bible.android.platform.AndroidLocaleSupport` (`java.util.Locale`); `// G3 ports` block in `CoreModule.kt` |
+| `SentenceBreaker` | `:sharedLogic` `platform/SentenceBreaker.kt` | `AndroidSentenceBreaker` (`java.text.BreakIterator`; -1 = DONE) |
+| `NightModeState` | `:sharedLogic` `platform/NightModeState.kt` | `AndroidNightModeState` |
+| `LabelNameStrings` | `:sharedLogic` `platform/LabelNameStrings.kt` | `AndroidLabelNameStrings(androidContext())`, reads resources on each access |
+| `FirstLoadEdge` | `:sharedLogic` `platform/FirstLoadEdge.kt` | `AndroidFirstLoadEdge` (window domain's synchronous first-load edge) |
+| `PromptPackSource` (+ `PromptPackRef`) | `:sharedLogic` `platform/PromptPackSource.kt` | `AndroidPromptPackSource` (add-on prompt packs; llm) |
 
 Common primitives from G1 (`:sharedLogic`, package `net.bible.sharedlogic`): `sync.withMonitor` /
 `monitorWait` / `monitorNotifyAll` / `bookNameMonitor` (on JVM/Android exactly the JVM monitor, so they exclude
 against plain `synchronized`; `bookNameMonitor` is `org.crosswire.jsword.versification.BookName::class.java`),
 `util.decodeUrl` (= `URLDecoder.decode(s, "UTF-8")`), `util.currentTimeMillis`.
 
+G3 also added pure helpers (not ports) in `:sharedLogic`: `text/IsoUtcTimestamps`, `text/HtmlEntities`,
+`text/NameBasedUuid` and `util/MemoryHints` (`expect fun requestGarbageCollection()`).
+
 Ports still to be created by the groups (named in S8): certificate pinning (`webdav/PinnedTrust`), WebDAV sign-in UI and `SharedPreferences` in `WebDavConfig`
-(G2), text segmentation (`BreakIterator` in speak, G3), (the Room database builder, formerly listed here for D2, needs no port: `buildAppDatabase` uses Room 3's context-less `Room.databaseBuilder(name = absolutePath)`, characterized in `AppDatabaseBuilderTest`).
+(G2), (the Room database builder, formerly listed here for D2, needs no port: `buildAppDatabase` uses Room 3's context-less `Room.databaseBuilder(name = absolutePath)`, characterized in `AppDatabaseBuilderTest`). Text segmentation landed in G3 as `SentenceBreaker`.
 
 ## 3. Koin (S7)
 
@@ -262,6 +271,29 @@ After G1 Part B (HEAD `36377cf83`): `versification`, `readingplan`, `history`, `
 above). `scripts/l1-readiness.sh` `sword` row: bridges 0, edge 0, pending 0, android 0, globals 0, jvmlibs 0,
 javaio 2. Only `Math.`/`Charsets.`/`OutOfMemoryError`/`GlobalContext`/`@Volatile` grep (D2's extension) over the
 Part B files: `DownloadManager.kt:132` only.
+
+After G3 (branch `ios-6`, 2026-10-17; the baseline above is unchanged). Rows are
+`scripts/l1-move-readiness.sh --domain <d>`; `progress`, `event`, `speak` and `bookmark` read 0 and are in
+`scripts/l1-move-done.txt`. What remains: `page` jvmapi 4 (`synchronized(BookName::class.java)` x3,
+`synchronized(currentDocument)`) and app 1 (`useKdomBuilder`); `window` jvmapi 1 (`synchronized(BookName::class.java)`; after the final-review fix, which moved
+`WorkspaceServiceImpl` from `GlobalContext` to `KoinPlatform` and marked the `Window.kt` OOM catch, this is window's only
+remaining blocker and waits for G1's `withMonitor`/`bookNameMonitor`, G3 Task 3, which did not land); `page` also waits on
+Task 3 / G1 `withMonitor`; `llm` jvm 1 (`java.util.concurrent.ConcurrentHashMap` inline in
+`AiDatabaseLifetime.kt`) and app 2 (`useKdomBuilder` imports).
+
+Coordination (resolved at the G3 merge): G1 Task 4 and G3 Task 2 both created `LocalCalendar` + `AndroidLocalCalendar` with different members; the merge unified them into one interface and one class (G3's progress members added to G1's).
+`AiDatabaseLifetime.kt` keeps D2's atomicfu `synchronized` and G3's widened members.
+
+```
+domain	jvm	jvmapi	jvm3p	android	app
+progress	0	0	0	0	0
+bookmark	0	0	0	0	0
+speak	0	0	0	0	0
+llm	1	0	0	0	2
+page	0	4	0	0	1
+window	0	1	0	0	0
+event	0	0	0	0	0
+```
 
 ## 8. YAML and Markdown outcome (S9)
 

@@ -34,6 +34,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import okio.sink
+import okio.source
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
@@ -69,7 +71,7 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(prompt))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(prompt))
 
         val csv = outputStream.toString("UTF-8")
         val lines = csv.split("\n")
@@ -92,7 +94,7 @@ class PromptCsvUtilsTest {
     @Test
     fun testExportEmptyList(): Unit = runBlocking {
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, emptyList())
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), emptyList())
 
         val csv = outputStream.toString("UTF-8")
         val lines = csv.trim().split("\n")
@@ -116,7 +118,7 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(prompt))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(prompt))
 
         val csv = outputStream.toString("UTF-8")
         val lines = csv.split("\n")
@@ -139,7 +141,7 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(prompt))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(prompt))
 
         val csv = outputStream.toString("UTF-8")
         val dataLine = csv.split("\n")[1]
@@ -158,7 +160,7 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(prompt))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(prompt))
 
         val csv = outputStream.toString("UTF-8")
 
@@ -176,7 +178,7 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(prompt))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(prompt))
 
         val csv = outputStream.toString("UTF-8")
 
@@ -194,7 +196,7 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(prompt))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(prompt))
 
         val csv = outputStream.toString("UTF-8")
 
@@ -210,7 +212,7 @@ class PromptCsvUtilsTest {
             "My Prompt;A description;Do something;VERSE_SELECTION,TEXT_SELECTION;3;false;;;;;\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.updated, equalTo(0))
@@ -243,7 +245,7 @@ class PromptCsvUtilsTest {
             "Updated;Updated template;${existingId}\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(0))
         assertThat(result.updated, equalTo(1))
@@ -261,7 +263,7 @@ class PromptCsvUtilsTest {
             "New Prompt;New template\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.updated, equalTo(0))
@@ -279,7 +281,7 @@ class PromptCsvUtilsTest {
             "Hacked Built-in;Evil template;${builtInId}\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(0))
         assertThat(result.updated, equalTo(0))
@@ -296,7 +298,7 @@ class PromptCsvUtilsTest {
             ";Some template\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(0))
         assertThat(result.errors, equalTo(1))
@@ -309,7 +311,7 @@ class PromptCsvUtilsTest {
             "Good Name;\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(0))
         assertThat(result.errors, equalTo(1))
@@ -322,7 +324,7 @@ class PromptCsvUtilsTest {
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
 
         try {
-            PromptCsvUtils.importPromptsFromCsv(inputStream)
+            PromptCsvUtils.importPromptsFromCsv(inputStream.source())
             fail("Should throw IOException for empty file")
         } catch (e: Exception) {
             assertTrue(e.message?.contains("Empty CSV file") == true)
@@ -337,7 +339,7 @@ class PromptCsvUtilsTest {
             "Prompt 2;Template 2\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         // The blank row has an empty name, so it should error
         // Prompt 1 and 2 should succeed
@@ -350,7 +352,7 @@ class PromptCsvUtilsTest {
             "Advanced;Do it;ALLOW_ALL;CREATE_BOOKMARK,SEARCH_BIBLE;SET_DOCUMENT_TITLE;\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
@@ -369,7 +371,7 @@ class PromptCsvUtilsTest {
             "Test;Template;INVALID_MODE\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertNull(dao.allPrompts()[0].permissionMode)
@@ -381,7 +383,7 @@ class PromptCsvUtilsTest {
             "Test;Template;VERSE_SELECTION,INVALID_CONTEXT,TEXT_SELECTION\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         val prompt = dao.allPrompts()[0]
@@ -396,7 +398,7 @@ class PromptCsvUtilsTest {
             "Test;Template;2022-01-01T00:00:00Z\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(dao.allPrompts()[0].createdAt, equalTo(1640995200000L))
@@ -413,7 +415,7 @@ class PromptCsvUtilsTest {
             "Good 2;Template 2;\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(2))
         assertThat(result.updated, equalTo(0))
@@ -449,11 +451,11 @@ class PromptCsvUtilsTest {
 
         // Export
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(original))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(original))
 
         // Import
         val inputStream = ByteArrayInputStream(outputStream.toByteArray())
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
@@ -484,10 +486,10 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(original))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(original))
 
         val inputStream = ByteArrayInputStream(outputStream.toByteArray())
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
@@ -506,11 +508,11 @@ class PromptCsvUtilsTest {
 
         // Export
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(original))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(original))
 
         // Import
         val inputStream = ByteArrayInputStream(outputStream.toByteArray())
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
@@ -530,11 +532,11 @@ class PromptCsvUtilsTest {
 
         // Export
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(original))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(original))
 
         // Import
         val inputStream = ByteArrayInputStream(outputStream.toByteArray())
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
@@ -554,10 +556,10 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, prompts)
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), prompts)
 
         val inputStream = ByteArrayInputStream(outputStream.toByteArray())
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
@@ -578,10 +580,10 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(original))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(original))
 
         val inputStream = ByteArrayInputStream(outputStream.toByteArray())
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
 
@@ -602,7 +604,7 @@ class PromptCsvUtilsTest {
             "Subset Test;My template;42\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
@@ -629,7 +631,7 @@ class PromptCsvUtilsTest {
         )
 
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(prompt))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(prompt))
 
         val csv = outputStream.toString("UTF-8")
         val header = csv.split("\n")[0]
@@ -643,7 +645,7 @@ class PromptCsvUtilsTest {
             "Old Prompt;Old template\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
@@ -658,7 +660,7 @@ class PromptCsvUtilsTest {
             "No Cat;Template;\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertNull("categoryId should be null for empty category", dao.allPrompts()[0].categoryId)
@@ -670,7 +672,7 @@ class PromptCsvUtilsTest {
             "Cat Prompt;Template;My Category\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
@@ -692,7 +694,7 @@ class PromptCsvUtilsTest {
             "Prompt B;Template B;Shared Category\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(2))
 
@@ -709,7 +711,7 @@ class PromptCsvUtilsTest {
             "Prompt 2;Template 2;WINDOW_MENU,TEXT_SELECTION\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream)
+        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream.source())
 
         assertThat(prompts.size, equalTo(2))
         assertThat(prompts[0].name, equalTo("Prompt 1"))
@@ -731,7 +733,7 @@ class PromptCsvUtilsTest {
             "Also Good;Another template\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream)
+        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream.source())
 
         // Bad row is skipped, 2 good rows parsed
         assertThat(prompts.size, equalTo(2))
@@ -745,7 +747,7 @@ class PromptCsvUtilsTest {
             "Test;Template;Some Category\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream)
+        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream.source())
 
         assertThat(prompts.size, equalTo(1))
         assertNull("categoryId should be null when resolveCategories=false", prompts[0].categoryId)
@@ -761,7 +763,7 @@ class PromptCsvUtilsTest {
             "Test;\"Line 1\nLine 2\nLine 3\"\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
-        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream)
+        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream.source())
 
         assertThat(prompts.size, equalTo(1))
         assertThat(prompts[0].promptTemplate, equalTo("Line 1\nLine 2\nLine 3"))
@@ -832,11 +834,11 @@ class PromptCsvUtilsTest {
             promptTemplate = "Modified template",
         )
         val outputStream = ByteArrayOutputStream()
-        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(modified))
+        PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), listOf(modified))
 
         // Import should update, not create
         val inputStream = ByteArrayInputStream(outputStream.toByteArray())
-        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream.source())
 
         assertThat(result.created, equalTo(0))
         assertThat(result.updated, equalTo(1))
@@ -846,5 +848,117 @@ class PromptCsvUtilsTest {
         assertThat(prompts.size, equalTo(1))
         assertThat(prompts[0].name, equalTo("Modified Name"))
         assertThat(prompts[0].promptTemplate, equalTo("Modified template"))
+    }
+
+    private fun headExport(): String =
+        javaClass.getResourceAsStream("/csv/prompts-head-export.csv")!!.use { String(it.readBytes(), Charsets.UTF_8) }
+
+    /** The record splitter of the pre-okio implementation (java.io.BufferedReader based), copied as a test oracle. */
+    private fun oldReadRecords(text: String): List<List<String>> {
+        val reader = java.io.BufferedReader(java.io.InputStreamReader(ByteArrayInputStream(text.toByteArray(Charsets.UTF_8)), "UTF-8"))
+        val records = mutableListOf<List<String>>()
+        while (true) {
+            val result = mutableListOf<String>()
+            var current = StringBuilder()
+            var inQuotes = false
+            while (true) {
+                val line = reader.readLine() ?: break
+                var i = 0
+                while (i < line.length) {
+                    val char = line[i]
+                    when {
+                        char == '"' && inQuotes && i + 1 < line.length && line[i + 1] == '"' -> { current.append('"'); i += 2; continue }
+                        char == '"' -> inQuotes = !inQuotes
+                        char == ';' && !inQuotes -> { result.add(current.toString()); current = StringBuilder() }
+                        else -> current.append(char)
+                    }
+                    i++
+                }
+                if (inQuotes) current.append('\n') else break
+            }
+            if (result.isEmpty() && current.isEmpty()) return records
+            result.add(current.toString())
+            records.add(result)
+        }
+    }
+
+    private fun parse(text: String) = PromptCsvUtils.parsePromptsFromCsv(ByteArrayInputStream(text.toByteArray(Charsets.UTF_8)).source())
+
+    @Test
+    fun importsHeadExportUnchanged(): Unit = runBlocking {
+        val fixture = headExport()
+        val result = PromptCsvUtils.importPromptsFromCsv(ByteArrayInputStream(fixture.toByteArray(Charsets.UTF_8)).source())
+        assertEquals(result.errorMessages.toString(), 0, result.errors)
+        assertEquals(3, result.created)
+
+        val ids = Regex("([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})").findAll(fixture).map { it.value }.toList()
+        val imported = dao.allPrompts().sortedBy { ids.indexOf(it.id.toString()) }
+        val out = ByteArrayOutputStream()
+        PromptCsvUtils.exportPromptsToCsv(out.sink(), imported)
+        assertEquals(fixture, out.toString("UTF-8"))
+    }
+
+    @Test
+    fun importHandlesCrLfLoneCrAndBom(): Unit = runBlocking {
+        val fixture = headExport()
+        val lf = oldReadRecords(fixture)
+        assertEquals(4, lf.size)
+        val baseline = parse(fixture)
+        assertEquals(3, baseline.size)
+        assertEquals("Translate; \"quoted\"", baseline[0].name)
+        assertEquals("Multi-line\ndescription; with semicolon", baseline[0].description)
+
+        val variants = mapOf(
+            "crlf" to fixture.replace("\n", "\r\n"),
+            "lone cr" to fixture.replace("\n", "\r"),
+            "mixed with trailing lone cr" to fixture.replace("\n", "\r\n").trimEnd('\n', '\r') + "\r",
+            "bom" to "\uFEFF" + fixture,
+        )
+        for ((name, text) in variants) {
+            // The old BufferedReader parser is the oracle for what the records are.
+            val oracle = oldReadRecords(text)
+            assertEquals(name, lf.size, oracle.size)
+            if (name == "bom") {
+                // The BOM stays in the first header cell, so "name" is not found: as before, no row parses.
+                assertEquals("\uFEFFname", oracle[0][0])
+                assertEquals(name, emptyList<AgentPrompt>(), parse(text))
+            } else {
+                assertEquals(name, lf, oracle)
+                assertEquals(name, baseline, parse(text))
+            }
+        }
+    }
+
+    @Test
+    fun unparseableCreatedAtFallsBackToNowAndDoesNotFailTheRow(): Unit = runBlocking {
+        val before = System.currentTimeMillis()
+        val parsed = parse("name;promptTemplate;createdAt\nA;T;not-a-date\nB;T;2022-01-01T00:00:00Z\nC;T;2022-01-01T00:00:00Zjunk\nD;T;\n")
+        assertEquals(listOf("A", "B", "C", "D"), parsed.map { it.name })
+        assertTrue(parsed[0].createdAt >= before)
+        assertEquals(1640995200000L, parsed[1].createdAt)
+        // Like the lenient SimpleDateFormat, trailing text after a valid date is ignored.
+        assertEquals(1640995200000L, parsed[2].createdAt)
+        assertTrue(parsed[3].createdAt >= before)
+    }
+
+    @Test
+    fun exportedDatesAreUtcWhateverTheDefaultLocaleAndZone(): Unit = runBlocking {
+        val savedLocale = java.util.Locale.getDefault()
+        val savedZone = java.util.TimeZone.getDefault()
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-SA"))
+            java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Pacific/Kiritimati"))
+            val out = ByteArrayOutputStream()
+            PromptCsvUtils.exportPromptsToCsv(out.sink(), listOf(
+                AgentPrompt(name = "N", promptTemplate = "T", createdAt = 1609459199000L), // 2020-12-31T23:59:59Z
+                AgentPrompt(name = "M", promptTemplate = "T", createdAt = 951782400000L), // 2000-02-29T00:00:00Z
+            ))
+            val lines = out.toString("UTF-8").split("\n")
+            assertTrue(lines[1], lines[1].contains(";2020-12-31T23:59:59Z;"))
+            assertTrue(lines[2], lines[2].contains(";2000-02-29T00:00:00Z;"))
+        } finally {
+            java.util.Locale.setDefault(savedLocale)
+            java.util.TimeZone.setDefault(savedZone)
+        }
     }
 }

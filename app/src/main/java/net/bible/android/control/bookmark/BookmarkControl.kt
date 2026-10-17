@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.bookmark
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
@@ -68,7 +69,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import java.util.Locale
+import org.crosswire.common.util.KswordLocale
+import org.crosswire.common.util.lowercase
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
@@ -209,7 +211,8 @@ open class BookmarkControl constructor(
      *
      * Every public function with such an effect wraps its body in [deferringEffects].
      */
-    internal suspend fun <T> deferringEffects(core: suspend () -> T): T {
+    @VisibleForTesting
+    suspend fun <T> deferringEffects(core: suspend () -> T): T {
         if (coroutineContext[PendingSideEffects] != null) return core()
         val pending = PendingSideEffects()
         try {
@@ -227,7 +230,8 @@ open class BookmarkControl constructor(
     private suspend fun emitChange(change: BookmarkChange) = afterBridge { _changes.emit(change) }
 
     /** Runs [effect] now, or, inside [deferringEffects], once the outermost call has returned (in call order). */
-    internal suspend fun afterBridge(effect: () -> Unit) {
+    @VisibleForTesting
+    suspend fun afterBridge(effect: () -> Unit) {
         val pending = coroutineContext[PendingSideEffects]
         if (pending != null) pending.effects.add(effect) else effect()
     }
@@ -500,7 +504,8 @@ open class BookmarkControl constructor(
         )
     }
 
-    internal fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): StudyPadSearchResultTextSnippet {
+    @VisibleForTesting
+    fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): StudyPadSearchResultTextSnippet {
         val searchLower = searchText.lowercase()
         val fullTextLower = fullText.lowercase()
         val matchIndex = fullTextLower.indexOf(searchLower)
@@ -554,7 +559,7 @@ open class BookmarkControl constructor(
     // add special label that is automatically associated with all-bookmarks
     suspend fun allLabels(): List<Label> = deferringEffects {
         val labelList = dao.allLabelsSortedByName().toMutableList()
-        labelList.sortBy { it.name.lowercase(Locale.getDefault()) }
+        labelList.sortBy { it.name.lowercase(KswordLocale.default()) }
         // add special label that is automatically associated with all-bookmarks
         labelList.add(0, labelUnlabelled())
         labelList.add(0, labelAll)
@@ -1088,7 +1093,8 @@ open class BookmarkControl constructor(
 
 /** Display texts computed for a bookmark: the unselected prefix, the selected text, the
  *  unselected suffix, and the combined full text. */
-internal data class BookmarkTexts(
+@VisibleForTesting
+data class BookmarkTexts(
     val startText: String,
     val text: String,
     val endText: String,
@@ -1108,7 +1114,8 @@ internal data class BookmarkTexts(
  *
  * Returns `null` when there is no verse text to render (caller substitutes an error message).
  */
-internal fun computeBookmarkTexts(
+@VisibleForTesting
+fun computeBookmarkTexts(
     texts: List<String>,
     startOffset: Int?,
     endOffset: Int?,

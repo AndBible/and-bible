@@ -31,16 +31,14 @@ import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.OutputStream
-import java.io.OutputStreamWriter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+import net.bible.android.database.DbDate
+import net.bible.sharedlogic.text.IsoUtcTimestamps
+import okio.BufferedSource
+import okio.ByteString.Companion.encodeUtf8
+import okio.IOException
+import okio.Sink
+import okio.Source
+import okio.buffer
 
 private const val TAG = "BookmarkCsvUtils"
 
@@ -108,25 +106,22 @@ object BookmarkCsvUtils {
     )
 
     private const val CSV_SEPARATOR = ";"
-    private val ISO_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
-    }
 
     /**
      * Export Bible bookmarks to CSV format
      */
     suspend fun exportBookmarksToCsv(
-        outputStream: OutputStream,
+        sink: Sink,
         bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
         bookmarkControl: BookmarkControl,
         selectedColumns: List<String> = availableColumns.map { it.key }
     ) = withContext(Dispatchers.IO) {
         try {
-            OutputStreamWriter(outputStream, "UTF-8").use { writer ->
+            sink.buffer().use { writer ->
                 // Write header - only selected columns
                 val headers = availableColumns.filter { it.key in selectedColumns }.map { it.header }
-                writer.write(headers.joinToString(CSV_SEPARATOR))
-                writer.write("\n")
+                writer.writeUtf8(headers.joinToString(CSV_SEPARATOR))
+                writer.writeUtf8("\n")
 
                 // Write bookmark data
                 for (bookmark in bookmarks) {
@@ -151,8 +146,8 @@ object BookmarkCsvUtils {
                         HEADER_ID to bookmark.id.toString(),
                         HEADER_ORDINAL_START to bookmark.kjvOrdinalStart.toString(),
                         HEADER_ORDINAL_END to bookmark.kjvOrdinalEnd.toString(),
-                        HEADER_CREATED_AT to bookmark.createdAt.let { ISO_DATE_FORMAT.format(it) },
-                        HEADER_LAST_UPDATED to bookmark.lastUpdatedOn.let { ISO_DATE_FORMAT.format(it) },
+                        HEADER_CREATED_AT to bookmark.createdAt.let { IsoUtcTimestamps.format(it.time) },
+                        HEADER_LAST_UPDATED to bookmark.lastUpdatedOn.let { IsoUtcTimestamps.format(it.time) },
                         HEADER_START_OFFSET to (bookmark.startOffset?.toString() ?: ""),
                         HEADER_END_OFFSET to (bookmark.endOffset?.toString() ?: ""),
                         HEADER_LABELS to escapeField(labelNames),
@@ -162,8 +157,8 @@ object BookmarkCsvUtils {
 
                     // Write only selected columns
                     val values = availableColumns.filter { it.key in selectedColumns }.map { allValues[it.key] ?: "" }
-                    writer.write(values.joinToString(CSV_SEPARATOR))
-                    writer.write("\n")
+                    writer.writeUtf8(values.joinToString(CSV_SEPARATOR))
+                    writer.writeUtf8("\n")
                 }
             }
         } catch (e: Exception) {
@@ -176,7 +171,7 @@ object BookmarkCsvUtils {
      * Import Bible bookmarks from CSV format
      */
     suspend fun importBookmarksFromCsv(
-        inputStream: InputStream,
+        source: Source,
         bookmarkControl: BookmarkControl
     ): ImportResult = withContext(Dispatchers.IO) {
         var created = 0
@@ -184,7 +179,7 @@ object BookmarkCsvUtils {
         val errorMessages = mutableListOf<String>()
 
         try {
-            BufferedReader(InputStreamReader(inputStream, "UTF-8")).use { reader ->
+            source.buffer().use { reader ->
                 val headerRecord = readCsvRecord(reader) ?: throw IOException("Empty CSV file")
                 val headers = headerRecord
                 val headerMap = headers.withIndex().associate { it.value to it.index }
@@ -302,12 +297,12 @@ object BookmarkCsvUtils {
             } ?: IdType()
 
             val createdAt = getValueOrNull(values, headerMap, HEADER_CREATED_AT)?.let {
-                if (it.isNotEmpty()) ISO_DATE_FORMAT.parse(it) else Date()
-            } ?: Date()
+                if (it.isNotEmpty()) DbDate(IsoUtcTimestamps.parseLenient(it)) else DbDate()
+            } ?: DbDate()
 
             val lastUpdatedOn = getValueOrNull(values, headerMap, HEADER_LAST_UPDATED)?.let {
-                if (it.isNotEmpty()) ISO_DATE_FORMAT.parse(it) else Date()
-            } ?: Date()
+                if (it.isNotEmpty()) DbDate(IsoUtcTimestamps.parseLenient(it)) else DbDate()
+            } ?: DbDate()
 
             val startOffset = getValueOrNull(values, headerMap, HEADER_START_OFFSET)?.let {
                 if (it.isNotEmpty()) it.toIntOrNull() else null
@@ -438,15 +433,30 @@ object BookmarkCsvUtils {
     }
 
     /**
+     * Reads one line the way `java.io.BufferedReader.readLine` does: a line ends at `\n`, `\r` or `\r\n`
+     * (okio's `readUtf8Line` does not treat a lone `\r` as an end). Returns null at the end of the input.
+     */
+    private fun BufferedSource.readLineLikeJava(): String? {
+        if (exhausted()) return null
+        val end = indexOfElement(LINE_ENDS)
+        if (end < 0) return readUtf8()
+        val line = readUtf8(end)
+        if (readByte() == '\r'.code.toByte() && request(1) && buffer[0] == '\n'.code.toByte()) skip(1)
+        return line
+    }
+
+    private val LINE_ENDS = "\r\n".encodeUtf8()
+
+    /**
      * Reads a complete CSV record that may span multiple lines
      */
-    private fun readCsvRecord(reader: BufferedReader): List<String>? {
+    private fun readCsvRecord(reader: BufferedSource): List<String>? {
         val result = mutableListOf<String>()
         var current = StringBuilder()
         var inQuotes = false
         
         while (true) {
-            val line = reader.readLine() ?: break
+            val line = reader.readLineLikeJava() ?: break
             
             var i = 0
             while (i < line.length) {

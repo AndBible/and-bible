@@ -151,4 +151,29 @@ class LlmRetryPolicyTest {
         val delay = LlmRetryPolicy.calculateDelayMs(0, -5.0)
         assertTrue("Expected delay >= 1000ms, got $delay", delay >= 1000)
     }
+
+    // --- HTTP-date (RFC 7231) ---
+
+    private val nowMs = 1792567200000L // Wed, 21 Oct 2026 07:20:00 GMT
+
+    @Test
+    fun `parseRetryAfterHeader http-date GMT gives seconds until that time`() {
+        assertEquals(480.0, LlmRetryPolicy.parseRetryAfterHeader("Wed, 21 Oct 2026 07:28:00 GMT", nowMs)!!, 0.0)
+    }
+
+    @Test
+    fun `parseRetryAfterHeader http-date in the past is null`() {
+        assertNull(LlmRetryPolicy.parseRetryAfterHeader("Wed, 21 Oct 2026 07:10:00 GMT", nowMs))
+    }
+
+    /** The single accepted difference of the HttpDates move: RFC 7231 dates are always GMT, so a PST date is no longer parsed. */
+    @Test
+    fun `ACCEPTED DIFFERENCE parseRetryAfterHeader non-GMT zone now returns null where SimpleDateFormat parsed it`() {
+        val header = "Wed, 21 Oct 2026 07:28:00 PST"
+        val old = java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", java.util.Locale.US).apply {
+            timeZone = java.util.TimeZone.getTimeZone("GMT")
+        }.parse(header)
+        assertTrue("oracle parsed it at HEAD", old != null)
+        assertNull(LlmRetryPolicy.parseRetryAfterHeader(header, nowMs))
+    }
 }

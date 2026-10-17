@@ -17,6 +17,9 @@
 
 package net.bible.android.control.page.window
 
+import androidx.annotation.VisibleForTesting
+import kotlinx.atomicfu.atomic
+import kotlin.concurrent.Volatile
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +38,8 @@ import net.bible.android.database.IdType
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.blockingAtEdge
+import net.bible.sharedlogic.platform.FirstLoadEdge
+import org.koin.mp.KoinPlatform
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.history.HistoryManager
@@ -43,7 +47,7 @@ import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
-import java.util.concurrent.CopyOnWriteArrayList
+import org.crosswire.common.util.CopyOnWriteList
 import kotlin.math.min
 
 open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
@@ -55,7 +59,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     private var persistenceOverride: WorkspacePersistence? = null
 
     /** Tests substitute a persistence whose execution they control; production always uses the Koin one. */
-    internal var persistence: WorkspacePersistence
+    @VisibleForTesting
+    var persistence: WorkspacePersistence
         get() = persistenceOverride ?: appPersistence
         set(value) { persistenceOverride = value }
     val speakControl: SpeakControl by inject()
@@ -67,13 +72,15 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
-    // CopyOnWriteArrayList (not a plain ArrayList): windowList is iterated on the background
+    // CopyOnWriteList (not a plain ArrayList): windowList is iterated on the background
     // cloud-sync thread (saveIntoDb, via MainBibleActivity.synchronize/periodicSync on
     // Dispatchers.IO) while the main thread structurally modifies it (opening/closing/moving
     // windows). A fail-fast ArrayList throws ConcurrentModificationException in that race
     // (OSTicket 3374); a copy-on-write list gives iterators a stable snapshot instead. Window
     // counts are tiny, so the copy-on-mutation cost is negligible.
-    var windowList: MutableList<Window> = CopyOnWriteArrayList()
+    // WARNING: this is jsword's CopyOnWriteList, so JVM List.sort / removeIf / replaceAll (iterator-set
+    // paths) throw UnsupportedOperationException. Use sortedWith, or replace via clear() + addAll().
+    var windowList: MutableList<Window> = CopyOnWriteList()
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: IdType? = null
@@ -106,6 +113,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     var id: IdType = IdType.empty()
     var name = ""
+
+    private val firstLoadEdge: FirstLoadEdge by lazy { KoinPlatform.getKoin().get() }
 
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
@@ -201,7 +210,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         try {
             val epoch = pending?.epoch ?: DatabaseContainer.replaceEpoch
             val readId = id
-            val loaded = blockingAtEdge { // L1-edge: activeWindow read or host bootstrap before the first load finished
+            val loaded = firstLoadEdge.awaitFirstLoad { // edge: see AndroidFirstLoadEdge
                 pending?.loaded?.await() ?: currentLoader().read(readId, createIfMissing)
             }
             if(pending == null || pending.claim()) applyLoaded(loaded, epoch)
@@ -497,7 +506,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      */
     private class PendingLoad(val epoch: Long) {
         val loaded = CompletableDeferred<LoadedWorkspace>()
-        private val claimed = java.util.concurrent.atomic.AtomicBoolean(false)
+        private val claimed = atomic(false)
         fun claim() = claimed.compareAndSet(false, true)
     }
     @Volatile private var pendingLoad: PendingLoad? = null
@@ -506,7 +515,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     private val loadMutex = Mutex()
 
     /** Tests substitute a loader whose read they control; production builds one per load around the current [persistence]. */
-    internal var loaderOverride: WorkspaceLoader? = null
+    @VisibleForTesting
+    var loaderOverride: WorkspaceLoader? = null
 
     private fun currentLoader(): WorkspaceLoader = loaderOverride ?: WorkspaceLoader(
         persistence, { dao }, get<BookmarkControl>(), get<FakeBookFactory>().journalDocument.initials,
@@ -678,10 +688,12 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         for(labelId in labelIds) {
             val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }
             if (existingLabel != null) {
-                existingLabel.lastAccess = System.currentTimeMillis()
+                // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+                existingLabel.lastAccess = kotlin.time.Clock.System.now().toEpochMilliseconds()
                 workspaceSettings.recentLabels.sortBy { it.lastAccess }
             } else {
-                workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, System.currentTimeMillis()))
+                // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+                workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, kotlin.time.Clock.System.now().toEpochMilliseconds()))
                 while (workspaceSettings.recentLabels.size > 15) {
                     workspaceSettings.recentLabels.removeAt(0)
                 }

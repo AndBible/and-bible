@@ -120,7 +120,7 @@ object GetVerseContentTool : Tool {
         return try {
             val v11n = book.versification
             val key = PassageKeyFactory.instance().getKey(v11n, verseRef)
-            val fragment = SwordContentFacade.readOsisFragment(book, key, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
+            val fragment = SwordContentFacade.readOsisFragment(book, key, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
 
             if (args.format == ContentFormat.XML) {
                 val outputter = XMLOutputter(Format.getRawFormat())

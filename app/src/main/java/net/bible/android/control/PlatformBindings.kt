@@ -68,6 +68,13 @@ fun buildPlatformBindings() = module {
     single<net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener> { net.bible.android.platform.AndroidReadOnlyModuleDbOpener() }
     single<net.bible.sharedlogic.platform.SearchIndexScheduler> { net.bible.android.platform.AndroidSearchIndexScheduler(androidContext()) }
     single<net.bible.sharedlogic.platform.LocalCalendar> { net.bible.android.platform.AndroidLocalCalendar() }
+    // G3 ports (LocalCalendar is bound above, G1 + G3 in one class)
+    single<net.bible.sharedlogic.platform.FirstLoadEdge> { net.bible.android.platform.AndroidFirstLoadEdge }
+    single<net.bible.sharedlogic.platform.PromptPackSource> { net.bible.android.platform.AndroidPromptPackSource }
+    single<net.bible.sharedlogic.platform.LocaleSupport> { net.bible.android.platform.AndroidLocaleSupport }
+    single<net.bible.sharedlogic.platform.SentenceBreaker> { net.bible.android.platform.AndroidSentenceBreaker }
+    single<net.bible.sharedlogic.platform.NightModeState> { net.bible.android.platform.AndroidNightModeState }
+    single<net.bible.sharedlogic.platform.LabelNameStrings> { net.bible.android.platform.AndroidLabelNameStrings(androidContext()) }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> {

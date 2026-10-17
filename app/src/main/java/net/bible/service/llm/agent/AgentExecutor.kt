@@ -17,12 +17,13 @@
 
 package net.bible.service.llm.agent
 
+import androidx.annotation.VisibleForTesting
 import fi.sykero.kdom.input.build
 import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
@@ -66,15 +67,16 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import kotlinx.serialization.json.*
 import net.bible.service.llm.tools.*
-import java.io.StringReader
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
 
 /** Compact representation of a tool call for loop detection. */
-internal data class ToolCallSignature(val tool: AgentTool, val argsHash: Int)
+@VisibleForTesting
+data class ToolCallSignature(val tool: AgentTool, val argsHash: Int)
 
-internal fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignature> =
+@VisibleForTesting
+fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignature> =
     toolCalls.map { tc ->
         val normalized = try {
             val json = parseToolArguments(tc.arguments)
@@ -91,7 +93,8 @@ internal fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignatur
  * Returns true if any single (tool, args) signature appears [threshold] or more times
  * in the last [windowSize] calls.
  */
-internal fun detectLoop(
+@VisibleForTesting
+fun detectLoop(
     history: List<ToolCallSignature>,
     threshold: Int = 3,
     windowSize: Int = 5
@@ -714,7 +717,7 @@ class AgentExecutor(
             // Add selected content if available (converted from OSIS XML to plain text)
             if (context.selectedContent != null) {
                 val plainText = try {
-                    val fragment = useKdomBuilder { it.build(StringReader(context.selectedContent)).rootElement }
+                    val fragment = useKdomBuilder { it.build(context.selectedContent).rootElement }
                     OsisToPlainText.convert(fragment, injectAnchors = !prompt.isTextTransformation)
                 } catch (_: Exception) {
                     context.selectedContent
@@ -963,7 +966,7 @@ class AgentExecutor(
      */
     private suspend fun saveNoteContent(context: AgentContext, content: String) {
         val entityId = context.noteEditorEntityId ?: return
-        val bookmarkControl = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
+        val bookmarkControl = KoinPlatform.getKoin().get<net.bible.android.control.bookmark.BookmarkControl>()
 
         when (context.noteEditorEntityType) {
             NoteEditorEntityType.BOOKMARK_NOTE -> {
@@ -979,7 +982,7 @@ class AgentExecutor(
                 val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
                 val pageId = IdType(entityId)
                 val page = dao.pageById(pageId) ?: return
-                page.updatedAt = System.currentTimeMillis()
+                page.updatedAt = kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
                 dao.update(page)
                 dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
 

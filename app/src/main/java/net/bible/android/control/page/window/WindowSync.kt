@@ -17,11 +17,15 @@
 
 package net.bible.android.control.page.window
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import debounce
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory
-import net.bible.service.device.ScreenSettings
+import net.bible.sharedlogic.platform.NightModeState
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
+import org.koin.mp.KoinPlatform
 
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
@@ -29,12 +33,16 @@ import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 
 class WindowSync(private val windowRepository: WindowRepository) {
+    private val syncLock = reentrantLock()
+    private val nightModeState: NightModeState by lazy { KoinPlatform.getKoin().get() }
     private var lastSyncWasInNightMode: Boolean = false
-    var lastForceSyncAll: Long = System.currentTimeMillis()
+    // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+    var lastForceSyncAll: Long = kotlin.time.Clock.System.now().toEpochMilliseconds()
         private set
 
     fun setResyncRequired() {
-        lastForceSyncAll = System.currentTimeMillis()
+        // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+        lastForceSyncAll = kotlin.time.Clock.System.now().toEpochMilliseconds()
     }
 
     fun reloadAllWindows(force: Boolean = false) {
@@ -44,7 +52,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         for (window in windowRepository.visibleWindows) {
             window.updateOrScroll()
         }
-        lastSyncWasInNightMode = ScreenSettings.nightMode
+        lastSyncWasInNightMode = nightModeState.nightMode
     }
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required */
@@ -68,7 +76,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
         = debounce(200, scope) { sourceWindow -> immediateSynchronizeWindows(sourceWindow) }
 
-    private fun immediateSynchronizeWindows(sourceWindow: Window) = synchronized(this) {
+    private fun immediateSynchronizeWindows(sourceWindow: Window) = syncLock.withLock {
         Log.i(TAG, "...delayedSynchronizeWindows $sourceWindow")
 
         val activePage = sourceWindow.pageManager.currentPage
@@ -76,7 +84,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
-        if (lastSyncWasInNightMode != ScreenSettings.nightMode) {
+        if (lastSyncWasInNightMode != nightModeState.nightMode) {
             setResyncRequired()
         }
 
@@ -193,6 +201,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
  * The secondary-window scroll that used to travel as `ScrollSecondaryWindowEvent`. A view that is
  * not listening is skipped, as the bus skipped it (its registration lived in `listenEvents`).
  */
-internal fun scrollSecondaryWindow(listening: Boolean, verse: Verse, scroll: (Verse) -> Unit) {
+@VisibleForTesting
+fun scrollSecondaryWindow(listening: Boolean, verse: Verse, scroll: (Verse) -> Unit) {
     if (listening) scroll(verse)
 }

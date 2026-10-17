@@ -47,4 +47,35 @@ class LiveRunsTest {
         assertFalse("a repeated finish of a must not count b as ended", runs.finish(a))
         assertTrue(runs.finish(b))
     }
+
+    @Test fun concurrentAddFinishKeepsCount() {
+        val runs = LiveRuns()
+        val threads = 8
+        val perThread = 10_000
+        val emptied = java.util.concurrent.atomic.AtomicInteger(0)
+        val errors = java.util.Collections.synchronizedList(mutableListOf<Throwable>())
+        val start = java.util.concurrent.CountDownLatch(1)
+        val workers = (0 until threads).map {
+            Thread {
+                start.await()
+                try {
+                    repeat(perThread) {
+                        val job = Job()
+                        runs.add(job)
+                        if (runs.finish(job)) emptied.incrementAndGet()
+                    }
+                } catch (e: Throwable) {
+                    errors.add(e)
+                }
+            }.also { it.start() }
+        }
+        start.countDown()
+        workers.forEach { it.join() }
+        assertTrue("worker threads threw: $errors", errors.isEmpty())
+        val last = Job()
+        runs.add(last)
+        assertTrue("the set ends empty after the last finish", runs.finish(last))
+        assertTrue("finish returned true at least once (the set emptied)", emptied.get() >= 1)
+        assertTrue("a finish of an unknown job on an empty set reports empty", runs.finish(Job()))
+    }
 }

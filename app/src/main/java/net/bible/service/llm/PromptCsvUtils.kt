@@ -23,17 +23,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.database.IdType
 import net.bible.service.llm.agent.PermissionMode
-import java.io.File
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.OutputStream
-import java.io.OutputStreamWriter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+import net.bible.sharedlogic.text.IsoUtcTimestamps
+import okio.BufferedSource
+import okio.ByteString.Companion.encodeUtf8
+import okio.IOException
+import okio.Sink
+import okio.Source
+import okio.buffer
 
 private const val TAG = "PromptCsvUtils"
 
@@ -45,9 +41,6 @@ private const val TAG = "PromptCsvUtils"
 object PromptCsvUtils {
 
     private const val CSV_SEPARATOR = ";"
-    private val ISO_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
-    }
 
     private const val HEADER_NAME = "name"
     private const val HEADER_DESCRIPTION = "description"
@@ -76,13 +69,13 @@ object PromptCsvUtils {
      * Export prompts to CSV format.
      */
     suspend fun exportPromptsToCsv(
-        outputStream: OutputStream,
+        sink: Sink,
         prompts: List<AgentPrompt>
     ) = withContext(Dispatchers.IO) {
         try {
-            OutputStreamWriter(outputStream, "UTF-8").use { writer ->
-                writer.write(ALL_HEADERS.joinToString(CSV_SEPARATOR))
-                writer.write("\n")
+            sink.buffer().use { writer ->
+                writer.writeUtf8(ALL_HEADERS.joinToString(CSV_SEPARATOR))
+                writer.writeUtf8("\n")
 
                 for (prompt in prompts) {
                     val categoryName = PromptRepository.getCategoryForPrompt(prompt)?.name ?: ""
@@ -98,12 +91,12 @@ object PromptCsvUtils {
                         prompt.deniedTools?.joinToString(",") { it.name } ?: "",
                         prompt.configuredModelId?.toString() ?: "",
                         prompt.id.toString(),
-                        ISO_DATE_FORMAT.format(Date(prompt.createdAt)),
+                        IsoUtcTimestamps.format(prompt.createdAt),
                         prompt.bibleOnly.toString(),
                         escapeField(categoryName),
                     )
-                    writer.write(values.joinToString(CSV_SEPARATOR))
-                    writer.write("\n")
+                    writer.writeUtf8(values.joinToString(CSV_SEPARATOR))
+                    writer.writeUtf8("\n")
                 }
             }
         } catch (e: Exception) {
@@ -117,11 +110,11 @@ object PromptCsvUtils {
      * Returns a list of parsed prompts. Useful for add-on module loading.
      */
     fun parsePromptsFromCsv(
-        inputStream: InputStream,
+        source: Source,
     ): List<AgentPrompt> {
         val prompts = mutableListOf<AgentPrompt>()
 
-        BufferedReader(InputStreamReader(inputStream, "UTF-8")).use { reader ->
+        source.buffer().use { reader ->
             val headerRecord = readCsvRecord(reader) ?: throw IOException("Empty CSV file")
             val headerMap = headerRecord.withIndex().associate { it.value.trim() to it.index }
 
@@ -145,9 +138,9 @@ object PromptCsvUtils {
     }
 
     /** Category-resolving parsing requires DAO access; add-on parsing stays synchronous and pure. */
-    suspend fun parsePromptsFromCsv(inputStream: InputStream, resolveCategories: Boolean): List<AgentPrompt> {
-        if (!resolveCategories) return parsePromptsFromCsv(inputStream)
-        return BufferedReader(InputStreamReader(inputStream, "UTF-8")).use { reader ->
+    suspend fun parsePromptsFromCsv(source: Source, resolveCategories: Boolean): List<AgentPrompt> {
+        if (!resolveCategories) return parsePromptsFromCsv(source)
+        return source.buffer().use { reader ->
             val header = readCsvRecord(reader) ?: throw IOException("Empty CSV file")
             val headerMap = header.withIndex().associate { it.value.trim() to it.index }
             val prompts = mutableListOf<AgentPrompt>()
@@ -178,7 +171,7 @@ object PromptCsvUtils {
      * - Otherwise -> create new prompt
      */
     suspend fun importPromptsFromCsv(
-        inputStream: InputStream,
+        source: Source,
     ): ImportResult = withContext(Dispatchers.IO) {
         var created = 0
         var updated = 0
@@ -186,7 +179,7 @@ object PromptCsvUtils {
 
         try {
             initCategoryCache()
-            BufferedReader(InputStreamReader(inputStream, "UTF-8")).use { reader ->
+            source.buffer().use { reader ->
                 val headerRecord = readCsvRecord(reader) ?: throw IOException("Empty CSV file")
                 val headerMap = headerRecord.withIndex().associate { it.value.trim() to it.index }
 
@@ -306,9 +299,9 @@ object PromptCsvUtils {
 
         val createdAt = getValueOrNull(values, headerMap, HEADER_CREATED_AT)?.let { str ->
             if (str.isNotEmpty()) {
-                try { ISO_DATE_FORMAT.parse(str)?.time } catch (_: Exception) { null }
+                try { IsoUtcTimestamps.parseLenient(str) } catch (_: Exception) { null }
             } else null
-        } ?: System.currentTimeMillis()
+        } ?: kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
 
         val bibleOnly = getValueOrNull(values, headerMap, HEADER_BIBLE_ONLY)
             ?.lowercase()?.toBooleanStrictOrNull() ?: false
@@ -378,15 +371,30 @@ object PromptCsvUtils {
     }
 
     /**
+     * Reads one line the way `java.io.BufferedReader.readLine` does: a line ends at `\n`, `\r` or `\r\n`
+     * (okio's `readUtf8Line` does not treat a lone `\r` as an end). Returns null at the end of the input.
+     */
+    private fun BufferedSource.readLineLikeJava(): String? {
+        if (exhausted()) return null
+        val end = indexOfElement(LINE_ENDS)
+        if (end < 0) return readUtf8()
+        val line = readUtf8(end)
+        if (readByte() == '\r'.code.toByte() && request(1) && buffer[0] == '\n'.code.toByte()) skip(1)
+        return line
+    }
+
+    private val LINE_ENDS = "\r\n".encodeUtf8()
+
+    /**
      * Reads a complete CSV record that may span multiple lines (handles quoted fields with newlines).
      */
-    private fun readCsvRecord(reader: BufferedReader): List<String>? {
+    private fun readCsvRecord(reader: BufferedSource): List<String>? {
         val result = mutableListOf<String>()
         var current = StringBuilder()
         var inQuotes = false
 
         while (true) {
-            val line = reader.readLine() ?: break
+            val line = reader.readLineLikeJava() ?: break
 
             var i = 0
             while (i < line.length) {

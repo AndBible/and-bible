@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.platform.AppSettings
 
 import net.bible.sharedcore.log.Log
@@ -30,8 +31,7 @@ import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.tools.ToolDefinition
 import net.bible.sharedcore.platform.secrets.SecretStore
 
-import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.atomicfu.atomic
 import kotlin.coroutines.coroutineContext
 
 import net.bible.sharedcore.llm.http.LlmHttpTransport
@@ -64,15 +64,16 @@ object LlmProcessingService : KoinComponent {
     private val secrets: SecretStore get() = getKoin().get()
     private val transport: LlmHttpTransport get() = getKoin().get()
     private val settings: AppSettings get() = getKoin().get()
-    private val activeRequests = AtomicInteger(0)
+    private val activeRequests = atomic(0)
 
     /** Check if any LLM processing is currently active */
-    val isRunning: Boolean get() = activeRequests.get() > 0
+    val isRunning: Boolean get() = activeRequests.value > 0
 
     /**
      * Resolved provider/model/adapter triple, used to thread resolved state through the call chain.
      */
-    internal data class ResolvedProvider(
+    @VisibleForTesting
+    data class ResolvedProvider(
         val providerConfig: LlmProviderConfig,
         val adapter: LlmApiAdapter,
         val model: String,
@@ -84,7 +85,8 @@ object LlmProcessingService : KoinComponent {
     /**
      * Resolve provider, model, adapter, API key, and endpoint from an LlmModelConfig.
      */
-    internal suspend fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
+    @VisibleForTesting
+    suspend fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
         val configuredModel = (llmConfig ?: LlmModelConfig()).resolveConfiguredModel()
             ?: throw IllegalStateException("No LLM model configured")
 
@@ -132,7 +134,7 @@ object LlmProcessingService : KoinComponent {
     internal fun buildProviderExtraHeaders(providerConfig: LlmProviderConfig): Map<String, String> {
         val provider = providerConfig.resolveProvider()
         return when (provider) {
-            LlmProvider.XAI -> mapOf("x-grok-conv-id" to UUID.randomUUID().toString())
+            LlmProvider.XAI -> mapOf("x-grok-conv-id" to kotlin.uuid.Uuid.random().toString())
             else -> emptyMap()
         }
     }
@@ -161,7 +163,8 @@ object LlmProcessingService : KoinComponent {
      * @param extraHeaders Provider-specific extra headers (e.g. xAI conv-id)
      * @return LlmApiResponse containing the response body string and extracted token usage
      */
-    internal suspend fun callLlmApiWithTools(messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap(), preResolved: ResolvedProvider? = null): LlmApiResponse {
+    @VisibleForTesting
+    suspend fun callLlmApiWithTools(messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap(), preResolved: ResolvedProvider? = null): LlmApiResponse {
         val resolved = preResolved ?: resolveFromConfig(llmConfig)
 
         if (resolved.apiKey.isBlank()) {
@@ -199,7 +202,7 @@ object LlmProcessingService : KoinComponent {
                 if (attempt > 0 && lastError != null) {
                     val prev = lastError!!
                     val delayMs = LlmRetryPolicy.calculateDelayMs(attempt - 1, prev.retryAfterSeconds)
-                    val delaySec = "%.1f".format(delayMs / 1000.0)
+                    val delaySec = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.LocaleSupport>().formatFixed(delayMs / 1000.0, 1)
                     Log.w(TAG, "Rate limited (HTTP ${prev.code}). Retry $attempt/${LlmRetryPolicy.MAX_RETRIES} after ${delayMs}ms")
                     session?.addLogEntry(AgentLogEntry.info(
                         strings.llmRateLimitedRetrying(delaySec)

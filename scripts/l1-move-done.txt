@@ -8,3 +8,7 @@ readingplan
 koin
 backup
 installzip
+speak
+event
+progress
+bookmark

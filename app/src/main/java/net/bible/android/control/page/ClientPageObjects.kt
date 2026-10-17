@@ -17,7 +17,8 @@
 
 package net.bible.android.control.page
 
-import org.crosswire.common.util.toKLocale
+import androidx.annotation.VisibleForTesting
+import org.crosswire.common.util.KswordLocale
 
 import net.bible.sharedcore.log.Log
 import kotlinx.serialization.Serializable
@@ -53,8 +54,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
-import java.util.*
-import java.util.UUID.randomUUID
+import kotlin.uuid.Uuid
 import kotlin.math.abs
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
@@ -108,7 +108,7 @@ class ErrorDocument(private val errorMessage: String?, private val severity: Err
             Log.e("ErrorDocument", "ErrorDocument printed: ${Log.getStackTraceString(Exception())}")
         }
         return mapOf(
-            "id" to wrapString(randomUUID().toString()),
+            "id" to wrapString(Uuid.random().toString()),
             "type" to wrapString("error"),
             "errorMessage" to wrapString(errorMessage?:""),
             "severity" to wrapString(severity.name)
@@ -139,7 +139,7 @@ open class OsisDocument(
 ): Document {
     override suspend fun contentMap(): Map<String, String> {
         val ordinals = if (book.bookCategory != BookCategory.BIBLE)
-            SwordContentFacade.ordinalRangeFor(book, key, strings = org.koin.core.context.GlobalContext.get().get())
+            SwordContentFacade.ordinalRangeFor(book, key, strings = org.koin.mp.KoinPlatform.getKoin().get())
         else null
         return contentHashMap(ordinals).toMutableMap().apply {
             book.epubBackend?.let {
@@ -204,7 +204,8 @@ open class OsisDocument(
  * `Math.max(1, chapterNumber)` (`BibleDocument.vue`), so a document that starts at the book intro (chapter 0)
  * shows chapter 1's count; this must use the same chapter or the persisted count never appears on load.
  */
-internal suspend fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
+@VisibleForTesting
+suspend fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
     ProgressControl.getChapterReadCount(v11n, book, maxOf(1, chapter))
 
 class BibleDocument(
@@ -232,10 +233,10 @@ class BibleDocument(
         return super.contentMap().toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
-            put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, Locale.getDefault().toKLocale())))
+            put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, KswordLocale.default())))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
             put("addChapter", json.encodeToString(serializer(), swordBook.getProperty(KEY_SOURCE_TYPE).toString()
-                .lowercase(Locale.getDefault()) == "gbf" || !osisFragment.hasChapter))
+                .lowercase() == "gbf" || !osisFragment.hasChapter))
             put("chapterNumber", json.encodeToString(serializer(), verseRange.start.chapter))
             put("originalOrdinalRange", originalOrdinalRange)
             put("v11n", wrapString(swordBook.versification.name))
@@ -262,7 +263,7 @@ class MultiFragmentDocument(
 
     override val asHashMap: Map<String, Any>
         get() = mapOf(
-            "id" to wrapString(randomUUID().toString()),
+            "id" to wrapString(Uuid.random().toString()),
             "type" to wrapString("multi"),
             "osisFragments" to listToJson(osisFragments.map { mapToJson(it.toHashMap) }),
             "compare" to json.encodeToString(serializer(), compare),
@@ -286,7 +287,7 @@ class MemorizeDocument(
 ): SynchronousDocument {
     override val asHashMap: Map<String, Any>
         get() = mapOf(
-            "id" to wrapString(randomUUID().toString()),
+            "id" to wrapString(Uuid.random().toString()),
             "type" to wrapString("memorize"),
             "title" to wrapString(title),
             "texts" to listToJson(texts.map { "{ 'key': " + wrapString(it.first) + ", 'text':" + wrapString(it.second) + "}" }),

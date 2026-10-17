@@ -20,7 +20,7 @@ package net.bible.service.llm.tools.write
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
@@ -145,7 +145,7 @@ object CreateStudyPadTool : Tool, KoinComponent {
 
     override val requiresPermission = true
 
-    private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
+    private val bookmarkControl get() = KoinPlatform.getKoin().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override suspend fun formatActionDescription(arguments: JsonObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null

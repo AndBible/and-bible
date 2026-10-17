@@ -37,3 +37,4 @@ service/sword/mydocument/MyDocumentEdges.kt	Android blocking edge for the JSword
 service/cloudsync/webdav/PinnedTrust.kt	JVM TLS trust manager, hostname verifier and OkHttp engine; iOS evaluates server trust in its own engine
 service/cloudsync/webdav/AndroidWebDavPrefs.kt	SharedPreferences-backed WebDAV config and state
 service/cloudsync/webdav/AndroidWebDavSignInUi.kt	Android dialogs, resources and date format
+android/platform/AndroidFirstLoadEdge.kt	Synchronous first-load edge for activeWindow (blockingAtEdge, L1-edge); iOS decides in I2

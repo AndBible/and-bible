@@ -25,7 +25,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.control.page.window.SettingLabels
 import net.bible.service.common.GlobalTextDisplaySettingsStore
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
@@ -42,9 +42,9 @@ import kotlinx.coroutines.async
 class WorkspaceServiceImpl(private val windowControl: WindowControl) : WorkspaceService {
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
     private val working = mutableListOf<WorkspaceEntities.Workspace>()
-    private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = GlobalContext.get().get()
-    private val settingLabels: SettingLabels get() = GlobalContext.get().get()
-    private val appScope: AppCoroutineScope get() = GlobalContext.get().get()
+    private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = KoinPlatform.getKoin().get()
+    private val settingLabels: SettingLabels get() = KoinPlatform.getKoin().get()
+    private val appScope: AppCoroutineScope get() = KoinPlatform.getKoin().get()
 
     private fun WorkspaceEntities.Workspace.toVd() = WorkspaceRowVd(
         id = id.toString(),

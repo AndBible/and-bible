@@ -334,7 +334,7 @@ class TextToSpeechNotificationManager : KoinComponent {
 
         val sleepTime = speakControl.sleepTimerActivationTime
         if(sleepTime!=null) {
-            val minutes = (sleepTime.time - Calendar.getInstance().timeInMillis) / 60000
+            val minutes = (sleepTime - Calendar.getInstance().timeInMillis) / 60000
             builder.setContentText(app.getString(R.string.sleep_timer_active_at, minutes.toString()))
         }
         else if(!CommonUtils.isDiscrete) {

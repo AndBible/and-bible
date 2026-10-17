@@ -32,7 +32,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.service.cloudsync.CloudSync
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.android.control.versification.wholeChapter
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.mp.KoinPlatform
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.sharedcore.reading.ToolbarState
@@ -63,7 +63,7 @@ class ToolbarStateServiceImpl(
     private val syncRunning: net.bible.sharedcore.event.Events<Boolean>,
 ) : ToolbarStateService {
 
-    private val settings: AppSettings by inject(AppSettings::class.java)
+    private val settings: AppSettings by lazy { KoinPlatform.getKoin().get<AppSettings>() }
 
     private val _toolbar = MutableStateFlow(ToolbarState.EMPTY)
     override val toolbar: StateFlow<ToolbarState> = _toolbar.asStateFlow()

@@ -106,4 +106,30 @@ class RawLlmLogTest {
         assertTrue(formatted.contains("=== RAW API RESPONSE (iteration 1) ==="))
         assertTrue(formatted.contains("=== RAW API RESPONSE (iteration 2) ==="))
     }
+
+    private fun oldReleaseGzip(text: String): ByteArray {
+        val bos = java.io.ByteArrayOutputStream()
+        java.util.zip.GZIPOutputStream(bos).use { it.write(text.toByteArray(Charsets.UTF_8)) }
+        return bos.toByteArray()
+    }
+
+    @Test
+    fun readsLogsGzippedByOldReleases() {
+        val ascii = """{"model":"gpt","content":"hello world"}"""
+        val nonAscii = """{"model":"gpt","content":"Ääkköset ja 日本語 ✝ \uD83D\uDE00 😀"}"""
+        val big = """{"content":"${"Selitä jae. ".repeat(20_000)}"}"""
+        for (text in listOf(ascii, nonAscii, big, "")) {
+            assertEquals(text, RawLlmLog.gzipDecompress(oldReleaseGzip(text)))
+        }
+    }
+
+    @Test
+    fun newLogsReadableByGzipInputStream() {
+        for (text in listOf("""{"a":"b"}""", """{"content":"Ääkköset ja 日本語 ✝ 😀"}""", "", "x".repeat(300_000))) {
+            val bytes = RawLlmLog.gzipCompress(text)
+            val read = java.util.zip.GZIPInputStream(java.io.ByteArrayInputStream(bytes)).bufferedReader(Charsets.UTF_8).use { it.readText() }
+            assertEquals(text, read)
+            assertEquals(text, RawLlmLog.gzipDecompress(bytes))
+        }
+    }
 }

@@ -26,6 +26,13 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import fi.sykero.kdom.Element
+import fi.sykero.kdom.Text
+import fi.sykero.kdom.output.Format
+import fi.sykero.kdom.output.XMLOutputter
+import fi.sykero.kdom.output.support.AbstractXMLOutputProcessor
+import fi.sykero.kdom.output.support.FormatStack
+import org.apache.commons.text.StringEscapeUtils
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,4 +75,26 @@ class OsisFragmentIsNewTestamentTest {
     @Test
     fun newTestamentVerseIsNewTestament() =
         assertThat(isNewTestament("Matt.1.1"), equalTo(true))
+}
+
+
+/**
+ * Guards the move of `elementToString` off commons-text: its output must stay identical to the same
+ * processor using `StringEscapeUtils.unescapeHtml4`.
+ */
+class ElementToStringUnescapeTest {
+    @Test
+    fun elementToStringUnescapesLikeCommonsText() {
+        // Both processors unescape the Text node in place, so each gets its own tree.
+        fun tree() = Element("div").addContent(
+            Element("verse").setText("a &amp;quot;b&amp;quot; caf&eacute; &#x42; R&D & plain &lt;x&gt; &nbsp;z")
+        )
+        val expected = XMLOutputter(Format.getRawFormat(), object : AbstractXMLOutputProcessor() {
+            override fun printText(out: Appendable, fstack: FormatStack, text: Text) {
+                text.text = StringEscapeUtils.unescapeHtml4(text.text)
+                super.printText(out, fstack, text)
+            }
+        }).outputString(tree())
+        assertThat(elementToString(tree()), equalTo(expected))
+    }
 }

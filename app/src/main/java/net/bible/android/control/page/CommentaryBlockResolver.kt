@@ -16,7 +16,6 @@
  */
 package net.bible.android.control.page
 
-import fi.sykero.kdom.input.build
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.useKdomBuilder
 import net.bible.service.sword.OsisToPlainText
@@ -27,7 +26,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import fi.sykero.kdom.output.Format
 import fi.sykero.kdom.output.XMLOutputter
-import java.io.StringReader
 
 /**
  * Renders a commentary entry's raw OSIS XML for [key], or null when the entry is empty
@@ -36,7 +34,7 @@ import java.io.StringReader
  */
 internal fun renderCommentaryFragmentXml(book: Book, key: Key): String? {
     val outputter = XMLOutputter(Format.getRawFormat())
-    val xml = outputter.outputString(SwordContentFacade.readOsisFragment(book, key, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()))
+    val xml = outputter.outputString(SwordContentFacade.readOsisFragment(book, key, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>()))
     return if (xml.isBlank() || xml == "<div/>") null else xml
 }
 
@@ -48,7 +46,7 @@ internal fun renderCommentaryFragmentXml(book: Book, key: Key): String? {
  */
 internal fun renderComparable(book: Book, verse: Verse): String? {
     val xml = renderCommentaryFragmentXml(book, verse) ?: return null
-    val text = OsisToPlainText.convert(useKdomBuilder { it.build(StringReader(xml)).rootElement }).trim()
+    val text = OsisToPlainText.convert(useKdomBuilder { it.build(xml).rootElement }).trim()
     return text.ifBlank { null }
 }
 

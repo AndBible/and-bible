@@ -246,6 +246,8 @@ import net.bible.service.backup.BackupServiceImpl
 import net.bible.android.platform.exportStudyPads
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
+import okio.sink
+import okio.source
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.PendingAgentResult
@@ -5642,7 +5644,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 result.data?.data?.let { uri ->
                     withContext(Dispatchers.IO) {
                         contentResolver.openOutputStream(uri)?.use { outputStream ->
-                            PromptCsvUtils.exportPromptsToCsv(outputStream, userPrompts)
+                            PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), userPrompts)
                         } ?: throw IllegalArgumentException("Could not open output stream")
                     }
                     Toast.makeText(
@@ -5702,7 +5704,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private suspend fun importCsvAsEditable(uri: Uri, controller: AiPromptsController) {
         val importResult = withContext(Dispatchers.IO) {
             contentResolver.openInputStream(uri)?.use { inputStream ->
-                PromptCsvUtils.importPromptsFromCsv(inputStream)
+                PromptCsvUtils.importPromptsFromCsv(inputStream.source())
             } ?: throw IllegalArgumentException("Could not open input stream")
         }
 

@@ -17,6 +17,8 @@
 
 package net.bible.service.llm
 
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +34,8 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.OrderedLauncher
-import java.util.Locale
+import net.bible.sharedlogic.platform.LocaleSupport
+import org.koin.mp.KoinPlatform
 
 /** Immediate snapshot reads with application-owned FIFO writes and replacement-aware observation. */
 class AiSettingsStore(
@@ -45,9 +48,10 @@ class AiSettingsStore(
     private val lifetime: AiDatabaseLifetime,
     private val invalidations: () -> kotlinx.coroutines.flow.Flow<Unit>,
 ) : AiSettings {
+    private val localeSupport: LocaleSupport by lazy { KoinPlatform.getKoin().get<LocaleSupport>() }
     private val state = MutableStateFlow<GlobalAiSettings?>(null)
     private val dbMutex = Mutex()
-    private val stateLock = Any()
+    private val stateLock = reentrantLock()
     private var pendingWrites = 0
     private var observing = false
     private val generation = MutableStateFlow(0L)
@@ -62,11 +66,11 @@ class AiSettingsStore(
     override suspend fun ensureLoaded() {
         lifetime.use { dbMutex.withLock {
             if (!observing) {
-                val subscription = replacements.subscribe { synchronized(stateLock) { generation.value++ } }
-                val syncSubscription = syncReplacements.subscribe { synchronized(stateLock) { generation.value++ } }
+                val subscription = replacements.subscribe { stateLock.withLock { generation.value++ } }
+                val syncSubscription = syncReplacements.subscribe { stateLock.withLock { generation.value++ } }
                 val loaded = try { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().get() ?: GlobalAiSettings() } }
                 catch (e: Exception) { subscription.cancel(); syncSubscription.cancel(); throw e }
-                synchronized(stateLock) { if (state.value == null) state.value = loaded }
+                stateLock.withLock { if (state.value == null) state.value = loaded }
                 observing = true
                 val job = appScope.launch(start = CoroutineStart.UNDISPATCHED) {
                     generation.collectLatest {
@@ -102,17 +106,17 @@ class AiSettingsStore(
         // Never publish an emission captured before a newer local setter or queued write.
         // Re-read under the writer mutex: Room can deliver intermediate own emissions late.
         val loaded = kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().get() ?: GlobalAiSettings() }
-        synchronized(stateLock) { if (pendingWrites == 0) state.value = loaded }
+        stateLock.withLock { if (pendingWrites == 0) state.value = loaded }
     } }
 
     private fun update(transform: GlobalAiSettings.() -> GlobalAiSettings) {
-        synchronized(stateLock) {
+        stateLock.withLock {
             val snapshot = getOrDefault().transform()
             state.value = snapshot
             pendingWrites++
             launcher.launch("ai-settings") {
                 try { lifetime.use { dbMutex.withLock { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().set(snapshot) } } } }
-                finally { synchronized(stateLock) { pendingWrites-- } }
+                finally { stateLock.withLock { pendingWrites-- } }
             }
         }
     }
@@ -202,9 +206,8 @@ class AiSettingsStore(
      */
     override val aiDisplayLanguage: String
         get() {
-            val tag = aiLanguage ?: return Locale.getDefault().let { it.getDisplayLanguage(it) }
-            val locale = Locale.forLanguageTag(tag)
-            val displayName = locale.getDisplayLanguage(locale)
+            val tag = aiLanguage ?: return localeSupport.defaultDisplayLanguage()
+            val displayName = localeSupport.displayLanguage(tag)
             return if (displayName.isNotEmpty() && displayName != tag) displayName else tag
         }
 }

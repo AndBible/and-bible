@@ -30,6 +30,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AiBugReportRules
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmRawLogRecord
@@ -41,7 +42,7 @@ import java.util.Date
 object AiBugReport {
 
     /** Whether bug reporting is available for a given model (supported models only). */
-    fun isReportAvailable(modelName: String): Boolean = LlmProvider.isModelSupported(modelName)
+    fun isReportAvailable(modelName: String): Boolean = AiBugReportRules.isReportAvailable(modelName)
 
     suspend fun reportAiBug(activity: ActivityBase, logRecordId: IdType) {
         val record = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().getById(logRecordId) ?: return
@@ -125,8 +126,7 @@ object AiBugReport {
     }
 
     /** Resolve model name from an in-memory RawLlmLog's iteration data. */
-    fun resolveModelNameFromRawLog(rawLog: RawLlmLog): String =
-        rawLog.usageByIteration.values.lastOrNull()?.model ?: ""
+    fun resolveModelNameFromRawLog(rawLog: RawLlmLog): String = AiBugReportRules.resolveModelNameFromRawLog(rawLog)
 
     private fun buildReportBodyFromRawLog(
         model: String, providerType: String, usage: LlmUsage, cost: Double, iterationCount: Int

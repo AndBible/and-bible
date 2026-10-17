@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.ai
 
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.sync.withLock
 import net.bible.service.llm.collectOwned
 import kotlinx.coroutines.async
@@ -97,11 +99,11 @@ class PromptServiceImpl(private val strings: LlmStrings) : PromptService, KoinCo
     private val _hasHiddenPrompts = MutableStateFlow(false)
     override val hasHiddenPrompts: StateFlow<Boolean> = _hasHiddenPrompts.asStateFlow()
 
-    private val mutationLock = Any()
+    private val mutationLock = reentrantLock()
     private var mutationTail: kotlinx.coroutines.Deferred<*>? = null
 
     private suspend fun <T> mutate(block: suspend () -> T): T {
-        val write = synchronized(mutationLock) {
+        val write = mutationLock.withLock {
             val previous = mutationTail
             appScope.async {
                 previous?.join()

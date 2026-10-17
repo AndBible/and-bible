@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import androidx.annotation.VisibleForTesting
 import fi.sykero.kdom.input.build
 import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
@@ -52,8 +53,7 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.control.page.renderCommentaryFragmentXml
 import kotlinx.serialization.json.JsonObject
 import net.bible.service.llm.tools.*
-import org.koin.java.KoinJavaComponent
-import java.io.StringReader
+import org.koin.mp.KoinPlatform
 
 /**
  * Tool for getting commentary entries for a verse or verse range.
@@ -63,6 +63,9 @@ import java.io.StringReader
  * commentary covers a block of verses with a single entry).
  */
 object GetCommentariesTool : Tool, KoinComponent {
+    private val localeSupport: net.bible.sharedlogic.platform.LocaleSupport
+        get() = org.koin.mp.KoinPlatform.getKoin().get()
+
     private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
     @Serializable
@@ -142,10 +145,12 @@ object GetCommentariesTool : Tool, KoinComponent {
     }
 
     /** A single verse's rendered content (plain text or OSIS XML), or null if it has no commentary. */
-    internal data class RenderedVerse(val osisId: String, val content: String?)
+    @VisibleForTesting
+    data class RenderedVerse(val osisId: String, val content: String?)
 
     /** A run of consecutive verses that share identical rendered content. */
-    internal data class RenderedBlock(
+    @VisibleForTesting
+    data class RenderedBlock(
         val startVerseRef: String,
         val endVerseRef: String,
         val content: String
@@ -160,7 +165,8 @@ object GetCommentariesTool : Tool, KoinComponent {
      * fragment, so semantically identical entries whose underlying XML differs only in
      * per-verse metadata (e.g. across a chapter boundary) still collapse into one block.
      */
-    internal fun deduplicateConsecutiveBlocks(verses: List<RenderedVerse>): List<RenderedBlock> {
+    @VisibleForTesting
+    fun deduplicateConsecutiveBlocks(verses: List<RenderedVerse>): List<RenderedBlock> {
         val blocks = mutableListOf<RenderedBlock>()
         var current: RenderedBlock? = null
         for (verse in verses) {
@@ -228,7 +234,7 @@ object GetCommentariesTool : Tool, KoinComponent {
                             xml == null -> null
                             useXml -> xml
                             else -> OsisToPlainText.convert(
-                                useKdomBuilder { it.build(StringReader(xml)).rootElement },
+                                useKdomBuilder { it.build(xml).rootElement },
                                 injectAnchors = true
                             )
                         }
@@ -298,7 +304,8 @@ object GetCommentariesTool : Tool, KoinComponent {
         val estimatedChars: Int
     )
 
-    internal data class FilterResult(
+    @VisibleForTesting
+    data class FilterResult(
         val results: List<CommentaryResult>,
         val excludedCommentaries: List<String>
     )
@@ -336,7 +343,8 @@ object GetCommentariesTool : Tool, KoinComponent {
      * pipeline just to exceed a token threshold buys nothing (same rationale as
      * `BackupControl.selectDatabaseSections`, spec-referenced there).
      */
-    internal suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
+    @VisibleForTesting
+    suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
         val thresholdTokens = aiSettings.commentaryMaxResponseTokens
         if (thresholdTokens <= 0 || commentaryResults.isEmpty()) {
             return FilterResult(commentaryResults, emptyList())
@@ -394,22 +402,22 @@ object GetCommentariesTool : Tool, KoinComponent {
             SettingsItem.Choice(
                 info.initials,
                 strings.commentaryFilterItem(
-                    info.name, rangeStr, "%,d".format(tokens)),
+                    info.name, rangeStr, localeSupport.formatGrouped(tokens.toLong())),
             )
         }
         val selectedIds = items.mapNotNull { if (it.initials !in previouslyDeselected) it.initials else null }
 
         fun tokenTotalText(ids: List<String>): String {
             val selectedTokens = ids.sumOf { itemTokens[it] ?: 0 }
-            val description = strings.commentaryFilterDialogMessage("%,d".format(thresholdTokens))
+            val description = strings.commentaryFilterDialogMessage(localeSupport.formatGrouped(thresholdTokens.toLong()))
             val total = strings.commentaryFilterTotalTokens(
-                "%,d".format(selectedTokens),
-                "%,d".format(thresholdTokens),
+                localeSupport.formatGrouped(selectedTokens.toLong()),
+                localeSupport.formatGrouped(thresholdTokens.toLong()),
             )
             return "$description\n\n$total"
         }
 
-        val dialogs = KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java)
+        val dialogs = KoinPlatform.getKoin().get<AppDialogController>()
         val result = dialogs.await(
             AppDialogRequest.MultiChoice(
                 title = strings.commentaryFilterDialogTitle,

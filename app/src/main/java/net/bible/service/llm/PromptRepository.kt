@@ -23,8 +23,11 @@ import org.koin.core.component.KoinComponent
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
-import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedlogic.platform.PromptPackSource
+import okio.FileSystem
+import okio.Path.Companion.toPath
+import org.koin.mp.KoinPlatform
 
 /**
  * Unified facade for accessing both built-in and user-created prompts.
@@ -39,17 +42,17 @@ object PromptRepository : KoinComponent {
     private val aiSettings: AiSettings get() = getKoin().get()
     private const val TAG = "PromptRepository"
     private val environment: AppEnvironment get() = getKoin().get()
+    private val promptPacks: PromptPackSource by lazy { KoinPlatform.getKoin().get<PromptPackSource>() }
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
     private val categoryDao get() = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
     private val overrideDao get() = DatabaseContainer.instance.aiSettingsDb.builtinPromptOverrideDao()
 
-    /** Cached add-on prompts loaded from CSV files. Invalidated on [net.bible.service.common.AndBibleAddons.reloaded]. */
+    /** Cached add-on prompts loaded from CSV files. Invalidated on [PromptPackSource.reloaded]. */
     private var addonPromptsCache: List<AgentPrompt>? = null
 
-    init {
-        AndBibleAddons.reloaded.subscribe { addonPromptsCache = null }
-    }
+    /** Subscribed on first use, not in an initializer: [PromptPackSource] comes from Koin. */
+    private val reloadSubscription by lazy { promptPacks.reloaded.subscribe { addonPromptsCache = null } }
 
     fun clearAddonCache() {
         addonPromptsCache = null
@@ -57,10 +60,11 @@ object PromptRepository : KoinComponent {
 
     private fun loadAddonPrompts(): List<AgentPrompt> {
         addonPromptsCache?.let { return it }
+        reloadSubscription
         val prompts = mutableListOf<AgentPrompt>()
-        for (pack in AndBibleAddons.providedPromptPacks) {
+        for (pack in promptPacks.packs) {
             try {
-                val parsed = pack.file.inputStream().use { PromptCsvUtils.parsePromptsFromCsv(it) }
+                val parsed = FileSystem.SYSTEM.source(pack.path.toPath()).use { PromptCsvUtils.parsePromptsFromCsv(it) }
                 parsed.forEach { it.sourceModule = pack.moduleName }
                 prompts.addAll(parsed)
             } catch (e: Exception) {
@@ -151,7 +155,7 @@ object PromptRepository : KoinComponent {
         val newPrompt = source.copy(
             id = IdType(),
             name = source.name + " (copy)",
-            createdAt = System.currentTimeMillis(),
+            createdAt = kotlin.time.Clock.System.now().toEpochMilliseconds(), // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
             orderNumber = newOrder,
             categoryId = effectiveCategoryId,
         ).also { it.sourceModule = null }

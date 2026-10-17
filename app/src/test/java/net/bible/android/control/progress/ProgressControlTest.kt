@@ -499,6 +499,38 @@ class ProgressControlTest {
         ) }
     }
 
+    @Test
+    fun `readHistoryForDayUsesLocalDayAcrossDst`() = runTest {
+        withTimeZone("Europe/Helsinki") {
+            for ((y, m, d) in listOf(Triple(2026, Calendar.MARCH, 29), Triple(2026, Calendar.OCTOBER, 25))) {
+                fun local(dayOffset: Int, hour: Int, minute: Int) = Calendar.getInstance().apply {
+                    clear(); set(y, m, d + dayOffset, hour, minute, 0)
+                }.timeInMillis
+                // 23:30 the evening before, 00:30 and 23:30 on the DST day, 00:30 the day after.
+                val stamps = listOf(local(-1, 23, 30), local(0, 0, 30), local(0, 23, 30), local(1, 0, 30))
+                resetDatabase()
+                runBlocking {
+                    stamps.forEachIndexed { i, ts ->
+                        dao.insertChapterReadHistory(ChapterReadHistory(
+                            kjvBookOrdinal = BibleBook.GEN.ordinal, chapter = i + 1, readAt = ts))
+                    }
+                }
+                // Inline copy of the previous Calendar-based algorithm.
+                val dayStart = Calendar.getInstance().apply {
+                    clear(); set(y, m, d, 0, 0, 0)
+                }.timeInMillis
+                val oldNext = Calendar.getInstance().apply {
+                    timeInMillis = dayStart; add(Calendar.DAY_OF_YEAR, 1)
+                }.timeInMillis
+                val expected = stamps.indices.filter { stamps[it] in dayStart until oldNext }.map { it + 1 }
+                assertEquals(listOf(2, 3), expected)
+
+                val actual = ProgressControl.getReadHistoryForDay(dayStart).map { it.chapter }.sorted()
+                assertEquals(expected, actual)
+            }
+        }
+    }
+
     /** Runs [block] with the JVM default timezone temporarily set to [zoneId]. */
     private inline fun withTimeZone(zoneId: String, block: () -> Unit) {
         val previous = TimeZone.getDefault()

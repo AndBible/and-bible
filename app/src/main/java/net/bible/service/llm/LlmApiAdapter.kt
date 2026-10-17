@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import androidx.annotation.VisibleForTesting
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlinx.serialization.builtins.ListSerializer
@@ -147,7 +148,8 @@ private val NO_CACHE_CONTROL_REGEX = Regex(
  * excluded. Non-Anthropic models (gemini/, openai/, etc.) do not understand
  * the cache_control field at all.
  */
-internal fun modelSupportsCacheControl(model: String): Boolean {
+@VisibleForTesting
+fun modelSupportsCacheControl(model: String): Boolean {
     if (!model.startsWith("anthropic/claude")) return false
     if (NO_CACHE_CONTROL_REGEX.containsMatchIn(model)) return false
     return true

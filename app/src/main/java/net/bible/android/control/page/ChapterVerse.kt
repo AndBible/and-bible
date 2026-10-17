@@ -42,14 +42,14 @@ data class ChapterVerse(val chapter: Int, val verse: Int) {
             other != null && (chapter == other.chapter)
 
     companion object {
-        @JvmStatic fun fromHtmlId(chapterDotVerse: String): ChapterVerse {
+        fun fromHtmlId(chapterDotVerse: String): ChapterVerse {
             val strings = chapterDotVerse.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val chapter = Integer.parseInt(strings[0])
-            val verse = Integer.parseInt(strings[1])
+            val chapter = strings[0].toInt()
+            val verse = strings[1].toInt()
             return ChapterVerse(chapter, verse)
         }
 
-        @JvmStatic fun fromVerse(pVerse: Verse): ChapterVerse {
+        fun fromVerse(pVerse: Verse): ChapterVerse {
             val chapter = pVerse.chapter
             val verse = pVerse.verse
             return ChapterVerse(chapter, verse)

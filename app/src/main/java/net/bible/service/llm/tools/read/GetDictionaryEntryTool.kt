@@ -17,7 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.service.llm.encodeUriComponent
 import net.bible.android.control.link.isGreekDef
 import net.bible.android.control.link.isHebrewDef
@@ -95,7 +95,7 @@ object GetDictionaryEntryTool : Tool {
         required: [dictionary, key]
     """)
 
-    private val linkControl get() = GlobalContext.get().get<net.bible.android.control.link.LinkControl>()
+    private val linkControl get() = KoinPlatform.getKoin().get<net.bible.android.control.link.LinkControl>()
 
     override fun formatArgsForLog(arguments: JsonObject): String? {
         val dictionary = arguments.optString("dictionary", "").takeIf { it.isNotBlank() } ?: return null
@@ -140,7 +140,7 @@ object GetDictionaryEntryTool : Tool {
                     ?: return ToolResult.error("Key not found in dictionary: $key", "KEY_NOT_FOUND")
             }
 
-            val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
+            val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
             val linkUrl = when {
                 dictionary.isGreekDef || dictionary.isHebrewDef -> "strongs://$key"
                 else -> "sword://${encodeUriComponent(dictionaryInitials)}/${encodeUriComponent(key)}"

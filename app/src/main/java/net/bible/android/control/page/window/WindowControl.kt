@@ -31,7 +31,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.service.common.firstBibleDoc
 import net.bible.sharedcore.platform.AppCoroutineScope
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.service.sword.BookAndKey
 
 import org.crosswire.jsword.book.Book
@@ -53,11 +53,11 @@ open class WindowControl constructor() {
      * lazy getter). Lets the test database reset own the scope `Window.loadText` launches into.
      */
     @VisibleForTesting
-    internal val currentWindowRepositoryOrNull: WindowRepository? get() = _windowRepository
+    val currentWindowRepositoryOrNull: WindowRepository? get() = _windowRepository
 
     /** Drops [expected] if it is still the installed repository, so the lazy getter builds a live one next. */
     @VisibleForTesting
-    internal fun forgetWindowRepositoryIfCurrent(expected: WindowRepository) {
+    fun forgetWindowRepositoryIfCurrent(expected: WindowRepository) {
         if (_windowRepository === expected) _windowRepository = null
     }
 
@@ -120,7 +120,7 @@ open class WindowControl constructor() {
     }
 
     @VisibleForTesting
-    internal var forceResyncCountForTest = 0
+    var forceResyncCountForTest = 0
 
     /** Marks every window for resync and reloads the visible ones (after a settings change). */
     fun forceResyncAndReloadAll() {
@@ -329,10 +329,10 @@ open class WindowControl constructor() {
      * (this object is built while Koin is starting, and tests replace the Koin objects per test); tests assign a fake.
      */
     @VisibleForTesting
-    internal var settingsPicker: WindowSettingsPicker = WindowSettingsPicker { w, t -> koinPicker.chooseSettingsToCopy(w, t) }
-    private val koinPicker: WindowSettingsPicker get() = GlobalContext.get().get()
+    var settingsPicker: WindowSettingsPicker = WindowSettingsPicker { w, t -> koinPicker.chooseSettingsToCopy(w, t) }
+    private val koinPicker: WindowSettingsPicker get() = KoinPlatform.getKoin().get()
 
-    private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = GlobalContext.get().get()
+    private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = KoinPlatform.getKoin().get()
 
     /**
      * The copy-settings launches replace the former `CurrentActivityHolder.currentActivity!!.lifecycleScope`:
@@ -341,7 +341,7 @@ open class WindowControl constructor() {
      *    global store), so they run on [AppCoroutineScope] (Main), and complete even if the activity goes away
      *    while the dialog is open.
      */
-    private val appScope: AppCoroutineScope get() = GlobalContext.get().get()
+    private val appScope: AppCoroutineScope get() = KoinPlatform.getKoin().get()
 
     private suspend fun chooseSettingsToCopy(window: Window): List<WorkspaceEntities.TextDisplaySettings.Types> =
         settingsPicker.chooseSettingsToCopy(window, WorkspaceEntities.TextDisplaySettings.Types.values().toList())
