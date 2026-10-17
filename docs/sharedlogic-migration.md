@@ -239,9 +239,16 @@ core	16	16	3	0	3
 After G3 (branch `ios-6`, 2026-10-17; the baseline above is unchanged). Rows are
 `scripts/l1-move-readiness.sh --domain <d>`; `progress`, `event`, `speak` and `bookmark` read 0 and are in
 `scripts/l1-move-done.txt`. What remains: `page` jvmapi 4 (`synchronized(BookName::class.java)` x3,
-`synchronized(currentDocument)`) and app 1 (`useKdomBuilder`); `window` jvmapi 1 (`synchronized(BookName::class.java)`,
-waits for G1's `withMonitor`/`bookNameMonitor`, G3 Task 3); `llm` jvm 1 (`java.util.concurrent.ConcurrentHashMap` inline in
+`synchronized(currentDocument)`) and app 1 (`useKdomBuilder`); `window` jvmapi 1 (`synchronized(BookName::class.java)`; after the final-review fix, which moved
+`WorkspaceServiceImpl` from `GlobalContext` to `KoinPlatform` and marked the `Window.kt` OOM catch, this is window's only
+remaining blocker and waits for G1's `withMonitor`/`bookNameMonitor`, G3 Task 3, which did not land); `page` also waits on
+Task 3 / G1 `withMonitor`; `llm` jvm 1 (`java.util.concurrent.ConcurrentHashMap` inline in
 `AiDatabaseLifetime.kt`) and app 2 (`useKdomBuilder` imports).
+
+Coordination: G1 plan Task 4 and G3 Task 2 both create `sharedLogic/.../platform/LocalCalendar.kt` +
+`AndroidLocalCalendar.kt` + `single<LocalCalendar>` with DIFFERENT interfaces. Whichever merges second must extend the
+other's interface instead (G3's is the merged one if G3 lands first). G3 S11 also widened members in D2-owned
+`AiDatabaseLifetime.kt` (D2 should know).
 
 ```
 domain	jvm	jvmapi	jvm3p	android	app

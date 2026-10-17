@@ -417,7 +417,7 @@ class Window (
             val document = currentPage.currentDocument
             Log.i(TAG, "Loading document:$document key:${currentPage.key}")
             currentPage.currentPageContent()
-        } catch (oom: OutOfMemoryError) {
+        } catch (oom: OutOfMemoryError) { // L1-common-ok: OutOfMemoryError compiles in commonMain
             Log.e(TAG, "Out of memory error", oom)
             requestGarbageCollection()
             ErrorDocument(strings.errorPageTooLarge, ErrorSeverity.ERROR)
