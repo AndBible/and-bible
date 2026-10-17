@@ -34,6 +34,7 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.koin.test)
+            implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
         }
         jvmTest.dependencies {
             implementation(libs.androidx.sqlite.bundled.jvm)
