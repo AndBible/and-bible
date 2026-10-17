@@ -39,10 +39,11 @@ Ports that exist after phase 0 (`ls sharedCore/src/commonMain/kotlin/net/bible/s
 | `AppEnvironment` | `platform/AppEnvironment.kt` | `AndroidAppEnvironment(androidContext())`; `CoreModule.kt` line 215 |
 | `FilePorts` (`FilePicker`, `FileDelivery`) | `platform/files/FilePorts.kt` | Android pickers/share sheet |
 | `MarkdownRenderer` | `platform/MarkdownRenderer.kt` | `net.bible.service.sword.mydocument.MarkdownToXhtml`; `CoreModule.kt` line 213 |
+| `DatabaseHost` (D2) | `:sharedLogic` `service/db/DatabaseHost.kt` | `net.bible.service.db.AndroidDatabaseHost`, installed by `DatabaseContainer.installHost(...)` first in `BibleApplication.onCreate` (not a Koin binding: `DatabaseContainer` is needed before Koin starts) |
 
 Ports still to be created by the groups (named in S8): foreground indexing (`SearchIndexingService`, G1),
 certificate pinning (`webdav/PinnedTrust`), WebDAV sign-in UI and `SharedPreferences` in `WebDavConfig`
-(G2), text segmentation (`BreakIterator` in speak, G3), Room database builder (context vs path, D2).
+(G2), text segmentation (`BreakIterator` in speak, G3), (the Room database builder, formerly listed here for D2, needs no port: `buildAppDatabase` uses Room 3's context-less `Room.databaseBuilder(name = absolutePath)`, characterized in `AppDatabaseBuilderTest`).
 
 ## 3. Koin (S7)
 
@@ -280,3 +281,34 @@ they disagree.
   Tasks that overlap E5 (emulator-debt fixes) start after E5 merges, and E5's tests are in their gate.
 - **`oldmigrations/`** stays in `:app` permanently (Android-only legacy); `DatabaseContainer` reaches it
   through its host port.
+
+## 11. D2 outcome (2026-10-17)
+
+`DatabaseContainer`, `AppDatabaseFiles`, `ReadUserVersion`, `RoomMarked`, `DatabaseHost`,
+`AiDatabaseLifetime` and `SyncDatabaseHooks` live in `:sharedLogic` `commonMain` (same FQNs, moved with
+`git mv`, 100% renames). What stays in `:app`: `BlockingDb.kt` (`blockingAtEdge` only; the marked Room
+wrappers went to `RoomMarked.kt`), `AndroidDatabaseHost.kt`, `oldmigrations/*`, `ImportDb.kt` (G2), and two
+shims for G2 to delete when it switches its call sites: `readUserVersion(file: File)` (`JvmFileShims.kt`,
+used by `BackupControl.kt`) and `SyncableDatabaseAccessor.localDbFile` (`SyncAccessorFileShim.kt`, used by
+`CloudSync.kt`).
+
+- **Spec S10 is superseded** (D1b follow-up decision): no `runBlocking`/`blockingAtEdge` in any
+  `commonMain`/`iosMain`; `scripts/l1-readiness.sh` enforces it (`@no-common-blocking`). The cold open is
+  `suspend DatabaseContainer.create()`; the synchronous `instance` getter reaches it through
+  `AndroidDatabaseHost.openContainer()` (the `L1-edge`). I2 decides how iOS opens the container.
+- **Koin.** No `KoinJavaComponent` left in any D2 file. `CoreModule.kt` now includes
+  `PlatformBindings.kt` (`:app`) and `SharedBindings.kt` (phase 2 moves it to `:sharedLogic`); a definition
+  snapshot test (`CoreModuleSplitTest`) pins the union.
+- **Tests.** `:sharedLogic:jvmTest` runs the container on the bundled driver (12 tests incl. the sync-trigger
+  and flush-survives-reopen cases); the iOS simulator run is owed to host CI. The "migrate from an exported
+  version" common case needs `:sharedData`'s schema fixtures and is phase 2.
+- **Test-isolation fix found by the full-suite gate:** `InstallZipBeforeDbInitTest` ran the real
+  `initializeApp()` and left an `AiSettingsStore` observer on the production `AppCoroutineScope`, which reopened
+  the JVM-global container after every later reset (a pre-existing leak; it surfaced as 4 red D2 tests only in
+  the full run). The test now cancels what it started.
+- **Baseline re-run** (full `:app` suite with Roborazzi, unfiltered): 5,124 tests, 13 failures = the 12
+  environmental `SearchIndexingServiceTest` reds + `SpeakChangesTest` (known order/timing flake, green alone);
+  no golden changed. Command: `./gradlew -Dorg.gradle.native=false :app:verifyRoborazziStandardGoogleplayDebug`.
+- **Open:** `app/src/androidTest` does not compile (pre-existing drift in `DatabasePatchingTests`,
+  `MainBibleActivityTests`; `DatabasePatchingTests.kt:60` additionally passes a `File` where
+  `SyncableDatabaseAccessor` now takes a path).
