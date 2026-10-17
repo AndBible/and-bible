@@ -5,11 +5,6 @@ package net.bible.sharedcore.webdav
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.HttpSend
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.plugin
-import io.ktor.client.plugins.auth.providers.DigestAuthCredentials
-import io.ktor.client.plugins.auth.providers.digest
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.header
 import io.ktor.client.request.prepareRequest
@@ -23,6 +18,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.Url
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
 import io.ktor.utils.io.ByteWriteChannel
@@ -32,10 +28,11 @@ import kotlin.concurrent.Volatile
 import kotlin.io.encoding.Base64
 
 /**
- * Builds the HttpClient a [WebDavClient] needs. Digest is handled by ktor's Auth plugin (it
- * answers a Digest challenge transparently); Basic is handled by [WebDavClient] itself so it can
- * be sent pre-emptively after the first challenge instead of costing a 401 round trip per request.
+ * Builds the HttpClient a [WebDavClient] needs. Authentication (Basic and Digest) is answered by
+ * [WebDavClient] itself, not ktor's Auth plugin, whose Digest hashing throws on Darwin. The
+ * credentials are therefore unused here; the parameters stay for the existing callers.
  */
+@Suppress("UNUSED_PARAMETER")
 fun createWebDavHttpClient(engine: HttpClientEngine, username: String, password: String): HttpClient =
     HttpClient(engine) {
         expectSuccess = false
@@ -43,27 +40,6 @@ fun createWebDavHttpClient(engine: HttpClientEngine, username: String, password:
         install(HttpTimeout) {
             connectTimeoutMillis = 15_000
             socketTimeoutMillis = 60_000
-        }
-        install(Auth) {
-            // Only a Digest challenge is Auth's business. Since ktor 3.5 a lone provider is tried for ANY
-            // 401 (even a Basic challenge it cannot parse, which NPEs); Basic is answered by WebDavClient.
-            reAuthorizeOnResponse { resp ->
-                resp.status == HttpStatusCode.Unauthorized &&
-                    resp.headers.getAll(HttpHeaders.WWWAuthenticate).orEmpty().any { it.trimStart().startsWith("Digest", ignoreCase = true) }
-            }
-            digest {
-                credentials { DigestAuthCredentials(username, password) }
-            }
-        }
-    }.also { client ->
-        // ktor's Auth plugin dereferences the WWW-Authenticate header of a 401 and throws an NPE when
-        // the server sent none. This interceptor is added after Auth, so it sees the raw response
-        // first and turns that rejected credential into a DavAuthException before Auth can choke.
-        client.plugin(HttpSend).intercept { request ->
-            val call = execute(request)
-            if (call.response.status == HttpStatusCode.Unauthorized && call.response.headers[HttpHeaders.WWWAuthenticate] == null)
-                throw DavAuthException(401)
-            call
         }
     }
 
@@ -82,8 +58,8 @@ fun createWebDavHttpClient(engine: HttpClientEngine, username: String, password:
 class WebDavClient(
     private val http: HttpClient,
     baseUrl: String,
-    username: String,
-    password: String,
+    private val username: String,
+    private val password: String,
     private val nowMs: () -> Long,
     private val mapPlatformError: (Throwable) -> DavException? = { null },
 ) {
@@ -108,9 +84,9 @@ class WebDavClient(
 
     suspend fun get(path: String, onChunk: suspend (ByteArray, Int) -> Unit) = call(path) {
         http.prepareRequest { build(path, HttpMethod.Get, collectionUrl = false) }.execute { resp ->
-            val retried = retryBasicIfChallenged(resp)
-            if (retried) {
-                http.prepareRequest { build(path, HttpMethod.Get, collectionUrl = false) }.execute { r2 -> stream(path, r2, onChunk) }
+            val answer = challengeAnswer(resp, HttpMethod.Get, path, collectionUrl = false)
+            if (answer != null) {
+                http.prepareRequest { build(path, HttpMethod.Get, collectionUrl = false, answer) }.execute { r2 -> stream(path, r2, onChunk) }
             } else stream(path, resp, onChunk)
         }
     }
@@ -145,27 +121,40 @@ class WebDavClient(
         okStatuses: Set<Int> = emptySet(), configure: HttpRequestBuilder.() -> Unit = {},
     ): HttpResponse {
         var resp = http.request { build(path, method, collectionUrl); configure() }
-        if (retryBasicIfChallenged(resp)) resp = http.request { build(path, method, collectionUrl); configure() }
+        challengeAnswer(resp, method, path, collectionUrl)?.let { answer ->
+            resp = http.request { build(path, method, collectionUrl, answer); configure() }
+        }
         noteDate(resp)
         val status = resp.status.value
         if (status !in okStatuses) davStatusException(status, path)?.let { throw it }
         return resp
     }
 
-    private fun HttpRequestBuilder.build(path: String, method: HttpMethod, collectionUrl: Boolean) {
+    private fun requestUrl(path: String, collectionUrl: Boolean): String =
+        davPath.url(path).let { if (collectionUrl && !it.endsWith("/")) "$it/" else it }
+
+    /** [authorization] answers a challenge for this one request; otherwise Basic goes pre-emptively once known. */
+    private fun HttpRequestBuilder.build(path: String, method: HttpMethod, collectionUrl: Boolean, authorization: String? = null) {
         this.method = method
-        val u = davPath.url(path)
-        url(if (collectionUrl && !u.endsWith("/")) "$u/" else u)
-        if (preemptiveBasic) header(HttpHeaders.Authorization, basicHeader)
+        url(requestUrl(path, collectionUrl))
+        (authorization ?: basicHeader.takeIf { preemptiveBasic })?.let { header(HttpHeaders.Authorization, it) }
     }
 
-    /** A Basic challenge the Auth plugin left unanswered: switch to pre-emptive Basic and ask for one retry. */
-    private fun retryBasicIfChallenged(resp: HttpResponse): Boolean {
-        if (resp.status.value != 401 || preemptiveBasic) return false
-        val challenge = resp.headers.getAll(HttpHeaders.WWWAuthenticate).orEmpty()
-        if (challenge.none { it.trimStart().startsWith("Basic", ignoreCase = true) }) return false
+    /**
+     * The `Authorization` value for one retry of a 401, or null when there is nothing to answer.
+     * Digest wins over Basic when both are offered and is answered per request (like ktor's provider
+     * did); a Basic challenge switches to pre-emptive Basic so later requests skip the 401.
+     */
+    private fun challengeAnswer(resp: HttpResponse, method: HttpMethod, path: String, collectionUrl: Boolean): String? {
+        if (resp.status.value != 401) return null
+        val challenges = resp.headers.getAll(HttpHeaders.WWWAuthenticate).orEmpty()
+        DigestChallenge.parse(challenges)?.let { digest ->
+            val uri = Url(requestUrl(path, collectionUrl)).encodedPathAndQuery
+            return digest.authorization(username, password, method.value, uri, 1, DigestChallenge.newCnonce())
+        }
+        if (preemptiveBasic || challenges.none { it.trimStart().startsWith("Basic", ignoreCase = true) }) return null
         preemptiveBasic = true
-        return true
+        return basicHeader
     }
 
     private suspend fun stream(path: String, resp: HttpResponse, onChunk: suspend (ByteArray, Int) -> Unit) {

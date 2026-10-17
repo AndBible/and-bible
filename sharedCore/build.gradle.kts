@@ -32,7 +32,6 @@ kotlin {
             implementation(libs.kotlinx.atomicfu)
             implementation(libs.kotlinx.serialization.json)
             api(libs.ktor.client.core)       // HttpClient / HttpClientEngine appear in WebDavClient's API
-            implementation(libs.ktor.client.auth)
             implementation(libs.xmlutil.core)
         }
         commonTest.dependencies {

@@ -83,7 +83,6 @@ reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reo
 jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 jetbrains-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 # WebDAV sync client (sharedCore)
-ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "xmlutil" }
 
 [plugins]
