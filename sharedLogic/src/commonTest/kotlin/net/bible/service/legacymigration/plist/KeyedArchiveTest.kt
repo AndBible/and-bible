@@ -75,4 +75,17 @@ class KeyedArchiveTest {
     @Test fun nonArchiveThrows() {
         assertFailsWith<LegacyFormatException> { KeyedArchive.decode(BplistBuilder.build(PlistString("x"))) }
     }
+
+    @Test fun missingTopRootThrows() {
+        val bytes = BplistBuilder.build(PlistDict(mapOf(
+            "\$archiver" to PlistString("NSKeyedArchiver"),
+            "\$top" to PlistDict(emptyMap()),
+            "\$objects" to PlistArray(listOf(PlistString("\$null"))),
+        )))
+        assertFailsWith<LegacyFormatException> { KeyedArchive.decode(bytes) }
+    }
+
+    @Test fun outOfRangeObjectIndexThrows() {
+        assertFailsWith<LegacyFormatException> { KeyedArchive.decode(archive(rootUid = 9)) }
+    }
 }

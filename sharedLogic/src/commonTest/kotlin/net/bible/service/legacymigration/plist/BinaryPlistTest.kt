@@ -52,8 +52,8 @@ class BinaryPlistTest {
             "list" to PlistArray(listOf(PlistInt(1), PlistString("two"), PlistBool(true))),
             "inner" to PlistDict(mapOf("k" to PlistUid(3))),
         ))
-        for (size in listOf(1, 2)) {
-            assertEquals(tree, BinaryPlist.parse(BplistBuilder.build(tree, minOffsetSize = size)))
+        for (size in listOf(1, 2, 3)) for (refs in listOf(1, 2, 3)) {
+            assertEquals(tree, BinaryPlist.parse(BplistBuilder.build(tree, minOffsetSize = size, refSize = refs)))
         }
     }
 
@@ -71,5 +71,57 @@ class BinaryPlistTest {
         val bytes = single("10 07")
         bytes[bytes.size - 32 - 1] = 0x7F // the single offset-table entry
         assertFailsWith<LegacyFormatException> { BinaryPlist.parse(bytes) }
+    }
+
+    @Test fun nonAsciiStringRoundTripsThroughUtf16() {
+        val tree = PlistArray(listOf(PlistString("\u00e4\u20ac"), PlistString("plain")))
+        assertEquals(tree, BinaryPlist.parse(BplistBuilder.build(tree)))
+    }
+
+    /** Single-object plist `a0 01 00` (array of one ref to itself) built by hand. */
+    @Test fun selfReferencingArrayIsRejected() {
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(single("A1 00")) }
+    }
+
+    @Test fun unknownMarkerIsRejected() {
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(single("70")) }
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(single("07")) }
+    }
+
+    @Test fun badTrailerSizesAreRejected() {
+        for (index in listOf(6, 7)) for (value in listOf(0, 9)) {
+            val bytes = single("10 07")
+            bytes[bytes.size - 32 + index] = value.toByte()
+            assertFailsWith<LegacyFormatException> { BinaryPlist.parse(bytes) }
+        }
+    }
+
+    @Test fun objectRefOutOfRangeIsRejected() {
+        // array of one ref pointing at object 5 of a 1-object file
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(single("A1 05")) }
+        // top object index beyond the object count
+        val bytes = single("10 07")
+        bytes[bytes.size - 32 + 23] = 3
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(bytes) }
+    }
+
+    @Test fun hugeObjectCountIsRejected() {
+        val bytes = single("10 07")
+        for (i in 8..15) bytes[bytes.size - 32 + i] = 0x7F
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(bytes) }
+    }
+
+    @Test fun validFileTruncatedByFiveBytesIsRejected() {
+        val full = BplistBuilder.build(PlistDict(mapOf("a" to PlistString("b"), "n" to PlistInt(1))))
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(full.copyOf(full.size - 5)) }
+    }
+
+    @Test fun truncatedMidObjectIsRejected() {
+        // string claims 5 bytes but only 2 remain before the offset table
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(single("55 61 62")) }
+        // array claims 9 elements with extended length beyond the data area
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(single("AF 10 FF")) }
+        // int claims 4 bytes but has 1
+        assertFailsWith<LegacyFormatException> { BinaryPlist.parse(single("12 01")) }
     }
 }

@@ -1,10 +1,10 @@
 package net.bible.service.legacymigration.plist
 
-/** Test-only encoder producing `bplist00` bytes from [PlistValue] trees (one-byte object refs, up to 255 objects). */
+/** Test-only encoder producing `bplist00` bytes from [PlistValue] trees (configurable ref and offset widths). */
 internal object BplistBuilder {
-    fun build(root: PlistValue, minOffsetSize: Int = 1): ByteArray {
+    fun build(root: PlistValue, minOffsetSize: Int = 1, refSize: Int = 1): ByteArray {
         val encoded = ArrayList<ByteArray>()
-        val index = encode(root, encoded)
+        val index = encode(root, encoded, refSize)
         val out = ArrayList<Byte>()
         "bplist00".forEach { out.add(it.code.toByte()) }
         val offsets = ArrayList<Long>()
@@ -13,7 +13,7 @@ internal object BplistBuilder {
         val offsetSize = if (tableOffset > 0xFFFF) maxOf(minOffsetSize, 3) else if (tableOffset > 0xFF) maxOf(minOffsetSize, 2) else minOffsetSize
         for (o in offsets) out.addAll(be(o, offsetSize))
         out.addAll(List(6) { 0 })
-        out.add(offsetSize.toByte()); out.add(1)
+        out.add(offsetSize.toByte()); out.add(refSize.toByte())
         out.addAll(be(offsets.size.toLong(), 8)); out.addAll(be(index.toLong(), 8)); out.addAll(be(tableOffset, 8))
         return out.toByteArray()
     }
@@ -25,7 +25,7 @@ internal object BplistBuilder {
         else byteArrayOf((marker or 0xF).toByte(), 0x10, len.toByte())
 
     /** Encodes [v] (children first is not required; ids are assigned in append order, root ends up last-appended slot reserved first). */
-    private fun encode(v: PlistValue, objs: MutableList<ByteArray>): Int {
+    private fun encode(v: PlistValue, objs: MutableList<ByteArray>, rs: Int): Int {
         val slot = objs.size
         objs.add(ByteArray(0))
         objs[slot] = when (v) {
@@ -35,16 +35,17 @@ internal object BplistBuilder {
             is PlistReal -> byteArrayOf(0x23) + be(v.value.toRawBits(), 8).toByteArray()
             is PlistDate -> byteArrayOf(0x33) + be(v.secondsSince2001.toRawBits(), 8).toByteArray()
             is PlistData -> header(0x40, v.bytes.size) + v.bytes
-            is PlistString -> header(0x50, v.value.length) + v.value.encodeToByteArray()
+            is PlistString -> if (v.value.all { it.code < 0x80 }) header(0x50, v.value.length) + v.value.encodeToByteArray()
+            else header(0x60, v.value.length) + v.value.flatMap { be(it.code.toLong(), 2) }.toByteArray()
             is PlistUid -> byteArrayOf(0x80.toByte()) + byteArrayOf(v.index.toByte())
             is PlistArray -> {
-                val refs = v.items.map { encode(it, objs).toByte() }
-                header(0xA0, refs.size) + refs.toByteArray()
+                val refs = v.items.flatMap { be(encode(it, objs, rs).toLong(), rs) }
+                header(0xA0, v.items.size) + refs.toByteArray()
             }
             is PlistDict -> {
-                val keys = v.entries.keys.map { encode(PlistString(it), objs).toByte() }
-                val vals = v.entries.values.map { encode(it, objs).toByte() }
-                header(0xD0, keys.size) + keys.toByteArray() + vals.toByteArray()
+                val keys = v.entries.keys.flatMap { be(encode(PlistString(it), objs, rs).toLong(), rs) }
+                val vals = v.entries.values.flatMap { be(encode(it, objs, rs).toLong(), rs) }
+                header(0xD0, v.entries.size) + keys.toByteArray() + vals.toByteArray()
             }
         }
         return slot

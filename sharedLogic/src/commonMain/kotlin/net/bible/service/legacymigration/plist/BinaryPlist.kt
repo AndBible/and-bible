@@ -35,11 +35,13 @@ object BinaryPlist {
         val top = uint(bytes, t + 16, 8)
         val tableOffset = uint(bytes, t + 24, 8)
         if (offsetSize !in 1..8 || refSize !in 1..8) throw LegacyFormatException("bad plist trailer sizes")
-        if (numObjects <= 0 || top >= numObjects) throw LegacyFormatException("bad plist object counts")
-        if (tableOffset < 8 || tableOffset + numObjects * offsetSize > t) {
+        // numObjects is validated against the file size first so the products below cannot overflow.
+        if (numObjects <= 0 || numObjects > t / offsetSize) throw LegacyFormatException("bad plist object count")
+        if (top < 0 || top >= numObjects) throw LegacyFormatException("plist top object out of range")
+        if (tableOffset < 8 || tableOffset > t || tableOffset + numObjects * offsetSize > t) {
             throw LegacyFormatException("plist offset table out of range")
         }
-        return Reader(bytes, tableOffset.toInt(), offsetSize, refSize, numObjects, tableOffset.toInt()).read(top.toInt(), 0)
+        return Reader(bytes, tableOffset.toInt(), offsetSize, refSize, numObjects).read(top, 0)
     }
 
     private fun uint(b: ByteArray, pos: Int, n: Int): Long {
@@ -51,12 +53,22 @@ object BinaryPlist {
 
     private class Reader(
         val b: ByteArray, val dataEnd: Int, val offsetSize: Int, val refSize: Int,
-        val numObjects: Long, val tableOffset: Int,
+        val numObjects: Long,
     ) {
-        fun read(index: Int, depth: Int): PlistValue {
+        /** The offset table starts where the object data ends; every payload read is bounded by [dataEnd]. */
+        val tableOffset = dataEnd
+
+        private fun u(pos: Int, n: Int): Long {
+            if (pos < 0 || n < 0 || pos.toLong() + n > dataEnd) throw LegacyFormatException("plist object beyond data area")
+            return uint(b, pos, n)
+        }
+
+        private fun ref(pos: Int, depth: Int): PlistValue = read(uint(b, pos, refSize), depth)
+
+        fun read(index: Long, depth: Int): PlistValue {
             if (depth > MAX_DEPTH) throw LegacyFormatException("plist nested too deeply")
             if (index < 0 || index >= numObjects) throw LegacyFormatException("plist object ref out of range")
-            val off = uint(b, tableOffset + index * offsetSize, offsetSize)
+            val off = uint(b, (tableOffset + index * offsetSize).toInt(), offsetSize)
             if (off < 8 || off >= dataEnd) throw LegacyFormatException("plist object offset out of range")
             var pos = off.toInt()
             val marker = b[pos++].toInt() and 0xFF
@@ -72,45 +84,48 @@ object BinaryPlist {
                 0x1 -> {
                     val n = 1 shl lo
                     if (n > 8) throw LegacyFormatException("unsupported plist int width $n")
-                    PlistInt(signed(pos, n))
+                    PlistInt(u(pos, n))
                 }
                 0x2 -> when (lo) {
-                    2 -> PlistReal(Float.fromBits(uint(b, pos, 4).toInt()).toDouble())
-                    3 -> PlistReal(Double.fromBits(uint(b, pos, 8)))
+                    2 -> PlistReal(Float.fromBits(u(pos, 4).toInt()).toDouble())
+                    3 -> PlistReal(Double.fromBits(u(pos, 8)))
                     else -> throw LegacyFormatException("unsupported plist real width")
                 }
                 0x3 -> {
                     if (lo != 3) throw LegacyFormatException("unsupported plist date marker")
-                    PlistDate(Double.fromBits(uint(b, pos, 8)))
+                    PlistDate(Double.fromBits(u(pos, 8)))
                 }
                 0x4 -> {
                     val (len, p) = length(lo, pos)
-                    checkRange(p, len)
+                    checkRange(p, len.toLong())
                     PlistData(b.copyOfRange(p, p + len))
                 }
                 0x5 -> {
                     val (len, p) = length(lo, pos)
-                    checkRange(p, len)
+                    checkRange(p, len.toLong())
                     PlistString(CharArray(len) { (b[p + it].toInt() and 0xFF).toChar() }.concatToString())
                 }
                 0x6 -> {
                     val (len, p) = length(lo, pos)
-                    checkRange(p, len * 2)
-                    PlistString(CharArray(len) { uint(b, p + it * 2, 2).toInt().toChar() }.concatToString())
+                    checkRange(p, len.toLong() * 2)
+                    PlistString(CharArray(len) { u(p + it * 2, 2).toInt().toChar() }.concatToString())
                 }
-                0x8 -> PlistUid(uint(b, pos, lo + 1).toInt())
+                0x8 -> {
+                    if (lo + 1 > 4) throw LegacyFormatException("unsupported plist uid width")
+                    PlistUid(u(pos, lo + 1).toInt())
+                }
                 0xA -> {
                     val (len, p) = length(lo, pos)
-                    checkRange(p, len * refSize)
-                    PlistArray(List(len) { read(uint(b, p + it * refSize, refSize).toInt(), depth + 1) })
+                    checkRange(p, len.toLong() * refSize)
+                    PlistArray(List(len) { ref(p + it * refSize, depth + 1) })
                 }
                 0xD -> {
                     val (len, p) = length(lo, pos)
-                    checkRange(p, len * refSize * 2)
+                    checkRange(p, len.toLong() * refSize * 2)
                     val map = LinkedHashMap<String, PlistValue>()
                     for (i in 0 until len) {
-                        val k = read(uint(b, p + i * refSize, refSize).toInt(), depth + 1)
-                        val v = read(uint(b, p + (len + i) * refSize, refSize).toInt(), depth + 1)
+                        val k = ref(p + i * refSize, depth + 1)
+                        val v = ref(p + (len + i) * refSize, depth + 1)
                         if (k !is PlistString) throw LegacyFormatException("plist dict key is not a string")
                         map[k.value] = v
                     }
@@ -120,26 +135,21 @@ object BinaryPlist {
             }
         }
 
-        private fun signed(pos: Int, n: Int): Long {
-            val v = uint(b, pos, n)
-            return v // 1/2/4-byte ints are unsigned per the format; the 8-byte value is two's complement, which Long already is
-        }
-
         /** Decodes the length nibble [lo]; 0xF means an int object follows. Returns (length, position of the payload). */
         private fun length(lo: Int, pos: Int): Pair<Int, Int> {
             if (lo != 0xF) return lo to pos
-            if (pos >= b.size) throw LegacyFormatException("plist read beyond end")
+            if (pos >= dataEnd) throw LegacyFormatException("plist read beyond end")
             val m = b[pos].toInt() and 0xFF
             if (m shr 4 != 0x1) throw LegacyFormatException("bad plist length marker")
             val n = 1 shl (m and 0xF)
             if (n > 4) throw LegacyFormatException("plist length too large")
-            val len = uint(b, pos + 1, n)
+            val len = u(pos + 1, n)
             if (len > Int.MAX_VALUE / 4) throw LegacyFormatException("plist length too large")
             return len.toInt() to (pos + 1 + n)
         }
 
-        private fun checkRange(p: Int, n: Int) {
-            if (n < 0 || p + n > dataEnd) throw LegacyFormatException("plist object beyond data area")
+        private fun checkRange(p: Int, n: Long) {
+            if (n < 0 || p.toLong() + n > dataEnd) throw LegacyFormatException("plist object beyond data area")
         }
     }
 }
