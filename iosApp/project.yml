@@ -71,6 +71,22 @@ targets:
         TEST_TARGET_NAME: iosApp
         PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.poc.uitests
         "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
+  iosAppUnitTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [iosAppUnitTests]
+    dependencies: [{target: iosApp}]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.poc.unittests
+        # Hosted by the app: Kotlin symbols come from the app binary, never a second copy of SharedUi.
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/AndBiblePoC.app/AndBiblePoC
+        BUNDLE_LOADER: $(TEST_HOST)
+        FRAMEWORK_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/../sharedUi/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
 schemes:
   iosApp:
     build:
@@ -80,4 +96,4 @@ schemes:
       config: Debug
     test:
       config: Debug
-      targets: [iosAppUITests]
+      targets: [iosAppUITests, iosAppUnitTests]
