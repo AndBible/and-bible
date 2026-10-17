@@ -17,10 +17,12 @@
 
 package net.bible.service.sword.epub
 
+import androidx.annotation.VisibleForTesting
 import fi.sykero.kdom.input.build
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
@@ -245,13 +247,13 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     val keys: List<Key> get() = withOpen { epubFragmentsBlocking(dao).map { getKey(it) } }
 
-    internal val fragDir get() = epubDir.child("optimized")
+    @VisibleForTesting val fragDir get() = epubDir.child("optimized")
     internal val versionFile = fragDir.child("version.txt")
     internal val optimizeLockFile = epubDir.child("optimize.lock")
     val optimizerVersion get() = try { KFiles.readBytes(versionFile).decodeToString().toLong() } catch (e: Exception) {1}
 
     private val epubDbFilename = "optimized.sqlite3.gz"
-    internal val appDbFilename = "epub-${getBookMetaData().initials}.sqlite3"
+    @VisibleForTesting val appDbFilename = "epub-${getBookMetaData().initials}.sqlite3"
     private val searchDbFilename = "epub-${getBookMetaData().initials}-search.sqlite3"
     private val searchDbFile = epubDir.child(searchDbFilename)
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
@@ -492,10 +494,10 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 internal fun Path.child(relative: String): Path = this / relative.trimStart('/')
 
 /** Reads an optimized fragment file; whole-fragment buffer, gzip as `GZIPOutputStream` wrote it before. */
-internal fun readFragment(path: Path): String = Gzip(KFiles.readBytes(path)).uncompress().decodeToString()
+@VisibleForTesting fun readFragment(path: Path): String = Gzip(KFiles.readBytes(path)).uncompress().decodeToString()
 
 /** Writes an optimized fragment file in the gzip format `GZIPInputStream` reads. */
-internal fun writeFragment(path: Path, content: String) {
+@VisibleForTesting fun writeFragment(path: Path, content: String) {
     KFiles.write(path, Gzip(content.toByteArray()).compress())
 }
 
@@ -505,7 +507,7 @@ private fun gzipFile(source: Path, destination: Path) {
     }
 }
 
-internal fun gunzipFile(source: Path, destination: Path) {
+@VisibleForTesting fun gunzipFile(source: Path, destination: Path) {
     try {
         GzipSource(FileSystem.SYSTEM.source(source)).buffer().use { input ->
             FileSystem.SYSTEM.sink(destination).buffer().use { it.writeAll(input) }

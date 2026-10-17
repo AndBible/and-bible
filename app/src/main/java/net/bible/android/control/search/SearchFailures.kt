@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.search
 
+import androidx.annotation.VisibleForTesting
 import org.crosswire.jsword.index.IndexManagerFactory
 import org.crosswire.jsword.index.fts.FtsIndexManager
 import org.crosswire.jsword.index.fts.UnsupportedSearchSyntaxException
@@ -45,7 +46,7 @@ internal fun ftsIndexManager(): FtsIndexManager? = IndexManagerFactory.getIndexM
  * `IndexManager.isIndexed` is only a file-exists check: a file written with an older schema counts as indexed
  * but cannot be opened, so [FtsIndexManager.needsReindexing] is consulted as well.
  */
-internal fun hasUsableSearchIndex(book: Book): Boolean {
+@VisibleForTesting fun hasUsableSearchIndex(book: Book): Boolean {
     // A book without a driver (a fake or synthetic book) has no index location: its status is all there is.
     if (book.bookMetaData.driverName == null) return book.indexStatus == IndexStatus.DONE
     val manager = ftsIndexManager() ?: return IndexManagerFactory.getIndexManager().isIndexed(book)

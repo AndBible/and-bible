@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mydocument
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
@@ -173,7 +174,7 @@ internal fun defaultLanguageCode(): String = KoinPlatform.getKoin().get<Platform
 /**
  * Creates SWORD metadata configuration for a MyDocument.
  */
-internal fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
+@VisibleForTesting fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
     val conf = "[${document.initials}]\n" +
         "Description=${document.name}\n" +
         "Abbreviation=${document.initials}\n" +

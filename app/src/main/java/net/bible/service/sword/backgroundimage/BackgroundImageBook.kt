@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.backgroundimage
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
@@ -50,7 +51,7 @@ class BackgroundImageSwordDriver : AbstractBookDriver() {
 }
 
 /** The `background` module folder, resolved through the [AppDirectories] port at call time. */
-internal fun backgroundImageModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / BACKGROUND_IMAGE_DIR
+@VisibleForTesting fun backgroundImageModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / BACKGROUND_IMAGE_DIR
 
 val Book.backgroundImageFile: Path get() {
     val marker = bookMetaData.getProperty(BACKGROUND_IMAGE_MARKER) ?: ""

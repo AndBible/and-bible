@@ -16,6 +16,7 @@
  */
 package net.bible.service.sword
 
+import androidx.annotation.VisibleForTesting
 import fi.sykero.kdom.input.build
 import org.crosswire.common.util.KLocale
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
@@ -857,4 +858,4 @@ class SwordContentFacade(
  * Fix batch 6 A6 (surface 7): the "Shared using AndBible" advert is never appended when [discrete],
  * whatever the `share_show_add` preference (default true) says.
  */
-internal fun shareAdvertAllowed(userWantsAdvert: Boolean, discrete: Boolean): Boolean = userWantsAdvert && !discrete
+@VisibleForTesting fun shareAdvertAllowed(userWantsAdvert: Boolean, discrete: Boolean): Boolean = userWantsAdvert && !discrete

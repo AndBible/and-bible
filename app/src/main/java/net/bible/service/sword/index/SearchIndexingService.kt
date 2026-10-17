@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -63,7 +64,7 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
 
     companion object {
         /** Builds the index of one book, synchronously (the manager completes it before returning). Test seam. */
-        internal var builder: (Book) -> Unit = { book ->
+        @VisibleForTesting var builder: (Book) -> Unit = { book ->
             IndexManagerFactory.getIndexManager().apply {
                 indexPolicy = AndroidIndexPolicy()
                 scheduleIndexCreation(book)
@@ -103,8 +104,8 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
         }
 
         internal val isBusy: Boolean get() = queue.isBusy
-        internal fun awaitIdleForTest(timeoutMs: Long): Boolean = queue.awaitIdle(timeoutMs)
-        internal fun resetForTest() = queue.detach()
+        @VisibleForTesting fun awaitIdleForTest(timeoutMs: Long): Boolean = queue.awaitIdle(timeoutMs)
+        @VisibleForTesting fun resetForTest() = queue.detach()
     }
 
     private val notificationManager get() = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

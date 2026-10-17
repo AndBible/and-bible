@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.ttf
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
@@ -54,7 +55,7 @@ class TtfSwordDriver: AbstractBookDriver() {
 }
 
 /** The `ttf` module folder, resolved through the [AppDirectories] port at call time. */
-internal fun ttfModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "ttf"
+@VisibleForTesting fun ttfModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "ttf"
 
 val Book.ttfFile: Path get() {
     val providesFont = bookMetaData.getProperty("AndBibleProvidesFont") ?: ""

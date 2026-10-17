@@ -57,7 +57,7 @@ class BookInstallWatcher(
 ) {
     /** For tests only: runs at the start of every backup-db write, inside the ordered launch. */
     @VisibleForTesting
-    internal var beforeWrite: suspend () -> Unit = {}
+    var beforeWrite: suspend () -> Unit = {}
 
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
@@ -79,7 +79,7 @@ class BookInstallWatcher(
      * Install/uninstall events fire in quick succession (e.g. replace = remove + add); the backup-db writes
      * are launched under one key so they land in event order (add then remove leaves the book absent).
      */
-    internal val listener: BooksListener = object : BooksListener {
+    @VisibleForTesting val listener: BooksListener = object : BooksListener {
         override fun bookAdded(ev: BooksEvent) {
             val book = ev.book!!
             Activator.deactivate(book)

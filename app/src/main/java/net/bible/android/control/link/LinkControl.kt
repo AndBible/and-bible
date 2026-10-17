@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.link
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
@@ -531,7 +532,7 @@ class LinkControl constructor(
     fun lookupInDictionaries(text: String): Boolean = lookupInDictionaries(text, SwordDocumentFacade.wordLookupDictionaries(settings))
 
     /** [lookupInDictionaries] over an explicit dictionary list (the installed ones in production). */
-    internal fun lookupInDictionaries(text: String, dictionaries: List<Book>): Boolean {
+    @VisibleForTesting fun lookupInDictionaries(text: String, dictionaries: List<Book>): Boolean {
         if (dictionaries.isEmpty()) {
             notifier.showError(strings.wordNotFoundInDictionaries)
             return false

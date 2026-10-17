@@ -16,9 +16,11 @@
  */
 package net.bible.service.download
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.crosswire.common.progress.JobManager
@@ -218,7 +220,7 @@ class GenericFileDownloader(
          * `a.com/x` and `a.com.au/x` sort the other way round. An approximation for opaque URIs, a non-domain
          * authority, and user info, query and fragment, which are compared decoded here and raw by `URI`.
          */
-        internal val uriOrder = Comparator<KUri> { a, b ->
+        @VisibleForTesting val uriOrder = Comparator<KUri> { a, b ->
             cmp(a.getScheme(), b.getScheme(), ignoreCase = true).takeIf { it != 0 }
                 ?: cmp(a.getUserInfo(), b.getUserInfo()).takeIf { it != 0 }
                 ?: cmp(a.getHost(), b.getHost(), ignoreCase = true).takeIf { it != 0 }

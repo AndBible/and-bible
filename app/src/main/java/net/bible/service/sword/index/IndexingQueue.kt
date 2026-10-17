@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.index
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.sharedlogic.sync.monitorNotifyAll
 import net.bible.sharedlogic.sync.monitorWait
@@ -28,7 +29,7 @@ import org.crosswire.jsword.index.IndexStatus
 private const val TAG = "SearchIndexingService"
 
 /** What the foreground service hears from the [IndexingQueue] worker. */
-internal interface IndexingObserver {
+@VisibleForTesting interface IndexingObserver {
     fun onBookStarted(book: Book)
     fun onIdle()
 }
@@ -37,7 +38,7 @@ internal interface IndexingObserver {
  * The FIFO of book initials to index and the single worker thread that drains it. [build] runs one book at a time and
  * completes it before returning; an exception from it leaves the book `UNDONE` and the next book is built.
  */
-internal class IndexingQueue(
+@VisibleForTesting class IndexingQueue(
     private val resolve: (String) -> Book?,
     private val build: (Book) -> Unit,
     private val startWorker: (name: String, body: () -> Unit) -> Unit,

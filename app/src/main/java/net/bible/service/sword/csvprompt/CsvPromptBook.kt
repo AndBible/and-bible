@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.csvprompt
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
@@ -34,7 +35,7 @@ import org.koin.mp.KoinPlatform
 private const val TAG = "CsvPromptBook"
 
 /** The `prompts` module folder, resolved through the [AppDirectories] port at call time. */
-internal fun csvPromptModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "prompts"
+@VisibleForTesting fun csvPromptModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "prompts"
 
 val Book.csvPromptFile: Path get() {
     val fileName = bookMetaData.getProperty("AndBibleProvidesPrompts") ?: ""

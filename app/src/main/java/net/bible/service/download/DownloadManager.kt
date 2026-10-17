@@ -16,6 +16,7 @@
  */
 package net.bible.service.download
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.versification.BookInstallWatcher
@@ -176,7 +177,7 @@ class DownloadManager(
          * `install()`'s bookAdded event queued ([BookInstallWatcher.updateRow]); a direct DAO update would find
          * no row yet, or be overwritten by the delete-and-reinsert of a reinstall.
          */
-        internal suspend fun recordRepository(watcher: BookInstallWatcher, bookInitials: String, repositoryName: String) {
+        @VisibleForTesting suspend fun recordRepository(watcher: BookInstallWatcher, bookInitials: String, repositoryName: String) {
             watcher.updateRow(bookInitials) { row -> row?.apply { repository = repositoryName } }
         }
 

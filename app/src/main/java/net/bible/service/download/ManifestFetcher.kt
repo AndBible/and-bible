@@ -1,5 +1,6 @@
 package net.bible.service.download
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.http.DownloadHttp
 import okio.IOException
 import org.crosswire.common.util.KUri
@@ -31,7 +32,7 @@ private val KNOWN_URL_SCHEMES = setOf("http", "https", "file", "jar", "ftp")
  * that `URL` knows. Anything else throws [IllegalArgumentException] (was `MalformedURLException`).
  * `KUri` is stricter than `URL` about the rest of the syntax (a space or `https://` with no authority is rejected).
  */
-internal fun parseKnownUrl(url: String): KUri {
+@VisibleForTesting fun parseKnownUrl(url: String): KUri {
     val uri = try { KUri(url) } catch (e: Exception) { throw IllegalArgumentException("Malformed URL: $url", e) }
     if (!uri.isAbsolute() || uri.getScheme()?.lowercase() !in KNOWN_URL_SCHEMES) {
         throw IllegalArgumentException("Malformed URL: $url")
@@ -43,7 +44,7 @@ internal fun parseKnownUrl(url: String): KUri {
  * `java.net.URL.getHost()` equivalent: `KUri.getHost()` is null for a server name that is not a valid host name
  * (for example one with an underscore), where `URL` still returned it (and "" when there is none).
  */
-internal fun urlHost(url: String, uri: KUri): String {
+@VisibleForTesting fun urlHost(url: String, uri: KUri): String {
     uri.getHost()?.let { return it }
     val authority = url.substringAfter("://", "").substringBefore('/').substringBefore('?').substringBefore('#')
     return authority.substringAfterLast('@').substringBefore(':')
@@ -51,7 +52,7 @@ internal fun urlHost(url: String, uri: KUri): String {
 
 
 /** A text-field URL: [text] is what `java.net.URL` would have used (trimmed), [uri] only validates it. */
-internal class LenientUrl(val text: String, val uri: KUri)
+@VisibleForTesting class LenientUrl(val text: String, val uri: KUri)
 
 /**
  * The custom-repository URL check, as lenient as `java.net.URL(x)` was: leading and trailing characters up to
@@ -59,7 +60,7 @@ internal class LenientUrl(val text: String, val uri: KUri)
  * a stray `%`, `[ ]`) are accepted. Scheme and absoluteness are checked as in [parseKnownUrl], on a copy with
  * those characters percent-encoded. Host and path must be taken from [LenientUrl.text], never from the copy.
  */
-internal fun parseLenientUrl(url: String): LenientUrl {
+@VisibleForTesting fun parseLenientUrl(url: String): LenientUrl {
     val text = url.trim { it <= ' ' }
     val authorityEnd = text.indexOf("://").let { i ->
         if (i < 0) 0 else text.indexOfAny(charArrayOf('/', '?', '#'), i + 3).let { if (it < 0) text.length else it }
@@ -76,7 +77,7 @@ internal fun parseLenientUrl(url: String): LenientUrl {
 private fun Char.isHexDigit() = this in '0'..'9' || this in 'a'..'f' || this in 'A'..'F'
 
 /** `java.net.URL.getPath()` equivalent on the (trimmed) text: from the end of the authority up to `?` or `#`. */
-internal fun urlPath(text: String): String {
+@VisibleForTesting fun urlPath(text: String): String {
     val afterAuthority = text.substringAfter("://", "")
     val fromPath = afterAuthority.indexOfAny(charArrayOf('/', '?', '#')).let { if (it < 0) "" else afterAuthority.substring(it) }
     return fromPath.substringBefore('?').substringBefore('#')

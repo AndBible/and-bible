@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mysword
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
@@ -430,7 +431,7 @@ fun addMySwordBook(file: Path) {
 }
 
 /** The `mysword` module folder, resolved through the [AppDirectories] port at call time. */
-internal fun mySwordModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "mysword"
+@VisibleForTesting fun mySwordModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "mysword"
 
 fun addManuallyInstalledMySwordBooks() {
     val dir = mySwordModulesDir()

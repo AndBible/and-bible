@@ -16,13 +16,15 @@
  */
 package net.bible.service.sword.mydocument
 
+import androidx.annotation.VisibleForTesting
+
 /**
  * Port of commons-text `StringEscapeUtils.escapeXml11` (kept byte-identical, pinned by `XmlEscapeParityTest`):
  * escapes `& < > " '`, drops U+0000, U+FFFE, U+FFFF and unpaired surrogates, and writes the control characters
  * XML 1.1 allows only as references (U+0001-U+0008, U+000B, U+000C, U+000E-U+001F, U+007F-U+0084,
  * U+0086-U+009F) as decimal numeric entities such as `&#1;`.
  */
-internal fun escapeXml11(input: String): String {
+@VisibleForTesting fun escapeXml11(input: String): String {
     val out = StringBuilder(input.length + 16)
     var i = 0
     while (i < input.length) {

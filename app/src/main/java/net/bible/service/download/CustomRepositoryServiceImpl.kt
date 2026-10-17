@@ -16,9 +16,11 @@
  */
 package net.bible.service.download
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -193,5 +195,5 @@ fun CustomRepositoryData.toEntity(): CustomRepository = CustomRepository(
 )
 
 /** True for SQLite's constraint errors (UNIQUE, FOREIGN KEY, NOT NULL, CHECK...), from either driver. */
-internal fun isConstraintViolation(e: SQLiteException): Boolean =
+@VisibleForTesting fun isConstraintViolation(e: SQLiteException): Boolean =
     e.message.orEmpty().contains("constraint failed", ignoreCase = true)

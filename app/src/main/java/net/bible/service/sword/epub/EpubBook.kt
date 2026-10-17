@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.epub
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedlogic.sync.withMonitor
@@ -44,6 +45,9 @@ import net.bible.sharedcore.platform.AppEnvironment
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.IOException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 
 fun getConfig(
     initials: String,
@@ -154,7 +158,7 @@ fun isEpubInstallPending(initials: String): Boolean = withMonitor(pendingEpubIns
  * Runs [block] (the install or replacement) while holding the module owner lock and marking the install pending.
  * Do not call [deleteEpubModule] from inside [block]: it takes the same lock and would deadlock.
  */
-suspend fun installEpubModule(dir: Path, block: () -> Boolean): Boolean = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+suspend fun installEpubModule(dir: Path, block: () -> Boolean): Boolean = withContext(Dispatchers.IO) {
     val owner = moduleOwner(dir)
     val initials = epubInitials(dir.name)
     owner.lock()
@@ -235,7 +239,7 @@ internal fun addOwnedEpubBook(epubDir: Path, strings: CoreStrings, environment: 
 }
 
 /** The `epub` module folder, resolved through the [AppDirectories] port at call time. */
-internal fun epubModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "epub"
+@VisibleForTesting fun epubModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "epub"
 
 fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment): Boolean {
     val dir = epubModulesDir()

@@ -87,8 +87,8 @@ sealed interface MyDocumentChange {
  * Handles registration/unregistration with JSword's Books.
  */
 object MyDocumentBookManager {
-    internal var mainDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
-    internal lateinit var launcher: OrderedLauncher
+    @VisibleForTesting var mainDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
+    @VisibleForTesting lateinit var launcher: OrderedLauncher
 
     private val registeredBooks = mutableMapOf<String, SwordGenBook>()
 
@@ -106,7 +106,7 @@ object MyDocumentBookManager {
         changeSource.emit(change)
     }
 
-    @VisibleForTesting internal fun emitForTest(change: MyDocumentChange) = changeSource.emit(change)
+    @VisibleForTesting fun emitForTest(change: MyDocumentChange) = changeSource.emit(change)
 
     @VisibleForTesting fun resetSubscribersForTest() { changeSource = EventSource() }
 
@@ -130,7 +130,7 @@ object MyDocumentBookManager {
      * Internal rather than a lambda body so tests can drive it directly instead
      * of going through the ordered `myDocumentsSynced` subscription.
      */
-    internal suspend fun handleSyncEvent(updated: List<LogEntry>) {
+    @VisibleForTesting suspend fun handleSyncEvent(updated: List<LogEntry>) {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val affectedInitials = mutableSetOf<String>()
         var refreshAll = false
