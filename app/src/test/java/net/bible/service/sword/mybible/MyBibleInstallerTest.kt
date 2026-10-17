@@ -115,6 +115,42 @@ class MyBibleInstallerTest {
         }
     }.toByteArray()
 
+    private fun zip(entries: List<Pair<String, ByteArray>>): ByteArray = ByteArrayOutputStream().also { out ->
+        ZipOutputStream(out).use { zip ->
+            for ((name, bytes) in entries) {
+                zip.putNextEntry(ZipEntry(name))
+                zip.write(bytes)
+                zip.closeEntry()
+            }
+        }
+    }.toByteArray()
+
+    /**
+     * A STORED entry with a data descriptor (flag bit 3, sizes and CRC after the data). ZipOutputStream cannot write
+     * this, so the archive is assembled by hand.
+     */
+    private fun storedZipWithDataDescriptor(name: String, bytes: ByteArray): ByteArray = buildStoredDescriptorZip(name, bytes)
+
+    private fun buildStoredDescriptorZip(name: String, data: ByteArray): ByteArray {
+        val crc = java.util.zip.CRC32().also { it.update(data) }.value
+        val nameBytes = name.toByteArray()
+        val out = ByteArrayOutputStream()
+        fun le(v: Long, n: Int) { for (i in 0 until n) out.write(((v shr (8 * i)) and 0xff).toInt()) }
+        // local header: flag bit 3 (data descriptor), method 0 (STORED), crc/sizes zero
+        le(0x04034b50, 4); le(20, 2); le(8, 2); le(0, 2); le(0, 2); le(0x21, 2)
+        le(0, 4); le(0, 4); le(0, 4); le(nameBytes.size.toLong(), 2); le(0, 2)
+        out.write(nameBytes); out.write(data)
+        le(0x08074b50, 4); le(crc, 4); le(data.size.toLong(), 4); le(data.size.toLong(), 4)
+        val cdStart = out.size()
+        le(0x02014b50, 4); le(20, 2); le(20, 2); le(8, 2); le(0, 2); le(0, 2); le(0x21, 2)
+        le(crc, 4); le(data.size.toLong(), 4); le(data.size.toLong(), 4)
+        le(nameBytes.size.toLong(), 2); le(0, 2); le(0, 2); le(0, 2); le(0, 2); le(0, 4); le(0, 4)
+        out.write(nameBytes)
+        val cdSize = out.size() - cdStart
+        le(0x06054b50, 4); le(0, 2); le(0, 2); le(1, 2); le(1, 2); le(cdSize.toLong(), 4); le(cdStart.toLong(), 4); le(0, 2)
+        return out.toByteArray()
+    }
+
     private suspend fun installer(filename: String, payload: ByteArray, downloadUrl: String = "$base/module"): Pair<MyBibleInstaller, Book> {
         bodies["/manifest"] = """{"url":"$base","file_name":"registry.json","description":"test","modules":[{"file_name":"$filename","description":"DL15 dictionary","download_url":"$downloadUrl"}]}""".toByteArray()
         bodies["/module"] = payload
@@ -146,6 +182,46 @@ class MyBibleInstallerTest {
         val (installer, book) = installer("$id.dictionary.zip", zip(".SQLite3", sqlite()))
         installer.install(book)
         assertInstalledDictionary()
+    }
+
+    @Test fun zipEntryInSubfolderIsStagedUnderThePrefixedPath() = runBlocking {
+        val (installer, book) = installer("$id.dictionary.zip", zip("sub/$id.dictionary.SQLite3", sqlite()))
+        installer.install(book)
+        assertInstalledDictionary()
+    }
+
+    @Test fun zipEntryWithBackslashesIsTreatedAsFolders() = runBlocking {
+        val (installer, book) = installer("$id.dictionary.zip", zip("sub\\$id.dictionary.SQLite3", sqlite()))
+        installer.install(book)
+        assertInstalledDictionary()
+    }
+
+    @Test fun zipTraversalEntryIsRejectedAndInstallsNothing() = runBlocking {
+        val module = sqlite()
+        val (installer, book) = installer("$id.dictionary.zip", zip(listOf("../../evil.SQLite3" to module, "x/$id.dictionary.SQLite3" to module)))
+        try {
+            installer.install(book)
+            fail("Traversal entry must fail installation")
+        } catch (expected: InstallException) {
+        }
+        assertNull(Books.installed().getBook("MyBible-${id}_dictionary"))
+        assertFalse(root.walkTopDown().any { it.isFile && it.name.contains(id) })
+        assertFalse(File(temp, "evil.SQLite3").exists())
+        assertFalse(temp.walkTopDown().any { it.isFile && it.name == "evil.SQLite3" })
+        assertFalse(temp.parentFile.walkTopDown().maxDepth(2).any { it.isFile && it.name == "evil.SQLite3" })
+    }
+
+    @Test fun storedEntryWithDataDescriptorFailsCleanly() = runBlocking {
+        val (installer, book) = installer("$id.dictionary.zip", storedZipWithDataDescriptor("x/$id.dictionary.SQLite3", sqlite()))
+        try {
+            installer.install(book)
+            fail("A STORED entry with a data descriptor must fail installation")
+        } catch (expected: InstallException) {
+            assertFalse(expected is org.crosswire.jsword.book.install.DownloadCancelledException)
+        }
+        assertNull(Books.installed().getBook("MyBible-${id}_dictionary"))
+        assertFalse(root.walkTopDown().any { it.isFile && it.name.contains(id) })
+        assertTrue("staging left behind", File(temp, "mybible").walkTopDown().none { it.isFile && it.name.endsWith(".SQLite3", true) })
     }
 
     private suspend fun assertRejected(payload: ByteArray) {
