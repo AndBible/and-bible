@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.sharedlogic.sync.bookNameMonitor
+import net.bible.sharedlogic.sync.withMonitor
 import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic
 import kotlin.concurrent.Volatile
@@ -383,7 +385,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     private val contentText: String get() {
         val keyTitle = ArrayList<String>()
-        synchronized(BookName::class.java) {
+        withMonitor(bookNameMonitor) {
             val prevFullBookNameValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             try {

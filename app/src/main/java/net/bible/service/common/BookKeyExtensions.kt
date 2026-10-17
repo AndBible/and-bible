@@ -17,6 +17,8 @@
 
 package net.bible.service.common
 
+import net.bible.sharedlogic.sync.bookNameMonitor
+import net.bible.sharedlogic.sync.withMonitor
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.sword.BookAndKey
@@ -128,7 +130,7 @@ suspend fun Book.ordinalRangeFor(key: Key, strings: net.bible.sharedcore.platfor
 
 val Key.tinyName: String get() =
     if(this is VerseKey<*>)
-        synchronized(BookName::class.java) {
+        withMonitor(bookNameMonitor) {
             val prevTruncateLength = BookName.getTruncateShortName()
             try {
                 var length = 5
@@ -147,7 +149,7 @@ val Key.tinyName: String get() =
 
 val Key.shortName: String get() =
     if(this is VerseKey<*>)
-        synchronized(BookName::class.java) {
+        withMonitor(bookNameMonitor) {
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             try {
