@@ -1991,4 +1991,11 @@
     <string name="background_image_night">Background image (night)</string>
     <string name="background_image_opacity_day">Background image opacity (day)</string>
     <string name="background_image_opacity_night">Background image opacity (night)</string>
+
+    <string name="prefs_passage_finder_enabled_title">Use scrollable passage finder</string>
+    <string name="prefs_passage_finder_enabled_summary">Replace the static book/chapter grid with the scrollable passage finder. Consider disabling on older devices.</string>
+    <string name="passage_finder_a11y_label">Bible passage selector. Swipe horizontally to choose a book, chapter, or verse. Swipe up to drill in, swipe down to go back.</string>
+    <string name="passage_finder_a11y_go_to">Go to %1$s</string>
+    <string name="passage_finder_a11y_chapter">Chapter %1$d</string>
+    <string name="passage_finder_a11y_verse">Verse %1$d</string>
 </resources>
