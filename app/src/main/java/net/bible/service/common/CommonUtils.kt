@@ -1868,15 +1868,6 @@ data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisp
 
 val firstBibleDoc get() = Books.installed().getBooks().first { it.bookCategory == BookCategory.BIBLE } as SwordBook
 
-suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-     map { async { action(it) }}.awaitAll()
-}
-
-suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-    val semaphore = Semaphore(maxThreads)
-    map {async {semaphore.withPermit { action(it) } } }.awaitAll()
-}
-
 private val builders = ArrayBlockingQueue<KdomBuilder>(32)
 
 fun <R> useKdomBuilder(block: (it: KdomBuilder) -> R): R {
@@ -2005,65 +1996,6 @@ val Key.shortName: String get() =
             }
         }
     else getName()
-
-enum class DbType {
-    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, AI_SETTINGS
-}
-enum class BackupType {
-    // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.
-    STUDYPAD_EXPORT,
-    DB_BACKUP,
-    MODULE_BACKUP
-}
-
-const val ANDBIBLE_BACKUP_MANIFEST_FILENAME = "AndBibleBackupManifest.json"
-@Serializable
-data class AndBibleBackupManifest(
-    val backupType: BackupType,
-    val contains: Set<DbType>? = null,
-    val manifestVersion: Int = 1,
-    val andBibleVersion: Int = CommonUtils.applicationVersionNumber
-) {
-    fun toJson(): String {
-        return CommonUtils.json.encodeToString(serializer(), this)
-    }
-
-    fun saveToZip(zipStream: ZipOutputStream) {
-        val content = ByteArrayInputStream(toJson().toByteArray())
-        val entry = ZipEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
-        zipStream.putNextEntry(entry)
-        content.copyTo(zipStream)
-    }
-    companion object {
-        private const val TAG = "ABBackupManifest"
-        fun fromJson(jsonString: String): AndBibleBackupManifest {
-            return CommonUtils.json.decodeFromString(serializer(), jsonString)
-        }
-
-        suspend fun fromUri(uri: Uri): AndBibleBackupManifest? = withContext(Dispatchers.IO) {
-            try {
-                val inputStream = application.contentResolver.openInputStream(uri) ?: return@withContext null
-                val manifest = ZipInputStream(inputStream).use {
-                    val entry = it.nextEntry
-                    if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
-                        val out = ByteArrayOutputStream()
-                        val buffer = ByteArray(1024)
-                        var len: Int
-                        while (it.read(buffer).also { len = it } > 0) {
-                            out.write(buffer, 0, len)
-                        }
-                        val outString = out.toString()
-                        fromJson(outString)
-                    } else null
-                }
-                return@withContext manifest
-            } catch (e: Exception) {
-                Log.e(TAG, "Error reading backup manifest from URI", e)
-                return@withContext null
-            }
-        }
-    }
-}
 
 /** Fix batch 6 A6 (surface 8): the app name the incomplete-translation dialog uses. */
 @androidx.annotation.StringRes

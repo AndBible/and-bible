@@ -274,6 +274,7 @@ import net.bible.android.view.activity.installzip.installZipFormatsText
 import net.bible.android.view.activity.installzip.mapPhaseToUiState
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
+import net.bible.service.common.fromUri
 import net.bible.service.installzip.DocumentInstallService
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.sharedcore.nav.InstallZipResult

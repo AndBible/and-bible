@@ -188,6 +188,7 @@ suspend fun exportStudyPads(
     val manifest = AndBibleBackupManifest(
         backupType = BackupType.STUDYPAD_EXPORT,
         contains = setOf(DbType.BOOKMARKS),
+        andBibleVersion = environment.versionNumber.toInt(),
     )
     ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
         manifest.saveToZip(outFile)
@@ -211,4 +212,10 @@ suspend fun exportStudyPads(
         promptMessage = strings.exportDestinationMessage,
         chooseDestination = chooseDestination,
     )
+}
+
+// L1b: temporary adapter, removed in Task 8/9
+private fun AndBibleBackupManifest.saveToZip(zip: ZipOutputStream) {
+    zip.putNextEntry(ZipEntry(net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME))
+    zip.write(toJson().toByteArray())
 }

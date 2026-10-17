@@ -472,7 +472,7 @@ class BackupControl(
     }
 
     private suspend fun createModulesZip(books: List<Book>, zipFile: File) {
-        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP)
+        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP, andBibleVersion = env.versionNumber.toInt())
 
         withContext(Dispatchers.IO) {
             FileOutputStream(zipFile).use { out ->
@@ -487,7 +487,7 @@ class BackupControl(
     }
 
     suspend fun createSingleModuleZip(book: Book, zipFile: File) = withContext(Dispatchers.IO) {
-        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP)
+        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP, andBibleVersion = env.versionNumber.toInt())
         FileOutputStream(zipFile).use { out ->
             ZipOutputStream(out).use { outFile ->
                 manifest.saveToZip(outFile)
@@ -609,7 +609,8 @@ class BackupControl(
             backupType = BackupType.DB_BACKUP, contains = setOf(
                 DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS,
                 DbType.MYDOCUMENTS, DbType.AI_SETTINGS
-            )
+            ),
+            andBibleVersion = env.versionNumber.toInt()
         )
 
         ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
@@ -1121,4 +1122,10 @@ class BackupControl(
     }
 
     private val TAG = "BackupControl"
+}
+
+// L1b: temporary adapter, removed in Task 8/9
+private fun AndBibleBackupManifest.saveToZip(zip: ZipOutputStream) {
+    zip.putNextEntry(ZipEntry(net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME))
+    zip.write(toJson().toByteArray())
 }

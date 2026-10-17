@@ -44,6 +44,7 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
+import net.bible.service.common.fromUri
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
