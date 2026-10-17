@@ -252,6 +252,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.sword.csvprompt.addCsvPromptBook
+import okio.Path.Companion.toOkioPath
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
@@ -5738,7 +5739,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(outFile).use { output -> input.copyTo(output) }
             }
-            addCsvPromptBook(outFile)
+            addCsvPromptBook(outFile.toOkioPath())
             AndBibleAddons.clearCaches()
         }
 
