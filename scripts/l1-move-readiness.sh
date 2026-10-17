@@ -61,7 +61,7 @@ printf 'domain\tjvm\tjvmapi\tjvm3p\tandroid\tapp\n'
 for d in $domains; do
   mapfile -t F < <(files_of "$d")
   j=$(( $(count "$JVM" '' "${F[@]}") + $(count "$JVM_INLINE" "$NONCODE" "${F[@]}") ))
-  api=$(( $(count "$JVMAPI" "$OKMARK" "${F[@]}") + $(volatile_count "${F[@]}") ))
+  api=$(( $(count "$JVMAPI" "$OKMARK|$NONCODE" "${F[@]}") + $(volatile_count "${F[@]}") ))
   tp=$(( $(count "$JVM3P" '' "${F[@]}") + $(count "$JVM3P_INLINE" "$NONCODE" "${F[@]}") ))
   a=$(count "$ANDROID" "$KMPALLOW" "${F[@]}")
   if [ ${#F[@]} -eq 0 ]; then ap=0; else ap=$(app_count "${F[@]}"); fi
@@ -69,7 +69,7 @@ for d in $domains; do
   if [ $CHECK -eq 1 ] && grep -qxF "$d" "$DONE" 2>/dev/null && [ $((j+api+tp+a+ap)) -gt 0 ]; then
     echo "REGRESSION in move-done domain '$d':" >&2
     if [ ${#F[@]} -gt 0 ]; then
-      { grep -a -n -E "$JVM|$JVMAPI|$JVM3P|$ANDROID|$JVM_INLINE|$JVM3P_INLINE" "${F[@]}" | grep -a -v -E "$OKMARK|:${KMPALLOW#^}" >&2 || true; }
+      { grep -a -n -E "$JVM|$JVMAPI|$JVM3P|$ANDROID|$JVM_INLINE|$JVM3P_INLINE" "${F[@]}" | grep -a -v -E "(^|:)[0-9]+:[[:space:]]*(//|\/\*|\*)" | grep -a -v -E "$OKMARK|:${KMPALLOW#^}" >&2 || true; }
       mapfile -t VF < <(volatile_files "${F[@]}")
       [ ${#VF[@]} -gt 0 ] && { grep -a -n -E "$VOLATILE" "${VF[@]}" | grep -a -v -E "$OKMARK" >&2 || true; }
       app_lines "${F[@]}" >&2
