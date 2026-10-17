@@ -91,7 +91,11 @@ class BibleGestureListener(
                 // the fling simply never started. Letting it through means the reader
                 // keeps gliding underneath while the widget follows along, tracking the
                 // scroll through CurrentVerseChangedEvent.
+                //
+                // Only a predominantly vertical fling counts: this branch is entered on
+                // vertical distance alone, so a fast diagonal swipe would open it too.
                 if (CommonUtils.settings.getBoolean("passage_finder_enabled", false)
+                    && vertical > horizontal
                     && abs(velocityY) > minScaledVelocity * 3
                     && !mainBibleActivity.passageFinderLauncher.isVisible
                 ) {
