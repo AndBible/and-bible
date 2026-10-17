@@ -171,7 +171,7 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
         )
         if(success && KFiles.isFile(tmpFile)) {
             val staging = tmpDir.child("install-${currentTimeMillis()}-${kotlin.random.Random.nextLong().toULong()}")
-            try { KFiles.createDirectories(staging) } catch (e: IOException) { throw InstallException("Unable to stage MyBible module") }
+            try { KFiles.createDirectories(staging) } catch (e: IOException) { throw InstallException("Unable to stage MyBible module", e) }
             try {
                 prepareModuleFiles(tmpFile, staging, moduleSpec.file_name)
                 val modules = FileSystem.SYSTEM.listRecursively(staging)

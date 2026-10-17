@@ -33,7 +33,7 @@ internal fun escapeXml11(input: String): String {
             c == '\'' -> out.append("&apos;")
             c == '<' -> out.append("&lt;")
             c == '>' -> out.append("&gt;")
-            c == '\u0000' || c == '￾' || c == '￿' -> Unit
+            c == '\u0000' || c == '\uFFFE' || c == '\uFFFF' -> Unit
             c.code in 0x1..0x8 || c.code in 0xB..0xC || c.code in 0xE..0x1F ||
                 c.code in 0x7F..0x84 || c.code in 0x86..0x9F -> out.append("&#").append(c.code).append(';')
             c.isHighSurrogate() ->

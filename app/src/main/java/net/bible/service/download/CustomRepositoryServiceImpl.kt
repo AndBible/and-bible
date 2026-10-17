@@ -86,7 +86,7 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : Custom
             repo = tryReadManifest(newUrlStr, existingId)
         }
         if (repo == null) {
-            val parsedUrl = try { parseKnownUrl(url) } catch (e: IllegalArgumentException) { null }
+            val parsedUrl = try { parseLenientUrl(url) } catch (e: IllegalArgumentException) { null }
             if (parsedUrl != null) {
                 val packagesUrl = appendUrl(url, "packages")
                 val modsIndexUrl = appendUrl(url, "mods.d.tar.gz")
@@ -100,8 +100,8 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : Custom
                 }
 
                 if (manifestOk && packagesOk && modsIndexOk) {
-                    val host = urlHost(url, parsedUrl)
-                    val path = parsedUrl.getRawPath()!!
+                    val host = urlHost(parsedUrl.text, parsedUrl.uri)
+                    val path = urlPath(parsedUrl.text)
                     repo = CustomRepository(
                         id = existingId,
                         name = "${host}-${md5Hash(url).subSequence(0, 3)}",

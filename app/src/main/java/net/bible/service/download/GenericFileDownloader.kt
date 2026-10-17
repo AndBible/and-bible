@@ -212,9 +212,11 @@ class GenericFileDownloader(
 
     companion object {
         /**
-         * Reproduces `java.net.URI.compareTo` for the URLs downloaded here (scheme and host ignoring case, then
-         * user info, port, path, query, fragment; a missing part sorts first), so [errors] reads as the
-         * former `TreeSet<URI>` did. Not `toString()` order: `a.com/x` and `a.com.au/x` sort the other way round.
+         * Reproduces `java.net.URI.compareTo` for hierarchical URIs with registry-style (domain) hosts, which all
+         * real download sources are: scheme and host ignoring case, then user info, port, path, query, fragment,
+         * a missing part first, so [errors] reads as the former `TreeSet<URI>` did. Not `toString()` order:
+         * `a.com/x` and `a.com.au/x` sort the other way round. An approximation for opaque URIs, a non-domain
+         * authority, and user info, query and fragment, which are compared decoded here and raw by `URI`.
          */
         internal val uriOrder = Comparator<KUri> { a, b ->
             cmp(a.getScheme(), b.getScheme(), ignoreCase = true).takeIf { it != 0 }

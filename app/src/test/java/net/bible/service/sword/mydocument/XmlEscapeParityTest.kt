@@ -37,7 +37,7 @@ class XmlEscapeParityTest {
 
     @Test fun controlCharacterClassesInContext() {
         assertParity("a\u0000b\u0001c\u0008d\u0009e\u000Af\u000Bg\u000Ch\u000Di\u000Ej\u001Fk\u007Fl\u0084m\u0085n\u0086o\u009Fp")
-        assertParity("x￾y￿z")
+        assertParity("x\uFFFEy\uFFFFz")
     }
 
     @Test fun surrogates() {
