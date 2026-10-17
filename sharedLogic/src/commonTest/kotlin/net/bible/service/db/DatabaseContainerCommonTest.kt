@@ -6,6 +6,8 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 
 import okio.FileSystem
 import okio.Path.Companion.toPath
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -14,6 +16,15 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
 class DatabaseContainerCommonTest {
+    private var previousHost: DatabaseHost? = null
+
+    @BeforeTest
+    fun rememberHost() { previousHost = try { DatabaseContainer.host } catch (_: IllegalStateException) { null } }
+
+    /** [DatabaseContainer.installHost] is global; put back whatever was installed before the test (if anything). */
+    @AfterTest
+    fun restoreHost() { previousHost?.let { DatabaseContainer.installHost(it) } }
+
     private fun host(): FakeDatabaseHost = FakeDatabaseHost(newTestDir()).also { DatabaseContainer.installHost(it) }
 
     private suspend fun DatabaseContainer.closeOwned() =
@@ -29,7 +40,7 @@ class DatabaseContainerCommonTest {
             for (name in ALL_DB_FILENAMES) {
                 assertTrue(FileSystem.SYSTEM.exists(host.databasePath(name).toPath()), "$name exists")
             }
-            val bookmarks = host.databasePath(ALL_DB_FILENAMES.first { it == SyncableDatabaseDefinition.BOOKMARKS.filename })
+            val bookmarks = host.databasePath(SyncableDatabaseDefinition.BOOKMARKS.filename)
             val triggers = openSqlite(bookmarks).use { c ->
                 c.queryRows("SELECT name FROM sqlite_master WHERE type = 'trigger'") { it.getText(0) }.toSet()
             }
@@ -88,6 +99,9 @@ class DatabaseContainerCommonTest {
         host()
         val container = DatabaseContainer.create()
         container.closeOwned()
-        assertFailsWith<IllegalStateException> { container.bookmarkDb.bookmarkDao().labelById(BookmarkEntities.Label().id) }
+        // Every database that closeAllOwned closes (dbByFilename lists all eleven) must refuse further use.
+        for ((name, db) in container.dbByFilename) {
+            assertFailsWith<IllegalStateException>("$name still usable after closeAll") { db.useWriterConnectionMarked { } }
+        }
     }
 }

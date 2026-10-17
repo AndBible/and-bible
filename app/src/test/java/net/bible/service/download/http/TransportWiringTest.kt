@@ -39,7 +39,7 @@ class ColdTransportApplication : BibleApplication() {
 @Config(application = ColdTransportApplication::class, sdk = [TEST_SDK])
 @OptIn(KoinInternalApi::class)
 class TransportWiringTest {
-    /** A module's own mappings after those of every module it includes, recursively (later wins, as in Koin). */
+    /** A module's own mappings after those of every module it includes, recursively. */
     private fun flatMappings(module: Module): Map<String, InstanceFactory<*>> =
         LinkedHashMap<String, InstanceFactory<*>>().also { out ->
             module.includedModules.forEach { out.putAll(flatMappings(it)) }
@@ -96,7 +96,7 @@ class TransportWiringTest {
             // buildCoreModule() only includes its platform and shared parts; flatten them into coreModule so the
             // boundary override below still wins.
             coreModule.mappings.clear()
-            (coreModule.includedModules as MutableList<Module>).clear()
+            coreModule.includedModules.clear()
             coreModule.mappings.putAll(flatMappings(buildCoreModule()))
             val boundary = module {
                 single<SpeakSettingsStore> {
@@ -160,7 +160,7 @@ class TransportWiringTest {
                 progressManager.progs = oldProgressSet
                 coreModule.mappings.clear()
                 coreModule.mappings.putAll(savedMappings)
-                (coreModule.includedModules as MutableList<Module>).apply { clear(); addAll(savedIncluded) }
+                coreModule.includedModules.apply { clear(); addAll(savedIncluded) }
                 contextFields.zip(savedContext).forEach { (field, value) -> field.set(null, value) }
                 storeField.set(null, oldStore)
                 launcherField.set(MyDocumentBookManager, oldLauncher)

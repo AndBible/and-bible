@@ -6,8 +6,6 @@ import net.bible.android.control.search.SearchHighlighter
 import net.bible.android.control.search.SearchTextHighlighter
 import net.bible.android.view.activity.search.AndroidEpubSearchService
 import net.bible.sharedcore.search.EpubSearchService
-import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
-import net.bible.sharedcore.bookmark.BookmarksService
 import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
@@ -112,7 +110,7 @@ fun buildPlatformBindings() = module {
     // CONCRETE class as the definition's primary type, with the interface as a secondary one --
     // TextDisplaySettingsComposeActivity injects the concrete TextDisplaySettingsServiceImpl (for
     // the HIDELABELS bridge helper, outside the portable interface), same reason as the
-    // singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() } pattern above.
+    // singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() } pattern (that binding lives in SharedBindings.kt).
     single { TextDisplaySettingsServiceImpl() } bind TextDisplaySettingsService::class
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
