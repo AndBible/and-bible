@@ -2199,6 +2199,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     fun onEventMainThread(event: CurrentWindowChangedEvent) {
         if(paused) return
         updateActions()
+        // A touch forwarded through an open passage finder can activate another window,
+        // whose document may need a different book list.
+        passageFinderLauncher.onCurrentVerseChanged()
     }
 
     fun onEventMainThread(event: NumberOfWindowsChangedEvent) {

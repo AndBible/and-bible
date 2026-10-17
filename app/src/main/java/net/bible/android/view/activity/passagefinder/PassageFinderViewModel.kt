@@ -115,6 +115,22 @@ class PassageFinderViewModel(
     private val _previewVerseText = MutableStateFlow<PreviewVerseText>(PreviewVerseText.None)
     val previewVerseText: StateFlow<PreviewVerseText> = _previewVerseText.asStateFlow()
 
+    /** The list last handed to [show], or null while loading; see [isShowingStaleList]. */
+    private var shownList: PassageFinderDataSource.BookList? = null
+
+    /**
+     * Whether the widget is showing a book list that belongs to a document other than the
+     * active one.
+     *
+     * Touches on the reader are forwarded through the overlay, so a tap can make another
+     * split window — and with it another document — active while the widget is open. Its
+     * books need not match, so a stale list must be reloaded rather than followed or
+     * confirmed from. False while loading: the launcher's cold load checks the list it is
+     * about to install itself.
+     */
+    val isShowingStaleList: Boolean
+        get() = shownList?.let { !dataSource.isCurrent(it) } ?: false
+
     private val verseSelectionFlow = MutableSharedFlow<Triple<BibleBook, Int, Int>>(
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
@@ -171,6 +187,7 @@ class PassageFinderViewModel(
         // Unrelated to PreviewVerseText.Loading: this is the widget's own skeleton while
         // the book list is read, and nothing has been selected to preview yet.
         _previewVerseText.value = PreviewVerseText.None
+        shownList = null
         _uiState.value = PassageFinderUiState(visible = true)
     }
 
@@ -182,6 +199,7 @@ class PassageFinderViewModel(
      */
     fun show(bookList: PassageFinderDataSource.BookList) {
         val books = bookList.books
+        shownList = bookList
         if (books.isEmpty()) {
             // Module yields no books — nothing to navigate. Keep the widget hidden
             // and let the caller fall back to the legacy passage chooser.
@@ -228,7 +246,7 @@ class PassageFinderViewModel(
      */
     fun followCurrentVerse() {
         val state = _uiState.value
-        if (!state.visible || state.books.isEmpty()) return
+        if (!state.visible || state.books.isEmpty() || isShowingStaleList) return
         val current = dataSource.getCurrentVerse()
         val bookIndex = state.books.indexOfFirst { it.book == current.book }
         if (bookIndex < 0) return
@@ -269,6 +287,9 @@ class PassageFinderViewModel(
      * for the navigation layer to act on. Then dismisses the widget.
      */
     fun confirmSelection() {
+        // The launcher reloads a stale list before confirming; this only guards against
+        // navigating to a book the active document may not have if that is ever skipped.
+        if (isShowingStaleList) return
         val state = _uiState.value
         val book = state.books.getOrNull(state.selectedBookIndex)?.book ?: return
         // The passage document's versification, not the reader's current verse's: the

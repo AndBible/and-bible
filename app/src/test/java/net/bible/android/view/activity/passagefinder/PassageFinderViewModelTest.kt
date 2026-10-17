@@ -56,6 +56,9 @@ class PassageFinderViewModelTest {
     private lateinit var viewModel: PassageFinderViewModel
     private lateinit var dataSource: PassageFinderDataSource
 
+    /** Whether the shown list still belongs to the active document; clear to simulate a switch. */
+    private var listIsCurrent = true
+
     private val testBooks = listOf(
         PassageFinderDataSource.BookInfo(BibleBook.GEN, "Gen", "Genesis", BookCategory.PENTATEUCH),
         PassageFinderDataSource.BookInfo(BibleBook.EXOD, "Exod", "Exodus", BookCategory.PENTATEUCH),
@@ -70,6 +73,7 @@ class PassageFinderViewModelTest {
         dataSource = mock()
         whenever(dataSource.getCurrentVerse()).thenReturn(Verse(v11n, BibleBook.GEN, 1, 1))
         whenever(dataSource.getVersification()).thenReturn(v11n)
+        whenever(dataSource.isCurrent(any())).thenAnswer { listIsCurrent }
         whenever(dataSource.getChapterCount(eq(BibleBook.GEN))).thenReturn(50)
         whenever(dataSource.getChapterCount(eq(BibleBook.EXOD))).thenReturn(40)
         whenever(dataSource.getChapterCount(eq(BibleBook.LEV))).thenReturn(27)
@@ -261,6 +265,60 @@ class PassageFinderViewModelTest {
         deferred.await()
 
         assertFalse(viewModel.uiState.value.visible)
+    }
+
+    // ---- active document switching while the widget is open -------------------------
+    //
+    // Touches on the reader are forwarded through the overlay, so a tap can make another
+    // split window active after the list was installed. Its document may lack books the
+    // shown list has, so the list must be recognised as stale rather than acted on.
+
+    @Test
+    fun `a list shown for another document is reported stale`() = runTest {
+        viewModel.show(bookList())
+        assertFalse(viewModel.isShowingStaleList)
+
+        listIsCurrent = false
+
+        assertTrue(viewModel.isShowingStaleList)
+    }
+
+    @Test
+    fun `nothing is stale while the list is still loading`() = runTest {
+        // The cold-load path checks the list it is about to install itself.
+        listIsCurrent = false
+        viewModel.showLoading()
+
+        assertFalse(viewModel.isShowingStaleList)
+    }
+
+    @Test
+    fun `followCurrentVerse does not move a stale list to the new document's verse`() = runTest {
+        viewModel.show(bookList())
+        listIsCurrent = false
+        whenever(dataSource.getCurrentVerse()).thenReturn(Verse(v11n, BibleBook.MATT, 5, 9))
+
+        viewModel.followCurrentVerse()
+
+        // The index would point into the old document's list; leave it for the reload.
+        assertEquals(0, viewModel.uiState.value.selectedBookIndex)
+        assertEquals(1, viewModel.uiState.value.selectedChapter)
+    }
+
+    @Test
+    fun `confirmSelection emits nothing from a stale list`() = runTest {
+        viewModel.show(bookList())
+        listIsCurrent = false
+
+        val emitted = mutableListOf<Verse>()
+        val job = launch { viewModel.selectionConfirmed.collect { emitted += it } }
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.confirmSelection()
+        testDispatcher.scheduler.advanceUntilIdle()
+        job.cancel()
+
+        assertTrue("a book from the old document must not be navigated to", emitted.isEmpty())
     }
 
     @Test

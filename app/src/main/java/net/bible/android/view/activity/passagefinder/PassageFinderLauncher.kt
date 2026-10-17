@@ -133,18 +133,7 @@ class PassageFinderLauncher(
         if (cached != null && cached.books.isEmpty()) return false
 
         val finder = ensureView()
-        loadJob?.cancel()
-
-        if (cached != null) {
-            finder.setBooks(cached.books, cached.chapterCounts)
-            viewModel.show(cached)
-            if (!viewModel.uiState.value.visible) return false
-        } else {
-            // Nothing loaded yet: put the overlay on screen now with a placeholder and
-            // fill it in when the list arrives, rather than making the user wait on disk.
-            finder.setBooks(emptyList(), IntArray(0))
-            viewModel.showLoading()
-        }
+        if (!installBooks(finder, cached)) return false
 
         // Open the view before subscribing, not after. `uiState` is a StateFlow and
         // lifecycleScope dispatches on Main.immediate, so on the main thread the collector
@@ -168,29 +157,83 @@ class PassageFinderLauncher(
         startCollecting(finder)
 
         if (cached == null) {
-            // Started only now, so the `isShowing` guard below is answered by this open
-            // rather than by whatever the view was doing beforehand.
-            loadJob = activity.lifecycleScope.launch {
-                var loaded = loadBooksOrNull()
-                // The active document can change while a cold load runs: a touch forwarded
-                // into the other half of a split makes that window active. Installing the
-                // old module's books would let the user confirm a book the active module
-                // lacks, so reload for whatever is active now. Checked here on the main
-                // thread, where the list is applied, so nothing can switch in between.
-                while (loaded != null && finder.isShowing && !dataSource.isCurrent(loaded)) {
-                    loaded = loadBooksOrNull()
-                }
-                if (!finder.isShowing) return@launch
-                if (loaded == null || loaded.books.isEmpty()) {
-                    hide()
-                    onNoBooks?.invoke()
-                    return@launch
-                }
-                finder.setBooks(loaded.books, loaded.chapterCounts)
-                viewModel.show(loaded)
+            // Started only now, so the `isShowing` guard in the load is answered by this
+            // open rather than by whatever the view was doing beforehand.
+            startLoad(finder) {
+                hide()
+                onNoBooks?.invoke()
             }
         }
         return true
+    }
+
+    /**
+     * Puts [cached] in front of the user, or the loading placeholder when it is null.
+     *
+     * @return false if [cached] turned out to have nothing to navigate.
+     */
+    private fun installBooks(
+        finder: PassageFinderView,
+        cached: PassageFinderDataSource.BookList?,
+    ): Boolean {
+        loadJob?.cancel()
+        if (cached != null) {
+            finder.setBooks(cached.books, cached.chapterCounts)
+            viewModel.show(cached)
+            return viewModel.uiState.value.visible
+        }
+        // Nothing loaded yet: put the overlay on screen now with a placeholder and fill it
+        // in when the list arrives, rather than making the user wait on disk.
+        finder.setBooks(emptyList(), IntArray(0))
+        viewModel.showLoading()
+        return true
+    }
+
+    /**
+     * Loads the active document's book list and installs it into the open [finder].
+     *
+     * @param onNoBooks run instead when the document turns out to have nothing to navigate.
+     */
+    private fun startLoad(finder: PassageFinderView, onNoBooks: () -> Unit) {
+        loadJob = activity.lifecycleScope.launch {
+            var loaded = loadBooksOrNull()
+            // The active document can change while a cold load runs: a touch forwarded
+            // into the other half of a split makes that window active. Installing the
+            // old module's books would let the user confirm a book the active module
+            // lacks, so reload for whatever is active now. Checked here on the main
+            // thread, where the list is applied, so nothing can switch in between.
+            while (loaded != null && finder.isShowing && !dataSource.isCurrent(loaded)) {
+                loaded = loadBooksOrNull()
+            }
+            if (!finder.isShowing) return@launch
+            if (loaded == null || loaded.books.isEmpty()) {
+                onNoBooks()
+                return@launch
+            }
+            finder.setBooks(loaded.books, loaded.chapterCounts)
+            viewModel.show(loaded)
+        }
+    }
+
+    /**
+     * Swaps the open finder's list for the now-active document's, after a touch forwarded
+     * to the reader made another window active (see [PassageFinderViewModel.isShowingStaleList]).
+     *
+     * Dismisses rather than reloads when the new page is not one the finder navigates, or
+     * has no books: falling back to the legacy chooser makes sense for a deliberate open,
+     * not for a tap on the reader behind the overlay.
+     */
+    private fun reloadForActiveDocument(finder: PassageFinderView) {
+        if (!pageControl.currentPageManager.isVersePageShown) {
+            hide()
+            return
+        }
+        val cached = dataSource.cachedBooks()
+        if (!installBooks(finder, cached)) {
+            hide()
+            return
+        }
+        if (cached == null) startLoad(finder) { hide() }
     }
 
     /** [PassageFinderDataSource.loadBooks], with a failure reported as null. */
@@ -257,10 +300,19 @@ class PassageFinderLauncher(
      * reports are throttled on the web side and the last one lands after the text has
      * physically stopped, so a report can arrive a beat *after* the user has flicked a
      * strip. Acting on it would cancel their fling and drag the strip back.
+     *
+     * Also called when the active window changes. Either way the active document may
+     * have changed under the finder, and a list for the wrong document is reloaded
+     * whether or not the widget is idle, since nothing picked from it can be confirmed.
      */
     fun onCurrentVerseChanged() {
         val finder = view ?: return
-        if (finder.isShowing && finder.isIdle) viewModel.followCurrentVerse()
+        if (!finder.isShowing) return
+        if (viewModel.isShowingStaleList) {
+            reloadForActiveDocument(finder)
+            return
+        }
+        if (finder.isIdle) viewModel.followCurrentVerse()
     }
 
     /**
@@ -365,7 +417,12 @@ class PassageFinderLauncher(
             // Don't hide() here: the selectionConfirmed collector navigates and then hides
             // the view itself. Cancelling navigationJob early would race the emission and
             // silently drop the navigation.
-            onConfirm = { viewModel.confirmSelection() }
+            // A stale list is reloaded instead: the user picked from another document's
+            // books, which the now-active one may not have.
+            onConfirm = {
+                if (viewModel.isShowingStaleList) reloadForActiveDocument(this)
+                else viewModel.confirmSelection()
+            }
             onBookSelected = { viewModel.onBookSelected(it) }
             onChapterSelected = { viewModel.onChapterSelected(it) }
             onVerseSelected = { viewModel.onVerseSelected(it) }
