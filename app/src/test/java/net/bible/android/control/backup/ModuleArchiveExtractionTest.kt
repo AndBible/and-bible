@@ -24,10 +24,12 @@ import net.bible.android.TestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
 import net.bible.service.installzip.myBibleBytes
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,9 +52,18 @@ import java.util.zip.ZipOutputStream
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ModuleArchiveExtractionTest {
     private lateinit var downloadDir: File
+    private var booksBefore: Set<org.crosswire.jsword.book.Book> = emptySet()
+
+    /** Books registered by a test (MyBible modules are auto-registered on extraction) must not leak into the one-JVM suite. */
+    @After
+    fun tearDown() {
+        Books.installed().getBooks().filter { it !in booksBefore }.forEach { Books.installed().removeBook(it) }
+        File(downloadDir, "mybible").deleteRecursively()
+    }
 
     @Before
     fun setUp() {
+        booksBefore = Books.installed().getBooks().toSet()
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         downloadDir = SwordBookPathJvm.getSwordDownloadDir()
     }
