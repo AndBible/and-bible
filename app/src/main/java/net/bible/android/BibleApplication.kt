@@ -33,6 +33,7 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import net.bible.service.db.AndroidDatabaseHost
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.openSqlite
 import net.bible.service.db.queryRows
@@ -119,6 +120,7 @@ open class BibleApplication : Application() {
 
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
+        DatabaseContainer.installHost(AndroidDatabaseHost(this))
         Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         CommonUtils.tmpDir.deleteRecursively()

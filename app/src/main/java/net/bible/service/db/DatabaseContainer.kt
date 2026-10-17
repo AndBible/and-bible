@@ -347,6 +347,12 @@ class DatabaseContainer {
     }
 
     companion object {
+        /** The platform side of the container; installed once at startup by [installHost]. */
+        @Volatile private var _host: DatabaseHost? = null
+        val host: DatabaseHost get() = _host ?: throw IllegalStateException("DatabaseHost not installed")
+
+        fun installHost(host: DatabaseHost) { _host = host }
+
         val aiLifetime = net.bible.service.llm.AiDatabaseLifetime()
         @Volatile var ready: Boolean = false
 
