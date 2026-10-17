@@ -1,20 +1,20 @@
 package net.bible.service.installzip
 
 import kotlinx.coroutines.test.runTest
+import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.db.exec
+import net.bible.service.db.openSqlite
 import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.test.testCoreStrings
+import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import net.bible.service.db.exec
-import net.bible.service.db.openSqlite
-import net.bible.android.SharedConstants
-import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -64,18 +64,6 @@ class InstallDepsTest {
             zip()
             assertTrue(scanSwordZip(file).invalid)
         } finally { file.delete() }
-    }
-
-    private fun myBibleBytes(): ByteArray {
-        val f = File.createTempFile("mb-fixture", ".SQLite3")
-        try {
-            openSqlite(f.path).use { c ->
-                c.exec("CREATE TABLE info (name TEXT, value TEXT)")
-                c.exec("INSERT INTO info VALUES ('description', 'KJV')")
-                c.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
-            }
-            return f.readBytes()
-        } finally { f.delete() }
     }
 
     private fun notMyBibleBytes(): ByteArray {

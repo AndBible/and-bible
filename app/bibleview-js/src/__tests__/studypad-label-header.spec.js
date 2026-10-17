@@ -17,7 +17,7 @@
 
 import {mount} from "@vue/test-utils";
 import {defineComponent, h, provide, reactive, ref, nextTick} from "vue";
-import {describe, it, expect, vi} from "vitest";
+import {describe, it, expect, vi, afterEach} from "vitest";
 import StudyPadDocument from "@/components/documents/StudyPadDocument.vue";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {emit} from "@/eventbus";
@@ -38,7 +38,8 @@ const labelId = "label-1";
 function makeDocument() {
     return {
         id: "doc", type: "journal", bookmarks: [], genericBookmarks: [], bookmarkToLabels: [],
-        genericBookmarkToLabels: [], journalTextEntries: [],
+        genericBookmarkToLabels: [],
+        journalTextEntries: [{id: "entry-1", type: "journal", orderNumber: 0, text: "note", labelId}],
         label: {id: labelId, name: "Blue", isRealLabel: true, style: {color: BLUE}},
     };
 }
@@ -54,9 +55,26 @@ const Host = defineComponent({
     },
 });
 
+// Declared props keep Vue from warning about fallthrough attrs and let tests read the label handed to a row.
+const StudyPadRowStub = defineComponent({
+    props: {journalEntry: Object, label: Object, disableClickToEdit: Boolean},
+    render: () => h("div", {class: "row-stub"}),
+});
+// Renders the item slot per element, as vuedraggable does, so the rows exist in the test DOM.
+const DraggableStub = defineComponent({
+    props: {modelValue: Array},
+    render() {
+        return h("div", (this.modelValue ?? []).map((element, index) => this.$slots.item({element, index})));
+    },
+});
+
 function mountDoc() {
-    return mount(Host, {global: {stubs: {draggable: true, StudyPadRow: true, FontAwesomeIcon: true}}});
+    return mount(Host, {global: {stubs: {draggable: DraggableStub, StudyPadRow: StudyPadRowStub, FontAwesomeIcon: true}}});
 }
+
+afterEach(() => {
+    appSettings.monochromeMode = false;
+});
 
 const renamed = {id: labelId, name: "Renamed", isRealLabel: true, style: {color: ORANGE}};
 
@@ -88,6 +106,30 @@ describe("StudyPad header follows label edits", () => {
         const header = wrapper.find(".journal-name");
         expect(header.text()).toBe("Renamed");
         expect(header.attributes("style") ?? "").not.toContain("background-color");
-        appSettings.monochromeMode = false;
+    });
+
+    it("passes the live label to the rows after update_labels", async () => {
+        const wrapper = mountDoc();
+        expect(wrapper.findComponent(StudyPadRowStub).props("label").name).toBe("Blue");
+        emit("update_labels", [renamed]);
+        await nextTick();
+        expect(wrapper.findComponent(StudyPadRowStub).props("label")).toMatchObject({id: labelId, name: "Renamed"});
+    });
+
+    it("falls back to the document label when the label is deleted", async () => {
+        const wrapper = mountDoc();
+        emit("update_labels", [renamed]);
+        await nextTick();
+        expect(wrapper.find(".journal-name").text()).toBe("Renamed");
+        emit("delete_labels", [labelId]);
+        await nextTick();
+        expect(wrapper.find(".journal-name").text()).toBe("Blue");
+        expect(wrapper.findComponent(StudyPadRowStub).props("label").name).toBe("Blue");
+    });
+
+    it("uses the document label when the label is not among the global labels", () => {
+        const wrapper = mountDoc();
+        expect(wrapper.find(".journal-name").text()).toBe("Blue");
+        expect(wrapper.findComponent(StudyPadRowStub).props("label")).toMatchObject({id: labelId, name: "Blue"});
     });
 });

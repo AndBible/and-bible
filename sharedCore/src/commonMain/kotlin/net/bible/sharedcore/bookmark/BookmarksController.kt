@@ -108,10 +108,14 @@ class BookmarksController(
         val search = _searchText.value.ifBlank { null }
         val showNotes = _showNotes.value
         scope.launch {
-            val r = service.loadRows(filterIndex, sort, search, showNotes)
-            if (generation != loadGeneration) return@launch
-            _rows.value = r
-            _loading.value = false
+            try {
+                val r = service.loadRows(filterIndex, sort, search, showNotes)
+                if (generation != loadGeneration) return@launch
+                _rows.value = r
+            } finally {
+                // A throwing (or cancelled) load must not leave the spinner up; a superseded load leaves it to the newer one.
+                if (generation == loadGeneration) _loading.value = false
+            }
         }
     }
 

@@ -229,8 +229,10 @@ fun BookmarksScreen(
             if (rows.isEmpty()) {
                 // While the first (or a re-) load is running an empty list only means "not loaded
                 // yet", so the empty text waits for the load to finish (SU-15d).
-                if (!loading) Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(strings.emptyList, modifier = Modifier.padding(32.dp), style = MaterialTheme.typography.bodyLarge)
+                if (!loading) {
+                    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(strings.emptyList, modifier = Modifier.padding(32.dp), style = MaterialTheme.typography.bodyLarge)
+                    }
                 }
             } else {
                 val listState = rememberLazyListState()

@@ -30,11 +30,11 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
 import net.bible.test.testCoreStrings
 import org.crosswire.jsword.book.sword.SwordGenBook
+import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,12 +75,11 @@ class MyDocumentBackendKeysTest {
                 "content of $key",
             )
         }
-        val book = createMyDocumentBook(document)
-        return book
+        return createMyDocumentBook(document)
     }
 
     private fun bookAndKey(book: SwordGenBook, pageKey: String) =
-        BookAndKey(org.crosswire.jsword.passage.DefaultLeafKeyList(pageKey, pageKey), book)
+        BookAndKey(DefaultLeafKeyList(pageKey, pageKey), book)
 
     @Test
     fun lastPageNextReturnsARealKeyOfTheBook() = runTest {
@@ -115,12 +114,7 @@ class MyDocumentBackendKeysTest {
     fun getOutOfBoundsThrowsIndexOutOfBounds() = runTest {
         val backend = book("page_a", "page_b").backend as MyDocumentBackend
         for (bad in listOf(2, -1)) {
-            try {
-                backend.get(bad)
-                fail("get($bad) should throw")
-            } catch (e: IndexOutOfBoundsException) {
-                assertTrue(true)
-            }
+            assertThrows("get($bad)", IndexOutOfBoundsException::class.java) { backend.get(bad) }
         }
     }
 }

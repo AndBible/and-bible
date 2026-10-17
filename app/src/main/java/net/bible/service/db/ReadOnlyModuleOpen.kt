@@ -58,6 +58,10 @@ fun openReadOnlyModuleDb(file: File, snapshotRoot: File): SQLiteConnection {
         Log.w(TAG, "Read-only WAL module without -shm, opening a snapshot of $file", e)
         try {
             return openAndProbe(snapshot(file, wal, snapshotRoot))
+        } catch (interrupted: InterruptedException) {
+            Thread.currentThread().interrupt()
+            e.addSuppressed(interrupted)
+            throw e
         } catch (snapshotFailure: Exception) {
             e.addSuppressed(snapshotFailure)
             throw e

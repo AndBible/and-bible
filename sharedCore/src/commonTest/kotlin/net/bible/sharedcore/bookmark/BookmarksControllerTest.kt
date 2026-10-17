@@ -1,5 +1,6 @@
 package net.bible.sharedcore.bookmark
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -400,5 +401,21 @@ class BookmarksControllerTest {
         assertEquals(2, c.selectedFilterIndex.value)
         assertEquals(listOf(2), service.loadCalls.map { it.filterIndex })
         assertFalse(c.loading.value)
+    }
+
+    /** A throwing loadRows still propagates to the scope's handler, but must not leave the spinner on forever. */
+    @Test fun loading_is_reset_when_loadRows_throws() = runTest {
+        val service = FakeService(rowsToReturn = { _, _, _, _ -> throw IllegalStateException("boom") })
+        val failures = mutableListOf<Throwable>()
+        val scope = CoroutineScope(
+            StandardTestDispatcher(testScheduler) + CoroutineExceptionHandler { _, e -> failures.add(e) },
+        )
+        val c = controller(service, scope)
+        assertTrue(c.loading.value)
+
+        testScheduler.advanceUntilIdle()
+
+        assertFalse(c.loading.value)
+        assertEquals(listOf("boom"), failures.map { it.message })
     }
 }
