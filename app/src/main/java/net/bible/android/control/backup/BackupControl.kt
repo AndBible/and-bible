@@ -424,7 +424,7 @@ class BackupControl(
             // must be packaged by their .ttf file rather than via the generic SWORD configFile
             // branch below. Skip gracefully if the underlying file has gone missing, so one
             // broken font module can't abort the whole backup/sync operation.
-            val ttfFile = b.ttfFile
+            val ttfFile = b.ttfFile.toFile()
             if (ttfFile.exists()) {
                 addModuleFile(outFile, ttfFile)
             } else {
@@ -435,7 +435,7 @@ class BackupControl(
             // their single image file rather than via the generic SWORD branch below. Skip
             // gracefully if the file is missing, so one broken module can't abort the whole
             // backup/sync operation.
-            val imageFile = b.backgroundImageFile
+            val imageFile = b.backgroundImageFile.toFile()
             if (imageFile.exists()) {
                 addModuleFile(outFile, imageFile)
             } else {
