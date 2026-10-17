@@ -134,4 +134,24 @@ class ModuleArchiveExtractionTest {
 
         assertTrue(File(downloadDir, "modules/texts/only-data.dat").exists())
     }
+
+    /** Zip-slip: an entry escaping the module directory fails the whole archive and writes nothing outside it. */
+    @Test
+    fun traversalEntryFailsTheArchiveAndWritesNothingOutside() = runBlocking {
+        val zip = buildZip("traversal.zip", listOf(
+            "modules/texts/ok.dat" to byteArrayOf(1),
+            "../../evil.conf" to byteArrayOf(2),
+        ))
+        val escaped = File(downloadDir, "../../evil.conf").canonicalFile
+        escaped.delete()
+
+        val backup = org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java)
+        try {
+            backup.extractAndRegisterModuleArchive({ FileInputStream(zip) })
+            org.junit.Assert.fail("expected IOException")
+        } catch (e: java.io.IOException) {
+            // expected
+        }
+        assertFalse("Traversal entry must not be written", escaped.exists())
+    }
 }

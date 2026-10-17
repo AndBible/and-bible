@@ -33,8 +33,9 @@ object ArchiveUtils {
         ZipInputStream(inputStream).use { zIn ->
             var zipEntry = zIn.nextEntry
             while (zipEntry != null) {
+                val filePath = safeZipEntryPath(zipEntry.name)
+                    ?: throw okio.IOException("Unsafe ZIP entry name")
                 if (!zipEntry.isDirectory) {
-                    val filePath = zipEntry.name.replace('\\', '/')
                     val file = File(destinationDir, filePrefix + filePath)
                     Log.i(TAG, "Writing $file")
                     file.parentFile?.mkdirs()

@@ -26,6 +26,7 @@ import net.bible.android.database.BookmarkDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.ArchiveUtils.unzipInputStream
+import net.bible.service.common.safeZipEntryPath
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
@@ -106,6 +107,10 @@ internal fun scanSwordZip(localFile: File): InstallInspector.SwordZipScan {
 
         while (entry != null) {
             totalEntries++
+            // Zip-slip: an entry that could escape the target directory makes the archive invalid.
+            if (safeZipEntryPath(entry.name) == null) {
+                return InstallInspector.SwordZipScan(emptyList(), 0, isEpub = false, invalid = true)
+            }
             val name = entry.name.replace('\\', '/')
             val targetFile = File(targetDirectory, name)
             if (!entry.isDirectory && targetFile.exists()) {

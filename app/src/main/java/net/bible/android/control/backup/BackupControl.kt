@@ -43,6 +43,7 @@ import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.safeZipEntryPath
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
@@ -960,7 +961,8 @@ class BackupControl(
             var entryNum = 0
             val buffer = ByteArray(8192)
             while (ze != null) {
-                val name = ze.name.replace('\\', '/')
+                val name = safeZipEntryPath(ze.name)
+                    ?: throw IOException("Unsafe ZIP entry name")
                 if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
                     ze = zIn.nextEntry
                     continue

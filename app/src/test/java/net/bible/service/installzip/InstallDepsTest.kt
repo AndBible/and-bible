@@ -59,6 +59,9 @@ class InstallDepsTest {
             assertTrue(scanSwordZip(file).invalid)
             zip()
             assertTrue(scanSwordZip(file).invalid)
+            // Zip-slip: a traversal name hidden behind a valid-looking prefix is an invalid archive.
+            zip("mods.d/test.conf", "modules/../../evil")
+            assertTrue(scanSwordZip(file).invalid)
         } finally { file.delete() }
     }
 }

@@ -2,6 +2,8 @@ package net.bible.service.common
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -42,5 +44,19 @@ class ArchiveUtilsTest {
         assertEquals("900150983cd24fb0d6963f7d28e17f72", ArchiveUtils.md5Hash("abc"))
         assertEquals("https://a/b/c", ArchiveUtils.appendUrl("https://a/b", "c"))
         assertEquals("https://a/b/c", ArchiveUtils.appendUrl("https://a/b/", "c"))
+    }
+
+    @Test fun unzipRejectsTraversalAndWritesNothingOutside() {
+        val zip = folder.newFile("evil.zip")
+        ZipOutputStream(zip.outputStream()).use { output ->
+            for (name in listOf("ok.txt", "../evil.txt")) {
+                output.putNextEntry(ZipEntry(name))
+                output.write(name.toByteArray())
+                output.closeEntry()
+            }
+        }
+        val target = folder.newFolder("tmp", "target")
+        assertThrows(java.io.IOException::class.java) { ArchiveUtils.unzipFile(zip, target) }
+        assertFalse(File(target.parentFile, "evil.txt").exists())
     }
 }
