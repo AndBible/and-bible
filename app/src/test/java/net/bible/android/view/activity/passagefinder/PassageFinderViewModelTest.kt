@@ -69,6 +69,7 @@ class PassageFinderViewModelTest {
 
         dataSource = mock()
         whenever(dataSource.getCurrentVerse()).thenReturn(Verse(v11n, BibleBook.GEN, 1, 1))
+        whenever(dataSource.getVersification()).thenReturn(v11n)
         whenever(dataSource.getChapterCount(eq(BibleBook.GEN))).thenReturn(50)
         whenever(dataSource.getChapterCount(eq(BibleBook.EXOD))).thenReturn(40)
         whenever(dataSource.getChapterCount(eq(BibleBook.LEV))).thenReturn(27)
@@ -223,6 +224,28 @@ class PassageFinderViewModelTest {
         assertEquals(BibleBook.EXOD, verse.book)
         assertEquals(3, verse.chapter)
         assertEquals(7, verse.verse)
+    }
+
+    /**
+     * On a commentary page the book list and the chapter/verse counts come from the
+     * commentary, while the reader's current verse is held in the Bible's versification.
+     * The page converts the confirmed verse out of whatever versification it is labelled
+     * with, so labelling the commentary's numbers with the Bible's versification would
+     * land on a different verse wherever the two disagree.
+     */
+    @Test
+    fun `confirmSelection labels the verse with the passage document's versification`() = runTest {
+        val documentV11n = Versifications.instance().getVersification("Synodal")
+        whenever(dataSource.getVersification()).thenReturn(documentV11n)
+        viewModel.show(bookList())
+
+        val deferred = async { viewModel.selectionConfirmed.first() }
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.confirmSelection()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(documentV11n, deferred.await().versification)
     }
 
     @Test

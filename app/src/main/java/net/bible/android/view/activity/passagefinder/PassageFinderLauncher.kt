@@ -348,7 +348,10 @@ class PassageFinderLauncher(
         navigationJob?.cancel()
         navigationJob = activity.lifecycleScope.launch {
             viewModel.selectionConfirmed.collect { verse ->
-                pageControl.currentPageManager.currentBible.setKey(verse)
+                // The visible page, not always the Bible: show() also opens over a
+                // commentary, and moving the Bible there would leave the commentary the
+                // user is looking at where it was.
+                pageControl.currentPageManager.currentPage.setKey(verse)
                 hide()
             }
         }

@@ -27,6 +27,7 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.view.activity.passagefinder.BookCategory
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.passage.Verse
 
 private const val TAG = "PassageFinderDataSource"
@@ -190,6 +191,13 @@ class PassageFinderDataSource(
             1
         }
     }
+
+    /**
+     * Versification of the active passage document — the one the book list and the
+     * chapter/verse counts are read from. On a commentary page this is the commentary's,
+     * which need not match the Bible's that [getCurrentVerse] is expressed in.
+     */
+    fun getVersification(): Versification = navigationControl.versification
 
     /** Returns the currently active verse (book + chapter + verse). */
     fun getCurrentVerse(): Verse {

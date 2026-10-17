@@ -271,8 +271,10 @@ class PassageFinderViewModel(
     fun confirmSelection() {
         val state = _uiState.value
         val book = state.books.getOrNull(state.selectedBookIndex)?.book ?: return
-        val versification = dataSource.getCurrentVerse().versification
-        val verse = Verse(versification, book, state.selectedChapter, state.selectedVerse)
+        // The passage document's versification, not the reader's current verse's: the
+        // chapter and verse numbers were picked against the document's counts, and on a
+        // commentary page that is the commentary while the current verse is the Bible's.
+        val verse = Verse(dataSource.getVersification(), book, state.selectedChapter, state.selectedVerse)
         _selectionConfirmed.tryEmit(verse)
         dismiss()
     }
