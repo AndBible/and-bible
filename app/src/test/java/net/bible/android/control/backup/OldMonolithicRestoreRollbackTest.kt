@@ -80,6 +80,7 @@ class OldMonolithicRestoreRollbackTest {
     }
 
     private fun restore(f: File = fixture()) = runBlocking { backup.restoreOldMonolithicDatabase(f.inputStream()) }
+    private fun restoreBytes(bytes: ByteArray) = runBlocking { backup.restoreOldMonolithicDatabase(bytes.inputStream()) }
 
     @Test fun aFailedCopyLeavesThePreRestoreDatabasesAsTheyWere() {
         val before = fingerprint()
@@ -143,6 +144,44 @@ class OldMonolithicRestoreRollbackTest {
         assertEquals(f.length(), seenSize)
         assertFalse(File(dbDir, "$OLD_MONOLITHIC_DATABASE_NAME.staging").exists())
         assertFalse(rollbackDir.exists())
+    }
+
+    private fun gzFixtureBytes() =
+        javaClass.classLoader!!.getResourceAsStream("l1b-g2/old-monolithic.db.gz")!!.use { it.readBytes() }
+
+    /** Task 1 fixture, written by `GZIPOutputStream`: 12288 bytes of SQLite, user_version 69. */
+    @Test fun oldMonolithicGzFixtureIsAccepted() {
+        var seenSize = -1L
+        val real = DatabaseContainer.containerFactory
+        try {
+            DatabaseContainer.containerFactory = {
+                val mono = File(dbDir, OLD_MONOLITHIC_DATABASE_NAME)
+                if (mono.exists()) { seenSize = mono.length(); mono.delete() }
+                real()
+            }
+            assertTrue(restoreBytes(gzFixtureBytes()))
+        } finally { DatabaseContainer.containerFactory = real }
+        assertEquals(12288L, seenSize)
+        assertFalse(File(dbDir, "$OLD_MONOLITHIC_DATABASE_NAME.staging").exists())
+        assertFalse(rollbackDir.exists())
+    }
+
+    @Test fun aFileThatIsNotSqliteIsRejectedAndLeavesTheDatabases() {
+        val before = fingerprint()
+        assertFalse(restoreBytes(ByteArray(300) { (it * 7).toByte() }))
+        assertEquals(before, fingerprint())
+        assertFalse(rollbackDir.exists())
+        assertFalse(File(backup.internalDbBackupDir.toString(), OLD_MONOLITHIC_DATABASE_NAME).exists())
+    }
+
+    @Test fun aTruncatedGzipIsNotRestoredAndLeavesTheDatabases() {
+        val before = fingerprint()
+        val gz = gzFixtureBytes()
+        val outcome = runCatching { restoreBytes(gz.copyOf(gz.size / 2)) }
+        assertTrue("restored a truncated gzip", outcome.isFailure || outcome.getOrNull() == false)
+        assertEquals(before, fingerprint())
+        assertFalse(rollbackDir.exists())
+        assertFalse(File(backup.internalDbBackupDir.toString(), OLD_MONOLITHIC_DATABASE_NAME).exists())
     }
 
     /** Review Focus 1. */
