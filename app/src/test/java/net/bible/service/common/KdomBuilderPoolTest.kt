@@ -57,7 +57,6 @@ class KdomBuilderPoolTest {
         } finally {
             executor.shutdownNow()
         }
-        // Pool holds at most 32 of the 40: a further 40 simultaneous uses reuse at most 32 of any earlier ones.
         assertTrue(live.isEmpty())
     }
 

@@ -151,7 +151,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
 
     private fun isWhitespace(s: String): Boolean {
         if(s.isEmpty()) return false
-        return s.all { it.isWhitespace() }
+        return s.all { Character.isWhitespace(it) }
     }
 
     override fun write(s: String?): Boolean {
