@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedlogic.sync.bookNameMonitor
 import net.bible.sharedlogic.sync.withMonitor
 import androidx.annotation.VisibleForTesting
@@ -690,12 +691,10 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         for(labelId in labelIds) {
             val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }
             if (existingLabel != null) {
-                // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-                existingLabel.lastAccess = kotlin.time.Clock.System.now().toEpochMilliseconds()
+                existingLabel.lastAccess = currentTimeMillis()
                 workspaceSettings.recentLabels.sortBy { it.lastAccess }
             } else {
-                // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-                workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, kotlin.time.Clock.System.now().toEpochMilliseconds()))
+                workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, currentTimeMillis()))
                 while (workspaceSettings.recentLabels.size > 15) {
                     workspaceSettings.recentLabels.removeAt(0)
                 }

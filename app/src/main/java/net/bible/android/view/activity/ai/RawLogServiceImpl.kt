@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
 import kotlinx.coroutines.sync.withLock
@@ -89,7 +90,7 @@ class RawLogServiceImpl(
             deleteAll()
             return@withContext
         }
-        val cutoff = kotlin.time.Clock.System.now().toEpochMilliseconds() - days.toLong() * 24 * 60 * 60 * 1000 // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+        val cutoff = currentTimeMillis() - days.toLong() * 24 * 60 * 60 * 1000
         dao.deleteOlderThan(cutoff)
         refresh()
     }

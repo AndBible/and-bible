@@ -39,7 +39,7 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.isAIDocument
 import kotlinx.serialization.json.JsonObject
 import net.bible.service.llm.tools.*
-import net.bible.sharedlogic.platform.LocaleSupport
+import net.bible.sharedlogic.platform.PlatformLocales
 
 /**
  * Tool for adding a new page to a My Documents book.
@@ -49,7 +49,7 @@ import net.bible.sharedlogic.platform.LocaleSupport
  */
 object AddMyDocumentPageTool : Tool, KoinComponent {
     private val strings: LlmStrings by inject()
-    private val localeSupport: LocaleSupport by inject()
+    private val platformLocales: PlatformLocales by inject()
     @Serializable
     data class Args(
         val documentId: IdType = IdType.empty(),
@@ -167,7 +167,7 @@ object AddMyDocumentPageTool : Tool, KoinComponent {
                 contentType = args.contentType,
                 orderNumber = (dao.maxOrderNumber(document.id) ?: -1) + 1,
                 sourcePromptId = context.promptId,
-                languageCode = localeSupport.default.language // swap to PlatformLocales.defaultLanguage when G1 Part A lands
+                languageCode = platformLocales.defaultLanguage
             )
             dao.insertPageWithContent(page, content)
             MyDocumentBookManager.refreshDocument(document.initials)

@@ -16,6 +16,7 @@
  */
 package net.bible.service.device.speak
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppSettings
 import kotlin.math.roundToLong
@@ -40,8 +41,7 @@ class SpeakTiming(private val settings: AppSettings) {
         Log.i(TAG, "Speak timer started")
         lastUtteranceId = utteranceId
         lastSpeakTextLength = speakTextLength
-        // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-        lastSpeakStartTime = kotlin.time.Clock.System.now().toEpochMilliseconds()
+        lastSpeakStartTime = currentTimeMillis()
     }
 
     /** a block of text is finished being read so update char/msec if necessary
@@ -93,8 +93,7 @@ class SpeakTiming(private val settings: AppSettings) {
     }
 
     private fun milliSecsSinceStart(): Long {
-        // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-        val duration = kotlin.time.Clock.System.now().toEpochMilliseconds() - lastSpeakStartTime
+        val duration = currentTimeMillis() - lastSpeakStartTime
         Log.i(TAG, "Duration:$duration")
         return duration
     }

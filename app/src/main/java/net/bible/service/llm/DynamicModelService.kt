@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.platform.AppEnvironment
 
 import net.bible.sharedcore.log.Log
@@ -100,7 +101,7 @@ object DynamicModelService : KoinComponent {
     /** Whether the cache is missing or older than 7 days. */
     fun needsRefresh(providerId: String): Boolean {
         val ts = cacheTimestamp(providerId)
-        return ts == 0L || kotlin.time.Clock.System.now().toEpochMilliseconds() - ts > CACHE_MAX_AGE_MS // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+        return ts == 0L || currentTimeMillis() - ts > CACHE_MAX_AGE_MS
     }
 
     /** Get cached models without network calls. Loads from file on first access. */
@@ -125,7 +126,7 @@ object DynamicModelService : KoinComponent {
             val models = parseModels(response.body)
             if (models.isNotEmpty()) {
                 withContext(Dispatchers.IO) { saveToDisk(providerId, response.body) }
-                cache[providerId] = models to kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+                cache[providerId] = models to currentTimeMillis()
             }
             models
         } catch (e: CancellationException) {

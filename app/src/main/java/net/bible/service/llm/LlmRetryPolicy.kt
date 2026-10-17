@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.webdav.HttpDates
 import kotlin.math.pow
 import kotlin.random.Random
@@ -77,8 +78,7 @@ object LlmRetryPolicy {
      */
     fun parseRetryAfterHeader(
         headerValue: String?,
-        // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-        nowMs: Long = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+        nowMs: Long = currentTimeMillis(),
     ): Double? {
         if (headerValue.isNullOrBlank()) return null
 

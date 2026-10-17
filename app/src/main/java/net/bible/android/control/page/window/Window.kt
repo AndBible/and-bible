@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic
 import kotlin.concurrent.Volatile
@@ -317,8 +318,7 @@ class Window (
             val viewReady = waitForBibleView()
             if (!isCurrentRequest()) return@launch
 
-            // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-            lastUpdated = kotlin.time.Clock.System.now().toEpochMilliseconds()
+            lastUpdated = currentTimeMillis()
             lastChecksum = checksum
 
             onLoadDelivered(viewReady)
