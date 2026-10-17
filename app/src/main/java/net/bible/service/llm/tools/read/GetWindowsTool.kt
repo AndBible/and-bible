@@ -20,7 +20,7 @@ package net.bible.service.llm.tools.read
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -80,7 +80,7 @@ object GetWindowsTool : Tool, KoinComponent {
         properties: {}
     """)
 
-    private val windowControl get() = GlobalContext.get().get<net.bible.android.control.page.window.WindowControl>()
+    private val windowControl get() = KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>()
 
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is Result) return null

@@ -507,13 +507,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val verseRange = keyToVerseRange(keyToUse)
 
         val selectedText = if (keyToUse != null) {
-            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = org.koin.core.context.GlobalContext.get().get<SwordContentFacade>().saxTextPolicy) }
+            try { SwordContentFacade.getCanonicalText(book, keyToUse, false, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = org.koin.mp.KoinPlatform.getKoin().get<SwordContentFacade>().saxTextPolicy) }
             catch (e: Exception) { Log.w(TAG, "Could not get canonical text", e); "" }
         } else ""
 
         val osisContent = if (keyToUse != null) {
             try {
-                val fragment = SwordContentFacade.readOsisFragment(book, keyToUse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
+                val fragment = SwordContentFacade.readOsisFragment(book, keyToUse, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
                 XMLOutputter(Format.getRawFormat()).outputString(fragment)
             } catch (e: Exception) { Log.w(TAG, "Could not get OSIS content", e); null }
         } else null
@@ -533,14 +533,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
         } else null
 
         val selectedText = if (book != null && verseRange != null) {
-            SwordContentFacade.getTextWithinOrdinalsAsString(book, verseRange, ordinalRange, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()).joinToString(" ")
+            SwordContentFacade.getTextWithinOrdinalsAsString(book, verseRange, ordinalRange, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>()).joinToString(" ")
         } else ""
 
         val osisContent = if (book != null) {
             try {
                 val keyForOsis = verseRange ?: pageKey
                 if (keyForOsis != null) {
-                    val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
+                    val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
                     XMLOutputter(Format.getRawFormat()).outputString(fragment)
                 } else null
             } catch (e: Exception) { Log.w(TAG, "Could not get OSIS content", e); null }

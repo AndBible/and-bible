@@ -23,7 +23,7 @@ import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
@@ -966,7 +966,7 @@ class AgentExecutor(
      */
     private suspend fun saveNoteContent(context: AgentContext, content: String) {
         val entityId = context.noteEditorEntityId ?: return
-        val bookmarkControl = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
+        val bookmarkControl = KoinPlatform.getKoin().get<net.bible.android.control.bookmark.BookmarkControl>()
 
         when (context.noteEditorEntityType) {
             NoteEditorEntityType.BOOKMARK_NOTE -> {
