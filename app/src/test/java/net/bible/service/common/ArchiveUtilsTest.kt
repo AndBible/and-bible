@@ -22,8 +22,8 @@ class ArchiveUtilsTest {
         val source = folder.newFile("source").apply { writeBytes(bytes) }
         val compressed = folder.newFile("compressed")
         val restored = folder.newFile("restored")
-        ArchiveUtils.gzipFile(source, compressed)
-        ArchiveUtils.gunzipFile(compressed, restored)
+        ArchiveUtils.gzipFile(source.toOkioPath(), compressed.toOkioPath())
+        ArchiveUtils.gunzipFile(compressed.toOkioPath(), restored.toOkioPath())
         assertArrayEquals(bytes, restored.readBytes())
     }
 
