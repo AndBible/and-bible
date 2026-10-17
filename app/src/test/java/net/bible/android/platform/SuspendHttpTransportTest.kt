@@ -206,7 +206,8 @@ class SuspendHttpTransportTest {
             if (!hangMetadata) assertTrue(fake.readEntered.await(2, TimeUnit.SECONDS))
         }
         caller.cancel()
-        val outcome = withTimeout(1_000) { result.await() }
+        // Hang detector only, not the property under test: the outcome was seen 11 ms late under a loaded JVM.
+        val outcome = withTimeout(10_000) { result.await() }
         assertTrue("got $outcome", outcome is CancellationException)
         assertFalse("a cancelled caller is not a transport cancellation", outcome is TransportCancelledException)
         finished(fake) // No close(): the caller's cancellation itself must release the open block.
