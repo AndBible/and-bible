@@ -140,9 +140,9 @@ class DefaultInstallCommitter(
             }
         }
         when (type) {
-            SqliteBookType.MYBIBLE -> addMyBibleBook(outFile)
-            SqliteBookType.MYSWORD -> addMySwordBook(outFile)
-            SqliteBookType.ESWORD -> addESwordBook(outFile)
+            SqliteBookType.MYBIBLE -> addMyBibleBook(outFile.toOkioPath())
+            SqliteBookType.MYSWORD -> addMySwordBook(outFile.toOkioPath())
+            SqliteBookType.ESWORD -> addESwordBook(outFile.toOkioPath())
         }
     }
 
