@@ -17,7 +17,6 @@
 package net.bible.service.download
 
 import net.bible.service.download.PseudoBook
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
@@ -31,8 +30,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordDictionary
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.Key
-import java.io.IOException
-import java.util.*
 
 class NullOpenFileState(val metadata: SwordBookMetaData): OpenFileState {
     override fun close() = Unit
@@ -64,10 +61,9 @@ class NullKeyBackend(private val metadata: SwordBookMetaData): AbstractKeyBacken
 class FakeBookFactory(private val strings: net.bible.sharedcore.platform.CoreStrings) {
     /** create dummy Book object for file available for download from repo
      */
-    @Throws(IOException::class, BookException::class)
     fun createFakeRepoBook(module: String?, conf: String, repo: String?, type: BookCategory = BookCategory.COMMENTARY): Book {
         val sbmd = createRepoSBMD(module, conf)
-        if (StringUtils.isNotEmpty(repo)) {
+        if (!repo.isNullOrEmpty()) {
             sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repo)
         }
         return when(type) {
@@ -78,7 +74,6 @@ class FakeBookFactory(private val strings: net.bible.sharedcore.platform.CoreStr
 
     /** create sbmd for file available for download from repo
      */
-    @Throws(IOException::class, BookException::class)
     fun createRepoSBMD(module: String?, conf: String): SwordBookMetaData {
         val sbmd = SwordBookMetaData(conf.toByteArray(), module)
         val fake = SwordBookDriver.instance()
@@ -92,7 +87,7 @@ class FakeBookFactory(private val strings: net.bible.sharedcore.platform.CoreStr
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
 
-    private var _doesNotExistBooks: MutableMap<String, Book> = TreeMap()
+    private var _doesNotExistBooks: MutableMap<String, Book> = mutableMapOf()
 
     val multiDocument: Book
         get() =

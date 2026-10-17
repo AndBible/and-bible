@@ -52,7 +52,7 @@ class RelevantLanguageSorterTest {
         val svInstalledBook = FakeBookFactory(com.nhaarman.mockitokotlin2.mock()).createFakeRepoBook("DEF", "Lang=sv", null)
         val books: MutableList<Book> = ArrayList()
         books.add(svInstalledBook)
-        relevantLanguageSorter = RelevantLanguageSorter(books)
+        relevantLanguageSorter = RelevantLanguageSorter(books, net.bible.android.platform.AndroidPlatformLocales().defaultLanguage)
         val frPopularLang = Language("fr")
         val koDefaultLang = Language("ko")
         val inNotRelevantLang = Language("in")

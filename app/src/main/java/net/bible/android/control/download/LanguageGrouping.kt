@@ -17,7 +17,8 @@
 package net.bible.android.control.download
 
 import org.crosswire.common.util.Language
-import java.util.Locale
+import net.bible.sharedlogic.platform.PlatformLocales
+import org.koin.mp.KoinPlatform
 
 /**
  * Groups [Language]s that refer to the same human language but were declared with different
@@ -44,9 +45,33 @@ import java.util.Locale
  * Because whether a script is significant depends on the whole dataset, this is a bound instance
  * built from the full set of languages rather than a context-free function.
  */
-class LanguageGrouping(private val languages: Collection<Language>) {
+class LanguageGrouping(
+    private val languages: Collection<Language>,
+    /** Defaults to the Koin binding; tests and callers without Koin pass it explicitly. */
+    locales: PlatformLocales = KoinPlatform.getKoin().get(),
+) {
+    /**
+     * Map from ISO 639-2/T three-letter codes to their ISO 639-1 two-letter equivalent,
+     * derived from the platform's locale data (e.g. `eng -> en`, `fin -> fi`, `ben -> bn`).
+     */
+    private val iso3ToIso2: Map<String, String> =
+        locales.iso3ByIso2().mapNotNull { (iso2, iso3) -> if (iso3.isEmpty()) null else iso3 to iso2 }.toMap()
+
     /** Distinct scripts seen per normalised base code; >1 means the script is significant. */
     private val scriptsByBaseCode: Map<String, Set<String>> = buildScriptIndex(languages)
+
+    /** The two-letter form of a language code, or the original code if no mapping exists. */
+    private fun normalizeCode(code: String): String =
+        if (code.length == 3) iso3ToIso2[code] ?: code else code
+
+    private fun buildScriptIndex(languages: Collection<Language>): Map<String, Set<String>> {
+        val index = HashMap<String, MutableSet<String>>()
+        for (language in languages) {
+            val script = language.script ?: continue
+            index.getOrPut(normalizeCode(language.code)) { HashSet() }.add(script)
+        }
+        return index
+    }
 
     /**
      * A key that is identical for languages which should be shown as a single spinner entry.
@@ -71,34 +96,6 @@ class LanguageGrouping(private val languages: Collection<Language>) {
     }
 
     companion object {
-        /**
-         * Map from ISO 639-2/T three-letter codes to their ISO 639-1 two-letter equivalent,
-         * derived from the JDK's locale data (e.g. `eng -> en`, `fin -> fi`, `ben -> bn`).
-         */
-        private val iso3ToIso2: Map<String, String> by lazy {
-            Locale.getISOLanguages().mapNotNull { iso2 ->
-                val iso3 = try {
-                    Locale(iso2).isO3Language
-                } catch (e: Exception) {
-                    null
-                }
-                if (iso3.isNullOrEmpty()) null else iso3 to iso2
-            }.toMap()
-        }
-
-        /** The two-letter form of a language code, or the original code if no mapping exists. */
-        private fun normalizeCode(code: String): String =
-            if (code.length == 3) iso3ToIso2[code] ?: code else code
-
-        private fun buildScriptIndex(languages: Collection<Language>): Map<String, Set<String>> {
-            val index = HashMap<String, MutableSet<String>>()
-            for (language in languages) {
-                val script = language.script ?: continue
-                index.getOrPut(normalizeCode(language.code)) { HashSet() }.add(script)
-            }
-            return index
-        }
-
         /**
          * Prefer the most "canonical" member of a group as the visible representative:
          * a two-letter code, then no script, then no country qualifier.

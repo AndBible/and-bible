@@ -37,8 +37,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import java.net.MalformedURLException
-import java.net.URL
 
 /**
  * Android-side impl of the [CustomRepositoryService] seam, backed by [CustomRepository]'s Room
@@ -88,7 +86,7 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : Custom
             repo = tryReadManifest(newUrlStr, existingId)
         }
         if (repo == null) {
-            val parsedUrl = try { URL(url) } catch (e: MalformedURLException) { null }
+            val parsedUrl = try { parseKnownUrl(url) } catch (e: IllegalArgumentException) { null }
             if (parsedUrl != null) {
                 val packagesUrl = appendUrl(url, "packages")
                 val modsIndexUrl = appendUrl(url, "mods.d.tar.gz")
@@ -102,14 +100,16 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : Custom
                 }
 
                 if (manifestOk && packagesOk && modsIndexOk) {
+                    val host = urlHost(url, parsedUrl)
+                    val path = parsedUrl.getRawPath()!!
                     repo = CustomRepository(
                         id = existingId,
-                        name = "${parsedUrl.host}-${md5Hash(url).subSequence(0, 3)}",
+                        name = "${host}-${md5Hash(url).subSequence(0, 3)}",
                         description = url,
                         manifestUrl = url,
-                        host = parsedUrl.host,
-                        catalogDirectory = parsedUrl.path,
-                        packageDirectory = appendUrl(parsedUrl.path, "packages"),
+                        host = host,
+                        catalogDirectory = path,
+                        packageDirectory = appendUrl(path, "packages"),
                         type = "sword-https",
                     )
                 }

@@ -24,7 +24,6 @@ import net.bible.android.database.mydocument.MyDocumentDao
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
-import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.jsword.book.BookMetaData
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBookDriver
@@ -34,7 +33,8 @@ import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
-import java.util.Locale
+import net.bible.sharedlogic.platform.PlatformLocales
+import org.koin.mp.KoinPlatform
 import net.bible.service.db.blockingAtEdge
 
 private const val TAG = "MyDocumentBackend"
@@ -151,7 +151,7 @@ class MyDocumentBackend(
                 "<div class=\"mydoc-markdown\">$xhtml</div>"
             }
             MyDocumentContentType.HTML ->
-                "<div class=\"mydoc-html\"><html>${StringEscapeUtils.escapeXml11(content)}</html></div>"
+                "<div class=\"mydoc-html\"><html>${escapeXml11(content)}</html></div>"
             MyDocumentContentType.OSIS -> content
         }
     }
@@ -166,6 +166,12 @@ class MyDocumentBackend(
 }
 
 /**
+ * The platform's default language code, unnormalised (Android keeps the legacy `iw`/`in`/`ji`), as stored in `Lang=`
+ * of the generated confs and in the pages' `languageCode`. Resolved when called, never at startup.
+ */
+internal fun defaultLanguageCode(): String = KoinPlatform.getKoin().get<PlatformLocales>().defaultLanguage
+
+/**
  * Creates SWORD metadata configuration for a MyDocument.
  */
 internal fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
@@ -173,7 +179,7 @@ internal fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
         "Description=${document.name}\n" +
         "Abbreviation=${document.initials}\n" +
         "Category=Generic Books\n" +
-        "Lang=${Locale.getDefault().language}\n" +
+        "Lang=${defaultLanguageCode()}\n" +
         "Version=1.0\n" +
         "Encoding=UTF-8\n" +
         "LCSH=Documents\n" +

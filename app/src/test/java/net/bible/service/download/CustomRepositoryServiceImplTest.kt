@@ -23,6 +23,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.download.CustomRepositoryData
+import net.bible.sharedcore.download.ManifestResult
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -55,5 +56,49 @@ class CustomRepositoryServiceImplTest {
     @Test fun onlyConstraintErrorsCountAsViolations() {
         assertTrue(isConstraintViolation(SQLiteException("Error code: 2067, message: UNIQUE constraint failed: CustomRepository.name")))
         assertFalse(isConstraintViolation(SQLiteException("Error code: 26, message: file is not a database")))
+    }
+
+    /** `java.net.URL(x)` accepted only an absolute URL with a known protocol; [parseKnownUrl] keeps that. */
+    @Test fun urlValidationMatchesJavaNetUrl() {
+        fun oldAccepts(x: String) = try { java.net.URL(x); true } catch (e: java.net.MalformedURLException) { false }
+        fun newAccepts(x: String) = try { parseKnownUrl(x); true } catch (e: IllegalArgumentException) { false }
+        for (x in listOf("https://x/y", "http://x", "ftp://x", "x/y", "", "htp://x")) {
+            assertEquals("input '$x'", oldAccepts(x), newAccepts(x))
+        }
+        assertEquals(listOf(true, true, true, false, false, false), listOf("https://x/y", "http://x", "ftp://x", "x/y", "", "htp://x").map(::newAccepts))
+        // The one pinned difference: URL took an empty authority, KUri does not (validateManifest still ends Invalid).
+        assertTrue(oldAccepts("https://"))
+        assertFalse(newAccepts("https://"))
+    }
+
+    @Test fun hostAndPathMatchJavaNetUrl() {
+        for (x in listOf("https://x/y", "https://host.example:8443/cat/log?x=1#f", "https://u:p@h.org/a/b/", "https://x", "https://my_host.example/dir")) {
+            val url = java.net.URL(x)
+            val uri = parseKnownUrl(x)
+            assertEquals("host of $x", url.host, urlHost(x, uri))
+            assertEquals("path of $x", url.path, uri.getRawPath())
+        }
+    }
+
+    @Test fun validateManifestStaysInvalidForUnusableUrls() = runBlocking {
+        val none = object : ManifestFetcher {
+            override suspend fun status(url: String): Int? = null
+            override suspend fun body(url: String): String? = null
+        }
+        val service = CustomRepositoryServiceImpl(none)
+        for (x in listOf("https://", "https://x y/z", "http://x", "x/y", "")) {
+            assertEquals("input '$x'", ManifestResult.Invalid, service.validateManifest(x, 0))
+        }
+    }
+
+    @Test fun validateManifestBuildsHostAndPathFromAReachableCatalog() = runBlocking {
+        val reachable = object : ManifestFetcher {
+            override suspend fun status(url: String): Int? = 200
+            override suspend fun body(url: String): String? = null
+        }
+        val valid = CustomRepositoryServiceImpl(reachable).validateManifest("https://my_host.example/cat/dir", 7) as ManifestResult.Valid
+        assertEquals("my_host.example", valid.repository.host)
+        assertEquals("/cat/dir", valid.repository.catalogDirectory)
+        assertEquals("/cat/dir/packages", valid.repository.packageDirectory)
     }
 }

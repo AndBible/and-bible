@@ -106,7 +106,7 @@ class RepoServerFixture private constructor(
             val settings = get<AppSettings>(AppSettings::class.java)
             val manager = DownloadManager(
                 settings, get(BookInstallWatcher::class.java),
-                GenericFileDownloader(settings = settings, notifier = get(UserNotifier::class.java), strings = get(CoreStrings::class.java)),
+                GenericFileDownloader(settings = settings, notifier = get(UserNotifier::class.java), strings = get(CoreStrings::class.java), http = testDownloadHttp(), copyFile = testCopyFile),
                 get(AppEnvironment::class.java),
             )
             manager.refreshInstallManager()

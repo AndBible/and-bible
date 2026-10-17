@@ -115,13 +115,13 @@ class MyBibleInstallerTest {
         }
     }.toByteArray()
 
-    private suspend fun installer(filename: String, payload: ByteArray): Pair<MyBibleInstaller, Book> {
-        bodies["/manifest"] = """{"url":"$base","file_name":"registry.json","description":"test","modules":[{"file_name":"$filename","description":"DL15 dictionary","download_url":"$base/module"}]}""".toByteArray()
+    private suspend fun installer(filename: String, payload: ByteArray, downloadUrl: String = "$base/module"): Pair<MyBibleInstaller, Book> {
+        bodies["/manifest"] = """{"url":"$base","file_name":"registry.json","description":"test","modules":[{"file_name":"$filename","description":"DL15 dictionary","download_url":"$downloadUrl"}]}""".toByteArray()
         bodies["/module"] = payload
         val http = object : DownloadHttp by get<DownloadHttp>(DownloadHttp::class.java) {
             override suspend fun headers(url: String) = HttpHeaders(200, -1, 0)
         }
-        val downloader = GenericFileDownloader(settings = settings, notifier = get(UserNotifier::class.java), strings = get(CoreStrings::class.java), http = http)
+        val downloader = GenericFileDownloader(settings = settings, notifier = get(UserNotifier::class.java), strings = get(CoreStrings::class.java), http = http, copyFile = net.bible.service.download.testCopyFile)
         val environment = object : AppEnvironment by get<AppEnvironment>(AppEnvironment::class.java) {
             override val cacheDir = temp.path
         }
@@ -218,13 +218,26 @@ class MyBibleInstallerTest {
     }
 
     @Test fun malformedManifestUrlFailsAsBefore() = runBlocking {
-        val downloader = GenericFileDownloader(settings = settings, notifier = get(UserNotifier::class.java), strings = get(CoreStrings::class.java), http = get(DownloadHttp::class.java))
+        val downloader = GenericFileDownloader(settings = settings, notifier = get(UserNotifier::class.java), strings = get(CoreStrings::class.java), http = get(DownloadHttp::class.java), copyFile = net.bible.service.download.testCopyFile)
         val installer = MyBibleInstaller("not a url", downloader, get(AppEnvironment::class.java))
-        val reload = try { installer.reloadBookList(); null } catch (e: java.io.IOException) { e }
-        assertTrue("reload: $reload", reload is java.net.MalformedURLException)
-        val modified = try { installer.indexLastUpdated(); null } catch (e: java.io.IOException) { e }
-        assertTrue("indexLastUpdated: $modified", modified is java.net.MalformedURLException)
+        // java.net.URL(...) threw MalformedURLException here; the common check throws IllegalArgumentException
+        val reload = try { installer.reloadBookList(); null } catch (e: Exception) { e }
+        assertTrue("reload: $reload", reload is IllegalArgumentException)
+        val modified = try { installer.indexLastUpdated(); null } catch (e: Exception) { e }
+        assertTrue("indexLastUpdated: $modified", modified is IllegalArgumentException)
         assertTrue(installer.getBooks().isEmpty())
+    }
+
+    /** The KUri call sites (toRemoteURI, getSize, downloadSearchIndex, install) with a module URL that is not a valid URI. */
+    @Test fun malformedModuleUrlFailsAtTheKUriCallSites() = runBlocking {
+        val badUrl = "https://exa mple.org/a b"
+        val (installer, book) = installer("$id.dictionary.SQLite3", sqlite(), downloadUrl = badUrl)
+        assertTrue(try { installer.toRemoteURI(book); false } catch (e: java.net.URISyntaxException) { true })
+        assertTrue(try { installer.getSize(book); false } catch (e: java.net.URISyntaxException) { true })
+        installer.downloadSearchIndex(book, org.crosswire.common.util.KUri("file:///tmp/none"))
+        assertTrue(try { installer.install(book); false } catch (e: java.net.URISyntaxException) { true })
+        assertNull(Books.installed().getBook("MyBible-${id}_dictionary"))
+        assertFalse(root.walkTopDown().any { it.isFile && it.name.contains(id) })
     }
 
     @Test fun downloadShorterThanSqliteHeaderFailsAsBefore() = runBlocking {

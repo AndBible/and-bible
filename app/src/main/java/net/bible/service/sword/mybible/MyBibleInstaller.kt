@@ -36,13 +36,18 @@ import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import java.io.File
+import org.crosswire.common.util.KFiles
 import org.crosswire.common.util.KUri
 import okio.FileSystem
-import okio.Path.Companion.toOkioPath
+import okio.IOException
+import okio.Path
+import okio.Path.Companion.toPath
 import okio.buffer
-import java.net.URL
-import java.io.IOException
+import net.bible.service.download.parseKnownUrl
+import net.bible.service.sword.epub.child
+import net.bible.sharedlogic.util.currentTimeMillis
+// The ZIP branch of prepareModuleFiles stays on java.io/java.util.zip until G2's common ZIP reader merges.
+import java.io.File
 import java.util.zip.ZipFile
 
 @Serializable
@@ -71,13 +76,13 @@ class MyBibleRepositorySpec (
 
 class MyBibleInstaller(private val manifestUrl: String, private val downloader: GenericFileDownloader, private val environment: AppEnvironment): Installer, AbstractBookList() {
     override fun getType(): String  = "mybible-https"
-    private val myBibleDir = myBibleModulesDir().toFile()
-    private val localManifestFile = File(myBibleDir, "manifest.json")
+    private val myBibleDir = myBibleModulesDir()
+    private val localManifestFile = myBibleDir.child("manifest.json")
     private var spec: MyBibleRepositorySpec? = readSpec()
     private val moduleSpecs get() = spec?.modules?.filter { it.download_url.startsWith("https://") }?: emptyList()
     private fun readSpec(): MyBibleRepositorySpec? {
-        if(localManifestFile.canRead()) {
-            val jsonString = String(localManifestFile.inputStream().readBytes())
+        if(KFiles.isFile(localManifestFile)) {
+            val jsonString = KFiles.readBytes(localManifestFile).decodeToString()
             return try {
                 val spec = MyBibleRepositorySpec.fromJson(jsonString)
                 for(modSpec in spec.modules) {
@@ -85,7 +90,7 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                 }
                 spec
             } catch (e: SerializationException) {
-                localManifestFile.delete()
+                KFiles.delete(localManifestFile)
                 null
             }
         }
@@ -94,6 +99,9 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
 
     private val fakeDriver = SwordBookDriver.instance()
     private val nullBackend = NullBackend()
+
+    /** `File(name).nameWithoutExtension` */
+    private fun fileBaseName(fileName: String): String = fileName.substringAfterLast('/').substringBeforeLast('.')
 
     private fun categoryFromFilename(filename: String): String {
         val isCommentary = filename.contains(".commentaries")
@@ -106,8 +114,8 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
     }
 
     override fun getBooks(): MutableList<Book> = moduleSpecs.map {
-        val initials = "MyBible-" + sanitizeModuleName(File(it.file_name).nameWithoutExtension)
-        val abbreviation = File(it.file_name).nameWithoutExtension.split(".", limit = 2)[0]
+        val initials = "MyBible-" + sanitizeModuleName(fileBaseName(it.file_name))
+        val abbreviation = fileBaseName(it.file_name).split(".", limit = 2)[0]
         val config = getConfig(
             initials = initials,
             description = it.description,
@@ -139,37 +147,38 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
     override suspend fun isNewer(book: Book): Boolean = false
 
     override suspend fun reloadBookList() {
-        val url = URL(manifestUrl)
+        val url = parseKnownUrl(manifestUrl)
         downloader.downloadFileWithProgress(url, localManifestFile, "MyBible manifest")
         spec = readSpec()
     }
 
-    override suspend fun indexLastUpdated(): Long = downloader.lastModified(URL(manifestUrl)) ?: 0L
+    override suspend fun indexLastUpdated(): Long = downloader.lastModified(parseKnownUrl(manifestUrl)) ?: 0L
 
     override suspend fun install(book: Book) = install(book, null)
 
     override suspend fun install(book: Book, jobId: String?) {
         Log.i(TAG, "Installing MyBible book ${book.initials}, $jobId")
-        val tmpDir = File(environment.cacheDir, "mybible")
-        tmpDir.mkdirs()
+        val tmpDir = environment.cacheDir.toPath().child("mybible")
+        // was File.mkdirs(), which only returned false; a failure still surfaces when the download writes there
+        try { KFiles.createDirectories(tmpDir) } catch (e: IOException) { Log.w(TAG, "Could not create $tmpDir", e) }
         val url = book.myBibleDownloadUrl
         val moduleSpec = moduleSpecs.find { it.download_url == url } ?: throw InstallException("Spec error")
-        val tmpFile = File(tmpDir, moduleSpec.file_name)
-        val success = downloader.downloadFileWithProgress(URL(url), tmpFile,
+        val tmpFile = tmpDir.child(moduleSpec.file_name)
+        val success = downloader.downloadFileWithProgress(KUri(url), tmpFile,
             jobId = jobId,
             description = "MyBible manifest",
             notifyUser = true
         )
-        if(success && tmpFile.canRead()) {
-            val staging = File.createTempFile("install-", "", tmpDir).apply {
-                if (!delete() || !mkdir()) throw InstallException("Unable to stage MyBible module")
-            }
+        if(success && KFiles.isFile(tmpFile)) {
+            val staging = tmpDir.child("install-${currentTimeMillis()}-${kotlin.random.Random.nextLong().toULong()}")
+            try { KFiles.createDirectories(staging) } catch (e: IOException) { throw InstallException("Unable to stage MyBible module") }
             try {
                 prepareModuleFiles(tmpFile, staging, moduleSpec.file_name)
-                val modules = staging.walkTopDown().filter { it.isFile && it.extension.equals("SQLite3", true) }.toList()
+                val modules = FileSystem.SYSTEM.listRecursively(staging)
+                    .filter { KFiles.isFile(it) && it.name.substringAfterLast('.', "").equals("SQLite3", true) }.toList()
                 if (modules.isEmpty()) throw InstallException("No supported MyBible module in download")
                 modules.forEach { file ->
-                    val state = SqliteVerseBackendState(file.toOkioPath())
+                    val state = SqliteVerseBackendState(file)
                     try {
                         val tables = state.rows("select name from sqlite_master where type = 'table'") { it.getText(0) }
                         // Match the reader's category precedence and validate columns even for empty tables.
@@ -189,39 +198,40 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                 }
                 // Validate the complete payload before exposing any files to the installed-book scan.
                 currentCoroutineContext().ensureActive()
-                val dir = File(myBibleDir, book.initials)
-                dir.mkdirs()
+                val dir = myBibleDir.child(book.initials)
+                KFiles.createDirectories(dir)
                 modules.forEach { file ->
-                    val target = File(dir, file.relativeTo(staging).path)
-                    target.parentFile?.mkdirs()
-                    file.copyTo(target, overwrite = true)
+                    val target = dir.child(file.relativeTo(staging).toString())
+                    KFiles.createDirectories(target.parent!!)
+                    FileSystem.SYSTEM.copy(file, target)
                 }
                 addManuallyInstalledMyBibleBooks()
             } catch (e: IOException) {
                 throw InstallException("Unable to install MyBible module", e)
             } finally {
-                staging.deleteRecursively()
-                tmpFile.delete()
+                KFiles.deleteRecursively(staging)
+                KFiles.delete(tmpFile)
             }
         } else {
             throw DownloadCancelledException(KUri(url))
         }
     }
 
-    private suspend fun prepareModuleFiles(download: File, staging: File, filename: String) {
-        val sqliteHeader = "SQLite format 3\u0000".toByteArray(Charsets.US_ASCII)
+    private suspend fun prepareModuleFiles(download: Path, staging: Path, filename: String) {
+        val sqliteHeader = "SQLite format 3\u0000".encodeToByteArray()
         val header = ByteArray(sqliteHeader.size)
-        FileSystem.SYSTEM.source(download.toOkioPath()).buffer().use { it.readByteArray(header.size.toLong()) }.copyInto(header)
+        FileSystem.SYSTEM.source(download).buffer().use { it.readByteArray(header.size.toLong()) }.copyInto(header)
         if (header.contentEquals(sqliteHeader)) {
-            download.copyTo(File(staging, File(filename).name))
+            FileSystem.SYSTEM.copy(download, staging.child(filename.substringAfterLast('/')))
         } else {
-            ZipFile(download).use { zip ->
+            val stagingDir = staging.toFile()
+            ZipFile(download.toFile()).use { zip ->
                 for (entry in zip.entries()) {
                     currentCoroutineContext().ensureActive()
                     if (entry.isDirectory) continue
                     // Preserve the legacy filename prefix while rejecting archive traversal.
-                    val target = File(staging, filename.replace(".zip", "") + entry.name.replace('\\', '/'))
-                    if (!target.canonicalPath.startsWith(staging.canonicalPath + File.separator)) {
+                    val target = File(stagingDir, filename.replace(".zip", "") + entry.name.replace('\\', '/'))
+                    if (!target.canonicalPath.startsWith(stagingDir.canonicalPath + File.separator)) {
                         throw InstallException("Invalid MyBible archive path")
                     }
                     target.parentFile?.mkdirs()

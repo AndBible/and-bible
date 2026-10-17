@@ -27,9 +27,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.install.DownloadCancelledException
 import org.crosswire.jsword.book.install.DownloadException
 import org.crosswire.jsword.book.install.InstallException
-import java.lang.Exception
 import kotlin.coroutines.cancellation.CancellationException
-import java.util.*
+import net.bible.sharedlogic.sync.withMonitor
 
 /**
  * Download a single document at a time.
@@ -37,15 +36,16 @@ import java.util.*
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private val notifier: UserNotifier, private val strings: CoreStrings) {
-    private val beingQueued = Collections.synchronizedSet(HashSet<String>())
-    private val downloadError = Collections.synchronizedSet(HashSet<String>())
-    private val TAG = this.javaClass.simpleName
+    // Every access holds the set's own monitor, as Collections.synchronizedSet did.
+    private val beingQueued = HashSet<String>()
+    private val downloadError = HashSet<String>()
+    private val TAG = this::class.simpleName ?: "DownloadQueue"
 
     suspend fun addDocumentToDownloadQueue(document: Book, repo: Repository) {
         val repoIdentity = document.repoIdentity
-        if (!beingQueued.contains(repoIdentity)) {
-            beingQueued.add(repoIdentity)
-            downloadError.remove(repoIdentity)
+        if (!withMonitor(beingQueued) { beingQueued.contains(repoIdentity) }) {
+            withMonitor(beingQueued) { beingQueued.add(repoIdentity) }
+            withMonitor(downloadError) { downloadError.remove(repoIdentity) }
             withContext(Dispatchers.IO) {
                 Log.i(TAG, "Downloading " + document.osisID + " from repo " + repo.repoName)
                 try {
@@ -62,7 +62,7 @@ class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private va
                 } catch (e: DownloadException) {
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
-                    downloadError.add(repoIdentity)
+                    withMonitor(downloadError) { downloadError.add(repoIdentity) }
                     if (e.statusCode in 200..299) {
                         // A successful response followed by a broken transfer is not an HTTP status error.
                         notifier.showError(strings.errorDownloading, e)
@@ -74,23 +74,23 @@ class DownloadQueue(private val onProgress: (DocumentStatus) -> Unit, private va
                 } catch (e: InstallException) {
                     Log.e(TAG, "Error downloading $document", e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
-                    downloadError.add(repoIdentity)
+                    withMonitor(downloadError) { downloadError.add(repoIdentity) }
                     notifier.showError(strings.errorDownloading)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error downloading $document", e)
                     notifier.showError(strings.errorOccurred, e)
                     onProgress(DocumentStatus(repoIdentity, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
-                    downloadError.add(repoIdentity)
+                    withMonitor(downloadError) { downloadError.add(repoIdentity) }
                 }
                 finally {
-                    beingQueued.remove(repoIdentity)
+                    withMonitor(beingQueued) { beingQueued.remove(repoIdentity) }
                 }
             }
         }
     }
 
-    fun isInQueue(document: Book): Boolean = beingQueued.contains(document.repoIdentity)
-    fun isErrorDownloading(document: Book): Boolean = downloadError.contains(document.repoIdentity)
+    fun isInQueue(document: Book): Boolean = withMonitor(beingQueued) { beingQueued.contains(document.repoIdentity) }
+    fun isErrorDownloading(document: Book): Boolean = withMonitor(downloadError) { downloadError.contains(document.repoIdentity) }
 
 }
 

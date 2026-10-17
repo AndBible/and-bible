@@ -38,7 +38,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordGenBook
-import java.util.Locale
+import net.bible.sharedlogic.util.currentTimeMillis
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -464,7 +464,7 @@ object MyDocumentBookManager {
         val page = dao.pageById(pageId) ?: return
         if (title != null) {
             page.title = title
-            page.updatedAt = System.currentTimeMillis()
+            page.updatedAt = currentTimeMillis()
             dao.update(page)
         }
         dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
@@ -508,7 +508,7 @@ object MyDocumentBookManager {
             contentType = MyDocumentContentType.MARKDOWN,
             orderNumber = (dao.maxOrderNumber(aiDocument.id) ?: -1) + 1,
             sourcePromptId = sourcePromptId,
-            languageCode = Locale.getDefault().language
+            languageCode = defaultLanguageCode()
         )
 
         val cacheEntry = AiPageCacheEntry(

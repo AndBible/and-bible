@@ -30,7 +30,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowStatFs
 import java.io.File
 import java.net.ServerSocket
-import java.net.URL
+import org.crosswire.common.util.KUri
+import okio.Path.Companion.toOkioPath
 import java.util.concurrent.CancellationException
 import kotlin.time.Duration.Companion.seconds
 
@@ -40,6 +41,7 @@ class DownloadConsumersTest {
     private fun downloader(http: DownloadHttp, scope: CoroutineScope) = GenericFileDownloader(
         scope = scope, settings = get(AppSettings::class.java), notifier = get(UserNotifier::class.java),
         strings = get(CoreStrings::class.java), http = http,
+        copyFile = net.bible.service.download.testCopyFile,
     )
 
     private fun withKtorTransport(block: suspend (TestHttpsServer, DownloadHttp, CoroutineScope) -> Unit): Unit = runTest(timeout = 60.seconds) {
@@ -97,22 +99,22 @@ class DownloadConsumersTest {
         server.route("/file.json") { it.reply(200, body.toByteArray(), mapOf("Last-Modified" to modified)) }
         val dir = kotlin.io.path.createTempDirectory("d3-consumer").toFile()
         ShadowStatFs.registerStats(dir.path, 100, 20, 10)
-        val url = URL("${server.base}/file.json?${System.nanoTime()}")
+        val url = KUri("${server.base}/file.json?${System.nanoTime()}")
         val settings = get<AppSettings>(AppSettings::class.java)
         val key = "last-downloaded-$url"
         try {
             val target = File(dir, "file.json")
-            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target))
+            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target.toOkioPath()))
             assertEquals("first", target.readText())
             assertEquals(1_600_000_000_000L, settings.getLong(key, -1))
             assertEquals(2, server.requests.size)
             body = "must not replace unchanged file"
-            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target))
+            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target.toOkioPath()))
             assertEquals("first", target.readText())
             assertEquals(3, server.requests.size)
             modified = "Mon, 14 Sep 2020 12:26:40 GMT"
             body = "second"
-            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target))
+            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target.toOkioPath()))
             assertEquals("second", target.readText())
             assertEquals(1_600_086_400_000L, settings.getLong(key, -1))
             assertEquals(5, server.requests.size)
@@ -133,13 +135,13 @@ class DownloadConsumersTest {
         }
         val dir = kotlin.io.path.createTempDirectory("d3-probe").toFile()
         ShadowStatFs.registerStats(dir.path, 100, 20, 10)
-        val url = URL("${server.base}/retry")
+        val url = KUri("${server.base}/retry")
         val settings = get<AppSettings>(AppSettings::class.java)
         val key = "last-downloaded-$url"
         try {
             val target = File(dir, "retry").apply { writeText("old") }
             settings.setLong(key, Long.MAX_VALUE)
-            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target))
+            assertTrue(downloader(http, scope).downloadFileWithProgress(url, target.toOkioPath()))
             assertEquals("replacement", target.readText())
             assertEquals(2, calls)
         } finally {
@@ -153,11 +155,11 @@ class DownloadConsumersTest {
         server.route("/missing") { it.reply(200, ByteArray(0)) }
         server.route("/invalid") { it.reply(200, ByteArray(0), mapOf("Last-Modified" to "invalid")) }
         val d = downloader(http, scope)
-        assertEquals(0L, d.lastModified(URL("${server.base}/missing")))
-        assertEquals(0L, d.lastModified(URL("${server.base}/invalid")))
+        assertEquals(0L, d.lastModified(KUri("${server.base}/missing")))
+        assertEquals(0L, d.lastModified(KUri("${server.base}/invalid")))
         val closedPort = ServerSocket(0).use { it.localPort }
-        assertNull(d.lastModified(URL("https://127.0.0.1:$closedPort/x")))
-        assertNull(d.lastModified(URL("http://127.0.0.1:1/plain")))
+        assertNull(d.lastModified(KUri("https://127.0.0.1:$closedPort/x")))
+        assertNull(d.lastModified(KUri("http://127.0.0.1:1/plain")))
     }
 
     @Test fun manifestCancellationPropagates() = withKtorTransport { _, http, _ ->
