@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.write
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.service.llm.LlmStrings
@@ -145,7 +146,7 @@ object EditMyDocumentPageTool : Tool, KoinComponent {
             if (args.orderNumber != null) {
                 page.orderNumber = args.orderNumber
             }
-            page.updatedAt = kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+            page.updatedAt = currentTimeMillis()
             dao.update(page)
 
             if (args.content != null) {

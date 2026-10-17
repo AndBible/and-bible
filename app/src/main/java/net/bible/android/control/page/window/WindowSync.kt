@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import debounce
@@ -36,13 +37,11 @@ class WindowSync(private val windowRepository: WindowRepository) {
     private val syncLock = reentrantLock()
     private val nightModeState: NightModeState by lazy { KoinPlatform.getKoin().get() }
     private var lastSyncWasInNightMode: Boolean = false
-    // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-    var lastForceSyncAll: Long = kotlin.time.Clock.System.now().toEpochMilliseconds()
+    var lastForceSyncAll: Long = currentTimeMillis()
         private set
 
     fun setResyncRequired() {
-        // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-        lastForceSyncAll = kotlin.time.Clock.System.now().toEpochMilliseconds()
+        lastForceSyncAll = currentTimeMillis()
     }
 
     fun reloadAllWindows(force: Boolean = false) {

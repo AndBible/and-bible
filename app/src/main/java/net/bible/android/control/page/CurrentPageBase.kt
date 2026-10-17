@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.page
 
+import net.bible.sharedlogic.sync.withMonitor
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
@@ -175,7 +176,7 @@ abstract class CurrentPageBase protected constructor(
     override suspend fun getPageContent(key: Key): Document = try {
         val currentDocument = currentDocument!!
 
-        val frag = synchronized(currentDocument) {
+        val frag = withMonitor(currentDocument) {
             val xml = SwordContentFacade.readOsisFragment(currentDocument, key, strings = KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
             OsisFragment(xml, key, currentDocument)
         }

@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -301,7 +302,7 @@ object PromptCsvUtils {
             if (str.isNotEmpty()) {
                 try { IsoUtcTimestamps.parseLenient(str) } catch (_: Exception) { null }
             } else null
-        } ?: kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+        } ?: currentTimeMillis()
 
         val bibleOnly = getValueOrNull(values, headerMap, HEADER_BIBLE_ONLY)
             ?.lowercase()?.toBooleanStrictOrNull() ?: false

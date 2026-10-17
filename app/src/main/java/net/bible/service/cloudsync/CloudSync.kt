@@ -17,7 +17,6 @@
 
 package net.bible.service.cloudsync
 
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import okio.Path
 import okio.FileSystem
@@ -300,7 +299,7 @@ class CloudSync(
         dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
         val tmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
         val gzippedTmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
-        FileSystem.SYSTEM.copy(dbDef.localDbFile.toOkioPath(), tmpFile) // L1b-handover(D2): SyncableDatabaseAccessor.localDbFile becomes Path
+        FileSystem.SYSTEM.copy(dbDef.localDbPath.toPath(), tmpFile)
         net.bible.service.common.ArchiveUtils.gzipFile(tmpFile, gzippedTmpFile)
         FileSystem.SYSTEM.delete(tmpFile)
 
@@ -372,8 +371,8 @@ class CloudSync(
             // [workspaceRefreshRequired] -> `loadFromDb`.
             DatabaseContainer.replacingDatabases(replacement) { token ->
                 dbDef.localDb.close()
-                FileSystem.SYSTEM.delete(dbDef.localDbFile.toOkioPath(), mustExist = false) // replace the file, not rewrite it in place; L1b-handover(D2): SyncableDatabaseAccessor.localDbFile becomes Path
-                FileSystem.SYSTEM.copy(downloaded, dbDef.localDbFile.toOkioPath()) // L1b-handover(D2): SyncableDatabaseAccessor.localDbFile becomes Path
+                FileSystem.SYSTEM.delete(dbDef.localDbPath.toPath(), mustExist = false) // replace the file, not rewrite it in place
+                FileSystem.SYSTEM.copy(downloaded, dbDef.localDbPath.toPath())
                 runCatching { FileSystem.SYSTEM.delete(downloaded) } // best-effort: must not leave the local db closed
                 dbDef.resetLocalDbOwned(token)
                 afterReset()

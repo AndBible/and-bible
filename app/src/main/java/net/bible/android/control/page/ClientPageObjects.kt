@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page
 
+import net.bible.sharedlogic.sync.bookNameMonitor
+import net.bible.sharedlogic.sync.withMonitor
 import androidx.annotation.VisibleForTesting
 import org.crosswire.common.util.KswordLocale
 
@@ -68,7 +70,7 @@ fun mapToJson(map: Map<String, String>?): String =
 
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
 val VerseRange.onlyNumber: String get() = if(getCardinality() > 1) "${start.verse}-${end.verse}" else "${start.verse}"
-val VerseRange.abbreviated: String get() = synchronized(BookName::class.java) {
+val VerseRange.abbreviated: String get() = withMonitor(bookNameMonitor) {
     val wasFullBookName = BookName.isFullBookName()
     BookName.setFullBookName(false)
     try {

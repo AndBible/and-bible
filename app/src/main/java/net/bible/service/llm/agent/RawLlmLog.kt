@@ -23,10 +23,7 @@ import net.bible.android.database.IdType
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolDefinition
 import net.bible.service.llm.tools.prettyJson
-import okio.Buffer
-import okio.GzipSink
-import okio.GzipSource
-import okio.buffer
+import org.crosswire.common.compress.GzipStreams
 
 /**
  * Per-iteration usage and model data, stored alongside raw API responses.
@@ -114,10 +111,10 @@ class RawLlmLog {
         private val prettyJson = Json { prettyPrint = true }
 
         fun gzipCompress(text: String): ByteArray =
-            Buffer().also { b -> GzipSink(b).buffer().use { it.writeUtf8(text) } }.readByteArray()
+            GzipStreams.gzip(text.encodeToByteArray())
 
         fun gzipDecompress(data: ByteArray): String =
-            GzipSource(Buffer().write(data)).buffer().use { it.readUtf8() }
+            GzipStreams.gunzip(data).decodeToString()
 
         /** Regex matching a JSON string value that is at least 80 chars long. */
         private val longStringValueRegex = Regex(""""((?:[^"\\]|\\.){80,})"""")

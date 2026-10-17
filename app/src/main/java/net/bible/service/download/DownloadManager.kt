@@ -129,7 +129,7 @@ class DownloadManager(
             markFailed(repo)
             // ignore error because some minor repos are unreliable
             Log.e(TAG, "Fatal error downloading books from $repo", e)
-        } catch (oom: OutOfMemoryError) {
+        } catch (oom: OutOfMemoryError) { // L1-common-ok: OutOfMemoryError compiles in commonMain
             markFailed(repo)
             // eBible repo throws OOM errors on smaller devices
             Log.e(TAG, "Out of memory error downloading books from $repo")

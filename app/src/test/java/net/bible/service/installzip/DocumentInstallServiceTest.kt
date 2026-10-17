@@ -18,6 +18,7 @@
 package net.bible.service.installzip
 
 import android.net.Uri
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
@@ -93,16 +94,56 @@ class DocumentInstallServiceTest {
 
     @Before
     fun setUp() {
+        DocumentInstallService.resetControllerForTest()
         originalDownloadDir = SwordBookPathJvm.getSwordDownloadDir()
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
     }
 
     @After
     fun tearDown() {
+        DocumentInstallService.resetControllerForTest()
         Books.installed().getBook("TestDict")?.let { Books.installed().removeBook(it) }
         File(SharedConstants.modulesDir, "mods.d/testdict.conf").delete()
         File(SharedConstants.modulesDir, "modules/lexdict/rawld/testdict").deleteRecursively()
         SwordBookPathJvm.setDownloadDir(originalDownloadDir)
+    }
+
+    /**
+     * Regression for the order-dependent leak: the companion caches its controller, while tests swap
+     * Koin's `AppCoroutineScope` per test. A controller created under a cancelled scope never runs
+     * its workers; [DocumentInstallService.resetControllerForTest] must rebuild it on the live scope.
+     */
+    @Test
+    fun `reset rebuilds the controller on the current AppCoroutineScope`() {
+        val koin = org.koin.core.context.GlobalContext.get()
+        val snapshot = net.bible.test.KoinFactorySnapshot.of<net.bible.sharedcore.platform.AppCoroutineScope>()
+        val deadScope = net.bible.sharedcore.platform.AppCoroutineScope().also { it.cancel() }
+        val source = InstallSource(uri = "content://x/stale.zip", action = null, displayName = "stale.zip", mimeType = null)
+        val deps = InstallServiceController.JobDeps(
+            acquireDir = File(System.getProperty("java.io.tmpdir"), "stale-scope-test").toOkioPath(),
+            openStream = { error("unused") }, isStudyPadExport = { false },
+            studyPadStats = { error("unused") }, swordZipScan = { error("unused") },
+            epubUpgradeCheck = { false },
+        )
+        fun runBounded(): InstallOutcome? = runBlocking {
+            DocumentInstallService.controller.runOne = { _, _, _, _, _ -> InstallPhase.Done }
+            kotlinx.coroutines.withTimeoutOrNull(3_000) { DocumentInstallService.controller.enqueue(listOf(source), deps) }
+        }
+        try {
+            koin.loadModules(listOf(org.koin.dsl.module {
+                single<net.bible.sharedcore.platform.AppCoroutineScope> { deadScope }
+            }))
+            DocumentInstallService.resetControllerForTest()
+            assertEquals("a controller built on a cancelled scope never runs its job", null, runBounded())
+            assertEquals(InstallPhase.Queued, DocumentInstallService.controller.jobs.value.single().phase)
+
+            snapshot.restore()
+            DocumentInstallService.resetControllerForTest()
+            assertEquals("after reset the controller uses the live scope", InstallOutcome.Ok, runBounded())
+        } finally {
+            snapshot.restore()
+            DocumentInstallService.resetControllerForTest()
+        }
     }
 
     /** Same fixture shape as `DefaultInstallCommitterTest.commitSwordZipExtractsAndRegistersRealModule`

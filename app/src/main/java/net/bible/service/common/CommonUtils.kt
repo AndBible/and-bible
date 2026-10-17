@@ -1726,10 +1726,6 @@ object CommonUtils : CommonUtilsBase() {
 
     val tmpFile: File get() = File.createTempFile("andbible-", ".tmp", tmpDir)
 
-    fun gzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())
-
-    fun gunzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gunzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())
-
     suspend fun determineFileType(uri: Uri): BackupFileType = withContext(Dispatchers.IO) {
         BackupFileSniffer.sniff {
             application.contentResolver.openInputStream(uri)?.source() ?: throw okio.IOException("no stream")

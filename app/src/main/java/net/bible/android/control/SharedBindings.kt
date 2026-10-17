@@ -64,7 +64,6 @@ import net.bible.service.history.HistoryTraversalFactory
 import net.bible.service.llm.AiSettings
 import net.bible.service.llm.AiSettingsStore
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.service.sword.mydocument.MarkdownToXhtml
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
@@ -80,7 +79,6 @@ import net.bible.sharedcore.bookmark.LabelEditService
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.platform.AppCoroutineScope
-import net.bible.sharedcore.platform.MarkdownRenderer
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.reading.ToolbarStateService
@@ -170,7 +168,6 @@ fun buildSharedBindings() = module {
     single { CloudSync(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { DocumentSync(get(), get(), get(), get(), get(), { get() }) }
     single { BookInstallWatcher(get(), get(), get(), get(), get()) }
-    single<MarkdownRenderer> { MarkdownToXhtml }
 
     // @ApplicationScope singletons
     singleOf(::BibleTraverser)

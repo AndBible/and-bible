@@ -14,10 +14,9 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-
 package net.bible.service.db
 
 import java.io.File
 
-/** JVM shim for callers that still hold a [File] (`BackupControl`); removed when they move off `java.io.File`. */
+/** Test-only shim for tests that still hold a [File]. */
 fun readUserVersion(file: File): Int = readUserVersion(file.path)

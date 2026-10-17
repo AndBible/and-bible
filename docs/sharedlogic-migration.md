@@ -204,7 +204,7 @@ D2-moved paths, so those never count in the `app` column.
 
 Check: sum of the `app` column = 96 = number of rows in the offending-import listing (section 7).
 
-Part B status (G1, 2026-10-17): `sword` and `download` are not in `scripts/l1-move-done.txt`.
+Part B status (G1, 2026-10-17; superseded by the phase-1 close-out in section 7, where all 21 domains are done): `sword` and `download` are not in `scripts/l1-move-done.txt`.
 
 - `sword` waits for **G2's common ZIP reader** (`MyBibleInstaller` still uses `java.util.zip.ZipFile` and
   `java.io.File`; the `jvm` column is 2) and for **G3's extraction** of `shortName` (`BookAndKey.kt`),
@@ -295,6 +295,17 @@ window	0	1	0	0	0
 event	0	0	0	0	0
 ```
 
+Phase-1 close-out (branch `ios-2`, 2026-10-17, plan `plans/2026-10-17-l1b-phase1-closeout.md`). Every row of
+`scripts/l1-move-readiness.sh --check` reads 0 and all 21 domains are in `scripts/l1-move-done.txt`. The
+`jvmapi` column now ignores whole-line comments (`NONCODE`: import/package lines and lines starting `//`, `/*`
+or `*`); a code line with a trailing comment still counts, and the REGRESSION detail skips the same
+whole-line comments. `grep -rn L1b-handover app/src/main` prints nothing.
+
+```
+domain	jvm	jvmapi	jvm3p	android	app
+(all 21 domains)	0	0	0	0	0
+```
+
 ## 8. YAML and Markdown outcome (S9)
 
 - **YAML**: `yamlToJson` now runs on `kaml` 0.104.0 (common YAML 1.2 parser). snakeyaml stays as a test-only
@@ -314,7 +325,7 @@ event	0	0	0	0	0
 
 - Decisions marked "judgment" in section 6 and the allow-list step in section 5 are this page's calls where
   the spec is silent; the controller may overrule before plans are written.
-- `LAST_CRASH_STACKTRACE_FILE`: G2 extracts it from `ErrorReportControl.kt` into a new file in
+- `LAST_CRASH_STACKTRACE_FILE` (done by G2): G2 extracted it from `ErrorReportControl.kt` into a new file in
   `net.bible.android.control.report` and is the only plan that edits `ErrorReportControl.kt`; G1 (link) edits
   only its own call site.
 - `CommonUtils.kt` edits merge one group at a time (section 5; section 10 for the final rule).
@@ -380,3 +391,8 @@ used by `BackupControl.kt`) and `SyncableDatabaseAccessor.localDbFile` (`SyncAcc
 - **Open:** `app/src/androidTest` does not compile (pre-existing drift in `DatabasePatchingTests`,
   `MainBibleActivityTests`; `DatabasePatchingTests.kt:60` additionally passes a `File` where
   `SyncableDatabaseAccessor` now takes a path).
+
+**Shims retired (L1b close-out, 2026-10-17).** `JvmFileShims.kt` and `SyncAccessorFileShim.kt` are deleted from
+`:app`: `BackupControl.kt` calls `readUserVersion(path: String)` and `CloudSync.kt` uses
+`localDbPath.toPath()`. The old `File` forms live on only as test-source shims with the same FQNs
+(`ReadUserVersionFileTestShim.kt`, `LocalDbFileTestShim.kt`) for the five test files that use them.

@@ -14,10 +14,9 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-
 package net.bible.service.cloudsync
 
 import java.io.File
 
-/** JVM shim for callers that still use a [File] (`CloudSync`); removed when they move off `java.io.File`. */
+/** Test-only shim for tests that still need the local DB as a [File]. */
 val SyncableDatabaseAccessor<*>.localDbFile: File get() = File(localDbPath)

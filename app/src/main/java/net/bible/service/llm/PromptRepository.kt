@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.platform.AppEnvironment
 
 import org.koin.core.component.KoinComponent
@@ -155,7 +156,7 @@ object PromptRepository : KoinComponent {
         val newPrompt = source.copy(
             id = IdType(),
             name = source.name + " (copy)",
-            createdAt = kotlin.time.Clock.System.now().toEpochMilliseconds(), // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+            createdAt = currentTimeMillis(),
             orderNumber = newOrder,
             categoryId = effectiveCategoryId,
         ).also { it.sourceModule = null }

@@ -3,13 +3,11 @@ package net.bible.service.common
 import net.bible.sharedcore.log.Log
 import okio.FileSystem
 import okio.Path
-import okio.Path.Companion.toOkioPath
 import okio.Source
 import okio.ByteString.Companion.encodeUtf8
 import okio.buffer
 import org.crosswire.common.compress.GzipStreams
 import org.crosswire.common.compress.ZipReader
-import java.io.File
 
 /** Platform-independent archive and URL utilities; retains the legacy file semantics. */
 object ArchiveUtils {
@@ -60,15 +58,4 @@ object ArchiveUtils {
             fs.write(destination) { writeAll(input) }
         }
     }
-
-    // L1b-handover(G1): EpubBackendState switches to Path, then delete
-    @Deprecated("Use the okio Path overload", ReplaceWith("gzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())"))
-    fun gzipFile(sourceFile: File, destinationFile: File) =
-        gzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath()) // L1b-handover(G1): EpubBackendState switches to Path, then delete
-
-    // L1b-handover(G1): EpubBackendState switches to Path, then delete
-    @Deprecated("Use the okio Path overload", ReplaceWith("gunzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())"))
-    fun gunzipFile(sourceFile: File, destinationFile: File) =
-        gunzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath()) // L1b-handover(G1): EpubBackendState switches to Path, then delete
-
 }

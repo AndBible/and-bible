@@ -17,6 +17,7 @@
 
 package net.bible.android.control.speak
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
@@ -527,8 +528,7 @@ class SpeakControl constructor(
             Log.i(TAG, "Activating sleep timer")
             notifier.showInfo(strings.sleepTimerStarted(sleepTimerAmount))
             val delayMs = (sleepTimerAmount * 60000).toLong()
-            // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-            sleepAt = kotlin.time.Clock.System.now().toEpochMilliseconds() + delayMs
+            sleepAt = currentTimeMillis() + delayMs
             sleepJob = appScope.launch {
                 delay(delayMs)
                 // pause -> stopTimer() cancels this very job; the reset below still runs because load/save never suspend.

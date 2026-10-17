@@ -40,10 +40,16 @@ fun b() = System.currentTimeMillis()
 fun c() = Foo::class.java
 fun d() = System.nanoTime() // L1-common-ok: reason
 fun e() = R.string.x
+// Math.round(NaN) was 0
+/**
+ * `Math.max(1, n)` in KDoc
+ */
+fun d(a: Int, b: Int) = Math.max(a, b) // trailing note
 EOS
-out=$("$HERE/l1-move-readiness.sh" --root "$T" --domain demo --check 2>/dev/null) && { echo "FAIL: --check passed on a dirty done domain"; exit 1; }
+out=$("$HERE/l1-move-readiness.sh" --root "$T" --domain demo --check 2>"$T/err.txt") && { echo "FAIL: --check passed on a dirty done domain"; exit 1; }
+grep -q 'Math.round(NaN)' "$T/err.txt" && { echo "FAIL: REGRESSION output lists a whole-line comment"; exit 1; }
 row=$(echo "$out" | awk -F'\t' '$1=="demo"')
-expect=$'demo\t1\t3\t1\t2\t2'
+expect=$'demo\t1\t4\t1\t2\t2'
 [ "$row" = "$expect" ] || { echo "FAIL: got [$row] expected [$expect]"; exit 1; }
 hdr=$(echo "$out" | head -1)
 [ "$hdr" = $'domain\tjvm\tjvmapi\tjvm3p\tandroid\tapp' ] || { echo "FAIL: header [$hdr]"; exit 1; }

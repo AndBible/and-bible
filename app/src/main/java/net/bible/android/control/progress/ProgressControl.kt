@@ -17,6 +17,7 @@
 
 package net.bible.android.control.progress
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.android.common.toV11n
 import net.bible.android.control.versification.Scripture
 import net.bible.android.database.IdType
@@ -170,8 +171,7 @@ object ProgressControl {
                 kjvBookOrdinal = kjvBook.ordinal,
                 chapter = chapter,
                 cycle = cycle,
-                // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-                readAt = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                readAt = currentTimeMillis(),
                 bookInitials = bookInitials,
                 source = source,
             )

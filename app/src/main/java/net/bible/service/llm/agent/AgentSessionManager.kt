@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import kotlinx.coroutines.sync.withLock
 
 import net.bible.service.llm.AiSettings
@@ -872,7 +873,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private suspend fun cleanupOldRawLogs() {
         try {
             val retentionDays = aiSettings.rawLogRetentionDays ?: return
-            val cutoff = kotlin.time.Clock.System.now().toEpochMilliseconds() - retentionDays.toLong() * 24 * 60 * 60 * 1000 // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+            val cutoff = currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
             DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff)
         } catch (e: CancellationException) {
             throw e

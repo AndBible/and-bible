@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.sharedlogic.util.currentTimeMillis
 import androidx.annotation.VisibleForTesting
 import fi.sykero.kdom.input.build
 import net.bible.service.llm.AiSettings
@@ -982,7 +983,7 @@ class AgentExecutor(
                 val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
                 val pageId = IdType(entityId)
                 val page = dao.pageById(pageId) ?: return
-                page.updatedAt = kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+                page.updatedAt = currentTimeMillis()
                 dao.update(page)
                 dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
 
