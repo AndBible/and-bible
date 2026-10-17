@@ -27,7 +27,9 @@ import okio.Path.Companion.toOkioPath
 import net.bible.android.SharedConstants
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.service.sword.mydocument.MarkdownToXhtml
 import net.bible.sharedcore.platform.DateTimeFormats
+import net.bible.sharedcore.platform.MarkdownRenderer
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.android.platform.AndroidCoreStrings
 import net.bible.android.platform.AndroidDateTimeFormats
@@ -54,6 +56,7 @@ fun buildPlatformBindings() = module {
     single<net.bible.android.control.speak.SpeakSettingsStore> { net.bible.android.platform.AndroidSpeakSettingsStore() }
 
     single<AppSettings> { CommonUtils.settings }
+    single<MarkdownRenderer> { MarkdownToXhtml }
     single<net.bible.sharedcore.platform.secrets.SecretStore> { net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences) }
     single<net.bible.service.llm.agent.AgentPlatform> { net.bible.android.platform.AndroidAgentPlatform() }
     single<net.bible.service.cloudsync.SyncSettingsPlatform> { net.bible.android.platform.AndroidSyncSettingsPlatform(androidContext()) }

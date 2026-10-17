@@ -55,4 +55,10 @@ class CoreModuleSplitTest {
         assertEquals(snapshot(), (platform + shared).sorted())
         assertTrue("shared part must not be empty", shared.isNotEmpty() && platform.isNotEmpty())
     }
+
+    @Test
+    fun markdownRendererIsAPlatformBinding() {
+        assertTrue(definitionsOf(buildPlatformBindings()).any { it.startsWith("net.bible.sharedcore.platform.MarkdownRenderer::") })
+        assertTrue(definitionsOf(buildSharedBindings()).none { it.startsWith("net.bible.sharedcore.platform.MarkdownRenderer::") })
+    }
 }
