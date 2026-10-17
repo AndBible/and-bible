@@ -4,7 +4,7 @@
 # migration need SwiftData itself to decode them? This job builds the Swift app's own host-side fixture
 # tool at the shipped commit, seeds every UI-test scenario into separate data containers with the
 # app's real SwiftData models, and uploads the resulting store files for offline analysis. Two runner
-# images give two Core Data generations (macOS 15 ~ iOS 18, macOS 26 ~ iOS 26).
+# images give Core Data generations (macOS 14 ~ iOS 17, macOS 15 ~ iOS 18, macOS 26 ~ iOS 26).
 name: iOS I3 SwiftData spike
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-15, macos-26]
+        runner: [macos-14, macos-15, macos-26]
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     steps:
@@ -82,6 +82,7 @@ jobs:
           exit 0
       - name: Collect store files and schema dumps
         run: |
+          set +e
           cd "$RUNNER_TEMP/containers"
           for c in */; do
             s="${c%/}"
