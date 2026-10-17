@@ -1,0 +1,317 @@
+# I3 legacy migration: generate the Swift app's SwiftData fixtures and the Swift exporters' oracle
+# outputs. See iosApp/legacy-fixtures/README.md.
+#
+#   generate  (matrix app x iOS runtime)  seeds four scenarios with the real Swift models by running
+#             I3FixtureGeneratorTests inside the legacy checkout on an iOS simulator.
+#   oracle    (pinned app, iOS 26)        runs I3OracleExportTests over every generated store, then
+#             packages <app>/<ios>/<scenario>.zip + manifest.json into the `i3-legacy-fixtures` artifact.
+name: iOS I3 legacy fixtures
+on:
+  workflow_dispatch:
+  push:
+    branches: [ios]
+    paths:
+      - ".github/workflows/ios-i3-legacy-fixtures.yml"
+      - "iosApp/legacy-fixtures/**"
+concurrency: {group: "ios-i3-legacy-fixtures-${{ github.ref }}", cancel-in-progress: true}
+env:
+  LEGACY_REPO: AndBible/and-bible-ios
+  # Pinned Swift app commit (the reference for the Kotlin mapping and the oracle).
+  LEGACY_PIN: 5b14d179e4bc6f8b40751d5593e9b73eb21bc211
+jobs:
+  generate:
+    name: generate (app ${{ matrix.app }}, iOS ${{ matrix.ios }})
+    runs-on: macos-15
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ["1.0.1", "1.0.2"]
+        ios: ["17", "18", "26"]
+        include:
+          # 1.0.1 = App Store release 9ca04b8a; 1.0.2 = the pinned commit (the v1.0.2 tag only adds the
+          # marketing-version bump and App Store texts on top of it; Sources/ are identical).
+          - {app: "1.0.1", ref: "9ca04b8a9a2921fd1fb1b1f7653b377482d6854a"}
+          - {app: "1.0.2", ref: "5b14d179e4bc6f8b40751d5593e9b73eb21bc211"}
+    steps:
+      - name: Check out this repository (generator sources)
+        uses: actions/checkout@v4
+        with:
+          path: self
+      - name: Check out the Swift app (${{ matrix.app }})
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.LEGACY_REPO }}
+          ref: ${{ matrix.ref }}
+          path: legacy
+          fetch-depth: 0
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with: {xcode-version: latest-stable}
+      - name: Record toolchain
+        run: |
+          mkdir -p logs
+          { sw_vers; xcodebuild -version; swift --version; uname -m; xcrun simctl list runtimes; } | tee logs/toolchain.txt
+      - name: Restore libsword build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            legacy/libsword/sword-src
+            legacy/libsword/build
+            legacy/libsword/libsword.xcframework
+          key: ${{ runner.os }}-i3-fixtures-libsword-iosonly-${{ hashFiles('legacy/libsword/build-ios.sh') }}
+      - name: libsword build prerequisites
+        run: |
+          command -v cmake >/dev/null 2>&1 || brew install cmake
+          command -v svn >/dev/null 2>&1 || brew install subversion
+      - name: Build libsword XCFramework (iOS slices only)
+        working-directory: legacy/libsword
+        env: {INCLUDE_MACOS_SLICE: "0"}
+        run: |
+          if [ -f libsword.xcframework/ios-arm64/libsword.a ] && [ -f libsword.xcframework/ios-arm64_x86_64-simulator/libsword.a ]; then
+            echo "Using cached libsword.xcframework"
+          else
+            ./build-ios.sh
+          fi
+          ls libsword.xcframework
+      - name: Install the iOS ${{ matrix.ios }} simulator runtime when missing
+        env: {IOS: "${{ matrix.ios }}"}
+        run: |
+          if xcrun simctl list runtimes available | grep -Eq "iOS ${IOS}\."; then
+            echo "iOS ${IOS} runtime already installed"
+          else
+            for v in "${IOS}.x" "${IOS}.0"; do
+              xcodebuild -downloadPlatform iOS -buildVersion "$v" && break
+            done
+          fi
+          xcrun simctl list runtimes available | tee -a logs/toolchain.txt
+          xcrun simctl list runtimes available | grep -Eq "iOS ${IOS}\." || { echo "::error::no iOS ${IOS} runtime available"; exit 1; }
+      - name: Create and boot a simulator
+        id: sim
+        env: {IOS: "${{ matrix.ios }}"}
+        run: |
+          python3 - > "$RUNNER_TEMP/sim.txt" <<'PY'
+          import json, os, subprocess
+          ios = os.environ["IOS"]
+          data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "runtimes", "-j"]))
+          def version_key(rt):
+              return tuple(int(p) for p in rt["version"].split(".") if p.isdigit())
+          candidates = [r for r in data["runtimes"] if r.get("isAvailable") and r.get("platform", "iOS") == "iOS"
+                        and r["version"].split(".")[0] == ios]
+          rt = max(candidates, key=version_key)
+          wanted = ["iPhone 15", "iPhone 16", "iPhone 17", "iPhone 14"]
+          phones = [d for d in rt["supportedDeviceTypes"] if d["name"].startswith("iPhone")]
+          pick = next((d for w in wanted for d in phones if d["name"] == w), phones[0])
+          print(rt["identifier"], pick["identifier"])
+          PY
+          read -r RUNTIME DEVICETYPE < "$RUNNER_TEMP/sim.txt"
+          UDID=$(xcrun simctl create "I3 fixtures iOS ${IOS}" "$DEVICETYPE" "$RUNTIME")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          echo "runtime=$RUNTIME devicetype=$DEVICETYPE udid=$UDID" | tee -a logs/toolchain.txt
+      - name: Install the generator test into the Swift app
+        run: cp self/iosApp/legacy-fixtures/I3FixtureGeneratorTests.swift legacy/Sources/BibleCore/Tests/BibleCoreTests/
+      - name: Generate fixtures
+        working-directory: legacy
+        env:
+          OUT: ${{ github.workspace }}/gen-out/${{ matrix.app }}/${{ matrix.ios }}
+        run: |
+          mkdir -p "$OUT" "$GITHUB_WORKSPACE/logs"
+          set -o pipefail
+          TEST_RUNNER_I3_FIXTURE_OUT="$OUT" xcodebuild test \
+            -project AndBible.xcodeproj \
+            -scheme BibleCoreTests \
+            -configuration Debug \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath "$RUNNER_TEMP/derived" \
+            -resultBundlePath "$RUNNER_TEMP/generate.xcresult" \
+            -only-testing:BibleCoreTests/I3FixtureGeneratorTests \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$GITHUB_WORKSPACE/logs/generate-xcodebuild.log"
+      - name: Fall back to the simulator's temporary directory when the host path stayed empty
+        if: always()
+        env:
+          OUT: ${{ github.workspace }}/gen-out/${{ matrix.app }}/${{ matrix.ios }}
+          UDID: ${{ steps.sim.outputs.udid }}
+        run: |
+          mkdir -p "$OUT"
+          if ls "$OUT"/*/AndBible.store >/dev/null 2>&1; then
+            echo "Fixtures were written to the host path"
+          else
+            echo "Host path empty; searching the simulator container"
+            src=$(find "$HOME/Library/Developer/CoreSimulator/Devices/$UDID/data" -type d -name i3-fixtures 2>/dev/null | head -n1)
+            if [ -n "$src" ]; then cp -R "$src"/. "$OUT"/; else echo "No i3-fixtures directory found"; fi
+          fi
+          find "$OUT" -type f | sort | tee "$GITHUB_WORKSPACE/logs/generated-files.txt"
+      - name: Upload generated stores
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i3-generated-${{ matrix.app }}-${{ matrix.ios }}
+          path: gen-out
+          if-no-files-found: warn
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i3-generate-logs-${{ matrix.app }}-${{ matrix.ios }}
+          path: logs
+          if-no-files-found: warn
+
+  oracle:
+    name: oracle (pinned app, iOS 26) and packaging
+    needs: generate
+    if: ${{ !cancelled() }}
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - name: Check out this repository (oracle sources)
+        uses: actions/checkout@v4
+        with:
+          path: self
+      - name: Check out the Swift app (pin)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.LEGACY_REPO }}
+          ref: ${{ env.LEGACY_PIN }}
+          path: legacy
+          fetch-depth: 0
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with: {xcode-version: latest-stable}
+      - name: Restore libsword build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            legacy/libsword/sword-src
+            legacy/libsword/build
+            legacy/libsword/libsword.xcframework
+          key: ${{ runner.os }}-i3-fixtures-libsword-iosonly-${{ hashFiles('legacy/libsword/build-ios.sh') }}
+      - name: libsword build prerequisites
+        run: |
+          command -v cmake >/dev/null 2>&1 || brew install cmake
+          command -v svn >/dev/null 2>&1 || brew install subversion
+      - name: Build libsword XCFramework (iOS slices only)
+        working-directory: legacy/libsword
+        env: {INCLUDE_MACOS_SLICE: "0"}
+        run: |
+          if [ -f libsword.xcframework/ios-arm64/libsword.a ] && [ -f libsword.xcframework/ios-arm64_x86_64-simulator/libsword.a ]; then
+            echo "Using cached libsword.xcframework"
+          else
+            ./build-ios.sh
+          fi
+      - name: Install the iOS 26 simulator runtime when missing
+        run: |
+          mkdir -p logs
+          if ! xcrun simctl list runtimes available | grep -Eq "iOS 26\."; then
+            for v in "26.x" "26.0"; do
+              xcodebuild -downloadPlatform iOS -buildVersion "$v" && break
+            done
+          fi
+          xcrun simctl list runtimes available | grep -Eq "iOS 26\." || { echo "::error::no iOS 26 runtime available"; exit 1; }
+      - name: Create and boot an iOS 26 simulator
+        id: sim
+        run: |
+          python3 - > "$RUNNER_TEMP/sim.txt" <<'PY'
+          import json, subprocess
+          data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "runtimes", "-j"]))
+          def version_key(rt):
+              return tuple(int(p) for p in rt["version"].split(".") if p.isdigit())
+          candidates = [r for r in data["runtimes"] if r.get("isAvailable") and r.get("platform", "iOS") == "iOS"
+                        and r["version"].split(".")[0] == "26"]
+          rt = max(candidates, key=version_key)
+          phones = [d for d in rt["supportedDeviceTypes"] if d["name"].startswith("iPhone")]
+          wanted = ["iPhone 17", "iPhone 16", "iPhone 15"]
+          pick = next((d for w in wanted for d in phones if d["name"] == w), phones[0])
+          print(rt["identifier"], pick["identifier"])
+          PY
+          read -r RUNTIME DEVICETYPE < "$RUNNER_TEMP/sim.txt"
+          UDID=$(xcrun simctl create "I3 oracle iOS 26" "$DEVICETYPE" "$RUNTIME")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+      - name: Download every generated store
+        uses: actions/download-artifact@v4
+        with:
+          pattern: i3-generated-*
+          path: in
+          merge-multiple: true
+      - name: List inputs
+        run: find in -maxdepth 3 | sort | tee logs/inputs.txt
+      - name: Install the oracle test into the Swift app
+        run: cp self/iosApp/legacy-fixtures/I3OracleExportTests.swift legacy/Sources/BibleCore/Tests/BibleCoreTests/
+      - name: Export oracle outputs
+        working-directory: legacy
+        env:
+          IN: ${{ github.workspace }}/in
+          OUT: ${{ github.workspace }}/oracle-out
+        run: |
+          mkdir -p "$OUT" "$GITHUB_WORKSPACE/logs"
+          set -o pipefail
+          TEST_RUNNER_I3_FIXTURE_IN="$IN" TEST_RUNNER_I3_FIXTURE_OUT="$OUT" xcodebuild test \
+            -project AndBible.xcodeproj \
+            -scheme BibleCoreTests \
+            -configuration Debug \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath "$RUNNER_TEMP/derived" \
+            -resultBundlePath "$RUNNER_TEMP/oracle.xcresult" \
+            -only-testing:BibleCoreTests/I3OracleExportTests \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$GITHUB_WORKSPACE/logs/oracle-xcodebuild.log"
+      - name: Package fixture zips and manifest.json
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, zipfile
+          root_in, root_oracle, root_out = "in", "oracle-out", "package"
+          manifest = []
+          for app in sorted(os.listdir(root_in)) if os.path.isdir(root_in) else []:
+              for ios in sorted(os.listdir(os.path.join(root_in, app))):
+                  base = os.path.join(root_in, app, ios)
+                  for scenario in sorted(os.listdir(base)):
+                      src = os.path.join(base, scenario)
+                      if not os.path.isfile(os.path.join(src, "AndBible.store")):
+                          continue
+                      oracle = os.path.join(root_oracle, app, ios, scenario, "oracle")
+                      dest_dir = os.path.join(root_out, app, ios)
+                      os.makedirs(dest_dir, exist_ok=True)
+                      zip_path = os.path.join(dest_dir, scenario + ".zip")
+                      with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+                          for folder, prefix in ((src, ""), (oracle, "oracle/")):
+                              if not os.path.isdir(folder):
+                                  continue
+                              for dirpath, _, files in os.walk(folder):
+                                  for name in sorted(files):
+                                      full = os.path.join(dirpath, name)
+                                      rel = os.path.relpath(full, folder)
+                                      z.write(full, prefix + rel)
+                      fingerprint = None
+                      report = os.path.join(oracle, "report.json")
+                      if os.path.isfile(report):
+                          with open(report) as f:
+                              fingerprint = json.load(f).get("fingerprint")
+                      with open(zip_path, "rb") as f:
+                          sha = hashlib.sha256(f.read()).hexdigest()
+                      manifest.append({"app": app, "ios": ios, "scenario": scenario,
+                                       "path": f"{app}/{ios}/{scenario}.zip", "sha256": sha,
+                                       "fingerprint": fingerprint})
+          os.makedirs(root_out, exist_ok=True)
+          with open(os.path.join(root_out, "manifest.json"), "w") as f:
+              json.dump(manifest, f, indent=2, sort_keys=True)
+              f.write("\n")
+          print(json.dumps(manifest, indent=2))
+          PY
+          du -sh package
+      - name: Upload the fixture package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i3-legacy-fixtures
+          path: package
+          if-no-files-found: warn
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i3-oracle-logs
+          path: logs
+          if-no-files-found: warn
