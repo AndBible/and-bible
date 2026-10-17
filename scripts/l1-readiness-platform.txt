@@ -32,3 +32,4 @@ service/db/BlockingDb.kt	Holds blockingAtEdge (the transaction marker moved to :
 service/device/LightSensor.kt	Android SensorManager host
 service/device/ProgressNotificationManager.kt	Android notification host
 service/device/ScreenSettings.kt	Android screen brightness/orientation settings host
+android/platform/AndroidFirstLoadEdge.kt	Synchronous first-load edge for activeWindow (blockingAtEdge, L1-edge); iOS decides in I2

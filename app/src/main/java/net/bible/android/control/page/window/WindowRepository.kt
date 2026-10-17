@@ -37,7 +37,8 @@ import net.bible.android.database.IdType
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.blockingAtEdge
+import net.bible.sharedlogic.platform.FirstLoadEdge
+import org.koin.mp.KoinPlatform
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.history.HistoryManager
@@ -108,6 +109,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     var id: IdType = IdType.empty()
     var name = ""
+
+    private val firstLoadEdge: FirstLoadEdge by lazy { KoinPlatform.getKoin().get() }
 
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
@@ -203,7 +206,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         try {
             val epoch = pending?.epoch ?: DatabaseContainer.replaceEpoch
             val readId = id
-            val loaded = blockingAtEdge { // L1-edge: activeWindow read or host bootstrap before the first load finished
+            val loaded = firstLoadEdge.awaitFirstLoad { // edge: see AndroidFirstLoadEdge
                 pending?.loaded?.await() ?: currentLoader().read(readId, createIfMissing)
             }
             if(pending == null || pending.claim()) applyLoaded(loaded, epoch)
