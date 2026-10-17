@@ -535,7 +535,7 @@ fun assembleStatusItems(
 ): List<DocumentSync.DocumentStatusItem> {
     val cloud = (if (includeDeleted) cloudMetas else cloudMetas.filter { !it.deleted })
         .associateBy { it.initials }
-    val allInitials = (cloud.keys + localDocs.keys).toSortedSet()
+    val allInitials = (cloud.keys + localDocs.keys).sorted().toSet()
     return allInitials.map { initials ->
         val c = cloud[initials]
         val b = localDocs[initials]

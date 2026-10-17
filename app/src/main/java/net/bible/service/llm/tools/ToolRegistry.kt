@@ -261,7 +261,8 @@ object ToolRegistry : KoinComponent {
     fun getConfigurableToolsByCategory(): Map<ToolCategory, List<Tool>> =
         getConfigurableTools()
             .groupBy { it.category }
-            .toSortedMap(compareBy { it.ordinal })
+            .entries.sortedBy { it.key.ordinal }
+            .associate { it.toPair() }
 
     /** Get the localized display name for a [ToolCategory]. */
     fun getCategoryDisplayName(category: ToolCategory): String =
