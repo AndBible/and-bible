@@ -18,7 +18,7 @@
 <template>
   <div :class="{exportMode}">
     <div class="journal-name" :style="labelNameStyle">
-      {{ document.label.name }}
+      {{ liveLabel.name }}
     </div>
     <div v-if="journalEntries.length === 0 && !exportMode">
       {{ strings.emptyStudyPad }}
@@ -54,7 +54,7 @@
               :key="`studypad-${j.type}-${j.id}`"
               :ref="setStudyPadRowRef"
               :journal-entry="j"
-              :label="document.label"
+              :label="liveLabel"
               :disable-click-to-edit="appSettings.disableClickToEdit"
               @add="adding=true"
             />
@@ -160,6 +160,9 @@ updateBookmarkToLabels(...genericBookmarkToLabels_)
 
 const globalBookmarks = inject(globalBookmarksKey)!;
 
+// The document payload is static; label edits arrive as update_labels into globalBookmarks.
+const liveLabel = computed(() => globalBookmarks.bookmarkLabels.get(label.id) ?? props.document.label);
+
 globalBookmarks.updateBookmarks(bookmarks);
 globalBookmarks.updateBookmarks(genericBookmarks);
 
@@ -260,7 +263,7 @@ function appendNewEntry() {
 const labelNameStyle = computed(() => {
     if (exportMode.value) return;
     if (appSettings.monochromeMode) return;
-    const color: Color = adjustedColorOrig(label.style.color)!;
+    const color: Color = adjustedColorOrig(liveLabel.value.style.color)!;
     const textColor = color.isLight() ? "var(--label-text-black)" : "var(--label-text-white)";
     return `background-color: ${color.string()}; color: ${textColor};`;
 });

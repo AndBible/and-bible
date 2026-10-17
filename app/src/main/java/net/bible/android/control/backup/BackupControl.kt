@@ -35,6 +35,7 @@ import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.service.common.FileManager
 import net.bible.service.db.ALL_DB_FILENAMES
+import net.bible.service.installzip.moduleArchiveTargetName
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
@@ -966,7 +967,7 @@ class BackupControl(
                     continue
                 }
 
-                val file = File(targetDirectory, name)
+                val file = File(targetDirectory, moduleArchiveTargetName(name))
                 if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
                     confFiles.add(file)
 

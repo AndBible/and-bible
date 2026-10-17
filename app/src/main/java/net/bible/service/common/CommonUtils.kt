@@ -1909,7 +1909,7 @@ suspend fun BookAndKey.prev(strings: net.bible.sharedcore.platform.CoreStrings, 
             try {
                 backend.get(idx - 1)!!
             } catch (e: IndexOutOfBoundsException) {
-                backend.last()
+                backend.lastOrNull() ?: this.key
             }
         }
     }
@@ -1946,7 +1946,8 @@ suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, 
                     try {
                         backend.get(idx + 1)!!
                     } catch (e: IndexOutOfBoundsException) {
-                        backend.first()
+                        // wraps to the first key; an empty document (all pages deleted) has none, so stay put
+                        backend.firstOrNull() ?: this.key
                     }
                 }
 

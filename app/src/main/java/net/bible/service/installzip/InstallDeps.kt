@@ -31,6 +31,7 @@ import net.bible.service.db.bookmarksDbStats
 import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.epubInitials
+import net.bible.service.sword.mybible.SqliteVerseBackendState
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.CoreStrings
 import org.crosswire.jsword.book.Books
@@ -80,6 +81,38 @@ fun terminalEventMessage(event: InstallPhase, strings: CoreStrings): String = wh
     else -> ""
 }
 
+/** True for a `*.SQLite3` entry directly at the archive root (no directory part). Backslashes must already be normalised. */
+internal fun isRootSqliteEntry(name: String): Boolean =
+    !name.contains('/') && name.endsWith(".sqlite3", ignoreCase = true)
+
+/** Where an archive entry is extracted, relative to the module dir: root `*.SQLite3` modules go to `mybible/`. */
+internal fun moduleArchiveTargetName(name: String): String =
+    if (isRootSqliteEntry(name)) "mybible/$name" else name
+
+/** True when [file] is a SQLite database with the MyBible layout: an `info` table plus verses, commentaries or dictionary. */
+private fun isMyBibleDatabase(file: File): Boolean {
+    val state = SqliteVerseBackendState(file)
+    return try {
+        val tables = state.rows("select name from sqlite_master where type = 'table'") { it.getText(0) }.toSet()
+        "info" in tables && ("verses" in tables || "commentaries" in tables || "dictionary" in tables)
+    } catch (e: Exception) {
+        false
+    } finally {
+        state.close()
+    }
+}
+
+/** Copies the current entry of [zin] to a temp file and checks it for the MyBible schema. */
+private fun currentEntryIsMyBible(zin: ZipInputStream): Boolean {
+    val tmp = File.createTempFile("mybible-scan", ".sqlite3")
+    return try {
+        tmp.outputStream().use { zin.copyTo(it) }
+        isMyBibleDatabase(tmp)
+    } finally {
+        tmp.delete()
+    }
+}
+
 /**
  * Adapts classic `ZipHandler.checkZipFile`'s entry-enumeration + classification to operate on an
  * already-acquired local [File] and return a pure [InstallInspector.SwordZipScan] instead of
@@ -107,7 +140,7 @@ internal fun scanSwordZip(localFile: File): InstallInspector.SwordZipScan {
         while (entry != null) {
             totalEntries++
             val name = entry.name.replace('\\', '/')
-            val targetFile = File(targetDirectory, name)
+            val targetFile = File(targetDirectory, moduleArchiveTargetName(name))
             if (!entry.isDirectory && targetFile.exists()) {
                 existingFiles.add(targetFile.relativeTo(targetDirectory).path)
             }
@@ -121,6 +154,11 @@ internal fun scanSwordZip(localFile: File): InstallInspector.SwordZipScan {
                     modsDirFound = true
                 }
                 name == ANDBIBLE_BACKUP_MANIFEST_FILENAME -> Unit
+                // A MyBible module (plus auxiliary SQLite files) at the archive root; installed under mybible/.
+                isRootSqliteEntry(name) && currentEntryIsMyBible(zin) -> {
+                    modulesFound = true
+                    modsDirFound = true
+                }
                 else -> otherFiles.add(name)
             }
             entry = zin.nextEntry

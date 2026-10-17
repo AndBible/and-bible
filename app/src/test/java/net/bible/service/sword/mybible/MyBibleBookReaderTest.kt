@@ -20,9 +20,12 @@ package net.bible.service.sword.mybible
 import androidx.sqlite.SQLiteException
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.db.ReadOnlyWalFixture
+import net.bible.service.db.WAL_ONLY_VERSE
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -30,7 +33,10 @@ import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -213,5 +219,27 @@ class MyBibleBookReaderTest {
             state.sqlDb.exec("INSERT INTO verses VALUES (1, 1, 3, 'x')")
         }
         assertEquals(2, b.getCardinality())
+    }
+
+    @Test
+    fun readOnlyWalModuleIsRegisteredWithMetadataAndText() {
+        val moduleDir = File(dir, "ro-wal").also { it.mkdirs() }
+        val file = File(moduleDir, "e5walmod.SQLite3")
+        ReadOnlyWalFixture.walWithoutShm(file, dir)
+        try {
+            assumeTrue("directory stays writable for this user (root?)", ReadOnlyWalFixture.lockDown(moduleDir))
+            addMyBibleBook(file)
+            val book = Books.installed().getBook("MyBible-e5walmod")
+            assertNotNull("book must be registered", book)
+            book!!
+            try {
+                val text = book.getRawText(verse(BibleBook.GEN, 1, 2))
+                assertTrue(text, text.contains(WAL_ONLY_VERSE))
+            } finally {
+                Books.installed().removeBook(book)
+            }
+        } finally {
+            ReadOnlyWalFixture.unlock(moduleDir)
+        }
     }
 }
