@@ -12,3 +12,12 @@ speak
 event
 progress
 bookmark
+
+# L1b close-out (phase 1): residue cleared, all 21 domains listed
+page
+window
+download
+cloudsync
+sword
+core
+llm
