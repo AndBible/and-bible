@@ -35,6 +35,7 @@ import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import net.bible.sharedlogic.platform.PlatformLocales
+import net.bible.sharedcore.platform.MarkdownRenderer
 import org.koin.mp.KoinPlatform
 
 private const val TAG = "MyDocumentBackend"
@@ -147,7 +148,7 @@ class MyDocumentBackend(
         // AI footer is rendered by Vue.js OsisDocument component, not embedded in content.
         return when (page.contentType) {
             MyDocumentContentType.MARKDOWN -> {
-                val xhtml = MarkdownToXhtml.convert(content)
+                val xhtml = KoinPlatform.getKoin().get<MarkdownRenderer>().toXhtml(content)
                 "<div class=\"mydoc-markdown\">$xhtml</div>"
             }
             MyDocumentContentType.HTML ->
