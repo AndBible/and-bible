@@ -189,7 +189,7 @@ internal fun defaultLanguageCode(): String = KoinPlatform.getKoin().get<Platform
         "AndBibleMyDocument=1\n" +
         "AndBibleMyDocumentId=${document.id}"
 
-    return SwordBookMetaData(conf.toByteArray(), document.initials).also {
+    return SwordBookMetaData(conf.encodeToByteArray(), document.initials).also {
         it.setDriver(SwordBookDriver.instance())
     }
 }

@@ -111,7 +111,7 @@ AndBibleMinimumVersion=1112
 """
     Log.i(TAG, "Creating background-image module $moduleInitials, $displayName")
 
-    val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
+    val metadata = SwordBookMetaData(conf.encodeToByteArray(), moduleInitials)
     metadata.location = KUri("file", null, "${file.parent!!}/", null)
     metadata.setDriver(BackgroundImageSwordDriver())
     val book = SwordBook(metadata, NullBackend())

@@ -198,7 +198,7 @@ class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
                 moduleFileName = dbPath,
             )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
-            val metadata = SwordBookMetaData(conf.toByteArray(), initials)
+            val metadata = SwordBookMetaData(conf.encodeToByteArray(), initials)
 
             metadata.setDriver(SqliteSwordDriver())
             this.metadata = metadata

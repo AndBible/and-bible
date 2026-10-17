@@ -407,7 +407,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
                 path = epubDir.relativeTo(KoinPlatform.getKoin().get<AppDirectories>().modulesDir).toString()
             )
             Log.i(TAG, "Creating EpubBook metadata $initials, $description $language")
-            val metadata = SwordBookMetaData(conf.toByteArray(), initials)
+            val metadata = SwordBookMetaData(conf.encodeToByteArray(), initials)
             metadata.setDriver(EpubSwordDriver())
             this._metadata = metadata
             return@withMonitor metadata
@@ -497,7 +497,7 @@ internal fun Path.child(relative: String): Path = this / relative.trimStart('/')
 
 /** Writes an optimized fragment file in the gzip format `GZIPInputStream` reads. */
 @VisibleForTesting fun writeFragment(path: Path, content: String) {
-    KFiles.write(path, Gzip(content.toByteArray()).compress())
+    KFiles.write(path, Gzip(content.encodeToByteArray()).compress())
 }
 
 private fun gzipFile(source: Path, destination: Path) {

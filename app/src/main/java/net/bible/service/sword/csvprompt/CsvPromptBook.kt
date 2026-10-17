@@ -76,7 +76,7 @@ AndBibleMinimumVersion=892
 
     Log.i(TAG, "Creating CSV prompt module $moduleInitials")
 
-    val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
+    val metadata = SwordBookMetaData(conf.encodeToByteArray(), moduleInitials)
     metadata.location = KUri("file", null, "${file.parent!!}/", null)
     metadata.setDriver(CsvPromptSwordDriver())
     val book = SwordBook(metadata, NullBackend())

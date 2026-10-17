@@ -150,7 +150,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
     */
     override fun characters(buf: CharArray, offset: Int, len: Int) {
         if (CONTENT_STATE.WRITE == writeContentStack.last()) {
-            var s = String(buf, offset, len)
+            var s = buf.concatToString(offset, offset + len)
             if (textPolicy.restoreLeadingSpace) {
                 if (s.length > 0 && s[0] == ' ') {
                     // fromHtml strips leading whitespaces, which is not desirable

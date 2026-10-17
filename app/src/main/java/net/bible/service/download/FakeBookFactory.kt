@@ -75,7 +75,7 @@ class FakeBookFactory(private val strings: net.bible.sharedcore.platform.CoreStr
     /** create sbmd for file available for download from repo
      */
     fun createRepoSBMD(module: String?, conf: String): SwordBookMetaData {
-        val sbmd = SwordBookMetaData(conf.toByteArray(), module)
+        val sbmd = SwordBookMetaData(conf.encodeToByteArray(), module)
         val fake = SwordBookDriver.instance()
         sbmd.setDriver(fake)
         return sbmd

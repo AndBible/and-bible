@@ -232,7 +232,7 @@ fun EpubBackendState.optimizeEpub() {
         epubInsertHtmlToFragsBlocking(writeDao, epubHtmlToFrags)
         fileForOriginalId(k)?.let { KFiles.delete(it) }
     }
-    KFiles.write(versionFile, "$EPUB_OPTIMIZER_VERSION".toByteArray())
+    KFiles.write(versionFile, "$EPUB_OPTIMIZER_VERSION".encodeToByteArray())
     val total = (currentTimeMillis() - start) / 1000
     writeDb.close()
     KFiles.delete(optimizeLockFile)

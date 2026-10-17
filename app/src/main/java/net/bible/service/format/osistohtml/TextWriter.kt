@@ -50,7 +50,7 @@ class TextWriter {
         insertionRequestCount++
         if (insertionRequestCount == 1) {
             overwrittenString = writer.substring(insertOffset)
-            writer.delete(insertOffset, writer.length)
+            writer.deleteRange(insertOffset, writer.length)
         }
     }
 
@@ -76,7 +76,7 @@ class TextWriter {
         get() = writer.length
 
     fun removeAfter(position: Int) {
-        writer.delete(position, writer.length)
+        writer.deleteRange(position, writer.length)
     }
 
     fun reset() {
@@ -92,7 +92,7 @@ class TextWriter {
     }
 
     fun clearTempStore() {
-        tempStore.delete(0, tempStore.length)
+        tempStore.deleteRange(0, tempStore.length)
     }
 
     val tempStoreString: String

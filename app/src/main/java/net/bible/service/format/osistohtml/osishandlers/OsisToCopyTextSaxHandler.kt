@@ -60,7 +60,7 @@ class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean, textPolicy: SaxTex
                         val parts = osisID.split("\\.".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
                         if (parts.size > 2) {
                             val chapter = parts[parts.size - 2]
-                            currentChapterNumber = Integer.valueOf(chapter)
+                            currentChapterNumber = chapter.toInt()
                         }
                     }
 

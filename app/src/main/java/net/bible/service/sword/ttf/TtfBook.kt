@@ -100,7 +100,7 @@ AndBibleMinimumVersion=892
     
     Log.i(TAG, "Creating TTF font module $moduleInitials, $fontName")
 
-    val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
+    val metadata = SwordBookMetaData(conf.encodeToByteArray(), moduleInitials)
     metadata.location = KUri("file", null, "${file.parent!!}/", null)
     metadata.setDriver(TtfSwordDriver())
     val backend = NullBackend()

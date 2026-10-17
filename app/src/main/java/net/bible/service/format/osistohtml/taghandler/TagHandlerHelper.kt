@@ -82,7 +82,7 @@ object TagHandlerHelper {
             val parts = osisID.split(".").toTypedArray()
             if (parts.size > 1) {
                 val verse = parts[parts.size - 1]
-                return Integer.valueOf(verse)
+                return verse.toInt()
             }
         }
         return 0

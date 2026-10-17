@@ -139,7 +139,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, phrases: SpeakPhrases, 
      * Handle characters encountered in tags
     */
     override fun characters(buf: CharArray, offset: Int, len: Int) {
-        addText(String(buf, offset, len))
+        addText(buf.concatToString(offset, offset + len))
     }
 
     private fun addText(text: String) {

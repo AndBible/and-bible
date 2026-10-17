@@ -125,7 +125,7 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
             moduleFileName = "",
             downloadUrl = it.download_url
         )
-        val metadata = SwordBookMetaData(config.toByteArray(), initials)
+        val metadata = SwordBookMetaData(config.encodeToByteArray(), initials)
         metadata.setDriver(fakeDriver)
         SwordBook(metadata, nullBackend)
     }.toMutableList()
