@@ -112,7 +112,7 @@ class DefaultInstallCommitter(
 
     override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean {
         val dir = modulesDir / "epub" / displayName.trimStart('/')
-        return installEpubModule(dir.toFile()) { // L1b-handover(G1): the epub engine still takes java.io.File
+        return installEpubModule(dir.toFile()) { // L1b-handover(G1): the epub engine still takes a JVM File
             if (deleteExisting) deleteOwnedEpubModule(dir.toFile())
             fileSystem.createDirectories(dir)
             try {
@@ -144,7 +144,7 @@ class DefaultInstallCommitter(
             }
         }
         when (type) {
-            SqliteBookType.MYBIBLE -> addMyBibleBook(outFile.toFile()) // L1b-handover(G1): the sqlite book engines still take java.io.File
+            SqliteBookType.MYBIBLE -> addMyBibleBook(outFile.toFile()) // L1b-handover(G1): the sqlite book engines still take a JVM File
             SqliteBookType.MYSWORD -> addMySwordBook(outFile.toFile()) // L1b-handover(G1): same
             SqliteBookType.ESWORD -> addESwordBook(outFile.toFile()) // L1b-handover(G1): same
         }
