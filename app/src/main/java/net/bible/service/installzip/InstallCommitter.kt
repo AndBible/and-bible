@@ -30,7 +30,6 @@ import net.bible.service.sword.epub.addOwnedEpubBook
 import net.bible.service.sword.epub.deleteOwnedEpubModule
 import net.bible.service.sword.epub.epubInitials
 import net.bible.service.sword.epub.installEpubModule
-import okio.Path.Companion.toOkioPath
 import net.bible.service.sword.esword.addESwordBook
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addMySwordBook

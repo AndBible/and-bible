@@ -19,7 +19,6 @@ package net.bible.service.installzip
 
 import okio.use
 import kotlinx.coroutines.IO
-import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.backup.BackupControl

@@ -681,7 +681,7 @@ open class BookmarkControl constructor(
         val bookmark = dao.bibleBookmarkById(bookmarkId)!!
         addLabels(bookmark)
         addText(bookmark)
-        emitChange(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
+        emitChange(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.getTime()))
     }
     suspend fun saveGenericBookmarkNote(bookmarkId: IdType, note: String?) = deferringEffects {
         if(note == null) {
@@ -694,7 +694,7 @@ open class BookmarkControl constructor(
         val bookmark = dao.genericBookmarkById(bookmarkId)!!
         addLabels(bookmark)
         addText(bookmark)
-        emitChange(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
+        emitChange(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.getTime()))
     }
 
     /**

@@ -17,7 +17,6 @@
 package net.bible.service.sword
 
 import androidx.annotation.VisibleForTesting
-import fi.sykero.kdom.input.build
 import org.crosswire.common.util.KLocale
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import net.bible.sharedlogic.sync.bookNameMonitor

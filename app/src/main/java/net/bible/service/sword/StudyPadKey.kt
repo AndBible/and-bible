@@ -17,6 +17,7 @@
 
 package net.bible.service.sword
 
+import kotlin.jvm.Transient
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName

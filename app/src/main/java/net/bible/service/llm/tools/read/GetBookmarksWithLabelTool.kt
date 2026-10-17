@@ -146,7 +146,7 @@ object GetBookmarksWithLabelTool : Tool, KoinComponent {
                     verseRange = if ("verseRange" in fields) bookmark.verseRange.getOsisRef() else null,
                     verseName = if ("verseName" in fields) bookmark.verseRange.getName() else null,
                     notes = if ("notes" in fields) bookmark.notes else null,
-                    createdAt = if ("createdAt" in fields) bookmark.createdAt.time else null
+                    createdAt = if ("createdAt" in fields) bookmark.createdAt.getTime() else null
                 ))
             }
 
@@ -158,7 +158,7 @@ object GetBookmarksWithLabelTool : Tool, KoinComponent {
                     book = bookmark.book?.initials ?: "unknown",
                     key = bookmark.key,
                     notes = if ("notes" in fields) bookmark.notes else null,
-                    createdAt = if ("createdAt" in fields) bookmark.createdAt.time else null
+                    createdAt = if ("createdAt" in fields) bookmark.createdAt.getTime() else null
                 ))
             }
 

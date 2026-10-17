@@ -136,8 +136,8 @@ object GetBookmarksForVerseTool : Tool, KoinComponent {
                     verseRange = bookmark.verseRange.getOsisRef(),
                     verseName = bookmark.verseRange.getName(),
                     notes = bookmark.notes,
-                    createdAt = bookmark.createdAt.time,
-                    lastUpdatedOn = bookmark.lastUpdatedOn.time,
+                    createdAt = bookmark.createdAt.getTime(),
+                    lastUpdatedOn = bookmark.lastUpdatedOn.getTime(),
                     labels = labels.map { LabelRef(it.id, it.name) }
                 )
             }

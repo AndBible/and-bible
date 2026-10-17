@@ -19,7 +19,6 @@ package net.bible.service.llm.agent
 
 import net.bible.sharedlogic.util.currentTimeMillis
 import androidx.annotation.VisibleForTesting
-import fi.sykero.kdom.input.build
 import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

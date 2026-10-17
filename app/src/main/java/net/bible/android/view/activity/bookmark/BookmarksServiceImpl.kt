@@ -132,7 +132,7 @@ class BookmarksServiceImpl(
         val chipLabels = labels.ifEmpty { listOf(bookmarkControl.labelUnlabelled()) }
         val labelColors = chipLabels.filterNot { it.isSpeakLabel }.map { it.color }
 
-        val dateText = dateTimeFormats.pattern("EEE, yyyy-MM-dd HH:mm", bm.createdAt.time)
+        val dateText = dateTimeFormats.pattern("EEE, yyyy-MM-dd HH:mm", bm.createdAt.getTime())
         val notes = bm.notes
         return BookmarkRow(
             id = bm.id.toString(),

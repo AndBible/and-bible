@@ -18,7 +18,6 @@
 package net.bible.service.sword.epub
 
 import androidx.annotation.VisibleForTesting
-import fi.sykero.kdom.input.build
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
 import kotlinx.coroutines.Dispatchers

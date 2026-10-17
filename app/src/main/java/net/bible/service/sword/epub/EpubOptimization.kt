@@ -17,7 +17,6 @@
 
 package net.bible.service.sword.epub
 
-import fi.sykero.kdom.input.build
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubHtmlToFrag

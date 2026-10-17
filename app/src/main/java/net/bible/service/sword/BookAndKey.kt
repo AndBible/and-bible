@@ -17,6 +17,7 @@
 
 package net.bible.service.sword
 
+import kotlin.jvm.Transient
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.control.page.OrdinalRange
