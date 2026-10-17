@@ -117,4 +117,12 @@ class MyDocumentBackendKeysTest {
             assertThrows("get($bad)", IndexOutOfBoundsException::class.java) { backend.get(bad) }
         }
     }
+
+    /** All pages deleted while the document is shown: next/prev must not throw NoSuchElementException. */
+    @Test
+    fun emptyDocumentNextAndPrevKeepTheCurrentKey() = runTest {
+        val book = book()
+        assertEquals("gone", bookAndKey(book, "gone").next(testCoreStrings(), traverser).key.getOsisRef())
+        assertEquals("gone", bookAndKey(book, "gone").prev(testCoreStrings(), traverser).key.getOsisRef())
+    }
 }

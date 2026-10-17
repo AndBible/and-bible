@@ -40,6 +40,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 class ManageLabelsWrites(
     private val bookmarkControl: BookmarkControl,
     private val appScope: CoroutineScope,
+    /** Awaited before the first write: queued earlier label writes (the editor's OK) must land before the deletes. */
+    private val barrier: suspend () -> Unit = {},
 ) {
     private val started = AtomicBoolean(false)
 
@@ -62,6 +64,7 @@ class ManageLabelsWrites(
         val result = CompletableDeferred<Map<String, String>>()
         appScope.launch {
             try {
+                barrier()
                 if (deleteKeepingBookmarks.isNotEmpty()) {
                     bookmarkControl.deleteLabels(deleteKeepingBookmarks, deleteOrphanedBookmarks = false)
                 }

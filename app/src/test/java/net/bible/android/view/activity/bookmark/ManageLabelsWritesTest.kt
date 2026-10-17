@@ -111,4 +111,18 @@ class ManageLabelsWritesTest {
         runBlocking { withTimeout(10_000) { retry!!.await() } }
         assertEquals(1, runBlocking { dao.allLabelsSortedByName() }.count { it.name == "Retry" })
     }
+
+    @Test fun `the writes wait for the barrier before they delete`() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val doomed = Label(name = "Doomed")
+        runBlocking { dao.insert(doomed) }
+        val writes = ManageLabelsWrites(control, appScope, barrier = { gate.await() })
+
+        val result = writes.start(listOf(doomed.id), emptyList(), emptyList())!!
+        Thread.sleep(300)
+        assertTrue("the delete ran before the barrier opened", runBlocking { dao.allLabelsSortedByName() }.any { it.name == "Doomed" })
+        gate.complete(Unit)
+        runBlocking { withTimeout(10_000) { result.await() } }
+        assertTrue(runBlocking { dao.allLabelsSortedByName() }.none { it.name == "Doomed" })
+    }
 }
