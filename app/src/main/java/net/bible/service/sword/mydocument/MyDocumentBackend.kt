@@ -90,8 +90,10 @@ class MyDocumentBackend(
 
     override fun get(index: Int): Key {
         val pages = getPages()
-        if (index < 0 || index >= pages.size) {
-            return DefaultLeafKeyList("", "")
+        // Like the EPUB backend: callers (CommonUtils next/prev) catch IndexOutOfBoundsException to wrap
+        // around; a blank key here would be taken as a real page.
+        if (index !in pages.indices) {
+            throw IndexOutOfBoundsException("Index $index out of bounds for ${pages.size} pages")
         }
         val page = pages[index]
         return DefaultLeafKeyList(page.title, page.pageKey)

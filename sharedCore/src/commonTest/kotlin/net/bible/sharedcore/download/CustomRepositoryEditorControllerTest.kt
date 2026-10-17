@@ -50,6 +50,29 @@ class CustomRepositoryEditorControllerTest {
         assertTrue(c.state.value.isDirty)
         assertEquals("/custom", c.buildSaveResult().repository?.packageDirectory)
     }
+    @Test fun restoredDraftKeepsTypedPackageDirOverTheResolvedOneAndStaysDirty() = runTest {
+        val c = CustomRepositoryEditorController(svc(), this, RepositoryResult())
+        c.restoreDraft("https://ok/", "/custom"); testScheduler.advanceUntilIdle()
+        assertEquals("https://ok/", c.state.value.url)
+        assertEquals(Validation.Valid, c.state.value.validation)
+        assertEquals("/custom", c.state.value.packageDirectory)
+        assertTrue(c.state.value.canSave)
+        assertTrue(c.state.value.isDirty)
+    }
+    @Test fun restoredDraftShowsItsPackageDirImmediatelyAndKeepsItWhenValidationIsInvalid() = runTest {
+        val c = CustomRepositoryEditorController(svc(), this, RepositoryResult())
+        c.restoreDraft("http://bad", "/custom")
+        assertEquals("/custom", c.state.value.packageDirectory)
+        testScheduler.advanceUntilIdle()
+        assertEquals(Validation.Invalid, c.state.value.validation)
+        assertEquals("/custom", c.state.value.packageDirectory)
+    }
+    @Test fun restoredDraftWithoutPackageDirUsesTheResolvedOne() = runTest {
+        val c = CustomRepositoryEditorController(svc(), this, RepositoryResult())
+        c.restoreDraft("https://ok/", null); testScheduler.advanceUntilIdle()
+        assertEquals("/p", c.state.value.packageDirectory)
+        assertTrue(c.state.value.isDirty)
+    }
     @Test fun existingRepoEnablesDeleteResult() = runTest {
         val c = CustomRepositoryEditorController(svc(), this, RepositoryResult(repository = CustomRepositoryData(id = 9, name = "e", manifestUrl = "https://ok/")))
         testScheduler.advanceUntilIdle()

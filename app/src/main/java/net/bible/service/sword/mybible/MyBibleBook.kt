@@ -22,7 +22,7 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
 import net.bible.android.SharedConstants
-import net.bible.service.db.openSqlite
+import net.bible.service.db.openReadOnlyModuleDb
 import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
@@ -109,7 +109,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     val sqlDb: SQLiteConnection get() = synchronized(this) {
         _sqlDb ?: run {
             Log.i(TAG, "initDatabase ${sqliteFile.name}")
-            val db = openSqlite(sqliteFile.path, readOnly = true)
+            val db = openReadOnlyModuleDb(sqliteFile)
             _sqlDb = db
             db
         }
