@@ -134,10 +134,13 @@ class DailyReadingPassageStaysInHostTest {
     private fun planOnDay(day: Int, daysAgo: Int) = kotlinx.coroutines.runBlocking {
         val control = org.koin.core.context.GlobalContext.get().get<net.bible.android.control.readingplan.ReadingPlanControl>()
         control.setReadingPlan(PLAN)
-        val info = control.getDaysReading(1).readingPlanInfo
         val start = java.util.Calendar.getInstance().apply { add(java.util.Calendar.DATE, -daysAgo) }
-        control.setStartDate(info, start.time)
-        if (day > 1) control.done(info, day - 1, true)
+        // Seeded straight through the DAO: the repository's own write queue is a Koin singleton whose scope an
+        // earlier test in this JVM may have cancelled, which silently drops its writes.
+        net.bible.service.db.DatabaseContainer.instance.readingPlanDb.readingPlanDao().updatePlan(
+            net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan(PLAN, start.time, day),
+        )
+        check(control.currentPlanDay() == day) { "plan could not be put on day $day" }
     }
 
     private fun doneFrom(day: Int, daysAgo: Int): NavHostComposeActivity {
@@ -210,6 +213,57 @@ class DailyReadingPassageStaysInHostTest {
             route() == NavRoutes.READING_PLAN_SELECTOR
         }
         assertEquals(NavRoutes.READING_PLAN_SELECTOR, route())
+    }
+
+
+    private fun reopenReadingPlanExpectingTheSelector(activity: NavHostComposeActivity, controller: ActivityController<NavHostComposeActivity>) {
+        controller.newIntent(NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading()))
+        try {
+            net.bible.test.awaitHostCondition("reopened Reading plan offers the selector, not the finished plan") {
+                activity.currentRouteForTest()?.substringBefore('?') == NavRoutes.READING_PLAN_SELECTOR
+            }
+        } catch (e: AssertionError) {
+            throw AssertionError("${e.message}; route=${activity.currentRouteForTest()}", e)
+        }
+    }
+
+    /** SU-15g I1: the finished plan must not be re-selected by the next Reading plan open. */
+    @Test
+    fun readingPlanAfterDoneOnTheLastDayOffersTheSelector() {
+        val activity = doneFrom(day = 365, daysAgo = 364)
+        assertBackInTheReader(activity)
+        val rpc = org.koin.core.context.GlobalContext.get().get<net.bible.android.control.readingplan.ReadingPlanControl>()
+        assertEquals("", rpc.currentPlanCode, "the plan was not reset; day=${kotlinx.coroutines.runBlocking { rpc.currentPlanDay() }}")
+        reopenReadingPlanExpectingTheSelector(activity, controllers.last())
+    }
+
+    @Test
+    fun readingPlanAfterResetOffersTheSelector() {
+        planOnDay(5, 9)
+        val controller = host().apply { create().start().resume().visible() }
+        val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity)
+        idleMain()
+        openDay(controller, 5)
+        activity.dailyReadingControllerForTest().run { requestReset(); confirm() }
+        assertBackInTheReader(activity)
+        reopenReadingPlanExpectingTheSelector(activity, controller)
+    }
+
+    /** SU-15g I1: the "selector offered once" memory must not outlive a successful plan load. */
+    @Test
+    fun removingAPlanThatWasPickedAfterTheSelectorStillOffersTheSelectorAtOnce() {
+        CommonUtils.settings.removeString("reading_plan")
+        val controller = host().apply { create().start().resume().visible() }
+        val activity = controller.get()
+        net.bible.test.awaitReadingGraph(activity)
+        idleMain()
+        reopenReadingPlanExpectingTheSelector(activity, controller) // offered once (flag set)
+        planOnDay(5, 9)
+        openDay(controller, 5) // a plan is now loaded successfully
+        activity.dailyReadingControllerForTest().run { requestReset(); confirm() } // the user removes it
+        assertBackInTheReader(activity)
+        reopenReadingPlanExpectingTheSelector(activity, controller)
     }
 
 

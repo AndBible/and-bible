@@ -4805,7 +4805,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = ManageLabelsSession(
             data = parsed,
             labelsById = mutableMapOf(),
-            writes = ManageLabelsWrites(bookmarkControl, appScope),
+            writes = ManageLabelsWrites(bookmarkControl, appScope, barrier = { orderedLauncher.join("workspace") }),
         )
         restored?.let {
             session.labelsById.putAll(it.labels.associateBy { label -> label.id.toString() })
@@ -6651,7 +6651,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onReset = {
             val code = planCodeLoaded
             if (code.isNullOrEmpty()) dailyReadingController?.showError()
-            else { readingPlanControl.reset(code); returnToReadingOrFinish() }
+            else { readingPlanControl.reset(code); forgetLoadedReadingPlan(); returnToReadingOrFinish() }
         },
         onSetStartDate = { showReadingPlanStartDatePicker() },
         onConfirmStartDate = { year, month1to12, day -> confirmReadingPlanStartDate(year, month1to12, day) },
@@ -6691,6 +6691,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             readingsDto = dto
             dailyReadingController?.setUi(ui)
             loadedReadingDay.value = LoadedReadingDay(code, loadedDay)
+            readingPlanSelectorOffered = false // a plan is in use: a later removal must offer the selector again
             DailyReadingLoad.LOADED
         } catch (e: CancellationException) {
             throw e
@@ -6759,6 +6760,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         )
     }
 
+    /** SU-15g I1: drops the host-wide last-loaded (plan, day) and readings once their plan was reset/removed. */
+    private fun forgetLoadedReadingPlan() {
+        readingDayLoadGeneration++ // an in-flight load of the removed plan must not re-select it when it lands
+        readingsDto = null
+        planCodeLoaded = null
+        loadedReadingDay.value = null
+    }
+
     private fun onReadingPlanDone() {
         val dto = readingsDto ?: return
         lifecycleScope.launch {
@@ -6767,7 +6776,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 if (nextDayToShow > 0) loadReadingPlanDay(planCodeLoaded, nextDayToShow)
                 // -1: plan finished or user up to date. Classic finish()ed its own Activity back to the
                 // reader; here that closes the reader's host (SU-15g D1), so pop to it instead.
-                else returnToReadingOrFinish()
+                else {
+                    // done() reset the plan on its last day: forget it, or the next open reloads it
+                    if (readingPlanControl.currentPlanCode.isEmpty()) forgetLoadedReadingPlan()
+                    returnToReadingOrFinish()
+                }
             } catch (e: Exception) {
                 Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
                 dailyReadingController?.showError()
