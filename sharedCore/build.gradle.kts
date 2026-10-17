@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -50,5 +51,15 @@ tasks.withType<AbstractTestTask>().matching { it.name == "iosSimulatorArm64Test"
         showStackTraces = true
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         events("started", "passed", "failed", "skipped")
+    }
+}
+
+// CI boots a simulator and names it in IOS_TEST_SIMULATOR. KGP's default standalone spawn runs the test
+// binary without the simulator's system daemons, so UTType lookups, NSFileCoordinator and iCloud
+// resource values all fail there; on a booted device they behave as in the app.
+providers.environmentVariable("IOS_TEST_SIMULATOR").orNull?.let { simulator ->
+    tasks.withType<KotlinNativeSimulatorTest>().matching { it.name == "iosSimulatorArm64Test" }.configureEach {
+        device.set(simulator)
+        standalone.set(false)
     }
 }

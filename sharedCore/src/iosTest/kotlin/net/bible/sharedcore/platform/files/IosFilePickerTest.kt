@@ -1,8 +1,6 @@
 package net.bible.sharedcore.platform.files
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.runTest
 import platform.UIKit.*
 import okio.FileSystem
@@ -30,8 +28,8 @@ class IosFilePickerTest {
     @Test fun unknownMimeUsesData() {
         assertEquals(listOf(UTTypeData), contentTypesFor("x-foo/bar"))
     }
-    @Test fun terminalCallbacksReleaseOnceAndIgnoreLaterResults() = runTest {
-        withContext(Dispatchers.Main) {
+    @Test fun terminalCallbacksReleaseOnceAndIgnoreLaterResults() {
+        runOnMainRunLoop {
             var releases = 0
             val result = suspendCancellableCoroutine { continuation ->
                 val presentation = FilePresentation(UIViewController(), continuation, DeliveryResult.CANCELLED,
@@ -44,8 +42,8 @@ class IosFilePickerTest {
         }
     }
     @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-    @Test fun consecutiveRealPresentationsResumeOnlyAfterDismissal() = runTest {
-        withContext(Dispatchers.Main) {
+    @Test fun consecutiveRealPresentationsResumeOnlyAfterDismissal() {
+        runOnMainRunLoop {
             val window = platform.UIKit.UIWindow(frame = platform.UIKit.UIScreen.mainScreen.bounds)
             val host = UIViewController()
             window.rootViewController = host
