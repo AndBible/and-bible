@@ -204,7 +204,7 @@ D2-moved paths, so those never count in the `app` column.
 
 Check: sum of the `app` column = 96 = number of rows in the offending-import listing (section 7).
 
-Part B status (G1, 2026-10-17): `sword` and `download` are not in `scripts/l1-move-done.txt`.
+Part B status (G1, 2026-10-17; superseded by the phase-1 close-out in section 7, where all 21 domains are done): `sword` and `download` are not in `scripts/l1-move-done.txt`.
 
 - `sword` waits for **G2's common ZIP reader** (`MyBibleInstaller` still uses `java.util.zip.ZipFile` and
   `java.io.File`; the `jvm` column is 2) and for **G3's extraction** of `shortName` (`BookAndKey.kt`),
@@ -395,4 +395,4 @@ used by `BackupControl.kt`) and `SyncableDatabaseAccessor.localDbFile` (`SyncAcc
 **Shims retired (L1b close-out, 2026-10-17).** `JvmFileShims.kt` and `SyncAccessorFileShim.kt` are deleted from
 `:app`: `BackupControl.kt` calls `readUserVersion(path: String)` and `CloudSync.kt` uses
 `localDbPath.toPath()`. The old `File` forms live on only as test-source shims with the same FQNs
-(`ReadUserVersionFileTestShim.kt`, `LocalDbFileTestShim.kt`) for the six test files that use them.
+(`ReadUserVersionFileTestShim.kt`, `LocalDbFileTestShim.kt`) for the five test files that use them.
