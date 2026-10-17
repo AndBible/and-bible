@@ -227,7 +227,9 @@ fun BookmarksScreen(
                 AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
             }
             if (rows.isEmpty()) {
-                Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                // While the first (or a re-) load is running an empty list only means "not loaded
+                // yet", so the empty text waits for the load to finish (SU-15d).
+                if (!loading) Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(strings.emptyList, modifier = Modifier.padding(32.dp), style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
