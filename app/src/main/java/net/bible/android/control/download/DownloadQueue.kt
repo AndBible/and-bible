@@ -20,6 +20,7 @@ import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.Repository

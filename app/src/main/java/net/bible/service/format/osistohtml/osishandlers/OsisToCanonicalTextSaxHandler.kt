@@ -19,8 +19,21 @@ package net.bible.service.format.osistohtml.osishandlers
 import net.bible.service.format.SaxTextPolicy
 import net.bible.sharedcore.log.Log
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper.osisIdToVerseNum
+import androidx.annotation.VisibleForTesting
 import org.crosswire.jsword.book.OSISUtil
 import fi.sykero.kdom.sax.Attributes
+
+/**
+ * Same result as `java.lang.Character.isWhitespace(Char)`: unlike Kotlin's `Char.isWhitespace()`, it is false for the
+ * non-breaking spaces U+00A0, U+2007 and U+202F, which the search index text must keep. Pinned over all chars by
+ * `JavaWhitespaceParityTest`.
+ */
+@VisibleForTesting
+fun isJavaWhitespace(c: Char): Boolean = when (c) {
+    in '\u0009'..'\u000D', in '\u001C'..'\u001F' -> true
+    '\u00A0', '\u2007', '\u202F' -> false
+    else -> c.category.let { it == CharCategory.SPACE_SEPARATOR || it == CharCategory.LINE_SEPARATOR || it == CharCategory.PARAGRAPH_SEPARATOR }
+}
 
 /**
  * Convert OSIS input into Canonical text (used when creating search index)
@@ -151,7 +164,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
 
     private fun isWhitespace(s: String): Boolean {
         if(s.isEmpty()) return false
-        return s.all { Character.isWhitespace(it) }
+        return s.all { isJavaWhitespace(it) }
     }
 
     override fun write(s: String?): Boolean {
@@ -161,7 +174,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
         var rv = false
         if (!isWhitespace(s)) {
             rv = super.write(s)
-            spaceJustWritten = Character.isWhitespace(s[s.length - 1])
+            spaceJustWritten = isJavaWhitespace(s[s.length - 1])
         } else if (!spaceJustWritten) {
             rv = super.write(" ")
             spaceJustWritten = true

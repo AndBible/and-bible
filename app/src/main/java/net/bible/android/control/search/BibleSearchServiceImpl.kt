@@ -20,6 +20,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.BookException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.sword.SwordContentFacade
