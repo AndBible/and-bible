@@ -31,6 +31,7 @@ import net.bible.service.sword.epub.addOwnedEpubBook
 import net.bible.service.sword.epub.deleteOwnedEpubModule
 import net.bible.service.sword.epub.epubInitials
 import net.bible.service.sword.epub.installEpubModule
+import okio.Path.Companion.toOkioPath
 import net.bible.service.sword.esword.addESwordBook
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addMySwordBook
@@ -106,15 +107,16 @@ class DefaultInstallCommitter(
 
     override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean): Boolean {
         val dir = File(File(SharedConstants.modulesDir, "epub"), displayName)
-        return installEpubModule(dir) {
-            if (deleteExisting) deleteOwnedEpubModule(dir)
+        val dirPath = dir.toOkioPath()
+        return installEpubModule(dirPath) {
+            if (deleteExisting) deleteOwnedEpubModule(dirPath)
             dir.mkdirs()
             try {
                 unzipInputStream(localFile.inputStream(), dir)
-                addOwnedEpubBook(dir, strings, environment)
+                addOwnedEpubBook(dirPath, strings, environment)
                 org.crosswire.jsword.book.Books.installed().getBook(epubInitials(dir.name)) != null
             } catch (e: Exception) {
-                deleteOwnedEpubModule(dir)
+                deleteOwnedEpubModule(dirPath)
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 false
             }
