@@ -51,6 +51,7 @@ import net.bible.sharedcore.platform.files.DeliveryResult
 import net.bible.sharedcore.platform.files.PickedSource
 import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.test.DatabaseResetter
+import okio.Path.Companion.toOkioPath
 import okio.Source
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
@@ -135,13 +136,13 @@ class G2FixtureWriterTest {
         val bookmark = BookmarkEntities.BibleBookmarkWithNotes(kjvOrdinalStart = 5, kjvOrdinalEnd = 6)
         dao.insert(bookmark.bookmarkEntity)
         dao.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.bookmarkEntity, label))
-        val dbZip = backupControl.zipDatabaseFiles()!!
+        val dbZip = backupControl.zipDatabaseFiles()!!.toFile()
         dbZip.copyTo(File(fixtureDir, "db-backup.abdb.zip"), overwrite = true)
 
         // 2. Module backup: the smallest installed text module.
         val book = Books.installed().getBook("ISV") ?: error("test module ISV not installed in ~/.sword")
         val moduleZip = tmp("module-", ".abmd.zip").also { it.delete() }
-        backupControl.createSingleModuleZip(book, moduleZip)
+        backupControl.createSingleModuleZip(book, moduleZip.toOkioPath())
         moduleZip.copyTo(File(fixtureDir, "module-backup.abmd.zip"), overwrite = true)
 
         // 3. StudyPad export of one label.

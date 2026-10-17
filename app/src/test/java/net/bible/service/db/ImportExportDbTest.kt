@@ -181,7 +181,7 @@ class ImportExportDbTest {
         dao.insert(entry); dao.insert(BookmarkEntities.StudyPadTextEntryText(entry.id, "hello"))
 
         val out = tmp()
-        writeStudyPadExportDb(out, listOf(pad), source) { bundled(it) }
+        writeStudyPadExportDb(out.toOkioPath(), listOf(pad), source) { bundled(it) }
 
         openSqlite(out.path).use { db ->
             fun hexIds(sql: String) = db.queryRows(sql) { it.getText(0) }

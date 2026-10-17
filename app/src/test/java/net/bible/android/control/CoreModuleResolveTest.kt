@@ -214,7 +214,7 @@ class CoreModuleResolveTest {
                 assertNotNull(app.koin.get<net.bible.android.control.page.window.WindowControl>())
                 assertNotNull(app.koin.get<net.bible.service.cloudsync.CloudSync>())
                 assertNotNull(app.koin.get<net.bible.service.cloudsync.documents.DocumentSync>())
-                java.util.zip.ZipFile(backup.zipDatabaseFiles()!!).use { archive ->
+                java.util.zip.ZipFile(backup.zipDatabaseFiles()!!.toFile()).use { archive ->
                     assertNotNull(archive.getEntry("db/settings.sqlite3"))
                 }
                 org.junit.Assert.assertEquals("Only the controlled observer attempted opening\n${trap.diagnostic()}",
@@ -328,7 +328,7 @@ class CoreModuleResolveTest {
             assertNotNull(app.koin.get<net.bible.android.control.page.window.WindowControl>())
             assertNotNull(app.koin.get<net.bible.service.cloudsync.CloudSync>())
             assertNotNull(app.koin.get<net.bible.service.cloudsync.documents.DocumentSync>())
-            val zip = backup.zipDatabaseFiles()!!
+            val zip = backup.zipDatabaseFiles()!!.toFile()
             java.util.zip.ZipFile(zip).use { archive ->
                 org.junit.Assert.assertNotNull(archive.getEntry("db/settings.sqlite3"))
             }

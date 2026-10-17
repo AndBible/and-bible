@@ -48,7 +48,7 @@ import java.util.zip.ZipInputStream
 /** Mirrors classic `InstallZip.installStudyPads`'s unzip + stats step, operating on the
  *  already-acquired local file instead of re-opening the original uri. */
 internal suspend fun studyPadStatsFor(localFile: File, backup: BackupControl): Pair<String, File> {
-    val unzipFolder = File(backup.internalDbBackupDir, "unzip")
+    val unzipFolder = File(backup.internalDbBackupDir.toFile(), "unzip") // L1b-handover(G2 Task 14): installzip works on Path
     unzip(localFile.source(), unzipFolder.toOkioPath())
     val dbFile = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
     val stats = bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, dbFile.toOkioPath(), KoinPlatform.getKoin().get<CoreStrings>()) // L1b-handover(G2 Task 14): InstallDeps takes CoreStrings from its caller, then drop this Koin lookup

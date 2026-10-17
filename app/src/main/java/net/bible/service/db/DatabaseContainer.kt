@@ -254,7 +254,7 @@ class DatabaseContainer {
 
         if(needBackup) {
             // Not makeDatabaseBackupFile: with ready cleared it would skip its vacuum and checkpoint anyway.
-            val backupZipFile = withReadyCleared { org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).zipDatabaseFiles() }
+            val backupZipFile = withReadyCleared { org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).zipDatabaseFiles()?.toFile() } // L1b-handover(D2): DatabaseContainer's zipper port takes Path
             backupZipFile ?: return
             val versionString = versions.joinToString("-")
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")

@@ -18,6 +18,8 @@
 package net.bible.android.control.backup
 
 import net.bible.sharedcore.platform.files.BackupFileSniffer
+import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.buffer
 import net.bible.sharedcore.platform.files.PickedSource
@@ -31,7 +33,6 @@ import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.SharedConstants
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.service.common.FileManager
@@ -49,6 +50,11 @@ import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.DbType
+import net.bible.service.common.dosDateTime
+import net.bible.sharedcore.platform.DateTimeFormats
+import org.crosswire.common.compress.ZipWriter
+import org.koin.mp.KoinPlatform
+import kotlin.time.Clock
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.deleteAppDatabase
 import net.bible.service.db.importDatabaseFile
@@ -94,7 +100,6 @@ import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
 
 const val DATABASE_BACKUP_SUFFIX = ".abdb.zip"
 const val MODULE_BACKUP_SUFFIX = ".abmd.zip"
@@ -137,6 +142,7 @@ class BackupControl(
     private val windowControl: net.bible.android.control.page.window.WindowControl,
     private val cloudSync: CloudSync,
     private val notifier: net.bible.sharedcore.platform.UserNotifier,
+    private val dirs: net.bible.sharedcore.platform.AppDirectories = KoinPlatform.getKoin().get(),
 ) {
     // AppDialogRequest.Options ids for askIfRestoreOrImport (D8-1).
     private val RESTORE_VALUE = "restore"
@@ -237,8 +243,7 @@ class BackupControl(
     /** The old (pre-split, version <= [OLD_DATABASE_VERSION]) single-file database, gzipped or not. */
     @VisibleForTesting
     internal suspend fun restoreOldMonolithicDatabase(inputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
-        internalDbBackupDir.mkdirs()
-        val tmpFile = File(internalDbBackupDir, OLD_MONOLITHIC_DATABASE_NAME)
+        val tmpFile = File(internalDbBackupDir.toFile(), OLD_MONOLITHIC_DATABASE_NAME) // L1b-handover(G2 Task 10/11): restore code is still File based
         try {
             if (!unpackOldMonolithicDatabase(inputStream, tmpFile)) return@withContext false
             // A running sync may need replacement admission to finish. Never wait for it while owning that gate.
@@ -376,128 +381,147 @@ class BackupControl(
         title = strings.areYouSure, message = message, confirmText = strings.okay, dismissText = strings.cancel,
     )) == AppDialogResult.Ok
 
-    private fun relativeFileName(rootDir: File, file: File): String {
-        val filePath = file.canonicalPath
-        val dirPath = rootDir.canonicalPath
+    /** Test hook: called with the module files of a SWORD book after they are listed and before they are zipped. */
+    @VisibleForTesting internal var onModuleFilesListed: (List<Path>) -> Unit = {}
+
+    private val fileSystem = FileSystem.SYSTEM
+
+    private fun dosTimeNow(): Long =
+        dosDateTime(Clock.System.now().toEpochMilliseconds(), KoinPlatform.getKoin().get<DateTimeFormats>())
+
+    private fun relativeFileName(rootDir: Path, file: Path): String {
+        val filePath = fileSystem.canonicalize(file).toString()
+        val dirPath = fileSystem.canonicalize(rootDir).toString()
         assert(filePath.startsWith(dirPath))
         return filePath.substring(dirPath.length + 1)
     }
 
-    private fun addFile(outFile: ZipOutputStream, rootDir: File, file: File) {
-        FileInputStream(file).use { inFile ->
-            BufferedInputStream(inFile).use { origin ->
-                val entry = ZipEntry(relativeFileName(rootDir, file))
-                outFile.putNextEntry(entry)
-                origin.copyTo(outFile)
-            }
+    private fun addFile(outFile: ZipWriter, rootDir: Path, file: Path) {
+        outFile.putEntry(relativeFileName(rootDir, file), fileSystem.source(file), dosTimeNow())
+    }
+
+    private fun addModuleFile(outFile: ZipWriter, moduleFile: Path) {
+        val fileNameInsideZip = moduleFile.relativeTo(dirs.modulesDir).toString()
+        outFile.putEntry(fileNameInsideZip, fileSystem.source(moduleFile), dosTimeNow())
+    }
+
+    /** The regular files below [dir] (following symbolic links); none when [dir] does not exist. */
+    private fun filesBelow(dir: Path): List<Path> {
+        if (!fileSystem.exists(dir)) return emptyList()
+        return fileSystem.listRecursively(dir, followSymlinks = true)
+            .filter { fileSystem.metadataOrNull(it)?.isRegularFile == true }
+            .toList()
+    }
+
+    private fun addFiles(outFile: ZipWriter, rootDir: Path, files: List<Path>) {
+        onModuleFilesListed(files)
+        for (f in files) {
+            addFile(outFile, rootDir, f)
         }
     }
 
-    private fun addModuleFile(outFile: ZipOutputStream, moduleFile: File) {
-        FileInputStream(moduleFile).use { inFile ->
-            BufferedInputStream(inFile).use { origin ->
-                val fileNameInsideZip = moduleFile.relativeTo(moduleDir).path
-                val entry = ZipEntry(fileNameInsideZip)
-                outFile.putNextEntry(entry)
-                origin.copyTo(outFile)
-            }
-        }
+    private fun addModuleDir(outFile: ZipWriter, modDir: Path) {
+        addFiles(outFile, dirs.modulesDir, filesBelow(modDir))
     }
 
-    private fun addModuleDir(outFile: ZipOutputStream, modDir: File) {
-        for (f in modDir.walkTopDown().filter { it.isFile }) {
-            addFile(outFile, moduleDir, f)
-        }
-    }
-
-    private fun addBookToZip(outFile: ZipOutputStream, b: Book) {
+    private fun addBookToZip(outFile: ZipWriter, b: Book) {
         val bmd = b.bookMetaData as SwordBookMetaData
         if (b.isManuallyInstalledMyBibleBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbFile.toOkioPath()) // L1b-handover(G1): getter returns Path
         } else if (b.isManuallyInstalledMySwordBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbFile.toOkioPath()) // L1b-handover(G1): getter returns Path
         } else if (b.isManuallyInstalledESwordBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbFile.toOkioPath()) // L1b-handover(G1): getter returns Path
         } else if (b.isManuallyInstalledEpub) {
-            addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
+            addModuleDir(outFile, dirs.modulesDir / b.epubDir!!)
         } else if (b.isManuallyInstalledTtf) {
             // Manually-installed font modules have byte-array metadata (no configFile), so they
             // must be packaged by their .ttf file rather than via the generic SWORD configFile
             // branch below. Skip gracefully if the underlying file has gone missing, so one
             // broken font module can't abort the whole backup/sync operation.
-            val ttfFile = b.ttfFile
-            if (ttfFile.exists()) {
+            val ttfFile = b.ttfFile.toOkioPath() // L1b-handover(G1): getter returns Path
+            if (fileSystem.exists(ttfFile)) {
                 addModuleFile(outFile, ttfFile)
             } else {
-                Log.w(TAG, "Skipping font module ${b.initials}: file not found ${ttfFile.path}")
+                Log.w(TAG, "Skipping font module ${b.initials}: file not found $ttfFile")
             }
         } else if (b.isBackgroundImageModule) {
             // Background-image modules also have byte-array metadata (no configFile), so package
             // their single image file rather than via the generic SWORD branch below. Skip
             // gracefully if the file is missing, so one broken module can't abort the whole
             // backup/sync operation.
-            val imageFile = b.backgroundImageFile
-            if (imageFile.exists()) {
+            val imageFile = b.backgroundImageFile.toOkioPath() // L1b-handover(G1): getter returns Path
+            if (fileSystem.exists(imageFile)) {
                 addModuleFile(outFile, imageFile)
             } else {
-                Log.w(TAG, "Skipping background-image module ${b.initials}: file not found ${imageFile.path}")
+                Log.w(TAG, "Skipping background-image module ${b.initials}: file not found $imageFile")
             }
         } else {
             // Books constructed from byte-array metadata have no configFile — there is no .conf on
             // disk to locate the module root from. Every such type AndBible creates has its own
             // branch above, but an unhandled one (e.g. the MyDocument pseudo-books of OSTicket 3392)
             // must be skipped rather than abort the whole backup/sync operation with an NPE.
-            val configFile = SwordBookMetaDataJvm.getConfigFile(bmd)
+            val configFile = bmd.configFile
             if (configFile == null) {
                 Log.w(TAG, "Skipping ${b.initials}: no SWORD config file (not a file-backed module)")
                 return
             }
-            val rootDir = configFile.parentFile!!.parentFile!!
+            val rootDir = configFile.parent!!.parent!!
             addFile(outFile, rootDir, configFile)
             val dataPath = bmd.getProperty("DataPath")
-            val dataDir = File(rootDir, dataPath).run {
+            val dataDir = rootDir.resolve(dataPath!!.trimStart('/'), normalize = true).run {
                 if (listOf(
                         BookCategory.DICTIONARY,
                         BookCategory.GENERAL_BOOK,
                         BookCategory.MAPS
                     ).contains(b.bookCategory)
                 )
-                    parentFile
+                    parent!!
                 else this
             }
-            for (f in dataDir.walkTopDown().filter { it.isFile }) {
-                addFile(outFile, rootDir, f)
-            }
+            addFiles(outFile, rootDir, filesBelow(dataDir))
         }
     }
 
-    private suspend fun createModulesZip(books: List<Book>, zipFile: File) {
+    /**
+     * Writes a ZIP to `<zipFile>.tmp` and moves it to [zipFile] only when complete, so a backup that fails halfway
+     * (a module file vanishing, a full disk) leaves nothing under the final name that looks like a finished archive.
+     */
+    private fun writeZipAtomically(zipFile: Path, write: (ZipWriter) -> Unit) {
+        val tmp = zipFile.parent!! / "${zipFile.name}.tmp"
+        fileSystem.delete(zipFile, mustExist = false)
+        try {
+            ZipWriter(fileSystem.sink(tmp)).use(write)
+            fileSystem.atomicMove(tmp, zipFile)
+        } catch (t: Throwable) {
+            fileSystem.delete(tmp, mustExist = false)
+            throw t
+        }
+    }
+
+    private suspend fun createModulesZip(books: List<Book>, zipFile: Path) {
         val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP, andBibleVersion = env.versionNumber.toInt())
 
         withContext(Dispatchers.IO) {
-            FileOutputStream(zipFile).use { out ->
-                ZipOutputStream(out).use { outFile ->
-                    manifest.saveToZip(outFile)
-                    for (b in books) {
-                        addBookToZip(outFile, b)
-                    }
+            writeZipAtomically(zipFile) { outFile ->
+                manifest.saveToZip(outFile, dosTimeNow())
+                for (b in books) {
+                    addBookToZip(outFile, b)
                 }
             }
         }
     }
 
-    suspend fun createSingleModuleZip(book: Book, zipFile: File) = withContext(Dispatchers.IO) {
+    suspend fun createSingleModuleZip(book: Book, zipFile: Path) = withContext(Dispatchers.IO) {
         val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP, andBibleVersion = env.versionNumber.toInt())
-        FileOutputStream(zipFile).use { out ->
-            ZipOutputStream(out).use { outFile ->
-                manifest.saveToZip(outFile)
-                addBookToZip(outFile, book)
-            }
+        writeZipAtomically(zipFile) { outFile ->
+            manifest.saveToZip(outFile, dosTimeNow())
+            addBookToZip(outFile, book)
         }
     }
 
     fun clearBackupDir() {
-        internalDbBackupDir.deleteRecursively()
+        fileSystem.deleteRecursively(internalDbBackupDir, mustExist = false)
 
         val fileList = File(env.dbBackupPath).listFiles() ?: return
         val now = Date().time
@@ -511,8 +535,7 @@ class BackupControl(
 
     suspend fun backupModulesViaIntent(host: BackupHost)  = withContext(Dispatchers.Main)   {
         val fileName = MODULE_BACKUP_NAME
-        internalDbBackupDir.mkdirs()
-        val zipFile = File(internalDbBackupDir, fileName)
+        val zipFile = internalDbBackupDir / fileName // the getter creates the directory
         val books = selectMany(
             strings.backupModulesTitle,
             Books.installed().getBooks().filter { !it.isPseudoBook && !it.isMyDocument }.sortedBy { it.language },
@@ -534,7 +557,7 @@ class BackupControl(
 
         saveOrShare(
             host = host,
-            file = zipFile,
+            file = zipFile.toFile(), // L1b-handover(G2 Task 10): saveOrShare takes Path
             fileName = fileName,
             subject = subject,
             message = message,
@@ -545,10 +568,8 @@ class BackupControl(
     }
 
     suspend fun backupApp(host: BackupHost) {
-        internalDbBackupDir.mkdirs()
 
-
-        val tempFile = File(internalDbBackupDir, strings.apkFile)
+        val tempFile = File(internalDbBackupDir.toFile(), strings.apkFile) // L1b-handover(G2 Task 10/11): restore code is still File based
         withContext(Dispatchers.IO) {
             tempFile.delete()
             File(requireNotNull(env.apkPath)).copyTo(tempFile)
@@ -570,7 +591,7 @@ class BackupControl(
      * Saves the open windows, flushes queued settings writes, vacuums and checkpoints the databases when they are
      * open, then zips them ([zipDatabaseFiles]).
      */
-    suspend fun makeDatabaseBackupFile(): File? {
+    suspend fun makeDatabaseBackupFile(): Path? {
         if(env.isInitialized && DatabaseContainer.ready) {
             windowControl.windowRepository.saveIntoDb()
             // The save is an ordered write-through: the zip must not read the file before it lands.
@@ -588,21 +609,12 @@ class BackupControl(
      * [makeDatabaseBackupFile]'s vacuum and checkpoint: the pre-migration safety backup runs while the container is
      * still being built, when the databases are not open yet.
      */
-    fun zipDatabaseFiles(): File? {
-        internalDbBackupDir.mkdirs()
-        val zipFile = File(internalDbBackupDir, DATABASE_BACKUP_NAME)
-        if(zipFile.exists()) zipFile.delete()
+    fun zipDatabaseFiles(): Path? {
+        val zipFile = internalDbBackupDir / DATABASE_BACKUP_NAME
+        fileSystem.delete(zipFile, mustExist = false)
 
-        fun addFileToZip(outFile: ZipOutputStream, file: File) {
-            FileInputStream(file).use { inFile ->
-                BufferedInputStream(inFile).use { origin ->
-                    val entry = ZipEntry("db/${file.name}")
-                    outFile.putNextEntry(entry)
-                    origin.copyTo(outFile)
-                }
-            }
-        }
-        val files = ALL_DB_FILENAMES.map {File(internalDbDir, it)}.filter {it.exists()}
+        val dbDir = internalDbDir.toOkioPath()
+        val files = ALL_DB_FILENAMES.map { dbDir / it }.filter { fileSystem.exists(it) }
         if(files.isEmpty()) return null
 
         val manifest = AndBibleBackupManifest(
@@ -613,10 +625,10 @@ class BackupControl(
             andBibleVersion = env.versionNumber.toInt()
         )
 
-        ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
-            manifest.saveToZip(outFile)
+        writeZipAtomically(zipFile) { outFile ->
+            manifest.saveToZip(outFile, dosTimeNow())
             for(b in files) {
-                addFileToZip(outFile, b)
+                outFile.putEntry("db/${b.name}", fileSystem.source(b), dosTimeNow())
             }
         }
         return zipFile
@@ -627,7 +639,7 @@ class BackupControl(
             dialogs.await(AppDialogRequest.Message(title = null, message = strings.errorOccurred, confirmText = strings.okay))
             return@withContext
         }
-        saveDbBackupFileViaIntent(host, backupZipFile)
+        saveDbBackupFileViaIntent(host, backupZipFile.toFile()) // L1b-handover(G2 Task 10): saveOrShare takes Path
     }
 
     suspend fun restoreAppDatabaseViaIntent(host: BackupHost) {
@@ -733,8 +745,8 @@ class BackupControl(
             notifier.showInfo(strings.downloadingBackup)
             showProgress()
 
-            val tmpFile = File(internalDbBackupDir, "database.zip")
-            val unzipFolder = File(internalDbBackupDir, "unzip")
+            val tmpFile = File(internalDbBackupDir.toFile(), "database.zip") // L1b-handover(G2 Task 10/11): restore code is still File based
+            val unzipFolder = File(internalDbBackupDir.toFile(), "unzip") // L1b-handover(G2 Task 10/11): restore code is still File based
 
             unzipFolder.mkdirs()
 
@@ -1053,11 +1065,8 @@ class BackupControl(
             ok
         }
 
-    // Tracks SharedConstants.modulesDir live rather than capturing it once at object load, so
-    // zip-entry relativization stays correct if the modules dir changes (e.g. across tests).
-    private val moduleDir: File get() = SharedConstants.modulesDir
     private val internalDbDir: File get() = File(env.databasePath(OLD_MONOLITHIC_DATABASE_NAME)).parentFile!!
-    val internalDbBackupDir: File get() = File(SharedConstants.internalFilesDir, "backup").apply { mkdirs() }
+    val internalDbBackupDir: Path get() = (dirs.internalFilesDir / "backup").also { fileSystem.createDirectories(it) }
 
     suspend fun restoreFromLocalBackupFile(host: BackupHost, file: File) {
         restoreAppDatabaseFromSourceWithUI(host, PickedSource(file.toURI().toString(), file.name, null))
@@ -1122,10 +1131,4 @@ class BackupControl(
     }
 
     private val TAG = "BackupControl"
-}
-
-// L1b: temporary adapter, removed in Task 8/9
-private fun AndBibleBackupManifest.saveToZip(zip: ZipOutputStream) {
-    zip.putNextEntry(ZipEntry(net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME))
-    zip.write(toJson().toByteArray())
 }

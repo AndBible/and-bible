@@ -25,6 +25,7 @@ import net.bible.service.sword.esword.isManuallyInstalledESwordBook
 import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
 import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import org.crosswire.jsword.book.Book
+import okio.Path.Companion.toOkioPath
 import java.io.File
 
 /**
@@ -56,7 +57,7 @@ object DocumentArchiver {
     suspend fun packageDocument(book: Book, env: net.bible.sharedcore.platform.AppEnvironment, backup: BackupControl): File {
         val zipFile = File(env.tmpDir, "doc-${book.initials}.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        backup.createSingleModuleZip(book, zipFile)
+        backup.createSingleModuleZip(book, zipFile.toOkioPath())
         return zipFile
     }
 
