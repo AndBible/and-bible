@@ -23,7 +23,7 @@ import net.bible.sharedcore.platform.AppCoroutineScope
 import org.koin.core.component.inject
 import org.koin.core.component.KoinComponent
 import net.bible.service.llm.LlmStrings
-import java.util.Locale
+import net.bible.sharedlogic.platform.LocaleSupport
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,6 +47,7 @@ import net.bible.sharedcore.ai.AiSettingsSnapshot
 class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService, KoinComponent {
     private val settings: AiSettings by inject()
     private val appScope: AppCoroutineScope by inject()
+    private val localeSupport: LocaleSupport by inject()
     private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
     private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
@@ -98,9 +99,8 @@ class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService
     /** Mirrors classic `AiConnectionSettingsFragment.updateAiLanguageSummary`. */
     private fun aiLanguageLabel(): String {
         val tag = settings.aiLanguage
-            ?: return strings.aiLanguageAppDefault(Locale.getDefault().displayLanguage)
-        val locale = Locale.forLanguageTag(tag)
-        val displayName = locale.getDisplayLanguage(locale)
+            ?: return strings.aiLanguageAppDefault(localeSupport.defaultDisplayLanguage())
+        val displayName = localeSupport.displayLanguage(tag)
         return if (displayName.isNotEmpty() && displayName != tag) "$displayName ($tag)" else tag
     }
 

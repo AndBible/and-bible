@@ -66,7 +66,6 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import kotlinx.serialization.json.*
 import net.bible.service.llm.tools.*
-import java.io.StringReader
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
@@ -714,7 +713,7 @@ class AgentExecutor(
             // Add selected content if available (converted from OSIS XML to plain text)
             if (context.selectedContent != null) {
                 val plainText = try {
-                    val fragment = useKdomBuilder { it.build(StringReader(context.selectedContent)).rootElement }
+                    val fragment = useKdomBuilder { it.build(context.selectedContent).rootElement }
                     OsisToPlainText.convert(fragment, injectAnchors = !prompt.isTextTransformation)
                 } catch (_: Exception) {
                     context.selectedContent

@@ -24,7 +24,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.io.File
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toPath
 
 import net.bible.sharedcore.llm.http.LlmHttpTransport
 import net.bible.sharedcore.llm.http.LlmTimeouts
@@ -80,15 +82,20 @@ object DynamicModelService : KoinComponent {
     // In-memory cache: providerId → (models, timestampMs)
     private val cache = mutableMapOf<String, Pair<List<DynamicModel>, Long>>()
 
-    private fun cacheFile(providerId: String): File =
-        File(environment.cacheDir, "models_cache_${providerId}.json")
+    private val fileSystem get() = FileSystem.SYSTEM
+
+    private fun cacheFile(providerId: String): Path =
+        environment.cacheDir.toPath() / "models_cache_${providerId}.json"
 
     /** Cache timestamp for a provider (epoch ms), or 0 if never fetched. */
     fun cacheTimestamp(providerId: String): Long {
         cache[providerId]?.let { return it.second }
-        val file = cacheFile(providerId)
-        return if (file.exists()) file.lastModified() else 0L
+        return lastModified(cacheFile(providerId)) ?: 0L
     }
+
+    /** Modification time in epoch ms, or null when the file does not exist. */
+    private fun lastModified(file: Path): Long? =
+        fileSystem.metadataOrNull(file)?.lastModifiedAtMillis
 
     /** Whether the cache is missing or older than 7 days. */
     fun needsRefresh(providerId: String): Boolean {
@@ -134,13 +141,17 @@ object DynamicModelService : KoinComponent {
 
     private fun ensureAllDiskCachesLoaded() {
         if (allDiskCachesLoaded) return
-        cacheFile("").parentFile?.listFiles { f -> f.name.startsWith("models_cache_") && f.name.endsWith(".json") }
-            ?.forEach { file ->
-                val pid = file.name.removePrefix("models_cache_").removeSuffix(".json")
-                if (pid !in cache) {
-                    loadFromDisk(pid)
+        val dir = environment.cacheDir.toPath()
+        // java.io.File.listFiles returned null for a missing directory; okio's list throws.
+        if (fileSystem.exists(dir)) {
+            fileSystem.list(dir).filter { it.name.startsWith("models_cache_") && it.name.endsWith(".json") }
+                .forEach { file ->
+                    val pid = file.name.removePrefix("models_cache_").removeSuffix(".json")
+                    if (pid !in cache) {
+                        loadFromDisk(pid)
+                    }
                 }
-            }
+        }
         allDiskCachesLoaded = true
     }
 
@@ -194,11 +205,11 @@ object DynamicModelService : KoinComponent {
 
     private fun loadFromDisk(providerId: String): List<DynamicModel>? {
         val file = cacheFile(providerId)
-        if (!file.exists()) return null
+        if (!fileSystem.exists(file)) return null
         return try {
-            val models = parseModels(file.readText())
+            val models = parseModels(fileSystem.read(file) { readUtf8() })
             if (models.isNotEmpty()) {
-                cache[providerId] = models to file.lastModified()
+                cache[providerId] = models to (lastModified(file) ?: 0L)
                 models
             } else null
         } catch (e: Exception) {
@@ -209,7 +220,7 @@ object DynamicModelService : KoinComponent {
 
     private fun saveToDisk(providerId: String, json: String) {
         try {
-            cacheFile(providerId).writeText(json)
+            fileSystem.write(cacheFile(providerId)) { writeUtf8(json) }
         } catch (e: Exception) {
             Log.w(TAG, "[$providerId] Failed to write cache file", e)
         }

@@ -219,4 +219,27 @@ class AiSettingsStoreTest {
         launcher.join("ai-settings")
         assertEquals(33, dao.get()!!.maxIterations)
     }
+
+    @Test fun aiDisplayLanguageUnchanged() = runBlocking {
+        val saved = java.util.Locale.getDefault()
+        try {
+            val settings = store()
+            settings.ensureLoaded()
+            for (defaultTag in listOf("en-US", "fi-FI")) {
+                java.util.Locale.setDefault(java.util.Locale.forLanguageTag(defaultTag))
+                for (tag in listOf(null, "fi", "pt-BR", "Klingon")) {
+                    settings.aiLanguage = tag
+                    // The pre-port implementation, inlined as the oracle.
+                    val oldCode = if (tag == null) java.util.Locale.getDefault().let { it.getDisplayLanguage(it) } else {
+                        val locale = java.util.Locale.forLanguageTag(tag)
+                        val displayName = locale.getDisplayLanguage(locale)
+                        if (displayName.isNotEmpty() && displayName != tag) displayName else tag
+                    }
+                    assertEquals("$defaultTag / $tag", oldCode, settings.aiDisplayLanguage)
+                }
+            }
+        } finally {
+            java.util.Locale.setDefault(saved)
+        }
+    }
 }

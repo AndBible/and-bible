@@ -34,7 +34,8 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.OrderedLauncher
-import java.util.Locale
+import net.bible.sharedlogic.platform.LocaleSupport
+import org.koin.mp.KoinPlatform
 
 /** Immediate snapshot reads with application-owned FIFO writes and replacement-aware observation. */
 class AiSettingsStore(
@@ -47,6 +48,7 @@ class AiSettingsStore(
     private val lifetime: AiDatabaseLifetime,
     private val invalidations: () -> kotlinx.coroutines.flow.Flow<Unit>,
 ) : AiSettings {
+    private val localeSupport: LocaleSupport by lazy { KoinPlatform.getKoin().get<LocaleSupport>() }
     private val state = MutableStateFlow<GlobalAiSettings?>(null)
     private val dbMutex = Mutex()
     private val stateLock = reentrantLock()
@@ -204,9 +206,8 @@ class AiSettingsStore(
      */
     override val aiDisplayLanguage: String
         get() {
-            val tag = aiLanguage ?: return Locale.getDefault().let { it.getDisplayLanguage(it) }
-            val locale = Locale.forLanguageTag(tag)
-            val displayName = locale.getDisplayLanguage(locale)
+            val tag = aiLanguage ?: return localeSupport.defaultDisplayLanguage()
+            val displayName = localeSupport.displayLanguage(tag)
             return if (displayName.isNotEmpty() && displayName != tag) displayName else tag
         }
 }

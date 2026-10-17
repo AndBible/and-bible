@@ -40,14 +40,14 @@ object AiDocumentFilter : KoinComponent {
     }
 
     fun preferredStrongsGreek(): String? =
-        SwordDocumentFacade.defaultStrongsGreekDictionary(org.koin.java.KoinJavaComponent.get(net.bible.service.download.FakeBookFactory::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java))
+        SwordDocumentFacade.defaultStrongsGreekDictionary(getKoin().get<net.bible.service.download.FakeBookFactory>(), getKoin().get<net.bible.sharedcore.platform.AppSettings>())
             .firstOrNull { isAllowed(it.initials) }?.initials
 
     fun preferredStrongsHebrew(): String? =
-        SwordDocumentFacade.defaultStrongsHebrewDictionary(org.koin.java.KoinJavaComponent.get(net.bible.service.download.FakeBookFactory::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java))
+        SwordDocumentFacade.defaultStrongsHebrewDictionary(getKoin().get<net.bible.service.download.FakeBookFactory>(), getKoin().get<net.bible.sharedcore.platform.AppSettings>())
             .firstOrNull { isAllowed(it.initials) }?.initials
 
     fun preferredRobinsonMorphology(): String? =
-        SwordDocumentFacade.defaultRobinsonGreekMorphology(org.koin.java.KoinJavaComponent.get(net.bible.service.download.FakeBookFactory::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java))
+        SwordDocumentFacade.defaultRobinsonGreekMorphology(getKoin().get<net.bible.service.download.FakeBookFactory>(), getKoin().get<net.bible.sharedcore.platform.AppSettings>())
             .firstOrNull { isAllowed(it.initials) }?.initials
 }

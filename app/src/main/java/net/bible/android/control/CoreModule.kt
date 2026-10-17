@@ -214,6 +214,7 @@ fun buildCoreModule() = module {
     single<net.bible.sharedcore.platform.AppDirectories> { net.bible.android.AndroidAppDirectories() }
     // G3 ports
     single<net.bible.sharedlogic.platform.FirstLoadEdge> { net.bible.android.platform.AndroidFirstLoadEdge }
+    single<net.bible.sharedlogic.platform.PromptPackSource> { net.bible.android.platform.AndroidPromptPackSource }
     single<net.bible.sharedlogic.platform.LocaleSupport> { net.bible.android.platform.AndroidLocaleSupport }
     single<net.bible.sharedlogic.platform.LocalCalendar> { net.bible.android.platform.AndroidLocalCalendar }
     single<net.bible.sharedlogic.platform.SentenceBreaker> { net.bible.android.platform.AndroidSentenceBreaker }

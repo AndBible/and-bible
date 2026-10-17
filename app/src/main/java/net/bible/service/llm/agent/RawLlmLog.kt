@@ -23,10 +23,10 @@ import net.bible.android.database.IdType
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolDefinition
 import net.bible.service.llm.tools.prettyJson
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
+import okio.Buffer
+import okio.GzipSink
+import okio.GzipSource
+import okio.buffer
 
 /**
  * Per-iteration usage and model data, stored alongside raw API responses.
@@ -113,14 +113,11 @@ class RawLlmLog {
     companion object {
         private val prettyJson = Json { prettyPrint = true }
 
-        fun gzipCompress(text: String): ByteArray {
-            val bos = ByteArrayOutputStream()
-            GZIPOutputStream(bos).use { it.write(text.toByteArray(Charsets.UTF_8)) }
-            return bos.toByteArray()
-        }
+        fun gzipCompress(text: String): ByteArray =
+            Buffer().also { b -> GzipSink(b).buffer().use { it.writeUtf8(text) } }.readByteArray()
 
         fun gzipDecompress(data: ByteArray): String =
-            GZIPInputStream(ByteArrayInputStream(data)).bufferedReader(Charsets.UTF_8).use { it.readText() }
+            GzipSource(Buffer().write(data)).buffer().use { it.readUtf8() }
 
         /** Regex matching a JSON string value that is at least 80 chars long. */
         private val longStringValueRegex = Regex(""""((?:[^"\\]|\\.){80,})"""")

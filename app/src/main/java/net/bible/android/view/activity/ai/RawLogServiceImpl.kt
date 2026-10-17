@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.bible.android.control.report.AiBugReport
+import net.bible.service.llm.AiBugReportRules
 import net.bible.android.database.IdType
 import kotlin.concurrent.Volatile
 import net.bible.service.db.DatabaseContainer
@@ -134,13 +134,13 @@ class RawLogServiceImpl(
     override suspend fun canReportBug(recordId: String?): Boolean {
         return if (recordId != null) {
             val record = dao.getById(IdType(recordId)) ?: return false
-            AiBugReport.isReportAvailable(record.modelName)
+            AiBugReportRules.isReportAvailable(record.modelName)
         } else {
             // In-memory: mirror classic's `rawLog != null && usageByIteration.isNotEmpty()` gate, then
             // resolve the model from the last iteration.
             val log = lastSessionLog ?: return false
             if (log.usageByIteration.isEmpty()) return false
-            AiBugReport.isReportAvailable(AiBugReport.resolveModelNameFromRawLog(log))
+            AiBugReportRules.isReportAvailable(AiBugReportRules.resolveModelNameFromRawLog(log))
         }
     }
 

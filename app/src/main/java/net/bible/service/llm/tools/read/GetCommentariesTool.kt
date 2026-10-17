@@ -52,8 +52,7 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.control.page.renderCommentaryFragmentXml
 import kotlinx.serialization.json.JsonObject
 import net.bible.service.llm.tools.*
-import org.koin.java.KoinJavaComponent
-import java.io.StringReader
+import org.koin.mp.KoinPlatform
 
 /**
  * Tool for getting commentary entries for a verse or verse range.
@@ -231,7 +230,7 @@ object GetCommentariesTool : Tool, KoinComponent {
                             xml == null -> null
                             useXml -> xml
                             else -> OsisToPlainText.convert(
-                                useKdomBuilder { it.build(StringReader(xml)).rootElement },
+                                useKdomBuilder { it.build(xml).rootElement },
                                 injectAnchors = true
                             )
                         }
@@ -412,7 +411,7 @@ object GetCommentariesTool : Tool, KoinComponent {
             return "$description\n\n$total"
         }
 
-        val dialogs = KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java)
+        val dialogs = KoinPlatform.getKoin().get<AppDialogController>()
         val result = dialogs.await(
             AppDialogRequest.MultiChoice(
                 title = strings.commentaryFilterDialogTitle,
