@@ -16,7 +16,6 @@
  */
 package net.bible.android.control.page
 
-import fi.sykero.kdom.input.build
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.useKdomBuilder
 import net.bible.service.sword.OsisToPlainText

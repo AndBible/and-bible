@@ -98,6 +98,12 @@ class G3PortsOracleTest {
                 assertEquals(bi2.following(o), AndroidSentenceBreaker.following(text, o))
             }
             val bi = BreakIterator.getSentenceInstance().apply { setText(text) }
+            // DONE (-1) at both ends.
+            assertEquals(BreakIterator.DONE, bi.following(text.length))
+            assertEquals(BreakIterator.DONE, AndroidSentenceBreaker.following(text, text.length))
+            val bi0 = BreakIterator.getSentenceInstance().apply { setText(text) }
+            assertEquals(BreakIterator.DONE, bi0.preceding(0))
+            assertEquals(BreakIterator.DONE, AndroidSentenceBreaker.preceding(text, 0))
             assertThrows(IllegalArgumentException::class.java) { bi.following(text.length + 1) }
             assertThrows(IllegalArgumentException::class.java) { AndroidSentenceBreaker.following(text, text.length + 1) }
             assertThrows(IllegalArgumentException::class.java) { AndroidSentenceBreaker.preceding(text, text.length + 1) }
@@ -107,9 +113,26 @@ class G3PortsOracleTest {
     @Test fun labelNameStringsReadResources() {
         val ctx = RuntimeEnvironment.getApplication()
         val s = AndroidLabelNameStrings(ctx)
-        assertEquals(ctx.getString(R.string.speak), s.speak)
-        assertEquals(ctx.getString(R.string.label_unlabelled), s.unlabelled)
-        assertEquals(ctx.getString(R.string.add_paragraph_break), s.paragraphBreak)
-        assertEquals(ctx.getString(R.string.ai_label), s.ai)
+        fun check() {
+            assertEquals(ctx.getString(R.string.speak), s.speak)
+            assertEquals(ctx.getString(R.string.label_unlabelled), s.unlabelled)
+            assertEquals(ctx.getString(R.string.add_paragraph_break), s.paragraphBreak)
+            assertEquals(ctx.getString(R.string.ai_label), s.ai)
+        }
+        check()
+        val before = s.unlabelled
+        val savedConfig = android.content.res.Configuration(ctx.resources.configuration)
+        try {
+            // Flip the app locale: a value cached at construction or first read would now be stale.
+            ctx.resources.updateConfiguration(
+                android.content.res.Configuration(savedConfig).apply { setLocale(Locale.forLanguageTag("fi")) },
+                ctx.resources.displayMetrics
+            )
+            check()
+            assertEquals(ctx.getString(R.string.label_unlabelled), s.unlabelled)
+            assert(before != s.unlabelled) { "fi translation of label_unlabelled expected to differ from English" }
+        } finally {
+            ctx.resources.updateConfiguration(savedConfig, ctx.resources.displayMetrics)
+        }
     }
 }

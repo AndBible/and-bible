@@ -58,6 +58,7 @@ class BibleSpeakTextProvider(
     private val swordContentFacade: SwordContentFacade,
 ) : SpeakTextProvider {
     private val appSettings = settings
+    // no suspend calls inside withLock (atomicfu withLock lacks the compiler's suspension check)
     private val lock = reentrantLock()
     private var revision = 0L
     private fun checkRevision(expected: Long) {

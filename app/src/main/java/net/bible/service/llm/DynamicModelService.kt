@@ -142,16 +142,15 @@ object DynamicModelService : KoinComponent {
     private fun ensureAllDiskCachesLoaded() {
         if (allDiskCachesLoaded) return
         val dir = environment.cacheDir.toPath()
-        // java.io.File.listFiles returned null for a missing directory; okio's list throws.
-        if (fileSystem.exists(dir)) {
-            fileSystem.list(dir).filter { it.name.startsWith("models_cache_") && it.name.endsWith(".json") }
-                .forEach { file ->
-                    val pid = file.name.removePrefix("models_cache_").removeSuffix(".json")
-                    if (pid !in cache) {
-                        loadFromDisk(pid)
-                    }
+        // java.io.File.listFiles returned null for a missing directory, a non-directory or an I/O error
+        // (nothing to load); okio's list throws, so listOrNull keeps that behaviour.
+        fileSystem.listOrNull(dir).orEmpty().filter { it.name.startsWith("models_cache_") && it.name.endsWith(".json") }
+            .forEach { file ->
+                val pid = file.name.removePrefix("models_cache_").removeSuffix(".json")
+                if (pid !in cache) {
+                    loadFromDisk(pid)
                 }
-        }
+            }
         allDiskCachesLoaded = true
     }
 

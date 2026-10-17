@@ -96,6 +96,7 @@ class TextToSpeechServiceManager constructor(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) {
 
+    // no suspend calls inside withLock (atomicfu withLock lacks the compiler's suspension check)
     private val lock = reentrantLock()
     private var mTts: SpeakEngine? = null
     // A synchronous engine callback must wait until its returned engine is assigned.
@@ -107,6 +108,7 @@ class TextToSpeechServiceManager constructor(
 
     private val localeSupport: LocaleSupport by lazy { KoinPlatform.getKoin().get() }
     private var localePreferenceList: MutableList<LocaleValue> = ArrayList()
+    // Safe to touch the lazy Koin localeSupport here: this class is a Koin single created after startKoin.
     private var currentLocale: LocaleValue = localeSupport.default
 
     @Volatile private var mSpeakTextProvider: SpeakTextProvider
@@ -705,7 +707,7 @@ class TextToSpeechServiceManager constructor(
                 if (!valid(request) || !isSpeaking || isPaused) return
                 UTTERANCE_PREFIX + uniqueUtteranceNo++
             }
-            // No manager monitor or Main thread is held while lazy EPUB ordinals are read.
+            // No lock or Main thread is held while lazy EPUB ordinals are read.
             val cmd = request.provider.getNextSpeakCommand(utteranceId, i == 0) { valid(request) }
             withContext(mainDispatcher) {
                 lock.withLock {

@@ -77,6 +77,14 @@ class DynamicModelServiceCacheTest {
         assertNull(DynamicModelService.getCachedModels("MISSING"))
     }
 
+    @Test fun cacheDirThatIsAFileIsTreatedAsEmpty() {
+        // java.io.File.listFiles returned null for a non-directory: nothing to load, no exception.
+        dir.deleteRecursively()
+        dir.writeText("not a directory")
+        assertNull(DynamicModelService.getCachedModels("ANY"))
+        assertNull(DynamicModelService.getPricingForModel("a/model-a"))
+    }
+
     @Test fun unreadableOrEmptyCacheYieldsNull() {
         File(dir, "models_cache_BAD.json").writeText("not json")
         assertNull(DynamicModelService.getCachedModels("BAD"))

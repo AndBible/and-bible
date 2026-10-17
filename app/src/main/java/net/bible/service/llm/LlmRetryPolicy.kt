@@ -69,9 +69,16 @@ object LlmRetryPolicy {
      * - Seconds: "30" → 30.0
      * - HTTP-date: "Fri, 28 Feb 2026 12:00:00 GMT" → seconds until that time
      *
+     * HTTP-date parsing (via [HttpDates.parseRfc1123]) is stricter than the former SimpleDateFormat: the zone
+     * must be literally "GMT" (UTC, +0000, full weekday names and trailing text are rejected, giving null).
+     *
+     * @param nowMs Current time in epoch milliseconds, injectable for tests; used to turn an HTTP-date into a delay
      * @return Seconds to wait, or null if the header is missing/unparseable
      */
-    fun parseRetryAfterHeader(headerValue: String?, nowMs: Long = kotlin.time.Clock.System.now().toEpochMilliseconds(), // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+    fun parseRetryAfterHeader(
+        headerValue: String?,
+        // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+        nowMs: Long = kotlin.time.Clock.System.now().toEpochMilliseconds(),
     ): Double? {
         if (headerValue.isNullOrBlank()) return null
 

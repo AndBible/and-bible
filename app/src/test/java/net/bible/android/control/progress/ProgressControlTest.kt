@@ -499,7 +499,6 @@ class ProgressControlTest {
         ) }
     }
 
-    /** Runs [block] with the JVM default timezone temporarily set to [zoneId]. */
     @Test
     fun `readHistoryForDayUsesLocalDayAcrossDst`() = runTest {
         withTimeZone("Europe/Helsinki") {
@@ -532,6 +531,7 @@ class ProgressControlTest {
         }
     }
 
+    /** Runs [block] with the JVM default timezone temporarily set to [zoneId]. */
     private inline fun withTimeZone(zoneId: String, block: () -> Unit) {
         val previous = TimeZone.getDefault()
         TimeZone.setDefault(TimeZone.getTimeZone(zoneId))

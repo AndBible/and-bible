@@ -76,6 +76,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     // windows). A fail-fast ArrayList throws ConcurrentModificationException in that race
     // (OSTicket 3374); a copy-on-write list gives iterators a stable snapshot instead. Window
     // counts are tiny, so the copy-on-mutation cost is negligible.
+    // WARNING: this is jsword's CopyOnWriteList, so JVM List.sort / removeIf / replaceAll (iterator-set
+    // paths) throw UnsupportedOperationException. Use sortedWith, or replace via clear() + addAll().
     var windowList: MutableList<Window> = CopyOnWriteList()
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
