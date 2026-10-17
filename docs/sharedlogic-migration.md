@@ -39,10 +39,20 @@ Ports that exist after phase 0 (`ls sharedCore/src/commonMain/kotlin/net/bible/s
 | `AppEnvironment` | `platform/AppEnvironment.kt` | `AndroidAppEnvironment(androidContext())`; `CoreModule.kt` line 215 |
 | `FilePorts` (`FilePicker`, `FileDelivery`) | `platform/files/FilePorts.kt` | Android pickers/share sheet |
 | `MarkdownRenderer` | `platform/MarkdownRenderer.kt` | `net.bible.service.sword.mydocument.MarkdownToXhtml`; `CoreModule.kt` line 213 |
+| `LocaleSupport` (+ `LocaleValue`) | `:sharedLogic` `platform/LocaleSupport.kt` | `net.bible.android.platform.AndroidLocaleSupport` (`java.util.Locale`); `// G3 ports` block in `CoreModule.kt` |
+| `LocalCalendar` | `:sharedLogic` `platform/LocalCalendar.kt` | `AndroidLocalCalendar` (`java.util.Calendar`, DST-aware) |
+| `SentenceBreaker` | `:sharedLogic` `platform/SentenceBreaker.kt` | `AndroidSentenceBreaker` (`java.text.BreakIterator`; -1 = DONE) |
+| `NightModeState` | `:sharedLogic` `platform/NightModeState.kt` | `AndroidNightModeState` |
+| `LabelNameStrings` | `:sharedLogic` `platform/LabelNameStrings.kt` | `AndroidLabelNameStrings(androidContext())`, reads resources on each access |
+| `FirstLoadEdge` | `:sharedLogic` `platform/FirstLoadEdge.kt` | `AndroidFirstLoadEdge` (window domain's synchronous first-load edge) |
+| `PromptPackSource` (+ `PromptPackRef`) | `:sharedLogic` `platform/PromptPackSource.kt` | `AndroidPromptPackSource` (add-on prompt packs; llm) |
 
-Ports still to be created by the groups (named in S8): foreground indexing (`SearchIndexingService`, G1),
+G3 also added pure helpers (not ports) in `:sharedLogic`: `text/IsoUtcTimestamps`, `text/HtmlEntities`,
+`text/NameBasedUuid` and `util/MemoryHints` (`expect fun requestGarbageCollection()`).
+
+Ports still to be created by the groups (named in S8; text segmentation landed in G3 as `SentenceBreaker`): foreground indexing (`SearchIndexingService`, G1),
 certificate pinning (`webdav/PinnedTrust`), WebDAV sign-in UI and `SharedPreferences` in `WebDavConfig`
-(G2), text segmentation (`BreakIterator` in speak, G3), Room database builder (context vs path, D2).
+(G2), Room database builder (context vs path, D2).
 
 ## 3. Koin (S7)
 
@@ -224,6 +234,24 @@ window	4	8	0	0	5
 search	0	1	1	0	0
 event	0	0	0	0	0
 core	16	16	3	0	3
+```
+
+After G3 (branch `ios-6`, 2026-10-17; the baseline above is unchanged). Rows are
+`scripts/l1-move-readiness.sh --domain <d>`; `progress`, `event`, `speak` and `bookmark` read 0 and are in
+`scripts/l1-move-done.txt`. What remains: `page` jvmapi 4 (`synchronized(BookName::class.java)` x3,
+`synchronized(currentDocument)`) and app 1 (`useKdomBuilder`); `window` jvmapi 1 (`synchronized(BookName::class.java)`,
+waits for G1's `withMonitor`/`bookNameMonitor`, G3 Task 3); `llm` jvm 1 (`java.util.concurrent.ConcurrentHashMap` inline in
+`AiDatabaseLifetime.kt`) and app 2 (`useKdomBuilder` imports).
+
+```
+domain	jvm	jvmapi	jvm3p	android	app
+progress	0	0	0	0	0
+bookmark	0	0	0	0	0
+speak	0	0	0	0	0
+llm	1	0	0	0	2
+page	0	4	0	0	1
+window	0	1	0	0	0
+event	0	0	0	0	0
 ```
 
 ## 8. YAML and Markdown outcome (S9)
