@@ -89,7 +89,7 @@ class MyDocumentBackend(
 
     override fun get(index: Int): Key {
         val pages = getPages()
-        // Like the EPUB backend: callers (CommonUtils next/prev) catch IndexOutOfBoundsException to wrap
+        // Like the EPUB backend: callers (the next/prev navigation) catch IndexOutOfBoundsException to wrap
         // around; a blank key here would be taken as a real page.
         if (index !in pages.indices) {
             throw IndexOutOfBoundsException("Index $index out of bounds for ${pages.size} pages")

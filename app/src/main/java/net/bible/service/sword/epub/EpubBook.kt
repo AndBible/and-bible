@@ -128,7 +128,7 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book =
         SwordGenBook(sbmd, backend)
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val state = EpubBackendState(sbmd.location!!.getPath()!!.toPath(), sbmd, KoinPlatform.getKoin().get<CoreStrings>(), KoinPlatform.getKoin().get<AppEnvironment>()) // L1-edge: JSword BookType.getBackend constructs the backend
+        val state = EpubBackendState(sbmd.location!!.getPath()!!.toPath(), sbmd, KoinPlatform.getKoin().get<CoreStrings>(), KoinPlatform.getKoin().get<AppEnvironment>())
         return EpubBackend(state, sbmd)
     }
 }
