@@ -16,10 +16,12 @@
  */
 package net.bible.service.download
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedlogic.sync.withMonitor
 import net.bible.service.sword.mybible.MyBibleInstaller
 import org.crosswire.common.progress.Progress
 import org.crosswire.jsword.book.Book
@@ -32,7 +34,6 @@ import org.crosswire.jsword.book.install.Installer
 import org.crosswire.jsword.book.install.sword.AbstractSwordInstaller
 import org.crosswire.jsword.book.install.sword.HttpsSwordInstaller
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import java.util.*
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -49,7 +50,10 @@ class DownloadManager(
     private val onFailedReposChange: (() -> Unit)? = null
 ) {
     val customRepositoryDao get() = DatabaseContainer.instance.repoDb.customRepositoryDao()
-    val failedRepos = TreeSet<String>()
+    private val failedRepoSet = HashSet<String>()
+
+    /** Failed repository names in sorted order, as the former `TreeSet<String>` iterated them. */
+    val failedRepos: List<String> get() = withMonitor(failedRepoSet) { failedRepoSet.sorted() }
 
     private lateinit var installManager: InstallManager
     suspend fun refreshInstallManager() {
@@ -70,24 +74,23 @@ class DownloadManager(
             }
             installManager.addInstaller(r.name, installer)
         }
-        failedRepos.clear()
+        withMonitor(failedRepoSet) { failedRepoSet.clear() }
         onFailedReposChange?.invoke()
     }
 
     private fun markFailed(repo: String) {
-        failedRepos.add(repo)
+        withMonitor(failedRepoSet) { failedRepoSet.add(repo) }
         onFailedReposChange?.invoke()
     }
 
     private fun markSuccess(repo: String) {
-        failedRepos.remove(repo)
+        withMonitor(failedRepoSet) { failedRepoSet.remove(repo) }
         onFailedReposChange?.invoke()
     }
 
     fun getInstallerFor(repo: Repository): Installer?
         = installManager.getInstaller(repo.repoName)
 
-    @Throws(InstallException::class)
     suspend fun getDownloadableBooks(filter: BookFilter?, repo: String, refresh: Boolean): List<Book> {
         var documents: List<Book> = emptyList()
         var installer: Installer? = null
@@ -133,7 +136,6 @@ class DownloadManager(
         } finally {
             //free memory
             installer?.close()
-            System.gc()
         }
         Log.i(TAG, "number of documents available:" + documents.size)
         return documents
@@ -149,7 +151,6 @@ class DownloadManager(
      * @throws BookException
      * @throws InstallException
      */
-    @Throws(BookException::class, InstallException::class)
     suspend fun installBook(repositoryName: String, book: Book) {
         val bookInitials = book.initials
 
@@ -176,7 +177,7 @@ class DownloadManager(
          * `install()`'s bookAdded event queued ([BookInstallWatcher.updateRow]); a direct DAO update would find
          * no row yet, or be overwritten by the delete-and-reinsert of a reinstall.
          */
-        internal suspend fun recordRepository(watcher: BookInstallWatcher, bookInitials: String, repositoryName: String) {
+        @VisibleForTesting suspend fun recordRepository(watcher: BookInstallWatcher, bookInitials: String, repositoryName: String) {
             watcher.updateRow(bookInitials) { row -> row?.apply { repository = repositoryName } }
         }
 

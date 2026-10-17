@@ -18,9 +18,14 @@ package net.bible.android.control.download
 
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
-import java.util.*
+import net.bible.sharedlogic.platform.PlatformLocales
+import org.koin.mp.KoinPlatform
 
-class RelevantLanguageSorter(installedDocuments: List<Book>) : Comparator<Language?> {
+class RelevantLanguageSorter(
+    installedDocuments: List<Book>,
+    /** The default language as the platform reports it (legacy `iw`/`in`/`ji` on Android); resolved from Koin unless given. */
+    defaultLanguageCode: String = KoinPlatform.getKoin().get<PlatformLocales>().defaultLanguage,
+) : Comparator<Language?> {
     private val relevantLanguages: MutableSet<String>
 
     /**
@@ -63,9 +68,8 @@ class RelevantLanguageSorter(installedDocuments: List<Book>) : Comparator<Langua
 
     init {
         relevantLanguages = HashSet()
-        val defaultLanguageCode = Locale.getDefault().language
         relevantLanguages.add(defaultLanguageCode)
-        relevantLanguages.addAll(Arrays.asList(*MAJOR_LANGUAGE_CODES))
+        relevantLanguages.addAll(MAJOR_LANGUAGE_CODES)
         for (doc in installedDocuments) {
             val lang = doc.language
             if (lang != null) {

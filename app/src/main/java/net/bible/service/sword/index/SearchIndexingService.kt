@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -63,7 +64,7 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
 
     companion object {
         /** Builds the index of one book, synchronously (the manager completes it before returning). Test seam. */
-        internal var builder: (Book) -> Unit = { book ->
+        @VisibleForTesting var builder: (Book) -> Unit = { book ->
             IndexManagerFactory.getIndexManager().apply {
                 indexPolicy = AndroidIndexPolicy()
                 scheduleIndexCreation(book)
@@ -73,6 +74,7 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
         private val queue = IndexingQueue(
             resolve = { Books.installed().getBook(it) },
             build = { builder(it) },
+            startWorker = { n, b -> Thread(b, n).apply { isDaemon = true }.start() },
         )
 
         /**
@@ -102,8 +104,8 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
         }
 
         internal val isBusy: Boolean get() = queue.isBusy
-        internal fun awaitIdleForTest(timeoutMs: Long): Boolean = queue.awaitIdle(timeoutMs)
-        internal fun resetForTest() = queue.detach()
+        @VisibleForTesting fun awaitIdleForTest(timeoutMs: Long): Boolean = queue.awaitIdle(timeoutMs)
+        @VisibleForTesting fun resetForTest() = queue.detach()
     }
 
     private val notificationManager get() = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -204,116 +206,5 @@ class SearchIndexingService : Service(), IndexingObserver, WorkListener {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .build()
-    }
-}
-
-/** What the foreground service hears from the [IndexingQueue] worker. */
-internal interface IndexingObserver {
-    fun onBookStarted(book: Book)
-    fun onIdle()
-}
-
-/**
- * The FIFO of book initials to index and the single worker thread that drains it. [build] runs one book at a time and
- * completes it before returning; an exception from it leaves the book `UNDONE` and the next book is built.
- */
-internal class IndexingQueue(
-    private val resolve: (String) -> Book?,
-    private val build: (Book) -> Unit,
-) {
-    private val lock = Object()
-    private val pending = LinkedHashMap<String, Book?>()
-    private var current: Book? = null
-    private var currentInitials: String? = null
-    private var running = false
-    private var observer: IndexingObserver? = null
-
-    val isBusy: Boolean get() = synchronized(lock) { running }
-
-    /** False when [initials] is already queued or being built. Starts the worker if it is not running. */
-    fun offer(initials: String, instance: Book? = null): Boolean = synchronized(lock) {
-        if (initials == currentInitials || pending.containsKey(initials)) return false
-        pending[initials] = instance
-        if (!running) {
-            running = true
-            Thread(::drain, "search-indexing").apply { isDaemon = true }.start()
-        }
-        true
-    }
-
-    /** Removes a queued build that has not started; its instance (if known) ends `UNDONE`. */
-    fun remove(initials: String) {
-        val instance = synchronized(lock) { if (pending.containsKey(initials)) pending.remove(initials) else return }
-        instance?.indexStatus = IndexStatus.UNDONE
-    }
-
-    /** Runs [block] under the queue lock if no work is queued or running (nothing can be enqueued meanwhile). */
-    fun runIfIdle(block: () -> Unit) = synchronized(lock) { if (!running) block() }
-
-    fun currentBook(): Book? = synchronized(lock) { current }
-
-    /** Registers [o]; returns false (and registers nothing) when there is no work left, so the caller stops itself. */
-    fun attach(o: IndexingObserver): Boolean = synchronized(lock) {
-        if (!running) return false
-        observer = o
-        current?.let { o.onBookStarted(it) }
-        true
-    }
-
-    fun detach(o: IndexingObserver? = null) = synchronized(lock) {
-        if (o == null || observer === o) observer = null
-    }
-
-    fun awaitIdle(timeoutMs: Long): Boolean = synchronized(lock) {
-        val end = System.currentTimeMillis() + timeoutMs
-        while (running) {
-            val left = end - System.currentTimeMillis()
-            if (left <= 0) return false
-            lock.wait(left)
-        }
-        true
-    }
-
-    private fun drain() {
-        while (true) {
-            val initials = synchronized(lock) {
-                val next = pending.keys.firstOrNull()
-                if (next == null) {
-                    running = false
-                    current = null
-                    currentInitials = null
-                    val o = observer
-                    observer = null
-                    // Told under the lock (it is re-entrant): anyone who sees the queue idle (awaitIdle, runIfIdle)
-                    // also sees the observer already stopped, and no enqueue can slip in between.
-                    o?.let { runCatching { it.onIdle() } }
-                    lock.notifyAll()
-                } else {
-                    val instance = pending.remove(next)
-                    currentInitials = next
-                    current = resolve(next) ?: instance
-                }
-                next
-            }
-            if (initials == null) return
-            buildOne(initials)
-        }
-    }
-
-    private fun buildOne(initials: String) {
-        val book = synchronized(lock) { current }
-        if (book == null) {
-            // Not installed and no instance: nothing reachable to reset (an instance-carrying request never gets here).
-            Log.w(TAG, "Skipping $initials: not installed")
-            return
-        }
-        val o = synchronized(lock) { observer }
-        runCatching { o?.onBookStarted(book) }
-        try {
-            build(book)
-        } catch (e: Exception) {
-            Log.e(TAG, "Index creation failed for $initials", e)
-            book.indexStatus = IndexStatus.UNDONE
-        }
     }
 }

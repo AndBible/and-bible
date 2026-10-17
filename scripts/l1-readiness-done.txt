@@ -10,6 +10,7 @@ speak
 backup
 download
 installzip
+sword
 
 llm
 page

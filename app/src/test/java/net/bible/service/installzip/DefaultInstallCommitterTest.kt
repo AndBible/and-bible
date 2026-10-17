@@ -170,7 +170,7 @@ class DefaultInstallCommitterTest {
         val watcher = BookInstallWatcher(launcher,
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.cloud.DocumentSyncStarter::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java),
-            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
+            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java), net.bible.android.platform.AndroidAddonCatalog())
         val committer = DefaultInstallCommitter(
             org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java),

@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page
 
+import okio.Path.Companion.toOkioPath
 import android.net.Uri
 import com.nhaarman.mockitokotlin2.*
 import java.lang.ref.WeakReference
@@ -257,7 +258,7 @@ class BibleViewEpubLoadRaceTest {
         val owner = EpubOwner(fixture).also { epubOwners += it }
         fixture.setUp()
         val dir = fixture.buildEpub("owned-lifetime")
-        val state = net.bible.service.sword.epub.EpubBackendState(dir, net.bible.test.testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(RuntimeEnvironment.getApplication()))
+        val state = net.bible.service.sword.epub.EpubBackendState(dir.toOkioPath(), net.bible.test.testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(RuntimeEnvironment.getApplication()))
         val readDb = state.javaClass.getDeclaredField("readDb").apply { isAccessible = true }.get(state)
             as net.bible.android.database.EpubDatabase
         runBlocking { assertNull("Real lazy metadata INSERT has not run", readDb.epubDao().getMeta()) }
@@ -311,7 +312,7 @@ class BibleViewEpubLoadRaceTest {
         val fixture = net.bible.service.sword.epub.EpubBackendStateTest()
         val owner = EpubOwner(fixture).also { epubOwners += it }
         fixture.setUp()
-        val state = net.bible.service.sword.epub.EpubBackendState(fixture.buildEpub(name),
+        val state = net.bible.service.sword.epub.EpubBackendState(fixture.buildEpub(name).toOkioPath(),
             net.bible.test.testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(RuntimeEnvironment.getApplication()))
         return owner to state
     }
@@ -470,7 +471,7 @@ class BibleViewEpubLoadRaceTest {
         val owner = EpubOwner(fixture).also { epubOwners += it }
         fixture.setUp()
         val dir = fixture.buildEpub("uri-target")
-        val state = net.bible.service.sword.epub.EpubBackendState(dir, net.bible.test.testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(RuntimeEnvironment.getApplication()))
+        val state = net.bible.service.sword.epub.EpubBackendState(dir.toOkioPath(), net.bible.test.testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(RuntimeEnvironment.getApplication()))
         val target = SwordGenBook(state.getBookMetaData(), EpubBackend(state, state.getBookMetaData()))
         owner.book = target
         val oldMode = links.windowMode

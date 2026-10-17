@@ -148,7 +148,7 @@ class HistoryDirectCallTest {
                 set(_) {}
         }
         val koin = GlobalContext.get()
-        val control = ReadingPlanControl(koin.get(), navigationControl, koin.get(), koin.get(), koin.get())
+        val control = ReadingPlanControl(koin.get(), navigationControl, koin.get(), koin.get(), koin.get(), koin.get())
         val originalPlan = control.currentPlanCode
         try {
             control.setReadingPlan("y1ntpspr")

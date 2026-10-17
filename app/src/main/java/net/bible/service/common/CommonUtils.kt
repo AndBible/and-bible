@@ -158,7 +158,6 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import fi.sykero.kdom.input.build
-import fi.sykero.kdom.input.KdomBuilder
 import org.spongycastle.util.io.pem.PemReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -173,7 +172,6 @@ import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
-import java.util.concurrent.ArrayBlockingQueue
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -1874,15 +1872,6 @@ suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<
 suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
     val semaphore = Semaphore(maxThreads)
     map {async {semaphore.withPermit { action(it) } } }.awaitAll()
-}
-
-private val builders = ArrayBlockingQueue<KdomBuilder>(32)
-
-fun <R> useKdomBuilder(block: (it: KdomBuilder) -> R): R {
-    val builder = builders.poll()?: KdomBuilder(allowDocType = true)
-    val rv = block(builder)
-    builders.offer(builder)
-    return rv
 }
 
 suspend fun Book.getBookAndKey(keyStr: String, strings: net.bible.sharedcore.platform.CoreStrings, ordinal: Int? = null): BookAndKey? {

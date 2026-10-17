@@ -24,12 +24,11 @@ import kotlinx.coroutines.sync.withLock
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
-import net.bible.android.control.readingplan.truncatedDate
+import net.bible.android.database.DbDate
+import net.bible.sharedlogic.platform.LocalCalendar
 import net.bible.service.readingplan.ReadingPlanInfoDto
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.OrderedLauncher
-import java.util.Calendar
-import java.util.Date
 import kotlin.math.max
 
 /**
@@ -40,7 +39,8 @@ import kotlin.math.max
 class ReadingPlanRepository(
     private val daoProvider: () -> ReadingPlanDao,
     appScope: AppCoroutineScope,
-    private val today: () -> Date = { truncatedDate },
+    private val calendar: LocalCalendar,
+    private val today: () -> DbDate = { DbDate(calendar.startOfToday()) },
 ) {
     private val readingPlanDao: ReadingPlanDao get() = daoProvider()
     private val writes = OrderedLauncher(appScope)
@@ -56,11 +56,11 @@ class ReadingPlanRepository(
      * as the start date: see ReadingPlanDao.updatePlan). Healed to "today is the day you are on",
      * written back once; progress is untouched.
      */
-    suspend fun getStartDate(planCode: String): Date? {
+    suspend fun getStartDate(planCode: String): DbDate? {
         val plan = readingPlanDao.getPlan(planCode) ?: return null
-        if (plan.planStartDate.time >= CORRUPT_START_DATE_LIMIT_MS) return plan.planStartDate
-        val healed = healedStartDate(today(), plan.planCurrentDay)
-        Log.i(TAG, "Healing corrupt start date ${plan.planStartDate.time} of plan $planCode -> $healed")
+        if (plan.planStartDate.getTime() >= CORRUPT_START_DATE_LIMIT_MS) return plan.planStartDate
+        val healed = healedStartDate(calendar, today(), plan.planCurrentDay)
+        Log.i(TAG, "Healing corrupt start date ${plan.planStartDate.getTime()} of plan $planCode -> $healed")
         plan.planStartDate = healed
         readingPlanDao.updatePlan(plan)
         return healed
@@ -82,7 +82,7 @@ class ReadingPlanRepository(
         )
     }
 
-    suspend fun startPlan(planCode: String, date: Date = today()) = planMutex.withLock {
+    suspend fun startPlan(planCode: String, date: DbDate = today()) = planMutex.withLock {
         var readPlan = readingPlanDao.getPlan(planCode)
         readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
 
@@ -116,10 +116,7 @@ class ReadingPlanRepository(
         /** No real start date is before 2 Jan 1970; the corrupt rows hold a day number (ms). */
         const val CORRUPT_START_DATE_LIMIT_MS = 100_000_000L
 
-        internal fun healedStartDate(today: Date, currentDay: Int): Date =
-            Calendar.getInstance().apply {
-                time = today
-                add(Calendar.DAY_OF_YEAR, -(max(currentDay, 1) - 1))
-            }.time
+        internal fun healedStartDate(calendar: LocalCalendar, today: DbDate, currentDay: Int): DbDate =
+            DbDate(calendar.addDays(today.getTime(), -(max(currentDay, 1) - 1)))
     }
 }

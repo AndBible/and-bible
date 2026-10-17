@@ -1,5 +1,6 @@
 package net.bible.service.device.speak
 
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.launch
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -225,7 +226,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
             java.io.File(dir, "OEBPS/ch1.xhtml").writeText(
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>One</title></head><body>" +
                     (1..50).joinToString("") { "<p>Sentence $it is readable.</p>" } + "</body></html>")
-            state = net.bible.service.sword.epub.EpubBackendState(dir, testCoreStrings(),
+            state = net.bible.service.sword.epub.EpubBackendState(dir.toOkioPath(), testCoreStrings(),
                 net.bible.android.platform.AndroidAppEnvironment(app))
             acquiredState = state
             val metadata = state.getBookMetaData()
@@ -950,7 +951,7 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
                 Locale.ENGLISH to SpeakLanguageResult.AVAILABLE)
             configureFreshControl()
             val epubState = net.bible.service.sword.epub.EpubBackendState(
-                fixture.buildEpub("held-speech-ordinal"), testCoreStrings(),
+                fixture.buildEpub("held-speech-ordinal").toOkioPath(), testCoreStrings(),
                 net.bible.android.platform.AndroidAppEnvironment(app))
             state = epubState
             val metadata = epubState.getBookMetaData()

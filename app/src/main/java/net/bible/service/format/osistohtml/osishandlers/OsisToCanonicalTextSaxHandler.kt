@@ -19,10 +19,21 @@ package net.bible.service.format.osistohtml.osishandlers
 import net.bible.service.format.SaxTextPolicy
 import net.bible.sharedcore.log.Log
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper.osisIdToVerseNum
-import org.apache.commons.lang3.StringUtils
+import androidx.annotation.VisibleForTesting
 import org.crosswire.jsword.book.OSISUtil
 import fi.sykero.kdom.sax.Attributes
-import java.util.*
+
+/**
+ * Same result as `java.lang.Character.isWhitespace(Char)`: unlike Kotlin's `Char.isWhitespace()`, it is false for the
+ * non-breaking spaces U+00A0, U+2007 and U+202F, which the search index text must keep. Pinned over all chars by
+ * `JavaWhitespaceParityTest`.
+ */
+@VisibleForTesting
+fun isJavaWhitespace(c: Char): Boolean = when (c) {
+    in '\u0009'..'\u000D', in '\u001C'..'\u001F' -> true
+    '\u00A0', '\u2007', '\u202F' -> false
+    else -> c.category.let { it == CharCategory.SPACE_SEPARATOR || it == CharCategory.LINE_SEPARATOR || it == CharCategory.PARAGRAPH_SEPARATOR }
+}
 
 /**
  * Convert OSIS input into Canonical text (used when creating search index)
@@ -31,7 +42,7 @@ import java.util.*
  */
 open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean = false, private val textPolicy: SaxTextPolicy): OsisSaxHandler() {
     private var currentVerseNo = 0
-    protected var writeContentStack = Stack<CONTENT_STATE>()
+    protected var writeContentStack = ArrayList<CONTENT_STATE>()
 
     protected enum class CONTENT_STATE {
         WRITE, IGNORE
@@ -42,7 +53,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
     override fun startDocument() {
         reset()
         // default mode is to write
-        writeContentStack.push(CONTENT_STATE.WRITE)
+        writeContentStack.add(CONTENT_STATE.WRITE)
     }
 
     /*
@@ -50,7 +61,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
     */
     override fun endDocument() {
         // pop initial value
-        writeContentStack.pop()
+        writeContentStack.removeAt(writeContentStack.lastIndex)
 
         // assert
         if (!writeContentStack.isEmpty()) {
@@ -74,34 +85,34 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
 
         // if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
         if (!compatibleOffsets && isAttrValue(attrs, "canonical", "true")) {
-            writeContentStack.push(CONTENT_STATE.WRITE)
+            writeContentStack.add(CONTENT_STATE.WRITE)
         } else if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
             currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
-            writeContentStack.push(CONTENT_STATE.WRITE)
+            writeContentStack.add(CONTENT_STATE.WRITE)
             insideVerse = true
             spaceJustWritten = true
         } else if (name == "milestone") {
             write(attrs.getValue("marker")?:"")
-            writeContentStack.push(CONTENT_STATE.IGNORE)
+            writeContentStack.add(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
-            writeContentStack.push(CONTENT_STATE.IGNORE)
+            writeContentStack.add(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
-            writeContentStack.push(CONTENT_STATE.IGNORE)
+            writeContentStack.add(CONTENT_STATE.IGNORE)
         } else if (name == OSISUtil.OSIS_ELEMENT_Q) {
             write(attrs.getValue("marker")?:"")
-            writeContentStack.push(CONTENT_STATE.WRITE)
+            writeContentStack.add(CONTENT_STATE.WRITE)
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             // text content of top level references should be output but in notes it should not
-            writeContentStack.push(writeContentStack.peek())
+            writeContentStack.add(writeContentStack.last())
         } else if (name == OSISUtil.OSIS_ELEMENT_L || name == OSISUtil.OSIS_ELEMENT_LB || name == OSISUtil.OSIS_ELEMENT_P) {
             // these occur in Psalms to separate different paragraphs.  
             // A space is needed for TTS not to be confused by punctuation with a missing space like 'toward us,and the'
             if(!compatibleOffsets) write(" ")
             //if writing then continue.  Also if ignoring then continue
-            writeContentStack.push(writeContentStack.peek())
+            writeContentStack.add(writeContentStack.last())
         } else {
             // unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
-            writeContentStack.push(writeContentStack.peek())
+            writeContentStack.add(writeContentStack.last())
         }
 
         if(name != OSISUtil.OSIS_ELEMENT_VERSE && insideVerse && compatibleOffsets) {
@@ -128,7 +139,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
         }
 
         // now this tag has ended pop the write/ignore state for the parent tag
-        writeContentStack.pop()
+        writeContentStack.removeAt(writeContentStack.lastIndex)
         if(insideVerse && compatibleOffsets) {
             spaceJustWritten = false
         }
@@ -138,7 +149,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
      * Handle characters encountered in tags
     */
     override fun characters(buf: CharArray, offset: Int, len: Int) {
-        if (CONTENT_STATE.WRITE == writeContentStack.peek()) {
+        if (CONTENT_STATE.WRITE == writeContentStack.last()) {
             var s = String(buf, offset, len)
             if (textPolicy.restoreLeadingSpace) {
                 if (s.length > 0 && s[0] == ' ') {
@@ -153,7 +164,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
 
     private fun isWhitespace(s: String): Boolean {
         if(s.isEmpty()) return false
-        return StringUtils.isWhitespace(s)
+        return s.all { isJavaWhitespace(it) }
     }
 
     override fun write(s: String?): Boolean {
@@ -163,7 +174,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
         var rv = false
         if (!isWhitespace(s)) {
             rv = super.write(s)
-            spaceJustWritten = Character.isWhitespace(s[s.length - 1])
+            spaceJustWritten = isJavaWhitespace(s[s.length - 1])
         } else if (!spaceJustWritten) {
             rv = super.write(" ")
             spaceJustWritten = true
@@ -173,9 +184,9 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
 
     protected fun writeContent(writeContent: Boolean) {
         if (writeContent) {
-            writeContentStack.push(CONTENT_STATE.WRITE)
+            writeContentStack.add(CONTENT_STATE.WRITE)
         } else {
-            writeContentStack.push(CONTENT_STATE.IGNORE)
+            writeContentStack.add(CONTENT_STATE.IGNORE)
         }
     }
 

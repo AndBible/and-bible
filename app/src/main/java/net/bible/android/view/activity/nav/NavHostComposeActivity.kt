@@ -252,6 +252,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.sword.csvprompt.addCsvPromptBook
+import okio.Path.Companion.toOkioPath
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
@@ -5738,7 +5739,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(outFile).use { output -> input.copyTo(output) }
             }
-            addCsvPromptBook(outFile)
+            addCsvPromptBook(outFile.toOkioPath())
             AndBibleAddons.clearCaches()
         }
 
@@ -7957,6 +7958,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java),
             onErrorsChange = {},
+            http = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.http.DownloadHttp::class.java),
+            copyFile = { from, to -> net.bible.service.common.FileManager.copyFile(from.toFile(), to.toFile()) },
         )
         session.downloadManager = DownloadManager(
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
@@ -8085,9 +8088,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     private suspend fun loadRecommendedDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
-        val source = java.net.URL("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
+        val source = org.crosswire.common.util.KUri("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
         val target = File(SharedConstants.modulesDir, SharedConstants.RECOMMENDED_JSON)
-        session.genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
+        session.genericFileDownloader.downloadFile(source, target.toOkioPath(), "Recommendations", reportError = !target.canRead())
         if (target.canRead()) {
             session.recommendedDocuments =
                 CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
@@ -8097,9 +8100,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     private suspend fun loadBadDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
-        val source = java.net.URL("https://andbible.github.io/data/${SharedConstants.BAD_DOCS_JSON}")
+        val source = org.crosswire.common.util.KUri("https://andbible.github.io/data/${SharedConstants.BAD_DOCS_JSON}")
         val target = File(SharedConstants.modulesDir, SharedConstants.BAD_DOCS_JSON)
-        session.genericFileDownloader.downloadFile(source, target, "Bad documents list", reportError = !target.canRead())
+        session.genericFileDownloader.downloadFile(source, target.toOkioPath(), "Bad documents list", reportError = !target.canRead())
         if (target.canRead()) {
             session.badDocuments =
                 CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
@@ -8109,9 +8112,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     private suspend fun loadDefaultDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
-        val source = java.net.URL("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
+        val source = org.crosswire.common.util.KUri("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
         val target = File(SharedConstants.modulesDir, SharedConstants.DEFAULT_JSON)
-        session.genericFileDownloader.downloadFile(source, target, "Defaults", reportError = !target.canRead())
+        session.genericFileDownloader.downloadFile(source, target.toOkioPath(), "Defaults", reportError = !target.canRead())
         if (target.canRead()) {
             session.defaultDocuments =
                 CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
@@ -8121,9 +8124,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     private suspend fun loadPseudoBooks(session: DownloadSession) = withContext(Dispatchers.IO) {
-        val source = java.net.URL("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
+        val source = org.crosswire.common.util.KUri("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
         val target = File(SharedConstants.modulesDir, SharedConstants.PSEUDO_BOOKS)
-        session.genericFileDownloader.downloadFile(source, target, "Pseudo books", reportError = !target.canRead())
+        session.genericFileDownloader.downloadFile(source, target.toOkioPath(), "Pseudo books", reportError = !target.canRead())
         if (target.canRead()) {
             session.pseudoBooks = CommonUtils.json.decodeFromString(serializer(), String(target.readBytes()))
         } else {

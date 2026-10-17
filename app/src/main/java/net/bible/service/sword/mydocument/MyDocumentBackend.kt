@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mydocument
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
@@ -24,7 +25,6 @@ import net.bible.android.database.mydocument.MyDocumentDao
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
-import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.jsword.book.BookMetaData
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBookDriver
@@ -34,8 +34,9 @@ import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
-import java.util.Locale
-import net.bible.service.db.blockingAtEdge
+import net.bible.sharedlogic.platform.PlatformLocales
+import net.bible.sharedcore.platform.MarkdownRenderer
+import org.koin.mp.KoinPlatform
 
 private const val TAG = "MyDocumentBackend"
 
@@ -78,7 +79,7 @@ class MyDocumentBackend(
     private var cachedPages: List<MyDocumentPage>? = null
 
     private fun getPages(): List<MyDocumentPage> {
-        return cachedPages ?: blockingAtEdge { dao().pagesForDocument(documentId) }.also { cachedPages = it } // L1-edge: JSword synchronous Backend contract
+        return cachedPages ?: myDocumentPagesBlocking(dao(), documentId).also { cachedPages = it }
     }
 
     override fun initState(): MyDocumentOpenFileState {
@@ -90,7 +91,7 @@ class MyDocumentBackend(
 
     override fun get(index: Int): Key {
         val pages = getPages()
-        // Like the EPUB backend: callers (CommonUtils next/prev) catch IndexOutOfBoundsException to wrap
+        // Like the EPUB backend: callers (the next/prev navigation) catch IndexOutOfBoundsException to wrap
         // around; a blank key here would be taken as a real page.
         if (index !in pages.indices) {
             throw IndexOutOfBoundsException("Index $index out of bounds for ${pages.size} pages")
@@ -132,7 +133,7 @@ class MyDocumentBackend(
         if (key == null) return ""
 
         val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
-        val page = blockingAtEdge { dao().pageByKeyWithContent(documentId, pageKey) } // L1-edge: JSword synchronous Backend contract
+        val page = myDocumentPageWithContentBlocking(dao(), documentId, pageKey)
 
         if (page == null) {
             Log.w(TAG, "Page not found: $pageKey in document $documentId")
@@ -147,11 +148,11 @@ class MyDocumentBackend(
         // AI footer is rendered by Vue.js OsisDocument component, not embedded in content.
         return when (page.contentType) {
             MyDocumentContentType.MARKDOWN -> {
-                val xhtml = MarkdownToXhtml.convert(content)
+                val xhtml = KoinPlatform.getKoin().get<MarkdownRenderer>().toXhtml(content)
                 "<div class=\"mydoc-markdown\">$xhtml</div>"
             }
             MyDocumentContentType.HTML ->
-                "<div class=\"mydoc-html\"><html>${StringEscapeUtils.escapeXml11(content)}</html></div>"
+                "<div class=\"mydoc-html\"><html>${escapeXml11(content)}</html></div>"
             MyDocumentContentType.OSIS -> content
         }
     }
@@ -166,14 +167,20 @@ class MyDocumentBackend(
 }
 
 /**
+ * The platform's default language code, unnormalised (Android keeps the legacy `iw`/`in`/`ji`), as stored in `Lang=`
+ * of the generated confs and in the pages' `languageCode`. Resolved when called, never at startup.
+ */
+internal fun defaultLanguageCode(): String = KoinPlatform.getKoin().get<PlatformLocales>().defaultLanguage
+
+/**
  * Creates SWORD metadata configuration for a MyDocument.
  */
-internal fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
+@VisibleForTesting fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
     val conf = "[${document.initials}]\n" +
         "Description=${document.name}\n" +
         "Abbreviation=${document.initials}\n" +
         "Category=Generic Books\n" +
-        "Lang=${Locale.getDefault().language}\n" +
+        "Lang=${defaultLanguageCode()}\n" +
         "Version=1.0\n" +
         "Encoding=UTF-8\n" +
         "LCSH=Documents\n" +

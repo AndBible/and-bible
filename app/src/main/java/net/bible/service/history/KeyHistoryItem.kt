@@ -25,7 +25,8 @@ import net.bible.android.control.page.window.Window
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
-import java.util.*
+import net.bible.android.database.DbDate
+import net.bible.sharedlogic.util.currentTimeMillis
 
 /**
  * A normal item in the history list that relates to a document being shown in the main activity view
@@ -37,7 +38,7 @@ class KeyHistoryItem(
     val key: Key,
     val anchorOrdinal: OrdinalRange?,
     window: Window,
-    override val createdAt: Date = Date(System.currentTimeMillis())
+    override val createdAt: DbDate = DbDate(currentTimeMillis())
 ) : HistoryItemBase(window) {
 
     override val description: String
@@ -78,7 +79,7 @@ class KeyHistoryItem(
             return true
         if (obj == null)
             return false
-        if (javaClass != obj.javaClass)
+        if (this::class != obj::class)
             return false
         val other = obj as KeyHistoryItem?
         if (document.initials == null) {

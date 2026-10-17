@@ -17,15 +17,22 @@
 
 package net.bible.service.sword.backgroundimage
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
-import net.bible.android.SharedConstants
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import java.io.File
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.service.sword.isWritableFile
+import okio.FileSystem
+import okio.Path
+import org.crosswire.common.util.KFiles
+import org.crosswire.common.util.KUri
+import org.koin.mp.KoinPlatform
+import net.bible.service.sword.epub.child
 
 private const val TAG = "BackgroundImageBook"
 
@@ -37,17 +44,20 @@ private val imageExtensions = setOf("jpg", "jpeg", "png", "webp")
 class BackgroundImageSwordDriver : AbstractBookDriver() {
     override fun getBooks(): Array<Book> = emptyArray()
     override fun getDriverName(): String = "BackgroundImageSwordDriver"
-    override fun isDeletable(book: Book): Boolean = book.backgroundImageFile.canWrite()
+    override fun isDeletable(book: Book): Boolean = isWritableFile(book.backgroundImageFile)
     override fun delete(book: Book) {
-        book.backgroundImageFile.delete()
+        KFiles.delete(book.backgroundImageFile)
         Books.installed().removeBook(book)
     }
 }
 
-val Book.backgroundImageFile: File get() {
+/** The `background` module folder, resolved through the [AppDirectories] port at call time. */
+@VisibleForTesting fun backgroundImageModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / BACKGROUND_IMAGE_DIR
+
+val Book.backgroundImageFile: Path get() {
     val marker = bookMetaData.getProperty(BACKGROUND_IMAGE_MARKER) ?: ""
     val fileName = marker.split(";").getOrNull(1) ?: ""
-    return File(File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR), fileName)
+    return backgroundImageModulesDir().child(fileName)
 }
 
 /**
@@ -75,15 +85,15 @@ fun backgroundImageModuleInitials(displayName: String, exists: (String) -> Boole
     return "${base}_$i"
 }
 
-fun addBackgroundImageBook(file: File) {
-    if (!(file.canRead() && file.isFile && file.extension.lowercase() in imageExtensions)) return
+fun addBackgroundImageBook(file: Path) {
+    if (!(KFiles.isFile(file) && file.name.substringAfterLast('.', "").lowercase() in imageExtensions)) return
 
     // Skip a file that already backs a registered module, so repeated scans stay idempotent.
     // (Done before generating initials: otherwise dedup would mint a fresh _N initials and the
     // existing-book guard below would fail to fire, registering a duplicate module each scan.)
     if (Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile == file }) return
 
-    val displayName = file.nameWithoutExtension
+    val displayName = file.name.substringBeforeLast('.')
     val moduleInitials = backgroundImageModuleInitials(file.name) {
         Books.installed().getBook(it) != null
     }
@@ -102,17 +112,19 @@ AndBibleMinimumVersion=1112
     Log.i(TAG, "Creating background-image module $moduleInitials, $displayName")
 
     val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
-    metadata.location = file.parentFile.toURI()
+    metadata.location = KUri("file", null, "${file.parent!!}/", null)
     metadata.setDriver(BackgroundImageSwordDriver())
     val book = SwordBook(metadata, NullBackend())
     Books.installed().addBook(book)
 }
 
 fun addManuallyInstalledBackgroundImageBooks() {
-    val dir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR)
-    if (!(dir.isDirectory && dir.canRead())) return
-    for (f in dir.walkTopDown()) {
-        if (f.isFile && f.canRead() && f.extension.lowercase() in imageExtensions) {
+    val dir = backgroundImageModulesDir()
+    if (!KFiles.isDirectory(dir)) return
+    // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
+    if (KFiles.listOrNull(dir) == null) return
+    for (f in FileSystem.SYSTEM.listRecursively(dir)) {
+        if (KFiles.isFile(f) && f.name.substringAfterLast('.', "").lowercase() in imageExtensions) {
             addBackgroundImageBook(f)
         }
     }

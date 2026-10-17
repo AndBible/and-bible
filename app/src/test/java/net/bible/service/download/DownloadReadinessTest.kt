@@ -59,7 +59,7 @@ class DownloadReadinessTest {
         val manager = DownloadManager(
             KoinJavaComponent.get(AppSettings::class.java),
             KoinJavaComponent.get(BookInstallWatcher::class.java),
-            GenericFileDownloader(settings = KoinJavaComponent.get(AppSettings::class.java), notifier = KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java), strings = KoinJavaComponent.get(CoreStrings::class.java)),
+            GenericFileDownloader(settings = KoinJavaComponent.get(AppSettings::class.java), notifier = KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java), strings = KoinJavaComponent.get(CoreStrings::class.java), http = testDownloadHttp(), copyFile = testCopyFile),
             KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
         )
         manager.refreshInstallManager()

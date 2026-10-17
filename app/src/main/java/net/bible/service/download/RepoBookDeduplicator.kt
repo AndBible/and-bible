@@ -19,14 +19,13 @@ package net.bible.service.download
 import net.bible.sharedcore.log.Log
 import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
-import java.util.*
 
 /**
  * Some repos contain the same books.  Get the latest version of duplicates.
  */
 class RepoBookDeduplicator {
     private val bookSet: MutableMap<BookKey, Book> = HashMap()
-    private val TAG = this.javaClass.name
+    private val TAG = this::class.qualifiedName ?: "RepoBookDeduplicator"
     val books: MutableList<Book>
         get() = ArrayList(bookSet.values)
 

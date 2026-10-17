@@ -30,3 +30,8 @@ service/db/BlockingDb.kt	Holds blockingAtEdge only (marked Room wrappers moved t
 service/device/LightSensor.kt	Android SensorManager host
 service/device/ProgressNotificationManager.kt	Android notification host
 service/device/ScreenSettings.kt	Android screen brightness/orientation settings host
+service/sword/index/SearchIndexingService.kt	Android foreground Service host for search-index builds: notification, Intent, startForeground; the queue is IndexingQueue
+service/db/ReadOnlyModuleOpen.kt	Android read-only WAL snapshot host (File permissions, cacheDir, copyTo, SHA-1); sword reaches it through ReadOnlyModuleDbOpener
+service/sword/mydocument/MarkdownToXhtml.kt	Android implementation of the MarkdownRenderer port (commonmark); iOS supplies its own
+service/sword/epub/EpubEdges.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
+service/sword/mydocument/MyDocumentEdges.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog

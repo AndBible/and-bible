@@ -16,12 +16,12 @@
  */
 package net.bible.android.control.link
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.database.IdType
@@ -36,7 +36,6 @@ import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.bookAndKeyListOf
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -54,10 +53,8 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import java.io.FileNotFoundException
-import java.net.URLDecoder
-import java.util.*
-import java.util.regex.Pattern
+import okio.FileNotFoundException
+import net.bible.sharedlogic.util.decodeUrl
 
 
 /** Control traversal via links pressed by user in a browser e.g. to Strongs
@@ -102,7 +99,7 @@ class LinkControl constructor(
                     }
                 }
                 is BookAndKey -> key.addAll(k)
-                else -> throw Exception("Unknown key type: ${k.javaClass}")
+                else -> throw Exception("Unknown key type: ${k::class}")
             }
         }
         key.setName(key.joinToString(", ") { (it as BookAndKey).key.getName() })
@@ -123,7 +120,7 @@ class LinkControl constructor(
     fun loadApplicationUrl(link: BibleLink, book: Book? = null): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc, book)
 
     fun errorLink() {
-        ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
+        platform.reportJsError()
     }
 
     /**
@@ -187,10 +184,9 @@ class LinkControl constructor(
         return true
 	}
 
-    @Throws(NoSuchKeyException::class)
     private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, book: Book?): Key? {
         var ref = reference
-        if (StringUtils.isEmpty(initials)) {
+        if (initials.isNullOrEmpty()) {
             return getBibleKey(ref, versification, book)
         } else {
             val document = SwordDocumentFacade.getDocumentByInitials(initials)
@@ -210,7 +206,7 @@ class LinkControl constructor(
                 return getStrongsKey(document, reference)
             }
             else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
-                ref = URLDecoder.decode(ref)
+                ref = decodeUrl(ref)
                 //According to the OSIS schema, the osisRef attribute can contain letters and "_", but NOT punctuation and NOT spaces
 				//IBT dictionary entries sometimes contain spaces but osisrefs can't so _32_ is used
 				// e.g.  UZV Matthew 1:18: The link to "Holy Spirit" (Muqaddas Ruhdan)
@@ -228,19 +224,11 @@ class LinkControl constructor(
      * @return ref with _nn_ replaced by punctuation
      */
     private fun replaceIBTSpecialCharacters(ref: String): String {
-        val refIBTSpecialCharMatcher = IBT_SPECIAL_CHAR_RE.matcher(ref)
-        val output = StringBuffer()
-        while (refIBTSpecialCharMatcher.find()) {
-            val specialChar = Character.toString(refIBTSpecialCharMatcher.group(1).toInt().toChar())
-            refIBTSpecialCharMatcher.appendReplacement(output, specialChar)
-        }
-        refIBTSpecialCharMatcher.appendTail(output)
-        return output.toString()
+        return IBT_SPECIAL_CHAR_RE.replace(ref) { it.groupValues[1].toInt().toChar().toString() }
     }
 
     /** user has selected a Bible verse link
      */
-    @Throws(NoSuchKeyException::class)
     private fun getBibleKey(keyText: String, versification: Versification, book: Book?): BookAndKey {
         val key: Passage = PassageKeyFactory.instance().getKey(versification, keyText)
         return BookAndKey(key, book)
@@ -276,7 +264,6 @@ class LinkControl constructor(
         return lst?.firstOrNull() as BookAndKey?
     }
 
-    @Throws(NoSuchKeyException::class)
     private fun getStrongsKey(books: List<Book>, key: String, strongsKeyType: StrongsKeyType): BookAndKeyList? {
         val match = Regex("^([GH]?)(0*)([0-9]+).*").find(key)
         val match2 = Regex("^(0*)([0-9]+).*").find(key)
@@ -327,7 +314,6 @@ class LinkControl constructor(
         return bookAndKeyListOf(bookAndKeys)
     }
 
-    @Throws(NoSuchKeyException::class)
     private fun getRobinsonMorphologyKey(key: String): BookAndKeyList {
         val robinsonBooks = SwordDocumentFacade.defaultRobinsonGreekMorphology(fakeBookFactory, settings)
         return bookAndKeyListOf(robinsonBooks.mapNotNull {
@@ -546,7 +532,7 @@ class LinkControl constructor(
     fun lookupInDictionaries(text: String): Boolean = lookupInDictionaries(text, SwordDocumentFacade.wordLookupDictionaries(settings))
 
     /** [lookupInDictionaries] over an explicit dictionary list (the installed ones in production). */
-    internal fun lookupInDictionaries(text: String, dictionaries: List<Book>): Boolean {
+    @VisibleForTesting fun lookupInDictionaries(text: String, dictionaries: List<Book>): Boolean {
         if (dictionaries.isEmpty()) {
             notifier.showError(strings.wordNotFoundInDictionaries)
             return false
@@ -591,7 +577,7 @@ class LinkControl constructor(
     }
 
     companion object {
-        private val IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_")
+        private val IBT_SPECIAL_CHAR_RE = Regex("_(\\d+)_")
         private const val TAG = "LinkControl"
     }
 

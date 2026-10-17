@@ -21,7 +21,6 @@ import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Book
-import java.util.*
 
 /**
  * Store download view items for dynamic update as downloading occurs.

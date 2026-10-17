@@ -12,4 +12,7 @@ interface LinkPlatform {
 
     /** Open a navigation-graph route (one built by [NavRoutes]) from the current screen. */
     fun openRoute(route: String)
+
+    /** Report a JavaScript error from the reading view (an error-report e-mail on Android). */
+    fun reportJsError()
 }

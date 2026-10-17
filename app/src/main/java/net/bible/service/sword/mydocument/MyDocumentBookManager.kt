@@ -38,7 +38,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordGenBook
-import java.util.Locale
+import net.bible.sharedlogic.util.currentTimeMillis
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -87,8 +87,8 @@ sealed interface MyDocumentChange {
  * Handles registration/unregistration with JSword's Books.
  */
 object MyDocumentBookManager {
-    internal var mainDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
-    internal lateinit var launcher: OrderedLauncher
+    @VisibleForTesting var mainDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
+    @VisibleForTesting lateinit var launcher: OrderedLauncher
 
     private val registeredBooks = mutableMapOf<String, SwordGenBook>()
 
@@ -106,7 +106,7 @@ object MyDocumentBookManager {
         changeSource.emit(change)
     }
 
-    @VisibleForTesting internal fun emitForTest(change: MyDocumentChange) = changeSource.emit(change)
+    @VisibleForTesting fun emitForTest(change: MyDocumentChange) = changeSource.emit(change)
 
     @VisibleForTesting fun resetSubscribersForTest() { changeSource = EventSource() }
 
@@ -130,7 +130,7 @@ object MyDocumentBookManager {
      * Internal rather than a lambda body so tests can drive it directly instead
      * of going through the ordered `myDocumentsSynced` subscription.
      */
-    internal suspend fun handleSyncEvent(updated: List<LogEntry>) {
+    @VisibleForTesting suspend fun handleSyncEvent(updated: List<LogEntry>) {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val affectedInitials = mutableSetOf<String>()
         var refreshAll = false
@@ -464,7 +464,7 @@ object MyDocumentBookManager {
         val page = dao.pageById(pageId) ?: return
         if (title != null) {
             page.title = title
-            page.updatedAt = System.currentTimeMillis()
+            page.updatedAt = currentTimeMillis()
             dao.update(page)
         }
         dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
@@ -508,7 +508,7 @@ object MyDocumentBookManager {
             contentType = MyDocumentContentType.MARKDOWN,
             orderNumber = (dao.maxOrderNumber(aiDocument.id) ?: -1) + 1,
             sourcePromptId = sourcePromptId,
-            languageCode = Locale.getDefault().language
+            languageCode = defaultLanguageCode()
         )
 
         val cacheEntry = AiPageCacheEntry(

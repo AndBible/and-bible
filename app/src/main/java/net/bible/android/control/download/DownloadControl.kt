@@ -17,7 +17,6 @@
 package net.bible.android.control.download
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.SharedConstants
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
@@ -33,7 +32,9 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import java.util.*
+
+/** Same value as `SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS`, which stays with the files owner. */
+private const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
 
 /** Support the download screen
  *
@@ -52,7 +53,7 @@ class DownloadControl(private val notifier: net.bible.sharedcore.platform.UserNo
      */
     fun checkDownloadOkay(): Boolean {
         var okay = true
-        if (env.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+        if (env.megabytesFree < REQUIRED_MEGS_FOR_DOWNLOADS) {
             notifier.showError(strings.storageSpaceWarning)
             okay = false
         }
@@ -108,7 +109,6 @@ class DownloadControl(private val notifier: net.bible.sharedcore.platform.UserNo
         return languageList
     }
 
-    @Throws(LucidException::class)
     suspend fun downloadDocument(repoFactory: RepoFactory, document: Book) {
         Log.i(TAG, "Download requested")
 

@@ -41,3 +41,6 @@ core	service/common/GlobalTextDisplaySettingsStore.kt
 core	service/db/ExportStudyPads.kt
 # D2
 koin	android/control/SharedBindings.kt
+# G1
+sword	service/common/KdomBuilderPool.kt
+sword	service/common/XmlQueries.kt

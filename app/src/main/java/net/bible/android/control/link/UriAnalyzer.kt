@@ -17,11 +17,9 @@
 package net.bible.android.control.link
 
 import net.bible.sharedcore.log.Log
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
-import java.net.URI
-import java.net.URLDecoder
+import net.bible.sharedlogic.util.decodeUrl
 
 class UriAnalyzer {
     companion object {
@@ -99,36 +97,36 @@ class UriAnalyzer {
         }
 
         // Document
-        if (StringUtils.isEmpty(ref)) {
+        if (ref.isNullOrEmpty()) {
             return false
         }
         // remove the first 2 slashes from the url e.g. //module/key
-        ref = StringUtils.strip(ref, "/")
+        ref = ref.trim('/')
         if (!ref.contains("/")) {
             try {
                 val (bookCandidateStr, refCandidateStr) = ref.split(".", limit = 2)
-                val decodedBook = URLDecoder.decode(bookCandidateStr)
+                val decodedBook = decodeUrl(bookCandidateStr)
                 val bookCandidate = try {Books.installed().getBook(decodedBook)} catch (e: Exception) {null}
                 if (bookCandidate?.bookCategory != null && bookCandidate.bookCategory != BookCategory.BIBLE) {
                     docType = DocType.SPECIFIC_DOC
-                    key = URLDecoder.decode(refCandidateStr)
+                    key = decodeUrl(refCandidateStr)
                     book = decodedBook
                 } else {
-                    key = URLDecoder.decode(ref)
+                    key = decodeUrl(ref)
                 }
             } catch(e: Exception) {
                 Log.w("UriAnalyzer", "Error in parsing $urlStr", e)
-                key = URLDecoder.decode(ref)
+                key = decodeUrl(ref)
             }
         } else {
             val firstSlash = ref.indexOf("/")
-            book = URLDecoder.decode(ref.substring(0, firstSlash))
+            book = decodeUrl(ref.substring(0, firstSlash))
             // handle uri like sword://Bible/John.17.11 found in Calvin's commentary avoiding any attempt to find a book named Bible that will fail
             if (BIBLE_PROTOCOL.equals(book, ignoreCase = true)) {
                 docType = DocType.BIBLE
             }
             // safe to grab after slash because slash can't be on end due to above strip("/")
-            key = URLDecoder.decode(ref.substring(firstSlash + 1))
+            key = decodeUrl(ref.substring(firstSlash + 1))
         }
         // handled this url (or at least attempted to)
         return true

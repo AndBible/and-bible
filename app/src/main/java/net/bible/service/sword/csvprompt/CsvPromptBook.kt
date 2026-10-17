@@ -17,39 +17,48 @@
 
 package net.bible.service.sword.csvprompt
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
-import net.bible.android.SharedConstants
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import java.io.File
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.service.sword.isWritableFile
+import okio.Path
+import org.crosswire.common.util.KFiles
+import org.crosswire.common.util.KUri
+import org.koin.mp.KoinPlatform
+import net.bible.service.sword.epub.child
 
 private const val TAG = "CsvPromptBook"
 
-val Book.csvPromptFile: File get() {
+/** The `prompts` module folder, resolved through the [AppDirectories] port at call time. */
+@VisibleForTesting fun csvPromptModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "prompts"
+
+val Book.csvPromptFile: Path get() {
     val fileName = bookMetaData.getProperty("AndBibleProvidesPrompts") ?: ""
-    return File(File(SharedConstants.modulesDir, "prompts"), fileName)
+    return csvPromptModulesDir().child(fileName)
 }
 
 class CsvPromptSwordDriver : AbstractBookDriver() {
     override fun getBooks(): Array<Book> = emptyArray()
     override fun getDriverName(): String = "CsvPromptSwordDriver"
 
-    override fun isDeletable(book: Book): Boolean = book.csvPromptFile.canWrite()
+    override fun isDeletable(book: Book): Boolean = isWritableFile(book.csvPromptFile)
 
     override fun delete(book: Book) {
-        book.csvPromptFile.delete()
+        KFiles.delete(book.csvPromptFile)
         Books.installed().removeBook(book)
     }
 }
 
-fun addCsvPromptBook(file: File) {
-    if (!(file.canRead() && file.isFile && file.extension.equals("csv", ignoreCase = true))) return
+fun addCsvPromptBook(file: Path) {
+    if (!(KFiles.isFile(file) && file.name.substringAfterLast('.', "").equals("csv", ignoreCase = true))) return
 
-    val packName = file.nameWithoutExtension
+    val packName = file.name.substringBeforeLast('.')
     val moduleInitials = "Prompts_$packName"
 
     if (Books.installed().getBook(moduleInitials) != null) return
@@ -68,21 +77,21 @@ AndBibleMinimumVersion=892
     Log.i(TAG, "Creating CSV prompt module $moduleInitials")
 
     val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
-    metadata.location = file.parentFile.toURI()
+    metadata.location = KUri("file", null, "${file.parent!!}/", null)
     metadata.setDriver(CsvPromptSwordDriver())
     val book = SwordBook(metadata, NullBackend())
     Books.installed().addBook(book)
 }
 
 fun addManuallyInstalledCsvPromptBooks() {
-    val dir = File(SharedConstants.modulesDir, "prompts")
-    Log.i(TAG, "Scanning for CSV prompt packs in $dir (exists=${dir.isDirectory})")
-    if (!(dir.isDirectory && dir.canRead())) return
+    val dir = csvPromptModulesDir()
+    Log.i(TAG, "Scanning for CSV prompt packs in $dir (exists=${KFiles.isDirectory(dir)})")
+    if (!KFiles.isDirectory(dir)) return
 
-    val files = dir.listFiles() ?: emptyArray()
+    val files = KFiles.list(dir).map { dir / it }
     Log.i(TAG, "Found ${files.size} files in prompts dir")
     for (f in files) {
-        if (f.isFile && f.canRead() && f.extension.equals("csv", ignoreCase = true)) {
+        if (KFiles.isFile(f) && f.name.substringAfterLast('.', "").equals("csv", ignoreCase = true)) {
             addCsvPromptBook(f)
         }
     }

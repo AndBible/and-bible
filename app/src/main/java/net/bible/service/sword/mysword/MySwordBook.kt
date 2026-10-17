@@ -17,12 +17,14 @@
 
 package net.bible.service.sword.mysword
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
-import net.bible.android.SharedConstants
-import net.bible.service.db.openReadOnlyModuleDb
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedlogic.sync.withMonitor
+import net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener
 import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
@@ -45,8 +47,13 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
-import java.io.File
-import java.io.IOException
+import okio.IOException
+import okio.Path.Companion.toPath
+import okio.FileSystem
+import net.bible.service.sword.epub.child
+import okio.Path
+import org.crosswire.common.util.KFiles
+import org.koin.mp.KoinPlatform
 
 private fun getConfig(data: MySwordModuleInfo): String {
     var conf = """
@@ -94,17 +101,17 @@ class MySwordModuleInfo (
     val category: String,
 )
 
-class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
-    constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
+class SqliteVerseBackendState(private val sqliteFile: Path): OpenFileState {
+    constructor(sqliteFile: Path, metadata: SwordBookMetaData): this(sqliteFile) {
         this.metadata = metadata
     }
 
     private var _sqlDb: SQLiteConnection? = null
 
-    val sqlDb: SQLiteConnection get() = synchronized(this) {
+    val sqlDb: SQLiteConnection get() = withMonitor(this) {
         _sqlDb ?: run {
             Log.i(TAG, "initDatabase ${sqliteFile.name}")
-            val db = openReadOnlyModuleDb(sqliteFile)
+            val db = KoinPlatform.getKoin().get<ReadOnlyModuleDbOpener>().open(sqliteFile)
             _sqlDb = db
             db
         }
@@ -115,14 +122,14 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
      * not safe for concurrent use (the old framework-style database was), so every query goes through the state's lock.
      */
     fun <T> rows(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): List<T> =
-        synchronized(this) { sqlDb.queryRows(sql, *args, row = row) }
+        withMonitor(this) { sqlDb.queryRows(sql, *args, row = row) }
 
     /** Like [rows], but maps only the first row, or returns null when there is none. */
     fun <T> firstRow(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): T? =
-        synchronized(this) { sqlDb.queryFirst(sql, *args, row = row) }
+        withMonitor(this) { sqlDb.queryFirst(sql, *args, row = row) }
 
     override fun close() {
-        synchronized(this) {
+        withMonitor(this) {
             Log.i(TAG, "close database ${sqliteFile.name}")
             _sqlDb?.close()
             _sqlDb = null
@@ -135,17 +142,17 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 
     override fun getBookMetaData(): SwordBookMetaData {
-        return metadata?: synchronized(this) {
+        return metadata?: withMonitor(this) {
             val db = this.sqlDb
             val dbFile = sqliteFile
-            val categoryAbbreviation = dbFile.nameWithoutExtension.substringAfterLast('.', "")
+            val categoryAbbreviation = dbFile.name.substringBeforeLast('.').substringAfterLast('.', "")
             val category = when(categoryAbbreviation) {
                 "bbl" -> "Biblical Texts"
                 "cmt" -> "Commentaries"
                 "dct" -> "Lexicons / Dictionaries"
                 else -> "Illegal"
             }
-            val initials = "MySword-" + sanitizeModuleName(dbFile.nameWithoutExtension)
+            val initials = "MySword-" + sanitizeModuleName(dbFile.name.substringBeforeLast('.'))
 
             val data = db.prepare("select * from details").use {
                 val hasRow = it.step()
@@ -181,7 +188,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
                     language = getString(languageColumn, "eng"),
                     category = category,
                     isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn),
-                    moduleFileName = sqliteFile.path,
+                    moduleFileName = sqliteFile.toString(),
                 )
             }
 
@@ -191,7 +198,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
 
             metadata.setDriver(SqliteSwordDriver())
             this.metadata = metadata
-            return@synchronized metadata
+            return@withMonitor metadata
         }
     }
 
@@ -368,7 +375,7 @@ val mySwordBible = object: BookType("MySwordBible", BookCategory.BIBLE, KeyType.
     }
 
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val file = File(File(sbmd.location), "module.mybible")
+        val file = sbmd.location!!.getPath()!!.toPath().child("module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
         return SqliteBackend(state, sbmd)
     }
@@ -380,7 +387,7 @@ val mySwordCommentary = object: BookType("MySwordCommentary", BookCategory.COMME
     }
 
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val file = File(File(sbmd.location), "module.mybible")
+        val file = sbmd.location!!.getPath()!!.toPath().child("module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
         return SqliteBackend(state, sbmd)
     }
@@ -392,14 +399,14 @@ val mySwordDictionary = object: BookType("MySwordDictionary", BookCategory.DICTI
     }
 
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val file = File(File(sbmd.location), "module.mybible")
+        val file = sbmd.location!!.getPath()!!.toPath().child("module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
         return SqliteBackend(state, sbmd)
     }
 }
 
-fun addMySwordBook(file: File) {
-    if(!(file.canRead() && file.isFile)) return
+fun addMySwordBook(file: Path) {
+    if(!KFiles.isFile(file)) return
     val state = SqliteVerseBackendState(file)
     val metadata = try { state.getBookMetaData() } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MySword module $file", err)
@@ -423,12 +430,17 @@ fun addMySwordBook(file: File) {
     return
 }
 
-fun addManuallyInstalledMySwordBooks() {
-    val dir = File(SharedConstants.modulesDir, "mysword")
-    if(!(dir.isDirectory && dir.canRead())) return
+/** The `mysword` module folder, resolved through the [AppDirectories] port at call time. */
+@VisibleForTesting fun mySwordModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "mysword"
 
-    for(f in dir.walkTopDown()) {
-        if(f.isFile && f.canRead() && f.path.lowercase().endsWith(".mybible")) {
+fun addManuallyInstalledMySwordBooks() {
+    val dir = mySwordModulesDir()
+    if(!KFiles.isDirectory(dir)) return
+    // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
+    if (KFiles.listOrNull(dir) == null) return
+
+    for(f in FileSystem.SYSTEM.listRecursively(dir)) {
+        if(KFiles.isFile(f) && f.toString().lowercase().endsWith(".mybible")) {
             addMySwordBook(f)
         }
     }

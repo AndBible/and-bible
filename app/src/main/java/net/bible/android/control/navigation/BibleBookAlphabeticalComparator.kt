@@ -20,8 +20,7 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.common.util.lowercase
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
-import java.util.Comparator
-import java.util.regex.Pattern
+import kotlin.Comparator
 
 /** Compare Bible book names alphabetically
  *
@@ -37,13 +36,13 @@ class BibleBookAlphabeticalComparator(private val versification: Versification) 
         val name =
             versification.getShortName(bibleBook).lowercase(LocaleProviderManager.getLocale())
         // get the character name at the start eg '1 cor' -> 'cor1' so that books with a number at the start do not float to the top
-        val bookName = NUMBERS_PATTERN.matcher(name).replaceAll("")
-        val bookNumbers = NOT_NUMBERS_PATTERN.matcher(name).replaceAll("")
+        val bookName = NUMBERS_PATTERN.replace(name, "")
+        val bookNumbers = NOT_NUMBERS_PATTERN.replace(name, "")
         return bookName + bookNumbers
     }
 
     companion object {
-        private val NUMBERS_PATTERN = Pattern.compile("[0-9]")
-        private val NOT_NUMBERS_PATTERN = Pattern.compile("[^0-9]")
+        private val NUMBERS_PATTERN = Regex("[0-9]")
+        private val NOT_NUMBERS_PATTERN = Regex("[^0-9]")
     }
 }

@@ -16,9 +16,11 @@
  */
 package net.bible.service.download
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -37,8 +39,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import java.net.MalformedURLException
-import java.net.URL
 
 /**
  * Android-side impl of the [CustomRepositoryService] seam, backed by [CustomRepository]'s Room
@@ -88,7 +88,7 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : Custom
             repo = tryReadManifest(newUrlStr, existingId)
         }
         if (repo == null) {
-            val parsedUrl = try { URL(url) } catch (e: MalformedURLException) { null }
+            val parsedUrl = try { parseLenientUrl(url) } catch (e: IllegalArgumentException) { null }
             if (parsedUrl != null) {
                 val packagesUrl = appendUrl(url, "packages")
                 val modsIndexUrl = appendUrl(url, "mods.d.tar.gz")
@@ -102,14 +102,16 @@ class CustomRepositoryServiceImpl(private val fetcher: ManifestFetcher) : Custom
                 }
 
                 if (manifestOk && packagesOk && modsIndexOk) {
+                    val host = urlHost(parsedUrl.text, parsedUrl.uri)
+                    val path = urlPath(parsedUrl.text)
                     repo = CustomRepository(
                         id = existingId,
-                        name = "${parsedUrl.host}-${md5Hash(url).subSequence(0, 3)}",
+                        name = "${host}-${md5Hash(url).subSequence(0, 3)}",
                         description = url,
                         manifestUrl = url,
-                        host = parsedUrl.host,
-                        catalogDirectory = parsedUrl.path,
-                        packageDirectory = appendUrl(parsedUrl.path, "packages"),
+                        host = host,
+                        catalogDirectory = path,
+                        packageDirectory = appendUrl(path, "packages"),
                         type = "sword-https",
                     )
                 }
@@ -193,5 +195,5 @@ fun CustomRepositoryData.toEntity(): CustomRepository = CustomRepository(
 )
 
 /** True for SQLite's constraint errors (UNIQUE, FOREIGN KEY, NOT NULL, CHECK...), from either driver. */
-internal fun isConstraintViolation(e: SQLiteException): Boolean =
+@VisibleForTesting fun isConstraintViolation(e: SQLiteException): Boolean =
     e.message.orEmpty().contains("constraint failed", ignoreCase = true)

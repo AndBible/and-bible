@@ -51,7 +51,7 @@ import net.bible.service.common.DbType
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.deleteAppDatabase
 import net.bible.service.db.importDatabaseFile
-import net.bible.service.sword.dbFile
+import net.bible.service.sword.dbPath
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
@@ -412,11 +412,11 @@ class BackupControl(
     private fun addBookToZip(outFile: ZipOutputStream, b: Book) {
         val bmd = b.bookMetaData as SwordBookMetaData
         if (b.isManuallyInstalledMyBibleBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbPath.toFile())
         } else if (b.isManuallyInstalledMySwordBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbPath.toFile())
         } else if (b.isManuallyInstalledESwordBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbPath.toFile())
         } else if (b.isManuallyInstalledEpub) {
             addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
         } else if (b.isManuallyInstalledTtf) {
@@ -424,7 +424,7 @@ class BackupControl(
             // must be packaged by their .ttf file rather than via the generic SWORD configFile
             // branch below. Skip gracefully if the underlying file has gone missing, so one
             // broken font module can't abort the whole backup/sync operation.
-            val ttfFile = b.ttfFile
+            val ttfFile = b.ttfFile.toFile()
             if (ttfFile.exists()) {
                 addModuleFile(outFile, ttfFile)
             } else {
@@ -435,7 +435,7 @@ class BackupControl(
             // their single image file rather than via the generic SWORD branch below. Skip
             // gracefully if the file is missing, so one broken module can't abort the whole
             // backup/sync operation.
-            val imageFile = b.backgroundImageFile
+            val imageFile = b.backgroundImageFile.toFile()
             if (imageFile.exists()) {
                 addModuleFile(outFile, imageFile)
             } else {

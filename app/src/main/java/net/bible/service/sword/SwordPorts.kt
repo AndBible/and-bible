@@ -2,7 +2,7 @@ package net.bible.service.sword
 
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.book.Book
-import java.io.InputStream
+import okio.Source
 
 /** The document and offsets needed to share or copy a selection, without a view dependency. */
 interface ShareSelection {
@@ -29,7 +29,7 @@ fun interface BookUnlocker {
 
 /** Metadata and a caller-owned stream for a picked document. The importer closes the stream. */
 interface ContentSource {
-    fun openInputStream(uri: String): InputStream?
+    fun openSource(uri: String): Source?
     fun displayName(uri: String): String?
     fun mimeType(uri: String): String?
 }

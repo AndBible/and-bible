@@ -65,7 +65,7 @@ class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean, textPolicy: SaxTex
                     }
 
                     write("$writeChapter$currentVerseNumber. ")
-                    writeContentStack.push(writeContentStack.peek())
+                    writeContentStack.add(writeContentStack.last())
                     writeChapter = ""
                 }
             }

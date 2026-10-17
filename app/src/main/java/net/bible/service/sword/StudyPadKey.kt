@@ -23,7 +23,6 @@ import net.bible.service.common.displayName
 import org.crosswire.common.util.ItemIterator
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
-import java.lang.UnsupportedOperationException
 
 class StudyPadKey(
     @Transient val label: BookmarkEntities.Label,

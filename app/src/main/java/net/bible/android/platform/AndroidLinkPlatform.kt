@@ -1,6 +1,7 @@
 package net.bible.android.platform
 
 import net.bible.android.control.link.LinkPlatform
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.ReadingHostActivity
@@ -19,5 +20,9 @@ class AndroidLinkPlatform : LinkPlatform {
     override fun openRoute(route: String) {
         val activity = CurrentActivityHolder.currentActivity!!
         activity.startActivity(NavHostComposeActivity.intentFor(activity, route))
+    }
+
+    override fun reportJsError() {
+        ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
     }
 }

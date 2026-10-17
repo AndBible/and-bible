@@ -1,5 +1,6 @@
 package net.bible.service.db.readingplan
 
+import net.bible.android.platform.AndroidLocalCalendar
 import androidx.room3.Room
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -54,7 +55,7 @@ class ReadingPlanRepositoryWritesTest {
                 real.addPlanStatus(status)
             }
         }
-        return ReadingPlanRepository(daoProvider = { dao }, appScope = appScope)
+        return ReadingPlanRepository(daoProvider = { dao }, appScope = appScope, calendar = AndroidLocalCalendar())
     }
 
     @Test fun statusWritesLandInCallOrder() = runBlocking {

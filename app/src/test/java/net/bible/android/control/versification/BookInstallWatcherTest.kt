@@ -58,6 +58,12 @@ class BookInstallWatcherTest {
         override fun pushDocuments(initials: List<String>) {}
     }
 
+    private val catalog = object : net.bible.sharedlogic.platform.AddonCatalog {
+        val clears = AtomicInteger()
+        override fun clearCaches() { clears.incrementAndGet() }
+        override val readingPlans: Map<String, net.bible.sharedlogic.platform.AddonReadingPlan> get() = emptyMap()
+    }
+
     @After
     fun tearDown() { resetDatabase() }
 
@@ -69,7 +75,7 @@ class BookInstallWatcherTest {
     private fun runEvents(vararg events: String) = runBlocking {
         val appScope = AppCoroutineScope()
         val launcher = OrderedLauncher(appScope)
-        val watcher = BookInstallWatcher(launcher, starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
+        val watcher = BookInstallWatcher(launcher, starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java), catalog)
         val firstWriteHeld = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
         val writes = AtomicInteger()
@@ -113,7 +119,7 @@ class BookInstallWatcherTest {
             override fun pushDocuments(initials: List<String>) { pushed.complete(initials) }
         }
         val watcher = BookInstallWatcher(launcher, recordingStarter,
-            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), settings)
+            org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), settings, catalog)
         val book = Books.installed().getBooks().first { it.isSyncableDocument }
         try {
             watcher.listener.bookAdded(BooksEvent(Books.installed(), book, true))
@@ -146,7 +152,7 @@ class BookInstallWatcherTest {
         val recordingStarter = object : DocumentSyncStarter by starter {
             override fun pushDocuments(initials: List<String>) { pushed.addAll(initials) }
         }
-        val watcher = BookInstallWatcher(launcher, recordingStarter, net.bible.service.cloudsync.DocumentSyncProvider { sync }, settings)
+        val watcher = BookInstallWatcher(launcher, recordingStarter, net.bible.service.cloudsync.DocumentSyncProvider { sync }, settings, catalog)
         val book = Books.installed().getBooks().first { it.isSyncableDocument }
         try {
             launcher.launch("book-install-auto-upload") { release.await() }
@@ -162,6 +168,18 @@ class BookInstallWatcherTest {
             release.complete(Unit)
             scope.coroutineContext[Job]!!.cancel()
         }
+    }
+
+    @Test
+    fun `book added clears the addon catalog once`() {
+        runEvents("add")
+        assertEquals(1, catalog.clears.get())
+    }
+
+    @Test
+    fun `book removed clears the addon catalog once`() {
+        runEvents("remove")
+        assertEquals(1, catalog.clears.get())
     }
 
     @Test
@@ -191,7 +209,7 @@ class BookInstallWatcherTest {
     private fun installThenAmend(preexisting: SwordDocumentInfo?, removeFirst: Boolean = false, amend: suspend (BookInstallWatcher, Book) -> Unit): SwordDocumentInfo? =
         runBlocking {
             val appScope = AppCoroutineScope()
-            val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java))
+            val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java), org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java), catalog)
             val firstWriteHeld = CompletableDeferred<Unit>()
             val release = CompletableDeferred<Unit>()
             val writes = AtomicInteger()

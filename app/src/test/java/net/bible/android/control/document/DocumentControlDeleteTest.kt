@@ -88,6 +88,7 @@ class DocumentControlDeleteTest {
     private fun control() = DocumentControl(fakeBookFactory = net.bible.service.download.FakeBookFactory(Mockito.mock(CoreStrings::class.java)),
         windowControl, Mockito.mock(AppSettings::class.java), notifier, Mockito.mock(CoreStrings::class.java),
         appScope, deleteFiles = DocumentFileDeleter { filesDeleted += it.initials }, backupDaoProvider = { dao },
+        enableManualInstallFolder = {},
     )
 
     @Test fun backupRowIsDeletedEvenWhenTheCallerIsCancelledBetweenFilesAndRow() = runBlocking {

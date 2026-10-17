@@ -40,9 +40,20 @@ Ports that exist after phase 0 (`ls sharedCore/src/commonMain/kotlin/net/bible/s
 | `FilePorts` (`FilePicker`, `FileDelivery`) | `platform/files/FilePorts.kt` | Android pickers/share sheet |
 | `MarkdownRenderer` | `platform/MarkdownRenderer.kt` | `net.bible.service.sword.mydocument.MarkdownToXhtml`; `CoreModule.kt` line 213 |
 | `DatabaseHost` (D2) | `:sharedLogic` `service/db/DatabaseHost.kt` | `net.bible.service.db.AndroidDatabaseHost`, installed by `DatabaseContainer.installHost(...)` first in `BibleApplication.onCreate` (not a Koin binding: `DatabaseContainer` is needed before Koin starts) |
+| `PlatformLocales` (G1) | `:sharedLogic` `platform/PlatformLocales.kt` | `net.bible.android.platform.AndroidPlatformLocales`; keeps legacy `iw`/`in`/`ji` codes (never `KLocale.default()`) |
+| `AddonCatalog` (G1) | `:sharedLogic` `platform/AddonCatalog.kt` | `AndroidAddonCatalog` (delegates to `AndBibleAddons`) |
+| `LocalCalendar` (G1) | `:sharedLogic` `platform/LocalCalendar.kt` | `AndroidLocalCalendar` (the old `Calendar`/`SimpleDateFormat` code, verbatim) |
+| `SearchIndexScheduler` (G1) | `:sharedLogic` `platform/SearchIndexScheduler.kt` | `net.bible.android.platform.AndroidSearchIndexScheduler` (starts the foreground `SearchIndexingService`); the queue itself (`IndexingQueue`) is common |
+| `ReadOnlyModuleDbOpener` (G1) | `:sharedLogic` `platform/ReadOnlyModuleDbOpener.kt` | `AndroidReadOnlyModuleDbOpener` (calls `openReadOnlyModuleDb`, the platform file `service/db/ReadOnlyModuleOpen.kt`); resolved through `KoinPlatform` at first read, never during `initialiseJSwordFolders` |
+| `ContentSource` (G1; `openSource(uri): Source?`) | `service/sword/SwordPorts.kt` (domain file, moves with `sword`) | `AndroidContentSource` (content resolver stream as an okio `Source`) |
+| `OverridableLocaleProvider` (G1) | `service/sword/OverridableLocaleProvider.kt` (domain file) | `MyLocaleProvider` in `BibleApplication.kt` (`override: KLocale?`) |
 
-Ports still to be created by the groups (named in S8): foreground indexing (`SearchIndexingService`, G1),
-certificate pinning (`webdav/PinnedTrust`), WebDAV sign-in UI and `SharedPreferences` in `WebDavConfig`
+Common primitives from G1 (`:sharedLogic`, package `net.bible.sharedlogic`): `sync.withMonitor` /
+`monitorWait` / `monitorNotifyAll` / `bookNameMonitor` (on JVM/Android exactly the JVM monitor, so they exclude
+against plain `synchronized`; `bookNameMonitor` is `org.crosswire.jsword.versification.BookName::class.java`),
+`util.decodeUrl` (= `URLDecoder.decode(s, "UTF-8")`), `util.currentTimeMillis`.
+
+Ports still to be created by the groups (named in S8): certificate pinning (`webdav/PinnedTrust`), WebDAV sign-in UI and `SharedPreferences` in `WebDavConfig`
 (G2), text segmentation (`BreakIterator` in speak, G3), (the Room database builder, formerly listed here for D2, needs no port: `buildAppDatabase` uses Room 3's context-less `Room.databaseBuilder(name = absolutePath)`, characterized in `AppDatabaseBuilderTest`).
 
 ## 3. Koin (S7)
@@ -184,6 +195,25 @@ D2-moved paths, so those never count in the `app` column.
 
 Check: sum of the `app` column = 96 = number of rows in the offending-import listing (section 7).
 
+Part B status (G1, 2026-10-17): `sword` and `download` are not in `scripts/l1-move-done.txt`.
+
+- `sword` waits for **G2's common ZIP reader** (`MyBibleInstaller` still uses `java.util.zip.ZipFile` and
+  `java.io.File`; the `jvm` column is 2) and for **G3's extraction** of `shortName` (`BookAndKey.kt`),
+  `displayName` (`StudyPadKey.kt`) and `elementToString` (`EpubOptimization.kt`), the three rows left in its
+  `app` column. Its `jvmapi`, `jvm3p` and `android` columns are 0. `ReadOnlyModuleOpen.kt` and the two edge
+  files (`EpubEdges.kt`, `MyDocumentEdges.kt`) are `:app` platform files. `D2`'s `CoreModule.kt` split takes
+  G1's port bindings (`SearchIndexScheduler`, `ReadOnlyModuleDbOpener`, ...).
+- **Invisible same-package dependencies (phase-2 work).** The `app` column counts imports, so it cannot see that
+  sword domain files call platform files in the same package: `EpubEdges.kt` (`epub*Blocking`, from
+  `EpubBackendState.kt`, `EpubOptimization.kt`) and `MyDocumentEdges.kt` (`myDocument*Blocking`, from
+  `MyDocumentBackend.kt`). They are `:app` platform files (the `blockingAtEdge` bridges), so after the move
+  phase 2 must give each an `androidMain` actual or a port. `MyDocumentBackend` reaches `MarkdownToXhtml` only
+  through the `MarkdownRenderer` port (resolved at the call). The three G3 imports above are therefore the only
+  *counted* `app` rows, not the only real sword dependencies on `:app`.
+- `download` is 0 in every column but has `catch (oom: OutOfMemoryError)` at `DownloadManager.kt:132`, which
+  D2's extended `jvmapi` check rejects. It waits for **G3 Task 1** (`MemoryHints.kt`, `isOutOfMemory`).
+- `sword` is back in `scripts/l1-readiness-done.txt` (all counted columns but the informational `javaio` are 0).
+
 ## 7. Move-readiness baseline
 
 `scripts/l1-move-readiness.sh` run at HEAD (columns: JVM imports, JVM-only API uses, JVM-only third-party
@@ -195,13 +225,13 @@ section 8). Notes:
 
 - The `app` column counts only explicit imports; same-package and wildcard references are invisible to it
   (the compile finds them).
-- `scripts/l1-move-done.txt` is empty on purpose: a phase-1 plan adds a domain there when its row reads 0;
+- `scripts/l1-move-done.txt` was empty at the baseline (G1 Part A has since added its seven domains): a phase-1 plan adds a domain there when its row reads 0;
   `--check` then fails on any regression in that domain.
 - `scripts/l1-readiness-done.txt` (the older L1a done list) no longer contains `cloudsync` and `sword`;
   Task 1 removed them because they have genuine Android/global uses (the WebDAV merge and
   `SearchIndexingService`). The groups that port them must re-add them when their ports land: G2 re-adds
   `cloudsync`, G1 re-adds `sword` (checked against the ownership table: cloudsync is G2, sword is G1).
-  Verify: `grep -n "sword\|cloudsync" scripts/l1-readiness-done.txt` prints nothing now.
+  Update 2026-10-17: G1 re-added `sword` (Part B); `cloudsync` is still G2's.
 
 ```
 domain	jvm	jvmapi	jvm3p	android	app
@@ -226,6 +256,12 @@ search	0	1	1	0	0
 event	0	0	0	0	0
 core	16	16	3	0	3
 ```
+
+After G1 Part B (HEAD `36377cf83`): `versification`, `readingplan`, `history`, `document`, `navigation`, `link`,
+`search` and `download` read 0 in every column; `sword` reads `jvm 2, jvmapi 0, jvm3p 0, android 0, app 3` (rows
+above). `scripts/l1-readiness.sh` `sword` row: bridges 0, edge 0, pending 0, android 0, globals 0, jvmlibs 0,
+javaio 2. Only `Math.`/`Charsets.`/`OutOfMemoryError`/`GlobalContext`/`@Volatile` grep (D2's extension) over the
+Part B files: `DownloadManager.kt:132` only.
 
 ## 8. YAML and Markdown outcome (S9)
 

@@ -18,7 +18,7 @@
 package net.bible.service.history
 
 import net.bible.android.control.page.window.Window
-import java.util.*
+import net.bible.android.database.DbDate
 
 /**
  * An item in the History List
@@ -31,7 +31,7 @@ interface HistoryItem {
 
     val window: Window
 
-    val createdAt: Date
+    val createdAt: DbDate
 
     // do back to the state at this point
     fun revertTo()

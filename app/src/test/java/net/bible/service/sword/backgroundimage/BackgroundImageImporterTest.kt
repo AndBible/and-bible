@@ -37,7 +37,10 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
-import java.io.ByteArrayInputStream
+import okio.Buffer
+import okio.ForwardingSource
+import okio.Source
+import okio.source
 import org.junit.Assert.assertNull
 
 /**
@@ -88,27 +91,27 @@ class BackgroundImageImporterTest {
     }
 
     private fun source(file: File) = object : ContentSource {
-        override fun openInputStream(uri: String) = file.inputStream()
+        override fun openSource(uri: String) = file.source()
         override fun displayName(uri: String) = "bg.png"
         override fun mimeType(uri: String) = "image/png"
     }
 
     @Test fun copyAndRegisterAddsModule() {
         val src = File(tmp, "hills.png").apply { writeBytes(onePixelPng()) }
-        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")
+        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")?.toFile()
         assertNotNull(out)
         assertEquals("bg.png", out!!.name)
         assertTrue(src.readBytes().contentEquals(out.readBytes()))
         assertTrue(out!!.parentFile!!.name == BACKGROUND_IMAGE_DIR)
         AndBibleAddons.clearCaches()
-        assertTrue(Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile == out })
+        assertTrue(Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile.toFile() == out })
     }
 
     @Test fun deleteRemovesModuleAndFile() {
         val src = File(tmp, "sky.png").apply { writeBytes(onePixelPng()) }
-        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")!!
+        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")!!.toFile()
         AndBibleAddons.clearCaches()
-        val initials = Books.installed().getBooks().first { it.isBackgroundImageModule && it.backgroundImageFile == out }.initials
+        val initials = Books.installed().getBooks().first { it.isBackgroundImageModule && it.backgroundImageFile.toFile() == out }.initials
         impl.deleteBackgroundImage(initials)
         assertFalse(out.exists())
         assertFalse(AndBibleAddons.providedBackgroundImages.containsKey(initials))
@@ -117,14 +120,14 @@ class BackgroundImageImporterTest {
         val bytes = onePixelPng()
         var closed = 0
         val source = object : ContentSource {
-            override fun openInputStream(uri: String) = object : ByteArrayInputStream(bytes) {
+            override fun openSource(uri: String) = object : ForwardingSource(Buffer().write(bytes)) {
                 override fun close() { closed++; super.close() }
             }
             override fun displayName(uri: String) = "bg"
             override fun mimeType(uri: String) = "image/png"
         }
-        val first = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!
-        val second = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!
+        val first = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!.toFile()
+        val second = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!.toFile()
         assertEquals("bg.png", first.name)
         assertEquals("bg_2.png", second.name)
         assertEquals(2, closed)
@@ -135,7 +138,7 @@ class BackgroundImageImporterTest {
     @Test fun absentInputDoesNotRegisterOrCreateAFile() {
         val before = dir.listFiles()!!.toSet()
         val source = object : ContentSource {
-            override fun openInputStream(uri: String): java.io.InputStream? = null
+            override fun openSource(uri: String): Source? = null
             override fun displayName(uri: String) = "missing.png"
             override fun mimeType(uri: String) = "image/png"
         }

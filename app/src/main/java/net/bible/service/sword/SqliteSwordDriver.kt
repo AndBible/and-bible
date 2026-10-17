@@ -20,10 +20,30 @@ package net.bible.service.sword
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractBookDriver
-import java.io.File
+import androidx.annotation.VisibleForTesting
+import okio.FileSystem
+import okio.IOException
+import okio.Path
+import okio.Path.Companion.toPath
+import org.crosswire.common.util.KFiles
 
 
-val Book.dbFile get() = File(getProperty("AndBibleDbFile"))
+val Book.dbPath get() = getProperty("AndBibleDbFile")!!.toPath()
+
+/**
+ * What `File.canWrite()` answered for a regular file: okio has no permission API, so open the existing file
+ * for appending (writes nothing) and see whether the OS allows it.
+ */
+@VisibleForTesting
+fun isWritableFile(path: Path): Boolean {
+    if (!KFiles.isFile(path)) return false
+    return try {
+        FileSystem.SYSTEM.appendingSink(path, mustExist = true).close()
+        true
+    } catch (e: IOException) {
+        false
+    }
+}
 
 /**
  * Driver for both MySword and MyBible books
@@ -38,11 +58,11 @@ class SqliteSwordDriver: AbstractBookDriver() {
     }
 
     override fun isDeletable(book: Book): Boolean {
-        return book.dbFile.canWrite()
+        return isWritableFile(book.dbPath)
     }
 
     override fun delete(book: Book) {
-        book.dbFile.delete()
+        KFiles.delete(book.dbPath)
         Books.installed().removeBook(book)
     }
 }

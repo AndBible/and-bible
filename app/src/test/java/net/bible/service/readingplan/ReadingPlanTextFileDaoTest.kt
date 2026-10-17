@@ -23,6 +23,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import net.bible.android.platform.AndroidLocalCalendar
+import okio.Path.Companion.toOkioPath
 
 /** Pins how plan files are parsed, with the bundled plans coming through a fake [ReadingPlanSource]. */
 @RunWith(RobolectricTestRunner::class)
@@ -103,9 +105,10 @@ class ReadingPlanTextFileDaoTest {
         distributed: List<DistributedPlanDetails> = emptyList(),
     ) = ReadingPlanTextFileDao(
         source = source,
-        repository = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }, appScope = appScope),
+        repository = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }, appScope = appScope, calendar = AndroidLocalCalendar()),
         coreStrings = strings,
-        userPlanFolder = { userDir },
+        calendar = AndroidLocalCalendar(),
+        userPlanFolder = { userDir.toOkioPath() },
         providedPlans = { emptyMap() },
         distributedPlans = { distributed },
     )

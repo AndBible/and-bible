@@ -68,4 +68,13 @@ class OsisToCanonicalTextSaxHandlerTest {
         // the last verse tag just add an extra space at the end but that is required to separate verses and is easier to leave.
         Assert.assertThat(osisToCanonicalTextSaxHandler!!.writer.html, CoreMatchers.equalTo("Be exalted, O God "))
     }
+
+    /** commons-lang3 `isWhitespace` (java Character.isWhitespace) is false for NBSP, so a lone NBSP node is written verbatim. */
+    @Test
+    fun testNonBreakingSpaceOnlyNodeIsWrittenVerbatim() {
+        osisToCanonicalTextSaxHandler!!.startElement("", "", "reference", fi.sykero.kdom.sax.AttributesImpl())
+        osisToCanonicalTextSaxHandler!!.characters("\u00a0".toCharArray(), 0, 1)
+        osisToCanonicalTextSaxHandler!!.endElement("", "", "reference")
+        Assert.assertThat(osisToCanonicalTextSaxHandler!!.writer.html, CoreMatchers.equalTo("\u00a0"))
+    }
 }

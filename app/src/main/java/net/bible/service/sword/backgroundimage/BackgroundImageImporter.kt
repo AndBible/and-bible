@@ -18,10 +18,12 @@ package net.bible.service.sword.backgroundimage
 
 import net.bible.service.sword.ContentSource
 import net.bible.sharedcore.log.Log
-import net.bible.android.SharedConstants
-import net.bible.service.common.AndBibleAddons
-import java.io.File
-import java.io.FileOutputStream
+import net.bible.sharedlogic.platform.AddonCatalog
+import okio.FileSystem
+import okio.Path
+import okio.buffer
+import org.crosswire.common.util.KFiles
+import org.koin.mp.KoinPlatform
 
 private const val TAG = "BackgroundImageImporter"
 private val imageExtensions = setOf("jpg", "jpeg", "png", "webp")
@@ -35,15 +37,15 @@ private val imageExtensions = setOf("jpg", "jpeg", "png", "webp")
  */
 object BackgroundImageImporter {
     /** Copy [uri] into `modulesDir/background` (unique name), register all image modules, clear
-     *  caches. Returns the written [File], or null on failure. Call on `Dispatchers.IO`. */
-    fun copyAndRegister(source: ContentSource, uri: String): File? {
+     *  caches. Returns the written [Path], or null on failure. Call on `Dispatchers.IO`. */
+    fun copyAndRegister(source: ContentSource, uri: String): Path? {
         return try {
-            val outDir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).apply { mkdirs() }
+            val outDir = backgroundImageModulesDir().also { KFiles.createDirectories(it) }
             val outFile = uniqueFile(outDir, fileName(source, uri))
-            val input = source.openInputStream(uri) ?: return null
-            input.use { FileOutputStream(outFile).use { output -> it.copyTo(output) } }
+            val input = source.openSource(uri) ?: return null
+            input.buffer().use { FileSystem.SYSTEM.sink(outFile).use { output -> it.readAll(output) } }
             addManuallyInstalledBackgroundImageBooks()
-            AndBibleAddons.clearCaches()
+            KoinPlatform.getKoin().get<AddonCatalog>().clearCaches()
             outFile
         } catch (e: Exception) {
             Log.e(TAG, "Failed to import background image", e)
@@ -65,14 +67,14 @@ object BackgroundImageImporter {
     }
 
     /** Avoid clobbering an existing image another workspace may reference. */
-    private fun uniqueFile(dir: File, name: String): File {
-        var candidate = File(dir, name)
-        if (!candidate.exists()) return candidate
+    private fun uniqueFile(dir: Path, name: String): Path {
+        var candidate = dir / name
+        if (!KFiles.exists(candidate)) return candidate
         val stem = name.substringBeforeLast('.')
         val ext = name.substringAfterLast('.', "")
         var i = 2
-        while (candidate.exists()) {
-            candidate = File(dir, if (ext.isEmpty()) "${stem}_$i" else "${stem}_$i.$ext")
+        while (KFiles.exists(candidate)) {
+            candidate = dir / (if (ext.isEmpty()) "${stem}_$i" else "${stem}_$i.$ext")
             i++
         }
         return candidate

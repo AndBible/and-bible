@@ -80,13 +80,13 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import java.util.Locale
 
-object MyLocaleProvider: LocaleProvider {
+object MyLocaleProvider: net.bible.service.sword.OverridableLocaleProvider {
     /**
      * Allow hardcoding exceptions for JSword locales, as
      * it does not support all Android locale variants.
      */
     override fun getUserLocale(): KLocale {
-        this.override?.run { return this.toKLocale() }
+        this.override?.run { return this }
         val default = Locale.getDefault()
         if(default.language == "sr" && default.script == "Latn") {
             return KLocale("sr", "LT")
@@ -94,7 +94,7 @@ object MyLocaleProvider: LocaleProvider {
         return default.toKLocale()
     }
 
-    var override: Locale? = null
+    override var override: KLocale? = null
 }
 
 private const val ERROR_NOTIFICATION_CHANNEL = "generic-notifications"

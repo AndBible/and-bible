@@ -127,6 +127,19 @@ class OsisToPlainTextTest {
     }
 
     @Test
+    fun referenceModuleNonAsciiBytesEncodedAsUtf8Percent() {
+        val xml = """<div><reference osisRef="A&#x20AC;&#x2603;:Matt.5.3">x</reference></div>"""
+        assertEquals("[x](sword://A%E2%82%AC%E2%98%83/Matt.5.3)", OsisToPlainText.convert(parse(xml)))
+    }
+
+    /** Each UTF-16 half of a pair is encoded alone, and `String.toByteArray` turns a lone surrogate into `?`. */
+    @Test
+    fun referenceModuleSupplementaryCharEncodedAsQuestionMarks() {
+        val xml = """<div><reference osisRef="A&#x1F600;:Matt.5.3">x</reference></div>"""
+        assertEquals("[x](sword://A%3F%3F/Matt.5.3)", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
     fun referenceVerseRange() {
         val xml = """<div><reference osisRef="Matt.5.3-Matt.5.12">Matt 5:3-12</reference></div>"""
         assertEquals("[Matt 5:3-12](sword:///Matt.5.3-Matt.5.12)", OsisToPlainText.convert(parse(xml)))

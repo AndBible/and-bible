@@ -71,8 +71,10 @@ object OsisToPlainText {
             if (c.isLetterOrDigit() || c in "-._~") {
                 sb.append(c)
             } else {
-                for (byte in c.toString().toByteArray(Charsets.UTF_8)) {
-                    sb.append("%%%02X".format(byte.toInt() and 0xFF))
+                // A lone UTF-16 half (each half of a pair is seen alone here) was "?" under String.toByteArray
+                val bytes = if (c.isSurrogate()) byteArrayOf('?'.code.toByte()) else c.toString().encodeToByteArray()
+                for (byte in bytes) {
+                    sb.append('%').append((byte.toInt() and 0xFF).toString(16).uppercase().padStart(2, '0'))
                 }
             }
         }

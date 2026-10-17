@@ -184,7 +184,7 @@ class SearchIndexingServiceTest {
 
     @Test fun aBookThatIsNoLongerInstalledIsSkipped() {
         val built = CopyOnWriteArrayList<String>()
-        val queue = IndexingQueue(resolve = { Books.installed().getBook(it) }, build = { book -> built += book.initials; book.indexStatus = IndexStatus.DONE })
+        val queue = IndexingQueue(resolve = { Books.installed().getBook(it) }, build = { book -> built += book.initials; book.indexStatus = IndexStatus.DONE }, startWorker = { n, b -> Thread(b, n).apply { isDaemon = true }.start() })
         assertTrue(queue.offer("NoSuchBook", null))
         assertTrue(queue.offer("KJV", null))
         assertTrue(queue.awaitIdle(10_000))
@@ -194,7 +194,7 @@ class SearchIndexingServiceTest {
 
     @Test fun anInstanceNotInTheInstalledRegistryIsStillBuilt() {
         val built = CopyOnWriteArrayList<String>()
-        val queue = IndexingQueue(resolve = { null }, build = { book -> built += book.initials; book.indexStatus = IndexStatus.DONE })
+        val queue = IndexingQueue(resolve = { null }, build = { book -> built += book.initials; book.indexStatus = IndexStatus.DONE }, startWorker = { n, b -> Thread(b, n).apply { isDaemon = true }.start() })
         kjv.indexStatus = IndexStatus.SCHEDULED
         assertTrue(queue.offer("KJV", kjv))
         assertTrue(queue.awaitIdle(10_000))

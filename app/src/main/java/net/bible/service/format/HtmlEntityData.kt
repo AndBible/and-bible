@@ -210,7 +210,9 @@
  */
 package net.bible.service.format
 
-internal val htmlEntityCodePoints = mapOf(
+import androidx.annotation.VisibleForTesting
+
+@VisibleForTesting val htmlEntityCodePoints = mapOf(
     "AElig" to 198,
     "Aacgr" to 902,
     "Aacute" to 193,

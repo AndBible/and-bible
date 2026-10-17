@@ -169,7 +169,7 @@ fun buildSharedBindings() = module {
     }
     single { CloudSync(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { DocumentSync(get(), get(), get(), get(), get(), { get() }) }
-    single { BookInstallWatcher(get(), get(), get(), get()) }
+    single { BookInstallWatcher(get(), get(), get(), get(), get()) }
     single<MarkdownRenderer> { MarkdownToXhtml }
 
     // @ApplicationScope singletons
@@ -186,7 +186,8 @@ fun buildSharedBindings() = module {
     single {
         DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
             deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
-            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() })
+            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() },
+            enableManualInstallFolder = net.bible.service.sword.SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder)
     }
     singleOf(::BookmarkControl)
     singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
@@ -194,7 +195,7 @@ fun buildSharedBindings() = module {
     singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }
     singleOf(::PageControl)
     singleOf(::ReadingPlanControl)
-    single { ReadingPlanRepository(daoProvider = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() }, appScope = get()) }
+    single { ReadingPlanRepository(daoProvider = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() }, appScope = get(), calendar = get()) }
     singleOf(::SearchControl)
     singleOf(::BibleSearchServiceImpl) { bind<BibleSearchService>() }
     // F26: shared across SearchResultsComposeActivity recreations (history-revert Back) so returning

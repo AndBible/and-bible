@@ -17,6 +17,7 @@
 
 package net.bible.service.installzip
 
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
@@ -91,7 +92,7 @@ internal fun moduleArchiveTargetName(name: String): String =
 
 /** True when [file] is a SQLite database with the MyBible layout: an `info` table plus verses, commentaries or dictionary. */
 private fun isMyBibleDatabase(file: File): Boolean {
-    val state = SqliteVerseBackendState(file)
+    val state = SqliteVerseBackendState(file.toOkioPath())
     return try {
         val tables = state.rows("select name from sqlite_master where type = 'table'") { it.getText(0) }.toSet()
         "info" in tables && ("verses" in tables || "commentaries" in tables || "dictionary" in tables)

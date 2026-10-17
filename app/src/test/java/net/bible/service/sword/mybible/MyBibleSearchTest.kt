@@ -16,6 +16,7 @@
  */
 package net.bible.service.sword.mybible
 
+import okio.Path.Companion.toOkioPath
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.db.exec
@@ -60,7 +61,7 @@ class MyBibleSearchTest {
     private fun install(name: String, vararg sql: String): Book {
         val file = File(dir, name)
         openSqlite(file.path).use { c -> sql.forEach { c.exec(it) } }
-        addMyBibleBook(file)
+        addMyBibleBook(file.toOkioPath())
         val initials = "MyBible-" + sanitizeModuleName(name.removeSuffix(".SQLite3"))
         return Books.installed().getBook(initials)!!.also { books += it }
     }
