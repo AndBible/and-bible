@@ -148,6 +148,22 @@ class DatabaseContainerCloseTest {
         primary?.let { throw it }
     }
 
+    /**
+     * A container factory that builds only for the threads in [allowed] (the test's own, its workers) and refuses every
+     * other caller. The singleton can be rebuilt by producers these tests do not own. A stray was observed from the AI
+     * settings observer elsewhere in a scoped diagnostic run (stack `AiDatabaseLifetime.observe` ->
+     * `AiSettingsStore.refresh` -> `DatabaseContainer.instance` on a DefaultDispatcher worker, re-armed by the
+     * `generation` bump of a drop/reset/closeAll), but it was not reproduced inside these Close tests; the wrapper is
+     * independent of the producer. A stray build between the test's drop and its own first build would publish an
+     * instance the test did not make, or be counted as one. Install it BEFORE the first drop: a stray already inside
+     * the construction monitor with the original factory publishes first, and the test's first drop (after the factory
+     * swap) removes it (DatabaseContainer.kt:516-526, :473), so there is no residual window.
+     */
+    private fun onlyBuildsOn(allowed: Set<Thread>, build: () -> DatabaseContainer): () -> DatabaseContainer = {
+        check(Thread.currentThread() in allowed) { "stray container build refused on ${Thread.currentThread().name}" }
+        build()
+    }
+
     @Test fun resetWaitsForReadyClearedConstructionThenClosesItsPublishedContainer() {
         val originalApp = net.bible.android.BibleApplication.application
         val originalReady = DatabaseContainer.ready
@@ -161,12 +177,12 @@ class DatabaseContainerCloseTest {
         val release = java.util.concurrent.CountDownLatch(1)
         val failure = java.util.concurrent.atomic.AtomicReference<Throwable?>()
         val built = java.util.concurrent.atomic.AtomicReference<DatabaseContainer>()
+        val allowed = java.util.concurrent.ConcurrentHashMap.newKeySet<Thread>().apply { add(Thread.currentThread()) }
         var opener: Thread? = null
         var resetter: Thread? = null
         try {
-            DatabaseContainer.dropInstanceWithoutOpening()
             DatabaseContainer.ready = true
-            DatabaseContainer.containerFactory = {
+            DatabaseContainer.containerFactory = onlyBuildsOn(allowed) {
                 originalFactory().also { current ->
                     built.set(current)
                     applicationField.set(null, productionApp)
@@ -176,9 +192,10 @@ class DatabaseContainerCloseTest {
                     }
                 }
             }
-            opener = Thread { try { DatabaseContainer.instance } catch (e: Throwable) { failure.set(e) } }.apply { start() }
+            DatabaseContainer.dropInstanceWithoutOpening()
+            opener = Thread { allowed.add(Thread.currentThread()); try { DatabaseContainer.instance } catch (e: Throwable) { failure.set(e) } }.apply { start() }
             assertTrue(constructing.await(5, java.util.concurrent.TimeUnit.SECONDS))
-            resetter = Thread { try { DatabaseContainer.reset() } catch (e: Throwable) { failure.set(e) } }.apply { start() }
+            resetter = Thread { allowed.add(Thread.currentThread()); try { DatabaseContainer.reset() } catch (e: Throwable) { failure.set(e) } }.apply { start() }
             val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5)
             while (resetter.state != Thread.State.BLOCKED && resetter.isAlive && System.nanoTime() < deadline) Thread.yield()
             assertEquals("reset really waits for the constructor monitor", Thread.State.BLOCKED, resetter.state)
@@ -203,9 +220,12 @@ class DatabaseContainerCloseTest {
     @Test fun resetIsEagerButDropNeverConstructsAContainer() {
         val originalFactory = DatabaseContainer.containerFactory
         var opens = 0
+        val allowed = setOf(Thread.currentThread())
         try {
+            // Factory first (see onlyBuildsOn); each drop/reset below bumps the AI lifetime generation again, and a
+            // refused stray cannot publish or be counted after any of those bumps.
+            DatabaseContainer.containerFactory = onlyBuildsOn(allowed) { opens++; originalFactory() }
             DatabaseContainer.dropInstanceWithoutOpening()
-            DatabaseContainer.containerFactory = { opens++; originalFactory() }
             DatabaseContainer.dropInstanceWithoutOpening()
             assertEquals(0, opens)
             DatabaseContainer.reset()
