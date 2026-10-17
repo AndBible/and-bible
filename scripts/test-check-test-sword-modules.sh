@@ -65,4 +65,28 @@ expect_exit 1 "shared dir extra" "$CHECK" --zip "$T/testmods.zip" --sword "$T/sh
 # 6. Missing zip -> 2
 expect_exit 2 "missing zip" "$CHECK" --zip "$T/nope.zip" --sword "$T/exact"
 
+# 7. Corrupt zip -> 2, and --fix must delete nothing (an unreadable zip lists no confs)
+install "$T/corrupt"; printf '[extra]\nDataPath=./modules/texts/ztext/extra/\n' > "$T/corrupt/mods.d/extra.conf"
+printf 'this is not a zip\n' > "$T/corrupt.zip"
+expect_exit 2 "corrupt zip" "$CHECK" --zip "$T/corrupt.zip" --sword "$T/corrupt" --fix
+[ -f "$T/corrupt/mods.d/extra.conf" ] && [ -f "$T/corrupt/mods.d/a.conf" ] \
+  && [ -f "$T/corrupt/modules/texts/ztext/a/data" ] && [ -f "$T/corrupt/modules/texts/ztext/b/data" ] \
+  || fail "corrupt zip: --fix deleted something"
+
+# 8. Zip with no mods.d/*.conf -> 2, and --fix must delete nothing
+mkdir -p "$T/noconf/modules/texts/ztext/a"; echo a > "$T/noconf/modules/texts/ztext/a/data"
+(cd "$T/noconf" && python3 -m zipfile -c "$T/noconf.zip" modules >/dev/null)
+install "$T/noconfsword"
+expect_exit 2 "zip without confs" "$CHECK" --zip "$T/noconf.zip" --sword "$T/noconfsword" --fix
+[ -f "$T/noconfsword/mods.d/a.conf" ] && [ -f "$T/noconfsword/modules/texts/ztext/a/data" ] \
+  || fail "zip without confs: --fix deleted something"
+
+# 9. DataPath=. is unsafe: --fix removes only the conf, never the sword dir
+install "$T/dot"
+printf '[dot]\nDataPath=.\n' > "$T/dot/mods.d/dot.conf"
+expect_exit 0 "--fix with DataPath=." "$CHECK" --zip "$T/testmods.zip" --sword "$T/dot" --fix
+[ ! -e "$T/dot/mods.d/dot.conf" ] || fail "--fix left dot.conf"
+[ -f "$T/dot/modules/texts/ztext/a/data" ] && [ -f "$T/dot/modules/texts/ztext/b/data" ] \
+  || fail "--fix with DataPath=. deleted zip module data"
+
 echo "PASS: test-check-test-sword-modules.sh"

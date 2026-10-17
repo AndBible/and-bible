@@ -21,6 +21,11 @@ export LC_ALL=C  # comm needs identical sort order on both sides; file names are
 zip_confs() { unzip -Z1 "$ZIP" | sed -n 's#^mods\.d/\([^/]*\.conf\)$#\1#p' | sort; }
 sword_confs() { find "$SWORD/mods.d" -maxdepth 1 -name '*.conf' -printf '%f\n' 2>/dev/null | sort || true; }
 
+# An unreadable zip or one without confs would look like "every installed module is extra"; with
+# --fix that would delete the whole set. Refuse before any comparison or removal.
+unzip -Z1 "$ZIP" >/dev/null 2>&1 || { echo "test-modules zip is unreadable: $ZIP" >&2; exit 2; }
+[ -n "$(zip_confs)" ] || { echo "test-modules zip has no mods.d/*.conf: $ZIP" >&2; exit 2; }
+
 # Prints the result and returns 0 on exact match, 1 otherwise.
 check() {
   local zc sc missing extra
@@ -53,7 +58,7 @@ remove_extras() {
     [ -n "$conf" ] || continue
     dp="$(tr -d '\r' < "$SWORD/mods.d/$conf" | sed -n 's/^DataPath=//p' | head -n1)"
     rel="${dp#./}"; rel="${rel%/}"
-    if [ -z "$rel" ] || [[ "$rel" == /* ]] || [[ "$rel" == *..* ]]; then
+    if [ -z "$rel" ] || [ "$rel" = "." ] || [[ "$rel" == /* ]] || [[ "$rel" == *..* ]] || [[ "$rel" == *//* ]]; then
       echo "fix: $conf has no safe DataPath (${dp:-none}); removing only the conf" >&2
       rel=""
     elif zip_overlaps "$rel"; then
