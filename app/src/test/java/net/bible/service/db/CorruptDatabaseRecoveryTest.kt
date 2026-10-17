@@ -64,10 +64,10 @@ class CorruptDatabaseRecoveryTest {
 
         // A container of our own, built after the garbage is on disk: the global singleton can be rebuilt by a
         // non-test thread between resetDatabase() and writeBytes, and would then answer from its already-open
-        // database instead of recovering the file. Known producer: every drop/reset/closeAll bumps the AI lifetime
-        // generation and a live AI settings observer re-runs AiDatabaseLifetime.observe -> AiSettingsStore.refresh ->
-        // DatabaseContainer.instance on a DefaultDispatcher worker (diagnostic stacks in a scoped run); app-scope
-        // service loaders are a second candidate. Not reproduced inside this class itself.
+        // database instead of recovering the file. Candidate producers: the AI settings observer (stack observed elsewhere
+        // in a scoped run: AiDatabaseLifetime.observe -> AiSettingsStore.refresh -> DatabaseContainer.instance on a
+        // DefaultDispatcher worker, re-armed by every drop/reset/closeAll) and app-scope service loaders. Not
+        // reproduced inside this class itself.
         val container = DatabaseContainer.containerFactory()
         val count = try {
             runBlocking { container.downloadDocumentsDb.documentSearchDao().count() }

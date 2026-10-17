@@ -150,13 +150,14 @@ class DatabaseContainerCloseTest {
 
     /**
      * A container factory that builds only for the threads in [allowed] (the test's own, its workers) and refuses every
-     * other caller. The singleton is also built by production producers that these tests do not own: the AI settings
-     * observer (`AiDatabaseLifetime.observe` -> `AiSettingsStore.refresh` -> `DatabaseContainer.instance` on a
-     * DefaultDispatcher worker, re-armed by every `generation` bump of a drop/reset/closeAll) and app-scope service
-     * loaders. A stray build between the test's drop and its own first build would publish an instance the test did not
-     * make, or be counted as one. Refusing is deterministic where draining is not: it holds for every producer, also
-     * after the generation bump of the test's own reset/drop. Install it BEFORE the first drop so no stray can publish
-     * after that drop (a stray published earlier is the one the first drop removes).
+     * other caller. The singleton can be rebuilt by producers these tests do not own. A stray was observed from the AI
+     * settings observer elsewhere in a scoped diagnostic run (stack `AiDatabaseLifetime.observe` ->
+     * `AiSettingsStore.refresh` -> `DatabaseContainer.instance` on a DefaultDispatcher worker, re-armed by the
+     * `generation` bump of a drop/reset/closeAll), but it was not reproduced inside these Close tests; the wrapper is
+     * independent of the producer. A stray build between the test's drop and its own first build would publish an
+     * instance the test did not make, or be counted as one. Install it BEFORE the first drop: a stray already inside
+     * the construction monitor with the original factory publishes first, and the test's first drop (after the factory
+     * swap) removes it (DatabaseContainer.kt:516-526, :473), so there is no residual window.
      */
     private fun onlyBuildsOn(allowed: Set<Thread>, build: () -> DatabaseContainer): () -> DatabaseContainer = {
         check(Thread.currentThread() in allowed) { "stray container build refused on ${Thread.currentThread().name}" }
