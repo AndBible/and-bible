@@ -62,7 +62,15 @@ class CorruptDatabaseRecoveryTest {
         // Room 3's lock file (SQLite's own open may consume invalid -journal/-wal files, see recoverIfCorrupt)
         File(file.path + ".lck").writeText("l")
 
-        val count = runBlocking { DatabaseContainer.instance.downloadDocumentsDb.documentSearchDao().count() }
+        // A container of our own, built after the garbage is on disk: the global singleton may have been built
+        // concurrently by a non-test thread (app-scope work) before the garbage was written, and would answer
+        // from its already-open database instead of recovering the file.
+        val container = DatabaseContainer.containerFactory()
+        val count = try {
+            runBlocking { container.downloadDocumentsDb.documentSearchDao().count() }
+        } finally {
+            container.closeAll()
+        }
 
         assertEquals(0L, count)
         val aside = corruptCopies(file).single()
