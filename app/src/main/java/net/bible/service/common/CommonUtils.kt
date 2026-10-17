@@ -227,15 +227,6 @@ const val newFeaturesIntroVideo = "https://youtu.be/Gm-JLot1uf4" // What's new i
 const val speakHelpVideo = speakPlayList
 const val automaticSpeakBookmarkingVideo = speakPlayList
 
-val BookmarkEntities.Label.displayName get() =
-    when {
-        isSpeakLabel -> application.getString(R.string.speak)
-        isUnlabeledLabel -> application.getString(R.string.label_unlabelled)
-        isParagraphBreakLabel -> application.getString(R.string.add_paragraph_break)
-        isAiLabel -> application.getString(R.string.ai_label)
-        else -> name
-    }
-
 
 open class CommonUtilsBase : KoinComponent {
     val windowControl: WindowControl by inject()
@@ -1865,8 +1856,6 @@ data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisp
     }
 }
 
-val firstBibleDoc get() = Books.installed().getBooks().first { it.bookCategory == BookCategory.BIBLE } as SwordBook
-
 suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
      map { async { action(it) }}.awaitAll()
 }
@@ -1884,126 +1873,6 @@ fun <R> useKdomBuilder(block: (it: KdomBuilder) -> R): R {
     builders.offer(builder)
     return rv
 }
-
-suspend fun Book.getBookAndKey(keyStr: String, strings: net.bible.sharedcore.platform.CoreStrings, ordinal: Int? = null): BookAndKey? {
-    val k = try {getKey(keyStr)} catch (e: NoSuchKeyException) {null} ?: return null
-    return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k, strings).first))
-}
-
-suspend fun BookAndKey.prev(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey {
-    val nextKey: Key = when(this.key) {
-        is VerseRange -> {
-            traverser.getPrevVerse(this.document as AbstractPassageBook, this.key.end)
-
-        }
-        is Verse -> {
-            traverser.getPrevVerse(this.document as AbstractPassageBook, this.key)
-        }
-        else -> {
-            val backend = when(val book = this.document!!) {
-                is SwordGenBook -> book.backend as AbstractKeyBackend
-                is SwordDictionary -> book.backend as AbstractKeyBackend
-                else -> throw RuntimeException("Unsupported")
-            }
-            val idx = backend.indexOf(this.key)
-            try {
-                backend.get(idx - 1)!!
-            } catch (e: IndexOutOfBoundsException) {
-                backend.last()
-            }
-        }
-    }
-    return BookAndKey(
-        nextKey,
-        this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey, strings).last)
-    )
-}
-
-suspend fun BookAndKey.next(strings: net.bible.sharedcore.platform.CoreStrings, traverser: BibleTraverser): BookAndKey {
-    val nextKey: Key = when(this.key) {
-        is VerseRange -> {
-            traverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
-        }
-        is Verse -> {
-            traverser.getNextVerse(this.document as AbstractPassageBook, this.key)
-        }
-        else -> {
-            val backend = when(val book = this.document!!) {
-                is SwordGenBook -> {
-                    if(book.isEpub || book.isMyDocument) {
-                        book.backend as AbstractKeyBackend
-                    } else {
-                        book.backend as GenBookBackend
-                    }
-                }
-                is SwordDictionary -> book.backend as AbstractKeyBackend
-                else -> throw RuntimeException("Unsupported")
-            }
-            when (backend) {
-                is AbstractKeyBackend -> {
-                    val idx = backend.indexOf(this.key)
-                    try {
-                        backend.get(idx + 1)!!
-                    } catch (e: IndexOutOfBoundsException) {
-                        backend.first()
-                    }
-                }
-
-                is GenBookBackend -> {
-                    val keyList = backend.readIndex().flatten().toList()
-                    val idx = keyList.indexOf(this.key)
-                    try {
-                        keyList[idx + 1]
-                    } catch (e: IndexOutOfBoundsException) {
-                        keyList.first()
-                    }
-                }
-                else -> throw RuntimeException("Unsupported")
-            }
-
-        }
-    }
-    return BookAndKey(
-        nextKey,
-        this.document,
-        OrdinalRange(this.document!!.ordinalRangeFor(nextKey, strings).first)
-    )
-}
-
-suspend fun Book.ordinalRangeFor(key: Key, strings: net.bible.sharedcore.platform.CoreStrings): IntRange = SwordContentFacade.ordinalRangeFor(this, key, strings)
-
-val Key.tinyName: String get() =
-    if(this is VerseKey<*>)
-        synchronized(BookName::class.java) {
-            val prevTruncateLength = BookName.getTruncateShortName()
-            try {
-                var length = 5
-                var name: String
-                do {
-                    BookName.setTruncateShortName(length--)
-                    name = this.getName()
-                } while(length > 0 && name.length > 7)
-                name
-            } finally {
-                BookName.setTruncateShortName(prevTruncateLength)
-            }
-        }
-    else getName()
-
-
-val Key.shortName: String get() =
-    if(this is VerseKey<*>)
-        synchronized(BookName::class.java) {
-            val oldValue = BookName.isFullBookName()
-            BookName.setFullBookName(false)
-            try {
-                return getName()
-            } finally {
-                BookName.setFullBookName(oldValue)
-            }
-        }
-    else getName()
 
 enum class DbType {
     BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, AI_SETTINGS

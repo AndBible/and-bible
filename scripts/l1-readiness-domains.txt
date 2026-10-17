@@ -39,3 +39,7 @@ core	service/common/ReadingProgressSettings.kt
 core	service/common/ReadingProgressSettingsStore.kt
 core	service/common/GlobalTextDisplaySettingsStore.kt
 core	service/db/ExportStudyPads.kt
+# G3
+page	service/common/BookKeyExtensions.kt
+page	service/common/FirstBibleDoc.kt
+bookmark	service/common/LabelDisplayName.kt
