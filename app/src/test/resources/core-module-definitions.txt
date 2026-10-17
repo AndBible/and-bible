@@ -126,3 +126,14 @@ net.bible.sharedcore.ui.dialog.AppDialogController::_root_
 net.bible.sharedcore.window.WindowCommands::_root_
 net.bible.sharedcore.window.WindowStateService::_root_
 net.bible.sharedcore.workspaces.WorkspaceService::_root_
+net.bible.sharedlogic.platform.AddonCatalog::_root_
+net.bible.sharedlogic.platform.FirstLoadEdge::_root_
+net.bible.sharedlogic.platform.LabelNameStrings::_root_
+net.bible.sharedlogic.platform.LocalCalendar::_root_
+net.bible.sharedlogic.platform.LocaleSupport::_root_
+net.bible.sharedlogic.platform.NightModeState::_root_
+net.bible.sharedlogic.platform.PlatformLocales::_root_
+net.bible.sharedlogic.platform.PromptPackSource::_root_
+net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener::_root_
+net.bible.sharedlogic.platform.SearchIndexScheduler::_root_
+net.bible.sharedlogic.platform.SentenceBreaker::_root_
