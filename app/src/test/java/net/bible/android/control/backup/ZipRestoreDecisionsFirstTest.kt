@@ -1,6 +1,7 @@
 package net.bible.android.control.backup
 
 import net.bible.service.db.reset
+import okio.Path.Companion.toOkioPath
 import androidx.room3.useReaderConnection
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication
@@ -85,7 +86,7 @@ class ZipRestoreDecisionsFirstTest {
         lastConfirm: Boolean = true,
     ) = object : BackupControl.RestorePrompts {
         var promptsOnLastFile = 0
-        override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File): Boolean? =
+        override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: okio.Path): Boolean? =
             if (category == SyncableDatabaseDefinition.WORKSPACES) {
                 assertAllOpenAndUnreplaced(); promptsOnLastFile++; lastRestoreOrImport
             } else true
@@ -97,7 +98,7 @@ class ZipRestoreDecisionsFirstTest {
 
     @Test fun duringTheLastPromptsEveryDatabaseIsOpenAndBothFilesAreRestoredAfter() {
         val p = prompts(lastRestoreOrImport = true)
-        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder, p) }
+        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder.toOkioPath(), p) }
         assertEquals(2, p.promptsOnLastFile)
         assertTrue("backup-label" in labelNames)
         assertFalse("live-label" in labelNames)
@@ -107,7 +108,7 @@ class ZipRestoreDecisionsFirstTest {
 
     @Test fun cancellingTheLastPromptRestoresOnlyTheFirstFileAndLeavesTheLastUntouched() {
         val p = prompts(lastRestoreOrImport = null)
-        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder, p) }
+        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder.toOkioPath(), p) }
         assertEquals(1, p.promptsOnLastFile)
         assertFalse("live-label" in labelNames)
         assertTrue("live-ws" in workspaceNames)
@@ -115,7 +116,7 @@ class ZipRestoreDecisionsFirstTest {
 
     @Test fun answeringNoToTheLastOverwriteLeavesTheLastUntouched() {
         val p = prompts(lastRestoreOrImport = true, lastConfirm = false)
-        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder, p) }
+        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder.toOkioPath(), p) }
         assertEquals(2, p.promptsOnLastFile)
         assertFalse("live-label" in labelNames)
         assertTrue("live-ws" in workspaceNames)
@@ -123,7 +124,7 @@ class ZipRestoreDecisionsFirstTest {
 
     @Test fun importingTheLastFileMergesItAfterTheRestore() {
         val p = prompts(lastRestoreOrImport = false)
-        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder, p) }
+        runBlocking { backup.restoreSelectedFiles(selection, unzipFolder.toOkioPath(), p) }
         assertFalse("live-label" in labelNames)
         assertTrue("live-ws" in workspaceNames)
         assertTrue("backup-ws" in workspaceNames)

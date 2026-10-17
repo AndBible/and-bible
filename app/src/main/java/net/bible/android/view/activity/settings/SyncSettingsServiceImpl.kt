@@ -147,7 +147,7 @@ class SyncSettingsServiceImpl(
             if (categories.syncEnabled && cloudSync.signedIn) {
                 val mb = cloudSync.bytesUsed() / (1024.0 * 1024)
                 _snapshot.value = build(
-                    cloudInfoSummary = strings.syncCloudInfo(String.format("%.2f", mb)),
+                    cloudInfoSummary = strings.syncCloudInfo(platform.formatDecimal2(mb)),
                 )
             }
         }

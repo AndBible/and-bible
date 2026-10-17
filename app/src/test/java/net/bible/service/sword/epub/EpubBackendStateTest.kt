@@ -245,6 +245,7 @@ class EpubBackendStateTest {
         net.bible.service.installzip.DefaultInstallCommitter(
             org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java),
             strings, AndroidAppEnvironment(application),
+            clearAddonCaches = { net.bible.service.common.AndBibleAddons.clearCaches() },
         )
 
     private fun epubArchive(name: String, token: String): File {
@@ -889,3 +890,6 @@ class EpubBackendStateTest {
         assertTrue(state.keys.all { state.read(it).isNotEmpty() })
     }
 }
+
+private suspend fun net.bible.service.installzip.DefaultInstallCommitter.commitEpub(file: File, name: String, deleteExisting: Boolean) =
+    commitEpub(file.toOkioPath(), name, deleteExisting)

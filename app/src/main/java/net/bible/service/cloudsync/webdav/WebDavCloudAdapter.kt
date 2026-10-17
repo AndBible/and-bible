@@ -10,20 +10,27 @@ import net.bible.service.cloudsync.CloudSyncUserCancelledException
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
-import net.bible.service.cloudsync.nextcloud.FOLDER_MIMETYPE
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
+import net.bible.service.common.createTempFile
 import net.bible.sharedcore.webdav.*
-import java.io.File
-import java.io.FileNotFoundException
 import io.ktor.utils.io.writeFully
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import okio.FileNotFoundException
+import okio.FileSystem
+import okio.IOException
 import okio.Path
 import okio.Sink
 import okio.buffer
-import java.util.UUID
+import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import net.bible.sharedcore.log.Log
 
 const val WEBDAV_SECRET_FILE_NAME_KEY = "webDavSecretFile"
+
+/** Same value as the Nextcloud adapter's folder mime type: the sync layer's generic "folder" marker. */
+private const val WEBDAV_FOLDER_MIMETYPE = "DIR"
 
 /**
  * [CloudAdapter] over a generic WebDAV server (spec 2026-10-09-webdav-sync-design).
@@ -37,8 +44,9 @@ class WebDavCloudAdapter(
     private val config: WebDavConfig,
     private val state: WebDavStateStore,
     private val ui: WebDavSignInUi,
-    private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient = { c, s -> createWebDavClient(c, s) },
-    private val nowMs: () -> Long = System::currentTimeMillis,
+    private val deviceId: String,
+    private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient,
+    private val nowMs: () -> Long = { Clock.System.now().toEpochMilliseconds() },
 ) : CloudAdapter {
     private var _client: WebDavClient? = null
     private val client get() = _client ?: throw IllegalStateException("WebDAV adapter not signed in")
@@ -90,7 +98,7 @@ class WebDavCloudAdapter(
         parents.asyncMap { p -> listChildren(p, sinceServer) }.flatten()
             .asSequence()
             .filter { name == null || it.name == name }
-            .filter { mimeType == null || (mimeType == FOLDER_MIMETYPE) == it.isCollection }
+            .filter { mimeType == null || (mimeType == WEBDAV_FOLDER_MIMETYPE) == it.isCollection }
             .filter { sinceServer == null || (it.lastModified ?: Long.MAX_VALUE) >= sinceServer }
             .map { it.toCloudFile() }
             .toList()
@@ -99,15 +107,19 @@ class WebDavCloudAdapter(
     private class CachedMtime(val serverMtime: Long?, val fetchedAt: Long)
 
     /** Collection mtimes (server clock) seen in recent PROPFINDs; trusted for [CACHE_TTL_MS] only. */
-    private val folderMtimes = java.util.concurrent.ConcurrentHashMap<String, CachedMtime>()
+    private val folderMtimes = HashMap<String, CachedMtime>()
+    private val folderMtimesLock = SynchronizedObject()
 
     private fun remember(resources: List<DavResource>) {
         val at = nowMs()
-        resources.filter { it.isCollection }.forEach { folderMtimes[it.path] = CachedMtime(it.lastModified, at) }
+        synchronized(folderMtimesLock) { // L1-common-ok: atomicfu lock
+            resources.filter { it.isCollection }.forEach { folderMtimes[it.path] = CachedMtime(it.lastModified, at) }
+        }
     }
 
     private suspend fun freshFolderMtime(path: String): Long? {
-        folderMtimes[path]?.takeIf { nowMs() - it.fetchedAt <= CACHE_TTL_MS }?.let { return it.serverMtime }
+        val cached = synchronized(folderMtimesLock) { folderMtimes[path] } // L1-common-ok: atomicfu lock
+        cached?.takeIf { nowMs() - it.fetchedAt <= CACHE_TTL_MS }?.let { return it.serverMtime }
         return client.propfind(path, 0).also(::remember).firstOrNull { it.path == path }?.lastModified
     }
 
@@ -125,7 +137,7 @@ class WebDavCloudAdapter(
     }
 
     override suspend fun getFolders(parentId: String): List<CloudFile> =
-        listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
+        listFiles(parentsIds = listOf(parentId), mimeType = WEBDAV_FOLDER_MIMETYPE)
 
     override suspend fun download(id: String, sink: Sink, onProgress: DownloadProgressListener?) = sink.buffer().use { out ->
         dav {
@@ -142,14 +154,14 @@ class WebDavCloudAdapter(
     }
 
     /** Uploads, and calibrates from this write whether the server propagates child changes to the folder mtime. */
-    override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = upload(name, file.toFile(), parentId)
+    override suspend fun upload(name: String, file: Path, parentId: String): CloudFile = upload(name, file, parentId, FileSystem.SYSTEM)
 
-    private suspend fun upload(name: String, file: File, parentId: String): CloudFile = dav {
+    private suspend fun upload(name: String, file: Path, parentId: String, fs: FileSystem): CloudFile = dav {
         val path = joinDavPath(parentId, name)
         // Always a fresh baseline: a cached value from before an earlier delete would let that delete's
         // mtime bump be credited to this PUT.
         val m0 = client.propfind(parentId, 0).also(::remember).firstOrNull { it.path == parentId }?.lastModified
-        putFile(path, file)
+        putFile(path, file, fs)
         // The PUT succeeded; calibration is best effort and must never fail the upload.
         var uploaded: DavResource? = null
         try {
@@ -161,15 +173,15 @@ class WebDavCloudAdapter(
             }
         } catch (e: DavException) {
             Log.w(TAG, "WebDAV calibration after upload failed; upload kept", e)
-        } catch (e: java.io.IOException) {
+        } catch (e: IOException) {
             Log.w(TAG, "WebDAV calibration after upload failed; upload kept", e)
         }
-        uploaded?.toCloudFile() ?: CloudFile(path, name, file.length(), nowMs(), parentId)
+        uploaded?.toCloudFile() ?: CloudFile(path, name, fs.metadata(file).size ?: 0L, nowMs(), parentId)
     }
 
-    private suspend fun putFile(path: String, file: File) =
-        client.put(path, file.length(), GZIP_MIMETYPE) { ch ->
-            file.inputStream().use { input ->
+    private suspend fun putFile(path: String, file: Path, fs: FileSystem) =
+        client.put(path, fs.metadata(file).size ?: 0L, GZIP_MIMETYPE) { ch ->
+            fs.source(file).buffer().use { input ->
                 val buf = ByteArray(64 * 1024)
                 while (true) { val n = input.read(buf); if (n < 0) break; ch.writeFully(buf, 0, n) }
             }
@@ -178,7 +190,7 @@ class WebDavCloudAdapter(
     override suspend fun delete(id: String) = dav {
         client.delete(id)
         // The parent's mtime may have just changed; a cached value would be stale.
-        folderMtimes.remove(id.substringBeforeLast('/', ""))
+        synchronized(folderMtimesLock) { folderMtimes.remove(id.substringBeforeLast('/', "")) } // L1-common-ok: atomicfu lock
         Unit
     }
 
@@ -189,10 +201,12 @@ class WebDavCloudAdapter(
         }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) {
-        val secret = "device-known-${CommonUtils.deviceIdentifier}-${UUID.randomUUID()}"
-        val tmp = File.createTempFile("webdav-secret", null)
-        try { upload(secret, tmp, id) } finally { tmp.delete() }
+        val secret = "device-known-$deviceId-${Uuid.random()}"
+        // Same location as the old File.createTempFile default: the JVM temp directory.
+        val tmp = createTempFile(FileSystem.SYSTEM_TEMPORARY_DIRECTORY, "webdav-secret")
+        try { upload(secret, tmp, id, FileSystem.SYSTEM) } finally { FileSystem.SYSTEM.delete(tmp) }
         dbDef.dao.setConfig(WEBDAV_SECRET_FILE_NAME_KEY, secret)
     }
 

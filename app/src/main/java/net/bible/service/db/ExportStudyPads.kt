@@ -32,13 +32,16 @@ import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.service.common.DbType
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
+import net.bible.service.common.dosDateTime
+import kotlin.time.Clock
+import kotlin.random.Random
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toPath
+import org.crosswire.common.compress.ZipWriter
+import org.koin.mp.KoinPlatform
 
 private const val TAG = "ExportStudyPad"
 
@@ -145,17 +148,17 @@ fun sanitizeFilename(name: String): String = name.replace(Regex("[^a-zA-Z0-9._-]
  */
 @VisibleForTesting
 internal suspend fun writeStudyPadExportDb(
-    exportDbFile: File,
+    exportDbFile: Path,
     labels: List<BookmarkEntities.Label>,
     source: BookmarkDatabase = DatabaseContainer.instance.bookmarkDb,
     openExportDb: (String) -> BookmarkDatabase = { DatabaseContainer.instance.getBookmarkDb(it) },
 ) {
-    val exportDb = openExportDb(exportDbFile.absolutePath)
+    val exportDb = openExportDb(exportDbFile.toString())
     try { exportDb.useWriterConnection { } } finally { exportDb.close() }
     source.useWriterConnectionMarked { db ->
         // ATTACH inside the protected region, so DETACH always runs once it may have succeeded.
         db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE export") {
-            db.exec("ATTACH DATABASE '${exportDbFile.absolutePath}' AS export")
+            db.exec("ATTACH DATABASE '${exportDbFile}' AS export")
             db.exec("PRAGMA foreign_keys=OFF;")
             db.inTransaction<Unit> {
                 for (label in labels) {
@@ -180,26 +183,24 @@ suspend fun exportStudyPads(
     backupControl: BackupControl,
     chooseDestination: (suspend () -> SaveOrShare?)? = null,
 ) = withContext(Dispatchers.IO) {
-    val exportDbFile = File.createTempFile("andbible-", ".tmp", File(environment.tmpDir))
+    val exportDbFile = environment.tmpDir.toPath() / "andbible-${Random.nextLong().toULong().toString(36)}.tmp"
+    FileSystem.SYSTEM.write(exportDbFile, mustCreate = true) { }
     writeStudyPadExportDb(exportDbFile, labels)
 
     val filename = if (labels.size > 1) "StudyPads$DATABASE_BACKUP_SUFFIX" else sanitizeFilename(labels.first().name) + DATABASE_BACKUP_SUFFIX
-    val zipFile = File(backupControl.internalDbBackupDir, filename)
+    val zipFile = backupControl.internalDbBackupDir / filename
     val manifest = AndBibleBackupManifest(
         backupType = BackupType.STUDYPAD_EXPORT,
         contains = setOf(DbType.BOOKMARKS),
+        andBibleVersion = environment.versionNumber.toInt(),
     )
-    ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
-        manifest.saveToZip(outFile)
-        FileInputStream(exportDbFile).use { inFile ->
-            BufferedInputStream(inFile).use { origin ->
-                val entry = ZipEntry("db/${BookmarkDatabase.dbFileName}")
-                outFile.putNextEntry(entry)
-                origin.copyTo(outFile)
-            }
-        }
+    val dateTimeFormats = KoinPlatform.getKoin().get<DateTimeFormats>()
+    ZipWriter(FileSystem.SYSTEM.sink(zipFile)).use { zip ->
+        val dosTime = dosDateTime(Clock.System.now().toEpochMilliseconds(), dateTimeFormats)
+        manifest.saveToZip(zip, dosTime)
+        zip.putEntry("db/${BookmarkDatabase.dbFileName}", FileSystem.SYSTEM.source(exportDbFile), dosTime)
     }
-    exportDbFile.delete()
+    FileSystem.SYSTEM.delete(exportDbFile, mustExist = false)
     backupControl.saveOrShare(
         host = host,
         file = zipFile,

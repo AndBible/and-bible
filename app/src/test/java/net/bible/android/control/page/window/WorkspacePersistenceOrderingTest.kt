@@ -236,7 +236,7 @@ class WorkspacePersistenceOrderingTest {
         assertNotEquals(before, 11)
         // The save inside the backup queues behind the held gate; only BackupControl's own wait lets it through.
         gate.hold()
-        val zip = runBlocking { net.bible.test.testBackupControl().makeDatabaseBackupFile() }!!
+        val zip = runBlocking { net.bible.test.testBackupControl().makeDatabaseBackupFile() }!!.toFile()
         val extracted = File(BibleApplication.application.cacheDir, "backup-workspaces.sqlite3").apply { delete() }
         ZipFile(zip).use { z ->
             z.getInputStream(z.getEntry("db/${WorkspaceDatabase.dbFileName}")).use { input ->

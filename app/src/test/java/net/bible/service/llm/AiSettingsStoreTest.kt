@@ -1,6 +1,7 @@
 package net.bible.service.llm
 
 import net.bible.service.cloudsync.localDbFile
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.flow.map
 
 import androidx.room3.useWriterConnection
@@ -157,7 +158,7 @@ class AiSettingsStoreTest {
         val target = accessor
         net.bible.service.cloudsync.createTriggers(target)
         dao.set(GlobalAiSettings(maxIterations = 7))
-        val patch = createPatchForDatabase(target, env)!!.also { files += it }
+        val patch = createPatchForDatabase(target, env)!!.also { files += it.toFile() }
         target.dao.setConfig(net.bible.service.cloudsync.TRIGGERS_DISABLED_KEY, true)
         dao.set(GlobalAiSettings(maxIterations = 10))
         target.localDb.useWriterConnection { it.exec("DELETE FROM LogEntry WHERE tableName = 'GlobalAiSettings'") }
@@ -181,7 +182,7 @@ class AiSettingsStoreTest {
         val settings = store()
         settings.ensureLoaded()
         get<net.bible.service.cloudsync.CloudSync>(net.bible.service.cloudsync.CloudSync::class.java)
-            .swapInInitialDb(target, downloaded) { }
+            .swapInInitialDb(target, downloaded.toOkioPath()) { }
         withTimeout(2_000) { while (settings.maxIterations != 41) delay(10) }
         dao.set(GlobalAiSettings(maxIterations = 42))
         withTimeout(2_000) { while (settings.maxIterations != 42) delay(10) }
@@ -207,9 +208,9 @@ class AiSettingsStoreTest {
             get(net.bible.android.control.page.window.WindowControl::class.java),
             get(net.bible.service.cloudsync.CloudSync::class.java),
             get(net.bible.sharedcore.platform.UserNotifier::class.java),
-        ).restoreSelectedFiles(listOf(name), folder,
+        ).restoreSelectedFiles(listOf(name), folder.toOkioPath(),
             object : BackupControl.RestorePrompts {
-                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File) = true
+                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: okio.Path) = true
                 override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition) = true
             })
         assertEquals("restored file row", 31, dao.get()!!.maxIterations)

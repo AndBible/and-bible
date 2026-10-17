@@ -10,6 +10,7 @@ import fi.sykero.kdom.Document
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Namespace
 import fi.sykero.kdom.Parent
+import okio.Path.Companion.toOkioPath
 import org.jdom2.filter.Filters
 import fi.sykero.kdom.query.*
 import fi.sykero.kdom.input.build
@@ -158,7 +159,7 @@ class XmlQueriesJaxenParityTest {
         var state: net.bible.service.sword.epub.EpubBackendState? = null
         try {
             val source = K5EpubFixture.create(sourceDir)
-            ArchiveUtils.unzipFile(source, moduleDir)
+            ArchiveUtils.unzip(source.toOkioPath(), moduleDir.toOkioPath())
             state = net.bible.service.sword.epub.EpubBackendState(
                 moduleDir.toOkioPath(), net.bible.test.testCoreStrings(),
                 net.bible.android.platform.AndroidAppEnvironment(net.bible.android.BibleApplication.application),

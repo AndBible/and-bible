@@ -48,7 +48,7 @@ class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseH
     override fun migrateOldSettingsKeys() = CommonUtils.migrateOldSettingsKeys()
 
     override fun zipDatabaseFilesForUpgradeBackup(): String? =
-        GlobalContext.get().get<BackupControl>().zipDatabaseFiles()?.path
+        GlobalContext.get().get<BackupControl>().zipDatabaseFiles()?.toString()
 
     override val databaseBackupSuffix: String get() = DATABASE_BACKUP_SUFFIX
     override val legacyMonolithicMigrations get() = oldMigrations

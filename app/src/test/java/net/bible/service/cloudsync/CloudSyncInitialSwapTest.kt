@@ -1,5 +1,6 @@
 package net.bible.service.cloudsync
 
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import androidx.room3.useWriterConnection
@@ -63,7 +64,7 @@ class CloudSyncInitialSwapTest {
 
     @Test fun aSaveAfterTheSwapDoesNotOverwriteTheDownload() {
         val downloaded = downloadNamed("C")
-        runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloaded) { } }
+        runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloaded.toOkioPath()) { } }
         repo.name = "B" // pre-download in-memory state, not yet reloaded
         repo.saveIntoDb(false)
         kotlinx.coroutines.runBlocking { repo.persistence.awaitPersisted() } // ordered write-through since L1a.8
@@ -71,7 +72,7 @@ class CloudSyncInitialSwapTest {
     }
 
     @Test fun saveWorksAgainAfterTheReload() {
-        runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C")) { } }
+        runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C").toOkioPath()) { } }
         kotlinx.coroutines.runBlocking { repo.loadFromDb(repo.id) }
         repo.name = "D"
         repo.saveIntoDb(false)
@@ -87,7 +88,7 @@ class CloudSyncInitialSwapTest {
             runBlocking {
                 DatabaseContainer.replacingDatabases { token ->
                     kotlinx.coroutines.withTimeout(2_000) {
-                        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C"), token) { }
+                        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C").toOkioPath(), token) { }
                     }
                     assertEquals("still inside an outer replace (stream)", 0, streamed.size)
                 }
@@ -101,7 +102,7 @@ class CloudSyncInitialSwapTest {
         val streamed = mutableListOf<Unit>()
         val streamSub = org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).workspaceRefreshRequired.subscribe { streamed += it }
         try {
-            runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C")) { } }
+            runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C").toOkioPath()) { } }
             assertEquals(1, streamed.size)
         } finally { streamSub.cancel() }
     }

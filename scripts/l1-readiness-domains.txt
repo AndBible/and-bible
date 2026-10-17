@@ -44,3 +44,11 @@ koin	android/control/SharedBindings.kt
 # G1
 sword	service/common/KdomBuilderPool.kt
 sword	service/common/XmlQueries.kt
+# G2
+core	service/common/SafeZipPaths.kt
+core	service/common/DosTime.kt
+core	service/common/AsyncMap.kt
+core	service/common/AndBibleBackupManifest.kt
+core	service/common/TempFiles.kt
+backup	android/control/report/CrashFiles.kt
+backup	service/db/ImportDb.kt

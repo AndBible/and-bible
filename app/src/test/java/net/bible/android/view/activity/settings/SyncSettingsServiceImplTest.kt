@@ -38,6 +38,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.cancelAndJoin
+import com.nhaarman.mockitokotlin2.doReturn
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -381,5 +382,35 @@ class SyncSettingsServiceImplTest {
         val service = impl()
         service.setAdapter("NEXT_CLOUD")
         assertEquals("NEXT_CLOUD", CommonUtils.settings.getString("sync_adapter", null))
+    }
+    /**
+     * The cloud usage line shows megabytes with two decimals in the default locale (Finnish comma, US point).
+     * A signed-in state is forced by installing a mocked adapter into the real [net.bible.service.cloudsync.CloudSync];
+     * the bytes come from one SyncStatus row (1.5 MiB) of the bookmarks database.
+     */
+    @Test fun cloudInfoSummaryFormatsTwoDecimalsInDefaultLocale() = kotlinx.coroutines.runBlocking {
+        val cloudSync = org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.CloudSync>(net.bible.service.cloudsync.CloudSync::class.java)
+        val field = cloudSync.javaClass.getDeclaredField("_adapter").also { it.isAccessible = true }
+        val adapter = com.nhaarman.mockitokotlin2.mock<net.bible.service.cloudsync.CloudAdapter> {
+            on { signedIn } doReturn true
+        }
+        val savedLocale = java.util.Locale.getDefault()
+        val savedAdapter = field.get(cloudSync)
+        field.set(cloudSync, adapter)
+        CommonUtils.settings.setBoolean("sync_enable_bookmarks", true)
+        try {
+            SyncableDatabaseDefinition.BOOKMARKS.accessor.dao.addStatus(
+                net.bible.android.database.SyncStatus("other-device", 1, 1_572_864, 0))
+            for ((locale, expected) in listOf(java.util.Locale("fi") to "1,50", java.util.Locale.US to "1.50")) {
+                java.util.Locale.setDefault(locale)
+                val scope = CoroutineScope(Job() + kotlinx.coroutines.Dispatchers.Unconfined).also { scopes.add(it) }
+                val service = impl(scope)
+                val snapshot = withTimeout(10_000) { service.snapshot.first { it.cloudInfoSummary != null } }
+                assertEquals(net.bible.test.testCoreStrings().syncCloudInfo(expected), snapshot.cloudInfoSummary)
+            }
+        } finally {
+            java.util.Locale.setDefault(savedLocale)
+            field.set(cloudSync, savedAdapter)
+        }
     }
 }

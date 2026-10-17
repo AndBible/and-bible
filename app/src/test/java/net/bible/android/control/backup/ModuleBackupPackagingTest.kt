@@ -23,6 +23,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
+import okio.Path.Companion.toOkioPath
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -64,7 +65,7 @@ class ModuleBackupPackagingTest {
     private suspend fun entriesOf(book: Book, zipName: String): Set<String> {
         val zipFile = File(CommonUtils.tmpDir, zipName)
         if (zipFile.exists()) zipFile.delete()
-        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile.toOkioPath())
         return ZipFile(zipFile).use { zf -> zf.entries().toList().map { it.name }.toSet() }
     }
 

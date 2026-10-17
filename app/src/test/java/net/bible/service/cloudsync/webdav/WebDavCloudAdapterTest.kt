@@ -57,7 +57,7 @@ class WebDavCloudAdapterTest {
     @After fun restoreApp() { appField.set(null, realApp) }
 
     private fun adapter(folder: String = "AndBible", url: String = "https://h/dav/", password: String = "pw") = WebDavCloudAdapter(
-        WebDavConfig(url, "me", password, folder), state, ui,
+        WebDavConfig(url, "me", password, folder), state, ui, deviceId = "dev-42",
         clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { deviceNow }) },
         nowMs = { deviceNow },
     )
@@ -175,6 +175,18 @@ class WebDavCloudAdapterTest {
         a.delete("${x.id}/$secret")
         assertFalse(a.isSyncFolderKnown(dbDef, "n", x.id))
         assertTrue(configs.isEmpty())
+    }
+
+    @Test fun secretFileNameUsesDeviceIdAndUuidShape() = runBlocking {
+        val a = signedIn()
+        val x = a.createNewFolder("x")
+        val configs = mutableMapOf<String, String>()
+        val dao = mock<SyncDao> { onBlocking { setConfig(any<String>(), any<String>()) } doAnswer { configs[it.arguments[0] as String] = it.arguments[1] as String; Unit } }
+        val db = mock<SyncableRoomDatabase> { on { syncDao() } doAnswer { dao } }
+        val dbDef = SyncableDatabaseAccessor(db, { db }, { db }, "unused", SyncableDatabaseDefinition.BOOKMARKS, null, "dev")
+        a.makeSyncFolderKnown(dbDef, "n", x.id)
+        assertTrue(configs.getValue(WEBDAV_SECRET_FILE_NAME_KEY).matches(
+            Regex("^device-known-dev-42-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")))
     }
 
     @Test fun transientServerError_isIOException() = runBlocking {

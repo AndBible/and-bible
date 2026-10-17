@@ -1,6 +1,7 @@
 package net.bible.service.llm
 
 import net.bible.service.cloudsync.localDbFile
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.flow.map
 
 import androidx.room3.Room
@@ -287,21 +288,21 @@ class AiSettingsNativeLifetimeTest {
                             get(net.bible.android.control.page.window.WindowControl::class.java), cloud,
                             get(net.bible.sharedcore.platform.UserNotifier::class.java),
                         )
-                        backup.restoreSelectedFiles(listOf(AiSettingsDatabase.dbFileName), folder,
+                        backup.restoreSelectedFiles(listOf(AiSettingsDatabase.dbFileName), folder.toOkioPath(),
                             object : net.bible.android.control.backup.BackupControl.RestorePrompts {
-                                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File) = true
+                                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: okio.Path) = true
                                 override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition) = true
                             })
                     } finally { folder.deleteRecursively() }
                 } else if (path == "nested") {
                     DatabaseContainer.replacingDatabases { token ->
-                        cloud.swapInInitialDb(target, downloaded, token) {
+                        cloud.swapInInitialDb(target, downloaded.toOkioPath(), token) {
                             assertTrue("outer owner remains active", DatabaseContainer.replacing)
                         }
                     }
                 } else {
                     try {
-                        cloud.swapInInitialDb(target, downloaded) {
+                        cloud.swapInInitialDb(target, downloaded.toOkioPath()) {
                             replacementEntered.complete(Unit)
                             if (path == "unexpected") throw probe!!.failure
                             if (path == "failure") throw IllegalArgumentException("afterReset failure")
@@ -311,7 +312,7 @@ class AiSettingsNativeLifetimeTest {
                                 target.localDbFile.copyTo(second, overwrite = true)
                                 try {
                                     laterSwap = async(Dispatchers.IO + boundary.ownerLabel.asContextElement("second-replacement")) {
-                                        try { cloud.swapInInitialDb(target, second) { boundary.event("second-replacement-body") } }
+                                        try { cloud.swapInInitialDb(target, second.toOkioPath()) { boundary.event("second-replacement-body") } }
                                         finally { second.delete() }
                                     }
                                     withTimeout(3_000) { boundary.secondAttempted.await() }

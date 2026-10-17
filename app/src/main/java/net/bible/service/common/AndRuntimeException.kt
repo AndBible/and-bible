@@ -16,8 +16,6 @@
  */
 package net.bible.service.common
 
-import java.lang.RuntimeException
-
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */

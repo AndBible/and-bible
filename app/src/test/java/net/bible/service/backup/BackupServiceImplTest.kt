@@ -44,6 +44,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import java.util.Locale
 
 /**
  * Verifies [BackupServiceImpl]'s mapping from disk/[CommonUtils.settings] state to [net.bible.sharedcore.backup.BackupState]
@@ -215,6 +216,37 @@ class BackupServiceImplTest {
         File(logDir, LAST_CRASH_STACKTRACE_FILE).writeText("   \n  ")
         CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", 1_000_000L).apply()
         assertNull(service.load().crash)
+    }
+
+    // --- characterization (Task 11): exact rows and crash panel, Locale.US pinned ---
+
+    @Test fun characterize_loadBackupFiles_exactRowsDescending() = runBlocking {
+        File(CommonUtils.dbBackupPath, "dbBackup-123-20260101-000000.abdb.zip").writeBytes(ByteArray(10))
+        File(CommonUtils.dbBackupPath, "dbBackup-124-20260701-120000.abdb.zip").writeBytes(ByteArray(3 * 1024 * 1024))
+        val rows = withLocale(Locale.US) { service.load().backupFiles }
+        assertEquals(
+            listOf("dbBackup-124-20260701-120000.abdb.zip", "dbBackup-123-20260101-000000.abdb.zip"),
+            rows.map { it.token },
+        )
+        assertEquals(listOf("2026-07-01 12:00:00", "2026-01-01 00:00:00"), rows.map { it.displayDate })
+        assertTrue("detail: ${rows[0].detail}", rows[0].detail.contains("124") && rows[0].detail.endsWith("3 MB"))
+        assertTrue("detail: ${rows[1].detail}", rows[1].detail.contains("123") && rows[1].detail.endsWith("0 KB"))
+    }
+
+    @Test fun characterize_crashPanel_timeFormattedWithLocaleUs() = runBlocking {
+        val logDir = File(SharedConstants.internalFilesDir, "log").apply { mkdirs() }
+        File(logDir, LAST_CRASH_STACKTRACE_FILE).writeText("java.lang.IllegalStateException: x")
+        val crashMs = 1_750_000_000_000L
+        CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", crashMs).apply()
+        val crash = withLocale(Locale.US) { service.load().crash }
+        assertEquals(java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(java.util.Date(crashMs)), crash!!.time)
+        assertEquals("java.lang.IllegalStateException: x", crash.text)
+    }
+
+    private inline fun <T> withLocale(locale: Locale, block: () -> T): T {
+        val previous = Locale.getDefault()
+        Locale.setDefault(locale)
+        try { return block() } finally { Locale.setDefault(previous) }
     }
 
     // --- backup()/restore() dispatch selection (pure helpers; see class kdoc) ---

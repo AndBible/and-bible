@@ -17,6 +17,7 @@
 
 package net.bible.service.installzip
 
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineStart
@@ -66,7 +67,7 @@ import java.util.zip.ZipOutputStream
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DefaultInstallCommitterTest {
-    private val committer = DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
+    private val committer = DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), clearAddonCaches = { net.bible.service.common.AndBibleAddons.clearCaches() })
 
     private lateinit var originalDownloadDir: File
 
@@ -174,7 +175,8 @@ class DefaultInstallCommitterTest {
         val committer = DefaultInstallCommitter(
             org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java),
-            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java)) { watcher }
+            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
+            clearAddonCaches = { net.bible.service.common.AndBibleAddons.clearCaches() }) { watcher }
         val sync = net.bible.service.cloudsync.documents.DocumentSync(
             org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
             org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.CloudSyncProvider::class.java),
@@ -344,3 +346,6 @@ class DefaultInstallCommitterTest {
         )
     }
 }
+
+private suspend fun DefaultInstallCommitter.commitSwordZip(file: File, totalEntries: Int, onProgress: (Int) -> Unit) = commitSwordZip(file.toOkioPath(), totalEntries, onProgress)
+private suspend fun DefaultInstallCommitter.commitSqlite(file: File, type: SqliteBookType, name: String) = commitSqlite(file.toOkioPath(), type, name)

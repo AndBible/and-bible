@@ -69,4 +69,61 @@ class ExportStudyPadsTest {
             assertNotNull(dao.labelById(other.id))
         } finally { controller.pause().stop().destroy() }
     }
+
+    /** Runs a real export of one pad and returns a copy of the delivered archive. */
+    private fun exportOnePad(): File {
+        val controller = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
+        val copy = File.createTempFile("export-copy", ".zip", controller.get().cacheDir)
+        runBlocking {
+            val pad = BookmarkEntities.Label(name = "G2 export pad")
+            DatabaseContainer.instance.bookmarkDb.bookmarkDao().insert(pad)
+            val host = object : BackupHost {
+                override suspend fun deliver(file: String, fileName: String, mode: SaveOrShare, shareMimeType: String, saveMimeType: String, subject: String?, message: String?, chooserTitle: String): DeliveryResult {
+                    File(file).copyTo(copy, overwrite = true)
+                    return DeliveryResult.DELIVERED
+                }
+                override suspend fun pickBackupFile(mime: String): PickedSource? = error("unused")
+                override suspend fun openInput(source: PickedSource): Source = error("unused")
+                override suspend fun showErrorReport(message: String, cause: Throwable?) = error(message)
+                override suspend fun restoreModules() = error("unused")
+            }
+            try { exportStudyPads(controller.get(), pad, chooseDestination = { SaveOrShare.SHARE }, host = host) }
+            finally { controller.pause().stop().destroy() }
+        }
+        return copy
+    }
+
+    private fun fixtureZip(): File {
+        val f = File.createTempFile("fixture", ".zip")
+        javaClass.classLoader!!.getResourceAsStream("l1b-g2/studypad-export.abdb.zip")!!.use { i -> f.outputStream().use { i.copyTo(it) } }
+        return f
+    }
+
+    private fun manifestWithoutVersion(zip: ZipFile): String {
+        val json = zip.getInputStream(zip.getEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME)).readBytes().decodeToString()
+        return org.json.JSONObject(json).also { it.remove("andBibleVersion") }.toString()
+    }
+
+    @Test fun exportedArchiveEntriesAndManifestMatchFixture() {
+        val export = exportOnePad(); val fixture = fixtureZip()
+        ZipFile(export).use { e -> ZipFile(fixture).use { f ->
+            assertEquals(f.entries().toList().map { it.name }, e.entries().toList().map { it.name })
+            // Only the app version differs per build; everything else must be identical.
+            assertEquals(manifestWithoutVersion(f), manifestWithoutVersion(e))
+        } }
+    }
+
+    @Test fun newExportIsReadByJdkZipInputStream() {
+        val export = exportOnePad()
+        java.util.zip.ZipInputStream(export.inputStream()).use { zin ->
+            val names = generateSequence { zin.nextEntry }.map { entry ->
+                val bytes = zin.readBytes()
+                assertTrue(entry.name, bytes.isNotEmpty())
+                if (entry.name.endsWith(".sqlite3")) assertEquals("SQLite format 3", bytes.decodeToString(0, 15))
+                assertTrue("DOS time set for ${entry.name}", entry.time > 0)
+                entry.name
+            }.toList()
+            assertEquals(listOf(ANDBIBLE_BACKUP_MANIFEST_FILENAME, "db/bookmarks.sqlite3"), names)
+        }
+    }
 }

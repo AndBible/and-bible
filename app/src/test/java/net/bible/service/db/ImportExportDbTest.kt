@@ -33,8 +33,11 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.ArchiveUtils
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
+import net.bible.test.testCoreStrings
+import okio.Path.Companion.toOkioPath
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -106,7 +109,7 @@ class ImportExportDbTest {
             it.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.bookmarkEntity, importedLabel))
         }
 
-        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file)
+        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file.toOkioPath())
 
         assertEquals("Local", dao.labelById(shared)?.name) // INSERT OR IGNORE: a local row wins
         assertEquals("Imported", dao.labelById(importedLabel.id)?.name)
@@ -121,13 +124,13 @@ class ImportExportDbTest {
             it.execSQL("DROP TABLE StudyPadTextEntryText") // the last table: Label rows are copied before the failure
         }
 
-        val e = runCatching { importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file) }.exceptionOrNull()
+        val e = runCatching { importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file.toOkioPath()) }.exceptionOrNull()
         assertTrue("expected the import to fail, got $e", e != null && "StudyPadTextEntryText" in e.toString())
         assertNull(dao.labelById(importedLabel.id))
         assertEquals(1L to false, connectionState())
 
         val good = bookmarkFile { it.insert(importedLabel) }
-        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, good)
+        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, good.toOkioPath())
         assertEquals("Imported", dao.labelById(importedLabel.id)?.name)
     }
 
@@ -139,8 +142,19 @@ class ImportExportDbTest {
         }
         assertEquals(
             application.getString(R.string.bookmarks_db_stats, "My pad", "1", "1"),
-            bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, file),
+            bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, file.toOkioPath(), testCoreStrings()),
         )
+    }
+
+    @Test fun importOfTask1StudyPadFixtureAddsItsLabel() = run {
+        val dir = File(CommonUtils.tmpDir, "fixture-unzip-${System.nanoTime()}").also { it.mkdirs(); files += it }
+        val zip = File(dir, "fixture.zip")
+        javaClass.classLoader!!.getResourceAsStream("l1b-g2/studypad-export.abdb.zip")!!.use { i -> zip.outputStream().use { i.copyTo(it) } }
+        ArchiveUtils.unzip(zip.toOkioPath(), File(dir, "out").toOkioPath())
+        val db = File(dir, "out/db/bookmarks.sqlite3")
+        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, db.toOkioPath())
+        assertTrue(dao.allLabelsSortedByName().any { it.name == "G2 export pad" })
+        dir.deleteRecursively()
     }
 
     // ---- export ----
@@ -167,7 +181,7 @@ class ImportExportDbTest {
         dao.insert(entry); dao.insert(BookmarkEntities.StudyPadTextEntryText(entry.id, "hello"))
 
         val out = tmp()
-        writeStudyPadExportDb(out, listOf(pad), source) { bundled(it) }
+        writeStudyPadExportDb(out.toOkioPath(), listOf(pad), source) { bundled(it) }
 
         openSqlite(out.path).use { db ->
             fun hexIds(sql: String) = db.queryRows(sql) { it.getText(0) }

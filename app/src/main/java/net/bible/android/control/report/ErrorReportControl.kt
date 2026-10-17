@@ -66,7 +66,6 @@ import java.util.Locale
 const val ONE_HOUR = 1000L * 60L * 60L
 
 // Crash data file constants
-const val LAST_CRASH_STACKTRACE_FILE = "last_crash_stacktrace.txt"
 const val LAST_CRASH_LOGCAT_FILE = "last_crash_logcat.txt.gz"
 const val LAST_CRASH_SCREENSHOT_FILE = "last_crash_screenshot.webp"
 const val STACKTRACE_FILE = "stacktrace.txt"

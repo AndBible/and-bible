@@ -6,6 +6,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.log.Log
@@ -32,10 +34,10 @@ class ReadingProgressSettingsStore(
     private val appScope: kotlinx.coroutines.CoroutineScope? = null,
     private val invalidations: (() -> kotlinx.coroutines.flow.Flow<Unit>)? = null,
 ) {
-    private val lock = Any()
-    @Volatile private var snapshot: GlobalReadingProgressSettings? = null
-    @Volatile private var loaded = false
-    @Volatile private var warned = false
+    private val lock = SynchronizedObject()
+    @kotlin.concurrent.Volatile private var snapshot: GlobalReadingProgressSettings? = null
+    @kotlin.concurrent.Volatile private var loaded = false
+    @kotlin.concurrent.Volatile private var warned = false
     private var pendingWrites = 0
     private val preLoad = mutableListOf<(GlobalReadingProgressSettings) -> GlobalReadingProgressSettings>()
     private var replacementEpoch = 0L
@@ -49,7 +51,7 @@ class ReadingProgressSettingsStore(
      */
     suspend fun load() {
         val row = dao().get()
-        synchronized(lock) {
+        synchronized(lock) { // L1-common-ok: atomicfu lock
             if (!loaded) {
                 loaded = true
                 if (preLoad.isNotEmpty()) {
@@ -63,9 +65,9 @@ class ReadingProgressSettingsStore(
     }
 
     private fun startObserving() {
-        synchronized(lock) { if (observing) return; observing = true }
+        synchronized(lock) { if (observing) return; observing = true } // L1-common-ok: atomicfu lock
         val restoreSubscription = replacements.subscribe {
-            synchronized(lock) { replacementEpoch++ }
+            synchronized(lock) { replacementEpoch++ } // L1-common-ok: atomicfu lock
             generation.value++
             reload()
         }
@@ -96,7 +98,7 @@ class ReadingProgressSettingsStore(
     private fun reload() {
         launcher.launch(KEY) {
             val row = dao().get() ?: GlobalReadingProgressSettings()
-            synchronized(lock) { if (pendingWrites == 0) snapshot = row }
+            synchronized(lock) { if (pendingWrites == 0) snapshot = row } // L1-common-ok: atomicfu lock
         }
     }
 
@@ -117,7 +119,7 @@ class ReadingProgressSettingsStore(
      * queued and applied to the stored row by [load]; the snapshot meanwhile shows it applied to the defaults.
      */
     fun update(transform: GlobalReadingProgressSettings.() -> GlobalReadingProgressSettings) {
-        synchronized(lock) {
+        synchronized(lock) { // L1-common-ok: atomicfu lock
             if (!loaded) preLoad.add(transform)
             commit((snapshot ?: GlobalReadingProgressSettings()).transform(), persist = loaded)
         }
@@ -131,9 +133,9 @@ class ReadingProgressSettingsStore(
         val epoch = replacementEpoch
         launcher.launch(KEY) {
             try {
-                if (synchronized(lock) { epoch == replacementEpoch }) dao().set(copy)
+                if (synchronized(lock) { epoch == replacementEpoch }) dao().set(copy) // L1-common-ok: atomicfu lock
             } finally {
-                synchronized(lock) { pendingWrites-- }
+                synchronized(lock) { pendingWrites-- } // L1-common-ok: atomicfu lock
             }
         }
     }

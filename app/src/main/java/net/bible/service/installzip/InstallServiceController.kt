@@ -26,9 +26,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.InputStream
-import java.util.concurrent.ConcurrentHashMap
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import okio.FileSystem
+import okio.Path
 
 /**
  * App-scoped orchestrator for headless zip installs: holds the job queue, exposes it as a
@@ -53,11 +54,11 @@ class InstallServiceController(
 ) {
     /** Data the runner needs per job, provided by the platform install host. */
     class JobDeps(
-        val acquireDir: File,
-        val openStream: suspend (InstallSource) -> InputStream,
+        val acquireDir: Path,
+        val openStream: suspend (InstallSource) -> InstallStream,
         val isStudyPadExport: suspend (InstallSource) -> Boolean,
-        val studyPadStats: suspend (File) -> Pair<String, File>,
-        val swordZipScan: suspend (File) -> InstallInspector.SwordZipScan,
+        val studyPadStats: suspend (Path) -> Pair<String, Path>,
+        val swordZipScan: suspend (Path) -> InstallInspector.SwordZipScan,
         val epubUpgradeCheck: suspend (String) -> Boolean,
     )
 
@@ -67,8 +68,10 @@ class InstallServiceController(
     private val _jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
     val jobs: StateFlow<List<InstallJobState>> = _jobs.asStateFlow()
 
-    private val decisions = ConcurrentHashMap<JobId, CompletableDeferred<Boolean>>()
-    private val jobCoroutines = ConcurrentHashMap<JobId, Job>()
+    /** Guards [decisions] and [jobCoroutines]; class-private, never held across a suspension or a callback. */
+    private val mapsLock = SynchronizedObject()
+    private val decisions = mutableMapOf<JobId, CompletableDeferred<Boolean>>()
+    private val jobCoroutines = mutableMapOf<JobId, Job>()
 
     /**
      * Testability seam: the actual per-source run, factored out of [enqueue]'s sequencing so
@@ -84,8 +87,8 @@ class InstallServiceController(
         onPhase: (InstallPhase) -> Unit,
         awaitDecision: suspend (DecisionRequest) -> Boolean,
     ) -> InstallPhase = { jobId, source, deps, onPhase, awaitDecision ->
-        deps.acquireDir.mkdirs()
-        val acquireTo = File(deps.acquireDir, "installzip-$jobId.tmp")
+        FileSystem.SYSTEM.createDirectories(deps.acquireDir)
+        val acquireTo = deps.acquireDir / "installzip-$jobId.tmp"
         runnerFactory().runJob(
             source = source,
             acquireTo = acquireTo,
@@ -101,7 +104,8 @@ class InstallServiceController(
 
     /** Completes the pending ask-back decision for [jobId]. A no-op if it isn't currently paused. */
     fun resolveDecision(jobId: JobId, proceed: Boolean) {
-        decisions[jobId]?.complete(proceed)
+        val pending = synchronized(mapsLock) { decisions[jobId] } // L1-common-ok: atomicfu lock
+        pending?.complete(proceed)
     }
 
     /**
@@ -112,8 +116,9 @@ class InstallServiceController(
      * stops. Harmless/no-op for a [jobId] that has already reached a terminal phase.
      */
     fun cancel(jobId: JobId) {
-        decisions[jobId]?.complete(false)
-        jobCoroutines[jobId]?.cancel()
+        val (pending, worker) = synchronized(mapsLock) { decisions[jobId] to jobCoroutines[jobId] } // L1-common-ok: atomicfu lock
+        pending?.complete(false)
+        worker?.cancel()
     }
 
     /**
@@ -143,7 +148,7 @@ class InstallServiceController(
     /** Runs one job to its terminal phase, updates [jobs] accordingly, and reports [onTerminal]. */
     private suspend fun runSingleJob(jobId: JobId, source: InstallSource, deps: JobDeps): InstallPhase {
         val decision = CompletableDeferred<Boolean>()
-        decisions[jobId] = decision
+        synchronized(mapsLock) { decisions[jobId] = decision } // L1-common-ok: atomicfu lock
         var terminal: InstallPhase = InstallPhase.Cancelled
         val job = workerScope.launch {
             terminal = try {
@@ -165,11 +170,13 @@ class InstallServiceController(
                 InstallPhase.Error(InstallError.GENERIC, null)
             }
         }
-        jobCoroutines[jobId] = job
+        synchronized(mapsLock) { jobCoroutines[jobId] = job } // L1-common-ok: atomicfu lock
         job.join()
 
-        decisions.remove(jobId)
-        jobCoroutines.remove(jobId)
+        synchronized(mapsLock) { // L1-common-ok: atomicfu lock
+            decisions.remove(jobId)
+            jobCoroutines.remove(jobId)
+        }
         removeJob(jobId)
         onTerminal(jobId, terminal)
         return terminal

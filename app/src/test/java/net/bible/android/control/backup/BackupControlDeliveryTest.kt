@@ -24,6 +24,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.File
 import okio.Source
+import okio.Path.Companion.toPath
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -92,7 +93,7 @@ class BackupControlDeliveryTest {
         override suspend fun showErrorReport(message: String, cause: Throwable?) { errors += message }
     }
     private suspend fun deliver(host: Host, mode: SaveOrShare = SaveOrShare.SAVE) = backup.saveOrShare(
-        host = host, file = File("backup.zip"), fileName = "backup.zip", chooserTitle = "Backup",
+        host = host, file = "backup.zip".toPath(), fileName = "backup.zip", chooserTitle = "Backup",
         successMsg = org.robolectric.RuntimeEnvironment.getApplication().getString(R.string.backup_success2), shareMimeType = "*/*", saveMimeType = "application/vnd.android.package-archive",
         chooseDestination = { mode },
     )

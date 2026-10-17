@@ -19,14 +19,15 @@
 
 package net.bible.service.cloudsync.documents
 
-import okio.Path.Companion.toOkioPath
-import okio.sink
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toPath
 import net.bible.sharedcore.log.Log
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.sharedcore.platform.cloud.CloudFile
 import net.bible.sharedcore.platform.cloud.DownloadProgressListener
 import net.bible.service.common.asyncMap
-import java.io.File
+import net.bible.service.common.createTempFile
 
 private const val TAG = "DocumentStore"
 
@@ -64,13 +65,13 @@ class DocumentStore(
         folderFor(initials)?.id ?: adapter.createNewFolder(initials, rootFolderId).id
 
     private suspend fun downloadMeta(metaFile: CloudFile): DocumentSyncMeta? {
-        val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
+        val tmp = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
         return try {
-            tmp.outputStream().use { adapter.download(metaFile.id, it.sink()) }
-            DocumentSyncMeta.fromJson(tmp.readText())
+            adapter.download(metaFile.id, FileSystem.SYSTEM.sink(tmp))
+            DocumentSyncMeta.fromJson(FileSystem.SYSTEM.read(tmp) { readUtf8() })
         } catch (e: Exception) {
             Log.e(TAG, "Failed reading meta ${metaFile.id}", e); null
-        } finally { tmp.delete() }
+        } finally { runCatching { FileSystem.SYSTEM.delete(tmp) } }
     }
 
     /** Reads the current meta.json for one document by initials (single folder), or null if absent. */
@@ -112,18 +113,18 @@ class DocumentStore(
         // delete existing meta.json then upload fresh (acts as the atomic commit point)
         adapter.listFiles(parentsIds = listOf(folderId), name = DOCUMENT_META_FILENAME)
             .forEach { adapter.delete(it.id) }
-        val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
+        val tmp = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
         try {
-            tmp.writeText(meta.toJson())
-            adapter.upload(DOCUMENT_META_FILENAME, tmp.toOkioPath(), folderId)
-        } finally { tmp.delete() }
+            FileSystem.SYSTEM.write(tmp) { writeUtf8(meta.toJson()) }
+            adapter.upload(DOCUMENT_META_FILENAME, tmp, folderId)
+        } finally { runCatching { FileSystem.SYSTEM.delete(tmp) } }
     }
 
-    suspend fun uploadDocument(meta: DocumentSyncMeta, archive: File) {
+    suspend fun uploadDocument(meta: DocumentSyncMeta, archive: Path) {
         val folderId = ensureFolder(meta.initials)
         val archiveName = "${meta.version}.abmd.zip"
         // upload archive first; only then commit meta.json pointing at it
-        adapter.upload(archiveName, archive.toOkioPath(), folderId)
+        adapter.upload(archiveName, archive, folderId)
         // remove older archives (keep only newest version)
         adapter.listFiles(parentsIds = listOf(folderId))
             .filter { it.name.endsWith(".abmd.zip") && it.name != archiveName }
@@ -137,17 +138,17 @@ class DocumentStore(
      * between the caller's listing and now. Returning null lets the caller skip gracefully and
      * retry on the next pull rather than crashing the whole batch.
      */
-    suspend fun downloadArchive(initials: String, version: String, onProgress: DownloadProgressListener? = null): File? {
+    suspend fun downloadArchive(initials: String, version: String, onProgress: DownloadProgressListener? = null): Path? {
         val folderId = folderFor(initials)?.id ?: return null
         val file = adapter.listFiles(parentsIds = listOf(folderId), name = "$version.abmd.zip").firstOrNull()
             ?: return null
-        val tmp = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
+        val tmp = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
         try {
-            tmp.outputStream().use { adapter.download(file.id, it.sink(), onProgress) }
+            adapter.download(file.id, FileSystem.SYSTEM.sink(tmp), onProgress)
         } catch (e: Exception) {
             // The temp file was created before the download; delete it so a failed (e.g. network
             // drop) download doesn't leak a potentially large orphan in the tmp dir.
-            tmp.delete()
+            runCatching { FileSystem.SYSTEM.delete(tmp) }
             throw e
         }
         return tmp

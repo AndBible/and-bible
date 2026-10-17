@@ -50,6 +50,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import okio.Path.Companion.toOkioPath
 import java.util.UUID
 
 /**
@@ -192,19 +193,19 @@ class SyncPatchTransactionTest {
         assertEquals(listOf("label 1"), labelNames(dbDef2))
     }
 
-    private fun tamperedPatch(gzipped: File, change: (SQLiteConnection) -> Unit): File {
+    private fun tamperedPatch(gzipped: okio.Path, change: (SQLiteConnection) -> Unit): okio.Path {
         val plain = File.createTempFile("tampered-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
-        CommonUtils.gunzipFile(gzipped, plain)
+        net.bible.service.common.ArchiveUtils.gunzipFile(gzipped, plain.toOkioPath())
         openSqlite(plain.path).use(change)
         return File.createTempFile("tampered-", ".sqlite3.gz", CommonUtils.tmpDir).also {
             files += it
-            CommonUtils.gzipFile(plain, it)
-        }
+            net.bible.service.common.ArchiveUtils.gzipFile(plain.toOkioPath(), it.toOkioPath())
+        }.toOkioPath()
     }
 
-    private fun labelCountInPatch(gzipped: File): Long {
+    private fun labelCountInPatch(gzipped: okio.Path): Long {
         val plain = File.createTempFile("patch-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
-        CommonUtils.gunzipFile(gzipped, plain)
+        net.bible.service.common.ArchiveUtils.gunzipFile(gzipped, plain.toOkioPath())
         return openSqlite(plain.path).use { it.queryLong("SELECT COUNT(*) FROM Label")!! }
     }
 
@@ -228,7 +229,7 @@ class SyncPatchTransactionTest {
             val patch = createPatchForDatabase(dbDef, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
 
             val plain = File.createTempFile("patch-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
-            CommonUtils.gunzipFile(patch, plain)
+            net.bible.service.common.ArchiveUtils.gunzipFile(patch, plain.toOkioPath())
             openSqlite(plain.path).use {
                 assertEquals(1L, it.queryLong("SELECT COUNT(*) FROM Label WHERE name = 'compat'"))
                 assertEquals(1L, it.queryLong("SELECT COUNT(*) FROM Label"))
@@ -240,5 +241,50 @@ class SyncPatchTransactionTest {
         } finally {
             db.close()
         }
+    }
+    /** A patch written by a released build (`l1b-g2/bookmarks-patch.sqlite3.gz`, see fixtures.md) still applies. */
+    @Test fun task1BookmarksPatchFixtureAppliesTheBookmark() = run {
+        val dbDef = accessor(fromSchemaExport = false)
+        val fixture = File.createTempFile("fixture-patch-", ".sqlite3.gz", CommonUtils.tmpDir).also { files += it }
+        javaClass.classLoader!!.getResourceAsStream("l1b-g2/bookmarks-patch.sqlite3.gz")!!.use { i -> fixture.outputStream().use { i.copyTo(it) } }
+
+        applyPatchesForDatabase(dbDef, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), fixture.toOkioPath())
+
+        val count = dbDef.localDb.useWriterConnection { it.queryLong("SELECT COUNT(*) FROM BibleBookmark WHERE kjvOrdinalStart = 7 AND kjvOrdinalEnd = 8") }
+        assertEquals(1L, count)
+        assertEquals(1, dbDef.dao.allLogEntries().count { it.tableName == "BibleBookmark" })
+    }
+    /** The patch format is unchanged: any `GZIPInputStream` reader gets a SQLite file of the database's schema version. */
+    @Test fun newPatchIsReadableByGzipInputStreamAndOpensAsSqlite() = run {
+        val dbDef = accessor(fromSchemaExport = true)
+        dbDef.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 1"))
+
+        val patch = createPatchForDatabase(dbDef, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
+        files += patch.toFile()
+
+        val plain = File.createTempFile("patch-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
+        java.util.zip.GZIPInputStream(patch.toFile().inputStream()).use { i -> plain.outputStream().use { i.copyTo(it) } }
+        openSqlite(plain.path).use {
+            assertEquals(dbDef.version().toLong(), it.queryLong("PRAGMA user_version"))
+            assertEquals(1L, it.queryLong("SELECT COUNT(*) FROM Label WHERE name = 'label 1'"))
+        }
+    }
+
+    /** A patch re-encoded by the JDK gzip writer (`java.util.zip`) applies on the new reader; the other direction is covered above. */
+    @Test fun patchWrittenByJdkGzipAppliesOnNewReader() = run {
+        val env = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppEnvironment>(net.bible.sharedcore.platform.AppEnvironment::class.java)
+        val dbDef1 = accessor(fromSchemaExport = true)
+        val dbDef2 = accessor(fromSchemaExport = false)
+        dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 1"))
+        val patch = createPatchForDatabase(dbDef1, env)!!
+        files += patch.toFile()
+
+        val oldStyle = File.createTempFile("old-style-", ".sqlite3.gz", CommonUtils.tmpDir).also { files += it }
+        java.util.zip.GZIPInputStream(patch.toFile().inputStream()).use { i ->
+            java.util.zip.GZIPOutputStream(oldStyle.outputStream()).use { o -> i.copyTo(o) }
+        }
+        applyPatchesForDatabase(dbDef2, env, oldStyle.toOkioPath())
+
+        assertEquals(listOf("label 1"), labelNames(dbDef2))
     }
 }

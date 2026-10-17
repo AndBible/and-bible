@@ -23,7 +23,6 @@ service/common/FileManager.kt	Android file/storage host (Environment, storage vo
 service/common/RecyclerViewSearchHelper.kt	Android RecyclerView UI helper
 service/common/Logger.kt	Android Log facade for legacy callers (FileManager, DocumentBibleBooksFactory)
 service/common/TestUtils.kt	Test/Android runtime detection helper used by Logger
-service/db/ImportDb.kt	Android database import host (file picker results, ContentResolver, restore replacement)
 service/db/oldmigrations/OldMigrations.kt	Legacy Android SQLite migrations run on the original database files
 service/db/oldmigrations/DEPRECATED_ReadingPlanDatabaseDefinition.kt	Legacy Android SQLite schema kept for the old migrations
 service/db/BlockingDb.kt	Holds blockingAtEdge only (marked Room wrappers moved to :sharedLogic)
@@ -35,3 +34,6 @@ service/db/ReadOnlyModuleOpen.kt	Android read-only WAL snapshot host (File permi
 service/sword/mydocument/MarkdownToXhtml.kt	Android implementation of the MarkdownRenderer port (commonmark); iOS supplies its own
 service/sword/epub/EpubEdges.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
 service/sword/mydocument/MyDocumentEdges.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
+service/cloudsync/webdav/PinnedTrust.kt	JVM TLS trust manager, hostname verifier and OkHttp engine; iOS evaluates server trust in its own engine
+service/cloudsync/webdav/AndroidWebDavPrefs.kt	SharedPreferences-backed WebDAV config and state
+service/cloudsync/webdav/AndroidWebDavSignInUi.kt	Android dialogs, resources and date format

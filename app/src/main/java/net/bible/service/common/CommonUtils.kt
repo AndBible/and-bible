@@ -18,6 +18,7 @@
 package net.bible.service.common
 
 import net.bible.sharedcore.platform.files.BackupFileSniffer
+import okio.Path.Companion.toOkioPath
 import okio.source
 import android.Manifest
 import android.app.Activity
@@ -1719,10 +1720,10 @@ object CommonUtils : CommonUtilsBase() {
     fun appendUrl(u: String, filename: String): String = ArchiveUtils.appendUrl(u, filename)
 
     fun unzipFile(zipFile: File, destinationDir: File, filePrefix: String = "") =
-        ArchiveUtils.unzipFile(zipFile, destinationDir, filePrefix)
+        ArchiveUtils.unzip(zipFile.toOkioPath(), destinationDir.toOkioPath(), filePrefix)
 
     fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") =
-        ArchiveUtils.unzipInputStream(inputStream, destinationDir, filePrefix)
+        ArchiveUtils.unzip(inputStream.source(), destinationDir.toOkioPath(), filePrefix)
 
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 
@@ -1734,9 +1735,9 @@ object CommonUtils : CommonUtilsBase() {
 
     val tmpFile: File get() = File.createTempFile("andbible-", ".tmp", tmpDir)
 
-    fun gzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gzipFile(sourceFile, destinationFile)
+    fun gzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())
 
-    fun gunzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gunzipFile(sourceFile, destinationFile)
+    fun gunzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gunzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())
 
     suspend fun determineFileType(uri: Uri): BackupFileType = withContext(Dispatchers.IO) {
         BackupFileSniffer.sniff {
@@ -1865,15 +1866,6 @@ data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisp
 
 val firstBibleDoc get() = Books.installed().getBooks().first { it.bookCategory == BookCategory.BIBLE } as SwordBook
 
-suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-     map { async { action(it) }}.awaitAll()
-}
-
-suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-    val semaphore = Semaphore(maxThreads)
-    map {async {semaphore.withPermit { action(it) } } }.awaitAll()
-}
-
 suspend fun Book.getBookAndKey(keyStr: String, strings: net.bible.sharedcore.platform.CoreStrings, ordinal: Int? = null): BookAndKey? {
     val k = try {getKey(keyStr)} catch (e: NoSuchKeyException) {null} ?: return null
     return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k, strings).first))
@@ -1994,65 +1986,6 @@ val Key.shortName: String get() =
             }
         }
     else getName()
-
-enum class DbType {
-    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, AI_SETTINGS
-}
-enum class BackupType {
-    // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.
-    STUDYPAD_EXPORT,
-    DB_BACKUP,
-    MODULE_BACKUP
-}
-
-const val ANDBIBLE_BACKUP_MANIFEST_FILENAME = "AndBibleBackupManifest.json"
-@Serializable
-data class AndBibleBackupManifest(
-    val backupType: BackupType,
-    val contains: Set<DbType>? = null,
-    val manifestVersion: Int = 1,
-    val andBibleVersion: Int = CommonUtils.applicationVersionNumber
-) {
-    fun toJson(): String {
-        return CommonUtils.json.encodeToString(serializer(), this)
-    }
-
-    fun saveToZip(zipStream: ZipOutputStream) {
-        val content = ByteArrayInputStream(toJson().toByteArray())
-        val entry = ZipEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
-        zipStream.putNextEntry(entry)
-        content.copyTo(zipStream)
-    }
-    companion object {
-        private const val TAG = "ABBackupManifest"
-        fun fromJson(jsonString: String): AndBibleBackupManifest {
-            return CommonUtils.json.decodeFromString(serializer(), jsonString)
-        }
-
-        suspend fun fromUri(uri: Uri): AndBibleBackupManifest? = withContext(Dispatchers.IO) {
-            try {
-                val inputStream = application.contentResolver.openInputStream(uri) ?: return@withContext null
-                val manifest = ZipInputStream(inputStream).use {
-                    val entry = it.nextEntry
-                    if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
-                        val out = ByteArrayOutputStream()
-                        val buffer = ByteArray(1024)
-                        var len: Int
-                        while (it.read(buffer).also { len = it } > 0) {
-                            out.write(buffer, 0, len)
-                        }
-                        val outString = out.toString()
-                        fromJson(outString)
-                    } else null
-                }
-                return@withContext manifest
-            } catch (e: Exception) {
-                Log.e(TAG, "Error reading backup manifest from URI", e)
-                return@withContext null
-            }
-        }
-    }
-}
 
 /** Fix batch 6 A6 (surface 8): the app name the incomplete-translation dialog uses. */
 @androidx.annotation.StringRes

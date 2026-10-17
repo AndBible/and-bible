@@ -27,6 +27,7 @@ import net.bible.service.sword.ShareSelection
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.*
 import net.bible.test.*
+import okio.Path.Companion.toOkioPath
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -350,10 +351,10 @@ class K5OracleTest {
             val source = K5EpubFixture.create(tmp)
             val querySnapshots = if (capture) {
                 val originals = File(tmp, "originals")
-                net.bible.service.common.ArchiveUtils.unzipFile(source, originals)
+                net.bible.service.common.ArchiveUtils.unzip(source.toOkioPath(), originals.toOkioPath())
                 K5EpubQueries.capture(originals)
             } else ""
-            check(DefaultInstallCommitter(testBackupControl(), strings, env).commitEpub(source, name, false))
+            check(DefaultInstallCommitter(testBackupControl(), strings, env, clearAddonCaches = { net.bible.service.common.AndBibleAddons.clearCaches() }).commitEpub(source.toOkioPath(), name, false))
             book = Books.installed().getBook(epubInitials(name)) ?: error("Fixture EPUB did not register")
             val backend = book.epubBackend ?: error("Not an EPUB backend")
             // EpubBackendState performs optimization on construction when the source has no optimized data.

@@ -17,7 +17,8 @@
 
 package net.bible.service.installzip
 
-import java.io.File
+import okio.Path
+import okio.Source
 
 typealias JobId = String
 
@@ -30,6 +31,9 @@ data class InstallSource(
     /** Decoded platform path name for installation only; never a progress/UI metadata title. */
     val installationName: String? = null,
 )
+
+/** The opened original source of a job. [sizeHint] is the best-effort total size in bytes (0 when unknown), used only for progress. */
+data class InstallStream(val source: Source, val sizeHint: Long)
 
 enum class InstallError { GENERIC, INVALID_FILE }
 
@@ -47,7 +51,7 @@ sealed class InstallPlan {
     data class Ttf(val displayName: String, val overwriteName: String?) : InstallPlan()
     data class Csv(val displayName: String, val overwriteName: String?) : InstallPlan()
     data class BackgroundImage(val fileName: String, val overwriteName: String?) : InstallPlan()
-    data class StudyPad(val statsText: String, val unzipFolder: File) : InstallPlan()
+    data class StudyPad(val statsText: String, val unzipFolder: Path) : InstallPlan()
     /** Not a recognizable module. [filename] used for the error message. */
     data class Invalid(val filename: String) : InstallPlan()
 }

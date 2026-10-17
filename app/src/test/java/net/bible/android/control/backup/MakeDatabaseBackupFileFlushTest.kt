@@ -62,7 +62,7 @@ class MakeDatabaseBackupFileFlushTest {
         val watchdog = Thread { Thread.sleep(500); gate.countDown() }.apply { isDaemon = true; start() }
         val zip = try {
             CommonUtils.settings.setString("backup-now", "included") // queued behind the gated task
-            runBlocking { backup.makeDatabaseBackupFile() }!!
+            runBlocking { backup.makeDatabaseBackupFile() }!!.toFile()
         } finally {
             gate.countDown(); watchdog.join()
         }

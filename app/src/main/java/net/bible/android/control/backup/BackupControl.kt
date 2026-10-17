@@ -18,7 +18,15 @@
 package net.bible.android.control.backup
 
 import net.bible.sharedcore.platform.files.BackupFileSniffer
+import okio.FileSystem
+import okio.Path
+import okio.IOException
+import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
+import okio.Source
 import okio.buffer
+import okio.ByteString.Companion.decodeHex
+import okio.ByteString.Companion.encodeUtf8
 import net.bible.sharedcore.platform.files.PickedSource
 import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedcore.platform.files.DeliveryResult
@@ -30,10 +38,8 @@ import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.SharedConstants
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.SyncableRoomDatabase
-import net.bible.service.common.FileManager
 import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.installzip.moduleArchiveTargetName
 import net.bible.service.db.DatabaseContainer
@@ -44,10 +50,18 @@ import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.safeZipEntryPath
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.DbType
+import net.bible.service.common.dosDateTime
+import net.bible.sharedcore.platform.DateTimeFormats
+import org.crosswire.common.compress.GzipStreams
+import org.crosswire.common.compress.ZipReader
+import org.crosswire.common.compress.ZipWriter
+import org.koin.mp.KoinPlatform
+import kotlin.time.Clock
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.deleteAppDatabase
 import net.bible.service.db.importDatabaseFile
@@ -73,27 +87,14 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.crosswire.common.util.NetUtil
-import org.crosswire.common.util.NetUtilJvm
+import org.crosswire.common.util.KUri
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordBookMetaDataJvm
-import org.crosswire.jsword.book.sword.SwordBookPathJvm
+import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
-import java.io.BufferedInputStream
-import java.io.Closeable
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.util.*
-import java.util.zip.GZIPInputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
 
 const val DATABASE_BACKUP_SUFFIX = ".abdb.zip"
 const val MODULE_BACKUP_SUFFIX = ".abmd.zip"
@@ -102,6 +103,20 @@ const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup$DATABASE_BACKUP_SUFFIX"
 const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 
 const val ZIP_MIMETYPE = "application/zip"
+
+private val SQLITE_MAGIC = "SQLite format 3\u0000".encodeUtf8()
+private val GZIP_MAGIC = "1f8b".decodeHex()
+
+/**
+ * [dir] must be an absolute, existing directory; the URI gets a trailing '/' like `File.toURI()`.
+ * The `file:` [KUri] of the existing directory [dir], with the trailing slash that marks a directory: what
+ * `NetUtilJvm.getURI(File)` (`File.toURI()`) returns for it, built the way jsword's common code builds directory
+ * URIs. Used as the library root of newly extracted SWORD books.
+ */
+internal fun directoryKUri(dir: Path): KUri {
+    val spelling = dir.toString()
+    return KUri("file", null, if (spelling.endsWith("/")) spelling else "$spelling/", null)
+}
 
 
 /** What to do with the result of the save/share picker (F125). */
@@ -136,6 +151,7 @@ class BackupControl(
     private val windowControl: net.bible.android.control.page.window.WindowControl,
     private val cloudSync: CloudSync,
     private val notifier: net.bible.sharedcore.platform.UserNotifier,
+    private val dirs: net.bible.sharedcore.platform.AppDirectories = KoinPlatform.getKoin().get(),
 ) {
     // AppDialogRequest.Options ids for askIfRestoreOrImport (D8-1).
     private val RESTORE_VALUE = "restore"
@@ -172,7 +188,7 @@ class BackupControl(
         }
     }
 
-    internal suspend fun saveDbBackupFileViaIntent(host: BackupHost, file: File) =
+    internal suspend fun saveDbBackupFileViaIntent(host: BackupHost, file: Path) =
         saveOrShare(
             host = host,
             file = file,
@@ -186,7 +202,7 @@ class BackupControl(
 
     public suspend fun saveOrShare(
         host: BackupHost,
-        file: File,
+        file: Path,
         fileName: String,
         shareMimeType: String = ZIP_MIMETYPE,
         saveMimeType: String = ZIP_MIMETYPE,
@@ -206,8 +222,10 @@ class BackupControl(
             classicDestinationPrompt(promptTitle, promptMessage)
         } ?: return false
 
+        // What File.absolutePath gave: a relative path is resolved against the working directory.
+        val absolute = if (file.isAbsolute) file else fileSystem.canonicalize(".".toPath()) / file
         val outcome = pickerOutcome(host.deliver(
-            file.absolutePath, fileName, saveOrShare, shareMimeType, saveMimeType, subject, message, chooserTitle,
+            absolute.toString(), fileName, saveOrShare, shareMimeType, saveMimeType, subject, message, chooserTitle,
         ))
         // A cancelled save picker is neither an error nor a success; stay silent.
         if (outcome == PickerOutcome.CANCELLED) return false
@@ -228,50 +246,54 @@ class BackupControl(
         return ok
     }
 
-    private suspend fun restoreOldMonolithicDatabaseFromInputStream(host: BackupHost, source: PickedSource): Boolean {
-        val inputStream = host.openInput(source).buffer().inputStream()
-        return restoreOldMonolithicDatabase(inputStream)
-    }
+    private suspend fun restoreOldMonolithicDatabaseFromSource(host: BackupHost, source: PickedSource): Boolean =
+        restoreOldMonolithicDatabase(host.openInput(source))
 
-    /** The old (pre-split, version <= [OLD_DATABASE_VERSION]) single-file database, gzipped or not. */
+    /** The old (pre-split, version <= [OLD_DATABASE_VERSION]) single-file database, gzipped or not. Closes [source]. */
     @VisibleForTesting
-    internal suspend fun restoreOldMonolithicDatabase(inputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
-        internalDbBackupDir.mkdirs()
-        val tmpFile = File(internalDbBackupDir, OLD_MONOLITHIC_DATABASE_NAME)
+    internal suspend fun restoreOldMonolithicDatabase(source: Source): Boolean = withContext(Dispatchers.IO) {
+        val tmpFile = internalDbBackupDir / OLD_MONOLITHIC_DATABASE_NAME
         try {
-            if (!unpackOldMonolithicDatabase(inputStream, tmpFile)) return@withContext false
+            if (!unpackOldMonolithicDatabase(source, tmpFile)) return@withContext false
             // A running sync may need replacement admission to finish. Never wait for it while owning that gate.
             for (def in SyncableDatabaseDefinition.ALL) beforeRestore(def)
             reloadingAfterReplace { DatabaseContainer.replacingDatabases { token -> swapInOldMonolithicDatabase(tmpFile, token) } }
         } finally {
-            tmpFile.delete()
+            deleteQuietly(tmpFile)
         }
     }
 
 
-    /** Test seam (F120): the copy of the validated file into the database directory. */
+    /**
+     * Test seam (F120): the copy of the validated file into the database directory. An `IOException` (an unreadable
+     * source, a full disk) is the answer `false`, which rolls the restore back.
+     */
     @VisibleForTesting
-    internal var copyStagedDatabase: (File, File) -> Boolean = { from, to -> FileManager.copyFile(from, to) }
-
-    /** Unpacks [inputStream] (gunzipping it if needed) into [target]; true only for SQLite of version <= [OLD_DATABASE_VERSION]. */
-    private fun unpackOldMonolithicDatabase(inputStream: InputStream, target: File): Boolean {
-        val buffered = BufferedInputStream(inputStream)
-        val header = ByteArray(2)
-        buffered.mark(2); buffered.read(header); buffered.reset()
-        val input = if (header.contentEquals(byteArrayOf(0x1f.toByte(), 0x8b.toByte()))) GZIPInputStream(buffered) else buffered
-        input.use { stream ->
-            val dbHeader = ByteArray(16)
-            stream.read(dbHeader)
-            if (String(dbHeader) != "SQLite format 3\u0000") return false
-            FileOutputStream(target).use { out -> out.write(dbHeader); stream.copyTo(out) }
+    internal var copyStagedDatabase: (Path, Path) -> Boolean = { from, to ->
+        try {
+            FileSystem.SYSTEM.copy(from, to)
+            true
+        } catch (e: IOException) {
+            Log.e(TAG, "Error copying the staged database", e)
+            false
         }
-        val version = readUserVersion(target)
+    }
+
+    /** Unpacks [source] (gunzipping it if needed) into [target]; true only for SQLite of version <= [OLD_DATABASE_VERSION]. */
+    private fun unpackOldMonolithicDatabase(source: Source, target: Path): Boolean {
+        val buffered = source.buffer()
+        val input = if (buffered.rangeEquals(0, GZIP_MAGIC)) GzipStreams.gunzip(buffered).buffer() else buffered
+        input.use { stream ->
+            if (!stream.request(SQLITE_MAGIC.size.toLong()) || !stream.buffer.rangeEquals(0, SQLITE_MAGIC)) return false
+            fileSystem.write(target) { writeAll(stream) }
+        }
+        val version = readUserVersion(target.toFile()) // L1b-handover(D2): readUserVersion(Path)
         Log.i(TAG, "Old monolithic backup database, version $version")
         return version <= OLD_DATABASE_VERSION
     }
 
     /** F120's snapshot: a SIBLING of [internalDbDir], because `Context.databaseList()` lists subdirectories too. */
-    private val restoreRollbackDir: File get() = File(internalDbDir.parentFile, "db-restore-rollback")
+    private val restoreRollbackDir: Path get() = internalDbDir.parent!! / "db-restore-rollback"
 
     /**
      * F120. Puts the validated old database [validated] in place of the current databases. Those are moved
@@ -279,29 +301,29 @@ class BackupControl(
      * database is opened) or [afterRestore] fails, so a failure returns false with the user's data untouched.
      * The snapshot is deleted only after all of those. Runs inside [DatabaseContainer.replacingDatabases].
      */
-    private suspend fun swapInOldMonolithicDatabase(validated: File, token: net.bible.service.llm.AiDatabaseLifetime.Replacement): Boolean {
+    private suspend fun swapInOldMonolithicDatabase(validated: Path, token: net.bible.service.llm.AiDatabaseLifetime.Replacement): Boolean {
         // Not reset(): with no open instance, reset() BUILDS a container (open, migrate) just to close it,
         // which touches the files about to be snapshotted and runs containerFactory too early.
         DatabaseContainer.dropInstanceWithoutOpeningOwned(token)
         val rollbackDir = restoreRollbackDir
-        if (rollbackDir.exists()) {
+        if (fileSystem.exists(rollbackDir)) {
             // An earlier restore died before cleaning up; its snapshot may be the user's only copy.
-            val aside = File(rollbackDir.parentFile, "${rollbackDir.name}-${System.currentTimeMillis()}")
-            if (!rollbackDir.renameTo(aside)) {
+            val aside = rollbackDir.parent!! / "${rollbackDir.name}-${Clock.System.now().toEpochMilliseconds()}"
+            if (!moveFile(rollbackDir, aside)) {
                 Log.e(TAG, "F120: cannot move the leftover $rollbackDir aside; restore aborted")
                 return false
             }
         }
         if (!moveAllFiles(internalDbDir, rollbackDir)) {
             Log.e(TAG, "F120: could not move the current databases aside; nothing changed")
-            rollbackDir.delete()
+            deleteQuietly(rollbackDir)
             return false
         }
         val ok = try {
-            val staged = File(internalDbDir, "$OLD_MONOLITHIC_DATABASE_NAME.staging")
+            val staged = internalDbDir / "$OLD_MONOLITHIC_DATABASE_NAME.staging"
             val placed = copyStagedDatabase(validated, staged) &&
-                staged.length() == validated.length() &&
-                staged.renameTo(File(internalDbDir, OLD_MONOLITHIC_DATABASE_NAME))
+                fileLength(staged) == fileLength(validated) &&
+                moveFile(staged, internalDbDir / OLD_MONOLITHIC_DATABASE_NAME)
             if (placed && DatabaseContainer.ready) {
                 // Opening the container splits the old file, but the split databases are written at version 1 and
                 // Room migrates each one on its first access. sync() touches every database, and afterRestore()
@@ -321,18 +343,60 @@ class BackupControl(
             rollBackOldMonolithicRestore(rollbackDir)
             return false
         }
-        rollbackDir.deleteRecursively()
+        deleteTreeQuietly(rollbackDir)
         return true
     }
 
+    private fun fileLength(file: Path): Long = fileSystem.metadataOrNull(file)?.size ?: 0L
+
+    /** Test seam: the rename behind [moveFile], so a test can make the put-back of a rollback fail too. */
+    @VisibleForTesting
+    internal var atomicMove: (Path, Path) -> Unit = { from, to -> FileSystem.SYSTEM.atomicMove(from, to) }
+
+    /** `File.renameTo`: false instead of an exception when the move fails. */
+    private fun moveFile(from: Path, to: Path): Boolean = try {
+        atomicMove(from, to)
+        true
+    } catch (e: IOException) {
+        false
+    }
+
+    /**
+     * `File.delete`: a failure is logged, not thrown. Not recursive: okio refuses a non-empty directory, so a
+     * snapshot directory that still holds a user database is kept (F120).
+     */
+    private fun deleteQuietly(path: Path) {
+        try {
+            fileSystem.delete(path, mustExist = false)
+        } catch (e: IOException) {
+            Log.w(TAG, "Could not delete $path", e)
+        }
+    }
+
+    /** `File.deleteRecursively`: a failure is logged, not thrown. */
+    private fun deleteTreeQuietly(path: Path) {
+        try {
+            fileSystem.deleteRecursively(path, mustExist = false)
+        } catch (e: IOException) {
+            Log.w(TAG, "Could not delete $path", e)
+        }
+    }
+
+    private fun regularFilesOf(dir: Path): List<Path> =
+        fileSystem.listOrNull(dir).orEmpty().filter { fileSystem.metadataOrNull(it)?.isRegularFile == true }
+
     /** Moves every file of [from] into [to]. On a failed move, puts back the ones already moved and returns false. */
-    private fun moveAllFiles(from: File, to: File): Boolean {
-        to.mkdirs()
-        val moved = mutableListOf<File>()
-        for (f in from.listFiles().orEmpty().filter { it.isFile }) {
-            val target = File(to, f.name)
-            if (!f.renameTo(target)) {
-                moved.forEach { it.renameTo(File(from, it.name)) }
+    private fun moveAllFiles(from: Path, to: Path): Boolean {
+        try {
+            fileSystem.createDirectories(to)
+        } catch (e: IOException) {
+            Log.w(TAG, "Could not create $to", e)
+        }
+        val moved = mutableListOf<Path>()
+        for (f in regularFilesOf(from)) {
+            val target = to / f.name
+            if (!moveFile(f, target)) {
+                moved.forEach { moveFile(it, from / it.name) }
                 return false
             }
             moved += target
@@ -341,10 +405,10 @@ class BackupControl(
     }
 
     /** Deletes whatever the failed attempt created and moves the snapshot back; keeps the snapshot if that fails. */
-    private fun rollBackOldMonolithicRestore(rollbackDir: File) {
-        internalDbDir.listFiles().orEmpty().filter { it.isFile }.forEach { it.delete() }
+    private fun rollBackOldMonolithicRestore(rollbackDir: Path) {
+        regularFilesOf(internalDbDir).forEach { deleteQuietly(it) }
         if (moveAllFiles(rollbackDir, internalDbDir)) {
-            rollbackDir.deleteRecursively()
+            deleteTreeQuietly(rollbackDir)
         } else {
             Log.e(TAG, "F120: could not move the pre-restore databases back; they are kept in $rollbackDir")
         }
@@ -375,143 +439,162 @@ class BackupControl(
         title = strings.areYouSure, message = message, confirmText = strings.okay, dismissText = strings.cancel,
     )) == AppDialogResult.Ok
 
-    private fun relativeFileName(rootDir: File, file: File): String {
-        val filePath = file.canonicalPath
-        val dirPath = rootDir.canonicalPath
+    /** Test hook: called with the module files of a SWORD book after they are listed and before they are zipped. */
+    @VisibleForTesting internal var onModuleFilesListed: (List<Path>) -> Unit = {}
+
+    private val fileSystem = FileSystem.SYSTEM
+
+    private fun dosTimeNow(): Long =
+        dosDateTime(Clock.System.now().toEpochMilliseconds(), KoinPlatform.getKoin().get<DateTimeFormats>())
+
+    private fun relativeFileName(rootDir: Path, file: Path): String {
+        val filePath = fileSystem.canonicalize(file).toString()
+        val dirPath = fileSystem.canonicalize(rootDir).toString()
         assert(filePath.startsWith(dirPath))
         return filePath.substring(dirPath.length + 1)
     }
 
-    private fun addFile(outFile: ZipOutputStream, rootDir: File, file: File) {
-        FileInputStream(file).use { inFile ->
-            BufferedInputStream(inFile).use { origin ->
-                val entry = ZipEntry(relativeFileName(rootDir, file))
-                outFile.putNextEntry(entry)
-                origin.copyTo(outFile)
-            }
+    private fun addFile(outFile: ZipWriter, rootDir: Path, file: Path) {
+        outFile.putEntry(relativeFileName(rootDir, file), fileSystem.source(file), dosTimeNow())
+    }
+
+    private fun addModuleFile(outFile: ZipWriter, moduleFile: Path) {
+        val fileNameInsideZip = moduleFile.relativeTo(dirs.modulesDir).toString()
+        outFile.putEntry(fileNameInsideZip, fileSystem.source(moduleFile), dosTimeNow())
+    }
+
+    /** The regular files below [dir] (following symbolic links); none when [dir] does not exist. */
+    private fun filesBelow(dir: Path): List<Path> {
+        if (!fileSystem.exists(dir)) return emptyList()
+        return fileSystem.listRecursively(dir, followSymlinks = true)
+            .filter { fileSystem.metadataOrNull(it)?.isRegularFile == true }
+            .toList()
+    }
+
+    private fun addFiles(outFile: ZipWriter, rootDir: Path, files: List<Path>) {
+        onModuleFilesListed(files)
+        for (f in files) {
+            addFile(outFile, rootDir, f)
         }
     }
 
-    private fun addModuleFile(outFile: ZipOutputStream, moduleFile: File) {
-        FileInputStream(moduleFile).use { inFile ->
-            BufferedInputStream(inFile).use { origin ->
-                val fileNameInsideZip = moduleFile.relativeTo(moduleDir).path
-                val entry = ZipEntry(fileNameInsideZip)
-                outFile.putNextEntry(entry)
-                origin.copyTo(outFile)
-            }
-        }
+    private fun addModuleDir(outFile: ZipWriter, modDir: Path) {
+        addFiles(outFile, dirs.modulesDir, filesBelow(modDir))
     }
 
-    private fun addModuleDir(outFile: ZipOutputStream, modDir: File) {
-        for (f in modDir.walkTopDown().filter { it.isFile }) {
-            addFile(outFile, moduleDir, f)
-        }
-    }
-
-    private fun addBookToZip(outFile: ZipOutputStream, b: Book) {
+    private fun addBookToZip(outFile: ZipWriter, b: Book) {
         val bmd = b.bookMetaData as SwordBookMetaData
         if (b.isManuallyInstalledMyBibleBook) {
-            addModuleFile(outFile, b.dbPath.toFile())
+            addModuleFile(outFile, b.dbPath)
         } else if (b.isManuallyInstalledMySwordBook) {
-            addModuleFile(outFile, b.dbPath.toFile())
+            addModuleFile(outFile, b.dbPath)
         } else if (b.isManuallyInstalledESwordBook) {
-            addModuleFile(outFile, b.dbPath.toFile())
+            addModuleFile(outFile, b.dbPath)
         } else if (b.isManuallyInstalledEpub) {
-            addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
+            addModuleDir(outFile, dirs.modulesDir / b.epubDir!!)
         } else if (b.isManuallyInstalledTtf) {
             // Manually-installed font modules have byte-array metadata (no configFile), so they
             // must be packaged by their .ttf file rather than via the generic SWORD configFile
             // branch below. Skip gracefully if the underlying file has gone missing, so one
             // broken font module can't abort the whole backup/sync operation.
-            val ttfFile = b.ttfFile.toFile()
-            if (ttfFile.exists()) {
+            val ttfFile = b.ttfFile
+            if (fileSystem.exists(ttfFile)) {
                 addModuleFile(outFile, ttfFile)
             } else {
-                Log.w(TAG, "Skipping font module ${b.initials}: file not found ${ttfFile.path}")
+                Log.w(TAG, "Skipping font module ${b.initials}: file not found $ttfFile")
             }
         } else if (b.isBackgroundImageModule) {
             // Background-image modules also have byte-array metadata (no configFile), so package
             // their single image file rather than via the generic SWORD branch below. Skip
             // gracefully if the file is missing, so one broken module can't abort the whole
             // backup/sync operation.
-            val imageFile = b.backgroundImageFile.toFile()
-            if (imageFile.exists()) {
+            val imageFile = b.backgroundImageFile
+            if (fileSystem.exists(imageFile)) {
                 addModuleFile(outFile, imageFile)
             } else {
-                Log.w(TAG, "Skipping background-image module ${b.initials}: file not found ${imageFile.path}")
+                Log.w(TAG, "Skipping background-image module ${b.initials}: file not found $imageFile")
             }
         } else {
             // Books constructed from byte-array metadata have no configFile — there is no .conf on
             // disk to locate the module root from. Every such type AndBible creates has its own
             // branch above, but an unhandled one (e.g. the MyDocument pseudo-books of OSTicket 3392)
             // must be skipped rather than abort the whole backup/sync operation with an NPE.
-            val configFile = SwordBookMetaDataJvm.getConfigFile(bmd)
+            val configFile = bmd.configFile
             if (configFile == null) {
                 Log.w(TAG, "Skipping ${b.initials}: no SWORD config file (not a file-backed module)")
                 return
             }
-            val rootDir = configFile.parentFile!!.parentFile!!
+            val rootDir = configFile.parent!!.parent!!
             addFile(outFile, rootDir, configFile)
             val dataPath = bmd.getProperty("DataPath")
-            val dataDir = File(rootDir, dataPath).run {
+            val dataDir = rootDir.resolve(dataPath!!.trimStart('/'), normalize = true).run {
                 if (listOf(
                         BookCategory.DICTIONARY,
                         BookCategory.GENERAL_BOOK,
                         BookCategory.MAPS
                     ).contains(b.bookCategory)
                 )
-                    parentFile
+                    parent!!
                 else this
             }
-            for (f in dataDir.walkTopDown().filter { it.isFile }) {
-                addFile(outFile, rootDir, f)
-            }
+            addFiles(outFile, rootDir, filesBelow(dataDir))
         }
     }
 
-    private suspend fun createModulesZip(books: List<Book>, zipFile: File) {
-        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP)
+    /**
+     * Writes a ZIP to `<zipFile>.tmp` and moves it to [zipFile] only when complete, so a backup that fails halfway
+     * (a module file vanishing, a full disk) leaves nothing under the final name that looks like a finished archive.
+     */
+    private fun writeZipAtomically(zipFile: Path, write: (ZipWriter) -> Unit) {
+        val tmp = zipFile.parent!! / "${zipFile.name}.tmp"
+        // a failed backup must not leave a stale archive that could be shared as a fresh backup
+        fileSystem.delete(zipFile, mustExist = false)
+        try {
+            ZipWriter(fileSystem.sink(tmp)).use(write)
+            fileSystem.atomicMove(tmp, zipFile)
+        } catch (t: Throwable) {
+            fileSystem.delete(tmp, mustExist = false)
+            throw t
+        }
+    }
+
+    private suspend fun createModulesZip(books: List<Book>, zipFile: Path) {
+        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP, andBibleVersion = env.versionNumber.toInt())
 
         withContext(Dispatchers.IO) {
-            FileOutputStream(zipFile).use { out ->
-                ZipOutputStream(out).use { outFile ->
-                    manifest.saveToZip(outFile)
-                    for (b in books) {
-                        addBookToZip(outFile, b)
-                    }
+            writeZipAtomically(zipFile) { outFile ->
+                manifest.saveToZip(outFile, dosTimeNow())
+                for (b in books) {
+                    addBookToZip(outFile, b)
                 }
             }
         }
     }
 
-    suspend fun createSingleModuleZip(book: Book, zipFile: File) = withContext(Dispatchers.IO) {
-        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP)
-        FileOutputStream(zipFile).use { out ->
-            ZipOutputStream(out).use { outFile ->
-                manifest.saveToZip(outFile)
-                addBookToZip(outFile, book)
-            }
+    suspend fun createSingleModuleZip(book: Book, zipFile: Path) = withContext(Dispatchers.IO) {
+        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP, andBibleVersion = env.versionNumber.toInt())
+        writeZipAtomically(zipFile) { outFile ->
+            manifest.saveToZip(outFile, dosTimeNow())
+            addBookToZip(outFile, book)
         }
     }
 
     fun clearBackupDir() {
-        internalDbBackupDir.deleteRecursively()
+        deleteTreeQuietly(internalDbBackupDir)
 
-        val fileList = File(env.dbBackupPath).listFiles() ?: return
-        val now = Date().time
+        val fileList = fileSystem.listOrNull(env.dbBackupPath.toPath()) ?: return
+        val now = Clock.System.now().toEpochMilliseconds()
         val maxAge = 3*2592000000L // 3*30 days in milliseconds
         for(f in fileList) {
-            if(now - f.lastModified() > maxAge) {
-                f.delete()
+            if(now - (fileSystem.metadataOrNull(f)?.lastModifiedAtMillis ?: 0L) > maxAge) {
+                deleteQuietly(f)
             }
         }
     }
 
     suspend fun backupModulesViaIntent(host: BackupHost)  = withContext(Dispatchers.Main)   {
         val fileName = MODULE_BACKUP_NAME
-        internalDbBackupDir.mkdirs()
-        val zipFile = File(internalDbBackupDir, fileName)
+        val zipFile = internalDbBackupDir / fileName // the getter creates the directory
         val books = selectMany(
             strings.backupModulesTitle,
             Books.installed().getBooks().filter { !it.isPseudoBook && !it.isMyDocument }.sortedBy { it.language },
@@ -544,13 +627,11 @@ class BackupControl(
     }
 
     suspend fun backupApp(host: BackupHost) {
-        internalDbBackupDir.mkdirs()
 
-
-        val tempFile = File(internalDbBackupDir, strings.apkFile)
+        val tempFile = internalDbBackupDir / strings.apkFile
         withContext(Dispatchers.IO) {
-            tempFile.delete()
-            File(requireNotNull(env.apkPath)).copyTo(tempFile)
+            fileSystem.delete(tempFile, mustExist = false)
+            fileSystem.copy(requireNotNull(env.apkPath).toPath(), tempFile)
         }
 
         saveOrShare(
@@ -569,7 +650,7 @@ class BackupControl(
      * Saves the open windows, flushes queued settings writes, vacuums and checkpoints the databases when they are
      * open, then zips them ([zipDatabaseFiles]).
      */
-    suspend fun makeDatabaseBackupFile(): File? {
+    suspend fun makeDatabaseBackupFile(): Path? {
         if(env.isInitialized && DatabaseContainer.ready) {
             windowControl.windowRepository.saveIntoDb()
             // The save is an ordered write-through: the zip must not read the file before it lands.
@@ -587,34 +668,26 @@ class BackupControl(
      * [makeDatabaseBackupFile]'s vacuum and checkpoint: the pre-migration safety backup runs while the container is
      * still being built, when the databases are not open yet.
      */
-    fun zipDatabaseFiles(): File? {
-        internalDbBackupDir.mkdirs()
-        val zipFile = File(internalDbBackupDir, DATABASE_BACKUP_NAME)
-        if(zipFile.exists()) zipFile.delete()
+    fun zipDatabaseFiles(): Path? {
+        val zipFile = internalDbBackupDir / DATABASE_BACKUP_NAME
+        fileSystem.delete(zipFile, mustExist = false)
 
-        fun addFileToZip(outFile: ZipOutputStream, file: File) {
-            FileInputStream(file).use { inFile ->
-                BufferedInputStream(inFile).use { origin ->
-                    val entry = ZipEntry("db/${file.name}")
-                    outFile.putNextEntry(entry)
-                    origin.copyTo(outFile)
-                }
-            }
-        }
-        val files = ALL_DB_FILENAMES.map {File(internalDbDir, it)}.filter {it.exists()}
+        val dbDir = internalDbDir
+        val files = ALL_DB_FILENAMES.map { dbDir / it }.filter { fileSystem.exists(it) }
         if(files.isEmpty()) return null
 
         val manifest = AndBibleBackupManifest(
             backupType = BackupType.DB_BACKUP, contains = setOf(
                 DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS,
                 DbType.MYDOCUMENTS, DbType.AI_SETTINGS
-            )
+            ),
+            andBibleVersion = env.versionNumber.toInt()
         )
 
-        ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
-            manifest.saveToZip(outFile)
+        writeZipAtomically(zipFile) { outFile ->
+            manifest.saveToZip(outFile, dosTimeNow())
             for(b in files) {
-                addFileToZip(outFile, b)
+                outFile.putEntry("db/${b.name}", fileSystem.source(b), dosTimeNow())
             }
         }
         return zipFile
@@ -652,19 +725,13 @@ class BackupControl(
         }
     }
 
-    private suspend fun isSqliteFile(inputStream: BufferedInputStream): Boolean = withContext(Dispatchers.IO) {
-        val header = ByteArray(16)
-        inputStream.mark(16)
-        inputStream.read(header)
-        inputStream.reset()
-        val headerString = String(header)
-        headerString == "SQLite format 3\u0000"
+    private fun isSqliteFile(file: Path): Boolean = fileSystem.source(file).buffer().use {
+        it.request(SQLITE_MAGIC.size.toLong()) && it.buffer.rangeEquals(0, SQLITE_MAGIC)
     }
 
-    private suspend fun verifyDatabaseBackupFile(file: File): Boolean {
-        val inputStream = BufferedInputStream(file.inputStream())
-        if(!isSqliteFile(inputStream)) return false
-        val version = readUserVersion(file)
+    private fun verifyDatabaseBackupFile(file: Path): Boolean {
+        if(!isSqliteFile(file)) return false
+        val version = readUserVersion(file.toFile()) // L1b-handover(D2): readUserVersion(Path)
         return version <= maxDatabaseVersion(file.name)
     }
 
@@ -731,33 +798,28 @@ class BackupControl(
             notifier.showInfo(strings.downloadingBackup)
             showProgress()
 
-            val tmpFile = File(internalDbBackupDir, "database.zip")
-            val unzipFolder = File(internalDbBackupDir, "unzip")
+            val tmpFile = internalDbBackupDir / "database.zip"
+            val unzipFolder = internalDbBackupDir / "unzip"
 
-            unzipFolder.mkdirs()
+            fileSystem.createDirectories(unzipFolder)
 
             try {
-                val inputStream = host.openInput(source).buffer().inputStream()
-                tmpFile.outputStream().use { inputStream.copyTo(it) }
-                net.bible.service.common.ArchiveUtils.unzipFile(tmpFile, unzipFolder)
+                host.openInput(source).use { input -> fileSystem.write(tmpFile) { writeAll(input) } }
+                net.bible.service.common.ArchiveUtils.unzip(tmpFile, unzipFolder)
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing backup file", e)
                 throw IOException("Failed to process backup file: ${e.message}")
             }
 
-            val restored = Closeable {
-                tmpFile.delete()
-                unzipFolder.deleteRecursively()
-                dismissProgress()
-            }.use {
-                val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
-                    .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
+            try {
+                val containedBackups = ALL_DB_FILENAMES.map { unzipFolder / "db/${it}" }
+                    .filter { file -> fileSystem.exists(file) && verifyDatabaseBackupFile(file) }
                     .map { file -> file.name }
 
                 dismissProgress()
                 if (containedBackups.isEmpty()) {
                     showMessage(strings.restoreUnsuccessfull)
-                    return@use false
+                    return@withContext false
                 }
                 val selection =
                     if (containedBackups.size > 1)
@@ -765,11 +827,11 @@ class BackupControl(
                     else
                         containedBackups
                 if (selection.isEmpty()) {
-                    return@use false
+                    return@withContext false
                 }
                 showProgress()
                 restoreSelectedFiles(selection, unzipFolder, object : RestorePrompts {
-                    override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File) =
+                    override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: Path) =
                         askIfRestoreOrImport(category, backupFile)
                     override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition) =
                         confirm(
@@ -779,9 +841,11 @@ class BackupControl(
                         )
                 })
                 Log.i(TAG, "Restored database successfully")
-                true
+            } finally {
+                deleteQuietly(tmpFile)
+                deleteTreeQuietly(unzipFolder)
+                dismissProgress()
             }
-            if (!restored) return@withContext false
             true
         } finally {
             progressId?.let { dialogs.dismiss(it) }
@@ -791,7 +855,7 @@ class BackupControl(
     /** The two questions the zip restore asks per category; a seam so tests can answer them (D1 final review I1). */
     internal interface RestorePrompts {
         /** true = restore (overwrite), false = import (merge), null = skip this category. */
-        suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File): Boolean?
+        suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: Path): Boolean?
         /** The "are you sure" before an overwrite; false skips this category. */
         suspend fun confirmOverwrite(category: SyncableDatabaseDefinition): Boolean
     }
@@ -802,8 +866,8 @@ class BackupControl(
      * was then answered No.
      */
     internal class RestorePlan(
-        val toRestore: List<Pair<String, File>>,
-        val toImport: List<Pair<SyncableDatabaseDefinition, File>>,
+        val toRestore: List<Pair<String, Path>>,
+        val toImport: List<Pair<SyncableDatabaseDefinition, Path>>,
         val restoredSelection: List<SyncableDatabaseDefinition>,
     )
 
@@ -813,13 +877,13 @@ class BackupControl(
      * flow (close and overwrite file N, then wait on the user's answer for file N+1) crashed any DAO call made
      * while a dialog was up. Nothing is closed, copied or imported here.
      */
-    internal suspend fun collectRestoreDecisions(selection: List<String>, unzipFolder: File, prompts: RestorePrompts): RestorePlan {
-        val toRestore = ArrayList<Pair<String, File>>()
-        val toImport = ArrayList<Pair<SyncableDatabaseDefinition, File>>()
+    internal suspend fun collectRestoreDecisions(selection: List<String>, unzipFolder: Path, prompts: RestorePrompts): RestorePlan {
+        val toRestore = ArrayList<Pair<String, Path>>()
+        val toImport = ArrayList<Pair<SyncableDatabaseDefinition, Path>>()
         val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
         for (fileName in selection) {
             val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
-            val f = File(unzipFolder, "db/${fileName}")
+            val f = unzipFolder / "db/${fileName}"
             val restore = if (category != null) prompts.restoreOrImport(category, f) else true
             if (restore == null) continue
             if (restore) {
@@ -845,7 +909,7 @@ class BackupControl(
      */
     internal suspend fun restoreSelectedFiles(
         selection: List<String>,
-        unzipFolder: File,
+        unzipFolder: Path,
         prompts: RestorePrompts,
     ) = reloadingAfterReplace {
         val plan = collectRestoreDecisions(selection, unzipFolder, prompts)
@@ -854,11 +918,10 @@ class BackupControl(
                 Log.i(TAG, "Restoring $fileName")
                 if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplaceOwned(fileName, token)
                 val targetFilePath = env.databasePath(fileName)
-                f.copyTo(File(targetFilePath), overwrite = true)
-                File("$targetFilePath-journal").delete()
-                File("$targetFilePath-shm").delete()
-                File("$targetFilePath-wal").delete()
-                File("$targetFilePath.lck").delete()
+                fileSystem.copy(f, targetFilePath.toPath())
+                for (leftover in listOf("-journal", "-shm", "-wal", ".lck")) {
+                    deleteQuietly("$targetFilePath$leftover".toPath())
+                }
             }
             DatabaseContainer.resetOwned(token)
             for ((category, f) in plan.toImport) importDatabaseFile(category, f)
@@ -869,9 +932,9 @@ class BackupControl(
         }
     }
 
-    suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File): Boolean?  = withContext(Dispatchers.Main) {
+    suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: Path): Boolean?  = withContext(Dispatchers.Main) {
         val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
-            " (${bookmarksDbStats(category, backupFile)})"
+            " (${bookmarksDbStats(category, backupFile, strings)})"
         } else ""
         val message =
             strings.askRestoreOrImport(strings.syncCategoryContents(category.name) + contents)
@@ -908,7 +971,7 @@ class BackupControl(
         val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = strings.pleaseWait))
         try {
             withContext(Dispatchers.IO) {
-                result = if (restoreOldMonolithicDatabaseFromInputStream(host, source)) {
+                result = if (restoreOldMonolithicDatabaseFromSource(host, source)) {
                     Log.i(TAG, "Restored database successfully")
                     showMessage(strings.restoreSuccess)
                     true
@@ -942,52 +1005,38 @@ class BackupControl(
      * or an epub directory tree. After extraction, all addManuallyInstalled discovery
      * functions run so newly extracted books of every supported type are registered.
      *
-     * @param newInputStream supplies a fresh [InputStream] over the archive (called once).
+     * @param newSource supplies a fresh [Source] over the archive (called once; closed by the extraction).
      * @param totalEntries number of zip entries, used only to scale [onProgress]; pass 0 to
      *   skip progress scaling.
      * @param onProgress optional progress callback receiving a 0..100 percentage.
      * @throws IOException on extraction failure.
      */
     suspend fun extractAndRegisterModuleArchive(
-        newInputStream: () -> InputStream,
+        newSource: () -> Source,
         totalEntries: Int = 0,
         onProgress: ((percent: Int) -> Unit)? = null,
     ) = withContext(Dispatchers.IO) {
-        val confFiles = ArrayList<File>()
-        val targetDirectory = SwordBookPathJvm.getSwordDownloadDir()
+        val confFiles = ArrayList<Path>()
+        val targetDirectory = SwordBookPath.getSwordDownloadDir()
         val errors: MutableList<String> = mutableListOf()
-        ZipInputStream(newInputStream()).use { zIn ->
-            var ze: ZipEntry? = zIn.nextEntry
+        ZipReader(newSource()).use { zip ->
             var entryNum = 0
-            val buffer = ByteArray(8192)
-            while (ze != null) {
-                val name = ze.name.replace('\\', '/')
-                if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
-                    ze = zIn.nextEntry
-                    continue
-                }
+            while (true) {
+                val ze = zip.nextEntry() ?: break
+                val name = safeZipEntryPath(ze.name)
+                    ?: throw IOException("Unsafe ZIP entry name")
+                if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) continue
 
-                val file = File(targetDirectory, moduleArchiveTargetName(name))
+                val file = targetDirectory / moduleArchiveTargetName(name)
                 if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
                     confFiles.add(file)
 
-                val dir = if (ze.isDirectory) file else file.parentFile
+                val dir = if (ze.isDirectory) file else file.parent
+                if (dir != null) fileSystem.createDirectories(dir)
 
-                if (dir != null && !dir.isDirectory && !(dir.mkdirs() || dir.isDirectory))
-                    throw IOException()
-
-                if (ze.isDirectory) {
-                    ze = zIn.nextEntry
-                    continue
-                }
+                if (ze.isDirectory) continue
                 try {
-                    FileOutputStream(file).use { fOut ->
-                        var count = zIn.read(buffer)
-                        while (count != -1) {
-                            fOut.write(buffer, 0, count)
-                            count = zIn.read(buffer)
-                        }
-                    }
+                    fileSystem.write(file) { writeAll(zip.entry) }
                 } catch (e: IOException) {
                     errors.add(file.name)
                     Log.e(TAG, "Error in writing ${file.name}", e)
@@ -996,7 +1045,6 @@ class BackupControl(
                 if (onProgress != null && totalEntries > 0) {
                     onProgress((entryNum.toFloat() / totalEntries.toFloat() * 100).toInt())
                 }
-                ze = zIn.nextEntry
             }
             if (errors.isNotEmpty()) {
                 throw IOException("Could not write module files: ${errors.joinToString(", ")}")
@@ -1005,7 +1053,7 @@ class BackupControl(
         // Load configuration files & register SWORD books
         val bookDriver = SwordBookDriver.instance()
         for (confFile in confFiles) {
-            val me = SwordBookMetaDataJvm.create(confFile, NetUtilJvm.getURI(targetDirectory))
+            val me = SwordBookMetaData(confFile, directoryKUri(targetDirectory))
             me.setDriver(bookDriver)
             SwordBookDriver.registerNewBook(me)
         }
@@ -1029,11 +1077,11 @@ class BackupControl(
      *   if null, success is reported when [Books.installed] grew.
      * @return true if installation succeeded and the document is registered.
      */
-    suspend fun installModuleArchive(file: File, expectedInitials: String? = null): Boolean =
+    suspend fun installModuleArchive(file: Path, expectedInitials: String? = null): Boolean =
         withContext(Dispatchers.IO) {
             val countBefore = Books.installed().getBooks().size
             try {
-                extractAndRegisterModuleArchive({ FileInputStream(file) })
+                extractAndRegisterModuleArchive({ fileSystem.source(file) })
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to install module archive ${file.name}", e)
                 return@withContext false
@@ -1050,14 +1098,11 @@ class BackupControl(
             ok
         }
 
-    // Tracks SharedConstants.modulesDir live rather than capturing it once at object load, so
-    // zip-entry relativization stays correct if the modules dir changes (e.g. across tests).
-    private val moduleDir: File get() = SharedConstants.modulesDir
-    private val internalDbDir: File get() = File(env.databasePath(OLD_MONOLITHIC_DATABASE_NAME)).parentFile!!
-    val internalDbBackupDir: File get() = File(SharedConstants.internalFilesDir, "backup").apply { mkdirs() }
+    private val internalDbDir: Path get() = env.databasePath(OLD_MONOLITHIC_DATABASE_NAME).toPath().parent!!
+    val internalDbBackupDir: Path get() = (dirs.internalFilesDir / "backup").also { fileSystem.createDirectories(it) }
 
-    suspend fun restoreFromLocalBackupFile(host: BackupHost, file: File) {
-        restoreAppDatabaseFromSourceWithUI(host, PickedSource(file.toURI().toString(), file.name, null))
+    suspend fun restoreFromLocalBackupFile(host: BackupHost, file: Path) {
+        restoreAppDatabaseFromSourceWithUI(host, PickedSource(KUri("file", null, file.toString(), null).toString(), file.name, null))
     }
 
     suspend fun resetDatabase(
@@ -1095,22 +1140,21 @@ class BackupControl(
     data class BackupFileInfo(
         val appVersion: Int?,
         val displayDate: String,
-        val file: File
+        val file: Path
     )
 
-    fun parseBackupFiles(files: List<File>): List<BackupFileInfo> {
-        val dateParser = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault())
-        val dateFormatter = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    fun parseBackupFiles(files: List<Path>): List<BackupFileInfo> {
+        // Format: dbBackup-{appVer}-{v1}-{v2}-...-{yyyyMMdd}-{HHmmss}.abdb.zip
+        val regex = Regex("""dbBackup-(\d+)-(?:[\d]+-)*(\d{8})-(\d{6})\.abdb\.zip""")
         return files.map { f ->
             val name = f.name
-            // Format: dbBackup-{appVer}-{v1}-{v2}-...-{yyyyMMdd}-{HHmmss}.abdb.zip
-            val regex = Regex("""dbBackup-(\d+)-(?:[\d]+-)*(\d{8})-(\d{6})\.abdb\.zip""")
             val match = regex.find(name)
             if (match != null) {
                 val appVersion = match.groupValues[1].toIntOrNull()
-                val dateStr = "${match.groupValues[2]}-${match.groupValues[3]}"
-                val date = try { dateParser.parse(dateStr) } catch (_: Exception) { null }
-                val displayDate = if (date != null) dateFormatter.format(date) else name
+                val (date, time) = match.groupValues[2] to match.groupValues[3]
+                // The names the app writes are valid dates; the groups are reassembled, not re-parsed.
+                val displayDate = "${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6, 8)} " +
+                    "${time.substring(0, 2)}:${time.substring(2, 4)}:${time.substring(4, 6)}"
                 BackupFileInfo(appVersion, displayDate, f)
             } else {
                 BackupFileInfo(null, name, f)

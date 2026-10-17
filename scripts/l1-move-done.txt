@@ -6,3 +6,5 @@ search
 document
 readingplan
 koin
+backup
+installzip

@@ -16,6 +16,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import okio.Path.Companion.toOkioPath
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -35,15 +36,15 @@ class InstallDepsTest {
         val file = File.createTempFile("install-sniff", ".tmp")
         try {
             file.writeBytes("SQLite format 3".toByteArray(Charsets.US_ASCII) + byteArrayOf(0))
-            assertEquals(BackupFileType.SQLITE3, determineLocalFileType(file))
+            assertEquals(BackupFileType.SQLITE3, determineLocalFileType(file.toOkioPath()))
             file.writeBytes(byteArrayOf(0x50, 0x4b, 3, 4))
-            assertEquals(BackupFileType.ZIP, determineLocalFileType(file))
+            assertEquals(BackupFileType.ZIP, determineLocalFileType(file.toOkioPath()))
             file.writeText("SQLite format 3 ")
-            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file))
+            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file.toOkioPath()))
             file.writeBytes(byteArrayOf())
-            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file))
+            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file.toOkioPath()))
             file.delete()
-            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file))
+            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file.toOkioPath()))
         } finally { file.delete() }
     }
 
@@ -56,13 +57,16 @@ class InstallDepsTest {
         }
         try {
             zip("mods.d/test.conf", "modules/test/data")
-            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, false, false), scanSwordZip(file))
+            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, false, false), scanSwordZip(file.toOkioPath()))
             zip("META-INF/container.xml", "content.xhtml")
-            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, true, false), scanSwordZip(file))
+            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, true, false), scanSwordZip(file.toOkioPath()))
             zip("mods.d/test.conf", "unexpected")
-            assertTrue(scanSwordZip(file).invalid)
+            assertTrue(scanSwordZip(file.toOkioPath()).invalid)
             zip()
-            assertTrue(scanSwordZip(file).invalid)
+            assertTrue(scanSwordZip(file.toOkioPath()).invalid)
+            // Zip-slip: a traversal name hidden behind a valid-looking prefix is an invalid archive.
+            zip("mods.d/test.conf", "modules/../../evil")
+            assertTrue(scanSwordZip(file.toOkioPath()).invalid)
         } finally { file.delete() }
     }
 
@@ -86,7 +90,7 @@ class InstallDepsTest {
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         val file = zipOf("KJV.SQLite3" to myBibleBytes())
         try {
-            assertEquals(InstallInspector.SwordZipScan(emptyList(), 1, false, false), scanSwordZip(file))
+            assertEquals(InstallInspector.SwordZipScan(emptyList(), 1, false, false), scanSwordZip(file.toOkioPath()))
         } finally { file.delete() }
     }
 
@@ -94,7 +98,7 @@ class InstallDepsTest {
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         val file = zipOf("X.SQLite3" to myBibleBytes(), "X.commentaries.SQLite3" to myBibleBytes())
         try {
-            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, false, false), scanSwordZip(file))
+            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, false, false), scanSwordZip(file.toOkioPath()))
         } finally { file.delete() }
     }
 
@@ -102,10 +106,10 @@ class InstallDepsTest {
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         val file = zipOf("X.SQLite3" to notMyBibleBytes())
         try {
-            val scan = scanSwordZip(file)
+            val scan = scanSwordZip(file.toOkioPath())
             assertTrue(scan.invalid)
             val plan = InstallInspector { BackupFileType.ZIP }.inspect(
-                file, "x.zip", null, false, { error("unused") }, { scanSwordZip(it) }, { false })
+                file.toOkioPath(), "x.zip", null, false, { error("unused") }, { scanSwordZip(it) }, { false })
             assertTrue(plan is InstallPlan.Invalid)
             // The runner turns Invalid into Error(INVALID_FILE), which the service toasts as invalidModule.
             val strings = testCoreStrings()
@@ -117,14 +121,14 @@ class InstallDepsTest {
     @Test fun rootLevelGarbageSqliteEntryIsInvalid() {
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         val file = zipOf("X.SQLite3" to byteArrayOf(1, 2, 3))
-        try { assertTrue(scanSwordZip(file).invalid) } finally { file.delete() }
+        try { assertTrue(scanSwordZip(file.toOkioPath()).invalid) } finally { file.delete() }
     }
 
     @Test fun myBibleDirectoryZipStillScansValid() {
         SwordBookPathJvm.setDownloadDir(SharedConstants.modulesDir)
         val file = zipOf("mybible/KJV.SQLite3" to myBibleBytes())
         try {
-            assertEquals(InstallInspector.SwordZipScan(emptyList(), 1, false, false), scanSwordZip(file))
+            assertEquals(InstallInspector.SwordZipScan(emptyList(), 1, false, false), scanSwordZip(file.toOkioPath()))
         } finally { file.delete() }
     }
 }

@@ -19,6 +19,12 @@
 
 package net.bible.service.cloudsync.documents
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import okio.FileSystem
+import okio.IOException
+import okio.Path
+import kotlin.time.Clock
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.versification.BookInstallWatcher
@@ -38,8 +44,6 @@ import kotlinx.coroutines.Dispatchers
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import kotlinx.coroutines.withContext
-import java.io.IOException
-import java.util.Collections
 
 class DocumentSync(
     private val env: net.bible.sharedcore.platform.AppEnvironment,
@@ -253,16 +257,16 @@ class DocumentSync(
                 name = book.name,
                 documentType = DocumentArchiver.documentTypeOf(book),
                 version = localVersion,
-                size = archive.length(),
+                size = archive.size(),
                 language = book.language.code,
                 category = book.bookCategory.name,
                 sourceDevice = env.deviceIdentifier,
-                timestamp = System.currentTimeMillis(),
+                timestamp = Clock.System.now().toEpochMilliseconds(),
                 cipherKey = cipherKey,
             )
             store.uploadDocument(meta, archive)
             documentSettings.setSyncTimestamp(book.initials, meta.timestamp)
-        } finally { archive.delete() }
+        } finally { runCatching { FileSystem.SYSTEM.delete(archive) } }
     }
 
     /**
@@ -270,9 +274,11 @@ class DocumentSync(
      * which would otherwise immediately enqueue a redundant auto-push of the very module we just
      * downloaded. [BookInstallWatcher] consults [isInstallingFromSync] to suppress that echo.
      */
-    private val installingFromSync: MutableSet<String> = Collections.synchronizedSet(HashSet())
+    private val installingFromSync = HashSet<String>()
+    private val installingLock = SynchronizedObject()
 
-    fun isInstallingFromSync(initials: String): Boolean = installingFromSync.contains(initials)
+    fun isInstallingFromSync(initials: String): Boolean =
+        synchronized(installingLock) { installingFromSync.contains(initials) } // L1-common-ok: atomicfu lock
 
     /**
      * Downloads and installs [initials] from the cloud. [onProgress] (if given) reports
@@ -286,14 +292,14 @@ class DocumentSync(
         val archive = store.downloadArchive(initials, meta.version,
             onProgress?.let { cb -> { bytes -> cb(bytes, meta.size) } }
         ) ?: return
-        installingFromSync.add(initials)
+        synchronized(installingLock) { installingFromSync.add(initials) } // L1-common-ok: atomicfu lock
         try {
             // Integrity guard: meta.size is the exact packaged (zip) size recorded at push time, so
             // a length mismatch means a truncated/partial download. installArchive only checks that
             // the book registers, not that its data is complete, and a "success" would set the sync
             // timestamp and never re-download — leaving a permanently broken module. Skip and retry.
-            if (meta.size > 0 && archive.length() != meta.size) {
-                Log.w(TAG, "Downloaded $initials size ${archive.length()} != expected ${meta.size}; skipping install")
+            if (meta.size > 0 && archive.size() != meta.size) {
+                Log.w(TAG, "Downloaded $initials size ${archive.size()} != expected ${meta.size}; skipping install")
                 return
             }
             if (DocumentArchiver.installArchive(archive, initials, backup())) {
@@ -301,8 +307,8 @@ class DocumentSync(
                 documentSettings.setSyncTimestamp(initials, meta.timestamp)
             }
         } finally {
-            archive.delete()
-            installingFromSync.remove(initials)
+            runCatching { FileSystem.SYSTEM.delete(archive) }
+            synchronized(installingLock) { installingFromSync.remove(initials) } // L1-common-ok: atomicfu lock
         }
     }
 
@@ -406,7 +412,7 @@ class DocumentSync(
                 Log.i(TAG, "Tombstone for $initials not applied: book is not deletable")
             }
             if (decision.advanceTimestamp) {
-                documentSettings.setSyncTimestamp(initials, System.currentTimeMillis())
+                documentSettings.setSyncTimestamp(initials, Clock.System.now().toEpochMilliseconds())
             }
         } catch (e: Exception) { Log.e(TAG, "Failed uninstalling $initials", e) }
     }
@@ -424,7 +430,7 @@ class DocumentSync(
         // correct, so a later local-delete failure must not revert it.
         val cachedBefore = cacheDao.all().firstOrNull { it.initials == initials }
         cacheDao.markDeleted(initials)
-        val now = System.currentTimeMillis()
+        val now = Clock.System.now().toEpochMilliseconds()
         try {
             val existing = store.readMeta(initials)
             // Remove is only offered when a cloud copy exists, so `existing` is normally present;
@@ -558,3 +564,6 @@ fun assembleStatusItems(
         )
     }
 }
+
+/** Size in bytes; 0 when the file is absent (as `File.length()`). */
+private fun Path.size(): Long = FileSystem.SYSTEM.metadataOrNull(this)?.size ?: 0L
