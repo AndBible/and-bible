@@ -12,8 +12,8 @@
 #   app      imports of :app symbols that are outside every domain and not in l1-move-allow.txt
 # The app column only sees explicit, non-wildcard imports (the spec defines it as imports of non-domain
 # :app classes); same-package references and wildcard imports are not seen, compile catches the rest.
-# AiDatabaseLifetime and SyncUtilities are not in l1-move-allow.txt: they live inside the llm and
-# cloudsync domains, so they move with their domain.
+# l1-move-allow.txt lists only the files D2 moved to :sharedLogic (AiDatabaseLifetime and SyncDatabaseHooks
+# included, ahead of their llm and cloudsync domains), so a stale import of them never counts.
 # --check fails when a domain listed in l1-move-done.txt has a non-zero column.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"

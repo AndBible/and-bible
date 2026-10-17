@@ -23,12 +23,10 @@ service/common/FileManager.kt	Android file/storage host (Environment, storage vo
 service/common/RecyclerViewSearchHelper.kt	Android RecyclerView UI helper
 service/common/Logger.kt	Android Log facade for legacy callers (FileManager, DocumentBibleBooksFactory)
 service/common/TestUtils.kt	Test/Android runtime detection helper used by Logger
-service/db/DatabaseContainer.kt	Android database host: Room builders, file locations, open/close/backup lifecycle (L1-edge bridges)
-service/db/AppDatabaseFiles.kt	Android database file locations
 service/db/ImportDb.kt	Android database import host (file picker results, ContentResolver, restore replacement)
 service/db/oldmigrations/OldMigrations.kt	Legacy Android SQLite migrations run on the original database files
 service/db/oldmigrations/DEPRECATED_ReadingPlanDatabaseDefinition.kt	Legacy Android SQLite schema kept for the old migrations
-service/db/BlockingDb.kt	Holds blockingAtEdge (the transaction marker moved to :sharedData) (excluded from the unmarked-bridge check by path)
+service/db/BlockingDb.kt	Holds blockingAtEdge only (marked Room wrappers moved to :sharedLogic)
 service/device/LightSensor.kt	Android SensorManager host
 service/device/ProgressNotificationManager.kt	Android notification host
 service/device/ScreenSettings.kt	Android screen brightness/orientation settings host

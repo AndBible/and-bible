@@ -1,5 +1,7 @@
-service/db/DatabaseContainer.kt	D2 moves it: Room builders and database lifecycle host
-service/db/AppDatabaseFiles.kt	D2 moves it: database file locations
-service/db/ReadUserVersion.kt	D2 moves it: PRAGMA user_version reader
-service/db/BlockingDb.kt	D2 moves it: blockingDb/blockingAtEdge bridge definitions
-service/db/oldmigrations	D2 moves it: legacy SQLite migrations and the deprecated reading-plan schema
+service/db/DatabaseContainer.kt	D2 moved it to :sharedLogic: Room builders and database lifecycle host
+service/db/AppDatabaseFiles.kt	D2 moved it to :sharedLogic: database file locations
+service/db/ReadUserVersion.kt	D2 moved it to :sharedLogic: PRAGMA user_version reader
+service/db/RoomMarked.kt	D2 moved it to :sharedLogic: marked Room transaction and connection wrappers
+service/db/DatabaseHost.kt	D2 moved it to :sharedLogic: platform port of the database container
+service/llm/AiDatabaseLifetime.kt	D2 moved it to :sharedLogic: AI database replacement lifetime
+service/cloudsync/SyncDatabaseHooks.kt	D2 moved it to :sharedLogic: syncable database definitions and trigger hooks
