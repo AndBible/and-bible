@@ -64,7 +64,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import net.bible.sharedcore.settings.store.SettingsStore
-import java.io.File
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toPath
 
 const val OLD_MONOLITHIC_DATABASE_NAME = "andBibleDatabase.db"
 private const val TEMPORARY_DOWNLOAD_DB_FILENAME = "temporary.sqlite3"
@@ -275,8 +277,8 @@ class DatabaseContainer private constructor() {
             buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *host.legacyMonolithicMigrations)
 
         private suspend fun migrateOldDatabaseIfNeeded() {
-            val oldDbFile = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
-            if(oldDbFile.exists()) {
+            val oldDbFile = host.databasePath(OLD_MONOLITHIC_DATABASE_NAME)
+            if(FileSystem.SYSTEM.exists(oldDbFile.toPath())) {
                 for (name in host.databaseList().filterNot { it == OLD_MONOLITHIC_DATABASE_NAME }) {
                     host.deleteDatabase(name)
                 }
@@ -285,8 +287,8 @@ class DatabaseContainer private constructor() {
                 getOldDatabase().apply {
                     try { useWriterConnection { } } finally { close() }
                 }
-                openSqlite(oldDbFile.path).use {
-                    val migrations = DatabaseSplitMigrations(it) { name -> File(host.databasePath(name)).absolutePath }
+                openSqlite(oldDbFile).use {
+                    val migrations = DatabaseSplitMigrations(it) { name -> host.databasePath(name) }
                     migrations.migrateAll()
                 }
                 deleteAppDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file, any journal/WAL leftovers and Room's .lck
@@ -295,21 +297,20 @@ class DatabaseContainer private constructor() {
 
         private fun backupDatabaseIfNeeded() {
             if(host.isRunningTests) return
-            val oldDb = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
-            if(oldDb.exists() && recoverIfCorrupt(oldDb.path) == null) {
+            val oldDb = host.databasePath(OLD_MONOLITHIC_DATABASE_NAME)
+            if(FileSystem.SYSTEM.exists(oldDb.toPath()) && recoverIfCorrupt(oldDb) == null) {
                 backupOldDatabase(oldDb)
             } else {
                 backupNewDatabaseIfNeeded()
             }
         }
 
-        private fun backupOldDatabase(oldDb: File) {
-            val dbVersion = readUserVersion(oldDb.path)
+        private fun backupOldDatabase(oldDb: String) {
+            val dbVersion = readUserVersion(oldDb)
             Log.i(TAG, "backupping old database of version $dbVersion)")
             val backupPath = host.dbBackupPath
             val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
-            val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
-            oldDb.copyTo(backupFile, true)
+            copyOverwriting(oldDb.toPath(), backupPath.toPath() / "dbBackup-$dbVersion-$timeStamp.db")
         }
 
         private fun backupNewDatabaseIfNeeded() {
@@ -321,16 +322,24 @@ class DatabaseContainer private constructor() {
 
             if(needBackup) {
                 // Not makeDatabaseBackupFile: with ready cleared it would skip its vacuum and checkpoint anyway.
-                val backupZipFile = withReadyCleared { host.zipDatabaseFilesForUpgradeBackup()?.let { File(it) } }
+                val backupZipFile = withReadyCleared { host.zipDatabaseFilesForUpgradeBackup()?.toPath() }
                 backupZipFile ?: return
                 val versionString = versions.joinToString("-")
                 Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
                 val backupPath = host.dbBackupPath
                 val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
-                val backupFile = File(backupPath, "dbBackup-${host.applicationVersionNumber}-$versionString-$timeStamp${host.databaseBackupSuffix}")
-                backupZipFile.copyTo(backupFile, true)
-                backupZipFile.delete()
+                val backupFile = backupPath.toPath() / "dbBackup-${host.applicationVersionNumber}-$versionString-$timeStamp${host.databaseBackupSuffix}"
+                copyOverwriting(backupZipFile, backupFile)
+                FileSystem.SYSTEM.delete(backupZipFile, mustExist = false)
             }
+        }
+
+        /** `File.copyTo(target, overwrite = true)`: creates the parent directory and replaces an existing target. */
+        private fun copyOverwriting(source: Path, target: Path) {
+            val fs = FileSystem.SYSTEM
+            target.parent?.let { fs.createDirectories(it) }
+            fs.delete(target, mustExist = false)
+            fs.copy(source, target)
         }
 
         /** The platform side of the container; installed once at startup by [installHost]. */
