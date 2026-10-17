@@ -212,6 +212,12 @@ fun buildCoreModule() = module {
     single<UserNotifier> { AndroidUserNotifier() }
     single<MarkdownRenderer> { net.bible.service.sword.mydocument.MarkdownToXhtml }
     single<net.bible.sharedcore.platform.AppDirectories> { net.bible.android.AndroidAppDirectories() }
+    // G3 ports
+    single<net.bible.sharedlogic.platform.LocaleSupport> { net.bible.android.platform.AndroidLocaleSupport }
+    single<net.bible.sharedlogic.platform.LocalCalendar> { net.bible.android.platform.AndroidLocalCalendar }
+    single<net.bible.sharedlogic.platform.SentenceBreaker> { net.bible.android.platform.AndroidSentenceBreaker }
+    single<net.bible.sharedlogic.platform.NightModeState> { net.bible.android.platform.AndroidNightModeState }
+    single<net.bible.sharedlogic.platform.LabelNameStrings> { net.bible.android.platform.AndroidLabelNameStrings(androidContext()) }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> {
