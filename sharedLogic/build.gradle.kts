@@ -29,6 +29,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.atomicfu)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kaml)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
