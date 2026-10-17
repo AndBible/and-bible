@@ -54,6 +54,8 @@ internal class IosBackgroundWork(
     val result = CompletableDeferred<Boolean>()
     private var finished = false
     private var stopped = false
+    /** Completion waits for this: BGTask's expiration handler must be installed before the task completes. */
+    private var expirationInstalled = false
     val isStopped: Boolean get() = lock.withLock { stopped }
 
     fun start(installExpiration: (() -> Unit) -> Unit) = lock.withLock {
@@ -76,7 +78,9 @@ internal class IosBackgroundWork(
             if (error != null && error !is CancellationException) {
                 Log.w(TAG, "Background work failed", error)
             }
-            lock.withLock { stopped = true; finish(false) }
+            // A worker launched into an already-cancelled scope completes during registration, before
+            // installExpiration has run; start() then publishes the result itself.
+            lock.withLock { stopped = true; if (expirationInstalled) finish(false) }
         }
         try {
             installExpiration {
@@ -84,9 +88,12 @@ internal class IosBackgroundWork(
                 finish(false)
                 worker.cancel()
             }
-            if (!finished) worker.start() else worker.cancel()
+            expirationInstalled = true
+            if (worker.isCompleted) finish(false)
+            else if (!finished) worker.start() else worker.cancel()
         } catch (error: Throwable) {
             Log.w(TAG, "Background work setup failed", error)
+            expirationInstalled = true
             finish(false)
             worker.cancel()
         }
