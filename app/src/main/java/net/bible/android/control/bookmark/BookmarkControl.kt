@@ -68,7 +68,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import java.util.Locale
+import org.crosswire.common.util.KswordLocale
+import org.crosswire.common.util.lowercase
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
@@ -554,7 +555,7 @@ open class BookmarkControl constructor(
     // add special label that is automatically associated with all-bookmarks
     suspend fun allLabels(): List<Label> = deferringEffects {
         val labelList = dao.allLabelsSortedByName().toMutableList()
-        labelList.sortBy { it.name.lowercase(Locale.getDefault()) }
+        labelList.sortBy { it.name.lowercase(KswordLocale.default()) }
         // add special label that is automatically associated with all-bookmarks
         labelList.add(0, labelUnlabelled())
         labelList.add(0, labelAll)

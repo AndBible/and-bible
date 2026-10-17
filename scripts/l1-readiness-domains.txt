@@ -43,3 +43,4 @@ core	service/db/ExportStudyPads.kt
 page	service/common/BookKeyExtensions.kt
 page	service/common/FirstBibleDoc.kt
 bookmark	service/common/LabelDisplayName.kt
+bookmark	android/view/activity/bookmark/LabelEditMapper.kt
