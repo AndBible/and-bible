@@ -31,6 +31,7 @@ import okio.Path
 import org.crosswire.common.util.KFiles
 import org.crosswire.common.util.KUri
 import org.koin.mp.KoinPlatform
+import net.bible.service.sword.epub.child
 
 private const val TAG = "CsvPromptBook"
 
@@ -39,7 +40,7 @@ private const val TAG = "CsvPromptBook"
 
 val Book.csvPromptFile: Path get() {
     val fileName = bookMetaData.getProperty("AndBibleProvidesPrompts") ?: ""
-    return csvPromptModulesDir() / fileName
+    return csvPromptModulesDir().child(fileName)
 }
 
 class CsvPromptSwordDriver : AbstractBookDriver() {

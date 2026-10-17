@@ -139,6 +139,19 @@ class EpubBackendStateTest {
     private fun newState(dir: File) = EpubBackendState(dir.toOkioPath(), strings = testCoreStrings(), env = AndroidAppEnvironment(application))
 
     @Test
+    fun dotDotInContainerFullPathStillRelativizesResources() {
+        val dir = buildEpub("dotdot-fullpath")
+        File(dir, "sub").mkdirs()
+        File(dir, "META-INF/container.xml").writeText(File(dir, "META-INF/container.xml").readText()
+            .replace("OEBPS/content.opf", "sub/../OEBPS/content.opf"))
+        File(dir, "OEBPS/ch1.xhtml").writeText(
+            chapterXhtml("Chapter One", "Picture.").replace("</p>", "<img src=\"pic.png\"/></p>"))
+        val state = newState(dir)
+        // Construction optimizes (and relativizes) every chapter; it threw with an un-normalized root folder.
+        assertTrue(state.read(state.keys.first()).contains("src=\"/epub/pic.png\""))
+    }
+
+    @Test
     fun suspendQueriesReadGeneratedXhtmlAndToc() = runTest {
         val state = newState(buildEpub("suspend-queries"))
         // BVA text includes the sentence splitter's separator space (107, not prose length 104).

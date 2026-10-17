@@ -147,7 +147,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
     private val contentFileName = XmlQueries.rootfiles(metaInfo, containerNamespace).first().getAttribute("full-path")!!.value
 
     private val contentXmlFile = epubDir.child(contentFileName)
-    val rootFolder: Path = contentXmlFile.parent!!
+    val rootFolder: Path = contentXmlFile.parent!!.normalized()
 
     private val content = useKdomBuilder { it.build(KFiles.readBytes(contentXmlFile)) }
     internal val fileToId = XmlQueries.manifestItems(content, epubNamespace).associate {

@@ -458,6 +458,8 @@ internal fun myBibleModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectori
 fun addManuallyInstalledMyBibleBooks() {
     val dir = myBibleModulesDir()
     if(!KFiles.isDirectory(dir)) return
+    // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
+    if (KFiles.listOrNull(dir) == null) return
 
     for(f in FileSystem.SYSTEM.listRecursively(dir)) {
         if(KFiles.isFile(f) && f.toString().lowercase().endsWith(".sqlite3")) {

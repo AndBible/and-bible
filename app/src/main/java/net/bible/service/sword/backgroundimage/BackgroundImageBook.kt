@@ -32,6 +32,7 @@ import okio.Path
 import org.crosswire.common.util.KFiles
 import org.crosswire.common.util.KUri
 import org.koin.mp.KoinPlatform
+import net.bible.service.sword.epub.child
 
 private const val TAG = "BackgroundImageBook"
 
@@ -56,7 +57,7 @@ class BackgroundImageSwordDriver : AbstractBookDriver() {
 val Book.backgroundImageFile: Path get() {
     val marker = bookMetaData.getProperty(BACKGROUND_IMAGE_MARKER) ?: ""
     val fileName = marker.split(";").getOrNull(1) ?: ""
-    return backgroundImageModulesDir() / fileName
+    return backgroundImageModulesDir().child(fileName)
 }
 
 /**
@@ -120,6 +121,8 @@ AndBibleMinimumVersion=1112
 fun addManuallyInstalledBackgroundImageBooks() {
     val dir = backgroundImageModulesDir()
     if (!KFiles.isDirectory(dir)) return
+    // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
+    if (KFiles.listOrNull(dir) == null) return
     for (f in FileSystem.SYSTEM.listRecursively(dir)) {
         if (KFiles.isFile(f) && f.name.substringAfterLast('.', "").lowercase() in imageExtensions) {
             addBackgroundImageBook(f)

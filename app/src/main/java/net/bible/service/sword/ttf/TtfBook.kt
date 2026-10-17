@@ -32,6 +32,7 @@ import org.crosswire.common.util.KUri
 import org.koin.mp.KoinPlatform
 import okio.FileSystem
 import net.bible.service.sword.isWritableFile
+import net.bible.service.sword.epub.child
 
 const val TAG = "TtfBook"
 
@@ -60,7 +61,7 @@ class TtfSwordDriver: AbstractBookDriver() {
 val Book.ttfFile: Path get() {
     val providesFont = bookMetaData.getProperty("AndBibleProvidesFont") ?: ""
     val fileName = providesFont.split(";").getOrNull(1) ?: ""
-    return ttfModulesDir() / fileName
+    return ttfModulesDir().child(fileName)
 }
 
 /**
@@ -110,6 +111,8 @@ AndBibleMinimumVersion=892
 fun addManuallyInstalledTtfBooks() {
     val dir = ttfModulesDir()
     if (!KFiles.isDirectory(dir)) return
+    // An unreadable folder must not crash startup (okio's listRecursively throws on it, File.canRead guarded it before)
+    if (KFiles.listOrNull(dir) == null) return
     
     for (f in FileSystem.SYSTEM.listRecursively(dir)) {
         if (KFiles.isFile(f) && f.name.substringAfterLast('.', "").lowercase() == "ttf") {
