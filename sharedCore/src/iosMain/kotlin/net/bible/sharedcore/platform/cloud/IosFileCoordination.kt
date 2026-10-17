@@ -64,11 +64,15 @@ class IosFileCoordination : FileCoordination {
             val error = alloc<ObjCObjectVar<NSError?>>().apply { this.value = null }
             val success = url.getResourceValue(value.ptr, NSURLIsUbiquitousItemKey, error.ptr)
             error.value?.let { throw it.asFileException() }
-            if (!success || value.value == null) throw IOException("iCloud item status unavailable")
-            (value.value as? NSNumber)?.boolValue
-                ?: throw IOException("Invalid iCloud item status")
+            if (!success) throw IOException("iCloud item status unavailable")
+            // Success with nil means the property does not apply to this resource (Foundation docs):
+            // a plain local file, or a path with nothing at it, which Foundation does not check here.
+            val status = value.value ?: return@memScoped null
+            (status as? NSNumber)?.boolValue ?: throw IOException("Invalid iCloud item status")
         }
-        if (!ubiquitous) return@withContext
+        if (ubiquitous == null && !NSFileManager.defaultManager.fileExistsAtPath(path.toString()))
+            throw okio.FileNotFoundException("No file at $path")
+        if (ubiquitous != true) return@withContext
         fun isCurrent(): Boolean = memScoped {
             // NSURL caches resource values; every poll must observe the download's latest state.
             url.removeCachedResourceValueForKey(NSURLUbiquitousItemDownloadingStatusKey)

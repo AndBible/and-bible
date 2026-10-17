@@ -72,7 +72,7 @@ class IosFilePickerTest {
         }
     }
 
-    @Test fun noPresenterCancelsPicker() = runTest {
+    @Test fun noPresenterCancelsPicker() = runOnMainRunLoop<Unit> {
         assertNull(IosFilePicker { null }.pickBackupFile())
     }
     @Test fun openInputReadsLocalCopy() = runTest {
@@ -84,7 +84,7 @@ class IosFilePickerTest {
             }
         } finally { FileSystem.SYSTEM.delete(path, mustExist = false) }
     }
-    @Test fun missingDeliveryFailsWithoutPresentation() = runTest {
+    @Test fun missingDeliveryFailsWithoutPresentation() = runOnMainRunLoop<Unit> {
         var presenterCalls = 0
         val result = IosFileDelivery { presenterCalls++; null }.deliver(
             (NSTemporaryDirectory().toPath() / NSUUID().UUIDString).toString(), "backup.zip",
@@ -93,7 +93,7 @@ class IosFilePickerTest {
         assertEquals(DeliveryResult.FAILED, result)
         assertEquals(0, presenterCalls)
     }
-    @Test fun traversalExportNameFailsWithoutChangingSource() = runTest {
+    @Test fun traversalExportNameFailsWithoutChangingSource() = runOnMainRunLoop<Unit> {
         val path = NSTemporaryDirectory().toPath() / NSUUID().UUIDString
         try {
             FileSystem.SYSTEM.write(path) { writeUtf8("original") }
@@ -104,7 +104,7 @@ class IosFilePickerTest {
             assertEquals("original", FileSystem.SYSTEM.read(path) { readUtf8() })
         } finally { FileSystem.SYSTEM.delete(path, mustExist = false) }
     }
-    @Test fun presenterIsResolvedAfterCopyAndCancellationRemovesStaging() = runTest {
+    @Test fun presenterIsResolvedAfterCopyAndCancellationRemovesStaging() = runOnMainRunLoop<Unit> {
         val temporary = NSTemporaryDirectory().toPath()
         val source = temporary / NSUUID().UUIDString
         val before = FileSystem.SYSTEM.list(temporary).toSet()
@@ -134,7 +134,7 @@ class IosFilePickerTest {
             FileSystem.SYSTEM.delete(source, mustExist = false)
         }
     }
-    @Test fun existingDeliveryWithoutPresenterIsCancelled() = runTest {
+    @Test fun existingDeliveryWithoutPresenterIsCancelled() = runOnMainRunLoop<Unit> {
         val path = NSTemporaryDirectory().toPath() / NSUUID().UUIDString
         try {
             FileSystem.SYSTEM.write(path) { writeUtf8("backup") }
