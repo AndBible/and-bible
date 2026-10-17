@@ -44,3 +44,5 @@ page	service/common/BookKeyExtensions.kt
 page	service/common/FirstBibleDoc.kt
 bookmark	service/common/LabelDisplayName.kt
 bookmark	android/view/activity/bookmark/LabelEditMapper.kt
+window	android/control/PassageChangeMediator.kt
+window	android/control/PageChange.kt

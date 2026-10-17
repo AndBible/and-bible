@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page.window
 
+import kotlinx.atomicfu.atomic
+import kotlin.concurrent.Volatile
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +45,7 @@ import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
-import java.util.concurrent.CopyOnWriteArrayList
+import org.crosswire.common.util.CopyOnWriteList
 import kotlin.math.min
 
 open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
@@ -67,13 +69,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
-    // CopyOnWriteArrayList (not a plain ArrayList): windowList is iterated on the background
+    // CopyOnWriteList (not a plain ArrayList): windowList is iterated on the background
     // cloud-sync thread (saveIntoDb, via MainBibleActivity.synchronize/periodicSync on
     // Dispatchers.IO) while the main thread structurally modifies it (opening/closing/moving
     // windows). A fail-fast ArrayList throws ConcurrentModificationException in that race
     // (OSTicket 3374); a copy-on-write list gives iterators a stable snapshot instead. Window
     // counts are tiny, so the copy-on-mutation cost is negligible.
-    var windowList: MutableList<Window> = CopyOnWriteArrayList()
+    var windowList: MutableList<Window> = CopyOnWriteList()
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: IdType? = null
@@ -497,7 +499,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      */
     private class PendingLoad(val epoch: Long) {
         val loaded = CompletableDeferred<LoadedWorkspace>()
-        private val claimed = java.util.concurrent.atomic.AtomicBoolean(false)
+        private val claimed = atomic(false)
         fun claim() = claimed.compareAndSet(false, true)
     }
     @Volatile private var pendingLoad: PendingLoad? = null
@@ -678,10 +680,12 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         for(labelId in labelIds) {
             val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }
             if (existingLabel != null) {
-                existingLabel.lastAccess = System.currentTimeMillis()
+                // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+                existingLabel.lastAccess = kotlin.time.Clock.System.now().toEpochMilliseconds()
                 workspaceSettings.recentLabels.sortBy { it.lastAccess }
             } else {
-                workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, System.currentTimeMillis()))
+                // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+                workspaceSettings.recentLabels.add(WorkspaceEntities.RecentLabel(labelId, kotlin.time.Clock.System.now().toEpochMilliseconds()))
                 while (workspaceSettings.recentLabels.size > 15) {
                     workspaceSettings.recentLabels.removeAt(0)
                 }

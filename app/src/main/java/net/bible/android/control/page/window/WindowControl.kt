@@ -31,7 +31,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.service.common.firstBibleDoc
 import net.bible.sharedcore.platform.AppCoroutineScope
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 import net.bible.service.sword.BookAndKey
 
 import org.crosswire.jsword.book.Book
@@ -330,9 +330,9 @@ open class WindowControl constructor() {
      */
     @VisibleForTesting
     internal var settingsPicker: WindowSettingsPicker = WindowSettingsPicker { w, t -> koinPicker.chooseSettingsToCopy(w, t) }
-    private val koinPicker: WindowSettingsPicker get() = GlobalContext.get().get()
+    private val koinPicker: WindowSettingsPicker get() = KoinPlatform.getKoin().get()
 
-    private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = GlobalContext.get().get()
+    private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = KoinPlatform.getKoin().get()
 
     /**
      * The copy-settings launches replace the former `CurrentActivityHolder.currentActivity!!.lifecycleScope`:
@@ -341,7 +341,7 @@ open class WindowControl constructor() {
      *    global store), so they run on [AppCoroutineScope] (Main), and complete even if the activity goes away
      *    while the dialog is open.
      */
-    private val appScope: AppCoroutineScope get() = GlobalContext.get().get()
+    private val appScope: AppCoroutineScope get() = KoinPlatform.getKoin().get()
 
     private suspend fun chooseSettingsToCopy(window: Window): List<WorkspaceEntities.TextDisplaySettings.Types> =
         settingsPicker.chooseSettingsToCopy(window, WorkspaceEntities.TextDisplaySettings.Types.values().toList())
