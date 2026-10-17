@@ -71,7 +71,9 @@ class DbTransactionMarkerContractTest {
         }
         assertFalse(isInDbTransactionOnThread())
 
-        // A separate coroutine on another thread must not see the mark of a body that is suspended meanwhile.
+        // Best-effort smoke check only: an unrelated coroutine on Dispatchers.Default observes the mark state while
+        // a marked body is suspended. It catches a leak only if the observer happens to run on the thread the
+        // suspended body left; it does not prove a leak is impossible.
         val started = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
         val observed = CompletableDeferred<Boolean>()

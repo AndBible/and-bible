@@ -13,15 +13,21 @@ class IdTypeOrderingTest {
     @Test
     fun distinctIdsAreNotEqualUnderCompareTo() {
         val ids = randomIds()
-        // Sorted-set semantics without the JVM-only toSortedSet: all 200 stay distinct under compareTo.
+        // Sorted-set semantics without the JVM-only toSortedSet: distinct ids stay strictly ordered.
         val sorted = ids.sorted()
-        assertEquals(200, sorted.size)
         assertTrue(sorted.zipWithNext().all { (a, b) -> a.compareTo(b) < 0 })
-        ids.forEach { assertEquals(0, it.compareTo(it)) }
+        for (id in ids) {
+            // An independently constructed equal id must compare as 0 and be ==.
+            val twin = IdType(id.toString())
+            assertTrue(twin !== id)
+            assertEquals(id, twin)
+            assertEquals(0, id.compareTo(twin), "id=$id")
+            assertEquals(0, twin.compareTo(id), "id=$id")
+        }
         for (i in 0 until 1000) {
             val a = ids[(i * 7) % ids.size]
             val b = ids[(i * 13 + 1) % ids.size]
-            assertEquals(a == b, a.compareTo(b) == 0, "a=$a b=$b")
+            if (a !== b) assertTrue(a.compareTo(b) != 0, "a=$a b=$b")
         }
     }
 

@@ -154,7 +154,10 @@ data class IdType(
     private val myUUID: MyUUID? = MyUUID.randomUUID(),
 ): Comparable<IdType> {
     constructor(s: String?): this(if(s == null) null else try {MyUUID.fromString(s)} catch (e: IllegalArgumentException) {null})
-    /** The empty id sorts first, as SQLite orders `''` before any 16-byte BLOB. */
+    /**
+     * The empty id sorts first, before any non-empty id. This matches SQLite, where both NULL (what the Room
+     * converter writes for the empty id) and `''` sort before any 16-byte BLOB. Equal ids compare as 0.
+     */
     override fun compareTo(other: IdType): Int = compareValuesBy(this, other) { it.myUUID }
     override fun toString(): String = myUUID?.toString()?: ""
     val isEmpty get() = myUUID == null
