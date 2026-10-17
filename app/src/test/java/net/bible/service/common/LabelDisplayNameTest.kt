@@ -1,5 +1,6 @@
 package net.bible.service.common
 
+import java.util.Locale
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -11,17 +12,18 @@ import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.platform.AndroidLabelNameStrings
 import net.bible.sharedlogic.platform.LabelNameStrings
+import net.bible.test.KoinFactorySnapshot
 import org.junit.After
-import org.junit.Before
-import org.koin.core.context.GlobalContext
-import org.koin.dsl.module
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.Koin
+import org.koin.core.context.GlobalContext
+import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.util.Locale
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK], qualifiers = "en")
@@ -31,21 +33,21 @@ class LabelDisplayNameTest {
 
     // The process-wide Koin keeps the Application of the JVM's first test (startKoin runs once), whose
     // resources do not follow this test's locale_pref: bind a port built from the current Application.
-    private val koin = GlobalContext.get()
-    private val originalStrings = koin.get<LabelNameStrings>()
+    private lateinit var koin: Koin
+    private lateinit var stringsSnapshot: KoinFactorySnapshot
 
-    private fun bindStrings(strings: LabelNameStrings) {
-        koin.loadModules(listOf(module { single<LabelNameStrings> { strings } }), allowOverride = true)
+    @Before fun bindCurrentApplicationStrings() {
+        koin = GlobalContext.get()
+        stringsSnapshot = KoinFactorySnapshot.of<LabelNameStrings>(koin)
+        koin.loadModules(listOf(module { single<LabelNameStrings> { AndroidLabelNameStrings(app) } }), allowOverride = true)
     }
-
-    @Before fun bindCurrentApplicationStrings() { bindStrings(AndroidLabelNameStrings(app)) }
 
     private fun setPref(v: String?) = CommonUtils.realSharedPreferences.edit().apply {
         if (v == null) remove("locale_pref") else putString("locale_pref", v)
     }.commit()
 
     @After fun reset() {
-        try { setPref(null) } finally { Locale.setDefault(savedDefault); bindStrings(originalStrings) }
+        try { setPref(null) } finally { Locale.setDefault(savedDefault); stringsSnapshot.restore() }
     }
 
     private fun label(name: String) = BookmarkEntities.Label(name = name)
