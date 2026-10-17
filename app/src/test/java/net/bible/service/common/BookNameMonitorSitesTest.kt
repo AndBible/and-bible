@@ -11,6 +11,7 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,38 +29,56 @@ import java.util.concurrent.TimeUnit
 class BookNameMonitorSitesTest {
     private val v11n = Versifications.instance().getVersification("KJV")
     private val john316: Key = Verse(v11n, BibleBook.JOHN, 3, 16)
+    private val gen11: Key = Verse(v11n, BibleBook.GEN, 1, 1)
     private val gen1: VerseRange = VerseRange(v11n, Verse(v11n, BibleBook.GEN, 1, 1), Verse(v11n, BibleBook.GEN, 1, 3))
 
-    @Test fun shortNameRestoresFullBookNameFlag() {
+    @Test fun shortNameReturnsShortFormAndRestoresFullBookNameFlag() {
         val old = BookName.isFullBookName()
         try {
             BookName.setFullBookName(true)
-            assertFalse(john316.shortName.isEmpty())
+            val full = gen11.getName()
+            assertEquals("Genesis 1:1", full)
+            val short = gen11.shortName
+            assertEquals("Gen 1:1", short)
+            assertNotEquals(full, short)
             assertTrue(BookName.isFullBookName())
         } finally { BookName.setFullBookName(old) }
     }
 
-    @Test fun abbreviatedRestoresFullBookNameFlag() {
+    @Test fun abbreviatedReturnsShortFormAndRestoresFullBookNameFlag() {
         val old = BookName.isFullBookName()
         try {
             BookName.setFullBookName(true)
+            val full = gen1.getName()
+            assertEquals("Genesis 1:1-3", full)
             val short = gen1.abbreviated
-            assertFalse(short.isEmpty())
+            assertEquals("Gen 1:1-3", short)
+            assertNotEquals(full, short)
             assertTrue(BookName.isFullBookName())
             BookName.setFullBookName(false)
-            gen1.abbreviated
+            assertEquals(short, gen1.abbreviated)
             assertFalse(BookName.isFullBookName())
         } finally { BookName.setFullBookName(old) }
     }
 
-    @Test fun tinyNameRestoresTruncateLength() {
-        val old = BookName.getTruncateShortName()
+    @Test fun tinyNameReturnsShortFormAndRestoresFlags() {
+        val oldTruncate = BookName.getTruncateShortName()
+        val oldFull = BookName.isFullBookName()
         try {
+            BookName.setFullBookName(true)
+            val full = gen11.getName()
+            assertEquals("Genesis 1:1", full)
             BookName.setTruncateShortName(42)
-            val tiny = john316.tinyName
-            assertTrue(tiny.length <= 7 || tiny.isNotEmpty())
+            val tiny = gen11.tinyName
+            assertEquals("Gen 1:1", tiny)
+            assertNotEquals(full, tiny)
+            assertTrue(tiny.length <= 7)
             assertEquals(42, BookName.getTruncateShortName())
-        } finally { BookName.setTruncateShortName(old) }
+            assertTrue(BookName.isFullBookName())
+        } finally {
+            BookName.setTruncateShortName(oldTruncate)
+            BookName.setFullBookName(oldFull)
+        }
     }
 
     @Test fun convertedSiteWaitsForALegacySynchronizedHolder() {
