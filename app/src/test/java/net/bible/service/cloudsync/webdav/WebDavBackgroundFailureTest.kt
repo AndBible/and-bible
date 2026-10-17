@@ -43,7 +43,7 @@ class WebDavBackgroundFailureTest {
     @After fun restoreApp() { appField.set(null, realApp) }
 
     private fun adapter() = WebDavCloudAdapter(
-        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui,
+        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui, deviceId = "test-device",
         clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { server.nowServer }) },
         nowMs = { server.nowServer },
     )
@@ -75,7 +75,7 @@ class WebDavBackgroundFailureTest {
     @Test fun authFailureDuringSync_isUserFacingReconnect() = runBlocking {
         // The fake server's auth mode (a real challenge) with an adapter whose password is wrong.
         val a = WebDavCloudAdapter(
-            WebDavConfig("https://h/dav/", "me", "wrong", "AndBible"), state, ui,
+            WebDavConfig("https://h/dav/", "me", "wrong", "AndBible"), state, ui, deviceId = "test-device",
             clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { server.nowServer }) },
             nowMs = { server.nowServer },
         )

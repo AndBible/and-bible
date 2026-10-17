@@ -43,7 +43,7 @@ class WebDavSignInTest {
     @After fun restoreApp() { appField.set(null, realApp) }
 
     private fun adapter() = WebDavCloudAdapter(
-        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui,
+        WebDavConfig("https://h/dav/", "me", "pw", "AndBible"), state, ui, deviceId = "test-device",
         clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { server.nowServer }) },
         nowMs = { server.nowServer },
     )

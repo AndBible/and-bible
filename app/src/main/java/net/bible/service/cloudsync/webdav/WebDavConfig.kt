@@ -1,7 +1,5 @@
 package net.bible.service.cloudsync.webdav
 
-import android.content.SharedPreferences
-
 object WebDavPrefKeys {
     const val SERVER_URL = "webdav_sync_server_url"
     const val USERNAME = "webdav_sync_username"
@@ -16,14 +14,7 @@ data class WebDavConfig(val serverUrl: String, val username: String, val passwor
     /** Sync root under the WebDAV root, as a [net.bible.sharedcore.webdav.DavPath] path ("" = root). */
     val baseFolder: String get() = folderPath.trim().split('/').filter { it.isNotBlank() }.joinToString("/")
 
-    companion object {
-        fun fromPreferences(prefs: SharedPreferences) = WebDavConfig(
-            prefs.getString(WebDavPrefKeys.SERVER_URL, "") ?: "",
-            prefs.getString(WebDavPrefKeys.USERNAME, "") ?: "",
-            prefs.getString(WebDavPrefKeys.PASSWORD, "") ?: "",
-            prefs.getString(WebDavPrefKeys.FOLDER_PATH, "") ?: "",
-        )
-    }
+    companion object
 }
 
 /** Whether the server bumps a collection's getlastmodified when a child is created (see Calibration.kt). */
@@ -40,14 +31,4 @@ data class CertPin(val host: String, val sha256: String) {
 interface WebDavStateStore {
     var propagation: Propagation
     var certPin: CertPin?
-}
-
-class PrefsWebDavStateStore(private val prefs: SharedPreferences) : WebDavStateStore {
-    override var propagation: Propagation
-        get() = prefs.getString(WebDavPrefKeys.PROPAGATION, null)
-            ?.let { runCatching { Propagation.valueOf(it) }.getOrNull() } ?: Propagation.UNKNOWN
-        set(v) = prefs.edit().putString(WebDavPrefKeys.PROPAGATION, v.name).apply()
-    override var certPin: CertPin?
-        get() = CertPin.decode(prefs.getString(WebDavPrefKeys.CERT_PIN, null))
-        set(v) = prefs.edit().apply { if (v == null) remove(WebDavPrefKeys.CERT_PIN) else putString(WebDavPrefKeys.CERT_PIN, v.encode()) }.apply()
 }

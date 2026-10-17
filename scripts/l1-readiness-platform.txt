@@ -31,3 +31,6 @@ service/db/BlockingDb.kt	Holds blockingAtEdge (the transaction marker moved to :
 service/device/LightSensor.kt	Android SensorManager host
 service/device/ProgressNotificationManager.kt	Android notification host
 service/device/ScreenSettings.kt	Android screen brightness/orientation settings host
+service/cloudsync/webdav/PinnedTrust.kt	JVM TLS trust manager, hostname verifier and OkHttp engine; iOS evaluates server trust in its own engine
+service/cloudsync/webdav/AndroidWebDavPrefs.kt	SharedPreferences-backed WebDAV config and state
+service/cloudsync/webdav/AndroidWebDavSignInUi.kt	Android dialogs, resources and date format

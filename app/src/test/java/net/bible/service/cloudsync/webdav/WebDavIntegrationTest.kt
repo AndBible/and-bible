@@ -59,7 +59,7 @@ class WebDavIntegrationTest {
     }
 
     private fun newAdapter(s: WebDavStateStore = state, u: WebDavSignInUi = ui) =
-        WebDavCloudAdapter(WebDavConfig(url!!, user, password, base), s, u)
+        WebDavCloudAdapter(WebDavConfig(url!!, user, password, base), s, u, "integration-device", ::createWebDavClient)
 
     private suspend fun signedIn(): WebDavCloudAdapter {
         val a = newAdapter()

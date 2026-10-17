@@ -11,6 +11,10 @@ import net.bible.service.cloudsync.webdav.WebDavCloudAdapter
 import net.bible.service.cloudsync.webdav.WebDavConfig
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.service.cloudsync.webdav.createWebDavClient
+import net.bible.service.cloudsync.webdav.fromPreferences
+import org.koin.java.KoinJavaComponent
 
 class AndroidCloudAdapterFactory(private val context: Context) : CloudAdapterFactory {
     override val available: List<String> get() = if (BuildVariant.DistributionChannel.isFdroid) listOf("NEXT_CLOUD", "WEBDAV") else listOf("GOOGLE_DRIVE", "NEXT_CLOUD", "WEBDAV")
@@ -26,7 +30,7 @@ class AndroidCloudAdapterFactory(private val context: Context) : CloudAdapterFac
             NextCloudAdapter(prefs.getString("cloud_sync_server_url", null), prefs.getString("cloud_sync_username", null), prefs.getString("cloud_sync_password", null), prefs.getString("cloud_sync_folder_path", null))
         }
         "WEBDAV" -> CommonUtils.realSharedPreferences.let { prefs ->
-            WebDavCloudAdapter(WebDavConfig.fromPreferences(prefs), PrefsWebDavStateStore(prefs), AndroidWebDavSignInUi(context))
+            WebDavCloudAdapter(WebDavConfig.fromPreferences(prefs), PrefsWebDavStateStore(prefs), AndroidWebDavSignInUi(context), KoinJavaComponent.get<AppEnvironment>(AppEnvironment::class.java).deviceIdentifier, ::createWebDavClient)
         }
         else -> error("Unknown cloud adapter: $id")
     }
