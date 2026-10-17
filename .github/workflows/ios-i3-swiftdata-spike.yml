@@ -15,7 +15,7 @@ on:
 concurrency: {group: "ios-i3-spike-${{ github.ref }}", cancel-in-progress: true}
 env:
   LEGACY_REPO: AndBible/and-bible-ios
-  LEGACY_REF: 5b14d179
+  LEGACY_REF: 5b14d179e4bc6f8b40751d5593e9b73eb21bc211
 jobs:
   seed-stores:
     strategy:
