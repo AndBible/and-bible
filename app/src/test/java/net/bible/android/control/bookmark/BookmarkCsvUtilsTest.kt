@@ -2290,7 +2290,17 @@ newlines
         val imported = bookmarkControl.allBibleBookmarks().sortedBy { ids.indexOf(it.id.toString()) }
         val out = ByteArrayOutputStream()
         BookmarkCsvUtils.exportBookmarksToCsv(out.sink(), imported, bookmarkControl)
-        assertEquals(fixture, out.toString("UTF-8"))
+        val exported = out.toString("UTF-8")
+        // The labels of one bookmark come from an ORDER BY-less join over random label UUIDs, so their order in the
+        // cell is unspecified (production behaviour is deliberately unchanged). Compare each label cell as a set.
+        val labelsColumn = oldReadRecords(fixture)[0].indexOf("labels")
+        fun normalised(text: String) = oldReadRecords(text).map { rec ->
+            rec.mapIndexed { i, cell -> if (i == labelsColumn) cell.split(';').sorted().joinToString(";") else cell }
+        }
+        assertEquals(normalised(fixture), normalised(exported))
+        // Everything except the labels cell order must be byte-identical.
+        val labelCells = Regex("\"(Plain;Työ \"\"tärkeä\"\"|Työ \"\"tärkeä\"\";Plain)\"")
+        assertEquals(fixture, labelCells.replace(exported, "\"Plain;Työ \"\"tärkeä\"\"\""))
     }
 
     @Test
