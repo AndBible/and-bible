@@ -15,13 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.db
+package net.bible.service.cloudsync
 
 import java.io.File
 
-/**
- * `PRAGMA user_version` of the SQLite file [file]. Opened read-write like the `openDatabase(OPEN_READWRITE)`
- * that this replaced, so a hot journal left by a crash is rolled back first; unlike it, a missing file is created
- * (every caller checks the file exists first).
- */
-fun readUserVersion(file: File): Int = openSqlite(file.path).use { it.queryLong("PRAGMA user_version")!!.toInt() }
+/** JVM shim for callers that still use a [File] (`CloudSync`); removed when they move off `java.io.File`. */
+val SyncableDatabaseAccessor<*>.localDbFile: File get() = File(localDbPath)

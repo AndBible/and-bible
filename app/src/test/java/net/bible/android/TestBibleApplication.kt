@@ -17,6 +17,7 @@
 
 package net.bible.android
 
+import net.bible.service.db.closeAll
 import kotlinx.coroutines.flow.map
 
 import net.bible.android.view.activity.ai.RawLogServiceImpl

@@ -90,4 +90,26 @@ echo 'fun <T> blockingAtEdge(block: suspend () -> T): T = TODO()
 fun <T> blockingDb(block: suspend () -> T): T = TODO()' > "$T4/app/src/main/java/net/bible/service/db/BlockingDb.kt"
 "$HERE/l1-readiness.sh" --root "$T4" --check >/dev/null 2>&1 \
   || { echo "FAIL: @no-unmarked-bridges counted BlockingDb.kt's own definitions"; exit 1; }
+# @no-common-blocking: a code-line runBlocking/blockingAtEdge in commonMain/iosMain of any module fails --check;
+# jvmMain/androidMain/commonTest, KDoc lines and trailing // comments are allowed.
+T5="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3" "$T4" "$T5"' EXIT
+mkdir -p "$T5/scripts" "$T5/app/src/main/java/net/bible"
+for sd in commonMain iosMain jvmMain androidMain commonTest; do mkdir -p "$T5/mod/src/$sd/kotlin"; done
+: > "$T5/scripts/l1-readiness-domains.txt"; : > "$T5/scripts/l1-readiness-platform.txt"; : > "$T5/scripts/l1-readiness-done.txt"
+echo 'fun a() = runBlocking { 1 }' > "$T5/mod/src/commonMain/kotlin/A.kt"
+echo 'fun b() = blockingAtEdge { 2 }' > "$T5/mod/src/iosMain/kotlin/B.kt"
+echo 'fun c() = runBlocking { 3 }' > "$T5/mod/src/jvmMain/kotlin/C.kt"
+echo 'fun d() = runBlocking { 4 }' > "$T5/mod/src/androidMain/kotlin/D.kt"
+echo 'fun e() = runBlocking { 5 }' > "$T5/mod/src/commonTest/kotlin/E.kt"
+printf '/**\n * so [blockingAtEdge] refuses\n */\nfun f() = 1 // not runBlocking\n' > "$T5/mod/src/commonMain/kotlin/F.kt"
+"$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
+  || { echo "FAIL: --check failed before @no-common-blocking"; exit 1; }
+echo '@no-common-blocking' >> "$T5/scripts/l1-readiness-done.txt"
+set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] || { echo "FAIL: @no-common-blocking exit $rc, expected 1"; exit 1; }
+[ "$(echo "$err" | grep -c -E '(A|B)\.kt:')" = 2 ] && [ "$(echo "$err" | grep -c -E '[C-F]\.kt:')" = 0 ] \
+  || { echo "FAIL: @no-common-blocking named the wrong files: $err"; exit 1; }
+rm "$T5/mod/src/commonMain/kotlin/A.kt" "$T5/mod/src/iosMain/kotlin/B.kt"
+"$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
+  || { echo "FAIL: @no-common-blocking failed on allowed uses"; exit 1; }
 echo "l1-readiness self-test OK"

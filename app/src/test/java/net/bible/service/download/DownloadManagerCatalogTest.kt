@@ -1,5 +1,6 @@
 package net.bible.service.download
 
+import net.bible.service.db.reset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import org.crosswire.common.util.HttpTransport

@@ -1,5 +1,6 @@
 package net.bible.test
 
+import net.bible.service.db.reset
 import kotlinx.coroutines.*
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication

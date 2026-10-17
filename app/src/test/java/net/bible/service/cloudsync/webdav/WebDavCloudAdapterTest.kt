@@ -164,7 +164,7 @@ class WebDavCloudAdapterTest {
             onBlocking { getConfig(any()) } doAnswer { k -> configs[k.arguments[0] as String]?.let { SyncConfiguration(k.arguments[0] as String, stringValue = it) } }
         }
         val db = mock<SyncableRoomDatabase> { on { syncDao() } doAnswer { dao } }
-        val dbDef = SyncableDatabaseAccessor(db, { db }, { db }, File("unused"), SyncableDatabaseDefinition.BOOKMARKS, null, "dev")
+        val dbDef = SyncableDatabaseAccessor(db, { db }, { db }, "unused", SyncableDatabaseDefinition.BOOKMARKS, null, "dev")
 
         assertFalse(a.isSyncFolderKnown(dbDef, "n", x.id))
         a.makeSyncFolderKnown(dbDef, "n", x.id)

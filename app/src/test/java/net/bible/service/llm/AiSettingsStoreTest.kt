@@ -1,5 +1,6 @@
 package net.bible.service.llm
 
+import net.bible.service.cloudsync.localDbFile
 import kotlinx.coroutines.flow.map
 
 import androidx.room3.useWriterConnection

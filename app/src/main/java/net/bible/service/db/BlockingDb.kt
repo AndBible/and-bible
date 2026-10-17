@@ -17,14 +17,8 @@
 
 package net.bible.service.db
 
-import androidx.room3.RoomDatabase
-import androidx.room3.Transactor
-import androidx.room3.useReaderConnection
-import androidx.room3.useWriterConnection
-import androidx.room3.withWriteTransaction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 class BlockingDbInTransaction : IllegalStateException(
     "blockingAtEdge called inside a database transaction: a nested runBlocking cannot use the transaction's " +
@@ -39,20 +33,3 @@ fun <T> blockingAtEdge(block: suspend CoroutineScope.() -> T): T {
     if (isInDbTransactionOnThread()) throw BlockingDbInTransaction()
     return runBlocking(block = block)
 }
-
-/** Every Room transaction in app code goes through this: Room 3 `withWriteTransaction` (`BEGIN IMMEDIATE`), marked. */
-suspend fun <R> RoomDatabase.roomTransaction(block: suspend () -> R): R =
-    withContext(DbTransactionMarker) { withWriteTransaction { block() } }
-
-/**
- * `useWriterConnection`, marked like [roomTransaction] (D1 final review I3). The databases run in TRUNCATE journal
- * mode, so Room 3's pool has ONE connection: a [blockingAtEdge] on the same database inside [block] would wait for that
- * connection forever. Marked, it throws [BlockingDbInTransaction] instead. Every non-empty connection block in app
- * code goes through this or [useReaderConnectionMarked].
- */
-suspend fun <R> RoomDatabase.useWriterConnectionMarked(block: suspend (Transactor) -> R): R =
-    withContext(DbTransactionMarker) { useWriterConnection(block) }
-
-/** `useReaderConnection`, marked for the same reason as [useWriterConnectionMarked]. */
-suspend fun <R> RoomDatabase.useReaderConnectionMarked(block: suspend (Transactor) -> R): R =
-    withContext(DbTransactionMarker) { useReaderConnection(block) }

@@ -1,5 +1,7 @@
 package net.bible.service.llm
 
+import net.bible.service.db.reset
+import net.bible.service.db.closeAll
 import androidx.room3.useWriterConnection
 import androidx.room3.Room
 import androidx.room3.RoomDatabase

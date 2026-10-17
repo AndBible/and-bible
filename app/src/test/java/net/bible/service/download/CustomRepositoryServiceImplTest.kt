@@ -17,6 +17,7 @@
 
 package net.bible.service.download
 
+import net.bible.service.db.reset
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK

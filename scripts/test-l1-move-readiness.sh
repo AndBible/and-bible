@@ -106,4 +106,38 @@ out=$("$HERE/l1-move-readiness.sh" --root "$T" --domain demo 2>/dev/null)
 row=$(echo "$out" | awk -F'\t' '$1=="demo"')
 expect=$'demo\t1\t0\t1\t0\t8'
 [ "$row" = "$expect" ] || { echo "FAIL: variants got [$row] expected [$expect]"; exit 1; }
+# jvmapi blind spots: Math., Charsets., OutOfMemoryError, GlobalContext (bare and fully qualified), unqualified
+# @Volatile (per file), String.format count; qualified/allowed forms do not.
+rm -f "$S/service/common/Variants.kt" "$S/service/common/Ext.kt"
+cat > "$S/android/control/demo/Demo.kt" <<'EOS'
+package net.bible.android.control.demo
+val a = Math.max(1, 2)
+val b = Charsets.UTF_8
+fun x() { try { } catch (e: OutOfMemoryError) { } }
+val c = GlobalContext.get()
+val d = org.koin.core.context.GlobalContext.get()
+@Volatile var e = 0
+val f = String.format("%d", 1)
+val ok1 = kotlin.math.max(1, 2)
+val g = x.Math.y
+val i = Math.max(1, 2) // L1-common-ok: test
+EOS
+cat > "$S/android/control/demo/Vol.kt" <<'EOS'
+package net.bible.android.control.demo
+import kotlin.concurrent.Volatile
+@Volatile var h = 0
+EOS
+out=$("$HERE/l1-move-readiness.sh" --root "$T" --domain demo 2>/dev/null)
+api=$(echo "$out" | awk -F'\t' '$1=="demo"{print $3}')
+[ "$api" = 7 ] || { echo "FAIL: jvmapi blind spots got [$api] expected [7]"; exit 1; }
+# org.koin.android (androidContext() and friends) in a domain file counts as a jvm3p violation.
+rm -f "$S/android/control/demo/Vol.kt"
+cat > "$S/android/control/demo/Demo.kt" <<'EOS'
+package net.bible.android.control.demo
+import org.koin.android.ext.koin.androidContext
+fun k() = 1
+EOS
+out=$("$HERE/l1-move-readiness.sh" --root "$T" --domain demo 2>/dev/null)
+tp=$(echo "$out" | awk -F'\t' '$1=="demo"{print $4}')
+[ "$tp" = 1 ] || { echo "FAIL: org.koin.android got jvm3p [$tp] expected [1]"; exit 1; }
 echo "l1-move-readiness self-test OK"

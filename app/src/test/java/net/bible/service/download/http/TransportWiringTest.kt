@@ -22,6 +22,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.annotation.KoinInternalApi
 import org.koin.core.context.GlobalContext
+import org.koin.core.instance.InstanceFactory
+import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -37,6 +39,13 @@ class ColdTransportApplication : BibleApplication() {
 @Config(application = ColdTransportApplication::class, sdk = [TEST_SDK])
 @OptIn(KoinInternalApi::class)
 class TransportWiringTest {
+    /** A module's own mappings after those of every module it includes, recursively. */
+    private fun flatMappings(module: Module): Map<String, InstanceFactory<*>> =
+        LinkedHashMap<String, InstanceFactory<*>>().also { out ->
+            module.includedModules.forEach { out.putAll(flatMappings(it)) }
+            out.putAll(module.mappings)
+        }
+
     @Test
     fun coldStartupInstallsSharedTransportBeforePostKoinConsumers() {
         val app = BibleApplication.application as ColdTransportApplication
@@ -45,6 +54,7 @@ class TransportWiringTest {
         }
         val savedContext = contextFields.map { it.get(null) }
         val savedMappings = coreModule.mappings.toMap()
+        val savedIncluded = coreModule.includedModules.toList()
         val swordLoaded = SwordEnvironmentInitialisation::class.java.getDeclaredField("isSwordLoaded").apply { isAccessible = true }
         val wasLoaded = swordLoaded.getBoolean(SwordEnvironmentInitialisation)
         val oldTransport = WebResource.transport
@@ -83,8 +93,11 @@ class TransportWiringTest {
             app.onTerminate()
             contextFields.forEach { it.set(null, null) }
             detached = true
+            // buildCoreModule() only includes its platform and shared parts; flatten them into coreModule so the
+            // boundary override below still wins.
             coreModule.mappings.clear()
-            coreModule.mappings.putAll(buildCoreModule().mappings)
+            coreModule.includedModules.clear()
+            coreModule.mappings.putAll(flatMappings(buildCoreModule()))
             val boundary = module {
                 single<SpeakSettingsStore> {
                     reachedPostKoinConsumer = true
@@ -147,6 +160,7 @@ class TransportWiringTest {
                 progressManager.progs = oldProgressSet
                 coreModule.mappings.clear()
                 coreModule.mappings.putAll(savedMappings)
+                coreModule.includedModules.apply { clear(); addAll(savedIncluded) }
                 contextFields.zip(savedContext).forEach { (field, value) -> field.set(null, value) }
                 storeField.set(null, oldStore)
                 launcherField.set(MyDocumentBookManager, oldLauncher)

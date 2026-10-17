@@ -89,7 +89,7 @@ class SyncPatchTransactionTest {
             db,
             { bundled(it) },
             { db.close(); db = bundled(file.absolutePath); db },
-            file,
+            file.path,
             SyncableDatabaseDefinition.BOOKMARKS,
             deviceId = UUID.randomUUID().toString(),
         )
@@ -216,7 +216,7 @@ class SyncPatchTransactionTest {
         val file = File.createTempFile("bookmarks-compat-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
         val db = DatabaseContainer.instance.getBookmarkDb(file.absolutePath)
         try {
-            val dbDef = SyncableDatabaseAccessor(db, { DatabaseContainer.instance.getBookmarkDb(it) }, { db }, file,
+            val dbDef = SyncableDatabaseAccessor(db, { DatabaseContainer.instance.getBookmarkDb(it) }, { db }, file.path,
                 SyncableDatabaseDefinition.BOOKMARKS, deviceId = "compat-device")
             val label = BookmarkEntities.Label(name = "compat")
             db.bookmarkDao().insert(label)

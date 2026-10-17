@@ -17,6 +17,7 @@
 
 package net.bible.test
 
+import net.bible.service.db.reset
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

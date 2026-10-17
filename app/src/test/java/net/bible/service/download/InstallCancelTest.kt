@@ -1,5 +1,6 @@
 package net.bible.service.download
 
+import net.bible.service.db.reset
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

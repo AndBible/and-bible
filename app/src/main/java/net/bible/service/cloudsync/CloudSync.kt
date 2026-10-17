@@ -52,7 +52,6 @@ const val GZIP_MIMETYPE = "application/gzip"
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
 const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
 const val LAST_PATCH_WRITTEN_KEY = "lastPatchWritten"
-const val LAST_SYNCHRONIZED_KEY = "lastSynchronized"
 const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 const val TAG = "DeviceSync"
 

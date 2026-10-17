@@ -1,5 +1,6 @@
 package net.bible.service.common
 
+import net.bible.service.db.reset
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runBlocking

@@ -57,7 +57,7 @@ class DatabasePatchingTests {
                 bmarkDb = DatabaseContainer.instance.getBookmarkDb(dbFile1.absolutePath)
                 bmarkDb
             },
-            dbFile1,
+            dbFile1.path,
             SyncableDatabaseDefinition.BOOKMARKS,
             deviceId = UUID.randomUUID().toString(),
         )
