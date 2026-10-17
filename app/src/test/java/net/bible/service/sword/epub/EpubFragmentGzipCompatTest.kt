@@ -44,4 +44,20 @@ class EpubFragmentGzipCompatTest {
         assertEquals(text, read)
         assertEquals(text, readFragment(file.toOkioPath()))
     }
+
+    @Test fun oldGzippedDatabaseIsRestoredByteIdentically() {
+        val bytes = ByteArray(5000) { (it * 7).toByte() }
+        val gz = tmp.newFile("optimized.sqlite3.gz")
+        gz.outputStream().use { out -> GZIPOutputStream(out).use { it.write(bytes) } }
+        val dest = java.io.File(tmp.root, "restored.sqlite3")
+        gunzipFile(gz.toOkioPath(), dest.toOkioPath())
+        org.junit.Assert.assertArrayEquals(bytes, dest.readBytes())
+    }
+
+    @Test fun badGzipHeaderLeavesNoDestinationFile() {
+        val gz = tmp.newFile("bad.gz").apply { writeBytes(ByteArray(64) { 1 }) }
+        val dest = java.io.File(tmp.root, "never.sqlite3")
+        org.junit.Assert.assertThrows(Exception::class.java) { gunzipFile(gz.toOkioPath(), dest.toOkioPath()) }
+        org.junit.Assert.assertFalse(dest.exists())
+    }
 }

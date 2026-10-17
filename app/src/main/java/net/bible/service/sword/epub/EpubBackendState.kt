@@ -506,8 +506,14 @@ private fun gzipFile(source: Path, destination: Path) {
     }
 }
 
-private fun gunzipFile(source: Path, destination: Path) {
-    GzipSource(FileSystem.SYSTEM.source(source)).buffer().use { input ->
-        FileSystem.SYSTEM.sink(destination).buffer().use { it.writeAll(input) }
+internal fun gunzipFile(source: Path, destination: Path) {
+    try {
+        GzipSource(FileSystem.SYSTEM.source(source)).buffer().use { input ->
+            FileSystem.SYSTEM.sink(destination).buffer().use { it.writeAll(input) }
+        }
+    } catch (e: Throwable) {
+        // The old code failed before creating the destination; a leftover empty file would stop a retry.
+        KFiles.delete(destination)
+        throw e
     }
 }

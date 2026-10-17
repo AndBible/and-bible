@@ -239,7 +239,7 @@ internal fun epubModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>
 
 fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment): Boolean {
     val dir = epubModulesDir()
-    KFiles.createDirectories(dir)
+    try { KFiles.createDirectories(dir) } catch (e: IOException) { Log.w(TAG, "Could not create $dir", e) } // File.mkdirs returned false
     if(!KFiles.isDirectory(dir)) return false
     var ok = true
 

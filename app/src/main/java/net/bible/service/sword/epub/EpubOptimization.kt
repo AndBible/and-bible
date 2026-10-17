@@ -30,6 +30,7 @@ import net.bible.service.common.XmlQueries
 import net.bible.service.sword.SwordContentFacade
 import fi.sykero.kdom.Document
 import fi.sykero.kdom.Element
+import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedlogic.util.decodeUrl
 import org.crosswire.common.util.KFiles
 
@@ -195,7 +196,7 @@ fun EpubBackendState.optimizeEpub() {
     }
 
     KFiles.deleteRecursively(fragDir)
-    KFiles.createDirectories(fragDir)
+    try { KFiles.createDirectories(fragDir) } catch (e: okio.IOException) { Log.w(TAG, "Could not create $fragDir", e) } // File.mkdirs returned false
     KFiles.write(optimizeLockFile, byteArrayOf(1))
     val writeDb = getEpubDatabase(appDbFilename)
     val writeDao = writeDb.epubDao()
@@ -203,7 +204,7 @@ fun EpubBackendState.optimizeEpub() {
     // when a module is removed via the failure path. Clear any stale rows from a previous
     // optimization so newly-written fragment files are the only ones referenced.
     blockingAtEdge { writeDao.clear() } // L1-edge: JSword BookType.getBackend (first open optimizes)
-    val start = System.currentTimeMillis()
+    val start = currentTimeMillis()
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: strings.namelessTitle
         val s = strings.processingEpub("${getBookMetaData().name}: $title")
@@ -241,7 +242,7 @@ fun EpubBackendState.optimizeEpub() {
         fileForOriginalId(k)?.let { KFiles.delete(it) }
     }
     KFiles.write(versionFile, "$EPUB_OPTIMIZER_VERSION".toByteArray())
-    val total = (System.currentTimeMillis() - start) / 1000
+    val total = (currentTimeMillis() - start) / 1000
     writeDb.close()
     KFiles.delete(optimizeLockFile)
     Log.i(TAG, "Total time in optimization: $total")
