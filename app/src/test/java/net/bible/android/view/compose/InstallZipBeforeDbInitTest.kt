@@ -22,12 +22,17 @@ import android.view.WindowManager
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
 import java.time.Duration
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.test.DatabaseResetter
+import org.koin.core.context.GlobalContext
 import net.bible.test.resetComposeUiDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -80,6 +85,13 @@ class InstallZipBeforeDbInitTest {
             .apply { isAccessible = true }.get(activity) as NavHostController
 
     private fun onAnUninitialisedBackupHost(enterInstallZip: (NavHostComposeActivity) -> Unit) {
+        // This application is not the fixture, so the Koin graph holds the PRODUCTION AppCoroutineScope, which no
+        // fixture ever cancels. The initialisation under test launches long-lived work on it (initializeApp's snapshot
+        // loads, and through them AiSettingsStore's observer of the JVM-global DatabaseContainer.aiLifetime); left
+        // running, that observer reopens the container after every later test's reset/drop (each bumps the lifetime's
+        // generation), from a background thread, for the rest of the one-JVM suite. Stop exactly what this test started.
+        val appJob = checkNotNull(GlobalContext.get().get<AppCoroutineScope>().coroutineContext[Job])
+        val preexistingAppJobs = appJob.children.toSet()
         DatabaseContainer.instance
         val wasReady = DatabaseContainer.ready
         val wasInitialized = CommonUtils.initialized
@@ -124,6 +136,8 @@ class InstallZipBeforeDbInitTest {
             // CommonUtils, a later test's TestBibleApplication would reuse them and fail to unregister their
             // receivers in onTerminate ("Receiver not registered"). Tear them down with the app they belong to.
             if (CommonUtils.initialized) CommonUtils.destroy()
+            val startedHere = appJob.children.filterNot { it in preexistingAppJobs }.toList()
+            DatabaseResetter.runResetBlocking { startedHere.forEach { it.cancelAndJoin() } }
             runningTests = true
             DatabaseContainer.ready = wasReady
             CommonUtils.initialized = wasInitialized
