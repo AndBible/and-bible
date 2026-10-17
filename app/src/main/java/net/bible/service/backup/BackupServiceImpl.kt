@@ -17,11 +17,11 @@
 package net.bible.service.backup
 
 
-import okio.Path.Companion.toOkioPath
 import net.bible.sharedcore.log.Log
+import okio.FileSystem
+import okio.Path.Companion.toPath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.SharedConstants
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.report.LAST_CRASH_STACKTRACE_FILE
 import net.bible.android.database.AiSettingsDatabase
@@ -39,10 +39,9 @@ import net.bible.sharedcore.backup.BackupState
 import net.bible.sharedcore.backup.CrashInfo
 import net.bible.sharedcore.backup.ResetDbRow
 import net.bible.sharedcore.backup.ToggleKind
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.platform.DateTimeFormats
+import org.koin.mp.KoinPlatform
 
 /**
  * One classic-`BackupControl` engine call [BackupServiceImpl.backup] can dispatch, in the fixed
@@ -84,6 +83,8 @@ class BackupServiceImpl(
     private val settings: net.bible.sharedcore.platform.AppSettings,
     private val env: net.bible.sharedcore.platform.AppEnvironment,
     private val strings: net.bible.sharedcore.platform.CoreStrings,
+    private val dirs: AppDirectories = KoinPlatform.getKoin().get(),
+    private val dateTimeFormats: DateTimeFormats = KoinPlatform.getKoin().get(),
 ) : BackupService {
 
     override suspend fun load(): BackupState = withContext(Dispatchers.IO) {
@@ -147,11 +148,11 @@ class BackupServiceImpl(
     }
 
     override suspend fun exportFile(token: String) {
-        backupControl.saveDbBackupFileViaIntent(host, File(env.dbBackupPath, token).toOkioPath()) // L1b-handover(G2 Task 11): BackupServiceImpl on Path
+        backupControl.saveDbBackupFileViaIntent(host, env.dbBackupPath.toPath() / token)
     }
 
     override suspend fun restoreFile(token: String) {
-        backupControl.restoreFromLocalBackupFile(host, File(env.dbBackupPath, token).toOkioPath()) // L1b-handover(G2 Task 11): BackupServiceImpl on Path
+        backupControl.restoreFromLocalBackupFile(host, env.dbBackupPath.toPath() / token)
     }
 
     override suspend fun resetDb(dbFileName: String) {
@@ -161,9 +162,9 @@ class BackupServiceImpl(
 
     /** Classic `BackupActivity.onCreate`'s file-list section, verbatim (sort + parse + detail text). */
     private fun loadBackupFiles(): List<BackupFileRow> {
-        val files = File(env.dbBackupPath).listFiles()?.sortedByDescending { it.name } ?: return emptyList()
-        return backupControl.parseBackupFiles(files.map { it.toOkioPath() }).map { info -> // L1b-handover(G2 Task 11): BackupServiceImpl on Path
-            val sizeKb = info.file.toFile().length() / 1024
+        val files = FileSystem.SYSTEM.listOrNull(env.dbBackupPath.toPath())?.sortedByDescending { it.name } ?: return emptyList()
+        return backupControl.parseBackupFiles(files).map { info ->
+            val sizeKb = (FileSystem.SYSTEM.metadataOrNull(info.file)?.size ?: 0L) / 1024
             val sizeStr = if (sizeKb > 1024) "${sizeKb / 1024} MB" else "$sizeKb KB"
             val detail = if (info.appVersion != null)
                 strings.backupFileInfo(info.appVersion, sizeStr)
@@ -174,13 +175,13 @@ class BackupServiceImpl(
 
     /** Classic `BackupActivity.onCreate`'s last-crash panel, verbatim. */
     private fun loadCrash(): CrashInfo? {
-        val crashFile = File(SharedConstants.internalFilesDir, "log/$LAST_CRASH_STACKTRACE_FILE")
+        val crashFile = dirs.internalFilesDir / "log" / LAST_CRASH_STACKTRACE_FILE
         val crashTime = env.lastCrashTime
-        if (!crashFile.exists() || crashTime <= 0) return null
+        if (!FileSystem.SYSTEM.exists(crashFile) || crashTime <= 0) return null
         return try {
-            val stackTrace = crashFile.readText()
+            val stackTrace = FileSystem.SYSTEM.read(crashFile) { readUtf8() }
             if (stackTrace.isBlank()) return null
-            val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(crashTime))
+            val timeStr = dateTimeFormats.pattern("yyyy-MM-dd HH:mm:ss", crashTime)
             CrashInfo(time = timeStr, text = stackTrace)
         } catch (e: Exception) {
             Log.e(TAG, "Error reading crash info", e)
