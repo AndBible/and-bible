@@ -23,11 +23,9 @@ import androidx.room3.RoomDatabase
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.Dispatchers
-import net.bible.android.BibleApplication.Companion.application
+import okio.FileSystem
+import okio.Path.Companion.toPath
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 private const val TAG = "AppDatabaseFiles"
 
@@ -59,8 +57,11 @@ internal fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): Room
  * so there the SQLite error propagates to the caller.
  */
 internal inline fun <reified T : RoomDatabase> buildAppDatabase(name: String, vararg migrations: Migration): T {
-    if (!File(name).isAbsolute) recoverIfCorrupt(application.getDatabasePath(name))
-    return Room.databaseBuilder<T>(application, name)
+    val absolute = File(name).isAbsolute
+    val path = if (absolute) name else DatabaseContainer.host.databasePath(name)
+    if (!absolute) recoverIfCorrupt(File(path))
+    File(path).parentFile?.let { FileSystem.SYSTEM.createDirectories(it.path.toPath()) }
+    return Room.databaseBuilder<T>(name = path)
         .productionConfig()
         .addMigrations(*migrations)
         .build()
@@ -111,7 +112,7 @@ internal fun recoverIfCorrupt(file: File): File? {
 }
 
 private fun corruptTarget(file: File): File {
-    val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+    val stamp = DatabaseContainer.host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = false)
     var target = File(file.parentFile, "${file.name}.corrupt-$stamp")
     var n = 1
     while (target.exists()) target = File(file.parentFile, "${file.name}.corrupt-$stamp-${n++}")
@@ -128,7 +129,8 @@ internal fun userVersionRecoveringCorruption(file: File): Int =
 
 /** [android.content.Context.deleteDatabase], plus Room 3's `<name>.lck` lock file, which it does not know about. */
 internal fun deleteAppDatabase(name: String): Boolean {
-    val deleted = application.deleteDatabase(name)
-    File(application.getDatabasePath(name).path + ".lck").delete()
+    val host = DatabaseContainer.host
+    val deleted = host.deleteDatabase(name)
+    File(host.databasePath(name) + ".lck").delete()
     return deleted
 }

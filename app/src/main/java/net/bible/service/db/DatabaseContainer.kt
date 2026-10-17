@@ -20,9 +20,6 @@ import androidx.annotation.VisibleForTesting
 import android.util.Log
 import androidx.room3.RoomDatabase
 import androidx.room3.useWriterConnection
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.DocumentSyncDatabase
 import net.bible.android.database.LogEntry
@@ -43,7 +40,6 @@ import net.bible.android.database.progress.PROGRESS_DATABASE_VERSION
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.mydocument.MY_DOCUMENT_DATABASE_VERSION
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
-import net.bible.service.common.CommonUtils
 import net.bible.android.database.migrations.DatabaseSplitMigrations
 import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
@@ -55,7 +51,6 @@ import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
 import net.bible.android.database.temporaryMigrations
-import net.bible.service.db.oldmigrations.oldMigrations
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.createTriggers
@@ -64,11 +59,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.sharedcore.settings.store.SettingsStore
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 const val OLD_MONOLITHIC_DATABASE_NAME = "andBibleDatabase.db"
 private const val TEMPORARY_DOWNLOAD_DB_FILENAME = "temporary.sqlite3"
@@ -94,18 +86,18 @@ class DatabaseContainer {
     init {
         backupDatabaseIfNeeded()
         // The cloud-document cache DB was renamed to document-sync.sqlite3; drop the orphaned file.
-        if (!application.isRunningTests) application.deleteDatabase("cloud-documents-cache.sqlite3")
+        if (!host.isRunningTests) host.deleteDatabase("cloud-documents-cache.sqlite3")
         migrateOldDatabaseIfNeeded()
     }
 
     private fun getOldDatabase(): OldMonolithicAppDatabase =
-        buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *oldMigrations)
+        buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *host.legacyMonolithicMigrations)
 
     private fun migrateOldDatabaseIfNeeded() {
-        val oldDbFile = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
+        val oldDbFile = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
         if(oldDbFile.exists()) {
-            for (name in application.databaseList().filterNot { it == OLD_MONOLITHIC_DATABASE_NAME }) {
-                application.deleteDatabase(name)
+            for (name in host.databaseList().filterNot { it == OLD_MONOLITHIC_DATABASE_NAME }) {
+                host.deleteDatabase(name)
             }
             // Room opens the old file only to run its legacy migrations; its connection must be closed
             // before the split reopens the same file outside Room.
@@ -113,7 +105,7 @@ class DatabaseContainer {
                 try { blockingAtEdge { useWriterConnection { } } } finally { close() } // L1-edge: DatabaseContainer synchronous lifecycle (open probe)
             }
             openSqlite(oldDbFile.path).use {
-                val migrations = DatabaseSplitMigrations(it) { name -> application.getDatabasePath(name).absolutePath }
+                val migrations = DatabaseSplitMigrations(it) { name -> File(host.databasePath(name)).absolutePath }
                 migrations.migrateAll()
             }
             deleteAppDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file, any journal/WAL leftovers and Room's .lck
@@ -192,7 +184,7 @@ class DatabaseContainer {
     }
 
     init {
-        if(!application.isRunningTests) {
+        if(!host.isRunningTests) {
             blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (open: trigger setup)
                 for (dbDef in getDatabaseAccessorFactories(this@DatabaseContainer).map { it.invoke() }) {
                     dropTriggers(dbDef)
@@ -227,8 +219,8 @@ class DatabaseContainer {
     ).also { blockingAtEdge { it.load() } } // L1-edge: DatabaseContainer synchronous lifecycle (open: settings-store load)
 
     private fun backupDatabaseIfNeeded() {
-        if(application.isRunningTests) return
-        val oldDb = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
+        if(host.isRunningTests) return
+        val oldDb = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
         if(oldDb.exists() && recoverIfCorrupt(oldDb) == null) {
             backupOldDatabase(oldDb)
         } else {
@@ -239,28 +231,28 @@ class DatabaseContainer {
     private fun backupOldDatabase(oldDb: File) {
         val dbVersion = readUserVersion(oldDb)
         Log.i(TAG, "backupping old database of version $dbVersion)")
-        val backupPath = CommonUtils.dbBackupPath
-        val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
+        val backupPath = host.dbBackupPath
+        val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
         val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
         oldDb.copyTo(backupFile, true)
     }
 
     private fun backupNewDatabaseIfNeeded() {
         Log.i(TAG, "backupDatabaseIfNeeded")
-        val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(application.getDatabasePath(it)) }
+        val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(File(host.databasePath(it))) }
 
         val maxVersions = ALL_DB_FILENAMES.map { maxDatabaseVersion(it) }
         val needBackup = maxVersions != versions
 
         if(needBackup) {
             // Not makeDatabaseBackupFile: with ready cleared it would skip its vacuum and checkpoint anyway.
-            val backupZipFile = withReadyCleared { org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).zipDatabaseFiles() }
+            val backupZipFile = withReadyCleared { host.zipDatabaseFilesForUpgradeBackup()?.let { File(it) } }
             backupZipFile ?: return
             val versionString = versions.joinToString("-")
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
-            val backupPath = CommonUtils.dbBackupPath
-            val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
-            val backupFile = File(backupPath, "dbBackup-${CommonUtils.applicationVersionNumber}-$versionString-$timeStamp$DATABASE_BACKUP_SUFFIX")
+            val backupPath = host.dbBackupPath
+            val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
+            val backupFile = File(backupPath, "dbBackup-${host.applicationVersionNumber}-$versionString-$timeStamp${host.databaseBackupSuffix}")
             backupZipFile.copyTo(backupFile, true)
             backupZipFile.delete()
         }
@@ -417,10 +409,7 @@ class DatabaseContainer {
 
         private suspend fun drainWorkspaceWrites() {
             onWorkspaceDrainEntered?.invoke()
-            val persistence = runCatching {
-                org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.android.control.page.window.WorkspacePersistence>()
-            }.getOrNull()
-            persistence?.awaitPersisted()
+            host.awaitWorkspacePersisted()
         }
 
         /** Nested replacement must pass the active owner's token; independent calls queue at admission. */
@@ -520,7 +509,7 @@ class DatabaseContainer {
         }
         @Volatile private var _instance: DatabaseContainer? = null
         val instance: DatabaseContainer get() {
-            if(!ready && !application.isRunningTests) throw DataBaseNotReady()
+            if(!ready && !host.isRunningTests) throw DataBaseNotReady()
             return _instance ?: synchronized(this) {
                 _instance ?: try { containerFactory() } catch (e: Exception) {
                     Log.e(TAG, "Can't open database", e)
@@ -528,13 +517,10 @@ class DatabaseContainer {
                 }
                     .also {
                         _instance = it
-                        CommonUtils.migrateOldSettingsKeys()
+                        host.migrateOldSettingsKeys()
                     }
             }
         }
-
-        /** Bound for the ordered store write queues when the caller gave no timeout. */
-        private const val ORDERED_WRITES_EXIT_WAIT_MS = 5_000L
 
         /**
          * Persists queued settings writes; call before a path that ends the process (`exitProcess`). No-op if the
@@ -544,27 +530,7 @@ class DatabaseContainer {
          */
         fun flushSettingsBeforeExit(timeoutMs: Long? = null) {
             if (!ready) return
-            try {
-                blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close: flush before exit, also the crash handler)
-                    val store = _instance?.settingsStore
-                    if (store != null) {
-                        if (timeoutMs == null) store.flush()
-                        else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
-                    }
-                    // The ordered write-through keys (workspace, global text display, reading progress) queue their
-                    // writes off the caller's thread; a few ms before exit they would otherwise die with the process.
-                    val launcher = runCatching {
-                        org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.sharedcore.platform.OrderedLauncher>()
-                    }.getOrNull() ?: return@blockingAtEdge
-                    val keys = listOf(
-                        net.bible.android.control.page.window.WorkspacePersistence.KEY,
-                        net.bible.service.common.GlobalTextDisplaySettingsStore.KEY,
-                        net.bible.service.common.ReadingProgressSettingsStore.KEY,
-                    )
-                    if (withTimeoutOrNull(timeoutMs ?: ORDERED_WRITES_EXIT_WAIT_MS) { keys.forEach { launcher.join(it) } } == null)
-                        Log.w(TAG, "Ordered write queues did not drain before exit")
-                }
-            } catch (e: Throwable) { Log.e(TAG, "Settings flush failed", e) }
+            host.flushSettingsBeforeExit(_instance?.settingsStore, timeoutMs)
         }
 
         suspend fun sync() = instance.sync()
@@ -606,59 +572,59 @@ class DatabaseContainer {
         fun getDatabaseAccessorFactories(container: DatabaseContainer): List<() -> SyncableDatabaseAccessor<*>> = container.run {
             listOf(
                 { SyncableDatabaseAccessor(
-                    deviceId = CommonUtils.deviceIdentifier,
+                    deviceId = host.deviceIdentifier,
                     localDb = bookmarkDb,
                     dbFactory = { n -> getBookmarkDb(n) }, _resetLocalDb = { resetBookmarkDb() },
-                    localDbFile = application.getDatabasePath(BookmarkDatabase.dbFileName),
+                    localDbFile = File(host.databasePath(BookmarkDatabase.dbFileName)),
                     category = SyncableDatabaseDefinition.BOOKMARKS,
                     _reactToUpdates = { entries ->
                         _bookmarksSynced.emit(entries)
                     },
                 ) },
                 { SyncableDatabaseAccessor(
-                    deviceId = CommonUtils.deviceIdentifier,
+                    deviceId = host.deviceIdentifier,
                     localDb = workspaceDb,
                     dbFactory = { n -> getWorkspaceDb(n) }, _resetLocalDb = { resetWorkspaceDb() },
-                    localDbFile = application.getDatabasePath(WorkspaceDatabase.dbFileName),
+                    localDbFile = File(host.databasePath(WorkspaceDatabase.dbFileName)),
                     category = SyncableDatabaseDefinition.WORKSPACES,
                     _reactToUpdates = {
                         _workspacesSynced.emit(it)
                     },
                 ) },
                 { SyncableDatabaseAccessor(
-                    deviceId = CommonUtils.deviceIdentifier,
+                    deviceId = host.deviceIdentifier,
                     localDb = readingPlanDb,
                     dbFactory = { n -> getReadingPlanDb(n) },
                     _resetLocalDb = { resetReadingPlanDb() },
-                    localDbFile = application.getDatabasePath(ReadingPlanDatabase.dbFileName),
+                    localDbFile = File(host.databasePath(ReadingPlanDatabase.dbFileName)),
                     category = SyncableDatabaseDefinition.READINGPLANS,
                     _reactToUpdates = { _readingPlansSynced.emit(it) },
                 )
                 },
                 { SyncableDatabaseAccessor(
-                    deviceId = CommonUtils.deviceIdentifier,
+                    deviceId = host.deviceIdentifier,
                     localDb = myDocumentDb,
                     dbFactory = { n -> getMyDocumentDb(n) },
                     _resetLocalDb = { resetMyDocumentDb() },
-                    localDbFile = application.getDatabasePath(MyDocumentDatabase.dbFileName),
+                    localDbFile = File(host.databasePath(MyDocumentDatabase.dbFileName)),
                     category = SyncableDatabaseDefinition.MYDOCUMENTS,
                     _reactToUpdates = { _myDocumentsSynced.emit(it) },
                 ) },
                 { SyncableDatabaseAccessor(
-                    deviceId = CommonUtils.deviceIdentifier,
+                    deviceId = host.deviceIdentifier,
                     localDb = aiSettingsDb,
                     dbFactory = { n -> getAiSettingsDb(n) },
                     _resetLocalDb = { resetAiSettingsDb() },
-                    localDbFile = application.getDatabasePath(AiSettingsDatabase.dbFileName),
+                    localDbFile = File(host.databasePath(AiSettingsDatabase.dbFileName)),
                     category = SyncableDatabaseDefinition.AI_SETTINGS,
                     resetOwned = { token -> resetAiSettingsDbOwned(token) },
                 ) },
                 { SyncableDatabaseAccessor(
-                    deviceId = CommonUtils.deviceIdentifier,
+                    deviceId = host.deviceIdentifier,
                     localDb = progressDb,
                     dbFactory = { n -> getProgressDb(n) },
                     _resetLocalDb = { resetProgressDb() },
-                    localDbFile = application.getDatabasePath(ProgressDatabase.dbFileName),
+                    localDbFile = File(host.databasePath(ProgressDatabase.dbFileName)),
                     category = SyncableDatabaseDefinition.PROGRESS,
                 ) },
             )
