@@ -34,22 +34,31 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class StartupDoesNotResolveG1PortsTest {
+    /**
+     * `CWProject` establishes its project home once per process (the first writer wins), so after any earlier test in
+     * this JVM `writableProjectDir` is that test's stale directory. The singleton is swapped for a fresh one for the
+     * call and the original restored afterwards, so the directory assertion can only be satisfied by this call.
+     */
     @Test
     fun initialiseJSwordFoldersReachesItsSuccessPathWithoutKoin() {
         val sword = SwordEnvironmentInitialisation::class.java.getDeclaredField("isSwordLoaded")
         sword.isAccessible = true
         val wasLoaded = sword.getBoolean(SwordEnvironmentInitialisation)
+        val instanceField = CWProject::class.java.getDeclaredField("instance").apply { isAccessible = true }
+        val originalProject = instanceField.get(null)
         try {
+            CWProject::class.java.getDeclaredMethod("reset").apply { isAccessible = true }.invoke(null)
             sword.setBoolean(SwordEnvironmentInitialisation, false)
             GlobalContext.stopKoin()
             SwordEnvironmentInitialisation.initialiseJSwordFolders()
+            assertTrue("initialisation did not reach its success path", sword.getBoolean(SwordEnvironmentInitialisation))
             val dir = java.io.File(CWProject.instance().writableProjectDir!!).absolutePath
             assertTrue("$dir not under ${SharedConstants.modulesDir}", dir.startsWith(SharedConstants.modulesDir.absolutePath))
-            assertTrue("initialisation did not reach its success path", sword.getBoolean(SwordEnvironmentInitialisation))
         } finally {
             BibleApplication.application.onTerminate()
-            BibleApplication.application.onCreate()
+            BibleApplication.application.onCreate() // restarts Koin
             sword.setBoolean(SwordEnvironmentInitialisation, wasLoaded)
+            instanceField.set(null, originalProject)
             BibleApplication.application.onTerminate()
         }
     }
