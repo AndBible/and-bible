@@ -147,7 +147,7 @@ Only run Android builds when testing Android-specific integration.
 
 - `TEST_SDK` (`app/src/test/java/net/bible/android/TestBibleApplication.kt`) is 33, so code behind API 35+ checks is not exercised by default. A test for such a branch needs `@Config(sdk = [35])`, and should be seen failing before the fix.
 - The `:app` unit suite runs in a single JVM (no `maxParallelForks`). A green `--tests` run can miss global-state pollution (Koin overrides, library globals); only the full suite catches it. Restore any global you swap, in `finally`.
-- Many unit tests need real Sword modules in `~/.sword`. Extract your copy of the test modules there first (`mkdir -p ~/.sword && unzip -o -d ~/.sword <testmods.zip>`); without them hundreds of tests fail with "no module installed" symptoms such as `IndexOutOfBoundsException` from an empty book list. CI downloads them from an encrypted secret.
+- Many unit tests need real Sword modules in `~/.sword`. Extract your copy of the test modules there first (`mkdir -p ~/.sword && unzip -o -d ~/.sword <testmods.zip>`); without them hundreds of tests fail with "no module installed" symptoms such as `IndexOutOfBoundsException` from an empty book list. CI downloads them from an encrypted secret. Check the set is exact with `scripts/check-test-sword-modules.sh` (add `--fix` to remove extra modules); run it before any `:app` test run.
 
 ## Emulator and WebView debugging
 
