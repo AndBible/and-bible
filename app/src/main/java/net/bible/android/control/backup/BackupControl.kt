@@ -18,6 +18,7 @@
 package net.bible.android.control.backup
 
 import net.bible.sharedcore.platform.files.BackupFileSniffer
+import okio.Path.Companion.toOkioPath
 import okio.buffer
 import net.bible.sharedcore.platform.files.PickedSource
 import net.bible.sharedcore.platform.files.SaveOrShare
@@ -739,7 +740,7 @@ class BackupControl(
             try {
                 val inputStream = host.openInput(source).buffer().inputStream()
                 tmpFile.outputStream().use { inputStream.copyTo(it) }
-                net.bible.service.common.ArchiveUtils.unzipFile(tmpFile, unzipFolder)
+                net.bible.service.common.ArchiveUtils.unzip(tmpFile.toOkioPath(), unzipFolder.toOkioPath())
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing backup file", e)
                 throw IOException("Failed to process backup file: ${e.message}")

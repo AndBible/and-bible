@@ -22,7 +22,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.AndBibleAddons
-import net.bible.service.common.ArchiveUtils.unzipInputStream
+import net.bible.service.common.ArchiveUtils.unzip
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
@@ -37,6 +37,8 @@ import net.bible.service.sword.mysword.addMySwordBook
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import java.io.File
 import java.io.FileOutputStream
+import okio.Path.Companion.toOkioPath
+import okio.source
 
 /** Thrown by the committer when a file is not a valid module (e.g. bad SQLite header). */
 class InvalidInstallFile(val filename: String) : Exception()
@@ -110,7 +112,7 @@ class DefaultInstallCommitter(
             if (deleteExisting) deleteOwnedEpubModule(dir)
             dir.mkdirs()
             try {
-                unzipInputStream(localFile.inputStream(), dir)
+                unzip(localFile.source(), dir.toOkioPath())
                 addOwnedEpubBook(dir, strings, environment)
                 org.crosswire.jsword.book.Books.installed().getBook(epubInitials(dir.name)) != null
             } catch (e: Exception) {

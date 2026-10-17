@@ -39,3 +39,6 @@ core	service/common/ReadingProgressSettings.kt
 core	service/common/ReadingProgressSettingsStore.kt
 core	service/common/GlobalTextDisplaySettingsStore.kt
 core	service/db/ExportStudyPads.kt
+# G2
+core	service/common/SafeZipPaths.kt
+core	service/common/DosTime.kt

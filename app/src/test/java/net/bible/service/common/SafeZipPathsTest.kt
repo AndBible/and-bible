@@ -10,6 +10,9 @@ class SafeZipPathsTest {
         assertNull(safeZipEntryPath("..\\x"))
         assertNull(safeZipEntryPath("a/../../x"))
         assertNull(safeZipEntryPath("a/b/.."))
+        assertNull(safeZipEntryPath("a/../b"))
+        assertNull(safeZipEntryPath(".."))
+        assertNull(safeZipEntryPath("a/.."))
     }
 
     @Test fun rejectsAbsoluteNames() {
@@ -25,5 +28,14 @@ class SafeZipPathsTest {
         assertEquals("a", safeZipEntryPath("./a"))
         assertEquals("a/b", safeZipEntryPath("a//b"))
         assertEquals("a/..b/c..", safeZipEntryPath("a/..b/c.."))
+        assertEquals("..hidden", safeZipEntryPath("..hidden"))
+        assertEquals("a..b", safeZipEntryPath("a..b"))
+        assertEquals("foo..", safeZipEntryPath("foo.."))
+    }
+
+    @Test fun emptyAndDotNamesNormalizeToEmptyNotNull() {
+        assertEquals("", safeZipEntryPath(""))
+        assertEquals("", safeZipEntryPath("."))
+        assertEquals("", safeZipEntryPath("./"))
     }
 }

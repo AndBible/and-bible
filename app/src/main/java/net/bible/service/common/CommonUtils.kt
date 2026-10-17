@@ -18,6 +18,7 @@
 package net.bible.service.common
 
 import net.bible.sharedcore.platform.files.BackupFileSniffer
+import okio.Path.Companion.toOkioPath
 import okio.source
 import android.Manifest
 import android.app.Activity
@@ -1721,10 +1722,10 @@ object CommonUtils : CommonUtilsBase() {
     fun appendUrl(u: String, filename: String): String = ArchiveUtils.appendUrl(u, filename)
 
     fun unzipFile(zipFile: File, destinationDir: File, filePrefix: String = "") =
-        ArchiveUtils.unzipFile(zipFile, destinationDir, filePrefix)
+        ArchiveUtils.unzip(zipFile.toOkioPath(), destinationDir.toOkioPath(), filePrefix)
 
     fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") =
-        ArchiveUtils.unzipInputStream(inputStream, destinationDir, filePrefix)
+        ArchiveUtils.unzip(inputStream.source(), destinationDir.toOkioPath(), filePrefix)
 
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 
@@ -1736,9 +1737,9 @@ object CommonUtils : CommonUtilsBase() {
 
     val tmpFile: File get() = File.createTempFile("andbible-", ".tmp", tmpDir)
 
-    fun gzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gzipFile(sourceFile, destinationFile)
+    fun gzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())
 
-    fun gunzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gunzipFile(sourceFile, destinationFile)
+    fun gunzipFile(sourceFile: File, destinationFile: File) = ArchiveUtils.gunzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())
 
     suspend fun determineFileType(uri: Uri): BackupFileType = withContext(Dispatchers.IO) {
         BackupFileSniffer.sniff {

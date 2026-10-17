@@ -25,7 +25,7 @@ import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.android.database.BookmarkDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
-import net.bible.service.common.ArchiveUtils.unzipInputStream
+import net.bible.service.common.ArchiveUtils.unzip
 import net.bible.service.common.safeZipEntryPath
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmarksDbStats
@@ -34,6 +34,8 @@ import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.epubInitials
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.CoreStrings
+import okio.Path.Companion.toOkioPath
+import okio.source
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.crosswire.jsword.book.sword.SwordConstants
@@ -46,7 +48,7 @@ import java.util.zip.ZipInputStream
  *  already-acquired local file instead of re-opening the original uri. */
 internal suspend fun studyPadStatsFor(localFile: File, backup: BackupControl): Pair<String, File> {
     val unzipFolder = File(backup.internalDbBackupDir, "unzip")
-    unzipInputStream(localFile.inputStream(), unzipFolder)
+    unzip(localFile.source(), unzipFolder.toOkioPath())
     val dbFile = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
     val stats = bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, dbFile)
     return stats to unzipFolder
