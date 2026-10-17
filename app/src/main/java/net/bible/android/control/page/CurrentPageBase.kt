@@ -23,7 +23,7 @@ import net.bible.android.misc.OsisFragment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.mp.KoinPlatform
 import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -59,10 +59,10 @@ abstract class CurrentPageBase protected constructor(
     override val pageManager: CurrentPageManager
 ) : CurrentPage {
 
-    protected val strings: CoreStrings by inject(CoreStrings::class.java)
-    protected val notifier: UserNotifier by inject(UserNotifier::class.java)
-    private val settings: AppSettings by inject(AppSettings::class.java)
-    private val recentDocuments: RecentDocumentsStore by inject(RecentDocumentsStore::class.java)
+    protected val strings: CoreStrings by lazy { KoinPlatform.getKoin().get<CoreStrings>() }
+    protected val notifier: UserNotifier by lazy { KoinPlatform.getKoin().get<UserNotifier>() }
+    private val settings: AppSettings by lazy { KoinPlatform.getKoin().get<AppSettings>() }
+    private val recentDocuments: RecentDocumentsStore by lazy { KoinPlatform.getKoin().get<RecentDocumentsStore>() }
 
     override var isInhibitChangeNotifications: Boolean = false
 
@@ -176,7 +176,7 @@ abstract class CurrentPageBase protected constructor(
         val currentDocument = currentDocument!!
 
         val frag = synchronized(currentDocument) {
-            val xml = SwordContentFacade.readOsisFragment(currentDocument, key, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>())
+            val xml = SwordContentFacade.readOsisFragment(currentDocument, key, strings = KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>())
             OsisFragment(xml, key, currentDocument)
         }
 
@@ -367,7 +367,7 @@ abstract class CurrentPageBase protected constructor(
     /** Can we sync between windows
      */
     override val isSyncable: Boolean = true
-    protected val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+    protected val fakeBookFactory: FakeBookFactory get() = KoinPlatform.getKoin().get<FakeBookFactory>()
 
     companion object {
         private const val TAG = "CurrentPage"

@@ -55,9 +55,7 @@ open class CurrentCommentaryPage internal constructor(
 ) : VersePage(true, currentBibleVerse, bibleTraverser, pageManager), CurrentPage
 {
 
-    private val saxTextPolicy: net.bible.service.format.SaxTextPolicy by org.koin.java.KoinJavaComponent.inject(
-        net.bible.service.format.SaxTextPolicy::class.java
-    )
+    private val saxTextPolicy: net.bible.service.format.SaxTextPolicy by lazy { org.koin.mp.KoinPlatform.getKoin().get<net.bible.service.format.SaxTextPolicy>() }
 
     override val documentCategory = DocumentCategory.COMMENTARY
     var sourceBookAndKey: BookAndKey? = null
@@ -75,7 +73,7 @@ open class CurrentCommentaryPage internal constructor(
 
             val frags = Books.installed().getBooks(BookFilters.getBibles()).map {
                 try {
-                    OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification), strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), key, it)
+                    OsisFragment(SwordContentFacade.readOsisFragment(it, key.toV11n((it as SwordBook).versification), strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>()), key, it)
                 } catch (e: OsisError) {
                     null
                 }
@@ -89,7 +87,7 @@ open class CurrentCommentaryPage internal constructor(
                 ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
             val texts = ArrayList<Pair<String, String>>()
             for (verse in verseRange) {
-                val text = SwordContentFacade.getCanonicalText(doc, verse, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = saxTextPolicy)
+                val text = SwordContentFacade.getCanonicalText(doc, verse, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = saxTextPolicy)
                 texts.add(Pair(verse.shortName, text))
             }
             val kjvRange = verseRange.toV11n(KJVA)

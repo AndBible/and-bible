@@ -26,7 +26,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
 import net.bible.android.database.WorkspaceEntities
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.mp.KoinPlatform
 import net.bible.service.common.tinyName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.history.HistoryManager
@@ -38,7 +38,6 @@ import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseKey
-import java.lang.IllegalArgumentException
 
 
 /** Control instances of the different current document page types
@@ -72,7 +71,7 @@ open class CurrentPageManager constructor(
     val bookmarkControl: BookmarkControl,
     val windowControl: WindowControl,
 )  {
-    private val globalTextDisplaySettings: GlobalTextDisplaySettingsSource by inject(GlobalTextDisplaySettingsSource::class.java)
+    private val globalTextDisplaySettings: GlobalTextDisplaySettingsSource by lazy { KoinPlatform.getKoin().get<GlobalTextDisplaySettingsSource>() }
 
     // use the same verse in the commentary and bible to keep them in sync
     val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
@@ -120,7 +119,7 @@ open class CurrentPageManager constructor(
 
     lateinit var window: Window
 
-    protected val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
+    protected val fakeBookFactory: FakeBookFactory get() = KoinPlatform.getKoin().get<FakeBookFactory>()
 
     var currentPage: CurrentPage = currentBible
         private set
@@ -193,7 +192,7 @@ open class CurrentPageManager constructor(
                     // pop up a key selection screen on whatever Activity is in front. Slice 8 F5 (slice 7 Task 12):
                     // no `!!` -- with no Activity in front (a background sync or agent switching documents) there is
                     // nothing to show a chooser on, and not asking beats crashing.
-                    val launcher = org.koin.java.KoinJavaComponent.get<KeyChooserLauncher>(KeyChooserLauncher::class.java)
+                    val launcher = KoinPlatform.getKoin().get<KeyChooserLauncher>()
                     if (!launcher.startKeyChooser(nextPage)) {
                         Log.w(TAG, "No Activity in front to show the key chooser for ${nextDocument.initials}; not shown.")
                     }

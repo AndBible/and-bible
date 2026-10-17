@@ -29,15 +29,6 @@ import net.bible.service.device.ScreenSettings
 import net.bible.sharedui.theme.AbTheme
 import org.koin.core.context.GlobalContext
 
-/**
- * The experimental switch that keeps the reading toolbar's LITERAL workspace colour instead of
- * the theme-derived one (§6). Derived is the default (maintainer decision, batch 4b feedback
- * 2026-08-01; made unconditional 2026-09-18 when the former master switch,
- * `workspace_color_theme`, was retired -- see `docs/superpowers/status/compose-port-status.md`); this is the opt-out
- * back to the literal colour, not an opt-in to deriving it.
- */
-const val TOOLBAR_LITERAL_COLOR_FEATURE = "toolbar_literal_color"
-
 /** [workspaceThemeSeedArgb] applied to the live singleton: the active workspace's own colour. */
 fun currentWorkspaceThemeSeedArgb(): Int? = workspaceThemeSeedArgb(
     // This is the repo's idiom for a non-DI singleton lookup outside a Koin-injected constructor —
@@ -54,16 +45,6 @@ fun currentWorkspaceThemeSeedArgb(): Int? = workspaceThemeSeedArgb(
  * pure function so it stays unit-testable without Koin or a Context.
  */
 fun workspaceThemeSeedArgb(workspaceColorArgb: Int?): Int? = workspaceColorArgb
-
-/**
- * The reading toolbar's colour rule, as a pure function so it can be unit-tested without Koin, a
- * Context or [net.bible.android.control.page.toolbar.ToolbarStateServiceImpl]'s four collaborators
- * (A/B batch 4b feedback, 2026-08-01). Derived is the DEFAULT (unconditionally since the
- * 2026-09-18 master-switch retirement); [TOOLBAR_LITERAL_COLOR_FEATURE] is the one remaining
- * opt-OUT back to the literal workspace colour, not an opt-in to deriving it.
- */
-fun deriveToolbarFromTheme(enabledFeatures: Set<String>): Boolean =
-    TOOLBAR_LITERAL_COLOR_FEATURE !in enabledFeatures
 
 /**
  * The one place `:app` reads the app-global theme inputs.

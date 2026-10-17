@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.page
 
+import kotlinx.atomicfu.atomic
 import net.bible.sharedcore.log.Log
 import net.bible.android.common.toV11n
 import net.bible.android.database.WorkspaceEntities
@@ -37,7 +38,6 @@ import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import java.lang.Exception
 
 /** Reference to current passage shown by viewer
  *
@@ -52,8 +52,8 @@ class CurrentGeneralBookPage internal constructor(
     override val documentCategory = DocumentCategory.GENERAL_BOOK
 
     /** External choices invalidate queued steps; steps themselves keep their FIFO generation. */
-    private val selectionSequence = java.util.concurrent.atomic.AtomicLong()
-    val selectionGeneration: Long get() = selectionSequence.get()
+    private val selectionSequence = atomic(0L)
+    val selectionGeneration: Long get() = selectionSequence.value
 
     override fun setKey(key: Key, addHistoryItem: Boolean) {
         selectionSequence.incrementAndGet()
@@ -113,7 +113,7 @@ class CurrentGeneralBookPage internal constructor(
                                 else -> k
                             }
                         }
-                        OsisFragment(SwordContentFacade.readOsisFragment(doc, k, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>()), k, doc)
+                        OsisFragment(SwordContentFacade.readOsisFragment(doc, k, strings = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedcore.platform.CoreStrings>()), k, doc)
                     } catch (e: OsisError) {
                         if(dropUninstalled && e is DocumentNotFound && Books.installed().getBook(doc.initials) == null) {
                             Log.i(TAG, "Dropping an uninstalled document from an assembled key: ${doc.initials}")

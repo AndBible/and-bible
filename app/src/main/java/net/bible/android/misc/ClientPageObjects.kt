@@ -20,7 +20,7 @@ package net.bible.android.misc
 import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkOsisFragment
 import net.bible.android.database.json
-import org.apache.commons.text.StringEscapeUtils
+import net.bible.sharedlogic.text.HtmlEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
@@ -73,7 +73,7 @@ fun elementToString(e: Element): String {
             // We might have html-encoded characters in OSIS text.
             // Let's un-encode them first, lest we will end up with double-encoded strings
             // such as &amp;quot;
-            text.text = StringEscapeUtils.unescapeHtml4(text.text)
+            text.text = HtmlEntities.unescapeHtml4(text.text)
             super.printText(out, fstack, text)
         }
     }

@@ -46,3 +46,5 @@ bookmark	service/common/LabelDisplayName.kt
 bookmark	android/view/activity/bookmark/LabelEditMapper.kt
 window	android/control/PassageChangeMediator.kt
 window	android/control/PageChange.kt
+page	android/misc/ClientPageObjects.kt
+page	sharedui/ToolbarThemeRule.kt
