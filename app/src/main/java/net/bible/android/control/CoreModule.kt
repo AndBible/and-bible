@@ -212,6 +212,7 @@ fun buildCoreModule() = module {
     single<UserNotifier> { AndroidUserNotifier() }
     single<MarkdownRenderer> { net.bible.service.sword.mydocument.MarkdownToXhtml }
     single<net.bible.sharedcore.platform.AppDirectories> { net.bible.android.AndroidAppDirectories() }
+    single<net.bible.sharedlogic.platform.PlatformLocales> { net.bible.android.platform.AndroidPlatformLocales() }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> {
