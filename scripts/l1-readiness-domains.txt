@@ -39,3 +39,5 @@ core	service/common/ReadingProgressSettings.kt
 core	service/common/ReadingProgressSettingsStore.kt
 core	service/common/GlobalTextDisplaySettingsStore.kt
 core	service/db/ExportStudyPads.kt
+# D2
+koin	android/control/SharedBindings.kt

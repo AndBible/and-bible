@@ -46,4 +46,13 @@ class CoreModuleSplitTest {
         assertEquals(first.includedModules.size, second.includedModules.size)
         first.includedModules.zip(second.includedModules).forEach { (a, b) -> assertNotSame(a, b) }
     }
+
+    @Test
+    fun sharedBindingsAreOnlyThePlatformFreeOnes() {
+        val platform = definitionsOf(buildPlatformBindings())
+        val shared = definitionsOf(buildSharedBindings())
+        assertTrue("platform and shared must be disjoint", platform.intersect(shared.toSet()).isEmpty())
+        assertEquals(snapshot(), (platform + shared).sorted())
+        assertTrue("shared part must not be empty", shared.isNotEmpty() && platform.isNotEmpty())
+    }
 }
