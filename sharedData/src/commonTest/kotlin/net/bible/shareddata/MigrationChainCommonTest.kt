@@ -13,6 +13,7 @@ import net.bible.shareddata.fixtures.userVersion
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Builds a database file from every committed schema export of the 11 current databases and opens it through
@@ -29,7 +30,8 @@ class MigrationChainCommonTest {
     )
 
     @Test
-    fun everyExportedVersionOpensAtCurrent() = runTest {
+    // Native runs the 76-version chain much slower than the JVM; the default 60 s wall-clock timeout would fail it on CI.
+    fun everyExportedVersionOpensAtCurrent() = runTest(timeout = 10.minutes) {
         val dir = testDatabaseDir()
         val failures = mutableListOf<String>()
         var tested = 0
