@@ -44,6 +44,8 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import org.crosswire.jsword.book.Book
 import kotlin.collections.HashMap
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 
 class GeneralSpeakTextProvider(
     private val bookmarkControl: BookmarkControl,
@@ -58,6 +60,7 @@ class GeneralSpeakTextProvider(
     private val traverser: net.bible.android.control.versification.BibleTraverser,
 ) : SpeakTextProvider {
     private val appSettings = settings
+    private val lock = reentrantLock()
     private var revision = 0L
     private fun checkRevision(expected: Long) {
         if (expected != revision) throw kotlinx.coroutines.CancellationException("Obsolete speech cursor")
@@ -103,29 +106,30 @@ class GeneralSpeakTextProvider(
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startKey, endKey, currentKey)
 
-    @Synchronized
     override fun updateSettings(change: SpeakSettingsChange) {
-        this.settings = change.speakSettings
-        Log.i(TAG, "SpeakSettings updated: $change")
-        val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
-        if(change.updateBookmark && bookmark != null) {
-            // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
-            // (of which we will continue playback if unpaused)
+        lock.withLock {
+            this.settings = change.speakSettings
+            Log.i(TAG, "SpeakSettings updated: $change")
+            val bookmark = bookmark?.copy(playbackSettings = bookmark?.playbackSettings?.copy())
+            if(change.updateBookmark && bookmark != null) {
+                // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
+                // (of which we will continue playback if unpaused)
 
-            val oldPlaybackSettings = bookmark.playbackSettings
-            val newPlaybackSettings = change.speakSettings.playbackSettings.copy()
-            // Let's retain bookId and bookmarkWasCreated
+                val oldPlaybackSettings = bookmark.playbackSettings
+                val newPlaybackSettings = change.speakSettings.playbackSettings.copy()
+                // Let's retain bookId and bookmarkWasCreated
 
-            if (oldPlaybackSettings != null) {
-                newPlaybackSettings.apply {
-                    bookId = oldPlaybackSettings.bookId
-                    bookmarkWasCreated = oldPlaybackSettings.bookmarkWasCreated
+                if (oldPlaybackSettings != null) {
+                    newPlaybackSettings.apply {
+                        bookId = oldPlaybackSettings.bookId
+                        bookmarkWasCreated = oldPlaybackSettings.bookmarkWasCreated
+                    }
                 }
-            }
-            bookmark.playbackSettings = newPlaybackSettings
-            launcher.launch(SPEAK_KEY) {
-                bookmark.new = !bookmarkControl.isBookmarkPersisted(bookmark.id)
-                bookmarkControl.addOrUpdateGenericBookmark(bookmark)
+                bookmark.playbackSettings = newPlaybackSettings
+                launcher.launch(SPEAK_KEY) {
+                    bookmark.new = !bookmarkControl.isBookmarkPersisted(bookmark.id)
+                    bookmarkControl.addOrUpdateGenericBookmark(bookmark)
+                }
             }
         }
     }
@@ -135,16 +139,17 @@ class GeneralSpeakTextProvider(
         phrases = platform.phrasesFor(book.language.code)
     }
 
-    @Synchronized
     fun setupReading(key: BookAndKey) {
-        reset()
-        loadedBookmark = null
-        setupBook(key.document!!)
+        lock.withLock {
+            reset()
+            loadedBookmark = null
+            setupBook(key.document!!)
 
-        currentKey = key
-        startKey = key
-        endKey = key
-        stopOrdinal = key.ordinal!!.end
+            currentKey = key
+            startKey = key
+            endKey = key
+            stopOrdinal = key.ordinal!!.end
+        }
     }
 
     private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey, readingSettings: SpeakSettings, readingPhrases: SpeakPhrases): SpeakCommandArray {
@@ -161,22 +166,27 @@ class GeneralSpeakTextProvider(
         return cmds
     }
 
+    private data class CursorSnapshot(
+        val expected: Long,
+        val cursor: State,
+        val pending: SpeakCommandArray,
+        val remaining: SpeakCommandArray,
+        val readingSettings: SpeakSettings,
+        val readingPhrases: SpeakPhrases,
+        val stop: Int?,
+    )
+
     override suspend fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean, isValid: () -> Boolean): SpeakCommand {
-        val expected: Long
-        val cursor: State
-        val pending: SpeakCommandArray
-        val remaining: SpeakCommandArray
-        val readingSettings: SpeakSettings
-        val readingPhrases: SpeakPhrases
-        val stop: Int?
-        synchronized(this) {
-            expected = revision
-            cursor = State(book, startKey, endKey, currentKey)
-            pending = currentCommands.copy()
-            remaining = readList.copy()
-            readingSettings = settings.copy(playbackSettings = settings.playbackSettings.copy())
-            readingPhrases = phrases
-            stop = stopOrdinal
+        val (expected, cursor, pending, remaining, readingSettings, readingPhrases, stop) = lock.withLock {
+            CursorSnapshot(
+                revision,
+                State(book, startKey, endKey, currentKey),
+                currentCommands.copy(),
+                readList.copy(),
+                settings.copy(playbackSettings = settings.playbackSettings.copy()),
+                phrases,
+                stopOrdinal,
+            )
         }
         var calculated = cursor
         while (pending.isEmpty()) {
@@ -185,7 +195,7 @@ class GeneralSpeakTextProvider(
             pending.addAll(result.second)
         }
         val cmd = pending.removeAt(0)
-        return synchronized(this) {
+        return lock.withLock {
             checkRevision(expected)
             if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
             startKey = calculated.startKey
@@ -239,14 +249,7 @@ class GeneralSpeakTextProvider(
     override suspend fun getStatusText(showFlag: Int): String = getStatusTexts().getValue(showFlag and 3)
 
     override suspend fun getStatusTexts(): Map<Int, String> {
-        val state: State
-        val expected: Long
-        val sleep: Boolean
-        synchronized(this) {
-            state = currentState
-            expected = revision
-            sleep = settings.sleepTimer > 0
-        }
+        val (state, expected, sleep) = lock.withLock { Triple(currentState, revision, settings.sleepTimer > 0) }
         val range = state.book.ordinalRangeFor(state.currentKey.key, strings)
         val percent = if (range.last == range.first) 0 else
             (((state.currentKey.ordinal!!.start - range.first).toFloat() / (range.last - range.first)) * 100).toInt()
@@ -259,7 +262,7 @@ class GeneralSpeakTextProvider(
                 if (flag and FLAG_SHOW_BOOK != 0) append(" ${state.book.abbreviation}")
             }
         }
-        synchronized(this) { checkRevision(expected) }
+        lock.withLock { checkRevision(expected) }
         return values
     }
 
@@ -268,12 +271,13 @@ class GeneralSpeakTextProvider(
     private fun getSpeakCommandsForKey(key: BookAndKey): SpeakCommandArray =
         swordContentFacade.getGenBookSpeakCommands(key)
 
-    @Synchronized
     override fun pause() {
-        reset()
-        currentKey = startKey
-        updateBookmark()
-        isSpeaking = false
+        lock.withLock {
+            reset()
+            currentKey = startKey
+            updateBookmark()
+            isSpeaking = false
+        }
     }
 
     private fun updateBookmark() {
@@ -297,42 +301,41 @@ class GeneralSpeakTextProvider(
 
     override var isSpeaking: Boolean = false
 
-    @Synchronized
     override fun stop() {
-        reset()
-        if(isSpeaking) {
-            updateBookmark()
+        lock.withLock {
+            reset()
+            if(isSpeaking) {
+                updateBookmark()
+            }
+            isSpeaking = false
+            bookmark = null
         }
-        isSpeaking = false
-        bookmark = null
     }
 
-    @Synchronized
     override fun prepareForStartSpeaking() {
-        val loaded = loadedBookmark
-        if (loaded != null) {
-            val playback = loaded.playbackSettings?.copy()
-            if (playback != null && advanced.restoreSettingsFromBookmarks) {
-                playback.bookId = null
-                playback.bookmarkWasCreated = null
-                settings.playbackSettings = playback
-                settings.save()
+        lock.withLock {
+            val loaded = loadedBookmark
+            if (loaded != null) {
+                val playback = loaded.playbackSettings?.copy()
+                if (playback != null && advanced.restoreSettingsFromBookmarks) {
+                    playback.bookId = null
+                    playback.bookmarkWasCreated = null
+                    settings.playbackSettings = playback
+                    settings.save()
+                }
+                bookmark = loaded
             }
-            bookmark = loaded
+            isSpeaking = true
         }
-        isSpeaking = true
     }
 
     private var loadedBookmark: GenericBookmarkWithNotes? = null
 
     override suspend fun loadBookmarkState() {
-        val expected: Long
-        val key: BookAndKey
-        val limited: Boolean
-        synchronized(this) { expected = revision; key = currentKey; limited = stopOrdinal != null }
+        val (expected, key, limited) = lock.withLock { Triple(revision, currentKey, stopOrdinal != null) }
         val found = if (!limited) bookmarkControl.speakBookmarkForKey(key) else null
         val loaded = if (found != null && bookmarkControl.labelsForBookmark(found).any { it.id == bookmarkControl.speakLabel().id }) found else null
-        synchronized(this) { checkRevision(expected); loadedBookmark = loaded }
+        lock.withLock { checkRevision(expected); loadedBookmark = loaded }
     }
 
     private suspend fun removeBookmark(previous: GenericBookmarkWithNotes?): Boolean {
@@ -365,7 +368,7 @@ class GeneralSpeakTextProvider(
         if (autoBookmark || wasRemoved) {
             val saved = bookmarkControl.addOrUpdateGenericBookmark(target)
             bookmarkControl.setLabelsForBookmark(saved, listOf(bookmarkControl.speakLabel()))
-            synchronized(this) { if (bookmark === target) bookmark = saved }
+            lock.withLock { if (bookmark === target) bookmark = saved }
         }
     }
 
@@ -392,14 +395,7 @@ class GeneralSpeakTextProvider(
     override suspend fun rewind(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) = rewind(amount, false, isValid)
 
     suspend fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean, isValid: () -> Boolean = { true }) {
-        val expected: Long
-        val origin: State
-        val lastTitle: BookAndKey?
-        synchronized(this) {
-            expected = revision
-            origin = currentState
-            lastTitle = lastVerseWithTitle
-        }
+        val (expected, origin, lastTitle) = lock.withLock { Triple(revision, currentState, lastVerseWithTitle) }
         val minimumOrdinal = origin.book.ordinalRangeFor(origin.startKey.key, strings).first
         var target = when (amount ?: SpeakSettings.RewindAmount.SMART) {
             SpeakSettings.RewindAmount.SMART -> if (lastTitle != null && lastTitle != origin.startKey) lastTitle
@@ -414,7 +410,7 @@ class GeneralSpeakTextProvider(
         }
         if (autoRewind && target.ordinal!! < minimumOrdinal)
             target = BookAndKey(origin.startKey.key, origin.book, OrdinalRange(minimumOrdinal))
-        synchronized(this) {
+        lock.withLock {
             checkRevision(expected)
             if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
             reset()
@@ -435,16 +431,14 @@ class GeneralSpeakTextProvider(
     }
 
     override suspend fun forward(amount: SpeakSettings.RewindAmount?, isValid: () -> Boolean) {
-        val expected: Long
-        val origin: State
-        synchronized(this) { expected = revision; origin = currentState }
+        val (expected, origin) = lock.withLock { Pair(revision, currentState) }
         var target = origin.startKey
         when (amount ?: SpeakSettings.RewindAmount.SMART) {
             SpeakSettings.RewindAmount.SMART -> repeat(10) { target = getNextOrdinal(target) }
             SpeakSettings.RewindAmount.ONE_VERSE -> target = getNextOrdinal(target)
             SpeakSettings.RewindAmount.NONE -> throw RuntimeException("Invalid settings")
         }
-        synchronized(this) {
+        lock.withLock {
             checkRevision(expected)
             if (!isValid()) throw kotlinx.coroutines.CancellationException("Obsolete speech request")
             reset()
@@ -458,45 +452,47 @@ class GeneralSpeakTextProvider(
 
     override fun finishedUtterance(utteranceId: String) {}
 
-    @Synchronized
     override fun startUtterance(utteranceId: String) {
-        val state = utteranceState[utteranceId]
-        currentUtteranceId = utteranceId
-        if(state != null) {
-            Log.i(TAG, "startUtterance $utteranceId $state")
-            if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
-                lastVerseWithTitle = state.startKey
+        lock.withLock {
+            val state = utteranceState[utteranceId]
+            currentUtteranceId = utteranceId
+            if(state != null) {
+                Log.i(TAG, "startUtterance $utteranceId $state")
+                if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
+                    lastVerseWithTitle = state.startKey
+                }
+                val key = BookAndKey(
+                    state.startKey.key,
+                    state.book,
+                    OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start),
+                )
+                val command = state.command!!
+                val forceFollow = stopOrdinal != null
+                SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command, forceFollow))
             }
-            val key = BookAndKey(
-                state.startKey.key,
-                state.book,
-                OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start),
-            )
-            val command = state.command!!
-            val forceFollow = stopOrdinal != null
-            SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command, forceFollow))
         }
     }
 
-    @Synchronized
     override fun reset() {
-        revision++
-        val state = utteranceState[currentUtteranceId]
-        Log.i(TAG, "Resetting. state: $currentUtteranceId $state")
-        if(state != null) {
-            startKey = state.startKey
-            currentKey = state.currentKey
-            endKey = state.endKey
-            book = state.book
+        lock.withLock {
+            revision++
+            val state = utteranceState[currentUtteranceId]
+            Log.i(TAG, "Resetting. state: $currentUtteranceId $state")
+            if(state != null) {
+                startKey = state.startKey
+                currentKey = state.currentKey
+                endKey = state.endKey
+                book = state.book
+            }
+            lastVerseWithTitle = null
+            if(this::startKey.isInitialized) {
+                endKey = startKey
+            }
+            readList.clear()
+            currentCommands.clear()
+            utteranceState.clear()
+            currentUtteranceId = ""
         }
-        lastVerseWithTitle = null
-        if(this::startKey.isInitialized) {
-            endKey = startKey
-        }
-        readList.clear()
-        currentCommands.clear()
-        utteranceState.clear()
-        currentUtteranceId = ""
     }
 
     override fun getCurrentlyPlayingKey(): BookAndKey = startKey

@@ -31,6 +31,7 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
+import kotlin.concurrent.Volatile
 
 /**
  * Classic label formatting from `SpeakTransportWidget.onBookmarkButtonClick` (:190-197). `internal`
