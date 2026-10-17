@@ -150,12 +150,7 @@ class AgentForegroundService : Service(), KoinComponent {
                 is AgentSessionChange.LogUpdated -> {
                     updateProgressNotification(change.entry.message)
                     // Renew WakeLock on activity (progress means active processing)
-                    wakeLock?.let {
-                        if (it.isHeld) {
-                            it.release()
-                        }
-                        it.acquire(WAKELOCK_TIMEOUT_MS)
-                    }
+                    renewWakeLock()
                 }
                 is AgentSessionChange.PermissionWaiting -> {
                     if (change.waiting) {
@@ -414,6 +409,18 @@ class AgentForegroundService : Service(), KoinComponent {
 
     // --- WakeLock management ---
 
+    // The wakelock is touched from the main thread, run coroutines and the change subscription (which runs
+    // on the emitter's thread). isHeld + release() is check-then-act, so unsynchronised callers could both
+    // release one lock ("WakeLock under-locked") or leave `wakeLock` replaced under another caller.
+    @Synchronized
+    private fun renewWakeLock() {
+        wakeLock?.let {
+            if (it.isHeld) it.release()
+            it.acquire(WAKELOCK_TIMEOUT_MS)
+        }
+    }
+
+    @Synchronized
     private fun acquireWakeLock() {
         // Not idempotent otherwise: replacing a held lock would leak it until its timeout.
         releaseWakeLock()
@@ -422,6 +429,7 @@ class AgentForegroundService : Service(), KoinComponent {
         }
     }
 
+    @Synchronized
     private fun releaseWakeLock() {
         wakeLock?.let {
             if (it.isHeld) it.release()

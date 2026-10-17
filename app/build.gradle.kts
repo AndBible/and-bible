@@ -324,6 +324,10 @@ android {
                   // suite (hundreds of bitmaps loaded/compared) together with the full :app unit suite
                   // in one fork can OOM near the edge. Give the fork a real heap; the container has 32 GiB.
                   test.maxHeapSize = "4g"
+                  // The suite runs in N JVMs: -PtestForks=N, default min(4, cores / 2) (each fork gets 4g above).
+                  // -PtestForks=1 restores the old single-JVM run, e.g. to tell a global-state leak from a race.
+                  test.maxParallelForks = (findProperty("testForks") as String?)?.toInt()?.coerceAtLeast(1)
+                      ?: (Runtime.getRuntime().availableProcessors() / 2).coerceIn(1, 4)
                   test.systemProperty("mono.audit.report", System.getProperty("mono.audit.report") ?: "")
                   test.systemProperty("k5.project.root", rootProject.projectDir.absolutePath)
                   for (flag in listOf("k5.oracle.write", "k5.oracle.check", "k5.timing.out", "k5.timing.label")) {
