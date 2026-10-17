@@ -138,7 +138,8 @@ class DatabaseContainer private constructor() {
 
     @Volatile var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
 
-    internal fun resetAiSettingsDbOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement): AiSettingsDatabase {
+    @VisibleForTesting
+    fun resetAiSettingsDbOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement): AiSettingsDatabase {
         aiLifetime.requireOwner(token)
         aiSettingsDb.close()
         aiSettingsDb = getAiSettingsDb()
@@ -171,8 +172,9 @@ class DatabaseContainer private constructor() {
     val settingsDb: SettingsDatabase =
         buildAppDatabase<SettingsDatabase>(SettingsDatabase.dbFileName)
 
-    /** `internal` only so a test can occupy the writer thread; not for production use. */
-    internal val settingsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
+    /** Visible only so a test can occupy the writer thread; not for production use. */
+    @VisibleForTesting
+    val settingsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
 
     /** Settings cache for this container instance; a new container (restore/reset) reloads from disk. */
     val settingsStore: SettingsStore = SettingsStore(
@@ -204,12 +206,14 @@ class DatabaseContainer private constructor() {
         DOCUMENT_SYNC_DB_FILENAME to documentSyncDb,
     )
 
-    internal suspend fun sync() {
+    @VisibleForTesting
+    suspend fun sync() {
         // we are not using WAL mode any more, but it does not hurt either. Just in case we switch back to WAL.
         allDatabases.forEach { it.useWriterConnectionMarked { c -> c.exec("PRAGMA wal_checkpoint(FULL)") } }
     }
 
-    internal suspend fun vacuum() {
+    @VisibleForTesting
+    suspend fun vacuum() {
         backedUpDatabases.forEach {
             it.useWriterConnectionMarked { c -> c.exec("VACUUM;") }
         }
@@ -228,7 +232,7 @@ class DatabaseContainer private constructor() {
      * then are logged by the store's `onWriteError` and dropped.
      * Closing an already closed database is a no-op, so `closeAll` after this is safe.
      */
-    internal suspend fun closeForReplaceOwned(fileName: String, token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+    suspend fun closeForReplaceOwned(fileName: String, token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         aiLifetime.requireOwner(token)
         if (fileName == SettingsDatabase.dbFileName) settingsStore.flush()
         dbByFilename[fileName]?.close()
@@ -240,7 +244,8 @@ class DatabaseContainer private constructor() {
      * dropped (a closed Room 3 database does not reopen). The window is milliseconds, and restore paths already
      * treat writes there as a hazard. Databases already closed by `closeForReplace` are closed again harmlessly.
      */
-    internal suspend fun closeAllOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+    @VisibleForTesting
+    suspend fun closeAllOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         aiLifetime.requireOwner(token)
         // Flush BEFORE cancelling the scope: writes still queued at cancel are dropped.
         settingsStore.flush()
@@ -371,7 +376,7 @@ class DatabaseContainer private constructor() {
         fun notifyDatabaseRestored() {
             _databaseRestored.emit(Unit)
         }
-        @VisibleForTesting internal fun emitWorkspacesSyncedForTest(entries: List<LogEntry>) = _workspacesSynced.emit(entries)
+        @VisibleForTesting fun emitWorkspacesSyncedForTest(entries: List<LogEntry>) = _workspacesSynced.emit(entries)
         @VisibleForTesting fun resetPhase8StreamsForTest() { _workspacesSynced = EventSource(); _databaseRestored = EventSource() }
 
         private var _bookmarksSynced = EventSource<List<LogEntry>>()
@@ -408,7 +413,7 @@ class DatabaseContainer private constructor() {
 
         /** Test seam: called when a restore starts waiting for the workspace write queue. */
         @VisibleForTesting
-        internal var onWorkspaceDrainEntered: (() -> Unit)? = null
+        var onWorkspaceDrainEntered: (() -> Unit)? = null
 
         private suspend fun drainWorkspaceWrites() {
             onWorkspaceDrainEntered?.invoke()
@@ -416,7 +421,7 @@ class DatabaseContainer private constructor() {
         }
 
         /** Nested replacement must pass the active owner's token; independent calls queue at admission. */
-        internal suspend fun <T> replacingDatabases(
+        suspend fun <T> replacingDatabases(
             token: net.bible.service.llm.AiDatabaseLifetime.Replacement?,
             block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T,
         ): T = if (token == null) replacingDatabases(block)
@@ -449,18 +454,18 @@ class DatabaseContainer private constructor() {
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        internal fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.value = 0; replaceEpochCounter.value = 0L; containerFactory = { host.openContainer() } }
+        fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.value = 0; replaceEpochCounter.value = 0L; containerFactory = { host.openContainer() } }
 
         /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
         @VisibleForTesting
-        internal var containerFactory: () -> DatabaseContainer = { host.openContainer() }
+        var containerFactory: () -> DatabaseContainer = { host.openContainer() }
 
         /**
          * Failure-path variant of `reset`: closes only an instance that already exists (the test bridge builds on
          * this). A restore whose migration threw must not build a container just to close it. Also the old
          * monolithic restore's close before its snapshot (F120).
          */
-        internal suspend fun dropInstanceWithoutOpeningOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+        suspend fun dropInstanceWithoutOpeningOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)
             val current = synchronized(Companion) { _instance } // L1-common-ok: atomicfu lock
             try { current?.settingsStore?.flush() }
@@ -480,7 +485,7 @@ class DatabaseContainer private constructor() {
          * uncaught coroutine exception in an unrelated later test.
          */
         @VisibleForTesting
-        internal fun detachInstanceForTest(): DatabaseContainer? = synchronized(Companion) { _instance.also { _instance = null } } // L1-common-ok: atomicfu lock
+        fun detachInstanceForTest(): DatabaseContainer? = synchronized(Companion) { _instance.also { _instance = null } } // L1-common-ok: atomicfu lock
 
         /**
          * Runs [block] with [ready] cleared, and restores it however [block] ends. The clearing makes
@@ -489,7 +494,8 @@ class DatabaseContainer private constructor() {
          * every later settings read silently answered its default (fix batch 1 §2.7). The failure
          * itself propagates: no migration without the safety-net backup (maintainer decision).
          */
-        internal inline fun <T> withReadyCleared(block: () -> T): T {
+        @VisibleForTesting
+        inline fun <T> withReadyCleared(block: () -> T): T {
             ready = false
             try { return block() } finally { ready = true }
         }
@@ -532,7 +538,7 @@ class DatabaseContainer private constructor() {
 
         suspend fun sync() = instance.sync()
         suspend fun vacuum() = instance.vacuum()
-        internal suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+        suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)
             val current = synchronized(Companion) { // L1-common-ok: atomicfu lock
                 try { instance }

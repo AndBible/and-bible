@@ -150,7 +150,7 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
         localDb = _resetLocalDb()
     }
 
-    internal fun resetLocalDbOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
+    fun resetLocalDbOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         localDb = resetOwned?.invoke(token) ?: _resetLocalDb()
     }
 

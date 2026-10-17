@@ -17,6 +17,7 @@
 
 package net.bible.service.db
 
+import androidx.annotation.VisibleForTesting
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.migration.Migration
@@ -42,7 +43,8 @@ private val SIBLING_SUFFIXES = listOf("-journal", "-wal", "-shm", ".lck")
  * queries on [Dispatchers.IO] and TRUNCATE journaling (which makes Room 3's pool a single connection).
  * Migrations are added per database by the caller.
  */
-internal fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): RoomDatabase.Builder<T> =
+@VisibleForTesting
+fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): RoomDatabase.Builder<T> =
     setDriver(sqliteDriverFactory())
         .setQueryCoroutineContext(Dispatchers.IO)
         .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
@@ -57,7 +59,7 @@ internal fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): Room
  * tests' temporary files) are never recovered: moving a user-chosen import file aside would silently import nothing,
  * so there the SQLite error propagates to the caller.
  */
-internal inline fun <reified T : RoomDatabase> buildAppDatabase(name: String, vararg migrations: Migration): T {
+inline fun <reified T : RoomDatabase> buildAppDatabase(name: String, vararg migrations: Migration): T {
     val absolute = name.toPath().isAbsolute
     val path = if (absolute) name else DatabaseContainer.host.databasePath(name)
     if (!absolute) recoverIfCorrupt(path)
@@ -76,7 +78,8 @@ internal inline fun <reified T : RoomDatabase> buildAppDatabase(name: String, va
 internal fun sqlitePrimaryResultCode(e: Throwable): Int? =
     Regex("^Error code: (\\d+)").find(e.message.orEmpty())?.groupValues?.get(1)?.toIntOrNull()?.and(0xFF)
 
-internal fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(e).let { it == SQLITE_CORRUPT || it == SQLITE_NOTADB }
+@VisibleForTesting
+fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(e).let { it == SQLITE_CORRUPT || it == SQLITE_NOTADB }
 
 /**
  * Checks, before Room opens it, that [path] (when it exists) is a readable database: one raw open that reads the
@@ -90,7 +93,8 @@ internal fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(
  * SQLite always does (an invalid one is discarded, a hot journal rolled back) before the corruption shows, so those
  * may not survive into the moved-aside copy; `.lck` (and anything SQLite leaves alone) is moved with it.
  */
-internal fun recoverIfCorrupt(path: String): String? {
+@VisibleForTesting
+fun recoverIfCorrupt(path: String): String? {
     val fs = FileSystem.SYSTEM
     if (fs.metadataOrNull(path.toPath())?.isRegularFile != true) return null
     val error = try {
@@ -134,11 +138,12 @@ private fun corruptTarget(path: String): String {
  * then it counts as missing): the startup backup check reads every version before Room opens anything, and must not
  * crash on a file that the builders would recover anyway.
  */
-internal fun userVersionRecoveringCorruption(path: String): Int =
+@VisibleForTesting
+fun userVersionRecoveringCorruption(path: String): Int =
     if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile == true && recoverIfCorrupt(path) == null) readUserVersion(path) else 0
 
 /** [android.content.Context.deleteDatabase], plus Room 3's `<name>.lck` lock file, which it does not know about. */
-internal fun deleteAppDatabase(name: String): Boolean {
+fun deleteAppDatabase(name: String): Boolean {
     val host = DatabaseContainer.host
     val deleted = host.deleteDatabase(name)
     try { FileSystem.SYSTEM.delete((host.databasePath(name) + ".lck").toPath(), mustExist = false) } catch (_: IOException) { }
