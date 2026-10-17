@@ -28,8 +28,12 @@ class Phase8SubscriberWiringGuardTest {
         }
     }
 
-    @Test fun promptRepositoryDropsItsCacheOnReload() =
-        assertContains("service/llm/PromptRepository.kt", "AndBibleAddons.reloaded.subscribe { addonPromptsCache = null }", "was on<ReloadAddonsEvent>")
+    @Test fun promptRepositoryDropsItsCacheOnReload() {
+        // Task 14 moved the subscription behind the PromptPackSource port: the repository subscribes to the port...
+        assertContains("service/llm/PromptRepository.kt", "promptPacks.reloaded.subscribe { addonPromptsCache = null }", "was on<ReloadAddonsEvent>")
+        // ...and the Android port must forward the add-on reload stream.
+        assertContains("android/platform/AndroidPromptPackSource.kt", "override val reloaded: Events<Unit> get() = AndBibleAddons.reloaded", "port forwards the add-on reload")
+    }
 
     @Test fun androidMediaSessionSoundsOnForegroundSynchronously() =
         assertContains("android/platform/AndroidMediaSession.kt", "CurrentActivityHolder.appPositionChanges.subscribe {", "was on<AppToBackgroundEvent>, an edge (Review Focus 2)")
