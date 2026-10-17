@@ -114,4 +114,24 @@ class AgentSessionChangesTest {
         }
         assertEquals(listOf<AgentSessionChange>(AgentSessionChange.PermissionWaiting(ws, true, "t")), got)
     }
+
+    @Test fun concurrentGetOrCreateReturnsOneSessionPerWorkspace() {
+        val id = IdType()
+        val start = java.util.concurrent.CountDownLatch(1)
+        val results = java.util.concurrent.ConcurrentLinkedQueue<AgentSession>()
+        try {
+            val workers = (0 until 16).map {
+                Thread {
+                    start.await()
+                    results += AgentSessionManager.getOrCreateSession(id)
+                }.also { it.start() }
+            }
+            start.countDown()
+            workers.forEach { it.join() }
+            assertEquals(16, results.size)
+            assertEquals("one instance for all callers", 1, results.map { System.identityHashCode(it) }.toSet().size)
+        } finally {
+            AgentSessionManager.clearSession(id)
+        }
+    }
 }

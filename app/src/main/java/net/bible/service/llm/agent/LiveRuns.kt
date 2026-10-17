@@ -18,6 +18,8 @@
 
 package net.bible.service.llm.agent
 
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.Job
 
 /**
@@ -26,13 +28,14 @@ import kotlinx.coroutines.Job
  * runs `onDestroy`, whose `scope.cancel()` would kill that run too.
  */
 internal class LiveRuns {
+    private val lock = reentrantLock()
     private val live = mutableSetOf<Job>()
 
-    @Synchronized fun add(job: Job) { live += job }
+    fun add(job: Job) { lock.withLock { live += job } }
 
     /** Removes [job]; true when no launched run is left, i.e. the service may stop now. */
-    @Synchronized fun finish(job: Job): Boolean {
+    fun finish(job: Job): Boolean = lock.withLock {
         live -= job
-        return live.isEmpty()
+        live.isEmpty()
     }
 }

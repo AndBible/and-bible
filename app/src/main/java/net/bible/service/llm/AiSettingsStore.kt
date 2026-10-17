@@ -17,6 +17,8 @@
 
 package net.bible.service.llm
 
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +49,7 @@ class AiSettingsStore(
 ) : AiSettings {
     private val state = MutableStateFlow<GlobalAiSettings?>(null)
     private val dbMutex = Mutex()
-    private val stateLock = Any()
+    private val stateLock = reentrantLock()
     private var pendingWrites = 0
     private var observing = false
     private val generation = MutableStateFlow(0L)
@@ -62,11 +64,11 @@ class AiSettingsStore(
     override suspend fun ensureLoaded() {
         lifetime.use { dbMutex.withLock {
             if (!observing) {
-                val subscription = replacements.subscribe { synchronized(stateLock) { generation.value++ } }
-                val syncSubscription = syncReplacements.subscribe { synchronized(stateLock) { generation.value++ } }
+                val subscription = replacements.subscribe { stateLock.withLock { generation.value++ } }
+                val syncSubscription = syncReplacements.subscribe { stateLock.withLock { generation.value++ } }
                 val loaded = try { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().get() ?: GlobalAiSettings() } }
                 catch (e: Exception) { subscription.cancel(); syncSubscription.cancel(); throw e }
-                synchronized(stateLock) { if (state.value == null) state.value = loaded }
+                stateLock.withLock { if (state.value == null) state.value = loaded }
                 observing = true
                 val job = appScope.launch(start = CoroutineStart.UNDISPATCHED) {
                     generation.collectLatest {
@@ -102,17 +104,17 @@ class AiSettingsStore(
         // Never publish an emission captured before a newer local setter or queued write.
         // Re-read under the writer mutex: Room can deliver intermediate own emissions late.
         val loaded = kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().get() ?: GlobalAiSettings() }
-        synchronized(stateLock) { if (pendingWrites == 0) state.value = loaded }
+        stateLock.withLock { if (pendingWrites == 0) state.value = loaded }
     } }
 
     private fun update(transform: GlobalAiSettings.() -> GlobalAiSettings) {
-        synchronized(stateLock) {
+        stateLock.withLock {
             val snapshot = getOrDefault().transform()
             state.value = snapshot
             pendingWrites++
             launcher.launch("ai-settings") {
                 try { lifetime.use { dbMutex.withLock { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { dao().set(snapshot) } } } }
-                finally { synchronized(stateLock) { pendingWrites-- } }
+                finally { stateLock.withLock { pendingWrites-- } }
             }
         }
     }

@@ -28,6 +28,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.database.IdType
+import kotlin.concurrent.Volatile
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing

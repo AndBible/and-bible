@@ -18,6 +18,7 @@
 package net.bible.service.llm.agent
 
 import net.bible.android.database.IdType
+import kotlin.concurrent.Volatile
 
 enum class LogEntryType {
     INFO,

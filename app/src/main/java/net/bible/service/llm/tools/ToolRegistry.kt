@@ -63,7 +63,8 @@ import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import net.bible.service.llm.tools.write.UpdateStudyPadTextEntryTool
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import java.util.concurrent.ConcurrentHashMap
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 
 private const val TAG = "ToolRegistry"
 
@@ -88,7 +89,8 @@ data class ToolDefinition(
  */
 object ToolRegistry : KoinComponent {
     private val strings: LlmStrings by inject()
-    private val tools = ConcurrentHashMap<AgentTool, Tool>()
+    private val lock = reentrantLock()
+    private val tools = mutableMapOf<AgentTool, Tool>()
 
     init {
         // Register read tools
@@ -133,7 +135,7 @@ object ToolRegistry : KoinComponent {
         register(FinishWithMyDocumentPageTool)
         register(FinishWithoutDocumentTool)
 
-        Log.i(TAG, "ToolRegistry initialized with ${tools.size} tools")
+        Log.i(TAG, "ToolRegistry initialized with ${lock.withLock { tools.size }} tools")
     }
 
     /**
@@ -143,7 +145,7 @@ object ToolRegistry : KoinComponent {
      * @throws IllegalArgumentException if a tool with the same name is already registered
      */
     fun register(tool: Tool) {
-        val existing = tools.putIfAbsent(tool.agentTool, tool)
+        val existing = lock.withLock { tools[tool.agentTool] ?: run { tools[tool.agentTool] = tool; null } }
         if (existing != null) {
             throw IllegalArgumentException("Tool '${tool.agentTool.camelCaseName}' is already registered")
         }
@@ -151,24 +153,24 @@ object ToolRegistry : KoinComponent {
     }
 
     /** Get a tool by its AgentTool enum value. */
-    fun get(tool: AgentTool): Tool? = tools[tool]
+    fun get(tool: AgentTool): Tool? = lock.withLock { tools[tool] }
 
     /** Get a tool by its camelCase name (for backward compatibility). */
     fun get(name: String): Tool? {
         val agentTool = AgentTool.fromToolName(name) ?: return null
-        return tools[agentTool]
+        return lock.withLock { tools[agentTool] }
     }
 
     /** Check if a tool is registered by its camelCase name. */
     fun has(name: String): Boolean {
         val agentTool = AgentTool.fromToolName(name) ?: return false
-        return tools.containsKey(agentTool)
+        return lock.withLock { tools.containsKey(agentTool) }
     }
 
     /**
      * Get the count of registered tools.
      */
-    val count: Int get() = tools.size
+    val count: Int get() = lock.withLock { tools.size }
 
     /** Tools that control agent flow and must never be excluded from tool definitions. */
     val STRUCTURAL_TOOLS: Set<AgentTool> = setOf(
@@ -188,7 +190,7 @@ object ToolRegistry : KoinComponent {
      *   Structural tools ([STRUCTURAL_TOOLS]) are never excluded regardless of this set.
      */
     fun getToolDefinitions(excludedTools: Set<AgentTool> = emptySet()): List<ToolDefinition> {
-        return tools.values
+        return lock.withLock { tools.values.toList() }
             .filter { it.agentTool !in excludedTools || it.agentTool in STRUCTURAL_TOOLS }
             .map { tool ->
                 val schema = if (tool.agentTool in STRUCTURAL_TOOLS) {
@@ -235,14 +237,14 @@ object ToolRegistry : KoinComponent {
      * Get all tools that require user permission (write tools), sorted by display name.
      */
     fun getPermissionTools(): List<Tool> =
-        tools.values.filter { it.requiresPermission }.sortedBy { getDisplayName(it) }
+        lock.withLock { tools.values.toList() }.filter { it.requiresPermission }.sortedBy { getDisplayName(it) }
 
     /**
      * Get all tools that can be configured in per-prompt permissions.
      * Excludes structural tools. Sorted: read tools first, then write tools, alphabetically.
      */
     fun getConfigurableTools(): List<Tool> =
-        tools.values
+        lock.withLock { tools.values.toList() }
             .filter { it.agentTool !in STRUCTURAL_TOOLS }
             .sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
 
@@ -250,7 +252,7 @@ object ToolRegistry : KoinComponent {
      * Get all tools sorted by category (read first, then write) and display name within each category.
      */
     fun getAllTools(): List<Tool> =
-        tools.values.sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
+        lock.withLock { tools.values.toList() }.sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
 
     /**
      * Get configurable tools grouped by [ToolCategory], ordered by category ordinal.
@@ -277,7 +279,7 @@ object ToolRegistry : KoinComponent {
      * Clear all registered tools (mainly for testing).
      */
     fun clear() {
-        tools.clear()
+        lock.withLock { tools.clear() }
         Log.i(TAG, "Cleared all tools")
     }
 }
