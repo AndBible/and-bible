@@ -17,6 +17,7 @@
 package net.bible.service.sword.index
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
@@ -169,8 +170,11 @@ class SearchIndexingServiceTest {
         SearchIndexingService.enqueue(context, kjv)
         startService()
         assertTrue(inBuild.await(10, TimeUnit.SECONDS))
-        // the service enters the foreground with the notification of the book being built
-        val n = shadowOf(controller!!.get()).lastForegroundNotification
+        // The notification naming the book is the one posted with notify() (onBookStarted); the startForeground one
+        // may predate the worker picking the book up and then has no text. startService() returns after attach(),
+        // so by the time the build runs, onBookStarted has posted it (NOTIFICATION_ID is private, hence 8).
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val n = shadowOf(notificationManager).getNotification(8)
         release.countDown()
         awaitIdle()
         assertTrue("no foreground notification", n != null)
