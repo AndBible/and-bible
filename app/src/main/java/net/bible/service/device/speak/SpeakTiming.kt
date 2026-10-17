@@ -87,7 +87,9 @@ class SpeakTiming(private val settings: AppSettings) {
     /** estimate how long it will take to speak so many chars
      */
     fun getSecsForChars(chars: Long): Long {
-        return (1.0 * chars / cpms / 1000.0).roundToLong()
+        val secs = 1.0 * chars / cpms / 1000.0
+        // Math.round(NaN) was 0 (0 chars at 0 cpms); roundToLong() throws on NaN. Infinity saturates in both.
+        return if (secs.isNaN()) 0L else secs.roundToLong()
     }
 
     private fun milliSecsSinceStart(): Long {
