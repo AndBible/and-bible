@@ -41,6 +41,13 @@ class AndroidPlatformLocalesTest {
         }
     }
 
+    @Test fun defaultLanguagePassesLegacyCodesThroughByteIdentically() {
+        // On JDK 17+ Locale("he").language is already "he", so inject the raw legacy code through the seam.
+        for (legacy in listOf("iw", "in", "ji")) {
+            assertEquals(legacy, AndroidPlatformLocales(languageOf = { legacy }).defaultLanguage)
+        }
+    }
+
     @Test fun iso3ByIso2MatchesTheOldLanguageGroupingComputation() {
         val old = Locale.getISOLanguages().mapNotNull { iso2 ->
             val iso3 = try {

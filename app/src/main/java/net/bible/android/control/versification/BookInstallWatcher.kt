@@ -17,7 +17,9 @@
 package net.bible.android.control.versification
 
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -229,11 +231,13 @@ class BookInstallWatcher(
     private fun initialiseRequiredMapping(book: Book) = withMonitor(this) {
         if (book is SwordBook) {
             val versification = book.versification
-            // initialise in a background thread to allow normal startup to continue
-            Thread {
-                Log.i(TAG, "AVMAP Initialise v11n mappings for " + versification.name)
-                VersificationsMapper.instance().ensureMappingDataLoaded(versification)
-            }.start()
+            // initialise in the background to allow normal startup to continue
+            launcher.launch("v11n-mapping") {
+                withContext(Dispatchers.Default) {
+                    Log.i(TAG, "AVMAP Initialise v11n mappings for " + versification.name)
+                    VersificationsMapper.instance().ensureMappingDataLoaded(versification)
+                }
+            }
         }
     }
 

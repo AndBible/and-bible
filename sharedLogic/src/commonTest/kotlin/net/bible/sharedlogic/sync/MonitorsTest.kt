@@ -54,7 +54,7 @@ class MonitorsTest {
         val waiter = async(Dispatchers.Default) {
             withMonitor(lock) {
                 waiting = true
-                while (!flag) monitorWait(lock, 2000)
+                while (!flag) monitorWait(lock, 10_000)
                 flag
             }
         }

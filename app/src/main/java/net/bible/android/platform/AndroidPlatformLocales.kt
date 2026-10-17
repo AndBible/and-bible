@@ -22,8 +22,12 @@ import java.util.Locale
 import java.util.MissingResourceException
 
 /** JDK-backed [PlatformLocales]; no `KLocale` normalization, so legacy codes (`iw`, `in`, `ji`) stay as-is. */
-class AndroidPlatformLocales : PlatformLocales {
-    override val defaultLanguage: String get() = Locale.getDefault().language
+class AndroidPlatformLocales(
+    private val defaultLocale: () -> Locale = Locale::getDefault,
+    /** Seam: JDK 17+ already reports `he` for the legacy `iw` locale, so tests inject the raw legacy code here. */
+    private val languageOf: (Locale) -> String = Locale::getLanguage,
+) : PlatformLocales {
+    override val defaultLanguage: String get() = languageOf(defaultLocale())
 
     override fun iso3ByIso2(): Map<String, String> =
         Locale.getISOLanguages().mapNotNull { iso2 ->

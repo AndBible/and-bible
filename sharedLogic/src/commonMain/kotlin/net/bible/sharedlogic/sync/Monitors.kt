@@ -20,11 +20,15 @@ package net.bible.sharedlogic.sync
 /**
  * Common monitor primitive. On JVM and Android this is the very same object monitor as `synchronized(target)`,
  * so a block converted to it still excludes against plain `synchronized` blocks (and jsword) on the same object.
- * On iOS it is one process-wide reentrant lock (coarse but correct).
+ * On iOS it is one process-wide reentrant lock (coarse but correct): all monitors share it, so a [withMonitor]
+ * block must not block waiting for another thread that itself takes any monitor.
  */
 expect inline fun <T> withMonitor(target: Any, block: () -> T): T
 
-/** `Object.wait(timeoutMs)`; `0` waits without timeout. Must be called inside [withMonitor] on [target]. */
+/**
+ * `Object.wait(timeoutMs)`; `0` waits without timeout. Must be called inside [withMonitor] on [target]. On iOS the
+ * shared lock must be held exactly once (no nested [withMonitor]), or the wait cannot release it.
+ */
 expect fun monitorWait(target: Any, timeoutMs: Long = 0)
 
 /** `Object.notifyAll()`. Must be called inside [withMonitor] on [target]. */
