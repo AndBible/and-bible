@@ -49,6 +49,22 @@ class G3HelperOracleTest {
     }
 
     @Test
+    fun isoParseWhitespaceVariantsMatchSimpleDateFormat() {
+        val variants = listOf(
+            " 2022-01-01T00:00:00Z", "\t 2022-01-01T00:00:00Z", "2022- 01-01T00:00:00Z", "2022-01-\t01T00:00:00Z",
+            "2022-01-01T 00:00:00Z", "2022-01-01T00: 00:00Z", "2022-01-01T00:00:  00Z",
+            // not skipped by SimpleDateFormat: both sides must reject these
+            "\n2022-01-01T00:00:00Z", "\u00a02022-01-01T00:00:00Z", "2022-01-01 T00:00:00Z", "2022-01-01T00:00:00 Z",
+            "2022-\n01-01T00:00:00Z",
+        )
+        for (s in variants) {
+            val oracle = try { sdf().parse(s)!!.time } catch (e: java.text.ParseException) { null }
+            val ours = try { IsoUtcTimestamps.parseLenient(s) } catch (e: IllegalArgumentException) { null }
+            assertEquals(s, oracle, ours)
+        }
+    }
+
+    @Test
     fun isoUnparseableMessageMatches() {
         val oracle = try { sdf().parse("yesterday"); null } catch (e: java.text.ParseException) { e.message }
         val ours = try { IsoUtcTimestamps.parseLenient("yesterday"); null } catch (e: IllegalArgumentException) { e.message }

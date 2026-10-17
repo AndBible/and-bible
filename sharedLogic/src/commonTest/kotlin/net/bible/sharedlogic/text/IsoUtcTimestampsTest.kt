@@ -42,4 +42,22 @@ class IsoUtcTimestampsTest {
         val ms = -86_400_000L * 400 + 7000
         assertEquals(ms, IsoUtcTimestamps.parseLenient(IsoUtcTimestamps.format(ms)))
     }
+
+    // java SimpleDateFormat skips spaces and tabs (only those) before each numeric field.
+    @Test fun leadingSpacesAndTabsBeforeNumericFieldsAreSkipped() {
+        val base = IsoUtcTimestamps.parseLenient("2022-01-01T00:00:00Z")
+        assertEquals(base, IsoUtcTimestamps.parseLenient(" 2022-01-01T00:00:00Z"))
+        assertEquals(base, IsoUtcTimestamps.parseLenient("\t 2022-01-01T00:00:00Z"))
+        assertEquals(base, IsoUtcTimestamps.parseLenient("2022- 01-01T00:00:00Z"))
+        assertEquals(base, IsoUtcTimestamps.parseLenient("2022-01-\t01T00:00:00Z"))
+        assertEquals(base, IsoUtcTimestamps.parseLenient("2022-01-01T 00:00:00Z"))
+        assertEquals(base, IsoUtcTimestamps.parseLenient("2022-01-01T00: 00:00Z"))
+        assertEquals(base, IsoUtcTimestamps.parseLenient("2022-01-01T00:00:  00Z"))
+    }
+
+    @Test fun otherWhitespaceAndSpacesBeforeLiteralsStillFail() {
+        for (s in listOf("\n2022-01-01T00:00:00Z", "\u00a02022-01-01T00:00:00Z", "2022-01-01 T00:00:00Z", "2022-01-01T00:00:00 Z")) {
+            assertFailsWith<IllegalArgumentException>(s) { IsoUtcTimestamps.parseLenient(s) }
+        }
+    }
 }

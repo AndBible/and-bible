@@ -5,10 +5,10 @@ package net.bible.sharedlogic.text
  *
  * [parseLenient] mimics a lenient `SimpleDateFormat`: it matches a prefix of the text, ignores trailing text and
  * lets out-of-range fields roll over (month 13 is January of the next year, 30 February is 1 or 2 March, hour 24
- * is the next day). Dates are proleptic Gregorian (the JVM class switches to Julian before 1582).
+ * is the next day). Like the JVM class it skips spaces and tabs (only those) before each numeric field. Dates are proleptic Gregorian (the JVM class switches to Julian before 1582).
  */
 object IsoUtcTimestamps {
-    private val PATTERN = Regex("""^(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)Z""")
+    private val PATTERN = Regex("""^[ \t]*(\d+)-[ \t]*(\d+)-[ \t]*(\d+)T[ \t]*(\d+):[ \t]*(\d+):[ \t]*(\d+)Z""")
 
     fun format(epochMs: Long): String {
         val totalSeconds = floorDiv(epochMs, 1000L)
