@@ -132,6 +132,10 @@ class TestBibleApplication : BibleApplication() {
         fixtureSecretStore = net.bible.android.platform.AndroidSecretStore(CommonUtils.realSharedPreferences)
         koin.loadModules(listOf(org.koin.dsl.module {
             single<net.bible.sharedcore.platform.secrets.SecretStore> { checkNotNull(fixtureSecretStore) }
+            // The singleton keeps the androidContext() of the test that first resolved it; that app's
+            // resources may carry a UI locale (e.g. fi), so a later test would read stale text. Not done for
+            // CoreStrings: SpeakStatusLocaleTest relies on it resolving against the Koin-start Application.
+            single<net.bible.service.llm.LlmStrings> { net.bible.android.platform.AndroidLlmStrings(this@TestBibleApplication) }
             single<net.bible.sharedcore.platform.AppCoroutineScope> { aiScope }
             single<net.bible.sharedcore.platform.OrderedLauncher> { aiLauncher }
             // Singletons keep the launcher they were built with, and the fixture replaces aiScope after a terminate.
