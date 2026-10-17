@@ -31,8 +31,8 @@ suspend fun <R> RoomDatabase.roomTransaction(block: suspend () -> R): R =
 
 /**
  * `useWriterConnection`, marked like [roomTransaction] (D1 final review I3). The databases run in TRUNCATE journal
- * mode, so Room 3's pool has ONE connection: a [blockingAtEdge] on the same database inside [block] would wait for that
- * connection forever. Marked, it throws [BlockingDbInTransaction] instead. Every non-empty connection block in app
+ * mode, so Room 3's pool has ONE connection: a `blockingAtEdge` (in :app) on the same database inside [block] would wait for that
+ * connection forever. Marked, it throws `BlockingDbInTransaction` instead. Every non-empty connection block in app
  * code goes through this or [useReaderConnectionMarked].
  */
 suspend fun <R> RoomDatabase.useWriterConnectionMarked(block: suspend (Transactor) -> R): R =
