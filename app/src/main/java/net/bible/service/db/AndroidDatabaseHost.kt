@@ -31,6 +31,8 @@ import java.util.Date
 import java.util.Locale
 
 /** The Android [DatabaseHost]: Context file locations, [CommonUtils] and the Koin graph. */
+private const val TAG = "DbContainer"
+
 class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseHost {
     override val isRunningTests: Boolean get() = application.isRunningTests
     override fun databasePath(name: String): String = application.getDatabasePath(name).path
@@ -63,7 +65,7 @@ class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseH
             blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close: flush before exit, also the crash handler)
                 if (store != null) {
                     if (timeoutMs == null) store.flush()
-                    else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w("DbContainer", "Settings flush timed out")
+                    else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
                 }
                 // The ordered write-through keys (workspace, global text display, reading progress) queue their
                 // writes off the caller's thread; a few ms before exit they would otherwise die with the process.
@@ -76,9 +78,9 @@ class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseH
                     net.bible.service.common.ReadingProgressSettingsStore.KEY,
                 )
                 if (withTimeoutOrNull(timeoutMs ?: ORDERED_WRITES_EXIT_WAIT_MS) { keys.forEach { launcher.join(it) } } == null)
-                    Log.w("DbContainer", "Ordered write queues did not drain before exit")
+                    Log.w(TAG, "Ordered write queues did not drain before exit")
             }
-        } catch (e: Throwable) { Log.e("DbContainer", "Settings flush failed", e) }
+        } catch (e: Throwable) { Log.e(TAG, "Settings flush failed", e) }
     }
 
     override fun openContainer(): DatabaseContainer =

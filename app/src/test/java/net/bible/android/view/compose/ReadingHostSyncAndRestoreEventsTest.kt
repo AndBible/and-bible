@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import net.bible.service.cloudsync.localDbFile
 import androidx.room3.useWriterConnection
 import net.bible.service.db.exec
 

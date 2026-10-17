@@ -17,11 +17,9 @@
 
 package net.bible.service.db
 
-import java.io.File
-
 /**
- * `PRAGMA user_version` of the SQLite file [file]. Opened read-write like the `openDatabase(OPEN_READWRITE)`
+ * `PRAGMA user_version` of the SQLite file [path]. Opened read-write like the `openDatabase(OPEN_READWRITE)`
  * that this replaced, so a hot journal left by a crash is rolled back first; unlike it, a missing file is created
  * (every caller checks the file exists first).
  */
-fun readUserVersion(file: File): Int = openSqlite(file.path).use { it.queryLong("PRAGMA user_version")!!.toInt() }
+fun readUserVersion(path: String): Int = openSqlite(path).use { it.queryLong("PRAGMA user_version")!!.toInt() }

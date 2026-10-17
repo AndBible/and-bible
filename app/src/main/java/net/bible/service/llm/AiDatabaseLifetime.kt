@@ -1,5 +1,7 @@
 package net.bible.service.llm
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
@@ -15,7 +17,8 @@ import kotlinx.coroutines.withContext
 class AiDatabaseLifetime {
     private val admission = Mutex()
     private val observers = mutableSetOf<Job>()
-    private val owned = java.util.concurrent.ConcurrentHashMap.newKeySet<Job>()
+    private val owned = mutableSetOf<Job>()
+    private val ownedLock = SynchronizedObject()
     private val generation = MutableStateFlow(0L)
     private var active: Replacement? = null
 
@@ -33,8 +36,8 @@ class AiDatabaseLifetime {
      * Register a job before it starts (launch it LAZY); a job registered while a replace runs is not waited for.
      */
     fun ownUntilReplace(job: Job) {
-        owned.add(job)
-        job.invokeOnCompletion { owned.remove(job) }
+        synchronized(ownedLock) { owned.add(job) } // L1-common-ok: atomicfu lock
+        job.invokeOnCompletion { synchronized(ownedLock) { owned.remove(job) } } // L1-common-ok: atomicfu lock
     }
 
     /** Resolve the DAO inside this block, never before admission. */
@@ -61,7 +64,7 @@ class AiDatabaseLifetime {
             // No store mutex is held here. Cancellation joins even a non-cancellable native step.
             withContext(NonCancellable) {
                 // An owned job may itself be waiting for admission; cancelling (not just joining) releases it.
-                owned.toList().forEach { it.cancelAndJoin() }
+                synchronized(ownedLock) { owned.toList() }.forEach { it.cancelAndJoin() } // L1-common-ok: atomicfu lock
                 observers.toList().forEach { it.cancelAndJoin() }
             }
             block(token)

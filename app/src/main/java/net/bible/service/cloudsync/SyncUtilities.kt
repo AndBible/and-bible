@@ -148,7 +148,7 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
     var localDb: T,
     val dbFactory: (filename: String) -> T,
     private val _resetLocalDb: () -> T,
-    val localDbFile: File,
+    val localDbPath: String,
     val category: SyncableDatabaseDefinition,
     val _reactToUpdates: ((entries: List<LogEntry>) -> Unit)? = null,
     val deviceId: String,

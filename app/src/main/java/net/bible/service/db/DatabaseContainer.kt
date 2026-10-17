@@ -17,7 +17,11 @@
 package net.bible.service.db
 
 import androidx.annotation.VisibleForTesting
-import android.util.Log
+import net.bible.sharedcore.log.Log
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import kotlin.concurrent.Volatile
 import androidx.room3.RoomDatabase
 import androidx.room3.useWriterConnection
 import net.bible.android.database.BookmarkDatabase
@@ -216,11 +220,11 @@ class DatabaseContainer private constructor() {
      * A Room 3 database never reopens after `close()`: a DAO call on it afterwards throws `IllegalStateException`
      * ("Database is closed"); a call already under way when the close lands gets `androidx.sqlite.SQLiteException`
      * (SQLITE_MISUSE, "Connection pool is closed"), which code catching `SQLiteException` around a database call
-     * (e.g. `insertOr`, which returns -1) swallows silently. Between this call and the [reset] that builds a new
+     * (e.g. `insertOr`, which returns -1) swallows silently. Between this call and the `reset` that builds a new
      * container (the restore flow's hazard window), a DAO call on the closed database (a settings write from another
      * thread reaching the store's writer, a UI save) throws instead of reaching either file; settings writes made
      * then are logged by the store's `onWriteError` and dropped.
-     * Closing an already closed database is a no-op, so [closeAll] after this is safe.
+     * Closing an already closed database is a no-op, so `closeAll` after this is safe.
      */
     internal suspend fun closeForReplaceOwned(fileName: String, token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
         aiLifetime.requireOwner(token)
@@ -238,7 +242,7 @@ class DatabaseContainer private constructor() {
         aiLifetime.requireOwner(token)
         // Flush BEFORE cancelling the scope: writes still queued at cancel are dropped.
         settingsStore.flush()
-        synchronized(Companion) { closeDatabasesAfterFlush() }
+        synchronized(Companion) { closeDatabasesAfterFlush() } // L1-common-ok: atomicfu lock
     }
 
     private fun closeDatabasesAfterFlush() {
@@ -246,7 +250,7 @@ class DatabaseContainer private constructor() {
         allDatabases.forEach { it.close() }
     }
 
-    companion object {
+    companion object : SynchronizedObject() {
         /**
          * Opens the container in the one order that matters: backup, orphan delete, legacy split, construct,
          * trigger setup, settings load. Suspends instead of blocking; the host's `openContainer` bridges it.
@@ -292,7 +296,7 @@ class DatabaseContainer private constructor() {
         private fun backupDatabaseIfNeeded() {
             if(host.isRunningTests) return
             val oldDb = File(host.databasePath(OLD_MONOLITHIC_DATABASE_NAME))
-            if(oldDb.exists() && recoverIfCorrupt(oldDb) == null) {
+            if(oldDb.exists() && recoverIfCorrupt(oldDb.path) == null) {
                 backupOldDatabase(oldDb)
             } else {
                 backupNewDatabaseIfNeeded()
@@ -300,7 +304,7 @@ class DatabaseContainer private constructor() {
         }
 
         private fun backupOldDatabase(oldDb: File) {
-            val dbVersion = readUserVersion(oldDb)
+            val dbVersion = readUserVersion(oldDb.path)
             Log.i(TAG, "backupping old database of version $dbVersion)")
             val backupPath = host.dbBackupPath
             val timeStamp = host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = true)
@@ -310,7 +314,7 @@ class DatabaseContainer private constructor() {
 
         private fun backupNewDatabaseIfNeeded() {
             Log.i(TAG, "backupDatabaseIfNeeded")
-            val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(File(host.databasePath(it))) }
+            val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(host.databasePath(it)) }
 
             val maxVersions = ALL_DB_FILENAMES.map { maxDatabaseVersion(it) }
             val needBackup = maxVersions != versions
@@ -375,19 +379,19 @@ class DatabaseContainer private constructor() {
          * Fix batch 5 §1.1. True while a restore has database files closed or overwritten. A save in
          * that window writes into a closed or replaced file.
          */
-        private val replaceDepth = java.util.concurrent.atomic.AtomicInteger(0)
+        private val replaceDepth = atomic(0)
         /** Backs [replaceEpoch]; atomic because CloudSync categories replace concurrently. */
-        private val replaceEpochCounter = java.util.concurrent.atomic.AtomicLong(0L)
+        private val replaceEpochCounter = atomic(0L)
 
         /** Batch 6 §1.2: true while ANY replace is running; replaces can nest and overlap. */
-        val replacing: Boolean get() = replaceDepth.get() > 0
+        val replacing: Boolean get() = replaceDepth.value > 0
 
         /**
          * Bumped by every [replacingDatabases]. A repository loaded before the bump holds pre-restore
          * state and must not save it over the restored database ([WindowRepository.saveIntoDb]) until
-         * it has reloaded. Deliberately NOT bumped by [reset]: tests reset between classes (C1).
+         * it has reloaded. Deliberately NOT bumped by `reset`: tests reset between classes (C1).
          */
-        val replaceEpoch: Long get() = replaceEpochCounter.get()
+        val replaceEpoch: Long get() = replaceEpochCounter.value
 
         /** Every BackupControl path that closes, copies over or deletes database files runs inside this. */
         suspend fun <T> replacingDatabases(block: suspend (net.bible.service.llm.AiDatabaseLifetime.Replacement) -> T): T =
@@ -436,7 +440,7 @@ class DatabaseContainer private constructor() {
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        internal fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { host.openContainer() } }
+        internal fun forgetReplacesForTest() { onWorkspaceDrainEntered = null; replaceDepth.value = 0; replaceEpochCounter.value = 0L; containerFactory = { host.openContainer() } }
 
         /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
         @VisibleForTesting
@@ -449,10 +453,10 @@ class DatabaseContainer private constructor() {
          */
         internal suspend fun dropInstanceWithoutOpeningOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)
-            val current = synchronized(this) { _instance }
+            val current = synchronized(Companion) { _instance } // L1-common-ok: atomicfu lock
             try { current?.settingsStore?.flush() }
             finally {
-                synchronized(this) {
+                synchronized(Companion) { // L1-common-ok: atomicfu lock
                     try { current?.closeDatabasesAfterFlush() }
                     finally { if (_instance === current) _instance = null }
                 }
@@ -461,13 +465,13 @@ class DatabaseContainer private constructor() {
 
         /**
          * Test-only: forgets the current instance WITHOUT closing it and returns it; never builds one. The caller
-         * closes it later ([closeAll]). Used by the test application's after-test net, which must not close
+         * closes it later (`closeAll`). Used by the test application's after-test net, which must not close
          * databases that a finished test's background work (a document render on Dispatchers.Default) may still be
          * using: a closed Room 3 database throws instead of reopening, and the exception would surface as an
          * uncaught coroutine exception in an unrelated later test.
          */
         @VisibleForTesting
-        internal fun detachInstanceForTest(): DatabaseContainer? = synchronized(this) { _instance.also { _instance = null } }
+        internal fun detachInstanceForTest(): DatabaseContainer? = synchronized(Companion) { _instance.also { _instance = null } } // L1-common-ok: atomicfu lock
 
         /**
          * Runs [block] with [ready] cleared, and restores it however [block] ends. The clearing makes
@@ -494,7 +498,7 @@ class DatabaseContainer private constructor() {
         @Volatile private var _instance: DatabaseContainer? = null
         val instance: DatabaseContainer get() {
             if(!ready && !host.isRunningTests) throw DataBaseNotReady()
-            return _instance ?: synchronized(this) {
+            return _instance ?: synchronized(Companion) { // L1-common-ok: atomicfu lock
                 _instance ?: try { containerFactory() } catch (e: Exception) {
                     Log.e(TAG, "Can't open database", e)
                     throw e
@@ -521,14 +525,14 @@ class DatabaseContainer private constructor() {
         suspend fun vacuum() = instance.vacuum()
         internal suspend fun resetOwned(token: net.bible.service.llm.AiDatabaseLifetime.Replacement) {
             aiLifetime.requireOwner(token)
-            val current = synchronized(this) {
+            val current = synchronized(Companion) { // L1-common-ok: atomicfu lock
                 try { instance }
                 catch (e: DataBaseNotReady) { Log.i(TAG, "Can't close, database not ready"); null }
             }
             current?.settingsStore?.flush()
             // Keep native close and publication atomic with respect to container construction.
             // Only the suspendable settings flush is outside the original monitor contract.
-            synchronized(this) {
+            synchronized(Companion) { // L1-common-ok: atomicfu lock
                 current?.closeDatabasesAfterFlush()
                 if (_instance === current) _instance = null
             }
@@ -556,7 +560,7 @@ class DatabaseContainer private constructor() {
                     deviceId = host.deviceIdentifier,
                     localDb = bookmarkDb,
                     dbFactory = { n -> getBookmarkDb(n) }, _resetLocalDb = { resetBookmarkDb() },
-                    localDbFile = File(host.databasePath(BookmarkDatabase.dbFileName)),
+                    localDbPath = host.databasePath(BookmarkDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.BOOKMARKS,
                     _reactToUpdates = { entries ->
                         _bookmarksSynced.emit(entries)
@@ -566,7 +570,7 @@ class DatabaseContainer private constructor() {
                     deviceId = host.deviceIdentifier,
                     localDb = workspaceDb,
                     dbFactory = { n -> getWorkspaceDb(n) }, _resetLocalDb = { resetWorkspaceDb() },
-                    localDbFile = File(host.databasePath(WorkspaceDatabase.dbFileName)),
+                    localDbPath = host.databasePath(WorkspaceDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.WORKSPACES,
                     _reactToUpdates = {
                         _workspacesSynced.emit(it)
@@ -577,7 +581,7 @@ class DatabaseContainer private constructor() {
                     localDb = readingPlanDb,
                     dbFactory = { n -> getReadingPlanDb(n) },
                     _resetLocalDb = { resetReadingPlanDb() },
-                    localDbFile = File(host.databasePath(ReadingPlanDatabase.dbFileName)),
+                    localDbPath = host.databasePath(ReadingPlanDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.READINGPLANS,
                     _reactToUpdates = { _readingPlansSynced.emit(it) },
                 )
@@ -587,7 +591,7 @@ class DatabaseContainer private constructor() {
                     localDb = myDocumentDb,
                     dbFactory = { n -> getMyDocumentDb(n) },
                     _resetLocalDb = { resetMyDocumentDb() },
-                    localDbFile = File(host.databasePath(MyDocumentDatabase.dbFileName)),
+                    localDbPath = host.databasePath(MyDocumentDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.MYDOCUMENTS,
                     _reactToUpdates = { _myDocumentsSynced.emit(it) },
                 ) },
@@ -596,7 +600,7 @@ class DatabaseContainer private constructor() {
                     localDb = aiSettingsDb,
                     dbFactory = { n -> getAiSettingsDb(n) },
                     _resetLocalDb = { error("AI settings database resets only through resetOwned (replacingDatabases)") },
-                    localDbFile = File(host.databasePath(AiSettingsDatabase.dbFileName)),
+                    localDbPath = host.databasePath(AiSettingsDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.AI_SETTINGS,
                     resetOwned = { token -> resetAiSettingsDbOwned(token) },
                 ) },
@@ -605,7 +609,7 @@ class DatabaseContainer private constructor() {
                     localDb = progressDb,
                     dbFactory = { n -> getProgressDb(n) },
                     _resetLocalDb = { resetProgressDb() },
-                    localDbFile = File(host.databasePath(ProgressDatabase.dbFileName)),
+                    localDbPath = host.databasePath(ProgressDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.PROGRESS,
                 ) },
             )

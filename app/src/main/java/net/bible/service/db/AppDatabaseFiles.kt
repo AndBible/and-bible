@@ -17,15 +17,16 @@
 
 package net.bible.service.db
 
-import android.util.Log
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.Dispatchers
 import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toPath
-import java.io.File
+import net.bible.sharedcore.log.Log
+import okio.IOException
 
 private const val TAG = "AppDatabaseFiles"
 
@@ -57,10 +58,10 @@ internal fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): Room
  * so there the SQLite error propagates to the caller.
  */
 internal inline fun <reified T : RoomDatabase> buildAppDatabase(name: String, vararg migrations: Migration): T {
-    val absolute = File(name).isAbsolute
+    val absolute = name.toPath().isAbsolute
     val path = if (absolute) name else DatabaseContainer.host.databasePath(name)
-    if (!absolute) recoverIfCorrupt(File(path))
-    File(path).parentFile?.let { FileSystem.SYSTEM.createDirectories(it.path.toPath()) }
+    if (!absolute) recoverIfCorrupt(path)
+    path.toPath().parent?.let { FileSystem.SYSTEM.createDirectories(it) }
     return Room.databaseBuilder<T>(name = path)
         .productionConfig()
         .addMigrations(*migrations)
@@ -78,7 +79,7 @@ internal fun sqlitePrimaryResultCode(e: Throwable): Int? =
 internal fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(e).let { it == SQLITE_CORRUPT || it == SQLITE_NOTADB }
 
 /**
- * Checks, before Room opens it, that [file] (when it exists) is a readable database: one raw open that reads the
+ * Checks, before Room opens it, that [path] (when it exists) is a readable database: one raw open that reads the
  * schema (`sqlite_master`). On SQLITE_NOTADB or SQLITE_CORRUPT the file and its `-journal`/`-wal`/`-shm`/`.lck`
  * siblings are moved to `<name>.corrupt-<yyyyMMdd-HHmmss>[-n]` in the same directory and the new name is returned.
  * Any other error (busy/locked, read-only file system, I/O) leaves the file alone and returns null; Room then
@@ -89,48 +90,57 @@ internal fun isCorruptionError(e: Throwable): Boolean = sqlitePrimaryResultCode(
  * SQLite always does (an invalid one is discarded, a hot journal rolled back) before the corruption shows, so those
  * may not survive into the moved-aside copy; `.lck` (and anything SQLite leaves alone) is moved with it.
  */
-internal fun recoverIfCorrupt(file: File): File? {
-    if (!file.isFile) return null
+internal fun recoverIfCorrupt(path: String): String? {
+    val fs = FileSystem.SYSTEM
+    if (fs.metadataOrNull(path.toPath())?.isRegularFile != true) return null
     val error = try {
-        openSqlite(file.path).use { it.queryLong("SELECT count(*) FROM sqlite_master") }
+        openSqlite(path).use { it.queryLong("SELECT count(*) FROM sqlite_master") }
         null
     } catch (e: SQLiteException) {
         e
     }
     if (error == null || !isCorruptionError(error)) return null
-    val target = corruptTarget(file)
-    if (!file.renameTo(target)) {
-        Log.e(TAG, "Corrupt database ${file.path} could not be moved aside", error)
+    val target = corruptTarget(path)
+    if (!renamed(path, target)) {
+        Log.e(TAG, "Corrupt database $path could not be moved aside", error)
         return null
     }
     for (suffix in SIBLING_SUFFIXES) {
-        val sibling = File(file.path + suffix)
-        if (sibling.exists() && !sibling.renameTo(File(target.path + suffix))) sibling.delete()
+        val sibling = path + suffix
+        if (fs.exists(sibling.toPath()) && !renamed(sibling, target + suffix)) {
+            try { fs.delete(sibling.toPath(), mustExist = false) } catch (_: IOException) { }
+        }
     }
-    Log.e(TAG, "Corrupt database ${file.name} moved aside to ${target.name}; it is recreated empty", error)
+    Log.e(TAG, "Corrupt database ${path.toPath().name} moved aside to ${target.toPath().name}; it is recreated empty", error)
     return target
 }
 
-private fun corruptTarget(file: File): File {
+/** [FileSystem.atomicMove] with its [IOException] reported as the `false` that `File.renameTo` gave. */
+private fun renamed(from: String, to: String): Boolean =
+    try { FileSystem.SYSTEM.atomicMove(from.toPath(), to.toPath()); true } catch (_: IOException) { false }
+
+private fun corruptTarget(path: String): String {
+    val file = path.toPath()
     val stamp = DatabaseContainer.host.formatTimestamp(kotlin.time.Clock.System.now().toEpochMilliseconds(), "yyyyMMdd-HHmmss", deviceLocale = false)
-    var target = File(file.parentFile, "${file.name}.corrupt-$stamp")
+    fun candidate(suffix: String): Path = file.parent?.resolve("${file.name}.corrupt-$suffix") ?: "${file.name}.corrupt-$suffix".toPath()
+    var target = candidate(stamp)
     var n = 1
-    while (target.exists()) target = File(file.parentFile, "${file.name}.corrupt-$stamp-${n++}")
-    return target
+    while (FileSystem.SYSTEM.exists(target)) target = candidate("$stamp-${n++}")
+    return target.toString()
 }
 
 /**
- * `PRAGMA user_version` of [file], 0 when it does not exist. A corrupt file is moved aside first ([recoverIfCorrupt],
+ * `PRAGMA user_version` of [path], 0 when it does not exist. A corrupt file is moved aside first ([recoverIfCorrupt],
  * then it counts as missing): the startup backup check reads every version before Room opens anything, and must not
  * crash on a file that the builders would recover anyway.
  */
-internal fun userVersionRecoveringCorruption(file: File): Int =
-    if (file.isFile && recoverIfCorrupt(file) == null) readUserVersion(file) else 0
+internal fun userVersionRecoveringCorruption(path: String): Int =
+    if (FileSystem.SYSTEM.metadataOrNull(path.toPath())?.isRegularFile == true && recoverIfCorrupt(path) == null) readUserVersion(path) else 0
 
 /** [android.content.Context.deleteDatabase], plus Room 3's `<name>.lck` lock file, which it does not know about. */
 internal fun deleteAppDatabase(name: String): Boolean {
     val host = DatabaseContainer.host
     val deleted = host.deleteDatabase(name)
-    File(host.databasePath(name) + ".lck").delete()
+    try { FileSystem.SYSTEM.delete((host.databasePath(name) + ".lck").toPath(), mustExist = false) } catch (_: IOException) { }
     return deleted
 }

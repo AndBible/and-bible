@@ -27,6 +27,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -96,10 +97,17 @@ class DatabaseContainerOpenOrderTest {
     }
 
     @Test fun flushSettingsBeforeExitWithoutAnInstanceOpensNothing() {
+        DatabaseContainer.dropInstanceWithoutOpening()
+        assertNull("precondition: no instance", DatabaseContainer.detachInstanceForTest())
         DatabaseContainer.installHost(recordingHost(notRunningTests = false))
+        val previousReady = DatabaseContainer.ready
         DatabaseContainer.ready = true
-        DatabaseContainer.flushSettingsBeforeExit(100)
-        assertTrue("calls: $calls", "openContainer" !in calls)
+        try {
+            DatabaseContainer.flushSettingsBeforeExit(100)
+            assertTrue("calls: $calls", "openContainer" !in calls)
+        } finally {
+            DatabaseContainer.ready = previousReady
+        }
     }
 
     @Test fun instanceUsesTheHostFactory() {

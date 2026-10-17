@@ -86,7 +86,7 @@ class CorruptDatabaseRecoveryTest {
     @Test fun aHealthyFileIsNotMoved() {
         val file = application.getDatabasePath("healthy.sqlite3").also { it.parentFile!!.mkdirs(); it.delete() }
         openSqlite(file.path).use { it.execSQL("CREATE TABLE t (x)") }
-        assertNull(recoverIfCorrupt(file))
+        assertNull(recoverIfCorrupt(file.path))
         assertTrue(file.isFile)
         assertTrue(corruptCopies(file).isEmpty())
     }
@@ -98,7 +98,7 @@ class CorruptDatabaseRecoveryTest {
             holder.execSQL("CREATE TABLE t (x)")
             holder.execSQL("BEGIN EXCLUSIVE")
             holder.execSQL("INSERT INTO t VALUES (1)")
-            assertNull(recoverIfCorrupt(file))
+            assertNull(recoverIfCorrupt(file.path))
             holder.execSQL("ROLLBACK")
         }
         assertTrue(file.isFile)
@@ -130,11 +130,25 @@ class CorruptDatabaseRecoveryTest {
     @Test fun theStartupVersionCheckRecoversInsteadOfThrowing() {
         val file = application.getDatabasePath("versioned.sqlite3").also { it.parentFile!!.mkdirs(); it.delete() }
         openSqlite(file.path).use { it.execSQL("PRAGMA user_version = 7") }
-        assertEquals(7, userVersionRecoveringCorruption(file))
+        assertEquals(7, userVersionRecoveringCorruption(file.path))
         file.writeBytes(garbage)
-        assertEquals(0, userVersionRecoveringCorruption(file))
+        assertEquals(0, userVersionRecoveringCorruption(file.path))
         assertFalse(file.exists())
         assertEquals(1, corruptCopies(file).size)
-        assertEquals(0, userVersionRecoveringCorruption(file))
+        assertEquals(0, userVersionRecoveringCorruption(file.path))
+    }
+
+    @Test fun corruptTargetNameUsesLatinDigitsInPersianLocale() {
+        val saved = java.util.Locale.getDefault()
+        java.util.Locale.setDefault(java.util.Locale.forLanguageTag("fa-IR"))
+        try {
+            val file = application.getDatabasePath("persian.sqlite3").also { it.parentFile!!.mkdirs(); it.delete() }
+            file.writeBytes(garbage)
+            val moved = recoverIfCorrupt(file.path)
+            assertTrue("moved aside: \$moved", moved != null)
+            assertTrue("name has only Latin digits: \$moved", Regex("persian\\.sqlite3\\.corrupt-[0-9]{8}-[0-9]{6}").containsMatchIn(moved!!))
+        } finally {
+            java.util.Locale.setDefault(saved)
+        }
     }
 }
