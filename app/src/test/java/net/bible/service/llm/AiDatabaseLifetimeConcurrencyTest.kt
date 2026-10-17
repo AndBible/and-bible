@@ -52,7 +52,9 @@ class AiDatabaseLifetimeConcurrencyTest {
         withTimeout(20_000) { lifetime.replace { } }
         assertTrue(jobs.size == 400)
         assertTrue(jobs.all { it.isCancelled || it.isCompleted })
-        // the owned set drained: a second replace has nothing to cancel and returns at once
+        // every cancelled job deregistered itself (its completion handler may run just after the join returns)
+        withTimeout(5_000) { while (lifetime.ownedCountForTest() != 0) delay(10) }
+        assertTrue(lifetime.ownedCountForTest() == 0)
         withTimeout(5_000) { lifetime.replace { } }
         scope.cancel()
     }

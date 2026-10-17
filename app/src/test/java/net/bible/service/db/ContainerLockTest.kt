@@ -59,13 +59,20 @@ class ContainerLockTest {
         val a = Thread { synchronized(DatabaseContainer.Companion) { held.countDown(); release.await(10, TimeUnit.SECONDS) } }
         a.start()
         assertTrue(held.await(10, TimeUnit.SECONDS))
-        val b = Thread { DatabaseContainer.instance }
-        b.start()
-        b.join(300)
-        assertTrue("instance published while another thread held the companion monitor", b.isAlive)
-        release.countDown()
+        val failure = AtomicReference<Throwable?>()
+        val b = Thread {
+            try { DatabaseContainer.instance } catch (e: Throwable) { failure.set(e) }
+        }
+        try {
+            b.start()
+            b.join(300)
+            assertTrue("instance published while another thread held the companion monitor", b.isAlive)
+        } finally {
+            release.countDown()
+        }
         b.join(20_000)
         assertFalse("instance did not complete after release", b.isAlive)
         a.join(10_000)
+        assertTrue("failed: ${failure.get()}", failure.get() == null)
     }
 }

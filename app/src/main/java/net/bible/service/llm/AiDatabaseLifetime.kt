@@ -1,5 +1,6 @@
 package net.bible.service.llm
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.Job
@@ -39,6 +40,10 @@ class AiDatabaseLifetime {
         synchronized(ownedLock) { owned.add(job) } // L1-common-ok: atomicfu lock
         job.invokeOnCompletion { synchronized(ownedLock) { owned.remove(job) } } // L1-common-ok: atomicfu lock
     }
+
+    /** How many owned jobs are still registered (those that completed deregister themselves). */
+    @VisibleForTesting
+    internal fun ownedCountForTest(): Int = synchronized(ownedLock) { owned.size } // L1-common-ok: atomicfu lock
 
     /** Resolve the DAO inside this block, never before admission. */
     suspend fun <T> use(block: suspend () -> T): T = admission.withLock { block() }

@@ -145,8 +145,8 @@ class CorruptDatabaseRecoveryTest {
             val file = application.getDatabasePath("persian.sqlite3").also { it.parentFile!!.mkdirs(); it.delete() }
             file.writeBytes(garbage)
             val moved = recoverIfCorrupt(file.path)
-            assertTrue("moved aside: \$moved", moved != null)
-            assertTrue("name has only Latin digits: \$moved", Regex("persian\\.sqlite3\\.corrupt-[0-9]{8}-[0-9]{6}").containsMatchIn(moved!!))
+            assertTrue("moved aside: $moved", moved != null)
+            assertTrue("name has only Latin digits: $moved", Regex("persian\\.sqlite3\\.corrupt-[0-9]{8}-[0-9]{6}").containsMatchIn(moved!!))
         } finally {
             java.util.Locale.setDefault(saved)
         }
