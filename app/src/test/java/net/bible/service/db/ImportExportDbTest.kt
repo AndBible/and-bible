@@ -33,8 +33,10 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.ArchiveUtils
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
+import net.bible.test.testCoreStrings
 import okio.Path.Companion.toOkioPath
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -140,7 +142,7 @@ class ImportExportDbTest {
         }
         assertEquals(
             application.getString(R.string.bookmarks_db_stats, "My pad", "1", "1"),
-            bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, file.toOkioPath(), net.bible.test.testCoreStrings()),
+            bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, file.toOkioPath(), testCoreStrings()),
         )
     }
 
@@ -148,7 +150,7 @@ class ImportExportDbTest {
         val dir = File(CommonUtils.tmpDir, "fixture-unzip-${System.nanoTime()}").also { it.mkdirs(); files += it }
         val zip = File(dir, "fixture.zip")
         javaClass.classLoader!!.getResourceAsStream("l1b-g2/studypad-export.abdb.zip")!!.use { i -> zip.outputStream().use { i.copyTo(it) } }
-        net.bible.service.common.ArchiveUtils.unzip(zip.toOkioPath(), File(dir, "out").toOkioPath())
+        ArchiveUtils.unzip(zip.toOkioPath(), File(dir, "out").toOkioPath())
         val db = File(dir, "out/db/bookmarks.sqlite3")
         importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, db.toOkioPath())
         assertTrue(dao.allLabelsSortedByName().any { it.name == "G2 export pad" })

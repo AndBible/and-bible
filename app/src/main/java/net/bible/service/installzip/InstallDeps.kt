@@ -40,6 +40,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.book.sword.SwordGenBook
+import org.koin.mp.KoinPlatform
 import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -50,7 +51,7 @@ internal suspend fun studyPadStatsFor(localFile: File, backup: BackupControl): P
     val unzipFolder = File(backup.internalDbBackupDir, "unzip")
     unzip(localFile.source(), unzipFolder.toOkioPath())
     val dbFile = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
-    val stats = bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, dbFile.toOkioPath(), org.koin.mp.KoinPlatform.getKoin().get<CoreStrings>())
+    val stats = bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, dbFile.toOkioPath(), KoinPlatform.getKoin().get<CoreStrings>()) // L1b-handover(G2 Task 14): InstallDeps takes CoreStrings from its caller, then drop this Koin lookup
     return stats to unzipFolder
 }
 
