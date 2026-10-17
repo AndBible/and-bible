@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import androidx.annotation.VisibleForTesting
 import fi.sykero.kdom.input.build
 import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
@@ -71,9 +72,11 @@ private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
 
 /** Compact representation of a tool call for loop detection. */
-internal data class ToolCallSignature(val tool: AgentTool, val argsHash: Int)
+@VisibleForTesting
+data class ToolCallSignature(val tool: AgentTool, val argsHash: Int)
 
-internal fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignature> =
+@VisibleForTesting
+fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignature> =
     toolCalls.map { tc ->
         val normalized = try {
             val json = parseToolArguments(tc.arguments)
@@ -90,7 +93,8 @@ internal fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignatur
  * Returns true if any single (tool, args) signature appears [threshold] or more times
  * in the last [windowSize] calls.
  */
-internal fun detectLoop(
+@VisibleForTesting
+fun detectLoop(
     history: List<ToolCallSignature>,
     threshold: Int = 3,
     windowSize: Int = 5

@@ -53,11 +53,11 @@ open class WindowControl constructor() {
      * lazy getter). Lets the test database reset own the scope `Window.loadText` launches into.
      */
     @VisibleForTesting
-    internal val currentWindowRepositoryOrNull: WindowRepository? get() = _windowRepository
+    val currentWindowRepositoryOrNull: WindowRepository? get() = _windowRepository
 
     /** Drops [expected] if it is still the installed repository, so the lazy getter builds a live one next. */
     @VisibleForTesting
-    internal fun forgetWindowRepositoryIfCurrent(expected: WindowRepository) {
+    fun forgetWindowRepositoryIfCurrent(expected: WindowRepository) {
         if (_windowRepository === expected) _windowRepository = null
     }
 
@@ -120,7 +120,7 @@ open class WindowControl constructor() {
     }
 
     @VisibleForTesting
-    internal var forceResyncCountForTest = 0
+    var forceResyncCountForTest = 0
 
     /** Marks every window for resync and reloads the visible ones (after a settings change). */
     fun forceResyncAndReloadAll() {
@@ -329,7 +329,7 @@ open class WindowControl constructor() {
      * (this object is built while Koin is starting, and tests replace the Koin objects per test); tests assign a fake.
      */
     @VisibleForTesting
-    internal var settingsPicker: WindowSettingsPicker = WindowSettingsPicker { w, t -> koinPicker.chooseSettingsToCopy(w, t) }
+    var settingsPicker: WindowSettingsPicker = WindowSettingsPicker { w, t -> koinPicker.chooseSettingsToCopy(w, t) }
     private val koinPicker: WindowSettingsPicker get() = KoinPlatform.getKoin().get()
 
     private val globalSettingsStore: GlobalTextDisplaySettingsStore get() = KoinPlatform.getKoin().get()

@@ -18,6 +18,7 @@
 
 package net.bible.service.llm.agent
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.Job
@@ -27,7 +28,8 @@ import kotlinx.coroutines.Job
  * session race, opened a cached result) must not stop the service while another run is still going: stopping
  * runs `onDestroy`, whose `scope.cancel()` would kill that run too.
  */
-internal class LiveRuns {
+@VisibleForTesting
+class LiveRuns {
     private val lock = reentrantLock()
     private val live = mutableSetOf<Job>()
 

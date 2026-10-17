@@ -1,5 +1,6 @@
 package net.bible.service.llm
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
@@ -22,7 +23,8 @@ class AiDatabaseLifetime {
     /** Cannot be constructed by callers or reused after the replacement finishes. */
     class Replacement internal constructor(internal val owner: AiDatabaseLifetime)
 
-    internal fun requireOwner(token: Replacement) {
+    @VisibleForTesting
+    fun requireOwner(token: Replacement) {
         check(token.owner === this && active === token) { "Inactive AI database replacement token" }
     }
 
@@ -71,7 +73,8 @@ class AiDatabaseLifetime {
         }
     }
 
-    internal suspend fun <T> replace(token: Replacement, block: suspend (Replacement) -> T): T {
+    @VisibleForTesting
+    suspend fun <T> replace(token: Replacement, block: suspend (Replacement) -> T): T {
         requireOwner(token)
         return block(token)
     }

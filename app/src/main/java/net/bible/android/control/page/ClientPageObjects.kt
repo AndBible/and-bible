@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page
 
+import androidx.annotation.VisibleForTesting
 import org.crosswire.common.util.KswordLocale
 
 import net.bible.sharedcore.log.Log
@@ -203,7 +204,8 @@ open class OsisDocument(
  * `Math.max(1, chapterNumber)` (`BibleDocument.vue`), so a document that starts at the book intro (chapter 0)
  * shows chapter 1's count; this must use the same chapter or the persisted count never appears on load.
  */
-internal suspend fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
+@VisibleForTesting
+suspend fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
     ProgressControl.getChapterReadCount(v11n, book, maxOf(1, chapter))
 
 class BibleDocument(

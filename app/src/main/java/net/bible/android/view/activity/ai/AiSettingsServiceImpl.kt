@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.sync.withLock
 import net.bible.service.llm.collectOwned
 import kotlinx.coroutines.launch
@@ -206,5 +207,6 @@ class AiSettingsServiceImpl(private val strings: LlmStrings) : AiSettingsService
  * the `net.bible.android.view.activity.ai` package after that Activity is gone (see
  * `AiNavGraph.kt`'s `AiConnectionSettingsDeps` KDoc for why it cannot move to `:sharedCore`).
  */
-internal fun resolvedCustomPromptValue(value: String?, builtInDefault: String): String? =
+@VisibleForTesting
+fun resolvedCustomPromptValue(value: String?, builtInDefault: String): String? =
     if (value.isNullOrBlank() || value == builtInDefault) null else value

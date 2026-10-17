@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import debounce
 import net.bible.android.control.page.CurrentPage
@@ -200,6 +201,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
  * The secondary-window scroll that used to travel as `ScrollSecondaryWindowEvent`. A view that is
  * not listening is skipped, as the bus skipped it (its registration lived in `listenEvents`).
  */
-internal fun scrollSecondaryWindow(listening: Boolean, verse: Verse, scroll: (Verse) -> Unit) {
+@VisibleForTesting
+fun scrollSecondaryWindow(listening: Boolean, verse: Verse, scroll: (Verse) -> Unit) {
     if (listening) scroll(verse)
 }

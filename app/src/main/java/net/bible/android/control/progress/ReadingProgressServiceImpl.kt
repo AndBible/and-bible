@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.progress
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.progress.ProgressControl.ChapterReadEntry
@@ -61,7 +62,8 @@ class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) :
 
     /** "Now" in epoch millis; tests replace it with a fixed instant. */
     // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
-    internal var nowMs: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() }
+    @VisibleForTesting
+    var nowMs: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() }
 
     private val calendar: LocalCalendar get() = KoinPlatform.getKoin().get()
 

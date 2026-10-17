@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.bookmark
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
@@ -125,8 +126,10 @@ fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
  *  editor's own int↔[net.bible.sharedcore.bookmark.OverrideMode] conversion, already tested by
  *  `LabelEditMapperTest`, and its own `else -> OverrideMode.NONE` fallback is exactly this
  *  function's `null` fallback ([OverrideMode.NONE]'s `displayStyle` is `null`). */
-internal fun overrideDisplayStyle(overrideMode: Int?): BookmarkDisplayStyle? =
+@VisibleForTesting
+fun overrideDisplayStyle(overrideMode: Int?): BookmarkDisplayStyle? =
     LabelEditMapper.overrideModeFromInt(overrideMode).displayStyle
 
 /** `android.graphics.Color.argb`'s packing, without Android: components in the order alpha, red, green, blue. */
-internal fun packArgb(alpha: Int, red: Int, green: Int, blue: Int): Int = (alpha shl 24) or (red shl 16) or (green shl 8) or blue
+@VisibleForTesting
+fun packArgb(alpha: Int, red: Int, green: Int, blue: Int): Int = (alpha shl 24) or (red shl 16) or (green shl 8) or blue

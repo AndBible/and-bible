@@ -17,6 +17,7 @@
 
 package net.bible.service.device.speak
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.android.control.speak.SPEAK_KEY
 import net.bible.sharedcore.platform.AppSettings
@@ -103,7 +104,8 @@ class GeneralSpeakTextProvider(
     }
 
     private var readList = SpeakCommandArray(platform.maxSpeechInputLength)
-    internal var settings = SpeakSettings.load()
+    @VisibleForTesting
+    var settings = SpeakSettings.load()
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startKey, endKey, currentKey)
 

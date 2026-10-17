@@ -243,7 +243,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     val changes: Events<AgentSessionChange> get() = changeSource
 
-    internal fun emitChange(change: AgentSessionChange) = changeSource.emit(change)
+    @VisibleForTesting
+    fun emitChange(change: AgentSessionChange) = changeSource.emit(change)
 
     /** The agent waits for (or stopped waiting for) an Activity to ask the user. */
     fun notifyPermissionWaiting(workspaceId: IdType, waiting: Boolean, toolName: String? = null) =
@@ -485,7 +486,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * fails and AI doc markers end up stored without KJVA ordinals (which makes
      * them invisible in BibleView).
      */
-    internal fun keyToVerseRange(key: Key?): VerseRange? = when (key) {
+    @VisibleForTesting
+    fun keyToVerseRange(key: Key?): VerseRange? = when (key) {
         null -> null
         is VerseRange -> key
         is Verse -> VerseRange(key.versification, key, key)

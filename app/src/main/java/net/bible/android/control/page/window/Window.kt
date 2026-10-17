@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic
 import kotlin.concurrent.Volatile
 import net.bible.sharedlogic.util.requestGarbageCollection
@@ -245,7 +246,8 @@ class Window (
     private val updateScope get() = windowRepository.scope
 
     private val contentLoadSequence = atomic(0L)
-    internal val contentLoadGeneration: Long get() = contentLoadSequence.value
+    @VisibleForTesting
+    val contentLoadGeneration: Long get() = contentLoadSequence.value
 
     fun loadText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
@@ -339,13 +341,14 @@ class Window (
 
     var loadPending: Boolean
         get() = loadPendingFlag.value
-        internal set(value) { loadPendingFlag.value = value }
+        @VisibleForTesting set(value) { loadPendingFlag.value = value }
 
     /** Returns [loadPending] and clears it, atomically. */
     fun takeLoadPending(): Boolean = loadPendingFlag.getAndSet(false)
 
     /** A load that reached a BibleView supersedes any dropped one. */
-    internal fun onLoadDelivered(viewReady: Boolean) {
+    @VisibleForTesting
+    fun onLoadDelivered(viewReady: Boolean) {
         if (viewReady) loadPending = false
     }
 
@@ -353,7 +356,8 @@ class Window (
     internal var bibleViewWaitTimeoutMillis = 5000L
 
     /** Waits for a BibleView; on timeout sets [loadPending] and returns false. */
-    internal suspend fun waitForBibleView(): Boolean {
+    @VisibleForTesting
+    suspend fun waitForBibleView(): Boolean {
         var time = 0L
         val delayMillis = 50L
         while(bibleView == null) {

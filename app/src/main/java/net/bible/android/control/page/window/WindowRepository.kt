@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.atomicfu.atomic
 import kotlin.concurrent.Volatile
 import net.bible.sharedcore.log.Log
@@ -58,7 +59,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     private var persistenceOverride: WorkspacePersistence? = null
 
     /** Tests substitute a persistence whose execution they control; production always uses the Koin one. */
-    internal var persistence: WorkspacePersistence
+    @VisibleForTesting
+    var persistence: WorkspacePersistence
         get() = persistenceOverride ?: appPersistence
         set(value) { persistenceOverride = value }
     val speakControl: SpeakControl by inject()
@@ -513,7 +515,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     private val loadMutex = Mutex()
 
     /** Tests substitute a loader whose read they control; production builds one per load around the current [persistence]. */
-    internal var loaderOverride: WorkspaceLoader? = null
+    @VisibleForTesting
+    var loaderOverride: WorkspaceLoader? = null
 
     private fun currentLoader(): WorkspaceLoader = loaderOverride ?: WorkspaceLoader(
         persistence, { dao }, get<BookmarkControl>(), get<FakeBookFactory>().journalDocument.initials,

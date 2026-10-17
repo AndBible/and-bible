@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import androidx.annotation.VisibleForTesting
 import fi.sykero.kdom.input.build
 import net.bible.service.llm.AiSettings
 import org.koin.core.component.KoinComponent
@@ -144,10 +145,12 @@ object GetCommentariesTool : Tool, KoinComponent {
     }
 
     /** A single verse's rendered content (plain text or OSIS XML), or null if it has no commentary. */
-    internal data class RenderedVerse(val osisId: String, val content: String?)
+    @VisibleForTesting
+    data class RenderedVerse(val osisId: String, val content: String?)
 
     /** A run of consecutive verses that share identical rendered content. */
-    internal data class RenderedBlock(
+    @VisibleForTesting
+    data class RenderedBlock(
         val startVerseRef: String,
         val endVerseRef: String,
         val content: String
@@ -162,7 +165,8 @@ object GetCommentariesTool : Tool, KoinComponent {
      * fragment, so semantically identical entries whose underlying XML differs only in
      * per-verse metadata (e.g. across a chapter boundary) still collapse into one block.
      */
-    internal fun deduplicateConsecutiveBlocks(verses: List<RenderedVerse>): List<RenderedBlock> {
+    @VisibleForTesting
+    fun deduplicateConsecutiveBlocks(verses: List<RenderedVerse>): List<RenderedBlock> {
         val blocks = mutableListOf<RenderedBlock>()
         var current: RenderedBlock? = null
         for (verse in verses) {
@@ -300,7 +304,8 @@ object GetCommentariesTool : Tool, KoinComponent {
         val estimatedChars: Int
     )
 
-    internal data class FilterResult(
+    @VisibleForTesting
+    data class FilterResult(
         val results: List<CommentaryResult>,
         val excludedCommentaries: List<String>
     )
@@ -338,7 +343,8 @@ object GetCommentariesTool : Tool, KoinComponent {
      * pipeline just to exceed a token threshold buys nothing (same rationale as
      * `BackupControl.selectDatabaseSections`, spec-referenced there).
      */
-    internal suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
+    @VisibleForTesting
+    suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
         val thresholdTokens = aiSettings.commentaryMaxResponseTokens
         if (thresholdTokens <= 0 || commentaryResults.isEmpty()) {
             return FilterResult(commentaryResults, emptyList())

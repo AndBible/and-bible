@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.platform.AppSettings
 
 import net.bible.sharedcore.log.Log
@@ -71,7 +72,8 @@ object LlmProcessingService : KoinComponent {
     /**
      * Resolved provider/model/adapter triple, used to thread resolved state through the call chain.
      */
-    internal data class ResolvedProvider(
+    @VisibleForTesting
+    data class ResolvedProvider(
         val providerConfig: LlmProviderConfig,
         val adapter: LlmApiAdapter,
         val model: String,
@@ -83,7 +85,8 @@ object LlmProcessingService : KoinComponent {
     /**
      * Resolve provider, model, adapter, API key, and endpoint from an LlmModelConfig.
      */
-    internal suspend fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
+    @VisibleForTesting
+    suspend fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
         val configuredModel = (llmConfig ?: LlmModelConfig()).resolveConfiguredModel()
             ?: throw IllegalStateException("No LLM model configured")
 
@@ -160,7 +163,8 @@ object LlmProcessingService : KoinComponent {
      * @param extraHeaders Provider-specific extra headers (e.g. xAI conv-id)
      * @return LlmApiResponse containing the response body string and extracted token usage
      */
-    internal suspend fun callLlmApiWithTools(messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap(), preResolved: ResolvedProvider? = null): LlmApiResponse {
+    @VisibleForTesting
+    suspend fun callLlmApiWithTools(messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap(), preResolved: ResolvedProvider? = null): LlmApiResponse {
         val resolved = preResolved ?: resolveFromConfig(llmConfig)
 
         if (resolved.apiKey.isBlank()) {

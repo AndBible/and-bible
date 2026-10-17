@@ -121,7 +121,7 @@ object CreateBookmarkTool : Tool, KoinComponent {
 
     /** Test seam (F121): how the saved range is described (OSIS reference, localized name). */
     @VisibleForTesting
-    internal var describeRange: (VerseRange) -> Pair<String, String> = { it.getOsisRef() to it.getName() }
+    var describeRange: (VerseRange) -> Pair<String, String> = { it.getOsisRef() to it.getName() }
 
     override val requiresPermission = true
 

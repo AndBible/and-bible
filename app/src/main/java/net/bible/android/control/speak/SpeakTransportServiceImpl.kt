@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.speak
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.platform.AppCoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +39,8 @@ import kotlin.concurrent.Volatile
  * so the test can call it directly without going through a running [SpeakTransportServiceImpl]
  * instance, mirroring `mapEntry` in `AgentSessionServiceImpl`.
  */
-internal fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (b) {
+@VisibleForTesting
+fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (b) {
     is BibleBookmarkWithNotes -> "${b.verseRange.start.getName()} (${b.playbackSettings?.bookId ?: "?"})"
     is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} - ${b.bookKey?.getName()}"
     else -> throw RuntimeException("Illegal bookmark type")

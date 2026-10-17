@@ -36,7 +36,7 @@ abstract class CachedKeyPage internal constructor(
 ) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
 
-    @VisibleForTesting internal fun hasCachedKeyListForTest() = mCachedGlobalKeyList != null
+    @VisibleForTesting fun hasCachedKeyListForTest() = mCachedGlobalKeyList != null
 
     private val documentUpdates: Subscription = MyDocumentBookManager.changes.subscribe { change ->
         // Clears the key cache when pages in the current MyDocument change.

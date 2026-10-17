@@ -17,6 +17,7 @@
 
 package net.bible.service.device.speak
 
+import androidx.annotation.VisibleForTesting
 import org.crosswire.common.util.KLocale
 
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -114,7 +115,8 @@ class BibleSpeakTextProvider(
             verse
         }
     private var readList = SpeakCommandArray(platform.maxSpeechInputLength)
-    internal var settings = SpeakSettings.load()
+    @VisibleForTesting
+    var settings = SpeakSettings.load()
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
 
