@@ -62,7 +62,7 @@ class InstallJobRunner(
                 swordZipScan, epubUpgradeCheck, onPhase, awaitDecision,
             )
         } finally {
-            FileSystem.SYSTEM.delete(acquireTo, mustExist = false)
+            runCatching { FileSystem.SYSTEM.delete(acquireTo, mustExist = false) } // best-effort, as File.delete() was
         }
     }
 
@@ -174,7 +174,7 @@ class InstallJobRunner(
                 val decision = DecisionRequest.StudyPadImport(plan.statsText)
                 onPhase(InstallPhase.AwaitingDecision(decision))
                 if (!awaitDecision(decision)) {
-                    FileSystem.SYSTEM.deleteRecursively(plan.unzipFolder, mustExist = false)
+                    runCatching { FileSystem.SYSTEM.deleteRecursively(plan.unzipFolder, mustExist = false) } // best-effort
                     return InstallPhase.Cancelled.also(onPhase)
                 }
                 commitWithProgress(onPhase, displayName) {

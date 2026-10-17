@@ -116,7 +116,13 @@ internal fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
             }
             val name = entry.name.replace('\\', '/')
             val targetFile = targetDirectory / name
-            if (!entry.isDirectory && FileSystem.SYSTEM.exists(targetFile)) {
+            // A name the file system rejects (for example a NUL char) cannot exist there: File.exists() said false.
+            val exists = !entry.isDirectory && try {
+                FileSystem.SYSTEM.exists(targetFile)
+            } catch (e: IllegalArgumentException) {
+                return InstallInspector.SwordZipScan(emptyList(), 0, isEpub = false, invalid = true)
+            }
+            if (exists) {
                 existingFiles.add(targetFile.relativeTo(targetDirectory).toString())
             }
             when {

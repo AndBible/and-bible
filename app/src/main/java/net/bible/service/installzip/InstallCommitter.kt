@@ -111,9 +111,8 @@ class DefaultInstallCommitter(
     }
 
     override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean {
-        val dir = modulesDir / "epub" / displayName
-        // L1b-handover(sword): the epub engine still takes java.io.File
-        return installEpubModule(dir.toFile()) {
+        val dir = modulesDir / "epub" / displayName.trimStart('/')
+        return installEpubModule(dir.toFile()) { // L1b-handover(G1): the epub engine still takes java.io.File
             if (deleteExisting) deleteOwnedEpubModule(dir.toFile())
             fileSystem.createDirectories(dir)
             try {
@@ -131,7 +130,7 @@ class DefaultInstallCommitter(
     override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) {
         val outDir = modulesDir / type.name.lowercase()
         fileSystem.createDirectories(outDir)
-        val outFile = outDir / displayName
+        val outFile = outDir / displayName.trimStart('/')
         fileSystem.source(localFile).buffer().use { fIn ->
             // Mirrors classic InstallZip.installFromFile's sqlite header/copy block exactly.
             val header = ByteArray(16)
@@ -144,18 +143,17 @@ class DefaultInstallCommitter(
                 out.writeAll(fIn)
             }
         }
-        // L1b-handover(sword): the sqlite book engines still take java.io.File
         when (type) {
-            SqliteBookType.MYBIBLE -> addMyBibleBook(outFile.toFile())
-            SqliteBookType.MYSWORD -> addMySwordBook(outFile.toFile())
-            SqliteBookType.ESWORD -> addESwordBook(outFile.toFile())
+            SqliteBookType.MYBIBLE -> addMyBibleBook(outFile.toFile()) // L1b-handover(G1): the sqlite book engines still take java.io.File
+            SqliteBookType.MYSWORD -> addMySwordBook(outFile.toFile()) // L1b-handover(G1): same
+            SqliteBookType.ESWORD -> addESwordBook(outFile.toFile()) // L1b-handover(G1): same
         }
     }
 
     override suspend fun commitTtf(localFile: Path, displayName: String) {
         val outDir = modulesDir / "ttf"
         fileSystem.createDirectories(outDir)
-        fileSystem.copy(localFile, outDir / displayName)
+        fileSystem.copy(localFile, outDir / displayName.trimStart('/'))
         addManuallyInstalledTtfBooks()
         clearAddonCaches()
     }
@@ -163,7 +161,7 @@ class DefaultInstallCommitter(
     override suspend fun commitCsv(localFile: Path, displayName: String) {
         val outDir = modulesDir / "prompts"
         fileSystem.createDirectories(outDir)
-        fileSystem.copy(localFile, outDir / displayName)
+        fileSystem.copy(localFile, outDir / displayName.trimStart('/'))
         addManuallyInstalledCsvPromptBooks()
         clearAddonCaches()
     }
@@ -171,7 +169,7 @@ class DefaultInstallCommitter(
     override suspend fun commitBackgroundImage(localFile: Path, fileName: String) {
         val outDir = modulesDir / BACKGROUND_IMAGE_DIR
         fileSystem.createDirectories(outDir)
-        fileSystem.copy(localFile, outDir / fileName)
+        fileSystem.copy(localFile, outDir / fileName.trimStart('/'))
         addManuallyInstalledBackgroundImageBooks()
         clearAddonCaches()
     }
@@ -179,6 +177,6 @@ class DefaultInstallCommitter(
     override suspend fun commitStudyPad(unzipFolder: Path) {
         val file = unzipFolder / "db/${BookmarkDatabase.dbFileName}"
         importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file)
-        fileSystem.deleteRecursively(unzipFolder, mustExist = false)
+        runCatching { fileSystem.deleteRecursively(unzipFolder, mustExist = false) } // best-effort cleanup, as File.deleteRecursively was
     }
 }

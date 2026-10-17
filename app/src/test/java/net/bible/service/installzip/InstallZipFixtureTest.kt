@@ -92,9 +92,15 @@ class InstallZipFixtureTest {
         assertTrue(scan.invalid)
     }
 
-    @Test fun malformedNameAfterAValidEntryIsInvalidNotACrash() {
+    /** Intended divergence: the old `ZipInputStream` code let this escape as Error(GENERIC); it is now an invalid archive. */
+    @Test fun malformedNameAfterAValidEntryScansAsInvalid() {
         val bad = "mods.d/".toByteArray() + byteArrayOf(0x81.toByte())
         assertTrue(scanSwordZip(rawZip("mods.d/a.conf".toByteArray(), bad)).invalid)
+    }
+
+    @Test fun nulCharInEntryNameScansAsInvalid() {
+        assertTrue(scanSwordZip(rawZip("mods.d/a\u0000b.conf".toByteArray())).invalid)
+        assertTrue(scanSwordZip(rawZip("mods.d/a.conf".toByteArray(), "mods.d/a\u0000b.conf".toByteArray())).invalid)
     }
 
     @Test fun traversalZipIsInvalid() {
@@ -145,7 +151,12 @@ class InstallZipFixtureTest {
         try {
             committer().commitSwordZip(zip, scan.totalEntries) {}
             assertNotNull(Books.installed().getBook("KJV"))
-            assertTrue(File(target.toString(), "mods.d/kjv.conf").isFile)
+            val installed = File(target.toString(), "mods.d/kjv.conf")
+            assertTrue(installed.isFile)
+            // The installed bytes are the archive entry's bytes (old-release/README.md: mods.d/kjv.conf).
+            val expected = java.util.zip.ZipFile(zip.toFile()).use { z -> z.getInputStream(z.getEntry("mods.d/kjv.conf")).readBytes() }
+            assertEquals(sha256(expected), sha256(installed.readBytes()))
+            assertTrue(expected.isNotEmpty())
         } finally {
             Books.installed().getBook("KJV")?.let { Books.installed().removeBook(it) }
             Books.installed().addBook(original)
@@ -169,5 +180,66 @@ class InstallZipFixtureTest {
         val labels = DatabaseContainer.instance.bookmarkDb.bookmarkDao().allLabelsSortedByName().map { it.name }
         assertTrue(labels.toString(), "G2Fixture" in labels)
         assertFalse(unzipFolder.toFile().exists())
+    }
+
+    private fun sha256(bytes: ByteArray) =
+        java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+
+    // ---- copy routines: content, truncation of a larger target, add-on cache clearing, absolute names ----
+    // Written against the old File.copyTo(overwrite = true) semantics: the target holds exactly the new bytes.
+
+    private val installed = mutableListOf<File>()
+
+    private fun source(bytes: ByteArray): Path = File(tmpDir(), "src.bin").also { it.writeBytes(bytes) }.toOkioPath()
+
+    private fun target(sub: String, name: String) = File(SharedConstants.modulesDir, "$sub/$name").also { installed += it }
+
+    private fun recordingCommitter(calls: MutableList<String>) = DefaultInstallCommitter(
+        testBackupControl(), testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(RuntimeEnvironment.getApplication()),
+        clearAddonCaches = { calls += "clear" },
+    )
+
+    @After fun removeInstalled() { installed.forEach { it.delete() } }
+
+    @Test fun ttfCsvAndImageCopiesAreExactAndTruncateALargerTarget() = runBlocking {
+        val calls = mutableListOf<String>()
+        val c = recordingCommitter(calls)
+        val bytes = ByteArray(300) { (it * 3).toByte() }
+        class Case(val dir: String, val name: String, val commit: suspend (Path) -> Unit)
+        val cases = listOf(
+            Case("ttf", "g2-font.ttf") { c.commitTtf(it, "g2-font.ttf") },
+            Case("prompts", "g2-prompts.csv") { c.commitCsv(it, "g2-prompts.csv") },
+            Case(net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR, "g2-pic.png") { c.commitBackgroundImage(it, "g2-pic.png") },
+        )
+        for ((n, case) in cases.withIndex()) {
+            val name = case.name
+            val out = target(case.dir, name)
+            out.parentFile!!.mkdirs()
+            out.writeBytes(ByteArray(5000) { 7 }) // larger existing target
+            case.commit(source(bytes))
+            assertEquals(name, sha256(bytes), sha256(out.readBytes()))
+            assertEquals(300L, out.length())
+            assertEquals(n + 1, calls.size)
+        }
+    }
+
+    @Test fun validSqliteCopyIsExactAndBadHeaderLeavesNoClear() = runBlocking {
+        val calls = mutableListOf<String>()
+        val c = recordingCommitter(calls)
+        val bytes = "SQLite format 3\u0000".toByteArray() + ByteArray(400) { it.toByte() }
+        val out = target("mybible", "g2-copy.sqlite3")
+        out.parentFile!!.mkdirs()
+        out.writeBytes(ByteArray(5000) { 7 })
+        runCatching { c.commitSqlite(source(bytes), SqliteBookType.MYBIBLE, "g2-copy.sqlite3") } // registering a fake db may fail; the copy comes first
+        assertEquals(sha256(bytes), sha256(out.readBytes()))
+        assertEquals(emptyList<String>(), calls)
+    }
+
+    @Test fun absoluteDisplayNameStaysInsideTheModuleDirectory() = runBlocking {
+        val calls = mutableListOf<String>()
+        recordingCommitter(calls).commitTtf(source(byteArrayOf(1, 2, 3)), "/g2-abs.ttf")
+        val out = target("ttf", "g2-abs.ttf")
+        assertTrue(out.isFile)
+        assertEquals(listOf<Byte>(1, 2, 3), out.readBytes().toList())
     }
 }
