@@ -23,6 +23,7 @@ import androidx.room3.RoomDatabase
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
