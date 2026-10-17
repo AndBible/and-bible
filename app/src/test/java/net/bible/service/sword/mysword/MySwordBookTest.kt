@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mysword
 
+import okio.Path.Companion.toOkioPath
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import androidx.sqlite.SQLiteException
@@ -68,7 +69,7 @@ class MySwordBookTest {
     }
 
     private fun backend(file: File): SqliteBackend {
-        val state = SqliteVerseBackendState(file).also { states.add(it) }
+        val state = SqliteVerseBackendState(file.toOkioPath()).also { states.add(it) }
         return SqliteBackend(state, state.getBookMetaData())
     }
 

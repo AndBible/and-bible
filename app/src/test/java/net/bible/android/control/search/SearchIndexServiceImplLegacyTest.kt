@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.search
 
+import okio.Path.Companion.toOkioPath
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.sharedcore.search.SearchIndexService
@@ -103,7 +104,7 @@ class SearchIndexServiceImplLegacyTest {
             c.exec("CREATE TABLE info (name TEXT, value TEXT)")
             c.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
         }
-        addMyBibleBook(file)
+        addMyBibleBook(file.toOkioPath())
         val book = Books.installed().getBook("MyBible-legacykeep")!!
         val legacy = FtsTestSupport.legacyDir(book).also { tempFiles += it }
         makeLegacy(legacy)
@@ -141,7 +142,7 @@ class SearchIndexServiceImplLegacyTest {
             c.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
             c.exec("INSERT INTO verses VALUES ($genesis, 1, 1, 'In the beginning')")
         }
-        addMyBibleBook(file)
+        addMyBibleBook(file.toOkioPath())
         val book = Books.installed().getBook("MyBible-legacydel")!!
         val legacy = FtsTestSupport.legacyDir(book).also { tempFiles += it }
         makeLegacy(legacy)
@@ -175,7 +176,7 @@ class SearchIndexServiceImplLegacyTest {
             c.exec("CREATE TABLE verses (book_number INTEGER, chapter INTEGER, verse INTEGER, text TEXT)")
             c.exec("INSERT INTO verses VALUES ($genesis, 1, 1, 'In the beginning')")
         }
-        addMyBibleBook(file)
+        addMyBibleBook(file.toOkioPath())
         val book = Books.installed().getBook("MyBible-legacyqueue")!!
         val gate = java.util.concurrent.CountDownLatch(1)
         val built = java.util.concurrent.CopyOnWriteArrayList<String>()

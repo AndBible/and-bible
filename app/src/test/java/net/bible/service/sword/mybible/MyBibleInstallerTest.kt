@@ -216,4 +216,18 @@ class MyBibleInstallerTest {
         assertNull(Books.installed().getBook("MyBible-${id}_dictionary"))
         assertFalse(root.walkTopDown().any { it.isFile && it.name.contains(id) })
     }
+
+    @Test fun malformedManifestUrlFailsAsBefore() = runBlocking {
+        val downloader = GenericFileDownloader(settings = settings, notifier = get(UserNotifier::class.java), strings = get(CoreStrings::class.java), http = get(DownloadHttp::class.java))
+        val installer = MyBibleInstaller("not a url", downloader, get(AppEnvironment::class.java))
+        val reload = try { installer.reloadBookList(); null } catch (e: java.io.IOException) { e }
+        assertTrue("reload: $reload", reload is java.net.MalformedURLException)
+        val modified = try { installer.indexLastUpdated(); null } catch (e: java.io.IOException) { e }
+        assertTrue("indexLastUpdated: $modified", modified is java.net.MalformedURLException)
+        assertTrue(installer.getBooks().isEmpty())
+    }
+
+    @Test fun downloadShorterThanSqliteHeaderFailsAsBefore() = runBlocking {
+        assertRejected("short".toByteArray())
+    }
 }

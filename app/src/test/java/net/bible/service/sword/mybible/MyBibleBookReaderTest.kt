@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mybible
 
+import okio.Path.Companion.toOkioPath
 import androidx.sqlite.SQLiteException
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -75,7 +76,7 @@ class MyBibleBookReaderTest {
     }
 
     private fun backend(file: File): SqliteBackend {
-        state = SqliteVerseBackendState(file).also { states.add(it) }
+        state = SqliteVerseBackendState(file.toOkioPath()).also { states.add(it) }
         return SqliteBackend(state, state.getBookMetaData())
     }
 
@@ -228,7 +229,7 @@ class MyBibleBookReaderTest {
         ReadOnlyWalFixture.walWithoutShm(file, dir)
         try {
             assumeTrue("directory stays writable for this user (root?)", ReadOnlyWalFixture.lockDown(moduleDir))
-            addMyBibleBook(file)
+            addMyBibleBook(file.toOkioPath())
             val book = Books.installed().getBook("MyBible-e5walmod")
             assertNotNull("book must be registered", book)
             book!!

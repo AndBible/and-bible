@@ -33,3 +33,4 @@ service/device/LightSensor.kt	Android SensorManager host
 service/device/ProgressNotificationManager.kt	Android notification host
 service/device/ScreenSettings.kt	Android screen brightness/orientation settings host
 service/sword/index/SearchIndexingService.kt	Android foreground Service host for search-index builds: notification, Intent, startForeground; the queue is IndexingQueue
+service/db/ReadOnlyModuleOpen.kt	Android read-only WAL snapshot host (File permissions, cacheDir, copyTo, SHA-1); sword reaches it through ReadOnlyModuleDbOpener

@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.esword
 
+import okio.Path.Companion.toOkioPath
 import androidx.sqlite.SQLiteException
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -68,7 +69,7 @@ class ESwordBookReaderTest {
     private lateinit var state: SqliteVerseBackendState
 
     private fun backend(file: File): SqliteBackend {
-        state = SqliteVerseBackendState(file).also { states.add(it) }
+        state = SqliteVerseBackendState(file.toOkioPath()).also { states.add(it) }
         return SqliteBackend(state, state.getBookMetaData())
     }
 

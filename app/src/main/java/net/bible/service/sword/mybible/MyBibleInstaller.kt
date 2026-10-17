@@ -21,7 +21,6 @@ import net.bible.sharedcore.log.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import net.bible.sharedcore.platform.AppEnvironment
-import net.bible.android.SharedConstants
 import net.bible.android.database.repoJson
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.currentCoroutineContext
@@ -38,7 +37,10 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.File
-import java.net.URI
+import org.crosswire.common.util.KUri
+import okio.FileSystem
+import okio.Path.Companion.toOkioPath
+import okio.buffer
 import java.net.URL
 import java.io.IOException
 import java.util.zip.ZipFile
@@ -69,7 +71,7 @@ class MyBibleRepositorySpec (
 
 class MyBibleInstaller(private val manifestUrl: String, private val downloader: GenericFileDownloader, private val environment: AppEnvironment): Installer, AbstractBookList() {
     override fun getType(): String  = "mybible-https"
-    private val myBibleDir = File(SharedConstants.modulesDir, "mybible")
+    private val myBibleDir = myBibleModulesDir().toFile()
     private val localManifestFile = File(myBibleDir, "manifest.json")
     private var spec: MyBibleRepositorySpec? = readSpec()
     private val moduleSpecs get() = spec?.modules?.filter { it.download_url.startsWith("https://") }?: emptyList()
@@ -124,14 +126,13 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
         return "mybible-manifest:$manifestUrl"
     }
 
-    override fun toRemoteURI(book: Book): URI = URI(book.myBibleDownloadUrl)
+    override fun toRemoteURI(book: Book): KUri = KUri(book.myBibleDownloadUrl)
 
     override fun getBook(name: String): Book? = getBooks().find { it.name == name }
 
     override suspend fun getSize(book: Book): Int {
         // Note: This is completely unused in JSword API currently
-        val url = URL(book.myBibleDownloadUrl)
-        return NetUtil.getSize(url.toURI())
+        return NetUtil.getSize(KUri(book.myBibleDownloadUrl))
     }
 
     // Note: This is completely unused in JSword API currently
@@ -168,7 +169,7 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                 val modules = staging.walkTopDown().filter { it.isFile && it.extension.equals("SQLite3", true) }.toList()
                 if (modules.isEmpty()) throw InstallException("No supported MyBible module in download")
                 modules.forEach { file ->
-                    val state = SqliteVerseBackendState(file)
+                    val state = SqliteVerseBackendState(file.toOkioPath())
                     try {
                         val tables = state.rows("select name from sqlite_master where type = 'table'") { it.getText(0) }
                         // Match the reader's category precedence and validate columns even for empty tables.
@@ -203,14 +204,14 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
                 tmpFile.delete()
             }
         } else {
-            throw DownloadCancelledException(URI(url))
+            throw DownloadCancelledException(KUri(url))
         }
     }
 
     private suspend fun prepareModuleFiles(download: File, staging: File, filename: String) {
         val sqliteHeader = "SQLite format 3\u0000".toByteArray(Charsets.US_ASCII)
         val header = ByteArray(sqliteHeader.size)
-        download.inputStream().use { java.io.DataInputStream(it).readFully(header) }
+        FileSystem.SYSTEM.source(download.toOkioPath()).buffer().use { it.readByteArray(header.size.toLong()) }.copyInto(header)
         if (header.contentEquals(sqliteHeader)) {
             download.copyTo(File(staging, File(filename).name))
         } else {
@@ -230,7 +231,7 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
         }
     }
 
-    override suspend fun downloadSearchIndex(book: Book, tempDest: URI) {}
+    override suspend fun downloadSearchIndex(book: Book, tempDest: KUri) {}
 
     override fun close() {}
 }
