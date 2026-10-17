@@ -98,15 +98,25 @@ class DocumentInstallService : Service() {
 
         /** Single app-scoped [InstallServiceController], shared between this Service and any
          *  bound host UI (Plan B), so both observe the very same [InstallServiceController.jobs]. */
-        private val _controller: InstallServiceController by lazy {
-            InstallServiceController(
-                runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), clearAddonCaches = { AndBibleAddons.clearCaches() })) },
-                newJobId = { UUID.randomUUID().toString() },
-                onTerminal = { _, phase -> postTerminalEvents(phase) },
-                scope = KoinJavaComponent.get(AppCoroutineScope::class.java),
-            )
-        }
-        val controller: InstallServiceController get() = _controller
+        @Volatile private var _controller: InstallServiceController? = null
+
+        private fun createController() = InstallServiceController(
+            runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), clearAddonCaches = { AndBibleAddons.clearCaches() })) },
+            newJobId = { UUID.randomUUID().toString() },
+            onTerminal = { _, phase -> postTerminalEvents(phase) },
+            scope = KoinJavaComponent.get(AppCoroutineScope::class.java),
+        )
+
+        val controller: InstallServiceController
+            get() = _controller ?: synchronized(this) { _controller ?: createController().also { _controller = it } }
+
+        /**
+         * Drops the cached [controller] so the next access rebuilds it with the then-current Koin
+         * `AppCoroutineScope`. Tests swap that scope per test while the JVM (and this companion)
+         * is reused, so a controller created under an earlier test would otherwise keep a dead scope.
+         */
+        @androidx.annotation.VisibleForTesting
+        internal fun resetControllerForTest() = synchronized(this) { _controller = null }
 
         fun resolveDecision(jobId: JobId, proceed: Boolean) = controller.resolveDecision(jobId, proceed)
         fun cancel(jobId: JobId) = controller.cancel(jobId)
