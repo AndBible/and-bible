@@ -53,7 +53,6 @@ import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.test.DatabaseResetter
 import okio.Path.Companion.toOkioPath
 import okio.Source
-import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -79,6 +78,9 @@ import java.util.zip.ZipFile
  * ZipWriter/ZipReader swap, so later tests can prove files from old releases still read. They are written only
  * when the environment variable `G2_WRITE_FIXTURES=1` is set; without it the test asserts that they exist and
  * are well formed. Do not regenerate them after the swap: that would defeat their purpose.
+ *
+ * There is no module-backup fixture here: the old-release one (`old-release/module-backup.abmd.zip`, KJV, written by
+ * a released app) replaces the earlier ISV archive, whose module is copyrighted and must not live in the repository.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -99,7 +101,7 @@ class G2FixtureWriterTest {
         Dispatchers.resetMain()
     }
 
-    private val zips = listOf("db-backup.abdb.zip", "module-backup.abmd.zip", "studypad-export.abdb.zip")
+    private val zips = listOf("db-backup.abdb.zip", "studypad-export.abdb.zip")
     private val gzips = listOf("bookmarks-patch.sqlite3.gz", "raw-llm-log.txt.gz", "old-monolithic.db.gz")
 
     @Test fun fixturesExistAndAreWellFormed() {
@@ -161,13 +163,7 @@ class G2FixtureWriterTest {
         val dbZip = backupControl.zipDatabaseFiles()!!.toFile()
         dbZip.copyTo(File(fixtureDir, "db-backup.abdb.zip"), overwrite = true)
 
-        // 2. Module backup: the smallest installed text module.
-        val book = Books.installed().getBook("ISV") ?: error("test module ISV not installed in ~/.sword")
-        val moduleZip = tmp("module-", ".abmd.zip").also { it.delete() }
-        backupControl.createSingleModuleZip(book, moduleZip.toOkioPath())
-        moduleZip.copyTo(File(fixtureDir, "module-backup.abmd.zip"), overwrite = true)
-
-        // 3. StudyPad export of one label.
+        // 2. StudyPad export of one label.
         val controller = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
         val pad = BookmarkEntities.Label(name = "G2 export pad")
         dao.insert(pad)
@@ -188,7 +184,7 @@ class G2FixtureWriterTest {
             exportStudyPads(controller.get(), pad, chooseDestination = { SaveOrShare.SHARE }, host = host)
         } finally { controller.pause().stop().destroy() }
 
-        // 4. Sync patch with one new bookmark.
+        // 3. Sync patch with one new bookmark.
         val patchDbFile = tmp("bookmarks-", ".sqlite3").also { it.delete() }
         val patchDb = Room.databaseBuilder(application, BookmarkDatabase::class.java, patchDbFile.absolutePath)
             .addMigrations(*bookmarkMigrations)
@@ -217,11 +213,11 @@ class G2FixtureWriterTest {
             File(patchDbFile.path + "-journal").delete()
         }
 
-        // 5. Raw LLM log.
+        // 4. Raw LLM log.
         val text = "G2 raw LLM log\nLine two: äöå 𝔄 😀 👍\nLine three: end\n"
         File(fixtureDir, "raw-llm-log.txt.gz").writeBytes(RawLlmLog.gzipCompress(text))
 
-        // 6. Old monolithic database: a tiny SQLite file with the old user_version, gzipped.
+        // 5. Old monolithic database: a tiny SQLite file with the old user_version, gzipped.
         val oldDb = tmp("old-monolithic-", ".db").also { it.delete() }
         openSqlite(oldDb.path).use {
             it.execSQL("CREATE TABLE G2Marker (id INTEGER PRIMARY KEY, note TEXT)")
@@ -236,7 +232,6 @@ class G2FixtureWriterTest {
     private fun writeManifest() {
         val producers = mapOf(
             "db-backup.abdb.zip" to "BackupControl.zipDatabaseFiles() over a container with one label and one bookmark",
-            "module-backup.abmd.zip" to "BackupControl.createSingleModuleZip(book ISV)",
             "studypad-export.abdb.zip" to "exportStudyPads(label \"G2 export pad\")",
             "bookmarks-patch.sqlite3.gz" to "createPatchForDatabase on a bookmarks DB with one new bookmark",
             "raw-llm-log.txt.gz" to "RawLlmLog.gzipCompress(fixed text with ä, 𝔄, emoji)",
