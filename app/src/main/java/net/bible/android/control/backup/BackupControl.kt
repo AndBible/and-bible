@@ -451,7 +451,6 @@ class BackupControl(
     private fun relativeFileName(rootDir: Path, file: Path): String {
         val filePath = fileSystem.canonicalize(file).toString()
         val dirPath = fileSystem.canonicalize(rootDir).toString()
-        assert(filePath.startsWith(dirPath))
         return filePath.substring(dirPath.length + 1)
     }
 

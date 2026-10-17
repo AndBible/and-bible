@@ -17,7 +17,6 @@
 
 package net.bible.android.control.event
 
-import androidx.annotation.StringRes
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 
@@ -26,10 +25,10 @@ import net.bible.sharedcore.event.Events
  * (the application host), so a caller on a background thread needs no `Context`.
  */
 sealed interface UserMessage {
-    data class Toast(val text: String?, @StringRes val textId: Int?, val long: Boolean) : UserMessage
+    data class Toast(val text: String?, val textId: Int?, val long: Boolean) : UserMessage
     data class ErrorNotification(
         val text: String?,
-        @StringRes val textId: Int?,
+        val textId: Int?,
         val showReportButton: Boolean,
     ) : UserMessage
 }
@@ -43,14 +42,14 @@ object UserMessages {
     private val _messages = EventSource<UserMessage>()
     val messages: Events<UserMessage> = _messages
 
-    fun toast(@StringRes id: Int, long: Boolean = false) =
+    fun toast(id: Int, long: Boolean = false) =
         _messages.emit(UserMessage.Toast(null, id, long))
 
     fun toast(text: String, long: Boolean) = _messages.emit(UserMessage.Toast(text, null, long = long))
 
     fun toast(text: String) = _messages.emit(UserMessage.Toast(text, null, long = false))
 
-    fun errorNotification(@StringRes id: Int) =
+    fun errorNotification(id: Int) =
         _messages.emit(UserMessage.ErrorNotification(null, id, showReportButton = true))
 
     fun errorNotification(text: String, showReportButton: Boolean = true) =

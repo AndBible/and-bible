@@ -155,7 +155,7 @@ class DownloadManager(
         val bookInitials = book.initials
 
         val installer = installManager.getInstaller(repositoryName)!!
-        val jobId = Progress.INSTALL_BOOK.format(book.repoIdentity)
+        val jobId = Progress.INSTALL_BOOK.replace("%s", book.repoIdentity)
         installer.install(book, jobId)
         // Make sure it refreshes existing doc
 

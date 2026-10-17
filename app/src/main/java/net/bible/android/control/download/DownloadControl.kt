@@ -132,7 +132,7 @@ class DownloadControl(private val notifier: net.bible.sharedcore.platform.UserNo
 
 
     fun cancelDownload(document: Book) {
-        val job = JobManager.findJob(INSTALL_BOOK.format(document.repoIdentity))
+        val job = JobManager.findJob(INSTALL_BOOK.replace("%s", document.repoIdentity))
         job?.cancel()
     }
 

@@ -521,7 +521,7 @@ class SwordContentFacade(
                         return true
                     }
                 }
-            } catch (e: ArrayIndexOutOfBoundsException) {
+            } catch (e: IndexOutOfBoundsException) {
                 return false
             } catch (e: NullPointerException) {
                 // JSword RawLDBackend can throw NPE when module data files are not properly initialized

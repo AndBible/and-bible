@@ -69,7 +69,7 @@ class NavigationControl constructor(
     /** default book for use when jumping into the middle of passage selection
      */
     val defaultBibleBookNo: Int
-        get() = BibleBook.values().binarySearch(pageControl.currentBibleVerse.book)
+        get() = BibleBook.entries.binarySearch(pageControl.currentBibleVerse.book)
 
     /** default chapter for use when jumping into the middle of passage selection
      */
