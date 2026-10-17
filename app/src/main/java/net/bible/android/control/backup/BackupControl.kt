@@ -51,7 +51,7 @@ import net.bible.service.common.DbType
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.deleteAppDatabase
 import net.bible.service.db.importDatabaseFile
-import net.bible.service.sword.dbFile
+import net.bible.service.sword.dbPath
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
@@ -412,11 +412,11 @@ class BackupControl(
     private fun addBookToZip(outFile: ZipOutputStream, b: Book) {
         val bmd = b.bookMetaData as SwordBookMetaData
         if (b.isManuallyInstalledMyBibleBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbPath.toFile())
         } else if (b.isManuallyInstalledMySwordBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbPath.toFile())
         } else if (b.isManuallyInstalledESwordBook) {
-            addModuleFile(outFile, b.dbFile)
+            addModuleFile(outFile, b.dbPath.toFile())
         } else if (b.isManuallyInstalledEpub) {
             addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
         } else if (b.isManuallyInstalledTtf) {
