@@ -153,6 +153,11 @@ Only run Android builds when testing Android-specific integration.
 
 See `docs/emulator-and-webview-debugging.md` (adb model, AVD, `scripts/andbible-emu.sh`, `scripts/webview-cdp.sh`).
 
+## Remote Mac for iOS builds
+
+A real Mac reachable over SSH (optional mount `mac-ssh`, host alias `andbible-mac`) runs Xcode and
+simulator steps without a CI round trip; setup and use in `docs/ios-remote-mac.md`.
+
 ## Golden screenshots and process docs (submodules)
 
 - Roborazzi goldens live in `AndBible/and-bible-goldens`, checked out at

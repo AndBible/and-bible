@@ -64,6 +64,17 @@ optional_mounts:
     readonly: true
     description: "support.andbible.org credentials for ostickethelper (maintainer only)"
 
+  # SSH access to a real Mac for iOS builds (Xcode, simulator tests): the private key, an
+  # ssh config (Host andbible-mac) and the pinned known_hosts. The Mac's address is allowed
+  # host-locally with `jailbee net egress add <mac-ip>:22 --repo`. See docs/ios-remote-mac.md.
+  #   jailbee mount mac-ssh <container>     # before an iOS build session
+  #   jailbee unmount mac-ssh <container>   # after it
+  mac-ssh:
+    host: ~/.config/andbible-mac
+    container: /home/dev/.ssh-mac
+    readonly: true
+    description: "SSH key + config for the iOS build Mac (ssh -F ~/.ssh-mac/config andbible-mac)"
+
 # adb: one host-side adb server serves both host and container clients. The
 # container reaches it over this TCP forward (container 127.0.0.1:5037 ->
 # host 127.0.0.1:5037), which lands on adb's default endpoint, so the container
@@ -231,6 +242,7 @@ golden:
     - mesa-vulkan-drivers
     - gdb                 # backtraces of a crashing emulator (sudo gdb -p <qemu pid>)
     - unzip               # Sword test modules (`unzip -o -d ~/.sword testmods.zip`), module zips
+    - rsync               # working-tree sync to the iOS build Mac (docs/ios-remote-mac.md)
     # Local Nextcloud for cloud-sync emulator checks (`php -S` + the tarball kit in
     # .local/emu-verify/nextcloud; no web server or database server needed: SQLite).
     - php-cli
