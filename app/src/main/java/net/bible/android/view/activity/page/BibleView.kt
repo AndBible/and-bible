@@ -144,6 +144,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import okio.buffer
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
@@ -1264,7 +1265,7 @@ class BibleView(
     inner class EpubResourcesAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse {
             val book = (firstDocument as? OsisDocument)?.book ?: return notFound
-            val stream = ((book as? SwordGenBook)?.backend as? EpubBackend)?.openResource(path) ?: return notFound
+            val stream = ((book as? SwordGenBook)?.backend as? EpubBackend)?.openResource(path)?.buffer()?.inputStream() ?: return notFound
             return WebResourceResponse(URLConnection.guessContentTypeFromName(path), null, stream)
         }
     }
@@ -1301,7 +1302,7 @@ class BibleView(
                 val relativePath = resourceMatch.groupValues[2]
                 val book = Books.installed().getBook(bookInitials)?: return notFound
                 if (!book.isEpub) return notFound
-                val stream = ((book as? SwordGenBook)?.backend as? EpubBackend)?.openResource(relativePath) ?: return notFound
+                val stream = ((book as? SwordGenBook)?.backend as? EpubBackend)?.openResource(relativePath)?.buffer()?.inputStream() ?: return notFound
                 return WebResourceResponse(URLConnection.guessContentTypeFromName(relativePath), null, stream)
             }
             val parts = path.split("/", limit = 2);
