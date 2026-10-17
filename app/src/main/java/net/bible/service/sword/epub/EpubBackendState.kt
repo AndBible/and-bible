@@ -21,14 +21,30 @@ import fi.sykero.kdom.input.build
 import net.bible.service.db.blockingAtEdge
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
-import net.bible.service.common.ArchiveUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import net.bible.sharedcore.log.Log
-import net.bible.android.SharedConstants
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedlogic.sync.monitorNotifyAll
+import net.bible.sharedlogic.sync.monitorWait
+import net.bible.sharedlogic.sync.withMonitor
+import net.bible.sharedlogic.util.decodeUrl
+import kotlinx.atomicfu.atomic
+import okio.FileSystem
+import okio.ForwardingSource
+import okio.GzipSink
+import okio.GzipSource
+import okio.Path
+import okio.Path.Companion.toPath
+import okio.Source
+import okio.buffer
+import okio.use
+import org.crosswire.common.compress.Gzip
+import org.crosswire.common.util.KFiles
+import org.koin.mp.KoinPlatform
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubMeta
@@ -44,10 +60,6 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import fi.sykero.kdom.Namespace
-import java.io.File
-import java.io.StringReader
-import java.net.URLDecoder
-import java.util.zip.GZIPInputStream
 
 
 private val re = Regex("[^a-zA-z0-9]")
@@ -67,10 +79,10 @@ val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.o
 
 class KeyAndText(val key: BookAndKey, val text: String)
 
-private val ownerGenerations = java.util.concurrent.atomic.AtomicLong()
+private val ownerGenerations = atomic(0L)
 
-class EpubBackendState(private val epubDir: File, internal val strings: CoreStrings, private val env: AppEnvironment): OpenFileState {
-    constructor(epubDir: File, metadata: SwordBookMetaData, strings: CoreStrings, env: AppEnvironment): this(epubDir, strings, env) {
+class EpubBackendState(private val epubDir: Path, internal val strings: CoreStrings, private val env: AppEnvironment): OpenFileState {
+    constructor(epubDir: Path, metadata: SwordBookMetaData, strings: CoreStrings, env: AppEnvironment): this(epubDir, strings, env) {
         this._metadata = metadata
     }
 
@@ -80,19 +92,19 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
      */
     internal val ownerGeneration: Long = ownerGenerations.incrementAndGet()
 
-    private val lifetime = java.lang.Object()
+    private val lifetime = Any()
     private var retired = false
     private var closed = false
     private var activeUsers = 0
 
-    private fun acquireUse() = synchronized(lifetime) {
+    private fun acquireUse() = withMonitor(lifetime) {
         check(!retired) { "EPUB backend has been retired" }
         activeUsers++
     }
 
-    private fun releaseUse() = synchronized(lifetime) {
+    private fun releaseUse() = withMonitor(lifetime) {
         activeUsers--
-        lifetime.notifyAll()
+        monitorNotifyAll(lifetime)
     }
 
     // A lease spans the whole operation, including suspension and fragment file reads.
@@ -102,13 +114,13 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     }
 
     override fun close() {
-        synchronized(lifetime) {
+        withMonitor(lifetime) {
             if (retired) {
-                while (!closed) lifetime.wait()
+                while (!closed) monitorWait(lifetime)
                 return
             }
             retired = true
-            while (activeUsers != 0) lifetime.wait()
+            while (activeUsers != 0) monitorWait(lifetime)
             try {
                 search.close()
             } finally {
@@ -116,7 +128,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
                     readDb.close()
                 } finally {
                     closed = true
-                    lifetime.notifyAll()
+                    monitorNotifyAll(lifetime)
                 }
             }
         }
@@ -129,30 +141,30 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     private val containerNamespace = Namespace.getNamespace("ns", "urn:oasis:names:tc:opendocument:xmlns:container")
     private val tocNamespace = Namespace.getNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/")
 
-    private val metaInfoFile = File(epubDir, "META-INF/container.xml")
-    private val metaInfo = useKdomBuilder {  it.build(metaInfoFile) }
+    private val metaInfoFile = epubDir.child("META-INF/container.xml")
+    private val metaInfo = useKdomBuilder {  it.build(KFiles.readBytes(metaInfoFile)) }
     private val contentFileName = XmlQueries.rootfiles(metaInfo, containerNamespace).first().getAttribute("full-path")!!.value
 
-    private val contentXmlFile = File(epubDir, contentFileName)
-    val rootFolder: File = contentXmlFile.parentFile!!
+    private val contentXmlFile = epubDir.child(contentFileName)
+    val rootFolder: Path = contentXmlFile.parent!!
 
-    private val content = useKdomBuilder { it.build(contentXmlFile) }
+    private val content = useKdomBuilder { it.build(KFiles.readBytes(contentXmlFile)) }
     internal val fileToId = XmlQueries.manifestItems(content, epubNamespace).associate {
-        val fileName = URLDecoder.decode(it.getAttribute("href")!!.value, "UTF-8")
+        val fileName = decodeUrl(it.getAttribute("href")!!.value)
         fileName to it.getAttribute("id")!!.value
     }
 
     internal val idToFile = fileToId.entries.associate { it.value to it.key }
 
-    private val tocFile = XmlQueries.tocItem(content, epubNamespace)?.getAttribute("href")?.value?.let { File(rootFolder, it) }
+    private val tocFile = XmlQueries.tocItem(content, epubNamespace)?.getAttribute("href")?.value?.let { rootFolder.child(it) }
 
-    private val toc = tocFile?.run { useKdomBuilder { it.build(this) } }
+    private val toc = tocFile?.run { useKdomBuilder { it.build(KFiles.readBytes(this)) } }
 
     internal val fileToTitle = toc?.let { document ->
         XmlQueries.navPointContents(document, tocNamespace).reversed().associate {
             val textElem = XmlQueries.navLabelTexts(it, tocNamespace).first()
             val fileAndId = getFileAndId(it.getAttribute("src")!!.value)
-            val fileName = fileAndId?.first?.let { name -> URLDecoder.decode(name, "UTF-8") }
+            val fileName = fileAndId?.first?.let { name -> decodeUrl(name) }
             fileName to textElem.text
         }
     }
@@ -163,15 +175,15 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
 
     private suspend fun fragment(key: Key): EpubFragment? = dao.getFragment(key.getOsisRef().toLong())
 
-    fun fileForOriginalId(id: String): File? = idToFile[id]?.let {File(rootFolder, it) }
+    fun fileForOriginalId(id: String): Path? = idToFile[id]?.let { rootFolder.child(it) }
 
     suspend fun styleSheetContent(key: Key): String = withOpen {
         val frag = fragment(key) ?: return@withOpen ""
         val file = fileForOriginalId(frag.originalId) ?: return@withOpen ""
         dao.styleSheets(frag.originalId)
-            .map { File(file.parentFile, it.styleSheetFile).canonicalFile }
-            .filter { it.exists() }
-            .joinToString("\n") { it.readText() }
+            .map { file.parent!!.child(it.styleSheetFile).normalized() }
+            .filter { KFiles.exists(it) }
+            .joinToString("\n") { KFiles.readUtf8(it) }
     }
 
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
@@ -190,7 +202,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
             return content.mapNotNull { c ->
                 val label = XmlQueries.navLabelTexts(c, tocNamespace).firstOrNull()?.text
                 val fileAndId = getFileAndId(c.getAttribute("src")!!.value)
-                val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
+                val fileName = fileAndId?.first?.let { decodeUrl(it) }
                 val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
                 val id = fileToId[fileName] ?: return@mapNotNull null
                 val keyStr: String = if(htmlId == null) {
@@ -212,21 +224,16 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     }
 
     private fun readFragment(frag: EpubFragment): String {
-        val sourceFile = File(fragDir, frag.fragFileName)
-        if (!sourceFile.exists()) {
+        val sourceFile = fragDir.child(frag.fragFileName)
+        if (!KFiles.exists(sourceFile)) {
             // The fragment database and the optimized fragment files can get out of sync
             // (e.g. an orphaned database reused after a failed optimization, or external
             // storage cleaned by the system). A missing fragment file must not crash the
             // app: return empty content and let the caller degrade gracefully.
-            Log.e(TAG, "Fragment file missing: ${sourceFile.absolutePath} (frag ${frag.id}); returning empty content")
+            Log.e(TAG, "Fragment file missing: $sourceFile (frag ${frag.id}); returning empty content")
             return ""
         }
-        val bytes = sourceFile.inputStream().use { inp ->
-            GZIPInputStream(inp).use {gzip ->
-                gzip.readBytes()
-            }
-        }
-        return String(bytes)
+        return readFragment(sourceFile)
     }
 
     fun indexOf(key: Key): Int = keys.indexOf(key)
@@ -239,22 +246,22 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
 
     val keys: List<Key> get() = withOpen { blockingAtEdge { dao.fragments() }.map { getKey(it) } } // L1-edge: JSword synchronous Backend contract
 
-    internal val fragDir get() = File(epubDir,  "optimized")
-    internal val versionFile = File(fragDir, "version.txt")
-    internal val optimizeLockFile = File(epubDir, "optimize.lock")
-    val optimizerVersion get() = try { String(versionFile.readBytes()).toLong() } catch (e: Exception) {1}
+    internal val fragDir get() = epubDir.child("optimized")
+    internal val versionFile = fragDir.child("version.txt")
+    internal val optimizeLockFile = epubDir.child("optimize.lock")
+    val optimizerVersion get() = try { KFiles.readBytes(versionFile).decodeToString().toLong() } catch (e: Exception) {1}
 
     private val epubDbFilename = "optimized.sqlite3.gz"
     internal val appDbFilename = "epub-${getBookMetaData().initials}.sqlite3"
     private val searchDbFilename = "epub-${getBookMetaData().initials}-search.sqlite3"
-    private val searchDbFile = File(epubDir, searchDbFilename)
+    private val searchDbFile = epubDir.child(searchDbFilename)
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
     init {
-        val appDbFile = File(env.databasePath(appDbFilename))
-        var epubDbFile = File(epubDir, alternativeEpubDbFilename)
-        if(!epubDbFile.exists()) {
-            epubDbFile = File(epubDir, epubDbFilename)
+        val appDbFile = env.databasePath(appDbFilename).toPath()
+        var epubDbFile = epubDir.child(alternativeEpubDbFilename)
+        if(!KFiles.exists(epubDbFile)) {
+            epubDbFile = epubDir.child(epubDbFilename)
         }
 
         // F124: the gz is only as good as the fragment files it indexes. version.txt is written last by
@@ -263,20 +270,20 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
         // every optimizer deletes each source after optimizing it, and EPUBs optimized before version.txt
         // existed (2023-11) are intact but have neither version.txt nor sources. Those must be reused as is;
         // deleting their gz/fragments would destroy the only copy. So discard only when sources are present.
-        val optimizedOutputComplete = fragDir.isDirectory && versionFile.canRead()
+        val optimizedOutputComplete = KFiles.isDirectory(fragDir) && KFiles.isFile(versionFile)
         val ids = originalIds
-        val sourcesPresent = ids.isNotEmpty() && ids.all { fileForOriginalId(it)?.exists() == true }
-        if(epubDbFile.exists() && !optimizedOutputComplete && sourcesPresent) {
+        val sourcesPresent = ids.isNotEmpty() && ids.all { fileForOriginalId(it)?.let { f -> KFiles.exists(f) } == true }
+        if(KFiles.exists(epubDbFile) && !optimizedOutputComplete && sourcesPresent) {
             Log.w(TAG, "Optimized output missing for ${epubDir.name}; discarding ${epubDbFile.name} and re-optimizing")
-            epubDbFile.delete()
+            KFiles.delete(epubDbFile)
         }
 
-        if(!epubDbFile.exists()) {
+        if(!KFiles.exists(epubDbFile)) {
             optimizeEpub()
-            ArchiveUtils.gzipFile(appDbFile, epubDbFile)
+            gzipFile(appDbFile, epubDbFile)
         } else {
-            if(!appDbFile.exists())  {
-                ArchiveUtils.gunzipFile(epubDbFile, appDbFile)
+            if(!KFiles.exists(appDbFile))  {
+                gunzipFile(epubDbFile, appDbFile)
             }
         }
     }
@@ -288,7 +295,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
 
     private val dao = readDb.epubDao()
 
-    val isIndexed get() = synchronized(lifetime) { if (retired) false else search.isIndexed }
+    val isIndexed get() = withMonitor(lifetime) { if (retired) false else search.isIndexed }
 
     fun deleteSearchIndex() {
         withOpen { search.deleteIndex() }
@@ -315,7 +322,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
             var job: Progress? = null
             try {
                 val jobName = strings.creatingIndexFor(getBookMetaData().name)
-                job = org.crosswire.common.progress.JobManagerJvm.createJob("index-creation-${epubDir.path}", jobName, null)
+                job = org.crosswire.common.progress.JobManagerJvm.createJob("index-creation-$epubDir", jobName, null)
                 job.isNotifyUser = true
                 job.beginJob(jobName)
                 search.createTable()
@@ -325,8 +332,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
                     currentCoroutineContext().ensureActive()
                     val frag = frags[i]
                     job.work = i
-                    val reader = StringReader(readFragment(frag))
-                    val doc = useKdomBuilder { it.build(reader) }
+                    val doc = useKdomBuilder { it.build(readFragment(frag)) }
                     for(bva in XmlQueries.bvas(doc, xhtmlNamespace)) {
                         val ordinal = bva.getAttribute("ordinal")!!.value.toInt()
                         search.addContent(bva.text, frag.id, ordinal)
@@ -362,16 +368,16 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     }
 
     /** The WebView owns the returned stream; retirement waits until it is closed. */
-    fun openResource(resourcePath: String): java.io.InputStream? {
+    fun openResource(resourcePath: String): Source? {
         try { acquireUse() } catch (_: IllegalStateException) { return null }
         try {
-            val file = File(rootFolder, resourcePath)
-            if (!file.canRead()) {
+            val file = rootFolder.child(resourcePath)
+            if (!KFiles.exists(file)) {
                 releaseUse()
                 return null
             }
-            return object : java.io.FilterInputStream(file.inputStream()) {
-                private val released = java.util.concurrent.atomic.AtomicBoolean()
+            return object : ForwardingSource(FileSystem.SYSTEM.source(file)) {
+                private val released = atomic(false)
                 override fun close() {
                     if (released.compareAndSet(false, true)) {
                         try { super.close() } finally { releaseUse() }
@@ -385,8 +391,8 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
     }
 
     override fun getBookMetaData(): SwordBookMetaData {
-        return _metadata?: synchronized(this) {
-            val initials = epubInitials(File(epubDir.path).name)
+        return _metadata?: withMonitor(this) {
+            val initials = epubInitials(epubDir.name)
             val title = queryMetadata("title") ?: epubDir.name
             val description = queryMetadata("description")?: epubDir.name //TODO: should de-encode html stuff
             val abbreviation = title //.slice(0 .. min(5, title.length - 1))
@@ -398,13 +404,13 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
                 about = description,
                 language = language,
                 version = optimizerVersion,
-                path = epubDir.toRelativeString(SharedConstants.modulesDir)
+                path = epubDir.relativeTo(KoinPlatform.getKoin().get<AppDirectories>().modulesDir).toString()
             )
             Log.i(TAG, "Creating EpubBook metadata $initials, $description $language")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
             metadata.setDriver(EpubSwordDriver())
             this._metadata = metadata
-            return@synchronized metadata
+            return@withMonitor metadata
         }
     }
 
@@ -464,7 +470,7 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
             var failed = false
             for (frag in dao.fragments()) {
                 try {
-                    val doc = useKdomBuilder { it.build(StringReader(readFragment(frag))) }
+                    val doc = useKdomBuilder { it.build(readFragment(frag)) }
                     for (bva in XmlQueries.bvas(doc, xhtmlNamespace)) {
                         total += bva.text.length
                     }
@@ -480,5 +486,28 @@ class EpubBackendState(private val epubDir: File, internal val strings: CoreStri
             if (!failed) dao.insert(EpubMeta(totalCharacters = total))
             total
         }
+    }
+}
+
+/** `File(parent, child)` semantics for a child that may start with `/`: always relative to [this]. */
+internal fun Path.child(relative: String): Path = this / relative.trimStart('/')
+
+/** Reads an optimized fragment file; whole-fragment buffer, gzip as `GZIPOutputStream` wrote it before. */
+internal fun readFragment(path: Path): String = Gzip(KFiles.readBytes(path)).uncompress().decodeToString()
+
+/** Writes an optimized fragment file in the gzip format `GZIPInputStream` reads. */
+internal fun writeFragment(path: Path, content: String) {
+    KFiles.write(path, Gzip(content.toByteArray()).compress())
+}
+
+private fun gzipFile(source: Path, destination: Path) {
+    FileSystem.SYSTEM.source(source).use { input ->
+        GzipSink(FileSystem.SYSTEM.sink(destination)).buffer().use { it.writeAll(input) }
+    }
+}
+
+private fun gunzipFile(source: Path, destination: Path) {
+    GzipSource(FileSystem.SYSTEM.source(source)).buffer().use { input ->
+        FileSystem.SYSTEM.sink(destination).buffer().use { it.writeAll(input) }
     }
 }

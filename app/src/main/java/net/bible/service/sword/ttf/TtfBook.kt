@@ -18,14 +18,19 @@
 package net.bible.service.sword.ttf
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.SharedConstants
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import java.io.File
+import net.bible.sharedcore.platform.AppDirectories
+import okio.Path
+import org.crosswire.common.util.KFiles
+import org.crosswire.common.util.KUri
+import org.koin.mp.KoinPlatform
+import okio.FileSystem
+import net.bible.service.sword.isWritableFile
 
 const val TAG = "TtfBook"
 
@@ -39,19 +44,22 @@ class TtfSwordDriver: AbstractBookDriver() {
     }
 
     override fun isDeletable(book: Book): Boolean {
-        return book.ttfFile.canWrite()
+        return isWritableFile(book.ttfFile)
     }
 
     override fun delete(book: Book) {
-        book.ttfFile.delete()
+        KFiles.delete(book.ttfFile)
         Books.installed().removeBook(book)
     }
 }
 
-val Book.ttfFile: File get() {
+/** The `ttf` module folder, resolved through the [AppDirectories] port at call time. */
+internal fun ttfModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "ttf"
+
+val Book.ttfFile: Path get() {
     val providesFont = bookMetaData.getProperty("AndBibleProvidesFont") ?: ""
     val fileName = providesFont.split(";").getOrNull(1) ?: ""
-    return File(File(SharedConstants.modulesDir, "ttf"), fileName)
+    return ttfModulesDir() / fileName
 }
 
 /**
@@ -69,10 +77,10 @@ val Book.isManuallyInstalledTtf get() =
     bookMetaData.getProperty("AndBibleProvidesFont") != null &&
         (bookMetaData as? SwordBookMetaData)?.configFile == null
 
-fun addTtfBook(file: File) {
-    if (!(file.canRead() && file.isFile && file.extension.lowercase() == "ttf")) return
+fun addTtfBook(file: Path) {
+    if (!(KFiles.isFile(file) && file.name.substringAfterLast('.', "").lowercase() == "ttf")) return
     
-    val fontName = file.nameWithoutExtension
+    val fontName = file.name.substringBeforeLast('.')
     val moduleInitials = "TTF_$fontName"
     
     if (Books.installed().getBook(moduleInitials) != null) return
@@ -91,7 +99,7 @@ AndBibleMinimumVersion=892
     Log.i(TAG, "Creating TTF font module $moduleInitials, $fontName")
 
     val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
-    metadata.location = file.parentFile.toURI()
+    metadata.location = KUri("file", null, "${file.parent!!}/", null)
     metadata.setDriver(TtfSwordDriver())
     val backend = NullBackend()
     val book = SwordBook(metadata, backend)
@@ -99,11 +107,11 @@ AndBibleMinimumVersion=892
 }
 
 fun addManuallyInstalledTtfBooks() {
-    val dir = File(SharedConstants.modulesDir, "ttf")
-    if (!(dir.isDirectory && dir.canRead())) return
+    val dir = ttfModulesDir()
+    if (!KFiles.isDirectory(dir)) return
     
-    for (f in dir.walkTopDown()) {
-        if (f.isFile && f.canRead() && f.extension.lowercase() == "ttf") {
+    for (f in FileSystem.SYSTEM.listRecursively(dir)) {
+        if (KFiles.isFile(f) && f.name.substringAfterLast('.', "").lowercase() == "ttf") {
             addTtfBook(f)
         }
     }

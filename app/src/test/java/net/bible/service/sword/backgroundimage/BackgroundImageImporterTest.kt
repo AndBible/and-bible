@@ -98,20 +98,20 @@ class BackgroundImageImporterTest {
 
     @Test fun copyAndRegisterAddsModule() {
         val src = File(tmp, "hills.png").apply { writeBytes(onePixelPng()) }
-        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")
+        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")?.toFile()
         assertNotNull(out)
         assertEquals("bg.png", out!!.name)
         assertTrue(src.readBytes().contentEquals(out.readBytes()))
         assertTrue(out!!.parentFile!!.name == BACKGROUND_IMAGE_DIR)
         AndBibleAddons.clearCaches()
-        assertTrue(Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile == out })
+        assertTrue(Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile.toFile() == out })
     }
 
     @Test fun deleteRemovesModuleAndFile() {
         val src = File(tmp, "sky.png").apply { writeBytes(onePixelPng()) }
-        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")!!
+        val out = BackgroundImageImporter.copyAndRegister(source(src), "content://test/image")!!.toFile()
         AndBibleAddons.clearCaches()
-        val initials = Books.installed().getBooks().first { it.isBackgroundImageModule && it.backgroundImageFile == out }.initials
+        val initials = Books.installed().getBooks().first { it.isBackgroundImageModule && it.backgroundImageFile.toFile() == out }.initials
         impl.deleteBackgroundImage(initials)
         assertFalse(out.exists())
         assertFalse(AndBibleAddons.providedBackgroundImages.containsKey(initials))
@@ -126,8 +126,8 @@ class BackgroundImageImporterTest {
             override fun displayName(uri: String) = "bg"
             override fun mimeType(uri: String) = "image/png"
         }
-        val first = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!
-        val second = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!
+        val first = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!.toFile()
+        val second = BackgroundImageImporter.copyAndRegister(source, "content://test/image")!!.toFile()
         assertEquals("bg.png", first.name)
         assertEquals("bg_2.png", second.name)
         assertEquals(2, closed)

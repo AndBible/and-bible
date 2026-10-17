@@ -30,9 +30,8 @@ import net.bible.service.common.XmlQueries
 import net.bible.service.sword.SwordContentFacade
 import fi.sykero.kdom.Document
 import fi.sykero.kdom.Element
-import java.io.File
-import java.net.URLDecoder
-import java.util.zip.GZIPOutputStream
+import net.bible.sharedlogic.util.decodeUrl
+import org.crosswire.common.util.KFiles
 
 private val urlRe = Regex("""^https?://.*""")
 
@@ -40,11 +39,11 @@ const val EPUB_OPTIMIZER_VERSION = 2
 
 fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     val file = fileForOriginalId(origId)?: return Pair(null, 0)
-    val parentFolder = file.parentFile!!
+    val parentFolder = file.parent!!
 
     fun epubSrc(src: String): String {
-        val f = File(parentFolder, src)
-        val filePath = f.toRelativeString(rootFolder)
+        val f = parentFolder.child(src)
+        val filePath = f.normalized().relativeTo(rootFolder).toString()
         return "/epub/$filePath"
     }
 
@@ -63,8 +62,8 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
             val href = a.getAttribute("href")?.value?: continue
             val fileAndId = getFileAndId(href)
             if(fileAndId != null && !urlRe.matches(href)) {
-                val fileStr = URLDecoder.decode(fileAndId.first, "UTF-8")
-                val fileName = if(fileStr.isEmpty()) null else File(parentFolder, fileStr).toRelativeString(rootFolder)
+                val fileStr = decodeUrl(fileAndId.first)
+                val fileName = if(fileStr.isEmpty()) null else parentFolder.child(fileStr).normalized().relativeTo(rootFolder).toString()
                 val id: String = fileName?.let {fileToId[it] }?: origId
                 a.name = "epubRef"
                 a.setAttribute("to-key", id)
@@ -76,7 +75,7 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
         return e
     }
 
-    return useKdomBuilder { it.build(file) }
+    return useKdomBuilder { it.build(KFiles.readBytes(file)) }
         .let {
             val processed = fixReferences(it.rootElement)
             val body = XmlQueries.body(processed, xhtmlNamespace)
@@ -188,20 +187,16 @@ fun EpubBackendState.optimizeEpub() {
     }
 
     fun writeFragment(frag: EpubFragment) {
-        val f = File(fragDir, frag.fragFileName)
+        val f = fragDir.child(frag.fragFileName)
         val body = XmlQueries.body(frag.element!!, xhtmlNamespace)!!
         body.name = "div"
         val strContent = elementToString(body)
-        f.outputStream().use {out ->
-            GZIPOutputStream(out).use {gzip ->
-                gzip.write(strContent.toByteArray())
-            }
-        }
+        writeFragment(f, strContent)
     }
 
-    fragDir.deleteRecursively()
-    fragDir.mkdirs()
-    optimizeLockFile.outputStream().use { it.write(1)}
+    KFiles.deleteRecursively(fragDir)
+    KFiles.createDirectories(fragDir)
+    KFiles.write(optimizeLockFile, byteArrayOf(1))
     val writeDb = getEpubDatabase(appDbFilename)
     val writeDao = writeDb.epubDao()
     // The database file lives in internal storage and can outlive the (external) epub dir
@@ -243,13 +238,11 @@ fun EpubBackendState.optimizeEpub() {
             frag.element = null // clear up memory
         }
         blockingAtEdge { writeDao.insert(*epubHtmlToFrags.toTypedArray()) } // L1-edge: JSword BookType.getBackend (first open optimizes)
-        fileForOriginalId(k)?.delete()
+        fileForOriginalId(k)?.let { KFiles.delete(it) }
     }
-    versionFile.outputStream().use {
-        it.write("$EPUB_OPTIMIZER_VERSION".toByteArray())
-    }
+    KFiles.write(versionFile, "$EPUB_OPTIMIZER_VERSION".toByteArray())
     val total = (System.currentTimeMillis() - start) / 1000
     writeDb.close()
-    optimizeLockFile.delete()
+    KFiles.delete(optimizeLockFile)
     Log.i(TAG, "Total time in optimization: $total")
 }

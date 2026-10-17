@@ -1,5 +1,6 @@
 package net.bible.service.common
 
+import okio.Path.Companion.toOkioPath
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.k5.K5EpubFixture
@@ -159,7 +160,7 @@ class XmlQueriesJaxenParityTest {
             val source = K5EpubFixture.create(sourceDir)
             ArchiveUtils.unzipFile(source, moduleDir)
             state = net.bible.service.sword.epub.EpubBackendState(
-                moduleDir, net.bible.test.testCoreStrings(),
+                moduleDir.toOkioPath(), net.bible.test.testCoreStrings(),
                 net.bible.android.platform.AndroidAppEnvironment(net.bible.android.BibleApplication.application),
             )
             val fragments = java.io.File(moduleDir, "optimized").listFiles()!!

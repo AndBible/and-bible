@@ -18,7 +18,10 @@
 package net.bible.service.sword.epub
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.SharedConstants
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedlogic.sync.withMonitor
+import org.crosswire.common.util.KFiles
+import org.koin.mp.KoinPlatform
 import net.bible.android.database.EpubDatabase
 import net.bible.android.database.epubMigrations
 import net.bible.service.db.buildAppDatabase
@@ -36,11 +39,11 @@ import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import fi.sykero.kdom.input.JDOMParseException
-import org.koin.java.KoinJavaComponent
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
-import java.io.File
-import java.io.IOException
+import okio.Path
+import okio.Path.Companion.toPath
+import okio.IOException
 
 fun getConfig(
     initials: String,
@@ -125,61 +128,63 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     override fun getBook(sbmd: SwordBookMetaData, backend: Backend<*>): Book =
         SwordGenBook(sbmd, backend)
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val state = EpubBackendState(File(sbmd.location), sbmd, KoinJavaComponent.get(CoreStrings::class.java), KoinJavaComponent.get(AppEnvironment::class.java)) // L1-edge: JSword BookType.getBackend constructs the backend
+        val state = EpubBackendState(sbmd.location!!.getPath()!!.toPath(), sbmd, KoinPlatform.getKoin().get<CoreStrings>(), KoinPlatform.getKoin().get<AppEnvironment>()) // L1-edge: JSword BookType.getBackend constructs the backend
         return EpubBackend(state, sbmd)
     }
 }
 
 /** Per-module ownership, independent of registry membership while an old owner drains. */
-private val epubModuleOwners = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
-private fun moduleOwner(dir: File) = epubModuleOwners.getOrPut(epubInitials(dir.name)) {
-    kotlinx.coroutines.sync.Mutex()
+private val epubModuleOwners = mutableMapOf<String, kotlinx.coroutines.sync.Mutex>()
+private fun moduleOwner(dir: Path) = withMonitor(epubModuleOwners) {
+    epubModuleOwners.getOrPut(epubInitials(dir.name)) {
+        kotlinx.coroutines.sync.Mutex()
+    }
 }
 
 /** Initials whose install or same-name replacement currently owns the module, possibly with no registered Book. */
-private val pendingEpubInstalls = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+private val pendingEpubInstalls = mutableSetOf<String>()
 
 /**
  * True while an install of [initials] is in progress. A replaced module is briefly absent from the registry while
  * its old owner drains; this distinguishes that gap from a permanent deletion.
  */
-fun isEpubInstallPending(initials: String): Boolean = initials in pendingEpubInstalls
+fun isEpubInstallPending(initials: String): Boolean = withMonitor(pendingEpubInstalls) { initials in pendingEpubInstalls }
 
 /**
  * Runs [block] (the install or replacement) while holding the module owner lock and marking the install pending.
  * Do not call [deleteEpubModule] from inside [block]: it takes the same lock and would deadlock.
  */
-suspend fun installEpubModule(dir: File, block: () -> Boolean): Boolean = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+suspend fun installEpubModule(dir: Path, block: () -> Boolean): Boolean = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
     val owner = moduleOwner(dir)
     val initials = epubInitials(dir.name)
     owner.lock()
-    pendingEpubInstalls.add(initials)
+    withMonitor(pendingEpubInstalls) { pendingEpubInstalls.add(initials) }
     try { block() } finally {
-        pendingEpubInstalls.remove(initials)
+        withMonitor(pendingEpubInstalls) { pendingEpubInstalls.remove(initials) }
         owner.unlock()
     }
 }
 
 /** Retire the registered owner before removing external files and the internal metadata cache. */
-fun deleteEpubModule(epubDir: File) {
+fun deleteEpubModule(epubDir: Path) {
     val owner = moduleOwner(epubDir)
     net.bible.service.db.blockingAtEdge { owner.lock() } // L1-edge: JSword driver delete is synchronous
     try { deleteOwnedEpubModule(epubDir) } finally { owner.unlock() }
 }
 
 /** Deletes the module's files and retires its owner; the caller must already hold the module owner lock. */
-internal fun deleteOwnedEpubModule(epubDir: File) {
+internal fun deleteOwnedEpubModule(epubDir: Path) {
     val oldBook = Books.installed().getBook(epubInitials(epubDir.name))
     oldBook?.epubBackend?.state?.let { state ->
         Books.installed().removeBook(oldBook)
         state.close()
     }
-    epubDir.deleteRecursively()
+    KFiles.deleteRecursively(epubDir)
     val appDbFilename = "epub-${epubInitials(epubDir.name)}.sqlite3"
     deleteAppDatabase(appDbFilename)
 }
 
-fun addEpubBook(epubDir: File, strings: CoreStrings, environment: AppEnvironment) {
+fun addEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment) {
     val owner = moduleOwner(epubDir)
     if (!owner.tryLock()) return // Discovery must not reopen a retiring or partially extracted module.
     try {
@@ -194,11 +199,11 @@ fun addEpubBook(epubDir: File, strings: CoreStrings, environment: AppEnvironment
     }
 }
 
-internal fun addOwnedEpubBook(epubDir: File, strings: CoreStrings, environment: AppEnvironment) {
-    if(!(epubDir.canRead() && epubDir.isDirectory)) return
+internal fun addOwnedEpubBook(epubDir: Path, strings: CoreStrings, environment: AppEnvironment) {
+    if(!KFiles.isDirectory(epubDir)) return
 
-    val optimizeLockFile = File(epubDir, "optimize.lock")
-    if(optimizeLockFile.exists()) {
+    val optimizeLockFile = epubDir / "optimize.lock"
+    if(KFiles.exists(optimizeLockFile)) {
         // Optimization has failed, better we remove module so that
         // it does crash every time. Hoping user also sends bug report about crash...
         deleteOwnedEpubModule(epubDir)
@@ -229,13 +234,16 @@ internal fun addOwnedEpubBook(epubDir: File, strings: CoreStrings, environment: 
     Books.installed().addBook(book)
 }
 
+/** The `epub` module folder, resolved through the [AppDirectories] port at call time. */
+internal fun epubModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "epub"
+
 fun addManuallyInstalledEpubBooks(strings: CoreStrings, environment: AppEnvironment): Boolean {
-    val dir = File(SharedConstants.modulesDir, "epub")
-    dir.mkdirs()
-    if(!(dir.isDirectory && dir.canRead())) return false
+    val dir = epubModulesDir()
+    KFiles.createDirectories(dir)
+    if(!KFiles.isDirectory(dir)) return false
     var ok = true
 
-    for(f in dir.listFiles()!!) {
+    for(f in KFiles.list(dir).map { dir / it }) {
         try {
             addEpubBook(f, strings, environment)
         } catch (e: JDOMParseException) {

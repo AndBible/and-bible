@@ -74,7 +74,7 @@ class BackgroundImageBookTest {
         assertNotNull("A background-image module should register", book)
         assertTrue(book!!.initials.startsWith("BGIMG_"))
         assertEquals("sunset.jpg", book.backgroundImageFile.name)
-        assertTrue(book.backgroundImageFile.exists())
+        assertTrue(book.backgroundImageFile.toFile().exists())
     }
 
     @Test

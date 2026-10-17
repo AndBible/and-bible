@@ -21,7 +21,8 @@ import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
-import net.bible.android.SharedConstants
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedlogic.sync.withMonitor
 import net.bible.service.db.openReadOnlyModuleDb
 import net.bible.service.db.queryFirst
 import net.bible.service.db.queryRows
@@ -47,6 +48,10 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
+import okio.FileSystem
+import okio.Path
+import org.crosswire.common.util.KFiles
+import org.koin.mp.KoinPlatform
 
 private fun getConfig(data: MySwordModuleInfo): String {
     var conf = """
@@ -101,7 +106,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
 
     private var _sqlDb: SQLiteConnection? = null
 
-    val sqlDb: SQLiteConnection get() = synchronized(this) {
+    val sqlDb: SQLiteConnection get() = withMonitor(this) {
         _sqlDb ?: run {
             Log.i(TAG, "initDatabase ${sqliteFile.name}")
             val db = openReadOnlyModuleDb(sqliteFile)
@@ -115,14 +120,14 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
      * not safe for concurrent use (the old framework-style database was), so every query goes through the state's lock.
      */
     fun <T> rows(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): List<T> =
-        synchronized(this) { sqlDb.queryRows(sql, *args, row = row) }
+        withMonitor(this) { sqlDb.queryRows(sql, *args, row = row) }
 
     /** Like [rows], but maps only the first row, or returns null when there is none. */
     fun <T> firstRow(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): T? =
-        synchronized(this) { sqlDb.queryFirst(sql, *args, row = row) }
+        withMonitor(this) { sqlDb.queryFirst(sql, *args, row = row) }
 
     override fun close() {
-        synchronized(this) {
+        withMonitor(this) {
             Log.i(TAG, "close database ${sqliteFile.name}")
             _sqlDb?.close()
             _sqlDb = null
@@ -135,7 +140,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 
     override fun getBookMetaData(): SwordBookMetaData {
-        return metadata?: synchronized(this) {
+        return metadata?: withMonitor(this) {
             val db = this.sqlDb
             val dbFile = sqliteFile
             val categoryAbbreviation = dbFile.nameWithoutExtension.substringAfterLast('.', "")
@@ -191,7 +196,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
 
             metadata.setDriver(SqliteSwordDriver())
             this.metadata = metadata
-            return@synchronized metadata
+            return@withMonitor metadata
         }
     }
 
@@ -423,13 +428,16 @@ fun addMySwordBook(file: File) {
     return
 }
 
-fun addManuallyInstalledMySwordBooks() {
-    val dir = File(SharedConstants.modulesDir, "mysword")
-    if(!(dir.isDirectory && dir.canRead())) return
+/** The `mysword` module folder, resolved through the [AppDirectories] port at call time. */
+internal fun mySwordModulesDir(): Path = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "mysword"
 
-    for(f in dir.walkTopDown()) {
-        if(f.isFile && f.canRead() && f.path.lowercase().endsWith(".mybible")) {
-            addMySwordBook(f)
+fun addManuallyInstalledMySwordBooks() {
+    val dir = mySwordModulesDir()
+    if(!KFiles.isDirectory(dir)) return
+
+    for(f in FileSystem.SYSTEM.listRecursively(dir)) {
+        if(KFiles.isFile(f) && f.toString().lowercase().endsWith(".mybible")) {
+            addMySwordBook(File(f.toString()))
         }
     }
 }

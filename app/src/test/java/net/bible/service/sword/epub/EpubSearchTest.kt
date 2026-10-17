@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.epub
 
+import okio.Path.Companion.toOkioPath
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import org.junit.After
@@ -48,7 +49,7 @@ class EpubSearchTest {
         dir.deleteRecursively()
     }
 
-    private fun search() = EpubSearch(File(dir, "search.sqlite3"))
+    private fun search() = EpubSearch(File(dir, "search.sqlite3").toOkioPath())
 
     @Test
     fun indexLifecycleIsReportedByIsIndexed() {
@@ -98,14 +99,14 @@ class EpubSearchTest {
 
     @Test
     fun anUnopenableFileCannotSilentlyAcceptIndexMutations() {
-        val s = EpubSearch(File(File(dir, "missing-folder"), "search.sqlite3"))
+        val s = EpubSearch(File(File(dir, "missing-folder"), "search.sqlite3").toOkioPath())
         assertThrows(IllegalStateException::class.java) { s.createTable() }
         assertThrows(IllegalStateException::class.java) { s.addContent("x", 1L, 1) }
     }
 
     @Test
     fun anUnopenableFileDegradesToNotIndexedAndNoResults() {
-        val s = EpubSearch(File(File(dir, "missing-folder"), "search.sqlite3"))
+        val s = EpubSearch(File(File(dir, "missing-folder"), "search.sqlite3").toOkioPath())
         assertFalse(s.isIndexed)
         assertEquals(emptyList<EpubSearchResult>(), s.search("x"))
         assertThrows(IllegalStateException::class.java) { s.addContent("x", 1L, 1) }

@@ -17,6 +17,7 @@
 
 package net.bible.service.db
 
+import okio.Path.Companion.toOkioPath
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.runBlocking
@@ -121,7 +122,7 @@ class CorruptDatabaseRecoveryTest {
         val db = application.getDatabasePath(initialsName)
         assertTrue("Room 3 created its lock file", File(db.path + ".lck").exists())
 
-        deleteEpubModule(dir)
+        deleteEpubModule(dir.toOkioPath())
 
         assertFalse(db.exists())
         assertFalse("the .lck must not be orphaned", File(db.path + ".lck").exists())

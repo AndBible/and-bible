@@ -17,6 +17,8 @@
 
 package net.bible.service.sword.epub
 
+import okio.Path.Companion.toOkioPath
+import okio.buffer
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.launch
@@ -134,7 +136,7 @@ class EpubBackendStateTest {
         return epubDir
     }
 
-    private fun newState(dir: File) = EpubBackendState(dir, strings = testCoreStrings(), env = AndroidAppEnvironment(application))
+    private fun newState(dir: File) = EpubBackendState(dir.toOkioPath(), strings = testCoreStrings(), env = AndroidAppEnvironment(application))
 
     @Test
     fun suspendQueriesReadGeneratedXhtmlAndToc() = runTest {
@@ -208,7 +210,7 @@ class EpubBackendStateTest {
                 return name
             }
         }
-        val state = EpubBackendState(dir, strings, AndroidAppEnvironment(application))
+        val state = EpubBackendState(dir.toOkioPath(), strings, AndroidAppEnvironment(application))
         buildJob = launch(start = kotlinx.coroutines.CoroutineStart.LAZY) { state.buildSearchIndex() }
         try {
             buildJob.start()
@@ -254,7 +256,7 @@ class EpubBackendStateTest {
         state.buildSearchIndex()
         assertEquals(1, state.search("quartz").size)
         assertTrue(state.search("quiet").isEmpty())
-        val disk = EpubSearch(File(epubRoot, "$name/epub-${epubInitials(name)}-search.sqlite3"))
+        val disk = EpubSearch(File(epubRoot, "$name/epub-${epubInitials(name)}-search.sqlite3").toOkioPath())
         try {
             assertEquals(1, disk.search("quartz").size)
             assertTrue(disk.search("quiet").isEmpty())
@@ -328,7 +330,7 @@ class EpubBackendStateTest {
             }
             assertTrue("replacement retires registered book", removed.await(5, java.util.concurrent.TimeUnit.SECONDS))
             assertFalse("replacement must wait for active producer", replacement.isCompleted)
-            assertTrue("old fragments remain until producer exits", old.fragDir.listFiles()!!.isNotEmpty())
+            assertTrue("old fragments remain until producer exits", old.fragDir.toFile().listFiles()!!.isNotEmpty())
             release.countDown()
             assertTrue(replacement.await())
             appJob.children.forEach { it.join() }
@@ -377,7 +379,7 @@ class EpubBackendStateTest {
             val first = scope.async { committer().commitEpub(b, name, true) }.also { tasks.add(it) }
             assertTrue(removed.await(5, java.util.concurrent.TimeUnit.SECONDS))
             // Discovery is synchronous: it must skip a module whose replacement owns the path.
-            addEpubBook(File(epubRoot, name), testCoreStrings(), AndroidAppEnvironment(application))
+            addEpubBook(File(epubRoot, name).toOkioPath(), testCoreStrings(), AndroidAppEnvironment(application))
             assertEquals("discovery must not republish retiring A", null, books.getBook(epubInitials(name)))
             val second = scope.async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
                 committer().commitEpub(c, name, true)
@@ -529,7 +531,7 @@ class EpubBackendStateTest {
                 val page = generalBookPage()
                 page.onlySetCurrentDocument(oldBook)
                 File(epubRoot, "$name/OEBPS/asset.txt").writeText("quiet asset")
-                stream = oldBook.epubBackend!!.openResource("asset.txt")!!
+                stream = oldBook.epubBackend!!.openResource("asset.txt")!!.buffer().inputStream()
                 books.addBooksListener(listener)
                 val b = epubArchive(name, "quartz")
                 replacement = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).async {
@@ -701,8 +703,8 @@ class EpubBackendStateTest {
             }
             assertTrue(removed.await(5, java.util.concurrent.TimeUnit.SECONDS))
             assertFalse(replacement.isCompleted)
-            assertTrue("active reader retains original fragment directory", old.fragDir.isDirectory)
-            assertTrue(old.fragDir.listFiles()!!.isNotEmpty())
+            assertTrue("active reader retains original fragment directory", old.fragDir.toFile().isDirectory)
+            assertTrue(old.fragDir.toFile().listFiles()!!.isNotEmpty())
             release.countDown()
             val result = reader.await()
             if (render) assertTrue((result as String).contains("quiet"))

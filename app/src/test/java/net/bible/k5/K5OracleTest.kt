@@ -1,5 +1,6 @@
 package net.bible.k5
 
+import okio.Path.Companion.toOkioPath
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
@@ -379,7 +380,7 @@ class K5OracleTest {
             }
         } finally {
             book?.let { Books.installed().removeBook(it) }
-            deleteEpubModule(dir)
+            deleteEpubModule(dir.toOkioPath())
             tmp.deleteRecursively()
         }
     }
