@@ -7,12 +7,10 @@ document
 navigation
 link
 speak
-cloudsync
 backup
 download
 installzip
 
-sword
 llm
 page
 search

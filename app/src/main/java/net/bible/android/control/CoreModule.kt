@@ -102,6 +102,7 @@ import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.platform.MarkdownRenderer
 import net.bible.android.platform.AndroidCoreStrings
 import net.bible.android.platform.AndroidDateTimeFormats
 import net.bible.android.platform.AndroidUserNotifier
@@ -209,6 +210,8 @@ fun buildCoreModule() = module {
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
     single { BookInstallWatcher(get(), get(), get(), get()) }
     single<UserNotifier> { AndroidUserNotifier() }
+    single<MarkdownRenderer> { net.bible.service.sword.mydocument.MarkdownToXhtml }
+    single<net.bible.sharedcore.platform.AppDirectories> { net.bible.android.AndroidAppDirectories() }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<net.bible.android.control.page.GlobalTextDisplaySettingsSource> {

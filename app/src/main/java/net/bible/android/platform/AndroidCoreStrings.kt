@@ -143,4 +143,5 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val sendExportFile: String get() = context.getString(R.string.send_export_file)
     override val exportDestinationTitle: String get() = context.getString(R.string.export_destination_title)
     override val exportDestinationMessage: String get() = context.getString(R.string.export_destination_message)
+    override fun searchUnsupportedSyntax(syntax: String): String = context.getString(R.string.search_unsupported_syntax, syntax)
 }

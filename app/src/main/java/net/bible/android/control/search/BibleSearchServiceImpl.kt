@@ -16,9 +16,7 @@
  */
 package net.bible.android.control.search
 
-import android.content.Context
 import net.bible.sharedcore.log.Log
-import net.bible.sharedui.strings.AndroidStrings
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.BookException
 import kotlinx.coroutines.Dispatchers
@@ -57,7 +55,6 @@ class BibleSearchServiceImpl(
     private val highlighter: SearchTextHighlighter,
     private val settings: AppSettings,
     private val strings: net.bible.sharedcore.platform.CoreStrings,
-    private val context: Context,
 ) : BibleSearchService {
 
     override fun validateIndex(request: SearchRequest): Boolean =
@@ -92,7 +89,7 @@ class BibleSearchServiceImpl(
             // The shared controller shows the message of whatever is thrown. Other failures (a query that does
             // not parse, an index that cannot be opened) keep their JSword message.
             val unsupported = unsupportedSyntaxIn(e) ?: throw e
-            throw SearchSyntaxException(AndroidStrings(context).searchUnsupportedSyntax(unsupported.syntax), e)
+            throw SearchSyntaxException(strings.searchUnsupportedSyntax(unsupported.syntax), e)
         }
         val main = dto.mainSearchResults.map { it.toRow(terms, lemmaTerms) }
         val other = dto.otherSearchResults.map { it.toRow(terms, lemmaTerms) }
