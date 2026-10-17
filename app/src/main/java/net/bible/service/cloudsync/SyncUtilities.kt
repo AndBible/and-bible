@@ -44,6 +44,7 @@ import java.io.File
 import java.lang.Exception
 
 const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
+const val LAST_SYNCHRONIZED_KEY = "lastSynchronized"
 
 enum class SyncableDatabaseDefinition {
     BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS, PROGRESS;
