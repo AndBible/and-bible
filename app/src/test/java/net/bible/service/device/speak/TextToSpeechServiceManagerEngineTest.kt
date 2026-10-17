@@ -747,6 +747,35 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
     @Test fun liveStatusFailurePublishesCoherentTerminalState() = failLiveOperation("status")
 
     @Test
+    fun persistedSpeakLocaleRoundTrips() {
+        val settings = GlobalContext.get().get<net.bible.sharedcore.platform.AppSettings>()
+        val oldSupported = settings.getString("TTS_LANG_SUPPORTED", "")
+        try {
+            for (persisted in listOf("en_GB", "he", "zh_TW")) {
+                settings.setString("SpeakLocale", persisted)
+                configureFreshControl()
+                val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+                // Oracle: the old java.util.Locale path, inlined.
+                val oracle = Locale(persisted)
+                val restored = org.robolectric.util.ReflectionHelpers.getField<net.bible.sharedlogic.platform.LocaleValue>(manager, "currentLocale")
+                assertEquals("tag for $persisted", oracle.toLanguageTag(), restored.languageTag)
+                assertEquals("persisted form for $persisted", oracle.toString(), restored.asString)
+                assertEquals("language for $persisted", oracle.language, restored.language)
+
+                // TTS_LANG_SUPPORTED holds the same language codes as the old Locale-based code.
+                settings.setString("TTS_LANG_SUPPORTED", "")
+                TTSLanguageSupport(settings).addSupportedLocale(restored)
+                assertEquals(",${oracle.language}", settings.getString("TTS_LANG_SUPPORTED", ""))
+                TTSLanguageSupport(settings).addUnsupportedLocale(restored)
+                assertEquals("", settings.getString("TTS_LANG_SUPPORTED", ""))
+            }
+        } finally {
+            settings.setString("TTS_LANG_SUPPORTED", oldSupported ?: "")
+            settings.removeString("SpeakLocale")
+        }
+    }
+
+    @Test
     fun restoredPausedBibleHasStatusWithoutEngineStartup() {
         start(supportedFinnish())
         val manager = GlobalContext.get().get<TextToSpeechServiceManager>()

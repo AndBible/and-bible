@@ -33,7 +33,7 @@ class LocaleTagRoundTripTest {
     @Test fun changeLanguageCommandPassesTheCompleteLanguageTag() {
         for (locale in locales) {
             val engine = mock(SpeakEngine::class.java)
-            ChangeLanguageCommand(locale).speak(engine, "language-change")
+            ChangeLanguageCommand(AndroidLocaleSupport.from(locale)).speak(engine, "language-change")
             verify(engine).setLanguage(locale.toLanguageTag())
         }
     }

@@ -26,15 +26,17 @@ import net.bible.android.control.speak.SpeakChanges
 import net.bible.service.sword.SwordContentFacade.Companion.getTextToSpeak
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import java.text.BreakIterator
-import java.util.*
-import java.util.regex.Pattern
+import net.bible.sharedlogic.platform.SentenceBreaker
+import org.koin.mp.KoinPlatform
+import kotlin.math.max
+import kotlin.math.min
 
 /** Keep track of a list of chunks of text being fed to TTS
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class LegacySpeakTextProvider(private val settings: AppSettings, private val strings: net.bible.sharedcore.platform.CoreStrings, private val saxTextPolicy: net.bible.service.format.SaxTextPolicy) : SpeakTextProvider {
+    private val sentenceBreaker: SentenceBreaker by lazy { KoinPlatform.getKoin().get() }
     private var mTextToSpeak: MutableList<String?>? = ArrayList()
     private var nextTextToSpeak: Long = 0
 
@@ -168,7 +170,7 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         // accumulate these fractions until we reach the end of a chunk of text
         // if pause several times the fraction of text completed becomes a fraction of the fraction left i.e. 1-previousFractionCompleted
         // also ensure the fraction is never greater than 1/all text
-        fractionOfNextSentenceSpoken += Math.min(1.0,
+        fractionOfNextSentenceSpoken += min(1.0,
             (1.0 - fractionOfNextSentenceSpoken) * fractionCompleted)
         Log.i(TAG, "Fraction of current sentence spoken:$fractionOfNextSentenceSpoken")
         backOneChunk()
@@ -298,13 +300,11 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
     private fun getPrevTextStartPos(text: String?, fraction: Double): StartPos {
         val retVal = StartPos()
         val allTextLength = text!!.length
-        val nextTextOffset = (Math.min(1.0, fraction) * allTextLength).toInt()
-        val breakIterator = BreakIterator.getSentenceInstance()
-        breakIterator.setText(text)
+        val nextTextOffset = (min(1.0, fraction) * allTextLength).toInt()
         var startPos = 0
         try {
             // this can rarely throw an Exception
-            startPos = breakIterator.preceding(nextTextOffset)
+            startPos = sentenceBreaker.preceding(text, nextTextOffset)
         } catch (e: Exception) {
             Log.e(TAG, "Error finding previous sentence start", e)
         }
@@ -322,13 +322,11 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
     private fun getForwardTextStartPos(text: String?, fraction: Double): StartPos {
         val retVal = StartPos()
         val allTextLength = text!!.length
-        val nextTextOffset = (Math.min(1.0, fraction) * allTextLength).toInt()
-        val breakIterator = BreakIterator.getSentenceInstance()
-        breakIterator.setText(text)
+        val nextTextOffset = (min(1.0, fraction) * allTextLength).toInt()
         var startPos = 0
         try {
             // this can rarely throw an Exception
-            startPos = breakIterator.following(nextTextOffset)
+            startPos = sentenceBreaker.following(text, nextTextOffset)
         } catch (e: Exception) {
             Log.e(TAG, "Error finding next sentence start", e)
         }
@@ -358,12 +356,13 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
             chunks1.add(text)
         } else {
             // break up the text at sentence ends
-            val matcher = BREAK_PATTERN.matcher(text)
             var matchedUpTo = 0
-            while (matcher.find()) {
-                val nextEnd = matcher.end()
+            var match = BREAK_PATTERN.find(text, 0)
+            while (match != null) {
+                val nextEnd = match.range.last + 1
                 chunks1.add(text.substring(matchedUpTo, nextEnd))
                 matchedUpTo = nextEnd
+                match = match.next()
             }
 
             // add on the final part of the text, if there is any
@@ -393,7 +392,7 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         val ret: MutableList<String?> = ArrayList((text.length + size - 1) / size)
         var start = 0
         while (start < text.length) {
-            ret.add(text.substring(start, Math.min(text.length, start + size)))
+            ret.add(text.substring(start, min(text.length, start + size)))
             start += size
         }
         return ret
@@ -403,8 +402,8 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         var startFraction = startPos.toFloat() / text!!.length
 
         // ensure fraction is between 0 and 1
-        startFraction = Math.max(0f, startFraction)
-        startFraction = Math.min(1f, startFraction)
+        startFraction = max(0f, startFraction)
+        startFraction = min(1f, startFraction)
         return startFraction
     }
 
@@ -441,7 +440,7 @@ class LegacySpeakTextProvider(private val settings: AppSettings, private val str
         private const val MAX_SPEECH_ITEM_CHAR_LENGTH = 4000
 
         // require DOTALL to allow . to match new lines which occur in books like JOChrist
-        private val BREAK_PATTERN = Pattern.compile(".{100,2000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL)
+        private val BREAK_PATTERN = Regex("(?s).{100,2000}[a-z]+[.?!][\\s]{1,}+")
 
         // enable state to be persisted if paused for a long time
         private const val PERSIST_SPEAK_TEXT = "SpeakText"

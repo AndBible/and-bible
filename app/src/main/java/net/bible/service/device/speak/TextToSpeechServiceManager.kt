@@ -45,8 +45,9 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 
-import java.util.ArrayList
-import java.util.Locale
+import net.bible.sharedlogic.platform.LocaleSupport
+import net.bible.sharedlogic.platform.LocaleValue
+import org.koin.mp.KoinPlatform
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.android.control.speak.SPEAK_KEY
 import kotlinx.coroutines.CoroutineDispatcher
@@ -104,8 +105,9 @@ class TextToSpeechServiceManager constructor(
     private var pendingInit: Boolean? = null
     private var configuredEnginePackage: String? = null
 
-    private var localePreferenceList: MutableList<Locale> = ArrayList()
-    private var currentLocale: Locale = Locale.getDefault()
+    private val localeSupport: LocaleSupport by lazy { KoinPlatform.getKoin().get() }
+    private var localePreferenceList: MutableList<LocaleValue> = ArrayList()
+    private var currentLocale: LocaleValue = localeSupport.default
 
     @Volatile private var mSpeakTextProvider: SpeakTextProvider
 
@@ -244,13 +246,13 @@ class TextToSpeechServiceManager constructor(
                             setRate(SpeakSettings.load().playbackSettings.speed)
 
                             var localeOK = false
-                            var locale: Locale? = null
+                            var locale: LocaleValue? = null
                             var i = 0
                             while (i < localePreferenceList.size && !localeOK) {
                                 locale = localePreferenceList[i]
                                 Log.i(TAG, "Checking for locale:$locale")
                                 try {
-                                    val result = tts.setLanguage(locale.toLanguageTag())
+                                    val result = tts.setLanguage(locale.languageTag)
                                     localeOK = result != SpeakLanguageResult.MISSING_DATA && result != SpeakLanguageResult.NOT_SUPPORTED
                                     if (localeOK) {
                                         Log.i(TAG, "Successful locale:$locale")
@@ -404,11 +406,11 @@ class TextToSpeechServiceManager constructor(
         }
     }
 
-    private fun calculateLocalePreferenceList(fromBook: Book): MutableList<Locale> {
+    private fun calculateLocalePreferenceList(fromBook: Book): MutableList<LocaleValue> {
         return calculateLocalePreferenceListForCode(fromBook.language?.code)
     }
 
-    private fun calculateLocalePreferenceListForCode(languageCode: String?): MutableList<Locale> {
+    private fun calculateLocalePreferenceListForCode(languageCode: String?): MutableList<LocaleValue> {
         //calculate preferred locales to use for speech
         // Set preferred language to the same language as the book.
         // Note that a language may not be available, and so we have a preference list
@@ -418,19 +420,19 @@ class TextToSpeechServiceManager constructor(
         // Validate and sanitize the language code to prevent TTS crashes
         if (bookLanguageCode.isNullOrBlank() || bookLanguageCode.length < 2) {
             Log.w(TAG, "Invalid book language code '$bookLanguageCode', falling back to default locale")
-            bookLanguageCode = Locale.getDefault().language
+            bookLanguageCode = localeSupport.default.language
         }
 
-        val localePreferenceList = ArrayList<Locale>()
-        if (bookLanguageCode == Locale.getDefault().language) {
+        val localePreferenceList = ArrayList<LocaleValue>()
+        if (bookLanguageCode == localeSupport.default.language) {
             // for people in UK the UK accent is preferable to the US accent
-            localePreferenceList.add(Locale.getDefault())
+            localePreferenceList.add(localeSupport.default)
         }
 
         // try to get the native country for the lang
         val countryCode = getDefaultCountryCode(bookLanguageCode)
         if (countryCode != null) {
-            localePreferenceList.add(Locale(bookLanguageCode, countryCode))
+            localePreferenceList.add(localeSupport.of(bookLanguageCode, countryCode))
         }
 
         // Speak ancient greek with modern greece.
@@ -439,7 +441,7 @@ class TextToSpeechServiceManager constructor(
         }
 
         // finally just add the language of the book
-        localePreferenceList.add(Locale(bookLanguageCode))
+        localePreferenceList.add(localeSupport.of(bookLanguageCode))
         return localePreferenceList
     }
 
@@ -453,13 +455,13 @@ class TextToSpeechServiceManager constructor(
     }
 
     private fun getDefaultCountryCode(language: String): String? {
-        if (language == "en") return Locale.UK.country
-        if (language == "fr") return Locale.FRANCE.country
-        if (language == "de") return Locale.GERMANY.country
-        if (language == "zh") return Locale.CHINA.country
-        if (language == "it") return Locale.ITALY.country
-        if (language == "jp") return Locale.JAPAN.country
-        if (language == "ko") return Locale.KOREA.country
+        if (language == "en") return "GB"
+        if (language == "fr") return "FR"
+        if (language == "de") return "DE"
+        if (language == "zh") return "CN"
+        if (language == "it") return "IT"
+        if (language == "jp") return "JP"
+        if (language == "ko") return "KR"
         if (language == "hu") return "HU"
         if (language == "cs") return "CZ"
         if (language == "fi") return "FI"
@@ -839,7 +841,7 @@ class TextToSpeechServiceManager constructor(
 
         mSpeakTextProvider.persistState()
         settings.apply {
-            setString(PERSIST_LOCALE_KEY, currentLocale.toString())
+            setString(PERSIST_LOCALE_KEY, currentLocale.asString)
             setBoolean(PERSIST_BIBLE_PROVIDER, isBible)
         }
     }
@@ -861,7 +863,7 @@ class TextToSpeechServiceManager constructor(
             Log.i(TAG, "Now pause state is $isPaused")
 
             // restore locale information so tts knows which voice to load when it initialises
-            currentLocale = Locale(settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString())!!)
+            currentLocale = localeSupport.parse(settings.getString(PERSIST_LOCALE_KEY, localeSupport.default.asString)!!)
             localePreferenceList = ArrayList()
             localePreferenceList.add(currentLocale)
         }

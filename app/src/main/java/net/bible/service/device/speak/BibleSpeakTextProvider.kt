@@ -17,7 +17,7 @@
 
 package net.bible.service.device.speak
 
-import org.crosswire.common.util.toKLocale
+import org.crosswire.common.util.KLocale
 
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.android.control.speak.SPEAK_KEY
@@ -43,7 +43,6 @@ import net.bible.android.control.speak.AdvancedSpeakSettings
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
-import java.util.Locale
 import kotlin.collections.HashMap
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -150,11 +149,11 @@ class BibleSpeakTextProvider(
         this.book = book
         phrases = platform.phrasesFor(book.language.code)
 
-        val locale = Locale(book.language.code)
+        val locale = KLocale(book.language.code)
         bibleBooks.clear()
 
         for(bibleBook in book.versification.bookIterator) {
-            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale.toKLocale())
+            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale)
             bookName = bookName.replace("1.", phrases.first)
             bookName = bookName.replace("2.", phrases.second)
             bookName = bookName.replace("3.", phrases.third)
