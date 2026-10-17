@@ -108,16 +108,13 @@ xcrun simctl list runtimes            # pick the iOS runtime id for the next lin
 xcrun simctl create "iPhone 16" "iPhone 16" <runtime-id>
 ```
 
-**UI tests (`xcodebuild test` with `iosAppUITests`) need a GUI session** of the build user; plain
-simulator unit tests (`:…:iosSimulatorArm64Test`) and `simctl` do not. To run UI tests over SSH, log the
-`andbible` user in once through the login window (fast user switching keeps the session alive in the
-background while you use your own account), and allow automation without a prompt:
+**UI tests need no GUI session.** XCUITests (`iosAppUITests`) ran over SSH with the build user never
+logged in to the GUI and Automation Mode disabled (macOS 26.7, Xcode 26.6, 2026-10-18). If a future
+macOS starts refusing with "Timed out while enabling automation mode", log the build user in once
+through the login window and run `sudo automationmodetool enable-automationmode-without-authentication`.
 
-```bash
-sudo automationmodetool enable-automationmode-without-authentication
-```
-
-After a reboot that session has to be logged in again by hand.
+**No Android SDK needed.** Gradle configures `:app` too, which wants an SDK location; the sync script
+points `local.properties` at an empty stub directory, which is enough for the iOS tasks.
 
 ## 3. Host: the key, SSH config and known_hosts
 
@@ -210,31 +207,22 @@ rebuild (or `sudo apt-get install rsync` in the container).
 
 ## 5. Use from a container
 
+`scripts/mac-remote.sh` does the sync, the remote run under a Mac-wide build lock and the fetch of
+results into `.local/mac/<container>/`; the agent-facing guide is the `ios-mac` skill
+(`.claude/skills/ios-mac/SKILL.md`).
+
 ```bash
-MAC="ssh -F $HOME/.ssh-mac/config andbible-mac"
-$MAC true && echo ok                       # first check
-
-# Sync the working tree, uncommitted changes included. .git goes along: the Gradle
-# configuration of :app runs `git rev-parse`/`git describe`, and submodules point into .git/modules.
-DEST="work/${JAILBEE_BRANCH:-$(git branch --show-current)}/and-bible"
-$MAC "mkdir -p $DEST"
-rsync -az --delete -e "ssh -F $HOME/.ssh-mac/config" --rsync-path=/opt/homebrew/bin/rsync \
-    --exclude='/.local/' --exclude='/docs/superpowers/' \
-    --exclude='build/' --exclude='.gradle/' --exclude='.kotlin/' --exclude='node_modules/' \
-    --exclude='/iosApp/iosApp.xcodeproj/' \
-    ./ "andbible-mac:$DEST/"
-
-# Run a step, e.g. the jsword Native tests
-$MAC "cd $DEST && ./gradlew -Dorg.gradle.native=false :jsword:iosSimulatorArm64Test"
-
-# Fetch results back
-rsync -az -e "ssh -F $HOME/.ssh-mac/config" --rsync-path=/opt/homebrew/bin/rsync \
-    "andbible-mac:$DEST/jsword/build/test-results/" .local/mac/jsword-test-results/
+scripts/mac-remote.sh check                  # connection, toolchain, simulators, lock
+scripts/mac-remote.sh native-tests           # the CI jsword-ios-tests job
+scripts/mac-remote.sh xcode-test iphone      # the CI ios job (XCUITests + screenshots)
+scripts/mac-remote.sh sim shot <name>        # screenshot of the booted simulator
 ```
 
-The steps of the `ios` job in `.github/workflows/ios.yml` (bibleview-js build, `xcodegen generate`,
-`xcodebuild test` per simulator, screenshot export) run the same way.
+The sync sends the working tree only, uncommitted changes included: no `.git` (the container's git
+objects live in an alternate on the host, and the repository is meant to stay in the container),
+no `.local/`, `docs/`, `website/`, build outputs or `node_modules`. Excluded paths survive
+`--delete` on the Mac, so its build outputs and macOS-native `node_modules` stay warm. A one-commit
+stub repository on the Mac satisfies `:app`'s `git rev-parse` / `git describe`.
 
-Each branch gets its own directory under `~/work`, so containers do not overwrite each other's trees.
-`~/.gradle` and `~/.konan` on the Mac are shared by all of them; run one heavy build at a time on the
-Mac, as in a container.
+Each container gets its own tree under `~/work/<container>`; `~/.gradle` and `~/.konan` on the Mac
+are shared by all of them, and the build lock lets only one heavy run go at a time.
