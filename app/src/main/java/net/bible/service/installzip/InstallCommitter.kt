@@ -113,14 +113,14 @@ class DefaultInstallCommitter(
     override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean {
         val dir = modulesDir / "epub" / displayName.trimStart('/')
         return installEpubModule(dir.toFile()) { // L1b-handover(G1): the epub engine still takes a JVM File
-            if (deleteExisting) deleteOwnedEpubModule(dir.toFile())
+            if (deleteExisting) deleteOwnedEpubModule(dir.toFile()) // L1b-handover(G1): the epub engine still takes a JVM File
             fileSystem.createDirectories(dir)
             try {
                 unzip(localFile, dir)
-                addOwnedEpubBook(dir.toFile(), strings, environment)
+                addOwnedEpubBook(dir.toFile(), strings, environment) // L1b-handover(G1): the epub engine still takes a JVM File
                 org.crosswire.jsword.book.Books.installed().getBook(epubInitials(dir.name)) != null
             } catch (e: Exception) {
-                deleteOwnedEpubModule(dir.toFile())
+                deleteOwnedEpubModule(dir.toFile()) // L1b-handover(G1): the epub engine still takes a JVM File
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 false
             }

@@ -64,11 +64,11 @@ object ArchiveUtils {
     // L1b-handover(G1): EpubBackendState switches to Path, then delete
     @Deprecated("Use the okio Path overload", ReplaceWith("gzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())"))
     fun gzipFile(sourceFile: File, destinationFile: File) =
-        gzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())
+        gzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath()) // L1b-handover(G1): EpubBackendState switches to Path, then delete
 
     // L1b-handover(G1): EpubBackendState switches to Path, then delete
     @Deprecated("Use the okio Path overload", ReplaceWith("gunzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())"))
     fun gunzipFile(sourceFile: File, destinationFile: File) =
-        gunzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath())
+        gunzipFile(sourceFile.toOkioPath(), destinationFile.toOkioPath()) // L1b-handover(G1): EpubBackendState switches to Path, then delete
 
 }

@@ -54,4 +54,26 @@ class AndBibleBackupManifestTest {
         ZipWriter(bytes).use { original.saveToZip(it) }
         assertEquals(original, AndBibleBackupManifest.fromZip(bytes))
     }
+
+    // Shapes written by releases 822 (03fd5ca88) and 823 (b48191274): no andBibleVersion, "version" key.
+    private val json822 = """{"backupType":"STUDYPAD_EXPORT","contains":["BOOKMARKS"],"studyPadNames":["x"],"version":1}"""
+    private val json823 = """{"backupType":"STUDYPAD_EXPORT","contains":["BOOKMARKS"],"version":1}"""
+
+    @Test fun fromJsonDecodesRelease822And823Manifests() {
+        for (json in listOf(json822, json823)) {
+            val m = AndBibleBackupManifest.fromJson(json)
+            assertEquals(BackupType.STUDYPAD_EXPORT, m.backupType)
+            assertEquals(setOf(DbType.BOOKMARKS), m.contains)
+            assertEquals(0, m.andBibleVersion)
+        }
+    }
+
+    @Test fun fromZipReadsOldReleaseManifestInFirstEntry() {
+        for (json in listOf(json822, json823)) {
+            val bytes = Buffer()
+            ZipWriter(bytes).use { it.putEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME) { sink -> sink.writeUtf8(json) } }
+            val m = AndBibleBackupManifest.fromZip(bytes)
+            assertEquals(BackupType.STUDYPAD_EXPORT, m?.backupType)
+        }
+    }
 }

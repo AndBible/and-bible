@@ -373,7 +373,7 @@ class CloudSync(
             // [workspaceRefreshRequired] -> `loadFromDb`.
             DatabaseContainer.replacingDatabases(replacement) { token ->
                 dbDef.localDb.close()
-                FileSystem.SYSTEM.delete(dbDef.localDbFile.toOkioPath(), mustExist = false) // replace the file, not rewrite it in place
+                FileSystem.SYSTEM.delete(dbDef.localDbFile.toOkioPath(), mustExist = false) // replace the file, not rewrite it in place; L1b-handover(D2): SyncableDatabaseAccessor.localDbFile becomes Path
                 FileSystem.SYSTEM.copy(downloaded, dbDef.localDbFile.toOkioPath()) // L1b-handover(D2): SyncableDatabaseAccessor.localDbFile becomes Path
                 runCatching { FileSystem.SYSTEM.delete(downloaded) } // best-effort: must not leave the local db closed
                 dbDef.resetLocalDbOwned(token)

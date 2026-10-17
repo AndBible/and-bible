@@ -23,7 +23,7 @@ data class AndBibleBackupManifest(
     val backupType: BackupType,
     val contains: Set<DbType>? = null,
     val manifestVersion: Int = 1,
-    val andBibleVersion: Int
+    val andBibleVersion: Int = 0 // absent in manifests of releases 822/823; written manifests always carry the real version
 ) {
     fun toJson(): String {
         return AppJson.encodeToString(serializer(), this)

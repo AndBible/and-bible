@@ -56,6 +56,7 @@ import okio.Source
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -102,7 +103,17 @@ class G2FixtureWriterTest {
     private val gzips = listOf("bookmarks-patch.sqlite3.gz", "raw-llm-log.txt.gz", "old-monolithic.db.gz")
 
     @Test fun fixturesExistAndAreWellFormed() {
-        if (System.getenv("G2_WRITE_FIXTURES") == "1") writeFixtures()
+        if (System.getenv("G2_WRITE_FIXTURES") == "1") {
+            check(System.getenv("G2_OVERWRITE_FIXTURES") == "1" || !File(fixtureDir, zips.first()).exists()) {
+                "Refusing to overwrite the existing G2 fixtures: they are the old-code evidence. " +
+                    "Set G2_OVERWRITE_FIXTURES=1 as well only if you really mean it."
+            }
+            writeFixtures()
+        }
+        val recorded = recordedHashes()
+        for (name in zips + gzips) {
+            assertEquals("SHA-256 of $name differs from fixtures.md", recorded[name], sha256(File(fixtureDir, name).readBytes()))
+        }
         for (name in zips) {
             val f = File(fixtureDir, name)
             assertTrue("missing fixture $f", f.isFile && f.length() > 0)
@@ -117,6 +128,17 @@ class G2FixtureWriterTest {
             GZIPInputStream(f.inputStream()).use { it.readBytes() }
         }
         assertTrue(File(fixtureDir, "fixtures.md").isFile)
+    }
+
+    /** File name to SHA-256 from the "## name" sections and "File SHA-256:" lines of fixtures.md. */
+    private fun recordedHashes(): Map<String, String> {
+        val result = mutableMapOf<String, String>()
+        var current: String? = null
+        for (line in File(fixtureDir, "fixtures.md").readLines()) {
+            if (line.startsWith("## ")) current = line.removePrefix("## ").trim()
+            else Regex("""File SHA-256: ([0-9a-f]{64})""").find(line)?.let { current?.let { n -> result[n] = it.groupValues[1] } }
+        }
+        return result
     }
 
     private fun tmp(prefix: String, suffix: String) =
