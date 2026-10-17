@@ -17,9 +17,7 @@
 
 package net.bible.service.llm
 
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
+import net.bible.sharedcore.webdav.HttpDates
 import kotlin.math.pow
 import kotlin.random.Random
 
@@ -73,21 +71,16 @@ object LlmRetryPolicy {
      *
      * @return Seconds to wait, or null if the header is missing/unparseable
      */
-    fun parseRetryAfterHeader(headerValue: String?): Double? {
+    fun parseRetryAfterHeader(headerValue: String?, nowMs: Long = kotlin.time.Clock.System.now().toEpochMilliseconds(), // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
+    ): Double? {
         if (headerValue.isNullOrBlank()) return null
 
         // Try as integer seconds first
         headerValue.trim().toDoubleOrNull()?.let { return it }
 
         // Try as HTTP-date (RFC 7231 format)
-        return try {
-            val formatter = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US)
-            formatter.timeZone = TimeZone.getTimeZone("GMT")
-            val date = formatter.parse(headerValue.trim()) ?: return null
-            val delayMs = date.time - System.currentTimeMillis()
-            if (delayMs > 0) delayMs / 1000.0 else null
-        } catch (_: Exception) {
-            null
-        }
+        val dateMs = HttpDates.parseRfc1123(headerValue.trim()) ?: return null
+        val delayMs = dateMs - nowMs
+        return if (delayMs > 0) delayMs / 1000.0 else null
     }
 }

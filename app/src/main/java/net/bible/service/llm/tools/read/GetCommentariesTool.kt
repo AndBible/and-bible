@@ -63,6 +63,9 @@ import java.io.StringReader
  * commentary covers a block of verses with a single entry).
  */
 object GetCommentariesTool : Tool, KoinComponent {
+    private val localeSupport: net.bible.sharedlogic.platform.LocaleSupport
+        get() = org.koin.mp.KoinPlatform.getKoin().get()
+
     private val aiSettings: AiSettings get() = getKoin().get()
     private val strings: LlmStrings by inject()
     @Serializable
@@ -394,17 +397,17 @@ object GetCommentariesTool : Tool, KoinComponent {
             SettingsItem.Choice(
                 info.initials,
                 strings.commentaryFilterItem(
-                    info.name, rangeStr, "%,d".format(tokens)),
+                    info.name, rangeStr, localeSupport.formatGrouped(tokens.toLong())),
             )
         }
         val selectedIds = items.mapNotNull { if (it.initials !in previouslyDeselected) it.initials else null }
 
         fun tokenTotalText(ids: List<String>): String {
             val selectedTokens = ids.sumOf { itemTokens[it] ?: 0 }
-            val description = strings.commentaryFilterDialogMessage("%,d".format(thresholdTokens))
+            val description = strings.commentaryFilterDialogMessage(localeSupport.formatGrouped(thresholdTokens.toLong()))
             val total = strings.commentaryFilterTotalTokens(
-                "%,d".format(selectedTokens),
-                "%,d".format(thresholdTokens),
+                localeSupport.formatGrouped(selectedTokens.toLong()),
+                localeSupport.formatGrouped(thresholdTokens.toLong()),
             )
             return "$description\n\n$total"
         }

@@ -868,7 +868,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private suspend fun cleanupOldRawLogs() {
         try {
             val retentionDays = aiSettings.rawLogRetentionDays ?: return
-            val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
+            val cutoff = kotlin.time.Clock.System.now().toEpochMilliseconds() - retentionDays.toLong() * 24 * 60 * 60 * 1000 // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
             DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff)
         } catch (e: CancellationException) {
             throw e

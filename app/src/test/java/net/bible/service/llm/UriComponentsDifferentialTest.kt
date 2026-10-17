@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class UriComponentsDifferentialTest {
     @Test fun defaultEncodingMatchesAndroidFramework() {
-        val inputs = listOf("", "KJV", "Gen.1.1", "Matt 5:3-5", "a/b?c=d&e", "ÄÖ å", "中文", "emoji 😀", "100%", "'()*!~._-")
+        val inputs = listOf("", "KJV", "Gen.1.1", "Matt 5:3-5", "a/b?c=d&e", "ÄÖ å", "中文", "emoji 😀", "\uD83D", "a\uDE00b", "\uFFFF", "100%", "'()*!~._-")
         for (input in inputs) assertEquals(input, Uri.encode(input), encodeUriComponent(input))
     }
 }

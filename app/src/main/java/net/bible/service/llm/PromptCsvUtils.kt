@@ -308,7 +308,7 @@ object PromptCsvUtils {
             if (str.isNotEmpty()) {
                 try { ISO_DATE_FORMAT.parse(str)?.time } catch (_: Exception) { null }
             } else null
-        } ?: System.currentTimeMillis()
+        } ?: kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
 
         val bibleOnly = getValueOrNull(values, headerMap, HEADER_BIBLE_ONLY)
             ?.lowercase()?.toBooleanStrictOrNull() ?: false

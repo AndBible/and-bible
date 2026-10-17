@@ -38,7 +38,7 @@ enum class EntryStatus {
 /** Displayed in the Agent Log Bottom Sheet during execution. */
 data class AgentLogEntry(
     val id: IdType = IdType(),
-    val timestamp: Long = System.currentTimeMillis(),
+    val timestamp: Long = kotlin.time.Clock.System.now().toEpochMilliseconds(), // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
     val type: LogEntryType,
     @Volatile var message: String,
     @Volatile var details: String? = null,

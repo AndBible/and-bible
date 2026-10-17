@@ -159,4 +159,33 @@ class LlmCostTrackingTest {
         val summary = LlmCostTracker.formatUsageSummary(usage, "unknown-model")
         assertEquals("1000 in / 500 out", summary)
     }
+
+    private fun <T> underLocales(block: (String) -> T) {
+        val saved = java.util.Locale.getDefault()
+        try {
+            for (tag in listOf("fi", "tr", "ar-EG", "en-US")) {
+                java.util.Locale.setDefault(java.util.Locale.forLanguageTag(tag))
+                block(tag)
+            }
+        } finally { java.util.Locale.setDefault(saved) }
+    }
+
+    @Test fun formatsMatchJavaFormatUnderLocales() = underLocales { tag ->
+        for (c in listOf(0.0, 0.004, 0.0049, 0.01, 1.005, 12.3456, 1234.5)) {
+            val expected = if (c < 0.01 && c > 0) "\$%.3f".format(c) else "\$%.2f".format(c)
+            assertEquals(tag, expected, LlmCostTracker.formatCost(c))
+        }
+        for (p in listOf(0.0, 0.005, 3.0, 15.555)) {
+            val expected = if (p < 0.01 && p > 0) "< \$0.01" else "\$%.2f".format(p)
+            assertEquals(tag, expected, LlmCostTracker.formatPriceCompact(p))
+        }
+        for (n in listOf(0L, 999L, 1000L, 1550L, 1_000_000L, 2_345_678L)) {
+            val expected = when {
+                n >= 1_000_000 -> "%.1fM".format(n / 1_000_000.0)
+                n >= 1_000 -> "%.1fk".format(n / 1_000.0)
+                else -> n.toString()
+            }
+            assertEquals(tag, expected, LlmCostTracker.formatTokenCount(n))
+        }
+    }
 }

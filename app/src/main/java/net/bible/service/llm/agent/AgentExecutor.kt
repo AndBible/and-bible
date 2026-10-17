@@ -979,7 +979,7 @@ class AgentExecutor(
                 val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
                 val pageId = IdType(entityId)
                 val page = dao.pageById(pageId) ?: return
-                page.updatedAt = System.currentTimeMillis()
+                page.updatedAt = kotlin.time.Clock.System.now().toEpochMilliseconds() // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
                 dao.update(page)
                 dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
 

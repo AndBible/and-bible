@@ -40,9 +40,6 @@ import net.bible.sharedcore.ai.RawLogEntryVd
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.RawLogSummaryVd
 import net.bible.service.llm.tools.prettyJson
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 /**
  * Android impl of [RawLogService] backing the raw-LLM-log screens
@@ -62,10 +59,12 @@ import java.util.Locale
  * mirroring classic `RawLogHistoryAdapter.bind`, which is the ADAPTER/view layer), so it is
  * single-owned there and not duplicated here.
  */
-class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService, org.koin.core.component.KoinComponent {
+class RawLogServiceImpl(
+    private val strings: LlmStrings,
+    private val dateTimeFormats: net.bible.sharedcore.platform.DateTimeFormats,
+) : RawLogService, org.koin.core.component.KoinComponent {
     private val appScope: net.bible.sharedcore.platform.AppCoroutineScope by inject()
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao()
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
     /** Stashed by [sessionEntries] so `canReportBug(null)` can resolve the in-memory session model. */
     @Volatile private var lastSessionLog: RawLlmLog? = null
@@ -89,7 +88,7 @@ class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService, org.ko
             deleteAll()
             return@withContext
         }
-        val cutoff = System.currentTimeMillis() - days.toLong() * 24 * 60 * 60 * 1000
+        val cutoff = kotlin.time.Clock.System.now().toEpochMilliseconds() - days.toLong() * 24 * 60 * 60 * 1000 // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
         dao.deleteOlderThan(cutoff)
         refresh()
     }
@@ -162,7 +161,7 @@ class RawLogServiceImpl(private val strings: LlmStrings) : RawLogService, org.ko
             modelInfo = modelInfo,
             tokenInfo = tokenInfo,
             costInfo = costInfo,
-            timestamp = dateFormat.format(Date(timestamp)),
+            timestamp = dateTimeFormats.pattern("yyyy-MM-dd HH:mm", timestamp),
             hasError = wasError,
         )
     }

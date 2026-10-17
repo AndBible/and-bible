@@ -151,7 +151,7 @@ object PromptRepository : KoinComponent {
         val newPrompt = source.copy(
             id = IdType(),
             name = source.name + " (copy)",
-            createdAt = System.currentTimeMillis(),
+            createdAt = kotlin.time.Clock.System.now().toEpochMilliseconds(), // swap to net.bible.sharedlogic.util.currentTimeMillis() when G1 Part A lands
             orderNumber = newOrder,
             categoryId = effectiveCategoryId,
         ).also { it.sourceModule = null }
