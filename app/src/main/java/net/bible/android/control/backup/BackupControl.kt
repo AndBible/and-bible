@@ -107,6 +107,7 @@ private val SQLITE_MAGIC = "SQLite format 3\u0000".encodeUtf8()
 private val GZIP_MAGIC = "1f8b".decodeHex()
 
 /**
+ * [dir] must be an absolute, existing directory; the URI gets a trailing '/' like `File.toURI()`.
  * The `file:` [KUri] of the existing directory [dir], with the trailing slash that marks a directory: what
  * `NetUtilJvm.getURI(File)` (`File.toURI()`) returns for it, built the way jsword's common code builds directory
  * URIs. Used as the library root of newly extracted SWORD books.
@@ -341,22 +342,38 @@ class BackupControl(
             rollBackOldMonolithicRestore(rollbackDir)
             return false
         }
-        fileSystem.deleteRecursively(rollbackDir, mustExist = false)
+        deleteTreeQuietly(rollbackDir)
         return true
     }
 
     private fun fileLength(file: Path): Long = fileSystem.metadataOrNull(file)?.size ?: 0L
 
+    /** Test seam: the rename behind [moveFile], so a test can make the put-back of a rollback fail too. */
+    @VisibleForTesting
+    internal var atomicMove: (Path, Path) -> Unit = { from, to -> FileSystem.SYSTEM.atomicMove(from, to) }
+
     /** `File.renameTo`: false instead of an exception when the move fails. */
     private fun moveFile(from: Path, to: Path): Boolean = try {
-        fileSystem.atomicMove(from, to)
+        atomicMove(from, to)
         true
     } catch (e: IOException) {
         false
     }
 
-    /** `File.delete` / `File.deleteRecursively`: a failure to delete is not an error. */
+    /**
+     * `File.delete`: a failure is logged, not thrown. Not recursive: okio refuses a non-empty directory, so a
+     * snapshot directory that still holds a user database is kept (F120).
+     */
     private fun deleteQuietly(path: Path) {
+        try {
+            fileSystem.delete(path, mustExist = false)
+        } catch (e: IOException) {
+            Log.w(TAG, "Could not delete $path", e)
+        }
+    }
+
+    /** `File.deleteRecursively`: a failure is logged, not thrown. */
+    private fun deleteTreeQuietly(path: Path) {
         try {
             fileSystem.deleteRecursively(path, mustExist = false)
         } catch (e: IOException) {
@@ -390,7 +407,7 @@ class BackupControl(
     private fun rollBackOldMonolithicRestore(rollbackDir: Path) {
         regularFilesOf(internalDbDir).forEach { deleteQuietly(it) }
         if (moveAllFiles(rollbackDir, internalDbDir)) {
-            deleteQuietly(rollbackDir)
+            deleteTreeQuietly(rollbackDir)
         } else {
             Log.e(TAG, "F120: could not move the pre-restore databases back; they are kept in $rollbackDir")
         }
@@ -824,7 +841,7 @@ class BackupControl(
                 Log.i(TAG, "Restored database successfully")
             } finally {
                 deleteQuietly(tmpFile)
-                deleteQuietly(unzipFolder)
+                deleteTreeQuietly(unzipFolder)
                 dismissProgress()
             }
             true

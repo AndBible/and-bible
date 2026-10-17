@@ -239,7 +239,12 @@ class RestorePathsTest {
         val target = SwordBookPathJvm.getSwordDownloadDir()
         withModuleInstalled(fixture("module-backup.abmd.zip"), "ISV", "isv.conf") {
             assertTrue(File(target, "mods.d/isv.conf").isFile)
-            assertEquals(518203L, File(target, "modules/texts/ztext/isv/nt.bzz").length())
+            val bzz = File(target, "modules/texts/ztext/isv/nt.bzz")
+            assertEquals(518203L, bzz.length())
+            assertEquals(
+                "d476a7dd076a07cc612ec957e8d51d0bc7464761e0fce474ae83f8e376370043",
+                java.security.MessageDigest.getInstance("SHA-256").digest(bzz.readBytes()).joinToString("") { "%02x".format(it) },
+            )
             assertFalse(File(target, "AndBibleBackupManifest.json").exists())
         }
     }
@@ -274,6 +279,7 @@ class RestorePathsTest {
         for (name in listOf("plain", "with space", "ä-ö", "percent%20sign", "plus+and#hash")) {
             val dir = File(CommonUtils.tmpDir, "kuri-$name").also { it.mkdirs(); dirs += it }
             assertEquals(name, NetUtilJvm.getURI(dir), directoryKUri(dir.toOkioPath()))
+            assertEquals(name, NetUtilJvm.getURI(dir).toString(), directoryKUri(dir.toOkioPath()).toString())
         }
         val modules = SwordBookPathJvm.getSwordDownloadDir()
         assertEquals(NetUtilJvm.getURI(modules), directoryKUri(modules.toOkioPath()))

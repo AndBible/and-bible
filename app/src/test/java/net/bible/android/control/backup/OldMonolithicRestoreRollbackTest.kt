@@ -207,6 +207,31 @@ class OldMonolithicRestoreRollbackTest {
         assertFalse("missing target directory", realCopy(from.toOkioPath(), File(app.cacheDir, "no-such-dir/x.db").toOkioPath()))
     }
 
+    /**
+     * F120 double failure: moving the databases aside fails after the first file, and putting that file back
+     * fails too. The user's database must stay in the snapshot directory, not be deleted with it.
+     */
+    @Test fun aFailedMoveAsideWhosePutBackAlsoFailsKeepsTheUsersDatabase() {
+        val before = fingerprint()
+        assertTrue("needs at least two database files", before.size >= 2)
+        val realMove = backup.atomicMove
+        var movesIntoSnapshot = 0
+        backup.atomicMove = { from, to ->
+            if (to.parent == rollbackDir.toOkioPath()) {
+                if (movesIntoSnapshot++ >= 1) throw okio.IOException("second move fails")
+                realMove(from, to)
+            } else if (from.parent == rollbackDir.toOkioPath()) {
+                throw okio.IOException("put-back fails")
+            } else realMove(from, to)
+        }
+        try {
+            assertFalse(restore())
+        } finally { backup.atomicMove = realMove }
+        val kept = rollbackDir.listFiles().orEmpty().filter { it.isFile }
+        assertEquals("exactly the first moved database is kept", 1, kept.size)
+        assertEquals(before[kept.single().name], MessageDigest.getInstance("SHA-256").digest(kept.single().readBytes()).joinToString("") { "%02x".format(it) })
+    }
+
     /** Review Focus 1. */
     @Test fun aLeftoverRollbackFromAnEarlierCrashIsKeptAside() {
         val before = fingerprint()
