@@ -30,6 +30,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -48,25 +49,34 @@ import java.util.concurrent.TimeUnit
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SearchIndexingServiceTest {
     private val context: Context get() = ApplicationProvider.getApplicationContext()
-    private val kjv get() = Books.installed().getBook("KJV")!!
-    private val geneva get() = Books.installed().getBook("Geneva")!!
-    private val turntb get() = Books.installed().getBook("TurNTB")!!
+    private val installed get() = Books.installed()
+    private val kjv get() = installed.getBook("KJV")!!
+    /** The "second book" role; any installed book of the test-module set that is not KJV. */
+    private val second get() = installed.getBook("FinPR")!!
+    /** The "real index build" role: small, NT only, and not indexed by other test classes. */
+    private val smallNt get() = installed.getBook("ISV")!!
     private var controller: ServiceController<SearchIndexingService>? = null
     private lateinit var savedBuilder: (Book) -> Unit
 
     @Before fun setUp() {
+        listOf("KJV", "FinPR", "ISV").forEach {
+            assertNotNull("test module $it missing from ~/.sword", installed.getBook(it))
+        }
         savedBuilder = SearchIndexingService.builder
         SearchIndexingService.resetForTest()
     }
 
     @After fun tearDown() {
         try {
-            SearchIndexingService.awaitIdleForTest(30_000)
+            runCatching { SearchIndexingService.awaitIdleForTest(30_000) }
+            // Each cleanup step is independent: a failure in one must not skip the others.
+            if (::savedBuilder.isInitialized) runCatching { SearchIndexingService.builder = savedBuilder }
+            runCatching { SearchIndexingService.resetForTest() }
+            listOf("KJV", "FinPR", "ISV").forEach { initials ->
+                runCatching { installed.getBook(initials)?.indexStatus = IndexStatus.UNDONE }
+            }
+            runCatching { installed.getBook("ISV")?.let { FtsTestSupport.dropIndex(it) } }
         } finally {
-            SearchIndexingService.builder = savedBuilder
-            SearchIndexingService.resetForTest()
-            listOf(kjv, geneva, turntb).forEach { it.indexStatus = IndexStatus.UNDONE }
-            runCatching { FtsTestSupport.dropIndex(turntb) }
             DatabaseResetter.resetDatabase()
         }
     }
@@ -87,13 +97,13 @@ class SearchIndexingServiceTest {
             book.indexStatus = IndexStatus.DONE
         }
         SearchIndexingService.enqueue(context, kjv)
-        SearchIndexingService.enqueue(context, geneva)
+        SearchIndexingService.enqueue(context, second)
         startService()
         gate.countDown()
         awaitIdle()
-        assertEquals(listOf("KJV", "Geneva"), built.toList())
+        assertEquals(listOf("KJV", second.initials), built.toList())
         assertEquals(IndexStatus.DONE, kjv.indexStatus)
-        assertEquals(IndexStatus.DONE, geneva.indexStatus)
+        assertEquals(IndexStatus.DONE, second.indexStatus)
         assertTrue("service must stop itself", shadowOf(controller!!.get()).isStoppedBySelf)
     }
 
@@ -129,12 +139,12 @@ class SearchIndexingServiceTest {
         }
         kjv.indexStatus = IndexStatus.SCHEDULED
         SearchIndexingService.enqueue(context, kjv)
-        SearchIndexingService.enqueue(context, geneva)
+        SearchIndexingService.enqueue(context, second)
         startService()
         awaitIdle()
-        assertEquals(listOf("KJV", "Geneva"), built.toList())
+        assertEquals(listOf("KJV", second.initials), built.toList())
         assertEquals(IndexStatus.UNDONE, kjv.indexStatus)
-        assertEquals(IndexStatus.DONE, geneva.indexStatus)
+        assertEquals(IndexStatus.DONE, second.indexStatus)
         assertTrue(shadowOf(controller!!.get()).isStoppedBySelf)
     }
 
@@ -196,14 +206,14 @@ class SearchIndexingServiceTest {
             built += book.initials
             book.indexStatus = IndexStatus.DONE
         }
-        geneva.indexStatus = IndexStatus.SCHEDULED
+        second.indexStatus = IndexStatus.SCHEDULED
         SearchIndexingService.enqueue(context, kjv)
-        SearchIndexingService.enqueue(context, geneva)
-        SearchIndexingService.dequeue("Geneva")
+        SearchIndexingService.enqueue(context, second)
+        SearchIndexingService.dequeue(second.initials)
         gate.countDown()
         awaitIdle()
         assertEquals(listOf("KJV"), built.toList())
-        assertEquals(IndexStatus.UNDONE, geneva.indexStatus)
+        assertEquals(IndexStatus.UNDONE, second.indexStatus)
     }
 
     @Test fun aStaleIdleNotificationDoesNotStopTheServiceWhileABuildRuns() {
@@ -229,23 +239,23 @@ class SearchIndexingServiceTest {
             book.indexStatus = IndexStatus.DONE
         }
         SearchIndexingService.enqueue(context, kjv)
-        SearchIndexingService.enqueue(context, geneva)
+        SearchIndexingService.enqueue(context, second)
         startService()
         assertTrue(inBuild.await(10, TimeUnit.SECONDS))
         controller!!.get().onTimeout(1, 1)
         assertTrue("service must stop itself on the Android 15 timeout", shadowOf(controller!!.get()).isStoppedBySelf)
         release.countDown()
         awaitIdle()
-        assertEquals(listOf("KJV", "Geneva"), built.toList())
+        assertEquals(listOf("KJV", second.initials), built.toList())
     }
 
     @Test fun theDefaultBuilderBuildsARealIndex() {
         SearchIndexingService.builder = savedBuilder
-        FtsTestSupport.dropIndex(turntb)
-        SearchIndexingService.enqueue(context, turntb)
+        FtsTestSupport.dropIndex(smallNt)
+        SearchIndexingService.enqueue(context, smallNt)
         startService()
         awaitIdle()
-        assertEquals(IndexStatus.DONE, turntb.indexStatus)
-        assertTrue(FtsTestSupport.manager.isIndexed(turntb))
+        assertEquals(IndexStatus.DONE, smallNt.indexStatus)
+        assertTrue(FtsTestSupport.manager.isIndexed(smallNt))
     }
 }
