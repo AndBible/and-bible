@@ -42,6 +42,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.ByteArrayOutputStream
 import java.io.File
+import okio.Path.Companion.toOkioPath
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
@@ -80,7 +81,7 @@ class DocumentInstallServiceTest {
             InstallPhase.Done
         }
         val deps = InstallServiceController.JobDeps(
-            acquireDir = File(System.getProperty("java.io.tmpdir"), "metadata-test"),
+            acquireDir = File(System.getProperty("java.io.tmpdir"), "metadata-test").toOkioPath(),
             openStream = { error("unused") }, isStudyPadExport = { false },
             studyPadStats = { error("unused") }, swordZipScan = { error("unused") },
             epubUpgradeCheck = { false },
@@ -183,7 +184,7 @@ class DocumentInstallServiceTest {
         try {
             file.writeBytes(sqliteHeader)
 
-            val type = determineLocalFileType(file)
+            val type = determineLocalFileType(file.toOkioPath())
 
             assertNotEquals(
                 "a real SQLite3 header must not be classified as UNKNOWN",

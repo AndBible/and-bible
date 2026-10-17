@@ -17,11 +17,9 @@
 
 package net.bible.service.installzip
 
-import net.bible.android.SharedConstants
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.ArchiveUtils.unzip
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
@@ -35,10 +33,11 @@ import net.bible.service.sword.esword.addESwordBook
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addMySwordBook
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
-import java.io.File
-import java.io.FileOutputStream
-import okio.Path.Companion.toOkioPath
-import okio.source
+import net.bible.sharedcore.platform.AppDirectories
+import okio.FileSystem
+import okio.Path
+import okio.buffer
+import org.koin.mp.KoinPlatform
 
 /** Thrown by the committer when a file is not a valid module (e.g. bad SQLite header). */
 class InvalidInstallFile(val filename: String) : Exception()
@@ -56,26 +55,26 @@ class InvalidInstallFile(val filename: String) : Exception()
  */
 interface InstallCommitter {
     /** SWORD zip. Reopen the local file per call (engine reads once). */
-    suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit)
+    suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit)
 
     /** @return true on success, false if the epub was rejected by the discovery scanner
      *  (`addManuallyInstalledEpubBooks()` genuinely returns Boolean). */
-    suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean): Boolean
+    suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean
 
     /** Copies + registers a MyBible/MySword/eSword sqlite book. Throws [InvalidInstallFile] if the
      *  file is not a real SQLite3 db (16-byte header != "SQLite format 3\u0000"), mirroring classic.
      *  NB: `addMyBibleBook`/`addMySwordBook`/`addESwordBook` return **Unit** -- the classic
      *  `if (book == null)` after them is dead code (Unit == null is always false), so there is NO
      *  null-return to detect; the only validity gate is the SQLite header check. */
-    suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String)
+    suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String)
 
-    suspend fun commitTtf(localFile: File, displayName: String)
+    suspend fun commitTtf(localFile: Path, displayName: String)
 
-    suspend fun commitCsv(localFile: File, displayName: String)
+    suspend fun commitCsv(localFile: Path, displayName: String)
 
-    suspend fun commitBackgroundImage(localFile: File, fileName: String)
+    suspend fun commitBackgroundImage(localFile: Path, fileName: String)
 
-    suspend fun commitStudyPad(unzipFolder: File)
+    suspend fun commitStudyPad(unzipFolder: Path)
 }
 
 /**
@@ -88,15 +87,20 @@ class DefaultInstallCommitter(
     private val backup: BackupControl,
     private val strings: net.bible.sharedcore.platform.CoreStrings,
     private val environment: net.bible.sharedcore.platform.AppEnvironment,
+    /** Drops the add-on discovery caches after a font, prompt or background-image file landed (platform add-on discovery). */
+    private val clearAddonCaches: () -> Unit,
     /** Resolved lazily, only by [commitSwordZip], so the other commit paths never touch Koin. */
     private val installWatcher: () -> net.bible.android.control.versification.BookInstallWatcher = {
-        org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java)
+        KoinPlatform.getKoin().get()
     },
 ) : InstallCommitter {
 
-    override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
+    private val fileSystem = FileSystem.SYSTEM
+    private val modulesDir: Path get() = KoinPlatform.getKoin().get<AppDirectories>().modulesDir
+
+    override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) {
         backup.extractAndRegisterModuleArchive(
-            newSource = { localFile.source() },
+            newSource = { fileSystem.source(localFile) },
             totalEntries = totalEntries,
             onProgress = { percent -> onProgress(percent) },
         )
@@ -106,73 +110,75 @@ class DefaultInstallCommitter(
         installWatcher().awaitPendingInstalls()
     }
 
-    override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean): Boolean {
-        val dir = File(File(SharedConstants.modulesDir, "epub"), displayName)
-        return installEpubModule(dir) {
-            if (deleteExisting) deleteOwnedEpubModule(dir)
-            dir.mkdirs()
+    override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean {
+        val dir = modulesDir / "epub" / displayName
+        // L1b-handover(sword): the epub engine still takes java.io.File
+        return installEpubModule(dir.toFile()) {
+            if (deleteExisting) deleteOwnedEpubModule(dir.toFile())
+            fileSystem.createDirectories(dir)
             try {
-                unzip(localFile.source(), dir.toOkioPath())
-                addOwnedEpubBook(dir, strings, environment)
+                unzip(localFile, dir)
+                addOwnedEpubBook(dir.toFile(), strings, environment)
                 org.crosswire.jsword.book.Books.installed().getBook(epubInitials(dir.name)) != null
             } catch (e: Exception) {
-                deleteOwnedEpubModule(dir)
+                deleteOwnedEpubModule(dir.toFile())
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 false
             }
         }
     }
 
-    override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) {
-        val outDir = File(SharedConstants.modulesDir, type.name.lowercase())
-        outDir.mkdirs()
-        val outFile = File(outDir, displayName)
-        localFile.inputStream().use { fIn ->
+    override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) {
+        val outDir = modulesDir / type.name.lowercase()
+        fileSystem.createDirectories(outDir)
+        val outFile = outDir / displayName
+        fileSystem.source(localFile).buffer().use { fIn ->
             // Mirrors classic InstallZip.installFromFile's sqlite header/copy block exactly.
             val header = ByteArray(16)
             fIn.read(header)
-            if (String(header) != "SQLite format 3\u0000") {
+            if (header.decodeToString() != "SQLite format 3\u0000") {
                 throw InvalidInstallFile(displayName)
             }
-            FileOutputStream(outFile).use { out ->
+            fileSystem.sink(outFile).buffer().use { out ->
                 out.write(header)
-                fIn.copyTo(out)
+                out.writeAll(fIn)
             }
         }
+        // L1b-handover(sword): the sqlite book engines still take java.io.File
         when (type) {
-            SqliteBookType.MYBIBLE -> addMyBibleBook(outFile)
-            SqliteBookType.MYSWORD -> addMySwordBook(outFile)
-            SqliteBookType.ESWORD -> addESwordBook(outFile)
+            SqliteBookType.MYBIBLE -> addMyBibleBook(outFile.toFile())
+            SqliteBookType.MYSWORD -> addMySwordBook(outFile.toFile())
+            SqliteBookType.ESWORD -> addESwordBook(outFile.toFile())
         }
     }
 
-    override suspend fun commitTtf(localFile: File, displayName: String) {
-        val outDir = File(SharedConstants.modulesDir, "ttf")
-        outDir.mkdirs()
-        localFile.copyTo(File(outDir, displayName), overwrite = true)
+    override suspend fun commitTtf(localFile: Path, displayName: String) {
+        val outDir = modulesDir / "ttf"
+        fileSystem.createDirectories(outDir)
+        fileSystem.copy(localFile, outDir / displayName)
         addManuallyInstalledTtfBooks()
-        AndBibleAddons.clearCaches()
+        clearAddonCaches()
     }
 
-    override suspend fun commitCsv(localFile: File, displayName: String) {
-        val outDir = File(SharedConstants.modulesDir, "prompts")
-        outDir.mkdirs()
-        localFile.copyTo(File(outDir, displayName), overwrite = true)
+    override suspend fun commitCsv(localFile: Path, displayName: String) {
+        val outDir = modulesDir / "prompts"
+        fileSystem.createDirectories(outDir)
+        fileSystem.copy(localFile, outDir / displayName)
         addManuallyInstalledCsvPromptBooks()
-        AndBibleAddons.clearCaches()
+        clearAddonCaches()
     }
 
-    override suspend fun commitBackgroundImage(localFile: File, fileName: String) {
-        val outDir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR)
-        outDir.mkdirs()
-        localFile.copyTo(File(outDir, fileName), overwrite = true)
+    override suspend fun commitBackgroundImage(localFile: Path, fileName: String) {
+        val outDir = modulesDir / BACKGROUND_IMAGE_DIR
+        fileSystem.createDirectories(outDir)
+        fileSystem.copy(localFile, outDir / fileName)
         addManuallyInstalledBackgroundImageBooks()
-        AndBibleAddons.clearCaches()
+        clearAddonCaches()
     }
 
-    override suspend fun commitStudyPad(unzipFolder: File) {
-        val file = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
-        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file.toOkioPath())
-        unzipFolder.deleteRecursively()
+    override suspend fun commitStudyPad(unzipFolder: Path) {
+        val file = unzipFolder / "db/${BookmarkDatabase.dbFileName}"
+        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file)
+        fileSystem.deleteRecursively(unzipFolder, mustExist = false)
     }
 }

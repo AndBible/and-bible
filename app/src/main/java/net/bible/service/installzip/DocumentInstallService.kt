@@ -53,6 +53,10 @@ import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.CoreStrings
 import org.koin.java.KoinJavaComponent
 import java.io.File
+import java.io.IOException
+import net.bible.service.common.AndBibleAddons
+import okio.Path.Companion.toOkioPath
+import okio.source
 import java.io.FileNotFoundException
 import java.util.UUID
 
@@ -96,7 +100,7 @@ class DocumentInstallService : Service() {
          *  bound host UI (Plan B), so both observe the very same [InstallServiceController.jobs]. */
         private val _controller: InstallServiceController by lazy {
             InstallServiceController(
-                runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))) },
+                runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java), org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), clearAddonCaches = { AndBibleAddons.clearCaches() })) },
                 newJobId = { UUID.randomUUID().toString() },
                 onTerminal = { _, phase -> postTerminalEvents(phase) },
                 scope = KoinJavaComponent.get(AppCoroutineScope::class.java),
@@ -227,14 +231,17 @@ class DocumentInstallService : Service() {
         }
 
     private fun buildDeps(): InstallServiceController.JobDeps = InstallServiceController.JobDeps(
-        acquireDir = File(cacheDir, "installzip"),
+        acquireDir = File(cacheDir, "installzip").toOkioPath(),
         openStream = { source ->
-            contentResolver.openInputStream(Uri.parse(source.uri)) ?: throw FileNotFoundException(source.uri)
+            val input = contentResolver.openInputStream(Uri.parse(source.uri)) ?: throw FileNotFoundException(source.uri)
+            // The size hint keeps the former `available()` estimate (0 when it throws).
+            val hint = try { input.available().toLong() } catch (e: IOException) { 0L }
+            InstallStream(input.source(), hint)
         },
         isStudyPadExport = { source ->
             AndBibleBackupManifest.fromUri(Uri.parse(source.uri))?.backupType == BackupType.STUDYPAD_EXPORT
         },
-        studyPadStats = { localFile -> studyPadStatsFor(localFile, org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java)) },
+        studyPadStats = { localFile -> studyPadStatsFor(localFile, org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), KoinJavaComponent.get(CoreStrings::class.java)) },
         swordZipScan = { localFile -> scanSwordZip(localFile) },
         epubUpgradeCheck = { displayName -> checkEpubUpgrade(displayName) },
     )

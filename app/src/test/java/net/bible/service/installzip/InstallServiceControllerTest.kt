@@ -35,6 +35,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import okio.Path
+import okio.Path.Companion.toOkioPath
+import okio.source
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -59,7 +62,7 @@ class InstallServiceControllerTest {
     private fun src(name: String) = InstallSource("content://x/$name", null, name, null)
 
     private fun deps() = InstallServiceController.JobDeps(
-        acquireDir = File(System.getProperty("java.io.tmpdir"), "install-controller-test"),
+        acquireDir = File(System.getProperty("java.io.tmpdir"), "install-controller-test").toOkioPath(),
         openStream = { error("unused: runOne is faked in these tests") },
         isStudyPadExport = { false },
         studyPadStats = { error("unused") },
@@ -262,15 +265,15 @@ class InstallServiceControllerTest {
         val acquireDir = File(System.getProperty("java.io.tmpdir"), "install-controller-real-${System.nanoTime()}")
         val committer = object : InstallCommitter {
             var swordCalls = 0
-            override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
+            override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) {
                 swordCalls++; onProgress(100)
             }
-            override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean) = true
-            override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) {}
-            override suspend fun commitTtf(localFile: File, displayName: String) {}
-            override suspend fun commitCsv(localFile: File, displayName: String) {}
-            override suspend fun commitBackgroundImage(localFile: File, fileName: String) {}
-            override suspend fun commitStudyPad(unzipFolder: File) {}
+            override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean) = true
+            override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) {}
+            override suspend fun commitTtf(localFile: Path, displayName: String) {}
+            override suspend fun commitCsv(localFile: Path, displayName: String) {}
+            override suspend fun commitBackgroundImage(localFile: Path, fileName: String) {}
+            override suspend fun commitStudyPad(unzipFolder: Path) {}
         }
         val runner = InstallJobRunner(InstallInspector { BackupFileType.ZIP }, committer)
         val c = InstallServiceController(
@@ -280,8 +283,8 @@ class InstallServiceControllerTest {
             scope = backgroundScope,
         )
         val realDeps = InstallServiceController.JobDeps(
-            acquireDir = acquireDir,
-            openStream = { "data".byteInputStream() },
+            acquireDir = acquireDir.toOkioPath(),
+            openStream = { InstallStream("data".byteInputStream().source(), 4L) },
             isStudyPadExport = { false },
             studyPadStats = { error("unused") },
             swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 3, isEpub = false, invalid = false) },

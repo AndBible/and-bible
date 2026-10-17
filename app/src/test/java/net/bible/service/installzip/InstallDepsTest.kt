@@ -12,6 +12,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import okio.Path.Companion.toOkioPath
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -31,15 +32,15 @@ class InstallDepsTest {
         val file = File.createTempFile("install-sniff", ".tmp")
         try {
             file.writeBytes("SQLite format 3".toByteArray(Charsets.US_ASCII) + byteArrayOf(0))
-            assertEquals(BackupFileType.SQLITE3, determineLocalFileType(file))
+            assertEquals(BackupFileType.SQLITE3, determineLocalFileType(file.toOkioPath()))
             file.writeBytes(byteArrayOf(0x50, 0x4b, 3, 4))
-            assertEquals(BackupFileType.ZIP, determineLocalFileType(file))
+            assertEquals(BackupFileType.ZIP, determineLocalFileType(file.toOkioPath()))
             file.writeText("SQLite format 3 ")
-            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file))
+            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file.toOkioPath()))
             file.writeBytes(byteArrayOf())
-            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file))
+            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file.toOkioPath()))
             file.delete()
-            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file))
+            assertEquals(BackupFileType.UNKNOWN, determineLocalFileType(file.toOkioPath()))
         } finally { file.delete() }
     }
 
@@ -52,16 +53,16 @@ class InstallDepsTest {
         }
         try {
             zip("mods.d/test.conf", "modules/test/data")
-            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, false, false), scanSwordZip(file))
+            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, false, false), scanSwordZip(file.toOkioPath()))
             zip("META-INF/container.xml", "content.xhtml")
-            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, true, false), scanSwordZip(file))
+            assertEquals(InstallInspector.SwordZipScan(emptyList(), 2, true, false), scanSwordZip(file.toOkioPath()))
             zip("mods.d/test.conf", "unexpected")
-            assertTrue(scanSwordZip(file).invalid)
+            assertTrue(scanSwordZip(file.toOkioPath()).invalid)
             zip()
-            assertTrue(scanSwordZip(file).invalid)
+            assertTrue(scanSwordZip(file.toOkioPath()).invalid)
             // Zip-slip: a traversal name hidden behind a valid-looking prefix is an invalid archive.
             zip("mods.d/test.conf", "modules/../../evil")
-            assertTrue(scanSwordZip(file).invalid)
+            assertTrue(scanSwordZip(file.toOkioPath()).invalid)
         } finally { file.delete() }
     }
 }

@@ -37,8 +37,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import okio.IOException
+import okio.Path
+import okio.Path.Companion.toOkioPath
+import okio.source
 import java.io.File
-import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -46,13 +49,13 @@ class InstallJobRunnerTest {
     private class FakeCommitter : InstallCommitter {
         val calls = mutableListOf<String>()
         var epubOk = true; var sqliteThrows = false
-        override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) { calls += "sword"; onProgress(100) }
-        override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean): Boolean { calls += "epub"; return epubOk }
-        override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) { calls += "sqlite"; if (sqliteThrows) throw InvalidInstallFile(displayName) }
-        override suspend fun commitTtf(localFile: File, displayName: String) { calls += "ttf" }
-        override suspend fun commitCsv(localFile: File, displayName: String) { calls += "csv" }
-        override suspend fun commitBackgroundImage(localFile: File, fileName: String) { calls += "img" }
-        override suspend fun commitStudyPad(unzipFolder: File) { calls += "studypad" }
+        override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) { calls += "sword"; onProgress(100) }
+        override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean): Boolean { calls += "epub"; return epubOk }
+        override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) { calls += "sqlite"; if (sqliteThrows) throw InvalidInstallFile(displayName) }
+        override suspend fun commitTtf(localFile: Path, displayName: String) { calls += "ttf" }
+        override suspend fun commitCsv(localFile: Path, displayName: String) { calls += "csv" }
+        override suspend fun commitBackgroundImage(localFile: Path, fileName: String) { calls += "img" }
+        override suspend fun commitStudyPad(unzipFolder: Path) { calls += "studypad" }
     }
     @Test fun decodedUriFallbackRetainsFilename() = runBlocking {
         val fixtures = listOf(
@@ -65,7 +68,7 @@ class InstallJobRunnerTest {
         for (text in fixtures) {
             val source = InstallSource(text, null, null, null)
             val terminal = InstallJobRunner(InstallInspector { BackupFileType.UNKNOWN }, FakeCommitter())
-                .runJob(source, tmp(), { "data".byteInputStream() }, { false },
+                .runJob(source, tmp(), { stream("data") }, { false },
                     { error("not studypad") }, { InstallInspector.SwordZipScan(emptyList(), 1, false, false) },
                     { false }, {}, { true })
             assertEquals(text, Uri.parse(text).lastPathSegment, (terminal as InstallPhase.Error).arg)
@@ -76,12 +79,13 @@ class InstallJobRunnerTest {
         val source = InstallSource("content://x/raw", null, null, null, "primary:Download/foo.zip")
         assertEquals(null, source.displayName)
         val terminal = InstallJobRunner(InstallInspector { BackupFileType.UNKNOWN }, FakeCommitter())
-            .runJob(source, tmp(), { "data".byteInputStream() }, { false },
+            .runJob(source, tmp(), { stream("data") }, { false },
                 { error("not studypad") }, { error("not zip") }, { false }, {}, { true })
         assertEquals("primary:Download/foo.zip", (terminal as InstallPhase.Error).arg)
     }
 
-    private fun tmp() = File.createTempFile("acq", ".bin").also { it.writeText("data") }
+    private fun tmp(): Path = File.createTempFile("acq", ".bin").also { it.writeText("data") }.toOkioPath()
+    private fun stream(text: String) = InstallStream(text.byteInputStream().source(), text.length.toLong())
     private fun runner(c: InstallCommitter) = InstallJobRunner(InstallInspector { BackupFileType.ZIP }, c)
     private fun sqliteRunner(c: InstallCommitter) = InstallJobRunner(InstallInspector { BackupFileType.SQLITE3 }, c)
     private fun src(name: String, mime: String? = null) = InstallSource("content://x/$name", null, name, mime)
@@ -108,30 +112,30 @@ class InstallJobRunnerTest {
 
     @Test fun `sword zip no conflict installs`() = runBlocking {
         val c = FakeCommitter(); val phases = mutableListOf<InstallPhase>(); val f = tmp()
-        val terminal = runner(c).runJob(src("m.zip"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("m.zip"), f, { stream("d") },
             isStudyPadExport = { false }, studyPadStats = { error("") },
             swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 3, false, false) },
             epubUpgradeCheck = { false }, onPhase = { phases += it }, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
         assertEquals(listOf("sword"), c.calls)
-        assertFalse(f.exists())  // temp cleaned
+        assertFalse(f.toFile().exists())  // temp cleaned
         assertTrue(phases.any { it is InstallPhase.Committing })
     }
 
     @Test fun `overwrite declined cancels without commit`() = runBlocking {
         val c = FakeCommitter(); val f = tmp()
-        val terminal = runner(c).runJob(src("m.zip"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("m.zip"), f, { stream("d") },
             { false }, { error("") },
             swordZipScan = { InstallInspector.SwordZipScan(listOf("mods.d/x.conf"), 3, false, false) },
             { false }, {}, awaitDecision = { false })
         assertEquals(InstallPhase.Cancelled, terminal)
         assertTrue(c.calls.isEmpty())
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 
     @Test fun `overwrite accepted commits`() = runBlocking {
         val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
-        val terminal = runner(c).runJob(src("m.zip"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("m.zip"), f, { stream("d") },
             { false }, { error("") },
             swordZipScan = { InstallInspector.SwordZipScan(listOf("mods.d/x.conf"), 3, false, false) },
             { false }, { phases += it }, awaitDecision = { true })
@@ -151,7 +155,7 @@ class InstallJobRunnerTest {
 
     @Test fun `invalid zip errors`() = runBlocking {
         val c = FakeCommitter()
-        val terminal = runner(c).runJob(src("j.zip"), tmp(), { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("j.zip"), tmp(), { stream("d") },
             { false }, { error("") }, { InstallInspector.SwordZipScan(emptyList(), 0, false, true) }, { false }, {}, { true })
         assertTrue(terminal is InstallPhase.Error)
         assertEquals(InstallError.INVALID_FILE, (terminal as InstallPhase.Error).kind)
@@ -160,7 +164,7 @@ class InstallJobRunnerTest {
 
     @Test fun `epub upgrade accepted commits epub with delete existing`() = runBlocking {
         val c = FakeCommitter(); val phases = mutableListOf<InstallPhase>(); val f = tmp()
-        val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), f, { stream("d") },
             { false }, { error("") }, { error("") }, epubUpgradeCheck = { true },
             onPhase = { phases += it }, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
@@ -170,12 +174,12 @@ class InstallJobRunnerTest {
 
     @Test fun `epub upgrade declined cancels without commit`() = runBlocking {
         val c = FakeCommitter(); val f = tmp()
-        val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), f, { stream("d") },
             { false }, { error("") }, { error("") }, epubUpgradeCheck = { true },
             onPhase = {}, awaitDecision = { false })
         assertEquals(InstallPhase.Cancelled, terminal)
         assertTrue(c.calls.isEmpty())
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 
     /**
@@ -186,17 +190,17 @@ class InstallJobRunnerTest {
      */
     @Test fun `epub-from-zip upgrade declined cancels without commit`() = runBlocking {
         val c = FakeCommitter(); val f = tmp()
-        val terminal = runner(c).runJob(src("e.zip"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("e.zip"), f, { stream("d") },
             { false }, { error("") }, swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 0, isEpub = true, invalid = false) },
             epubUpgradeCheck = { true }, onPhase = {}, awaitDecision = { false })
         assertEquals(InstallPhase.Cancelled, terminal)
         assertTrue("commitEpub must NOT run when the upgrade is declined", c.calls.isEmpty())
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 
     @Test fun `epub-from-zip upgrade accepted commits epub with delete existing`() = runBlocking {
         val c = FakeCommitter(); val phases = mutableListOf<InstallPhase>(); val f = tmp()
-        val terminal = runner(c).runJob(src("e.zip"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("e.zip"), f, { stream("d") },
             { false }, { error("") }, swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 0, isEpub = true, invalid = false) },
             epubUpgradeCheck = { true }, onPhase = { phases += it }, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
@@ -206,7 +210,7 @@ class InstallJobRunnerTest {
 
     @Test fun `epub-from-zip with no upgrade needed commits without asking`() = runBlocking {
         val c = FakeCommitter(); val phases = mutableListOf<InstallPhase>(); val f = tmp()
-        val terminal = runner(c).runJob(src("e.zip"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("e.zip"), f, { stream("d") },
             { false }, { error("") }, swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 0, isEpub = true, invalid = false) },
             epubUpgradeCheck = { false }, onPhase = { phases += it }, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
@@ -216,7 +220,7 @@ class InstallJobRunnerTest {
 
     @Test fun `epub rejected by discovery scanner errors`() = runBlocking {
         val c = FakeCommitter(); c.epubOk = false; val phases = mutableListOf<InstallPhase>()
-        val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), tmp(), { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), tmp(), { stream("d") },
             { false }, { error("") }, { error("") }, epubUpgradeCheck = { false }, onPhase = { phases += it }, awaitDecision = { true })
         assertTrue(terminal is InstallPhase.Error)
         assertEquals(InstallError.INVALID_FILE, (terminal as InstallPhase.Error).kind)
@@ -227,25 +231,25 @@ class InstallJobRunnerTest {
 
     @Test fun `studypad accepted commits and keeps unzip folder handling to committer`() = runBlocking {
         val c = FakeCommitter(); val f = tmp()
-        val unzipFolder = File.createTempFile("unzip", "").also { it.delete(); it.mkdirs() }
-        val terminal = runner(c).runJob(src("sp.abpb"), f, { "d".byteInputStream() },
+        val unzipFolder = File.createTempFile("unzip", "").also { it.delete(); it.mkdirs() }.toOkioPath()
+        val terminal = runner(c).runJob(src("sp.abpb"), f, { stream("d") },
             isStudyPadExport = { true }, studyPadStats = { "3 bookmarks" to unzipFolder },
             swordZipScan = { error("") }, epubUpgradeCheck = { false }, onPhase = {}, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
         assertEquals(listOf("studypad"), c.calls)
-        unzipFolder.deleteRecursively()
+        unzipFolder.toFile().deleteRecursively()
         Unit
     }
 
     @Test fun `studypad declined cancels and deletes unzip folder`() = runBlocking {
         val c = FakeCommitter(); val f = tmp()
-        val unzipFolder = File.createTempFile("unzip", "").also { it.delete(); it.mkdirs() }
-        val terminal = runner(c).runJob(src("sp.abpb"), f, { "d".byteInputStream() },
+        val unzipFolder = File.createTempFile("unzip", "").also { it.delete(); it.mkdirs() }.toOkioPath()
+        val terminal = runner(c).runJob(src("sp.abpb"), f, { stream("d") },
             isStudyPadExport = { true }, studyPadStats = { "3 bookmarks" to unzipFolder },
             swordZipScan = { error("") }, epubUpgradeCheck = { false }, onPhase = {}, awaitDecision = { false })
         assertEquals(InstallPhase.Cancelled, terminal)
         assertTrue(c.calls.isEmpty())
-        assertFalse("declined studypad import must delete its unzip folder", unzipFolder.exists())
+        assertFalse("declined studypad import must delete its unzip folder", unzipFolder.toFile().exists())
     }
 
     @Test fun `cancellation mid job deletes temp and skips commit`() = runBlocking {
@@ -255,7 +259,7 @@ class InstallJobRunnerTest {
                 { false }, { error("") }, { InstallInspector.SwordZipScan(emptyList(),3,false,false) }, { false }, {}, { true })
         }
         yield(); job.cancelAndJoin()
-        assertTrue(c.calls.isEmpty()); assertFalse(f.exists())
+        assertTrue(c.calls.isEmpty()); assertFalse(f.toFile().exists())
     }
 
     @Test fun `IOException while acquiring maps to error_occurred and deletes temp`() = runBlocking {
@@ -265,13 +269,13 @@ class InstallJobRunnerTest {
         assertTrue(terminal is InstallPhase.Error)
         assertEquals(InstallError.GENERIC, (terminal as InstallPhase.Error).kind)
         assertTrue(c.calls.isEmpty())
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 
     @Test fun `sqlite header gate rejection maps to sqlite_invalid_file`() = runBlocking {
         val c = FakeCommitter(); c.sqliteThrows = true
         val terminal = InstallJobRunner(InstallInspector { BackupFileType.SQLITE3 }, c).runJob(
-            src("b.sqlite3"), tmp(), { "d".byteInputStream() },
+            src("b.sqlite3"), tmp(), { stream("d") },
             { false }, { error("") }, { error("") }, { false }, {}, { true })
         assertTrue(terminal is InstallPhase.Error)
         assertEquals(InstallError.INVALID_FILE, (terminal as InstallPhase.Error).kind)
@@ -281,7 +285,7 @@ class InstallJobRunnerTest {
     @Test fun `sqlite overwrite accepted commits`() = runBlocking {
         forceOverwrite("mybible", "b.sqlite3")
         val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
-        val terminal = sqliteRunner(c).runJob(src("b.sqlite3"), f, { "d".byteInputStream() },
+        val terminal = sqliteRunner(c).runJob(src("b.sqlite3"), f, { stream("d") },
             { false }, { error("") }, { error("") }, { false }, { phases += it }, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
         assertEquals(listOf("sqlite"), c.calls)
@@ -291,17 +295,17 @@ class InstallJobRunnerTest {
     @Test fun `sqlite overwrite declined cancels without commit`() = runBlocking {
         forceOverwrite("mybible", "b.sqlite3")
         val c = FakeCommitter(); val f = tmp()
-        val terminal = sqliteRunner(c).runJob(src("b.sqlite3"), f, { "d".byteInputStream() },
+        val terminal = sqliteRunner(c).runJob(src("b.sqlite3"), f, { stream("d") },
             { false }, { error("") }, { error("") }, { false }, {}, awaitDecision = { false })
         assertEquals(InstallPhase.Cancelled, terminal)
         assertTrue(c.calls.isEmpty())
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 
     @Test fun `ttf overwrite accepted commits`() = runBlocking {
         forceOverwrite("ttf", "Font.ttf")
         val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
-        val terminal = runner(c).runJob(src("Font.ttf"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("Font.ttf"), f, { stream("d") },
             { false }, { error("") }, { error("") }, { false }, { phases += it }, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
         assertEquals(listOf("ttf"), c.calls)
@@ -311,17 +315,17 @@ class InstallJobRunnerTest {
     @Test fun `ttf overwrite declined cancels without commit`() = runBlocking {
         forceOverwrite("ttf", "Font.ttf")
         val c = FakeCommitter(); val f = tmp()
-        val terminal = runner(c).runJob(src("Font.ttf"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("Font.ttf"), f, { stream("d") },
             { false }, { error("") }, { error("") }, { false }, {}, awaitDecision = { false })
         assertEquals(InstallPhase.Cancelled, terminal)
         assertTrue(c.calls.isEmpty())
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 
     @Test fun `csv overwrite accepted commits`() = runBlocking {
         forceOverwrite("prompts", "prompts.csv")
         val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
-        val terminal = runner(c).runJob(src("prompts.csv"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("prompts.csv"), f, { stream("d") },
             { false }, { error("") }, { error("") }, { false }, { phases += it }, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
         assertEquals(listOf("csv"), c.calls)
@@ -331,17 +335,17 @@ class InstallJobRunnerTest {
     @Test fun `csv overwrite declined cancels without commit`() = runBlocking {
         forceOverwrite("prompts", "prompts.csv")
         val c = FakeCommitter(); val f = tmp()
-        val terminal = runner(c).runJob(src("prompts.csv"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("prompts.csv"), f, { stream("d") },
             { false }, { error("") }, { error("") }, { false }, {}, awaitDecision = { false })
         assertEquals(InstallPhase.Cancelled, terminal)
         assertTrue(c.calls.isEmpty())
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 
     @Test fun `background image overwrite accepted commits`() = runBlocking {
         forceOverwrite(BACKGROUND_IMAGE_DIR, "pic.png")
         val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
-        val terminal = runner(c).runJob(src("pic.png"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("pic.png"), f, { stream("d") },
             { false }, { error("") }, { error("") }, { false }, { phases += it }, awaitDecision = { true })
         assertEquals(InstallPhase.Done, terminal)
         assertEquals(listOf("img"), c.calls)
@@ -351,17 +355,17 @@ class InstallJobRunnerTest {
     @Test fun `background image overwrite declined cancels without commit`() = runBlocking {
         forceOverwrite(BACKGROUND_IMAGE_DIR, "pic.png")
         val c = FakeCommitter(); val f = tmp()
-        val terminal = runner(c).runJob(src("pic.png"), f, { "d".byteInputStream() },
+        val terminal = runner(c).runJob(src("pic.png"), f, { stream("d") },
             { false }, { error("") }, { error("") }, { false }, {}, awaitDecision = { false })
         assertEquals(InstallPhase.Cancelled, terminal)
         assertTrue(c.calls.isEmpty())
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 
     @Test fun `temp file is always deleted even on invalid plan`() = runBlocking {
         val c = FakeCommitter(); val f = tmp()
-        runner(c).runJob(src("j.zip"), f, { "d".byteInputStream() },
+        runner(c).runJob(src("j.zip"), f, { stream("d") },
             { false }, { error("") }, { InstallInspector.SwordZipScan(emptyList(), 0, false, true) }, { false }, {}, { true })
-        assertFalse(f.exists())
+        assertFalse(f.toFile().exists())
     }
 }

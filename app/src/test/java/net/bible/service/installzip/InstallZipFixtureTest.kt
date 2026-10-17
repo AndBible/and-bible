@@ -10,6 +10,9 @@ import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.test.DatabaseResetter
 import net.bible.test.testBackupControl
 import net.bible.test.testCoreStrings
+import okio.Path
+import okio.Path.Companion.toOkioPath
+import okio.source
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
@@ -25,7 +28,6 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.ByteArrayInputStream
 import java.io.File
-import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -55,19 +57,19 @@ class InstallZipFixtureTest {
 
     private fun tmpDir() = File(CommonUtils.tmpDir, "install-zip-fixture-${System.nanoTime()}").also { it.mkdirs(); dirs += it }
 
-    private fun fixture(name: String): File =
+    private fun fixture(name: String): Path =
         File(tmpDir(), name.substringAfterLast('/')).also { f ->
             javaClass.classLoader!!.getResourceAsStream("l1b-g2/$name")!!.use { i -> f.outputStream().use { i.copyTo(it) } }
-        }
+        }.toOkioPath()
 
-    private fun zip(vararg entries: String): File = File(tmpDir(), "t.zip").also { file ->
+    private fun zip(vararg entries: String): Path = File(tmpDir(), "t.zip").also { file ->
         ZipOutputStream(file.outputStream()).use { out ->
             entries.forEach { out.putNextEntry(ZipEntry(it)); out.write(1); out.closeEntry() }
         }
-    }
+    }.toOkioPath()
 
     /** One stored, empty local entry per name (raw bytes, so a name need not be valid UTF-8). */
-    private fun rawZip(vararg names: ByteArray): File = File(tmpDir(), "raw.zip").also { file ->
+    private fun rawZip(vararg names: ByteArray): Path = File(tmpDir(), "raw.zip").also { file ->
         file.outputStream().use { out ->
             for (name in names) {
                 val header = java.nio.ByteBuffer.allocate(30).order(java.nio.ByteOrder.LITTLE_ENDIAN)
@@ -76,7 +78,7 @@ class InstallZipFixtureTest {
                 out.write(header.array()); out.write(name)
             }
         }
-    }
+    }.toOkioPath()
 
     @Test fun scanOfTask1ModuleFixtureIsValid() {
         val scan = scanSwordZip(fixture("module-backup.abmd.zip"))
@@ -90,6 +92,11 @@ class InstallZipFixtureTest {
         assertTrue(scan.invalid)
     }
 
+    @Test fun malformedNameAfterAValidEntryIsInvalidNotACrash() {
+        val bad = "mods.d/".toByteArray() + byteArrayOf(0x81.toByte())
+        assertTrue(scanSwordZip(rawZip("mods.d/a.conf".toByteArray(), bad)).invalid)
+    }
+
     @Test fun traversalZipIsInvalid() {
         assertTrue(scanSwordZip(zip("mods.d/test.conf", "modules/../../evil")).invalid)
         assertTrue(scanSwordZip(zip("../evil")).invalid)
@@ -99,11 +106,11 @@ class InstallZipFixtureTest {
     @Test fun acquireProgressUsesAvailableHint() = runBlocking {
         val phases = mutableListOf<InstallPhase>()
         val bytes = ByteArray(32768) { it.toByte() }
-        val target = File(tmpDir(), "acq.tmp")
+        val target = File(tmpDir(), "acq.tmp").toOkioPath()
         val runner = InstallJobRunner(InstallInspector { BackupFileType.UNKNOWN }, FixtureCommitter())
         runner.runJob(
             InstallSource("content://x/a.bin", null, "a.bin", null), target,
-            openStream = { ByteArrayInputStream(bytes) as InputStream },
+            openStream = { InstallStream(ByteArrayInputStream(bytes).source(), bytes.size.toLong()) },
             isStudyPadExport = { false }, studyPadStats = { error("") }, swordZipScan = { error("") },
             epubUpgradeCheck = { false }, onPhase = { phases += it }, awaitDecision = { true },
         )
@@ -114,17 +121,18 @@ class InstallZipFixtureTest {
     }
 
     private class FixtureCommitter : InstallCommitter {
-        override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) = Unit
-        override suspend fun commitEpub(localFile: File, displayName: String, deleteExisting: Boolean) = true
-        override suspend fun commitSqlite(localFile: File, type: SqliteBookType, displayName: String) = Unit
-        override suspend fun commitTtf(localFile: File, displayName: String) = Unit
-        override suspend fun commitCsv(localFile: File, displayName: String) = Unit
-        override suspend fun commitBackgroundImage(localFile: File, fileName: String) = Unit
-        override suspend fun commitStudyPad(unzipFolder: File) = Unit
+        override suspend fun commitSwordZip(localFile: Path, totalEntries: Int, onProgress: (Int) -> Unit) = Unit
+        override suspend fun commitEpub(localFile: Path, displayName: String, deleteExisting: Boolean) = true
+        override suspend fun commitSqlite(localFile: Path, type: SqliteBookType, displayName: String) = Unit
+        override suspend fun commitTtf(localFile: Path, displayName: String) = Unit
+        override suspend fun commitCsv(localFile: Path, displayName: String) = Unit
+        override suspend fun commitBackgroundImage(localFile: Path, fileName: String) = Unit
+        override suspend fun commitStudyPad(unzipFolder: Path) = Unit
     }
 
     private fun committer() = DefaultInstallCommitter(
         testBackupControl(), testCoreStrings(), net.bible.android.platform.AndroidAppEnvironment(RuntimeEnvironment.getApplication()),
+        clearAddonCaches = {},
     )
 
     @Test fun oldReleaseModuleBackupScansValidAndInstalls() = runBlocking {
@@ -132,28 +140,34 @@ class InstallZipFixtureTest {
         val scan = scanSwordZip(zip)
         assertFalse(scan.invalid)
         val original = Books.installed().getBook("KJV") ?: error("test module KJV not installed in ~/.sword")
-        val target = SwordBookPathJvm.getSwordDownloadDir()
+        val target = org.crosswire.jsword.book.sword.SwordBookPath.getSwordDownloadDir()
         Books.installed().removeBook(original)
         try {
             committer().commitSwordZip(zip, scan.totalEntries) {}
             assertNotNull(Books.installed().getBook("KJV"))
-            assertTrue(File(target, "mods.d/kjv.conf").isFile)
+            assertTrue(File(target.toString(), "mods.d/kjv.conf").isFile)
         } finally {
             Books.installed().getBook("KJV")?.let { Books.installed().removeBook(it) }
             Books.installed().addBook(original)
-            File(target, "mods.d/kjv.conf").delete()
-            File(target, "modules/texts/ztext/kjv").deleteRecursively()
+            File(target.toString(), "mods.d/kjv.conf").delete()
+            File(target.toString(), "modules/texts/ztext/kjv").deleteRecursively()
         }
+    }
+
+    @Test fun studyPadStatsOfTask1FixtureNamesItsLabel() = runBlocking {
+        val (stats, unzipFolder) = studyPadStatsFor(fixture("studypad-export.abdb.zip"), testBackupControl(), testCoreStrings())
+        assertTrue(stats, "G2 export pad" in stats)
+        assertTrue(unzipFolder.toFile().resolve("db/bookmarks.sqlite3").isFile)
     }
 
     @Test fun oldReleaseStudyPadExportIsDetectedAndImported() = runBlocking {
         val zip = fixture("old-release/studypad-export.abdb.zip")
         assertEquals(BackupFileType.ZIP, determineLocalFileType(zip))
-        val (stats, unzipFolder) = studyPadStatsFor(zip, testBackupControl())
+        val (stats, unzipFolder) = studyPadStatsFor(zip, testBackupControl(), testCoreStrings())
         assertTrue(stats, "G2Fixture" in stats)
         committer().commitStudyPad(unzipFolder)
         val labels = DatabaseContainer.instance.bookmarkDb.bookmarkDao().allLabelsSortedByName().map { it.name }
         assertTrue(labels.toString(), "G2Fixture" in labels)
-        assertFalse(unzipFolder.exists())
+        assertFalse(unzipFolder.toFile().exists())
     }
 }

@@ -17,10 +17,12 @@
 
 package net.bible.service.installzip
 
-import net.bible.android.SharedConstants
+import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedcore.platform.files.BackupFileType
 import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
-import java.io.File
+import okio.FileSystem
+import okio.Path
+import org.koin.mp.KoinPlatform
 
 /**
  * Classifies an already-acquired local file into an [InstallPlan], mirroring the classic
@@ -31,10 +33,10 @@ import java.io.File
  *
  * All effectful lookups (StudyPad stats/unzip, SWORD zip scanning, epub-upgrade confirmation,
  * and the [determineFileType] classifier itself) are injected as suspend lambdas so this class
- * stays a pure/testable classifier with no I/O of its own beyond simple [File] existence checks
+ * stays a pure/testable classifier with no I/O of its own beyond simple [Path] existence checks
  * used to compute an optional overwrite-name.
  */
-class InstallInspector(private val determineFileType: suspend (File) -> BackupFileType) {
+class InstallInspector(private val determineFileType: suspend (Path) -> BackupFileType) {
 
     /**
      * Classify [localFile] (already acquired to local storage) into an [InstallPlan].
@@ -42,12 +44,12 @@ class InstallInspector(private val determineFileType: suspend (File) -> BackupFi
      * [studyPad] callbacks let tests inject filesystem/DB effects.
      */
     suspend fun inspect(
-        localFile: File,
+        localFile: Path,
         displayName: String,
         mimeType: String?,
         isStudyPadExport: Boolean,
-        studyPadStats: suspend (File) -> Pair<String, File>,   // (statsText, unzipFolder)
-        swordZipScan: suspend (File) -> SwordZipScan,          // enumerate entries + existing files
+        studyPadStats: suspend (Path) -> Pair<String, Path>,   // (statsText, unzipFolder)
+        swordZipScan: suspend (Path) -> SwordZipScan,          // enumerate entries + existing files
         epubUpgradeCheck: suspend (displayName: String) -> Boolean,
     ): InstallPlan {
         val lowerName = displayName.lowercase()
@@ -83,9 +85,9 @@ class InstallInspector(private val determineFileType: suspend (File) -> BackupFi
     }
 
     private suspend fun classifyZip(
-        localFile: File,
+        localFile: Path,
         displayName: String,
-        swordZipScan: suspend (File) -> SwordZipScan,
+        swordZipScan: suspend (Path) -> SwordZipScan,
         epubUpgradeCheck: suspend (displayName: String) -> Boolean,
     ): InstallPlan {
         val scan = swordZipScan(localFile)
@@ -134,10 +136,10 @@ class InstallInspector(private val determineFileType: suspend (File) -> BackupFi
         return displayName + extension
     }
 
-    /** Null unless a file of that name already exists in `SharedConstants.modulesDir/<subDir>`. */
+    /** Null unless a file of that name already exists in `AppDirectories.modulesDir/<subDir>`. */
     private fun overwriteName(subDir: String, fileName: String): String? {
-        val target = File(File(SharedConstants.modulesDir, subDir), fileName)
-        return if (target.exists()) "$subDir/$fileName" else null
+        val target = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / subDir / fileName
+        return if (FileSystem.SYSTEM.exists(target)) "$subDir/$fileName" else null
     }
 
     data class SwordZipScan(

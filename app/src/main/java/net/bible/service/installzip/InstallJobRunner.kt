@@ -18,10 +18,11 @@
 package net.bible.service.installzip
 
 import kotlinx.coroutines.ensureActive
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
+import okio.Buffer
+import okio.FileSystem
+import okio.IOException
+import okio.Path
+import okio.buffer
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -46,11 +47,11 @@ class InstallJobRunner(
      */
     suspend fun runJob(
         source: InstallSource,
-        acquireTo: File,
-        openStream: suspend () -> InputStream,
+        acquireTo: Path,
+        openStream: suspend () -> InstallStream,
         isStudyPadExport: suspend (source: InstallSource) -> Boolean,
-        studyPadStats: suspend (File) -> Pair<String, File>,
-        swordZipScan: suspend (File) -> InstallInspector.SwordZipScan,
+        studyPadStats: suspend (Path) -> Pair<String, Path>,
+        swordZipScan: suspend (Path) -> InstallInspector.SwordZipScan,
         epubUpgradeCheck: suspend (displayName: String) -> Boolean,
         onPhase: (InstallPhase) -> Unit,
         awaitDecision: suspend (DecisionRequest) -> Boolean,
@@ -61,17 +62,17 @@ class InstallJobRunner(
                 swordZipScan, epubUpgradeCheck, onPhase, awaitDecision,
             )
         } finally {
-            acquireTo.delete()
+            FileSystem.SYSTEM.delete(acquireTo, mustExist = false)
         }
     }
 
     private suspend fun runInternal(
         source: InstallSource,
-        acquireTo: File,
-        openStream: suspend () -> InputStream,
+        acquireTo: Path,
+        openStream: suspend () -> InstallStream,
         isStudyPadExport: suspend (source: InstallSource) -> Boolean,
-        studyPadStats: suspend (File) -> Pair<String, File>,
-        swordZipScan: suspend (File) -> InstallInspector.SwordZipScan,
+        studyPadStats: suspend (Path) -> Pair<String, Path>,
+        swordZipScan: suspend (Path) -> InstallInspector.SwordZipScan,
         epubUpgradeCheck: suspend (displayName: String) -> Boolean,
         onPhase: (InstallPhase) -> Unit,
         awaitDecision: suspend (DecisionRequest) -> Boolean,
@@ -173,7 +174,7 @@ class InstallJobRunner(
                 val decision = DecisionRequest.StudyPadImport(plan.statsText)
                 onPhase(InstallPhase.AwaitingDecision(decision))
                 if (!awaitDecision(decision)) {
-                    plan.unzipFolder.deleteRecursively()
+                    FileSystem.SYSTEM.deleteRecursively(plan.unzipFolder, mustExist = false)
                     return InstallPhase.Cancelled.also(onPhase)
                 }
                 commitWithProgress(onPhase, displayName) {
@@ -226,20 +227,21 @@ class InstallJobRunner(
 
     /** Copies [openStream] to [acquireTo], reporting best-effort percent and honoring cancellation. */
     private suspend fun acquire(
-        openStream: suspend () -> InputStream,
-        acquireTo: File,
+        openStream: suspend () -> InstallStream,
+        acquireTo: Path,
         onProgress: (Int) -> Unit,
     ) {
-        openStream().use { input ->
-            FileOutputStream(acquireTo).use { output ->
-                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        val stream = openStream()
+        stream.source.use { input ->
+            FileSystem.SYSTEM.sink(acquireTo).buffer().use { output ->
+                val buffer = Buffer()
                 var totalRead = 0L
-                val totalHint = try { input.available().toLong() } catch (e: IOException) { 0L }
+                val totalHint = stream.sizeHint
                 while (true) {
                     coroutineContext.ensureActive()
-                    val read = input.read(buffer)
-                    if (read == -1) break
-                    output.write(buffer, 0, read)
+                    val read = input.read(buffer, DEFAULT_BUFFER_SIZE.toLong())
+                    if (read == -1L) break
+                    output.write(buffer, read)
                     totalRead += read
                     if (totalHint > 0) {
                         onProgress(((totalRead * 100) / totalHint).toInt().coerceIn(0, 99))
@@ -263,10 +265,9 @@ class InstallJobRunner(
         } else withoutSuffix
         val segment = path.split('/').lastOrNull { it.isNotEmpty() } ?: return null
         val result = StringBuilder()
-        val bytes = java.io.ByteArrayOutputStream()
+        val bytes = Buffer()
         fun flush() {
-            result.append(bytes.toByteArray().toString(Charsets.UTF_8))
-            bytes.reset()
+            result.append(bytes.readByteArray().decodeToString())
         }
         var i = 0
         while (i < segment.length) {
@@ -292,7 +293,7 @@ class InstallJobRunner(
                 }
                 value = value * 16 + digit
             }
-            bytes.write(value)
+            bytes.writeByte(value)
         }
         flush()
         return result.toString()

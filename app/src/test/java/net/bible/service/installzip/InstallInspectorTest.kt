@@ -28,19 +28,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.File
+import okio.Path
+import okio.Path.Companion.toPath
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class InstallInspectorTest {
-    private val zipType: suspend (File) -> BackupFileType = { BackupFileType.ZIP }
-    private val sqliteType: suspend (File) -> BackupFileType = { BackupFileType.SQLITE3 }
+    private val zipType: suspend (Path) -> BackupFileType = { BackupFileType.ZIP }
+    private val sqliteType: suspend (Path) -> BackupFileType = { BackupFileType.SQLITE3 }
     private fun scan(existing: List<String> = emptyList(), total: Int = 3, epub: Boolean = false, invalid: Boolean = false) =
         InstallInspector.SwordZipScan(existing, total, epub, invalid)
 
     @Test fun `epub mime classified as Epub`() = runBlocking {
         val plan = InstallInspector(zipType).inspect(
-            File("/x/book.epub"), "book.epub", "application/epub+zip", false,
+            "/x/book.epub".toPath(), "book.epub", "application/epub+zip", false,
             studyPadStats = { error("unused") }, swordZipScan = { error("unused") },
             epubUpgradeCheck = { false })
         assertTrue(plan is InstallPlan.Epub)
@@ -48,27 +49,27 @@ class InstallInspectorTest {
 
     @Test fun `ttf by extension classified as Ttf`() = runBlocking {
         val plan = InstallInspector(zipType).inspect(
-            File("/x/Font.ttf"), "Font.ttf", null, false,
+            "/x/Font.ttf".toPath(), "Font.ttf", null, false,
             { error("") }, { error("") }, { false })
         assertTrue(plan is InstallPlan.Ttf)
     }
 
     @Test fun `sqlite mybible extension`() = runBlocking {
         val plan = InstallInspector(sqliteType).inspect(
-            File("/x/b.sqlite3"), "b.sqlite3", null, false, { error("") }, { error("") }, { false })
+            "/x/b.sqlite3".toPath(), "b.sqlite3", null, false, { error("") }, { error("") }, { false })
         assertEquals(SqliteBookType.MYBIBLE, (plan as InstallPlan.Sqlite).type)
     }
 
     @Test fun `sword zip with existing files needs overwrite`() = runBlocking {
         val plan = InstallInspector(zipType).inspect(
-            File("/x/m.zip"), "m.zip", null, false, { error("") },
+            "/x/m.zip".toPath(), "m.zip", null, false, { error("") },
             swordZipScan = { scan(existing = listOf("mods.d/x.conf")) }, epubUpgradeCheck = { false })
         assertEquals(listOf("mods.d/x.conf"), (plan as InstallPlan.SwordZip).existingFiles)
     }
 
     @Test fun `zip that is actually epub`() = runBlocking {
         val plan = InstallInspector(zipType).inspect(
-            File("/x/e.zip"), "e.zip", null, false, { error("") }, { scan(epub = true) }, { false })
+            "/x/e.zip".toPath(), "e.zip", null, false, { error("") }, { scan(epub = true) }, { false })
         assertTrue(plan is InstallPlan.EpubFromZip)
         assertFalse((plan as InstallPlan.EpubFromZip).needsUpgradeConfirm)
     }
@@ -78,7 +79,7 @@ class InstallInspectorTest {
      *  not silently skip it (see `InstallJobRunnerTest` for the commit-gating consequence). */
     @Test fun `zip that is actually epub carries upgrade confirmation flag`() = runBlocking {
         val plan = InstallInspector(zipType).inspect(
-            File("/x/e.zip"), "e.zip", null, false, { error("") }, { scan(epub = true) },
+            "/x/e.zip".toPath(), "e.zip", null, false, { error("") }, { scan(epub = true) },
             epubUpgradeCheck = { name -> name == "e.zip" })
         assertTrue(plan is InstallPlan.EpubFromZip)
         assertTrue((plan as InstallPlan.EpubFromZip).needsUpgradeConfirm)
@@ -86,20 +87,20 @@ class InstallInspectorTest {
 
     @Test fun `invalid zip`() = runBlocking {
         val plan = InstallInspector(zipType).inspect(
-            File("/x/j.zip"), "j.zip", null, false, { error("") }, { scan(invalid = true) }, { false })
+            "/x/j.zip".toPath(), "j.zip", null, false, { error("") }, { scan(invalid = true) }, { false })
         assertTrue(plan is InstallPlan.Invalid)
     }
 
     @Test fun `studypad export uses stats`() = runBlocking {
         val plan = InstallInspector(zipType).inspect(
-            File("/x/sp.abpb"), "sp.abpb", null, true,
-            studyPadStats = { "5 bookmarks" to File("/tmp/unzip") }, swordZipScan = { error("") }, { false })
+            "/x/sp.abpb".toPath(), "sp.abpb", null, true,
+            studyPadStats = { "5 bookmarks" to "/tmp/unzip".toPath() }, swordZipScan = { error("") }, { false })
         assertEquals("5 bookmarks", (plan as InstallPlan.StudyPad).statsText)
     }
 
     @Test fun `unknown type is invalid`() = runBlocking {
         val plan = InstallInspector({ BackupFileType.UNKNOWN }).inspect(
-            File("/x/weird.dat"), "weird.dat", null, false, { error("") }, { error("") }, { false })
+            "/x/weird.dat".toPath(), "weird.dat", null, false, { error("") }, { error("") }, { false })
         assertTrue(plan is InstallPlan.Invalid)
     }
 }
