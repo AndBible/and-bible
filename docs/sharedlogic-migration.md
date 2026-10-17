@@ -295,6 +295,17 @@ window	0	1	0	0	0
 event	0	0	0	0	0
 ```
 
+Phase-1 close-out (branch `ios-2`, 2026-10-17, plan `plans/2026-10-17-l1b-phase1-closeout.md`). Every row of
+`scripts/l1-move-readiness.sh --check` reads 0 and all 21 domains are in `scripts/l1-move-done.txt`. The
+`jvmapi` column now ignores whole-line comments (`NONCODE`: import/package lines and lines starting `//`, `/*`
+or `*`); a code line with a trailing comment still counts, and the REGRESSION detail skips the same
+whole-line comments. `grep -rn L1b-handover app/src/main` prints nothing.
+
+```
+domain	jvm	jvmapi	jvm3p	android	app
+(all 21 domains)	0	0	0	0	0
+```
+
 ## 8. YAML and Markdown outcome (S9)
 
 - **YAML**: `yamlToJson` now runs on `kaml` 0.104.0 (common YAML 1.2 parser). snakeyaml stays as a test-only
@@ -314,7 +325,7 @@ event	0	0	0	0	0
 
 - Decisions marked "judgment" in section 6 and the allow-list step in section 5 are this page's calls where
   the spec is silent; the controller may overrule before plans are written.
-- `LAST_CRASH_STACKTRACE_FILE`: G2 extracts it from `ErrorReportControl.kt` into a new file in
+- `LAST_CRASH_STACKTRACE_FILE` (done by G2): G2 extracted it from `ErrorReportControl.kt` into a new file in
   `net.bible.android.control.report` and is the only plan that edits `ErrorReportControl.kt`; G1 (link) edits
   only its own call site.
 - `CommonUtils.kt` edits merge one group at a time (section 5; section 10 for the final rule).
@@ -380,3 +391,8 @@ used by `BackupControl.kt`) and `SyncableDatabaseAccessor.localDbFile` (`SyncAcc
 - **Open:** `app/src/androidTest` does not compile (pre-existing drift in `DatabasePatchingTests`,
   `MainBibleActivityTests`; `DatabasePatchingTests.kt:60` additionally passes a `File` where
   `SyncableDatabaseAccessor` now takes a path).
+
+**Shims retired (L1b close-out, 2026-10-17).** `JvmFileShims.kt` and `SyncAccessorFileShim.kt` are deleted from
+`:app`: `BackupControl.kt` calls `readUserVersion(path: String)` and `CloudSync.kt` uses
+`localDbPath.toPath()`. The old `File` forms live on only as test-source shims with the same FQNs
+(`ReadUserVersionFileTestShim.kt`, `LocalDbFileTestShim.kt`) for the six test files that use them.
