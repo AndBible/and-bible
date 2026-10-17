@@ -21,8 +21,6 @@ package net.bible.service.db
  * Everything [DatabaseContainer] and the database file helpers need from the platform: file locations, backup
  * helpers, app/device identity, timestamp formatting and the workspace/settings write queues. Installed once at
  * startup with [DatabaseContainer.installHost].
- *
- * Lives in `:app` for now because [openContainer] returns the `:app`-only [DatabaseContainer]; it moves with it.
  */
 interface DatabaseHost {
     val isRunningTests: Boolean
