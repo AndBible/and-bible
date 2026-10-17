@@ -26,7 +26,6 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.hideFromSelector
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.crosswire.common.util.Filter
 import org.crosswire.jsword.book.Book
@@ -71,6 +70,8 @@ class DocumentControl constructor(
     private val deleteFiles: DocumentFileDeleter,
     /** Bound in CoreModule. */
     private val backupDaoProvider: () -> SwordDocumentInfoDao,
+    /** Bound in CoreModule to `SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder`. */
+    private val enableManualInstallFolder: () -> Unit,
 )
 {
     private val documentBackupDao get() = backupDaoProvider()
@@ -185,7 +186,7 @@ class DocumentControl constructor(
 
     fun enableManualInstallFolder() {
         try {
-            SwordEnvironmentInitialisation.enableDefaultAndManualInstallFolder()
+            this.enableManualInstallFolder.invoke()
         } catch (e: BookException) {
             notifier.showError(strings.errorOccurred)
         }
@@ -204,7 +205,6 @@ class DocumentControl constructor(
 
     /** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage
      */
-    @Throws(BookException::class)
     suspend fun deleteDocument(document: Book): Unit = withContext(appScope.coroutineContext) {
         // The files, the backup row and the page tidy-up go together or not at all: all run in the app scope so
         // that a caller that goes away mid-delete (back, finish) cannot leave a deleted book with a stale backup

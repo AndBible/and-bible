@@ -7,6 +7,7 @@ import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.document.DocumentControl
+import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.DownloadQueue
 import net.bible.service.download.CustomRepositoryServiceImpl
@@ -250,7 +251,8 @@ fun buildCoreModule() = module {
     single {
         DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
             deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
-            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() })
+            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() },
+            enableManualInstallFolder = SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder)
     }
     single { net.bible.android.platform.androidSaxTextPolicy() }
     singleOf(::BookmarkControl)

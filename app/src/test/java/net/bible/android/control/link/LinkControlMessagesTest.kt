@@ -71,9 +71,11 @@ class LinkControlMessagesTest {
         override val noIndexedBibleWithStrongsRef = "FAKE no strongs bible"
         override val wordNotFoundInDictionaries = "FAKE word not found"
     }
+    private var jsErrorReports = 0
     private val platform = object : LinkPlatform {
         override fun searchStrongsInReadingView(ref: String, documentInitials: List<String>) = false
         override fun openRoute(route: String) {}
+        override fun reportJsError() { jsErrorReports++ }
     }
 
     private fun control() = LinkControl(fakeBookFactory = net.bible.service.download.FakeBookFactory(net.bible.test.testCoreStrings()),
@@ -104,5 +106,10 @@ class LinkControlMessagesTest {
     @Test fun uninstalledDocumentLinkNamesTheDocumentToDownload() {
         control().loadApplicationUrl(BibleLink("sword", "sword://NoSuchModuleXyz/Matt.1.1"))
         assertEquals(listOf("FAKE please download NoSuchModuleXyz"), shown)
+    }
+
+    @Test fun errorLinkReportsThroughPlatform() {
+        control().errorLink()
+        assertEquals(1, jsErrorReports)
     }
 }

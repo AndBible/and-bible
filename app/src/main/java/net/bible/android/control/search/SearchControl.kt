@@ -24,7 +24,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
 import net.bible.service.sword.SwordContentFacade.Companion.search
 import net.bible.service.sword.SwordDocumentFacade
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
@@ -82,7 +81,7 @@ class SearchControl constructor(
             val v11n = (currentBiblePage.currentDocument as SwordBook).versification
             val book = currentBiblePage.singleKey.book
             val longName = v11n.getLongName(book)
-            if (StringUtils.isNotBlank(longName) && longName.length < 14) {
+            if (!longName.isNullOrBlank() && longName.length < 14) {
                 longName
             } else {
                 v11n.getShortName(book)
@@ -117,7 +116,6 @@ class SearchControl constructor(
 
     /** Search translations and group results by verse
      */
-    @Throws(BookException::class)
     suspend fun getMultiSearchResults(
         documentInitials: List<String>,
         searchText: String?
