@@ -31,7 +31,6 @@ import net.bible.service.db.inTransaction
 import net.bible.service.db.queryLong
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.db.withCleanup
-import java.io.File
 import net.bible.service.common.createTempFile
 import okio.FileSystem
 import okio.Path

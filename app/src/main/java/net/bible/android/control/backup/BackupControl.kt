@@ -21,7 +21,6 @@ import net.bible.sharedcore.platform.files.BackupFileSniffer
 import okio.FileSystem
 import okio.Path
 import okio.IOException
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import okio.Source
 import okio.buffer
@@ -287,7 +286,7 @@ class BackupControl(
             if (!stream.request(SQLITE_MAGIC.size.toLong()) || !stream.buffer.rangeEquals(0, SQLITE_MAGIC)) return false
             fileSystem.write(target) { writeAll(stream) }
         }
-        val version = readUserVersion(target.toFile()) // L1b-handover(D2): readUserVersion(Path)
+        val version = readUserVersion(target.toString())
         Log.i(TAG, "Old monolithic backup database, version $version")
         return version <= OLD_DATABASE_VERSION
     }
@@ -731,7 +730,7 @@ class BackupControl(
 
     private fun verifyDatabaseBackupFile(file: Path): Boolean {
         if(!isSqliteFile(file)) return false
-        val version = readUserVersion(file.toFile()) // L1b-handover(D2): readUserVersion(Path)
+        val version = readUserVersion(file.toString())
         return version <= maxDatabaseVersion(file.name)
     }
 
