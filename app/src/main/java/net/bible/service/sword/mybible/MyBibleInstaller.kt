@@ -46,9 +46,8 @@ import okio.buffer
 import net.bible.service.download.parseKnownUrl
 import net.bible.service.sword.epub.child
 import net.bible.sharedlogic.util.currentTimeMillis
-// The ZIP branch of prepareModuleFiles stays on java.io/java.util.zip until G2's common ZIP reader merges.
-import java.io.File
-import java.util.zip.ZipFile
+import net.bible.service.common.safeZipEntryPath
+import org.crosswire.common.compress.ZipReader
 
 @Serializable
 class MyBibleModuleSpec (
@@ -224,18 +223,17 @@ class MyBibleInstaller(private val manifestUrl: String, private val downloader: 
         if (header.contentEquals(sqliteHeader)) {
             FileSystem.SYSTEM.copy(download, staging.child(filename.substringAfterLast('/')))
         } else {
-            val stagingDir = staging.toFile()
-            ZipFile(download.toFile()).use { zip ->
-                for (entry in zip.entries()) {
+            ZipReader(FileSystem.SYSTEM.source(download)).use { zip ->
+                while (true) {
+                    val entry = zip.nextEntry() ?: break
                     currentCoroutineContext().ensureActive()
                     if (entry.isDirectory) continue
                     // Preserve the legacy filename prefix while rejecting archive traversal.
-                    val target = File(stagingDir, filename.replace(".zip", "") + entry.name.replace('\\', '/'))
-                    if (!target.canonicalPath.startsWith(stagingDir.canonicalPath + File.separator)) {
-                        throw InstallException("Invalid MyBible archive path")
-                    }
-                    target.parentFile?.mkdirs()
-                    zip.getInputStream(entry).use { input -> target.outputStream().use { input.copyTo(it) } }
+                    val safe = safeZipEntryPath(filename.replace(".zip", "") + entry.name)
+                        ?: throw InstallException("Invalid MyBible archive path")
+                    val target = staging / safe
+                    target.parent?.let { FileSystem.SYSTEM.createDirectories(it) }
+                    FileSystem.SYSTEM.sink(target).buffer().use { it.writeAll(zip.entry) }
                 }
             }
         }
