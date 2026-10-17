@@ -122,7 +122,7 @@ class BackupWritingCompatTest {
         assertTrue("restore must go to another directory than the source", target.canonicalPath != sourceRoot.canonicalPath)
         Books.installed().removeBook(book)
         try {
-            assertTrue(backup.installModuleArchive(zip, "ISV"))
+            assertTrue(backup.installModuleArchive(zip.toOkioPath(), "ISV"))
 
             for ((name, bytes) in original) assertTrue("$name restored identically", bytes.contentEquals(File(target, name).readBytes()))
             assertNotNull(Books.installed().getBook("ISV"))

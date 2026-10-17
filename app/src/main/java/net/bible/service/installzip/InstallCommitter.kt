@@ -96,7 +96,7 @@ class DefaultInstallCommitter(
 
     override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
         backup.extractAndRegisterModuleArchive(
-            newInputStream = { localFile.inputStream() },
+            newSource = { localFile.source() },
             totalEntries = totalEntries,
             onProgress = { percent -> onProgress(percent) },
         )

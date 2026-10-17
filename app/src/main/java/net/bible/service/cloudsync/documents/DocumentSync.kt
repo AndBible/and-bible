@@ -19,6 +19,7 @@
 
 package net.bible.service.cloudsync.documents
 
+import okio.Path.Companion.toOkioPath
 import net.bible.sharedcore.log.Log
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.versification.BookInstallWatcher
@@ -296,7 +297,7 @@ class DocumentSync(
                 Log.w(TAG, "Downloaded $initials size ${archive.length()} != expected ${meta.size}; skipping install")
                 return
             }
-            if (DocumentArchiver.installArchive(archive, initials, backup())) {
+            if (DocumentArchiver.installArchive(archive.toOkioPath(), initials, backup())) {
                 applyCipherKey(initials, meta.cipherKey)
                 documentSettings.setSyncTimestamp(initials, meta.timestamp)
             }

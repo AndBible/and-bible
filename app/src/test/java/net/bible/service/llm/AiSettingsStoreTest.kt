@@ -1,5 +1,6 @@
 package net.bible.service.llm
 
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.flow.map
 
 import androidx.room3.useWriterConnection
@@ -206,9 +207,9 @@ class AiSettingsStoreTest {
             get(net.bible.android.control.page.window.WindowControl::class.java),
             get(net.bible.service.cloudsync.CloudSync::class.java),
             get(net.bible.sharedcore.platform.UserNotifier::class.java),
-        ).restoreSelectedFiles(listOf(name), folder,
+        ).restoreSelectedFiles(listOf(name), folder.toOkioPath(),
             object : BackupControl.RestorePrompts {
-                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File) = true
+                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: okio.Path) = true
                 override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition) = true
             })
         assertEquals("restored file row", 31, dao.get()!!.maxIterations)

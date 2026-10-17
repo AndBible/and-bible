@@ -40,8 +40,11 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.test.DatabaseResetter
+import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
 import okio.Source
 import okio.source
+import org.crosswire.common.util.NetUtilJvm
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPathJvm
 import org.junit.After
@@ -117,7 +120,7 @@ class RestorePathsTest {
         assertEquals(names, parsed.map { fileNameOf(it) })
     }
 
-    private fun parse(names: List<String>) = backup.parseBackupFiles(names.map { File("/data/backups/$it") })
+    private fun parse(names: List<String>) = backup.parseBackupFiles(names.map { "/data/backups/$it".toPath() })
     private fun fileNameOf(info: BackupControl.BackupFileInfo) = info.file.name
 
     // ---- the zip restore flow over fixtures ----
@@ -213,7 +216,7 @@ class RestorePathsTest {
 
     // ---- module archives ----
 
-    private fun installFixture(file: File): Boolean = kotlinx.coroutines.runBlocking { backup.installModuleArchive(file, null) }
+    private fun installFixture(file: File): Boolean = kotlinx.coroutines.runBlocking { backup.installModuleArchive(file.toOkioPath(), null) }
 
     /** Installs [zip] with [initials] taken out of the registry first, and puts the original book and files back after. */
     private fun withModuleInstalled(zip: File, initials: String, confName: String, body: () -> Unit) {
@@ -263,5 +266,16 @@ class RestorePathsTest {
         val full = fixture("module-backup.abmd.zip")
         val cut = File(full.parentFile, "cut.abmd.zip").apply { writeBytes(full.readBytes().copyOf(1000)) }
         assertFalse(installFixture(cut))
+    }
+
+    // ---- the directory KUri of module registration ----
+
+    @Test fun kuriOfDirectoryEqualsNetUtilJvmGetUri() {
+        for (name in listOf("plain", "with space", "ä-ö", "percent%20sign", "plus+and#hash")) {
+            val dir = File(CommonUtils.tmpDir, "kuri-$name").also { it.mkdirs(); dirs += it }
+            assertEquals(name, NetUtilJvm.getURI(dir), directoryKUri(dir.toOkioPath()))
+        }
+        val modules = SwordBookPathJvm.getSwordDownloadDir()
+        assertEquals(NetUtilJvm.getURI(modules), directoryKUri(modules.toOkioPath()))
     }
 }

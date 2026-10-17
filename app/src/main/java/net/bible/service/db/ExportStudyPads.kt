@@ -203,7 +203,7 @@ suspend fun exportStudyPads(
     FileSystem.SYSTEM.delete(exportDbFile, mustExist = false)
     backupControl.saveOrShare(
         host = host,
-        file = zipFile.toFile(), // L1b-handover(G2 Task 10): saveOrShare takes Path
+        file = zipFile,
         fileName = filename,
         subject = strings.exportedStudypadsSubject,
         message = strings.exportedStudypadsMessage(environment.applicationNameMedium),

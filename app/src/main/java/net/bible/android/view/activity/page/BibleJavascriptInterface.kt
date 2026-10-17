@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.page
 
+import okio.Path.Companion.toOkioPath
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.JsExpr
 import net.bible.android.view.activity.search.searchIntent
@@ -805,7 +806,7 @@ class BibleJavascriptInterface(
         scope.launch {
             org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
                 AndroidBackupHost { hostActivity },
-                targetFile,
+                targetFile.toOkioPath(),
                 fileName = "shared.html",
                 shareMimeType = "text/html",
                 saveMimeType = "text/html",

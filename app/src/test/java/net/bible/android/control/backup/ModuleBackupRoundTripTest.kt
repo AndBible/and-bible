@@ -126,7 +126,7 @@ class ModuleBackupRoundTripTest {
         Books.installed().removeBook(book!!)
         assertNull(Books.installed().getBook("TTF_TestFont"))
 
-        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile, "TTF_TestFont")
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile.toOkioPath(), "TTF_TestFont")
         assertTrue("TTF font should reinstall from the backup archive", installed)
         assertNotNull(Books.installed().getBook("TTF_TestFont"))
     }
@@ -163,7 +163,7 @@ class ModuleBackupRoundTripTest {
         Books.installed().removeBook(book)
         assertNull(Books.installed().getBook(initials))
 
-        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile, initials)
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile.toOkioPath(), initials)
         assertTrue("background image should reinstall from the archive", installed)
         assertNotNull(Books.installed().getBook(initials))
     }
@@ -270,7 +270,7 @@ class ModuleBackupRoundTripTest {
         Books.installed().removeBook(book)
         assertNull(Books.installed().getBook("TestDict"))
 
-        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile, "TestDict")
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile.toOkioPath(), "TestDict")
         assertTrue("Dictionary should reinstall from the backup archive", installed)
         val restored = Books.installed().getBook("TestDict")
         assertNotNull(restored)

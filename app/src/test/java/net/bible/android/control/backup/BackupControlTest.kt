@@ -17,6 +17,7 @@
 
 package net.bible.android.control.backup
 
+import okio.Path.Companion.toOkioPath
 import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.android.AppDialogControllerResetRule
 import androidx.core.content.FileProvider
@@ -146,7 +147,7 @@ class BackupControlTest {
         val activity = activity()
         val file = File(activity.filesDir, "backup.zip")
         val answer = async {
-            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file.toOkioPath())
         }
         advanceUntilIdle()
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
@@ -158,7 +159,7 @@ class BackupControlTest {
         val activity = activity()
         val file = File(activity.filesDir, "backup.zip")
         val answer = async {
-            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file.toOkioPath())
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -172,7 +173,7 @@ class BackupControlTest {
         val activity = activity()
         val file = File(activity.filesDir, "backup.zip")
         val answer = async {
-            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file.toOkioPath())
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options

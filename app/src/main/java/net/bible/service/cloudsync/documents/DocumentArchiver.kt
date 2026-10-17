@@ -25,6 +25,7 @@ import net.bible.service.sword.esword.isManuallyInstalledESwordBook
 import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
 import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import org.crosswire.jsword.book.Book
+import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
 
@@ -70,6 +71,6 @@ object DocumentArchiver {
      *   registry after install; when null, success is inferred from the registry growing.
      * @return true if the document is installed.
      */
-    suspend fun installArchive(archive: File, expectedInitials: String? = null, backup: BackupControl): Boolean =
+    suspend fun installArchive(archive: Path, expectedInitials: String? = null, backup: BackupControl): Boolean =
         backup.installModuleArchive(archive, expectedInitials)
 }

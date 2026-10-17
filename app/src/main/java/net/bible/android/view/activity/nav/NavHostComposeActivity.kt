@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.nav
 
+import okio.Path.Companion.toOkioPath
 import net.bible.android.view.activity.search.searchIntent
 import net.bible.android.platform.AndroidBackupHost
 
@@ -6141,7 +6142,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val mimeType = if (ext == "html") "text/html" else "text/markdown"
             backupControl.saveOrShare(
                 host = AndroidBackupHost { this@NavHostComposeActivity },
-                file = targetFile,
+                file = targetFile.toOkioPath(),
                 fileName = fileName,
                 shareMimeType = mimeType,
                 saveMimeType = mimeType,

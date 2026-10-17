@@ -1,5 +1,6 @@
 package net.bible.service.llm
 
+import okio.Path.Companion.toOkioPath
 import kotlinx.coroutines.flow.map
 
 import androidx.room3.Room
@@ -286,9 +287,9 @@ class AiSettingsNativeLifetimeTest {
                             get(net.bible.android.control.page.window.WindowControl::class.java), cloud,
                             get(net.bible.sharedcore.platform.UserNotifier::class.java),
                         )
-                        backup.restoreSelectedFiles(listOf(AiSettingsDatabase.dbFileName), folder,
+                        backup.restoreSelectedFiles(listOf(AiSettingsDatabase.dbFileName), folder.toOkioPath(),
                             object : net.bible.android.control.backup.BackupControl.RestorePrompts {
-                                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File) = true
+                                override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: okio.Path) = true
                                 override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition) = true
                             })
                     } finally { folder.deleteRecursively() }

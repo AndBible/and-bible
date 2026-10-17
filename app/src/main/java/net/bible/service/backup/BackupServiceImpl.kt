@@ -17,6 +17,7 @@
 package net.bible.service.backup
 
 
+import okio.Path.Companion.toOkioPath
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -146,11 +147,11 @@ class BackupServiceImpl(
     }
 
     override suspend fun exportFile(token: String) {
-        backupControl.saveDbBackupFileViaIntent(host, File(env.dbBackupPath, token))
+        backupControl.saveDbBackupFileViaIntent(host, File(env.dbBackupPath, token).toOkioPath()) // L1b-handover(G2 Task 11): BackupServiceImpl on Path
     }
 
     override suspend fun restoreFile(token: String) {
-        backupControl.restoreFromLocalBackupFile(host, File(env.dbBackupPath, token))
+        backupControl.restoreFromLocalBackupFile(host, File(env.dbBackupPath, token).toOkioPath()) // L1b-handover(G2 Task 11): BackupServiceImpl on Path
     }
 
     override suspend fun resetDb(dbFileName: String) {
@@ -161,8 +162,8 @@ class BackupServiceImpl(
     /** Classic `BackupActivity.onCreate`'s file-list section, verbatim (sort + parse + detail text). */
     private fun loadBackupFiles(): List<BackupFileRow> {
         val files = File(env.dbBackupPath).listFiles()?.sortedByDescending { it.name } ?: return emptyList()
-        return backupControl.parseBackupFiles(files).map { info ->
-            val sizeKb = info.file.length() / 1024
+        return backupControl.parseBackupFiles(files.map { it.toOkioPath() }).map { info -> // L1b-handover(G2 Task 11): BackupServiceImpl on Path
+            val sizeKb = info.file.toFile().length() / 1024
             val sizeStr = if (sizeKb > 1024) "${sizeKb / 1024} MB" else "$sizeKb KB"
             val detail = if (info.appVersion != null)
                 strings.backupFileInfo(info.appVersion, sizeStr)
