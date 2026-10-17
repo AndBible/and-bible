@@ -168,7 +168,7 @@ suspend fun installEpubModule(dir: Path, block: () -> Boolean): Boolean = kotlin
 /** Retire the registered owner before removing external files and the internal metadata cache. */
 fun deleteEpubModule(epubDir: Path) {
     val owner = moduleOwner(epubDir)
-    net.bible.service.db.blockingAtEdge { owner.lock() } // L1-edge: JSword driver delete is synchronous
+    epubLockOwnerBlocking(owner)
     try { deleteOwnedEpubModule(epubDir) } finally { owner.unlock() }
 }
 

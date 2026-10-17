@@ -18,7 +18,6 @@
 package net.bible.service.sword.epub
 
 import fi.sykero.kdom.input.build
-import net.bible.service.db.blockingAtEdge
 import net.bible.sharedcore.log.Log
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubHtmlToFrag
@@ -203,7 +202,7 @@ fun EpubBackendState.optimizeEpub() {
     // The database file lives in internal storage and can outlive the (external) epub dir
     // when a module is removed via the failure path. Clear any stale rows from a previous
     // optimization so newly-written fragment files are the only ones referenced.
-    blockingAtEdge { writeDao.clear() } // L1-edge: JSword BookType.getBackend (first open optimizes)
+    epubClearBlocking(writeDao)
     val start = currentTimeMillis()
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: strings.namelessTitle
@@ -222,14 +221,7 @@ fun EpubBackendState.optimizeEpub() {
             .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
             .mapNotNull { StyleSheet(k, it.getAttribute("href")!!.value) }.toTypedArray()
 
-        blockingAtEdge { // L1-edge: JSword BookType.getBackend (first open optimizes)
-            val ids = writeDao.insert(*fragments.toTypedArray())
-            for((id, frag) in ids.zip(fragments)) {
-                frag.id = id
-            }
-            writeDao.insert(EpubHtmlToFrag(k, fragments[0].id))
-            writeDao.insert(*styleSheets)
-        }
+        epubInsertFragmentsBlocking(writeDao, fragments, k, styleSheets)
 
         val epubHtmlToFrags = mutableListOf<EpubHtmlToFrag>()
         for(frag in fragments) {
@@ -238,7 +230,7 @@ fun EpubBackendState.optimizeEpub() {
             findIds(frag).mapTo(epubHtmlToFrags) { EpubHtmlToFrag("$k#$it", frag.id) }
             frag.element = null // clear up memory
         }
-        blockingAtEdge { writeDao.insert(*epubHtmlToFrags.toTypedArray()) } // L1-edge: JSword BookType.getBackend (first open optimizes)
+        epubInsertHtmlToFragsBlocking(writeDao, epubHtmlToFrags)
         fileForOriginalId(k)?.let { KFiles.delete(it) }
     }
     KFiles.write(versionFile, "$EPUB_OPTIMIZER_VERSION".toByteArray())

@@ -35,7 +35,6 @@ import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import net.bible.sharedlogic.platform.PlatformLocales
 import org.koin.mp.KoinPlatform
-import net.bible.service.db.blockingAtEdge
 
 private const val TAG = "MyDocumentBackend"
 
@@ -78,7 +77,7 @@ class MyDocumentBackend(
     private var cachedPages: List<MyDocumentPage>? = null
 
     private fun getPages(): List<MyDocumentPage> {
-        return cachedPages ?: blockingAtEdge { dao().pagesForDocument(documentId) }.also { cachedPages = it } // L1-edge: JSword synchronous Backend contract
+        return cachedPages ?: myDocumentPagesBlocking(dao(), documentId).also { cachedPages = it }
     }
 
     override fun initState(): MyDocumentOpenFileState {
@@ -132,7 +131,7 @@ class MyDocumentBackend(
         if (key == null) return ""
 
         val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
-        val page = blockingAtEdge { dao().pageByKeyWithContent(documentId, pageKey) } // L1-edge: JSword synchronous Backend contract
+        val page = myDocumentPageWithContentBlocking(dao(), documentId, pageKey)
 
         if (page == null) {
             Log.w(TAG, "Page not found: $pageKey in document $documentId")

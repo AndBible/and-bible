@@ -18,7 +18,6 @@
 package net.bible.service.sword.epub
 
 import fi.sykero.kdom.input.build
-import net.bible.service.db.blockingAtEdge
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
 import kotlinx.coroutines.Dispatchers
@@ -171,7 +170,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     private fun queryMetadata(key: String): String? = XmlQueries.dcElements(content, key, dcNamespace).firstOrNull()?.value
 
-    private fun fragmentBlocking(key: Key): EpubFragment? = blockingAtEdge { dao.getFragment(key.getOsisRef().toLong()) } // L1-edge: JSword synchronous Backend contract
+    private fun fragmentBlocking(key: Key): EpubFragment? = epubFragmentBlocking(dao, key.getOsisRef().toLong())
 
     private suspend fun fragment(key: Key): EpubFragment? = dao.getFragment(key.getOsisRef().toLong())
 
@@ -244,7 +243,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     internal val originalIds: List<String> get() = XmlQueries.spineItemrefs(content, epubNamespace).map { it.getAttribute("idref")!!.value }
 
-    val keys: List<Key> get() = withOpen { blockingAtEdge { dao.fragments() }.map { getKey(it) } } // L1-edge: JSword synchronous Backend contract
+    val keys: List<Key> get() = withOpen { epubFragmentsBlocking(dao).map { getKey(it) } }
 
     internal val fragDir get() = epubDir.child("optimized")
     internal val versionFile = fragDir.child("version.txt")
