@@ -172,7 +172,7 @@ class DefaultInstallCommitter(
 
     override suspend fun commitStudyPad(unzipFolder: File) {
         val file = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
-        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file)
+        importDatabaseFile(SyncableDatabaseDefinition.BOOKMARKS, file.toOkioPath())
         unzipFolder.deleteRecursively()
     }
 }

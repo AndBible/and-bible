@@ -29,8 +29,8 @@ data class AndBibleBackupManifest(
         return AppJson.encodeToString(serializer(), this)
     }
 
-    fun saveToZip(zip: ZipWriter) {
-        zip.putEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME) { it.writeUtf8(toJson()) }
+    fun saveToZip(zip: ZipWriter, dosDateTime: Long = 0L) {
+        zip.putEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME, dosDateTime) { it.writeUtf8(toJson()) }
     }
     companion object {
         fun fromJson(jsonString: String): AndBibleBackupManifest {

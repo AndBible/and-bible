@@ -50,7 +50,7 @@ internal suspend fun studyPadStatsFor(localFile: File, backup: BackupControl): P
     val unzipFolder = File(backup.internalDbBackupDir, "unzip")
     unzip(localFile.source(), unzipFolder.toOkioPath())
     val dbFile = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
-    val stats = bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, dbFile)
+    val stats = bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, dbFile.toOkioPath(), org.koin.mp.KoinPlatform.getKoin().get<CoreStrings>())
     return stats to unzipFolder
 }
 

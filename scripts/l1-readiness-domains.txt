@@ -45,3 +45,4 @@ core	service/common/DosTime.kt
 core	service/common/AsyncMap.kt
 core	service/common/AndBibleBackupManifest.kt
 backup	android/control/report/CrashFiles.kt
+backup	service/db/ImportDb.kt

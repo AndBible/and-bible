@@ -138,6 +138,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override fun askRestoreOrImport(contents: String): String = context.getString(R.string.ask_restore_or_import, contents)
     override fun resetDatabaseConfirm(name: String): String = context.getString(R.string.reset_database_confirm, name)
     override fun backupFileInfo(version: Int, size: String): String = context.getString(R.string.backup_file_info, version, size)
+    override fun bookmarksDbStats(firstLabel: String, labels: String, bookmarks: String): String = context.getString(R.string.bookmarks_db_stats, firstLabel, labels, bookmarks)
     override val exportedStudypadsSubject: String get() = context.getString(R.string.exported_studypads_subject)
     override fun exportedStudypadsMessage(appName: String): String = context.getString(R.string.exported_studypads_message, appName)
     override val sendExportFile: String get() = context.getString(R.string.send_export_file)

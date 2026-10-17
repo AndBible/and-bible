@@ -863,7 +863,7 @@ class BackupControl(
                 File("$targetFilePath.lck").delete()
             }
             DatabaseContainer.resetOwned(token)
-            for ((category, f) in plan.toImport) importDatabaseFile(category, f)
+            for ((category, f) in plan.toImport) importDatabaseFile(category, f.toOkioPath())
         }
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
@@ -873,7 +873,7 @@ class BackupControl(
 
     suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File): Boolean?  = withContext(Dispatchers.Main) {
         val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
-            " (${bookmarksDbStats(category, backupFile)})"
+            " (${bookmarksDbStats(category, backupFile.toOkioPath(), strings)})"
         } else ""
         val message =
             strings.askRestoreOrImport(strings.syncCategoryContents(category.name) + contents)

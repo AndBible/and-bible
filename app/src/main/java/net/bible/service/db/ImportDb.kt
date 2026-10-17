@@ -17,21 +17,19 @@
 
 package net.bible.service.db
 
-import android.util.Log
 import androidx.room3.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.activity.R
-import net.bible.android.view.activity.page.application
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import java.io.File
-import java.lang.Exception
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.platform.CoreStrings
+import okio.Path
 
 private const val TAG = "ImportDb"
 
-suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: File): String = withContext(Dispatchers.IO) {
+suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: Path, strings: CoreStrings): String = withContext(Dispatchers.IO) {
     val dbDef = category.accessor
-    val importDbFile = dbDef.dbFactory(dbFile.absolutePath)
+    val importDbFile = dbDef.dbFactory(dbFile.toString())
     try {
         importDbFile.useReaderConnectionMarked {
             it.run {
@@ -40,7 +38,7 @@ suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: File)
                 val bookmarks =
                     queryLong("""SELECT count(*) from BibleBookmark""")!! +
                         queryLong("""SELECT count(*) from GenericBookmark""")!!
-                application.getString(R.string.bookmarks_db_stats, firstLabel, (labels - 1).toString(), bookmarks.toString())
+                strings.bookmarksDbStats(firstLabel.toString(), (labels - 1).toString(), bookmarks.toString())
             }
         }
     } finally {
@@ -53,14 +51,14 @@ suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: File)
  * into the local database with `INSERT OR IGNORE`: rows already present locally win. One transaction; a failure
  * rolls the whole import back and is rethrown.
  */
-suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: File) = withContext(Dispatchers.IO) {
+suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Path) = withContext(Dispatchers.IO) {
     val dbDef = category.accessor
-    val importDbFile = dbDef.dbFactory(dbFile.absolutePath)
+    val importDbFile = dbDef.dbFactory(dbFile.toString())
     try { importDbFile.useWriterConnection { } } finally { importDbFile.close() }
     dbDef.localDb.useWriterConnectionMarked { db ->
         // ATTACH inside the protected region, so DETACH always runs once it may have succeeded.
         db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE import") {
-            db.exec("ATTACH DATABASE '${dbFile.absolutePath}' AS import")
+            db.exec("ATTACH DATABASE '${dbFile.toString()}' AS import")
             db.exec("PRAGMA foreign_keys=OFF;")
             try {
                 db.inTransaction<Unit> {

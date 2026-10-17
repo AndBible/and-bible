@@ -33,12 +33,14 @@ import net.bible.service.common.BackupType
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.service.common.DbType
-import java.io.BufferedInputStream
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
+import kotlin.time.Clock
+import net.bible.service.common.dosDateTime
+import net.bible.sharedcore.platform.DateTimeFormats
+import okio.sink
+import okio.source
+import org.crosswire.common.compress.ZipWriter
+import org.koin.mp.KoinPlatform
 
 private const val TAG = "ExportStudyPad"
 
@@ -190,15 +192,11 @@ suspend fun exportStudyPads(
         contains = setOf(DbType.BOOKMARKS),
         andBibleVersion = environment.versionNumber.toInt(),
     )
-    ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
-        manifest.saveToZip(outFile)
-        FileInputStream(exportDbFile).use { inFile ->
-            BufferedInputStream(inFile).use { origin ->
-                val entry = ZipEntry("db/${BookmarkDatabase.dbFileName}")
-                outFile.putNextEntry(entry)
-                origin.copyTo(outFile)
-            }
-        }
+    val dateTimeFormats = KoinPlatform.getKoin().get<DateTimeFormats>()
+    ZipWriter(zipFile.sink()).use { zip ->
+        val dosTime = dosDateTime(Clock.System.now().toEpochMilliseconds(), dateTimeFormats)
+        manifest.saveToZip(zip, dosTime)
+        zip.putEntry("db/${BookmarkDatabase.dbFileName}", exportDbFile.source(), dosTime)
     }
     exportDbFile.delete()
     backupControl.saveOrShare(
@@ -212,10 +210,4 @@ suspend fun exportStudyPads(
         promptMessage = strings.exportDestinationMessage,
         chooseDestination = chooseDestination,
     )
-}
-
-// L1b: temporary adapter, removed in Task 8/9
-private fun AndBibleBackupManifest.saveToZip(zip: ZipOutputStream) {
-    zip.putNextEntry(ZipEntry(net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME))
-    zip.write(toJson().toByteArray())
 }
