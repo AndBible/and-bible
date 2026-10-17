@@ -19,6 +19,7 @@ class AndroidSyncSettingsPlatform(private val context: Context) : SyncSettingsPl
     }
     override fun isValidUrl(value: String): Boolean = URLUtil.isValidUrl(value)
     override fun formatFileSize(bytes: Long): String = Formatter.formatShortFileSize(context, bytes)
+    override fun formatDecimal2(value: Double): String = String.format("%.2f", value)
     override fun formatSyncTime(timestamp: Long): String =
         SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
     override val webDavState: WebDavStateStore get() = PrefsWebDavStateStore(CommonUtils.realSharedPreferences)

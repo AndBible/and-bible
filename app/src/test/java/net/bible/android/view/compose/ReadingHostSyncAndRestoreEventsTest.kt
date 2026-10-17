@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import okio.Path.Companion.toOkioPath
 import androidx.room3.useWriterConnection
 import net.bible.service.db.exec
 
@@ -246,7 +247,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         }
         countToasts()
         kotlinx.coroutines.runBlocking {
-            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(target, downloaded) { }
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(target, downloaded.toOkioPath()) { }
         }
         idleMain()
         assertEquals(1, toasts, "one initial swap must reload once, not once per replacement event")

@@ -25,6 +25,8 @@ import net.bible.android.database.DocumentSyncPreferences
 import net.bible.android.database.DocumentSyncPreferencesDao
 import net.bible.android.database.CloudListingStateDao
 import net.bible.android.database.CloudDocumentSyncTimestampDao
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -41,7 +43,7 @@ class DocumentSyncSettings(
 ) {
     private val state = MutableStateFlow<DocumentSyncPreferences?>(null)
     private val dbMutex = Mutex()
-    private val stateLock = Any()
+    private val stateLock = SynchronizedObject()
 
     /** Load once; publication cannot overwrite a concurrent release-mode setter's snapshot. */
     suspend fun ensureLoaded() {
@@ -49,7 +51,7 @@ class DocumentSyncSettings(
         dbMutex.withLock {
             if (state.value == null) {
                 val loaded = prefsDao().get() ?: DocumentSyncPreferences()
-                synchronized(stateLock) { if (state.value == null) state.value = loaded }
+                synchronized(stateLock) { if (state.value == null) state.value = loaded } // L1-common-ok: atomicfu lock
             }
         }
     }
@@ -62,7 +64,7 @@ class DocumentSyncSettings(
     }
 
     private fun update(transform: DocumentSyncPreferences.() -> DocumentSyncPreferences) {
-        synchronized(stateLock) {
+        synchronized(stateLock) { // L1-common-ok: atomicfu lock
             val snapshot = prefs().transform()
             state.value = snapshot
             launcher.launch("document-sync-settings") {
@@ -73,7 +75,7 @@ class DocumentSyncSettings(
 
     /** Sign-out queues behind all preference writes, so no old snapshot can resurrect the row. */
     suspend fun clearPreferences() {
-        val clear = synchronized(stateLock) {
+        val clear = synchronized(stateLock) { // L1-common-ok: atomicfu lock
             state.value = DocumentSyncPreferences()
             launcher.launch("document-sync-settings") {
                 dbMutex.withLock { prefsDao().clear() }

@@ -295,13 +295,13 @@ class AiSettingsNativeLifetimeTest {
                     } finally { folder.deleteRecursively() }
                 } else if (path == "nested") {
                     DatabaseContainer.replacingDatabases { token ->
-                        cloud.swapInInitialDb(target, downloaded, token) {
+                        cloud.swapInInitialDb(target, downloaded.toOkioPath(), token) {
                             assertTrue("outer owner remains active", DatabaseContainer.replacing)
                         }
                     }
                 } else {
                     try {
-                        cloud.swapInInitialDb(target, downloaded) {
+                        cloud.swapInInitialDb(target, downloaded.toOkioPath()) {
                             replacementEntered.complete(Unit)
                             if (path == "unexpected") throw probe!!.failure
                             if (path == "failure") throw IllegalArgumentException("afterReset failure")
@@ -311,7 +311,7 @@ class AiSettingsNativeLifetimeTest {
                                 target.localDbFile.copyTo(second, overwrite = true)
                                 try {
                                     laterSwap = async(Dispatchers.IO + boundary.ownerLabel.asContextElement("second-replacement")) {
-                                        try { cloud.swapInInitialDb(target, second) { boundary.event("second-replacement-body") } }
+                                        try { cloud.swapInInitialDb(target, second.toOkioPath()) { boundary.event("second-replacement-body") } }
                                         finally { second.delete() }
                                     }
                                     withTimeout(3_000) { boundary.secondAttempted.await() }

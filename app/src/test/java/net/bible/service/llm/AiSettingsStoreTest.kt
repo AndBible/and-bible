@@ -157,7 +157,7 @@ class AiSettingsStoreTest {
         val target = accessor
         net.bible.service.cloudsync.createTriggers(target)
         dao.set(GlobalAiSettings(maxIterations = 7))
-        val patch = createPatchForDatabase(target, env)!!.also { files += it }
+        val patch = createPatchForDatabase(target, env)!!.also { files += it.toFile() }
         target.dao.setConfig(net.bible.service.cloudsync.TRIGGERS_DISABLED_KEY, true)
         dao.set(GlobalAiSettings(maxIterations = 10))
         target.localDb.useWriterConnection { it.exec("DELETE FROM LogEntry WHERE tableName = 'GlobalAiSettings'") }
@@ -181,7 +181,7 @@ class AiSettingsStoreTest {
         val settings = store()
         settings.ensureLoaded()
         get<net.bible.service.cloudsync.CloudSync>(net.bible.service.cloudsync.CloudSync::class.java)
-            .swapInInitialDb(target, downloaded) { }
+            .swapInInitialDb(target, downloaded.toOkioPath()) { }
         withTimeout(2_000) { while (settings.maxIterations != 41) delay(10) }
         dao.set(GlobalAiSettings(maxIterations = 42))
         withTimeout(2_000) { while (settings.maxIterations != 42) delay(10) }

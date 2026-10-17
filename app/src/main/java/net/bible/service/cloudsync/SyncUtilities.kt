@@ -41,7 +41,11 @@ import net.bible.service.db.useReaderConnectionMarked
 import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.db.withCleanup
 import java.io.File
-import java.lang.Exception
+import net.bible.service.common.createTempFile
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toPath
+import kotlin.time.Clock
 
 const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
 
@@ -346,9 +350,9 @@ private suspend fun readPatchData(
  * file of the same schema, gzipped. Null when there is nothing new. The local database attaches the new file as
  * `patch`; ATTACH and `foreign_keys` cannot change inside a transaction, so they come before and after it.
  */
-suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, updateTimestamp: Boolean = true): File? {
+suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, updateTimestamp: Boolean = true): Path? {
     val lastPatchWritten = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY)?: 0
-    val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", File(env.tmpDir))
+    val patchDbFile = createTempFile(env.tmpDir.toPath(), "created-patch-${dbDef.categoryName}-", ".sqlite3")
 
     val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten, dbDef.deviceId)
     if(amountUpdated == 0L) {
@@ -362,7 +366,7 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppE
         // ATTACH inside the protected region: if anything fails after it, DETACH still runs (the pool has one
         // connection, and a schema left attached would fail every later sync until restart).
         db.withCleanup("PRAGMA patch.foreign_keys=ON;", "DETACH DATABASE patch") {
-            db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+            db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
             db.exec("PRAGMA patch.foreign_keys=OFF;")
             db.inTransaction<Unit> {
                 for (tableDef in dbDef.tableDefinitions) {
@@ -372,22 +376,22 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppE
         }
     }
 
-    val gzippedOutput = File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
+    val gzippedOutput = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
     Log.i(TAG, "Saving patch file ${dbDef.categoryName}")
     ArchiveUtils.gzipFile(patchDbFile, gzippedOutput)
 
     if(!env.isDebugMode) {
-        patchDbFile.delete()
+        FileSystem.SYSTEM.delete(patchDbFile)
     }
     if(updateTimestamp) {
-        dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
+        dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, Clock.System.now().toEpochMilliseconds())
     }
     return gzippedOutput
 }
 
 /** Opens [file] as a database of [dbDef]'s kind (creating it, or migrating it to the current schema) and closes it. */
-private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: File) {
-    val db = dbDef.dbFactory(file.absolutePath)
+private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: Path) {
+    val db = dbDef.dbFactory(file.toString())
     try { db.useWriterConnection { } } finally { db.close() }
 }
 
@@ -397,9 +401,9 @@ private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: F
  * disabled (through SyncConfiguration, inside the same transaction) while the rows are written, so the merge is
  * not logged as a local change. A patch that fails is rolled back completely and the exception rethrown.
  */
-suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: File?) {
+suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: AppEnvironment, vararg patchFiles: Path?) {
     for(gzippedPatchFile in patchFiles.filterNotNull()) {
-        val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", File(env.tmpDir))
+        val patchDbFile = createTempFile(env.tmpDir.toPath(), "downloaded-patch-${dbDef.categoryName}-", ".sqlite3")
         Log.i(TAG, "Applying patch file ${patchDbFile.name}")
         ArchiveUtils.gunzipFile(gzippedPatchFile, patchDbFile)
         // Let's apply possible migrations first
@@ -407,7 +411,7 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: App
         dbDef.localDb.useWriterConnectionMarked { db ->
             // ATTACH inside the protected region, as in createPatchForDatabase.
             db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
-                db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+                db.exec("ATTACH DATABASE '$patchDbFile' AS patch")
                 db.exec("PRAGMA foreign_keys=OFF;")
                 try {
                     db.inTransaction<Unit> {
@@ -424,13 +428,13 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: App
             }
         }
         if(!env.isDebugMode) {
-            patchDbFile.delete()
+            FileSystem.SYSTEM.delete(patchDbFile)
         }
     }
 }
 
 /** Records completion before notifying consumers. */
-internal fun recordSyncFinished(settings: AppSettings, cloudSync: CloudSync, now: Long = System.currentTimeMillis()) {
+internal fun recordSyncFinished(settings: AppSettings, cloudSync: CloudSync, now: Long = Clock.System.now().toEpochMilliseconds()) {
     settings.setLong("globalLastSynchronized", now)
     cloudSync.notifySyncRunning(false)
 }

@@ -25,9 +25,9 @@ import net.bible.service.sword.esword.isManuallyInstalledESwordBook
 import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
 import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import org.crosswire.jsword.book.Book
+import okio.FileSystem
 import okio.Path
-import okio.Path.Companion.toOkioPath
-import java.io.File
+import okio.Path.Companion.toPath
 
 /**
  * Packages installed documents into `.abmd.zip` archives and installs such archives back
@@ -55,10 +55,10 @@ object DocumentArchiver {
      * Package [book] into a fresh temporary `.abmd.zip` archive and return the file.
      * Any pre-existing temp file for the same document is overwritten.
      */
-    suspend fun packageDocument(book: Book, env: net.bible.sharedcore.platform.AppEnvironment, backup: BackupControl): File {
-        val zipFile = File(env.tmpDir, "doc-${book.initials}.abmd.zip")
-        if (zipFile.exists()) zipFile.delete()
-        backup.createSingleModuleZip(book, zipFile.toOkioPath())
+    suspend fun packageDocument(book: Book, env: net.bible.sharedcore.platform.AppEnvironment, backup: BackupControl): Path {
+        val zipFile = env.tmpDir.toPath() / "doc-${book.initials}.abmd.zip"
+        FileSystem.SYSTEM.delete(zipFile)
+        backup.createSingleModuleZip(book, zipFile)
         return zipFile
     }
 

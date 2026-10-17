@@ -11,6 +11,8 @@ interface SyncSettingsPlatform {
     fun isValidUrl(value: String): Boolean
     fun formatFileSize(bytes: Long): String
     fun formatSyncTime(timestamp: Long): String
+    /** Two decimals in the default locale (e.g. "1,50" in Finnish, "1.50" in US English). */
+    fun formatDecimal2(value: Double): String
     /** The WebDAV adapter's persisted calibration and certificate pin. */
     val webDavState: WebDavStateStore
     val webDavServerUrlHint: String

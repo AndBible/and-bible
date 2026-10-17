@@ -18,8 +18,15 @@
 package net.bible.service.cloudsync
 
 import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
+import okio.Path
+import okio.FileSystem
 import net.bible.sharedcore.platform.cloud.CloudFile
-import okio.sink
+import kotlinx.atomicfu.AtomicBoolean
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import kotlin.time.Clock
 import net.bible.sharedcore.platform.CoreStrings
 
 import net.bible.sharedcore.log.Log
@@ -34,6 +41,7 @@ import net.bible.android.control.event.UserMessages
 import net.bible.android.database.SyncStatus
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.asyncMap
+import net.bible.service.common.createTempFile
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exec
 import net.bible.service.db.openSqlite
@@ -44,8 +52,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
-import java.io.File
-import java.io.IOException
+import okio.IOException
 
 const val GZIP_MIMETYPE = "application/gzip"
 
@@ -292,20 +299,20 @@ class CloudSync(
         dbDef.dao.clearLog()
         dbDef.dao.clearSyncStatus()
         dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
-        val tmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
-        val gzippedTmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
-        dbDef.localDbFile.copyTo(tmpFile, overwrite = true)
+        val tmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
+        val gzippedTmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
+        FileSystem.SYSTEM.copy(dbDef.localDbFile.toOkioPath(), tmpFile) // L1b-handover(D2): SyncableDatabaseAccessor.localDbFile becomes Path
         net.bible.service.common.ArchiveUtils.gzipFile(tmpFile, gzippedTmpFile)
-        tmpFile.delete()
+        FileSystem.SYSTEM.delete(tmpFile)
 
-        Log.i(TAG, "uploading initial db, ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
+        Log.i(TAG, "uploading initial db, ${dbDef.categoryName}, ${gzippedTmpFile.size()}")
         val result = adapter.upload(
             name = INITIAL_BACKUP_FILENAME,
-            file = gzippedTmpFile.toOkioPath(),
+            file = gzippedTmpFile,
             parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         )
         dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, 0, result.size, result.createdTime))
-        gzippedTmpFile.delete()
+        FileSystem.SYSTEM.delete(gzippedTmpFile)
     }
 
     private suspend fun fetchAndRestoreInitial(dbDef: SyncableDatabaseAccessor<*>) {
@@ -318,16 +325,16 @@ class CloudSync(
                 name = INITIAL_BACKUP_FILENAME
             )
             .first()
-        val gzippedTmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
-        gzippedTmpFile.outputStream().use { adapter.download(initialFile.id, it.sink()) }
-        Log.i(TAG, "Downloaded initial db for ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
-        val tmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
+        val gzippedTmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
+        adapter.download(initialFile.id, FileSystem.SYSTEM.sink(gzippedTmpFile))
+        Log.i(TAG, "Downloaded initial db for ${dbDef.categoryName}, ${gzippedTmpFile.size()}")
+        val tmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
         net.bible.service.common.ArchiveUtils.gunzipFile(gzippedTmpFile, tmpFile)
-        gzippedTmpFile.delete()
-        val initialDbVersion = openSqlite(tmpFile.path).use { it.queryLong("PRAGMA user_version")!!.toInt() }
+        FileSystem.SYSTEM.delete(gzippedTmpFile)
+        val initialDbVersion = openSqlite(tmpFile.toString()).use { it.queryLong("PRAGMA user_version")!!.toInt() }
         val localVersion = dbDef.version()
         if(initialDbVersion > localVersion) {
-            tmpFile.delete()
+            FileSystem.SYSTEM.delete(tmpFile)
             dialogs.await(AppDialogRequest.Message(null, cantFetchString(strings.syncCategoryContents(dbDef.category.name)), strings.okay, cancellable = false))
             dbDef.category.setSyncEnabled(settings, false)
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > $localVersion")
@@ -336,7 +343,7 @@ class CloudSync(
             swapInInitialDb(dbDef, tmpFile) {
                 dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, syncFolderId)
                 dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
-                dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
+                dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, Clock.System.now().toEpochMilliseconds())
                 dbDef.dao.setConfig(adapterConfigs)
                 dropTriggers(dbDef)
                 createTriggers(dbDef)
@@ -355,7 +362,7 @@ class CloudSync(
     /** The initial-download swap: close, copy the downloaded file over the local one, reopen. */
     internal suspend fun swapInInitialDb(
         dbDef: SyncableDatabaseAccessor<*>,
-        downloaded: File,
+        downloaded: Path,
         replacement: net.bible.service.llm.AiDatabaseLifetime.Replacement? = null,
         afterReset: suspend () -> Unit,
     ) {
@@ -366,8 +373,8 @@ class CloudSync(
             // [workspaceRefreshRequired] -> `loadFromDb`.
             DatabaseContainer.replacingDatabases(replacement) { token ->
                 dbDef.localDb.close()
-                downloaded.copyTo(dbDef.localDbFile, overwrite = true)
-                downloaded.delete()
+                FileSystem.SYSTEM.copy(downloaded, dbDef.localDbFile.toOkioPath()) // L1b-handover(D2): SyncableDatabaseAccessor.localDbFile becomes Path
+                FileSystem.SYSTEM.delete(downloaded)
                 dbDef.resetLocalDbOwned(token)
                 afterReset()
             }
@@ -380,13 +387,14 @@ class CloudSync(
     }
 
     private val syncMutex = Mutex()
+    private val startLock = SynchronizedObject()
 
-    fun start(): kotlinx.coroutines.Deferred<Boolean> = synchronized(this) {
+    fun start(): kotlinx.coroutines.Deferred<Boolean> = synchronized(startLock) { // L1-common-ok: atomicfu lock
         syncStarted?.takeUnless { it.isCompleted }?.let { return@synchronized it }
         scheduler.startDatabaseSync().also { syncStarted = it }
     }
 
-    @Volatile private var syncStarted: kotlinx.coroutines.Deferred<Boolean>? = null
+    @kotlin.concurrent.Volatile private var syncStarted: kotlinx.coroutines.Deferred<Boolean>? = null
 
     suspend fun waitUntilFinished(fromService: Boolean = false) {
         if(!fromService) {
@@ -404,10 +412,10 @@ class CloudSync(
      */
     private fun reportUserFacing(
         e: CloudSyncUserFacingException,
-        reported: java.util.concurrent.atomic.AtomicBoolean,
-        needsReconnect: java.util.concurrent.atomic.AtomicBoolean,
+        reported: AtomicBoolean,
+        needsReconnect: AtomicBoolean,
     ) {
-        if (e.requiresReconnect) needsReconnect.set(true)
+        if (e.requiresReconnect) needsReconnect.value = true
         if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message ?: "", showReportButton = false)
     }
 
@@ -423,10 +431,10 @@ class CloudSync(
         }
         syncMutex.withLock {
             Log.i(TAG, "Synchronizing starts")
-            val timerStart = System.currentTimeMillis()
+            val timerStart = Clock.System.now().toEpochMilliseconds()
 
-            val reported = java.util.concurrent.atomic.AtomicBoolean(false)
-            val needsReconnect = java.util.concurrent.atomic.AtomicBoolean(false)
+            val reported = atomic(false)
+            val needsReconnect = atomic(false)
             try {
                 DatabaseContainer.databaseAccessorFactories.asyncMap {
                     val dbDef = it.invoke()
@@ -495,9 +503,9 @@ class CloudSync(
                     Log.e(TAG, "Document sync pull failed", e)
                 }
             } finally {
-                if (needsReconnect.get()) dropAdapterForReconnect()
+                if (needsReconnect.value) dropAdapterForReconnect()
             }
-            Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
+            Log.i(TAG, "Synchronization complete in ${(Clock.System.now().toEpochMilliseconds() - timerStart)/1000.0} seconds.")
         }
     }
 
@@ -522,7 +530,7 @@ class CloudSync(
         Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronized. ")
         Log.i(TAG, "This device ${env.deviceIdentifier} (id: ${deviceSyncFolder})")
 
-        dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, System.currentTimeMillis())
+        dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, Clock.System.now().toEpochMilliseconds())
 
         val devicePatchFolders = adapter.getFolders(syncFolder)
 
@@ -584,10 +592,8 @@ class CloudSync(
 
         val downloadedFiles = patches.asyncMap(6) { f ->
             Log.i(TAG, "Downloading ${f.file.name}, ${f.file.size} bytes")
-            val tmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
-            tmpFile.outputStream().use {
-                adapter.download(f.file.id, it.sink())
-            }
+            val tmpFile = createTempFile(env.tmpDir.toPath(), "andbible-", ".tmp")
+            adapter.download(f.file.id, FileSystem.SYSTEM.sink(tmpFile))
             tmpFile
         }
 
@@ -596,7 +602,7 @@ class CloudSync(
         }
 
         applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray())
-        downloadedFiles.forEach { it.delete() }
+        downloadedFiles.forEach { FileSystem.SYSTEM.delete(it) }
         dbDef.reactToUpdates(lastSynchronized)
         dbDef.dao.addStatuses(syncStatuses)
     }
@@ -606,19 +612,19 @@ class CloudSync(
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val count = (dbDef.dao.lastPatchNum(env.deviceIdentifier)?: 0) + 1
         val fileName = "$count.${dbDef.version()}.sqlite3.gz"
-        val lastWritten = System.currentTimeMillis();
+        val lastWritten = Clock.System.now().toEpochMilliseconds();
 
         val result = try {
-            adapter.upload(fileName, file.toOkioPath(), syncDeviceFolderId)
+            adapter.upload(fileName, file, syncDeviceFolderId)
         } catch (e: Exception) {
             Log.e(TAG, "Uploading failed due to error", e)
-            file.delete()
+            FileSystem.SYSTEM.delete(file)
             throw e
         }
-        Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.length()} bytes, ${result.createdTime}")
+        Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.size()} bytes, ${result.createdTime}")
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, lastWritten)
-        dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, count, file.length(), result.createdTime))
-        file.delete()
+        dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, count, file.size(), result.createdTime))
+        FileSystem.SYSTEM.delete(file)
     }
 
     suspend fun hasChanges(): Boolean =
@@ -634,3 +640,6 @@ class CloudSync(
         }.sum() + documents.get().cloudBytesUsed()
 
 }
+
+/** Size in bytes; 0 when the file is absent (as `File.length()`). */
+private fun Path.size(): Long = FileSystem.SYSTEM.metadataOrNull(this)?.size ?: 0L

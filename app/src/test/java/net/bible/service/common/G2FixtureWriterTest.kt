@@ -188,8 +188,8 @@ class G2FixtureWriterTest {
             val newBookmark = BookmarkEntities.BibleBookmarkWithNotes(kjvOrdinalStart = 7, kjvOrdinalEnd = 8)
             patchDb.bookmarkDao().insert(newBookmark.bookmarkEntity)
             val patch = createPatchForDatabase(dbDef, env)!!
-            patch.copyTo(File(fixtureDir, "bookmarks-patch.sqlite3.gz"), overwrite = true)
-            patch.delete()
+            patch.toFile().copyTo(File(fixtureDir, "bookmarks-patch.sqlite3.gz"), overwrite = true)
+            patch.toFile().delete()
         } finally {
             patchDb.close()
             File(patchDbFile.path + "-journal").delete()

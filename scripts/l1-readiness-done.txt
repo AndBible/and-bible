@@ -19,3 +19,4 @@ core
 @no-pending
 window
 @no-unmarked-bridges
+cloudsync

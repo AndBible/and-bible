@@ -19,7 +19,7 @@ package net.bible.service.cloudsync.documents
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Book
-import java.io.IOException
+import okio.IOException
 
 /**
  * Whether a book can participate in document sync at all.
