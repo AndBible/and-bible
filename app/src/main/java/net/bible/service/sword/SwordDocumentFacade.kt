@@ -30,8 +30,8 @@ import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
-import net.bible.android.BibleApplication
-import net.bible.service.sword.index.SearchIndexingService
+import net.bible.sharedlogic.platform.SearchIndexScheduler
+import net.bible.sharedlogic.sync.withMonitor
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
@@ -155,7 +155,7 @@ object SwordDocumentFacade {
         // the job and deletes nothing; a first build has no final file yet, so `isIndexed` must not gate it). Wrapped in
         // try to ensure an attempt is made to delete the document.
         try {
-            SearchIndexingService.dequeue(document.initials)
+            org.koin.mp.KoinPlatform.getKoin().get<SearchIndexScheduler>().dequeue(document.initials)
             IndexManagerFactory.getIndexManager().deleteIndex(realDocument)
         } catch (e: Exception) { // just log index delete error, deleting doc is the important thing
             Log.e(TAG, "Error deleting document index", e)
@@ -176,7 +176,7 @@ object SwordDocumentFacade {
             realDocument.epubBackend?.state?.deleteSearchIndex()
             return
         }
-        document?.initials?.let { SearchIndexingService.dequeue(it) }
+        document?.initials?.let { org.koin.mp.KoinPlatform.getKoin().get<SearchIndexScheduler>().dequeue(it) }
         if (realDocument == null) return // nothing to delete (callers may pass null or a book that is no longer installed)
         // unconditional: during a first build no final file exists yet, and the running build must still be cancelled
         IndexManagerFactory.getIndexManager().deleteIndex(realDocument)
@@ -202,7 +202,7 @@ object SwordDocumentFacade {
     fun ensureIndexCreation(book: Book, appScope: AppCoroutineScope) {
         Log.d(TAG, "ensureIndexCreation")
         // ensure this isn't just the user re-clicking the Index button
-        synchronized(book) {
+        withMonitor(book) {
             if (book.indexStatus != IndexStatus.CREATING && book.indexStatus != IndexStatus.SCHEDULED) {
                 book.indexStatus = IndexStatus.SCHEDULED
                 scheduleIndexCreation(book, appScope)
@@ -217,7 +217,7 @@ object SwordDocumentFacade {
                     book.epubBackend!!.state.buildSearchIndex()
                 } else {
                     // Built by the foreground indexing service, one book at a time; the index manager sets the status.
-                    SearchIndexingService.enqueue(BibleApplication.application, book)
+                    org.koin.mp.KoinPlatform.getKoin().get<SearchIndexScheduler>().enqueue(book)
                 }
             } catch (e: Exception) {
                 book.indexStatus = IndexStatus.UNDONE

@@ -17,7 +17,11 @@
 package net.bible.service.sword
 
 import fi.sykero.kdom.input.build
+import org.crosswire.common.util.KLocale
 import org.crosswire.common.util.toKLocale
+import org.crosswire.jsword.internationalisation.LocaleProviderManager
+import net.bible.sharedlogic.sync.bookNameMonitor
+import net.bible.sharedlogic.sync.withMonitor
 
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
@@ -25,7 +29,6 @@ import net.bible.android.control.speak.SpeakPlatform
 
 import net.bible.sharedcore.log.Log
 import androidx.collection.LruCache
-import net.bible.android.MyLocaleProvider
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.control.speak.AdvancedSpeakSettings
@@ -139,21 +142,21 @@ class SwordContentFacade(
             }
 
             val key =
-                synchronized(bibleNames) {
+                withMonitor(bibleNames) {
                     val orig = bibleNames.enableFuzzy
                     bibleNames.enableFuzzy = false
                     val k = getKey()
                     bibleNames.enableFuzzy = orig
                     k
                 } ?:
-                if (lang != MyLocaleProvider.getUserLocale().language) {
-                    synchronized(bibleNames) {
-                        MyLocaleProvider.override = Locale(lang)
+                if (lang != LocaleProviderManager.getLocale().language) {
+                    withMonitor(bibleNames) {
+                        (LocaleProviderManager.getLocaleProvider() as? OverridableLocaleProvider)?.override = KLocale(lang)
                         val orig = bibleNames.enableFuzzy
                         bibleNames.enableFuzzy = false
                         val k = getKey()
                         bibleNames.enableFuzzy = orig
-                        MyLocaleProvider.override = null
+                        (LocaleProviderManager.getLocaleProvider() as? OverridableLocaleProvider)?.override = null
                         k
                     }
                 } else null
@@ -196,7 +199,7 @@ class SwordContentFacade(
                 }
             }
 
-            return synchronized(book) {
+            return withMonitor(book) {
                 osisFragmentCache.get(cacheKey) ?: let {
                     Log.d(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
                     readXmlTextStandardJSwordMethod(book, key, strings)
@@ -411,7 +414,7 @@ class SwordContentFacade(
         }
 
 
-        private fun cachedText(book: Book, key: Key, strings: CoreStrings): Map<Int, String> = synchronized(this) {
+        private fun cachedText(book: Book, key: Key, strings: CoreStrings): Map<Int, String> = withMonitor(this) {
             val cacheKey = renderCacheKey(book, key)
             plainTextCache.get(cacheKey) ?: run {
                 val frag = try {
@@ -629,7 +632,7 @@ class SwordContentFacade(
 
         val reference = if (showReference) {
             if (abbreviateReference) {
-                synchronized(BookName::class.java) {
+                withMonitor(bookNameMonitor) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     try {
@@ -778,7 +781,7 @@ class SwordContentFacade(
         // Mirrors getSelectionText's abbreviateReference=true branch: forces non-full book names
         // for the duration of the call, under the same lock, then restores whatever the app-wide
         // setting was.
-        val referenceAbbreviated = synchronized(BookName::class.java) {
+        val referenceAbbreviated = withMonitor(bookNameMonitor) {
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             try {
