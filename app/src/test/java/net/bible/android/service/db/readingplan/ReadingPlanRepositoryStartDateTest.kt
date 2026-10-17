@@ -17,6 +17,7 @@
 
 package net.bible.service.db.readingplan
 
+import net.bible.android.platform.AndroidLocalCalendar
 import kotlinx.coroutines.Job
 import net.bible.sharedcore.platform.AppCoroutineScope
 import androidx.room3.Room
@@ -56,7 +57,7 @@ class ReadingPlanRepositoryStartDateTest {
     @Before fun setUp() {
         db = Room.inMemoryDatabaseBuilder(application, ReadingPlanDatabase::class.java)
             .setDriver(sqliteDriverFactory()).build()
-        repo = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }, appScope = appScope, today = { today })
+        repo = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }, appScope = appScope, calendar = AndroidLocalCalendar(), today = { today })
     }
 
     @After fun tearDown() {

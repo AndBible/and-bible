@@ -17,31 +17,24 @@
 
 package net.bible.service.readingplan
 
-import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.CoreStrings
 
 import org.crosswire.jsword.passage.Key
 
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.ArrayList
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import net.bible.android.database.DbDate
+import net.bible.sharedlogic.platform.LocalCalendar
+import net.bible.sharedlogic.sync.withMonitor
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val readingPlanInfo: ReadingPlanInfoDto, private val coreStrings: CoreStrings)
+class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val readingPlanInfo: ReadingPlanInfoDto, private val coreStrings: CoreStrings, private val calendar: LocalCalendar)
     : Comparable<OneDaysReadingsDto>
 {
-    private val dateBasedWithYearUsaFormat = SimpleDateFormat("MMM-d/yyyy", Locale.US)
-    private val dateBasedWithYear = SimpleDateFormat("MMM-d/yyyy", Locale.getDefault())
-
     private var readingKeys: List<Key>? = null
     /** reading date for date-based plan, else null
      */
-    var readingDate: Date? = null
+    var readingDate: DbDate? = null
 
     init {
         checkKeysGenerated()
@@ -56,15 +49,12 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
         get() {
             val readingDate = readingDate
             return if (readingDate != null) {
-                SimpleDateFormat.getDateInstance().format(readingDate)
+                calendar.formatDefaultDate(readingDate.getTime())
             } else {
                 var dateString = ""
                 val startDate = readingPlanInfo.startDate
                 if (startDate != null) {
-                    val cal = Calendar.getInstance()
-                    cal.time = startDate
-                    cal.add(Calendar.DAY_OF_MONTH, day - 1)
-                    dateString = SimpleDateFormat.getDateInstance().format(cal.time)
+                    dateString = calendar.formatDefaultDate(calendar.addDays(startDate.getTime(), day - 1))
                 }
                 dateString
             }
@@ -106,8 +96,7 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
         return readingKeys!![readingNo-1]
     }
 
-    @Synchronized
-    private fun checkKeysGenerated() {
+    private fun checkKeysGenerated() = withMonitor(this) {
         if (readingKeys == null) {
             val readingKeyList = ArrayList<Key>()
 
@@ -137,18 +126,9 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
     /**
      * @param dateString Must be in this format: Feb-1, Mar-22, Dec-11, etc
      */
-    private fun dateFormatterPlanStringToDate(dateString: String): Date {
-        val calYear = Calendar.getInstance().get(Calendar.YEAR)
-        return try {
-            dateBasedWithYearUsaFormat.parse("$dateString/$calYear")
-                ?: dateBasedWithYear.parse("$dateString/$calYear")
-        }  catch (e: ParseException) {
-            Log.w(TAG, "Unable to parse date ($dateString) in US format. Trying with default locale", e)
-            dateBasedWithYear.parse("$dateString/$calYear")!!
-        }
-    }
-
-    companion object {
-        private const val TAG = "OneDaysReadingDto"
+    private fun dateFormatterPlanStringToDate(dateString: String): DbDate {
+        val calYear = calendar.currentYear()
+        // the port tries US month names, then the default locale's (and logs the fallback)
+        return DbDate(calendar.parseMonthDayYear("$dateString/$calYear"))
     }
 }

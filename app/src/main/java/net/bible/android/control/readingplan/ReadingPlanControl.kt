@@ -29,15 +29,12 @@ import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.readingplan.ReadingPlanTextFileDao
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
-import org.apache.commons.lang3.StringUtils
+import net.bible.android.database.DbDate
+import net.bible.sharedlogic.platform.LocalCalendar
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.versification.VersificationConverter
-import java.lang.Exception
 
-import java.util.ArrayList
-import java.util.Calendar
-import java.util.Date
 
 import kotlin.math.roundToLong
 
@@ -51,7 +48,8 @@ class ReadingPlanControl constructor(
 		private val windowControl: WindowControl,
         private val readingPlanRepo: ReadingPlanRepository,
         private val readingPlanTextDao: ReadingPlanTextFileDao,
-        private val settings: AppSettings)
+        private val settings: AppSettings,
+        internal val calendar: LocalCalendar)
 {
 
     private var readingStatus: ReadingStatus? = null
@@ -59,7 +57,7 @@ class ReadingPlanControl constructor(
     /** allow front end to determine if a plan needs has been selected
      */
     val isReadingPlanSelected: Boolean
-        get() = StringUtils.isNotEmpty(currentPlanCode)
+        get() = !currentPlanCode.isNullOrEmpty()
 
     /** get a list of plans so the user can choose one
      */
@@ -93,14 +91,9 @@ class ReadingPlanControl constructor(
     /** The day the user is on: for a date-based plan today's day, else the stored current day. */
     suspend fun currentPlanDay(planCode: String = currentPlanCode): Int {
             return if (readingPlanTextDao.getReading(planCode, 1).isDateBasedPlan) {
-                val todayDate = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
+                val todayStart = calendar.startOfToday()
                 readingPlanTextDao.getReadingList(planCode).find {
-                    it.readingDate == todayDate.time
+                    it.readingDate?.getTime() == todayStart
                 }?.day ?: 1
             } else {
                 readingPlanRepo.getCurrentDay(planCode)
@@ -115,7 +108,7 @@ class ReadingPlanControl constructor(
     }
 
     val shortTitle: String
-        get() = StringUtils.left(currentPlanCode, 8)
+        get() = currentPlanCode.take(8)
 
     suspend fun currentDayDescription(): String =
         if (isReadingPlanSelected) {
@@ -146,7 +139,7 @@ class ReadingPlanControl constructor(
 
     /** Adjust the plan start date
      */
-    suspend fun setStartDate(plan: ReadingPlanInfoDto, startDate: Date) {
+    suspend fun setStartDate(plan: ReadingPlanInfoDto, startDate: DbDate) {
         // tell the plan to set a start date
         readingPlanRepo.startPlan(plan.planCode, startDate)
     }
@@ -176,14 +169,14 @@ class ReadingPlanControl constructor(
     }
 
     private fun getDueDay(planInfo: ReadingPlanInfoDto): Long {
-        val today = truncatedDate
+        val today = calendar.startOfToday()
         val startDate = planInfo.startDate ?: return 0
         // on final day, after done the startDate will be null
 
         // should not need to round as we use truncated dates, but safety first
         // later found that rounding is necessary (due to DST I think) because
         // when the clocks went forward the difference became 88.95833 but should have been 89
-        val diffInDays = (today.time - startDate.time) / (1000.0 * 60.0 * 60.0 * 24.0)
+        val diffInDays = (today - startDate.getTime()) / (1000.0 * 60.0 * 60.0 * 24.0)
         val diffInWholeDays = diffInDays.roundToLong()
         Log.i(TAG, "Days diff between today and start:$diffInWholeDays")
 

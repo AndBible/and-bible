@@ -175,6 +175,7 @@ class ReadingPlanDatabaseOperations {
         val unusedRepo = ReadingPlanRepository(
             daoProvider = { error("migration serialises only; no repository access") },
             appScope = AppCoroutineScope(),
+            calendar = net.bible.android.platform.AndroidLocalCalendar(), // never used: the repository is only a serialiser here
         )
         val status = ReadingStatus(planCode, day, prefDayStatus.length, unusedRepo)
         for (i in prefDayStatus.indices) {

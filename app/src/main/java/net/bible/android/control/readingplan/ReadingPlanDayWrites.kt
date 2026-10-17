@@ -4,8 +4,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.service.readingplan.ReadingPlanInfoDto
-import java.util.Calendar
-import java.util.Date
+import net.bible.android.database.DbDate
+import net.bible.sharedlogic.util.currentTimeMillis
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -34,13 +34,13 @@ class ReadingPlanDayWrites(
 
     /** Makes [day] the current day: start date moved so that today is [day], then days before it done. */
     suspend fun setCurrentDay(info: ReadingPlanInfoDto, day: Int) = serialised {
-        val start = Calendar.getInstance().apply { add(Calendar.DATE, -(day - 1)) }
-        control.setStartDate(info, start.time)
+        val start = control.calendar.addDays(currentTimeMillis(), -(day - 1))
+        control.setStartDate(info, DbDate(start))
         control.done(info, day - 1, true)
         Unit
     }
 
-    suspend fun setStartDate(info: ReadingPlanInfoDto, start: Date) =
+    suspend fun setStartDate(info: ReadingPlanInfoDto, start: DbDate) =
         serialised { control.setStartDate(info, start) }
 
     /** Flips the read mark of one reading of [day]. */

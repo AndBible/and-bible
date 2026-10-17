@@ -30,7 +30,8 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.File
+import okio.Path.Companion.toPath
+import net.bible.android.platform.AndroidLocalCalendar
 
 /**
  * The writes of the daily-reading screen must finish in the app scope even when the screen's own scope is
@@ -69,14 +70,14 @@ class ReadingPlanDayWritesTest {
                 return snapshot
             }
         }
-        repo = ReadingPlanRepository(daoProvider = { gated }, appScope = appScope)
+        repo = ReadingPlanRepository(daoProvider = { gated }, appScope = appScope, calendar = AndroidLocalCalendar())
         val source = object : ReadingPlanSource {
             override fun builtInPlanCodes() = listOf("three")
             override fun openBuiltInPlan(code: String) = "# Three\n1=Gen.1\n2=Gen.2\n3=Gen.3\n"
         }
-        val dao = ReadingPlanTextFileDao(source, repo, testCoreStrings(), userPlanFolder = { File("/nonexistent") }, providedPlans = { emptyMap() })
+        val dao = ReadingPlanTextFileDao(source, repo, testCoreStrings(), AndroidLocalCalendar(), userPlanFolder = { "/nonexistent".toPath() }, providedPlans = { emptyMap() })
         val koin = GlobalContext.get()
-        control = ReadingPlanControl(koin.get(), koin.get(), repo, dao, settings)
+        control = ReadingPlanControl(koin.get(), koin.get(), repo, dao, settings, AndroidLocalCalendar())
         originalPlan = settings.getString("reading_plan", null)
         control.setReadingPlan("three")
     }

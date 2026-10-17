@@ -24,7 +24,8 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.File
+import okio.Path.Companion.toPath
+import net.bible.android.platform.AndroidLocalCalendar
 
 /** `done` moves the stored current day on and reads it back, so the write must have landed by then. */
 @RunWith(RobolectricTestRunner::class)
@@ -44,14 +45,14 @@ class ReadingPlanControlDoneTest {
         val slow = object : ReadingPlanDao by real {
             override suspend fun updatePlan(plan: ReadingPlanEntities.ReadingPlan) { delay(300); real.updatePlan(plan) }
         }
-        val repo = ReadingPlanRepository(daoProvider = { slow }, appScope = appScope)
+        val repo = ReadingPlanRepository(daoProvider = { slow }, appScope = appScope, calendar = AndroidLocalCalendar())
         val source = object : ReadingPlanSource {
             override fun builtInPlanCodes() = listOf("three")
             override fun openBuiltInPlan(code: String) = "# Three\n1=Gen.1\n2=Gen.2\n3=Gen.3\n"
         }
-        val dao = ReadingPlanTextFileDao(source, repo, testCoreStrings(), userPlanFolder = { File("/nonexistent") }, providedPlans = { emptyMap() })
+        val dao = ReadingPlanTextFileDao(source, repo, testCoreStrings(), AndroidLocalCalendar(), userPlanFolder = { "/nonexistent".toPath() }, providedPlans = { emptyMap() })
         val koin = GlobalContext.get()
-        control = ReadingPlanControl(koin.get(), koin.get(), repo, dao, settings)
+        control = ReadingPlanControl(koin.get(), koin.get(), repo, dao, settings, AndroidLocalCalendar())
         originalPlan = settings.getString("reading_plan", null)
         control.setReadingPlan("three")
     }

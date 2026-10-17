@@ -19,7 +19,7 @@ package net.bible.service.readingplan
 
 import org.crosswire.jsword.versification.Versification
 
-import java.util.Date
+import net.bible.android.database.DbDate
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -30,7 +30,7 @@ class ReadingPlanInfoDto(var planCode: String) {
     var versification: Versification? = null
     var numberOfPlanDays: Int = 0
     var isDateBasedPlan: Boolean = false
-    var startDate: Date? = null
+    var startDate: DbDate? = null
 
     override fun toString(): String {
         return "$planName"
