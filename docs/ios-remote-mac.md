@@ -97,8 +97,10 @@ mkdir -p ~/work ~/.ssh && chmod 700 ~/.ssh
 
 `DEVELOPER_DIR` selects Xcode for this user only, so the global `xcode-select` stays yours.
 
-**Simulators.** Simulator devices are per user. CI uses `iPhone 16` and `iPad Air 11-inch (M2)`; check
-that the build user has them, and create any missing one:
+**Simulators.** Simulator devices are per user, and the default set follows the Xcode version (Xcode
+26.6 creates iPhone 17 / iPad Air 11-inch (M4) and no `iPad Air 11-inch (M2)` device type at all). CI
+uses `iPhone 16` and `iPad Air 11-inch (M2)`; check what the build user has, and create a missing
+`iPhone 16` if a script expects the CI name:
 
 ```bash
 xcrun simctl list devices available | grep -E "iPhone 16 |iPad Air 11-inch \(M2\)"
@@ -142,7 +144,7 @@ Pin the Mac's host key. Fetch it on the host and compare the fingerprint with th
 (`ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` on the Mac):
 
 ```bash
-ssh-keyscan -t ed25519 192.168.1.50 | sed 's/^[^ ]*/andbible-mac/' > known_hosts
+ssh-keyscan -t ed25519 192.168.1.50 2>/dev/null | grep -v '^#' | sed 's/^[^ ]*/andbible-mac/' > known_hosts
 ssh-keygen -lf known_hosts
 ```
 
@@ -179,6 +181,12 @@ ssh -i ~/.config/andbible-mac/id_ed25519 -o IdentitiesOnly=yes \
     -o HostKeyAlias=andbible-mac -o UserKnownHostsFile=~/.config/andbible-mac/known_hosts \
     andbible@192.168.1.50 'xcodebuild -version && java -version && node --version && xcodegen --version && rsync --version | head -1'
 ```
+
+If the key is refused (`Permission denied (publickey)` while `ssh -v` shows the key offered), the
+reason is only in the Mac's log. Watch it while retrying:
+`sudo log stream --predicate 'process == "sshd-session" OR process == "sshd"' --level debug`.
+Usual causes: the user is missing from the Remote Login list, `authorized_keys` lacks the key, or
+`~`, `~/.ssh` or `authorized_keys` is group/world writable.
 
 ## 4. Jailbee: egress and the mount
 
