@@ -264,6 +264,9 @@ private fun IosReadingDestination(
         }
         return
     }
+    // Debug-only `-openRef <osisRef>` (no-op in release / without the argument). Do not remove: AppUITests'
+    // testFreshInstallEasyStartReadsJohn3 launches with it and asserts John 3, and the relaunch test relies on that run.
+    LaunchedEffect(Unit) { net.bible.sharedui.assembly.IosDebugLaunchArgs.openRefOnce() }
     val host = remember { holder.get(shell, koin, nightObserver) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }
