@@ -114,16 +114,18 @@ EOF
 
 sync_tree() {
     "${SSH[@]}" "$HOST" "mkdir -p $(q "$TREE")"
-    local t0=$SECONDS
+    command -v rsync >/dev/null || die "rsync is not installed in this container (old golden image?)"
+    local t0=$SECONDS stats
     # Not synced: .git (the container's objects live in an alternate on the host), container-only data,
     # build outputs (kept on the Mac: excluded paths survive --delete), and Linux-native node_modules.
-    "${RSYNC[@]}" --delete --stats \
+    stats=$("${RSYNC[@]}" --delete --stats \
         --exclude='.git' --exclude='/.local/' --exclude='/docs/' --exclude='/website/' \
         --exclude='/fastlane/' --exclude='/play/' --exclude='/app/src/test/roborazzi/' \
         --exclude='/local.properties' --exclude='build/' --exclude='.gradle/' --exclude='.kotlin/' \
         --exclude='node_modules/' --exclude='/app/bibleview-js/dist/' \
         --exclude='/iosApp/iosApp.xcodeproj/' --exclude='*.xcresult' \
-        "$repo/" "$HOST:$TREE/" | grep -E '^(Number of regular files transferred|Total transferred file size)' || true
+        "$repo/" "$HOST:$TREE/") || die "rsync to $HOST failed"
+    grep -E '^(Number of regular files transferred|Total transferred file size)' <<<"$stats" || true
     # :app's Gradle configuration runs `git rev-parse` / `git describe`: give it a one-commit repo.
     # It also needs an Android SDK location; iOS tasks never use the SDK, so an empty stub directory does.
     remote "$(prologue)
