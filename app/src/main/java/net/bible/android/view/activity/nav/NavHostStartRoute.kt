@@ -397,3 +397,9 @@ internal fun beforeSwitchMyDocument(
     }
     requests.claim(ReadingResultKind.MyDocumentPages)?.let(resolveOrphanedMyDocumentPagesAwait)
 }
+
+/**
+ * Whether resetting [resetCode] from the plan selector must drop the host's loaded reading plan:
+ * only when it is that very plan, a different plan's reset leaves the loaded one alone.
+ */
+internal fun resetForgetsLoadedPlan(resetCode: String, loadedCode: String?): Boolean = loadedCode != null && loadedCode == resetCode

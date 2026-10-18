@@ -3675,7 +3675,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                             }
                                         }
                                     },
-                                    onReset = { planCode -> readingPlanControl.reset(planCode) },
+                                    onReset = { planCode ->
+                                        readingPlanControl.reset(planCode)
+                                        // else Back shows a stale day view and a reopen reloads (and re-selects) the plan
+                                        if (resetForgetsLoadedPlan(planCode, planCodeLoaded)) forgetLoadedReadingPlan()
+                                    },
                                 )
                             },
                             subscribeEvents = { onReadingPlansChanged ->
