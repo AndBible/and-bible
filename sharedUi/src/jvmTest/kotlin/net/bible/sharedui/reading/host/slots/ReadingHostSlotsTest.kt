@@ -162,6 +162,10 @@ class ReadingHostSlotsTest {
             ),
             disableAnimations = { true },
             fullScreen = { fullScreen },
+            searchState = ReadingSearchState(MapSettings(), scope),
+            searchSettingsForEpub = { false },
+            currentBookName = { "Genesis" },
+            onSearchSettingsClosed = {},
         )
         return slots to hostState
     }

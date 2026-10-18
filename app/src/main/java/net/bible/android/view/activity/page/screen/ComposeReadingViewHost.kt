@@ -250,6 +250,7 @@ import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.reading.ShareVersesSheet
 import net.bible.sharedui.reading.host.slots.ReadingHostSlots
+import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.reading.WindowPaneMenu
@@ -804,6 +805,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         onConfig = { showSpeakSettings() },
     )
 
+    /** The search settings state (common code, `:sharedUi`); the fields below delegate to it. */
+    private val searchState = ReadingSearchState(CommonUtils.settings, hostScope)
+
     /**
      * The reading view's host-built slots, in common code (`:sharedUi` `ReadingHostSlots`): the
      * reading dialogs, the agent-log panel and the Speak bar. Declared after [agentLog] and
@@ -817,6 +821,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         speakTransport = speakTransport,
         disableAnimations = { CommonUtils.settings.disableAnimations },
         fullScreen = { fullScreen.value },
+        searchState = searchState,
+        searchSettingsForEpub = ::searchSettingsForEpub,
+        currentBookName = { searchControl.currentBookName },
+        onSearchSettingsClosed = { searchController.settingsClosed() },
     )
 
     // ------------------------------------------------------------------------------------------
@@ -850,13 +858,13 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * takes `currentBookName` as a constructor value, whereas the reading view's current book moves
      * as the user reads, so the name is read fresh per search instead (see [buildSearchRequest]).
      */
-    private val searchType = mutableStateOf(SearchType.ALL_WORDS)
     // `internal`, not `private` — same test-visibility convention as [buildSearchRequest] — so a
     // test can prove Strong's find-all forces `ALL` even when the settings sheet has been left on
     // a non-default section (review item A), without a `ComposeTestRule` to drive the real sheet.
-    internal val searchSection = mutableStateOf(SearchBibleSection.ALL)
-    private val searchTranslations = mutableStateOf<List<String>>(emptyList())
-    private val searchAvailableTranslations = mutableStateOf<List<Pair<String, String>>>(emptyList())
+    internal val searchSection get() = searchState.searchSection
+    private val searchType get() = searchState.searchType
+    private val searchTranslations get() = searchState.searchTranslations
+    private val searchAvailableTranslations get() = searchState.searchAvailableTranslations
 
     // ------------------------------------------------------------------------------------------
     // Settings editor sheets T10 — the reading view's in-place text-settings editor, opened over
@@ -977,7 +985,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     )
 
     /** The in-place text-settings editor sheet — mounted as the FIFTH sibling overlay next to
-     *  [SearchSettingsSlot] (see its own mounting comment at the `mountComposeView` call site).
+     *  [ReadingHostSlots.SearchSettings] (see its own mounting comment at the `mountComposeView` call site).
      *  Self-hides via [SettingsEditorSheet]/[TextSettingRowEditorSheet]/[ColorSettingsEditorSheet]'s
      *  own null/empty-pages early-return, so a host can render this unconditionally. */
     @Composable
@@ -1720,7 +1728,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * has no `ComposeTestRule`, so proving [onSearchModeClosed] clears this (review item 4) means a
      * test setting it directly.
      */
-    internal val searchSettingsOpen = mutableStateOf(false)
+    internal val searchSettingsOpen get() = searchState.searchSettingsOpen
 
     /**
      * Whether the toolbar field's recent-terms dropdown is open (state-IN, see [ReadingSearchBarState]).
@@ -1786,8 +1794,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * Seeded here and RE-READ on every [openSearch] — the store is shared, so this seed is only ever
      * a starting value, never the truth (review M3).
      */
-    private val _epubSearchMode = MutableStateFlow(loadEpubSearchMode())
-    val epubSearchMode: StateFlow<EpubSearchMode> = _epubSearchMode.asStateFlow()
+    val epubSearchMode: StateFlow<EpubSearchMode> get() = searchState.epubSearchMode
 
     /**
      * Index-build progress rows, feeding [SearchIndexPanel]'s progress half. Reused verbatim from
@@ -1930,7 +1937,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // otherwise be invisible here until the process restarted, and worse, be overwritten by this
         // host's stale value on the next `persistEpubSearchMode`. Read once at construction is only
         // correct for state nothing else owns; this is not that.
-        _epubSearchMode.value = loadEpubSearchMode()
+        searchState.reloadEpubSearchMode()
         // Review item 5: BOTH one-shot flags are keyed to the query TEXT (see their kdoc), which a
         // seedless open does not change — so only a call that brings a new seed may replace them. An
         // unconditional reset here dropped them for a run they should have covered: Strong's find-all
@@ -2049,22 +2056,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         val bibles = SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().sortedBy { it.abbreviation }
         searchAvailableTranslations.value = bibles.map { it.initials to it.abbreviation }
         val fallback = documentControl.currentDocument?.initials?.let { listOf(it) } ?: emptyList()
-        searchTranslations.value = loadSelectedSearchTranslations().ifEmpty { fallback }
-    }
-
-    /** Applies (and persists) a translation choice made in the settings sheet. */
-    private fun setSearchTranslations(ids: List<String>) {
-        searchTranslations.value = ids
-        // Same comma-joined key classic `Search.saveSelectedTranslations` writes.
-        CommonUtils.settings.setString(SEARCH_TRANSLATIONS_KEY, ids.joinToString(","))
-    }
-
-    /** `SearchComposeActivity.loadSelectedTranslations` — only initials that still resolve to a Bible. */
-    private fun loadSelectedSearchTranslations(): List<String> {
-        val saved = CommonUtils.settings.getString(SEARCH_TRANSLATIONS_KEY, null)
-        if (saved.isNullOrBlank()) return emptyList()
-        val available = SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().map { it.initials }.toSet()
-        return saved.split(",").filter { it in available }
+        searchTranslations.value = searchState.loadPersistedTranslations(
+            bibles.map { it.initials }.toSet(),
+        ).ifEmpty { fallback }
     }
 
     /** `SearchComposeActivity.loadRecentTerms` — newline-separated, see [searchQueries]. */
@@ -2251,14 +2245,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `EpubSearchComposeActivity.saveMode` exactly, so a mode set here is the mode that Activity
      * shows and vice versa.
      */
-    internal fun persistEpubSearchMode(mode: EpubSearchMode) {
-        _epubSearchMode.value = mode
-        CommonUtils.settings.setString(EPUB_SEARCH_TYPE_KEY, mode.toClassicSearchTypeName())
-    }
-
-    /** The read half of [persistEpubSearchMode] — see [epubSearchModeFromClassicName]. */
-    private fun loadEpubSearchMode(): EpubSearchMode =
-        epubSearchModeFromClassicName(CommonUtils.settings.getString(EPUB_SEARCH_TYPE_KEY))
+    internal fun persistEpubSearchMode(mode: EpubSearchMode) = searchState.persistEpubSearchMode(mode)
 
     /**
      * Starts a JSword index build and begins feeding [searchIndexProgress] from `JobManager` —
@@ -3124,7 +3111,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             visible.value
         },
         searchSheetSlot = { SearchSheetSlot() },
-        searchSettingsSlot = { SearchSettingsSlot() },
+        searchSettingsSlot = { slots.SearchSettings() },
         // Settings editor sheets T10: the reading view's in-place text-settings editor.
         textSettingsEditorSlot = { TextSettingsEditorSlot() },
         // Round 13a: the Speak settings sheet.
@@ -3342,39 +3329,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         }
     }
 
-    /** The modal search-settings sheet (the toolbar's Tune affordance) — Task 5's form in Task 5's shell. */
-    @Composable
-    private fun SearchSettingsSlot() {
-        SearchSettingsSheet(
-            open = searchSettingsOpen.value,
-            // `settingsClosed()` re-runs the search when a query is already in flight (Task 3's
-            // logic; this is just the wiring) — the same "translation selector refreshes the cache"
-            // shape the old results screen already had.
-            onDismiss = {
-                searchSettingsOpen.value = false
-                searchController.settingsClosed()
-            },
-        ) {
-            if (searchSettingsForEpub()) {
-                val mode by epubSearchMode.collectAsState()
-                EpubSearchSettings(mode = mode, onMode = ::persistEpubSearchMode)
-            } else {
-                BibleSearchSettings(
-                    searchType = searchType.value,
-                    bibleSection = searchSection.value,
-                    availableTranslations = searchAvailableTranslations.value,
-                    selectedTranslationIds = searchTranslations.value,
-                    // Read at composition time rather than collected: this is a plain getter over the
-                    // active window's page, and the settings sheet is modal and short-lived.
-                    currentBookName = searchControl.currentBookName,
-                    onSearchType = { searchType.value = it },
-                    onBibleSection = { searchSection.value = it },
-                    onTranslations = { ids -> setSearchTranslations(ids) },
-                )
-            }
-        }
-    }
-
     /**
      * Whether the settings sheet must show the EPUB word-mode row rather than the Bible form —
      * decided from the LIVE target, the same `resolveDoc()` reading [ReadingSearchController.submit]
@@ -3413,8 +3367,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         /** Task 26: the verse-share sheet's toggle pref keys — verbatim from the classic
          *  `ShareWidget`, so an existing user's saved choices carry over unchanged. */
 
-        /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
-        private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
+        /** Settings keys shared with the search Activities — see [searchQueries]/[ReadingSearchState.setSearchTranslations]. */
         private const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
 
         /** `SearchIndexProgressComposeActivity`'s post-finish poll interval (`:365`'s `pause(2)`).

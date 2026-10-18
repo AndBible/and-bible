@@ -52,6 +52,10 @@ class ReadingHostSlots(
     val speakTransport: SpeakTransportController,
     val disableAnimations: () -> Boolean,
     val fullScreen: () -> Boolean,
+    val searchState: ReadingSearchState,
+    val searchSettingsForEpub: () -> Boolean,
+    val currentBookName: () -> String,
+    val onSearchSettingsClosed: () -> Unit,
 ) {
     /** The reading view's own dialogs (help text, delete-page confirmation). */
     @Composable
@@ -66,6 +70,15 @@ class ReadingHostSlots(
         onCollapsedHeightMeasured: (Float) -> Unit,
     ) = AgentLogSlotContent(
         agentLog, disableAnimations(), applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured,
+    )
+
+    /**
+     * The modal search-settings sheet. [searchSettingsForEpub] decides the EPUB word-mode row vs the
+     * Bible form from the live target document; [onSearchSettingsClosed] re-runs a search in flight.
+     */
+    @Composable
+    fun SearchSettings() = SearchSettingsSlotContent(
+        searchState, searchSettingsForEpub, currentBookName, onSearchSettingsClosed,
     )
 
     /** The Speak transport bar, hidden in full screen and while the transport is not visible. */
