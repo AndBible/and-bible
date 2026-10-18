@@ -37,10 +37,11 @@ class IosDateTimeFormatsTest {
     }
 
     @Test fun patternKeepsLocalisedNames() = inUtc {
-        // Pattern letter EEEE is the format context (as in "sunnuntaina 1. helmikuuta", also Java's EEEE); only the
-        // standalone letter cccc gives the nominative "sunnuntai".
+        // Pattern letter EEEE is the format context: "sunnuntaina" with some CLDR versions, "sunnuntai" with others
+        // (iOS 18.6 and 26.5 differ), so assert Finnish (not English "Sunday") by prefix; only the standalone cccc is
+        // exactly the nominative "sunnuntai" everywhere.
         val fi = IosDateTimeFormats { NSLocale.localeWithLocaleIdentifier("fi_FI") }
-        assertEquals("sunnuntaina", fi.pattern("EEEE", fixedInstant))
+        assertTrue(fi.pattern("EEEE", fixedInstant).startsWith("sunnuntai"), fi.pattern("EEEE", fixedInstant))
         assertEquals("sunnuntai", fi.pattern("cccc", fixedInstant))
         assertEquals("Sunday", IosDateTimeFormats { NSLocale.localeWithLocaleIdentifier("en_US") }.pattern("EEEE", fixedInstant))
     }

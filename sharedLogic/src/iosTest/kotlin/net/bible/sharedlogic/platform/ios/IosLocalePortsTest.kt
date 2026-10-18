@@ -123,7 +123,8 @@ class IosLocalePortsTest {
         val ms = calendar.parseMonthDayYear("Feb-1/2026")
         assertEquals(1, calendar.localMonth(ms))
         assertEquals("Feb", IosLocalCalendar { locale("en_US") }.shortMonthName(ms))
-        assertEquals("helmi", IosLocalCalendar { locale("fi_FI") }.shortMonthName(ms).trimEnd('k', '.').lowercase())
+        // "helmik." or "helmikuu" depending on the runtime's CLDR data; always Finnish, never English "Feb".
+        IosLocalCalendar { locale("fi_FI") }.shortMonthName(ms).let { assertTrue(it.lowercase().startsWith("helmi"), it) }
     }
 
     @Test fun startOfLocalWeekFollowsLocaleFirstWeekday() {
