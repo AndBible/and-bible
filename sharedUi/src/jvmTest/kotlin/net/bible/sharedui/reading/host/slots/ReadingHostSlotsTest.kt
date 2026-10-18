@@ -259,8 +259,25 @@ class ReadingHostSlotsTest {
         val actions = object : ReadingQuickActions {
             override fun quickSwitchToWorkspace(id: String) { switched += id }
             override fun applyChosenDocument(bookStr: String?) = error("unexpected")
-            override fun applyChosenGenBookKey(book: org.crosswire.jsword.book.Book?, key: org.crosswire.jsword.passage.Key) =
-                error("unexpected")
+            override fun applyChosenGenBookKey(book: org.crosswire.jsword.book.Book?, key: org.crosswire.jsword.passage.Key) {
+                appliedKeys += book to key
+            }
+        }
+
+        /** (book, key) pairs the key-chooser sheets applied through [ReadingQuickActions]. */
+        val appliedKeys = mutableListOf<Pair<org.crosswire.jsword.book.Book?, org.crosswire.jsword.passage.Key>>()
+
+        /** The page's own document, which a map or plain general-book pick belongs to. */
+        val pageBook: org.crosswire.jsword.book.Book = fakeBook("PAGEDOC")
+
+        /** The key the fake page shows now; the sheet must mark its row as current. */
+        var pageKey: org.crosswire.jsword.passage.Key? = null
+
+        val keyChooserPage = object : ReadingKeyChooserPage {
+            override fun currentKey(kind: net.bible.sharedcore.reading.KeyChooserKind) =
+                if (kind == net.bible.sharedcore.reading.KeyChooserKind.Grid) null else pageKey
+            override fun currentDocument(kind: net.bible.sharedcore.reading.KeyChooserKind) =
+                if (kind == net.bible.sharedcore.reading.KeyChooserKind.Grid) null else pageBook
         }
 
         val navigator: net.bible.sharedui.reading.bridge.ReadingNavigator = Proxy.newProxyInstance(
@@ -289,6 +306,27 @@ class ReadingHostSlotsTest {
             arrayOf(net.bible.sharedcore.workspaces.WorkspaceService::class.java),
         ) { _, m, _ -> if (m.name == "loadAll") workspaceRows else error("unexpected ${m.name}") } as
             net.bible.sharedcore.workspaces.WorkspaceService
+    }
+
+    private companion object {
+        /** A `Book` that only knows its initials; `BookAndKey`'s document lookup asks `doesNotExist`. */
+        fun fakeBook(initials: String): org.crosswire.jsword.book.Book = Proxy.newProxyInstance(
+            org.crosswire.jsword.book.Book::class.java.classLoader,
+            arrayOf(org.crosswire.jsword.book.Book::class.java),
+        ) { self, m, args ->
+            when (m.name) {
+                "getInitials" -> initials
+                "toString" -> "Book($initials)"
+                "hashCode" -> initials.hashCode()
+                "equals" -> self === args[0]
+                // `Book.doesNotExist` reads one metadata property; this book has none of them.
+                "getBookMetaData" -> Proxy.newProxyInstance(
+                    org.crosswire.jsword.book.BookMetaData::class.java.classLoader,
+                    arrayOf(org.crosswire.jsword.book.BookMetaData::class.java),
+                ) { _, mm, _ -> if (mm.name == "getProperty") null else error("unexpected BookMetaData call ${mm.name}") }
+                else -> error("unexpected Book call ${m.name}")
+            }
+        } as org.crosswire.jsword.book.Book
     }
 
     private val shareInput = net.bible.sharedcore.reading.ShareVersesInput(
@@ -344,6 +382,7 @@ class ReadingHostSlotsTest {
             workspaceService = { quick.workspaceService },
             readingProgressService = { proxyOf() },
             quickActions = quick.actions,
+            keyChooserPage = quick.keyChooserPage,
             navigator = quick.navigator,
             textShare = quick.share,
             clipboard = quick.clipboard,
@@ -672,5 +711,108 @@ class ReadingHostSlotsTest {
         waitUntil(timeoutMillis = 5_000) { quick.chooserTypes.isNotEmpty() }
         assertEquals(listOf<String?>("BIBLE"), quick.chooserTypes)
         assertTrue(state.quickSheet.value == null, "the empty sheet closes itself")
+    }
+
+    private fun keyOf(name: String): org.crosswire.jsword.passage.Key =
+        org.crosswire.jsword.passage.DefaultLeafKeyList(name)
+
+    private fun androidx.compose.ui.test.ComposeUiTest.mountKeySheet(slots: ReadingHostSlots, state: ReadingHostState) {
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) { state.quickSheet.value?.let { slots.QuickSheet(it) } }
+            }
+        }
+        waitForIdle()
+    }
+
+    @Test
+    fun mapKeyChosenAppliesThroughQuickActions() = runComposeUiTest {
+        val quick = QuickFakes()
+        val keys = listOf(keyOf("Alpha"), keyOf("Beta"), keyOf("Gamma"))
+        quick.pageKey = keys[1]
+        val (slots, state) = slots(quick = quick)
+        state.showKeyChooserSheet(net.bible.sharedcore.reading.KeyChooserKind.Map, keys)
+        mountKeySheet(slots, state)
+        onNodeWithText(strings.docTypeMap).assertExists() // the sheet title
+        onNodeWithText("Gamma").performClick()
+        // The row id is the INDEX into the list the opening handed in, and a map pick belongs to the
+        // page's current document.
+        assertEquals(listOf<Pair<org.crosswire.jsword.book.Book?, org.crosswire.jsword.passage.Key>>(quick.pageBook to keys[2]), quick.appliedKeys)
+        assertTrue(state.quickSheet.value == null, "a pick closes the sheet")
+    }
+
+    @Test
+    fun generalBookKeyChosenAppliesThroughQuickActions() = runComposeUiTest {
+        val quick = QuickFakes()
+        val epubBook = fakeBook("EPUB1")
+        val tocKey = net.bible.service.sword.BookAndKey(keyOf("Chapter 1"), epubBook)
+        val plain = keyOf("Plain entry")
+        val (slots, state) = slots(quick = quick)
+        state.showKeyChooserSheet(net.bible.sharedcore.reading.KeyChooserKind.GeneralBook, listOf(tocKey, plain))
+        mountKeySheet(slots, state)
+        onNodeWithText(strings.generalBook).assertExists()
+        // An EPUB table-of-contents entry shows its bare name and carries its OWN document.
+        onNodeWithText("Chapter 1").performClick()
+        assertEquals(1, quick.appliedKeys.size)
+        assertTrue(quick.appliedKeys.single().first === epubBook, "the entry's own document, not the page's")
+        assertTrue(quick.appliedKeys.single().second === tocKey)
+
+        // A second opening: a plain key belongs to the page's current document.
+        state.showKeyChooserSheet(net.bible.sharedcore.reading.KeyChooserKind.GeneralBook, listOf(tocKey, plain))
+        waitForIdle()
+        onNodeWithText("Plain entry").performClick()
+        assertEquals(2, quick.appliedKeys.size)
+        assertTrue(quick.appliedKeys.last().first === quick.pageBook)
+        assertTrue(quick.appliedKeys.last().second === plain)
+    }
+
+    /**
+     * A real controller over a three-step fake: BOOK (one button) -> CHAPTER (one button) -> done.
+     * The sheet around it is the real [GridKeyChooserSheetFor].
+     */
+    private fun gridController(scope: CoroutineScope, finished: MutableList<String>): net.bible.sharedcore.navigation.GridChoosePassageController {
+        fun ui(step: net.bible.sharedcore.navigation.GridStep, label: String) = net.bible.sharedcore.navigation.GridUi(
+            step = step, title = "Step-$step", columns = 1, showLongNames = false, showProgress = false,
+            showDeutToggle = false, buttons = listOf(net.bible.sharedcore.navigation.GridButton(0, label)),
+        )
+        return net.bible.sharedcore.navigation.GridChoosePassageController(
+            scope = scope,
+            initialOptions = net.bible.sharedcore.navigation.GridOptions(true, false, true, false, false, false),
+            buildStep = { step, _ -> ui(step, if (step == net.bible.sharedcore.navigation.GridStep.BOOK) "Genesis" else "Chapter 1") },
+            onPersistOptions = {},
+            onPickBook = { net.bible.sharedcore.navigation.BookPick.GoChapter },
+            onPickChapter = { net.bible.sharedcore.navigation.ChapterPick.Finish("Gen.1.1") },
+            onPickVerse = { "x" },
+            onFinish = { finished += it },
+        )
+    }
+
+    @Test
+    fun gridBackClosesTheGridLevelFirst() = runComposeUiTest {
+        val finished = mutableListOf<String>()
+        val controller = gridController(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined), finished)
+        var closed = 0
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) {
+                    GridKeyChooserSheetFor(controller, "Fallback") { closed++ }
+                }
+            }
+        }
+        waitForIdle()
+        onNodeWithText("Genesis").performClick() // BOOK -> CHAPTER
+        waitForIdle()
+        assertEquals(net.bible.sharedcore.navigation.GridStep.CHAPTER, controller.step.value)
+
+        // The header's back arrow pops the grid level and leaves the sheet open ...
+        onNodeWithContentDescription(strings.settingsEditorBack).performClick()
+        waitForIdle()
+        assertEquals(net.bible.sharedcore.navigation.GridStep.BOOK, controller.step.value)
+        assertEquals(0, closed, "the first back unwinds the grid, it must not close the sheet")
+        onAllNodesWithContentDescription(strings.settingsEditorBack).assertCountEquals(0)
+
+        // ... and only at the root does the close button end the sheet.
+        onNodeWithContentDescription(strings.settingsEditorClose).performClick()
+        assertEquals(1, closed)
     }
 }

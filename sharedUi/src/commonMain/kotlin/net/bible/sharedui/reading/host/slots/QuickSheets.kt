@@ -18,6 +18,8 @@
 
 package net.bible.sharedui.reading.host.slots
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,9 +28,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.page.screen.chapterReadHistoryRow
@@ -37,25 +41,36 @@ import net.bible.sharedcore.history.HistoryController
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
 import net.bible.sharedcore.navigation.DocumentSheetScope
+import net.bible.sharedcore.navigation.GridChoosePassageController
+import net.bible.sharedcore.navigation.GridStep
+import net.bible.sharedcore.navigation.KeyRow
+import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.workspaces.WorkspaceQuickController
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetFooterRow
 import net.bible.sharedui.components.AbQuickSheetTab
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.nameWithoutDocument
+import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.history.HistoryListContent
 import net.bible.sharedui.navigation.DocumentQuickContent
+import net.bible.sharedui.navigation.GridChoosePassageContent
+import net.bible.sharedui.navigation.GridOptionsOverflow
+import net.bible.sharedui.navigation.KeyListBody
 import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.reading.ShareVersesSheet
+import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.workspaces.WorkspaceQuickContent
+import org.crosswire.jsword.passage.Key
 
 /**
- * The reading view's quick sheets: ONE mount for the History, Workspaces, Documents, Share and
- * ReadHistory sheets (`QuickSheetMountGuardTest`). A `ModalBottomSheet` renders in its own window, so
- * opening one never re-keys the pane subtree and destroys the BibleView WebViews. The key-chooser
- * sheets (Map, GeneralBook, Grid) are still mounted by the platform host.
+ * The reading view's quick sheets: ONE mount for every quick sheet: History, Workspaces, Documents, Share,
+ * ReadHistory and the key choosers (`QuickSheetMountGuardTest`). A `ModalBottomSheet` renders in its own window, so
+ * opening one never re-keys the pane subtree and destroys the BibleView WebViews.
  */
 @Composable
 internal fun QuickSheetContent(slots: ReadingHostSlots, sheet: ReadingQuickSheet) {
@@ -65,7 +80,146 @@ internal fun QuickSheetContent(slots: ReadingHostSlots, sheet: ReadingQuickSheet
         is ReadingQuickSheet.Documents -> DocumentsSheet(slots, sheet)
         is ReadingQuickSheet.Share -> ShareSheet(slots, sheet)
         is ReadingQuickSheet.ReadHistory -> ReadHistorySheet(slots, sheet)
-        is ReadingQuickSheet.KeyChooser -> Unit
+        is ReadingQuickSheet.KeyChooser -> when (sheet.kind) {
+            KeyChooserKind.Grid -> GridKeyChooserSheet(slots, sheet)
+            // Both are flat single-level lists with no page stack, so they take the shell's DEFAULT
+            // dismiss contract (swipe, scrim and back all simply close). The grid is the only sheet
+            // here that needs `dismissRoutesToBack = false`.
+            KeyChooserKind.Map -> KeyListSheet(slots, sheet, KeyChooserKind.Map, slots.strings().docTypeMap)
+            KeyChooserKind.GeneralBook ->
+                KeyListSheet(slots, sheet, KeyChooserKind.GeneralBook, slots.strings().generalBook)
+        }
+    }
+}
+
+/**
+ * The passage grid as a quick sheet (the key chooser for Bible/commentary pages).
+ *
+ * System back pops a grid step; swipe-down and scrim-tap close the sheet outright, as they do on every
+ * other sheet. M3 cannot tell the three apart, so back is intercepted BEFORE M3 sees it with a
+ * [PlatformBackHandler] mounted inside the sheet content, and `dismissRoutesToBack = false` makes
+ * every M3 dismiss close. The handler wins over M3's own because both land on the sheet dialog's
+ * dispatcher, which resolves the most recently added enabled handler first, and the sheet's content
+ * composes after the dialog's own handler was registered.
+ */
+@Composable
+private fun GridKeyChooserSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet.KeyChooser) {
+    val strings = slots.strings()
+    val hostState = slots.hostState
+    val gridScope = rememberCoroutineScope()
+    val controller = remember(sheet) {
+        slots.gridPassages.create(
+            scope = gridScope,
+            // The full-screen twin's own default title -- NOT `chooseBook`, which is the DOCUMENT
+            // chooser's caption.
+            baseTitle = strings.choosePassageBookName,
+            // The Bible/commentary key choosers that route here both pass isScripture = true.
+            isScripture = true,
+            // Decided by the OPENING, not read here: the title tap follows the user's preference
+            // while the JS reference chooser forces verse level.
+            navigateToVerse = sheet.navigateToVerse,
+            // Answers a pending JS request if there is one, and otherwise runs the one
+            // parse-and-apply path shared with the onActivityResult arm.
+            onFinish = hostState::onGridPassageChosen,
+        )
+    }
+    GridKeyChooserSheetFor(controller, strings.choosePassageBookName) { hostState.closeQuickSheet() }
+}
+
+/**
+ * The grid key-chooser sheet around an existing [controller]: [fallbackTitle] shows until the first
+ * step has built, [onClose] runs when the sheet is dismissed (swipe, scrim, the close button, system
+ * back at the book step, or back past the last grid step). Public (and objc-hidden) so a platform test
+ * can mount it with a hand-built controller; the slot builds the real one.
+ */
+@kotlin.native.HiddenFromObjC
+@Composable
+fun GridKeyChooserSheetFor(controller: GridChoosePassageController, fallbackTitle: String, onClose: () -> Unit) {
+    val ui by controller.ui.collectAsState()
+    val rendered = ui
+    val step by controller.step.collectAsState()
+    val options by controller.options.collectAsState()
+    // The grid always overflows its 400dp bound, so it most needs the bottom fade; the fade must
+    // read the grid's own LazyGridState.
+    val gridState = rememberLazyGridState()
+    AbQuickSheet(
+        open = true,
+        // Tracks the step: Genesis -> Genesis 1.
+        title = ui?.title ?: fallbackTitle,
+        onDismiss = { onClose() },
+        // Still the header's back arrow: it pops a grid step until the stack is empty.
+        canGoBack = { step != GridStep.BOOK },
+        onBack = { if (!controller.back()) onClose() },
+        canScrollForward = { gridState.canScrollForward },
+        dismissRoutesToBack = false,
+        actions = if (ui?.step == GridStep.BOOK) {
+            {
+                // The options are functional: DEUTEROCANONICAL rebuilds the book list.
+                GridOptionsOverflow(requireNotNull(ui), options) { controller.toggle(it) }
+            }
+        } else null,
+    ) {
+        PlatformBackHandler(enabled = step != GridStep.BOOK) { controller.back() }
+        GridChoosePassageContent(
+            rendered, { id -> rendered?.let { controller.pick(id, it) } }, Modifier.fillMaxSize(), state = gridState,
+        )
+    }
+}
+
+/**
+ * The map / general-book key chooser: one composable for both, since the two differ only in title and
+ * in which page they read.
+ *
+ * The key list is the one the opening handed to [ReadingHostState.showKeyChooserSheet], held for the
+ * life of the sheet, because a [KeyRow]'s id is the INDEX into it: re-resolving between building the
+ * rows and handling the selection would silently re-number them. `remember(sheet)` keys it per
+ * opening. The body's own [rememberLazyListState] feeds `canScrollForward` (the bottom fade).
+ */
+@Composable
+private fun KeyListSheet(slots: ReadingHostSlots, sheet: ReadingQuickSheet, kind: KeyChooserKind, title: String) {
+    val hostState = slots.hostState
+    val keys = remember(sheet) { hostState.keyChooserKeys }
+    val rows = remember(keys) { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } }
+    val currentKeyId = remember(keys) {
+        slots.keyChooserPage.currentKey(kind)?.let { current -> keys.indexOf(current).takeIf { it >= 0 }?.toString() }
+    }
+    val listState = rememberLazyListState()
+    AbQuickSheet(
+        open = true,
+        title = title,
+        onDismiss = { hostState.closeQuickSheet() },
+        canScrollForward = { listState.canScrollForward },
+    ) {
+        KeyListBody(
+            rows = rows,
+            currentKeyId = currentKeyId,
+            onSelect = { keyId ->
+                val key = keys.getOrNull(keyId.toIntOrNull() ?: -1)
+                hostState.closeQuickSheet()
+                if (key != null) applyKeyChooserKey(slots, kind, key)
+            },
+            listState = listState,
+        )
+    }
+}
+
+/**
+ * Applies a key picked in a key-chooser sheet through [ReadingQuickActions.applyChosenGenBookKey], the
+ * same function the full-screen chooser's result runs. The `Key` goes across as itself. Which book it
+ * belongs to follows each chooser's own result: an EPUB table-of-contents entry is a [BookAndKey]
+ * carrying its own document, everything else belongs to the page's current document.
+ */
+private fun applyKeyChooserKey(slots: ReadingHostSlots, kind: KeyChooserKind, key: Key) {
+    val actions = slots.quickActions
+    when (kind) {
+        KeyChooserKind.Map -> actions.applyChosenGenBookKey(slots.keyChooserPage.currentDocument(kind), key)
+        KeyChooserKind.GeneralBook ->
+            if (key is BookAndKey) {
+                actions.applyChosenGenBookKey(key.document, key)
+            } else {
+                actions.applyChosenGenBookKey(slots.keyChooserPage.currentDocument(kind), key)
+            }
+        KeyChooserKind.Grid -> Unit
     }
 }
 

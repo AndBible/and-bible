@@ -21,6 +21,7 @@ package net.bible.sharedui.reading.host.slots
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.service.sword.BookAndKeyList
+import net.bible.sharedcore.reading.KeyChooserKind
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -56,6 +57,20 @@ interface ReadingQuickActions {
      * window. [book] is explicit because an EPUB table-of-contents key carries its own document.
      */
     fun applyChosenGenBookKey(book: Book?, key: Key)
+}
+
+/**
+ * What a key-chooser quick sheet reads from the active window's page: the page's current key (for the
+ * "current row" mark) and its current document (the book a picked key belongs to). Android backs it
+ * with the active window's map and general-book pages.
+ */
+@kotlin.native.HiddenFromObjC
+interface ReadingKeyChooserPage {
+    /** The key the active window's page for [kind] shows now, or null. Always null for the grid. */
+    fun currentKey(kind: KeyChooserKind): Key?
+
+    /** The document the active window's page for [kind] shows now, or null. */
+    fun currentDocument(kind: KeyChooserKind): Book?
 }
 
 /**

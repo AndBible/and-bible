@@ -70,7 +70,8 @@ import net.bible.sharedui.strings.Strings
  * [readingProgressService] (providers, resolved when a sheet opens) for their rows, [quickActions] and [navigator] for what a pick does,
  * [textShare], [clipboard] and [toast] for Share and Copy, and [workspaceName],
  * [activeWindowPosition] and [currentDocumentInitials] for the History title and the current-document
- * mark. The key-chooser sheets stay in the platform host for now.
+ * mark. The key-chooser sheets (Map, GeneralBook, Grid) read the page through [keyChooserPage] and
+ * build the grid with [gridPassages].
  *
  * The search sheet and the search settings read [searchState].
  *
@@ -97,6 +98,7 @@ class ReadingHostSlots(
     val workspaceService: () -> WorkspaceService,
     val readingProgressService: () -> ReadingProgressService,
     val quickActions: ReadingQuickActions,
+    val keyChooserPage: ReadingKeyChooserPage,
     val navigator: ReadingNavigator,
     val textShare: TextShare,
     val clipboard: ClipboardText,
@@ -186,8 +188,8 @@ class ReadingHostSlots(
     fun SearchSheet() = SearchSheetSlotContent(searchState, strings())
 
     /**
-     * The quick sheet [sheet] (History, Workspaces, Documents, Share or ReadHistory); renders nothing
-     * for a key-chooser sheet, which the platform host still mounts itself.
+     * The quick sheet [sheet]: History, Workspaces, Documents, Share, ReadHistory or a key chooser
+     * (Map, GeneralBook, Grid). The one place a quick sheet is mounted.
      */
     @Composable
     fun QuickSheet(sheet: ReadingQuickSheet) = QuickSheetContent(this, sheet)

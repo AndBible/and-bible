@@ -21,23 +21,25 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.platform.openSystemTtsSettings
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchDocumentInfo
+import net.bible.sharedui.reading.host.slots.ReadingKeyChooserPage
 import net.bible.sharedui.reading.host.slots.ReadingQuickActions
 import net.bible.sharedui.reading.host.slots.ReadingSearchPlatform
 import net.bible.sharedui.reading.host.slots.SearchIndexJobs
+import net.bible.sharedui.reading.host.slots.SpeakSettingsPlatform
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import net.bible.android.platform.openSystemTtsSettings
-import net.bible.sharedui.reading.host.slots.SpeakSettingsPlatform
 
 /**
  * Android [SpeakSettingsPlatform]: the system TTS settings screen, or the general settings where
@@ -68,6 +70,26 @@ class AndroidReadingQuickActions(private val activity: () -> ReadingHostActivity
 
     override fun applyChosenGenBookKey(book: Book?, key: Key) =
         activity().readingCommands.applyChosenGenBookKey(book, key)
+}
+
+/**
+ * Android [ReadingKeyChooserPage]: the active window's map and general-book pages, read per call
+ * because the active window changes. [windowControl] is a provider (resolved lazily by the host).
+ */
+class AndroidReadingKeyChooserPage(private val windowControl: () -> WindowControl) : ReadingKeyChooserPage {
+    private val pages get() = windowControl().activeWindowPageManager
+
+    override fun currentKey(kind: KeyChooserKind): Key? = when (kind) {
+        KeyChooserKind.Map -> pages.currentMap.key
+        KeyChooserKind.GeneralBook -> pages.currentGeneralBook.key
+        KeyChooserKind.Grid -> null
+    }
+
+    override fun currentDocument(kind: KeyChooserKind): Book? = when (kind) {
+        KeyChooserKind.Map -> pages.currentMap.currentDocument
+        KeyChooserKind.GeneralBook -> pages.currentGeneralBook.currentDocument
+        KeyChooserKind.Grid -> null
+    }
 }
 
 /**
