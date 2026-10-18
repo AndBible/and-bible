@@ -17,6 +17,7 @@ import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
+import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -55,6 +56,22 @@ class HistoryRouteBackTest {
         net.bible.test.closeReadingHostsBeforeReset(controllers)
     }
 
+    /**
+     * Forced interleaving of the contended-suite flake: a background thread holds `DatabaseContainer.aiLifetime` for
+     * [ms] of real time, so the host's settings gate (`aiSettings.ensureLoaded()` in `setContent`) cannot open sooner.
+     * The thread running the hold is a plain daemon thread, never the test/main thread.
+     */
+    private fun withAiLifetimeHeld(ms: Long, body: () -> Unit) {
+        val held = java.util.concurrent.CountDownLatch(1)
+        val holder = Thread {
+            kotlinx.coroutines.runBlocking {
+                DatabaseContainer.aiLifetime.replace { _ -> held.countDown(); Thread.sleep(ms) }
+            }
+        }.apply { isDaemon = true; start() }
+        assertTrue("fixture: lock taken", held.await(5, java.util.concurrent.TimeUnit.SECONDS))
+        try { body() } finally { holder.join() }
+    }
+
     private fun idle() {
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
         compose.waitForIdle()
@@ -89,7 +106,9 @@ class HistoryRouteBackTest {
 
     private fun currentRoute(nav: NavHostController) = nav.currentDestination?.route?.substringBefore('?')
 
-    @Test fun aHistoryRouteDestinationStepsHistoryBeforePopping() {
+    @Test fun aHistoryRouteDestinationStepsHistoryBeforePopping() = stepsHistory()
+    @Test fun aHistoryRouteDestinationStepsHistoryBeforePoppingWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { stepsHistory() }
+    private fun stepsHistory() {
         val (activity, _) = searchFormHost()
         val manager: HistoryManager = GlobalContext.get().get()
         val window = CommonUtils.windowControl.activeWindow
@@ -106,7 +125,9 @@ class HistoryRouteBackTest {
     }
 
     /** With nothing to step back to, `goBackInHistory` declines and the press must reach the NavHost pop. */
-    @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePop() {
+    @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePop() = emptyHistory()
+    @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePopWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { emptyHistory() }
+    private fun emptyHistory() {
         val (activity, nav) = searchFormHost()
         val manager: HistoryManager = GlobalContext.get().get()
         val window = CommonUtils.windowControl.activeWindow
@@ -120,7 +141,9 @@ class HistoryRouteBackTest {
     }
 
     /** Daily reading publishes its history route too: BACK steps history first (ReadingPlanNavGraph). */
-    @Test fun aDailyReadingDestinationStepsHistoryBeforePopping() {
+    @Test fun aDailyReadingDestinationStepsHistoryBeforePopping() = daily()
+    @Test fun aDailyReadingDestinationStepsHistoryBeforePoppingWithSlowSettingsGate() = withAiLifetimeHeld(3_000) { daily() }
+    private fun daily() {
         resetComposeUiDispatcher()
         firstTime = false
         CommonUtils.settings.setString("reading_plan", PLAN)
