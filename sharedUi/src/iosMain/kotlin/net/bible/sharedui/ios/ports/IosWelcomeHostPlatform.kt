@@ -20,30 +20,53 @@ package net.bible.sharedui.ios.ports
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.startup.StartupWelcomeController
 import net.bible.sharedcore.startup.StartupWelcomeInfo
 import net.bible.sharedui.app.welcome.WelcomeHostPlatform
+import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.strings.keyed.StringTable
+import platform.Foundation.NSBundle
 
-/** Pending (Task 5 makes the controller and the buttons real). */
+/**
+ * Welcome on iOS: the Easy start and Download paths are real; Import, Restore, Redownload and the links are pending.
+ * [leaveFor] initialises the app off the main thread and navigates (Android `WelcomeFlow.leaveFor`).
+ */
 @kotlin.native.HiddenFromObjC
-class IosWelcomeHostPlatform : WelcomeHostPlatform {
-    override val windowTitle: String = ""
+class IosWelcomeHostPlatform(
+    private val table: StringTable = iosStringTable("en"),
+    private val isDiscrete: () -> Boolean = { false },
+    private val leaveFor: (String) -> Unit = { IosPending.log("WelcomeHostPlatform.leaveFor") },
+) : WelcomeHostPlatform {
+    // Discrete-aware like Android's startupWelcomeAppNameRes: the calculator name hides the app.
+    override val appName: String
+        get() = table.text(if (isDiscrete()) "app_name_calculator" else "app_name_long")
 
-    override val appName: String = ""
+    override val windowTitle: String get() = appName
 
     override val logo: @Composable () -> Painter? = { null }
 
-    override val controller: StartupWelcomeController = StartupWelcomeController {
-        StartupWelcomeInfo(
-            versionText = "", supportedFormatsText = "",
-            previousInstallDetected = false, easyStartAvailable = false,
+    // The previous-install (Redownload) probe reads the database, so it is not asked on the main thread here.
+    override val controller: StartupWelcomeController by lazy { StartupWelcomeController { loadInfo() } }
+
+    private fun loadInfo(): StartupWelcomeInfo {
+        val zip = table.fmt("format_zip", table.text("app_name_short"))
+        val formats = table.fmt(
+            "supported_formats",
+            "$zip, ${table.text("format_mybible")}, ${table.text("format_mysword")}, ${table.text("format_epub")}",
+        )
+        val versionName = NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""
+        return StartupWelcomeInfo(
+            versionText = table.fmt("version_text", versionName),
+            supportedFormatsText = formats,
+            previousInstallDetected = false,
+            easyStartAvailable = table.tag.substringBefore('-').substringBefore('_') == "en",
+            homepageButtonsVisible = !isDiscrete(),
         )
     }
 
-    override fun onDownload() {
-        IosPending.log("WelcomeHostPlatform.onDownload")
-    }
+    override fun onDownload() = leaveFor(NavRoutes.download(firstDownload = true))
 
     override fun onImport() {
         IosPending.log("WelcomeHostPlatform.onImport")
@@ -57,9 +80,7 @@ class IosWelcomeHostPlatform : WelcomeHostPlatform {
         IosPending.log("WelcomeHostPlatform.onRedownload")
     }
 
-    override fun onEasyStart() {
-        IosPending.log("WelcomeHostPlatform.onEasyStart")
-    }
+    override fun onEasyStart() = leaveFor(NavRoutes.download(firstDownload = true, downloadRecommended = true))
 
     override fun onOpenHomepage() {
         IosPending.log("WelcomeHostPlatform.onOpenHomepage")

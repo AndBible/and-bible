@@ -25,7 +25,7 @@ import net.bible.sharedui.ios.IosPending
 import okio.Path
 import org.crosswire.jsword.book.Book
 
-/** Pending (Task 5 and stream H make parts real). */
+/** Download on iOS: the overflow icon renders nothing; the rest is pending (stream H). */
 @kotlin.native.HiddenFromObjC
 class IosDownloadHostPlatform : DownloadHostPlatform {
     override fun copyFile(from: Path, to: Path): Boolean {
@@ -49,6 +49,6 @@ class IosDownloadHostPlatform : DownloadHostPlatform {
 
     @Composable
     override fun OverflowIcon(item: DownloadOverflowItem) {
-        IosPending.log("DownloadHostPlatform.OverflowIcon")
+        // Nothing to draw: the overflow items carry no platform-specific icon on iOS.
     }
 }

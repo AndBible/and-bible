@@ -74,7 +74,12 @@ class IosHostPortsTest {
     @Test
     fun everyHostPortClassIsConstructible() {
         val koin = org.koin.core.context.startKoin {
-            modules(org.koin.dsl.module { single<net.bible.android.control.backup.BackupHost> { FakeBackupHost() } })
+            modules(org.koin.dsl.module {
+                single<net.bible.android.control.backup.BackupHost> { FakeBackupHost() }
+                single<net.bible.sharedcore.platform.AppEnvironment> {
+                    net.bible.sharedcore.platform.IosAppEnvironment(net.bible.sharedui.assembly.InMemorySecretStore(), isDiscrete = { false })
+                }
+            })
         }.koin
         try {
             val scope = kotlinx.coroutines.CoroutineScope(kotlin.coroutines.EmptyCoroutineContext)
@@ -84,8 +89,8 @@ class IosHostPortsTest {
                 override fun popBackStackTo(route: String, inclusive: Boolean) = false
             })
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin)
-            ports.welcomePlatform().onDownload()
-            assertEquals("", ports.welcomePlatform().windowTitle)
+            ports.welcomePlatform().onImport()
+            assertTrue(ports.welcomePlatform().windowTitle.isNotEmpty())
             ports.welcomePlatform().controller.refresh()
             ports.chooserPlatform().backupModules()
             assertEquals(emptyList(), ports.chooserPlatform().docRows(emptyList()))
@@ -102,7 +107,7 @@ class IosHostPortsTest {
             assertTrue(ports.labelIcons.iconKeys.isEmpty())
             ports.cloudDocumentsPlatform()
             ports.bugReport()
-            assertTrue("WelcomeHostPlatform.onDownload" in IosPending.reported)
+            assertTrue("WelcomeHostPlatform.onImport" in IosPending.reported)
             assertTrue("TextShare.shareText" in IosPending.reported)
         } finally {
             org.koin.core.context.stopKoin()

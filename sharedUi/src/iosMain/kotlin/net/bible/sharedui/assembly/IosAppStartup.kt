@@ -150,6 +150,9 @@ object IosAppStartup {
     /** True once [openDatabases] finished; `DatabaseAppSettings` answers defaults before that. */
     val databasesOpen: Boolean get() = opened
 
+    /** The UI-language string table of the started app (the resource-keyed lookups the hosts read). */
+    internal val stringTable: StringTable get() = checkNotNull(parts) { "IosAppStartup.start has not run" }.strings
+
     /**
      * Environment + Koin; never touches the databases. MAIN THREAD ONLY (it is not thread-safe). Idempotent: a repeated
      * call reuses the first call's [config] and [extraModules]; different arguments are IGNORED. `SharedAppStartup.start`

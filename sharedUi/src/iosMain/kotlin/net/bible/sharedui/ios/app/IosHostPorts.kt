@@ -19,7 +19,11 @@
 package net.bible.sharedui.ios.app
 
 import net.bible.android.control.backup.BackupHost
+import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.assembly.iosStringTable
+import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.ios.ports.IosAiHostPlatform
 import net.bible.sharedui.ios.ports.IosBookmarkHostPlatform
 import net.bible.sharedui.ios.ports.IosBugReportPlatform
@@ -49,8 +53,13 @@ import org.koin.core.Koin
  */
 @kotlin.native.HiddenFromObjC
 @Suppress("UNUSED_PARAMETER")
-fun buildIosHostPorts(shell: IosHostShell, koin: Koin): HostPorts {
-    val welcome = IosWelcomeHostPlatform()
+fun buildIosHostPorts(
+    shell: IosHostShell,
+    koin: Koin,
+    table: StringTable = iosStringTable("en"),
+    leaveWelcomeFor: (String) -> Unit = { IosPending.log("WelcomeHostPlatform.leaveFor") },
+): HostPorts {
+    val welcome = IosWelcomeHostPlatform(table, { koin.get<AppEnvironment>().isDiscrete }, leaveWelcomeFor)
     val chooser = IosChooserHostPlatform()
     val bookmark = IosBookmarkHostPlatform()
     val readingPlan = IosReadingPlanHostPlatform()

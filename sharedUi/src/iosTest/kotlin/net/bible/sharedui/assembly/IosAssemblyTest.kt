@@ -52,7 +52,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** Keychain stand-in: see the class comment of [IosAssemblyTest]. */
-private class InMemorySecretStore : net.bible.sharedcore.platform.secrets.SecretStore {
+internal class InMemorySecretStore : net.bible.sharedcore.platform.secrets.SecretStore {
     private val values = mutableMapOf<String, String>()
     override fun get(key: String): String? = values[key]
     override fun put(key: String, value: String) { values[key] = value }
@@ -353,7 +353,7 @@ class IosAssemblyTest {
             "the message must carry the root cause")
     }
 
-    private companion object {
+    internal companion object {
         private var hookInstalled = false
 
         /**
