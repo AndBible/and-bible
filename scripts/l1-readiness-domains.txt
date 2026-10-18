@@ -61,3 +61,5 @@ window	android/control/PassageChangeMediator.kt
 window	android/control/PageChange.kt
 page	android/misc/ClientPageObjects.kt
 page	sharedui/ToolbarThemeRule.kt
+# phase 2
+bookmark	android/view/activity/bookmark/LabelEditContract.kt

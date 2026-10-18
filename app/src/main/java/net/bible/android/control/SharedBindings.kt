@@ -4,8 +4,6 @@ import kotlinx.coroutines.flow.map
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkJsActions
-import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.document.DocumentFileDeleter
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
@@ -63,7 +61,6 @@ import net.bible.service.history.HistoryManager
 import net.bible.service.history.HistoryTraversalFactory
 import net.bible.service.llm.AiSettings
 import net.bible.service.llm.AiSettingsStore
-import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
@@ -180,12 +177,6 @@ fun buildSharedBindings() = module {
     singleOf(::LinkControl)
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
-    single {
-        DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
-            deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
-            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() },
-            enableManualInstallFolder = net.bible.service.sword.SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder)
-    }
     singleOf(::BookmarkControl)
     singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
     singleOf(::ManageLabelsServiceImpl) { bind<ManageLabelsService>() }
