@@ -54,6 +54,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import net.bible.sharedui.reading.session.BibleWindowSession
+import net.bible.sharedui.reading.session.SessionPaging
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.PathHandler
 import kotlinx.coroutines.CoroutineDispatcher
@@ -215,7 +217,7 @@ class BibleView(
                 val host: ReadingHostActivity,
                 /** See [BibleViewHostCallbacks]. Also read by this view's [BibleJavascriptInterface]. */
                 val hostCallbacks: BibleViewHostCallbacks,
-                internal var windowRef: WeakReference<Window>,
+                initialWindowRef: WeakReference<Window>,
                 internal val windowControl: WindowControl,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
@@ -223,7 +225,7 @@ class BibleView(
                 internal val bookmarkControl: BookmarkControl,
                 internal val downloadControl: DownloadControl,
                 private val searchControl: SearchControl
-) : WebView(host.hostContext.applicationContext), DocumentView, WindowView
+) : WebView(host.hostContext.applicationContext), DocumentView, WindowView, SessionPaging
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
     private val swordContentFacade: SwordContentFacade by lazy { GlobalContext.get().get() }
@@ -256,8 +258,12 @@ class BibleView(
     private var wasAtRightEdge: Boolean = false
     private var wasAtLeftEdge: Boolean = false
 
-    @Volatile private var minChapter = -1
-    @Volatile private var maxChapter = -1
+    private var minChapter: Int
+        get() = session.minChapter
+        set(value) { session.minChapter = value }
+    private var maxChapter: Int
+        get() = session.maxChapter
+        set(value) { session.maxChapter = value }
 
     private var gestureDetector: GestureDetectorCompat
 
@@ -290,11 +296,30 @@ class BibleView(
 
     internal val jsChannel = BibleViewJsChannel(WebViewJsHost()) { Log.e(TAG, it) }
 
+    /** Platform-independent session state; [window], [firstDocument] etc. below forward to it. */
+    val session: BibleWindowSession = BibleWindowSession(
+        window = initialWindowRef.get(),
+        jsChannel = jsChannel,
+        hostScope = { host.lifecycleScope },
+        surface = BibleViewSurface(this),
+        navigator = AndroidReadingNavigator(
+            host = { hostCallbacks.hostActivity },
+            downloadControl = { downloadControl },
+            workspaceSettings = { windowControl.windowRepository.workspaceSettings },
+        ),
+        windowControlProvider = { windowControl },
+        bookmarkControlProvider = { bookmarkControl },
+        linkControlProvider = { linkControl },
+        downloadControlProvider = { downloadControl },
+        searchControlProvider = { searchControl },
+        pageControlProvider = { pageControl },
+    ).also { it.paging = this }
+
+    internal val windowRef: WeakReference<Window> get() = WeakReference(session.windowOrNull)
+
     var window: Window
-        get() = windowRef.get()!!
-        set(value) {
-            windowRef = WeakReference(value)
-        }
+        get() = session.window
+        set(value) { session.window = value }
 
     init {
         //if ((0 != BibleApplication.application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) || CommonUtils.isBeta) {
@@ -571,14 +596,8 @@ class BibleView(
     private var documentLoadGeneration = 0L
 
     /** Platform seams (see [AndroidReadingNavigator], [BibleViewSurface]). */
-    val navigator by lazy {
-        AndroidReadingNavigator(
-            host = { hostCallbacks.hostActivity },
-            downloadControl = { downloadControl },
-            workspaceSettings = { windowControl.windowRepository.workspaceSettings },
-        )
-    }
-    val surface by lazy { BibleViewSurface(this) }
+    val navigator get() = session.navigator as AndroidReadingNavigator
+    val surface get() = session.surface as BibleViewSurface
 
     internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.Main) {
         val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
@@ -768,7 +787,9 @@ class BibleView(
         }
     }
 
-    var editingTextInJs: Boolean = false
+    var editingTextInJs: Boolean
+        get() = session.editingTextInJs
+        set(value) { session.editingTextInJs = value }
 
     fun stopSelection(removeRanges: Boolean = false) {
         currentSelection = null
@@ -1576,7 +1597,9 @@ class BibleView(
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
     private var labelOverridesMap: Map<IdType, WorkspaceEntities.WorkspaceLabelOverride> = emptyMap()
 
-    override var firstDocument: Document? = null
+    override var firstDocument: Document?
+        get() = session.firstDocument
+        set(value) { session.firstDocument = value }
 
     private val documentLoadingLock = object {}
 
@@ -1656,17 +1679,18 @@ class BibleView(
 
     private var initialAnchorOrdinal: OrdinalRange? = null
     private var initialHtmlId: String? = null
-    internal var initialKey: Key? = null
-        set(value) {
-            firstKey = value
-            lastKey = value
-            field = value
-        }
-    private var lastKey: Key? = null
-    private var firstKey: Key? = null
+    internal var initialKey: Key?
+        get() = session.initialKey
+        set(value) { session.initialKey = value }
+    private var lastKey: Key?
+        get() = session.lastKey
+        set(value) { session.lastKey = value }
+    private var firstKey: Key?
+        get() = session.firstKey
+        set(value) { session.firstKey = value }
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
     private val windowState: WindowStateServiceImpl by lazy { GlobalContext.get().get() }
-    internal val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
+    internal val workspaceSettings get() = session.workspaceSettings
 
     override fun updateTextDisplaySettings(onAttach: Boolean) {
         Log.i(TAG, "updateTextDisplaySettings")
@@ -1835,7 +1859,9 @@ class BibleView(
     }
 
 
-    var contentVisible = false
+    var contentVisible: Boolean
+        get() = session.contentVisible
+        set(value) { session.contentVisible = value }
 
     /** prevent swipe right if the user is scrolling the page right  */
     override val isPageNextOkay: Boolean get () {
@@ -2107,7 +2133,7 @@ class BibleView(
     override fun highlightBibleOrdinalRange(range: IntRange) {
         emit(BibleViewEvents.scrollToVerse(null, false, true, range.first, range.last))
     }
-    fun emit(call: JsCall): Boolean = jsChannel.execute(call)
+    fun emit(call: JsCall): Boolean = session.emit(call)
 
     private suspend fun evaluateJavascriptAsync(javascript: String): String = jsChannel.evaluate(javascript)
 
@@ -2135,7 +2161,7 @@ class BibleView(
         emit(BibleViewEvents.resetLoadingCount())
     }
 
-    fun requestMoreToBeginning(callId: Long) = synchronized(requestMoreLock) {
+    override fun requestMoreToBeginning(callId: Long) = synchronized(requestMoreLock) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (isBible) {
             val newChap = minChapter - 1
@@ -2186,7 +2212,7 @@ class BibleView(
         }
     }
 
-    fun requestMoreToEnd(callId: Long) = synchronized(requestMoreLock) {
+    override fun requestMoreToEnd(callId: Long) = synchronized(requestMoreLock) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (isBible) {
             val currentPage = window.pageManager.currentBible
@@ -2237,15 +2263,17 @@ class BibleView(
         }
     }
 
-    override fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
+    override fun hasChapterLoaded(chapter: Int) = session.hasChapterLoaded(chapter)
 
-    fun setClientReady() = jsChannel.runOnMain {
+    override fun setClientReady() = jsChannel.runOnMain {
         jsChannel.markClientReady()
         replaceDocument()
         updateActive()
     }
 
-    var modalOpen = false
+    var modalOpen: Boolean
+        get() = session.modalOpen
+        set(value) { session.modalOpen = value }
 
     private fun closeModals() {
         emit(BibleViewEvents.closeModals())
@@ -2280,7 +2308,7 @@ class BibleView(
         super.onFocusChanged(focused, direction, previouslyFocusedRect)
     }
 
-    fun parseRef(callId: Long, s: String) {
+    override fun parseRef(callId: Long, s: String) {
         val ref = wrapString(linkControl.resolveRef(s, (firstDocument as? BibleDocument)?.swordBook)?.getOsisRef())
         emit(BibleViewEvents.response(callId, JsExpr(ref)))
     }
