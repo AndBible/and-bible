@@ -210,6 +210,15 @@ class IosContentPortsTest {
         assertEquals(listOf("A", "C"), f.builtNow())
     }
 
+    @Test fun schedulerBuildsStrictlyOneAtATimeInEnqueueOrder() {
+        val f = Fixture()
+        val names = listOf("A", "B", "C", "D", "E", "F")
+        names.forEach { f.scheduler.enqueue(fakeAddonBook(it, "/$it")) } // A blocks on the gate while the rest queue up
+        f.gate.complete(Unit)
+        f.await { f.builtNow().size == names.size }
+        assertEquals(names, f.builtNow())
+    }
+
     @Test fun schedulerFailedBuildLeavesUndoneAndQueueContinues() {
         val f = Fixture().apply { failFor = "A" }
         val a = fakeAddonBook("A", "/a"); val b = fakeAddonBook("B", "/b")

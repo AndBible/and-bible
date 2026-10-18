@@ -21,8 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.service.sword.index.AndroidIndexPolicy
 import net.bible.sharedcore.log.Log
@@ -40,7 +38,7 @@ private const val TAG = "IosSearchIndexScheduler"
 
 /**
  * iOS [SearchIndexScheduler]. Mirrors the queue semantics of Android's `SearchIndexingService`: builds run one at a
- * time in request order (a [Mutex] is FIFO), a request for a book that is queued or being built is ignored, a
+ * time in request order (a single worker coroutine drains a FIFO map), a request for a book that is queued or being built is ignored, a
  * failed build leaves the book `UNDONE` and the queue goes on, and [dequeue] drops a build that has not started
  * (status `UNDONE`). Each build runs under [runner] so UIKit grants background time and an expiry cancels the
  * `CREATE_INDEX-<initials>` job the same way a user cancel does. Deviation: there is no notification host.
@@ -64,33 +62,52 @@ class IosSearchIndexScheduler(
 ) : SearchIndexScheduler {
     private val lock = Any()
     private val queued = LinkedHashMap<String, Book>()
-    private val running = HashSet<String>()
-    private val serial = Mutex()
+    private var runningInitials: String? = null
+    private var draining = false
 
     override fun enqueue(book: Book) {
         val initials = book.initials
-        val accepted = withMonitor(lock) {
-            if (initials in queued || initials in running) false else { queued[initials] = book; true }
+        val startWorker = withMonitor(lock) {
+            if (initials in queued || initials == runningInitials) return
+            queued[initials] = book
+            (!draining).also { if (it) draining = true }
         }
-        if (!accepted) return
-        scope.launch {
-            serial.withLock {
+        // One worker drains the queue, so builds run strictly one after another in enqueue order (as the Android queue's
+        // single worker thread does); launching one coroutine per book would let them race for the order.
+        if (startWorker) scope.launch { drain() }
+    }
+
+    private suspend fun drain() {
+        var finished = false
+        try {
+            while (true) {
                 val next = withMonitor(lock) {
-                    queued.remove(initials)?.also { running.add(initials) }
-                } ?: return@withLock // dequeued while waiting
+                    val first = queued.entries.firstOrNull()
+                    if (first == null) {
+                        draining = false
+                        finished = true
+                        null
+                    } else {
+                        queued.remove(first.key)
+                        runningInitials = first.key
+                        first.value
+                    }
+                } ?: return
                 try {
                     runner.run(cancelBuild = { cancelBuild(next) }) { withContext(Dispatchers.Default) { build(next) } }
                 } catch (e: CancellationException) {
                     next.indexStatus = IndexStatus.UNDONE
                     currentCoroutineContext().ensureActive() // our own coroutine cancelled: propagate
-                    Log.w(TAG, "Index build of $initials cancelled (background time expired)")
+                    Log.w(TAG, "Index build of ${next.initials} cancelled (background time expired)")
                 } catch (e: Exception) {
-                    Log.e(TAG, "Index creation failed for $initials", e)
+                    Log.e(TAG, "Index creation failed for ${next.initials}", e)
                     next.indexStatus = IndexStatus.UNDONE
                 } finally {
-                    withMonitor(lock) { running.remove(initials) }
+                    withMonitor(lock) { runningInitials = null }
                 }
             }
+        } finally {
+            if (!finished) withMonitor(lock) { draining = false } // abnormal exit (scope cancelled): allow a new worker
         }
     }
 
