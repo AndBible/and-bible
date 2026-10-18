@@ -196,9 +196,9 @@ class BibleViewEpubLoadRaceTest {
             serialRelease.countDown()
             while (old.isActive) { runCurrent(); withContext(Dispatchers.IO) { delay(10) } }
             assertEquals(newKey, view.initialKey)
-            assertEquals(9, (field("initialAnchorOrdinal") as OrdinalRange).start)
-            assertEquals("new", field("initialHtmlId"))
-            assertEquals("{'id': 'new'}", field("latestDocumentStr"))
+            assertEquals(9, view.documentLoader.initialAnchorOrdinal!!.start)
+            assertEquals("new", view.documentLoader.initialHtmlId)
+            assertEquals("{'id': 'new'}", view.documentLoader.latestDocumentStr)
         } finally {
             serialRelease.countDown(); old.cancel()
         }
@@ -217,7 +217,7 @@ class BibleViewEpubLoadRaceTest {
         val original = page.currentDocument
         try {
             withContext(Dispatchers.Default) { withTimeout(10_000) { while (entered.count != 0L) { runCurrent(); delay(10) } } }
-            assertEquals(count.toLong(), field("documentLoadGeneration"))
+            assertEquals(count.toLong(), view.documentLoader.loadGeneration)
             assertNull(view.initialKey)
             assertNull(view.firstDocument)
             page.onlySetCurrentDocument(Books.installed().getBooks().first { it != original })
@@ -225,8 +225,8 @@ class BibleViewEpubLoadRaceTest {
             loads.forEach { it.join() }
             assertNull(view.firstDocument)
             assertNull(view.initialKey)
-            assertNull(field("initialAnchorOrdinal"))
-            assertNull(field("initialHtmlId"))
+            assertNull(view.documentLoader.initialAnchorOrdinal)
+            assertNull(view.documentLoader.initialHtmlId)
         } finally {
             page.onlySetCurrentDocument(original)
             release.countDown()

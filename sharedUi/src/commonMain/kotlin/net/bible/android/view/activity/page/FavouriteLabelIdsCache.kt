@@ -17,9 +17,11 @@
 
 package net.bible.android.view.activity.page
 
+import kotlin.concurrent.Volatile
 import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.bookmark.favouriteIdsAfter
 import net.bible.android.database.IdType
+import net.bible.sharedcore.bibleview.SessionLock
 
 /**
  * [BibleView]'s favourite label ids, read synchronously by its `set_config` command. Kept current from
@@ -32,25 +34,25 @@ import net.bible.android.database.IdType
  *   [favouriteIdsAfter] is idempotent. Without the replay, the older read would overwrite it.
  */
 class FavouriteLabelIdsCache {
-    private val lock = Any()
+    private val lock = SessionLock()
     @Volatile var ids: List<IdType> = emptyList()
         private set
     /** One log per refresh in flight; [apply] appends to each. Guarded by [lock]. */
     private val inFlight = mutableListOf<MutableList<BookmarkChange>>()
 
-    fun apply(change: BookmarkChange) = synchronized(lock) {
+    fun apply(change: BookmarkChange) = lock.withLock {
         ids = favouriteIdsAfter(ids, change)
         inFlight.forEach { it.add(change) }
     }
 
     suspend fun refresh(read: suspend () -> List<IdType>) {
         val log = mutableListOf<BookmarkChange>()
-        synchronized(lock) { inFlight.add(log) }
+        lock.withLock { inFlight.add(log) }
         try {
             val fresh = read()
-            synchronized(lock) { ids = log.fold(fresh, ::favouriteIdsAfter) }
+            lock.withLock { ids = log.fold(fresh, ::favouriteIdsAfter) }
         } finally {
-            synchronized(lock) { inFlight.removeAll { it === log } } // by identity: two empty logs are equal
+            lock.withLock { inFlight.removeAll { it === log } } // by identity: two empty logs are equal
         }
     }
 }

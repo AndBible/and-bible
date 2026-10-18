@@ -145,9 +145,7 @@ class BibleViewBookmarkChangeOrderTest {
             runCurrent()
             assertTrue("Label DAO must really be suspended", entered.isCompleted)
             // Favourites must change on the emitter thread even while JS handling is suspended.
-            val favourites = BibleView::class.java.getDeclaredField("favouriteLabels").run {
-                isAccessible = true; get(view) as FavouriteLabelIdsCache
-            }
+            val favourites = view.documentLoader.favouriteLabels
             assertEquals(listOf(label.id), favourites.ids)
             events.emit(net.bible.android.control.bookmark.BookmarkChange.BookmarksUpserted(listOf(bookmark)))
             runCurrent()
