@@ -118,8 +118,9 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         val emittedKey = progress.key as BookAndKey
         assertSame(dictionary, emittedKey.document)
         assertEquals(key.getOsisRef(), emittedKey.key.getOsisRef())
-        assertEquals(ordinal, emittedKey.ordinal!!.start)
-        assertEquals(ordinal, emittedKey.ordinal.end)
+        val emittedOrdinal = emittedKey.ordinal!!
+        assertEquals(ordinal, emittedOrdinal.start)
+        assertEquals(ordinal, emittedOrdinal.end)
         assertTrue(progress.forceFollow)
     }
 

@@ -149,7 +149,7 @@ fun sanitizeFilename(name: String): String = name.replace(Regex("[^a-zA-Z0-9._-]
  * on [source]'s writer connection with the export file attached. [source] and [openExportDb] are test seams.
  */
 @VisibleForTesting
-internal suspend fun writeStudyPadExportDb(
+@VisibleForTesting suspend fun writeStudyPadExportDb(
     exportDbFile: Path,
     labels: List<BookmarkEntities.Label>,
     source: BookmarkDatabase = DatabaseContainer.instance.bookmarkDb,

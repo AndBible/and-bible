@@ -17,6 +17,7 @@
 package net.bible.service.backup
 
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.IO
 import net.bible.sharedcore.log.Log
 import okio.FileSystem
@@ -50,17 +51,17 @@ import org.koin.mp.KoinPlatform
  * `internal`-visible selection so the toggle→action mapping is unit-testable without invoking the
  * real (`AlertDialog`/SAF-based) [BackupControl] functions -- see `BackupServiceImplTest`.
  */
-internal enum class BackupAction { App, Database, Documents }
+@VisibleForTesting enum class BackupAction { App, Database, Documents }
 
 /** Same idea as [BackupAction], for [BackupServiceImpl.restore] / [restoreActionsFor]. */
-internal enum class RestoreAction { Database, Documents }
+@VisibleForTesting enum class RestoreAction { Database, Documents }
 
 /**
  * Backs up every CHECKED backup toggle, app then database then documents -- the same order the
  * classic screen lists them in. **This is "back up all checked", not classic's first-match
  * `when`** -- see [BackupServiceImpl] kdoc for why.
  */
-internal fun backupActionsFor(backupApp: Boolean, backupDatabase: Boolean, backupDocuments: Boolean): List<BackupAction> =
+@VisibleForTesting fun backupActionsFor(backupApp: Boolean, backupDatabase: Boolean, backupDocuments: Boolean): List<BackupAction> =
     buildList {
         if (backupApp) add(BackupAction.App)
         if (backupDatabase) add(BackupAction.Database)
@@ -68,7 +69,7 @@ internal fun backupActionsFor(backupApp: Boolean, backupDatabase: Boolean, backu
     }
 
 /** Restore analogue of [backupActionsFor]: database then documents. */
-internal fun restoreActionsFor(restoreDatabase: Boolean, restoreDocuments: Boolean): List<RestoreAction> =
+@VisibleForTesting fun restoreActionsFor(restoreDatabase: Boolean, restoreDocuments: Boolean): List<RestoreAction> =
     buildList {
         if (restoreDatabase) add(RestoreAction.Database)
         if (restoreDocuments) add(RestoreAction.Documents)

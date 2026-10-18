@@ -34,7 +34,7 @@ sealed class ToolResult {
      * @param jsonOverride Pre-serialized JSON string of [data], set by [typedSuccess] to avoid
      *   reflection-based serialization in [toJson].
      */
-    data class Success(val data: Any, internal val jsonOverride: String? = null) : ToolResult()
+    data class Success(val data: Any, val jsonOverride: String? = null) : ToolResult()
 
     /**
      * Failed tool execution.

@@ -92,7 +92,7 @@ class CloudSync(
     /** The last concurrent database replace ended; the reading host reloads its workspace (replaces the retired WorkspaceRefreshRequired bus event). */
     val workspaceRefreshRequired: Events<Unit> get() = refreshSource
 
-    @VisibleForTesting internal fun notifyWorkspaceRefreshRequired() {
+    @VisibleForTesting fun notifyWorkspaceRefreshRequired() {
         refreshSource.emit(Unit)
     }
 
@@ -175,7 +175,7 @@ class CloudSync(
      * outright. `internal`, not private, so a test can pin the mapping directly against just a
      * [SyncableDatabaseDefinition] -- without building a whole [SyncableDatabaseAccessor].
      */
-    internal suspend fun askInitialSyncOperation(category: SyncableDatabaseDefinition): InitialOperation? {
+    @VisibleForTesting suspend fun askInitialSyncOperation(category: SyncableDatabaseDefinition): InitialOperation? {
         val containsStr = strings.syncCategoryContents(category.name)
         val dialogResult = dialogs.await(
             AppDialogRequest.Options(
@@ -359,7 +359,7 @@ class CloudSync(
     }
 
     /** The initial-download swap: close, copy the downloaded file over the local one, reopen. */
-    internal suspend fun swapInInitialDb(
+    @VisibleForTesting suspend fun swapInInitialDb(
         dbDef: SyncableDatabaseAccessor<*>,
         downloaded: Path,
         replacement: net.bible.service.llm.AiDatabaseLifetime.Replacement? = null,

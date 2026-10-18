@@ -114,7 +114,7 @@ private val GZIP_MAGIC = "1f8b".decodeHex()
  * `NetUtilJvm.getURI(File)` (`File.toURI()`) returns for it, built the way jsword's common code builds directory
  * URIs. Used as the library root of newly extracted SWORD books.
  */
-internal fun directoryKUri(dir: Path): KUri {
+@VisibleForTesting fun directoryKUri(dir: Path): KUri {
     val spelling = dir.toString()
     return KUri("file", null, if (spelling.endsWith("/")) spelling else "$spelling/", null)
 }
@@ -169,7 +169,7 @@ class BackupControl(
      * private, so `BackupControlTest` can pin the mapping directly without driving the whole export
      * flow (`activity.awaitIntent` etc.).
      */
-    internal suspend fun classicDestinationPrompt(promptTitle: String, promptMessage: String): SaveOrShare? {
+    @VisibleForTesting suspend fun classicDestinationPrompt(promptTitle: String, promptMessage: String): SaveOrShare? {
         val result = dialogs.await(
             AppDialogRequest.Options(
                 title = promptTitle,
@@ -252,7 +252,7 @@ class BackupControl(
 
     /** The old (pre-split, version <= [OLD_DATABASE_VERSION]) single-file database, gzipped or not. Closes [source]. */
     @VisibleForTesting
-    internal suspend fun restoreOldMonolithicDatabase(source: Source): Boolean = withContext(Dispatchers.IO) {
+    @VisibleForTesting suspend fun restoreOldMonolithicDatabase(source: Source): Boolean = withContext(Dispatchers.IO) {
         val tmpFile = internalDbBackupDir / OLD_MONOLITHIC_DATABASE_NAME
         try {
             if (!unpackOldMonolithicDatabase(source, tmpFile)) return@withContext false
@@ -270,7 +270,7 @@ class BackupControl(
      * source, a full disk) is the answer `false`, which rolls the restore back.
      */
     @VisibleForTesting
-    internal var copyStagedDatabase: (Path, Path) -> Boolean = { from, to ->
+    @VisibleForTesting var copyStagedDatabase: (Path, Path) -> Boolean = { from, to ->
         try {
             FileSystem.SYSTEM.copy(from, to)
             true
@@ -352,7 +352,7 @@ class BackupControl(
 
     /** Test seam: the rename behind [moveFile], so a test can make the put-back of a rollback fail too. */
     @VisibleForTesting
-    internal var atomicMove: (Path, Path) -> Unit = { from, to -> FileSystem.SYSTEM.atomicMove(from, to) }
+    @VisibleForTesting var atomicMove: (Path, Path) -> Unit = { from, to -> FileSystem.SYSTEM.atomicMove(from, to) }
 
     /** `File.renameTo`: false instead of an exception when the move fails. */
     private fun moveFile(from: Path, to: Path): Boolean = try {
@@ -415,7 +415,7 @@ class BackupControl(
         }
     }
 
-    internal suspend fun selectDatabaseSections(available: List<String>): List<String> =
+    @VisibleForTesting suspend fun selectDatabaseSections(available: List<String>): List<String> =
         selectMany(strings.restoreBackupSections, available, { strings.databaseTitle(it) }, true)
 
     private suspend fun <T> selectMany(title: String, items: List<T>, label: (T) -> String, preselected: Boolean = false): List<T> {
@@ -441,7 +441,7 @@ class BackupControl(
     )) == AppDialogResult.Ok
 
     /** Test hook: called with the module files of a SWORD book after they are listed and before they are zipped. */
-    @VisibleForTesting internal var onModuleFilesListed: (List<Path>) -> Unit = {}
+    @VisibleForTesting var onModuleFilesListed: (List<Path>) -> Unit = {}
 
     private val fileSystem = FileSystem.SYSTEM
 
@@ -768,7 +768,7 @@ class BackupControl(
      * the live `WindowRepository`'s saving; only the reload this triggers releases it. The ONLY caller of
      * [DatabaseContainer.notifyDatabaseRestored] in this file (BackupControlReplaceGuardTest).
      */
-    internal suspend fun <T> reloadingAfterReplace(body: suspend () -> T): T {
+    @VisibleForTesting suspend fun <T> reloadingAfterReplace(body: suspend () -> T): T {
         val epoch = DatabaseContainer.replaceEpoch
         try {
             return body()
@@ -853,7 +853,7 @@ class BackupControl(
     }
 
     /** The two questions the zip restore asks per category; a seam so tests can answer them (D1 final review I1). */
-    internal interface RestorePrompts {
+    @VisibleForTesting interface RestorePrompts {
         /** true = restore (overwrite), false = import (merge), null = skip this category. */
         suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: Path): Boolean?
         /** The "are you sure" before an overwrite; false skips this category. */
@@ -907,7 +907,7 @@ class BackupControl(
      * [DatabaseContainer.reset] at once, runs the imports (they need the new container) and finally clears the
      * restored categories' sync state ([afterRestore]).
      */
-    internal suspend fun restoreSelectedFiles(
+    @VisibleForTesting suspend fun restoreSelectedFiles(
         selection: List<String>,
         unzipFolder: Path,
         prompts: RestorePrompts,

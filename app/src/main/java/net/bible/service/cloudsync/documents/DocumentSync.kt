@@ -319,7 +319,7 @@ class DocumentSync(
      * in the document's [DocumentSyncMeta] (the user's own private cloud account). The row write is
      * queued on the watcher's key behind the install's insert, so the insert cannot overwrite it.
      */
-    internal suspend fun applyCipherKey(initials: String, cipherKey: String?) {
+    @VisibleForTesting suspend fun applyCipherKey(initials: String, cipherKey: String?) {
         documentSettings.ensureLoaded()
         if (cipherKey == null) return
         // Unlock inside the ordered row write, not before it: a still-queued install write restores

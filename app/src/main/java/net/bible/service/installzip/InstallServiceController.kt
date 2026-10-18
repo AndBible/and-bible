@@ -17,6 +17,7 @@
 
 package net.bible.service.installzip
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -80,7 +81,7 @@ class InstallServiceController(
      * to wiring [JobDeps] into a freshly-built runner's `runJob`, deriving a per-job temp file
      * under [JobDeps.acquireDir].
      */
-    internal var runOne: suspend (
+    @VisibleForTesting var runOne: suspend (
         jobId: JobId,
         source: InstallSource,
         deps: JobDeps,

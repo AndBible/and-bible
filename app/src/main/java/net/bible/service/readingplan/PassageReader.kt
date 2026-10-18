@@ -27,7 +27,7 @@ import net.bible.sharedcore.log.Log
 /**
  * Get a Key from either a simple reference or an OSIS reference
  */
-class PassageReader internal constructor(private val v11n: Versification) {
+class PassageReader constructor(private val v11n: Versification) {
 
     private val osisParser = OsisParser()
 
