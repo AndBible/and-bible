@@ -171,48 +171,53 @@ class DocumentSyncService : Service() {
         // tear down that newer batch. Using the live lastStartId here instead would let a stale
         // teardown stop a just-started drain (it gets overwritten by onStartCommand on its first line).
         var stopId = lastStartId
-        while (true) {
-            val op = queue.poll()
-            if (op == null) {
-                // No more work: relinquish ownership, then re-check for a late enqueue.
-                stopId = lastStartId
-                active.set(false)
-                if (queue.peek() == null) break
-                if (!active.compareAndSet(false, true)) break // another start() took over
-                continue
-            }
-            val current = done.get() + 1
-            val totalNow = total.get()
-            updateNotification(op, current, totalNow)
-            // Re-assert running per op, not only at drain start: the Cloud documents screen builds a fresh
-            // subscription on every entry, so one attaching mid-drain only learns of the drain from a
-            // later `true`. Duplicates are harmless (the consumer is idempotent, the stream loss-free).
-            documentSync.notifyRunning(true)
-            lastDownloadPct = -1
-            val outcome = runDocumentSyncOp(op, documentSync.asActions()) { downloaded, totalBytes ->
-                updateDownloadProgress(op, current, totalNow, downloaded, totalBytes)
-            }
-            when (outcome) {
-                DocumentSyncOpOutcome.Done -> {}
-                // Transient connectivity failure: not an app error, the op is retried next sync, so no
-                // "error/Report" notification for a network blip (logged by the runner).
-                DocumentSyncOpOutcome.RetryLater -> {}
-                is DocumentSyncOpOutcome.UserFacing -> {
-                    // Wrong password / changed certificate / full storage: every remaining op would hit
-                    // the same wall. Tell the user once, drop the adapter if a reconnect is needed, and
-                    // abandon the rest of the queue (ops are retried on the next sync).
-                    UserMessages.errorNotification(outcome.message, showReportButton = false)
-                    if (outcome.requiresReconnect) cloudSync.dropAdapterForReconnect()
-                    queue.clear()
+        val actions = documentSync.asActions()
+        // finally: scope.cancel() (sign-out / onDestroy) must still clear the running flag.
+        try {
+            while (true) {
+                val op = queue.poll()
+                if (op == null) {
+                    // No more work: relinquish ownership, then re-check for a late enqueue.
+                    stopId = lastStartId
+                    active.set(false)
+                    if (queue.peek() == null) break
+                    if (!active.compareAndSet(false, true)) break // another start() took over
+                    continue
                 }
-                DocumentSyncOpOutcome.Failed -> UserMessages.errorNotification(R.string.sync_error)
+                val current = done.get() + 1
+                val totalNow = total.get()
+                updateNotification(op, current, totalNow)
+                // Re-assert running per op, not only at drain start: the Cloud documents screen builds a fresh
+                // subscription on every entry, so one attaching mid-drain only learns of the drain from a
+                // later `true`. Duplicates are harmless (the consumer is idempotent, the stream loss-free).
+                documentSync.notifyRunning(true)
+                lastDownloadPct = -1
+                val outcome = runDocumentSyncOp(op, actions) { downloaded, totalBytes ->
+                    updateDownloadProgress(op, current, totalNow, downloaded, totalBytes)
+                }
+                when (outcome) {
+                    DocumentSyncOpOutcome.Done -> {}
+                    // Transient connectivity failure: not an app error, the op is retried next sync, so no
+                    // "error/Report" notification for a network blip (logged by the runner).
+                    DocumentSyncOpOutcome.RetryLater -> {}
+                    is DocumentSyncOpOutcome.UserFacing -> {
+                        // Wrong password / changed certificate / full storage: every remaining op would hit
+                        // the same wall. Tell the user once, drop the adapter if a reconnect is needed, and
+                        // abandon the rest of the queue (ops are retried on the next sync).
+                        UserMessages.errorNotification(outcome.message, showReportButton = false)
+                        if (outcome.requiresReconnect) cloudSync.dropAdapterForReconnect()
+                        queue.clear()
+                    }
+                    DocumentSyncOpOutcome.Failed -> UserMessages.errorNotification(R.string.sync_error)
+                }
+                done.incrementAndGet()
             }
-            done.incrementAndGet()
+            // Refresh the cloud-listing cache so the management view shows the new state even if it
+            // isn't open to run its own scan (e.g. after auto-upload on install).
+            try { documentSync.refreshCache() } catch (e: Exception) { Log.e(TAG, "Cache refresh failed", e) }
+        } finally {
+            documentSync.notifyRunning(false)
         }
-        // Refresh the cloud-listing cache so the management view shows the new state even if it
-        // isn't open to run its own scan (e.g. after auto-upload on install).
-        try { documentSync.refreshCache() } catch (e: Exception) { Log.e(TAG, "Cache refresh failed", e) }
-        documentSync.notifyRunning(false)
         stopSelfSafe(stopId)
     }
 
