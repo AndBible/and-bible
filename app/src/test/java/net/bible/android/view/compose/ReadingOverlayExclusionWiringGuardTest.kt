@@ -41,7 +41,7 @@ class ReadingOverlayExclusionWiringGuardTest {
     private val enumSource =
         File("../sharedCore/src/commonMain/kotlin/net/bible/sharedcore/reading/ReadingOverlayExclusion.kt")
     private val hostSource =
-        File("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
 
     @Test fun bothScannedSourcesExist() {
         listOf(enumSource, hostSource).forEach {

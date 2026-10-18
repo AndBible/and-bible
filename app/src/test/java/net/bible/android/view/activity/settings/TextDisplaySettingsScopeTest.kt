@@ -176,7 +176,7 @@ class TextDisplaySettingsScopeTest {
      */
     @Test
     fun theHostsGlobalTextSettingsRowNavigatesToTheGlobalRoute() {
-        val source = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        val source = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
         assertTrue("cannot find ${source.absolutePath}", source.isFile)
         val text = source.readText()
         assertTrue(

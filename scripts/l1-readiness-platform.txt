@@ -32,8 +32,8 @@ service/device/ScreenSettings.kt	Android screen brightness/orientation settings 
 service/sword/index/SearchIndexingService.kt	Android foreground Service host for search-index builds: notification, Intent, startForeground; the queue is IndexingQueue
 service/db/ReadOnlyModuleOpen.kt	Android read-only WAL snapshot host (File permissions, cacheDir, copyTo, SHA-1); sword reaches it through ReadOnlyModuleDbOpener
 service/sword/mydocument/MarkdownToXhtml.kt	Android implementation of the MarkdownRenderer port (commonmark); iOS supplies its own
-service/sword/epub/EpubEdges.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
-service/sword/mydocument/MyDocumentEdges.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
+android/platform/AndroidEpubStoreEdge.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
+android/platform/AndroidMyDocumentStoreEdge.kt	Android blocking edge for the JSword synchronous Backend/driver contract (blockingAtEdge stays in :app); suspend contract is the edge-reduction backlog
 service/cloudsync/webdav/PinnedTrust.kt	JVM TLS trust manager, hostname verifier and OkHttp engine; iOS evaluates server trust in its own engine
 service/cloudsync/webdav/AndroidWebDavPrefs.kt	SharedPreferences-backed WebDAV config and state
 service/cloudsync/webdav/AndroidWebDavSignInUi.kt	Android dialogs, resources and date format

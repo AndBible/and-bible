@@ -111,7 +111,7 @@ class ReadingAppBootstrapTest {
     @get:Rule val dialogReset = AppDialogControllerResetRule()
 
     /**
-     * Every non-test Kotlin source directory of `:app`. `src/main/java` alone would miss
+     * Every non-test Kotlin source directory of `:app`, plus the `:sharedLogic` commonMain root. `src/main/java` alone would miss
      * `src/debug/java` (`DebugApp.kt`) and any future flavour source set — a construction there is
      * production code on at least one variant.
      */
@@ -120,7 +120,9 @@ class ReadingAppBootstrapTest {
             .filter { it.isDirectory && it.name != "test" && it.name != "androidTest" }
             .map { File(it, "java") }
             .filter { it.isDirectory }
-            .sortedBy { it.path }
+            .sortedBy { it.path } +
+            // Domain code that moved to :sharedLogic commonMain (same FQNs) is production code too.
+            net.bible.test.ProductionSources.roots.drop(1).filter { it.isDirectory }
 
     /** The only two places production code may construct a [net.bible.android.control.page.window.WindowRepository]. */
     private val allowedConstructionSites = setOf(
@@ -129,7 +131,7 @@ class ReadingAppBootstrapTest {
     )
 
     private val navHostActivity =
-        File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
 
     /** Source lines with comment-only lines dropped, so a mention in a KDoc is not a call site. */
     private fun codeLinesOf(file: File): List<String> =

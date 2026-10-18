@@ -10,7 +10,7 @@ import java.io.File
  * into the sheet's own dialog window. A bare `ModalBottomSheet(` leaks `hide_status_bar` / fullscreen.
  */
 class SheetSystemBarsGuardTest {
-    private val roots = listOf(File("../sharedUi/src/commonMain/kotlin"), File("src/main/java"))
+    private val roots = listOf(File("../sharedUi/src/commonMain/kotlin")) + net.bible.test.ProductionSources.roots
     private val bare = Regex("""(?<![A-Za-z])ModalBottomSheet\(""")
 
     internal fun offenders(files: List<File>): List<String> = files

@@ -7,18 +7,25 @@ The decisions are numbered S1-S13 in the design spec `2026-10-17-l1b-d2-shared-l
 Every count below sits next to the command that produced it, run at the phase-0 HEAD (branch `ios-4`).
 Re-run the command when you rely on a count: numbers move as groups merge.
 
+> L1b phase 2 note: the domain files now live in `sharedLogic/src/commonMain`, and the move-readiness tooling
+> (`l1-move-readiness.sh`, `l1-move-app.py`, `l1-move-done.txt`, `l1-move-allow.txt` and the self-test) is
+> retired: the common compiler enforces "ready to move". Mentions of those files below are phase-1 history.
+> `scripts/l1-readiness.sh` searches both `:app` and `:sharedLogic` roots (`SRC_ROOTS`) and `--check` fails a
+> mapped domain that resolves to no files.
+
 ## 1. Module layering (S1, S2)
 
 ```
 jsword -> sharedCore -> sharedData -> sharedLogic -> app
 ```
 
-- `:sharedLogic` exists: `sharedLogic/src/commonMain/.../SharedLogicModule.kt` holds an empty
-  `sharedLogicModule` (Koin) and `commonTest` loads it in an isolated Koin application. `BibleApplication`
-  does not load it yet; the shared module is wired when the first bindings land (D2 / phase 2).
+- `:sharedLogic` holds the moved service/controller logic (phase 2, section 12): 296 files in `commonMain`,
+  same FQNs. `:app` depends on it and `BibleApplication` loads its Koin bindings through `CoreModule`
+  (`SharedBindings.kt` moved there). `commonTest` runs the container, migration, OSIS, archive and speak
+  suites on the JVM and on the iOS simulator.
 - `:sharedCore` may use JSword types (S2). `:sharedCore` never depends on `:sharedData` (Room boundary).
 - No existing `:sharedCore` code moves. FQNs stay unchanged on every move (S6).
-- Phase-1 groups only prepare: domain files stay in `:app` (except D2, which moves its files).
+- Phase-1 groups only prepared (domain files stayed in `:app`, except D2); phase 2 moved them.
 
 ## 2. Ports (S8)
 
@@ -53,6 +60,8 @@ Ports that exist after phase 0 (`ls sharedCore/src/commonMain/kotlin/net/bible/s
 | `LabelNameStrings` | `:sharedLogic` `platform/LabelNameStrings.kt` | `AndroidLabelNameStrings(androidContext())`, reads resources on each access |
 | `FirstLoadEdge` | `:sharedLogic` `platform/FirstLoadEdge.kt` | `AndroidFirstLoadEdge` (window domain's synchronous first-load edge) |
 | `PromptPackSource` (+ `PromptPackRef`) | `:sharedLogic` `platform/PromptPackSource.kt` | `AndroidPromptPackSource` (add-on prompt packs; llm) |
+| `EpubStoreEdge` (phase 2, C20) | `:sharedLogic` `net.bible.sharedlogic.platform` | `AndroidEpubStoreEdge` (`:app` `net.bible.android.platform`), bound in `PlatformBindings` |
+| `MyDocumentStoreEdge` (phase 2, C20) | `:sharedLogic` `net.bible.sharedlogic.platform` | `AndroidMyDocumentStoreEdge` (same package), bound in `PlatformBindings` |
 
 Common primitives from G1 (`:sharedLogic`, package `net.bible.sharedlogic`): `sync.withMonitor` /
 `monitorWait` / `monitorNotifyAll` / `bookNameMonitor` (on JVM/Android exactly the JVM monitor, so they exclude
@@ -96,7 +105,7 @@ Ports still to be created by the groups (named in S8): certificate pinning (`web
 Convention (chosen here; the spec left it to the builder): a Kotlin `internal` member of a moved class
 that `:app` tests use becomes `public` and is annotated `@VisibleForTesting`
 (`androidx.annotation.VisibleForTesting`; `androidx.annotation` is Kotlin Multiplatform since 1.8 and is on
-the move-readiness KMP allowlist, `KMPALLOW` in `scripts/l1-move-readiness.sh`). Rules:
+the retired move-readiness KMP allowlist). Rules:
 
 - Apply it in phase 1 in place, so phase 2 is renames only. `:app` already uses the annotation in
   `grep -rl "import androidx.annotation.VisibleForTesting" app/src/main | wc -l` = 26 files.
@@ -216,7 +225,8 @@ Part B status (G1, 2026-10-17; superseded by the phase-1 close-out in section 7,
   sword domain files call platform files in the same package: `EpubEdges.kt` (`epub*Blocking`, from
   `EpubBackendState.kt`, `EpubOptimization.kt`) and `MyDocumentEdges.kt` (`myDocument*Blocking`, from
   `MyDocumentBackend.kt`). They are `:app` platform files (the `blockingAtEdge` bridges), so after the move
-  phase 2 must give each an `androidMain` actual or a port. `MyDocumentBackend` reaches `MarkdownToXhtml` only
+  phase 2 must give each an `androidMain` actual or a port. (Resolved by C20: `EpubStoreEdge` / `MyDocumentStoreEdge`
+  ports in `:sharedLogic`, Android implementations in `:app` `net.bible.android.platform`.) `MyDocumentBackend` reaches `MarkdownToXhtml` only
   through the `MarkdownRenderer` port (resolved at the call). The three G3 imports above are therefore the only
   *counted* `app` rows, not the only real sword dependencies on `:app`.
 - `download` is 0 in every column but has `catch (oom: OutOfMemoryError)` at `DownloadManager.kt:132`, which
@@ -396,3 +406,43 @@ used by `BackupControl.kt`) and `SyncableDatabaseAccessor.localDbFile` (`SyncAcc
 `:app`: `BackupControl.kt` calls `readUserVersion(path: String)` and `CloudSync.kt` uses
 `localDbPath.toPath()`. The old `File` forms live on only as test-source shims with the same FQNs
 (`ReadUserVersionFileTestShim.kt`, `LocalDbFileTestShim.kt`) for the five test files that use them.
+
+## 12. Phase 2 outcome (2026-10-18)
+
+**The move.** 296 files went from `:app` to `:sharedLogic` `commonMain` in one rename-only commit
+(`558821017b`, 296 x R100; the spike counted 295 plus `LabelEditContract.kt`). FQNs are unchanged and no
+importer was edited. `scripts/l1-phase2-move.sh` (`--list`, `--trial`, `--apply`) drives it.
+
+**Phase-1 misses fixed in place before the move** (by catalogue row):
+- C1-C17: mechanical Native fixes (`Dispatchers.IO` import, `okio.use`, `DbDate.time`, JVM stdlib calls and
+  the like), plus extra sites: C5 in `EpubBackendState`/`EpubOptimization`, C7 in `MyDocumentBackend:192`,
+  C14 in `EpubBackendState`.
+- C18: `SpeakCommandArray` is built on `AbstractMutableList`, not `ArrayList`.
+- C19: `BookAndKeyList.clone` no longer uses `Cloneable`; it copies list and name. The one intended behaviour
+  change: a clone no longer shares its list.
+- C20: ports `EpubStoreEdge` and `MyDocumentStoreEdge` (section 2).
+- C21: `LabelEditContract` split; `LabelIconMap.kt` stays in `:app`.
+- C22: the `DocumentControl` binding moved to `PlatformBindings`.
+- New, not in the catalogue: cross-module smart casts (capture in a local `val`); `internal` members widened
+  (S11: public + `@VisibleForTesting`, plain public where `:app` main uses them); four more internal symbols
+  that only a clean test compile showed (`PickerOutcome`/`pickerOutcome`, `resolveDestination`,
+  `moduleArchiveTargetName`, `myBibleModulesDir`).
+
+**Tests.** About 42 source-scan guard tests in `:app` read production files through
+`app/src/test/java/net/bible/test/ProductionSources.kt` (both roots). The Koin definitions snapshot gained
+the two port lines. `:sharedLogic` gained kaml and four `commonTest` classes
+(`DatabaseContainerMigrationCommonTest`, `OsisToCopyTextCommonTest`, `ArchiveRoundTripCommonTest`,
+`SpeakCommandArrayCommonTest`); `:sharedData`'s `ExportFixtures`/`SchemaExports` reach them through a Gradle
+`Sync` plus a small `TestDatabases` copy.
+
+**Scripts.** `l1-readiness.sh` and `l1-lib.sh` search both roots and fail on a mapped domain that resolves to
+no files. The move-readiness scripts (`l1-move-*`) are retired.
+
+**Gates at `2b9b3d429a`.** `:sharedLogic:jvmTest` 16 classes / 83 tests; iosArm64, iosSimulatorArm64 and
+test compiles green; Mac `iosSimulatorArm64` native tests for `:sharedLogic` 14 classes / 79 tests / 0
+failures; `:app:verifyRoborazziStandardGoogleplayDebug` 827 classes / 5403 tests / 0 failures / 27 skipped,
+no golden moved; `assembleStandardGithubDebug` and Release (R8) green; `l1-readiness.sh --check` exit 0;
+emulator smoke upgrade 5.1.1226 to 5.1.1227 all PASS.
+
+**Open call (spec section 8).** Non-domain classes such as the settings `*ServiceImpl`s are not in the
+domain map and stay in `:app`; I2/L3 decide their fate.

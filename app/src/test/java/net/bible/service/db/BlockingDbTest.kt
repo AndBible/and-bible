@@ -119,10 +119,10 @@ class BlockingDbTest {
 
     /** Every non-empty Room connection block in app code is a marked one (the empty `{ }` open/migrate calls hold nothing). */
     @Test fun noUnmarkedNonEmptyConnectionBlockInAppCode() {
-        val root = File("src/main/java")
-        assertTrue("run from app/", root.isDirectory)
+        val roots = net.bible.test.ProductionSources.roots
+        assertTrue("run from app/", roots.all { it.isDirectory })
         val unmarked = Regex("""\.use(Writer|Reader)Connection\s*\{(?!\s*\})""")
-        val offenders = root.walkTopDown().filter { it.extension == "kt" }.flatMap { f ->
+        val offenders = roots.asSequence().flatMap { it.walkTopDown() }.filter { it.extension == "kt" }.flatMap { f ->
             f.readLines().mapIndexedNotNull { i, line -> if (unmarked.containsMatchIn(line)) "${f.name}:${i + 1}: ${line.trim()}" else null }
         }.toList()
         assertEquals(emptyList<String>(), offenders)

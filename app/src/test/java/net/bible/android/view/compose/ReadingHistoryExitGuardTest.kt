@@ -11,7 +11,7 @@ import org.junit.Test
  */
 class ReadingHistoryExitGuardTest {
 
-    private val host = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+    private val host = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
         .readText()
 
     private fun body(signature: String): String {

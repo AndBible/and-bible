@@ -448,7 +448,7 @@ class CloudDocumentsControllerRebuildIsolationTest {
     }
 
     private val navHostComposeActivitySource by lazy {
-        stripComments(File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt").readText())
+        stripComments(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt").readText())
     }
 
     /**

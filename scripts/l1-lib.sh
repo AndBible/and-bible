@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Shared helpers for the L1 readiness scripts (l1-readiness.sh, l1-move-readiness.sh).
+# Shared helpers for the L1 readiness scripts (l1-readiness.sh).
 # Sourced, not executed. The caller must set SRC (:app main sources root), MAP (domains file)
-# and PLATFORM (platform-file list) before calling these.
+# and PLATFORM (platform-file list) before calling these. SRC_ROOTS (space-separated source roots,
+# default "$SRC") lets a domain's files live in more than one module.
 owner_of() { # relative path -> owning domain (longest mapped prefix), empty if none
   awk -F'\t' -v r="$1" 'NF>=2 && substr($1,1,1)!="@" {
       p=$2; if (r==p || index(r, p"/")==1) { if (length(p)>best) { best=length(p); d=$1 } } }
@@ -9,10 +10,13 @@ owner_of() { # relative path -> owning domain (longest mapped prefix), empty if 
 }
 files_of() { # domain -> file list (platform files and files owned by a longer row excluded)
   local d="$1"
-  awk -F'\t' -v d="$d" 'NF>=2 && $1==d {print $2}' "$MAP" | while read -r p; do
-    if [ -d "$SRC/$p" ]; then find "$SRC/$p" -type f \( -name '*.kt' -o -name '*.java' \); else echo "$SRC/$p"; fi
+  local root
+  for root in ${SRC_ROOTS:-$SRC}; do
+    awk -F'\t' -v d="$d" 'NF>=2 && $1==d {print $2}' "$MAP" | while read -r p; do
+      if [ -d "$root/$p" ]; then find "$root/$p" -type f \( -name '*.kt' -o -name '*.java' \); elif [ -f "$root/$p" ]; then echo "$root/$p"; fi
+    done
   done | sort -u | while read -r f; do
-    rel="${f#$SRC/}"
+    rel="$f"; for root in ${SRC_ROOTS:-$SRC}; do rel="${rel#$root/}"; done
     awk -F'\t' 'NF>=1 {print $1}' "$PLATFORM" | grep -qxF "$rel" && continue
     [ "$(owner_of "$rel")" = "$d" ] && echo "$f"
   done

@@ -13,7 +13,7 @@ import java.io.File
  * and an `exitProcess(` in a file that also schedules a relaunch through `AlarmManager`.
  */
 class NoProcessRestartGuardTest {
-    private val roots = listOf(File("src/main/java"))
+    private val roots = net.bible.test.ProductionSources.roots
 
     internal fun offenders(files: List<File>): List<String> = files
         .filter { it.extension == "kt" }

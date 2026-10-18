@@ -30,7 +30,7 @@ import org.junit.Test
  */
 class ReadingHostDelegationGuardTest {
     private val hostFile =
-        File("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
 
     private val source: String get() = hostFile.readText()
 

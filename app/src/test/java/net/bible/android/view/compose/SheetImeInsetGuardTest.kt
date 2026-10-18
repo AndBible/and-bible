@@ -13,7 +13,7 @@ import java.io.File
  * LabelIdentitySheet, AbCreateItemSheet, AbSearchablePicker and the rest.
  */
 class SheetImeInsetGuardTest {
-    private val roots = listOf(File("../sharedUi/src/commonMain/kotlin"), File("src/main/java"))
+    private val roots = listOf(File("../sharedUi/src/commonMain/kotlin")) + net.bible.test.ProductionSources.roots
 
     internal fun offenders(files: List<File>): List<String> = files
         .filter { it.extension == "kt" }

@@ -70,7 +70,7 @@ object ClassicRemovalScan {
      * and passes vacuously.
      */
     fun codeLinesOf(path: String, keepImports: Boolean = false): String =
-        File(path).readLines().filterNot { line ->
+        net.bible.test.ProductionSources.resolve(path).readLines().filterNot { line ->
             val trimmed = line.trimStart()
             (!keepImports && trimmed.startsWith("import ")) || trimmed.startsWith("//") ||
                 trimmed.startsWith("*") || trimmed.startsWith("/*")
@@ -115,6 +115,10 @@ object ClassicRemovalScan {
             .flatMap { sourceSet ->
                 sourceSet.walkTopDown().filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
             }
+            // Domain code now in :sharedLogic commonMain (same FQNs) is production code too.
+            .plus(net.bible.test.ProductionSources.roots.drop(1).flatMap { root ->
+                root.walkTopDown().filter { it.isFile && (it.extension == "kt" || it.extension == "java") }.toList()
+            })
 
     /**
      * Every resource XML under every SHIPPING source set's `res/` tree (`src/main/res`,
@@ -161,7 +165,7 @@ object ClassicRemovalScan {
             "cwd is not the :app module dir — this assertion would pass vacuously",
             File("src/main").isDirectory,
         )
-        assertEquals(hint, emptyList<String>(), paths.filter { File(it).exists() }.sorted())
+        assertEquals(hint, emptyList<String>(), paths.filter { net.bible.test.ProductionSources.resolve(it).exists() }.sorted())
     }
 
     /**
@@ -176,7 +180,7 @@ object ClassicRemovalScan {
             "cwd is not the :app module dir — this assertion would report every path as missing",
             File("src/main").isDirectory,
         )
-        assertEquals(hint, emptyList<String>(), paths.filterNot { File(it).exists() }.sorted())
+        assertEquals(hint, emptyList<String>(), paths.filterNot { net.bible.test.ProductionSources.resolve(it).exists() }.sorted())
     }
 
     /**

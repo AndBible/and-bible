@@ -1,5 +1,10 @@
 package net.bible.android.control
 
+import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.document.DocumentFileDeleter
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.search.SearchHighlighter
@@ -73,6 +78,8 @@ fun buildPlatformBindings() = module {
     single<net.bible.sharedlogic.platform.LocalCalendar> { net.bible.android.platform.AndroidLocalCalendar() }
     // G3 ports (LocalCalendar is bound above, G1 + G3 in one class)
     single<net.bible.sharedlogic.platform.FirstLoadEdge> { net.bible.android.platform.AndroidFirstLoadEdge }
+    single<net.bible.sharedlogic.platform.EpubStoreEdge> { net.bible.android.platform.AndroidEpubStoreEdge }
+    single<net.bible.sharedlogic.platform.MyDocumentStoreEdge> { net.bible.android.platform.AndroidMyDocumentStoreEdge }
     single<net.bible.sharedlogic.platform.PromptPackSource> { net.bible.android.platform.AndroidPromptPackSource }
     single<net.bible.sharedlogic.platform.LocaleSupport> { net.bible.android.platform.AndroidLocaleSupport }
     single<net.bible.sharedlogic.platform.SentenceBreaker> { net.bible.android.platform.AndroidSentenceBreaker }
@@ -130,4 +137,10 @@ fun buildPlatformBindings() = module {
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
     single<net.bible.android.control.speak.SpeakPlatform> { net.bible.android.platform.AndroidSpeakPlatform(androidContext()) }
+    single {
+        DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
+            deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
+            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() },
+            enableManualInstallFolder = net.bible.service.sword.SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder)
+    }
 }

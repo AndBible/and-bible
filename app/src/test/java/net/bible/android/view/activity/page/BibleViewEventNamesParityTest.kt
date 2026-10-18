@@ -17,7 +17,7 @@ class BibleViewEventNamesParityTest {
     }
 
     @Test fun noHandWrittenEmitsRemain() {
-        val src = File("src/main/java").walk().filter { it.extension == "kt" }
+        val src = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walk() }.filter { it.extension == "kt" }
             .filter { hasRawBibleViewCall(it.readText()) }
             .map { it.name }.toList()
         assertEquals(emptyList<String>(), src)

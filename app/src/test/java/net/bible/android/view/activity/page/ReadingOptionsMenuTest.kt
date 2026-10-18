@@ -271,7 +271,7 @@ class ReadingOptionsMenuTest {
 
     @Test
     fun altKeyOGoesToTheComposeOverflowMenuNotTheNativePopup() {
-        val src = codeOf(File("src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt"))
+        val src = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt"))
         val line = src.lineSequence().firstOrNull { it.contains("\"AltKeyO\"") }
         assertTrue(line != null, "the AltKeyO shortcut must still exist")
         assertTrue(
@@ -380,7 +380,7 @@ class ReadingOptionsMenuTest {
         // `MainBibleActivity` into `ReadingCommands`, so the collaborator is where the needles below
         // live. (The behavioural tests above drive `ReadingCommands` on the reading-route nav host
         // since slice 8 F2.)
-        val src = codeOf(File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
+        val src = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
         val bibleBody = bodyOf(src, "internal fun composeBibleLongClick")
         val commentaryBody = bodyOf(src, "internal fun composeCommentaryLongClick")
 
@@ -473,8 +473,8 @@ class ReadingOptionsMenuTest {
      */
     @Test
     fun theReadingHostHasNoNativeOptionsPopupLeft() {
-        val hostSrc = codeOf(File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"))
-        val commandsSrc = codeOf(File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
+        val hostSrc = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"))
+        val commandsSrc = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
         val src = hostSrc + "\n" + commandsSrc
 
         assertTrue(hostSrc.length > 1000, "NavHostComposeActivity.kt is empty or missing")

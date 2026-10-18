@@ -115,14 +115,15 @@ class SpeakWidgetManager : KoinComponent {
                 SpeakChange.Status -> updateWidgetTexts()
                 is SpeakChange.Progress -> {
                     val ev = change
-                    if (ev.speakCommand is TextCommand) {
-                        if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                            currentTitle = ev.speakCommand.text
+                    val speakCommand = ev.speakCommand
+                    if (speakCommand is TextCommand) {
+                        if (speakCommand.type == TextCommand.TextType.TITLE) {
+                            currentTitle = speakCommand.text
                             if (currentTitle.isNullOrEmpty()) {
                                 currentTitle = null
                             }
                         } else {
-                            currentText = ev.speakCommand.text
+                            currentText = speakCommand.text
                         }
 
                         updateWidgetTexts()

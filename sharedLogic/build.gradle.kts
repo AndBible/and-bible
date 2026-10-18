@@ -6,6 +6,16 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+// The schema-export fixtures of :sharedData's commonTest (ExportFixtures.kt, plus the generated SchemaExports.kt) are
+// shared by copying, not by adding sharedData's whole test source dir: that dir holds unrelated tests and expect
+// declarations without actuals here. The copy is regenerated on every build, so it cannot drift.
+val sharedDataFixtures by tasks.registering(Sync::class) {
+    dependsOn(":sharedData:generateSchemaFixtures")
+    from(project(":sharedData").layout.projectDirectory.file("src/commonTest/kotlin/net/bible/shareddata/fixtures/ExportFixtures.kt"))
+    from(project(":sharedData").layout.buildDirectory.dir("generated/schemaFixtures/commonTest/kotlin/net/bible/shareddata/fixtures"))
+    into(layout.buildDirectory.dir("generated/sharedDataFixtures/commonTest/kotlin/net/bible/shareddata/fixtures"))
+}
+
 kotlin {
     jvmToolchain(17)
     compilerOptions { freeCompilerArgs.add("-Xexpect-actual-classes") }
@@ -29,8 +39,13 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.atomicfu)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kaml)
+        }
+        commonTest {
+            kotlin.srcDir(sharedDataFixtures.map { layout.buildDirectory.dir("generated/sharedDataFixtures/commonTest/kotlin").get().asFile })
         }
         commonTest.dependencies {
+            implementation(libs.androidx.sqlite.bundled)
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.koin.test)
