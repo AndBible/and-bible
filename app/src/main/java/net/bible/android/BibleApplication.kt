@@ -57,27 +57,16 @@ import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
-import net.bible.service.sword.epub.epubBookType
-import net.bible.service.sword.esword.eSwordBible
-import net.bible.service.sword.mybible.myBibleBible
-import net.bible.service.sword.mybible.myBibleCommentary
-import net.bible.service.sword.mybible.myBibleDictionary
-import net.bible.service.sword.mysword.mySwordBible
-import net.bible.service.sword.mysword.mySwordCommentary
-import net.bible.service.sword.mysword.mySwordDictionary
 
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.PropertyMap
-import org.crosswire.jsword.book.install.InstallManager
-import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.index.BookIndexer
 import org.crosswire.common.util.KLocale
 import org.crosswire.common.util.toKLocale
 import org.crosswire.jsword.internationalisation.LocaleProvider
-import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.GlobalContext
-import org.koin.core.context.startKoin
+import net.bible.sharedlogic.startup.SharedAppStartup
+import net.bible.sharedlogic.startup.StartupHooks
 import java.util.Locale
 
 object MyLocaleProvider: net.bible.service.sword.OverridableLocaleProvider {
@@ -149,48 +138,25 @@ open class BibleApplication : Application() {
                 is UserMessage.ErrorNotification -> showErrorNotification(message)
             }
         }
-        InstallManager.installSiteMap(
+        SharedAppStartup.installEnvironment(
             PropertyMap().apply {
                 resources.openRawResource(R.raw.repositories).use { org.crosswire.common.util.PropertyMapJvm.load(this, it) }
-            })
-        BookType.addSupportedBookType(myBibleBible)
-        BookType.addSupportedBookType(myBibleCommentary)
-        BookType.addSupportedBookType(myBibleDictionary)
-        BookType.addSupportedBookType(mySwordBible)
-        BookType.addSupportedBookType(mySwordCommentary)
-        BookType.addSupportedBookType(mySwordDictionary)
-        BookType.addSupportedBookType(epubBookType)
-        BookType.addSupportedBookType(eSwordBible)
-
-        LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
+            },
+            MyLocaleProvider,
+        )
 
         logSqliteVersion()
 
-        // This must be done before accessing JSword to prevent default folders being used
-        SwordEnvironmentInitialisation.initialiseJSwordFolders()
-
-        // Initialize the Koin container. Koin is the sole DI framework.
-        // Guard against a double-start: Robolectric reuses one JVM across test
-        // classes, so onCreate (hence startKoin) runs many times in the same
-        // process — start only if no Koin context exists yet.
-        if (GlobalContext.getOrNull() == null) {
-            startKoin {
-                androidContext(this@BibleApplication)
-                modules(net.bible.android.control.coreModule)
-            }
-        }
-
-        // Folder initialisation precedes Koin; install its transport at the first safe point instead.
-        SwordEnvironmentInitialisation.installDownloadTransport()
-
-        net.bible.android.database.bookmarks.SpeakSettings.store = GlobalContext.get().get()
-        net.bible.service.sword.mydocument.MyDocumentBookManager.launcher = GlobalContext.get().get()
-
-        // ideally this would be installed before initialiseJSwordFolders but the listener depends on Koin being started
-        SwordEnvironmentInitialisation.installJSwordErrorReportListener()
-
-        // BookInstallWatcher is Koin-resolved, so it can only start once Koin is up (not inside initialiseJSwordFolders)
-        SwordEnvironmentInitialisation.startBookInstallWatcher()
+        SharedAppStartup.start(
+            StartupHooks(
+                // This must be done before accessing JSword to prevent default folders being used
+                initialiseJSwordFolders = SwordEnvironmentInitialisation::initialiseJSwordFolders,
+                koinModules = { listOf(net.bible.android.control.coreModule) },
+                koinAppDeclaration = { androidContext(this@BibleApplication) },
+                reportJSwordError = SwordEnvironmentInitialisation::reportJSwordError,
+                isSwordLoaded = { SwordEnvironmentInitialisation.isLoaded },
+            )
+        )
 
         // some changes may be required for different versions
         upgradeSharedPreferences()
