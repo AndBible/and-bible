@@ -589,8 +589,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *  and `TextDisplaySettingsComposeActivity.kt:102`. The text-display one is the CONCRETE impl,
      *  not the `TextDisplaySettingsService` interface: the HIDELABELS bridge needs
      *  `currentHideLabelsIds`, which is not part of the portable interface. */
-    private val workspaceService: WorkspaceService by inject()
-    private val sharedTextDisplaySettingsService: TextDisplaySettingsServiceImpl by inject()
 
     /**
      * The AI cluster's three host-lifetime controllers and its two tool lists, LAZY for exactly the
@@ -3916,45 +3914,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 }
                 // Slice 8 E2: the first-run welcome, formerly StartupComposeActivity -- see [WelcomeFlow].
                 val welcomeDeps = remember { appHosts.welcome.navDeps(navController) }
-                val workspaceDeps = remember {
-                    WorkspaceNavDeps(
-                        exitHost = { finish() },
-                        setWindowTitle = { title -> setTitle(title) },
-                        workspaceResults = workspaceResults,
-                        textSettingsResults = textSettingsResults,
-                        // The SAME instance BookmarkNavDeps gets: the label manager is registered by
-                        // the bookmark graph, and the text-settings destination's Hide-labels row now
-                        // navigates to it in-graph and collects the answer here.
-                        manageLabelsResults = manageLabelsResults,
-                        workspaceSelector = WorkspaceSelectorDeps(
-                            controllerFor = { onResult, onCancel, onEditSettings ->
-                                workspaceSelectorControllerFor(onResult, onCancel, onEditSettings)
-                            },
-                            // Classic's manifest android:label AND the string the screen draws.
-                            title = getString(R.string.workspace_selector_title),
-                            settingsBundleJson = { id -> workspaceService.settingsBundleJson(id) },
-                            workspaceIdOf = { json -> SettingsBundle.fromJson(json).workspaceId.toString() },
-                            onHelp = {
-                                CommonUtils.showHelp(this, listOf(R.string.help_workspaces_title))
-                            },
-                        ),
-                        textDisplaySettings = TextDisplaySettingsDeps(
-                            sessionFor = { args -> textDisplaySettingsSessionFor(args) },
-                            navStateMemo = textDisplayNavStateMemo,
-                            // Classic's manifest android:label. NOT the screen's own top-bar title,
-                            // which is scope-dependent and comes from the controller state.
-                            windowTitle = getString(R.string.text_display_settings_activity_title),
-                            activeWorkspaceId = { windowControl.windowRepository.id.toString() },
-                            // Lambdas, not values: see the `by lazy` fields' own comment.
-                            screenLabels = { textDisplayScreenLabels },
-                            colorSettingsLabels = { textDisplayColorSettingsLabels },
-                            backgroundImageChooserLabels = { textDisplayBackgroundImageChooserLabels },
-                            inheritedFromWorkspace = getString(R.string.text_options_inherited_workspace),
-                            inheritedFromGlobal = getString(R.string.text_options_inherited_global),
-                            thumbnailFor = { token -> textDisplayThumbnailResolver.resolve(token) },
-                        ),
-                    )
-                }
+                val workspaceDeps = remember { appHosts.workspace.navDeps(navController, workspaceResults, textSettingsResults, manageLabelsResults) }
                 /**
                  * The reading destination's deps (nav-graph slice 7 Task 6; the [ReadingNavDeps.content]
                  * slot made real by reading-host re-typing R8). All four slots are now real ports of
@@ -8686,26 +8646,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
-    // --- Workspace-cluster host baggage (nav-graph slice 7, Task 5) -------------------------------
-    // Ported from classic WorkspaceSelectorComposeActivity and TextDisplaySettingsComposeActivity.
-    // Both are STILL IN THE TREE and still reachable through their own `Screen.X` arms -- no Activity
-    // is deleted before Task 13 -- so each seam below has two copies for now: the Activity's own, and
-    // this one behind the graph's deps. Task 13 deletes the Activity half.
-    //
-    // None of it can cross into `commonMain`: every line names a Room-backed `SettingsBundle`, an
-    // `R.string`, an `ActivityResultLauncher` or `awaitIntent`.
-
-    // ——— The cluster's two result channels ———————————————————————————————————————————————————————
-    // Every result here is delivered IN-GRAPH. The selector's is COLLECTED by the reading
-    // destination since slice 8 B1 (`readingResultCollectors`) and applied at once through
-    // `applyInGraphWorkspaceResult` -- `WORKSPACE_CHANGED` is neither STD nor async, and parking it
-    // for an `onResume` would wait for one an in-graph pop never produces. The settings editor's is
-    // consumed by the selector arm INSIDE this very graph.
-    //
-    // Both `exitWithResult` lambdas stay a hard `error(...)`, the shape the chooser cluster uses: the
-    // watchdog for an entry with no parent. These routes are never a start destination (spec §3.1
-    // rule 1); if one of these ever runs, a destination has been given an external entry without
-    // being given a result contract; fail loudly rather than pack an Intent nobody defined.
+    // --- Workspace cluster (WorkspaceHost) -------------------------------------------------------
+    // The selector's and the text display settings' deps, sessions and controllers live in `appHosts.workspace`
+    // (`:sharedUi`, `net.bible.sharedui.app.workspace`). The two result channels stay declared here: the reading
+    // destination's collector reads `workspaceResults`, and the channel guards read these declarations. Every
+    // result is delivered IN-GRAPH, so both `exitWithResult` lambdas stay a hard `error(...)` -- the watchdog for
+    // an entry with no parent (these routes are never a start destination, spec §3.1 rule 1).
 
     private val workspaceResults = NavResultChannel<WorkspaceResult> {
         error("slice 7 destinations are only entered in-graph")
@@ -8715,89 +8661,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         error("slice 7 destinations are only entered in-graph")
     }
 
-    // ——— WorkspaceSelector ———————————————————————————————————————————————————————————————————————
-
     /**
-     * The selector's memoised controller -- see [WorkspaceSelectorDeps.controllerFor] for why this
-     * one must be host-held rather than built per back-stack entry (it navigates to the settings
-     * editor, and navigation-compose disposes its arm's composition while that child is on top).
-     *
-     * Dropped at every exit, like [manageLabelsSession], so a re-entry after this visit has finished
-     * is seeded afresh rather than resuming a finished working set. It is keyed on nothing because
-     * the route carries no arguments -- there is only one selector.
-     */
-    private var workspaceSelectorController: WorkspaceSelectorController? = null
-
-    /**
-     * Classic `WorkspaceSelectorComposeActivity`'s `controller` (`:59-83`) plus its `onCreate` side
-     * effects (`:89-90`). Both side effects run HERE, at construction, rather than in an arm effect:
-     * classic ran them once per Activity, and the in-graph equivalent of that is once per memoised
-     * controller -- a `LaunchedEffect` in the arm would re-run on every return from the settings
-     * editor and `load()` would wipe the user's unsaved working set.
-     *
-     * **The memo is assigned LAST** (fix round 1). It used to be written before the two side effects
-     * ran, so a `saveCurrentIntoDb()`/`load()` that threw left a half-initialised controller memoised
-     * for the rest of the host's life, and every later entry to the selector would be handed that
-     * controller with an empty working set instead of retrying. The order below means a throwing
-     * side effect leaves the memo untouched and the next entry starts over.
-     *
-     * This runs from inside the arm's `remember { }`, i.e. it can run for a composition that is then
-     * discarded, and that is deliberate rather than merely tolerated: what it leaves behind is a
-     * valid, freshly-loaded controller keyed to the one selector route, which the next real entry
-     * reuses (the side effects are what "once per visit" means, and they have happened). If no entry
-     * follows, [onDestroy] discards it along with anything it cloned.
-     */
-    private fun workspaceSelectorControllerFor(
-        onResult: (workspaceId: String?, changed: Boolean) -> Unit,
-        onCancel: () -> Unit,
-        onEditSettings: (workspaceId: String) -> Unit,
-    ): WorkspaceSelectorController {
-        workspaceSelectorController?.let { return it }
-        val controller = WorkspaceSelectorController(
-            service = workspaceService,
-            scope = lifecycleScope,
-            // Saves and clones must outlive this host (a dark-mode flip recreates it mid-flush); the Main dispatcher
-            // keeps the controller's staging state on the UI thread.
-            writeScope = CoroutineScope(appScope.coroutineContext + Dispatchers.Main),
-            onResult = { workspaceId, changed ->
-                workspaceSelectorController = null
-                onResult(workspaceId, changed)
-            },
-            onCancel = {
-                workspaceSelectorController = null
-                onCancel()
-            },
-            onEditSettings = onEditSettings,
-        )
-        workspaceService.saveCurrentIntoDb()
-        controller.load()
-        workspaceSelectorController = controller
-        return controller
-    }
-
-    /**
-     * The consequence of NOT porting classic `WorkspaceSelectorComposeActivity.onDetachedFromWindow`'s
-     * `if (!finished) controller.cancel()` -- see `WorkspaceSelectorDeps`' kdoc for why the arm is the
-     * wrong place for that guard and this is the right one.
-     *
-     * `WorkspaceSelectorController.clone` inserts the cloned workspace into the database immediately
-     * and stages it in `created` so a Cancel can hard-delete it again; that staging lives only in
-     * [workspaceSelectorController], i.e. only as long as this Activity. This host's manifest entry
-     * does not list `uiMode`/`fontScale`/`density` in `configChanges`, so a dark-mode flip or a
-     * font-scale change destroys and recreates it mid-visit -- and before this hook the clone simply
-     * became a permanent workspace that nothing tracked any more, which not even an explicit Cancel
-     * afterwards could remove.
-     *
-     * A non-null memo here means the visit ended without a result: every real exit
-     * (`save`/`selectWorkspace`/`cancel`) nulls it first. [WorkspaceSelectorController.discardCreated]
-     * rather than `cancel()`, because `cancel()`'s exit is a `popBackStack()`/`finish()` on a host
-     * that is already being destroyed.
+     * Drops what only lives as long as this Activity: a visit to the workspace selector that ended without a
+     * result (see `WorkspaceHost.onHostDestroy`, which discards the workspaces it cloned).
      */
     override fun onDestroy() {
         ReadingViewVisibility.setActivityVisible(this, false)
         ReadingHostPresence.clearForeground(this)
-        workspaceSelectorController?.discardCreated()
-        workspaceSelectorController = null
+        if (::appHosts.isInitialized) appHosts.onHostDestroy()
         // R4: the host's own subscriptions, so an Activity recreation (e.g. a
         // config change) does not leak one registration per rotation.
         hostSubscriptions.cancelAll()
@@ -8814,141 +8685,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         readingAppBootstrap.unregisterNetworkCallback()
         super.onDestroy()
     }
-
-    // ——— TextDisplaySettings —————————————————————————————————————————————————————————————————————
-
-    /**
-     * The text-display-settings visit's state, held for the HOST's lifetime rather than the back-stack
-     * entry's composition -- [manageLabelsSession]'s shape, in the reusable form the graph can also
-     * key and drop. See `TextDisplaySettingsDeps.navStateMemo`: without it, the destination's whole
-     * working set (drill-up stack, controller cache, and the detached `SettingsBundle` edit) is
-     * rebuilt from the route the moment anything is pushed on top -- which, since fix round 1 made
-     * the Hide-labels row a real child destination, happens on an ordinary tap.
-     *
-     * Dropped by the arm on every exit, both branches. Nothing here resumes it.
-     */
-    private val textDisplayNavStateMemo =
-        NavSessionMemo<TextDisplaySettingsArgs, TextDisplaySettingsNavState>()
-
-    /** Classic's four `by lazy` label bundles (`:112-115`) -- ~90 `getString` calls between them, so
-     *  they stay lazy here too. Fix round 1: they are handed to the graph as `() -> Labels` slots,
-     *  because a plain value is read where the deps object is CONSTRUCTED (inside one `remember { }`
-     *  that runs on every host launch), which forced all ~90 whatever route the host was opened for --
-     *  the exact opposite of what this comment used to claim. */
-    private val textDisplayControllerLabels by lazy { buildTextDisplayControllerLabels(this) }
-    private val textDisplayScreenLabels by lazy { buildTextDisplayScreenLabels(this) }
-    private val textDisplayColorSettingsLabels by lazy { buildColorSettingsLabels(this) }
-    private val textDisplayBackgroundImageChooserLabels by lazy { buildBackgroundImageChooserLabels(this) }
-
-    /** Classic's `thumbnailResolver` (`:377`), cache and all. */
-    private val textDisplayThumbnailResolver = BackgroundThumbnailResolver()
-
-    /**
-     * Classic's photo picker (`:144-165`), unchanged by instruction: a constructor-time
-     * `registerForActivityResult` (it must be registered before RESUMED) bridged to a suspend
-     * function through a [CancellableContinuation], and handed to every [ColorSettingsController]
-     * this host builds. It is a PARAMETER of that controller rather than a property of the Koin
-     * service, for the reason `TextDisplaySettingsService.importBackgroundImage`'s kdoc gives.
-     */
-    private var pendingTextDisplayPick: CancellableContinuation<String?>? = null
-    private val textDisplayPhotoPicker = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        pendingTextDisplayPick?.resume(uri?.toString())
-        pendingTextDisplayPick = null
-    }
-    private val textDisplayImagePicker: suspend () -> String? = {
-        suspendCancellableCoroutine { cont ->
-            pendingTextDisplayPick = cont
-            textDisplayPhotoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            cont.invokeOnCancellation { pendingTextDisplayPick = null }
-        }
-    }
-
-    /**
-     * Everything one entry into the text-display-settings destination needs, resolved from the
-     * route's own arguments -- classic's three coupled `by lazy` fields (`detachedEdit`, `service`
-     * and the `finish()` override that reads them) as one object. See [TextDisplaySettingsSession].
-     *
-     * The DETACHED branch builds its own service instance rather than the Koin singleton, exactly as
-     * classic did and for [DetachedWorkspaceEdit]'s stated reason: a selector-originated edit must
-     * touch neither the active workspace nor the shared service.
-     */
-    private fun textDisplaySettingsSessionFor(args: TextDisplaySettingsArgs): TextDisplaySettingsSession {
-        val entry = TextDisplaySettingsRouteEntry(args, sharedTextDisplaySettingsService)
-        val service = entry.service
-        return TextDisplaySettingsSession(
-            initialScope = entry.scope,
-            controllerFor = { scope, onNavigate ->
-                TextDisplaySettingsController(
-                    service = service,
-                    settingsScope = scope,
-                    labels = textDisplayControllerLabels,
-                    onNavigateCallback = onNavigate,
-                )
-            },
-            colorControllerFor = { scope ->
-                ColorSettingsController(
-                    service = service,
-                    scope = scope,
-                    coroutineScope = lifecycleScope,
-                    imagePicker = textDisplayImagePicker,
-                )
-            },
-            hideLabelsPayload = { scope -> textDisplayHideLabelsPayload(service, scope) },
-            applyHideLabelsResult = { json, controller -> applyTextDisplayHideLabels(json, controller) },
-            // Classic's `finish()` override (`:282-293`), condition included -- see
-            // TextDisplaySettingsRouteEntry.resultOnLeave, which is where it lives now so that a test
-            // can reach it without launching this host.
-            resultOnLeave = entry::resultOnLeave,
-        )
-    }
-
-    /**
-     * The payload half of classic's BOOKMARKS_HIDELABELS bridge (`:381-406`) -- classic
-     * `HideLabelsPreference.openDialog`'s `ManageLabelsData`, verbatim. The graph navigates to
-     * `NavRoutes.manageLabels(...)` with it; see [applyTextDisplayHideLabels] for the answer.
-     *
-     * **Fix round 1 replaced the `awaitIntent` this used to be**, and it was live breakage rather
-     * than a latent hazard. `awaitIntent(intentFor(this, NavRoutes.manageLabels(data)))` is a
-     * `startActivityForResult` aimed at THIS activity, which is `android:launchMode="singleTop"` and
-     * is the activity on top: the system answers with [onNewIntent], which navigates the live graph
-     * to the label manager, while the pending request resolves CANCELED (or never). The chosen labels
-     * were dropped, and the label manager -- now sitting ABOVE `settings/textDisplay` in the same
-     * graph -- published its answer into [manageLabelsResults]'s pending slot, which no text-settings
-     * code was collecting. This is the shape `DownloadDeps.reloadCatalogueIfRequested` had to stop
-     * using (`ChooseDocument`'s Download row, [onChooseDocumentDownload], was the last), and this one was reachable
-     * the day Task 5 landed, through the live `settings` destination's global-text-settings row.
-     *
-     * Since fix batch 3 (F97) it no longer seeds the active workspace's auto-assign list -- see
-     * [ManageLabelsMapper.hideLabelsData].
-     */
-    private fun textDisplayHideLabelsPayload(
-        service: TextDisplaySettingsServiceImpl,
-        scope: SettingsScope,
-    ): String = ManageLabelsMapper.hideLabelsData(
-        service.currentHideLabelsIds(scope),
-        isWindow = scope is SettingsScope.Window,
-    ).toJSON()
-
-    /**
-     * Classic's `RESULT_OK` branch of the same bridge, line for line: a `reset` answer reverts the
-     * row, anything else hands the chosen ids to the controller. The classic
-     * `workspaceSettings.updateFrom(data)` side effect is gone (F97): it wrote a hide list's
-     * round-tripped auto-assign set into the ACTIVE workspace.
-     *
-     * There is no result-code check any more and none is missing: `ManageLabelsComposeActivity` had
-     * no cancel path at all (its back press saves -- see [manageLabelsResults]'s kdoc), so every exit
-     * built the identical `RESULT_OK` Intent, and the in-graph destination likewise delivers on every
-     * exit. "A result arrived" IS "the user answered".
-     */
-    private fun applyTextDisplayHideLabels(resultJson: String, controller: TextDisplaySettingsController) {
-        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(resultJson)
-        if (resultData.reset) {
-            controller.onRevert(TextSettingType.BOOKMARKS_HIDELABELS.name)
-        } else {
-            controller.onHideLabelsChange(resultData.selectedLabels.map { it.toString() })
-        }
-    }
-
 
     private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     companion object {

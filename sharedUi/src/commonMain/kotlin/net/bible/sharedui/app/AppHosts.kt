@@ -11,6 +11,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.history.HistoryManager
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
+import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.search.BibleSearchService
@@ -18,13 +19,16 @@ import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.settings.AppSettingsService
+import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.app.ports.DebugActions
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.app.ports.SettingsPlatform
+import net.bible.sharedui.app.ports.TextDisplayPlatform
 import net.bible.sharedui.app.search.SearchHost
 import net.bible.sharedui.app.settings.SettingsHost
 import net.bible.sharedui.app.welcome.WelcomeHost
+import net.bible.sharedui.app.workspace.WorkspaceHost
 import net.bible.sharedui.strings.Strings
 import org.koin.core.Koin
 import org.koin.core.parameter.parametersOf
@@ -96,6 +100,31 @@ class AppHosts(
             // The activity's history traversal wraps this same singleton.
             historyManagerProvider = { koin.get<HistoryManager>() },
         )
+    }
+
+    private val workspaceLazy = lazy {
+        WorkspaceHost(
+            shell = shell,
+            strings = strings,
+            imagePicker = ports.imagePicker,
+            helpDialogs = ports.helpDialogs,
+            // A factory binding: one platform (and thumbnail cache) per host.
+            platform = koin.get<TextDisplayPlatform>(),
+            workspaceServiceProvider = { koin.get<WorkspaceService>() },
+            appScopeProvider = { koin.get<AppCoroutineScope>() },
+            activeWorkspaceId = { koin.get<WindowControl>().windowRepository.id.toString() },
+        )
+    }
+
+    /**
+     * The workspace cluster's deps builder (workspace selector, text display settings). Built on first use; the
+     * services behind it resolve lazily, so this touches no database.
+     */
+    val workspace: WorkspaceHost by workspaceLazy
+
+    /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
+    fun onHostDestroy() {
+        if (workspaceLazy.isInitialized()) workspace.onHostDestroy()
     }
 
     /**

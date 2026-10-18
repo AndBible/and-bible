@@ -8,4 +8,7 @@ interface HelpDialogs {
 enum class HelpTopic {
     /** The reading-progress screen's overflow help. */
     READING_PROGRESS,
+
+    /** The workspace selector's help (`help_workspaces_title`). */
+    WORKSPACES,
 }

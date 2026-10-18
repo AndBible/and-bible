@@ -6,6 +6,9 @@ import net.bible.android.view.activity.nav.ports.AndroidDocumentInstallStarter
 import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
 import net.bible.android.view.activity.nav.ports.AndroidPlatformText
 import net.bible.android.view.activity.nav.ports.AndroidSettingsPlatform
+import net.bible.android.view.activity.nav.ports.AndroidTextDisplayPlatform
+import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
+import net.bible.sharedui.app.ports.TextDisplayPlatform
 import net.bible.android.view.activity.settings.AppSettingsServiceImpl
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedui.app.ports.SettingsPlatform
@@ -31,5 +34,7 @@ fun buildHostBindings() = module {
     // A factory: the app settings service is host-held (one per host), never a process singleton; it caches four
     // JSword dictionary scans for its lifetime.
     factory<AppSettingsService> { AppSettingsServiceImpl() }
+    // A factory: its thumbnail cache is per host, as the activity's own resolver was.
+    factory<TextDisplayPlatform> { AndroidTextDisplayPlatform { get<TextDisplaySettingsServiceImpl>() } }
     single<DocumentInstallStarter> { AndroidDocumentInstallStarter(androidContext()) }
 }
