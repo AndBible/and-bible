@@ -2,8 +2,6 @@
 
 package net.bible.sharedui.webview
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
@@ -82,6 +80,8 @@ object IosReadingWebViews {
         val entry = entries.remove(windowId) ?: return
         entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
         entry.handler = null
+        // The closure holds the session (and through it the JS channel); drop it so the WebView does not keep them alive.
+        entry.webView.onAttached = null
     }
 
     private fun checkMain() = check(NSThread.isMainThread) { "IosReadingWebViews is main-thread only" }
