@@ -28,7 +28,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 
 /**
  * The Mac-free half of the iOS assembly check: finds, by resolving every `buildSharedBindings()` definition against
@@ -90,6 +92,18 @@ class IosPortContractTest {
     internal fun requiredPorts(): Set<KClass<*>> {
         val required = linkedSetOf<KClass<*>>()
         val koin: Koin = koinApplication { modules(buildSharedBindings()) }.koin
+        // Definitions resolved against stubs may launch background work (e.g. SyncSettingsServiceImpl.refresh) that
+        // throws on the stubbed ports. Contain it in this scope (handler swallows) so it can never surface as an
+        // uncaught exception in a later runTest of the same JVM, and cancel it when the walk is done.
+        val scope = CoroutineScope(Job() + CoroutineExceptionHandler { _, _ -> })
+        try {
+            return walk(koin, required, scope)
+        } finally {
+            scope.cancel()
+        }
+    }
+
+    private fun walk(koin: Koin, required: MutableSet<KClass<*>>, scope: CoroutineScope): Set<KClass<*>> {
         var rounds = 0
         while (true) {
             check(++rounds < 200) { "no fixpoint after 200 rounds; required so far: ${required.map { it.simpleName }}" }
@@ -98,7 +112,7 @@ class IosPortContractTest {
             val definitions = koin.instanceRegistry.instances.values.map { it.beanDefinition }.distinctBy { it.primaryType to it.qualifier }
             for (def in definitions) {
                 val name = try {
-                    koin.get<Any>(def.primaryType, def.qualifier) { parametersOf(CoroutineScope(Job())) }
+                    koin.get<Any>(def.primaryType, def.qualifier) { parametersOf(scope) }
                     null
                 } catch (e: Throwable) {
                     missingType(e)
