@@ -28,6 +28,8 @@ import net.bible.service.legacymigration.testsupport.CountingFileSystem
 import net.bible.service.legacymigration.testsupport.CrashingFileSystem
 import net.bible.service.legacymigration.testsupport.FailingCleanupFileSystem
 import net.bible.service.legacymigration.testsupport.FailingDeleteFileSystem
+import net.bible.service.legacymigration.testsupport.ThrowAfterDoneMoveFileSystem
+import net.bible.service.legacymigration.testsupport.execSql
 import net.bible.service.legacymigration.testsupport.FakeLegacyPlatform
 import net.bible.service.legacymigration.testsupport.FixtureDir
 import net.bible.service.legacymigration.testsupport.JvmLegacyDatabaseFactory
@@ -376,6 +378,66 @@ class LegacyMigratorTest {
         assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
         assertEquals(appSupport, e.sourceHashes())
         assertEquals(docs, documentHashes())
+    }
+
+    @Test
+    fun aFailureAfterTheDoneJsonRenameStillCountsAsCommitted() {
+        val e = env()
+        val outcome = run(PlatformWithFileSystem(e.platform, ThrowAfterDoneMoveFileSystem(FileSystem.SYSTEM)))
+        assertIs<LegacyMigrationOutcome.Migrated>(outcome)
+        assertEquals(baseline, databaseSummary(e.databases), "no rollback once done.json exists")
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+    }
+
+    @Test
+    fun theSearchIndexDeletionIsRetriedOnAlreadyDone() {
+        val e = env()
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val index = File(e.platform.documents.toString(), "search_indexes.sqlite")
+        index.writeText("left behind by a crash after the marker")
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertFalse(index.exists())
+    }
+
+    // ---- rows the mappers drop or synthesize by design must not fail validation ----------------------------------
+
+    private fun store(e: Env) = File(e.platform.applicationSupport.toString(), "AndBible.store")
+
+    @Test
+    fun aHiddenBookmarkWithTwoLabelsAndANoteIsMigratedNotRejected() {
+        val e = env()
+        // The bookmark with the most label links becomes untrusted: the mapper hides it with its links and its note.
+        execSql(
+            store(e),
+            "UPDATE ZBIBLEBOOKMARK SET ZORDINALTRUSTSTATERAW = 'legacyPendingModule' WHERE Z_PK = " +
+                "(SELECT ZBOOKMARK FROM ZBIBLEBOOKMARKTOLABEL GROUP BY ZBOOKMARK ORDER BY COUNT(*) DESC LIMIT 1)",
+        )
+        val outcome = run(e.platform)
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(outcome)
+        val skips = migrated.report.entries.filterIsInstance<net.bible.service.legacymigration.map.ReportEntry.Skipped>()
+        assertTrue(skips.any { it.table == "BibleBookmarkToLabel" && it.rows >= 2 }, "the hidden links are counted: $skips")
+        assertTrue(skips.any { it.table == "BibleBookmarkNotes" && it.rows >= 1 }, "the hidden note is counted: $skips")
+        val summary = databaseSummary(e.databases).getValue("bookmarks.sqlite3")
+        assertEquals(2, summary.getValue("BibleBookmark"))
+    }
+
+    @Test
+    fun aWindowWithoutAPageManagerRowGetsASynthesizedOneAndMigrates() {
+        val e = env()
+        execSql(store(e), "UPDATE ZWINDOW SET ZPAGEMANAGER = NULL WHERE Z_PK = (SELECT MIN(Z_PK) FROM ZWINDOW)",
+            "DELETE FROM ZPAGEMANAGER WHERE Z_PK = (SELECT MIN(Z_PK) FROM ZPAGEMANAGER)")
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val ws = databaseSummary(e.databases).getValue("workspaces.sqlite3")
+        assertEquals(ws.getValue("Window"), ws.getValue("PageManager"))
+    }
+
+    @Test
+    fun twoWindowsSharingOnePageManagerRowMigrate() {
+        val e = env()
+        execSql(store(e), "UPDATE ZWINDOW SET ZPAGEMANAGER = (SELECT MIN(ZPAGEMANAGER) FROM ZWINDOW) WHERE Z_PK = (SELECT MAX(Z_PK) FROM ZWINDOW)")
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val ws = databaseSummary(e.databases).getValue("workspaces.sqlite3")
+        assertEquals(ws.getValue("Window"), ws.getValue("PageManager"))
     }
 
     // ---- mapper order ---------------------------------------------------------------------------------------

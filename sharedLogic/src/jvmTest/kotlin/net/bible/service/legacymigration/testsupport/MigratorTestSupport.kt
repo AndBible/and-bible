@@ -128,3 +128,21 @@ class FailingDeleteFileSystem(delegate: FileSystem, private val dir: Path) : For
         super.delete(path, mustExist)
     }
 }
+
+/** Runs each of [statements] against the SQLite file [file] (read-write). */
+fun execSql(file: File, vararg statements: String) {
+    val c = openSqlite(file.path)
+    try {
+        for (sql in statements) c.prepare(sql).let { try { it.step() } finally { it.close() } }
+    } finally {
+        c.close()
+    }
+}
+
+/** Lets the move of `done.json` succeed and then throws an [IOException]: the rename happened but the call "failed". */
+class ThrowAfterDoneMoveFileSystem(delegate: FileSystem) : ForwardingFileSystem(delegate) {
+    override fun atomicMove(source: Path, target: Path) {
+        super.atomicMove(source, target)
+        if (target.name == "done.json") throw okio.IOException("injected failure after the done.json rename")
+    }
+}

@@ -10,8 +10,12 @@ sealed interface ReportEntry {
     /** [rows] rows were written to [table] of the category's staging database. */
     data class Written(val category: LegacyCategory, val table: String, val rows: Int) : ReportEntry
 
-    /** [rows] legacy rows (or values) were not migrated, for [reason]. */
-    data class Skipped(val category: LegacyCategory, val reason: String, val rows: Int) : ReportEntry
+    /**
+     * [rows] legacy rows (or values) were not migrated, for [reason]. [table] names the staged table the missing rows
+     * would have belonged to when the mapper knows it (the validator then credits the skip to that table only); null
+     * means unattributed (a value, or a row whose table the mapper does not name), credited to every table of the category.
+     */
+    data class Skipped(val category: LegacyCategory, val reason: String, val rows: Int, val table: String? = null) : ReportEntry
 
     /** A `Setting`/UserDefaults key that the key ledger does not know. Reported, never an error. */
     data class UnknownKey(val key: String) : ReportEntry
@@ -31,8 +35,8 @@ class MigrationReport {
         list += ReportEntry.Written(category, table, rows)
     }
 
-    fun skipped(category: LegacyCategory, reason: String, rows: Int) {
-        list += ReportEntry.Skipped(category, reason, rows)
+    fun skipped(category: LegacyCategory, reason: String, rows: Int, table: String? = null) {
+        list += ReportEntry.Skipped(category, reason, rows, table)
     }
 
     fun unknownKey(key: String) {
@@ -55,6 +59,7 @@ class MigrationReport {
                             put("category", entry.category.name)
                             put("reason", entry.reason)
                             put("rows", entry.rows)
+                            entry.table?.let { put("table", it) }
                         }
                         is ReportEntry.UnknownKey -> buildJsonObject {
                             put("type", "unknownKey")

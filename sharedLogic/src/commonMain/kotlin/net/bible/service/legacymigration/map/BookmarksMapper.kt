@@ -228,8 +228,8 @@ class BookmarksMapper : CategoryMapper {
         }
     }
 
-    private fun skip(report: MigrationReport, reason: String, rows: Int) {
-        if (rows > 0) report.skipped(category, reason, rows)
+    private fun skip(report: MigrationReport, reason: String, rows: Int, table: String? = null) {
+        if (rows > 0) report.skipped(category, reason, rows, table)
     }
 
     private fun buildStage(data: LegacyBookmarkData, report: MigrationReport): BookmarkStage {
@@ -238,7 +238,7 @@ class BookmarksMapper : CategoryMapper {
         // ---- Labels. Swift: `labels` sorted (name, id); `remoteLabelIDsByLocalID`; later rows with the same remote
         // id replace earlier ones (`labelRowsByKey`).
         val labelRows = data.labels.filter { it.id("id") != null }
-            .also { skip(report, "label without id", data.labels.size - it.size) }
+            .also { skip(report, "label without id", data.labels.size - it.size, "Label") }
             .sortedWith(compareBy<LegacyRow>({ it.values.text("name") ?: "" }, { it.id("id")!!.toString() }))
         val remoteIdByLocalId = HashMap<String, IdType>()
         val labelLocalIdByPk = HashMap<Long, IdType>()
@@ -251,7 +251,7 @@ class BookmarksMapper : CategoryMapper {
             labelLocalIdByPk[row.pk] = local
             labels[remote.toString()] = label(row, remote, name)
         }
-        skip(report, "duplicate label id", labelRows.size - labels.size)
+        skip(report, "duplicate label id", labelRows.size - labels.size, "Label")
         fun remoteLabel(local: IdType): IdType = remoteIdByLocalId[local.toString()] ?: local
         val stagedLabelIds = labels.keys
 
@@ -270,7 +270,7 @@ class BookmarksMapper : CategoryMapper {
         // ---- Bible bookmarks. Swift: sorted (createdAt, id); an untrusted bookmark is suppressed together with its
         // note and links (they are only ever exported through the bookmark).
         val bibleRows = data.bibleBookmarks.filter { it.id("id") != null }
-            .also { skip(report, "Bible bookmark without id", data.bibleBookmarks.size - it.size) }
+            .also { skip(report, "Bible bookmark without id", data.bibleBookmarks.size - it.size, "BibleBookmark") }
             .sortedWith(compareBy<LegacyRow>({ it.values.date("createdAt") }, { it.id("id")!!.toString() }))
         val bibleIdByPk = bibleRows.associate { it.pk to it.id("id")!! }
         val bibleBookmarks = LinkedHashMap<String, StagedBibleBookmark>()
@@ -287,13 +287,13 @@ class BookmarksMapper : CategoryMapper {
             if (!isKnownVersification(v11n)) { unknownV11n++; continue }
             bibleBookmarks[id.toString()] = bibleBookmark(row, id, v11n, primaryLabel(row), fidelity)
         }
-        for ((state, rows) in unverified) skip(report, "ordinal trust $state", rows)
-        skip(report, "Bible bookmark with unknown versification", unknownV11n)
-        skip(report, "duplicate Bible bookmark id", bibleRows.size - unverified.values.sum() - unknownV11n - bibleBookmarks.size)
+        for ((state, rows) in unverified) skip(report, "ordinal trust $state", rows, "BibleBookmark")
+        skip(report, "Bible bookmark with unknown versification", unknownV11n, "BibleBookmark")
+        skip(report, "duplicate Bible bookmark id", bibleRows.size - unverified.values.sum() - unknownV11n - bibleBookmarks.size, "BibleBookmark")
 
         // ---- Generic bookmarks (no trust concept).
         val genericRows = data.genericBookmarks.filter { it.id("id") != null }
-            .also { skip(report, "generic bookmark without id", data.genericBookmarks.size - it.size) }
+            .also { skip(report, "generic bookmark without id", data.genericBookmarks.size - it.size, "GenericBookmark") }
             .sortedWith(compareBy<LegacyRow>({ it.values.date("createdAt") }, { it.id("id")!!.toString() }))
         val genericIdByPk = genericRows.associate { it.pk to it.id("id")!! }
         val genericBookmarks = LinkedHashMap<String, StagedGenericBookmark>()
@@ -301,7 +301,7 @@ class BookmarksMapper : CategoryMapper {
             val id = row.id("id")!!
             genericBookmarks[id.toString()] = genericBookmark(row, id, primaryLabel(row), fidelity)
         }
-        skip(report, "duplicate generic bookmark id", genericRows.size - genericBookmarks.size)
+        skip(report, "duplicate generic bookmark id", genericRows.size - genericBookmarks.size, "GenericBookmark")
 
         val bibleLinks = links(data.bibleLinks, bibleIdByPk, bibleBookmarks.keys, labelLocalIdByPk, ::remoteLabel, report, "Bible")
         val genericLinks = links(data.genericLinks, genericIdByPk, genericBookmarks.keys, labelLocalIdByPk, ::remoteLabel, report, "generic")
@@ -309,24 +309,26 @@ class BookmarksMapper : CategoryMapper {
         val bibleNoteRows = bibleNotes.filterKeys { it in bibleBookmarks }.values.sortedBy { it.bookmarkId.toString() }
         val genericNoteRows = genericNotes.filterKeys { it in genericBookmarks }.values.sortedBy { it.bookmarkId.toString() }
         val bibleAllIds = bibleRows.map { it.id("id")!!.toString() }.toSet()
-        skip(report, "Bible bookmark note without bookmark", bibleNotes.keys.count { it !in bibleAllIds })
-        skip(report, "generic bookmark note without bookmark", genericNotes.keys.count { it !in genericBookmarks })
+        skip(report, "Bible bookmark note without bookmark", bibleNotes.keys.count { it !in bibleAllIds }, "BibleBookmarkNotes")
+        // The note of a bookmark the mapper hides (untrusted ordinals, unknown versification) goes with it, as in the Swift export.
+        skip(report, "note of a hidden Bible bookmark", bibleNotes.keys.count { it in bibleAllIds && it !in bibleBookmarks }, "BibleBookmarkNotes")
+        skip(report, "generic bookmark note without bookmark", genericNotes.keys.count { it !in genericBookmarks }, "GenericBookmarkNotes")
 
         // ---- StudyPad entries: exported only with a label; sorted (orderNumber, id).
         val textRows = data.studyPadTexts.mapNotNull { row ->
             val entryId = row.values.id("studyPadTextEntryId") ?: return@mapNotNull null
             entryId.toString() to (row.values.text("text") ?: "")
         }
-        skip(report, "StudyPad text without entry id", data.studyPadTexts.size - textRows.size)
+        skip(report, "StudyPad text without entry id", data.studyPadTexts.size - textRows.size, "StudyPadTextEntryText")
         val textByEntry = LinkedHashMap<String, String>()
         for ((entry, text) in textRows) textByEntry[entry] = text
-        skip(report, "duplicate StudyPad text row", textRows.size - textByEntry.size)
+        skip(report, "duplicate StudyPad text row", textRows.size - textByEntry.size, "StudyPadTextEntryText")
 
         val entryRows = data.studyPadEntries.filter { it.id("id") != null }
-            .also { skip(report, "StudyPad entry without id", data.studyPadEntries.size - it.size) }
+            .also { skip(report, "StudyPad entry without id", data.studyPadEntries.size - it.size, "StudyPadTextEntry") }
         val entries = LinkedHashMap<String, StagedStudyPadEntry>()
         val withLabel = entryRows.filter { it.toOne["label"]?.let { pk -> pk in labelLocalIdByPk } == true }
-        skip(report, "StudyPad entry without label", entryRows.size - withLabel.size)
+        skip(report, "StudyPad entry without label", entryRows.size - withLabel.size, "StudyPadTextEntry")
         for (row in withLabel.sortedWith(compareBy<LegacyRow>({ it.values.int("orderNumber") ?: 0 }, { it.id("id")!!.toString() }))) {
             val id = row.id("id")!!
             entries[id.toString()] = StagedStudyPadEntry(
@@ -338,10 +340,10 @@ class BookmarksMapper : CategoryMapper {
                 sourcePromptId = row.values.id("sourcePromptId"),
             )
         }
-        skip(report, "duplicate StudyPad entry id", withLabel.size - entries.size)
+        skip(report, "duplicate StudyPad entry id", withLabel.size - entries.size, "StudyPadTextEntry")
         val texts = textByEntry.filterKeys { it in entries }.map { (k, v) -> StagedStudyPadText(IdType.fromString(k), v) }
             .sortedBy { it.entryId.toString() }
-        skip(report, "StudyPad text without exported entry", textByEntry.size - texts.size)
+        skip(report, "StudyPad text without exported entry", textByEntry.size - texts.size, "StudyPadTextEntryText")
 
         return BookmarkStage(
             labels = labels.values.sortedWith(compareBy<StagedLabel>({ it.name }, { it.id.toString() })),
@@ -528,6 +530,7 @@ class BookmarksMapper : CategoryMapper {
     /** Detached notes by bookmark id (Swift: `Dictionary(uniqueKeysWithValues:)`, which would trap on a duplicate: last wins here). */
     private fun notesByBookmark(rows: List<LegacyRow>, report: MigrationReport, kind: String): Map<String, StagedNote> {
         val result = LinkedHashMap<String, StagedNote>()
+        val noteTable = if (kind == "Bible") "BibleBookmarkNotes" else "GenericBookmarkNotes"
         var withoutId = 0
         for (row in rows) {
             val id = row.values.id("bookmarkId")
@@ -539,8 +542,8 @@ class BookmarksMapper : CategoryMapper {
                 sourcePromptId = row.values.id("sourcePromptId"),
             )
         }
-        skip(report, "$kind bookmark note without bookmark id", withoutId)
-        skip(report, "duplicate $kind bookmark note", rows.size - withoutId - result.size)
+        skip(report, "$kind bookmark note without bookmark id", withoutId, noteTable)
+        skip(report, "duplicate $kind bookmark note", rows.size - withoutId - result.size, noteTable)
         return result
     }
 
@@ -558,6 +561,7 @@ class BookmarksMapper : CategoryMapper {
         report: MigrationReport,
         kind: String,
     ): List<StagedLink> {
+        val linkTable = if (kind == "Bible") "BibleBookmarkToLabel" else "GenericBookmarkToLabel"
         var dangling = 0
         class Raw(val bookmark: IdType, val label: IdType, val order: Int, val indent: Int, val expand: Boolean)
         val raws = rows.mapNotNull { row ->
@@ -566,13 +570,16 @@ class BookmarksMapper : CategoryMapper {
             if (bookmark == null || label == null) { dangling++; return@mapNotNull null }
             Raw(bookmark, label, row.values.int("orderNumber") ?: 0, row.values.int("indentLevel") ?: 0, row.values.bool("expandContent") ?: false)
         }
-        skip(report, "$kind bookmark label link without bookmark or label", dangling)
+        skip(report, "$kind bookmark label link without bookmark or label", dangling, linkTable)
         val byKey = LinkedHashMap<String, StagedLink>()
         for (raw in raws.sortedWith(compareBy<Raw>({ it.order }, { it.label.toString() }))) {
             byKey["${raw.bookmark}|${raw.label}"] = StagedLink(raw.bookmark, raw.label, raw.order, raw.indent, raw.expand)
         }
-        skip(report, "duplicate $kind bookmark label link", raws.size - byKey.size)
-        return byKey.values.filter { it.bookmarkId.toString() in exported }
+        skip(report, "duplicate $kind bookmark label link", raws.size - byKey.size, linkTable)
+        val visible = byKey.values.filter { it.bookmarkId.toString() in exported }
+        // Links of a bookmark the mapper hides go with it (they are only exported through the bookmark): counted, not silent.
+        skip(report, "$kind bookmark label link of a hidden bookmark", byKey.size - visible.size, linkTable)
+        return visible
             .sortedWith(compareBy<StagedLink>({ it.bookmarkId.toString() }, { it.labelId.toString() }))
     }
 

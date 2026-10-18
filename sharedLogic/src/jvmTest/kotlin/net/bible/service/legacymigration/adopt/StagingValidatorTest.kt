@@ -89,18 +89,6 @@ class StagingValidatorTest {
     }
 
     @Test
-    fun aMapperThatWritesFewerRowsAndReportsThemConsistentlyFails() {
-        val s = staged()
-        val before = count(File(s.dir.toFile(), "bookmarks.sqlite3"), "BibleBookmark")
-        sql(File(s.dir.toFile(), "bookmarks.sqlite3"), "DELETE FROM BibleBookmark WHERE id = (SELECT id FROM BibleBookmark LIMIT 1)")
-        assertTrue(count(File(s.dir.toFile(), "bookmarks.sqlite3"), "BibleBookmark") < before)
-        val report = consistentReport(s)
-        val e = assertFailsWith<LegacyMigrationException> { validate(s, report) }
-        assertEquals(Kind.VALIDATION_FAILED, e.kind)
-        assertTrue(e.message!!.contains("BibleBookmark"), e.message)
-    }
-
-    @Test
     fun aMapperThatReportsNothingForATableThatMustHoldRowsFails() {
         val s = staged()
         sql(File(s.dir.toFile(), "bookmarks.sqlite3"), "DELETE FROM BibleBookmarkToLabel", "DELETE FROM BibleBookmarkNotes", "DELETE FROM BibleBookmark")
@@ -129,5 +117,59 @@ class StagingValidatorTest {
         // A skip reported for another category does not excuse it.
         val other = consistentReport(s).also { it.skipped(LegacyCategory.WORKSPACES, "unrelated", 5) }
         assertFailsWith<LegacyMigrationException> { validate(s, other) }
+    }
+
+    @Test
+    fun aSkipAttributedToAnotherTableDoesNotExcuseMissingRows() {
+        val s = staged()
+        sql(File(s.dir.toFile(), "bookmarks.sqlite3"), "DELETE FROM BibleBookmarkToLabel WHERE bookmarkId = (SELECT bookmarkId FROM BibleBookmarkToLabel LIMIT 1)")
+        val lost = 1
+        // A skip of the right table excuses the loss, a skip of a table that lost nothing does not, an unattributed one does.
+        validate(s, consistentReport(s).also { it.skipped(LegacyCategory.BOOKMARKS, "links of a hidden bookmark", 5, "BibleBookmarkToLabel") })
+        assertFailsWith<LegacyMigrationException> { validate(s, consistentReport(s).also { it.skipped(LegacyCategory.BOOKMARKS, "other table", lost + 5, "Label") }) }
+        validate(s, consistentReport(s).also { it.skipped(LegacyCategory.BOOKMARKS, "unattributed", 5) })
+    }
+
+    @Test
+    fun pageManagersMustEqualWindows() {
+        val s = staged()
+        sql(File(s.dir.toFile(), "workspaces.sqlite3"), "DELETE FROM PageManager WHERE windowId = (SELECT windowId FROM PageManager LIMIT 1)")
+        val e = assertFailsWith<LegacyMigrationException> { validate(s, consistentReport(s)) }
+        assertTrue(e.message!!.contains("PageManager"), e.message)
+    }
+
+    @Test
+    fun aSyntheticPageManagerBeyondTheLegacyCountIsNotCapped() {
+        val s = staged()
+        // The reader has fewer page managers than windows (here: it claims none); the staged one-per-window layout is accepted.
+        val lenient: (String) -> Int = { if (it == "PageManager") 0 else s.readerCount(it) }
+        runBlocking { StagingValidator(JvmLegacyDatabaseFactory()).validate(s.dir, s.report, lenient) }
+    }
+
+    @Test
+    fun aiTablesMayHoldMoreRowsThanTheLegacyStoreBecauseOfThePreservedFile() {
+        val s = stagedAi()
+        val dir = s.dir
+        // Staged AI rows exist while the reader (no preserved rows) reports none: uncapped lower bound, accepted.
+        val none: (String) -> Int = { 0 }
+        runBlocking { StagingValidator(JvmLegacyDatabaseFactory()).validate(dir, s.report, none) }
+        // Whereas a capped table with more staged than legacy rows is rejected.
+        val workspacesOnly: (String) -> Int = { 0 }
+        val ws = staged()
+        assertFailsWith<LegacyMigrationException> { runBlocking { StagingValidator(JvmLegacyDatabaseFactory()).validate(ws.dir, ws.report, workspacesOnly) } }
+    }
+
+    private fun stagedAi(): Staged = runBlocking {
+        val fx = fixture("1.0.1", "17", "rich")
+        val snapshot = LegacySnapshot(
+            LegacyStoreReader(File(fx.root.toFile(), "AndBible.store").path),
+            LegacyStoreReader(File(fx.root.toFile(), "LocalStore.store").path),
+        )
+        val dir = Files.createTempDirectory("validator-ai-").toFile().also { dirs += it }
+        val report = MigrationReport()
+        StagingDatabases(dir.toOkioPath(), JvmLegacyDatabaseFactory()).use { staging ->
+            net.bible.service.legacymigration.map.AiSettingsMapper(null).map(snapshot, staging, report)
+        }
+        Staged(dir.toOkioPath(), report, snapshot)
     }
 }

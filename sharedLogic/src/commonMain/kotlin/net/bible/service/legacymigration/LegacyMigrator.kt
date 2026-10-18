@@ -180,6 +180,8 @@ class LegacyMigrator(
         try {
             fs.createDirectories(dir)
             if (fs.exists(doneFile)) {
+                // Idempotent leftovers of the commit: the search index (a crash or error between done.json and its deletion).
+                bestEffort { deleteSearchIndex() }
                 bestEffortCleanUp()
                 return LegacyMigrationOutcome.AlreadyDone
             }
@@ -233,6 +235,7 @@ class LegacyMigrator(
         var current = MigrationState(MigrationPhase.IN_PROGRESS, attempt, Clock.System.now().toEpochMilliseconds(), state?.lastKind)
         var stage = Stage.COPY
         var committed = false
+        var finished: LegacyExtras? = null
         try {
             states.write(current)
             for (leftover in listOf(workDir, stagingDir, replacedDir)) fs.deleteRecursively(leftover, mustExist = false)
@@ -268,6 +271,7 @@ class LegacyMigrator(
             current = adopter.move(current) { hook(Step.ADOPT_FIRST_MOVE) }
             hook(Step.ADOPT_DONE)
 
+            finished = extras
             for ((id, key) in extras.aiKeys) platform.secrets.put(apiKeyName(id), key)
             copyUserPlanFiles(extras)
             bestEffort { writeReport(report, "migrated", attempt, null) }
@@ -280,7 +284,12 @@ class LegacyMigrator(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            check(!committed) { "unreachable: post-commit steps are best-effort" }
+            // done.json may exist although writeDone threw (the rename can succeed before the call fails): that is committed.
+            if (committed || (finished != null && fs.exists(doneFile))) {
+                bestEffort { deleteSearchIndex() }
+                bestEffortCleanUp()
+                return LegacyMigrationOutcome.Migrated(report, finished!!)
+            }
             val kind = (e as? LegacyMigrationException)?.kind ?: stage.defaultKind
             // Undo a started adoption before anything else; the state keeps the attempt count and the failure kind.
             var rolledBack = true

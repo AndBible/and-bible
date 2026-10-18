@@ -76,8 +76,10 @@ data class MigrationState(
 }
 
 /**
- * Writes [text] to [target] durably and atomically: to `<target>.tmp` (replacing a leftover one), `flush()`ed (which fsyncs
- * through okio's `FileHandle`), then `atomicMove`d over [target].
+ * Writes [text] to [target] atomically: to `<target>.tmp` (replacing a leftover one), `flush()`ed, then `atomicMove`d over
+ * [target]. On the JVM okio's `FileHandle.flush()` fsyncs, so the write is durable. On iOS okio only `fflush`es: the
+ * rename is still atomic against a process kill (the case the watchdog and a crash produce) but a power loss may leave an
+ * unflushed file; see [MigrationStateStore.UNREADABLE] for what a torn `state.json` means.
  */
 fun atomicWriteFile(fs: FileSystem, target: Path, text: String) {
     val temp = target.parent!! / (target.name + ".tmp")
@@ -125,7 +127,9 @@ class MigrationStateStore(private val fs: FileSystem, private val dir: Path) {
     companion object {
         /**
          * What an unparseable `state.json` stands for: two attempts used, nothing to roll back (the plan is lost). The migrator
-         * then gives up and the recovery screen takes over, instead of guessing.
+         * then gives up and the recovery screen takes over, instead of guessing. Consequence (accepted, not redesigned): a
+         * `state.json` torn by a power loss on iOS while the phase was ADOPTING leaves any half-moved databases in place, and
+         * the recovery screen's restore / start-fresh flows must treat the databases directory as untrusted.
          */
         val UNREADABLE = MigrationState(MigrationPhase.IN_PROGRESS, attempt = 2, startedAt = 0)
     }

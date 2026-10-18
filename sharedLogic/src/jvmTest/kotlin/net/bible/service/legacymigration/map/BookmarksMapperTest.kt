@@ -212,7 +212,12 @@ class BookmarksMapperTest {
                     assertTrue(hex !in bibleBookmarkIds(staging), state)
                     assertEquals(0, scalar(staging, "SELECT COUNT(*) FROM BibleBookmarkNotes WHERE hex(bookmarkId) = '$hex'"), state)
                     assertEquals(0, scalar(staging, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE hex(bookmarkId) = '$hex'"), state)
-                    assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, reason, 1)), report.entries.filterIsInstance<ReportEntry.Skipped>(), state)
+                    val skips = report.entries.filterIsInstance<ReportEntry.Skipped>()
+                    assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, reason, 1, "BibleBookmark")), skips.filter { it.reason.startsWith("ordinal trust") }, state)
+                    // The note and the label links that went with the hidden bookmark are counted, attributed to their tables.
+                    assertTrue(skips.any { it.table == "BibleBookmarkNotes" && it.rows == 1 }, "$state: $skips")
+                    assertTrue(skips.any { it.table == "BibleBookmarkToLabel" && it.rows >= 1 }, "$state: $skips")
+                    assertEquals(emptyList(), skips.filter { !it.reason.startsWith("ordinal trust") && it.table !in setOf("BibleBookmarkNotes", "BibleBookmarkToLabel") }, state)
                     // Everything else still equals the oracle, except the one bookmark (and its note and links) the oracle also leaves out.
                     val diffs = compareWithOracleDetailed(fx, LegacyCategory.BOOKMARKS, staging, approved).differences
                     assertTrue(diffs.all { it.contains("missing in staged database") }, diffs.toString())
@@ -248,8 +253,8 @@ class BookmarksMapperTest {
                     val report = MigrationReport()
                     snapshot(fx).use { BookmarksMapper().map(it, staging, report) }
                     assertEquals(
-                        listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, "ordinal trust verifiedAndroid inconsistent", 1)),
-                        report.entries.filterIsInstance<ReportEntry.Skipped>(),
+                        listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, "ordinal trust verifiedAndroid inconsistent", 1, "BibleBookmark")),
+                        report.entries.filterIsInstance<ReportEntry.Skipped>().filter { it.reason.startsWith("ordinal trust") },
                         change,
                     )
                 }
@@ -287,7 +292,7 @@ class BookmarksMapperTest {
         return stage.bibleBookmarks.size to report.entries.filterIsInstance<ReportEntry.Skipped>()
     }
 
-    private val v1Mismatch = listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, "ordinal trust verifiedMappingV1 inconsistent", 1))
+    private val v1Mismatch = listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, "ordinal trust verifiedMappingV1 inconsistent", 1, "BibleBookmark"))
 
     /** A (versification, ordinal) whose KJVA ordinal differs from the source ordinal, found in JSword's built-in systems. */
     private fun differingVerse(): Triple<String, Int, Int> {

@@ -44,22 +44,39 @@ internal class RowExpectation(
 )
 
 /**
- * The per-table expectation table. Written rows `w` of such a table must satisfy
+ * The per-table expectation table. For a table in [ROW_EXPECTATIONS], `w` staged rows (the real `COUNT(*)`), `r` legacy
+ * rows of its entity and `s` the skipped rows credited to the table must satisfy
  *
- *     reader rows - skipped rows of the category  <=  w  <=  reader rows        (the upper bound only when `capped`)
+ *     r - s  <=  w        always (the lower bound: every legacy row is staged or accounted for by a reported skip)
+ *     w  <=  r            only when `capped` (the mapper never invents rows of a table it fills one to one)
  *
- * so every legacy row is either in the staged table or accounted for by a reported skip, and the mapper never invents
- * rows of a table it fills one to one. The skip count is the category's total (reports do not attribute a skip to a
- * table), which makes the lower bound lenient, never wrong. Tables derived from several sources or from settings keys
- * (`StudyPad` link rows are 1:1, but `ReadingPlanStatus`, the settings tables, `WorkspaceLabelOverride`,
- * `GlobalTextDisplaySettings`, the progress tables, repositories) have no derivable count and only get the checks that
- * hold for every table: the staged count equals the report's written count, and the file passes `integrity_check`.
- * The AI tables are not capped: the preserved Android file adds rows (decision U11).
+ * `s` is the sum of the category's `Skipped` entries whose `table` is this table, plus the unattributed ones (`table` null:
+ * values and rows whose table the mapper does not name), which are credited to every table of the category. Entries
+ * attributed to another table do not excuse this one, so a hidden parent whose children vanish must report them with their
+ * table (the bookmark mapper does, for notes, label links and StudyPad rows of a hidden or dropped parent).
+ *
+ * Final table, per category:
+ * - WORKSPACES: `Workspace`, `Window`, `HistoryItem` exact-or-lower (lower bound with skips, capped). History items of a
+ *   window that was not exported are skipped and reported. `PageManager` has NO reader expectation: the mapper writes one
+ *   page manager per exported window and synthesizes a default when a window has none (and two windows may share one
+ *   legacy row), so it can exceed or fall short of the legacy count; see [EQUAL_ROWS]: it must equal the `Window` count.
+ *   `WorkspaceLabelOverride` and `GlobalTextDisplaySettings` come from settings keys: no legacy count.
+ * - BOOKMARKS: all nine tables lower-bound with skips and capped. Children of a hidden parent (untrusted ordinals, unknown
+ *   versification) are reported as skips of the child table; duplicates and dangling rows likewise.
+ * - READING_PLANS: `ReadingPlan` lower-bound with skips, capped. `ReadingPlanStatus` is derived from days and settings: no
+ *   legacy count.
+ * - MY_DOCUMENTS: the four tables lower-bound with skips, capped (pages and contents of a dropped parent are reported).
+ * - AI_SETTINGS: lower bound only, NOT capped: the preserved Android file adds rows (decision U11). `GlobalAiSettings`
+ *   is one fixed-id row, no expectation.
+ * - PROGRESS, SETTINGS, REPOSITORIES: derived from JSON settings, keys and files: no legacy row count; only the checks
+ *   that hold for every table.
+ *
+ * Every table also gets the universal checks: the real count equals the report's written count, and the file passes
+ * `integrity_check`.
  */
 internal val ROW_EXPECTATIONS: List<RowExpectation> = listOf(
     RowExpectation(LegacyCategory.WORKSPACES, "Workspace", listOf("Workspace")),
     RowExpectation(LegacyCategory.WORKSPACES, "Window", listOf("Window")),
-    RowExpectation(LegacyCategory.WORKSPACES, "PageManager", listOf("PageManager")),
     RowExpectation(LegacyCategory.WORKSPACES, "HistoryItem", listOf("HistoryItem")),
     RowExpectation(LegacyCategory.BOOKMARKS, "Label", listOf("Label")),
     RowExpectation(LegacyCategory.BOOKMARKS, "BibleBookmark", listOf("BibleBookmark")),
@@ -84,6 +101,16 @@ internal val ROW_EXPECTATIONS: List<RowExpectation> = listOf(
 )
 
 /**
+ * A cross-table rule: [table] must hold exactly as many rows as [other] of the same category ([reason] says why).
+ */
+internal class EqualRows(val category: LegacyCategory, val table: String, val other: String, val reason: String)
+
+/** The cross-table rules. */
+internal val EQUAL_ROWS: List<EqualRows> = listOf(
+    EqualRows(LegacyCategory.WORKSPACES, "PageManager", "Window", "the mapper writes one page manager per exported window, synthesizing a default for a window without one"),
+)
+
+/**
  * Checks the staged databases before they are adopted. Every failure is a [LegacyMigrationException] of kind
  * [Kind.VALIDATION_FAILED]. For each staged file:
  *
@@ -91,7 +118,7 @@ internal val ROW_EXPECTATIONS: List<RowExpectation> = listOf(
  * 2. `PRAGMA integrity_check` returns `ok`;
  * 3. for each table the report says was written, the table exists and its real row count equals the written count
  *    (this is what catches a mapper that reports one thing and stores another);
- * 4. the per-table [ROW_EXPECTATIONS] against the reader's counts hold, for every expected table whether or not the
+ * 4. the cross-table [EQUAL_ROWS] hold, and the per-table [ROW_EXPECTATIONS] against the reader's counts hold, for every expected table whether or not the
  *    report mentions it. A table that must hold rows (reader rows minus the category's skips is positive) but is absent or
  *    short fails; a category whose file was not staged fails the same way.
  *
@@ -111,11 +138,12 @@ class StagingValidator(private val databases: LegacyDatabaseFactory, private val
                 fail("$category reports written rows but $name was not staged")
             }
         }
-        val skippedByCategory = report.entries.filterIsInstance<ReportEntry.Skipped>().groupBy { it.category }.mapValues { (_, v) -> v.sumOf { it.rows } }
+        val skips = report.entries.filterIsInstance<ReportEntry.Skipped>()
+        /** Skipped rows credited to [table]: attributed to it, or unattributed (credited to the whole category). */
+        fun skippedFor(category: LegacyCategory, table: String) = skips.filter { it.category == category && (it.table == null || it.table == table) }.sumOf { it.rows }
         for ((category, name) in STAGED_DATABASES) {
             if (name in present.map { it.second }) continue
-            val skipped = skippedByCategory[category] ?: 0
-            val missing = ROW_EXPECTATIONS.firstOrNull { it.category == category && it.readerEntities.sumOf(readerCount) - skipped > 0 }
+            val missing = ROW_EXPECTATIONS.firstOrNull { it.category == category && it.readerEntities.sumOf(readerCount) - skippedFor(category, it.table) > 0 }
             if (missing != null) fail("$category was not staged ($name is missing) but the legacy store has rows for ${missing.table}")
         }
 
@@ -128,7 +156,7 @@ class StagingValidator(private val databases: LegacyDatabaseFactory, private val
                     fail("$name does not open: ${e.message}", e)
                 }
                 try {
-                    checkDatabase(db, category, name, written, skippedByCategory, readerCount)
+                    checkDatabase(db, category, name, written, ::skippedFor, readerCount)
                 } catch (e: LegacyMigrationException) {
                     throw e
                 } catch (e: Exception) {
@@ -146,7 +174,7 @@ class StagingValidator(private val databases: LegacyDatabaseFactory, private val
         category: LegacyCategory,
         name: String,
         written: List<ReportEntry.Written>,
-        skippedByCategory: Map<LegacyCategory, Int>,
+        skippedFor: (LegacyCategory, String) -> Int,
         readerCount: (String) -> Int,
     ) {
         db.useReaderConnection { c ->
@@ -162,9 +190,9 @@ class StagingValidator(private val databases: LegacyDatabaseFactory, private val
                 actual[table] = count
                 if (count != rows) fail("$category.$table: $count rows staged but the report says $rows were written")
             }
-            val skipped = skippedByCategory[category] ?: 0
             for (expectation in ROW_EXPECTATIONS.filter { it.category == category }) {
                 val reader = expectation.readerEntities.sumOf(readerCount)
+                val skipped = skippedFor(category, expectation.table)
                 val rows = actual[expectation.table] ?: if (expectation.table in tables) {
                     c.usePrepared("SELECT COUNT(*) FROM `${expectation.table}`") { st -> check(st.step()); st.getLong(0).toInt() }
                 } else {
@@ -173,6 +201,12 @@ class StagingValidator(private val databases: LegacyDatabaseFactory, private val
                 }
                 if (rows < reader - skipped) fail("$category.${expectation.table}: $rows rows staged, legacy store has $reader and only $skipped were reported as skipped")
                 if (expectation.capped && rows > reader) fail("$category.${expectation.table}: $rows rows staged but the legacy store has only $reader")
+            }
+            for (rule in EQUAL_ROWS.filter { it.category == category }) {
+                suspend fun rowsOf(table: String): Int? = if (table !in tables) null else c.usePrepared("SELECT COUNT(*) FROM `$table`") { st -> check(st.step()); st.getLong(0).toInt() }
+                val mine = rowsOf(rule.table)
+                val theirs = rowsOf(rule.other)
+                if (mine != theirs) fail("$category.${rule.table}: $mine rows staged but ${rule.other} has $theirs (${rule.reason})")
             }
         }
     }
