@@ -1,0 +1,249 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.sharedui.assembly
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import net.bible.service.db.ALL_DB_FILENAMES
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.format.SaxTextPolicy
+import net.bible.service.sword.SwordContentFacade
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.android.control.speak.SpeakPlatform
+import net.bible.sharedlogic.fixtures.StartupFixture
+import net.bible.sharedlogic.platform.PromptPackSource
+import net.bible.sharedlogic.platform.ios.IosSwordEnvironment
+import net.bible.sharedlogic.startup.SharedAppStartup
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toPath
+import org.crosswire.common.util.Reporter
+import org.crosswire.jsword.book.Books
+import org.koin.core.module.Module
+import org.koin.dsl.koinApplication
+import org.koin.dsl.module
+import org.koin.mp.KoinPlatform
+import platform.Foundation.NSTemporaryDirectory
+import platform.Foundation.NSUUID
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+/**
+ * The I2 Stream C acceptance test: the real iOS bindings plus the shared bindings (and test doubles for the four
+ * sync ports) start on an empty sandbox, every definition resolves, the databases open off the main thread, and a
+ * real SWORD module is read through the real facade. Native only; runs on the Mac.
+ *
+ * All tests share ONE sandbox root (with the module fixture): JSword's home folder and book list are process-wide,
+ * so a second root would leave the first test's books registered. Each test gets empty databases instead.
+ */
+class IosAssemblyTest {
+    private val files = FileSystem.SYSTEM
+
+    private fun config(language: String? = "en") = IosAppConfig(root = sharedRoot, uiLanguage = language, repositories = org.crosswire.common.util.PropertyMap())
+    private val databaseDir: Path get() = sharedRoot / IosAppConfig.DATABASES_DIR
+    private val moduleDir: Path get() = sharedRoot / IosAppConfig.DOCUMENTS_DIR / "sword"
+
+    @BeforeTest
+    fun setUp() {
+        resetEverything()
+        files.deleteRecursively(databaseDir)
+    }
+
+    @AfterTest
+    fun tearDown() = resetEverything()
+
+    private fun resetEverything() {
+        runBlocking { IosAppStartup.resetForTest() }
+        files.deleteRecursively(databaseDir)
+    }
+
+    private fun startWithDoubles(language: String? = "en") =
+        IosAppStartup.start(config(language), extraModules = listOf(syncPortTestDoubles()))
+
+    @Test
+    fun startupResolvesTheGraphOpensDatabasesAndReadsAVerse() {
+        assertFalse(files.exists(databaseDir), "the sandbox starts without a database directory")
+        startWithDoubles()
+        val koin = KoinPlatform.getKoin()
+
+        val failures = koin.resolveAllDefinitions()
+        assertEquals(emptyList(), failures.map { it.first }, "unresolvable definitions:\n" + describeFailures(failures))
+
+        runBlocking { IosAppStartup.openDatabases() }
+        assertTrue(IosAppStartup.databasesOpen)
+        for (name in ALL_DB_FILENAMES) assertTrue(files.exists(databaseDir / name), "$name was not created in $databaseDir")
+
+        val book = assertNotNull(Books.installed().getBook("K4RawText"), "fixture module not installed from $moduleDir")
+        val text = SwordContentFacade.getCanonicalText(
+            book, book.getKey("Gen.1.1"), strings = koin.get(), saxTextPolicy = koin.get<SaxTextPolicy>(),
+        )
+        assertEquals("In the beginning God created the heaven and the earth.", text.trim())
+        assertNotNull(koin.get<SwordContentFacade>())
+    }
+
+    @Test
+    fun startOnAnEmptySandboxCreatesTheFoldersAndNeverTouchesTheDatabases() {
+        startWithDoubles()
+        assertTrue(files.exists(moduleDir), "module folder created by startup")
+        assertTrue(IosSwordEnvironment.isLoaded)
+        assertFalse(IosAppStartup.databasesOpen)
+        assertFalse(files.exists(databaseDir), "start() must not open or create any database (C2)")
+        // Settings answer their defaults until the databases are open (no DataBaseNotReady on the main thread).
+        val settings = KoinPlatform.getKoin().get<AppSettings>()
+        assertTrue(settings.getBoolean("never-set-key", true))
+        assertEquals("fallback", settings.getString("never-set-key", "fallback"))
+    }
+
+    @Test
+    fun startIsIdempotent() {
+        startWithDoubles()
+        val koin = KoinPlatform.getKoin()
+        val environment = koin.get<AppEnvironment>()
+        startWithDoubles()
+        assertTrue(koin === KoinPlatform.getKoin(), "a second start must not start a second Koin")
+        assertTrue(environment === KoinPlatform.getKoin().get<AppEnvironment>())
+
+        // One JSword error listener: one report shows exactly one dialog.
+        val dialogs = koin.get<AppDialogController>()
+        Reporter.informUser(this, "assembly test error")
+        val first = assertNotNull(dialogs.pending.value, "the error was not reported to the user")
+        dialogs.dismiss(first.id)
+        assertNull(dialogs.pending.value, "the error was reported twice: two listeners are registered")
+    }
+
+    @Test
+    fun theBookInstallWatcherStartedAndWritesToTheBackupDatabase() {
+        startWithDoubles()
+        assertTrue(IosSwordEnvironment.isLoaded, "StartupHooks.isSwordLoaded must be true after folder initialisation")
+        runBlocking { IosAppStartup.openDatabases() }
+        val koin = KoinPlatform.getKoin()
+        val book = assertNotNull(Books.installed().getBook("K4RawText"))
+
+        var reloaded = 0
+        val subscription = koin.get<PromptPackSource>().reloaded.subscribe { reloaded++ }
+        try {
+            // The watcher clears the add-on catalog on every install/uninstall, and the catalog tells PromptPackSource.
+            Books.installed().removeBook(book)
+            assertTrue(reloaded >= 1, "removing a book did not reach the watcher (it was not started)")
+            Books.installed().addBook(book)
+            assertTrue(reloaded >= 2, "adding a book did not reach the watcher")
+            // ... and records the book in the document backup database, in order, on the app scope.
+            val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+            val row = runBlocking {
+                var found = dao.getBook(book.initials)
+                var waited = 0
+                while (found == null && waited < 10_000) { delay(100); waited += 100; found = dao.getBook(book.initials) }
+                found
+            }
+            assertNotNull(row, "the watcher did not record ${book.initials} in the backup database")
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test
+    fun speakPhrasesForFinnishComeOutFinnish() {
+        startWithDoubles()
+        val speak = KoinPlatform.getKoin().get<SpeakPlatform>()
+        // Expected values are the literal `speak_first` of values/strings.xml and values-fi/strings.xml.
+        assertEquals("First", speak.phrasesFor("en").first)
+        assertEquals("Ensimmäinen", speak.phrasesFor("fi").first)
+        assertEquals("Ensimmäinen", speak.phrasesFor("fi-FI").first, "a region variant falls back to the language")
+        assertEquals("First", speak.phrasesFor("xx").first, "an unknown language falls back to English")
+    }
+
+    @Test
+    fun theConfiguredUiLanguageDrivesTheBoundStringTables() {
+        startWithDoubles(language = "fi")
+        val labels = KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.LabelNameStrings>()
+        // Literal values of values-fi/strings.xml (speak, label_unlabelled).
+        assertEquals("Puhe", labels.speak)
+        assertEquals("Ei kirjanmerkkiryhmää", labels.unlabelled)
+    }
+
+    @Test
+    fun theEnglishConfigGivesEnglishStrings() {
+        startWithDoubles(language = "en")
+        val labels = KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.LabelNameStrings>()
+        assertEquals("Speak", labels.speak)
+        assertEquals("Unlabelled", labels.unlabelled)
+    }
+
+    @OptIn(org.koin.core.annotation.KoinInternalApi::class)
+    @Test
+    fun boundPortListMatchesTheModule() {
+        startWithDoubles()
+        val koin = KoinPlatform.getKoin()
+        // Every declared port resolves from the running graph ...
+        val unresolved = IOS_BOUND_PORT_TYPES.filter { type -> runCatching { koin.get<Any>(type) }.isFailure }
+        assertEquals(emptyList(), unresolved.map { it.qualifiedName }, "declared ports that do not resolve")
+        // ... and the platform module binds nothing that the declared list does not name (concrete helpers excepted).
+        val module = buildIosPlatformBindings(config())
+        val bound = module.mappings.values.flatMap { f -> listOf(f.beanDefinition.primaryType) + f.beanDefinition.secondaryTypes }.toSet()
+        val undeclared = bound - IOS_BOUND_PORT_TYPES.toSet() - IOS_CONCRETE_BINDINGS
+        assertEquals(emptyList(), undeclared.map { it.qualifiedName }, "bound by IosPlatformBindings but missing from IOS_BOUND_PORT_TYPES")
+    }
+
+    @Test
+    fun theResolveAllHelperReportsEveryFailureByName() {
+        class Broken
+        class Fine
+        val koin = koinApplication {
+            modules(module {
+                single { Fine() }
+                single<Broken> { error("boom from the broken definition") }
+                factory<Module> { (n: Int) -> error("never: $n") } // a parameterised factory that is NOT documented
+            })
+        }.koin
+        val failures = koin.resolveAllDefinitions(parameterised = emptyMap())
+        val names = failures.map { it.first }
+        assertTrue(names.any { it.contains("Broken") }, "Broken not reported: $names")
+        assertTrue(names.none { it.contains("Fine") }, "Fine wrongly reported: $names")
+        assertTrue(names.any { it.contains("Module") }, "an undocumented parameterised factory must be reported, not skipped: $names")
+        assertTrue(failures.first { it.first.contains("Broken") }.second.message.orEmpty().contains("boom from the broken definition"),
+            "the message must carry the root cause")
+    }
+
+    private companion object {
+        /** Concrete platform classes the module binds beside the ports (not part of the shared-graph contract). */
+        val IOS_CONCRETE_BINDINGS: Set<kotlin.reflect.KClass<*>> = setOf(
+            net.bible.sharedcore.platform.IosAppEnvironment::class,
+            net.bible.sharedcore.platform.IosDeviceSettings::class,
+            net.bible.sharedcore.http.IosHttpClients::class,
+        )
+
+        /** One sandbox for the whole class, created (with the module fixture) on first use. */
+        val sharedRoot: Path by lazy {
+            val root = (NSTemporaryDirectory().trimEnd('/') + "/andbible-assembly-" + NSUUID().UUIDString).toPath()
+            val sword = root / IosAppConfig.DOCUMENTS_DIR / "sword"
+            StartupFixture.files.forEach { (name, bytes) ->
+                val target = sword / name
+                FileSystem.SYSTEM.createDirectories(target.parent!!)
+                FileSystem.SYSTEM.write(target) { write(bytes) }
+            }
+            root
+        }
+    }
+}
