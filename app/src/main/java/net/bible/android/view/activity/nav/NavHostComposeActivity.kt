@@ -152,7 +152,10 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.nav.ports.AndroidBookmarkHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidChooserHostPlatform
+import net.bible.android.view.activity.nav.ports.AndroidLabelIcons
+import net.bible.android.view.activity.nav.ports.AndroidStudyPadExportPlatform
 import net.bible.android.view.activity.nav.ports.AndroidDocumentDialogs
 import net.bible.android.view.activity.nav.ports.AndroidDocumentPicker
 import net.bible.android.view.activity.nav.ports.AndroidHelpDialogs
@@ -176,7 +179,10 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DocumentConfiguration
 import net.bible.service.download.PseudoBook
 import net.bible.android.view.activity.download.installedDocument
-import net.bible.android.view.activity.bookmark.BookmarkCsvFlow
+import net.bible.android.view.activity.bookmark.CloudFiltersValue
+import net.bible.android.view.activity.bookmark.MyDocumentPagesValue
+import net.bible.android.view.activity.bookmark.MyDocumentsSearchValue
+import net.bible.sharedui.app.bookmark.BookmarkDocumentsRecreation
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditContract
 import net.bible.android.view.activity.bookmark.LabelEditMapper
@@ -494,6 +500,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         helpDialogs = AndroidHelpDialogs(this),
         welcomePlatform = { welcomeFlow },
         chooserPlatform = { AndroidChooserHostPlatform(this) },
+        labelIcons = AndroidLabelIcons(),
+        studyPadExport = AndroidStudyPadExportPlatform(this),
+        bookmarkPlatform = { AndroidBookmarkHostPlatform(this) },
     )
 
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
@@ -503,6 +512,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     override val hostScope: CoroutineScope get() = lifecycleScope
     override fun exitHost() = finish()
     override fun setWindowTitle(title: String) { setTitle(title) }
+    override val windowTitle: String get() = title?.toString().orEmpty()
     override fun recreateHost() = recreate()
     override fun openReading() {
         startActivity(
@@ -2983,10 +2993,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * [onCreate] only does for that route.
      */
     override fun onSaveInstanceState(outState: Bundle) {
-        runCatching {
-            CommonUtils.json.encodeToString(BookmarkRecreationState.serializer(), bookmarkRecreationSnapshot())
-        }.onSuccess { outState.putString(STATE_BOOKMARK_RECREATION, it) }
-            .onFailure { Log.w(TAG_BOOKMARKS, "Not saving bookmark recreation state", it) }
         pendingMyDocumentExports.saveTo(outState)
         if (::appHosts.isInitialized) {
             runCatching { CommonUtils.json.encodeToString(AppHostsState.serializer(), appHosts.saveState()) }
@@ -3229,11 +3235,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // A state loss is recoverable; a launch crash loop is not.
-        restoredBookmarks = savedInstanceState?.getString(STATE_BOOKMARK_RECREATION)?.let {
-            runCatching { CommonUtils.json.decodeFromString(BookmarkRecreationState.serializer(), it) }
-                .onFailure { Log.w(TAG_BOOKMARKS, "Ignoring unreadable bookmark recreation state", it) }
-                .getOrNull()
-        }
         pendingMyDocumentExports.restoreFrom(savedInstanceState)
         initRoute = savedInstanceState?.getString(STATE_START_ROUTE) ?: intent.getStringExtra(EXTRA_ROUTE)
         initialisedAfterStart = savedInstanceState?.getBoolean(STATE_INITIALISED_AFTER_START, false) ?: false
@@ -3609,76 +3610,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 val searchDeps = remember { appHosts.search.navDeps(navController) }
                 val settingsDeps = remember { appHosts.settings.navDeps(navController, readingProgressResults) }
                 val bookmarkDeps = remember {
-                    BookmarkNavDeps(
-                        exitHost = { finish() },
-                        setWindowTitle = { title -> setTitle(title) },
-                        bookmarkResults = bookmarkResults,
-                        manageLabelsResults = manageLabelsResults,
-                        labelEditResults = labelEditResults,
-                        bookmarks = BookmarksDeps(
-                            // A HOST-memoised factory, not a per-entry one -- see
-                            // BookmarksDeps.controllerFor: this controller holds the user's
-                            // multi-selection, and the label manager they assign it with sits on top
-                            // of this destination.
-                            controllerFor = { initialFilterIndex, onSelectBookmark, navigateToManageLabels ->
-                                bookmarksControllerFor(initialFilterIndex, onSelectBookmark, navigateToManageLabels)
-                            },
-                            // Classic carried this as android:label on the host; one host now serves
-                            // every cluster. Same string the screen draws in its own top bar.
-                            title = getString(R.string.bookmarks_and_mynotes_title),
-                            subscribeSyncEvents = { onBookmarksChanged ->
-                                subscribeBookmarksUpdated(onBookmarksChanged)
-                            },
-                        ),
-                        manageLabels = ManageLabelsDeps(
-                            // A HOST-memoised factory, not a per-entry one — see
-                            // ManageLabelsDeps.controllerFor: this controller must survive the label
-                            // editor sitting on top of its destination.
-                            controllerFor = { data, onEditLabel, onResult ->
-                                manageLabelsControllerFor(data, onEditLabel, onResult)
-                            },
-                            // Classic's `getString(data.titleId)` (`:170`): an Android string
-                            // resource id carried INSIDE the route payload, which commonMain cannot
-                            // resolve. One of four, by mode.
-                            titleFor = { data ->
-                                getString(ManageLabelsContract.ManageLabelsData.fromJSON(data).titleId)
-                            },
-                            onLabelEditResult = { result -> applyLabelEditResult(result) },
-                            initialSearchMode = {
-                                CommonUtils.settings.getInt(
-                                    MANAGE_LABELS_SEARCH_MODE_KEY,
-                                    SearchMode.NAME_START.ordinal,
-                                )
-                            },
-                            iconSlot = { customIcon, tint, studyPadMode ->
-                                ManageLabelIcon(customIcon, tint, studyPadMode)
-                            },
-                            actions = { controller -> ManageLabelsActions(controller) },
-                            searchActions = { controller ->
-                                NewLabelIcon(onClick = controller::newLabel)
-                            },
-                        ),
-                        labelEdit = LabelEditDeps(
-                            // A factory, one controller per back-stack entry — and the place the
-                            // controller's three outcomes become the nav result's two.
-                            controllerFor = { data, onResult -> labelEditControllerFor(data, onResult) },
-                            // Classic carried this as android:label="@string/edit_label" on the
-                            // host; one host now serves every cluster. Same string the screen draws
-                            // in its own top bar.
-                            title = getString(R.string.edit_label),
-                            // Classic's `remember { customIconMap.keys.toList() + null }` — a pure
-                            // constant, so it is built once here instead of per composition. The
-                            // trailing null is the "no custom icon" cell.
-                            iconKeys = customIconMap.keys.toList() + null,
-                            iconSlot = { name, tint -> AndroidLabelIcon(name, tint) },
-                            actions = { data, state, onSave, onDelete ->
-                                LabelEditActions(data, state, onSave, onDelete)
-                            },
-                            deletePromptSlot = { prompt, labelName, onConfirm, onDismiss ->
-                                LabelEditDeletePrompt(prompt, labelName, onConfirm, onDismiss)
-                            },
-                        ),
-                    )
+                    appHosts.bookmark.navDeps(navController, bookmarkResults, manageLabelsResults, labelEditResults)
                 }
                 val downloadDeps = remember {
                     DownloadNavDeps(
@@ -3926,127 +3858,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     readingGraph = { readingNavGraph(navController, readingNavDeps) },
                     overlays = {
                     InstallZipReturnCollector()
-                    // CR-5: the bookmark list's claim on a label-manager answer. Host-level, outside the
-                    // NavHost, for InstallZipReturnCollector's reason: the arm that asked is disposed while
-                    // the label manager is on top, and the settings arm (which shares this channel) may be
-                    // the resumed destination when the answer arrives. An arm-local consume would miss it,
-                    // leave it pending, and apply it stale the next time the list composed.
-                    BookmarksManageLabelsCollector()
-
-                    // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
-                    // lifecycleScope and outlives the destination that started it, so a chooser scoped
-                    // to that destination's composition could be disposed mid-await and leave the
-                    // export hanging on a deferred nobody can complete. Verbatim from classic
-                    // `LabelEditComposeActivity.kt:128-153`, including the no-Cancel-row shape (round
-                    // 14a G2.9): dismissing IS "chose nothing", completing with null.
-                    // The label manager's help dialog and StudyPad-export multiselect, host-level for
-                    // `destinationRequest`'s reason above and for one of their own: both are raised from
-                    // the ManageLabels top-bar overflow, which is a `RowScope` slot inside the nav
-                    // graph's top app bar — a sheet composed there would be a child of the bar's own
-                    // layout.
-                    //
-                    // ORDER IS LOAD-BEARING, and this is the correction of a justification that used to
-                    // stand here claiming the opposite. The two booleans are read UNCONDITIONALLY, with
-                    // the plain-field [manageLabelsSession] looked up INSIDE each branch — never the
-                    // other way round. `manageLabelsSession` is NOT snapshot state, so a scope that can
-                    // only reach the booleans through a `?.let` on it registers no dependency on them
-                    // whenever the field is null at the moment this lambda composes. This lambda
-                    // composes ONCE per Activity (NavHost's own recompositions do not invalidate it),
-                    // and when the host is launched on `bookmarks` and the user navigates to the label
-                    // manager from there (`MenuCommandHandler.kt:207`), the field IS null then — so the
-                    // overflow's Help and Export StudyPads items would flip a boolean nobody observes
-                    // and open nothing. Reading the state first makes the subscription unconditional;
-                    // the plain-field read inside is safe because it runs only when a boolean is true,
-                    // and only a LIVE ManageLabels destination's overflow can make one true.
-                    // `ManageLabelsOverflowSubscriptionTest` proves both halves — do not re-nest these.
-                    if (manageLabelsHelpOpen) {
-                        manageLabelsSession?.second?.let { session ->
-                            ManageLabelsHelpDialog(
-                                mode = session.controller.mode,
-                                title = getString(session.data.titleId),
-                                // Classic showed this only for WORKSPACE and HIDE, the two scoped
-                                // settings (`ManageLabelsComposeActivity.kt:254-263`).
-                                scopeSentence = if (
-                                    session.controller.mode == ManageLabelsMode.WORKSPACE ||
-                                    session.controller.mode == ManageLabelsMode.HIDELABELS
-                                ) {
-                                    getString(
-                                        R.string.setting_scope,
-                                        getString(
-                                            if (session.data.isWindow) R.string.setting_scope_window
-                                            else R.string.setting_scope_workspace,
-                                        ),
-                                    )
-                                } else null,
-                                // STUDYPAD keeps its own playlist; the other three modes use the
-                                // Labels & Bookmarks one. Don't collapse this to one URL.
-                                readMoreUrl = if (session.controller.mode == ManageLabelsMode.STUDYPAD) {
-                                    studyPadsVideo
-                                } else {
-                                    labelsAndBookmarksPlaylist
-                                },
-                                onDismiss = { manageLabelsHelpOpen = false },
-                            )
-                        }
-                    }
-
-                    // Classic `ManageLabelsComposeActivity.kt:218-248` (the export_studypads menu
-                    // handler): a multiselect over every assignable label, then exportStudyPads for
-                    // the chosen ones. The `manageLabelsSession != null` half keeps the old gate ("only
-                    // while a label manager is live") without putting the session read in FRONT of the
-                    // boolean — see the note above; `&&` short-circuits left to right, so the state is
-                    // still read on every composition of this scope.
-                    if (manageLabelsExportOpen && manageLabelsSession != null) {
-                        val loadedExportableLabels by produceState<List<BookmarkEntities.Label>?>(null, manageLabelsExportOpen) { value = bookmarkControl.assignableLabels() }
-                        // Not shown until the list has loaded, so it never opens with an empty option list.
-                        val exportableLabels = loadedExportableLabels
-                        if (exportableLabels != null) AbMultiSelectSheet(
-                            open = true,
-                            title = getString(R.string.export_something, getString(R.string.studypads)),
-                            options = exportableLabels,
-                            selectedIds = emptyList(),
-                            idOf = { it.id.toString() },
-                            labelOf = { it.displayName },
-                            confirmText = getString(R.string.okay),
-                            dismissText = getString(R.string.cancel),
-                            onConfirm = { ids ->
-                                manageLabelsExportOpen = false
-                                val selected = exportableLabels.filter { ids.contains(it.id.toString()) }
-                                if (selected.isNotEmpty()) {
-                                    lifecycleScope.launch(Dispatchers.Main) {
-                                        exportStudyPads(
-                                            this@NavHostComposeActivity,
-                                            *selected.toTypedArray(),
-                                            chooseDestination = ::askDestination,
-                                        )
-                                    }
-                                }
-                            },
-                            onDismiss = { manageLabelsExportOpen = false },
-                            selectAllText = getString(R.string.select_all),
-                            selectNoneText = getString(R.string.select_none),
-                        )
-                    }
-
-                    destinationRequest?.let { req ->
-                        AbActionSheet(
-                            open = true,
-                            title = getString(R.string.export_destination_title),
-                            message = getString(R.string.export_destination_message),
-                            onDismiss = { req.complete(null) },
-                        ) {
-                            AbActionSheetRow(
-                                label = getString(R.string.share),
-                                onClick = { req.complete(SaveOrShare.SHARE) },
-                                icon = { Icon(painterResource(R.drawable.ic_baseline_share_24), contentDescription = null) },
-                            )
-                            AbActionSheetRow(
-                                label = getString(R.string.backup_phone_storage),
-                                onClick = { req.complete(SaveOrShare.SAVE) },
-                                icon = { Icon(painterResource(R.drawable.ic_save_24dp), contentDescription = null) },
-                            )
-                        }
-                    }
+                    // The bookmark cluster's host-level collector and sheets (BookmarkHost.Overlays), in the order they had here.
+                    appHosts.Overlays()
 
                     AppDialogOverlay(
                         onSheetOpening = {
@@ -4065,1032 +3878,37 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
-    // --- Bookmarks host baggage ----------------------------------------------------------------
-    // Ported from BookmarksComposeActivity (which a later task deletes). Everything here needs a
-    // `:app` type the graph cannot see -- the Room bookmark entities behind the rows, BookmarkControl,
-    // SpeakControl, the workspace settings, an `Activity` for the CSV chooser, and an
-    // `android.app.AlertDialog` -- which is the line that decides what is a deps slot and what is not.
-
-    @kotlinx.serialization.Serializable
-    private data class BookmarkRecreationState(
-        val filter: Int? = null,
-        val list: net.bible.android.view.activity.bookmark.BookmarksValue? = null,
-        val pendingAssignIds: List<String>? = null,
-        val awaitingManager: Boolean = false,
-        val managerKey: String? = null,
-        val manager: net.bible.android.view.activity.bookmark.ManageLabelsValue? = null,
-        val labels: List<BookmarkEntities.Label> = emptyList(),
-        val pendingLabel: BookmarkEntities.Label? = null,
-        val pendingLabelIsNew: Boolean = false,
-        val editorKey: String? = null,
-        val editorDraft: net.bible.android.view.activity.bookmark.LabelDraftValue? = null,
-        val documentsSearch: net.bible.android.view.activity.bookmark.MyDocumentsSearchValue? = null,
-        val pages: net.bible.android.view.activity.bookmark.MyDocumentPagesValue? = null,
-        val cloudFilters: net.bible.android.view.activity.bookmark.CloudFiltersValue? = null,
-    )
+    // --- Bookmark cluster (BookmarkHost) ---------------------------------------------------------
+    // The bookmark list's, the label manager's and the label editor's deps, sessions, controllers and overlays live in
+    // `appHosts.bookmark` (`:sharedUi`, `net.bible.sharedui.app.bookmark`). The three result channels stay declared
+    // below: the reading destination's collectors read `bookmarkResults` and `manageLabelsResults`, and the channel
+    // guards read these declarations.
 
     /**
-     * The value snapshot [onCreate] decoded from the saved state: a fallback each destination consumes when
-     * it re-composes, and which later saves keep carrying until then. The manager/editor fields are cleared
-     * at their exits; [BookmarkRecreationState.list] and [BookmarkRecreationState.documentsSearch] are not,
-     * because those roots are never re-entered (one session per host).
+     * The My Documents screens' share of the bookmark recreation snapshot. Their sessions are still this
+     * Activity's until the My Documents lift, so `BookmarkHost` reads them through `AndroidBookmarkHostPlatform`.
+     * Null parts mean "not on screen"; the host then keeps what the saved state carried.
      */
-    private var restoredBookmarks: BookmarkRecreationState? = null
-    private var labelEditSession: Pair<String, LabelEditController>? = null
-
-    private fun bookmarkRecreationSnapshot(): BookmarkRecreationState {
-        // A manager whose Save has started must not be offered again: the restored working set would still
-        // hold new=true labels and a second Save would insert them twice.
-        val savingManager = manageLabelsSession?.second?.writes?.isStarted == true
-        val manager = manageLabelsSession?.takeUnless { savingManager }
-        val bookmarks = bookmarksSession
-        val editor = labelEditSession
-        return BookmarkRecreationState(
-            filter = bookmarks?.first ?: restoredBookmarks?.filter,
-            list = bookmarks?.second?.controller?.snapshot()?.let {
-                net.bible.android.view.activity.bookmark.BookmarksValue.from(it)
-            } ?: restoredBookmarks?.list,
-            pendingAssignIds = if (bookmarks != null) bookmarks.second.let {
-                it.pendingAssign?.map { b -> b.id.toString() } ?: it.restoredAssignIds
-            } else restoredBookmarks?.pendingAssignIds,
-            awaitingManager = bookmarks?.second?.awaitingManageLabels ?: (restoredBookmarks?.awaitingManager == true),
-            managerKey = manager?.first ?: restoredBookmarks?.managerKey.takeIf { manageLabelsSession == null },
-            manager = manager?.second?.controller?.snapshot()?.let {
-                net.bible.android.view.activity.bookmark.ManageLabelsValue.from(it)
-            } ?: restoredBookmarks?.manager.takeIf { manageLabelsSession == null },
-            // Only labels the user changed need the Bundle; every other one is reloaded from the database.
-            labels = manager?.second?.let { m ->
-                val changedIds = m.controller.resultChanged()
-                m.labelsById.filterKeys { it in changedIds }.values.toList()
-            } ?: restoredBookmarks?.labels.orEmpty().takeIf { manageLabelsSession == null }.orEmpty(),
-            pendingLabel = manager?.second?.pendingEdit?.label ?: if (manageLabelsSession == null) restoredBookmarks?.pendingLabel else null,
-            pendingLabelIsNew = manager?.second?.pendingEdit?.isNew ?: (manageLabelsSession == null && restoredBookmarks?.pendingLabelIsNew == true),
-            editorKey = editor?.first,
-            editorDraft = editor?.second?.state?.value?.let {
-                net.bible.android.view.activity.bookmark.LabelDraftValue.from(it)
-            },
-            documentsSearch = myDocumentsSession?.takeIf { it.loaded }?.controller?.searchSnapshot()?.let {
-                net.bible.android.view.activity.bookmark.MyDocumentsSearchValue(it.query, it.searchOpen, it.selectedInitials)
-            } ?: restoredBookmarks?.documentsSearch,
-            pages = myDocumentPagesSession?.takeIf { it.loaded && isOnRoute(NavRoutes.MY_DOCUMENT_PAGES_PATTERN) }?.let { session ->
-                val snapshot = session.controller.snapshot()
-                val idByToken = myDocumentPagesEntityByLong.mapValues { it.value.id.toString() }
-                net.bible.android.view.activity.bookmark.MyDocumentPagesValue(
-                    session.documentId, snapshot.query, snapshot.searchOpen,
-                    snapshot.selection.mapNotNull { idByToken[it] }.toSet(),
-                )
-            } ?: restoredBookmarks?.pages,
-            // The entry belongs to the screen only while it is on top; a stale entry from an earlier visit is not saved.
-            cloudFilters = cloudDocumentsEntryRef?.takeIf { isOnRoute(NavRoutes.CLOUD_DOCUMENTS_PATTERN) }?.controller?.filterSnapshot()?.let {
-                net.bible.android.view.activity.bookmark.CloudFiltersValue(it.status, it.category)
-            } ?: restoredBookmarks?.cloudFilters,
-        )
-    }
+    internal fun bookmarkDocumentsRecreation() = BookmarkDocumentsRecreation(
+        documentsSearch = myDocumentsSession?.takeIf { it.loaded }?.controller?.searchSnapshot()?.let {
+            MyDocumentsSearchValue(it.query, it.searchOpen, it.selectedInitials)
+        },
+        pages = myDocumentPagesSession?.takeIf { it.loaded && isOnRoute(NavRoutes.MY_DOCUMENT_PAGES_PATTERN) }?.let { session ->
+            val snapshot = session.controller.snapshot()
+            val idByToken = myDocumentPagesEntityByLong.mapValues { it.value.id.toString() }
+            MyDocumentPagesValue(
+                session.documentId, snapshot.query, snapshot.searchOpen,
+                snapshot.selection.mapNotNull { idByToken[it] }.toSet(),
+            )
+        },
+        // The entry belongs to the screen only while it is on top; a stale entry from an earlier visit is not saved.
+        cloudFilters = cloudDocumentsEntryRef?.takeIf { isOnRoute(NavRoutes.CLOUD_DOCUMENTS_PATTERN) }?.controller?.filterSnapshot()?.let {
+            CloudFiltersValue(it.status, it.category)
+        },
+    )
 
     private fun isOnRoute(pattern: String): Boolean =
         navController?.currentDestination?.route?.substringBefore('?') == pattern.substringBefore('?')
-
-    /**
-     * The memo behind [BookmarksDeps.controllerFor], and the in-flight state of whichever label-manager
-     * round trip is open.
-     *
-     * [pendingAssign] is what makes ONE result channel serve classic's TWO round trips: the assign one
-     * (`BookmarksComposeActivity.kt:199-223`) has to write the returned label set onto the bookmarks the
-     * user had selected when it started, and the manage one (`:257-271`) only updates the workspace. A
-     * `ManageLabelsResult` carries the returned JSON and nothing else, so the DISTINCTION has to be
-     * remembered at the point the payload was built -- which is here, the same shape
-     * [ManageLabelsSession.pendingEdit] uses for the editor round trip one level down. The bookmark
-     * ENTITIES are held rather than their ids because that is what classic held across its own
-     * `awaitIntent`; re-resolving ids afterwards would depend on the list not having reloaded meanwhile.
-     */
-    private class BookmarksSession {
-        lateinit var controller: BookmarksController
-        var restoredAssignIds: List<String>? = null
-        var pendingAssign: List<BookmarkEntities.BaseBookmarkWithNotes>? = null
-
-        /**
-         * CR-5: this list navigated to the label manager and its answer has not been applied yet.
-         * Snapshot state, not a plain field: the host-level collector composes once per Activity and
-         * must recompose when a request starts, which can only happen after that composition.
-         */
-        var awaitingManageLabels by mutableStateOf(false)
-    }
-
-    /**
-     * The bookmark list's memoised session, keyed on the route's filter index exactly as
-     * [manageLabelsSession] is keyed on its payload -- so a route naming a DIFFERENT label filter can
-     * never be served the previous list's controller. (No live edge re-navigates this host to a second
-     * bookmarks route today, since `BOOKMARKS_PATTERN` is a root destination reached only as the
-     * host's start destination; the key costs one word and removes the trap rather than relying on
-     * that staying true.)
-     *
-     * Unlike [manageLabelsSession] it is never DROPPED, and that is this destination's shape: being a
-     * root destination, it has no re-entry for a stale session to be resumed by, and the host dies
-     * with it. Dropping it at its exit would be a reload of a list that is about to disappear.
-     */
-    /**
-     * Snapshot state, not a plain field: [BookmarksManageLabelsCollector] composes once per Activity
-     * and must recompose when a session appears after that composition. A plain field read inside a
-     * `?.let` registers no dependency when it is null, which is exactly the launch-on-bookmarks case
-     * the comment above `manageLabelsHelpOpen` documents.
-     */
-    private var bookmarksSession: Pair<Int, BookmarksSession>? by mutableStateOf(null)
-
-    /**
-     * Classic `BookmarksComposeActivity`'s `controller` (`:79-91`) plus its `onCreate` side effects
-     * (`:95`), memoised on [bookmarksSession] -- see [BookmarksDeps.controllerFor] for why this
-     * controller must survive the label manager sitting on top of its destination.
-     *
-     * The three lambdas that are NOT parameters here are the ones classic also kept private to the
-     * host: CSV export/import (they hand `this` to `BookmarkControl`, which wants an `Activity`) and
-     * the delete confirmation (an `android.app.AlertDialog`; converting platform dialogs is a
-     * separate, queued port goal). Each of them ends by refreshing the controller being built, which
-     * is why they close over [BookmarksSession] rather than being deps slots the arm would have to
-     * hand a self-reference to.
-     */
-    private fun bookmarksControllerFor(
-        initialFilterIndex: Int,
-        onSelectBookmark: (BookmarkResult) -> Unit,
-        navigateToManageLabels: (payload: String) -> Unit,
-    ): BookmarksController {
-        bookmarksSession?.let { (key, existing) -> if (key == initialFilterIndex) return existing.controller }
-
-        // Classic `BookmarksComposeActivity.onCreate` (`:95`). Once per opening of the list, as there.
-        CommonUtils.settings.setLong("bookmarks-last-used", System.currentTimeMillis())
-
-        val session = BookmarksSession()
-        restoredBookmarks?.takeIf { it.filter == initialFilterIndex }?.let {
-            session.restoredAssignIds = it.pendingAssignIds
-            session.awaitingManageLabels = it.awaitingManager
-        }
-        session.controller = BookmarksController(
-            service = bookmarksService,
-            scope = lifecycleScope,
-            initialFilterIndex = initialFilterIndex,
-            onSelectBookmark = { id, listPosition ->
-                val labelNo = session.controller.selectedFilterIndex.value
-                lifecycleScope.launch {
-                    bookmarkResultFor(id, listPosition, labelNo)?.let(onSelectBookmark)
-                }
-            },
-            onAssignLabels = { ids -> requestAssignLabels(session, ids, navigateToManageLabels) },
-            onDeleteSelected = { ids -> confirmDeleteBookmarks(session, ids) },
-            onExportCsv = { exportBookmarksCsv(session) },
-            onImportCsv = { importBookmarksCsv(session) },
-            onManageLabels = { requestManageLabels(session, navigateToManageLabels) },
-            restored = restoredBookmarks?.takeIf { it.filter == initialFilterIndex }?.list?.toSnapshot(),
-        )
-        bookmarksSession = initialFilterIndex to session
-        return session.controller
-    }
-
-    /**
-     * The half of classic `onSelectBookmark` (`BookmarksComposeActivity.kt:165-187`) that decides WHAT
-     * the result says; how it LEAVES is [bookmarkResults]'. Returns null when there is nothing to
-     * report -- an id with no loaded bookmark behind it (classic's `?: return`), or the failure its
-     * `try` caught.
-     *
-     * The `try` is classic's, split with the body it wrapped: what can throw here is the speak lookup
-     * and `verseRange.start.osisID`, and what can throw there is the history/`setResult` pair. Both
-     * halves keep the same log-and-toast, so a user sees exactly what classic showed them either way.
-     *
-     * [labelNo] is passed in rather than read off [BookmarksSession] so that this stays a function of
-     * what the caller saw: it is `controller.selectedFilterIndex.value` at the moment of the tap,
-     * which is what classic put in the extra (`:185`).
-     */
-    private suspend fun bookmarkResultFor(id: String, listPosition: Int, labelNo: Int): BookmarkResult? {
-        val bookmark = bookmarksService.bookmarkById(id) ?: return null
-        Log.i(TAG_BOOKMARKS, "Bookmark selected:$bookmark")
-        return try {
-            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
-                speakControl.speakFromBookmark(bookmark)
-            }
-            // `title` is the HOST WINDOW's title, which the arm's LaunchedEffect has already set to
-            // this destination's -- the same CharSequence classic read off its own Activity (`:184`).
-            val description = title?.toString().orEmpty()
-            when (bookmark) {
-                is BookmarkEntities.BibleBookmarkWithNotes -> BookmarkResult(
-                    verse = bookmark.verseRange.start.getOsisID(),
-                    description = description,
-                    labelNo = labelNo,
-                    listPosition = listPosition,
-                )
-                is BookmarkEntities.GenericBookmarkWithNotes -> BookmarkResult(
-                    key = bookmark.key,
-                    book = bookmark.book?.initials,
-                    ordinal = bookmark.ordinalStart,
-                    description = description,
-                    labelNo = labelNo,
-                    listPosition = listPosition,
-                )
-                else -> null
-            }
-        } catch (e: Exception) {
-            Log.e(TAG_BOOKMARKS, "Error on bookmarkSelected", e)
-            Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-            null
-        }
-    }
-
-    /**
-     * Classic `assignLabels` (`BookmarksComposeActivity.kt:199-214`) up to the point it launched the
-     * Intent: the Room read that collects every label already on the selected bookmarks, on
-     * `Dispatchers.IO` exactly as classic ran it, then the ASSIGN-mode payload. The navigation itself
-     * is the arm's, so it is handed back on the MAIN thread -- `navController.navigate` is not
-     * thread-safe and classic's `awaitIntent` was reached from a main-dispatched continuation.
-     */
-    private fun requestAssignLabels(
-        session: BookmarksSession,
-        ids: List<String>,
-        navigateToManageLabels: (payload: String) -> Unit,
-    ) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val bookmarks = bookmarksService.bookmarksByIds(ids)
-            val labels = mutableSetOf<IdType>()
-            for (bookmark in bookmarks) {
-                labels.addAll(bookmarkControl.labelsForBookmark(bookmark).map { it.id })
-            }
-            val payload = ManageLabelsContract.ManageLabelsData(
-                mode = ManageLabelsContract.Mode.ASSIGN,
-                selectedLabels = labels,
-            ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
-            withContext(Dispatchers.Main) {
-                session.pendingAssign = bookmarks
-                session.restoredAssignIds = null
-                session.awaitingManageLabels = true
-                navigateToManageLabels(payload)
-            }
-        }
-    }
-
-    /** Classic `manageLabels` (`:257-265`): the WORKSPACE-mode payload, and no pending assignment. */
-    private fun requestManageLabels(
-        session: BookmarksSession,
-        navigateToManageLabels: (payload: String) -> Unit,
-    ) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            val payload = ManageLabelsContract.ManageLabelsData(
-                mode = ManageLabelsContract.Mode.WORKSPACE,
-            ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
-            session.pendingAssign = null
-            session.restoredAssignIds = null
-            session.awaitingManageLabels = true
-            navigateToManageLabels(payload)
-        }
-    }
-
-    /**
-     * Both of classic's label-manager continuations, joined at the one channel the arm consumes:
-     * `assignLabels`' (`:215-222`) and `manageLabels`' (`:266-270`). Which one runs is decided by the
-     * [BookmarksSession.pendingAssign] recorded when the payload was built, not by anything in the
-     * result -- see that field's kdoc.
-     *
-     * There is no `RESULT_OK` guard, and none is missing: classic's was always true on this edge,
-     * because the label manager has no cancel path at all (its Back press SAVES) and every exit it
-     * has delivers a result. A user who backs out of it has, by classic's own design, saved.
-     */
-    private fun applyBookmarksManageLabelsResult(result: ManageLabelsResult) {
-        val session = bookmarksSession?.second ?: return
-        val bookmarks = session.pendingAssign
-        val restoredIds = session.restoredAssignIds
-        session.pendingAssign = null
-        session.restoredAssignIds = null
-        session.awaitingManageLabels = false
-
-        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
-        if (bookmarks != null || restoredIds != null) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                val targets = bookmarks ?: restoredIds.orEmpty().mapNotNull { id ->
-                    bookmarkControl.bibleBookmarkById(IdType(id)) ?: bookmarkControl.genericBookmarkById(IdType(id))
-                }
-                // The owner hydrates each bookmark and announces the batch once (F54).
-                bookmarkControl.changeLabelsForBookmarks(targets, resultData.selectedLabels.toList())
-                windowControl.windowRepository.updateRecentLabels(resultData.selectedLabels.toList())
-                windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
-                withContext(Dispatchers.Main) { session.controller.refresh() }
-            }
-        } else {
-            windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
-            session.controller.refresh()
-        }
-    }
-
-    /**
-     * Classic `onDelete` (`BookmarksComposeActivity.kt:227-240`), minus the confirmation: the
-     * question now lives in `BookmarksController.dialog` (Task 13), and this runs only once the
-     * controller's own `confirmDialog()` has confirmed it -- this stays host-side because it needs
-     * the Room entities behind the selected ids.
-     */
-    private fun confirmDeleteBookmarks(session: BookmarksSession, ids: List<String>) {
-        val bookmarks = bookmarksService.bookmarksByIds(ids)
-        // The delete must complete even if this screen closes at once (app scope); the refresh follows it.
-        val write = appScope.launch {
-            for (bookmark in bookmarks) {
-                bookmarkControl.deleteBookmark(bookmark)
-            }
-        }
-        lifecycleScope.launch {
-            write.join()
-            session.controller.refresh()
-        }
-    }
-
-    /** Classic `onExportCsv` (`:244-248`) -- `BookmarkCsvFlow.exportBookmarksToCSV` wants an `Activity`, hence host-side. */
-    private fun exportBookmarksCsv(session: BookmarksSession) {
-        lifecycleScope.launch {
-            val bibleBookmarks = bookmarksService.loadedBookmarks()
-                .filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
-            BookmarkCsvFlow(bookmarkControl).exportBookmarksToCSV(this@NavHostComposeActivity, bibleBookmarks)
-            session.controller.refresh()
-        }
-    }
-
-    /** Classic `onImportCsv` (`:250-253`). */
-    private fun importBookmarksCsv(session: BookmarksSession) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            BookmarkCsvFlow(bookmarkControl).importBookmarksFromCSV(this@NavHostComposeActivity)
-            session.controller.refresh()
-        }
-    }
-
-    /**
-     * Reacts to [DatabaseContainer.bookmarksSynced] on main through a per-destination subscription.
-     * Unsubscribing one destination never affects another destination's listeners.
-     */
-    private fun subscribeBookmarksUpdated(onBookmarksChanged: () -> Unit): () -> Unit =
-        subscribeToBookmarkSync(onBookmarksChanged)
-
-    // --- ManageLabels host baggage -------------------------------------------------------------
-    // Ported from ManageLabelsComposeActivity (which a later task deletes). Everything here needs a
-    // `:app` type the graph cannot see -- `BookmarkEntities.Label` and its style columns, the
-    // workspace override DAO, `ManageLabelsContract.ManageLabelsData`, `CommonUtils.settings`,
-    // `painterResource`, an `android.app.AlertDialog` -- which is exactly the boundary
-    // `ManageLabelsDeps` draws.
-
-    /**
-     * One visit to the label manager: the parsed payload, the authoritative `Label` objects, the
-     * controller built around them, and the in-flight editor context.
-     *
-     * [labelsById] is classic's own `labelsById` (`ManageLabelsComposeActivity.kt:109-111`, itself a
-     * mirror of classic `ManageLabels.allLabels`): the shared `LabelItem` carries display fields
-     * only, not the `displayStyle`/`displayStyleWholeVerse` columns `BookmarkControl
-     * .insertOrUpdateLabel` needs at save time, so the real entities have to be kept beside the
-     * controller. Seeded broadly (it includes the Unlabeled special label) so any label reached
-     * through the editor can be looked up later.
-     *
-     * [pendingEdit] is the one piece of state classic did NOT need a field for: its `editLabel`
-     * awaited the child Activity inside a single coroutine, so the label being edited and whether it
-     * was new were simply locals that survived the suspension. The editor is a destination now and
-     * the result arrives later, through the channel, so the two have to be remembered across that
-     * gap. One nullable field is enough because only one editor can be open at a time -- it is a
-     * child destination, not a second window. It is part of the saved-state snapshot ([BookmarkRecreationState]),
-     * so a recreation (or process death) restores it with the manager's working set.
-     */
-    private class ManageLabelsSession(
-        val data: ManageLabelsContract.ManageLabelsData,
-        val labelsById: MutableMap<String, BookmarkEntities.Label>,
-        val writes: ManageLabelsWrites,
-    ) {
-        lateinit var controller: ManageLabelsController
-        var pendingEdit: PendingLabelEdit? = null
-    }
-
-    /** The label whose editor is currently open, and whether it was created by this visit. */
-    private class PendingLabelEdit(val label: BookmarkEntities.Label, val isNew: Boolean)
-
-    /**
-     * The memo behind [ManageLabelsDeps.controllerFor] — see that field's kdoc for WHY the label
-     * manager's controller is host-held while every other controller in these graphs is built per
-     * back-stack entry. Keyed on the route's payload, and dropped at every exit
-     * ([deliverManageLabelsResult]), so a later entry with a different payload — or a re-entry after
-     * this one has finished — is seeded afresh rather than resuming a stale working set.
-     */
-    private var manageLabelsSession: Pair<String, ManageLabelsSession>? = null
-
-    /** Raised from the ManageLabels overflow; rendered host-level in [onCreate]'s `setContent`. */
-    private var manageLabelsHelpOpen by mutableStateOf(false)
-    private var manageLabelsExportOpen by mutableStateOf(false)
-
-    private fun manageLabelsControllerFor(
-        data: String,
-        onEditLabel: (labelEditPayload: String) -> Unit,
-        onResult: (ManageLabelsResult) -> Unit,
-    ): ManageLabelsController {
-        manageLabelsSession?.let { (key, existing) -> if (key == data) return existing.controller }
-
-        // Restore the absent parent request with this Activity's navigation bindings before results can arrive.
-        restoredBookmarks?.filter?.takeIf { bookmarksSession == null }?.let { filter ->
-            bookmarksControllerFor(filter,
-                { result -> navController?.let { bookmarkResults.deliver(it, result) } },
-                { payload -> navController?.navigate(NavRoutes.manageLabels(payload)) },
-            )
-        }
-        val restored = restoredBookmarks?.takeIf { it.managerKey == data }
-        val parsed = ManageLabelsContract.ManageLabelsData.fromJSON(data)
-        val session = ManageLabelsSession(
-            data = parsed,
-            labelsById = mutableMapOf(),
-            writes = ManageLabelsWrites(bookmarkControl, appScope, barrier = { orderedLauncher.join("workspace") }),
-        )
-        restored?.let {
-            session.labelsById.putAll(it.labels.associateBy { label -> label.id.toString() })
-            session.pendingEdit = it.pendingLabel?.let { label -> PendingLabelEdit(label, it.pendingLabelIsNew) }
-        }
-        // labelsById is filled by the controller's own initial label load (on lifecycleScope, so on
-        // Main), from the same entities its rows are built from. An entry an editor round trip already
-        // put there wins over the loaded copy.
-        val sessionService = object : ManageLabelsService by manageLabelsService {
-            override suspend fun assignableLabels(): List<LabelItem> {
-                val all = withContext(Dispatchers.IO) { bookmarkControl.assignableLabels() }
-                all.forEach { session.labelsById.getOrPut(it.id.toString()) { it } }
-                return all.assignableLabelItems()
-            }
-        }
-        // Only STUDYPAD reads the active window: other modes are opened from hosts whose window repository may not
-        // be initialised (e.g. a host started on backup), where activeWindow throws.
-        val highlightId = if (parsed.mode == ManageLabelsContract.Mode.STUDYPAD) {
-            (windowControl.activeWindowPageManager.currentPage.key as? StudyPadKey)?.label?.id?.toString()
-        } else null
-        session.controller = ManageLabelsController(
-            mode = ManageLabelsMapper.toMode(parsed.mode),
-            service = sessionService,
-            scope = lifecycleScope,
-            initialSelected = ManageLabelsMapper.seedSelected(parsed),
-            initialAutoAssign = ManageLabelsMapper.seedAutoAssign(parsed),
-            initialAutoAssignPrimary = ManageLabelsMapper.seedAutoAssignPrimary(parsed),
-            initialBookmarkPrimary = ManageLabelsMapper.seedBookmarkPrimary(parsed),
-            highlightLabelId = highlightId,
-            // Classic launched an Intent here; the payload is built the same way and the GRAPH turns
-            // it into a destination. A label that cannot be resolved navigates nowhere, exactly as
-            // classic's `?: return` did.
-            onEditLabel = { id -> lifecycleScope.launch { buildLabelEditPayload(session, id)?.let(onEditLabel) } },
-            onSelectStudyPad = { id, entryId -> lifecycleScope.launch { selectStudyPad(session, id, entryId, onResult) } },
-            onSave = { saveManageLabelsAndExit(session, onResult) },
-            onReset = { resetManageLabels(session, onResult) },
-            restored = restored?.manager?.toSnapshot(),
-        )
-        manageLabelsSession = data to session
-        return session.controller
-    }
-
-    /**
-     * Classic `ManageLabelsComposeActivity.onEditLabel` (`:439-497`) up to the point it built the
-     * Intent: everything that decides WHAT the editor opens on. Returns the `LabelEditContract
-     * .LabelData` JSON the `bookmarks/labelEdit` route carries, or null when the label cannot be
-     * resolved (classic's bare `return`).
-     */
-    private suspend fun buildLabelEditPayload(session: ManageLabelsSession, id: String?): String? {
-        val controller = session.controller
-        val isNew = id == null
-        val label: BookmarkEntities.Label = if (id != null) {
-            session.labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return null
-        } else {
-            BookmarkEntities.Label(new = true).apply { color = manageLabelsService.randomColorArgb() }
-        }
-        // A new label opened from the toolbar + with no live query must arrive with a real,
-        // editable, unique name, or the return path below discards it silently (round 17b).
-        val suggestedName = if (isNew) {
-            controller.searchText.value.trim().ifBlank {
-                defaultLabelName(
-                    existing = session.labelsById.values.mapTo(mutableSetOf()) { it.displayName },
-                    format = getString(R.string.new_label_default_name),
-                )
-            }
-        } else {
-            null
-        }
-
-        // F97 (fix batch 3 §2.3.1): a hide list does not know its workspace, so its editor gets none --
-        // no override is read, none is returned, and applyLabelEditResult's override write is skipped.
-        val workspaceContext = ManageLabelsMapper.labelEditHasWorkspaceContext(session.data.mode)
-        val workspaceOverride = if (!workspaceContext) null else {
-            val workspaceId = windowControl.windowRepository.id
-            val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-            val existingOverrides = if (!isNew) workspaceDao.labelOverrides(workspaceId) else emptyList()
-            existingOverrides.find { it.labelId == label.id } ?: WorkspaceEntities.WorkspaceLabelOverride(
-                workspaceId = workspaceId,
-                labelId = label.id,
-            )
-        }
-
-        val labelData = LabelEditContract.LabelData(
-            isAssigning = session.data.mode == ManageLabelsContract.Mode.ASSIGN,
-            label = label,
-            isAutoAssign = controller.resultAutoAssign().contains(label.id.toString()),
-            isAutoAssignPrimary = controller.resultAutoAssignPrimary() == label.id.toString(),
-            isThisBookmarkPrimary = controller.resultBookmarkPrimary() == label.id.toString(),
-            isThisBookmarkSelected = controller.resultSelected().contains(label.id.toString()),
-            suggestedName = suggestedName,
-            workspaceOverride = workspaceOverride,
-            hasWorkspaceContext = workspaceContext,
-        )
-        if (isNew) {
-            when (session.data.mode) {
-                ManageLabelsContract.Mode.ASSIGN -> {
-                    labelData.isThisBookmarkSelected = true
-                    labelData.isThisBookmarkPrimary = true
-                }
-                ManageLabelsContract.Mode.WORKSPACE -> {
-                    labelData.isAutoAssignPrimary = true
-                    labelData.isAutoAssign = true
-                }
-                else -> {}
-            }
-        }
-
-        session.pendingEdit = PendingLabelEdit(label, isNew)
-        return labelData.toJSON()
-    }
-
-    /**
-     * Classic's `editLabel` continuation (`ManageLabelsComposeActivity.kt:499-551`), field for
-     * field, with `awaitIntent`'s `ActivityResult` replaced by the channel's [NavLabelEditResult] —
-     * `Cancelled` IS classic's `RESULT_CANCELED`, and `Saved` carries the same `"data"` JSON its
-     * `"data"` extra did, including a delete expressed as `delete`/`deleteOrphanedBookmarks` flags
-     * on the payload.
-     *
-     * Called from the `MANAGE_LABELS_PATTERN` arm's `LaunchedEffect` over
-     * `BookmarkNavDeps.labelEditResults`. Reads the session rather than taking the controller as a
-     * parameter: the reconciliation needs `labelsById` and the in-flight [PendingLabelEdit] too, and
-     * those live together or not at all.
-     */
-    private fun applyLabelEditResult(result: NavLabelEditResult) {
-        val session = manageLabelsSession?.second ?: return
-        val pending = session.pendingEdit ?: return
-        session.pendingEdit = null
-        val label = pending.label
-        val controller = session.controller
-
-        if (result !is NavLabelEditResult.Saved) return
-
-        val newLabelData = LabelEditContract.LabelData.fromJSON(result.data)
-
-        // A name the user deliberately cleared is still not a label.
-        if (newLabelData.label.name.isEmpty() && pending.isNew) return
-
-        if (newLabelData.delete) {
-            session.labelsById.remove(label.id.toString())
-            controller.applyLabelDeleted(label.id.toString(), newLabelData.deleteOrphanedBookmarks)
-        } else {
-            val updatedLabel = newLabelData.label
-            session.labelsById[updatedLabel.id.toString()] = updatedLabel
-
-            // All four applied unconditionally, as classic did (`ManageLabels.kt:614-634`): the
-            // three non-ASSIGN checkboxes are hidden on the editor, so their round-tripped values
-            // are unchanged from the seeds and passing them is behaviourally identical.
-            controller.applyLabelChanged(
-                item = updatedLabel.toLabelItem(),
-                selectedFlag = newLabelData.isThisBookmarkSelected,
-                autoAssignFlag = newLabelData.isAutoAssign,
-                bookmarkPrimaryFlag = newLabelData.isThisBookmarkPrimary,
-                autoAssignPrimaryFlag = newLabelData.isAutoAssignPrimary,
-            )
-
-            // SU-14 D5: a label that already exists in Room (`!updatedLabel.new`: judged on the entity,
-            // not on this edit, because a label created during this visit is still `new` on its second
-            // OK) is written the moment the editor's OK arrives, not only at the manager's exit
-            // (saveManageLabelsAndExit), so a process kill while the user is still on the list cannot
-            // lose an edit the list already shows. The exit write stays (idempotent update). A label
-            // that is still new stays staged: it is inserted, and its temporary id remapped, at exit.
-            // `insertOrUpdateLabel` emits LabelUpserted itself, so it replaces `notifyLabelChanged`;
-            // with an override it runs AFTER the override write, keeping override-before-notification.
-            val earlyWrite = !updatedLabel.new
-
-            // Workspace override (classic `ManageLabels.kt:637-649`).
-            val returnedOverride = newLabelData.workspaceOverride
-            if (returnedOverride != null) {
-                val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                orderedLauncher.launch("workspace") {
-                    if (returnedOverride.hasOverride) {
-                        dao.insertOrUpdateLabelOverride(returnedOverride)
-                    } else {
-                        dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
-                    }
-                    if (earlyWrite) bookmarkControl.insertOrUpdateLabel(updatedLabel)
-                    else bookmarkControl.notifyLabelChanged(updatedLabel)
-                    controller.refresh() // Re-derive the indicator after persistence.
-                }
-            } else if (earlyWrite) {
-                orderedLauncher.launch("workspace") { bookmarkControl.insertOrUpdateLabel(updatedLabel) }
-            }
-        }
-    }
-
-    /**
-     * Classic `onSelectStudyPad` (`:557-569`): point the active window at the StudyPad, then leave
-     * the way every other exit leaves.
-     */
-    private suspend fun selectStudyPad(
-        session: ManageLabelsSession,
-        id: String,
-        firstMatchEntryId: String?,
-        onResult: (ManageLabelsResult) -> Unit,
-    ) {
-        val label = session.labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return
-        try {
-            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
-                fakeBookFactory.journalDocument,
-                StudyPadKey(label, entryId = firstMatchEntryId?.let { IdType(it) }),
-            )
-        } catch (e: Exception) {
-            Log.e(TAG_MANAGE_LABELS, "Error on attempt to show journal", e)
-            Dialogs.showErrorMsg(R.string.error_occurred, e)
-        }
-        saveManageLabelsAndExit(session, onResult)
-    }
-
-    /**
-     * Classic `saveAndExit` (`ManageLabelsComposeActivity.kt:573-637`), with `setResult`/`finish()`
-     * replaced by the channel delivery — which is the whole of the change, because every line of the
-     * rest is Room work.
-     *
-     * That includes classic's `labels_list_search_mode` write (`:576-578`), which stays HERE rather
-     * than moving into the arm: every exit this screen has routes through `controller.save()` and so
-     * through this function — the up-arrow, Back, and `selectStudyPad`, which ends by calling it —
-     * so there is no exit an exit-time write can miss. Only the READ half is a deps lambda, because
-     * only the seeding happens inside the arm's composition.
-     */
-    private fun saveManageLabelsAndExit(
-        session: ManageLabelsSession,
-        onResult: (ManageLabelsResult) -> Unit,
-    ) {
-        // Already saving (a second Save tap or a StudyPad pick): leave the running save alone.
-        if (session.writes.isStarted) return
-        val controller = session.controller
-
-        val deletedIds = controller.resultDeleted()
-        val orphanedIds = controller.resultDeletedWithOrphaned()
-        val withoutOrphaned = deletedIds.filterNot { orphanedIds.contains(it) }.map { IdType(it) }
-        val withOrphaned = orphanedIds.map { IdType(it) }
-
-        val changedIds = controller.resultChanged()
-        val toSave = changedIds.filterNot { deletedIds.contains(it) }.mapNotNull { session.labelsById[it] }
-
-        // The list's quick favourite-toggle only flips the controller's own LabelItem copy, so
-        // re-apply the controller's current favourite onto the entity before persisting.
-        val currentFavourites = controller.currentLabelItems().associate { it.id to it.favourite }
-        toSave.forEach { label -> currentFavourites[label.id.toString()]?.let { label.favourite = it } }
-
-        // The writes must land even if this screen is closed right away (app scope); the result is
-        // delivered only after they have, on the host's own scope. A second Save (or a StudyPad pick)
-        // while they are running is ignored: it would write every new label again and deliver twice.
-        val writes = session.writes.start(withoutOrphaned, withOrphaned, toSave) ?: return
-
-        // Classic `ManageLabelsComposeActivity.kt:576-578` (itself classic `ManageLabels`'
-        // saveFilteringSettings): STUDYPAD only, because it is the only mode with a content search.
-        if (session.data.mode == ManageLabelsContract.Mode.STUDYPAD) {
-            CommonUtils.settings.setInt(MANAGE_LABELS_SEARCH_MODE_KEY, controller.searchMode.value.ordinal)
-        }
-
-        lifecycleScope.launch {
-            // A failed write was already logged by the app scope's handler; stay on the screen.
-            val idRemap = try { writes.await() } catch (e: Exception) { return@launch }
-
-            fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
-            fun remapId(id: String?) = id?.let { idRemap[it] ?: it }
-
-            ManageLabelsMapper.applyResult(
-                data = session.data,
-                selected = remapSet(controller.resultSelected()),
-                autoAssign = remapSet(controller.resultAutoAssign()),
-                changed = remapSet(controller.resultChanged()),
-                deleted = controller.resultDeleted(),
-                deletedWithOrphaned = controller.resultDeletedWithOrphaned(),
-                autoAssignPrimary = remapId(controller.resultAutoAssignPrimary()),
-                bookmarkPrimary = remapId(controller.resultBookmarkPrimary()),
-            )
-
-            deliverManageLabelsResult(session, onResult)
-        }
-    }
-
-    /**
-     * Classic `reset` (`ManageLabelsComposeActivity.kt:656-674`), minus the confirmation: the
-     * question ("Do you want to remove all auto-assign labels..." / "...reset setting for hiding...")
-     * now lives in `ManageLabelsController.dialog` (Task 13), and this runs only once the
-     * controller's own `confirmDialog()` has confirmed it. Unchanged otherwise: WORKSPACE clears the
-     * auto-assign set IN PLACE and stays on the list, HIDELABELS flips the payload's `reset` flag and
-     * leaves — the same `"data"` extra, because [ManageLabelsMapper.applyReset] sets a FIELD rather
-     * than producing a second result shape.
-     */
-    private fun resetManageLabels(
-        session: ManageLabelsSession,
-        onResult: (ManageLabelsResult) -> Unit,
-    ) {
-        when (session.data.mode) {
-            ManageLabelsContract.Mode.WORKSPACE -> session.controller.clearAutoAssign()
-            ManageLabelsContract.Mode.HIDELABELS -> {
-                ManageLabelsMapper.applyReset(session.data)
-                deliverManageLabelsResult(session, onResult)
-            }
-            else -> throw RuntimeException("Illegal value")
-        }
-    }
-
-    /**
-     * The ONE place the label manager leaves. Drops the memoised session first, so that a re-entry
-     * (from `Bookmarks`, once that destination exists) builds a fresh controller from a fresh
-     * payload rather than resuming a finished one — see [manageLabelsSession].
-     */
-    private fun deliverManageLabelsResult(
-        session: ManageLabelsSession,
-        onResult: (ManageLabelsResult) -> Unit,
-    ) {
-        manageLabelsSession = null
-        restoredBookmarks = restoredBookmarks?.copy(
-            managerKey = null, manager = null, labels = emptyList(), pendingLabel = null, pendingLabelIsNew = false,
-        )
-        manageLabelsHelpOpen = false
-        manageLabelsExportOpen = false
-        onResult(ManageLabelsResult(session.data.toJSON()))
-    }
-
-    /**
-     * Classic `importStudyPads` (`:308-313`): InstallZip, then a controller refresh. Slice 8 D2: InstallZip is a
-     * destination of this host, answered through [openInstallZip] -- never `awaitIntent` (M5).
-     */
-    private fun importStudyPads(controller: ManageLabelsController) {
-        openInstallZip { lifecycleScope.launch(Dispatchers.Main) { controller.refresh() } }
-    }
-
-    /**
-     * The label's glyph for a list row, verbatim from classic (`:691-699`). The TINT is the screen's
-     * decision; the DEFAULT drawable is the mode's, which is why [studyPadMode] is passed in from the
-     * arm rather than derived here.
-     */
-    @Composable
-    private fun ManageLabelIcon(name: String?, tint: Color, studyPadMode: Boolean) {
-        val defaultId = if (studyPadMode) R.drawable.ic_baseline_studypads_24 else R.drawable.ic_label_24dp
-        Icon(
-            painter = painterResource(customIconMap[name] ?: defaultId),
-            contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(24.dp),
-        )
-    }
-
-    /**
-     * The New (+) icon, in both the normal bar's [ManageLabelsActions] and the search bar's
-     * `searchActions` slot — see the arm's comment at that call site for why the search bar needs its
-     * own copy. Verbatim from classic (`:334-343`).
-     */
-    @Composable
-    private fun RowScope.NewLabelIcon(onClick: () -> Unit) {
-        IconButton(onClick = onClick) {
-            Icon(
-                painter = painterResource(R.drawable.ic_add_circle_outline_white_24dp),
-                contentDescription = getString(R.string.new_item),
-                modifier = Modifier.size(AbActionIconSize),
-            )
-        }
-    }
-
-    /**
-     * The label manager's top-bar actions, verbatim from classic `ManageLabelsComposeActivity
-     * .ManageLabelsActions` (`:345-435`) — including every comment's worth of reasoning about which
-     * rows are mode-gated and which icons deliberately differ from classic's XML menu.
-     *
-     * Takes the whole controller rather than five callbacks: it reads `mode` and `styleTagsVisible`
-     * off it as well as commanding it, and classic read them the same way (off the Activity's own
-     * `controller` field). The two rows that are NOT controller commands — help and export — flip
-     * host state instead, because both raise sheets that are rendered host-level; see
-     * [manageLabelsHelpOpen].
-     */
-    @Composable
-    private fun RowScope.ManageLabelsActions(controller: ManageLabelsController) {
-        IconButton(onClick = controller::openSearch) {
-            Icon(
-                painter = painterResource(R.drawable.ic_search_24dp),
-                contentDescription = getString(R.string.search),
-                modifier = Modifier.size(AbActionIconSize),
-            )
-        }
-        NewLabelIcon(onClick = { controller.newLabel() })
-        val styleTagsVisible by controller.styleTagsVisible.collectAsState()
-        AbOverflowMenu(contentDescription = null) { close ->
-            AbMenuItem(
-                text = getString(R.string.help),
-                onClick = { close(); manageLabelsHelpOpen = true },
-                icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },
-            )
-            if (controller.mode.hasReOrderButton) {
-                AbMenuItem(
-                    text = getString(R.string.reorder),
-                    onClick = { close(); controller.reOrder() },
-                    icon = { Icon(painterResource(R.drawable.ic_baseline_refresh_24), contentDescription = null) },
-                )
-            }
-            if (controller.mode.styleTagsShown) {
-                AbMenuItem(
-                    text = getString(R.string.show_style_examples),
-                    onClick = { close(); controller.toggleStyleTags() },
-                    checkable = true,
-                    checked = styleTagsVisible,
-                    icon = { Icon(painterResource(R.drawable.ic_text_format_white_24dp), contentDescription = null) },
-                )
-            }
-            if (controller.mode.hasResetButton) {
-                AbMenuItem(
-                    // Two different actions, two different labels (round 17b): WORKSPACE clears the
-                    // auto-assign set and stays; HIDELABELS reverts to the inherited value and leaves.
-                    text = getString(
-                        if (controller.mode == ManageLabelsMode.WORKSPACE) {
-                            R.string.clear_auto_assign_labels
-                        } else {
-                            R.string.reset_generic
-                        },
-                    ),
-                    onClick = { close(); controller.reset() },
-                    icon = { Icon(painterResource(R.drawable.ic_baseline_undo_24), contentDescription = null) },
-                )
-            }
-            // Export/import StudyPads: visible in ALL modes (classic onCreateOptionsMenu parity).
-            AbMenuItem(
-                text = getString(R.string.export_something, getString(R.string.studypads)),
-                onClick = { close(); manageLabelsExportOpen = true },
-                icon = { Icon(painterResource(R.drawable.file_export), contentDescription = null) },
-            )
-            AbMenuItem(
-                text = getString(R.string.import_items, getString(R.string.studypads)),
-                onClick = { close(); importStudyPads(controller) },
-                icon = { Icon(painterResource(R.drawable.ic_file_download_24dp), contentDescription = null) },
-            )
-        }
-    }
-
-    // --- LabelEdit host baggage ---------------------------------------------------------------
-    // Ported from LabelEditComposeActivity (which a later task deletes): the Android-resource icon
-    // renderer, the top-bar actions, the delete confirmations, the discard-changes dialog and the
-    // export-destination chooser. Every one of them is here rather than in `BookmarkNavGraph.kt`
-    // because it ends in a platform call `commonMain` has no equivalent for — `painterResource`,
-    // `getString` with format arguments, or an `android.app.AlertDialog`.
-
-    /**
-     * Non-null while the "Export to where?" chooser is awaiting an answer — rendered as an
-     * [AbActionSheet] in [onCreate]'s `setContent`, so [exportStudyPads] (via `BackupControl
-     * .saveOrShare`) skips its own platform `AlertDialog` and awaits this one instead. Verbatim from
-     * classic `LabelEditComposeActivity.kt:89-95`, including the `finally` that clears the field and
-     * so closes the sheet.
-     */
-    private var destinationRequest: CompletableDeferred<SaveOrShare?>? by mutableStateOf(null)
-
-    private suspend fun askDestination(): SaveOrShare? {
-        val deferred = CompletableDeferred<SaveOrShare?>()
-        destinationRequest = deferred
-        return try { deferred.await() } finally { destinationRequest = null }
-    }
-
-    /**
-     * Builds the label editor's controller for one back-stack entry, AND collapses its three
-     * outcomes onto [NavLabelEditResult]'s two.
-     *
-     * The collapse is classic `onFinish` (`LabelEditComposeActivity.kt:234-247`) with `setResult` +
-     * `finish()` replaced by `onResult`, and nothing else changed:
-     * - [ControllerLabelEditResult.Save] → [NavLabelEditResult.Saved] carrying the updated payload's
-     *   JSON, which is exactly what `finishWithData` put in the `"data"` extra.
-     * - [ControllerLabelEditResult.Delete] → also [NavLabelEditResult.Saved], because classic's
-     *   `Delete` arm ALSO ended at `finishWithData`. It is not a third result shape: it sets
-     *   `delete`/`deleteOrphanedBookmarks` on the payload first and then returns the same extra, so
-     *   a completed delete IS a saved `LabelData` whose own `delete` flag is set. Collapsing it any
-     *   other way would change the contract `ManageLabels` reads back.
-     * - [ControllerLabelEditResult.Cancel] → [NavLabelEditResult.Cancelled], classic's bare
-     *   `setResult(RESULT_CANCELED)` with no `"data"` extra at all.
-     *
-     * It stays here rather than in the graph because every line of it needs `LabelEditMapper` and
-     * `LabelEditContract.LabelData`, `:app` types that embed Room entities and cannot cross into
-     * `commonMain`. [data] is parsed ONCE per controller, not per outcome: the `Delete` arm mutates
-     * that instance exactly as classic mutated its `lateinit var data` field.
-     */
-    private fun labelEditControllerFor(
-        data: String,
-        onResult: (NavLabelEditResult) -> Unit,
-    ): LabelEditController {
-        val labelData = LabelEditContract.LabelData.fromJSON(data)
-        val restoredDraft = restoredBookmarks?.takeIf { it.editorKey == data }?.editorDraft?.toState()
-        return LabelEditController(
-            LabelEditMapper.toState(labelData),
-            labelEditService,
-            lifecycleScope,
-            restoredDraft,
-        ) { result ->
-            labelEditSession = null
-            restoredBookmarks = restoredBookmarks?.copy(editorKey = null, editorDraft = null)
-            when (result) {
-                is ControllerLabelEditResult.Save ->
-                    onResult(NavLabelEditResult.Saved(LabelEditMapper.applyToData(labelData, result.state).toJSON()))
-                is ControllerLabelEditResult.Delete -> {
-                    labelData.delete = true
-                    labelData.deleteOrphanedBookmarks = result.deleteOrphaned
-                    onResult(NavLabelEditResult.Saved(LabelEditMapper.applyToData(labelData, result.state).toJSON()))
-                }
-                ControllerLabelEditResult.Cancel -> onResult(NavLabelEditResult.Cancelled)
-            }
-        }.also { labelEditSession = data to it }
-    }
-
-    /**
-     * Classic `shareLabel` (`LabelEditComposeActivity.kt:227-232`): applies the pending (unsaved)
-     * edits onto the payload before exporting, so the exported StudyPad matches what is on screen.
-     * Takes the route's [data] and the live [state] instead of reading two Activity fields — the
-     * editor's payload and controller belong to a back-stack entry now, not to this host.
-     */
-    private fun shareLabel(data: String, state: LabelEditState) {
-        val current = LabelEditMapper.applyToData(LabelEditContract.LabelData.fromJSON(data), state)
-        lifecycleScope.launch {
-            exportStudyPads(this@NavHostComposeActivity, current.label, chooseDestination = ::askDestination)
-        }
-    }
-
-    /**
-     * Renders the current custom-icon selection: [customIconMap]`[name]` or the default bookmark
-     * drawable, tinted with the caller-supplied [tint] rather than deriving one here (round-9a I1 —
-     * a single internal rule cannot serve both a colour-filled disc and a neutral background).
-     * Verbatim from classic `LabelEditComposeActivity.kt:285-294`.
-     */
-    @Composable
-    private fun AndroidLabelIcon(name: String?, tint: Color) {
-        val drawableId = customIconMap[name] ?: R.drawable.ic_baseline_bookmark_24
-        Icon(
-            painter = painterResource(drawableId),
-            contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(24.dp),
-        )
-    }
-
-    /**
-     * The label editor's top-bar actions, verbatim from classic `LabelEditComposeActivity
-     * .LabelEditActions` (`:158-183`). [onSave] and [onDelete] are the GRAPH-owned controller's, so
-     * they arrive as parameters; [data] and [state] are the two halves [shareLabel] needs.
-     */
-    @Composable
-    private fun RowScope.LabelEditActions(
-        data: String,
-        state: LabelEditState,
-        onSave: () -> Unit,
-        onDelete: () -> Unit,
-    ) {
-        IconButton(onClick = onSave) {
-            Icon(
-                painter = painterResource(R.drawable.ic_check_24dp),
-                contentDescription = getString(R.string.okay),
-                modifier = Modifier.size(AbActionIconSize),
-            )
-        }
-        if (!state.isSpecialLabel) {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_delete_24dp),
-                    contentDescription = getString(R.string.delete),
-                    modifier = Modifier.size(AbActionIconSize),
-                )
-            }
-        }
-        AbOverflowMenu(contentDescription = null) { close ->
-            AbMenuItem(
-                text = getString(R.string.export),
-                onClick = { close(); shareLabel(data, state) },
-                icon = { Icon(painterResource(R.drawable.ic_baseline_share_24), contentDescription = null) },
-            )
-        }
-    }
-
-    /**
-     * Classic `DeletePromptDialog` (`LabelEditComposeActivity.kt:190-224`), with the controller's
-     * two calls hoisted into [onConfirm]/[onDismiss] parameters. [labelName] comes from the LIVE
-     * controller state (not the route payload's name, which `LabelEditMapper.applyToData` only syncs
-     * at save/delete/share time) — otherwise a name typed but not yet saved would show stale here.
-     *
-     * Fix round 1 (Task 22 review, Important finding 2): this member function itself does nothing
-     * but resolve Android string resources and hand them to the top-level
-     * [LabelEditDeletePromptContent], which does the actual rendering. The split exists because a
-     * `private` member composable needs a live [NavHostComposeActivity] instance to test (no
-     * existing precedent for that in this file), while the extracted top-level one takes only
-     * plain values and can be driven directly by a Robolectric compose-ui test.
-     */
-    @Composable
-    private fun LabelEditDeletePrompt(
-        prompt: DeletePrompt,
-        labelName: String,
-        onConfirm: (deleteOrphaned: Boolean) -> Unit,
-        onDismiss: () -> Unit,
-    ) {
-        LabelEditDeletePromptContent(
-            prompt = prompt,
-            title = getString(R.string.delete_label_confirmation, labelName),
-            orphanedMessage = when (prompt) {
-                is DeletePrompt.Orphaned -> getString(R.string.confirm_delete_orphaned_bookmarks, prompt.count)
-                DeletePrompt.Confirm -> null
-            },
-            deleteBothLabel = getString(R.string.delete_label_and_bookmarks),
-            deleteOnlyLabel = getString(R.string.delete_label_only),
-            cancelLabel = getString(R.string.cancel),
-            confirmLabel = getString(R.string.yes),
-            dismissLabel = getString(R.string.no),
-            onConfirm = onConfirm,
-            onDismiss = onDismiss,
-        )
-    }
 
     // --- AiConnectionSettings host baggage ----------------------------------------------------
     // Ported from the classic AiConnectionSettingsComposeActivity (deleted in nav-graph Task 10):
@@ -5764,7 +4582,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val list = withContext(Dispatchers.IO) { myDocumentDao.pagesForDocument(docId) }
             myDocumentPagesEntityByLong = list.mapIndexed { i, p -> i.toLong() to p }.toMap()
             // Selection is saved by persistent page id: the load-order tokens change when pages are reordered or deleted.
-            val restoredPages = restoredBookmarks?.pages?.takeIf { it.documentId == documentId }
+            val restoredPages = appHosts.bookmark.restoredState?.pages?.takeIf { it.documentId == documentId }
             val tokenById = list.mapIndexed { i, p -> p.id.toString() to i.toLong() }.toMap()
             controller.setPages(
                 list.mapIndexed { i, p ->
@@ -5782,7 +4600,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 },
             )
             // Consumed: later visits to a Pages screen of this host start fresh, like classic.
-            if (restoredBookmarks?.pages != null) restoredBookmarks = restoredBookmarks?.copy(pages = null)
+            if (appHosts.bookmark.restoredState?.pages != null) appHosts.bookmark.updateRestored { it?.copy(pages = null) }
             session.loaded = true
         }
 
@@ -5820,7 +4638,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /** Export one page via `BackupControl.saveOrShare`, with the host's own destination chooser in
-     *  place of `saveOrShare`'s platform `AlertDialog` -- the seam [askDestination] already built for
+     *  place of `saveOrShare`'s platform `AlertDialog` -- the seam `BookmarkHost.askDestination` already built for
      *  the reading-plan export, not a dialog conversion. Ported verbatim from classic
      *  `MyDocumentPagesComposeActivity.exportPage` (`:440`). */
     private fun exportMyDocumentPage(id: Long) {
@@ -5843,7 +4661,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 shareMimeType = mimeType,
                 saveMimeType = mimeType,
                 chooserTitle = getString(R.string.my_document_export_page),
-                chooseDestination = ::askDestination,
+                chooseDestination = appHosts.bookmark::askDestination,
             )
         }
     }
@@ -5934,7 +4752,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
-     * `MyDocuments` is a root destination with no re-entry (same shape as [bookmarksSession]'s own
+     * `MyDocuments` is a root destination with no re-entry (same shape as the bookmark list's own session
      * kdoc): reached only as the host's start destination, so this is built once and never dropped.
      */
     private var myDocumentsSession: MyDocumentsSession? = null
@@ -6013,7 +4831,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         canDelete = MyDocumentBookManager.canDeleteDocument(d),
                     )
                 },
-                restored = restoredBookmarks?.documentsSearch?.toSnapshot(),
+                restored = appHosts.bookmark.restoredState?.documentsSearch?.toSnapshot(),
             )
             session.loaded = true
         }
@@ -7488,9 +6306,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // Consumed once: a later leave-and-reopen within this host starts fresh, like classic. The sign-in
         // error dialog is deliberately not carried: it is re-raised by the gate's sign-in attempt, which is
         // a real network step that cannot be skipped just because the Activity was recreated.
-        restoredBookmarks?.cloudFilters?.let {
+        appHosts.bookmark.restoredState?.cloudFilters?.let {
             entry.controller.restoreFilters(it.toSnapshot())
-            restoredBookmarks = restoredBookmarks?.copy(cloudFilters = null)
+            appHosts.bookmark.updateRestored { state -> state?.copy(cloudFilters = null) }
         }
         cloudDocumentsEntryRef = entry
         return entry.controller
@@ -8028,31 +6846,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
-    /**
-     * CR-5's consumer, and the only one `manageLabelsResults` has for the bookmark list. The session
-     * flag is the source of truth for "this list asked"; the channel's pending is the answer. Both
-     * are read UNCONDITIONALLY, for the reason the comment above `manageLabelsHelpOpen` spells out:
-     * this lambda composes once per Activity, and a scope that could reach the flag only through a
-     * `?.let` on a plain field would register no dependency whenever the field was null at that one
-     * composition. Both the session and the flag are snapshot state, and both are read before the
-     * null check, so the subscription is unconditional.
-     *
-     * An answer the list did not ask for is left in the channel, for whoever did (the settings arm's
-     * own gate is that side of the same contract).
-     */
-    @Composable
-    private fun BookmarksManageLabelsCollector() {
-        // Read UNCONDITIONALLY, before the null check, for the reason above: a `?.let` that only
-        // reached the flag when a session already existed would subscribe to nothing on the
-        // composition where the field was null, and a later request would flip a state nobody observes.
-        val awaiting = bookmarksSession?.second?.awaitingManageLabels == true
-        net.bible.sharedui.bookmark.nav.BookmarksManageLabelsCollector(
-            results = manageLabelsResults,
-            awaiting = awaiting,
-            onResult = { applyBookmarksManageLabelsResult(it) },
-        )
-    }
-
     // --- Workspace cluster (WorkspaceHost) -------------------------------------------------------
     // The selector's and the text display settings' deps, sessions and controllers live in `appHosts.workspace`
     // (`:sharedUi`, `net.bible.sharedui.app.workspace`). The two result channels stay declared here: the reading
@@ -8097,7 +6890,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     companion object {
         private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
-        private const val TAG_MANAGE_LABELS = "ManageLabelsNavHost"
         private const val TAG_BOOKMARKS = "BookmarksNavHost"
         private const val TAG_MY_DOCUMENT_PAGES = "MyDocPagesNavHost"
         private const val TAG_MY_DOCUMENTS = "MyDocumentsNavHost"
@@ -8126,11 +6918,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
 
-        /**
-         * Classic `ManageLabels.kt`'s own key, unchanged so a user's persisted StudyPad
-         * content-search mode survives the migration (`ManageLabelsComposeActivity.kt:154`, `:577`).
-         */
-        private const val MANAGE_LABELS_SEARCH_MODE_KEY = "labels_list_search_mode"
 
         /** Host-wide concerns (onNewIntent routing), as opposed to one cluster's baggage. */
         private const val TAG_NAV_HOST = "NavHostCompose"
@@ -8187,9 +6974,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         /** [onSaveInstanceState]'s key for [initialisedAfterStart] (slice 8 E2 fix round 1). */
         private const val STATE_INITIALISED_AFTER_START = "nav_initialised_after_start"
 
-        /** [onSaveInstanceState]'s key for the bookmark/label/MyDocuments value snapshot ([BookmarkRecreationState]). */
-        private const val STATE_BOOKMARK_RECREATION = "bookmark-recreation"
-
         /** [onSaveInstanceState]'s key for [appHosts]' [AppHostsState] (a JSON string). */
         private const val STATE_APP_HOSTS = "nav_app_hosts"
 
@@ -8208,52 +6992,6 @@ private fun Tool.toToolVd() = ToolVd(
     requiresPermission = requiresPermission,
     categoryId = category.name,
 )
-
-/**
- * [NavHostComposeActivity.LabelEditDeletePrompt]'s pure rendering (fix round 1, Task 22 review,
- * Important finding 2): every string is pre-resolved by the caller, so this composable touches no
- * Android resource / Activity context and can be driven directly by a Robolectric compose-ui test
- * without a live [NavHostComposeActivity] instance. [orphanedMessage] is only read for
- * [DeletePrompt.Orphaned] (null for [DeletePrompt.Confirm], which needs no body text).
- *
- * `AbOptionsDialog` (spec §6.2) renders [DeletePrompt.Orphaned]'s three answers (delete both,
- * delete label only, cancel), same labels and order as the classic/`ComposeAlertDialog` row it
- * replaced. [DeletePrompt.Confirm] (out of Task 22's scope, a plain 2-way "delete this label?")
- * keeps its `ComposeAlertDialog`.
- */
-@Composable
-internal fun LabelEditDeletePromptContent(
-    prompt: DeletePrompt,
-    title: String,
-    orphanedMessage: String?,
-    deleteBothLabel: String,
-    deleteOnlyLabel: String,
-    cancelLabel: String,
-    confirmLabel: String,
-    dismissLabel: String,
-    onConfirm: (deleteOrphaned: Boolean) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    when (prompt) {
-        is DeletePrompt.Orphaned -> AbOptionsDialog(
-            title = title,
-            message = orphanedMessage,
-            options = listOf(
-                SettingsItem.Choice(value = "both", label = deleteBothLabel),
-                SettingsItem.Choice(value = "labelOnly", label = deleteOnlyLabel),
-            ),
-            onSelect = { value -> onConfirm(value == "both") },
-            onDismissRequest = onDismiss,
-            dismissText = cancelLabel,
-        )
-        DeletePrompt.Confirm -> ComposeAlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(title) },
-            confirmButton = { TextButton(onClick = { onConfirm(false) }) { Text(confirmLabel) } },
-            dismissButton = { TextButton(onClick = onDismiss) { Text(dismissLabel) } },
-        )
-    }
-}
 
 /**
  * Delivers every document-sync running edge to [onRunning] on [scope] until the returned stop runs.

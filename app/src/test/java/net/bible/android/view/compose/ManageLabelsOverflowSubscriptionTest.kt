@@ -163,7 +163,25 @@ class ManageLabelsOverflowSubscriptionTest {
      */
     @Test
     fun theHostReadsBothOverflowBooleansOutsideTheSessionLet() {
-        val path = "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
+        // The overlay block moved to the bookmark host (I2 Stream A Task 8); the activity is still scanned so a
+        // copy that crept back into it is held to the same ordering. Only the host must contain the booleans.
+        val hostPath = "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/bookmark/BookmarkHost.kt"
+        val activityPath = "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
+        val inHost = offendersIn(hostPath, mustContainBooleans = true)
+        val inActivity = offendersIn(activityPath, mustContainBooleans = false)
+        val offenders = inHost + inActivity
+        assertEquals(
+            "the host gates an overflow boolean behind the plain `manageLabelsSession` field. That " +
+                "field is not snapshot state, so when the host starts on `bookmarks` the boolean is " +
+                "never read on the one pass this body composes and the dialog can never open. Read " +
+                "the state FIRST, look the session up inside. Offenders:\n" + offenders.joinToString("\n"),
+            emptyList<String>(),
+            offenders,
+        )
+    }
+
+    /** The overflow booleans' `if (` sites in [path] that sit inside a `manageLabelsSession` let block. */
+    private fun offendersIn(path: String, mustContainBooleans: Boolean): List<String> {
         val text = File(path).readText()
         assertTrue("cannot find $path", text.isNotEmpty())
 
@@ -181,7 +199,6 @@ class ManageLabelsOverflowSubscriptionTest {
         }
 
         val offenders = mutableListOf<String>()
-        var found = 0
         for (name in listOf("manageLabelsHelpOpen", "manageLabelsExportOpen")) {
             val condition = "if ($name"
             var searchFrom = 0
@@ -191,25 +208,16 @@ class ManageLabelsOverflowSubscriptionTest {
                 if (at < 0) break
                 searchFrom = at + condition.length
                 seen++
-                found++
                 if (letBlocks.any { at in it }) {
-                    offenders.add("$name's `if (` at offset $at is INSIDE a manageLabelsSession let block")
+                    offenders.add("$path: $name's `if (` at offset $at is INSIDE a manageLabelsSession let block")
                 }
             }
-            assertTrue(
-                "$path: no `if ($name` found at all — this guard would pass vacuously",
-                seen > 0,
-            )
+            if (mustContainBooleans) {
+                assertTrue("$path: no `if ($name` found at all — this guard would pass vacuously", seen > 0)
+            }
         }
-        assertTrue("the scan read nothing", found >= 2)
-        assertEquals(
-            "the host gates an overflow boolean behind the plain `manageLabelsSession` field. That " +
-                "field is not snapshot state, so when the host starts on `bookmarks` the boolean is " +
-                "never read on the one pass this body composes and the dialog can never open. Read " +
-                "the state FIRST, look the session up inside. Offenders:\n" + offenders.joinToString("\n"),
-            emptyList<String>(),
-            offenders,
-        )
+        if (mustContainBooleans) assertTrue("$path: no session let block found — the scan reads the wrong text", letBlocks.isNotEmpty())
+        return offenders
     }
 
     /** Index of the `}` matching `text[openBraceIndex]`, or null if it never balances. */

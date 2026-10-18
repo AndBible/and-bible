@@ -16,6 +16,12 @@ interface HostShell {
     /** Android: `recreate()`. */
     fun recreateHost()
 
+    /**
+     * The host window's current title (what [setWindowTitle] last set). Android: `title`. The bookmark list reads it
+     * as the description of the bookmark the user picked.
+     */
+    val windowTitle: String get() = ""
+
     /** Back to the reading destination, as `startActivity(intentFor(READING), CLEAR_TOP|SINGLE_TOP)` does today. */
     fun openReading()
 

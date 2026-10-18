@@ -278,6 +278,21 @@ interface Strings {
     val chooseDocumentTitle: String           // R.string.chooseBook
     val chooseDocumentDownload: String        // R.string.download
     val chooseDocumentBackup: String          // R.string.backup_modules2
+    val bookmarksAndMynotesTitle: String      // R.string.bookmarks_and_mynotes_title
+    val labelsTitle: String                   // R.string.labels
+    val newLabelDefaultName: String           // R.string.new_label_default_name (a format with %d, for defaultLabelName)
+    fun settingScope(scope: String): String   // R.string.setting_scope
+    val settingScopeWindow: String            // R.string.setting_scope_window
+    val settingScopeWorkspace: String         // R.string.setting_scope_workspace
+    val exportDestinationTitle: String        // R.string.export_destination_title
+    val exportDestinationMessage: String      // R.string.export_destination_message
+    val backupPhoneStorage: String            // R.string.backup_phone_storage
+    val reorder: String                       // R.string.reorder
+    val clearAutoAssignLabels: String         // R.string.clear_auto_assign_labels
+    fun deleteLabelConfirmation(name: String): String         // R.string.delete_label_confirmation
+    fun confirmDeleteOrphanedBookmarks(count: Int): String    // R.string.confirm_delete_orphaned_bookmarks
+    val deleteLabelAndBookmarks: String       // R.string.delete_label_and_bookmarks
+    val deleteLabelOnly: String               // R.string.delete_label_only
     // --- end I2 Stream A (app root) ---
     val errorOccurred: String
     val okay: String

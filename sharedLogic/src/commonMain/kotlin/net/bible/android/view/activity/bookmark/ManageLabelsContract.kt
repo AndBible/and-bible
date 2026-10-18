@@ -16,13 +16,12 @@
  */
 package net.bible.android.view.activity.bookmark
 
-import net.bible.android.activity.R
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.platform.AppJson
 import kotlinx.serialization.Serializable
-import android.util.Log
 
 /**
  * The `ManageLabels` intent contract, lifted out of the activity itself because the classic
@@ -34,7 +33,7 @@ import android.util.Log
  * activity.
  *
  * The `Json` instance is FULLY QUALIFIED on purpose. `ManageLabels.kt` both imported
- * `CommonUtils.json` and declared a same-package `val json` with different settings; the import won,
+ * `AppJson` and declared a same-package `val json` with different settings; the import won,
  * but relying on that resolution rule after a file move is how a payload quietly starts rejecting
  * unknown properties. Same reasoning, and the same shape, as `RepositoryData` in
  * `download/CustomRepositoryEditor.kt`.
@@ -86,16 +85,7 @@ object ManageLabelsContract {
                     else -> {}
                 }
 
-        val titleId: Int get() {
-            return when(mode) {
-                Mode.ASSIGN -> R.string.assign_labels
-                Mode.STUDYPAD -> R.string.studypads
-                Mode.WORKSPACE -> R.string.labels
-                Mode.HIDELABELS -> R.string.bookmark_settings_hide_labels_title
-            }
-        }
-
-        fun toJSON(): String = CommonUtils.json.encodeToString(serializer(), this)
+        fun toJSON(): String = AppJson.encodeToString(serializer(), this)
         fun applyFrom(workspaceSettings: WorkspaceEntities.WorkspaceSettings?): ManageLabelsData {
             workspaceSettings?: return this
             autoAssignLabels.addAll(workspaceSettings.autoAssignLabels)
@@ -104,7 +94,7 @@ object ManageLabelsContract {
         }
 
         companion object {
-            fun fromJSON(str: String): ManageLabelsData = CommonUtils.json.decodeFromString(serializer(), str)
+            fun fromJSON(str: String): ManageLabelsData = AppJson.decodeFromString(serializer(), str)
         }
     }
 }

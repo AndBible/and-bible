@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.bookmark
 
 import kotlinx.serialization.Serializable
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.LabelFilter
@@ -9,14 +10,38 @@ import net.bible.sharedcore.bookmark.ManageLabelsSnapshot
 import net.bible.sharedcore.bookmark.OverrideMode
 import net.bible.sharedcore.bookmark.SearchMode
 
+/**
+ * The value snapshot the nav host saves for the bookmark, label and My Documents screens (one session per host),
+ * decoded from the saved state at startup. Each destination consumes its part when it re-composes; later saves
+ * keep carrying the unconsumed parts. The manager and editor fields are cleared at their exits; [list] and
+ * [documentsSearch] are not, because those roots are never re-entered.
+ */
 @Serializable
-internal data class MyDocumentsSearchValue(val query: String, val searchOpen: Boolean, val selectedInitials: Set<String>) {
+data class BookmarkRecreationState(
+    val filter: Int? = null,
+    val list: BookmarksValue? = null,
+    val pendingAssignIds: List<String>? = null,
+    val awaitingManager: Boolean = false,
+    val managerKey: String? = null,
+    val manager: ManageLabelsValue? = null,
+    val labels: List<BookmarkEntities.Label> = emptyList(),
+    val pendingLabel: BookmarkEntities.Label? = null,
+    val pendingLabelIsNew: Boolean = false,
+    val editorKey: String? = null,
+    val editorDraft: LabelDraftValue? = null,
+    val documentsSearch: MyDocumentsSearchValue? = null,
+    val pages: MyDocumentPagesValue? = null,
+    val cloudFilters: CloudFiltersValue? = null,
+)
+
+@Serializable
+data class MyDocumentsSearchValue(val query: String, val searchOpen: Boolean, val selectedInitials: Set<String>) {
     fun toSnapshot() = net.bible.sharedcore.mydocuments.MyDocumentsSearchSnapshot(query, searchOpen, selectedInitials)
 }
 
 /** Pages screen search + selection; [selectedPageIds] are persistent page ids, not load-order tokens. */
 @Serializable
-internal data class MyDocumentPagesValue(
+data class MyDocumentPagesValue(
     val documentId: String,
     val query: String,
     val searchOpen: Boolean,
@@ -25,7 +50,7 @@ internal data class MyDocumentPagesValue(
 
 /** CloudDocuments type/status filters. */
 @Serializable
-internal data class CloudFiltersValue(
+data class CloudFiltersValue(
     val status: net.bible.sharedcore.cloud.CloudDocFilter,
     val category: net.bible.sharedcore.navigation.DocCategory?,
 ) {
@@ -33,7 +58,7 @@ internal data class CloudFiltersValue(
 }
 
 @Serializable
-internal data class BookmarksValue(
+data class BookmarksValue(
     val filter: Int,
     val query: String,
     val searchOpen: Boolean,
@@ -50,7 +75,7 @@ internal data class BookmarksValue(
 
 /** Android saved-state wire values. Shared controllers do not depend on generated serializers. */
 @Serializable
-internal data class LabelDraftValue(
+data class LabelDraftValue(
     val labelId: String,
     val name: String,
     val color: Int,
@@ -86,7 +111,7 @@ internal data class LabelDraftValue(
 }
 
 @Serializable
-internal data class LabelItemValue(
+data class LabelItemValue(
     val id: String,
     val name: String,
     val color: Int,
@@ -110,7 +135,7 @@ internal data class LabelItemValue(
 }
 
 @Serializable
-internal data class ManageLabelsValue(
+data class ManageLabelsValue(
     val selected: Set<String>,
     val autoAssign: Set<String>,
     val changed: Set<String>,

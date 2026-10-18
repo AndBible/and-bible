@@ -24,6 +24,9 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.util.Collections
+import net.bible.sharedui.app.bookmark.BookmarkHost
+import net.bible.sharedui.app.AppHosts
+import net.bible.sharedui.strings.AndroidStrings
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [35])
@@ -73,7 +76,9 @@ class WorkspaceOverrideOrderingTest {
                 single { queue }
             }))
             val host = activity.get()
-            val sessionClass = Class.forName("net.bible.android.view.activity.nav.NavHostComposeActivity\$ManageLabelsSession")
+            // Only constructed, never create()d: the bookmark host comes from the same Koin, ports and strings.
+            val bookmarkHost = AppHosts(koin, host, host.hostPorts, AndroidStrings(host)).bookmark
+            val sessionClass = Class.forName("net.bible.sharedui.app.bookmark.ManageLabelsSession")
             val session = sessionClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(
                 ManageLabelsContract.ManageLabelsData(ManageLabelsContract.Mode.WORKSPACE), mutableMapOf(label.id.toString() to label),
                 ManageLabelsWrites(koin.get(), scope)
@@ -84,14 +89,14 @@ class WorkspaceOverrideOrderingTest {
                 emptySet(), emptySet(), null, null, null, {}, { _, _ -> }, {}, {}
             )
             sessionClass.getDeclaredField("controller").apply { isAccessible = true }.set(session, controller)
-            NavHostComposeActivity::class.java.getDeclaredField("manageLabelsSession").apply { isAccessible = true }.set(host, "fifo" to session)
-            val pendingClass = Class.forName("net.bible.android.view.activity.nav.NavHostComposeActivity\$PendingLabelEdit")
+            BookmarkHost::class.java.getDeclaredField("manageLabelsSession").apply { isAccessible = true }.set(bookmarkHost, "fifo" to session)
+            val pendingClass = Class.forName("net.bible.sharedui.app.bookmark.PendingLabelEdit")
             fun apply(value: WorkspaceEntities.WorkspaceLabelOverride) {
                 val pending = pendingClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(label, false)
                 sessionClass.getDeclaredField("pendingEdit").apply { isAccessible = true }.set(session, pending)
                 val data = LabelEditContract.LabelData(false, label, false, false, false, false, workspaceOverride = value)
-                NavHostComposeActivity::class.java.getDeclaredMethod("applyLabelEditResult", LabelEditResult::class.java)
-                    .apply { isAccessible = true }.invoke(host, LabelEditResult.Saved(data.toJSON()))
+                BookmarkHost::class.java.getDeclaredMethod("applyLabelEditResult", LabelEditResult::class.java)
+                    .apply { isAccessible = true }.invoke(bookmarkHost, LabelEditResult.Saved(data.toJSON()))
             }
             subscription = koin.get<BookmarkControl>().changes.subscribe { change ->
                 if (change is BookmarkChange.LabelUpserted && change.label.id == label.id) {

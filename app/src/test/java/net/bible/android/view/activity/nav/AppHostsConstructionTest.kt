@@ -70,6 +70,11 @@ class AppHostsConstructionTest {
                 NavResultChannel<net.bible.sharedcore.nav.PassageResult> { },
                 NavResultChannel<net.bible.sharedcore.nav.DocumentResult> { },
             )
+            standalone.bookmark.navDeps(
+                nav, NavResultChannel<net.bible.sharedcore.nav.BookmarkResult> { },
+                NavResultChannel<net.bible.sharedcore.nav.ManageLabelsResult> { },
+                NavResultChannel<net.bible.sharedcore.nav.LabelEditResult> { },
+            )
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
             assertNull("constructing the app hosts built the database container", DatabaseContainer.detachInstanceForTest())
             shadowOf(Looper.getMainLooper()).idle()

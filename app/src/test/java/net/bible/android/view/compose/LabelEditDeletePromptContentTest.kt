@@ -21,9 +21,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import net.bible.android.TEST_SDK
-import net.bible.android.view.activity.nav.LabelEditDeletePromptContent
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.bookmark.DeletePrompt
+import net.bible.sharedui.app.bookmark.LabelEditDeletePromptContent
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
@@ -35,18 +35,16 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Task 22 review, fix round 1, Important finding 2: [NavHostComposeActivity.LabelEditDeletePrompt]
- * (`app/src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt`) is a
- * `private` member composable that needs a live Activity instance to render (it calls its own
- * `getString`), so it had no behaviour test proving the `AbOptionsDialog` swap kept the same
- * callback wiring as the `ComposeAlertDialog` it replaced. The fix extracted the actual rendering
- * into the top-level, `internal` [LabelEditDeletePromptContent], which takes every string
- * pre-resolved and no longer touches Android resources or an Activity -- this test drives THAT
- * directly with plain string literals standing in for what `getString(R.string....)` would
- * otherwise have returned; [NavHostComposeActivity.LabelEditDeletePrompt] itself is now just a
- * one-call wrapper resolving those strings, unchanged in behaviour and still untested at the
- * member-composable level (same architectural gap the review found, now scoped to a thin,
- * low-risk wrapper instead of the actual rendering logic).
+ * Task 22 review, fix round 1, Important finding 2: the label editor's delete prompt is a `private` member
+ * composable of the bookmark host (`sharedUi/.../app/bookmark/BookmarkHost.kt`, formerly of
+ * `NavHostComposeActivity`) that resolves its strings from `Strings`, so it had no behaviour test proving the
+ * `AbOptionsDialog` swap kept the same callback wiring as the `ComposeAlertDialog` it replaced. The fix extracted
+ * the actual rendering into the top-level [LabelEditDeletePromptContent] (now in
+ * `sharedUi/.../app/bookmark/LabelEditDeletePromptContent.kt`), which takes every string pre-resolved and touches
+ * no platform resource -- this test drives THAT directly with plain string literals standing in for what
+ * `Strings` would otherwise have returned; the member in `BookmarkHost` is a one-call wrapper resolving those
+ * strings, still untested at the member-composable level (a thin, low-risk wrapper instead of the actual
+ * rendering logic).
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)

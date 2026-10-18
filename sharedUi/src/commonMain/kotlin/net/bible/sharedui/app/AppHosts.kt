@@ -3,6 +3,7 @@ package net.bible.sharedui.app
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
@@ -10,12 +11,18 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.control.speak.SpeakControl
+import net.bible.android.view.activity.bookmark.BookmarkRecreationState
+import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.history.HistoryManager
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.bookmark.LabelEditService
+import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.EpubSearchService
@@ -23,6 +30,7 @@ import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.workspaces.WorkspaceService
+import net.bible.sharedui.app.bookmark.BookmarkHost
 import net.bible.sharedui.app.chooser.ChooserHost
 import net.bible.sharedui.app.ports.DebugActions
 import net.bible.sharedui.app.ports.ExternalLinks
@@ -43,7 +51,11 @@ import org.koin.core.parameter.parametersOf
  * schema version of the snapshot (a data class needs at least one property).
  */
 @Serializable
-data class AppHostsState(val version: Int = 1)
+data class AppHostsState(
+    val version: Int = 1,
+    /** The bookmark list, label manager and label editor state; null when nothing is worth restoring. */
+    val bookmarks: BookmarkRecreationState? = null,
+)
 
 /**
  * Owns every feature host for one platform host instance (one Activity lifetime on Android).
@@ -145,6 +157,33 @@ class AppHosts(
         )
     }
 
+    private val bookmarkLazy = lazy {
+        BookmarkHost(
+            shell = shell,
+            strings = strings,
+            icons = ports.labelIcons,
+            studyPadExport = ports.studyPadExport,
+            platform = ports.bookmarkPlatform(),
+            appSettingsProvider = { koin.get<AppSettings>() },
+            bookmarksServiceProvider = { koin.get<BookmarksServiceImpl>() },
+            bookmarkControlProvider = { koin.get<BookmarkControl>() },
+            speakControlProvider = { koin.get<SpeakControl>() },
+            windowControlProvider = { koin.get<WindowControl>() },
+            manageLabelsServiceProvider = { koin.get<ManageLabelsService>() },
+            labelEditServiceProvider = { koin.get<LabelEditService>() },
+            fakeBookFactoryProvider = { koin.get<FakeBookFactory>() },
+            appScopeProvider = { koin.get<AppCoroutineScope>() },
+            orderedLauncherProvider = { koin.get<OrderedLauncher>() },
+            restored = current.bookmarks,
+        )
+    }
+
+    /**
+     * The bookmark cluster's deps builder (bookmark list, label manager, label editor) with its sessions and host
+     * overlays. Built on first use; every service behind it resolves lazily, so this touches no database.
+     */
+    val bookmark: BookmarkHost by bookmarkLazy
+
     /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
     fun onHostDestroy() {
         if (workspaceLazy.isInitialized()) workspace.onHostDestroy()
@@ -161,14 +200,24 @@ class AppHosts(
     /** Host-level collectors and sheets, outside the NavHost; grows task by task. */
     @Composable
     fun Overlays() {
+        bookmark.Overlays()
     }
 
     private var current = AppHostsState()
 
-    /** The snapshot to persist; feature hosts contribute their fields as they are lifted in. */
-    fun saveState(): AppHostsState = current
+    /**
+     * The snapshot to persist; feature hosts contribute their fields as they are lifted in. A host that was never
+     * built carries what was restored. The default bookmark snapshot is stored as absent.
+     */
+    fun saveState(): AppHostsState {
+        if (bookmarkLazy.isInitialized()) {
+            current = current.copy(bookmarks = bookmark.recreationSnapshot().takeUnless { it == BookmarkRecreationState() })
+        }
+        return current
+    }
 
     fun restoreState(state: AppHostsState?) {
         current = state ?: AppHostsState()
+        if (bookmarkLazy.isInitialized()) bookmark.updateRestored { current.bookmarks }
     }
 }

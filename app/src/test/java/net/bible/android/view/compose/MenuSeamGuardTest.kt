@@ -64,6 +64,9 @@ class MenuSeamGuardTest {
         // The chooser host: carries the document chooser's overflow menu (`ChooseDocumentOverflowMenu`) since
         // I2 Stream A Task 7 lifted it out of the nav host.
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/chooser/ChooserHost.kt",
+        // The bookmark host: carries the label manager's and label editor's overflow menus
+        // (`ManageLabelsActions`, `LabelEditActions`) since I2 Stream A Task 8 lifted them out of the nav host.
+        "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/bookmark/BookmarkHost.kt",
     )
 
     /**

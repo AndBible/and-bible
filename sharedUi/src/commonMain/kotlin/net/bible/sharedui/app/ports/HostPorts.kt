@@ -1,5 +1,8 @@
 package net.bible.sharedui.app.ports
 
+import net.bible.sharedui.app.bookmark.BookmarkHostPlatform
+import net.bible.sharedui.app.bookmark.LabelIcons
+import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
 import net.bible.sharedui.app.chooser.ChooserHostPlatform
 import net.bible.sharedui.app.welcome.WelcomeHostPlatform
 
@@ -19,4 +22,10 @@ class HostPorts(
     val welcomePlatform: () -> WelcomeHostPlatform,
     /** The platform half of the chooser cluster; a provider because the host builds it on first use. */
     val chooserPlatform: () -> ChooserHostPlatform,
+    /** The label glyphs and top-bar icons of the bookmark cluster. */
+    val labelIcons: LabelIcons,
+    /** StudyPad export, which needs the Activity on Android. */
+    val studyPadExport: StudyPadExportPlatform,
+    /** The platform half of the bookmark cluster; a provider because the host builds it on first use. */
+    val bookmarkPlatform: () -> BookmarkHostPlatform,
 )

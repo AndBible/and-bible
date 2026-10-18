@@ -16,7 +16,7 @@
  */
 package net.bible.android.view.activity.bookmark
 
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -43,10 +43,10 @@ class ManageLabelsWrites(
     /** Awaited before the first write: queued earlier label writes (the editor's OK) must land before the deletes. */
     private val barrier: suspend () -> Unit = {},
 ) {
-    private val started = AtomicBoolean(false)
+    private val started = atomic(false)
 
     /** Whether a save of this visit is running or done (a later [start] would return `null`). */
-    val isStarted: Boolean get() = started.get()
+    val isStarted: Boolean get() = started.value
 
     /**
      * Deletes [deleteKeepingBookmarks] and [deleteWithOrphanedBookmarks], then inserts or updates
@@ -84,7 +84,7 @@ class ManageLabelsWrites(
                 }
                 result.complete(idRemap)
             } catch (e: Throwable) {
-                started.set(false)
+                started.value = false
                 result.completeExceptionally(e)
                 throw e
             }
