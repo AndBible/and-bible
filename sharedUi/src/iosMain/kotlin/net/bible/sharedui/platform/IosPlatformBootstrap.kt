@@ -1,16 +1,20 @@
 package net.bible.sharedui.platform
 
 import kotlinx.coroutines.MainScope
-import net.bible.sharedcore.log.Log
+import net.bible.service.cloudsync.ios.IosBackgroundSync
+import net.bible.service.cloudsync.ios.iosBackgroundRefreshEntry
 import net.bible.sharedcore.platform.sync.BackgroundRefresh
 import net.bible.sharedcore.platform.sync.IosBackgroundRefresh
+import org.koin.mp.KoinPlatform
 
 object IosPlatformBootstrap {
     val backgroundRefresh: BackgroundRefresh by lazy { IosBackgroundRefresh(MainScope()) }
 
-    /** Called before the Swift host finishes launching; I2 will wire the real sync handler. */
-    fun registerBackgroundTasks() = backgroundRefresh.register {
-        Log.i("I1", "background refresh fired")
-        true
+    /** Called before the Swift host finishes launching; the handler is a no-op until Koin has an [IosBackgroundSync]. */
+    fun registerBackgroundTasks() = backgroundRefresh.register { iosBackgroundRefreshEntry() }
+
+    /** Requests the first background refresh; phase 2 calls it after startup. No-op before Koin starts. */
+    fun scheduleBackgroundSync() {
+        KoinPlatform.getKoinOrNull()?.getOrNull<IosBackgroundSync>()?.schedule()
     }
 }
