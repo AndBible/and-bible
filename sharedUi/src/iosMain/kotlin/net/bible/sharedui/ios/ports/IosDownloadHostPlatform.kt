@@ -22,16 +22,49 @@ import androidx.compose.runtime.Composable
 import net.bible.sharedui.app.download.DownloadHostPlatform
 import net.bible.sharedui.app.download.DownloadOverflowItem
 import net.bible.sharedui.ios.IosPending
+import net.bible.sharedcore.log.nsLog
+import okio.FileSystem
 import okio.Path
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSFileSystemFreeSize
+import platform.Foundation.NSNumber
 import org.crosswire.jsword.book.Book
+
+/**
+ * Copies [from] to [to] like Android's `FileManager.copyFile`: false when the source is missing or the target
+ * volume lacks room for it, an existing target is replaced, missing parent directories are created. Never throws.
+ */
+@kotlin.native.HiddenFromObjC
+internal fun copyFileReplacing(from: Path, to: Path, files: FileSystem = FileSystem.SYSTEM): Boolean = try {
+    val size = files.metadataOrNull(from)?.takeIf { it.isRegularFile }?.size
+    if (size == null) {
+        nsLog("copyFile: source missing: $from")
+        false
+    } else {
+        to.parent?.let { files.createDirectories(it) }
+        val free = freeSpaceBytes((to.parent ?: to).toString())
+        if (free != null && size > free) {
+            nsLog("copyFile: not enough room ($size > $free) for $to")
+            false
+        } else {
+            files.delete(to, mustExist = false)
+            files.copy(from, to)
+            true
+        }
+    }
+} catch (e: Throwable) {
+    nsLog("copyFile $from -> $to failed: ${e.message}")
+    false
+}
+
+@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+private fun freeSpaceBytes(path: String): Long? =
+    (NSFileManager.defaultManager.attributesOfFileSystemForPath(path, null)?.get(NSFileSystemFreeSize) as? NSNumber)?.longLongValue
 
 /** Download on iOS: the overflow icon renders nothing; the rest is pending (stream H). */
 @kotlin.native.HiddenFromObjC
 class IosDownloadHostPlatform : DownloadHostPlatform {
-    override fun copyFile(from: Path, to: Path): Boolean {
-        IosPending.log("DownloadHostPlatform.copyFile")
-        return false
-    }
+    override fun copyFile(from: Path, to: Path): Boolean = copyFileReplacing(from, to)
 
     override suspend fun showAbout(book: Book) {
         IosPending.log("DownloadHostPlatform.showAbout")
