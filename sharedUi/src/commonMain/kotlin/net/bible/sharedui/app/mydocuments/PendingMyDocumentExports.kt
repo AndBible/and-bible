@@ -12,6 +12,8 @@ data class MyDocumentsRecreationState(
     val pageIds: List<String> = emptyList(),
     /** True when [documentIds] is a multi-select export (one subfolder per document); false for a single document. */
     val documentsBatch: Boolean = false,
+    /** True while the documents import's file picker was open. */
+    val importPicking: Boolean = false,
 )
 
 /**

@@ -80,7 +80,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -114,7 +113,6 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.backup.BackupControl
-import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.document.canDelete
@@ -138,10 +136,6 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.mydocument.MyDocument
-import net.bible.android.database.mydocument.MyDocumentContentType
-import net.bible.android.database.mydocument.MyDocumentPage
-import net.bible.android.database.mydocument.MyDocumentPageWithContent
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -177,8 +171,6 @@ import net.bible.android.view.activity.download.DocumentConfiguration
 import net.bible.service.download.PseudoBook
 import net.bible.android.view.activity.download.installedDocument
 import net.bible.android.view.activity.bookmark.CloudFiltersValue
-import net.bible.android.view.activity.bookmark.MyDocumentPagesValue
-import net.bible.android.view.activity.bookmark.MyDocumentsSearchValue
 import net.bible.sharedui.app.bookmark.BookmarkDocumentsRecreation
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditContract
@@ -262,8 +254,6 @@ import okio.Path.Companion.toOkioPath
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.service.sword.mydocument.MyDocumentChange
-import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.backup.BackupController
 import net.bible.sharedcore.docs.DocsLinks
@@ -321,7 +311,6 @@ import net.bible.sharedcore.download.CustomRepositoryController
 import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.download.RepositoryResult
-import net.bible.sharedcore.mydocuments.ContentType
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import net.bible.sharedcore.nav.TextSettingsResult
 import net.bible.sharedcore.nav.WorkspaceResult
@@ -333,10 +322,6 @@ import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.ProceedAnswer
-import net.bible.sharedcore.mydocuments.MyDocItem
-import net.bible.sharedcore.mydocuments.MyDocPageItem
-import net.bible.sharedcore.mydocuments.MyDocumentPagesController
-import net.bible.sharedcore.mydocuments.MyDocumentsController
 import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult as NavLabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
@@ -390,7 +375,6 @@ import net.bible.sharedui.download.nav.DownloadNavDeps
 import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentPagesDeps
-import net.bible.sharedui.mydocuments.nav.MyDocumentsDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
@@ -5716,8 +5700,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
         private const val TAG_BOOKMARKS = "BookmarksNavHost"
-        private const val TAG_MY_DOCUMENT_PAGES = "MyDocPagesNavHost"
-        private const val TAG_MY_DOCUMENTS = "MyDocumentsNavHost"
         private const val TAG_DOWNLOAD = "DownloadNavHost"
 
         /**

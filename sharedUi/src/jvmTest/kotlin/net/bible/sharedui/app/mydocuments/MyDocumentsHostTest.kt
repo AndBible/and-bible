@@ -33,11 +33,20 @@ class MyDocumentsHostTest {
     private val infos = mutableListOf<String>()
     private var treePicks = 0
 
+    /** What the redelivered pick of the previous host instance answers; null = it was cancelled. */
+    private var resumedTree: DocumentRef? = null
+    private var resumedDocuments: List<DocumentRef> = emptyList()
+
     private val picker = object : DocumentPicker {
         override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean) = emptyList<DocumentRef>()
         override suspend fun createDocument(suggestedName: String, mimeType: String): DocumentRef? = null
         override suspend fun openDocumentTree(): DocumentRef? { treePicks++; return null }
+        override suspend fun resumeDocumentTree(): DocumentRef? = resumedTree
+        override suspend fun resumeOpenDocuments(): List<DocumentRef> = resumedDocuments
     }
+
+    private class Export(val ids: List<String>, val pages: Boolean, val batch: Boolean, val tree: DocumentRef)
+    private val exports = mutableListOf<Export>()
 
     private val files = object : MyDocumentFiles {
         override suspend fun importPageFile(ref: DocumentRef): ImportedPage? = null
@@ -63,17 +72,56 @@ class MyDocumentsHostTest {
         restoredPages = { null },
         consumeRestoredPages = {},
         restored = restored,
+        exportSeam = { ids, pages, batch, tree -> exports += Export(ids, pages, batch, tree) },
     )
 
     @Test
-    fun lostExportIsReported() {
-        // The picker of the previous host instance is gone: its result can never arrive, so the export is lost.
+    fun restoredPendingExportCompletesWhenTheFolderArrives() {
+        // The folder pick that was open at recreation is redelivered: the export runs, nothing is reported.
+        resumedTree = DocumentRef("content://tree")
         val host = host(MyDocumentsRecreationState(documentIds = listOf("11", "12"), documentsBatch = true))
-        assertEquals(listOf(strings.errorOccurred), infos)
-        // Cleared once reported: a second recreation does not report it again.
+        assertEquals(1, exports.size)
+        assertEquals(listOf("11", "12"), exports.single().ids)
+        assertTrue(exports.single().batch)
+        assertEquals(DocumentRef("content://tree"), exports.single().tree)
+        assertTrue(infos.isEmpty())
+        // Taken: a second recreation does not export it again.
         assertEquals(MyDocumentsRecreationState(), host.recreationSnapshot())
-        host.restore(host.recreationSnapshot())
+    }
+
+    @Test
+    fun restoredPendingExportCancelledClearsSilently() {
+        resumedTree = null
+        val host = host(MyDocumentsRecreationState(pageIds = listOf("p1")))
+        assertTrue(exports.isEmpty())
+        assertTrue(infos.isEmpty())
+        assertEquals(MyDocumentsRecreationState(), host.recreationSnapshot())
+    }
+
+    @Test
+    fun folderWithNoSurvivingIdsIsReportedOnce() {
+        val host = host()
+        host.completeExportPick(ticket = 0, tree = DocumentRef("content://tree"))
+        assertEquals(listOf(strings.errorOccurred), infos)
+        assertTrue(exports.isEmpty())
+        // A cancelled folder with nothing pending stays silent.
+        host.completeExportPick(ticket = 0, tree = null)
         assertEquals(1, infos.size)
+    }
+
+    @Test
+    fun restoredImportPickShowsTheNamePrompt() {
+        resumedDocuments = listOf(DocumentRef("content://a.md"))
+        val host = host(MyDocumentsRecreationState(importPicking = true))
+        assertEquals(strings.newDocumentName(1), host.myDocumentImportNamePrompt.value)
+        assertEquals(MyDocumentsRecreationState(), host.recreationSnapshot())
+    }
+
+    @Test
+    fun cancelledRestoredImportPickShowsNothing() {
+        val host = host(MyDocumentsRecreationState(importPicking = true))
+        assertEquals(null, host.myDocumentImportNamePrompt.value)
+        assertEquals(MyDocumentsRecreationState(), host.recreationSnapshot())
     }
 
     @Test

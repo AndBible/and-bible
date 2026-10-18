@@ -63,6 +63,8 @@ class MyDocumentsHost(
     /** Drops [restoredPages] once applied: later visits to a Pages screen start fresh. */
     private val consumeRestoredPages: () -> Unit,
     restored: MyDocumentsRecreationState? = null,
+    /** Seam for tests: replaces the database-backed folder export. Receives the pending ids, kind, batch flag and folder. */
+    private val exportSeam: (suspend (ids: List<String>, pages: Boolean, batch: Boolean, tree: DocumentRef) -> Unit)? = null,
 ) {
     private val userNotifier: UserNotifier by lazy(userNotifierProvider)
     private val myDocumentDao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
@@ -73,23 +75,26 @@ class MyDocumentsHost(
     /** Identifies the newest export pick; an older one that finishes afterwards must not touch [pendingExports]. */
     private var exportTicket = 0
 
-    init {
-        restore(restored)
-    }
+    /** True while the documents import's file picker is open; saved so the name prompt still follows after recreation. */
+    private var importPicking = false
 
     /** The state to persist across recreation. The empty snapshot means "nothing to restore". */
-    fun recreationSnapshot() = pendingExports.snapshot()
+    fun recreationSnapshot() = pendingExports.snapshot().copy(importPicking = importPicking)
 
     /**
-     * Restores the pending export of the previous host instance. Its folder picker was awaited by a coroutine that
-     * died with that instance, so the pick can never be applied: an export that is still pending here is reported
-     * lost, once, and cleared (never dropped silently).
+     * Restores what the previous host instance was waiting for and resumes it. The platform redelivers a pick that
+     * was open at recreation (see [DocumentPicker.resumeDocumentTree]); an export then runs as if the pick had
+     * happened in this instance, and a cancelled pick clears silently.
      */
     fun restore(state: MyDocumentsRecreationState?) {
         pendingExports.restoreFrom(state)
+        importPicking = state?.importPicking ?: false
         if (pendingExports.isPending) {
-            pendingExports.restoreFrom(null)
-            reportLostMyDocumentExport()
+            val ticket = ++exportTicket
+            shell.hostScope.launch { completeExportPick(ticket, documentPicker.resumeDocumentTree()) }
+        }
+        if (importPicking) {
+            shell.hostScope.launch { completeImportPick(documentPicker.resumeOpenDocuments()) }
         }
     }
 
@@ -206,16 +211,33 @@ class MyDocumentsHost(
     internal fun launchMyDocumentPagesExport(tokens: List<Long>) {
         val ids = tokens.mapNotNull { myDocumentPagesEntityByLong[it]?.id?.toString() }
         if (ids.isEmpty()) return reportLostMyDocumentExport()
+        pendingExports.restoreFrom(null)
         pendingExports.pageIds = ids
         val ticket = ++exportTicket
-        shell.hostScope.launch {
-            val tree = documentPicker.openDocumentTree()
-            // A newer pick took over the pending state: this one was superseded and must leave it alone.
-            if (ticket != exportTicket) return@launch
-            val pickedIds = pendingExports.takePageIds()
-            if (tree != null) {
-                if (pickedIds.isNotEmpty()) exportMyDocumentPagesToFolder(pickedIds, tree) else reportLostMyDocumentExport()
-            }
+        shell.hostScope.launch { completeExportPick(ticket, documentPicker.openDocumentTree()) }
+    }
+
+    /**
+     * Applies a folder pick to the pending export: runs it, or drops it silently when the pick was cancelled. A
+     * folder with nothing left to export is reported, never ignored.
+     */
+    internal fun completeExportPick(ticket: Int, tree: DocumentRef?) {
+        // A newer pick took over the pending state: this one was superseded and must leave it alone.
+        if (ticket != exportTicket) return
+        // Resolved by persistent id from the DB, not through a session: after a recreation (picker still open)
+        // the session is rebuilt and may not be loaded.
+        val batch = pendingExports.documentsBatch
+        val pageIds = pendingExports.takePageIds()
+        val documentIds = pendingExports.takeDocumentIds()
+        pendingExports.documentsBatch = false
+        if (tree == null) return
+        when {
+            exportSeam != null && (pageIds.isNotEmpty() || documentIds.isNotEmpty()) ->
+                shell.hostScope.launch { exportSeam.invoke(pageIds.ifEmpty { documentIds }, pageIds.isNotEmpty(), batch, tree) }
+            pageIds.isNotEmpty() -> exportMyDocumentPagesToFolder(pageIds, tree)
+            documentIds.isEmpty() -> reportLostMyDocumentExport()
+            batch -> exportMyDocumentsToFolder(documentIds, tree)
+            else -> exportMyDocumentByIdToFolder(documentIds.first(), tree)
         }
     }
 
@@ -224,15 +246,19 @@ class MyDocumentsHost(
         shell.hostScope.launch {
             val refs = documentPicker.openDocuments(MY_DOCUMENT_IMPORT_MIME_TYPES, multiple = true)
             if (refs.isEmpty()) return@launch
-            for (ref in refs.sortedBy { files.displayName(it) ?: "" }) importMyDocumentPageFile(ref)
+            val addPage = addMyDocumentPageToList
+            for (ref in refs.sortedBy { files.displayName(it) ?: "" }) importMyDocumentPageFile(ref, addPage)
         }
     }
 
     /** Import a single text file as a new page. */
-    private suspend fun importMyDocumentPageFile(ref: DocumentRef) {
+    private suspend fun importMyDocumentPageFile(
+        ref: DocumentRef,
+        addPage: ((title: String, contentType: MyDocumentContentType, content: String) -> Unit)?,
+    ) {
         try {
             val page = files.importPageFile(ref) ?: return
-            addMyDocumentPageToList?.invoke(page.title, page.contentType, page.content)
+            addPage?.invoke(page.title, page.contentType, page.content)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -540,19 +566,22 @@ class MyDocumentsHost(
      * Classic's `importNamePrompt` Compose state as a host flow -- see [MyDocumentsDeps.importNamePrompt]'s kdoc for
      * why it cannot be `remember`ed in the arm.
      */
-    private val myDocumentImportNamePrompt = MutableStateFlow<String?>(null)
+    internal val myDocumentImportNamePrompt = MutableStateFlow<String?>(null)
 
     private fun importMyDocuments() {
-        shell.hostScope.launch {
-            val refs = documentPicker.openDocuments(MY_DOCUMENT_IMPORT_MIME_TYPES, multiple = true)
-            // Parity with classic showImportNameDialog: don't import immediately -- stash the files
-            // and open the import name dialog pre-filled with the same default name; import runs on
-            // the user's confirm.
-            if (refs.isNotEmpty()) {
-                pendingMyDocumentImportRefs = refs
-                myDocumentImportNamePrompt.value =
-                    strings.newDocumentName((myDocumentsSession?.entityByLong?.size ?: 0) + 1)
-            }
+        importPicking = true
+        shell.hostScope.launch { completeImportPick(documentPicker.openDocuments(MY_DOCUMENT_IMPORT_MIME_TYPES, multiple = true)) }
+    }
+
+    private fun completeImportPick(refs: List<DocumentRef>) {
+        importPicking = false
+        // Parity with classic showImportNameDialog: don't import immediately -- stash the files
+        // and open the import name dialog pre-filled with the same default name; import runs on
+        // the user's confirm.
+        if (refs.isNotEmpty()) {
+            pendingMyDocumentImportRefs = refs
+            myDocumentImportNamePrompt.value =
+                strings.newDocumentName((myDocumentsSession?.entityByLong?.size ?: 0) + 1)
         }
     }
 
@@ -574,25 +603,11 @@ class MyDocumentsHost(
     internal fun launchMyDocumentsExport(tokens: List<Long>, batch: Boolean) {
         val ids = tokens.mapNotNull { myDocumentsSession?.entityByLong?.get(it)?.id?.toString() }
         if (ids.isEmpty()) return reportLostMyDocumentExport()
+        pendingExports.restoreFrom(null)
         pendingExports.documentIds = ids
         pendingExports.documentsBatch = batch
         val ticket = ++exportTicket
-        shell.hostScope.launch {
-            val tree = documentPicker.openDocumentTree()
-            // A newer pick took over the pending state: this one was superseded and must leave it alone.
-            if (ticket != exportTicket) return@launch
-            // Resolved by persistent id from the DB, not through [myDocumentsSession]: after a
-            // recreation (picker still open) the session is rebuilt and may not be loaded.
-            val pickedBatch = pendingExports.documentsBatch
-            val pickedIds = pendingExports.takeDocumentIds()
-            if (tree != null) {
-                when {
-                    pickedIds.isEmpty() -> reportLostMyDocumentExport()
-                    pickedBatch -> exportMyDocumentsToFolder(pickedIds, tree)
-                    else -> exportMyDocumentByIdToFolder(pickedIds.first(), tree)
-                }
-            }
-        }
+        shell.hostScope.launch { completeExportPick(ticket, documentPicker.openDocumentTree()) }
     }
 
     /**
@@ -715,5 +730,10 @@ class MyDocumentsHost(
                 userNotifier.showInfo(strings.errorOccurred)
             }
         }
+    }
+
+    // Last member on purpose: restoring may resume a pick at once, and that touches every property above.
+    init {
+        restore(restored)
     }
 }

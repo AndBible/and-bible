@@ -22,9 +22,19 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
     private var pendingCreate: CompletableDeferred<Uri?>? = null
     private var pendingTree: CompletableDeferred<Uri?>? = null
 
+    /**
+     * A result that arrived with no one awaiting it: the Activity was recreated while a picker was open, and the
+     * registry redelivered the result to the launcher of the new instance (same key) before any host asked for it.
+     * Kept until [resumeOpenDocuments] / [resumeDocumentTree] claims it; null inside means a cancelled pick.
+     */
+    private class Orphan<T>(val value: T)
+    private var orphanOpenMultiple: Orphan<List<Uri>>? = null
+    private var orphanTree: Orphan<Uri?>? = null
+
     private val openMultipleLauncher = activity.registerForActivityResult(OpenWithMimeTypes(multiple = true)) {
-        pendingOpenMultiple?.complete(it.orEmpty())
+        val pending = pendingOpenMultiple
         pendingOpenMultiple = null
+        if (pending != null) pending.complete(it.orEmpty()) else orphanOpenMultiple = Orphan(it.orEmpty())
     }
     private val openSingleLauncher = activity.registerForActivityResult(OpenWithMimeTypes(multiple = false)) {
         pendingOpenSingle?.complete(it.firstOrNull())
@@ -35,8 +45,9 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
         pendingCreate = null
     }
     private val treeLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) {
-        pendingTree?.complete(it)
+        val pending = pendingTree
         pendingTree = null
+        if (pending != null) pending.complete(it) else orphanTree = Orphan(it)
     }
 
     override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean): List<DocumentRef> {
@@ -58,6 +69,19 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
     override suspend fun openDocumentTree(): DocumentRef? =
         CompletableDeferred<Uri?>().also { pendingTree?.complete(null); pendingTree = it }
             .also { treeLauncher.launch(null) }.await()?.let { DocumentRef(it.toString()) }
+
+    override suspend fun resumeOpenDocuments(): List<DocumentRef> {
+        orphanOpenMultiple?.let { orphanOpenMultiple = null; return it.value.map { uri -> DocumentRef(uri.toString()) } }
+        // Nothing buffered yet: await the redelivered result without launching anything.
+        return CompletableDeferred<List<Uri>>().also { pendingOpenMultiple?.complete(emptyList()); pendingOpenMultiple = it }
+            .await().map { DocumentRef(it.toString()) }
+    }
+
+    override suspend fun resumeDocumentTree(): DocumentRef? {
+        orphanTree?.let { orphanTree = null; return it.value?.let { uri -> DocumentRef(uri.toString()) } }
+        return CompletableDeferred<Uri?>().also { pendingTree?.complete(null); pendingTree = it }
+            .await()?.let { DocumentRef(it.toString()) }
+    }
 
     /** `ACTION_OPEN_DOCUMENT` with an explicit MIME type list, single or multiple. */
     private class OpenWithMimeTypes(private val multiple: Boolean) : ActivityResultContract<List<String>, List<Uri>>() {
