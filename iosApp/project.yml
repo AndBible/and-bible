@@ -16,9 +16,9 @@ targets:
       - path: iosApp
     settings:
       base:
-        # I0 PoC ids; never the store id org.andbible.ios.
-        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.poc
-        PRODUCT_NAME: AndBiblePoC
+        # Dev ids (I2); never the store id org.andbible.ios.
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev
+        PRODUCT_NAME: AndBibleDev
         INFOPLIST_FILE: iosApp/Info.plist
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -49,7 +49,20 @@ targets:
           if [ -z "$JAVA_HOME" ]; then export JAVA_HOME="$(/usr/libexec/java_home -v 17)"; fi
           cd "$SRCROOT/.."
           ./gradlew -Dorg.gradle.native=false :sharedUi:embedAndSignAppleFrameworkForXcode
-      - name: "Copy probe earcons"
+      - name: "Copy app resources"
+        basedOnDependencyAnalysis: false
+        script: |
+          set -eu
+          RES="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
+          RAW="$SRCROOT/../app/src/main/res/raw"
+          # repositories.txt: IosAppStartup reads it from the bundle root.
+          cp "$RAW/repositories.txt" "$RES/repositories.txt"
+          # The two LLM system prompts (KeyedLlmStrings, IosPlatformParts.bundleRawResource).
+          cp "$RAW/llm_agent_system_prompt.md" "$RAW/llm_text_transformation_system_prompt.md" "$RES/"
+          # Reading plans: IosReadingPlanSource reads <bundle>/readingplan/*.properties.
+          mkdir -p "$RES/readingplan"
+          cp "$SRCROOT"/../app/src/main/assets/readingplan/*.properties "$RES/readingplan/"
+      - name: "Copy earcons"
         basedOnDependencyAnalysis: false
         script: |
           set -eu
@@ -69,7 +82,7 @@ targets:
     settings:
       base:
         TEST_TARGET_NAME: iosApp
-        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.poc.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev.uitests
         "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
   iosAppUnitTests:
     type: bundle.unit-test
@@ -78,9 +91,9 @@ targets:
     dependencies: [{target: iosApp}]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.poc.unittests
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.dev.unittests
         # Hosted by the app: Kotlin symbols come from the app binary, never a second copy of SharedUi.
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/AndBiblePoC.app/AndBiblePoC
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/AndBibleDev.app/AndBibleDev
         BUNDLE_LOADER: $(TEST_HOST)
         FRAMEWORK_SEARCH_PATHS:
           - $(inherited)

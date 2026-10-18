@@ -100,7 +100,7 @@ jobs:
           # to that simulator, and stream the app's unified log to a file for the duration of the run.
           UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; n=sys.argv[1]; print(next(d['udid'] for rt in json.load(sys.stdin)['devices'].values() for d in rt if d['name']==n))" "iPhone 16")
           xcrun simctl bootstatus "$UDID" -b || true
-          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBiblePoC"' > build/app-iphone.log 2>&1 &
+          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBibleDev"' > build/app-iphone.log 2>&1 &
           echo $! > build/logstream-iphone.pid
           sleep 2
           xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
@@ -121,7 +121,7 @@ jobs:
           # to that simulator, and stream the app's unified log to a file for the duration of the run.
           UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; n=sys.argv[1]; print(next(d['udid'] for rt in json.load(sys.stdin)['devices'].values() for d in rt if d['name']==n))" "iPad Air 11-inch (M2)")
           xcrun simctl bootstatus "$UDID" -b || true
-          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBiblePoC"' > build/app-ipad.log 2>&1 &
+          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBibleDev"' > build/app-ipad.log 2>&1 &
           echo $! > build/logstream-ipad.pid
           sleep 2
           xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \

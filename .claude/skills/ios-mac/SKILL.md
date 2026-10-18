@@ -84,11 +84,11 @@ Results land in `.local/mac/<container>/`: `native-tests/<module>/test-results/â
 | Symptom | Do |
 |---------|----|
 | App crashed | `sim crashes` â†’ `.local/mac/<container>/crashes/*.ips` (crashed thread, Kotlin/Native frames) |
-| App hangs or spins | `sim sample` (5 s stack sample of AndBiblePoC; main thread first) |
+| App hangs or spins | `sim sample` (5 s stack sample of AndBibleDev; main thread first) |
 | What did the app log | `sim log [minutes]`; during XCUITest runs `xcode/app-<device>.log` |
 | See the screen now | `sim shot <name>` |
 | Reproduce by hand | `xcode-build iphone` (installs + launches), `sim launch`, `sim shot`, `sim log 2` |
-| Need something else (lldb, defaults, simctl) | `run '<command>'`, e.g. `run 'xcrun simctl get_app_container booted org.andbible.ios.poc data'` |
+| Need something else (lldb, defaults, simctl) | `run '<command>'`, e.g. `run 'xcrun simctl get_app_container booted org.andbible.ios.dev data'` |
 
 A Native-only failure in kdom reproduces faster in the container (`:kdom:linuxX64Test`); everything
 using Foundation/UIKit needs the Mac.
