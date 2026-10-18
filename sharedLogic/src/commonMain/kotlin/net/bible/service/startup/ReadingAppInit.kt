@@ -335,12 +335,15 @@ object ReadingAppInit {
     /**
      * Builds the [WindowRepository] on [scope], makes it the [WindowControl]'s repository and loads it. Asking again
      * with the same scope returns the repository already built for it.
+     * [onConstructed] runs right after construction, before the repository is taken and loaded.
      */
-    fun createWindowRepository(scope: CoroutineScope): WindowRepository {
+    fun createWindowRepository(scope: CoroutineScope, onConstructed: (WindowRepository) -> Unit = {}): WindowRepository {
         lastRepository?.let { if (lastRepositoryScope === scope) return it }
         val repository = WindowRepository(scope)
         lastRepositoryScope = scope
         lastRepository = repository
+        // The caller must see the repository before it loads: the load posts workspace events synchronously and their subscribers read it.
+        onConstructed(repository)
         // Flushes the previous owner first, so initializeAtEdge() reads a DB that has its last edit (CR-1 I1).
         KoinPlatform.getKoin().get<WindowControl>().takeWindowRepository(repository)
         loadRepository(repository)

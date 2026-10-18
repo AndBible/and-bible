@@ -38,7 +38,6 @@ class AiSettingsFixtureLifetimeTest {
         val release = kotlinx.coroutines.CompletableDeferred<Unit>()
         val sentinel = IllegalStateException("fixture Main pump failure")
         val handler = Thread.getDefaultUncaughtExceptionHandler()
-        val initialized = CommonUtils::class.java.getDeclaredField("initialized").apply { isAccessible = true }
         val containerField = DatabaseContainer.Companion::class.java.enclosingClass
             .getDeclaredField("_instance").apply { isAccessible = true }
         val child = scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
@@ -53,7 +52,7 @@ class AiSettingsFixtureLifetimeTest {
             assertSame("no detach before actual completion", container, containerField.get(null))
             assertSame(scope, koin.get<net.bible.sharedcore.platform.AppCoroutineScope>())
             assertSame(settings, koin.get<AiSettings>())
-            assertTrue("global resource cleanup is deferred", initialized.getBoolean(CommonUtils))
+            assertTrue("global resource cleanup is deferred", CommonUtils.initialized)
             assertSame(handler, Thread.getDefaultUncaughtExceptionHandler())
             assertTrue("restart must reject incomplete old ownership",
                 runCatching { app.onCreate() }.exceptionOrNull() is IllegalStateException)
@@ -96,9 +95,8 @@ class AiSettingsFixtureLifetimeTest {
             val failure = runCatching { app.onTerminate() }.exceptionOrNull()
             assertSame("original restoration failure remains visible", expected, failure)
             assertFalse(scope.coroutineContext[kotlinx.coroutines.Job]!!.isActive)
-            val initialized = CommonUtils::class.java.getDeclaredField("initialized").apply { isAccessible = true }
             assertFalse("restoration failure must not bypass CommonUtils.destroy()",
-                initialized.getBoolean(CommonUtils))
+                CommonUtils.initialized)
             app.onTerminate()
         } finally {
             loggerField.set(koin, originalLogger)

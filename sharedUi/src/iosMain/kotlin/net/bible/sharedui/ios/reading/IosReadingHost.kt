@@ -79,7 +79,7 @@ class IosReadingHost(
                 if (page == null) IosPending.log("ReadingToolbar.onTitleTap") else navigator.startKeyChooser(page)
             },
             onTitleLongPress = { IosPending.log("ReadingToolbar.onTitleLongPress") },
-            onTitleFlingVertical = { navigator.openWorkspaceSelector() },
+            onTitleFlingVertical = { IosPending.log("ReadingToolbar.onTitleFlingVertical") },
             onTitleFlingHorizontal = { IosPending.log("ReadingToolbar.onTitleFlingHorizontal") },
             onBible = { IosPending.log("ReadingToolbar.onBible") },
             onBibleLong = { IosPending.log("ReadingToolbar.onBibleLong") },
@@ -90,7 +90,7 @@ class IosReadingHost(
             onSearch = { navigator.openSearch(null) },
             onSpeak = { IosPending.log("ReadingToolbar.onSpeak") },
             onSpeakLong = { IosPending.log("ReadingToolbar.onSpeakLong") },
-            onWorkspace = { navigator.openWorkspaceSelector() },
+            onWorkspace = { IosPending.log("ReadingToolbar.onWorkspace") },
             onOverflow = { IosPending.log("ReadingToolbar.onOverflow") },
         )
     }

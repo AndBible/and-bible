@@ -118,8 +118,6 @@ class PromptEditMutationHostTest {
         val container = DatabaseContainer.instance
         val containerField = DatabaseContainer.Companion::class.java.enclosingClass
             .getDeclaredField("_instance").apply { isAccessible = true }
-        val initialized = net.bible.service.common.CommonUtils::class.java
-            .getDeclaredField("initialized").apply { isAccessible = true }
         val handler = Thread.getDefaultUncaughtExceptionHandler()
         val release = CompletableDeferred<Unit>()
         val sentinel = IllegalStateException("local dispatcher drain failed")
@@ -142,7 +140,7 @@ class PromptEditMutationHostTest {
             assertFalse(parent.isCompleted)
             assertSame(container, containerField.get(null))
             assertSame(owner, koin.get<AppCoroutineScope>())
-            assertTrue(initialized.getBoolean(net.bible.service.common.CommonUtils))
+            assertTrue(net.bible.service.common.CommonUtils.initialized)
             assertSame(handler, Thread.getDefaultUncaughtExceptionHandler())
             assertTrue(runCatching { app.onCreate() }.exceptionOrNull() is IllegalStateException)
             release.complete(Unit)

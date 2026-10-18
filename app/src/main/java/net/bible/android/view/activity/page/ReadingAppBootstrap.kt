@@ -214,7 +214,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
      */
     fun createWindowRepository(): WindowRepository {
         if (this::windowRepository.isInitialized) return windowRepository
-        windowRepository = net.bible.service.startup.ReadingAppInit.createWindowRepository(host.lifecycleScope)
+        // Assigned before the load: it posts workspace events synchronously and their subscribers read hostWindowRepository.
+        net.bible.service.startup.ReadingAppInit.createWindowRepository(host.lifecycleScope) { windowRepository = it }
         return windowRepository
     }
 
