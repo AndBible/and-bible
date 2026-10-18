@@ -110,17 +110,16 @@ class IosContentPortsTest {
 
     @Test fun contentSourceMimeTypeFallbackTableCoversExchangedTypes() {
         val source = IosContentSource()
+        // Exact values; the system UTType database may answer first for some, so these are the values both agree on.
         val expected = mapOf(
-            "a.xml" to "xml", "a.html" to "html", "a.csv" to "csv", "a.zip" to "zip", "a.epub" to "epub",
-            "a.pdf" to "pdf", "a.png" to "image/png", "a.JPG" to "image/jpeg", "a.gif" to "image/gif", "a.mp3" to "audio",
-            "a.wav" to "audio", "a.m4a" to "audio", "a.mp4" to "video",
+            "a.json" to "application/json", "a.xml" to "application/xml", "a.txt" to "text/plain", "a.html" to "text/html",
+            "a.csv" to "text/csv", "a.md" to "text/markdown", "a.zip" to "application/zip",
+            "a.epub" to "application/epub+zip", "a.pdf" to "application/pdf", "a.png" to "image/png",
+            "a.JPG" to "image/jpeg", "a.jpeg" to "image/jpeg", "a.gif" to "image/gif", "a.db" to "application/octet-stream",
+            "a.sqlite" to "application/vnd.sqlite3", "a.mp3" to "audio/mpeg", "a.wav" to "audio/wav", "a.m4a" to "audio/mp4",
+            "a.mp4" to "video/mp4", "a.conf" to "text/plain", "a.properties" to "text/plain",
         )
-        for ((name, fragment) in expected) {
-            val mime = source.mimeType(name)
-            assertTrue(mime != null && fragment in mime, "$name -> $mime")
-        }
-        for (name in listOf("a.md", "a.db", "a.sqlite", "a.conf", "a.properties")) assertTrue(source.mimeType(name) != null, name)
-        assertEquals("text/plain", source.mimeType("a.conf"))
+        for ((name, mime) in expected) assertEquals(mime, source.mimeType(name), name)
     }
 
     // --- IosMarkdownRenderer

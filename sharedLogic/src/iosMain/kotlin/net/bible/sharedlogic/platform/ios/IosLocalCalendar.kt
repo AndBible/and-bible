@@ -119,10 +119,18 @@ class IosLocalCalendar(
             index = candidates.singleOrNull()
         }
         if (index == null) return null
+        val dayNumber = day.toInt()
+        val yearNumber = year.toInt()
+        if (dayNumber !in 1..31 || yearNumber !in 1000..9999) return null
+        val cal = calendar
         val parts = NSDateComponents().apply {
-            this.year = year.toLong(); month = (index + 1).toLong(); this.day = day.toLong()
+            this.year = yearNumber.toLong(); month = (index + 1).toLong(); this.day = dayNumber.toLong()
         }
-        return calendar.dateFromComponents(parts)?.toEpochMs()
+        val date = cal.dateFromComponents(parts) ?: return null
+        // dateFromComponents rolls an impossible day over (31 February becomes 3 March): require the parts to round-trip.
+        val back = cal.components(NSCalendarUnitYear or NSCalendarUnitMonth or NSCalendarUnitDay, fromDate = date)
+        if (back.year != parts.year || back.month != parts.month || back.day != parts.day) return null
+        return date.toEpochMs()
     }
 
     /** Lower case, no dots, no combining diacritics (Finnish `helmik.` and `Helmik` compare equal). */
