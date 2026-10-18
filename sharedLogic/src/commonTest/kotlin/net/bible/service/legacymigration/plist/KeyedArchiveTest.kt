@@ -19,6 +19,23 @@ class KeyedArchiveTest {
         "\$classes" to PlistArray((listOf(name) + supers).map { PlistString(it) }),
     ))
 
+    /**
+     * Real `ZWORKSPACE.ZAUTOASSIGNLABELS` blob (Core Data transformable NSSet) from the 1.0.2 / iOS 26 `rich`
+     * fixture store. All 16 fixture stores hold this same one-element set; none holds an empty one.
+     */
+    private val realNSSetHex =
+            "62706C6973743030D4010203040506070A582476657273696F6E592461726368697665725424746F7058246F626A6563" +
+            "747312000186A05F100F4E534B657965644172636869766572D1080954726F6F748001A50B0C12161C55246E756C6CD2" +
+            "0D0E0F115A4E532E6F626A656374735624636C617373A11080028004D2130E14155C4E532E7575696462797465734F10" +
+            "10130000000000000000000000000001018003D21718191A5A24636C6173736E616D655824636C6173736573564E5355" +
+            "554944A2191B584E534F626A656374D217181D1E554E53536574A21D1B08111A24293237494C5153595F646F76787A7C" +
+            "818EA1A3A8B3BCC3C6CFD4DA0000000000000101000000000000001F000000000000000000000000000000DD"
+
+    @Test fun realCoreDataNSSetBlobDecodes() {
+        val bytes = realNSSetHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        assertEquals(setOf<Any?>(LegacyUuid("13000000-0000-0000-0000-000000000101")), KeyedArchive.decode(bytes))
+    }
+
     @Test fun emptyNSSetDecodesToEmptySet() {
         // Mirrors the shape Core Data stores for an empty transformable NSSet attribute.
         val bytes = archive(
