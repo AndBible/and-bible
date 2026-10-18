@@ -24,6 +24,7 @@ import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
+import org.koin.core.Koin
 import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.core.context.startKoin
@@ -46,7 +47,8 @@ class StartupHooks(
 /** The startup steps shared by Android and iOS, in the order Android has always run them. */
 object SharedAppStartup {
     private const val TAG = "SharedAppStartup"
-    private var errorListener: ReporterListener? = null
+    // Startup runs on the main thread, so no synchronisation; @Volatile covers the test-thread reset.
+    @kotlin.concurrent.Volatile private var errorListener: ReporterListener? = null
 
     /** Steps that need no Koin: repository site map, extra book types, jsword locale provider. Idempotent. */
     fun installEnvironment(repositories: PropertyMap, localeProvider: LocaleProvider) {
@@ -79,7 +81,7 @@ object SharedAppStartup {
         val koin = KoinPlatform.getKoin()
 
         // Folder initialisation precedes Koin; install the transport at the first safe point instead.
-        WebResource.transport = SuspendHttpTransport(koin.get<DownloadHttp>())
+        installDownloadTransport(koin)
 
         SpeakSettings.store = koin.get()
         MyDocumentBookManager.launcher = koin.get()
@@ -87,13 +89,23 @@ object SharedAppStartup {
         installErrorListener(hooks.reportJSwordError)
 
         // BookInstallWatcher is Koin-resolved, so it can only start once Koin is up (not inside initialiseJSwordFolders)
-        if (hooks.isSwordLoaded()) {
-            try {
-                koin.get<BookInstallWatcher>().startListening()
-            } catch (e: Exception) {
-                // Not rethrown (must not stop app startup), but never silent: without it no installed book is backed up.
-                Log.e(TAG, "BookInstallWatcher failed to start; book installs will not be tracked", e)
-            }
+        if (hooks.isSwordLoaded()) startBookInstallWatcher(koin)
+    }
+
+    /** Installs the shared download transport; needs Koin up, and must run before any download consumer is resolved. */
+    fun installDownloadTransport(koin: Koin) {
+        WebResource.transport = SuspendHttpTransport(koin.get<DownloadHttp>())
+    }
+
+    /**
+     * Starts the Koin-resolved [BookInstallWatcher]. Public so the Android wrapper can share it. Failures are
+     * logged, not rethrown (must not stop app startup), but never silent: without it no installed book is backed up.
+     */
+    fun startBookInstallWatcher(koin: Koin) {
+        try {
+            koin.get<BookInstallWatcher>().startListening()
+        } catch (e: Exception) {
+            Log.e(TAG, "BookInstallWatcher failed to start; book installs will not be tracked", e)
         }
     }
 

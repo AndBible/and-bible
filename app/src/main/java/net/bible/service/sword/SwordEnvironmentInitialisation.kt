@@ -25,8 +25,8 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.versification.BookInstallWatcher
-import net.bible.android.platform.SuspendHttpTransport
-import net.bible.sharedcore.http.DownloadHttp
+import net.bible.sharedlogic.startup.SharedAppStartup
+import org.koin.mp.KoinPlatform
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.ensureDirExists
 import net.bible.service.common.CommonUtils.getResourceString
@@ -128,24 +128,16 @@ object SwordEnvironmentInitialisation {
         }
     }
 
-    /** Installs the shared download transport after Koin starts, before any download consumer is resolved. */
-    fun installDownloadTransport() {
-        WebResource.transport = SuspendHttpTransport(get<DownloadHttp>(DownloadHttp::class.java))
-    }
+    /** Delegates to [SharedAppStartup.installDownloadTransport] (single copy of the logic). */
+    fun installDownloadTransport() = SharedAppStartup.installDownloadTransport(KoinPlatform.getKoin())
 
     /**
-     * Registers the book install/uninstall listener (backup db + sync). Must run AFTER Koin has started
-     * (the watcher is Koin-resolved) and after [initialiseJSwordFolders]; a no-op if JSword was never
-     * initialised. Idempotent: [BookInstallWatcher.startListening] never registers twice.
+     * Registers the book install/uninstall listener (backup db + sync) through [SharedAppStartup]. Must run AFTER
+     * Koin has started and after [initialiseJSwordFolders]; a no-op if JSword was never initialised.
      */
     fun startBookInstallWatcher() {
         if (!isSwordLoaded) return
-        try {
-            get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
-        } catch (e: Exception) {
-            // Not rethrown (must not stop app startup), but never silent: without it no installed book is backed up.
-            Log.e(tag, "BookInstallWatcher failed to start; book installs will not be tracked", e)
-        }
+        SharedAppStartup.startBookInstallWatcher(KoinPlatform.getKoin())
     }
 
     @Throws(BookException::class)

@@ -12,7 +12,14 @@ import net.bible.sharedcore.http.DownloadHttp
 import net.bible.sharedcore.http.DownloadResponse
 import net.bible.sharedcore.http.HttpHeaders
 import net.bible.sharedcore.http.HttpTextResult
+import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.service.cloudsync.DocumentSyncProvider
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.sharedcore.cloud.DocumentSyncStarter
+import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.sharedlogic.platform.AddonCatalog
+import net.bible.sharedlogic.platform.AddonReadingPlan
 import org.crosswire.common.util.PropertyMap
 import org.crosswire.common.util.Reporter
 import org.crosswire.common.util.ReporterEvent
@@ -89,6 +96,63 @@ class SharedAppStartupTest {
         SharedAppStartup.start(hooks())
         assertSame(koin, KoinPlatform.getKoin())
         assertEquals(listOf("folders", "watcher"), calls) // Koin modules not requested again
+    }
+
+    private class UnusedEnv : AppEnvironment {
+        override val isInitialized get() = error("unused")
+        override val deviceIdentifier get() = error("unused")
+        override val isDiscrete get() = error("unused")
+        override val isBeta get() = error("unused")
+        override val isDebugMode get() = error("unused")
+        override val applicationNameMedium get() = error("unused")
+        override val packageName get() = error("unused")
+        override val versionNumber get() = error("unused")
+        override val isMeteredNetwork get() = error("unused")
+        override val megabytesFree get() = error("unused")
+        override val tmpDir get() = error("unused")
+        override val cacheDir get() = error("unused")
+        override val dbBackupPath get() = error("unused")
+        override fun databasePath(name: String) = error("unused")
+        override fun deleteDatabase(name: String) = error("unused")
+        override val lastCrashTime get() = error("unused")
+        override val apkPath get() = error("unused")
+    }
+
+    /** A real watcher whose collaborators are never touched by startListening. */
+    private fun realWatcher(launcher: OrderedLauncher) = BookInstallWatcher(
+        launcher,
+        object : DocumentSyncStarter {
+            override fun pushDocuments(initials: List<String>) {}
+            override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) {}
+            override fun stop() {}
+        },
+        DocumentSyncProvider { error("unused") },
+        DocumentSyncSettings({ error("unused") }, { error("unused") }, { error("unused") }, launcher, UnusedEnv()),
+        object : AddonCatalog {
+            override fun clearCaches() {}
+            override val readingPlans: Map<String, AddonReadingPlan> = emptyMap()
+        },
+    )
+
+    private fun watcherHooks(watcherFactory: () -> BookInstallWatcher) = StartupHooks(
+        initialiseJSwordFolders = {},
+        koinModules = { listOf(testModule, module { single { watcherFactory() } }) },
+        reportJSwordError = {},
+        isSwordLoaded = { true },
+    )
+
+    @Test
+    fun watcher_is_resolved_and_started_when_sword_is_loaded() {
+        var resolved = 0
+        SharedAppStartup.start(watcherHooks { resolved++; realWatcher(KoinPlatform.getKoin().get()) })
+        assertEquals(1, resolved)
+    }
+
+    @Test
+    fun watcher_failure_is_logged_not_rethrown() {
+        var attempts = 0
+        SharedAppStartup.start(watcherHooks { attempts++; error("boom") }) // must return normally
+        assertEquals(1, attempts)
     }
 
     @Test
