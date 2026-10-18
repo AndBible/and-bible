@@ -165,7 +165,7 @@ class BackupControl(
     /**
      * `saveOrShare`'s `platformPrompt` (Task 24 Step 2): an owner-less `AppDialogController` sheet
      * in place of the old `android.app.AlertDialog`, for the callers that pass no `chooseDestination`
-     * (NavHostComposeActivity supplies its own for the rest, via `askDestination()`). `internal`, not
+     * (NavHostComposeActivity supplies its own for the rest, via `askDestination()`). Visible for tests, not
      * private, so `BackupControlTest` can pin the mapping directly without driving the whole export
      * flow (`activity.awaitIntent` etc.).
      */

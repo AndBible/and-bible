@@ -172,7 +172,7 @@ class CloudSync(
      * owner-less `AppDialogController` dialog in place of the old `android.app.AlertDialog`,
      * followed by its existing confirmation through the same dialog controller. Declining
      * that confirmation reverts to null, same as choosing "Cancel & disable synchronization"
-     * outright. `internal`, not private, so a test can pin the mapping directly against just a
+     * outright. Visible for tests, not private, so a test can pin the mapping directly against just a
      * [SyncableDatabaseDefinition] -- without building a whole [SyncableDatabaseAccessor].
      */
     @VisibleForTesting suspend fun askInitialSyncOperation(category: SyncableDatabaseDefinition): InitialOperation? {

@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.log.Log
 import net.bible.service.llm.llmJson
 import kotlinx.serialization.json.*
@@ -34,7 +35,7 @@ sealed class ToolResult {
      * @param jsonOverride Pre-serialized JSON string of [data], set by [typedSuccess] to avoid
      *   reflection-based serialization in [toJson].
      */
-    data class Success(val data: Any, val jsonOverride: String? = null) : ToolResult()
+    data class Success(val data: Any, @VisibleForTesting val jsonOverride: String? = null) : ToolResult()
 
     /**
      * Failed tool execution.

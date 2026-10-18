@@ -17,6 +17,7 @@
 
 package net.bible.service.readingplan
 
+import androidx.annotation.VisibleForTesting
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.OsisParser
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -27,7 +28,7 @@ import net.bible.sharedcore.log.Log
 /**
  * Get a Key from either a simple reference or an OSIS reference
  */
-class PassageReader constructor(private val v11n: Versification) {
+class PassageReader @VisibleForTesting constructor(private val v11n: Versification) {
 
     private val osisParser = OsisParser()
 
