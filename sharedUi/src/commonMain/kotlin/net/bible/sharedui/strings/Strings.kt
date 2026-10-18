@@ -379,6 +379,16 @@ interface Strings {
     fun csvImportSuccess(created: Int, updated: Int): String             // R.string.csv_import_success
     fun promptsCsvExportSuccess(count: Int): String             // R.string.prompts_csv_export_success
     // --- end I2 Stream A (app root) ---
+    // --- I2 phase 2 R1 (common reading slots) ---
+    val aiDocumentDeleteConfirmation: String             // R.string.ai_document_delete_confirmation
+    val speakHelpAutoBookmark: String                    // R.string.speak_help_auto_bookmark
+    val speakHelpPlaybackSettings: String                // R.string.speak_help_playback_settings
+    val speakHelpPlaybackSettingsExample: String         // R.string.speak_help_playback_settings_example
+    val choosePassageBookName: String                    // R.string.choosePassageBookName
+    val docTypeMap: String                               // R.string.doc_type_map
+    val generalBook: String                              // R.string.general_book
+    val shareVerseMenuTitle: String                      // R.string.share_verse_menu_title
+    // --- end I2 phase 2 R1 ---
     val errorOccurred: String
     val okay: String
     // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing

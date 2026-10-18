@@ -222,8 +222,8 @@ const val workspacesVideo = windowsAndWorkspacesPlaylist
 const val betaIntroVideo = "https://youtu.be/EKnyBIti9Fk" //promoAndNewFeaturesPlaylistAutostart
 const val newFeaturesIntroVideo = "https://youtu.be/Gm-JLot1uf4" // What's new in 5.1
 
-const val speakHelpVideo = speakPlayList
-const val automaticSpeakBookmarkingVideo = speakPlayList
+const val speakHelpVideo = net.bible.sharedcore.docs.HelpVideos.SPEAK
+const val automaticSpeakBookmarkingVideo = net.bible.sharedcore.docs.HelpVideos.AUTOMATIC_SPEAK_BOOKMARKING
 
 
 open class CommonUtilsBase : KoinComponent {

@@ -376,6 +376,16 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun csvImportSuccess(created: Int, updated: Int): String = context.getString(R.string.csv_import_success, created, updated)
     override fun promptsCsvExportSuccess(count: Int): String = context.getString(R.string.prompts_csv_export_success, count)
     // --- end I2 Stream A (app root) ---
+    // --- I2 phase 2 R1 (common reading slots) ---
+    override val aiDocumentDeleteConfirmation: String get() = context.getString(R.string.ai_document_delete_confirmation)
+    override val speakHelpAutoBookmark: String get() = context.getString(R.string.speak_help_auto_bookmark)
+    override val speakHelpPlaybackSettings: String get() = context.getString(R.string.speak_help_playback_settings)
+    override val speakHelpPlaybackSettingsExample: String get() = context.getString(R.string.speak_help_playback_settings_example)
+    override val choosePassageBookName: String get() = context.getString(R.string.choosePassageBookName)
+    override val docTypeMap: String get() = context.getString(R.string.doc_type_map)
+    override val generalBook: String get() = context.getString(R.string.general_book)
+    override val shareVerseMenuTitle: String get() = context.getString(R.string.share_verse_menu_title)
+    // --- end I2 phase 2 R1 ---
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val okay: String get() = context.getString(R.string.okay)
     override val externalLink: String get() = context.getString(R.string.external_link)
