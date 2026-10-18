@@ -26,6 +26,8 @@ import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.stage.StagingDatabases
 import net.bible.service.legacymigration.testsupport.CountingFileSystem
 import net.bible.service.legacymigration.testsupport.CrashingFileSystem
+import net.bible.service.legacymigration.testsupport.FailingCleanupFileSystem
+import net.bible.service.legacymigration.testsupport.FailingDeleteFileSystem
 import net.bible.service.legacymigration.testsupport.FakeLegacyPlatform
 import net.bible.service.legacymigration.testsupport.FixtureDir
 import net.bible.service.legacymigration.testsupport.JvmLegacyDatabaseFactory
@@ -321,6 +323,59 @@ class LegacyMigratorTest {
         val bytes = own.readBytes()
         assertEquals(LegacyMigrationOutcome.GaveUp(2, Kind.CORRUPT_STORE), run(e.platform))
         assertTrue(bytes.contentEquals(own.readBytes()), "the app's own database survives later launches")
+    }
+
+    // ---- the commit point -------------------------------------------------------------------------------------
+
+    @Test
+    fun aCleanupErrorAfterTheCommitPointKeepsTheMigration() {
+        val e = env()
+        File(e.platform.documents.toString(), "search_indexes.sqlite").writeText("index")
+        val outcome = run(PlatformWithFileSystem(e.platform, FailingCleanupFileSystem(FileSystem.SYSTEM)))
+        assertIs<LegacyMigrationOutcome.Migrated>(outcome)
+        assertEquals(baseline, databaseSummary(e.databases), "the adopted databases are not rolled back")
+        assertTrue(File(e.migrationDir.toString(), "done.json").isFile)
+        assertTrue(File(e.migrationDir.toString(), "work").exists(), "the failed cleanup left its leftovers")
+        assertFalse(File(e.platform.documents.toString(), "search_indexes.sqlite").exists(), "the index is deleted after the commit")
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        for (leftover in listOf("state.json", "work", "staging", "replaced")) assertFalse(File(e.migrationDir.toString(), leftover).exists(), leftover)
+        assertEquals(baseline, databaseSummary(e.databases))
+    }
+
+    @Test
+    fun aFailingRollbackIsReportedCountedAndRepeatedOnTheNextLaunch() {
+        val e = env()
+        val fs = FailingDeleteFileSystem(FileSystem.SYSTEM, e.databases)
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(PlatformWithFileSystem(e.platform, fs), failAt = Step.ADOPT_DONE))
+        assertFalse(failed.rolledBack, "the databases directory still holds adopted files")
+        assertTrue(e.databaseFiles().isNotEmpty(), "files: ${e.databaseFiles()}")
+        // The next launch cannot roll back either: that is attempt 2, reported as Failed, never an exception.
+        val second = assertIs<LegacyMigrationOutcome.Failed>(run(PlatformWithFileSystem(e.platform, fs)))
+        assertEquals(Kind.ADOPTION_FAILED, second.kind)
+        assertEquals(2, second.attempt)
+        assertFalse(second.rolledBack)
+        // Once the files can be deleted the rollback completes and the budget is spent: GaveUp, databases directory clean.
+        fs.enabled = false
+        assertEquals(LegacyMigrationOutcome.GaveUp(2, Kind.ADOPTION_FAILED), run(PlatformWithFileSystem(e.platform, fs)))
+        assertEquals(emptyList(), e.databaseFiles())
+    }
+
+    @Test
+    fun theSourceFilesIncludingDocumentsAndThePreservedAiFileAreNeverModified() {
+        val e = env("1.0.2", "26", "preserved-ai", preserved = true)
+        val documents = File(e.platform.documents.toString())
+        File(documents, "jsword/readingplan").mkdirs()
+        File(documents, "jsword/readingplan/mine.properties").writeText("1=Gen.1")
+        File(documents, "sword_install").mkdirs()
+        File(documents, "sword_install/CustomRepositories.json").writeText("[]")
+        File(documents, "search_indexes.sqlite").writeText("index")
+        fun documentHashes() = hashTree(e.platform.documents).filterKeys { !it.startsWith("search_indexes") }
+        val appSupport = e.sourceHashes()
+        val docs = documentHashes()
+        assertTrue(appSupport.keys.any { it.endsWith("PreservedDatabases/ai_settings.sqlite3") })
+        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        assertEquals(appSupport, e.sourceHashes())
+        assertEquals(docs, documentHashes())
     }
 
     // ---- mapper order ---------------------------------------------------------------------------------------

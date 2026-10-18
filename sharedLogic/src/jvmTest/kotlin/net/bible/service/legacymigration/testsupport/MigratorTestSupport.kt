@@ -102,3 +102,29 @@ fun writeSqlite(file: File, rows: Int) {
         c.close()
     }
 }
+
+/** Throws an [IOException] when `work/` or `state.json` of a migration directory is deleted after its `done.json` exists (post-commit cleanup). */
+class FailingCleanupFileSystem(delegate: FileSystem) : ForwardingFileSystem(delegate) {
+    private fun fails(path: Path) =
+        (path.name == "work" || path.name == "state.json") && path.parent?.let { metadataOrNull(it / "done.json") != null } == true
+
+    override fun delete(path: Path, mustExist: Boolean) {
+        if (fails(path)) throw okio.IOException("injected cleanup failure for $path")
+        super.delete(path, mustExist)
+    }
+
+    override fun deleteRecursively(fileOrDirectory: Path, mustExist: Boolean) {
+        if (fails(fileOrDirectory)) throw okio.IOException("injected cleanup failure for $fileOrDirectory")
+        super.deleteRecursively(fileOrDirectory, mustExist)
+    }
+}
+
+/** Throws an [IOException] for every deletion of a direct child of [dir] while [enabled] (models a rollback that cannot delete files). */
+class FailingDeleteFileSystem(delegate: FileSystem, private val dir: Path) : ForwardingFileSystem(delegate) {
+    @Volatile var enabled = true
+
+    override fun delete(path: Path, mustExist: Boolean) {
+        if (enabled && path.parent == dir && metadataOrNull(path) != null) throw okio.IOException("injected delete failure for $path")
+        super.delete(path, mustExist)
+    }
+}

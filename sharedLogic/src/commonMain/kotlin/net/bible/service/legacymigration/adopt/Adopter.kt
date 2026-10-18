@@ -29,7 +29,7 @@ import okio.Path
  * 3. **Move.** For each planned name: when a file is replaced, it is first moved to `replaced/<name>` (so its bytes are
  *    kept), then `staging/<name>` is `atomicMove`d to the target. After each move the name is added to `state.moved` (a
  *    progress record for diagnosis; not used for the rollback).
- * 4. **Commit.** After the last move and the post-steps (secrets, plan files, search index) the caller writes `done.json`
+ * 4. **Commit.** After the last move and the post-steps (secrets, plan files) the caller writes `done.json`
  *    with a temporary file and `atomicMove`. That single rename is the commit point. A kill before it is rolled back, a kill
  *    after it is final (the next start sees `done.json`, only deletes leftovers and never rolls back).
  * 5. **Rollback** ([rollback], run at the start of every launch that finds phase `ADOPTING`, and in-process when adoption

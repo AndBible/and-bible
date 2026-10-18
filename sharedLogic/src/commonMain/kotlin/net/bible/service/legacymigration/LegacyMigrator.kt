@@ -2,6 +2,8 @@ package net.bible.service.legacymigration
 
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -30,6 +32,7 @@ import net.bible.service.legacymigration.stage.StagingDatabases
 import net.bible.service.legacymigration.state.MigrationPhase
 import net.bible.service.legacymigration.state.MigrationState
 import net.bible.service.legacymigration.state.MigrationStateStore
+import net.bible.service.legacymigration.state.atomicWriteFile
 import net.bible.service.llm.apiKeyName
 import okio.FileSystem
 import okio.Path
@@ -70,8 +73,13 @@ sealed interface LegacyMigrationOutcome {
      */
     data class Migrated(val report: MigrationReport, val extras: LegacyExtras) : LegacyMigrationOutcome
 
-    /** This attempt failed with [kind]; the databases directory was restored. [attempt] counts attempts including this one. */
-    data class Failed(val kind: Kind, val attempt: Int, val report: MigrationReport) : LegacyMigrationOutcome
+    /**
+     * This attempt failed with [kind]. [attempt] counts attempts including this one. [rolledBack] is true when the
+     * databases directory is back to what it was before the attempt (always the case when the failure came before the
+     * adoption). When it is false a rollback itself failed: the databases directory may hold half-adopted files, the next
+     * launch repeats the rollback, and the caller must NOT open the databases after this outcome.
+     */
+    data class Failed(val kind: Kind, val attempt: Int, val report: MigrationReport, val rolledBack: Boolean = true) : LegacyMigrationOutcome
 
     /** [attempts] attempts failed or were interrupted; no new attempt was started. [lastKind] is the last recorded failure, if any. */
     data class GaveUp(val attempts: Int, val lastKind: Kind?) : LegacyMigrationOutcome
@@ -116,12 +124,12 @@ fun defaultMappers(platform: LegacyPlatform): List<CategoryMapper> {
  * 4. No legacy store: a "nothing to migrate" marker, [LegacyMigrationOutcome.NothingToMigrate].
  * 5. State `IN_PROGRESS` (attempt + 1, so a crashed attempt counts) -> copy the stores with their `-wal`/`-shm` into `work/`
  *    (applying `DataMigration`'s `CloudStore.store` / `AndBible.store.backup` repair to the copy) -> read -> map into
- *    `staging/` -> validate -> state `STAGED` -> adopt -> secrets, user plan files, search index deletion -> `done.json`
- *    -> delete `work/`, `staging/`, `replaced/`, `state.json`.
+ *    `staging/` -> validate -> state `STAGED` -> adopt -> secrets, user plan files -> `done.json` (the commit point)
+ *    -> best-effort: delete the search index, `work/`, `staging/`, `replaced/`, `state.json`.
  *
- * Any [Exception] in step 5 becomes [LegacyMigrationOutcome.Failed] after the adoption (if started) was rolled back. The
- * source files (stores, sidecars, preserved files) are only read; the single exception is the search index, deleted after
- * the databases were adopted. Sync settings, device-local preferences and the other extras are not applied here; they are
+ * Any [Exception] in step 5 before the commit point becomes [LegacyMigrationOutcome.Failed] after the adoption (if started) was rolled back; after `done.json` was written nothing is ever rolled back and a cleanup error is swallowed. I/O errors in the start of a launch (directory, state file, rollback of an earlier attempt) also become `Failed`, and a failing rollback counts as an attempt. The
+ * source files (stores, sidecars, preserved files) are only read; the single exception is the search index, deleted
+ * best-effort after the commit point (spec 6.5; a leftover index is harmless and is not retried, because the new app may use the same file name). Sync settings, device-local preferences and the other extras are not applied here; they are
  * returned in [LegacyMigrationOutcome.Migrated.extras].
  *
  * @param mappers run in list order; `SETTINGS` after `WORKSPACES` and `READING_PLANS` is enforced (IllegalArgumentException).
@@ -157,45 +165,83 @@ class LegacyMigrator(
     private val states = MigrationStateStore(fs, dir)
     private val adopter = Adopter(fs, platform.databasesDir, stagingDir, replacedDir, states)
 
-    /** Runs one migration attempt, or reports why none was needed or allowed. See the class description. */
-    suspend fun run(): LegacyMigrationOutcome {
-        fs.createDirectories(dir)
-        if (fs.exists(doneFile)) {
-            cleanUp()
-            return LegacyMigrationOutcome.AlreadyDone
+    private val mutex = Mutex()
+
+    /**
+     * Runs one migration attempt, or reports why none was needed or allowed. See the class description. Concurrent calls on
+     * the same migrator are serialised (a second call waits, then sees the first one's result on disk); two migrators over
+     * the same directories must not run at the same time, which the caller (one startup path) guarantees.
+     */
+    suspend fun run(): LegacyMigrationOutcome = mutex.withLock { runLocked() }
+
+    private suspend fun runLocked(): LegacyMigrationOutcome {
+        val report = MigrationReport()
+        var state: MigrationState?
+        try {
+            fs.createDirectories(dir)
+            if (fs.exists(doneFile)) {
+                bestEffortCleanUp()
+                return LegacyMigrationOutcome.AlreadyDone
+            }
+            state = states.read()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // The directory cannot even be inspected: a persistent I/O problem. A pending rollback is unknown, so do not claim one was done.
+            return LegacyMigrationOutcome.Failed(Kind.CORRUPT_STORE, 1, report, rolledBack = false)
         }
 
-        var state = states.read()
         if (adopter.needsRollback(state)) {
             // A previous run died between "plan written" and "done.json": undo whatever it moved.
-            adopter.rollback(state!!.plan)
-            state = state.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList())
-            states.write(state)
+            val pending = state!!
+            try {
+                adopter.rollback(pending.plan)
+                state = pending.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList())
+                states.write(state)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A rollback that keeps failing must count as an attempt, or every launch would throw here forever. The
+                // state keeps ADOPTING and its plan, so the next launch repeats the rollback.
+                val counted = pending.copy(attempt = pending.attempt + 1, lastKind = Kind.ADOPTION_FAILED)
+                runCatching { states.write(counted) }
+                return LegacyMigrationOutcome.Failed(Kind.ADOPTION_FAILED, counted.attempt, report, rolledBack = false)
+            }
         }
         if (state != null && state.attempt >= MAX_ATTEMPTS) return LegacyMigrationOutcome.GaveUp(state.attempt, state.lastKind)
 
-        val sources = discoverSources()
+        val attempt = (state?.attempt ?: 0) + 1
+        val sources = try {
+            discoverSources()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return LegacyMigrationOutcome.Failed(Kind.CORRUPT_STORE, attempt, report)
+        }
         if (sources.isEmpty()) {
-            writeDone(sources, nothingToMigrate = true, attempt = 0, adopted = emptyList())
-            cleanUp()
+            try {
+                writeDone(sources, nothingToMigrate = true, attempt = 0, adopted = emptyList())
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                return LegacyMigrationOutcome.Failed(Kind.CORRUPT_STORE, attempt, report)
+            }
+            bestEffortCleanUp()
             return LegacyMigrationOutcome.NothingToMigrate
         }
 
-        val attempt = (state?.attempt ?: 0) + 1
         var current = MigrationState(MigrationPhase.IN_PROGRESS, attempt, Clock.System.now().toEpochMilliseconds(), state?.lastKind)
-        states.write(current)
-        for (leftover in listOf(workDir, stagingDir, replacedDir)) fs.deleteRecursively(leftover, mustExist = false)
-
-        val report = MigrationReport()
         var stage = Stage.COPY
+        var committed = false
         try {
+            states.write(current)
+            for (leftover in listOf(workDir, stagingDir, replacedDir)) fs.deleteRecursively(leftover, mustExist = false)
+
             copyStores()
             hook(Step.COPY)
 
-            val extras = LegacySnapshot(
-                LegacyStoreReader((workDir / "AndBible.store").toString()),
-                LegacyStoreReader((workDir / "LocalStore.store").toString()),
-            ).use { snapshot ->
+            var staged: List<String> = emptyList()
+            val extras = openSnapshot().use { snapshot ->
                 stage = Stage.READ
                 hook(Step.READ)
 
@@ -224,16 +270,20 @@ class LegacyMigrator(
 
             for ((id, key) in extras.aiKeys) platform.secrets.put(apiKeyName(id), key)
             copyUserPlanFiles(extras)
-            deleteSearchIndex()
-            writeReport(report, "migrated", attempt, null)
+            bestEffort { writeReport(report, "migrated", attempt, null) }
             writeDone(discoverSources(), nothingToMigrate = false, attempt = attempt, adopted = staged)
-            cleanUp()
+            committed = true
+            // COMMITTED: from here on nothing may undo the adoption. Everything below is best-effort and idempotent.
+            bestEffort { deleteSearchIndex() }
+            bestEffortCleanUp()
             return LegacyMigrationOutcome.Migrated(report, extras)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            check(!committed) { "unreachable: post-commit steps are best-effort" }
             val kind = (e as? LegacyMigrationException)?.kind ?: stage.defaultKind
             // Undo a started adoption before anything else; the state keeps the attempt count and the failure kind.
+            var rolledBack = true
             val failed = try {
                 if (current.phase == MigrationPhase.ADOPTING) adopter.rollback(current.plan)
                 // The rollback is complete: the copies and staged files are of no further use (the next attempt starts over).
@@ -241,15 +291,38 @@ class LegacyMigrator(
                 current.copy(phase = MigrationPhase.IN_PROGRESS, plan = emptyList(), moved = emptyList(), lastKind = kind)
             } catch (rollbackFailure: Exception) {
                 // Keep ADOPTING with its plan: the next start repeats the rollback.
+                rolledBack = false
                 current.copy(lastKind = kind)
             }
             runCatching { states.write(failed) }
             runCatching { writeReport(report, "failed", attempt, "$kind: ${e::class.simpleName}: ${e.message?.take(500)}") }
-            return LegacyMigrationOutcome.Failed(kind, attempt, report)
+            return LegacyMigrationOutcome.Failed(kind, attempt, report, rolledBack)
         }
     }
 
-    private var staged: List<String> = emptyList()
+    private inline fun bestEffort(block: () -> Unit) {
+        try {
+            block()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Diagnostic or cleanup work after the point of no return; a leftover is removed by a later AlreadyDone run.
+        }
+    }
+
+    private fun bestEffortCleanUp() = bestEffort { cleanUp() }
+
+    /** Opens both copies; the first reader is closed if the second one cannot be opened. */
+    private fun openSnapshot(): LegacySnapshot {
+        val cloud = LegacyStoreReader((workDir / "AndBible.store").toString())
+        val local = try {
+            LegacyStoreReader((workDir / "LocalStore.store").toString())
+        } catch (e: Throwable) {
+            runCatching { cloud.close() }
+            throw e
+        }
+        return LegacySnapshot(cloud, local)
+    }
 
     private fun hook(step: Step) {
         if (failAt == step) throw LegacyMigrationException(step.injectedKind, "injected failure after $step")
@@ -321,7 +394,9 @@ class LegacyMigrator(
             val target = userPlanDir / file.name
             if (target == file || fs.exists(target)) continue
             fs.createDirectories(userPlanDir)
-            fs.copy(file, target)
+            val temp = userPlanDir / (file.name + ".tmp")
+            fs.copy(file, temp)
+            fs.atomicMove(temp, target)
         }
     }
 
@@ -357,14 +432,13 @@ class LegacyMigrator(
     }
 
     private fun atomicWrite(target: Path, text: String) {
-        val temp = target.parent!! / (target.name + ".tmp")
-        fs.write(temp) { writeUtf8(text) }
-        fs.atomicMove(temp, target)
+        atomicWriteFile(fs, target, text)
     }
 
     /** Deletes `work/`, `staging/`, `replaced/` and `state.json`. Only called when `done.json` exists or the run is complete. */
     private fun cleanUp() {
         for (leftover in listOf(workDir, stagingDir, replacedDir)) fs.deleteRecursively(leftover, mustExist = false)
+        for (name in listOf("done.json.tmp", "report.json.tmp")) fs.delete(dir / name, mustExist = false)
         states.delete()
     }
 

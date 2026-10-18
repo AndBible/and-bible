@@ -76,7 +76,25 @@ data class MigrationState(
 }
 
 /**
- * Reads and writes `state.json` in [dir]. A write is atomic (a temporary file, then `atomicMove`), so a kill leaves either the
+ * Writes [text] to [target] durably and atomically: to `<target>.tmp` (replacing a leftover one), `flush()`ed (which fsyncs
+ * through okio's `FileHandle`), then `atomicMove`d over [target].
+ */
+fun atomicWriteFile(fs: FileSystem, target: Path, text: String) {
+    val temp = target.parent!! / (target.name + ".tmp")
+    fs.delete(temp, mustExist = false)
+    val bytes = text.encodeToByteArray()
+    val handle = fs.openReadWrite(temp)
+    try {
+        handle.write(0L, bytes, 0, bytes.size)
+        handle.flush()
+    } finally {
+        handle.close()
+    }
+    fs.atomicMove(temp, target)
+}
+
+/**
+ * Reads and writes `state.json` in [dir]. A write is atomic and fsynced ([atomicWriteFile]), so a kill leaves either the
  * old or the new complete file, never a torn one.
  */
 class MigrationStateStore(private val fs: FileSystem, private val dir: Path) {
@@ -95,8 +113,7 @@ class MigrationStateStore(private val fs: FileSystem, private val dir: Path) {
 
     fun write(state: MigrationState) {
         fs.createDirectories(dir)
-        fs.write(temp) { writeUtf8(state.toJson()) }
-        fs.atomicMove(temp, file)
+        atomicWriteFile(fs, file, state.toJson())
     }
 
     /** Removes the state file and a leftover temporary one. */

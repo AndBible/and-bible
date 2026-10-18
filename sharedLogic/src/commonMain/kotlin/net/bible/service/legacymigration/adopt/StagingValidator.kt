@@ -91,7 +91,9 @@ internal val ROW_EXPECTATIONS: List<RowExpectation> = listOf(
  * 2. `PRAGMA integrity_check` returns `ok`;
  * 3. for each table the report says was written, the table exists and its real row count equals the written count
  *    (this is what catches a mapper that reports one thing and stores another);
- * 4. the per-table [ROW_EXPECTATIONS] against the reader's counts hold.
+ * 4. the per-table [ROW_EXPECTATIONS] against the reader's counts hold, for every expected table whether or not the
+ *    report mentions it. A table that must hold rows (reader rows minus the category's skips is positive) but is absent or
+ *    short fails; a category whose file was not staged fails the same way.
  *
  * It also fails when the report claims rows for a category whose file is missing.
  */
@@ -110,6 +112,12 @@ class StagingValidator(private val databases: LegacyDatabaseFactory, private val
             }
         }
         val skippedByCategory = report.entries.filterIsInstance<ReportEntry.Skipped>().groupBy { it.category }.mapValues { (_, v) -> v.sumOf { it.rows } }
+        for ((category, name) in STAGED_DATABASES) {
+            if (name in present.map { it.second }) continue
+            val skipped = skippedByCategory[category] ?: 0
+            val missing = ROW_EXPECTATIONS.firstOrNull { it.category == category && it.readerEntities.sumOf(readerCount) - skipped > 0 }
+            if (missing != null) fail("$category was not staged ($name is missing) but the legacy store has rows for ${missing.table}")
+        }
 
         val staging = StagingDatabases(stagingDir, databases)
         try {
@@ -156,8 +164,13 @@ class StagingValidator(private val databases: LegacyDatabaseFactory, private val
             }
             val skipped = skippedByCategory[category] ?: 0
             for (expectation in ROW_EXPECTATIONS.filter { it.category == category }) {
-                val rows = actual[expectation.table] ?: continue
                 val reader = expectation.readerEntities.sumOf(readerCount)
+                val rows = actual[expectation.table] ?: if (expectation.table in tables) {
+                    c.usePrepared("SELECT COUNT(*) FROM `${expectation.table}`") { st -> check(st.step()); st.getLong(0).toInt() }
+                } else {
+                    if (reader - skipped > 0) fail("$category.${expectation.table}: the table is missing from $name but the legacy store has $reader rows")
+                    continue
+                }
                 if (rows < reader - skipped) fail("$category.${expectation.table}: $rows rows staged, legacy store has $reader and only $skipped were reported as skipped")
                 if (expectation.capped && rows > reader) fail("$category.${expectation.table}: $rows rows staged but the legacy store has only $reader")
             }
