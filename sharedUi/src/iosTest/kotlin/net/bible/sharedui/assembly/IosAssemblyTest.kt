@@ -65,8 +65,19 @@ class IosAssemblyTest {
     private val databaseDir: Path get() = sharedRoot / IosAppConfig.DATABASES_DIR
     private val moduleDir: Path get() = sharedRoot / IosAppConfig.DOCUMENTS_DIR / "sword"
 
+    /** Opens the databases; a failure prints its whole cause chain (it lands in the test process output). */
+    private fun openDatabasesDiagnosing() {
+        try {
+            runBlocking { IosAppStartup.openDatabases() }
+        } catch (e: Throwable) {
+            println("openDatabases failed:\n${e.stackTraceToString()}")
+            throw e
+        }
+    }
+
     @BeforeTest
     fun setUp() {
+        installUnhandledExceptionPrinter()
         resetEverything()
         files.deleteRecursively(databaseDir)
     }
@@ -88,12 +99,16 @@ class IosAssemblyTest {
         startWithDoubles()
         val koin = KoinPlatform.getKoin()
 
-        val failures = koin.resolveAllDefinitions()
-        assertEquals(emptyList(), failures.map { it.first }, "unresolvable definitions:\n" + describeFailures(failures))
-
-        runBlocking { IosAppStartup.openDatabases() }
+        // The graph is resolved AFTER the databases are open, as on Android: TextToSpeechServiceManager (and other
+        // definitions) read their settings from the database when constructed, so they cannot be built before
+        // openDatabases(). That start() itself never touches the databases is asserted in
+        // startOnAnEmptySandboxCreatesTheFoldersAndNeverTouchesTheDatabases (C2).
+        openDatabasesDiagnosing()
         assertTrue(IosAppStartup.databasesOpen)
         for (name in ALL_DB_FILENAMES) assertTrue(files.exists(databaseDir / name), "$name was not created in $databaseDir")
+
+        val failures = koin.resolveAllDefinitions()
+        assertEquals(emptyList(), failures.map { it.first }, "unresolvable definitions:\n" + describeFailures(failures))
 
         val book = assertNotNull(Books.installed().getBook("K4RawText"), "fixture module not installed from $moduleDir")
         val text = SwordContentFacade.getCanonicalText(
@@ -109,11 +124,21 @@ class IosAssemblyTest {
         assertTrue(files.exists(moduleDir), "module folder created by startup")
         assertTrue(IosSwordEnvironment.isLoaded)
         assertFalse(IosAppStartup.databasesOpen)
+        assertFalse(DatabaseContainer.ready, "start() must not mark the databases ready (C2)")
         assertFalse(files.exists(databaseDir), "start() must not open or create any database (C2)")
         // Settings answer their defaults until the databases are open (no DataBaseNotReady on the main thread).
         val settings = KoinPlatform.getKoin().get<AppSettings>()
         assertTrue(settings.getBoolean("never-set-key", true))
         assertEquals("fallback", settings.getString("never-set-key", "fallback"))
+    }
+
+    @Test
+    fun openDatabasesAloneCreatesEveryDatabaseOnAnEmptySandbox() {
+        startWithDoubles()
+        openDatabasesDiagnosing()
+        assertTrue(IosAppStartup.databasesOpen)
+        assertTrue(DatabaseContainer.ready)
+        for (name in ALL_DB_FILENAMES) assertTrue(files.exists(databaseDir / name), "$name was not created in $databaseDir")
     }
 
     @Test
@@ -137,7 +162,7 @@ class IosAssemblyTest {
     fun theBookInstallWatcherStartedAndWritesToTheBackupDatabase() {
         startWithDoubles()
         assertTrue(IosSwordEnvironment.isLoaded, "StartupHooks.isSwordLoaded must be true after folder initialisation")
-        runBlocking { IosAppStartup.openDatabases() }
+        openDatabasesDiagnosing()
         val koin = KoinPlatform.getKoin()
         val book = assertNotNull(Books.installed().getBook("K4RawText"))
 
@@ -227,6 +252,19 @@ class IosAssemblyTest {
     }
 
     private companion object {
+        private var hookInstalled = false
+
+        /**
+         * On Native an exception that escapes a coroutine without a handler aborts the whole test process with only
+         * a truncated trace. This hook prints the real exception and its causes first, so the Process output names it.
+         */
+        @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
+        fun installUnhandledExceptionPrinter() {
+            if (hookInstalled) return
+            hookInstalled = true
+            kotlin.native.setUnhandledExceptionHook { e -> println("UNHANDLED EXCEPTION:\n${e.stackTraceToString()}") }
+        }
+
         /** Concrete platform classes the module binds beside the ports (not part of the shared-graph contract). */
         val IOS_CONCRETE_BINDINGS: Set<kotlin.reflect.KClass<*>> = setOf(
             net.bible.sharedcore.platform.IosAppEnvironment::class,

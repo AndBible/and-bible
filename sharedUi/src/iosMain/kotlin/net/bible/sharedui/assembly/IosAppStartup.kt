@@ -20,6 +20,7 @@ import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import net.bible.service.db.DatabaseContainer
@@ -207,6 +208,9 @@ object IosAppStartup {
      * environment monitor) so the next test starts clean. JSword's folders and book list are process-wide and stay.
      */
     internal suspend fun resetForTest() {
+        // Stop the app scope first: coroutines of a finished test (store collectors, ordered launches) must not run
+        // into the next test's databases.
+        runCatching { KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()?.cancel() }
         runCatching { stopKoin() }
         SharedAppStartup.resetForTest()
         if (opened) {
