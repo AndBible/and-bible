@@ -11,7 +11,14 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertTrue
 
-/** Await the actual destination, including asynchronous settings loading and composition. */
+/**
+ * Await the actual destination, including asynchronous settings loading and composition.
+ *
+ * Under a Compose test rule pass [advanceComposition] (`{ compose.waitForIdle() }`) whenever the host may still be
+ * composing: the rule runs the host's effects (the settings gate in `setContent` among them) on its own dispatcher,
+ * which pumping the main looper does not advance. A gate that completes after the test's last `idle()` (a slow or
+ * contended settings load, as under the full forked suite) then never opens, and the route stays null.
+ */
 fun awaitHostRoute(activity: NavHostComposeActivity, route: String, advanceComposition: () -> Unit = {}) {
     awaitHostCondition("host must reach ${route.substringBefore('?')}", advanceComposition) {
         activity.currentRouteForTest()?.substringBefore('?') == route.substringBefore('?')

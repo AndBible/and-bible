@@ -131,7 +131,7 @@ class HistoryRouteBackTest {
             ),
         )
         try {
-            net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5))
+            net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5)) { compose.waitForIdle() }
         } catch (failure: AssertionError) {
             val logs = org.robolectric.shadows.ShadowLog.getLogs().takeLast(80)
                 .joinToString("\n") { "${it.tag}: ${it.msg} ${it.throwable ?: ""}" }

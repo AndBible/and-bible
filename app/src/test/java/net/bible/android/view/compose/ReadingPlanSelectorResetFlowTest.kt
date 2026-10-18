@@ -79,7 +79,7 @@ class ReadingPlanSelectorResetFlowTest {
                 ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading(plan = PLAN, day = 5),
             ),
         )
-        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5)) { compose.waitForIdle() }
         net.bible.test.awaitHostUntil("fixture: the plan day is loaded and selected") { readingPlanSetting() == PLAN }
         idle()
 
