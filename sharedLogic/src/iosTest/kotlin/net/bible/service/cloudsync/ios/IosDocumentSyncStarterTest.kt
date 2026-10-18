@@ -30,7 +30,10 @@ class IosDocumentSyncStarterTest {
         private suspend fun run(name: String, i: String) {
             events += "$name $i"
             if (i == "A") {
-                if (stubborn) withContext(NonCancellable) { gate?.await() } else gate?.await()
+                // Stubborn: the failure is thrown from INSIDE the NonCancellable block, so withContext's
+                // prompt-cancellation check on normal return cannot replace it with a CancellationException.
+                if (stubborn) withContext(NonCancellable) { gate?.await(); failure(i)?.let { throw it } }
+                else gate?.await()
             }
             if (i == "C") gate2?.await()
             failure(i)?.let { throw it }
