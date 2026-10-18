@@ -159,6 +159,23 @@ class IosReadingWindowsTest {
         assertEquals(live, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse)
     }
 
+    /**
+     * A window restored from the database gets its first document load only from the reading host's initial
+     * `reloadAllWindows(true)` (Android runs it when the host is built): binding must force a resync of all windows.
+     * Without that call `lastForceSyncAll` keeps its construction-time value and a restored window stays blank.
+     */
+    @Test
+    fun bindingTheReadingHostForcesTheInitialContentLoad() = withWindows { _ ->
+        val koin = KoinPlatform.getKoin()
+        val sync = koin.get<WindowControl>().windowSync
+        val before = sync.lastForceSyncAll
+        NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05)) // let the clock advance
+        val scope = IosReadingReady.scope
+        val night = FakeNight(false)
+        IosReadingWindows.bind(IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night), scope, koin, night)
+        assertTrue(sync.lastForceSyncAll > before, "bind must call windowSync.reloadAllWindows(true)")
+    }
+
     @Test
     fun sessionForIsCachedPerWindow() = withWindows { id ->
         val a = IosReadingWindows.sessionFor(id)

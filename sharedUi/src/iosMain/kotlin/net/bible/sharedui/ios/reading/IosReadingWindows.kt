@@ -103,6 +103,12 @@ object IosReadingWindows {
                 scope.launch(Dispatchers.Main) { releaseClosedWindows() }
             }
         })
+        // The INITIAL CONTENT LOAD of the restored windows, exactly as Android runs it once when the reading host is
+        // built (NavHostComposeActivity.readingViewHost: windowSync.reloadAllWindows(true) -> Window.updateOrScroll ->
+        // loadText). A window restored from the database has no page change to trigger its first load; without this its
+        // BibleView gets the client-ready handshake and then stays blank. Plain-model work: loadText hands the rest to IO
+        // and waits for the window's view, which the pane assembly assigns.
+        koin.get<WindowControl>().windowSync.reloadAllWindows(true)
     }
 
     private fun unbind() {
