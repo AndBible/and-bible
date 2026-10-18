@@ -119,6 +119,10 @@ object ClassicRemovalScan {
             .plus(net.bible.test.ProductionSources.roots.drop(1).flatMap { root ->
                 root.walkTopDown().filter { it.isFile && (it.extension == "kt" || it.extension == "java") }.toList()
             })
+            // The shared app root's feature hosts (`:sharedUi` `net.bible.sharedui.app`) took code that used to sit
+            // in NavHostComposeActivity, so a scan that skipped them would go blind to it.
+            .plus(File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app").walkTopDown()
+                .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }.toList())
 
     /**
      * Every resource XML under every SHIPPING source set's `res/` tree (`src/main/res`,

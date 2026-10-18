@@ -3,6 +3,8 @@ package net.bible.sharedui.app
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
+import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
@@ -13,6 +15,7 @@ import net.bible.service.history.HistoryManager
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.EpubSearchService
@@ -20,6 +23,7 @@ import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.workspaces.WorkspaceService
+import net.bible.sharedui.app.chooser.ChooserHost
 import net.bible.sharedui.app.ports.DebugActions
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
@@ -121,6 +125,25 @@ class AppHosts(
      * services behind it resolve lazily, so this touches no database.
      */
     val workspace: WorkspaceHost by workspaceLazy
+
+    /**
+     * The chooser cluster's deps builder (general book, map, dictionary, grid passage, choose document). Built on
+     * first use; every service behind it resolves lazily, so this touches no database.
+     */
+    val chooser: ChooserHost by lazy {
+        ChooserHost(
+            shell = shell,
+            strings = strings,
+            appSettingsProvider = { koin.get<AppSettings>() },
+            documentDialogs = ports.documentDialogs,
+            platform = ports.chooserPlatform(),
+            windowControlProvider = { koin.get<WindowControl>() },
+            documentControlProvider = { koin.get<DocumentControl>() },
+            downloadControlProvider = { koin.get<DownloadControl>() },
+            fakeBookFactoryProvider = { koin.get<FakeBookFactory>() },
+            coreStringsProvider = { koin.get<CoreStrings>() },
+        )
+    }
 
     /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
     fun onHostDestroy() {

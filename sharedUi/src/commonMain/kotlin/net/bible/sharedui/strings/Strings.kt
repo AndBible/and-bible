@@ -274,6 +274,10 @@ interface Strings {
     val workspaceTextOptionsLink: String
     val workspaceTextOptionsLinkSummary: String
     val textDisplaySettingsActivityTitle: String
+    val appName: String                       // the application label (manifest android:label)
+    val chooseDocumentTitle: String           // R.string.chooseBook
+    val chooseDocumentDownload: String        // R.string.download
+    val chooseDocumentBackup: String          // R.string.backup_modules2
     // --- end I2 Stream A (app root) ---
     val errorOccurred: String
     val okay: String

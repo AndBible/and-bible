@@ -61,6 +61,9 @@ class MenuSeamGuardTest {
         // were unscanned -- see [preExistingExceptions] for the one site in this file that this
         // guard cannot hold to the rule yet.
         "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt",
+        // The chooser host: carries the document chooser's overflow menu (`ChooseDocumentOverflowMenu`) since
+        // I2 Stream A Task 7 lifted it out of the nav host.
+        "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/chooser/ChooserHost.kt",
     )
 
     /**

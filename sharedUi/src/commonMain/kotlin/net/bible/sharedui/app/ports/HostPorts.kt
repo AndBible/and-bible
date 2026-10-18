@@ -1,5 +1,6 @@
 package net.bible.sharedui.app.ports
 
+import net.bible.sharedui.app.chooser.ChooserHostPlatform
 import net.bible.sharedui.app.welcome.WelcomeHostPlatform
 
 /**
@@ -16,4 +17,6 @@ class HostPorts(
     val helpDialogs: HelpDialogs,
     /** The platform half of the welcome flow; a provider because the host builds it on first use. */
     val welcomePlatform: () -> WelcomeHostPlatform,
+    /** The platform half of the chooser cluster; a provider because the host builds it on first use. */
+    val chooserPlatform: () -> ChooserHostPlatform,
 )

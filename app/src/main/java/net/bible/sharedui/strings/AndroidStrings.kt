@@ -269,6 +269,12 @@ class AndroidStrings(private val context: Context) : Strings {
     override val workspaceTextOptionsLink: String get() = context.getString(R.string.workspace_text_options_link)
     override val workspaceTextOptionsLinkSummary: String get() = context.getString(R.string.workspace_text_options_link_summary)
     override val textDisplaySettingsActivityTitle: String get() = context.getString(R.string.text_display_settings_activity_title)
+    // The application's manifest android:label (AndroidManifest.xml, <application>), which the activity read through
+    // `applicationInfo.loadLabel(packageManager)`.
+    override val appName: String get() = context.getString(R.string.app_name_short)
+    override val chooseDocumentTitle: String get() = context.getString(R.string.chooseBook)
+    override val chooseDocumentDownload: String get() = context.getString(R.string.download)
+    override val chooseDocumentBackup: String get() = context.getString(R.string.backup_modules2)
     // --- end I2 Stream A (app root) ---
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val okay: String get() = context.getString(R.string.okay)
