@@ -15,6 +15,8 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import androidx.room3.immediateTransaction
+import androidx.room3.useWriterConnection
 import net.bible.android.database.DbDate
 import net.bible.android.database.GlobalTextDisplaySettings
 import net.bible.android.database.IdType
@@ -89,19 +91,32 @@ class WorkspaceStage(
 class WorkspacesMapper : CategoryMapper {
     override val category = LegacyCategory.WORKSPACES
 
+    /**
+     * Values that were present but of an unexpected [LegacyValue] type (or archive content), counted by reason during
+     * one [build] and reported afterwards, so that nothing is dropped silently. Makes [build] not thread-safe.
+     */
+    private val drops = LinkedHashMap<String, Int>()
+
     override suspend fun map(snapshot: LegacySnapshot, staging: StagingDatabases, report: MigrationReport) =
         map(LegacyWorkspaceData.from(snapshot), staging, report)
 
     /** Maps [data] into [staging]; [map] with a snapshot reads the data from the stores and calls this. */
     suspend fun map(data: LegacyWorkspaceData, staging: StagingDatabases, report: MigrationReport) {
         val stage = build(data, report)
-        val dao = staging.workspaces.workspaceDao()
-        stage.workspaces.forEach { dao.insertWorkspace(it) }
-        stage.windows.forEach { dao.insertWindow(it) }
-        stage.pageManagers.forEach { dao.insertPageManager(it) }
-        if (stage.historyItems.isNotEmpty()) dao.insertHistoryItems(stage.historyItems)
-        stage.labelOverrides.forEach { dao.insertOrUpdateLabelOverride(it) }
-        stage.global?.let { staging.workspaces.globalTextDisplaySettingsDao().set(it) }
+        val db = staging.workspaces
+        val dao = db.workspaceDao()
+        // One writer transaction: the staging file is either fully written or (on a crash) discarded, and a heavy
+        // user's history is not committed row by row.
+        db.useWriterConnection { transactor ->
+            transactor.immediateTransaction {
+                stage.workspaces.forEach { dao.insertWorkspace(it) }
+                stage.windows.forEach { dao.insertWindow(it) }
+                stage.pageManagers.forEach { dao.insertPageManager(it) }
+                if (stage.historyItems.isNotEmpty()) dao.insertHistoryItems(stage.historyItems)
+                stage.labelOverrides.forEach { dao.insertOrUpdateLabelOverride(it) }
+                stage.global?.let { db.globalTextDisplaySettingsDao().set(it) }
+            }
+        }
         report.written(category, "Workspace", stage.workspaces.size)
         report.written(category, "Window", stage.windows.size)
         report.written(category, "PageManager", stage.pageManagers.size)
@@ -112,6 +127,16 @@ class WorkspacesMapper : CategoryMapper {
 
     /** Builds the target rows without touching any database. Skipped rows and values are noted in [report]. */
     fun build(data: LegacyWorkspaceData, report: MigrationReport): WorkspaceStage {
+        drops.clear()
+        try {
+            return buildStage(data, report)
+        } finally {
+            for ((what, rows) in drops) skip(report, what, rows)
+            drops.clear()
+        }
+    }
+
+    private fun buildStage(data: LegacyWorkspaceData, report: MigrationReport): WorkspaceStage {
         val fidelity = Fidelity.read(data.settings, report, category)
 
         // Port of `snapshotCurrentStateStrict`: workspaces in (orderNumber, id) order, each with its windows in the
@@ -195,19 +220,19 @@ class WorkspacesMapper : CategoryMapper {
     /** Port of `bindWorkspaceSettings` with `normalizeAutoAssignPrimaryLabel`; NULL columns take the Swift defaults. */
     private fun workspaceSettings(v: Map<String, LegacyValue?>, report: MigrationReport): WorkspaceEntities.WorkspaceSettings {
         val p = "workspaceSettings."
-        val autoAssign = labelSet(v["${p}autoAssignLabels"])
+        val autoAssign = v.idSet("${p}autoAssignLabels")
         val primary = v.id("${p}autoAssignPrimaryLabel")
         return WorkspaceEntities.WorkspaceSettings(
             enableTiltToScroll = v.bool("${p}enableTiltToScroll") ?: false,
             enableReverseSplitMode = v.bool("${p}enableReverseSplitMode") ?: false,
             autoPin = v.bool("${p}autoPin") ?: true,
             speakSettings = speakSettings(v),
-            recentLabels = recentLabels(v["${p}recentLabels"], report),
+            recentLabels = recentLabels(v, "${p}recentLabels", report),
             autoAssignLabels = autoAssign.toMutableSet(),
             // `WorkspaceSettings.normalizeAutoAssignPrimaryLabel()`: the primary label is always one of the assigned.
             autoAssignPrimaryLabel = if (primary != null && primary in autoAssign) primary else autoAssign.firstOrNull(),
-            studyPadCursors = studyPadCursors(v["${p}studyPadCursors"], report),
-            hideCompareDocuments = stringSet(v["${p}hideCompareDocuments"]).toMutableSet(),
+            studyPadCursors = studyPadCursors(v, "${p}studyPadCursors", report),
+            hideCompareDocuments = v.stringSet("${p}hideCompareDocuments").toMutableSet(),
             limitAmbiguousModalSize = v.bool("${p}limitAmbiguousModalSize") ?: false,
             workspaceColor = v.int("workspaceColor"),
             restoreButtonsVisible = v.bool("${p}restoreButtonsVisible") ?: true,
@@ -236,7 +261,13 @@ class WorkspacesMapper : CategoryMapper {
         )
     }
 
-    /** A range the Swift app could not validate (unknown versification, bad OSIS) becomes null there, so it does here. */
+    /**
+     * Parses `versification::osisRef`. Swift's `SpeakVerseRange(androidString:)` only checks the `::` separator and
+     * that both parts are non-empty, but JSword's validation here is stricter on purpose: a range JSword cannot parse
+     * (unknown versification, bad OSIS) becomes null, because Android's `PlaybackSettings.fromJson` would otherwise
+     * reset the whole playback object when it reads the stored string. Expected deviation from the Swift oracle for
+     * such ranges.
+     */
     private fun parseVerseRange(text: String?): VerseRange? {
         if (text == null) return null
         return try {
@@ -250,11 +281,14 @@ class WorkspacesMapper : CategoryMapper {
 
     /**
      * `ZRECENTLABELS` is the Swift `[RecentLabel]` JSON with `lastAccess` as seconds since the Core Data reference
-     * date (Foundation's default date coding). The exporter writes it as Unix milliseconds,
-     * `Int64(Date.timeIntervalSince1970 * 1000.0)`, which is reproduced here including the truncation.
+     * date (Foundation's default date coding). It is converted to Unix milliseconds with the arithmetic of
+     * `Int64(Date.timeIntervalSince1970 * 1000.0)` (offset added in floating point, then truncated). Note that the Swift
+     * exporter's `JSONEncoder` with `.millisecondsSince1970` writes a fractional Double (for example
+     * `1700000001234.567`), which Android's Long cannot decode; the whole-millisecond Long written here is a deliberate
+     * improvement and an expected deviation from the oracle for sub-millisecond values.
      */
-    private fun recentLabels(value: LegacyValue?, report: MigrationReport): MutableList<WorkspaceEntities.RecentLabel> {
-        val json = (value as? LegacyValue.JsonV)?.value ?: return mutableListOf()
+    private fun recentLabels(v: Map<String, LegacyValue?>, key: String, report: MigrationReport): MutableList<WorkspaceEntities.RecentLabel> {
+        val json = v.typed<LegacyValue.JsonV>(key)?.value ?: return mutableListOf()
         return try {
             json.parseJson().jsonArray.map {
                 val o = it.jsonObject
@@ -271,8 +305,8 @@ class WorkspacesMapper : CategoryMapper {
     }
 
     /** `ZSTUDYPADCURSORS`: a Swift `[UUID: Int]` is coded as the flat array `[key, value, key, value, ...]`. */
-    private fun studyPadCursors(value: LegacyValue?, report: MigrationReport): MutableMap<IdType, Int> {
-        val json = (value as? LegacyValue.JsonV)?.value ?: return mutableMapOf()
+    private fun studyPadCursors(v: Map<String, LegacyValue?>, key: String, report: MigrationReport): MutableMap<IdType, Int> {
+        val json = v.typed<LegacyValue.JsonV>(key)?.value ?: return mutableMapOf()
         return try {
             val pairs: List<Pair<String, Int>> = when (val root = json.parseJson()) {
                 is JsonArray -> root.chunked(2).map { (k, n) -> k.jsonPrimitive.content to (n.jsonPrimitive.intOrNull ?: error("cursor")) }
@@ -369,7 +403,7 @@ class WorkspacesMapper : CategoryMapper {
             val v = row.values
             Item(
                 window = window,
-                createdAt = (v["createdAt"] as? LegacyValue.DateV)?.epochMillis ?: 0L,
+                createdAt = v.typed<LegacyValue.DateV>("createdAt")?.epochMillis ?: 0L,
                 document = v.text("document") ?: "",
                 key = v.text("key") ?: "",
                 anchor = v.int("anchorOrdinal"),
@@ -422,14 +456,11 @@ class WorkspacesMapper : CategoryMapper {
         fun hideLabels(): List<IdType>?
     }
 
-    private class RowTds(val v: Map<String, LegacyValue?>, val prefix: String) : Tds {
+    private inner class RowTds(val v: Map<String, LegacyValue?>, val prefix: String) : Tds {
         override fun int(name: String) = v.int(prefix + name)
         override fun bool(name: String) = v.bool(prefix + name)
         override fun text(name: String) = v.text(prefix + name)
-        override fun hideLabels(): List<IdType>? {
-            val value = v[prefix + "bookmarksHideLabels"] as? LegacyValue.ArchiveV ?: return null
-            return archiveIds(value.value)
-        }
+        override fun hideLabels(): List<IdType>? = v.archiveIds(prefix + "bookmarksHideLabels")
     }
 
     private class JsonTds(val o: JsonObject) : Tds {
@@ -611,36 +642,52 @@ class WorkspacesMapper : CategoryMapper {
 
         fun String.parseJson(): JsonElement = Json.parseToJsonElement(this)
 
-        // Android columns are 32-bit; like SQLite's own integer fetch, an out-of-range value keeps its low 32 bits.
-        fun Map<String, LegacyValue?>.int(key: String): Int? = (this[key] as? LegacyValue.IntV)?.value?.toInt()
-        fun Map<String, LegacyValue?>.bool(key: String): Boolean? = (this[key] as? LegacyValue.BoolV)?.value
-        fun Map<String, LegacyValue?>.text(key: String): String? = (this[key] as? LegacyValue.TextV)?.value
-        fun Map<String, LegacyValue?>.float(key: String): Float? = (this[key] as? LegacyValue.RealV)?.value?.toFloat()
-        fun Map<String, LegacyValue?>.id(key: String): IdType? = (this[key] as? LegacyValue.UuidV)?.value?.let { IdType.fromString(it) }
-        fun LegacyRow.int(key: String) = values.int(key)
-        fun LegacyRow.id(key: String) = values.id(key)
-
-        /** Ids of a decoded `NSArray`/`NSSet` of `NSUUID` (or UUID strings); a set is ordered by id for a stable result. */
-        fun archiveIds(value: Any?): List<IdType>? {
-            val items = when (value) {
-                is List<*> -> value
-                is Set<*> -> value.mapNotNull { idString(it) }.sorted()
-                else -> return null
-            }
-            return items.mapNotNull { idString(it)?.let { s -> IdType.fromString(s) } }
-        }
-
         fun idString(item: Any?): String? = when (item) {
             is LegacyUuid -> item.value
             is String -> item.lowercase()
             else -> null
         }
-
-        fun labelSet(value: LegacyValue?): List<IdType> =
-            ((value as? LegacyValue.ArchiveV)?.value as? Collection<*>)
-                ?.mapNotNull { idString(it) }?.sorted()?.map { IdType.fromString(it) }.orEmpty()
-
-        fun stringSet(value: LegacyValue?): List<String> =
-            ((value as? LegacyValue.ArchiveV)?.value as? Collection<*>)?.filterIsInstance<String>()?.sorted().orEmpty()
     }
+
+    private fun drop(reason: String) {
+        drops[reason] = (drops[reason] ?: 0) + 1
+    }
+
+    /** The value at [key] as [T]; a present value of another type is counted in [drops] and treated as absent. */
+    private inline fun <reified T : LegacyValue> Map<String, LegacyValue?>.typed(key: String): T? {
+        val v = this[key] ?: return null
+        if (v is T) return v
+        drop("unexpected value type ${v::class.simpleName} for $key")
+        return null
+    }
+
+    // Android columns are 32-bit; like SQLite's own integer fetch, an out-of-range value keeps its low 32 bits.
+    private fun Map<String, LegacyValue?>.int(key: String): Int? = typed<LegacyValue.IntV>(key)?.value?.toInt()
+    private fun Map<String, LegacyValue?>.bool(key: String): Boolean? = typed<LegacyValue.BoolV>(key)?.value
+    private fun Map<String, LegacyValue?>.text(key: String): String? = typed<LegacyValue.TextV>(key)?.value
+    private fun Map<String, LegacyValue?>.float(key: String): Float? = typed<LegacyValue.RealV>(key)?.value?.toFloat()
+    private fun Map<String, LegacyValue?>.id(key: String): IdType? = typed<LegacyValue.UuidV>(key)?.value?.let { IdType.fromString(it) }
+    private fun LegacyRow.int(key: String) = values.int(key)
+    private fun LegacyRow.id(key: String) = values.id(key)
+
+    /** The members of an archived `NSArray`/`NSSet` at [key]; null when the column is NULL or unusable (counted). */
+    private fun Map<String, LegacyValue?>.archiveMembers(key: String): Collection<*>? {
+        val content = typed<LegacyValue.ArchiveV>(key)?.value ?: return null
+        if (content is Collection<*>) return content
+        drop("unexpected archive content for $key")
+        return null
+    }
+
+    /** Ids of a decoded `NSArray` (kept in order) or `NSSet` (ordered by id for a stable result) of UUIDs. */
+    private fun Map<String, LegacyValue?>.archiveIds(key: String): List<IdType>? {
+        val members = archiveMembers(key) ?: return null
+        val ids = members.mapNotNull { m -> idString(m).also { if (it == null) drop("unexpected archive element in $key") } }
+        return (if (members is Set<*>) ids.sorted() else ids).map { IdType.fromString(it) }
+    }
+
+    private fun Map<String, LegacyValue?>.idSet(key: String): List<IdType> = archiveIds(key)?.sortedBy { it.toString() }.orEmpty()
+
+    private fun Map<String, LegacyValue?>.stringSet(key: String): List<String> =
+        archiveMembers(key)?.mapNotNull { m -> (m as? String).also { if (it == null) drop("unexpected archive element in $key") } }
+            ?.sorted().orEmpty()
 }

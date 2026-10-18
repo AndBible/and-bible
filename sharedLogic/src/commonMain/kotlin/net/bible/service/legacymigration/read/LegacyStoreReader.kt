@@ -145,8 +145,12 @@ class LegacyStoreReader(path: String) : AutoCloseable {
         /** Seconds between 1970-01-01 and the Core Data reference date 2001-01-01. */
         const val REFERENCE_DATE_OFFSET_SECONDS = 978_307_200L
 
+        /**
+         * Same arithmetic as the Swift exporters' `Int64(date.timeIntervalSince1970 * 1000.0)`: add the offset in
+         * floating point, multiply, then TRUNCATE (not round) toward zero, so results are bit-identical to Swift's.
+         */
         fun coreDataToEpochMillis(seconds: Double): Long =
-            kotlin.math.round((seconds + REFERENCE_DATE_OFFSET_SECONDS) * 1000.0).toLong()
+            ((seconds + REFERENCE_DATE_OFFSET_SECONDS) * 1000.0).toLong()
 
         fun uuidString(bytes: ByteArray, where: String): String {
             if (bytes.size != 16) throw LegacyMigrationException(Kind.CORRUPT_STORE, "UUID in $where has ${bytes.size} bytes, expected 16")

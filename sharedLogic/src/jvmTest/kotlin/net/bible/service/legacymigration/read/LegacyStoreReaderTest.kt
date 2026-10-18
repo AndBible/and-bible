@@ -174,6 +174,19 @@ class LegacyStoreReaderTest {
     }
 
     @Test
+    fun subMillisecondDatesAreTruncatedLikeSwift() {
+        val fx = fixture("1.0.2", "18", "rich")
+        val store = fx.store("AndBible.store")
+        // 1_700_000_005.0009 s is 1_700_000_005_000.9 ms: Swift's Int64(...) truncation gives ...000, rounding would give ...001.
+        execute(store, "UPDATE ZHISTORYITEM SET ZCREATEDAT = 721692805.0009 WHERE ZCREATEDAT = 721692805")
+        LegacyStoreReader(store.path).use { reader ->
+            val dates = reader.rows("HistoryItem").map { (it.values["createdAt"] as LegacyValue.DateV).epochMillis }
+            assertTrue(1_700_000_005_000L in dates, "$dates")
+            assertTrue(1_700_000_005_001L !in dates, "$dates")
+        }
+    }
+
+    @Test
     fun badUuidLengthIsCorrupt() {
         val fx = fixture("1.0.2", "18", "rich")
         val store = fx.store("AndBible.store")

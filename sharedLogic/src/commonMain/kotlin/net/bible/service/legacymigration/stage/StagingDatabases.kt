@@ -55,7 +55,9 @@ class StagingDatabases(private val dir: Path, private val factory: LegacyDatabas
             try {
                 db.close()
             } catch (e: Throwable) {
+                // A database that did not close cleanly may still need its journal: leave its side files alone.
                 failure = failure ?: e
+                continue
             }
             for (suffix in SIDE_FILE_SUFFIXES) {
                 FileSystem.SYSTEM.delete((path.toString() + suffix).toPath(), mustExist = false)
@@ -65,6 +67,7 @@ class StagingDatabases(private val dir: Path, private val factory: LegacyDatabas
     }
 
     private companion object {
+        // AppDatabaseFiles.kt keeps the same list privately (SIBLING_SUFFIXES); it is not reusable without editing that file.
         val SIDE_FILE_SUFFIXES = listOf("-journal", "-wal", "-shm", ".lck")
     }
 }

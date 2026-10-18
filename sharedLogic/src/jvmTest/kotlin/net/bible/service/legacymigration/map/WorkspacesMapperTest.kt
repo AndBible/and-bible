@@ -20,7 +20,11 @@ import net.bible.service.legacymigration.testsupport.JvmLegacyDatabaseFactory
 import net.bible.service.legacymigration.testsupport.allFixtures
 import net.bible.service.legacymigration.testsupport.compareWithOracle
 import net.bible.service.legacymigration.testsupport.compareWithOracleDetailed
+import net.bible.service.legacymigration.testsupport.ApprovedRow
+import net.bible.service.legacymigration.testsupport.RowSide
 import net.bible.service.legacymigration.testsupport.fixture
+import net.bible.service.legacymigration.testsupport.sameCell
+import net.bible.android.database.WorkspaceEntities
 import okio.Path.Companion.toOkioPath
 
 class WorkspacesMapperTest {
@@ -343,6 +347,72 @@ class WorkspacesMapperTest {
         val written = report.entries.filterIsInstance<ReportEntry.Written>().associate { it.table to it.rows }
         assertEquals(mapOf("Workspace" to 1, "Window" to 2, "PageManager" to 2, "HistoryItem" to 0, "WorkspaceLabelOverride" to 1, "GlobalTextDisplaySettings" to 1), written)
     } }
+
+    @Test
+    fun extraStagedAndMissingOracleRowsCanBeApprovedByPrimaryKey() {
+        val fx = fixture("1.0.2", "18", "rich")
+        runBlocking {
+            withStaging { staging, _ ->
+                snapshot(fx).use { WorkspacesMapper().map(it, staging, MigrationReport()) }
+                val dao = staging.workspaces.workspaceDao()
+                dao.insertWorkspace(WorkspaceEntities.Workspace(name = "extra"))
+                val windowId = dao.allWindows().first().id
+                dao.deleteHistoryItems(windowId)
+
+                val raw = compareWithOracle(fx, LegacyCategory.WORKSPACES, staging)
+                val keyOf = { line: String -> line.substringAfter("[").substringBefore("]: ") }
+                val extra = raw.single { it.endsWith("only in staged database") }
+                val missing = raw.filter { it.endsWith("missing in staged database") }
+                assertTrue(missing.isNotEmpty())
+                // Only an approval on the right side, table and key silences a row.
+                val wrongSide = setOf(ApprovedRow("Workspace", keyOf(extra), RowSide.ONLY_IN_ORACLE, "x"))
+                assertEquals(raw, compareWithOracle(fx, LegacyCategory.WORKSPACES, staging, emptySet(), wrongSide))
+                val rows = setOf(ApprovedRow("Workspace", keyOf(extra), RowSide.ONLY_IN_STAGED, "extra row")) +
+                    missing.map { ApprovedRow("HistoryItem", keyOf(it), RowSide.ONLY_IN_ORACLE, "history") }
+                assertEquals(emptyList(), compareWithOracle(fx, LegacyCategory.WORKSPACES, staging, emptySet(), rows))
+            }
+        }
+    }
+
+    @Test
+    fun cellComparisonIsExactExceptForKnownJsonAndApprovedNullVersusEmpty() {
+        // JSON columns ignore object key order; array order and every other text column are exact.
+        assertTrue(sameCell("t:{\"a\":1,\"b\":2}", "t:{\"b\":2,\"a\":1}", isJson = true, nullEqualsEmpty = false))
+        assertTrue(!sameCell("t:{\"a\":1,\"b\":2}", "t:{\"b\":2,\"a\":1}", isJson = false, nullEqualsEmpty = false))
+        assertTrue(!sameCell("t:[\"a\",\"b\"]", "t:[\"b\",\"a\"]", isJson = true, nullEqualsEmpty = false))
+        assertTrue(!sameCell("t:a\u0000b", "t:a", isJson = false, nullEqualsEmpty = false))
+        // NULL equals an empty collection only when approved, and nothing else equals NULL.
+        assertTrue(!sameCell("null", "t:[]", isJson = true, nullEqualsEmpty = false))
+        assertTrue(sameCell("null", "t:[]", isJson = true, nullEqualsEmpty = true))
+        assertTrue(sameCell("t:{}", "null", isJson = true, nullEqualsEmpty = true))
+        assertTrue(!sameCell("null", "t:[1]", isJson = true, nullEqualsEmpty = true))
+        assertTrue(!sameCell("null", "t:", isJson = true, nullEqualsEmpty = true))
+    }
+
+    @Test
+    fun unexpectedValueTypesAreReportedNotSilentlyDropped() {
+        val data = handBuilt(emptyMap())
+        val bad = LegacyWorkspaceData(
+            workspaces = data.workspaces.map {
+                it.copy(values = it.values + mapOf(
+                    "textDisplaySettings.fontSize" to LegacyValue.TextV("big"),
+                    "workspaceSettings.autoAssignLabels" to LegacyValue.ArchiveV(setOf(LegacyUuid(label1), 42L)),
+                    "workspaceSettings.hideCompareDocuments" to LegacyValue.ArchiveV("not a collection"),
+                ))
+            },
+            windows = data.windows, pageManagers = data.pageManagers, historyItems = data.historyItems, settings = data.settings,
+        )
+        val report = MigrationReport()
+        val stage = build(bad, report)
+        assertNull(stage.workspaces.single().textDisplaySettings!!.fontSize)
+        val skipped = report.entries.filterIsInstance<ReportEntry.Skipped>().associate { it.reason to it.rows }
+        assertEquals(1, skipped["unexpected value type TextV for textDisplaySettings.fontSize"])
+        assertEquals(1, skipped["unexpected archive element in workspaceSettings.autoAssignLabels"])
+        assertEquals(1, skipped["unexpected archive content for workspaceSettings.hideCompareDocuments"])
+        val clean = MigrationReport()
+        build(data, clean)
+        assertTrue(clean.entries.filterIsInstance<ReportEntry.Skipped>().none { it.reason.startsWith("unexpected") })
+    }
 
     // ---- Staging databases and the report ----
 
