@@ -3670,6 +3670,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                             if (dto != null) {
                                                 // the start write must land even if the screen goes away; the next
                                                 // screen reads it, so report the selection only after it
+                                                resetReadingPlanCodes.remove(planCode) // chosen again: loadable again
                                                 withContext(appScope.coroutineContext) { readingPlanControl.startReadingPlan(dto) }
                                                 onSelect(planCode)
                                             }
@@ -3677,8 +3678,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                     },
                                     onReset = { planCode ->
                                         readingPlanControl.reset(planCode)
-                                        // else Back shows a stale day view and a reopen reloads (and re-selects) the plan
-                                        if (resetForgetsLoadedPlan(planCode, planCodeLoaded)) forgetLoadedReadingPlan()
+                                        forgetResetReadingPlan(planCode)
                                     },
                                 )
                             },
@@ -6660,7 +6660,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onReset = {
             val code = planCodeLoaded
             if (code.isNullOrEmpty()) dailyReadingController?.showError()
-            else { readingPlanControl.reset(code); forgetLoadedReadingPlan(); returnToReadingOrFinish() }
+            else { readingPlanControl.reset(code); forgetResetReadingPlan(code); returnToReadingOrFinish() }
         },
         onSetStartDate = { showReadingPlanStartDatePicker() },
         onConfirmStartDate = { year, month1to12, day -> confirmReadingPlanStartDate(year, month1to12, day) },
@@ -6682,7 +6682,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val generation = ++readingDayLoadGeneration
         fun current() = generation == readingDayLoadGeneration && applicable()
         val code = plan ?: readingPlanControl.currentPlanCode
-        if (code.isEmpty()) return DailyReadingLoad.NO_PLAN
+        if (code.isEmpty() || code in resetReadingPlanCodes) return DailyReadingLoad.NO_PLAN
         return try {
             if (!readingPlanControl.currentPlanExists(code)) {
                 if (!current()) throw CancellationException("Superseded reading day")
@@ -6767,6 +6767,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 else -> SpeakState.NONE
             }
         )
+    }
+
+    /**
+     * Plans reset since they were last chosen in the selector. `reset()` only clears progress, so the plan still
+     * "exists": without this, popping back onto a daily-reading entry whose route arguments name the reset plan
+     * reloads it and selects it again. Such a load falls to the selector like a missing plan.
+     */
+    private val resetReadingPlanCodes = mutableSetOf<String>()
+
+    /** After a reset of [code] (selector or day view): never reload it, and drop it if it is the loaded one. */
+    private fun forgetResetReadingPlan(code: String) {
+        resetReadingPlanCodes += code
+        if (resetForgetsLoadedPlan(code, planCodeLoaded)) forgetLoadedReadingPlan()
     }
 
     /** SU-15g I1: drops the host-wide last-loaded (plan, day) and readings once their plan was reset/removed. */
