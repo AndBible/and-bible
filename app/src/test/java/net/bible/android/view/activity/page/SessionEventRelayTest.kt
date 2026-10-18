@@ -33,6 +33,7 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.misc.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
+import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.bibleview.JsHost
 import net.bible.sharedcore.event.EventSource
@@ -54,6 +55,7 @@ import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -216,9 +218,14 @@ class SessionEventRelayTest {
 
     @Test fun disposedSessionEmitsNothing() {
         relay.start()
+        // Control: the settings stream emits JS even with no document loaded.
+        settingsEvents.emit(Unit)
+        assertTrue("settings change must reach JS before dispose", host.js.isNotEmpty())
+        host.js.clear()
         session.dispose()
-        progressEvents.emit(ProgressChange.Memorization(addedMemorized = listOf(1)))
+        settingsEvents.emit(Unit)
         assertEquals(emptyList<String>(), host.js.toList())
+        assertFalse(session.emit(BibleViewEvents.response(1L, null)))
     }
 
     @Test fun windowChangesReachThePlatformInOrder() {

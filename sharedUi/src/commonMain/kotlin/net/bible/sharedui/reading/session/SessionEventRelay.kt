@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading.session
 
+import kotlin.concurrent.Volatile
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
@@ -38,6 +39,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
 import net.bible.sharedcore.bibleview.BibleViewEvents
+import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.bibleview.JsExpr
 import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.event.Subscriptions
@@ -49,6 +51,7 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.MyDocumentChange
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.Versification
 import org.koin.mp.KoinPlatform
 
 /** What [SessionEventRelay] needs from the platform view for window changes (WebView, tilt scroll, offsets). */
@@ -70,7 +73,8 @@ interface SessionEventRelayPlatform {
  * Android's `BibleView`; [start] and [stop] are called where `BibleView.listenEvents` flips.
  *
  * Handlers run on the emitter's thread like the subscribers they replace; bookmark changes are
- * handled in order on [BibleWindowSession.scope]. [stop] (and disposing the session) ends both.
+ * handled in order on [BibleWindowSession.scope]. [stop] cancels the subscriptions only: bookmark-change
+ * jobs already queued keep running until the session is disposed ([BibleWindowSession.dispose] cancels its scope).
  */
 class SessionEventRelay(
     private val session: BibleWindowSession,
@@ -86,11 +90,11 @@ class SessionEventRelay(
 ) {
     private val subscriptions = Subscriptions()
     private val bookmarkChanges by lazy { OrderedLauncher(session.scope) }
-    private var started = false
+    @Volatile private var started = false
 
     private val window: Window get() = session.window
     private val firstDocument get() = session.firstDocument
-    private fun emit(call: net.bible.sharedcore.bibleview.JsCall) = session.emit(call)
+    private fun emit(call: JsCall) = session.emit(call)
 
     fun start() {
         if (started) return
@@ -273,7 +277,7 @@ class SessionEventRelay(
         }
     }
 
-    private fun convertOrdinals(v11n: org.crosswire.jsword.versification.Versification?, kjvOrdinals: List<Int>): List<Int> {
+    private fun convertOrdinals(v11n: Versification?, kjvOrdinals: List<Int>): List<Int> {
         val converted = if (v11n != null) {
             kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
         } else {
