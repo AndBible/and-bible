@@ -1,16 +1,9 @@
 package net.bible.android.control
 
-import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.document.DocumentFileDeleter
-import net.bible.service.db.DatabaseContainer
-import net.bible.service.sword.SwordDocumentFacade
-import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.search.SearchHighlighter
 import net.bible.android.control.search.SearchTextHighlighter
-import net.bible.android.view.activity.search.AndroidEpubSearchService
-import net.bible.sharedcore.search.EpubSearchService
 import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
@@ -23,13 +16,8 @@ import net.bible.android.platform.AndroidReadingPlanSource
 import net.bible.android.platform.AndroidHistoryPlatform
 import net.bible.android.platform.AndroidLinkPlatform
 import net.bible.android.control.link.LinkPlatform
-import net.bible.android.view.activity.readingplan.ReadingPlanCatalog
-import net.bible.service.readingplan.DistributedPlanDetails
-import net.bible.service.readingplan.ReadingPlanTextFileDao
 import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.service.common.CommonUtils
-import okio.Path.Companion.toOkioPath
-import net.bible.android.SharedConstants
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.service.sword.mydocument.MarkdownToXhtml
@@ -99,7 +87,6 @@ fun buildPlatformBindings() = module {
         net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }
     }
     single<net.bible.service.sword.ContentSource> { net.bible.android.platform.AndroidContentSource(androidContext().contentResolver) }
-    single { net.bible.service.sword.SwordContentFacade(get(), get(), get(), get(), get(), net.bible.android.platform.androidSaxTextPolicy()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
     single<net.bible.android.control.page.KeyChooserLauncher> {
         net.bible.android.platform.AndroidKeyChooserLauncher { net.bible.android.view.activity.base.CurrentActivityHolder.currentActivity }
@@ -108,17 +95,7 @@ fun buildPlatformBindings() = module {
     single<LinkPlatform> { AndroidLinkPlatform() }
     single { net.bible.android.platform.androidSaxTextPolicy() }
     single<ReadingPlanSource> { AndroidReadingPlanSource() }
-    single {
-        ReadingPlanTextFileDao(
-            source = get(), repository = get(), coreStrings = get(), calendar = get(),
-            userPlanFolder = { SharedConstants.manualReadingPlanDir.toOkioPath() },
-            providedPlans = { get<net.bible.sharedlogic.platform.AddonCatalog>().readingPlans },
-            // evaluated per lookup: ReadingPlanCatalog resolves its localized strings when first touched
-            distributedPlans = { ReadingPlanCatalog.ABDistributedPlanDetailArray.map { DistributedPlanDetails(it.planCode, it.planName, it.planDescription) } },
-        )
-    }
     single<SearchTextHighlighter> { SearchHighlighter }
-    singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() }
     single { net.bible.android.platform.AndroidHttpClients() }
     single<net.bible.sharedcore.llm.http.LlmHttpTransport> {
         net.bible.sharedcore.llm.http.KtorLlmHttpTransport(get<net.bible.android.platform.AndroidHttpClients>()::clientFor)
@@ -137,10 +114,8 @@ fun buildPlatformBindings() = module {
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
     single<net.bible.android.control.speak.SpeakPlatform> { net.bible.android.platform.AndroidSpeakPlatform(androidContext()) }
-    single {
-        DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
-            deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
-            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() },
-            enableManualInstallFolder = net.bible.service.sword.SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder)
+    single<net.bible.sharedlogic.platform.ManualInstallFolderEnabler> {
+        net.bible.sharedlogic.platform.ManualInstallFolderEnabler(net.bible.service.sword.SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder)
     }
+    single<net.bible.sharedlogic.platform.DistributedPlanCatalog> { net.bible.android.platform.AndroidDistributedPlanCatalog() }
 }

@@ -80,6 +80,7 @@ import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.speak.SpeakSettingsService
@@ -88,6 +89,17 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowStateService
 import net.bible.sharedcore.workspaces.WorkspaceService
+import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.document.DocumentFileDeleter
+import net.bible.android.view.activity.search.AndroidEpubSearchService
+import net.bible.service.format.SaxTextPolicy
+import net.bible.service.readingplan.ReadingPlanTextFileDao
+import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedlogic.platform.AddonCatalog
+import net.bible.sharedlogic.platform.DistributedPlanCatalog
+import net.bible.sharedlogic.platform.ManualInstallFolderEnabler
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -102,6 +114,23 @@ fun buildSharedBindings() = module {
     // DownloadControl (was ApplicationModule.provideDownloadControl)
     single { FakeBookFactory(get()) }
     single { DownloadControl(get(), get(), get()) }
+    single { SwordContentFacade(get(), get(), get(), get(), get(), get<SaxTextPolicy>()) }
+    single {
+        ReadingPlanTextFileDao(
+            source = get(), repository = get(), coreStrings = get(), calendar = get(),
+            userPlanFolder = { get<AppDirectories>().manualReadingPlanDir },
+            providedPlans = { get<AddonCatalog>().readingPlans },
+            // evaluated per lookup: the platform catalog resolves its localized strings when first touched
+            distributedPlans = { get<DistributedPlanCatalog>().plans() },
+        )
+    }
+    single {
+        DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
+            deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
+            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() },
+            enableManualInstallFolder = { get<ManualInstallFolderEnabler>().enable() })
+    }
+    single { AndroidEpubSearchService() } bind EpubSearchService::class
     single<ManifestFetcher> { KtorManifestFetcher(get()) }
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
 
