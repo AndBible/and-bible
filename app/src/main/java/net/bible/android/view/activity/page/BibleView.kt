@@ -57,6 +57,8 @@ import androidx.lifecycle.lifecycleScope
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.bridge.ReadingKeyActions
 import net.bible.sharedui.reading.session.BibleWindowSession
+import net.bible.sharedui.reading.session.ConfigCommand
+import net.bible.sharedui.reading.session.ConfigInputs
 import net.bible.sharedui.reading.session.SessionPaging
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.PathHandler
@@ -1659,66 +1661,43 @@ class BibleView(
         favouriteLabels.refresh { bookmarkControl.favouriteLabels().map { it.id } }
     }
 
-    private fun getUpdateConfigCommand(initial: Boolean): JsCall {
-        val favouriteLabels = json.encodeToString(serializer(), favouriteLabels.ids)
-        val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
-        val studyPadCursors = json.encodeToString(serializer(), workspaceSettings.studyPadCursors)
-        val autoAssignLabels = json.encodeToString(serializer(), workspaceSettings.autoAssignLabels.toList())
-        val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
-        val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)
-        val disableBibleModalButtons = json.encodeToString(serializer(),
-            CommonUtils.settings.getStringSet("disable_bible_bookmark_modal_buttons", emptySet())
-        )
-        val disableGenericModalButtons = json.encodeToString(serializer(),
-            CommonUtils.settings.getStringSet("disable_gen_bookmark_modal_buttons", emptySet())
-        )
-        val monochromeMode = CommonUtils.settings.monochromeMode
-        val einkMode = CommonUtils.settings.einkMode
-        val colorEinkMode = CommonUtils.settings.colorEinkMode
-        val pureMonochromeMode = CommonUtils.settings.pureMonochromeMode
-        val disableAnimations = CommonUtils.settings.disableAnimations
-        val disableClickToEdit = CommonUtils.settings.disableClickToEdit
-        val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
-        val themeColors = themeColorsJson(
+    /** Gathers what `set_config` reads (Android settings and window state); the script itself is [ConfigCommand]. */
+    private fun configInputs(favouriteLabelIds: List<IdType>) = ConfigInputs(
+        displaySettings = displaySettings,
+        isActive = isActive,
+        isBottomWindow = isBottomWindow,
+        hasActiveIndicator = hasActiveIndicator,
+        nightMode = nightMode,
+        showErrorBox = showErrorBox,
+        favouriteLabels = favouriteLabelIds,
+        recentLabels = workspaceSettings.recentLabels.map { it.labelId },
+        studyPadCursors = workspaceSettings.studyPadCursors.toMap(),
+        autoAssignLabels = workspaceSettings.autoAssignLabels.toList(),
+        hideCompareDocuments = workspaceSettings.hideCompareDocuments.toSet(),
+        limitAmbiguousModalSize = workspaceSettings.limitAmbiguousModalSize,
+        windowDisplayId = window.displayId,
+        disableBibleModalButtons = CommonUtils.settings.getStringSet("disable_bible_bookmark_modal_buttons", emptySet()),
+        disableGenericModalButtons = CommonUtils.settings.getStringSet("disable_gen_bookmark_modal_buttons", emptySet()),
+        monochromeMode = CommonUtils.settings.monochromeMode,
+        einkMode = CommonUtils.settings.einkMode,
+        colorEinkMode = CommonUtils.settings.colorEinkMode,
+        pureMonochromeMode = CommonUtils.settings.pureMonochromeMode,
+        disableAnimations = CommonUtils.settings.disableAnimations,
+        fontSizeMultiplier = CommonUtils.settings.fontSizeMultiplierFloat,
+        enabledExperimentalFeatures = CommonUtils.settings.enabledExperimentalFeatures.toList(),
+        themeColors = themeColorsJson(
             seedArgb = currentWorkspaceThemeSeedArgb(),
             dark = nightMode,
             colorMode = CommonUtils.settings.displayColorMode,
             style = CommonUtils.settings.themePaletteStyle,
-        )
-        return BibleViewEvents.setConfig(JsExpr("""
-                {
-                    config: ${displaySettings.toJson()},
-                    appSettings: {
-                        activeWindow: $isActive,
-                        isBottomWindow: $isBottomWindow,
-                        hasActiveIndicator: $hasActiveIndicator,
-                        nightMode: $nightMode,
-                        errorBox: $showErrorBox,
-                        favouriteLabels: $favouriteLabels,
-                        recentLabels: $recentLabels,
-                        studyPadCursors: $studyPadCursors,
-                        autoAssignLabels: $autoAssignLabels,
-                        hideCompareDocuments: $hideCompareDocuments,
-                        limitAmbiguousModalSize: $limitAmbiguousModalSize,
-                        windowId: '${window.displayId}',
-                        disableBibleModalButtons: $disableBibleModalButtons, 
-                        disableGenericModalButtons: $disableGenericModalButtons, 
-                        monochromeMode: $monochromeMode,
-                        einkMode: $einkMode,
-                        colorEinkMode: $colorEinkMode,
-                        pureMonochromeMode: $pureMonochromeMode,
-                        disableAnimations: $disableAnimations,
-                        fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
-                        enabledExperimentalFeatures: $enabledExperimentalFeatures,
-                        themeColors: $themeColors,
-                        disableClickToEdit:  $disableClickToEdit,
-                        llmConfigured: ${CommonUtils.settings.llmConfigured},
-                        notesContentType: "${CommonUtils.settings.notesContentType}",
-                    },
-                    initial: $initial,
-                    }
-                """))
-    }
+        ),
+        disableClickToEdit = CommonUtils.settings.disableClickToEdit,
+        llmConfigured = CommonUtils.settings.llmConfigured,
+        notesContentType = CommonUtils.settings.notesContentType,
+    )
+
+    private fun getUpdateConfigCommand(initial: Boolean): JsCall =
+        ConfigCommand.build(initial, configInputs(favouriteLabels.ids))
 
     // Synchronous, so set_config keeps its place in the JS task queue relative to what is emitted
     // right after it (an `initial` config must never land after a later one). Favourites come from
