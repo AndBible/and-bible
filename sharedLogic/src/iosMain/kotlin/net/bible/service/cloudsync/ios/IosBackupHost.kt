@@ -22,6 +22,7 @@ class IosBackupHost(
 ) : BackupHost, FilePicker by picker, FileDelivery by delivery {
 
     override suspend fun showErrorReport(message: String, cause: Throwable?) {
+        Log.i(TAG, "I2-pending: error report buttons")
         if (cause != null) Log.w(TAG, "Error report: $message", cause)
         // Message bodies are HTML (AppDialogRequest.Message), so escape the plain text.
         val html = message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")

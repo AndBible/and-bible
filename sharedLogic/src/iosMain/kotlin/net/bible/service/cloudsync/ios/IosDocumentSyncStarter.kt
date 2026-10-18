@@ -20,6 +20,7 @@ import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
 import platform.UIKit.UIApplication
+import platform.UIKit.UIBackgroundTaskInvalid
 import kotlin.coroutines.coroutineContext
 
 private const val TAG = "IosDocumentSyncStarter"
@@ -212,6 +213,12 @@ private class BackgroundTask {
     private var ended = false
 
     fun attach(id: ULong, end: (ULong) -> Unit) {
+        // UIBackgroundTaskInvalid means the system refused the task: there is nothing to end
+        // (mirrors IosSyncScheduler's guard).
+        if (id == UIBackgroundTaskInvalid) {
+            synchronized(lock) { ended = true }
+            return
+        }
         val endNow = synchronized(lock) { this.id = id; this.end = end; expired }
         if (endNow) endOnce()
     }

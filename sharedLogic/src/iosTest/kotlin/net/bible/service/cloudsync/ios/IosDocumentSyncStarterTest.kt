@@ -9,6 +9,7 @@ import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.documents.DocumentSyncActions
 import net.bible.sharedcore.platform.UserNotifier
 import okio.IOException
+import platform.UIKit.UIBackgroundTaskInvalid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -71,6 +72,19 @@ class IosDocumentSyncStarterTest {
         )
         assertEquals(1, begins)
         assertEquals(listOf(7uL), ends)
+    }
+
+    @Test fun invalidBackgroundTaskIdIsNeverEnded() = runTest {
+        val s = IosDocumentSyncStarter.forDriver(
+            backgroundScope, driver, notifier, { "generic" },
+            begin = { begins++; UIBackgroundTaskInvalid },
+            end = { ends += it },
+        )
+        s.start(push = listOf("A"), download = emptyList())
+        s.awaitIdle()
+        assertEquals(1, begins)
+        assertTrue(events.contains("push A"), "the drain still runs without a background task")
+        assertTrue(ends.isEmpty(), "endBackgroundTask must not be called with UIBackgroundTaskInvalid")
     }
 
     @Test fun secondStartDuringDrainJoinsSameSession() = runTest {

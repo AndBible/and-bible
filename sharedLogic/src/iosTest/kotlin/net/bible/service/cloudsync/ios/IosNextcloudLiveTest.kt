@@ -39,7 +39,8 @@ class IosNextcloudLiveTest {
         val (server, user, password) = parts
 
         val base = "i2-live-" + NSUUID().UUIDString
-        val prefs = IosDevicePrefs(NSUserDefaults(suiteName = "i2-live-$base"))
+        val suite = "i2-live-$base"
+        val prefs = IosDevicePrefs(NSUserDefaults(suiteName = suite))
         val state = IosWebDavStateStore(prefs)
         val ui = object : WebDavSignInUi {
             override suspend fun confirmCertificate(info: DavCertificateInfo) = false
@@ -65,6 +66,7 @@ class IosNextcloudLiveTest {
             adapter.download(found.id, out)
             assertContentEquals(payload, out.readByteArray())
         } finally {
+            NSUserDefaults.standardUserDefaults.removePersistentDomainForName(suite)
             FileSystem.SYSTEM.delete(tmp, mustExist = false)
             try { adapter.delete(base) } catch (e: Exception) { println("cleanup of $base failed: $e") }
         }

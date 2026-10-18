@@ -86,7 +86,8 @@ private fun Throwable.nsError(): NSError? {
 
 /**
  * The production iOS [WebDavClient]: ktor Darwin (NSURLSession) engine with pinned-certificate trust
- * (spec C5). No User-Agent header is set, so the app does not identify itself to the server.
+ * (spec C5). No User-Agent is set explicitly; ktor's default one is added when none is set. It does not name
+ * AndBible, so the app still does not identify itself to the server.
  *
  * Server-trust challenges are evaluated with `SecTrustEvaluateWithError`; [pinDecision] then decides,
  * using the challenge's protection-space host (the host actually being connected to, so a pin only

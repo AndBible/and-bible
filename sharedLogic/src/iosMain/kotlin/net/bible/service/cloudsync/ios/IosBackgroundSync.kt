@@ -39,7 +39,9 @@ class IosBackgroundSync(
 /**
  * Handler for the registered BGTask. When Koin is not started (the OS launched the app only for the
  * task) or no [IosBackgroundSync] is bound, it returns true without touching any database; the
- * next wake-up is then requested by the normal startup path. A failure inside the run is logged and
+ * next wake-up is then requested by the normal startup path.
+ * I2-pending (phase 2): decide Koin/database readiness on a background-only launch and then reschedule
+ * from this path, so such a launch cannot leave no refresh scheduled. A failure inside the run is logged and
  * reported as false (the run itself has already rescheduled); cancellation is rethrown.
  */
 suspend fun iosBackgroundRefreshEntry(koin: Koin? = KoinPlatform.getKoinOrNull()): Boolean {
