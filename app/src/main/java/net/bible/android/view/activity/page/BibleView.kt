@@ -78,6 +78,7 @@ import net.bible.android.control.progress.ProgressChange
 import net.bible.android.control.progress.ProgressControl
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.sharedcore.reading.ShareVersesInput
+import net.bible.sharedui.reading.bridge.shareableSelectionText
 import net.bible.sharedui.reading.session.ReadingSheets
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
@@ -355,7 +356,7 @@ class BibleView(
             }
 
             override fun showPromptSelector(selection: Selection, context: PromptContext, category: DocumentCategory?) {
-                hostCallbacks.showLlmPromptSelector(selection, context)
+                hostCallbacks.composeReadingViewHost()?.showPromptSelector(selection, context, category)
             }
 
             override fun showRegenerate(pageId: IdType) {
@@ -364,6 +365,10 @@ class BibleView(
 
             override fun showHelp(title: String?, html: String) {
                 hostCallbacks.composeReadingViewHost()?.showHelp(title, html)
+            }
+
+            override fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit) {
+                hostCallbacks.composeReadingViewHost()?.showDeleteDocumentPageConfirm(onConfirm)
             }
         }
         it.verseChooser = { hostCallbacks.composeReadingViewHost()?.openVerseChooserSheetForResult()?.await() }
@@ -450,8 +455,7 @@ class BibleView(
                 return true
             }
             R.id.copy -> {
-                val clip = ClipData.newPlainText(application.getString(R.string.add_bookmark3), currentSelectionText)
-                CommonUtils.copyToClipboard(clip)
+                surface.copyText(application.getString(R.string.add_bookmark3), currentSelectionText ?: "")
                 return true
             }
             R.id.web_search -> {
@@ -730,7 +734,9 @@ class BibleView(
             currentSelection = null
             if (selection == null)
                 setCurrentSelection()
-            (currentSelection ?: selection)?.copyToClipboard()
+            (currentSelection ?: selection)?.let {
+                surface.copyText(it.verseRange?.getName(), shareableSelectionText(it, swordContentFacade, CommonUtils.settings))
+            }
         }
     }
 

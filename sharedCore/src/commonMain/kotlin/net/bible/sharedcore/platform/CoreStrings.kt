@@ -117,4 +117,13 @@ interface CoreStrings {
     fun searchUnsupportedSyntax(syntax: String): String // R.string.search_unsupported_syntax
     val cantChangeWholeVerse: String // R.string.cant_change_wholeverse
     val wholeVerseTurnedOn: String // R.string.whole_verse_turned_on
+
+    // --- I2 Stream B (reading) ---
+    val help: String // R.string.help
+    val helpMemorizeText: String // R.string.help_memorize_text
+    val helpReadMoreLink: String // R.string.help_read_more_link
+    val verseTip: String // R.string.verse_tip
+    val helpBookmarksText: String // R.string.help_bookmarks_text
+    val watchTutorialVideo: String // R.string.watch_tutorial_video
+    val bookmarksAndMyNotesTitle: String // R.string.bookmarks_and_mynotes_title
 }

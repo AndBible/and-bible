@@ -53,8 +53,7 @@ import org.koin.mp.KoinPlatform
  * when the session is disposed (window closed or document replaced); deferred calls first answer the
  * JS promise with null so it never hangs. A failing deferred handler also answers null/empty.
  *
- * Families not yet moved from the platform adapter throw [NotImplementedError]; the adapter
- * overrides them.
+ * The platform adapter (`BibleJavascriptInterface`) only delegates to this class.
  */
 class ReadingBridge(
     private val session: BibleWindowSession,
@@ -77,6 +76,8 @@ class ReadingBridge(
 
     private val links by lazy { LinkBridgeFamily(session, bookmarkJsActionsProvider(), viewIsCurrent) }
 
+    private val contentFamily by lazy { ContentBridgeFamily(session, bookmarkJsActionsProvider()) }
+
     /** Opens the compare document for [selection] (the platform view's selection menu action). */
     fun compareSelection(selection: Selection?) = progressSpeak.compareSelection(selection)
 
@@ -89,9 +90,6 @@ class ReadingBridge(
 
     /** Bookmark creation shared with the platform view (selection menu actions). */
     val bookmarkCreation: BookmarkCreation get() = bookmarks.creation
-
-    private fun notYetMoved(name: String): Nothing =
-        throw NotImplementedError("BibleBridge.$name has not moved to ReadingBridge yet")
 
     /** Answers a deferred call with null directly on the channel (works after dispose). */
     private fun answerNull(callId: Long) {
@@ -285,7 +283,7 @@ class ReadingBridge(
         session.scope.launch { session.keyActions?.crashAllBibleViews() }
     }
 
-    // Not moved yet: the platform adapter overrides these.
+    // Family delegations.
     override fun saveBookmarkNote(bookmarkId: String, note: String?) = bookmarks.saveBookmarkNote(bookmarkId, note)
     override fun saveGenericBookmarkNote(bookmarkId: String, note: String?) = bookmarks.saveGenericBookmarkNote(bookmarkId, note)
     override fun removeBookmark(bookmarkId: String) = bookmarks.removeBookmark(bookmarkId)
@@ -306,9 +304,9 @@ class ReadingBridge(
     override fun updateStudyPadTextEntryText(id: String, text: String) = bookmarks.updateStudyPadTextEntryText(id, text)
     override fun updateBookmarkToLabel(data: String) = bookmarks.updateBookmarkToLabel(data)
     override fun updateGenericBookmarkToLabel(data: String) = bookmarks.updateGenericBookmarkToLabel(data)
-    override fun shareBookmarkVerse(bookmarkId: String): Unit = notYetMoved("shareBookmarkVerse")
-    override fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("shareVerse")
-    override fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("copyVerse")
+    override fun shareBookmarkVerse(bookmarkId: String) = contentFamily.shareBookmarkVerse(bookmarkId)
+    override fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = contentFamily.shareVerse(bookInitials, startOrdinal, endOrdinal)
+    override fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = contentFamily.copyVerse(bookInitials, startOrdinal, endOrdinal)
     override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = bookmarks.addBookmark(bookInitials, startOrdinal, endOrdinal, addNote)
     override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = bookmarks.addGenericBookmark(bookInitials, osisRef, startOrdinal, endOrdinal, addNote)
     override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = bookmarks.addParagraphBreakBookmark(bookInitials, startOrdinal, endOrdinal)
@@ -323,7 +321,7 @@ class ReadingBridge(
     override fun setReadingProgressSettings(json: String) = progressSpeak.setReadingProgressSettings(json)
     override fun openReadingProgress(tab: Int) = progressSpeak.openReadingProgress(tab)
     override fun openReadingProgressSettings() = progressSpeak.openReadingProgressSettings()
-    override fun showHelpDialog(scopeKey: String): Unit = notYetMoved("showHelpDialog")
+    override fun showHelpDialog(scopeKey: String) = contentFamily.showHelpDialog(scopeKey)
     override fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) = progressSpeak.recordChapterRead(bookInitials, startOrdinal, chapter, source)
     override fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) = progressSpeak.openChapterReadHistory(bookInitials, startOrdinal, chapter)
     override fun openStudyPad(labelId: String, bookmarkId: String) = links.openStudyPad(labelId, bookmarkId)
@@ -341,20 +339,21 @@ class ReadingBridge(
     override fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) = bookmarks.setBookmarkWholeVerse(bookmarkId, value)
     override fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) = bookmarks.setGenericBookmarkWholeVerse(bookmarkId, value)
     override fun toggleCompareDocument(documentId: String) = links.toggleCompareDocument(documentId)
-    override fun helpDialog(content: String, title: String?): Unit = notYetMoved("helpDialog")
-    override fun helpBookmarks(): Unit = notYetMoved("helpBookmarks")
-    override fun shareHtml(html: String): Unit = notYetMoved("shareHtml")
-    override fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String): Unit = notYetMoved("llmAction")
-    override fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String): Unit = notYetMoved("llmActionGeneric")
-    override fun noteEditorLlmAction(contextJson: String): Unit = notYetMoved("noteEditorLlmAction")
-    override fun getMyDocumentPageRawContent(callId: Long, bookInitials: String, pageKey: String): Unit = notYetMoved("getMyDocumentPageRawContent")
-    override fun shareMyDocumentContent(bookInitials: String, pageKey: String): Unit = notYetMoved("shareMyDocumentContent")
-    override fun copyMyDocumentContent(bookInitials: String, pageKey: String): Unit = notYetMoved("copyMyDocumentContent")
-    override fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?): Unit = notYetMoved("saveMyDocumentPageContent")
-    override fun reloadMyDocumentPage(bookInitials: String): Unit = notYetMoved("reloadMyDocumentPage")
-    override fun regenerateMyDocumentPage(pageId: String): Unit = notYetMoved("regenerateMyDocumentPage")
-    override fun deleteMyDocumentPage(pageId: String): Unit = notYetMoved("deleteMyDocumentPage")
-    override fun openPromptEditor(promptId: String): Unit = notYetMoved("openPromptEditor")
+    override fun helpDialog(content: String, title: String?) = contentFamily.helpDialog(content, title)
+    override fun helpBookmarks() = contentFamily.helpBookmarks()
+    override fun shareHtml(html: String) = contentFamily.shareHtml(html)
+    override fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) = contentFamily.llmAction(bookInitials, startOrdinal, endOrdinal, text)
+    override fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String) = contentFamily.llmActionGeneric(bookInitials, osisRef, startOrdinal, endOrdinal, text)
+    override fun noteEditorLlmAction(contextJson: String) = contentFamily.noteEditorLlmAction(contextJson)
+    override fun getMyDocumentPageRawContent(callId: Long, bookInitials: String, pageKey: String) =
+        deferred(callId, "getMyDocumentPageRawContent") { contentFamily.getMyDocumentPageRawContent(callId, bookInitials, pageKey) }
+    override fun shareMyDocumentContent(bookInitials: String, pageKey: String) = contentFamily.shareMyDocumentContent(bookInitials, pageKey)
+    override fun copyMyDocumentContent(bookInitials: String, pageKey: String) = contentFamily.copyMyDocumentContent(bookInitials, pageKey)
+    override fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) = contentFamily.saveMyDocumentPageContent(pageId, content, title)
+    override fun reloadMyDocumentPage(bookInitials: String) = contentFamily.reloadMyDocumentPage(bookInitials)
+    override fun regenerateMyDocumentPage(pageId: String) = contentFamily.regenerateMyDocumentPage(pageId)
+    override fun deleteMyDocumentPage(pageId: String) = contentFamily.deleteMyDocumentPage(pageId)
+    override fun openPromptEditor(promptId: String) = contentFamily.openPromptEditor(promptId)
 
     private companion object {
         const val TAG = "ReadingBridge"

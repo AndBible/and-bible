@@ -157,4 +157,7 @@ interface ReadingSheets {
     fun showPromptSelector(selection: Selection, context: PromptContext, category: DocumentCategory?)
     fun showRegenerate(pageId: IdType)
     fun showHelp(title: String?, html: String)
+
+    /** Asks whether the AI document page should be deleted; [onConfirm] runs only on "yes". */
+    fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit)
 }

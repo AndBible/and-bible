@@ -147,4 +147,13 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override fun searchUnsupportedSyntax(syntax: String): String = context.getString(R.string.search_unsupported_syntax, syntax)
     override val cantChangeWholeVerse: String get() = context.getString(R.string.cant_change_wholeverse)
     override val wholeVerseTurnedOn: String get() = context.getString(R.string.whole_verse_turned_on)
+
+    // --- I2 Stream B (reading) ---
+    override val help: String get() = context.getString(R.string.help)
+    override val helpMemorizeText: String get() = context.getString(R.string.help_memorize_text)
+    override val helpReadMoreLink: String get() = context.getString(R.string.help_read_more_link)
+    override val verseTip: String get() = context.getString(R.string.verse_tip)
+    override val helpBookmarksText: String get() = context.getString(R.string.help_bookmarks_text)
+    override val watchTutorialVideo: String get() = context.getString(R.string.watch_tutorial_video)
+    override val bookmarksAndMyNotesTitle: String get() = context.getString(R.string.bookmarks_and_mynotes_title)
 }

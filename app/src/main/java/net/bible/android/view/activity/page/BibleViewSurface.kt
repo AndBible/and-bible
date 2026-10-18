@@ -29,7 +29,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.UserMessages
 import net.bible.android.platform.AndroidBackupHost
 import net.bible.service.common.CommonUtils
-import net.bible.service.sword.SwordContentFacade
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
 import okio.Path.Companion.toOkioPath
 import java.io.File
@@ -92,12 +91,4 @@ class BibleViewSurface(private val bibleView: BibleView) : ReadingWindowSurface 
     private companion object {
         const val TAG = "BibleViewSurface"
     }
-}
-
-/** Android clipboard copy of this selection's shareable text (the common [Selection] has no clipboard). */
-fun Selection.copyToClipboard() {
-    val swordContentFacade: SwordContentFacade = org.koin.core.context.GlobalContext.get().get()
-    CommonUtils.copyToClipboard(
-        ClipData.newPlainText(verseRange?.getName(), CommonUtils.getShareableDocumentText(this, swordContentFacade))
-    )
 }
