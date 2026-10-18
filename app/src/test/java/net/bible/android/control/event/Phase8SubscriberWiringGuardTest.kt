@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
  * (`subscribe` vs `subscribeOnMain`) the phase 8 subscribers use. It does not prove handler bodies.
  */
 class Phase8SubscriberWiringGuardTest {
-    private fun src(path: String) = File("src/main/java/net/bible/$path").readText()
+    private fun src(path: String) = net.bible.test.ProductionSources.resolve("net/bible/$path").readText()
 
     private fun assertContains(path: String, needle: String, why: String) =
         assertTrue(src(path).contains(needle), "$path must contain `$needle`: $why")

@@ -107,7 +107,7 @@ class G3HelperOracleTest {
             val b = rnd.nextBytes(rnd.nextInt(0, 80))
             assertEquals(UUID.nameUUIDFromBytes(b).toString(), NameBasedUuid.v3(b))
         }
-        val src = File("src/main/java/net/bible/service/llm/BuiltInPrompts.kt").readText()
+        val src = net.bible.test.ProductionSources.resolve("net/bible/service/llm/BuiltInPrompts.kt").readText()
         val keys = Regex("""stableId\("([^"]+)"\)""").findAll(src).map { it.groupValues[1] }.toList()
         assert(keys.size > 20) { "expected the BuiltInPrompts keys, found ${keys.size}" }
         for (k in keys) {

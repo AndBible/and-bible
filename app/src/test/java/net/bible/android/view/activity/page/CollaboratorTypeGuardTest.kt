@@ -70,7 +70,7 @@ class CollaboratorTypeGuardTest {
     )
 
     @Test
-    fun theScannedFilesExist() = files.forEach { assertTrue("$it not found", File(it).exists()) }
+    fun theScannedFilesExist() = files.forEach { assertTrue("$it not found", net.bible.test.ProductionSources.resolve(it).exists()) }
 
     /**
      * **R6d narrowed the regex by one lookahead, and only that.** `MainBibleActivity` followed by
@@ -85,14 +85,14 @@ class CollaboratorTypeGuardTest {
     @Test
     fun noEasyCollaboratorDeclaresAMainBibleActivityParameter() {
         val offenders = files.filter { path ->
-            Regex(""":\s*MainBibleActivity\b(?!\s*\.)""").containsMatchIn(File(path).readText())
+            Regex(""":\s*MainBibleActivity\b(?!\s*\.)""").containsMatchIn(net.bible.test.ProductionSources.resolve(path).readText())
         }
         assertEquals("R5 re-types these off the Activity", emptyList<String>(), offenders)
     }
 
     @Test
     fun noEasyCollaboratorBridgesTheGapWithADowncast() {
-        val offenders = files.filter { path -> File(path).readText().contains("as MainBibleActivity") }
+        val offenders = files.filter { path -> net.bible.test.ProductionSources.resolve(path).readText().contains("as MainBibleActivity") }
         assertEquals(
             "a retype that still downcasts to the full Activity every time it is used is a " +
                 "re-label, not a re-type (review Critical 1) -- push the needed value in as a " +
@@ -120,7 +120,7 @@ class CollaboratorTypeGuardTest {
     @Test
     fun noEasyCollaboratorBranchesOnTheHostBeingMainBibleActivity() {
         val offenders = files.filter { path ->
-            Regex("""\bis\s+MainBibleActivity\b""").containsMatchIn(codeOf(File(path)))
+            Regex("""\bis\s+MainBibleActivity\b""").containsMatchIn(codeOf(net.bible.test.ProductionSources.resolve(path)))
         }
         assertEquals(
             "a collaborator that TESTS whether its host is MainBibleActivity is coupled to the " +
@@ -206,7 +206,7 @@ class CollaboratorTypeGuardTest {
     @Test
     fun theScannedReadingViewFilesAreTheClassesTheyAreNamedFor() {
         readingViewFiles.forEach { path ->
-            val file = File(path)
+            val file = net.bible.test.ProductionSources.resolve(path)
             assertTrue("$path not found", file.isFile)
             val declaration = "class " + path.substringAfterLast('/').removeSuffix(".kt")
             assertTrue(
@@ -219,7 +219,7 @@ class CollaboratorTypeGuardTest {
     @Test
     fun noReadingViewFileNamesMainBibleActivityOutsideTheAllowList() {
         val offenders = readingViewFiles.flatMap { path ->
-            val code = codeOf(File(path))
+            val code = codeOf(net.bible.test.ProductionSources.resolve(path))
             MAIN_BIBLE_ACTIVITY_REFERENCE.findAll(code)
                 .filterNot { it.groupValues[1] in allowedNestedMembers }
                 // R6d: a file outside `…activity.page` must import the outer class to reach an
@@ -243,7 +243,7 @@ class CollaboratorTypeGuardTest {
 
     @Test
     fun everyAllowedNestedMemberIsStillReferenced() {
-        val code = readingViewFiles.joinToString("\n") { codeOf(File(it)) }
+        val code = readingViewFiles.joinToString("\n") { codeOf(net.bible.test.ProductionSources.resolve(it)) }
         val referenced = MAIN_BIBLE_ACTIVITY_REFERENCE.findAll(code).map { it.groupValues[1] }.toSet()
         assertEquals(
             "these allow-list entries are no longer referenced anywhere in the reading view -- " +
@@ -261,7 +261,7 @@ class CollaboratorTypeGuardTest {
     @Test
     fun everyFileAllowedToImportStillNeedsTheImport() {
         val stale = filesAllowedToImportMainBibleActivity.filterNot { path ->
-            MAIN_BIBLE_ACTIVITY_REFERENCE.findAll(codeOf(File(path)))
+            MAIN_BIBLE_ACTIVITY_REFERENCE.findAll(codeOf(net.bible.test.ProductionSources.resolve(path)))
                 .any { it.groupValues[1] in allowedNestedMembers }
         }
         assertEquals(

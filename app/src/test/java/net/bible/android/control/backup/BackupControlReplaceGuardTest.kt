@@ -10,8 +10,8 @@ import java.io.File
  * `.resetLocalDb()` in CloudSync, sits inside `replacingDatabases { }`.
  */
 class BackupControlReplaceGuardTest {
-    private val file = File("src/main/java/net/bible/android/control/backup/BackupControl.kt")
-    private val cloudSync = File("src/main/java/net/bible/service/cloudsync/CloudSync.kt")
+    private val file = net.bible.test.ProductionSources.resolve("net/bible/android/control/backup/BackupControl.kt")
+    private val cloudSync = net.bible.test.ProductionSources.resolve("net/bible/service/cloudsync/CloudSync.kt")
 
     /** Index ranges of the brace blocks that open at [open]. */
     internal fun blocks(src: String, open: Regex): List<IntRange> = open.findAll(src).map { m ->

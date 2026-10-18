@@ -63,7 +63,7 @@ class YamlToJsonParityTest {
 
     private fun sourceFileOf(tool: Any): File {
         val rel = tool::class.java.name.substringBefore('$').replace('.', '/') + ".kt"
-        return listOf("src/main/java/$rel", "app/src/main/java/$rel").map { File(it) }.first { it.isFile }
+        return net.bible.test.ProductionSources.resolve(rel).also { check(it.isFile) { "tool source not found: $rel" } }
     }
 
     /** Raw YAML source of each registered tool's `yamlToJson("""...""")` call, keyed by tool. */
