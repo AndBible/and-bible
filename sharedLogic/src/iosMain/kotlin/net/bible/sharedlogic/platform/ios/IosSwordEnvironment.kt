@@ -21,6 +21,7 @@ import okio.FileSystem
 import okio.Path
 import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.WebResource
+import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.index.fts.SearchFields
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -49,6 +50,12 @@ object IosSwordEnvironment {
             CWProject.instance().setFrontendName("and-bible")
             CWProject.setHome("jsword.home", modulesDir.toString(), null)
             Log.d(TAG, "Main JSword path: ${CWProject.instance().writableProjectDir}")
+            // JSword reads the `jsword.home` SYSTEM PROPERTY to find its home; iOS has no such property (its
+            // `systemProperty` answers only user.home/os.name), so CWProject.setHome above does not make the module
+            // folder known. Without the two lines below the book scan looks in `~/.sword` and finds no module at all,
+            // and every installed Bible (hence the first window's document) is missing.
+            SwordBookPath.setAugmentPath(arrayOf(modulesDir))
+            SwordBookPath.setDownloadDir(modulesDir)
             WebResource.setTimeout(5000)
             loaded = true
         } catch (e: Exception) {

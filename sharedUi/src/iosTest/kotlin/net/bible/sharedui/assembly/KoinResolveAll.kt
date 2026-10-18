@@ -54,7 +54,7 @@ fun Koin.resolveAllDefinitions(
         try {
             get<Any>(definition.primaryType, definition.qualifier, parameterised[definition.primaryType])
         } catch (e: Throwable) {
-            failures += name to IllegalStateException("$name\n${causeChain(e)}", e)
+            failures += name to IllegalStateException("$name\n${causeChain(e)}\nROOT CAUSE TRACE:\n${rootTrace(e)}", e)
         }
     }
     return failures
@@ -65,6 +65,12 @@ fun causeChain(e: Throwable): String =
     generateSequence(e) { it.cause }.joinToString("\n  caused by ") { t ->
         "${t::class.qualifiedName}: ${t.message.orEmpty().replace('\n', ' ').take(500)}"
     }
+
+/** The first ~25 frames of the root cause's stack trace. */
+fun rootTrace(e: Throwable): String {
+    val root = generateSequence(e) { it.cause }.last()
+    return root.stackTraceToString().lineSequence().take(26).joinToString("\n")
+}
 
 /** A failure list as one readable assertion message. */
 fun describeFailures(failures: List<Pair<String, Throwable>>): String =

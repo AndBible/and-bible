@@ -78,6 +78,11 @@ class IosAssemblyTest {
     private val databaseDir: Path get() = sharedRoot / IosAppConfig.DATABASES_DIR
     private val moduleDir: Path get() = sharedRoot / IosAppConfig.DOCUMENTS_DIR / "sword"
 
+    private fun notInstalledMessage() =
+        "K4RawText is not installed. module dir: $moduleDir (exists=${files.exists(moduleDir / "mods.d")}), " +
+            "sword path: ${org.crosswire.jsword.book.sword.SwordBookPath.getSwordPath().toList()}, " +
+            "installed: ${Books.installed().getBooks().map { it.initials }}"
+
     /** Opens the databases; a failure prints its whole cause chain (it lands in the test process output). */
     private fun openDatabasesDiagnosing() {
         try {
@@ -120,10 +125,14 @@ class IosAssemblyTest {
         assertTrue(IosAppStartup.databasesOpen)
         for (name in ALL_DB_FILENAMES) assertTrue(files.exists(databaseDir / name), "$name was not created in $databaseDir")
 
+        // TextToSpeechServiceManager reads the active window's document, so the workspace must be loaded first; on
+        // Android the reading bootstrap does exactly this (WindowRepository.initializeAtEdge) before anything speaks.
+        koin.get<net.bible.android.control.page.window.WindowControl>().windowRepository.initializeAtEdge()
+
         val failures = koin.resolveAllDefinitions()
         assertEquals(emptyList(), failures.map { it.first }, "unresolvable definitions:\n" + describeFailures(failures))
 
-        val book = assertNotNull(Books.installed().getBook("K4RawText"), "fixture module not installed from $moduleDir")
+        val book = assertNotNull(Books.installed().getBook("K4RawText"), notInstalledMessage())
         val text = SwordContentFacade.getCanonicalText(
             book, book.getKey("Gen.1.1"), strings = koin.get(), saxTextPolicy = koin.get<SaxTextPolicy>(),
         )
@@ -177,7 +186,7 @@ class IosAssemblyTest {
         assertTrue(IosSwordEnvironment.isLoaded, "StartupHooks.isSwordLoaded must be true after folder initialisation")
         openDatabasesDiagnosing()
         val koin = KoinPlatform.getKoin()
-        val book = assertNotNull(Books.installed().getBook("K4RawText"))
+        val book = assertNotNull(Books.installed().getBook("K4RawText"), notInstalledMessage())
 
         var reloaded = 0
         val subscription = koin.get<PromptPackSource>().reloaded.subscribe { reloaded++ }
@@ -195,7 +204,10 @@ class IosAssemblyTest {
                 while (found == null && waited < 10_000) { delay(100); waited += 100; found = dao.getBook(book.initials) }
                 found
             }
-            assertNotNull(row, "the watcher did not record ${book.initials} in the backup database")
+            val info = assertNotNull(row, "the watcher did not record ${book.initials} in the backup database")
+            assertEquals(book.initials, info.initials)
+            assertEquals(book.name, info.name)
+            assertEquals(book.abbreviation, info.abbreviation)
         } finally {
             subscription.cancel()
         }
