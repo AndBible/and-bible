@@ -45,6 +45,7 @@ class ReadingBridgeNavigationFamilyTest {
     private lateinit var repo: WindowRepository
     private lateinit var originalRepo: WindowRepository
     private val views = mutableListOf<BibleView>()
+    private val activities = mutableListOf<org.robolectric.android.controller.ActivityController<android.app.Activity>>()
     private val kjv get() = Books.installed().getBook("KJV")!!
 
     @Before fun setUp() {
@@ -59,7 +60,8 @@ class ReadingBridgeNavigationFamilyTest {
 
     @After fun tearDown() {
         try {
-            views.forEach { it.destroy() }
+            views.forEach { runCatching { it.doDestroy() } }
+            activities.forEach { runCatching { it.pause().stop().destroy() } }
             DatabaseResetter.resetDatabase(repo.scope)
         } finally {
             CommonUtils.windowControl.windowRepository = originalRepo
@@ -87,7 +89,8 @@ class ReadingBridgeNavigationFamilyTest {
         views += view
         view.setBibleJavascriptInterface(BibleJavascriptInterface(view))
         if (attach) {
-            val activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
+            val controller = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).also { activities += it }
+            val activity = controller.setup().get()
             activity.setContentView(view)
         }
         return view

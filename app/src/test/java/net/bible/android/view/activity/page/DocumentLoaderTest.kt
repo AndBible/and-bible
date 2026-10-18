@@ -162,7 +162,7 @@ class DocumentLoaderTest {
                 confDir?.deleteRecursively()
             }
             sessionScope.cancel()
-            DatabaseResetter.resetDatabase(repo.scope)
+            DatabaseResetter.resetDatabase(repo.scope, sessionScope)
         } finally {
             CommonUtils.windowControl.windowRepository = originalRepo
             Dispatchers.resetMain()

@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.bookmark.BookmarkChange
@@ -117,6 +118,7 @@ class SessionEventRelayTest {
     private val windowEvents = EventSource<WindowChange>()
     private val aiDocEvents = EventSource<MyDocumentChange>()
     private val settingsEvents = EventSource<Unit>()
+    private val hostScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
     private lateinit var session: BibleWindowSession
     private lateinit var relay: SessionEventRelay
 
@@ -130,7 +132,7 @@ class SessionEventRelayTest {
         session = BibleWindowSession(
             window = repo.activeWindow,
             jsChannel = channel,
-            hostScope = { CoroutineScope(Dispatchers.Unconfined) },
+            hostScope = { hostScope },
             surface = surface,
             navigator = java.lang.reflect.Proxy.newProxyInstance(
                 ReadingNavigator::class.java.classLoader, arrayOf(ReadingNavigator::class.java),
@@ -150,7 +152,7 @@ class SessionEventRelayTest {
         try {
             relay.stop()
             session.dispose()
-            DatabaseResetter.resetDatabase(repo.scope)
+            DatabaseResetter.resetDatabase(repo.scope, hostScope)
         } finally {
             CommonUtils.windowControl.windowRepository = originalRepo
         }

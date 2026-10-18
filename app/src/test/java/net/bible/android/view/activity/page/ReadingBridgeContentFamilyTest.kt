@@ -120,6 +120,9 @@ class ReadingBridgeContentFamilyTest {
         }
     }
 
+    // MyDocumentBookManager.launcher is a global: restored in tearDown so later tests do not inherit a dead one.
+    private var previousDocumentLauncher: OrderedLauncher? = null
+
     @Before fun setUp() {
         windowControl = WindowControl()
         repo = net.bible.test.testWindowRepository()
@@ -128,6 +131,7 @@ class ReadingBridgeContentFamilyTest {
         CommonUtils.windowControl.windowRepository = repo
         repo.initializeAtEdge()
         launcher = OrderedLauncher(appScope)
+        previousDocumentLauncher = MyDocumentBookManager.launcher
         MyDocumentBookManager.launcher = launcher
         hostScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         val host = object : JsHost {
@@ -160,8 +164,10 @@ class ReadingBridgeContentFamilyTest {
             session.dispose()
             appScope.cancel()
             hostScope.cancel()
-            DatabaseResetter.resetDatabase(repo.scope)
+            // Joins the cancelled scopes, so queued MyDocument work has finished before the database is reset.
+            DatabaseResetter.resetDatabase(repo.scope, appScope, hostScope)
         } finally {
+            previousDocumentLauncher?.let { MyDocumentBookManager.launcher = it }
             CommonUtils.windowControl.windowRepository = originalRepo
         }
     }

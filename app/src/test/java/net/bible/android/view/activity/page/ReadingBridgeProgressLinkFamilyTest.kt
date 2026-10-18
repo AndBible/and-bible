@@ -141,7 +141,7 @@ class ReadingBridgeProgressLinkFamilyTest {
             session.dispose()
             appScope.cancel()
             hostScope.cancel()
-            DatabaseResetter.resetDatabase(repo.scope)
+            DatabaseResetter.resetDatabase(repo.scope, appScope, hostScope)
         } finally {
             CommonUtils.windowControl.windowRepository = originalRepo
             ShadowStatFs.unregisterStats(storagePath)

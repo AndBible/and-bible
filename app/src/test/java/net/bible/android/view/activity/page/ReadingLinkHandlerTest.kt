@@ -129,7 +129,7 @@ class ReadingLinkHandlerTest {
 
     @After fun tearDown() {
         hostScope.cancel()
-        DatabaseResetter.resetDatabase(repo.scope)
+        DatabaseResetter.resetDatabase(repo.scope, hostScope)
     }
 
     private val shownDocument get() = repo.activeWindow.pageManager.currentPage.currentDocument
