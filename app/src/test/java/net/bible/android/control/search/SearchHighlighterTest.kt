@@ -18,9 +18,10 @@ package net.bible.android.control.search
 
 import net.bible.android.TEST_SDK
 import net.bible.sharedlogic.search.CommonSearchHighlighter
-import org.junit.Assert.assertEquals
+import fi.sykero.kdom.Content
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Text
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -33,7 +34,7 @@ import org.robolectric.annotation.Config
 class SearchHighlighterTest {
 
     /** Build the `<div><verse>…</verse></div>` OSIS shape the highlighter walks. */
-    private fun osisWith(vararg verseContent: fi.sykero.kdom.Content): Element {
+    private fun osisWith(vararg verseContent: Content): Element {
         val verse = Element("verse")
         verseContent.forEach { verse.addContent(it) }
         return Element("div").addContent(verse)
@@ -112,7 +113,7 @@ class SearchHighlighterTest {
         )
     }
 
-    private fun lemmaWord(lemma: String, vararg content: fi.sykero.kdom.Content) = Element("w").apply {
+    private fun lemmaWord(lemma: String, vararg content: Content) = Element("w").apply {
         setAttribute("lemma", lemma)
         content.forEach { addContent(it) }
     }
@@ -130,6 +131,19 @@ class SearchHighlighterTest {
         assertParity(
             osisWith(Text("a  b\n"), lemmaWord("strong:H0430", Text("God  is")), Text("\n c")),
             emptyList(), listOf("strong:h0*430"),
+        )
+    }
+
+    @Test
+    fun commonParity_leadingWhitespaceAndLiteralExpectation() {
+        val osis = osisWith(Text("  \n In  the\n\nbeginning   God"))
+        assertParity(osis, listOf("God"), emptyList())
+        assertEquals(
+            net.bible.sharedcore.search.StyledText(listOf(
+                net.bible.sharedcore.search.StyledRun("In the beginning "),
+                net.bible.sharedcore.search.StyledRun("God", highlight = true),
+            )),
+            SearchHighlighter.highlight(osis, listOf("God"), emptyList()),
         )
     }
 

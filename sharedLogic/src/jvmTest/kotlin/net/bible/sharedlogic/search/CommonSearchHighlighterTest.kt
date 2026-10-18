@@ -111,4 +111,64 @@ class CommonSearchHighlighterTest {
             result,
         )
     }
+
+    // Literal expectations (derived from the input; Android's output is cross-checked in :app SearchHighlighterTest).
+
+    @Test fun whitespaceRunsCollapseAndLeadingWhitespaceIsDropped() {
+        val osis = osisWith(Text("  \n In  the\n\nbeginning   God"))
+
+        val result = CommonSearchHighlighter.highlight(osis, listOf("God"), emptyList())
+
+        assertEquals(
+            StyledText(listOf(StyledRun("In the beginning "), StyledRun("God", highlight = true))),
+            result,
+        )
+    }
+
+    @Test fun whitespaceCollapsesAcrossBoldBoundaryInLemmaMode() {
+        val osis = osisWith(Text("a  b\n"), lemmaWord("strong:H0430", "God  is"), Text("\n c"))
+
+        val result = CommonSearchHighlighter.highlight(osis, emptyList(), listOf("strong:h0*430"))
+
+        assertEquals(
+            StyledText(listOf(StyledRun("a b "), StyledRun("God is", bold = true), StyledRun(" c"))),
+            result,
+        )
+    }
+
+    @Test fun nestedLemmaElementBoldsAllDescendants() {
+        val inner = Element("seg").addContent(Text("inner")).addContent(Element("hi").addContent(Text(" deep")))
+        val osis = osisWith(
+            Text("start "),
+            Element("w").apply { setAttribute("lemma", "strong:H0430"); addContent(inner); addContent(Text(" tail")) },
+            Text(" end"),
+        )
+
+        val result = CommonSearchHighlighter.highlight(osis, emptyList(), listOf("strong:h0*430"))
+
+        assertEquals(
+            StyledText(listOf(StyledRun("start "), StyledRun("inner deep tail", bold = true), StyledRun(" end"))),
+            result,
+        )
+    }
+
+    @Test fun multipleTermsWithRepeatedMatches() {
+        val osis = osisWith(Text("God said, and god saw that God was good"))
+
+        val result = CommonSearchHighlighter.highlight(osis, listOf("god", "said"), emptyList())
+
+        assertEquals(
+            StyledText(listOf(
+                StyledRun("God", highlight = true),
+                StyledRun(" "),
+                StyledRun("said", highlight = true),
+                StyledRun(", and "),
+                StyledRun("god", highlight = true),
+                StyledRun(" saw that "),
+                StyledRun("God", highlight = true),
+                StyledRun(" was good"),
+            )),
+            result,
+        )
+    }
 }
