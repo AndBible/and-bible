@@ -51,6 +51,9 @@ import platform.Security.kSecClassGenericPassword
 import platform.Security.kSecMatchLimit
 import platform.Security.kSecMatchLimitOne
 import platform.Security.kSecReturnData
+import platform.objc.class_getName
+import platform.objc.object_getClass
+import platform.CoreFoundation.kCFBooleanFalse
 import platform.posix.memcpy
 
 /** Thrown when the old app's Keychain cannot be read for a reason other than "no such item". Never carries secret values. */
@@ -138,18 +141,10 @@ class IosLegacyPlatform(override val secrets: SecretStore) : LegacyPlatform {
 internal fun convertDefaultsValue(value: Any?): Any? = when (value) {
     null -> null
     is String -> value
-    is NSNumber -> {
-        val ref = CFBridgingRetain(value)
-        val isBool = try {
-            ref != null && CFGetTypeID(ref) == CFBooleanGetTypeID()
-        } finally {
-            CFBridgingRelease(ref)
-        }
-        if (isBool) value.boolValue
-        else when (value.objCType?.toKString()?.firstOrNull()) {
-            'f', 'd' -> value.doubleValue
-            else -> value.longLongValue
-        }
+    is Boolean -> value
+    is NSNumber -> if (isBooleanNumber(value)) value.boolValue else when (objCTypeOf(value)) {
+        "f", "d" -> value.doubleValue
+        else -> value.longLongValue
     }
     is NSData -> ByteArray(value.length.toInt()).also { bytes ->
         if (bytes.isNotEmpty()) bytes.usePinned { memcpy(it.addressOf(0), value.bytes, value.length) }
@@ -157,4 +152,26 @@ internal fun convertDefaultsValue(value: Any?): Any? = when (value) {
     is List<*> -> value.map { convertDefaultsValue(it) }
     is Map<*, *> -> value.entries.mapNotNull { (k, v) -> (k as? String)?.let { it to convertDefaultsValue(v) } }.toMap()
     else -> null
+}
+
+/** The `NSNumber`'s Objective-C type encoding (`c`, `q`, `d`, ...), for diagnostics and number conversion. */
+internal fun objCTypeOf(value: NSNumber): String? = value.objCType?.toKString()
+
+/** The runtime class name of [value] (a boolean `NSNumber` is `__NSCFBoolean`), for diagnostics. */
+internal fun classNameOf(value: NSNumber): String? = object_getClass(value)?.let { class_getName(it)?.toKString() }
+
+/**
+ * True when [value] is Foundation's boolean `NSNumber`. A `char`-typed number 1 has the same `objCType` (`c`) as a
+ * boolean, so the type encoding alone is ambiguous; this uses three independent signals, any of which suffices:
+ * the Core Foundation type id (`CFBoolean`), identity with the `kCFBooleanTrue`/`kCFBooleanFalse` singletons, and
+ * the `__NSCFBoolean` runtime class name (Foundation's boolean class on every OS release).
+ */
+internal fun isBooleanNumber(value: NSNumber): Boolean {
+    val ref = CFBridgingRetain(value)
+    try {
+        if (ref != null && (CFGetTypeID(ref) == CFBooleanGetTypeID() || ref == kCFBooleanTrue || ref == kCFBooleanFalse)) return true
+    } finally {
+        CFBridgingRelease(ref)
+    }
+    return classNameOf(value)?.contains("Boolean") == true
 }

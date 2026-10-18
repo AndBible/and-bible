@@ -1,4 +1,4 @@
-@file:OptIn(kotlinx.cinterop.BetaInteropApi::class)
+@file:OptIn(kotlinx.cinterop.BetaInteropApi::class, kotlinx.cinterop.ExperimentalForeignApi::class)
 
 package net.bible.service.legacymigration
 
@@ -17,8 +17,10 @@ private object NoSecrets : net.bible.sharedcore.platform.secrets.SecretStore {
 class IosLegacyPlatformTest {
     @Test
     fun booleansAndNumbersAreDistinguished() {
-        assertEquals(true, convertDefaultsValue(NSNumber(bool = true)))
-        assertEquals(false, convertDefaultsValue(NSNumber(bool = false)))
+        val t = NSNumber(bool = true)
+        val diag = "objCType=${objCTypeOf(t)} class=${classNameOf(t)} cfTypeId=${cfTypeId(t)} cfBooleanTypeId=${platform.CoreFoundation.CFBooleanGetTypeID()}"
+        assertEquals(true, convertDefaultsValue(t), diag)
+        assertEquals(false, convertDefaultsValue(NSNumber(bool = false)), diag)
         assertEquals(1L, convertDefaultsValue(NSNumber(long = 1L)))
         assertEquals(0L, convertDefaultsValue(NSNumber(long = 0L)))
         assertEquals(1.5, convertDefaultsValue(NSNumber(double = 1.5)))
@@ -36,9 +38,16 @@ class IosLegacyPlatformTest {
         val key = "legacy_platform_test_flag"
         NSUserDefaults.standardUserDefaults.setBool(true, forKey = key)
         try {
-            assertEquals(true, IosLegacyPlatform(NoSecrets).userDefaults()[key])
+            val raw = NSUserDefaults.standardUserDefaults.dictionaryRepresentation()[key] as? NSNumber
+            val diag = "objCType=${raw?.let { objCTypeOf(it) }} class=${raw?.let { classNameOf(it) }} cfTypeId=${raw?.let { cfTypeId(it) }}"
+            assertEquals(true, IosLegacyPlatform(NoSecrets).userDefaults()[key], diag)
         } finally {
             NSUserDefaults.standardUserDefaults.removeObjectForKey(key)
         }
     }
+}
+
+private fun cfTypeId(n: NSNumber): ULong? {
+    val ref = platform.Foundation.CFBridgingRetain(n)
+    return try { ref?.let { platform.CoreFoundation.CFGetTypeID(it) } } finally { platform.Foundation.CFBridgingRelease(ref) }
 }
