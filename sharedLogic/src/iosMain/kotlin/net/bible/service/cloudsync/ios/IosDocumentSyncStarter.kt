@@ -115,7 +115,14 @@ class IosDocumentSyncStarter private constructor(
         }
     }
 
-    /** Cancels the running drain (its `finally` ends the background task) and abandons the queue. */
+    /**
+     * Cancels the running drain (its `finally` ends the background task) and abandons the queue.
+     *
+     * A later [start] may begin a new session while the cancelled one is still unwinding (an op that does
+     * not cooperate with cancellation can outlive this call). The old session is fenced off by a
+     * generation counter: it can no longer poll, clear the queue, drop the adapter or flip the running flag
+     * of the new session. Its own background task is still ended.
+     */
     override fun stop() {
         val job = synchronized(lock) {
             queue.clear()
@@ -141,7 +148,10 @@ class IosDocumentSyncStarter private constructor(
 
     private suspend fun drain(gen: Int) {
         val self = coroutineContext[Job]
-        val taskId = begin { self?.cancel() }
+        val task = BackgroundTask()
+        // UIKit requires endBackgroundTask before the expiration handler returns, and cancellation is
+        // asynchronous (a blocking op may outlive the deadline), so the handler ends the task itself.
+        task.attach(begin { task.expire { self?.cancel() } }, end)
         var finishedNormally = false
         try {
             val d = driver()
@@ -167,22 +177,59 @@ class IosDocumentSyncStarter private constructor(
                         DocumentSyncOpOutcome.Done, DocumentSyncOpOutcome.RetryLater -> {}
                         is DocumentSyncOpOutcome.UserFacing -> {
                             notifier.showError(outcome.message)
-                            if (outcome.requiresReconnect) d.dropAdapterForReconnect()
-                            synchronized(lock) { queue.clear() }
+                            // Fenced: a stale session (stop() + start()) must not touch the new one.
+                            val current = synchronized(lock) { (gen == generation).also { if (it) queue.clear() } }
+                            if (current && outcome.requiresReconnect) d.dropAdapterForReconnect()
                         }
                         DocumentSyncOpOutcome.Failed -> notifier.showError(syncErrorMessage())
                     }
                 }
                 finishedNormally = true
             } finally {
-                d.notifyRunning(false)
+                val emit = synchronized(lock) { gen == generation || !active }
+                if (emit) d.notifyRunning(false)
             }
         } finally {
             if (!finishedNormally) synchronized(lock) {
                 // Cancelled or crashed: drop the session unless stop()/a newer session already did.
                 if (gen == generation) { queue.clear(); active = false; drainJob = null }
             }
-            end(taskId)
+            task.endOnce()
         }
+    }
+}
+
+/**
+ * One UIKit background task, ended exactly once whichever of the expiration handler and the drain's
+ * `finally` gets there first. The handler can fire before `begin` has returned the identifier, in which
+ * case the task is ended as soon as [attach] receives it.
+ */
+private class BackgroundTask {
+    private val lock = SynchronizedObject()
+    private var id: ULong? = null
+    private var end: ((ULong) -> Unit)? = null
+    private var expired = false
+    private var ended = false
+
+    fun attach(id: ULong, end: (ULong) -> Unit) {
+        val endNow = synchronized(lock) { this.id = id; this.end = end; expired }
+        if (endNow) endOnce()
+    }
+
+    /** Expiration handler body: cancel the drain, then end the task synchronously. */
+    fun expire(cancel: () -> Unit) {
+        synchronized(lock) { expired = true }
+        cancel()
+        endOnce()
+    }
+
+    fun endOnce() {
+        val (taskId, endFn) = synchronized(lock) {
+            val i = id; val e = end
+            if (ended || i == null || e == null) return
+            ended = true
+            i to e
+        }
+        endFn(taskId)
     }
 }
