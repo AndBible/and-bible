@@ -31,6 +31,8 @@ import org.crosswire.jsword.versification.BibleBook
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.compose.ReadingHostTestDeps
+import net.bible.sharedui.reading.host.ReadingHostHooks
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
@@ -159,13 +161,10 @@ class ComposeReadingViewHostTest {
         val container = FrameLayout(ApplicationProvider.getApplicationContext())
         // ComposeReadingViewHost.mountComposeView is a static/companion helper taking the
         // collaborators explicitly so it can be unit-tested without a full activity.
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = mutableStateOf(false),
-            pane = { },
-        )
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = ReadingHostTestDeps.state(),
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
+        ))
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
     }
 
@@ -184,14 +183,12 @@ class ComposeReadingViewHostTest {
         val container = FrameLayout(ApplicationProvider.getApplicationContext())
         val nightModeState = mutableStateOf(false)
         val fullScreenState = mutableStateOf(false)
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = nightModeState,
-            fullScreenState = fullScreenState,
-            pane = { },
-        )
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = ReadingHostTestDeps.state(),
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
+            nightMode = nightModeState,
+            fullScreen = fullScreenState,
+        ))
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
 
         // Flipping the externally-owned states after mount must not throw, and the states
@@ -203,51 +200,34 @@ class ComposeReadingViewHostTest {
     }
 
     /**
-     * Batch 12b follow-on Plan B Task 5: the ☰-button auto-hide + per-window-menu `State`s are
-     * externally owned (by the real host's [WindowButtonsVisibility] + `paneMenuWindowId`/
-     * `paneMenuItems` fields), exactly like `nightModeState`/`fullScreenState` above — mounting
-     * must accept them and leave them independently mutable, without a `ComposeTestRule` deeper
-     * interaction assertion (same boundary as `installAcceptsMutableNightModeAndFullScreenState`).
+     * Batch 12b follow-on Plan B Task 5: the ☰-button auto-hide + per-window-menu state is owned by
+     * the host's common `ReadingHostState` (`windowButtonsVisibility`, `paneMenuWindowId`,
+     * `paneMenuItems`), which the mounted reading view reads. Mounting must leave that state
+     * independently drivable, without a `ComposeTestRule` deeper interaction assertion (composition
+     * itself is covered by `ReadingHostCompositionTest` in `:sharedUi`).
      */
     @Test fun installAcceptsWindowButtonsAndPaneMenuState() {
         val container = FrameLayout(ApplicationProvider.getApplicationContext())
-        val windowButtonsVisibleState = mutableStateOf(true)
-        val touchTickState = mutableIntStateOf(0)
-        val paneMenuWindowIdState = mutableStateOf<String?>(null)
-        val paneMenuItemsState = mutableStateOf(emptyList<WindowPaneMenuItem>())
-        var hideTimeoutCalls = 0
-        var openedPaneMenuFor: String? = null
-        var openedPaneMenuAnchor: PaneMenuAnchor? = null
-
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = mutableStateOf(false),
-            pane = { },
-            windowButtonsVisibleState = windowButtonsVisibleState,
-            touchTickState = touchTickState,
-            onWindowButtonsHideTimeout = { hideTimeoutCalls++ },
-            paneMenuWindowIdState = paneMenuWindowIdState,
-            paneMenuItemsState = paneMenuItemsState,
-            onOpenPaneMenu = { id, anchor -> openedPaneMenuFor = id; openedPaneMenuAnchor = anchor },
+        val state = ReadingHostTestDeps.state(
+            ReadingHostHooks(paneMenuItemsFor = { id -> listOf(WindowPaneMenuItem(id = "pin", label = "Pin $id")) }),
         )
+
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = state,
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
+        ))
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
 
-        windowButtonsVisibleState.value = false
-        touchTickState.intValue++
-        paneMenuWindowIdState.value = "w1"
-        assertFalse(windowButtonsVisibleState.value)
-        assertEquals(1, touchTickState.intValue)
-        assertEquals("w1", paneMenuWindowIdState.value)
-        // The callbacks themselves are simple pass-throughs owned by the caller (real wiring is
-        // `ComposeReadingViewHost.install`'s `onOpenPaneMenu = ::openPaneMenu`/
-        // `onWindowButtonsHideTimeout = windowButtonsVisibility::onHideTimeout`); confirm the
-        // defaults compile/mount without them ever having been invoked by `mountComposeView`
-        // itself (composition never runs without an attached window — see `pane = {}` note above).
-        assertEquals(0, hideTimeoutCalls)
-        assertEquals(null, openedPaneMenuFor)
-        assertEquals(null, openedPaneMenuAnchor)
+        state.windowButtonsVisibility.onHideTimeout()
+        assertFalse(state.windowButtonsVisibility.visible.value)
+        // Opening a menu forces the buttons visible again (classic `showPopupMenu`) and anchors it.
+        state.openPaneMenu("w1", PaneMenuAnchor.Rail)
+        assertTrue(state.windowButtonsVisibility.visible.value)
+        assertEquals("w1", state.paneMenuWindowId.value)
+        assertEquals(PaneMenuAnchor.Rail, state.paneMenuAnchor.value)
+        assertEquals(listOf("Pin w1"), state.paneMenuItems.value.map { it.label })
+        state.closePaneMenu()
+        assertNull(state.paneMenuWindowId.value)
     }
 
     /**

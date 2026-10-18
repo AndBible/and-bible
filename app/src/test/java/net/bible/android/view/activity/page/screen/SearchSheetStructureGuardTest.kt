@@ -45,8 +45,9 @@ private fun stripComments(text: String): String {
  * The `BottomSheetScaffold` that hosts the reading-view search sheet must be **unconditionally
  * present** and must **enclose** `key(gen)`. Conditionality — not the wrapper itself — is what
  * re-parents every pane's `AndroidView` and so destroys and recreates every `BibleView` WebView each
- * time search is opened or closed. The same rule the drawer wrap follows; see the comment at
- * `ComposeReadingViewHost.kt:1350-1357`.
+ * time search is opened or closed. The same rule the drawer wrap follows; see the comment above the
+ * scaffold in the common `ReadingHost` (`:sharedUi`, `reading/host/ReadingHost.kt`), which is the file
+ * scanned here since the composition glue moved out of `ComposeReadingViewHost.kt`.
  *
  * This is a *source* guard rather than a render test. `compose-ui-test` (`ui-test-junit4` /
  * `ui-test-manifest`) IS available in this module — added in round 6 for
@@ -73,15 +74,25 @@ private fun stripComments(text: String): String {
  */
 class SearchSheetStructureGuardTest {
 
-    private val rawSource = java.io.File(
-        "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt"
-    ).readText()
+    private val hostFile = java.io.File(READING_HOST)
+
+    private val rawSource = hostFile.readText()
 
     private val source = stripComments(rawSource)
 
     private val codeLines = source.lines()
         .map { it.trim() }
         .filterNot { it.isEmpty() }
+
+    @Test
+    fun theScannedFileIsTheCommonReadingHost() {
+        // A guard over a moved file must fail loudly when the file moves again, not scan nothing.
+        assertThat("$READING_HOST must exist", hostFile.exists(), equalTo(true))
+        assertThat(
+            "the scanned file must be the one that declares the composable",
+            source.contains("fun ReadingHost("), equalTo(true),
+        )
+    }
 
     @Test
     fun theBottomSheetScaffoldIsPresent() {
@@ -186,5 +197,9 @@ class SearchSheetStructureGuardTest {
     @Test
     fun theSnackbarHostPadsTheSystemInsets() {
         assertThat(lambdaBody("snackbarHost").contains("readingSheetInsetPadding()"), equalTo(true))
+    }
+
+    private companion object {
+        const val READING_HOST = "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/ReadingHost.kt"
     }
 }

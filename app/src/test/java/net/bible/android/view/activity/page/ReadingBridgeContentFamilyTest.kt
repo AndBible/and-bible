@@ -102,6 +102,7 @@ class ReadingBridgeContentFamilyTest {
     private class RecordingSheets : ReadingSheets {
         val shared = CopyOnWriteArrayList<ShareVersesInput>()
         val helps = CopyOnWriteArrayList<Pair<String?, String>>()
+        val regenerates = CopyOnWriteArrayList<Pair<IdType, IdType>>()
         @Volatile var confirm: (() -> Unit)? = null
         var autoConfirm = false
         override fun showReadHistory(bookId: String, chapter: Int) {}
@@ -112,7 +113,7 @@ class ReadingBridgeContentFamilyTest {
             context: net.bible.service.llm.PromptContext,
             category: net.bible.android.control.page.DocumentCategory?,
         ) {}
-        override fun showRegenerate(pageId: IdType) {}
+        override fun showRegenerate(pageId: IdType, windowId: IdType) { regenerates += pageId to windowId }
         override fun showHelp(title: String?, html: String) { helps += title to html }
         override fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit) {
             if (autoConfirm) onConfirm() else confirm = onConfirm
@@ -186,6 +187,14 @@ class ReadingBridgeContentFamilyTest {
         val (label, text) = surface.copies.single()
         assertTrue("label names the verse: $label", label?.contains("John") == true)
         assertTrue("clipboard text is the KJV verse: $text", text.contains("For God so loved the world"))
+    }
+
+    @Test fun regenerateCarriesTheAskingWindowsId() {
+        val pageId = IdType()
+        bridge.regenerateMyDocumentPage(pageId.toString())
+        awaitMain { sheets.regenerates.isNotEmpty() }
+        // The window whose page asked, which the host must target (not whichever window is active).
+        assertEquals(pageId to session.window.id, sheets.regenerates.single())
     }
 
     @Test fun copyVerseAfterDisposeIsIgnored() {

@@ -155,7 +155,8 @@ interface ReadingSheets {
     fun showCompare(range: VerseRange)
     fun showShare(input: ShareVersesInput)
     fun showPromptSelector(selection: Selection, context: PromptContext, category: DocumentCategory?)
-    fun showRegenerate(pageId: IdType)
+    /** [windowId] is the window whose page asked, so the host regenerates against THAT window's view. */
+    fun showRegenerate(pageId: IdType, windowId: IdType)
     fun showHelp(title: String?, html: String)
 
     /** Asks whether the AI document page should be deleted; [onConfirm] runs only on "yes". */

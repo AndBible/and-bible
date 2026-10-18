@@ -66,7 +66,8 @@ class ReadingHostHooks(
     /** Dismisses the two SHEET-shaped LLM dialogs if one is showing; the dialog-shaped ones stay. */
     val dismissLlmSheets: () -> Unit = {},
     val openPromptSelector: (Selection, PromptContext, DocumentCategory?) -> Unit = { _, _, _ -> },
-    val openRegenerate: (IdType) -> Unit = {},
+    /** Opens the regenerate dialog for a page, against the view of the window that asked. */
+    val openRegenerate: (pageId: IdType, windowId: IdType) -> Unit = { _, _ -> },
     val openCompare: (VerseRange) -> Unit = {},
     /** Navigates the reading view to a verse picked in the Grid sheet (no outstanding chooser request). */
     val applyChosenVerse: (String) -> Unit = {},
@@ -95,7 +96,7 @@ class ReadingHostHooks(
  */
 class ReadingHostState(
     val scope: CoroutineScope,
-    private val settings: AppSettings,
+    val settings: AppSettings,
     private val windowControl: WindowControl,
     private val historyManager: HistoryManager,
     private val documentControl: DocumentControl,
@@ -368,10 +369,19 @@ class ReadingHostState(
      */
     fun openPaneMenu(windowId: String, anchor: PaneMenuAnchor) {
         windowButtonsVisibility.onTouch()
-        val items = hooks.paneMenuItemsFor(windowId) ?: return
-        paneMenuItems.value = items
+        if (!refreshPaneMenuItems(windowId)) return
         paneMenuAnchor.value = anchor
         paneMenuWindowId.value = windowId
+    }
+
+    /**
+     * Rebuilds the ☰ menu items for [windowId] (a row that asked to stay open changes its own label).
+     * False, leaving the items as they were, when the window no longer exists.
+     */
+    fun refreshPaneMenuItems(windowId: String): Boolean {
+        val items = hooks.paneMenuItemsFor(windowId) ?: return false
+        paneMenuItems.value = items
+        return true
     }
 
     fun closePaneMenu() { paneMenuWindowId.value = null }
@@ -394,7 +404,7 @@ class ReadingHostState(
     override fun showShare(input: ShareVersesInput) = showShareSheet(input)
     override fun showPromptSelector(selection: Selection, context: PromptContext, category: DocumentCategory?) =
         hooks.openPromptSelector(selection, context, category)
-    override fun showRegenerate(pageId: IdType) = hooks.openRegenerate(pageId)
+    override fun showRegenerate(pageId: IdType, windowId: IdType) = hooks.openRegenerate(pageId, windowId)
 
     private companion object {
         const val SHARE_VERSE_NUMBERS_KEY = "share_verse_numbers"

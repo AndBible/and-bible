@@ -119,12 +119,9 @@ class AgentLogHostTest {
             onOpenRawLog = {},
         )
 
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = mutableStateOf(false),
-            pane = { },
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = ReadingHostTestDeps.state(),
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
             // Mirrors exactly what ComposeReadingViewHost.install builds for the real `agentLog`
             // controller field.
             agentLogSlot = { _, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
@@ -150,7 +147,7 @@ class AgentLogHostTest {
                     onRawLogClick = controller::onRawLogClick,
                 )
             },
-        )
+        ))
 
         assertTrue(
             (0 until container.childCount).any { container.getChildAt(it) is ComposeView },

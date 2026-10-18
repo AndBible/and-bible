@@ -361,7 +361,7 @@ class BibleView(
                 hostCallbacks.composeReadingViewHost()?.showPromptSelector(selection, context, category)
             }
 
-            override fun showRegenerate(pageId: IdType) {
+            override fun showRegenerate(pageId: IdType, windowId: IdType) {
                 hostCallbacks.showRegenerate(pageId, this@BibleView)
             }
 

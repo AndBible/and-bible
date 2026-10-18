@@ -187,7 +187,7 @@ class ReadingHostStateTest {
     }
 
     @Test
-    fun closeModalOverlaysClosesSheetAndDialogButNotDrawer() {
+    fun closeModalOverlaysClosesSheetButKeepsDialogAndDrawer() {
         val closed = mutableListOf<String>()
         val state = fixture(hooks = ReadingHostHooks(
             closeSpeakSheet = { closed += "speak" },
@@ -272,5 +272,36 @@ class ReadingHostStateTest {
         // The saved tab is hidden now: first visible wins, never an index.
         assertEquals("RECENT", state.restoreQuickDocTab(scope, visible.take(1)))
         assertSame(null, state.restoreQuickDocTab(scope, emptyList()))
+    }
+
+    @Test
+    fun showRegenerateCarriesTheAskingWindowId() {
+        val calls = mutableListOf<Pair<IdType, IdType>>()
+        val state = fixture(hooks = ReadingHostHooks(openRegenerate = { page, window -> calls += page to window })).state
+        val page = IdType()
+        val asking = IdType()
+        state.showRegenerate(page, asking)
+        assertEquals(listOf(page to asking), calls)
+    }
+
+    @Test
+    fun refreshPaneMenuItemsRebuildsOrReportsAMissingWindow() {
+        var label = "Pin"
+        val state = fixture(hooks = ReadingHostHooks(
+            paneMenuItemsFor = { id ->
+                if (id == "gone") null
+                else listOf(net.bible.sharedcore.window.WindowPaneMenuItem(id = "pin", label = label))
+            },
+        )).state
+        assertTrue(state.refreshPaneMenuItems("w1"))
+        assertEquals(listOf("Pin"), state.paneMenuItems.value.map { it.label })
+
+        label = "Unpin"
+        assertTrue(state.refreshPaneMenuItems("w1"))
+        assertEquals(listOf("Unpin"), state.paneMenuItems.value.map { it.label })
+
+        // A window closed under an open menu leaves the items as they were.
+        assertFalse(state.refreshPaneMenuItems("gone"))
+        assertEquals(listOf("Unpin"), state.paneMenuItems.value.map { it.label })
     }
 }

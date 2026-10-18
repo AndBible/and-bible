@@ -284,9 +284,11 @@ internal class ContentBridgeFamily(
     fun regenerateMyDocumentPage(pageId: String) {
         if (session.isDisposed) return
         val id = IdType(pageId)
+        // The asking window travels with the request: the host must not guess it (the active window can differ).
+        val windowId = session.windowOrNull?.id ?: return
         session.scope.launch(Dispatchers.Main) {
             if (session.isDisposed) return@launch
-            session.hostSheets?.showRegenerate(id)
+            session.hostSheets?.showRegenerate(id, windowId)
         }
     }
 
