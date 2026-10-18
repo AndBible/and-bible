@@ -17,6 +17,8 @@
 package net.bible.android.control.search
 
 import net.bible.android.TEST_SDK
+import net.bible.sharedlogic.search.CommonSearchHighlighter
+import org.junit.Assert.assertEquals
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Text
 import org.junit.Assert.assertFalse
@@ -103,22 +105,57 @@ class SearchHighlighterTest {
         assertTrue(result.runs.any { it.text == "พระเจ้า" && it.highlight })
     }
 
-    @Test
-    fun commonHighlighterMatchesAndroidOutput() {
-        val word = Element("w").apply {
-            setAttribute("lemma", "strong:H0430")
-            addContent(Text("God"))
-        }
-        val lemmaOsis = osisWith(Text("In the beginning "), word, Text(" created"))
-        val termOsis = osisWith(Text("In the beginning God created the heaven"))
+    private fun assertParity(osis: Element, terms: List<String>, lemmaTerms: List<String>) {
+        assertEquals(
+            SearchHighlighter.highlight(osis, terms, lemmaTerms),
+            CommonSearchHighlighter.highlight(osis, terms, lemmaTerms),
+        )
+    }
 
-        org.junit.Assert.assertEquals(
-            SearchHighlighter.highlight(lemmaOsis, emptyList(), listOf("strong:h0*430")),
-            net.bible.sharedlogic.search.CommonSearchHighlighter.highlight(lemmaOsis, emptyList(), listOf("strong:h0*430")),
+    private fun lemmaWord(lemma: String, vararg content: fi.sykero.kdom.Content) = Element("w").apply {
+        setAttribute("lemma", lemma)
+        content.forEach { addContent(it) }
+    }
+
+    @Test
+    fun commonParity_lemmaAndSingleTerm() {
+        val lemmaOsis = osisWith(Text("In the beginning "), lemmaWord("strong:H0430", Text("God")), Text(" created"))
+        assertParity(lemmaOsis, emptyList(), listOf("strong:h0*430"))
+        assertParity(osisWith(Text("In the beginning God created the heaven")), listOf("God"), emptyList())
+    }
+
+    @Test
+    fun commonParity_multipleSpacesAndNewlines() {
+        assertParity(osisWith(Text("In  the\n\nbeginning   God\tcreated")), listOf("God", "the"), emptyList())
+        assertParity(
+            osisWith(Text("a  b\n"), lemmaWord("strong:H0430", Text("God  is")), Text("\n c")),
+            emptyList(), listOf("strong:h0*430"),
         )
-        org.junit.Assert.assertEquals(
-            SearchHighlighter.highlight(termOsis, listOf("God"), emptyList()),
-            net.bible.sharedlogic.search.CommonSearchHighlighter.highlight(termOsis, listOf("God"), emptyList()),
-        )
+    }
+
+    @Test
+    fun commonParity_nestedLemmaElement() {
+        val inner = Element("seg").addContent(Text("inner")).addContent(Element("hi").addContent(Text(" deep")))
+        val osis = osisWith(Text("start "), lemmaWord("strong:H0430", inner, Text(" tail")), Text(" end"))
+        assertParity(osis, emptyList(), listOf("strong:h0*430"))
+    }
+
+    @Test
+    fun commonParity_multipleTermMatches() {
+        assertParity(osisWith(Text("God said, and god saw that God was good")), listOf("god", "said"), emptyList())
+        assertParity(osisWith(Text("light and lighter lights")), listOf("light"), emptyList())
+    }
+
+    @Test
+    fun commonParity_noMatch() {
+        assertParity(osisWith(Text("In the beginning")), listOf("Moses"), emptyList())
+    }
+
+    /** Intentional divergence: Android runs the verse through Html.fromHtml, Common treats kdom text as already decoded. */
+    @Test
+    fun commonKeepsEntitiesVerbatimWhereAndroidDecodesThem() {
+        val osis = osisWith(Text("Tom &amp; Jerry"))
+        assertEquals("Tom & Jerry", SearchHighlighter.highlight(osis, emptyList(), emptyList()).plainText())
+        assertEquals("Tom &amp; Jerry", CommonSearchHighlighter.highlight(osis, emptyList(), emptyList()).plainText())
     }
 }

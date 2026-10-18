@@ -40,6 +40,7 @@ import org.koin.mp.KoinPlatform
  */
 class ReadingProgressSettingsServiceImpl : ReadingProgressSettingsService {
 
+    // Must stay declared before _snapshot: build() runs during construction and reads it.
     private val strings: CoreStrings by lazy { KoinPlatform.getKoin().get<CoreStrings>() }
 
     private val _snapshot = MutableStateFlow(build())

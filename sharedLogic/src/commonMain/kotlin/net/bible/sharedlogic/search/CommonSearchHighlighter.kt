@@ -15,7 +15,9 @@ import net.bible.sharedcore.search.termHighlightPattern
  *
  * Modes (mutually exclusive, as on Android): word-term ([terms]) marks matches `highlight`; Strong's
  * ([lemmaTerms]) marks elements whose `lemma` attribute matches `bold`.
- * Note: unlike `Html.fromHtml`, no HTML entity decoding happens; kdom text is already decoded.
+ * Whitespace is normalised like `Html.fromHtml` (runs of space/newline collapse to one space, leading dropped).
+ * Intentional divergence, asserted in `SearchHighlighterTest`: no HTML entity/tag decoding happens, because kdom text
+ * is already decoded (Android would turn a literal `&amp;` in the text into `&`).
  */
 object CommonSearchHighlighter : SearchTextHighlighter {
     private const val TAG = "CommonSearchHighlighter"
@@ -46,6 +48,11 @@ object CommonSearchHighlighter : SearchTextHighlighter {
             when {
                 marked.startsWith(OPEN, i) -> { inBold = true; i += OPEN.length }
                 marked.startsWith(CLOSE, i) -> { inBold = false; i += CLOSE.length }
+                marked[i] == ' ' || marked[i] == '\n' -> {
+                    // Html.fromHtml (legacy mode) drops leading whitespace and collapses runs of ' '/'\n' to one space.
+                    if (plain.isNotEmpty() && plain.last() != ' ') { plain.append(' '); bold.add(inBold) }
+                    i++
+                }
                 else -> { plain.append(marked[i]); bold.add(inBold); i++ }
             }
         }
@@ -111,7 +118,7 @@ object CommonSearchHighlighter : SearchTextHighlighter {
                         false
                     }
                     if (o.children.isEmpty()) {
-                        val text = o.text ?: ""
+                        val text = o.text
                         verseString.append(if (currentIsBold) "$OPEN$text$CLOSE" else text)
                     } else {
                         verseString.append(processElementChildrenWithLemmaHighlight(o, strongsPatterns, currentIsBold))
