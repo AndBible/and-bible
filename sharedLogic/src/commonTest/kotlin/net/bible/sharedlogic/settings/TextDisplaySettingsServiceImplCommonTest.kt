@@ -24,6 +24,7 @@ import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.settings.DetachedWorkspaceEdit
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.sword.ContentSource
+import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.TextSettingRowValue
@@ -36,14 +37,15 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /** Drives the common [TextDisplaySettingsServiceImpl] through a fake [TextDisplayPrefItems] (detached workspace edit). */
 class TextDisplaySettingsServiceImplCommonTest {
-    private class FakeHandle(initial: Any?) : PrefItemHandle {
+    private class FakeHandle(initial: Any) : PrefItemHandle {
         var nonSpecificCalls = 0
-        val writes = mutableListOf<Any?>()
-        override var value: Any? = initial
+        val writes = mutableListOf<Any>()
+        override var value: Any = initial
             set(v) { field = v; writes += v }
         override val enabled = true
         override val visible = true
@@ -54,6 +56,8 @@ class TextDisplaySettingsServiceImplCommonTest {
     private class FakePrefItems : TextDisplayPrefItems {
         val requested = mutableListOf<TextDisplaySettings.Types>()
         val handles = mutableMapOf<TextDisplaySettings.Types, FakeHandle>()
+        val changedTypes = mutableListOf<TextDisplaySettings.Types>()
+        var backgroundNames: Map<String, String> = emptyMap()
 
         override fun item(bundle: SettingsBundle, type: TextDisplaySettings.Types): PrefItemHandle {
             requested += type
@@ -76,9 +80,9 @@ class TextDisplaySettingsServiceImplCommonTest {
         override fun string(key: TextDisplayString, vararg args: Any) = "$key:${args.joinToString(",")}"
         override fun array(key: TextDisplayArray) = listOf("a", "b", "c")
         override val fonts = listOf(SettingsItem.Choice("serif", "Serif"))
-        override fun displaySettingChanged(type: TextDisplaySettings.Types) {}
+        override fun displaySettingChanged(type: TextDisplaySettings.Types) { changedTypes += type }
         override fun contentSource(): ContentSource = error("unused")
-        override fun backgroundImageNames(): Map<String, String> = emptyMap()
+        override fun backgroundImageNames(): Map<String, String> = backgroundNames
     }
 
     private val fake = FakePrefItems()
@@ -86,7 +90,8 @@ class TextDisplaySettingsServiceImplCommonTest {
         level = SettingsLevel.WORKSPACE, workspaceId = IdType(), workspaceName = "Other",
         workspaceSettings = TextDisplaySettings(), globalSettings = TextDisplaySettings(),
     )
-    private val service get() = TextDisplaySettingsServiceImpl(DetachedWorkspaceEdit(bundle))
+    private val detached = DetachedWorkspaceEdit(bundle)
+    private val service get() = TextDisplaySettingsServiceImpl(detached)
     private val scope get() = SettingsScope.Workspace(bundle.workspaceId.toString())
 
     @BeforeTest fun setUp() {
@@ -104,12 +109,42 @@ class TextDisplaySettingsServiceImplCommonTest {
 
     @Test fun writingAValueGoesThroughTheHandleSetter() {
         service.setValue(scope, TextSettingType.FONTSIZE, TextSettingValue.IntValue(22))
-        assertEquals(listOf<Any?>(22), fake.handles.getValue(TextDisplaySettings.Types.FONTSIZE).writes)
+        assertEquals(listOf<Any>(22), fake.handles.getValue(TextDisplaySettings.Types.FONTSIZE).writes)
+        assertTrue(detached.dirty)
+        assertTrue(detached.changed)
     }
 
     @Test fun revertingARowCallsSetNonSpecific() {
         service.revert(scope, TextSettingType.FONTSIZE)
         assertEquals(1, fake.handles.getValue(TextDisplaySettings.Types.FONTSIZE).nonSpecificCalls)
         assertTrue(fake.handles.getValue(TextDisplaySettings.Types.FONTSIZE).writes.isEmpty())
+        assertTrue(detached.changed)
+    }
+
+    @Test fun openingTheScreenDoesNotMarkTheDetachedEditChanged() {
+        service.loadText(scope)
+        assertFalse(detached.changed)
+    }
+
+    @Test fun editingColorsRecordsRecentUseAndLandsInTheDetachedBundle() {
+        service.setColor(scope, ColorField.DAY_TEXT, 0x123456)
+        assertEquals(listOf(TextDisplaySettings.Types.COLORS), fake.changedTypes)
+        assertEquals(0x123456, bundle.workspaceSettings.colors?.dayTextColor)
+        assertTrue(detached.changed)
+    }
+
+    @Test fun resettingColorsRecordsRecentUseAndRestoresDefaults() {
+        service.setColor(scope, ColorField.DAY_TEXT, 0x123456)
+        fake.changedTypes.clear()
+        service.resetColors(scope)
+        assertEquals(listOf(TextDisplaySettings.Types.COLORS), fake.changedTypes)
+        assertEquals(TextDisplaySettings.default.colors, bundle.workspaceSettings.colors)
+        assertTrue(detached.changed)
+    }
+
+    @Test fun backgroundOptionsAreSortedByNameIgnoringCase() {
+        fake.backgroundNames = mapOf("zeta" to "banana", "alpha" to "Cherry", "mid" to "apple")
+        assertEquals(listOf("apple", "banana", "Cherry"), service.loadBackgroundOptions().map { it.name })
+        assertEquals(listOf("mid", "zeta", "alpha"), service.loadBackgroundOptions().map { it.initials })
     }
 }

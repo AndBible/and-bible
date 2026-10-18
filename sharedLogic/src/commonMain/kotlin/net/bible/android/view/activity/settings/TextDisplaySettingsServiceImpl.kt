@@ -19,6 +19,7 @@ package net.bible.android.view.activity.settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
@@ -26,14 +27,7 @@ import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.defaultWorkspaceColor
-import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.GlobalTextDisplaySettingsStore
-import net.bible.sharedlogic.platform.AddonCatalog
-import net.bible.sharedlogic.settings.PrefItemHandle
-import net.bible.sharedlogic.settings.TextDisplayArray
-import net.bible.sharedlogic.settings.TextDisplayPrefItems
-import net.bible.sharedlogic.settings.TextDisplayString
-import org.koin.mp.KoinPlatform
 import net.bible.service.sword.backgroundimage.BackgroundImageImporter
 import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
@@ -49,7 +43,13 @@ import net.bible.sharedcore.settings.TextSettingRowValue
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.settings.TextSettingValue
 import net.bible.sharedcore.settings.TextSettingsSnapshot
+import net.bible.sharedlogic.platform.AddonCatalog
+import net.bible.sharedlogic.settings.PrefItemHandle
+import net.bible.sharedlogic.settings.TextDisplayArray
+import net.bible.sharedlogic.settings.TextDisplayPrefItems
+import net.bible.sharedlogic.settings.TextDisplayString
 import org.crosswire.jsword.book.Books
+import org.koin.mp.KoinPlatform
 
 /**
  * A workspace-scoped settings edit that is NOT written through to the active workspace or the DB.
@@ -251,7 +251,7 @@ class TextDisplaySettingsServiceImpl(
     override fun setValue(scope: SettingsScope, type: TextSettingType, value: TextSettingValue) {
         val bundle = bundleFor(scope)
         val classic = type.toClassic()
-        prefItems.item(bundle, classic).value = value.toClassic()   // classic sparse-override + MRU (prefItems.displaySettingChanged)
+        prefItems.item(bundle, classic).value = value.toClassic()   // sparse-override + MRU tracking live behind the platform handle's setter
         applyAndPersist(scope, bundle, setOf(classic))
     }
 
@@ -388,7 +388,7 @@ class TextDisplaySettingsServiceImpl(
         // COLORS is the one TextSettingType that is a navigation row rather than a value row
         // (TextSettingRowValue.ColorsNav), so it never goes through setValue() -> Preference.value,
         // which is the single site that records a setting as recently used
-        // (prefItems.displaySettingChanged, called from OptionsMenuItems.kt:183). Without this the
+        // (Android: CommonUtils.displaySettingChanged, called from OptionsMenuItems.kt). Without this the
         // colour editor never appears as a shortcut in the overflow menu, however often it is used.
         prefItems.displaySettingChanged(TextDisplaySettings.Types.COLORS)
         // Shared sink for setColor/setNoise/setWorkspaceColor/setBackgroundImage/setBackgroundOpacity

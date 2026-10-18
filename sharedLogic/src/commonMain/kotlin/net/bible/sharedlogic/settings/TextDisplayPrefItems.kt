@@ -48,7 +48,8 @@ enum class TextDisplayArray { STRONGS_MODE_ENTRIES, PAGE_SCROLL_AMOUNT_ENTRIES, 
 
 /** One text display setting as the platform's preference item exposes it (value with sparse-override semantics). */
 interface PrefItemHandle {
-    var value: Any?
+    /** Never null: the service only writes concrete values; clearing an override is [setNonSpecific]. */
+    var value: Any
     val enabled: Boolean
     val visible: Boolean
 

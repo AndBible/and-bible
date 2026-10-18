@@ -37,9 +37,9 @@ class AndroidTextDisplayPrefItems : TextDisplayPrefItems {
     private val app get() = BibleApplication.application
 
     private class Handle(private val item: OptionsMenuItemInterface) : PrefItemHandle {
-        override var value: Any?
+        override var value: Any
             get() = item.value
-            set(v) { item.value = v!! }
+            set(v) { item.value = v }
         override val enabled get() = item.enabled
         override val visible get() = item.visible
         override val iconKey: String?

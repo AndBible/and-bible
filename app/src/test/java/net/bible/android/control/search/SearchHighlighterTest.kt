@@ -16,11 +16,13 @@
  */
 package net.bible.android.control.search
 
-import net.bible.android.TEST_SDK
-import net.bible.sharedlogic.search.CommonSearchHighlighter
 import fi.sykero.kdom.Content
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Text
+import net.bible.android.TEST_SDK
+import net.bible.sharedcore.search.StyledRun
+import net.bible.sharedcore.search.StyledText
+import net.bible.sharedlogic.search.CommonSearchHighlighter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -139,9 +141,9 @@ class SearchHighlighterTest {
         val osis = osisWith(Text("  \n In  the\n\nbeginning   God"))
         assertParity(osis, listOf("God"), emptyList())
         assertEquals(
-            net.bible.sharedcore.search.StyledText(listOf(
-                net.bible.sharedcore.search.StyledRun("In the beginning "),
-                net.bible.sharedcore.search.StyledRun("God", highlight = true),
+            StyledText(listOf(
+                StyledRun("In the beginning "),
+                StyledRun("God", highlight = true),
             )),
             SearchHighlighter.highlight(osis, listOf("God"), emptyList()),
         )
