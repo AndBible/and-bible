@@ -55,6 +55,11 @@ x iOS `17`, `18`, `26` x scenarios `fresh`, `rich`, `restored-android`, `preserv
 on the pin under iOS 26 over all stores. Distinct model fingerprints (first 12 hex): 1.0.1/17 `b9c461c2cd73`;
 1.0.1/18 and 1.0.1/26 `f350194971fe`; 1.0.2/17 `e5fea2ccf6c5`; 1.0.2/18 and 1.0.2/26 `8cdd5de71d3a`.
 
+The fingerprints above come from the Swift oracle (hash of the per-store digests). The Kotlin reader uses its own
+`modelFingerprint` (SHA-256 over the sorted entity names and raw version hashes); the committed schema maps are named by
+it: `b9c461c2cd73` = `SchemaMap_9c047651d5fa`, `f350194971fe` = `SchemaMap_ed88d3de6894`, `e5fea2ccf6c5` =
+`SchemaMap_69710f0b5afe`, `8cdd5de71d3a` = `SchemaMap_32e8587e3035`.
+
 `1.0.0` has no cells of its own: it has the 1.0.1 model (see above), so the 1.0.1 cells cover it.
 
 Known quirk, `preserved-ai`: the preserved Android `ai_settings.sqlite3` is schema v23 and the pin supports 22, so

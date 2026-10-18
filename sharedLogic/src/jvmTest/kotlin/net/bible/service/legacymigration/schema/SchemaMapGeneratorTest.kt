@@ -124,9 +124,44 @@ class SchemaMapGeneratorTest {
         }
     }
 
+    /**
+     * The value check of [suffixedLeavesMapToDistinctProperties] cannot see a swap of the `decodedMalformedKnownField`
+     * leaves (excluded from CodingKeys, always NULL; numbering is proven by column position). So assert structurally:
+     * for every group of equal leaf names (`ZX`, `ZX1`, ...), the nearest preceding mapped column of the table in
+     * `pragma_table_info` order maps to a property with the same parent path as the group member.
+     */
+    @Test
+    fun suffixedGroupsFollowTheirParentComposite() {
+        var groupsChecked = 0
+        val seen = mutableSetOf<String>()
+        for (f in allFixtures()) for (store in f.storeFiles()) openStore(store).use { c ->
+            val map = KnownSchemaMaps.forFingerprint(c.fingerprint())!!
+            if (!seen.add(map.fingerprint)) return@use
+            for (entity in map.entities.values) {
+                val pathByColumn = entity.columns.entries.associate { (path, col) -> col.column to path }
+                val tableColumns = c.columnNames(entity.table)
+                fun parent(path: String) = path.substringBeforeLast('.', "")
+                val groups = pathByColumn.keys.groupBy { it.trimEnd { ch -> ch.isDigit() } }.filterValues { it.size > 1 }
+                for (member in groups.values.flatten()) {
+                    val index = tableColumns.indexOf(member)
+                    val preceding = tableColumns.subList(0, index).lastOrNull { it in pathByColumn }
+                    assertNotNull(preceding, "${map.fingerprint.take(12)} ${entity.name}.$member has no preceding mapped column")
+                    assertEquals(
+                        parent(pathByColumn.getValue(member)), parent(pathByColumn.getValue(preceding)),
+                        "${map.fingerprint.take(12)} ${entity.name}: $member is mapped to ${pathByColumn.getValue(member)} but follows $preceding",
+                    )
+                    groupsChecked++
+                }
+            }
+        }
+        assertTrue(groupsChecked >= 8, "expected the Workspace decodedMalformedKnownField groups in every fingerprint, checked $groupsChecked")
+    }
+
+    private val PAGE_SCROLL_AMOUNT_VALUES = listOf(25, 33, 50, 66, 75)
+
     private fun flag(seed: Int, k: Int): Long = if ((seed + k) % 2 == 0) 1L else 0L
 
-    /** Mirrors `I3Seed.sentinelTextDisplay` (iosApp/legacy-fixtures/I3FixtureGeneratorTests.swift); pageScrollAmount is not checked. */
+    /** Mirrors `I3Seed.sentinelTextDisplay` (iosApp/legacy-fixtures/I3FixtureGeneratorTests.swift); `PAGE_SCROLL_AMOUNT_VALUES` is `TextDisplaySettings.pageScrollAmountValues` as stored in the fixtures. */
     private fun textDisplayExpected(seed: Int, p: String): Map<String, Any> = linkedMapOf<String, Any>(
         "fontSize" to (20L + seed), "fontFamily" to "family-$seed", "lineSpacing" to (30L + seed),
         "marginLeft" to (40L + seed), "marginRight" to (50L + seed), "maxWidth" to (200L + seed), "topMargin" to (60L + seed),
@@ -139,12 +174,13 @@ class SchemaMapGeneratorTest {
         "nonStrongsWordItalic" to flag(seed, 16), "showMarkAsReadButton" to flag(seed, 17),
         "showTitleScrollButton" to flag(seed, 18), "showMemorizationIndicators" to flag(seed, 19),
         "showAiDocMarkers" to flag(seed, 20), "showOrdinals" to flag(seed, 21),
+        "pageScrollAmount" to PAGE_SCROLL_AMOUNT_VALUES[seed % 5].toLong(),
         "dayTextColor" to (-1_000_000L - seed), "dayBackground" to (-2_000_000L - seed), "dayNoise" to (70L + seed),
         "nightTextColor" to (-3_000_000L - seed), "nightBackground" to (-4_000_000L - seed), "nightNoise" to (80L + seed),
         "enableVerseSelection" to flag(seed, 22),
     ).mapKeys { p + it.key }
 
-    /** Mirrors `I3Seed.sentinelSpeak`. The two `decodedMalformedKnownField` leaves are not set by the app, so they are not compared. */
+    /** Mirrors `I3Seed.sentinelSpeak`. The two `decodedMalformedKnownField` leaves are excluded from the Swift CodingKeys and always NULL, so no value can be compared; numbering is proven by column position in [suffixedGroupsFollowTheirParentComposite]. */
     private fun speakExpected(seed: Int, p: String): Map<String, Any> {
         val even = if (seed % 2 == 0) 1L else 0L
         val odd = 1L - even

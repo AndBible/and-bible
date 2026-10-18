@@ -17,12 +17,17 @@ data class FixtureDir(val root: Path, val app: String, val ios: String, val scen
 
 private const val FIXTURE_BASE = "/legacymigration/fixtures"
 
+/** Unpacked fixture directories; `File.deleteOnExit()` does nothing for a non-empty directory, so a hook deletes them recursively. */
+private val tempDirs = java.util.concurrent.CopyOnWriteArrayList<File>().also { dirs ->
+    Runtime.getRuntime().addShutdownHook(Thread { dirs.forEach { it.deleteRecursively() } })
+}
+
 /** Unzips `<app>/<ios>/<scenario>.zip` from the test resources into a fresh temp directory. */
 fun fixture(app: String, ios: String, scenario: String): FixtureDir {
     val resource = "$FIXTURE_BASE/$app/$ios/$scenario.zip"
     val stream = FixtureDir::class.java.getResourceAsStream(resource)
         ?: error("fixture resource not found: $resource")
-    val dir = Files.createTempDirectory("legacy-fixture-$app-$ios-$scenario-").toFile().also { it.deleteOnExit() }
+    val dir = Files.createTempDirectory("legacy-fixture-$app-$ios-$scenario-").toFile().also { tempDirs += it }
     val canonicalRoot = dir.canonicalFile
     ZipInputStream(stream).use { zip ->
         generateSequence { zip.nextEntry }.forEach { entry ->
@@ -40,8 +45,12 @@ fun fixture(app: String, ios: String, scenario: String): FixtureDir {
     return FixtureDir(dir.toOkioPath(), app, ios, scenario)
 }
 
-/** Every fixture listed in `manifest.json`, each unpacked into its own temp directory. */
-fun allFixtures(): List<FixtureDir> {
+/** Every fixture listed in `manifest.json`, each unpacked into its own temp directory (once per JVM, removed at exit). */
+fun allFixtures(): List<FixtureDir> = allFixturesCache
+
+private val allFixturesCache: List<FixtureDir> by lazy { unpackAllFixtures() }
+
+private fun unpackAllFixtures(): List<FixtureDir> {
     val text = FixtureDir::class.java.getResourceAsStream("$FIXTURE_BASE/manifest.json")
         ?.use { it.readBytes().decodeToString() } ?: error("fixture manifest not found")
     val entries: JsonArray = Json.parseToJsonElement(text).jsonArray

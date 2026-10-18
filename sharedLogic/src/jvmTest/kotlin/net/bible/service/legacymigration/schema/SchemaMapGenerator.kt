@@ -34,6 +34,9 @@ import net.bible.service.legacymigration.testsupport.tableNames
  *    depth-first order of the composite elements (first occurrence unsuffixed). Top-level properties are visited
  *    sorted by name (the archive stores them in an unordered dictionary); a collision between two different top-level
  *    properties is rejected as ambiguous, so nothing is guessed;
+ *    Note that the table's physical column order is NOT property order: Core Data groups the columns by type, and
+ *    within each type keeps model order (top-level properties alphabetical, composite leaves depth-first). That
+ *    position is what proves the suffix numbering (see SchemaMapGeneratorTest.suffixedGroupsFollowTheirParentComposite);
  *  - to-one relationships (`NSMaxCount == 1`) are a foreign key column `Z<RELATIONSHIPNAME>`; to-many have no column.
  *
  * Every derived column is checked against `sqlite_master`/`pragma_table_info`; a missing one fails the generation.
