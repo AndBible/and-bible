@@ -27,6 +27,9 @@ import okio.Path.Companion.toPath
 class StagingDatabases(private val dir: Path, private val factory: LegacyDatabaseFactory) : AutoCloseable {
     private val opened = mutableListOf<Pair<Path, RoomDatabase>>()
 
+    /** The staging directory, for scratch files a mapper needs (it must remove them itself; they are never adopted). */
+    val directory: Path get() = dir
+
     val bookmarks: BookmarkDatabase by lazy { open(BookmarkDatabase.dbFileName, factory::bookmarks) }
     val workspaces: WorkspaceDatabase by lazy { open(WorkspaceDatabase.dbFileName, factory::workspaces) }
     val readingPlans: ReadingPlanDatabase by lazy { open(ReadingPlanDatabase.dbFileName, factory::readingPlans) }

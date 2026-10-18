@@ -29,6 +29,7 @@ import net.bible.service.legacymigration.testsupport.RowSide
 import net.bible.service.legacymigration.testsupport.allFixtures
 import net.bible.service.legacymigration.testsupport.compareWithOracleDetailed
 import net.bible.service.legacymigration.testsupport.fixture
+import net.bible.shareddata.fixtures.createFromExport
 import okio.Path
 import okio.Path.Companion.toOkioPath
 
@@ -278,6 +279,22 @@ class MyDocumentsAndAiMapperTest {
     }
 
     @Test
+    fun hugeRightToLeftPageContentIsByteExact() {
+        val unit = "\u05E9\u05DC\u05D5\u05DD \u05E2\u05D5\u05DC\u05DD \u0645\u0631\u062D\u0628\u0627 \u0628\u0627\u0644\u0639\u0627\u0644\u0645 \u202Eabc\u202C \u200F\u0000 end\n"
+        val repeats = 1_100_000 / unit.encodeToByteArray().size + 1
+        val text = unit.repeat(repeats)
+        assertTrue(text.encodeToByteArray().size >= 1_048_576)
+        val data = LegacyMyDocumentData(
+            documents = listOf(doc(1, 1, "MyDoc_a")), pages = listOf(page(1, 11, 1, "k1")),
+            contents = listOf(content(1, 11, text)), cacheEntries = emptyList(),
+        )
+        val (report, read) = mapDocData(data)
+        assertEquals(emptyList(), skipped(report))
+        assertEquals(listOf(listOf("i:${text.encodeToByteArray().size}")), read("SELECT length(CAST(content AS BLOB)) FROM MyDocumentPageContent", 1))
+        assertTrue(read("SELECT content FROM MyDocumentPageContent", 1).single().single() == "t:$text", "content differs")
+    }
+
+    @Test
     fun myDocumentsStagingIsOnlyCreatedWhenThereIsAnythingToWrite() {
         val (_, read) = mapDocData(LegacyMyDocumentData(emptyList(), emptyList(), emptyList(), emptyList()))
         assertEquals(emptyList(), read("SELECT id FROM MyDocument", 1))
@@ -468,18 +485,144 @@ class MyDocumentsAndAiMapperTest {
     }
 
     @Test
-    fun preservedFileOfAnUnsupportedVersionOrMissingIsReportedAndIgnored() {
+    fun preservedFileOfAnUnreadableVersionOrMissingIsReportedAndIgnored() {
+        for (version in listOf(24, 0)) {
+            val (fx, copy) = preservedCopyOfRich()
+            exec(copy, "PRAGMA user_version = $version")
+            // The copy equals the Swift rows (same ids), so add a distinct row that would show if it were read.
+            exec(copy, "INSERT INTO PromptCategory (id, name, orderNumber, hidden) VALUES (${x(301)}, 'must not appear', 1, 0)")
+            val (result, report) = mapAi(fx, copy.toOkioPath())
+            assertEquals(emptyList(), result.differences, "v$version")
+            assertEquals(1, skipped(report).single { it.reason == AiSettingsMapper.unsupportedVersionReason(version) }.rows)
+        }
         val (fx, copy) = preservedCopyOfRich()
-        exec(copy, "PRAGMA user_version = 22")
-        // The preserved copy equals the Swift rows (same ids), so even if it were read the result would not show it: add a distinct row.
-        exec(copy, "INSERT INTO PromptCategory (id, name, orderNumber, hidden) VALUES (${x(301)}, 'must not appear', 1, 0)")
-        val (result, report) = mapAi(fx, copy.toOkioPath())
-        assertEquals(emptyList(), result.differences)
-        assertEquals(1, skipped(report).single { it.reason == AiSettingsMapper.unsupportedVersionReason(22) }.rows)
-
         val (result2, report2) = mapAi(fx, File(copy.parentFile, "missing.sqlite3").toOkioPath())
         assertEquals(emptyList(), result2.differences)
         assertEquals(1, skipped(report2).single { it.reason == AiSettingsMapper.MISSING_FILE_REASON }.rows)
+
+        // Not a database at all: reported, and no partial counts of a failed read are left in the report.
+        val junk = File(copy.parentFile, "junk.sqlite3").also { it.writeText("this is not an sqlite file at all, just text".repeat(50)) }
+        val (result3, report3) = mapAi(fx, junk.toOkioPath())
+        assertEquals(emptyList(), result3.differences)
+        assertEquals(listOf(true), skipped(report3).map { it.reason.startsWith("preserved ai_settings.sqlite3 could not be read") })
+    }
+
+    private val aiDb = "net.bible.android.database.AiSettingsDatabase"
+
+    private fun exportedPreserved(version: Int): File {
+        val file = File(Files.createTempDirectory("preserved-v$version-").toFile(), "ai_settings.sqlite3")
+        file.parentFile.deleteOnExit()
+        file.deleteOnExit()
+        createFromExport(aiDb, version, file.path)
+        return file
+    }
+
+    private fun directoryListing(f: File) = f.parentFile.list().orEmpty().sorted()
+
+    /** The Swift app keeps Android files of schema versions up to 22: such a file must be migrated and merged, not ignored. */
+    @Test
+    fun preservedFileOfVersion22IsMigratedAndMerged() {
+        val fx = fixture("1.0.2", "26", "fresh") // the Swift oracle has no AI rows, so staging is exactly the preserved rows
+        val file = exportedPreserved(22)
+        exec(
+            file,
+            "INSERT INTO LlmProviderConfig (id, providerType, displayName, endpoint, apiFormat, orderNumber) VALUES (${x(101)}, 'WEIRD_TYPE', 'Preserved only', 'https://example.invalid/p', 'WEIRD_FORMAT', 11)",
+            "INSERT INTO LlmConfiguredModel (id, providerConfigId, modelId, orderNumber, inputPricePerMillion, outputPricePerMillion, cacheCreationPricePerMillion, cacheReadPricePerMillion) VALUES (${x(102)}, ${x(101)}, 'pm', 12, 1.25, 2.5, 3.75, 5.0)",
+            "INSERT INTO AgentPrompt (id, name, description, promptTemplate, showIn, orderNumber, createdAt, strictContextMatching, permissionMode, allowedTools, deniedTools, configuredModelId, editBeforeRun, noDocumentCreation, maxIterations, autoIncludeDocuments, autoIncludeCommentaries, bibleOnly, isTextTransformation, categoryId) " +
+                "VALUES (${x(103)}, 'Preserved prompt', 'pd', 'template', '[\"TEXT_SELECTION\"]', 13, 1234567890123, 0, 'ALLOW_ALL', '[\"SEARCH_BIBLE\"]', NULL, ${x(102)}, 1, 0, 5, 1, 0, 1, 0, ${x(104)})",
+            "INSERT INTO PromptCategory (id, name, orderNumber, hidden) VALUES (${x(104)}, 'Preserved category', 14, 1)",
+            "INSERT INTO BuiltinPromptOverride (id, configuredModelId) VALUES (${x(105)}, ${x(102)})",
+            "INSERT INTO LlmUsageRecord (id, configuredModelId, deviceId, inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens, estimatedCostUsd) VALUES (${x(106)}, ${x(102)}, 'devP', 1, 2, 3, 4, 0.5)",
+            "INSERT INTO GlobalAiSettings (id, agentPermissionMode, permanentlyAllowedTools, permanentlyDeniedTools, aiExcludedDocuments, commentaryMaxResponseTokens, hiddenBuiltInPrompts, maxIterations, commentaryDeselected, defaultModelId, aiLanguage, askModelBeforeRun, aiDisclaimerAccepted, hiddenBuiltInCategories, customAgentSystemPrompt, customTextTransformationSystemPrompt, favoritePrompts, rawLogRetentionDays) " +
+                "VALUES (x'a1000000000000000000000000000001', 'DENY_ALL', NULL, NULL, '', 4321, '', 7, '', ${x(102)}, 'sv-SE', 1, 1, '', NULL, NULL, '', NULL)",
+        )
+        val before = sha256(file)
+        val listingBefore = directoryListing(file)
+        val tables = mapOf(
+            "LlmProviderConfig" to 6, "LlmConfiguredModel" to 8, "AgentPrompt" to 20, "PromptCategory" to 4, "BuiltinPromptOverride" to 2, "LlmUsageRecord" to 8,
+        )
+        val approved = (listOf(101, 102, 103, 104, 105, 106).map { it }).let { ids ->
+            val names = listOf("LlmProviderConfig", "LlmConfiguredModel", "AgentPrompt", "PromptCategory", "BuiltinPromptOverride", "LlmUsageRecord")
+            names.zip(ids).map { (t, id) -> ApprovedRow(t, "id=" + blob(uuid(id)), RowSide.ONLY_IN_STAGED, "preserved v22 row") } +
+                ApprovedRow("GlobalAiSettings", "id=b:a1000000000000000000000000000001", RowSide.ONLY_IN_STAGED, "preserved v22 row")
+        }.toSet()
+        val (result, report) = mapAi(fx, file.toOkioPath(), approved)
+        assertEquals(emptyList(), result.differences)
+        assertEquals(emptyList(), skipped(report))
+        assertEquals(before, sha256(file), "source must stay untouched")
+        assertEquals(listingBefore, directoryListing(file), "no -shm/-wal/-journal may appear beside the source")
+        withStaging { staging ->
+            runBlocking { snapshot(fx).use { AiSettingsMapper(file.toOkioPath()).map(it, staging, MigrationReport()) } }
+            for ((table, columns) in tables) {
+                assertEquals(1, fileRows(file, "SELECT * FROM $table", columns).size, table)
+                assertEquals(fileRows(file, "SELECT * FROM $table", columns), rows(staging.aiSettings, "SELECT * FROM $table", columns), table)
+            }
+            // The v22 global row gets the column added in v23 with its default.
+            assertEquals(
+                listOf(listOf("t:DENY_ALL", "i:4321", "i:7", blob(uuid(102)), "t:sv-SE", "i:1", "null", "i:0")),
+                rows(staging.aiSettings, "SELECT agentPermissionMode, commentaryMaxResponseTokens, maxIterations, defaultModelId, aiLanguage, askModelBeforeRun, rawLogRetentionDays, autoHideAgentLogOnCompletion FROM GlobalAiSettings", 8),
+            )
+        }
+    }
+
+    /** A file from before LlmConfiguredModel existed (v8): the real migration chain rewrites it, the survivors land in the v23 schema. */
+    @Test
+    fun preservedFileOfVersion8IsMigratedThroughTheWholeChain() {
+        val fx = fixture("1.0.2", "26", "fresh")
+        val file = exportedPreserved(8)
+        exec(
+            file,
+            "INSERT INTO LlmProviderConfig (id, providerType, displayName, endpoint, apiFormat, defaultModel, isDefault, orderNumber, customInputPrice, customOutputPrice) VALUES (${x(111)}, 'CUSTOM', 'Old provider', 'https://old.invalid', 'OPENAI', 'gpt-old', 1, 4, 1.5, 2.5)",
+            "INSERT INTO AgentPrompt (id, name, description, promptTemplate, showIn, orderNumber, createdAt, strictContextMatching, permissionMode, allowedTools, deniedTools, modelOverride, providerConfigId, editBeforeRun, noDocumentCreation, maxIterations) " +
+                "VALUES (${x(112)}, 'Old prompt', NULL, 'old template', '[\"VERSE_SELECTION\"]', 3, 99, 0, NULL, NULL, NULL, 'gpt-old', ${x(111)}, 1, 1, 6)",
+            "INSERT INTO GlobalAiSettings (id, agentPermissionMode, permanentlyAllowedTools, permanentlyDeniedTools, aiExcludedDocuments, commentaryMaxResponseTokens, hiddenBuiltInPrompts, maxIterations, commentaryDeselected) " +
+                "VALUES (x'a1000000000000000000000000000001', NULL, NULL, NULL, '[\"KJV\"]', 4000, '', 7, '[\"MHCC\"]')",
+            "INSERT INTO LlmUsageRecord (id, providerConfigId, deviceId, inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens, estimatedCostUsd) VALUES (${x(113)}, ${x(111)}, 'dev', 1, 2, 3, 4, 0.5)",
+        )
+        val before = sha256(file)
+        val (_, report) = mapAi(fx, file.toOkioPath(), emptySet())
+        assertEquals(before, sha256(file))
+        assertTrue(skipped(report).none { it.reason.startsWith("preserved ai_settings.sqlite3") }, skipped(report).toString())
+        withStaging { staging ->
+            runBlocking { snapshot(fx).use { AiSettingsMapper(file.toOkioPath()).map(it, staging, MigrationReport()) } }
+            assertEquals(
+                listOf(listOf(blob(uuid(111)), "t:CUSTOM", "t:Old provider", "t:https://old.invalid", "t:OPENAI", "i:4")),
+                rows(staging.aiSettings, "SELECT id, providerType, displayName, endpoint, apiFormat, orderNumber FROM LlmProviderConfig", 6),
+            )
+            // The v8->v9 migration drops models and usage and detaches prompts from models.
+            assertEquals(
+                listOf(listOf(blob(uuid(112)), "t:Old prompt", "t:old template", "i:3", "i:99", "i:0", "null", "i:1", "i:1", "i:6")),
+                rows(staging.aiSettings, "SELECT id, name, promptTemplate, orderNumber, createdAt, strictContextMatching, configuredModelId, editBeforeRun, noDocumentCreation, maxIterations FROM AgentPrompt", 10),
+            )
+            assertEquals(listOf(listOf("t:[\"KJV\"]", "i:7", "t:[\"MHCC\"]", "i:0")), rows(staging.aiSettings, "SELECT aiExcludedDocuments, maxIterations, commentaryDeselected, autoHideAgentLogOnCompletion FROM GlobalAiSettings", 4))
+            assertEquals(0, rows(staging.aiSettings, "SELECT id FROM LlmConfiguredModel", 1).size)
+            assertEquals(0, rows(staging.aiSettings, "SELECT id FROM LlmUsageRecord", 1).size)
+        }
+    }
+
+    @Test
+    fun preservedGlobalDefaultModelFollowsASkippedDuplicateModel() {
+        val (fx, copy) = preservedCopyOfRich()
+        val swiftModelId = fileRows(copy, "SELECT id FROM LlmConfiguredModel", 1).single().single()
+        // The Swift side is hand-built below without a global row, so the preserved global row is the one that lands.
+        exec(copy, "UPDATE LlmConfiguredModel SET id = ${x(201)}", "UPDATE AgentPrompt SET configuredModelId = NULL", "UPDATE BuiltinPromptOverride SET configuredModelId = NULL",
+            "UPDATE LlmUsageRecord SET configuredModelId = ${x(201)}, id = ${x(204)}", "UPDATE GlobalAiSettings SET defaultModelId = ${x(201)}")
+        // Same provider id as the preserved file's provider, same model id string: build the pair from the preserved rows.
+        val providerId = fileRows(copy, "SELECT id FROM LlmProviderConfig", 1).single().single().removePrefix("b:")
+        val modelName = fileRows(copy, "SELECT modelId FROM LlmConfiguredModel", 1).single().single().removePrefix("t:")
+        fun legacyUuid(hex: String) = LegacyValue.UuidV("${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}")
+        val swiftData = LegacyAiData(
+            providers = listOf(row(1, emptyMap(), "id" to legacyUuid(providerId), "providerType" to t("CUSTOM"), "displayName" to t("P"), "orderNumber" to i(1))),
+            models = listOf(row(1, emptyMap(), "id" to legacyUuid(swiftModelId.removePrefix("b:")), "providerConfigId" to legacyUuid(providerId), "modelId" to t(modelName), "orderNumber" to i(1))),
+            prompts = emptyList(), globals = emptyList(), usages = emptyList(), categories = emptyList(), overrides = emptyList(),
+        )
+        val report = MigrationReport()
+        val dir = Files.createTempDirectory("staging-").toFile()
+        val staging = StagingDatabases(dir.toOkioPath(), JvmLegacyDatabaseFactory())
+        leaked += staging to dir
+        runBlocking { AiSettingsMapper(copy.toOkioPath()).map(swiftData, staging, report) }
+        assertEquals(1, skipped(report).single { it.reason == AiSettingsMapper.MODEL_CONFLICT_REASON }.rows)
+        assertEquals(listOf(listOf(swiftModelId)), rows(staging.aiSettings, "SELECT defaultModelId FROM GlobalAiSettings", 1))
     }
 
     @Test

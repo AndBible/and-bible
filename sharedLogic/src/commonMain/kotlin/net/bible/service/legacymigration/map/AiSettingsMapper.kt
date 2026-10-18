@@ -9,6 +9,9 @@ import androidx.sqlite.SQLITE_DATA_NULL
 import androidx.sqlite.SQLITE_DATA_TEXT
 import androidx.sqlite.SQLiteConnection
 import net.bible.android.database.AI_SETTINGS_DATABASE_VERSION
+import net.bible.android.database.AiSettingsDatabase
+import net.bible.android.database.migrations.aiSettingsMigrations
+import net.bible.service.db.buildAppDatabase
 import net.bible.service.db.openSqlite
 import net.bible.service.legacymigration.read.LegacyRow
 import net.bible.service.legacymigration.read.LegacySnapshot
@@ -16,6 +19,7 @@ import net.bible.service.legacymigration.stage.StagingDatabases
 import net.bible.service.llm.GlobalAiSettings
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
 
 /** The legacy rows an [AiSettingsMapper] needs, from the cloud store. [from] reads them from a [LegacySnapshot]; tests can build one by hand. */
 class LegacyAiData(
@@ -44,7 +48,7 @@ class LegacyAiData(
  * Migrates the AI settings (providers, configured models, agent prompts, global settings, usage records, prompt
  * categories and built-in prompt overrides; never the API keys, which are in the Keychain) into the current
  * `AiSettingsDatabase`, merging in the Android `ai_settings.sqlite3` that an earlier Android restore left behind
- * ([preservedAiDb], null when there is none). Decision U11: the Swift app's own rows win on an id collision; the
+ * ([preservedAiDb], null when there is none; any schema version 1..23, migrated on a copy). Decision U11: the Swift app's own rows win on an id collision; the
  * preserved file's rows are added where the id is absent.
  *
  * The Swift side is a port of `RemoteSyncAISettingsSnapshotService.snapshotCurrentStateStrict` (row projection and sorts)
@@ -58,8 +62,8 @@ class LegacyAiData(
  *   replaces the earlier row.
  * - **Preserved rows.** A preserved model that repeats a (provider, model id) pair is skipped and everything that
  *   referred to it follows the existing model. The preserved file's raw LLM logs (device-local debug data) and its sync
- *   tables are not migrated; a file of another schema version, or a missing or unreadable one, is reported and ignored.
- *   The file is only opened read-only.
+ *   tables are not migrated; a file of version 0 or newer than the current schema, or a missing or unreadable one, is reported and ignored.
+ *   The source file is only copied, never opened.
  * - Rows are inserted with SQL, not Room entities: the converters of `AgentPrompt`, `GlobalAiSettings` and
  *   `LlmProviderConfig` would rewrite the raw values the Swift store holds (unknown enum names become null, JSON sets are
  *   re-encoded), which the migration must carry verbatim. They go in one writer transaction.
@@ -76,7 +80,7 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
     suspend fun map(data: LegacyAiData, staging: StagingDatabases, report: MigrationReport) {
         val drops = Drops()
         val stage = try {
-            merge(swiftRows(data, drops), preservedRows(drops), drops)
+            merge(swiftRows(data, drops), preservedRows(staging, drops), drops)
         } finally {
             drops.flushTo(report, category)
         }
@@ -125,16 +129,52 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
 
     // ---- The preserved Android file ---------------------------------------------------------------------------
 
-    /** Reads the preserved file's rows of the seven synchronised tables, or nothing (with a report line) when it cannot be used. */
-    private fun preservedRows(drops: Drops): Tables {
+    /**
+     * Reads the preserved file's rows of the seven synchronised tables, or nothing (with a report line) when it cannot be
+     * used. The Swift app keeps an Android file of any schema version up to 22, so the file is first copied (with its
+     * `-wal`/`-journal` sidecars) into the staging directory and brought to the current schema by the app's own
+     * [aiSettingsMigrations] on the copy; the source is never opened. Nothing is counted in [drops] for a read that fails.
+     */
+    private suspend fun preservedRows(staging: StagingDatabases, drops: Drops): Tables {
+        val source = preservedAiDb ?: return Tables()
+        val local = Drops()
+        val tables = try {
+            readPreserved(source, staging, local)
+        } catch (e: Exception) {
+            drops.add("preserved ai_settings.sqlite3 could not be read: ${e.message}")
+            return Tables()
+        }
+        drops.merge(local)
+        return tables
+    }
+
+    private suspend fun readPreserved(source: Path, staging: StagingDatabases, drops: Drops): Tables {
         val tables = Tables()
-        val path = preservedAiDb ?: return tables
-        if (!FileSystem.SYSTEM.exists(path)) { drops.add(MISSING_FILE_REASON); return tables }
+        val fs = FileSystem.SYSTEM
+        if (!fs.exists(source)) { drops.add(MISSING_FILE_REASON); return tables }
+        fs.createDirectories(staging.directory)
+        val copy = staging.directory / "ai_settings.preserved.sqlite3"
         try {
-            val db = openSqlite(path.toString(), readOnly = true)
+            for (suffix in listOf("", "-wal", "-journal")) {
+                val from = (source.toString() + suffix).toPath()
+                if (fs.exists(from)) {
+                    val to = (copy.toString() + suffix).toPath()
+                    fs.delete(to, mustExist = false)
+                    fs.copy(from, to)
+                }
+            }
+            val version = openSqlite(copy.toString()).use { scalar(it, "PRAGMA user_version") }
+            if (version < 1 || version > AI_SETTINGS_DATABASE_VERSION) { drops.add(unsupportedVersionReason(version.toInt())); return tables }
+            if (version < AI_SETTINGS_DATABASE_VERSION) {
+                val db = buildAppDatabase<AiSettingsDatabase>(copy.toString(), *aiSettingsMigrations)
+                try {
+                    db.useWriterConnection { it.usePrepared("SELECT 1") { st -> st.step() } }
+                } finally {
+                    db.close()
+                }
+            }
+            val db = openSqlite(copy.toString(), readOnly = true)
             try {
-                val version = scalar(db, "PRAGMA user_version")
-                if (version != AI_SETTINGS_DATABASE_VERSION.toLong()) { drops.add(unsupportedVersionReason(version.toInt())); return tables }
                 val existing = names(db)
                 for (def in ALL) {
                     if (def.table !in existing) { drops.add("preserved ai_settings.sqlite3 has no ${def.table} table"); continue }
@@ -147,9 +187,8 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
             } finally {
                 db.close()
             }
-        } catch (e: Exception) {
-            drops.add("preserved ai_settings.sqlite3 could not be read: ${e.message}")
-            return Tables()
+        } finally {
+            for (suffix in listOf("", "-wal", "-journal", "-shm", ".lck")) fs.delete((copy.toString() + suffix).toPath(), mustExist = false)
         }
         return tables
     }
@@ -242,7 +281,8 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
             PROVIDER to merged.rows.getValue(PROVIDER).map { it.cells },
             MODEL to models.map { it.cells },
             PROMPT to prompts.map { it.cells },
-            GLOBAL to merged.rows.getValue(GLOBAL).map { it.cells },
+            // A preserved global row's default model follows a skipped duplicate model like every other reference.
+            GLOBAL to merged.rows.getValue(GLOBAL).map { if (it.preserved) it.cells.toMutableList().also { c -> c[9] = followed(c[9]) } else it.cells },
             USAGE to usages.map { it.cells },
             CATEGORY to merged.rows.getValue(CATEGORY).map { it.cells },
             OVERRIDE to overrides.map { it.cells },
