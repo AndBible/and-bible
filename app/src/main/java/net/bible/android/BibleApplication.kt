@@ -216,7 +216,8 @@ open class BibleApplication : Application() {
 
     private fun showToast(message: UserMessage.Toast) {
         val duration = if (message.long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-        val text = if (message.textId != null) getString(message.textId) else message.text ?: ""
+        val textId = message.textId
+        val text = if (textId != null) getString(textId) else message.text ?: ""
         val context = CurrentActivityHolder.currentActivity ?: return
         if ((context as? Activity)?.isFinishing == true) return
         try {
