@@ -64,7 +64,6 @@ import net.bible.sharedui.reading.session.ReadingSheets
 import net.bible.test.DatabaseResetter
 import net.bible.test.testAppSettings
 import net.bible.test.testCoreStrings
-import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.versification.BibleBook
 import org.junit.After

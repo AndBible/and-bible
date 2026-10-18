@@ -2,7 +2,6 @@ package net.bible.android.view.activity.page.screen
 
 import android.os.Looper
 import android.widget.FrameLayout
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import org.crosswire.jsword.book.Books

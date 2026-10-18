@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.page
 
-import java.io.File
 import net.bible.test.ProductionSources
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

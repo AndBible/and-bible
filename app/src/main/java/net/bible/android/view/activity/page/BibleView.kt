@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.SearchManager
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
@@ -41,7 +40,6 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.ConsoleMessage
-import android.widget.Toast
 import android.webkit.ValueCallback
 import android.webkit.JsResult
 import android.webkit.RenderProcessGoneDetail
@@ -69,42 +67,24 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.PathHandler
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
-import net.bible.android.common.toV11n
-import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.bookmark.BookmarkChange
-import net.bible.android.control.progress.ProgressChange
-import net.bible.android.control.progress.ProgressControl
-import net.bible.service.common.ReadingProgressSettings
 import net.bible.sharedcore.reading.ShareVersesInput
 import net.bible.sharedui.reading.bridge.shareableSelectionText
 import net.bible.sharedui.reading.session.ReadingSheets
 import net.bible.service.llm.PromptContext
-import net.bible.service.llm.agent.NoteEditorEntityType
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
-import net.bible.android.control.page.contentJson
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.MemorizeDocument
-import net.bible.android.control.page.ClientAiDocMarker
-import net.bible.android.control.page.ClientBibleBookmark
-import net.bible.android.control.page.ClientBookmarkLabel
-import net.bible.android.control.page.ClientGenericBookmark
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
-import net.bible.android.control.page.ErrorDocument
-import net.bible.android.control.page.ErrorSeverity
-import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.PageControl
@@ -112,22 +92,12 @@ import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowView
-import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
-import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
-import net.bible.android.database.WorkspaceEntities
-import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.control.link.BibleLink
 import net.bible.android.database.json
-import net.bible.android.misc.wrapString
 import net.bible.android.view.activity.base.DocumentView
-import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.bookmark.ManageLabelsContract
-import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -141,53 +111,36 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils.parseAndBibleReference
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.currentWorkspaceThemeSeedArgb
 import net.bible.sharedui.theme.themeColorsJson
-import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.mydocument.MyDocumentBookManager
-import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBook
 import okio.buffer
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
-import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
-import org.crosswire.jsword.versification.Versification
-import org.crosswire.jsword.versification.system.SystemKJVA
-import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.util.*
-import kotlin.math.abs
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.bibleview.BibleViewEvents
-import net.bible.sharedcore.bibleview.JsExpr
-import net.bible.sharedcore.bibleview.SetupContent
 import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.bibleview.JsHost
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext
 import net.bible.service.db.blockingAtEdge
-import net.bible.android.control.bookmark.BookmarkJsActions
 
 private val notFound = WebResourceResponse(null, null, null)
 
@@ -239,7 +192,6 @@ class BibleView(
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
     private val swordContentFacade: SwordContentFacade by lazy { GlobalContext.get().get() }
-    private val bookmarkJsActions: BookmarkJsActions by lazy { GlobalContext.get().get() }
 
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
@@ -1605,8 +1557,6 @@ class BibleView(
     private suspend fun evaluateJavascriptAsync(javascript: String): String = jsChannel.evaluate(javascript)
 
     private val isBible get() = firstDocument is BibleDocument
-    private val isCommentary get() = (firstDocument as? OsisDocument)?.book?.bookCategory == BookCategory.COMMENTARY
-    private val isMyNotes get() = firstDocument is MyNotesDocument
 
     override val verseRangeLoaded: VerseRange? get() {
         val key = (firstKey as? Verse)?: return null

@@ -17,7 +17,6 @@
 package net.bible.android.view.compose
 
 import android.widget.FrameLayout
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.MutableStateFlow

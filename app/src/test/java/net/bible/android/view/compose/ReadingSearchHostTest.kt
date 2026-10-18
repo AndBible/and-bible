@@ -17,7 +17,6 @@
 package net.bible.android.view.compose
 
 import android.widget.FrameLayout
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CompletableDeferred
@@ -26,8 +25,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.CancellationException
 import androidx.lifecycle.lifecycleScope
 import android.os.Looper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
