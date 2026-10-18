@@ -38,10 +38,16 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: "NO"
         CODE_SIGN_STYLE: Automatic
         "CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]": iosApp/iosApp.entitlements
-        # Simulator-only PoC: no team/signing needed.
+        # Simulator builds are signed ad hoc ("Sign to Run Locally", identity "-", no team): an unsigned simulator
+        # app has no keychain entitlement and every Keychain call fails with -34018 (errSecMissingEntitlement), which
+        # the startup reads (device_identifier). The simulator entitlements file only carries keychain-access-groups;
+        # with no team, $(AppIdentifierPrefix) expands to nothing and the group is the bundle id. If the app still
+        # gets -34018, look for the "CodeSign" / "Entitlements" lines of the xcodebuild log.
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]": iosApp/iosApp-simulator.entitlements
         "CODE_SIGNING_REQUIRED[sdk=iphonesimulator*]": "NO"
-        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
-        "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": ""
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "YES"
+        "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
+        "DEVELOPMENT_TEAM[sdk=iphonesimulator*]": ""
     preBuildScripts:
       - name: "Compile & embed SharedUi Kotlin framework"
         basedOnDependencyAnalysis: false
@@ -99,7 +105,10 @@ targets:
           - $(inherited)
           - $(SRCROOT)/../sharedUi/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
         "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
-        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
+        # Ad hoc like the host app (see iosApp); the tests run inside the host's process and keychain entitlement.
+        "CODE_SIGNING_REQUIRED[sdk=iphonesimulator*]": "NO"
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "YES"
+        "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
 schemes:
   iosApp:
     build:
