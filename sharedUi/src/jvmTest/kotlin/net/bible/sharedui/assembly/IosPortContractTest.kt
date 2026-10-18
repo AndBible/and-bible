@@ -35,10 +35,10 @@ import kotlinx.coroutines.cancel
 /**
  * The Mac-free half of the iOS assembly check: finds, by resolving every `buildSharedBindings()` definition against
  * stubbed ports, which port types the shared definitions require, and compares that SET with what
- * `IosPlatformBindings` is declared to bind ([IOS_BOUND_PORT_TYPES]). The discovery is a LOWER bound: a port that a definition looks up lazily
- * (inside a lambda, or through `KoinPlatform` in a constructor body) is not seen here. The `:app` test
- * `IosPortParityTest` covers that gap by comparing with the ports Android binds; the Mac run resolves everything. The iOS test `IosAssemblyTest.boundPortListMatchesTheModule` ties that
- * declared list to the real module, so a missing binding fails here (JVM) or there (Native), never silently.
+ * `IosPlatformBindings` is declared to bind ([IOS_BOUND_PORT_TYPES]). The discovery is a LOWER bound: a port that a
+ * definition looks up lazily (inside a lambda, or through `KoinPlatform` in a constructor body) is not seen here. The `:app` test
+ * `IosPortParityTest` covers that gap by comparing with the ports Android binds; the Mac run resolves everything.
+ * The iOS test `IosAssemblyTest.boundPortListMatchesTheModule` ties that declared list to the real module, so a missing binding fails here (JVM) or there (Native), never silently.
  */
 class IosPortContractTest {
     /** Values for required types that are not interfaces (enums etc.). */
@@ -142,7 +142,7 @@ class IosPortContractTest {
     }
 
     @Test
-    fun everyPortTheSharedDefinitionsNeedIsBoundOrDoubled() {
+    fun everyPortTheSharedDefinitionsNeedIsBound() {
         val covered = IOS_BOUND_PORT_TYPES
         assertEquals(emptyList(), names(requiredPorts() - covered.toSet()), "ports required by buildSharedBindings() but not bound by IosPlatformBindings")
     }

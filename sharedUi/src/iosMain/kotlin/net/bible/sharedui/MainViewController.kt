@@ -94,7 +94,13 @@ fun MainViewController(): UIViewController {
             }
             StartupPhase.Ready -> Unit
         }
-        LaunchedEffect(Unit) { IosPlatformBootstrap.scheduleBackgroundSync() }
+        LaunchedEffect(Unit) {
+            // Off main: schedule() reads AppSettings (database-backed) and resolves Koin definitions.
+            withContext(Dispatchers.Default) {
+                runCatching { IosPlatformBootstrap.scheduleBackgroundSync() }
+                    .onFailure { nsLog("background sync scheduling failed: ${it.stackTraceToString()}") }
+            }
+        }
         if (Platform.isDebugBinary) {
             LaunchedEffect(Unit) {
                 withContext(Dispatchers.Default) {

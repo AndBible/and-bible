@@ -27,8 +27,8 @@ enum class AssemblyFailureKind {
 
 /**
  * Pure classification of a resolution failure from the text of its whole cause chain (every layer's message, joined).
- * A failure is a phase 2 dependent only when the chain shows the uninitialised workspace: an empty window list (`index: 0, size: 0`) that only counts when the chain names
- * [WORKSPACE_DEPENDENT_TYPES] (`TextToSpeechServiceManager` reads the first window while it is built). The same
+ * A failure is a phase 2 dependent only when the chain shows the uninitialised workspace: an empty window list
+ * (`index: 0, size: 0`) that only counts when the chain names [WORKSPACE_DEPENDENT_TYPES] (`TextToSpeechServiceManager` reads the first window while it is built). The same
  * message under any other definition is a real bug. Nothing else is excused.
  */
 fun classifyAssemblyFailure(causeChainText: String): AssemblyFailureKind {

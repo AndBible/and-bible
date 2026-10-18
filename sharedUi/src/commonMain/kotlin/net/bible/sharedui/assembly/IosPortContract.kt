@@ -64,8 +64,8 @@ import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import kotlin.reflect.KClass
 
 /**
- * The port types `IosPlatformBindings` (sharedUi iosMain) and `buildIosSyncBindings` (sharedLogic iosMain) bind, declared here (common code) so a JVM test can compare
- * them with what the shared definitions require, without a Mac. `IosAssemblyTest.boundPortListMatchesTheModule`
+ * The port types `IosPlatformBindings` (sharedUi iosMain) and `buildIosSyncBindings` (sharedLogic iosMain) bind, declared here
+ * (common code) so a JVM test can compare them with what the shared definitions require, without a Mac. `IosAssemblyTest.boundPortListMatchesTheModule`
  * checks, on Native, that this list and the real Koin module are the same set. Keep both in step.
  */
 val IOS_BOUND_PORT_TYPES: List<KClass<*>> = listOf(
@@ -76,7 +76,8 @@ val IOS_BOUND_PORT_TYPES: List<KClass<*>> = listOf(
     SpeakPlatform::class, SpeakSettingsStore::class, MarkdownRenderer::class, AgentPlatform::class,
     AddonCatalog::class, PromptPackSource::class, PlatformLocales::class, LocaleSupport::class,
     ReadOnlyModuleDbOpener::class, SearchIndexScheduler::class, LocalCalendar::class,
-    FirstLoadEdge::class, EpubStoreEdge::class, MyDocumentStoreEdge::class, SentenceBreaker::class, NightModeState::class,
+    FirstLoadEdge::class, EpubStoreEdge::class, MyDocumentStoreEdge::class, SentenceBreaker::class,
+    NightModeState::class,
     GlobalTextDisplaySettingsSource::class, WindowSettingsPicker::class, KeyChooserLauncher::class,
     HistoryPlatform::class, LinkPlatform::class, HtmlToPlainText::class, ContentSource::class,
     SaxTextPolicy::class, SearchTextHighlighter::class, ManualInstallFolderEnabler::class, TextDisplayPrefItems::class,

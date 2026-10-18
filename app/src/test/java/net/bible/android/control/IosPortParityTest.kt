@@ -9,8 +9,8 @@ import org.koin.dsl.koinApplication
 
 /**
  * Port parity between Android and iOS: every port type [buildPlatformBindings] binds is either bound by
- * `IosPlatformBindings` or `buildIosSyncBindings` (declared in [IOS_BOUND_PORT_TYPES]), or a documented Android-only class. The other way round, iOS binds no port that
- * Android does not. This covers what the JVM discovery in `IosPortContractTest` cannot see (ports a definition looks
+ * `IosPlatformBindings` or `buildIosSyncBindings` (declared in [IOS_BOUND_PORT_TYPES]), or a documented Android-only class.
+ * The other way round, iOS binds no port that Android does not. This covers what the JVM discovery in `IosPortContractTest` cannot see (ports a definition looks
  * up lazily), so a port added to the Android bindings without an iOS counterpart fails here.
  *
  * Registering definitions does not run their factories, so no Android context is needed.
