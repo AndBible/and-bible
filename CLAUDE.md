@@ -137,7 +137,7 @@ Only run Android builds when testing Android-specific integration.
 ## Kotlin Multiplatform / Compose structure
 
 - `:sharedCore` holds the shared logic and models.
-- `:sharedLogic` holds the service/controller logic (and `DatabaseContainer`) being moved out of `:app`; layering, port/Koin/test-visibility conventions and the file-ownership table are in [docs/sharedlogic-migration.md](docs/sharedlogic-migration.md).
+- `:sharedLogic` holds the service/controller logic (and `DatabaseContainer`) moved out of `:app` in L1b phase 2; layering, port/Koin/test-visibility conventions and the file-ownership table are in [docs/sharedlogic-migration.md](docs/sharedlogic-migration.md).
 - `:sharedUi` holds the Compose Multiplatform screens; they read user-facing text through the `Strings` interface (`LocalStrings`).
 - `:strings-gen` does not write that interface. `Strings.kt` (`:sharedUi`) and `AndroidStrings.kt` (`:app`) are hand-maintained; `:strings-gen` (task `generateIosStrings`, wired into `:sharedUi`) only derives the iOS string holder from them and the resources. A new string is therefore: the resource in `strings.xml`, a member in `Strings.kt`, and the override in `AndroidStrings.kt`. Check the generator's "N interface members, N mapped overrides" line to see both sides agree.
 - Debug builds get an `applicationIdSuffix` so they install beside a release build: `.debug` by default, overridable with `APP_SUFFIX` in `local.properties` (see `app/build.gradle.kts`).
