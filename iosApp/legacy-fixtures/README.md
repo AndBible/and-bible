@@ -18,8 +18,8 @@ Swift app revisions (repository `AndBible/and-bible-ios`):
 - `1.0.1` = `9ca04b8a9a2921fd1fb1b1f7653b377482d6854a` (App Store release).
 - `1.0.2` = the pin `5b14d179e4bc6f8b40751d5593e9b73eb21bc211`. The `v1.0.2` tag (`07ab20b2`) sits two commits
   later and only bumps the marketing version (`AndBible/Info.plist`) and the App Store texts; `Sources/` and `Tests/` are byte-identical to the pin.
-- 1.0.0 was released 2026-09-26; whether its model equals 1.0.1 is still to be confirmed from the released
-  build number (plan Task 1 step 5). Not recorded here yet.
+- `1.0.0` (released 2026-09-26) = build `2026.0918.122018` (App Store Connect), archived from `main` at `056b52be`,
+  after the last model change `4d1c9def` (2026-09-15): **1.0.0 has the 1.0.1 model**, so the 1.0.1 fixtures cover it.
 
 ## How to regenerate
 
