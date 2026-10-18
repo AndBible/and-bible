@@ -112,4 +112,20 @@ set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=
 rm "$T5/mod/src/commonMain/kotlin/A.kt" "$T5/mod/src/iosMain/kotlin/B.kt"
 "$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
   || { echo "FAIL: @no-common-blocking failed on allowed uses"; exit 1; }
+# Two roots: a domain whose files live only under :sharedLogic commonMain is still seen (a planted
+# runBlocking counts as a bridge and fails a done domain); a mapped domain with no files in either
+# root fails --check as "maps to no files" (a check that cannot see its subject must not pass).
+T6="$(mktemp -d)"; trap 'rm -rf "$T" "$T2" "$T3" "$T4" "$T5" "$T6"' EXIT
+mkdir -p "$T6/scripts" "$T6/app/src/main/java/net/bible" "$T6/sharedLogic/src/commonMain/kotlin/net/bible/android/control/moved"
+printf 'moved\tandroid/control/moved\n' > "$T6/scripts/l1-readiness-domains.txt"
+: > "$T6/scripts/l1-readiness-platform.txt"; echo moved > "$T6/scripts/l1-readiness-done.txt"
+echo 'fun m() = runBlocking { 1 }' > "$T6/sharedLogic/src/commonMain/kotlin/net/bible/android/control/moved/M.kt"
+set +e; out=$("$HERE/l1-readiness.sh" --root "$T6" --check 2>/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] || { echo "FAIL: two-root: --check exit $rc on a bridge under sharedLogic, expected 1"; exit 1; }
+[ "$(echo "$out" | awk -F'\t' '$1=="moved"{print $2}')" = 1 ] || { echo "FAIL: two-root: row did not show bridges 1"; exit 1; }
+printf 'moved\tandroid/control/moved\nghost\tandroid/control/ghost\n' > "$T6/scripts/l1-readiness-domains.txt"
+echo 'fun m() = 1' > "$T6/sharedLogic/src/commonMain/kotlin/net/bible/android/control/moved/M.kt"
+set +e; err=$("$HERE/l1-readiness.sh" --root "$T6" --check 2>&1 >/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] || { echo "FAIL: --check exit $rc on a domain mapping to no files, expected 1"; exit 1; }
+echo "$err" | grep -qF "REGRESSION: domain 'ghost' maps to no files" || { echo "FAIL: missing 'maps to no files' message: $err"; exit 1; }
 echo "l1-readiness self-test OK"

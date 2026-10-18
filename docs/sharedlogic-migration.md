@@ -7,6 +7,12 @@ The decisions are numbered S1-S13 in the design spec `2026-10-17-l1b-d2-shared-l
 Every count below sits next to the command that produced it, run at the phase-0 HEAD (branch `ios-4`).
 Re-run the command when you rely on a count: numbers move as groups merge.
 
+> L1b phase 2 note: the domain files now live in `sharedLogic/src/commonMain`, and the move-readiness tooling
+> (`l1-move-readiness.sh`, `l1-move-app.py`, `l1-move-done.txt`, `l1-move-allow.txt` and the self-test) is
+> retired: the common compiler enforces "ready to move". Mentions of those files below are phase-1 history.
+> `scripts/l1-readiness.sh` searches both `:app` and `:sharedLogic` roots (`SRC_ROOTS`) and `--check` fails a
+> mapped domain that resolves to no files.
+
 ## 1. Module layering (S1, S2)
 
 ```
@@ -96,7 +102,7 @@ Ports still to be created by the groups (named in S8): certificate pinning (`web
 Convention (chosen here; the spec left it to the builder): a Kotlin `internal` member of a moved class
 that `:app` tests use becomes `public` and is annotated `@VisibleForTesting`
 (`androidx.annotation.VisibleForTesting`; `androidx.annotation` is Kotlin Multiplatform since 1.8 and is on
-the move-readiness KMP allowlist, `KMPALLOW` in `scripts/l1-move-readiness.sh`). Rules:
+the retired move-readiness KMP allowlist). Rules:
 
 - Apply it in phase 1 in place, so phase 2 is renames only. `:app` already uses the annotation in
   `grep -rl "import androidx.annotation.VisibleForTesting" app/src/main | wc -l` = 26 files.
