@@ -50,6 +50,7 @@ class IosReadingHost(
     private val scope: CoroutineScope,
     private val shell: IosHostShell,
     private val koin: Koin,
+    private val nightModeState: NightModeState = koin.get(),
 ) {
     private val windowControl: WindowControl = koin.get()
 
@@ -65,7 +66,15 @@ class IosReadingHost(
         val navigator = PendingIosReadingNavigator
         return ReadingToolbarCallbacks(
             onHome = { IosPending.log("ReadingToolbar.onHome") },
-            onTitleTap = { navigator.startKeyChooser(windowControl.activeWindowPageManager.currentPage) },
+            onTitleTap = {
+                // A tap before the repository holds a window must not throw.
+                val page = try {
+                    windowControl.activeWindowPageManager.currentPage
+                } catch (e: Exception) {
+                    null
+                }
+                if (page == null) IosPending.log("ReadingToolbar.onTitleTap") else navigator.startKeyChooser(page)
+            },
             onTitleLongPress = { IosPending.log("ReadingToolbar.onTitleLongPress") },
             onTitleFlingVertical = { navigator.openWorkspaceSelector() },
             onTitleFlingHorizontal = { IosPending.log("ReadingToolbar.onTitleFlingHorizontal") },
@@ -88,7 +97,8 @@ class IosReadingHost(
         controller = ReadingViewController(koin.get<WindowStateService>(), koin.get<WindowCommands>()),
         toolbarCallbacks = callbacks(),
         toolbarIcons = { icons },
-        nightMode = mutableStateOf(koin.get<NightModeState>().nightMode),
+        // A snapshot taken when the deps are built; following appearance changes live is Task 7 / Stream R's job.
+        nightMode = mutableStateOf(nightModeState.nightMode),
     )
 
     fun navDeps(content: @Composable () -> Unit): ReadingNavDeps = ReadingNavDeps(

@@ -16,17 +16,19 @@
  */
 package net.bible.sharedui.ios.reading
 
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.startup.ReadingAppInit
+import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
+import net.bible.sharedui.ios.IosPending
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.ios.app.IosNavigator
 import net.bible.sharedui.ios.app.IosReadingAppInitPlatform
@@ -34,9 +36,10 @@ import net.bible.sharedui.reading.ReadingToolbarIcons
 import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
-
-/** The iOS reading host deps build once the window repository exists, and mirror the active window. */
+/** The iOS reading host deps build once the window repository exists, and follow the active window and night mode. */
 class IosReadingHostTest {
     private object NoNavigator : IosNavigator {
         override fun navigate(route: String) = Unit
@@ -44,31 +47,59 @@ class IosReadingHostTest {
         override fun popBackStackTo(route: String, inclusive: Boolean): Boolean = false
     }
 
+    private class FakeNight(override val nightMode: Boolean) : NightModeState
+
     @Test
     fun depsBuildAfterWindowRepository() {
-        IosAppStartup.start(
-            IosAppConfig(
-                root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
-                repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
-            ),
-        )
-        runBlocking { IosAppStartup.openDatabases() }
-        val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
-        runBlocking {
-            ReadingAppInit.prepareData(platform)
-            ReadingAppInit.initialise(platform)
-        }
         val scope = MainScope()
         try {
+            IosAppStartup.start(
+                IosAppConfig(
+                    root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
+                    repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
+                ),
+            )
+            runBlocking { IosAppStartup.openDatabases() }
+            val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
+            runBlocking {
+                ReadingAppInit.prepareData(platform)
+                ReadingAppInit.initialise(platform)
+            }
             val koin = KoinPlatform.getKoin()
             ReadingAppInit.createWindowRepository(scope)
-            val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin)
+            val shell = IosHostShell(scope, NoNavigator)
             val p = ColorPainter(Color.Black)
-            val deps = host.deps(ReadingToolbarIcons(p, p, p, p, p, p, p, p, p))
-            assertEquals(koin.get<WindowControl>().activeWindow.id.toString(), deps.controller.layout.value.activeWindowId)
+            val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
+
+            val host = IosReadingHost(scope, shell, koin)
+            val deps = host.deps(icons)
+            val activeId = koin.get<WindowControl>().activeWindow.id.toString()
+            assertEquals(activeId, deps.controller.layout.value.activeWindowId)
+            // hostState reads the active window through its WindowControl and HistoryManager.
+            host.hostState.historyEntriesForActiveWindow()
+            assertTrue(deps.state === host.hostState)
             assertEquals("Bible Study", host.navDeps {}.windowTitle)
+
+            // Every toolbar callback is safe to invoke; the pending ones log under their member name.
+            IosPending.resetForTest()
+            deps.toolbarCallbacks.apply {
+                onHome(); onTitleTap(); onTitleLongPress(); onTitleFlingVertical(); onTitleFlingHorizontal(true)
+                onBible(); onBibleLong(); onCommentary(); onCommentaryLong(); onStrongs(); onStrongsLong()
+                onSearch(); onSpeak(); onSpeakLong(); onWorkspace(); onOverflow()
+            }
+            for (name in listOf(
+                "onHome", "onTitleLongPress", "onTitleFlingHorizontal", "onBible", "onBibleLong", "onCommentary",
+                "onCommentaryLong", "onStrongs", "onStrongsLong", "onSpeak", "onSpeakLong", "onOverflow",
+            )) {
+                assertTrue("ReadingToolbar.$name" in IosPending.reported, "missing pending log for $name")
+            }
+
+            // Night mode follows NightModeState, both ways.
+            assertTrue(IosReadingHost(scope, shell, koin, FakeNight(true)).deps(icons).nightMode.value)
+            assertFalse(IosReadingHost(scope, shell, koin, FakeNight(false)).deps(icons).nightMode.value)
         } finally {
             scope.cancel()
+            ReadingAppInit.resetForTest()
             runBlocking { IosAppStartup.resetForTest() }
         }
     }

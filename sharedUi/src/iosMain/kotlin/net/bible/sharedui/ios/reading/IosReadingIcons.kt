@@ -22,12 +22,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.MenuBook
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.Translate
-import androidx.compose.material.icons.outlined.VolumeUp
+import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import net.bible.sharedui.reading.ReadingToolbarIcons
@@ -41,10 +41,10 @@ import net.bible.sharedui.reading.ReadingToolbarIcons
 fun rememberIosReadingIcons(): ReadingToolbarIcons = ReadingToolbarIcons(
     home = rememberVectorPainter(Icons.Outlined.Home),
     search = rememberVectorPainter(Icons.Outlined.Search),
-    speak = rememberVectorPainter(Icons.Outlined.VolumeUp),
+    speak = rememberVectorPainter(Icons.AutoMirrored.Outlined.VolumeUp),
     strongs = rememberVectorPainter(Icons.Outlined.Translate),
     bible = rememberVectorPainter(Icons.Outlined.Book),
-    commentary = rememberVectorPainter(Icons.Outlined.MenuBook),
+    commentary = rememberVectorPainter(Icons.AutoMirrored.Outlined.MenuBook),
     workspace = rememberVectorPainter(Icons.Outlined.Dashboard),
     overflow = rememberVectorPainter(Icons.Outlined.MoreVert),
     sync = rememberVectorPainter(Icons.Outlined.Sync),
