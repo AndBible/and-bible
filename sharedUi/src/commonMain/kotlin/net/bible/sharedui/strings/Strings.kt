@@ -298,6 +298,32 @@ interface Strings {
     val myDocumentImportEmptySelection: String  // R.string.my_document_import_empty_selection
     val installZipModule: String              // R.string.install_zip_module
     val installZipModuleDiscrete: String      // R.string.install_zip_module_discrete
+    val downloadTitle: String             // R.string.download
+    val progressStatus: String             // R.string.progress_status
+    val errorDownloading: String             // R.string.error_downloading
+    val downloadDocumentConfirmPrefix: String             // R.string.download_document_confirm_prefix
+    val downloadDialogMessage: String             // R.string.download_dialog_message
+    val downloadErrors: String             // R.string.download_errors
+    fun failedRepositoriesMessage(repositories: String): String             // R.string.failed_repositories_message
+    fun failedDownloadsMessage(files: String): String             // R.string.failed_downloads_message
+    val documentSyncSigninRequired: String             // R.string.document_sync_signin_required
+    val syncError: String             // R.string.sync_error
+    val cloudDocSyncNowDownload: String             // R.string.cloud_doc_sync_now_download
+    val cloudDocSyncNowUpload: String             // R.string.cloud_doc_sync_now_upload
+    val cloudDocSyncNowDelete: String             // R.string.cloud_doc_sync_now_delete
+    val cloudDocSyncNowCountNone: String             // R.string.cloud_doc_sync_now_count_none
+    val cloudDocRescan: String             // R.string.cloud_doc_rescan
+    fun cloudDocRemoveAllConfirm(name: String): String             // R.string.cloud_doc_remove_all_confirm
+    fun cloudDocRemoveCloudConfirm(name: String): String             // R.string.cloud_doc_remove_cloud_confirm
+    fun cloudDocPurgeConfirm(name: String): String             // R.string.cloud_doc_purge_confirm
+    val cloudDocFilterAll: String             // R.string.cloud_doc_filter_all
+    val cloudDocFilterInstalled: String             // R.string.cloud_doc_filter_installed
+    val cloudDocFilterCloud: String             // R.string.cloud_doc_filter_cloud
+    val cloudDocFilterUpdates: String             // R.string.cloud_doc_filter_updates
+    val cloudDocFilterBlocked: String             // R.string.cloud_doc_filter_blocked
+    val cloudDocFilterDeviceOnly: String             // R.string.cloud_doc_filter_device_only
+    val cloudDocFilterCloudOnly: String             // R.string.cloud_doc_filter_cloud_only
+    val cloudDocFilterRemoved: String             // R.string.cloud_doc_filter_removed
     // --- end I2 Stream A (app root) ---
     val errorOccurred: String
     val okay: String

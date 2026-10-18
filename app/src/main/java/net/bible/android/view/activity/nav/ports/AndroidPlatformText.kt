@@ -15,6 +15,7 @@ class AndroidPlatformText(private val context: Context) : PlatformText {
             PluralKey.CLOUD_DOC_SYNC_NOW_COUNT_SIZE -> R.plurals.cloud_doc_sync_now_count_size
             PluralKey.CLOUD_DOC_BULK_BLOCK_CONFIRM -> R.plurals.cloud_doc_bulk_block_confirm
             PluralKey.CLOUD_DOC_BULK_REMOVE_CONFIRM -> R.plurals.cloud_doc_bulk_remove_all_confirm
+            PluralKey.CLOUD_DOC_BULK_REMOVE_CLOUD_CONFIRM -> R.plurals.cloud_doc_bulk_remove_cloud_confirm
             PluralKey.CLOUD_DOC_BULK_PURGE_CONFIRM -> R.plurals.cloud_doc_bulk_purge_confirm
         }
         return context.resources.getQuantityString(id, count, *args)

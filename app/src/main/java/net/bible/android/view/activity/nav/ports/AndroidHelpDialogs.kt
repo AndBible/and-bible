@@ -17,6 +17,12 @@ class AndroidHelpDialogs(private val activity: ActivityBase) : HelpDialogs {
                 messageResId = R.string.help_reading_progress_text,
                 helpUrl = DocsLinks.page("reading_progress"),
             )
+            HelpTopic.DOCUMENT_SYNC -> CommonUtils.showHelpDialog(
+                activity = activity,
+                titleResId = R.string.help,
+                messageResId = R.string.help_document_sync_text,
+                helpUrl = DocsLinks.page("document_sync"),
+            )
             HelpTopic.WORKSPACES -> CommonUtils.showHelp(activity, listOf(R.string.help_workspaces_title))
         }
     }

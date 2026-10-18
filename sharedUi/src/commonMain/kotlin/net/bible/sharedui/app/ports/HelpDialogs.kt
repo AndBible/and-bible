@@ -11,4 +11,7 @@ enum class HelpTopic {
 
     /** The workspace selector's help (`help_workspaces_title`). */
     WORKSPACES,
+
+    /** The cloud documents screen's overflow help (`help_document_sync_text`). */
+    DOCUMENT_SYNC,
 }
