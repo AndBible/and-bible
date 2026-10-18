@@ -34,6 +34,7 @@ import net.bible.android.database.IdType
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.bibleview.JsCall
 import net.bible.sharedcore.reading.ShareVersesInput
+import net.bible.sharedui.reading.bridge.ReadingKeyActions
 import net.bible.sharedui.reading.bridge.ReadingNavigator
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
 import net.bible.android.control.page.Document
@@ -115,6 +116,9 @@ class BibleWindowSession(
 
     /** Set by the owner; [BibleView] implements it until paging moves here. */
     lateinit var paging: SessionPaging
+
+    /** Set by the owner; handles keyboard shortcuts that need the host. */
+    var keyActions: ReadingKeyActions? = null
 
     /** Set by the reading host. */
     var hostSheets: ReadingSheets? = null

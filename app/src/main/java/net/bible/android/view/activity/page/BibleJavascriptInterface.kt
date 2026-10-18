@@ -103,7 +103,7 @@ import java.lang.ClassCastException
 
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
-) : KoinComponent, BibleBridge {
+) : KoinComponent, BibleBridge by bibleView.readingBridge {
     private val swordContentFacade: SwordContentFacade by inject()
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     private val progressJsActions: ProgressJsActions by inject()
@@ -132,123 +132,6 @@ class BibleJavascriptInterface(
     private val searchControl: SearchControl by inject()
     var notificationsEnabled = false
     val scope get() = hostActivity.lifecycleScope
-
-    override fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
-        val doc = bibleView.firstDocument
-        if (doc is BibleDocument || doc is MyNotesDocument) {
-            currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
-                when (doc) {
-                    is BibleDocument -> (bibleView.initialKey as Verse).versification
-                    is MyNotesDocument -> KJVA
-                    else -> throw RuntimeException("Unsupported doc")
-                }, bibleView.window)
-        } else if(doc is OsisDocument || doc is StudyPadDocument) {
-            val curPage = currentPageManager.currentPage
-            // Commentaries (CurrentCommentaryPage) and general books (CurrentGeneralBookPage) are
-            // both addressed by a single osisRef key. When infinite scroll brings a new block/entry
-            // into view its document carries a different osisRef, so update the page key and notify
-            // listeners (title bar / synced windows). Bible & MyNotes are handled above by ordinal.
-            if((curPage is CurrentGeneralBookPage || curPage is CurrentCommentaryPage) && doc is OsisDocument) {
-                if(curPage.updateKeyFromScrolledOsisRef(keyStr)) {
-                    PassageChangeMediator.onCurrentVerseChanged(bibleView.window)
-                }
-            }
-            curPage.anchorOrdinal = OrdinalRange(ordinal)
-        }
-    }
-
-    override fun setClientReady() {
-        Log.i(TAG, "set client ready")
-
-        bibleView.setClientReady()
-    }
-
-    override fun setLimitAmbiguousModalSize(value: Boolean) {
-        Log.i(TAG, "setLimitAmbiguousModalSize")
-        bibleView.workspaceSettings.limitAmbiguousModalSize = value
-        WorkspaceChanges.notifySettingsEdited()
-    }
-
-    override fun requestMoreToBeginning(callId: Long) {
-        Log.i(TAG, "Request more text at top")
-        bibleView.requestMoreToBeginning(callId)
-    }
-
-    override fun requestMoreToEnd(callId: Long) {
-        Log.i(TAG, "Request more text at end")
-        bibleView.requestMoreToEnd(callId)
-    }
-
-    override fun goToNextChapter() {
-        Log.i(TAG, "Go to next chapter")
-        val manager = currentPageManager
-        val page = manager.currentPage
-        val document = page.currentDocument
-        val generation = (page as? net.bible.android.control.page.CurrentGeneralBookPage)?.selectionGeneration
-        orderedLauncher.launch("page-nav-${manager.window.id}") {
-            try {
-                withContext(Dispatchers.Main) {
-                    if (manager.currentPage === page && page.currentDocument === document &&
-                        (page as? net.bible.android.control.page.CurrentGeneralBookPage)?.selectionGeneration == generation) page.next()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error navigating to next chapter", e)
-            }
-        }
-    }
-
-    override fun goToPreviousChapter() {
-        Log.i(TAG, "Go to previous chapter")
-        val manager = currentPageManager
-        val page = manager.currentPage
-        val document = page.currentDocument
-        val generation = (page as? net.bible.android.control.page.CurrentGeneralBookPage)?.selectionGeneration
-        orderedLauncher.launch("page-nav-${manager.window.id}") {
-            try {
-                withContext(Dispatchers.Main) {
-                    if (manager.currentPage === page && page.currentDocument === document &&
-                        (page as? net.bible.android.control.page.CurrentGeneralBookPage)?.selectionGeneration == generation) page.previous()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error navigating to previous chapter", e)
-            }
-        }
-    }
-
-    override fun parseRef(callId: Long, s: String) {
-        Log.i(TAG, "Request more text at end")
-        bibleView.parseRef(callId, s)
-    }
-
-    /**
-     * The JS reference chooser (`deferredCall(... window.android.refChooserDialog(callId))`).
-     *
-     * nav-graph slice 7 §6.3: this opens the reading view's OWN Grid quick sheet and is resolved by
-     * the sheet's selection callback, replacing a full-screen chooser launched through
-     * `ScreenLauncher` and awaited as an Activity result. That removes one of the three documented
-     * paths that bypassed `MainBibleActivity.composeStartKeyChooser`'s sheet gate.
-     *
-     * Two behaviours the old Intent forced are forced on the sheet instead, or the JS chooser would
-     * change under the user: verse-level drill-down (spec §6.1.1 — the ordinary sheet follows a
-     * preference that is off by default, and a chooser that stops at a chapter cannot answer this
-     * call) and scripture-only books, which the sheet's Grid arm already hard-codes.
-     *
-     * The host is declared nullable so SOME null handling is compiler-mandated, but a `BibleView`
-     * only ever exists inside a mounted host's pane, so that arm is unreachable in practice; it
-     * answers JS with no verse rather than launching anything, the same shape as round 15b's
-     * History sheet.
-     */
-    override fun refChooserDialog(callId: Long) {
-        scope.launch {
-            val verseStr = hostCallbacks.composeReadingViewHost()
-                ?.openVerseChooserSheetForResult()
-                ?.await()
-
-            val verseName = refChooserVerseName(verseStr)
-
-            bibleView.emit(BibleViewEvents.responseString(callId, verseName))
-        }
-    }
 
     override fun saveBookmarkNote(bookmarkId: String, note: String?) {
         bookmarkJsActions.saveBibleBookmarkNote(bibleView.window.id, IdType(bookmarkId), note)
@@ -284,19 +167,6 @@ class BibleJavascriptInterface(
     override fun setBookmarkEditAction(bookmarkId: String, valueStr: String) {
         val editAction = json.decodeFromString<EditAction>(serializer(), valueStr)
         bookmarkJsActions.updateBookmarkEditAction(bibleView.window.id, IdType(bookmarkId), editAction)
-    }
-
-    override fun console(loggerName: String, message: String) {
-        Log.i(TAG, "Console[$loggerName] $message")
-    }
-
-    override fun selectionCleared() {
-        Log.i(TAG, "Selection cleared!")
-        bibleView.stopSelection()
-    }
-
-    override fun reportInputFocus(newValue: Boolean) {
-        Log.i(TAG, "Focus mode now $newValue")
     }
 
     override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
@@ -382,10 +252,6 @@ class BibleJavascriptInterface(
         bibleView.navigator.openDownloads(addons = true)
     }
 
-    override fun setEditing(enabled: Boolean) {
-        bibleView.editingTextInJs = enabled
-    }
-
     override fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
         bookmarkJsActions.createStudyPadEntry(bibleView.window.id, IdType(labelId), entryType, if (entryType == "none") null else IdType(afterEntryId))
     }
@@ -417,10 +283,6 @@ class BibleJavascriptInterface(
         //Get the languages for each of the installed bibles and return the language codes as a json list.
         val languages = SwordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
         return "[" + languages.distinct().joinToString(",") + "]"
-    }
-
-    override fun toast(text: String) {
-        bibleView.surface.toast(text)
     }
 
     override fun updateStudyPadTextEntry(data: String) {
@@ -591,10 +453,6 @@ class BibleJavascriptInterface(
         }
     }
 
-    override fun saveState(newState: String) {
-        bibleView.window.pageManager.jsState = newState
-    }
-
     override fun openStudyPad(labelId: String, bookmarkId: String) {
         // After this window's queued writes (e.g. the note save JS sent just before), so the opened
         // document is loaded with them.
@@ -699,10 +557,6 @@ class BibleJavascriptInterface(
         bookmarkJsActions.setGenericBookmarkCustomIcon(bibleView.window.id, IdType(bookmarkId), value)
     }
 
-    override fun reportModalState(value: Boolean) {
-        bibleView.modalOpen = value
-    }
-
     override fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
         bookmarkJsActions.setBibleBookmarkWholeVerse(bibleView.window.id, IdType(bookmarkId), value,
             onRefused = { UserMessages.toast(R.string.cant_change_wholeverse) },
@@ -753,81 +607,6 @@ class BibleJavascriptInterface(
             else -> throw RuntimeException("Illegal doc type")
         }
         bibleView.surface.shareHtml(html, docName)
-    }
-
-    override fun onKeyDown(key: String) {
-        Log.i(TAG, "key $key")
-        scope.launch(Dispatchers.Main) {
-            when (key) {
-                "AltArrowDown" -> windowControl.focusNextWindow()
-                "AltArrowRight" -> windowControl.focusNextWindow()
-                "AltArrowUp" -> windowControl.focusPreviousWindow()
-                "AltArrowLeft" -> windowControl.focusPreviousWindow()
-                // "AltKeyW" (focus the window restore-buttons strip) is RETIRED, not ported: it
-                // reached into classic `SplitBibleArea`'s inflated strip, which the Compose reading
-                // view has no counterpart for, so the shortcut has been a silent no-op since the
-                // host was introduced. Removed with the strip in Batch Z-late's epilogue (spec 10.3).
-                "AltKeyM" -> {
-                    // Batch Z-early A7 fix B: on the compose path the native DrawerLayout is locked
-                    // — but the lock gates ViewDragHelper gestures only, and `open()` bypasses it
-                    // entirely, so this shortcut used to raise the native NavigationView on top of
-                    // the Compose drawer (two drawers at once). Retarget it; the guard returns
-                    // `false` only before the host is installed, leaving the classic fallback
-                    // below to run exactly as before in that brief window (R6a moved its two
-                    // `binding.drawerLayout` lines behind `openDrawerAndFocusIt` unchanged --
-                    // `binding` is the host window's, not the reading view's).
-                    if (hostCallbacks.composeOpenDrawerIfHosted()) return@launch
-                    hostCallbacks.openDrawerAndFocusIt()
-                }
-                // Nav-graph slice 7 Task 2: this used to call the native `showOptionsMenu()`
-                // `PopupMenu`, which anchored on `binding.optionsMenu` inside the now-GONE classic
-                // `toolbarLayout`. It now opens the SAME Compose overflow menu the toolbar's own
-                // 3-dot button opens. `composeReadingViewHost` is null only before the host is
-                // installed in `setupUi`, and this interface is reachable only from a `BibleView`
-                // the host has already mounted, so the shortcut is not lost in practice.
-                "AltKeyO" -> hostCallbacks.composeReadingViewHost()?.openOverflowMenu()
-                // Round 15b Task 9: deliberately NOT rerouted to the quick sheet, unlike the
-                // toolbar title's tap. The launcher keeps the existing screen dispatch so its
-                // non-reading-view callers keep working, and this is one of them: the shortcut acts
-                // on `bibleView.window`, which is not necessarily the ACTIVE window the host's sheet
-                // would read. Rerouting it would be a behaviour change, not a consistency fix.
-                // (nav-graph slice 7 Task 10: the second reason this note used to give -- that the
-                // same file's `refChooserDialog` needed an Activity result a sheet could not produce
-                // -- is gone. That caller now opens the sheet and is resolved by a
-                // `CompletableDeferred`; this shortcut's active-window mismatch is unaffected, so
-                // it stays on the classic path. Spec §6.3 records the two remaining bypasses.)
-                "CtrlKeyB" -> bibleView.navigator.startKeyChooser(bibleView.window.pageManager.currentPage)
-                "CtrlKeyW" -> {
-                    // M1 (whole-branch review fix wave): guard on the MOUNTED HOST -- see
-                    // MainBibleActivity's R.id.switchToWorkspace for the full rationale.
-                    val host = hostCallbacks.composeReadingViewHost()
-                    if (host != null) {
-                        host.showWorkspaceSheet()
-                    } else {
-                        bibleView.navigator.openWorkspaceSelector()
-                    }
-                }
-                "CtrlKeyC" -> bibleView.copySelectionToClipboard()
-                "CtrlKeyF" -> {
-                    // F6 Task 8b entry point 5: retarget into the reading view's search when a
-                    // Compose host is mounted; classic behaviour unchanged otherwise.
-                    if (!hostCallbacks.composeSearchIfHosted(/* seedQuery = */ null, /* preDecorated = */ false)) {
-                        bibleView.navigator.openSearch(windowControl.activeWindowPageManager.currentPage.currentDocument)
-                    }
-                }
-                "Space" -> {
-                    if(!speakControl.isStopped) {
-                        speakControl.toggleSpeak(true)
-                    }
-                }
-            }
-        }
-    }
-
-    override fun crash() {
-        scope.launch {
-            hostCallbacks.crashAllBibleViews()
-        }
     }
 
     override fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) {

@@ -54,6 +54,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import net.bible.sharedui.reading.bridge.ReadingBridge
+import net.bible.sharedui.reading.bridge.ReadingKeyActions
 import net.bible.sharedui.reading.session.BibleWindowSession
 import net.bible.sharedui.reading.session.SessionPaging
 import androidx.webkit.WebViewAssetLoader
@@ -313,7 +315,35 @@ class BibleView(
         downloadControlProvider = { downloadControl },
         searchControlProvider = { searchControl },
         pageControlProvider = { pageControl },
-    ).also { it.paging = this }
+    ).also {
+        it.paging = this
+        it.keyActions = object : ReadingKeyActions {
+            override fun openDrawer() {
+                if (!hostCallbacks.composeOpenDrawerIfHosted()) hostCallbacks.openDrawerAndFocusIt()
+            }
+
+            override fun openOverflowMenu() {
+                hostCallbacks.composeReadingViewHost()?.openOverflowMenu()
+            }
+
+            override fun showWorkspaceSheetIfHosted(): Boolean {
+                val readingHost = hostCallbacks.composeReadingViewHost() ?: return false
+                readingHost.showWorkspaceSheet()
+                return true
+            }
+
+            override fun copySelection() = copySelectionToClipboard()
+
+            override fun searchIfHosted(): Boolean =
+                hostCallbacks.composeSearchIfHosted(/* seedQuery = */ null, /* preDecorated = */ false)
+
+            override fun crashAllBibleViews() = hostCallbacks.crashAllBibleViews()
+        }
+        it.verseChooser = { hostCallbacks.composeReadingViewHost()?.openVerseChooserSheetForResult()?.await() }
+    }
+
+    /** The platform-independent JS bridge; [BibleJavascriptInterface] delegates the moved families to it. */
+    val readingBridge = ReadingBridge(session)
 
     internal val windowRef: WeakReference<Window> get() = WeakReference(session.windowOrNull)
 
@@ -1153,6 +1183,7 @@ class BibleView(
         }
         listenEvents = false
         Log.i(TAG, "Destroying Bibleview")
+        session.dispose()
         super.destroy()
         val win = windowRef.get()
         if(win != null && win.bibleView === this) {
