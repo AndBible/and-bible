@@ -18,6 +18,7 @@
 package net.bible.service.installzip
 
 import okio.use
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -93,7 +94,7 @@ internal fun isRootSqliteEntry(name: String): Boolean =
     !name.contains('/') && name.endsWith(".sqlite3", ignoreCase = true)
 
 /** Where an archive entry is extracted, relative to the module dir: root `*.SQLite3` modules go to `mybible/`. */
-internal fun moduleArchiveTargetName(name: String): String =
+@VisibleForTesting fun moduleArchiveTargetName(name: String): String =
     if (isRootSqliteEntry(name)) "mybible/$name" else name
 
 /** True when [file] is a SQLite database with the MyBible layout: an `info` table plus verses, commentaries or dictionary. */

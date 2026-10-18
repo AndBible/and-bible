@@ -121,10 +121,10 @@ private val GZIP_MAGIC = "1f8b".decodeHex()
 
 
 /** What to do with the result of the save/share picker (F125). */
-internal enum class PickerOutcome { CANCELLED, FAILED, DONE }
+@VisibleForTesting enum class PickerOutcome { CANCELLED, FAILED, DONE }
 
 /** Interprets the picker result: a cancelled save picker is neither an error nor a success. */
-internal fun pickerOutcome(result: DeliveryResult): PickerOutcome = when (result) {
+@VisibleForTesting fun pickerOutcome(result: DeliveryResult): PickerOutcome = when (result) {
     DeliveryResult.CANCELLED -> PickerOutcome.CANCELLED
     DeliveryResult.FAILED -> PickerOutcome.FAILED
     DeliveryResult.DELIVERED -> PickerOutcome.DONE
@@ -139,7 +139,7 @@ internal fun pickerOutcome(result: DeliveryResult): PickerOutcome = when (result
  * [net.bible.android.view.activity.backup.SaveOrShareDestinationTest] can pin this contract
  * directly, without booting an Activity.
  */
-internal suspend fun resolveDestination(
+@VisibleForTesting suspend fun resolveDestination(
     chooseDestination: (suspend () -> SaveOrShare?)?,
     platformPrompt: suspend () -> SaveOrShare?,
 ): SaveOrShare? = if (chooseDestination != null) chooseDestination() else platformPrompt()
