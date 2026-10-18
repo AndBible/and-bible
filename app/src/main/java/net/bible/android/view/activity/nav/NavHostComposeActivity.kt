@@ -58,7 +58,6 @@ import net.bible.sharedui.app.AppResultChannels
 import net.bible.sharedui.app.AppRoot
 import androidx.navigation.compose.rememberNavController
 import kotlin.reflect.KFunction1
-import net.bible.sharedcore.platform.AppCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,12 +71,10 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
-import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
@@ -168,10 +165,6 @@ import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewKey
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
-import net.bible.sharedcore.search.BibleSearchService
-import net.bible.sharedcore.search.EpubSearchService
-import net.bible.sharedcore.search.SearchIndexService
-import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.HostSystemBars
 import net.bible.sharedui.components.LocalHostSystemBars
@@ -249,17 +242,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private val backupControl: BackupControl by inject()
     private val speakControl: SpeakControl by inject()
-    private val appScope: AppCoroutineScope by inject()
-    private val orderedLauncher: net.bible.sharedcore.platform.OrderedLauncher by inject()
     private val speakTransportServiceImpl: SpeakTransportServiceImpl by inject()
     private val windowStateService: WindowStateServiceImpl by inject()
-    private val searchControl: SearchControl by inject()
-    private val bibleSearchService: BibleSearchService by inject()
-    private val searchIndexService: SearchIndexService by inject()
     private val windowControl: WindowControl by inject()
-    private val pageControl: PageControl by inject()
-    private val searchResultsCache: SearchResultsCache by inject()
-    private val epubSearchService: EpubSearchService by inject()
     private val linkControl: LinkControl by inject()
 
     /**
@@ -2142,7 +2127,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * not the screens, and both of them mean exactly "the user has been somewhere and is back".
      *
      * **Carried across a `recreate()`** ([onSaveInstanceState]), which is not a detail: writing
-     * `discrete_mode` in Settings calls [maybeRecreateForSettingsKey], and the alias swap that
+     * `discrete_mode` in Settings calls `SettingsHost.maybeRecreateForSettingsKey`, and the alias swap that
      * recreate does NOT perform is the very thing the debt is owed for.
      */
     private val readingReturnDebts = linkedSetOf<Int>()
@@ -2606,7 +2591,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val route = if (readingAppBootstrapped) NavRoutes.READING else startRoute
         if (route != null) outState.putString(STATE_START_ROUTE, route)
         // T8d: what the reading view is owed on its way back has to survive a recreate(), because
-        // `maybeRecreateForSettingsKey` IS the recreate -- and `discrete_mode`, the key whose
+        // `SettingsHost.maybeRecreateForSettingsKey` IS the recreate -- and `discrete_mode`, the key whose
         // launcher-alias swap only `preferenceSettingsChanged` performs, is one of its four.
         if (readingReturnDebts.isNotEmpty()) {
             outState.putIntArray(STATE_RETURN_DEBTS, readingReturnDebts.toIntArray())
@@ -3194,7 +3179,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * contract `ManageLabelsComposeActivity`'s launcher reads back. `NavResultIntentsTest` pins both
      * cases.
      *
-     * The three-outcomes-to-two collapse happened earlier, in [labelEditControllerFor]; by the time
+     * The three-outcomes-to-two collapse happened earlier, in `BookmarkHost.labelEditControllerFor`; by the time
      * a result reaches here it is already one of these two.
      */
     private val labelEditResults = NavResultChannel<NavLabelEditResult> { result ->
@@ -3367,7 +3352,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     private val documentSyncSettings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
     companion object {
-        private const val TAG_READING_PLAN = "DailyReadingNavHost"
         private const val TAG_BOOKMARKS = "BookmarksNavHost"
 
         /** Host-wide concerns (onNewIntent routing), as opposed to one cluster's baggage. */

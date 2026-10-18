@@ -394,7 +394,7 @@ class AppHosts(
     }
 
     /**
-     * The deps of every non-reading feature graph, built from the 12 hosts. The platform host composes this once per
+     * The deps of every non-reading feature graph, built from the 13 hosts (incl. cloudDocuments). The platform host composes this once per
      * composition (inside `remember`), so each host's `navDeps` runs once per navController. Everything behind the
      * deps is lazy (see the hosts), so this touches no database. [channels] are the result channels the platform host
      * still declares.

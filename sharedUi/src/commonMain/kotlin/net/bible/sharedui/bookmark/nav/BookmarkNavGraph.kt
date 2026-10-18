@@ -214,10 +214,9 @@ class BookmarksDeps(
  *   end in it, and all three of those stay host-side for the same Room reasons.
  *
  * - [titleFor] is the WINDOW title, and it is a lambda rather than a `String` because classic read it
- *   as `getString(data.titleId)` (`ManageLabelsComposeActivity.kt:170`). `titleId` is not a stored
- *   field on the payload: it is a computed getter on `ManageLabelsContract.ManageLabelsData`
- *   (`ManageLabelsContract.kt:90`) that maps the payload's `mode` onto one of four Android string
- *   RESOURCE IDS -- and neither the `:app` mode enum nor an Android resource id can be resolved from
+ *   as `getString(data.titleId)` (`ManageLabelsComposeActivity.kt:170`). That `titleId` (a getter on the
+ *   old `ManageLabelsContract` payload, since removed) mapped the payload's `mode` onto one of four
+ *   Android string RESOURCE IDS -- and neither the `:app` mode enum nor an Android resource id can be resolved from
  *   `commonMain`, which is why the whole two-step is a host lambda over the raw payload string. It is
  *   also the title [ManageLabelsScreen] draws in its own top bar, exactly as classic passed the same
  *   string to both.
@@ -557,7 +556,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             )
         }
 
-        // remember(data), not a bare call: titleFor parses the payload to reach its `titleId`, and
+        // remember(data), not a bare call: titleFor parses the payload to reach its mode-specific title, and
         // this arm recomposes on every keystroke in the search field.
         val title = remember(data) { d.titleFor(data) }
         LaunchedEffect(title) { deps.setWindowTitle(title) }

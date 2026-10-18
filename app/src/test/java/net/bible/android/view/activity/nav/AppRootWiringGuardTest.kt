@@ -41,7 +41,7 @@ class AppRootWiringGuardTest {
             "InstallZipNavDeps(", "WelcomeNavDeps(",
         )
         assertTrue(code.contains("ReadingNavDeps("), "scan reads the wrong text: the reading slot's deps are missing")
-        val found = deps.filter { Regex("""(?<![A-Za-z])${Regex.escape(it)}""").containsMatchIn(code) }
+        val found = deps.filter { Regex("""(?<![A-Za-z])${Regex.escape(it.removeSuffix("("))}\s*\(""").containsMatchIn(code) }
         assertTrue(found.isEmpty(), "NavHostComposeActivity constructs $found; the feature hosts in :sharedUi own them")
     }
 
@@ -52,8 +52,17 @@ class AppRootWiringGuardTest {
             "class MyDocumentsSession", "class DownloadSession", "class CloudDocumentsEntry",
             "class ChooseDictionarySession", "class ChooseDocumentSession",
         )
-        assertTrue(code.contains("class "), "scan reads the wrong text: no class declaration in the stripped source")
-        val found = sessions.filter { code.contains(it) }
-        assertTrue(found.isEmpty(), "NavHostComposeActivity declares $found; sessions live in the feature hosts")
+        val dir = ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav")
+        val files = dir.walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+        assertTrue(files.isNotEmpty(), "no .kt files under ${dir.path}; this scan is watching nothing")
+        assertTrue(
+            files.any { it.name == "NavHostComposeActivity.kt" },
+            "the nav package scan does not include the activity; it is watching the wrong directory",
+        )
+        val found = files.flatMap { f ->
+            val text = ClassicRemovalScan.codeLinesOf(f.path)
+            sessions.filter { text.contains(it) }.map { "${f.name}: $it" }
+        }
+        assertTrue(found.isEmpty(), "nav/ declares $found; sessions live in the feature hosts")
     }
 }
