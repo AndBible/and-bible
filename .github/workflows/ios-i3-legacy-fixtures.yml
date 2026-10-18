@@ -260,46 +260,7 @@ jobs:
       - name: Package fixture zips and manifest.json
         if: always()
         run: |
-          python3 - <<'PY'
-          import hashlib, json, os, zipfile
-          root_in, root_oracle, root_out = "in", "oracle-out", "package"
-          manifest = []
-          for app in sorted(os.listdir(root_in)) if os.path.isdir(root_in) else []:
-              for ios in sorted(os.listdir(os.path.join(root_in, app))):
-                  base = os.path.join(root_in, app, ios)
-                  for scenario in sorted(os.listdir(base)):
-                      src = os.path.join(base, scenario)
-                      if not os.path.isfile(os.path.join(src, "AndBible.store")):
-                          continue
-                      oracle = os.path.join(root_oracle, app, ios, scenario, "oracle")
-                      dest_dir = os.path.join(root_out, app, ios)
-                      os.makedirs(dest_dir, exist_ok=True)
-                      zip_path = os.path.join(dest_dir, scenario + ".zip")
-                      with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-                          for folder, prefix in ((src, ""), (oracle, "oracle/")):
-                              if not os.path.isdir(folder):
-                                  continue
-                              for dirpath, _, files in os.walk(folder):
-                                  for name in sorted(files):
-                                      full = os.path.join(dirpath, name)
-                                      rel = os.path.relpath(full, folder)
-                                      z.write(full, prefix + rel)
-                      fingerprint = None
-                      report = os.path.join(oracle, "report.json")
-                      if os.path.isfile(report):
-                          with open(report) as f:
-                              fingerprint = json.load(f).get("fingerprint")
-                      with open(zip_path, "rb") as f:
-                          sha = hashlib.sha256(f.read()).hexdigest()
-                      manifest.append({"app": app, "ios": ios, "scenario": scenario,
-                                       "path": f"{app}/{ios}/{scenario}.zip", "sha256": sha,
-                                       "fingerprint": fingerprint})
-          os.makedirs(root_out, exist_ok=True)
-          with open(os.path.join(root_out, "manifest.json"), "w") as f:
-              json.dump(manifest, f, indent=2, sort_keys=True)
-              f.write("\n")
-          print(json.dumps(manifest, indent=2))
-          PY
+          python3 self/iosApp/legacy-fixtures/package_fixtures.py in oracle-out package
           du -sh package
       - name: Upload the fixture package
         if: always()
