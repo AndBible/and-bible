@@ -19,11 +19,16 @@
 package net.bible.service.cloudsync
 
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.test.assertIs
 
 class BackgroundSyncPolicyTest {
     private var started = 0
@@ -92,5 +97,22 @@ class BackgroundSyncPolicyTest {
     fun nextEarliestSecondsFloorsAtSixty() {
         assertEquals(300, policy(interval = 300).nextEarliestSeconds())
         assertEquals(60, policy(interval = 10).nextEarliestSeconds())
+    }
+
+    @Test
+    fun cancellingTheCallerCancelsTheSharedSyncAndPropagates() = runTest {
+        val sync = CompletableDeferred<Boolean>()
+        val p = BackgroundSyncPolicy(
+            syncEnabled = { true }, replacing = { false }, intervalSeconds = { 300 },
+            lastSynchronizedMs = { 0 }, nowMs = { 1_000_000 }, signedIn = { true },
+            signIn = { true }, startSync = { sync },
+        )
+        var outcome: Result<Boolean>? = null
+        val caller = launch(start = CoroutineStart.UNDISPATCHED) { outcome = runCatching { p.runOnce() } }
+        yield()
+        caller.cancel()
+        caller.join()
+        assertTrue(sync.isCancelled, "the sync must be cancelled with the background handler")
+        assertIs<CancellationException>(outcome?.exceptionOrNull(), "cancellation must propagate, not become false")
     }
 }

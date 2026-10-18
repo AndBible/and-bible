@@ -101,7 +101,10 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
                 lastSynchronizedMs = { get<AppSettings>().getLong("globalLastSynchronized", 0L) },
                 nowMs = ::nowMs,
                 signedIn = { get<CloudSync>().signedIn },
-                signIn = { get<CloudSync>().signIn() },
+                // I2-pending: dialog-free background sign-in (phase 2). CloudSync.signIn() shows a
+                // non-cancellable dialog on failure that nobody can answer in the background, so a
+                // background refresh only syncs when CloudSync is already signed in.
+                signIn = { null },
                 startSync = { get<SyncScheduler>().startDatabaseSync() },
             ),
             backgroundRefresh,

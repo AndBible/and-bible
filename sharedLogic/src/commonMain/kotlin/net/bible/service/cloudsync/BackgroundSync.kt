@@ -18,6 +18,7 @@
 
 package net.bible.service.cloudsync
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 
 /**
@@ -47,13 +48,23 @@ class BackgroundSyncPolicy(
     /**
      * Runs a sync if one is due.
      *
+     * Cancelling the caller (for example a BGTask expiry) also cancels the started sync.
+     *
      * @return true when nothing needed doing or the sync succeeded; false when sign-in failed or the sync failed
      */
     suspend fun runOnce(): Boolean {
         if (!syncEnabled() || replacing()) return true
         if (nowMs() - lastSynchronizedMs() < intervalSeconds() * 1000) return true
         if (!signedIn() && signIn() != true) return false
-        return startSync().await()
+        val sync = startSync()
+        return try {
+            sync.await()
+        } catch (e: CancellationException) {
+            // The scheduler's Deferred is shared: cancelling only our wait would leave the sync running
+            // after the platform expired the background task.
+            sync.cancel()
+            throw e
+        }
     }
 
     /** Earliest delay in seconds before the next background run: the interval, floored at 60. */
