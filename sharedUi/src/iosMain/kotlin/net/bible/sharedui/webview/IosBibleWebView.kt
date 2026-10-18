@@ -49,7 +49,12 @@ internal class IosNavDelegate(private val windowId: String) : NSObject(), WKNavi
  * session exists (see [IosReadingWebViews]). The caller must hold [handler] and [navDelegate] strongly.
  */
 @OptIn(ExperimentalForeignApi::class)
-internal fun createBibleWkWebView(windowId: String, navDelegate: IosNavDelegate, handler: IosBridgeMessageHandler?): WKWebView {
+internal fun createBibleWkWebView(
+    windowId: String,
+    navDelegate: IosNavDelegate,
+    handler: IosBridgeMessageHandler?,
+    newWebView: (WKWebViewConfiguration) -> WKWebView = { WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = it) },
+): WKWebView {
     val config = WKWebViewConfiguration()
     config.preferences.setValue(true, forKey = "allowFileAccessFromFileURLs")
     config.userContentController.apply {
@@ -62,7 +67,7 @@ internal fun createBibleWkWebView(windowId: String, navDelegate: IosNavDelegate,
         )
         if (handler != null) addScriptMessageHandler(handler, "bridge")
     }
-    val webView = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = config)
+    val webView = newWebView(config)
     webView.navigationDelegate = navDelegate
     // XCUITest sees several WebView-type elements per WKWebView (I0 CI: 3 per pane); the UI tests count
     // panes by this identifier instead. Set through KVC: Kotlin does not see WKWebView as a

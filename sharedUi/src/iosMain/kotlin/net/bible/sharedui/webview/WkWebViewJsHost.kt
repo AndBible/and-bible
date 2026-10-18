@@ -1,6 +1,7 @@
 package net.bible.sharedui.webview
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.toKString
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import net.bible.sharedcore.bibleview.JsHost
@@ -48,10 +49,13 @@ class WkWebViewJsHost(private val webView: WKWebView) : JsHost {
         if (NSThread.isMainThread) run() else dispatch_async(dispatch_get_main_queue()) { run() }
     }
 
-    /** Android's evaluateJavascript hands back JSON text; WebKit hands back an object, so re-encode the simple cases. */
+    /**
+     * Android's evaluateJavascript hands back JSON text; WebKit hands back an object. Only null, strings,
+     * booleans and numbers are re-encoded; arrays/objects fall back to `toString()` (not JSON).
+     */
     private fun jsonOf(result: Any?): String = when (result) {
         null -> "null"
-        is NSNumber -> result.stringValue
+        is NSNumber -> if (result.objCType?.toKString() == "c") result.boolValue.toString() else result.stringValue
         is NSString -> {
             val s = result.toString()
             buildString {

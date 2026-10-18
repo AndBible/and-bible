@@ -15,16 +15,50 @@ import net.bible.sharedui.reading.session.BibleWindowSession
 import platform.Foundation.NSLocale
 import platform.Foundation.currentLocale
 import platform.Foundation.languageCode
+import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.CValue
+import platform.CoreGraphics.CGRect
+import platform.CoreGraphics.CGRectMake
+import platform.Foundation.NSThread
 import platform.WebKit.WKWebView
+import platform.WebKit.WKWebViewConfiguration
+import kotlinx.cinterop.ObjCObjectBase.OverrideInit
+
+/**
+ * WKWebView that tells [onAttached] when it gets a window. `BibleViewJsChannel` queues calls while the
+ * host is detached and only runs them on a later call or a flush; Android's BibleView flushes when it
+ * attaches, so this does the same (the owner sets [onAttached] to `jsChannel.flush()`).
+ */
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+internal class ReadingWkWebView @OverrideInit constructor(frame: CValue<CGRect>, configuration: WKWebViewConfiguration) :
+    WKWebView(frame, configuration) {
+    var onAttached: (() -> Unit)? = null
+
+    override fun didMoveToWindow() {
+        super.didMoveToWindow()
+        if (window != null) {
+            try {
+                onAttached?.invoke()
+            } catch (t: Throwable) {
+                nsLog("bridge: flush on attach failure $t")
+            }
+        }
+    }
+}
 
 /** One reading window's WebView plus the objects WebKit only holds weakly (spec §5 rule 2). */
-internal class ReadingEntry(val webView: WKWebView, val navDelegate: IosNavDelegate) {
+internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosNavDelegate) {
     var handler: IosBridgeMessageHandler? = null
+
+    /** Set when wiring the session threw; the pane stays empty instead of retrying on every recomposition. */
+    var failed: Boolean = false
 }
 
 /**
  * Process-wide WKWebView cache for real reading windows, keyed by window id (same rules as the PoC's
  * holder: one WKWebView per window, re-parented, never recreated). Separate from the PoC's cache.
+ *
+ * Main thread only (checked): the map is unsynchronized and WebKit is main-thread bound.
  *
  * The WKWebView exists before the session: build the session's `JsHost` from [webViewFor], then the
  * pane factory ([iosReadingPaneFactory]) wires the bridge handler once it can ask `sessionFor`.
@@ -36,18 +70,29 @@ object IosReadingWebViews {
     /** The window's WKWebView, created (without bridge handler, not yet loaded) on first use. */
     fun webViewFor(windowId: String): WKWebView = entry(windowId).webView
 
-    /** Drops the window's WebView for good (window closed): unregisters the handler. */
+    /**
+     * Drops the window's WebView for good (window closed): unregisters the handler. The owner must also
+     * `dispose()` the window's [BibleWindowSession]; this does not.
+     */
     fun release(windowId: String) {
+        checkMain()
         val entry = entries.remove(windowId) ?: return
         entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
         entry.handler = null
     }
 
-    internal fun entry(windowId: String): ReadingEntry =
-        entries.getOrPut(windowId) {
+    private fun checkMain() = check(NSThread.isMainThread) { "IosReadingWebViews is main-thread only" }
+
+    internal fun entry(windowId: String): ReadingEntry {
+        checkMain()
+        return entries.getOrPut(windowId) {
             val navDelegate = IosNavDelegate(windowId)
-            ReadingEntry(createBibleWkWebView(windowId, navDelegate, null), navDelegate)
+            val webView = createBibleWkWebView(windowId, navDelegate, null) {
+                ReadingWkWebView(CGRectMake(0.0, 0.0, 0.0, 0.0), it)
+            } as ReadingWkWebView
+            ReadingEntry(webView, navDelegate)
         }
+    }
 
     /** Adds the bridge handler and loads the bundle, once per window. */
     internal fun attachSession(windowId: String, session: BibleWindowSession) {
@@ -60,6 +105,7 @@ object IosReadingWebViews {
             log,
         )
         val handler = IosBridgeMessageHandler(dispatcher)
+        entry.webView.onAttached = { session.jsChannel.flush() }
         entry.handler = handler // strong reference: WebKit holds the handler weakly
         entry.webView.configuration.userContentController.addScriptMessageHandler(handler, "bridge")
         val lang = NSLocale.currentLocale.languageCode.ifEmpty { "en" }
@@ -74,7 +120,14 @@ object IosReadingWebViews {
 @OptIn(ExperimentalForeignApi::class)
 fun iosReadingPaneFactory(sessionFor: (windowId: String) -> BibleWindowSession): ReadingPaneFactory = { windowId, modifier ->
     val entry = IosReadingWebViews.entry(windowId)
-    if (entry.handler == null) IosReadingWebViews.attachSession(windowId, sessionFor(windowId))
+    if (entry.handler == null && !entry.failed) {
+        try {
+            IosReadingWebViews.attachSession(windowId, sessionFor(windowId))
+        } catch (t: Throwable) {
+            entry.failed = true
+            nsLog("bridge[$windowId]: reading pane wiring failed $t")
+        }
+    }
     UIKitView(
         // Detach from any previous (disposed) interop holder before re-parenting the cached view.
         factory = { entry.webView.apply { removeFromSuperview() } },
