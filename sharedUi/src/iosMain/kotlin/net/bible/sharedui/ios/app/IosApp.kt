@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -179,6 +180,25 @@ private fun IosAppContent(
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }
     val graphs = remember(navController) { appHosts.graphs(navController, channels) }
+    DisposableEffect(navController) {
+        val gate = IosWelcomeReturnGate(
+            scope = scope,
+            usableBible = { withContext(Dispatchers.Default) { hasUsableBible(SwordDocumentFacade.bibles) } },
+            ensureReading = { IosReadingReady.ensure(table) },
+            currentRoute = { navController.currentDestination?.route },
+            openReading = { shell.openReading() },
+            refreshWelcome = { nsLog("IosApp: no usable Bible after the flow, staying on Welcome") },
+            log = { nsLog("IosApp: $it") },
+        )
+        val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->
+            gate.onDestination(
+                destination.route,
+                controller.currentBackStack.value.any { it.destination.route?.substringBefore('?') == NavRoutes.WELCOME },
+            )
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose { navController.removeOnDestinationChangedListener(listener) }
+    }
     AppRoot(
         navController = navController,
         startRoute = route,
