@@ -74,6 +74,15 @@ final class AppUITests: XCTestCase {
         return Array(Set(ids)).sorted()
     }
 
+    /// What a real user does before the app goes away: press Home so the app saves the workspace (it persists the
+    /// passage when it resigns active / enters the background, like Android's onPause), then wait for the background
+    /// state and give the asynchronous save a moment. XCTest terminates the app abruptly at the end of a test.
+    private func sendToBackground(_ app: XCUIApplication) {
+        XCUIDevice.shared.press(.home)
+        _ = waitUntil(timeout: 15) { app.state != .runningForeground }
+        sleep(3)
+    }
+
     func testFreshInstallEasyStartReadsJohn3() {
         let app = launch(["-resetData", "-openRef", "John.3.16"])
         let welcome = element(app, "welcome-screen")
@@ -105,6 +114,7 @@ final class AppUITests: XCTestCase {
         XCTAssertTrue(found, "John 3 (Nicodemus) not rendered in the web view")
         XCTAssertTrue(hasVerse, "John 3:16 text not found in the web view's phrase labels: \(joined.prefix(300))")
         XCTAssertEqual(paneIds(app).count, 1, "a fresh install shows exactly one window, got \(paneIds(app))")
+        sendToBackground(app) // lets the app persist the workspace (passage) before the test ends
     }
 
     func testIpadLaunchReachesWelcome() throws {

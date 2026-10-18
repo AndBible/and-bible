@@ -142,6 +142,23 @@ class IosReadingWindowsTest {
         assertTrue(firstId.isNotEmpty())
     }
 
+    /** The passage is written only by a save: after the save hook the database row holds the changed key. */
+    @Test
+    fun saveNowPersistsTheActivePassage() = withWindows { id ->
+        val koin = KoinPlatform.getKoin()
+        val windowControl = koin.get<WindowControl>()
+        val pageManager = windowControl.activeWindowPageManager
+        val key = org.crosswire.jsword.passage.PassageKeyFactory.instance()
+            .getKey(net.bible.android.database.bookmarks.KJVA, "John.3.16")
+        pageManager.setCurrentDocumentAndKey(null, key)
+        val live = pageManager.entity.biblePage.verse
+        val dao = net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao()
+        val before = runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse
+        assertTrue(before != live, "precondition: the stored passage differs from the changed one")
+        runBlocking { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin) }
+        assertEquals(live, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse)
+    }
+
     @Test
     fun sessionForIsCachedPerWindow() = withWindows { id ->
         val a = IosReadingWindows.sessionFor(id)

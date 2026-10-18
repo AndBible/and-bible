@@ -73,6 +73,13 @@ import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.Book
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSNotification
+import platform.Foundation.NSOperationQueue
+import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationWillResignActiveNotification
+import platform.UIKit.UIApplicationDidEnterBackgroundNotification
+import platform.UIKit.UIBackgroundTaskInvalid
 import org.koin.mp.KoinPlatform
 
 /**
@@ -267,11 +274,43 @@ private fun IosReadingDestination(
     // Debug-only `-openRef <osisRef>` (no-op in release / without the argument). Do not remove: AppUITests'
     // testFreshInstallEasyStartReadsJohn3 launches with it and asserts John 3, and the relaunch test relies on that run.
     LaunchedEffect(Unit) { net.bible.sharedui.assembly.IosDebugLaunchArgs.openRefOnce() }
+    SaveWorkspaceOnBackground(koin)
     val host = remember { holder.get(shell, koin, nightObserver) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }
     val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
     CompositionLocalProvider(LocalReadingPane provides paneFactory) {
         ReadingHost(deps, Modifier.testTag("reading-host"))
+    }
+}
+
+/**
+ * Android saves the workspace in `onPause`; iOS may kill a backgrounded app, so the same save runs when the app
+ * resigns active / enters the background, inside a background task so the writes finish before suspension.
+ */
+@Composable
+private fun SaveWorkspaceOnBackground(koin: Koin) {
+    val scope = rememberCoroutineScope()
+    DisposableEffect(Unit) {
+        val center = NSNotificationCenter.defaultCenter
+        val save: (NSNotification?) -> Unit = {
+            val app = UIApplication.sharedApplication
+            var task = UIBackgroundTaskInvalid
+            task = app.beginBackgroundTaskWithExpirationHandler { app.endBackgroundTask(task) }
+            scope.launch {
+                try {
+                    IosWorkspaceSaver.saveNow(koin)
+                } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    nsLog("IosApp: saving the workspace failed: ${e.stackTraceToString()}")
+                } finally {
+                    app.endBackgroundTask(task)
+                }
+            }
+        }
+        val observers = listOf(UIApplicationWillResignActiveNotification, UIApplicationDidEnterBackgroundNotification)
+            .map { center.addObserverForName(it, null, NSOperationQueue.mainQueue, save) }
+        onDispose { observers.forEach { center.removeObserver(it) } }
     }
 }

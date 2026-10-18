@@ -47,6 +47,9 @@ internal object IosReadingReady {
      */
     val scope: CoroutineScope get() = checkNotNull(currentScope) { "IosReadingReady.ensure has not completed" }
 
+    /** True once [ensure] has completed: the window repository exists and is loaded. */
+    val isReady: Boolean get() = ready
+
     private val mutex = Mutex()
     @kotlin.concurrent.Volatile private var ready = false
 
