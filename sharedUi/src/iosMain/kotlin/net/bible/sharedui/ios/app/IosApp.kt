@@ -235,6 +235,7 @@ private fun IosReadingDestination(
         }
         return
     }
+    androidx.compose.runtime.LaunchedEffect(Unit) { net.bible.sharedui.assembly.IosDebugLaunchArgs.openRefOnce() }
     val host = remember { holder.get(shell, koin, nightObserver) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }
