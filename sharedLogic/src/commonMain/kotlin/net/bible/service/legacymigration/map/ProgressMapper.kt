@@ -62,7 +62,8 @@ class ProgressStage(
  *   and skipped individually.
  * - Memorization rows without a trusted KJVA range are not written but counted per kind (Swift does not export them
  *   either), and so are rows merged away as duplicates. A memorization target without an `id` gets a deterministic id
- *   (Swift draws a random one).
+ *   (Swift draws a random one), so such a row can never match the oracle byte for byte; identical id-less targets
+ *   collapse into one and are counted (`identical memorization targets without id collapsed`).
  * - Rows go through the Room DAOs, whose converters (`IdType`, `ReadingSource`) round-trip these columns faithfully, in
  *   one writer transaction. `LogEntry` rows (remote sync) are not written.
  */
@@ -193,7 +194,7 @@ class ProgressMapper : CategoryMapper {
 
     private class VerseRow(val id: IdType, val ordinal: Long, val memorizedAt: Long, val trust: Trust)
 
-    private class TargetRow(val id: IdType, val start: Long, val end: Long, val createdAt: Long, val trust: Trust)
+    private class TargetRow(val id: IdType, val start: Long, val end: Long, val createdAt: Long, val trust: Trust, val idGenerated: Boolean = false)
 
     private fun readMemorization(text: String?, skip: (String, Long) -> Unit): Pair<List<MemorizedVerse>, List<MemorizationTarget>> {
         val none = emptyList<MemorizedVerse>() to emptyList<MemorizationTarget>()
@@ -202,6 +203,7 @@ class ProgressMapper : CategoryMapper {
         val targets = mutableListOf<TargetRow>()
         // Ranges of the legacy format that cannot be trusted are counted instead of expanded one row per ordinal.
         var legacyUntrustedVerses = 0L
+        var invalidRanges = 0L
         try {
             val root = parseObject(text)
             val verseArray = root.optionalArray("memorizedVerses")
@@ -212,7 +214,7 @@ class ProgressMapper : CategoryMapper {
                 verseArray.forEach { verses += decodeVerse(it) }
             } else {
                 for (range in memorizedRanges) {
-                    if (range.start <= 0 || range.end < range.start) continue
+                    if (range.start <= 0 || range.end < range.start) { invalidRanges++; continue }
                     if (range.initials.isBlank()) {
                         for (ordinal in range.start..minOf(range.end, MAX_ORDINAL)) {
                             verses += VerseRow(stableVerseId(range.initials, ordinal), ordinal, 0, legacyTrust(range.initials, ordinal, ordinal))
@@ -227,7 +229,7 @@ class ProgressMapper : CategoryMapper {
                 targetArray.forEach { targets += decodeTarget(it) }
             } else {
                 for (range in targetRanges) {
-                    targets += TargetRow(stableTargetId(range.initials, range.start, range.end, 0), range.start, range.end, 0, legacyTrust(range.initials, range.start, range.end))
+                    targets += TargetRow(stableTargetId(range.initials, range.start, range.end, 0), range.start, range.end, 0, legacyTrust(range.initials, range.start, range.end), idGenerated = true)
                 }
             }
         } catch (e: Unreadable) {
@@ -235,6 +237,7 @@ class ProgressMapper : CategoryMapper {
             return none
         }
 
+        skip("invalid memorized verse range", invalidRanges)
         // `normalizedVerses`: one trusted row per ordinal, the newest (ties: the smaller id) wins; untrusted rows are quarantined by id.
         val trustedVerses = LinkedHashMap<Long, VerseRow>()
         var untrustedVerses = legacyUntrustedVerses
@@ -261,12 +264,14 @@ class ProgressMapper : CategoryMapper {
         skip("memorization target without trusted ordinals", (targets.size - trustedTargets.size).toLong())
         val seenTargetIds = HashSet<IdType>()
         var duplicateTargetIds = 0L
+        var collapsedIdless = 0L
         val outTargets = trustedTargets.sortedWith(
             compareBy<TargetRow>({ -it.createdAt }, { it.start }, { it.end }, { it.id.toString().uppercase() }),
         ).mapNotNull {
-            if (!seenTargetIds.add(it.id)) { duplicateTargetIds++; null } else MemorizationTarget(it.id, it.start.toInt(), it.end.toInt(), it.createdAt)
+            if (!seenTargetIds.add(it.id)) { if (it.idGenerated) collapsedIdless++ else duplicateTargetIds++; null } else MemorizationTarget(it.id, it.start.toInt(), it.end.toInt(), it.createdAt)
         }
         skip("duplicate memorization target id", duplicateTargetIds)
+        skip("identical memorization targets without id collapsed", collapsedIdless)
         return outVerses to outTargets
     }
 
@@ -296,8 +301,10 @@ class ProgressMapper : CategoryMapper {
         val start = o.requiredLong("startOrdinal")
         val end = o.requiredLong("endOrdinal")
         val createdAt = o.optionalLong("createdAt") ?: 0L
+        val given = o.optionalUuid("id")
         return TargetRow(
-            id = o.optionalUuid("id") ?: stableTargetId(initials, start, end, createdAt),
+            id = given ?: stableTargetId(initials, start, end, createdAt),
+            idGenerated = given == null,
             start = start,
             end = end,
             createdAt = createdAt,
@@ -351,28 +358,6 @@ class ProgressMapper : CategoryMapper {
     }
 
     private fun isValidRange(start: Long, end: Long) = start in 1..MAX_ORDINAL && end in 1..MAX_ORDINAL && end >= start
-
-    /** Same logic as [BookmarksMapper]'s private port of `VersificationMapper.kjvaOrdinalRange` (that one is not reusable without editing it). */
-    private fun rederivedKjvaRange(sourceVersification: String, sourceStart: Long, sourceEnd: Long): LongRange? = try {
-        val source = Versifications.instance().getVersification(sourceVersification)
-        fun kjva(ordinal: Long): Long? {
-            if (source == null || ordinal > source.maximumOrdinal()) return null
-            if (source.name == KJVA.name) return ordinal
-            val verse = Verse(source, ordinal.toInt())
-            return if (!verse.isConvertibleTo(KJVA)) null else verse.toV11n(KJVA).ordinal.toLong()
-        }
-        val a = kjva(sourceStart)
-        val b = kjva(sourceEnd)
-        if (a == null || b == null) null else minOf(a, b)..maxOf(a, b)
-    } catch (e: Exception) {
-        null
-    }
-
-    private fun isKnownVersification(name: String): Boolean = try {
-        Versifications.instance().getVersification(name) != null
-    } catch (e: Exception) {
-        false
-    }
 
     /** Port of `MemorizedVerseProgress.stableID`: the first 16 bytes of SHA-256 of `memorized-verse|<initials>|<ordinal>`. */
     private fun stableVerseId(bookInitials: String, ordinal: Long): IdType = hashId("memorized-verse|$bookInitials|$ordinal")

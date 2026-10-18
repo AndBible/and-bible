@@ -10,6 +10,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import net.bible.android.common.isConvertibleTo
+import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import net.bible.android.database.progress.ReadingSource
 import net.bible.service.legacymigration.read.LegacyRow
@@ -458,6 +460,116 @@ class ReadingPlansAndProgressMapperTest {
         runPlans(LegacyReadingPlanData(emptyList(), emptyList(), emptyMap())) { staging, _ ->
             assertEquals(null, staging.openedDatabase("readingplans.sqlite3"))
             assertNotNull(staging)
+        }
+    }
+
+    // ---- Review follow-ups -------------------------------------------------------------------------------------
+
+    private fun kjvaOrdinal(v11n: String, ordinal: Int): Int? = runCatching {
+        val verse = org.crosswire.jsword.passage.Verse(org.crosswire.jsword.versification.system.Versifications.instance().getVersification(v11n)!!, ordinal)
+        if (verse.isConvertibleTo(net.bible.android.database.bookmarks.KJVA)) verse.toV11n(net.bible.android.database.bookmarks.KJVA).ordinal else null
+    }.getOrNull()
+
+    private fun differingVerse(): Triple<String, Int, Int> {
+        for (name in listOf("Synodal", "SynodalProt", "Vulg", "Luther", "German", "Catholic", "Catholic2", "NRSV", "Leningrad", "MT", "Segond", "Calvin")) {
+            if (org.crosswire.jsword.versification.system.Versifications.instance().getVersification(name) == null) continue
+            for (ordinal in listOf(1000, 5000, 20000, 25000, 30000, 31000)) {
+                val kjva = kjvaOrdinal(name, ordinal) ?: continue
+                if (kjva != ordinal) return Triple(name, ordinal, kjva)
+            }
+        }
+        error("no built-in versification with differing ordinals found")
+    }
+
+    private fun verseJson(id: String, kjva: Int, state: String, provenance: String, v11n: String, source: Int) =
+        """{"id":"$id","bookInitials":"","kjvOrdinal":$kjva,"memorizedAt":1,"ordinalTrust":{"state":"$state","mappingVersion":1,"provenance":"$provenance","sourceBookInitials":"ESV","sourceVersification":"$v11n","sourceOrdinalStart":$source,"sourceOrdinalEnd":$source}}"""
+
+    @Test
+    fun verifiedMappingRowsAreRederivedThroughJsword() {
+        val (name, ordinal, kjva) = differingVerse()
+        val memorization = """{"memorizedVerses":[
+            ${verseJson(verseId, kjva, "verifiedMappingV1", "nativeMapping", name, ordinal)},
+            ${verseJson("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", ordinal, "verifiedMappingV1", "nativeMapping", name, ordinal)}]}"""
+        runProgress(mapOf("memorization_progress_state_v1" to memorization)) { staging, report ->
+            // Trusted when the stored KJVA ordinal is the mapped one, untrusted when it is the unmapped source ordinal.
+            assertEquals(listOf(kjva), staging.progress.progressDao().allMemorizedVerses().map { it.kjvOrdinal })
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorized verse without trusted ordinals", 1)), skipped(report))
+        }
+    }
+
+    @Test
+    fun verifiedAndroidRowNeedsAndroidImportProvenance() {
+        val memorization = """{"memorizedVerses":[
+            ${verseJson(verseId, 70, "verifiedAndroid", "androidImport", "KJVA", 70)},
+            ${verseJson("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", 71, "verifiedAndroid", "nativeMapping", "KJVA", 71)}]}"""
+        runProgress(mapOf("memorization_progress_state_v1" to memorization)) { staging, report ->
+            assertEquals(listOf(70), staging.progress.progressDao().allMemorizedVerses().map { it.kjvOrdinal })
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "memorized verse without trusted ordinals", 1)), skipped(report))
+        }
+    }
+
+    @Test
+    fun sourceOrdinalPastTheSourceCanonIsNotTrusted() {
+        val past = org.crosswire.jsword.versification.system.Versifications.instance().getVersification("KJV")!!.maximumOrdinal() + 50
+        val max = BookmarksMapper.MAX_KJVA_ORDINAL.toInt()
+        val memorization = """{"memorizedVerses":[${verseJson(verseId, max, "verifiedMappingV1", "nativeMapping", "KJV", past)}]}"""
+        runProgress(mapOf("memorization_progress_state_v1" to memorization)) { staging, _ ->
+            assertEquals(0, staging.progress.progressDao().allMemorizedVerses().size)
+        }
+    }
+
+    @Test
+    fun invalidLegacyRangesAreReported() {
+        val memorization = """{"memorizedRanges":[{"bookInitials":"","startOrdinal":0,"endOrdinal":3},{"bookInitials":"","startOrdinal":9,"endOrdinal":4},{"bookInitials":"","startOrdinal":5,"endOrdinal":5}]}"""
+        runProgress(mapOf("memorization_progress_state_v1" to memorization)) { staging, report ->
+            assertEquals(listOf(5), staging.progress.progressDao().allMemorizedVerses().map { it.kjvOrdinal })
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "invalid memorized verse range", 2)), skipped(report))
+        }
+    }
+
+    @Test
+    fun idLessTargetsGetADeterministicIdAndIdenticalOnesCollapseWithAReason() {
+        val memorization = """{"targetRows":[
+            {"bookInitials":"","startOrdinal":100,"endOrdinal":250,"createdAt":888},
+            {"bookInitials":"","startOrdinal":100,"endOrdinal":250,"createdAt":888},
+            {"bookInitials":"","startOrdinal":300,"endOrdinal":310,"createdAt":5}]}"""
+        runProgress(mapOf("memorization_progress_state_v1" to memorization)) { staging, report ->
+            val targets = staging.progress.progressDao().allMemorizationTargets()
+            assertEquals(listOf(100, 300), targets.map { it.kjvOrdinalStart })
+            val digest = MessageDigest.getInstance("SHA-256").digest("memorization-target||100|250|888".toByteArray())
+            assertEquals(IdType.fromByteArray(digest.copyOf(16)), targets.first().id)
+            assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.PROGRESS, "identical memorization targets without id collapsed", 1)), skipped(report))
+        }
+    }
+
+    @Test
+    fun orphanDaysAndRepeatedIdsAreReportedAndDoNotAbortTheWrite() {
+        val remote = "fedcba98-7654-3210-fedc-ba9876543210"
+        fun envelope(day: Int) = """{"planCode":"p","dayNumber":$day,"readingStatusJSON":"{\"chapterReadArray\":[]}","remoteStatusID":"$remote"}"""
+        val data = LegacyReadingPlanData(
+            plans = listOf(planRow(1, planId, "p", currentDay = 1), planRow(2, planId, "q", currentDay = 4)),
+            days = listOf(
+                dayRow(10, 2, 1, completed = false, readings = "A"),
+                dayRow(11, 2, 2, completed = false, readings = "B"),
+                dayRow(12, 99, 1, completed = true, readings = "C"), // no such plan
+            ),
+            settings = mapOf(statusKey("q", 1) to envelope(1).replace("\"p\"", "\"q\""), statusKey("q", 2) to envelope(2).replace("\"p\"", "\"q\"")),
+        )
+        runPlans(data) { staging, report ->
+            val dao = staging.readingPlans.readingPlanDao()
+            // The later plan row of the repeated plan id wins; of the two statuses sharing one id the later day wins.
+            assertEquals(4, dao.getPlan("q")!!.planCurrentDay)
+            assertEquals(null, dao.getPlan("p"))
+            assertEquals(null, dao.getStatus("q", 1))
+            assertEquals(IdType.fromString(remote), dao.getStatus("q", 2)!!.id)
+            assertEquals(
+                setOf(
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "duplicate reading plan id", 1),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "reading plan day without plan", 1),
+                    ReportEntry.Skipped(LegacyCategory.READING_PLANS, "duplicate reading plan status id", 1),
+                ),
+                skipped(report).toSet(),
+            )
         }
     }
 }

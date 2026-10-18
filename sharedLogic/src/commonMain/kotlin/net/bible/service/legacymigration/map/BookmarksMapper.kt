@@ -420,34 +420,6 @@ class BookmarksMapper : CategoryMapper {
         return if (consistent) null else "$state inconsistent"
     }
 
-    /**
-     * Port of `VersificationMapper.kjvaOrdinalRange`: the ordered KJVA ordinals of the source range, or null when either
-     * endpoint has no strict JSword mapping (Swift never persists the converter's coordinate fallback).
-     */
-    private fun rederivedKjvaRange(sourceVersification: String, sourceStart: Long, sourceEnd: Long): LongRange? = try {
-        val source = Versifications.instance().getVersification(sourceVersification)
-        fun kjva(ordinal: Long): Long? {
-            if (source == null || ordinal > Int.MAX_VALUE) return null
-            if (source.name == KJVA.name) return ordinal
-            val verse = Verse(source, ordinal.toInt())
-            return if (!verse.isConvertibleTo(KJVA)) null else verse.toV11n(KJVA).ordinal.toLong()
-        }
-        val a = kjva(sourceStart)
-        val b = kjva(sourceEnd)
-        if (a == null || b == null) null else minOf(a, b)..maxOf(a, b)
-    } catch (e: Exception) {
-        null
-    }
-
-    private fun isKnownVersification(name: String): Boolean {
-        if (name.isBlank()) return false
-        return try {
-            Versifications.instance().getVersification(name) != null
-        } catch (e: Exception) {
-            false
-        }
-    }
-
     private fun bibleBookmark(
         row: LegacyRow,
         id: IdType,

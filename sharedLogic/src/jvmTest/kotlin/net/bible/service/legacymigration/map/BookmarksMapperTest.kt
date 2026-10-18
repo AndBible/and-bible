@@ -331,6 +331,14 @@ class BookmarksMapperTest {
     }
 
     @Test
+    fun verifiedMappingV1IsRejectedWhenTheSourceEndIsPastTheSourceCanon() {
+        // Verse() alone would clamp the ordinal to the last verse; Swift's JSwordCanon.reference(at:) finds none.
+        val past = Versifications.instance().getVersification("KJV")!!.maximumOrdinal() + 50
+        val row = v1Row(10, "KJV", 100, past, kjvaEnd = BookmarksMapper.MAX_KJVA_ORDINAL.toInt())
+        assertEquals(0 to v1Mismatch, trustOutcome(row))
+    }
+
+    @Test
     fun verifiedMappingV1RequiresAnOrderedSourceRange() {
         // Swift: sourceEnd >= sourceStart, checked before any mapping (a reversing mapping cannot be built by hand here).
         val start = kjvaOrdinal("KJV", 103)!!
