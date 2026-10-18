@@ -7,11 +7,17 @@ import java.nio.file.Files
 import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import net.bible.android.common.isConvertibleTo
+import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.KJVA
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.system.Versifications
 import net.bible.android.database.bookmarks.AI_LABEL_ID
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
@@ -174,7 +180,7 @@ class BookmarksMapperTest {
             "legacyPendingModule" to "ordinal trust legacyPendingModule",
             "legacyUnresolved" to "ordinal trust legacyUnresolved",
             // An unknown future state decodes fail-closed as unresolved, like Swift.
-            "someFutureState" to "ordinal trust legacyUnresolved",
+            "someFutureState" to "ordinal trust legacyUnresolved (unknown state \"someFutureState\")",
         )
         for ((state, reason) in states) {
             val fx = fixture("1.0.2", "18", "rich")
@@ -185,12 +191,15 @@ class BookmarksMapperTest {
             // The bookmark that owns a note and a label link, so that both must stay out as well.
             val victim = snapshot(fx).use { s ->
                 val withNote = s.cloud.rows("BibleBookmarkNotes").mapNotNull { (it.values["bookmarkId"] as? LegacyValue.UuidV)?.value }.toSet()
-                s.cloud.rows("BibleBookmark").first { (it.values["id"] as LegacyValue.UuidV).value in withNote }
+                val withLink = s.cloud.rows("BibleBookmarkToLabel").mapNotNull { it.toOne["bookmark"] }.toSet()
+                s.cloud.rows("BibleBookmark").first { (it.values["id"] as LegacyValue.UuidV).value in withNote && it.pk in withLink }
             }
             val victimId = (victim.values["id"] as LegacyValue.UuidV).value
+            // The victim must really own a label link, or the zero-count assertion on links below would be vacuous.
+            snapshot(fx).use { s -> assertTrue(s.cloud.rows("BibleBookmarkToLabel").any { it.toOne["bookmark"] == victim.pk }, "victim has no label link") }
             fx.updateCloudStore("UPDATE ZBIBLEBOOKMARK SET ZORDINALTRUSTSTATERAW = '$state' WHERE Z_PK = ${victim.pk}")
-            // The edit above leaves the store in the state a closed writer leaves it; one read-only pass first brings
-            // the sidecars to the state any reader finds them in, so only the migration run is measured below.
+            // Plainly: this priming read hides the effects of the FIRST read of a store (-wal/-shm creation or change),
+            // which belong to the reader (Task 4's sourceIsNotModified), not to the mapper. Only the mapper run is measured below.
             snapshot(fx).use { s -> s.cloud.map.entities.keys.forEach { s.cloud.rows(it) } }
             val before = sha256Of(fx.root.toFile())
 
@@ -243,6 +252,180 @@ class BookmarksMapperTest {
                         report.entries.filterIsInstance<ReportEntry.Skipped>(),
                         change,
                     )
+                }
+            }
+        }
+    }
+
+    // ---- verifiedMappingV1: the KJVA range is re-derived through JSword like Swift's isTrustedKJVARange -------
+
+    private fun kjvaOrdinal(v11n: String, ordinal: Int): Int? {
+        val verse = Verse(Versifications.instance().getVersification(v11n)!!, ordinal)
+        return if (verse.isConvertibleTo(KJVA)) verse.toV11n(KJVA).ordinal else null
+    }
+
+    /** A verifiedMappingV1 row whose source range is [start]..[end] in [v11n]; [kjvaStart]/[kjvaEnd] default to the re-derived ones. */
+    private fun v1Row(
+        id: Int, v11n: String, start: Int, end: Int,
+        kjvaStart: Int? = kjvaOrdinal(v11n, start), kjvaEnd: Int? = kjvaOrdinal(v11n, end),
+        provenance: String = "nativeMapping", initials: String = "ESV", mapping: Long = 1,
+    ) = LegacyRow(
+        id.toLong(),
+        mapOf(
+            "id" to u(id), "ordinalTrustStateRaw" to t("verifiedMappingV1"), "ordinalMappingVersion" to i(mapping),
+            "ordinalProvenanceRaw" to t(provenance), "bookInitials" to t(initials), "v11n" to t(v11n),
+            "ordinalSourceVersification" to t(v11n), "ordinalSourceStart" to i(start.toLong()), "ordinalSourceEnd" to i(end.toLong()),
+            "kjvOrdinalStart" to i(kjvaStart!!.toLong()), "kjvOrdinalEnd" to i(kjvaEnd!!.toLong()),
+            "ordinalStart" to i(start.toLong()), "ordinalEnd" to i(end.toLong()),
+        ),
+        emptyMap(),
+    )
+
+    private fun trustOutcome(row: LegacyRow): Pair<Int, List<ReportEntry.Skipped>> {
+        val report = MigrationReport()
+        val stage = BookmarksMapper().build(data(bible = listOf(row)), report)
+        return stage.bibleBookmarks.size to report.entries.filterIsInstance<ReportEntry.Skipped>()
+    }
+
+    private val v1Mismatch = listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, "ordinal trust verifiedMappingV1 inconsistent", 1))
+
+    /** A (versification, ordinal) whose KJVA ordinal differs from the source ordinal, found in JSword's built-in systems. */
+    private fun differingVerse(): Triple<String, Int, Int> {
+        for (name in listOf("Synodal", "SynodalProt", "Vulg", "Luther", "German", "Catholic", "Catholic2", "NRSV", "Leningrad", "MT", "Segond", "Calvin")) {
+            if (Versifications.instance().getVersification(name) == null) continue
+            for (ordinal in listOf(1000, 5000, 20000, 25000, 30000, 31000)) {
+                val kjva = runCatching { kjvaOrdinal(name, ordinal) }.getOrNull() ?: continue
+                if (kjva != ordinal) return Triple(name, ordinal, kjva)
+            }
+        }
+        error("no built-in versification with differing ordinals found")
+    }
+
+    @Test
+    fun verifiedMappingV1IsTrustedWhenTheRederivedKjvaRangeMatches() {
+        assertEquals(1 to emptyList(), trustOutcome(v1Row(10, "KJV", 100, 103)))
+        assertEquals(1 to emptyList(), trustOutcome(v1Row(11, "KJV", 100, 103, provenance = "legacyMigration")))
+        val (name, ordinal, kjva) = differingVerse()
+        // The stored KJVA ordinals equal the mapped ones, not the source ordinals: accepted.
+        assertEquals(1 to emptyList(), trustOutcome(v1Row(12, name, ordinal, ordinal + 1)), "$name $ordinal -> $kjva")
+    }
+
+    @Test
+    fun verifiedMappingV1IsRejectedWhenMetadataOrRederivedRangeDisagrees() {
+        val (name, ordinal, kjva) = differingVerse()
+        val rejected = mapOf(
+            "blank bookInitials" to v1Row(10, "KJV", 100, 103, initials = "  "),
+            "androidImport provenance" to v1Row(11, "KJV", 100, 103, provenance = "androidImport"),
+            "unknown provenance" to v1Row(12, "KJV", 100, 103, provenance = "unknown"),
+            "mapping version 0" to v1Row(13, "KJV", 100, 103, mapping = 0),
+            // Stored KJVA ordinals are the unmapped source ordinals: the re-derivation differs.
+            "stored kjva differs" to v1Row(14, name, ordinal, ordinal + 1, kjvaStart = ordinal, kjvaEnd = ordinal + 1),
+            "stored kjva end differs" to v1Row(15, "KJV", 100, 103, kjvaEnd = kjvaOrdinal("KJV", 103)!! + 1),
+        )
+        assertTrue(kjva != ordinal)
+        for ((what, row) in rejected) {
+            val (written, skipped) = trustOutcome(row)
+            assertEquals(0, written, what)
+            assertEquals(v1Mismatch, skipped, what)
+        }
+    }
+
+    @Test
+    fun verifiedMappingV1RequiresAnOrderedSourceRange() {
+        // Swift: sourceEnd >= sourceStart, checked before any mapping (a reversing mapping cannot be built by hand here).
+        val start = kjvaOrdinal("KJV", 103)!!
+        val end = kjvaOrdinal("KJV", 100)!!
+        assertEquals(0 to v1Mismatch, trustOutcome(v1Row(10, "KJV", 103, 100, kjvaStart = minOf(start, end), kjvaEnd = maxOf(start, end))))
+    }
+
+    // ---- Staged read-back with distinct values, and the INSERT column lists --------------------------------
+
+    private fun <T> readBack(staging: StagingDatabases, sql: String, read: (androidx.sqlite.SQLiteStatement) -> T): List<T> = runBlocking {
+        staging.bookmarks.useReaderConnection { c -> c.usePrepared(sql) { st -> buildList { while (st.step()) add(read(st)) } } }
+    }
+
+    @Test
+    fun mapWritesEveryColumnOfBibleAndGenericBookmarksToItsOwnStagedColumn() {
+        val label = uuid(1)
+        val bible = LegacyRow(
+            10,
+            trusted + mapOf(
+                "id" to u(10), "createdAt" to d(1_700_000_000_123), "lastUpdatedOn" to d(1_800_000_000_456),
+                "kjvOrdinalStart" to i(101), "kjvOrdinalEnd" to i(102), "ordinalStart" to i(103), "ordinalEnd" to i(104),
+                "v11n" to t("KJV"), "bookInitials" to t("ESV"), "startOffset" to i(7), "endOffset" to i(9),
+                "primaryLabelId" to LegacyValue.UuidV(label), "wholeVerse" to b(false), "type" to t("EXAMPLE"), "customIcon" to t("heart"),
+                "sourcePromptId" to u(77), "editAction.mode.mode" to t("PREPEND"), "editAction.content" to t("added"),
+                "playbackSettings.speed" to i(150),
+            ),
+            emptyMap(),
+        )
+        val generic = LegacyRow(
+            11,
+            mapOf(
+                "id" to u(11), "key" to t("Gen.1.1"), "createdAt" to d(1_600_000_000_111), "bookInitials" to t("Josephus"),
+                "ordinalStart" to i(21), "ordinalEnd" to i(22), "startOffset" to i(3), "endOffset" to i(5),
+                "primaryLabelId" to LegacyValue.UuidV(label), "lastUpdatedOn" to d(1_650_000_000_222), "wholeVerse" to b(false),
+                "customIcon" to t("star"), "sourcePromptId" to u(78), "editAction.mode.mode" to t("APPEND"), "editAction.content" to t("tail"),
+                "playbackSettings.speed" to i(90),
+            ),
+            emptyMap(),
+        )
+        runBlocking {
+            withStaging { staging ->
+                BookmarksMapper().map(data(labels = listOf(labelRow(1, label, "L")), bible = listOf(bible), generic = listOf(generic)), staging, MigrationReport())
+                val hex = { n: Int -> uuid(n).replace("-", "") }
+                val b = readBack(
+                    staging,
+                    "SELECT kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, lower(hex(id)), createdAt, book, startOffset, endOffset, " +
+                        "lower(hex(primaryLabelId)), lastUpdatedOn, wholeVerse, type, customIcon, lower(hex(sourcePromptId)), editAction_mode, " +
+                        "editAction_content, playbackSettings FROM BibleBookmark",
+                ) { st -> (0 until 19).map { if (st.isNull(it)) null else st.getText(it) } }.single()
+                assertEquals(
+                    listOf(
+                        "101", "102", "103", "104", "KJV", hex(10), "1700000000123", "ESV", "7", "9", hex(1), "1800000000456", "0", "EXAMPLE",
+                        "heart", hex(77), "PREPEND", "added",
+                    ),
+                    b.take(18),
+                )
+                assertTrue(b[18]!!.contains("\"speed\":150"))
+                val g = readBack(
+                    staging,
+                    "SELECT lower(hex(id)), `key`, createdAt, bookInitials, ordinalStart, ordinalEnd, startOffset, endOffset, lower(hex(primaryLabelId)), " +
+                        "lastUpdatedOn, wholeVerse, customIcon, lower(hex(sourcePromptId)), editAction_mode, editAction_content, playbackSettings FROM GenericBookmark",
+                ) { st -> (0 until 16).map { if (st.isNull(it)) null else st.getText(it) } }.single()
+                assertEquals(
+                    listOf(
+                        hex(11), "Gen.1.1", "1600000000111", "Josephus", "21", "22", "3", "5", hex(1), "1650000000222", "0", "star", hex(78),
+                        "APPEND", "tail",
+                    ),
+                    g.take(15),
+                )
+                assertTrue(g[15]!!.contains("\"speed\":90"))
+            }
+        }
+    }
+
+    @Test
+    fun insertColumnListsCoverEveryColumnOfTheStagedTables() {
+        // A schema bump (a new Android column) must be a deliberate review point: it fails here until the INSERT is updated.
+        val statements = listOf(
+            BookmarksMapper.LABEL_SQL, BookmarksMapper.BIBLE_BOOKMARK_SQL, BookmarksMapper.GENERIC_BOOKMARK_SQL,
+            BookmarksMapper.noteSql("BibleBookmarkNotes"), BookmarksMapper.noteSql("GenericBookmarkNotes"),
+            BookmarksMapper.linkSql("BibleBookmarkToLabel"), BookmarksMapper.linkSql("GenericBookmarkToLabel"),
+            BookmarksMapper.STUDYPAD_ENTRY_SQL, BookmarksMapper.STUDYPAD_TEXT_SQL,
+        )
+        runBlocking {
+            withStaging { staging ->
+                staging.bookmarks.useReaderConnection { c ->
+                    for (sql in statements) {
+                        val m = Regex("INSERT INTO (\\w+) \\((.*?)\\) VALUES \\((.*)\\)").matchEntire(sql)!!
+                        val table = m.groupValues[1]
+                        val columns = m.groupValues[2].split(",").map { it.trim().trim('`') }
+                        val placeholders = m.groupValues[3].count { it == '?' }
+                        val actual = c.usePrepared("PRAGMA table_info(`$table`)") { st -> buildList { while (st.step()) add(st.getText(1)) } }
+                        assertEquals(actual.toSet(), columns.toSet(), "columns of $table")
+                        assertEquals(columns.size, placeholders, "placeholders of $table")
+                    }
                 }
             }
         }
@@ -505,8 +688,6 @@ class BookmarksMapperTest {
             skipped,
         )
     }
-
-    private fun assertFalse(value: Boolean) = assertTrue(!value)
 
     @Test
     fun valuesTheCurrentAndroidReadersWouldRejectAreNotWritten() {

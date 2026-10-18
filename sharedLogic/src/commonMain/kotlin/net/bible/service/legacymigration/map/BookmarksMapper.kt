@@ -16,6 +16,10 @@ import net.bible.service.legacymigration.read.LegacyRow
 import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.read.LegacyValue
 import net.bible.service.legacymigration.stage.StagingDatabases
+import net.bible.android.common.isConvertibleTo
+import net.bible.android.common.toV11n
+import net.bible.android.database.bookmarks.KJVA
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.system.Versifications
 
@@ -154,9 +158,11 @@ class BookmarkStage(
  *   `legacyUnresolved`, or verified metadata that is internally inconsistent) is counted per state in the
  *   [MigrationReport] (`ordinal trust <state>`). It stays in the untouched legacy store, together with its note and
  *   label links, which are not exported either. The Swift exporter does the same (`suppressedKeys`).
- * - `PersistedOrdinalTrustPolicy.isTrustedKJVARange` is ported without its last step for `verifiedMappingV1` rows, which
- *   re-derives the KJVA range with the Swift `VersificationMapper` (no equivalent here): such a row is trusted when its
- *   state, mapping version, ranges, source versification, provenance and module initials are consistent.
+ * - `PersistedOrdinalTrustPolicy.isTrustedKJVARange` is ported in full, including the last step for `verifiedMappingV1`
+ *   rows (every native iOS bookmark): the source ordinals are re-mapped to KJVA and must equal the stored KJVA ordinals.
+ *   The Swift `VersificationMapper` is a port of JSword's `VersificationConverter`, which is used directly here, with
+ *   Swift's strictness: a verse JSword can only convert by its coordinate fallback (`isConvertibleTo` false) is a miss, and
+ *   a range is the ordered pair of its independently converted endpoints (`kjvaOrdinalRange`).
  * - The Swift `Label` style booleans (`markerStyle`, `underlineStyle`, `hideStyle` and their whole verse variants) are
  *   converted to the current `displayStyle` columns with the exact rule of the `labelDisplayStyleEnum` database
  *   migration (hide before marker before underline; whole verse NULL when equal), because the Swift exporter writes
@@ -243,7 +249,7 @@ class BookmarksMapper : CategoryMapper {
             val remote = fixedLabelId(name) ?: local
             remoteIdByLocalId[local.toString()] = remote
             labelLocalIdByPk[row.pk] = local
-            labels[remote.toString()] = label(row, remote, name, report)
+            labels[remote.toString()] = label(row, remote, name)
         }
         skip(report, "duplicate label id", labelRows.size - labels.size)
         fun remoteLabel(local: IdType): IdType = remoteIdByLocalId[local.toString()] ?: local
@@ -361,7 +367,7 @@ class BookmarksMapper : CategoryMapper {
         else -> null
     }
 
-    private fun label(row: LegacyRow, id: IdType, name: String, report: MigrationReport): StagedLabel {
+    private fun label(row: LegacyRow, id: IdType, name: String): StagedLabel {
         val v = row.values
         fun style(hide: String, marker: String, underline: String): Int = when {
             v.bool(hide) == true -> 3
@@ -388,12 +394,13 @@ class BookmarksMapper : CategoryMapper {
     /**
      * Port of `hasTrustedPersistedOrdinals` (`PersistedOrdinalTrustPolicy.isTrustedKJVARange`). Returns null for a trusted
      * bookmark, else the report reason suffix: the state, or `<state> inconsistent` for a verified state whose metadata
-     * does not hold together. An absent or unknown state decodes fail-closed like Swift (default pending, unknown
-     * unresolved).
+     * does not hold together. An absent state decodes like Swift (default pending); an unknown one fail-closed as
+     * unresolved, and the raw value is kept in the reason.
      */
     private fun ordinalTrust(v: Map<String, LegacyValue?>): String? {
         val raw = v.text("ordinalTrustStateRaw") ?: PENDING
-        val state = if (raw in TRUST_STATES) raw else UNRESOLVED
+        if (raw !in TRUST_STATES) return "$UNRESOLVED (unknown state \"$raw\")"
+        val state = raw
         if (state != VERIFIED_ANDROID && state != VERIFIED_MAPPING_V1) return state
         val start = v.long("kjvOrdinalStart") ?: 0L
         val end = v.long("kjvOrdinalEnd") ?: 0L
@@ -407,9 +414,29 @@ class BookmarksMapper : CategoryMapper {
             when (state) {
                 VERIFIED_ANDROID -> provenance == "androidImport"
                 else -> (provenance == "nativeMapping" || provenance == "legacyMigration") &&
-                    v.text("bookInitials")?.isNotBlank() == true
+                    v.text("bookInitials")?.isNotBlank() == true &&
+                    rederivedKjvaRange(v.text("ordinalSourceVersification")!!.trim(), sourceStart!!, sourceEnd!!) == start..end
             }
         return if (consistent) null else "$state inconsistent"
+    }
+
+    /**
+     * Port of `VersificationMapper.kjvaOrdinalRange`: the ordered KJVA ordinals of the source range, or null when either
+     * endpoint has no strict JSword mapping (Swift never persists the converter's coordinate fallback).
+     */
+    private fun rederivedKjvaRange(sourceVersification: String, sourceStart: Long, sourceEnd: Long): LongRange? = try {
+        val source = Versifications.instance().getVersification(sourceVersification)
+        fun kjva(ordinal: Long): Long? {
+            if (source == null || ordinal > Int.MAX_VALUE) return null
+            if (source.name == KJVA.name) return ordinal
+            val verse = Verse(source, ordinal.toInt())
+            return if (!verse.isConvertibleTo(KJVA)) null else verse.toV11n(KJVA).ordinal.toLong()
+        }
+        val a = kjva(sourceStart)
+        val b = kjva(sourceEnd)
+        if (a == null || b == null) null else minOf(a, b)..maxOf(a, b)
+    } catch (e: Exception) {
+        null
     }
 
     private fun isKnownVersification(name: String): Boolean {
@@ -657,7 +684,7 @@ class BookmarksMapper : CategoryMapper {
         return null
     }
 
-    private companion object {
+    internal companion object {
         const val DEFAULT_V11N = "KJVA"
         const val CURRENT_MAPPING_VERSION = 1L
         const val PENDING = "legacyPendingModule"
