@@ -41,6 +41,10 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kaml)
         }
+        // I2 step 0: Darwin engine for iOS HTTP (spec C5; streams C and D)
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
         commonTest {
             kotlin.srcDir(sharedDataFixtures.map { layout.buildDirectory.dir("generated/sharedDataFixtures/commonTest/kotlin").get().asFile })
         }

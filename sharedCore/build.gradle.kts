@@ -35,6 +35,10 @@ kotlin {
             api(libs.ktor.client.core)       // HttpClient / HttpClientEngine appear in WebDavClient's API
             implementation(libs.xmlutil.core)
         }
+        // I2 step 0: Darwin engine for iOS HTTP (spec C5; streams C and D)
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
