@@ -27,6 +27,7 @@ import SQLite3
 import SwiftData
 import XCTest
 @testable import BibleCore
+@testable import SwordKit
 
 @MainActor
 final class I3OracleExportTests: XCTestCase {
@@ -131,14 +132,14 @@ final class I3OracleExportTests: XCTestCase {
             preservedDatabaseStore: AndroidDatabaseBackupPreservedDatabaseStore(rootDirectory: preservedRoot)
         )
         do {
-            let export = try backupService.exportArchiveFile(modelContext: context, settingsStore: settingsStore)
+            let backupExport: AndroidDatabaseBackupFileExport = try backupService.exportArchiveFile(modelContext: context, settingsStore: settingsStore)
             try fileManager.copyItem(
-                at: export.fileURL,
+                at: backupExport.fileURL,
                 to: destination.appendingPathComponent("AndBibleDatabaseBackup.abdb.zip")
             )
-            try? fileManager.removeItem(at: export.fileURL)
-            report["backupCategories"] = export.categories.map(\.rawValue)
-            report["backupEntryCount"] = export.entryCount
+            try? fileManager.removeItem(at: backupExport.fileURL)
+            report["backupCategories"] = backupExport.categories.map { (category: AndroidDatabaseBackupCategory) in category.rawValue }
+            report["backupEntryCount"] = backupExport.entryCount
         } catch {
             errors.append("android database backup export: \(error)")
         }
