@@ -4,6 +4,8 @@ import fi.sykero.kdom.input.KdomBuilder
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -217,6 +219,41 @@ class IosContentPortsTest {
         f.gate.complete(Unit)
         f.await { f.builtNow().size == names.size }
         assertEquals(names, f.builtNow())
+    }
+
+    @Test fun schedulerSurvivesConcurrentEnqueueAndDequeueWhileDraining() {
+        val f = Fixture()
+        f.gate.complete(Unit)
+        val producers = 4
+        val perProducer = 50
+        val dequeuedByProducer = HashMap<Int, MutableSet<String>>()
+        runBlocking {
+            withTimeout(60_000) {
+                (0 until producers).map { p ->
+                    async(Dispatchers.Default) {
+                        val dequeued = mutableSetOf<String>()
+                        for (i in 0 until perProducer) {
+                            val name = "P$p-${i.toString().padStart(3, '0')}"
+                            f.scheduler.enqueue(fakeAddonBook(name, "/$name"))
+                            if (i % 7 == 3) { f.scheduler.dequeue(name); dequeued += name }
+                            if (i % 5 == 0) yield()
+                        }
+                        withMonitor(dequeuedByProducer) { dequeuedByProducer[p] = dequeued }
+                    }
+                }.awaitAll()
+            }
+        }
+        f.await { f.scheduler.isIdle }
+        val built = f.builtNow()
+        assertEquals(built.size, built.toSet().size, "a book was built twice")
+        for (p in 0 until producers) {
+            val mine = built.filter { it.startsWith("P$p-") }
+            assertEquals(mine.sorted(), mine, "FIFO order broken for producer $p")
+            val dequeued = dequeuedByProducer.getValue(p)
+            val expected = (0 until perProducer).map { "P$p-${it.toString().padStart(3, '0')}" }.filter { it !in dequeued }
+            assertTrue(mine.containsAll(expected), "a non-dequeued book was never built for producer $p")
+        }
+        assertTrue(f.scheduler.isIdle)
     }
 
     @Test fun schedulerFailedBuildLeavesUndoneAndQueueContinues() {

@@ -82,15 +82,15 @@ class IosSearchIndexScheduler(
         try {
             while (true) {
                 val next = withMonitor(lock) {
-                    val first = queued.entries.firstOrNull()
-                    if (first == null) {
+                    // Copy key and value out before removing: a map entry must not be used after a modification.
+                    val key = queued.keys.firstOrNull()
+                    if (key == null) {
                         draining = false
                         finished = true
                         null
                     } else {
-                        queued.remove(first.key)
-                        runningInitials = first.key
-                        first.value
+                        runningInitials = key
+                        queued.remove(key)
                     }
                 } ?: return
                 try {
@@ -106,10 +106,18 @@ class IosSearchIndexScheduler(
                     withMonitor(lock) { runningInitials = null }
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Never let an unexpected failure of the loop itself abort the app; the next enqueue starts a new worker.
+            Log.e(TAG, "Index queue worker died", e)
         } finally {
             if (!finished) withMonitor(lock) { draining = false } // abnormal exit (scope cancelled): allow a new worker
         }
     }
+
+    /** True when nothing is queued, building or about to be (test hook). */
+    internal val isIdle: Boolean get() = withMonitor(lock) { queued.isEmpty() && runningInitials == null && !draining }
 
     override fun dequeue(initials: String) {
         val book = withMonitor(lock) { queued.remove(initials) } ?: return
