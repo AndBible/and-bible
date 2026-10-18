@@ -259,5 +259,5 @@ class PlatformDialogRemovalGuardTest {
     }
 
     @Test fun theScanSeesTheSourceTree() =
-        assertTrue("run from app/ — the scan would pass vacuously", File("src/main/java").isDirectory)
+        assertTrue("run from app/ — the scan would pass vacuously", net.bible.test.ProductionSources.roots.all { it.isDirectory })
 }

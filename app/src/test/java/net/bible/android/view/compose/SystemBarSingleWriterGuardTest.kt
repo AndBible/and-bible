@@ -7,7 +7,7 @@ import java.io.File
 
 /** Fix batch 2 §2.4: the nav host has exactly one system-bar writer, `SystemBarController`. */
 class SystemBarSingleWriterGuardTest {
-    private val host = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+    private val host = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
 
     private val banned = listOf(
         Regex("""systemUiVisibility\s*="""),

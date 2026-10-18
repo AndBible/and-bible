@@ -19,7 +19,7 @@ import org.junit.Test
  * magnitude more to set up than the defect costs to state.
  */
 class KeyChooserDispatchGuardTest {
-    private val host = File("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
+    private val host = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
 
     private fun dispatchBody(): String {
         val src = host.readText()

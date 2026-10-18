@@ -47,7 +47,7 @@ class ReadingHostLauncherGuardTest {
         .filter { it.isFile }
         .sortedBy { it.path }
 
-    private val sources = File("src/main/java").walkTopDown()
+    private val sources = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }
         .filter { it.isFile && it.extension == "kt" }
         .toList()
 

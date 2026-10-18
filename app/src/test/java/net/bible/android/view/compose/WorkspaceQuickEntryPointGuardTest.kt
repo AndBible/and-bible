@@ -156,7 +156,7 @@ class WorkspaceQuickEntryPointGuardTest {
     }
 
     @Test fun theHostExposesExactlyOneWorkspaceSheetOpener() {
-        val src = File("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt").readText()
+        val src = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt").readText()
         assertTrue(src.contains("internal fun showWorkspaceSheet()"))
     }
 

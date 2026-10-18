@@ -37,7 +37,7 @@ class SliceEightCallerGuardTest {
 
     /** `File.name:line` of every offending line, comment lines excluded. */
     private fun offenders(): List<String> =
-        File("src/main/java").walkTopDown()
+        net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }
             .filter { it.isFile && it.extension == "kt" && it.name !in excludedFiles }
             .flatMap { file ->
                 file.readLines().withIndex()
@@ -49,7 +49,7 @@ class SliceEightCallerGuardTest {
 
     @Test
     fun theScanSeesTheTree() {
-        assertTrue("src/main/java not found", File("src/main/java").isDirectory)
+        assertTrue("src/main/java not found", net.bible.test.ProductionSources.roots.all { it.isDirectory })
     }
 
     @Test

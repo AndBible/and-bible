@@ -295,7 +295,7 @@ class NavResultChannelGuardTest {
 
     /** The host, which is where the bookmark list's label-manager answer is claimed (CR-5). */
     private fun hostSource(): String {
-        val file = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        val file = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
         assertTrue(file.isFile, "cannot find NavHostComposeActivity.kt at ${file.absolutePath}")
         return withoutComments(file.readText())
     }
@@ -602,7 +602,7 @@ class NavResultChannelGuardTest {
      * already reads `src/main/AndroidManifest.xml`.
      */
     private fun bookmarkResultsExitBody(): String {
-        val file = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        val file = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
         assertTrue(file.isFile, "cannot find ${file.absolutePath} -- this guard would pass vacuously")
         val text = file.readText()
         val marker = "private val bookmarkResults = NavResultChannel<BookmarkResult> {"

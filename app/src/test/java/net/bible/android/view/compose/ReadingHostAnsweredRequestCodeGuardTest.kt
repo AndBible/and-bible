@@ -246,7 +246,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
             body.contains("CommonUtils.changeAppIconAndName()"),
             "the launcher-alias swap is gone from the settings-return body. Body was:\n$body",
         )
-        val callers = File("src/main/java").walkTopDown()
+        val callers = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }
             .filter { it.isFile && it.extension == "kt" }
             .flatMap { file ->
                 file.readLines()
@@ -338,7 +338,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
         val launchLine = Regex("""startActivityForResult\(|requestCode\s*=[^=]""")
         var occurrences = 0
         val selfLaunched = mutableSetOf<String>()
-        for (file in File("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }) {
+        for (file in net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }.filter { it.isFile && it.extension == "kt" }) {
             val lines = file.readLines()
             lines.forEachIndexed { i, line ->
                 if (!launchLine.containsMatchIn(line)) return@forEachIndexed
@@ -379,7 +379,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
 
     /** The `Screen.X` keys `ScreenLauncher.MIGRATED` resolves into this host's graph. */
     private fun migratedScreens(): Set<String> {
-        val src = File("src/main/java/net/bible/android/view/ScreenLauncher.kt").readText()
+        val src = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/ScreenLauncher.kt").readText()
         val marker = "val MIGRATED: Map<Screen, String> = mapOf("
         val at = src.indexOf(marker)
         assertTrue(at >= 0, "ScreenLauncher.MIGRATED was renamed; this guard must follow it")

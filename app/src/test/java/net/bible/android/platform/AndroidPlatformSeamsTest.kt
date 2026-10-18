@@ -215,7 +215,7 @@ class AndroidPlatformSeamsTest {
     private fun startupSources(): Map<String, String> = listOf(
         "android/BibleApplication.kt", "service/sword/SwordEnvironmentInitialisation.kt",
     ).associateWith { path ->
-        val file = File("src/main/java/net/bible/$path")
+        val file = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/$path")
         assertTrue("source guard cannot see $file", file.isFile)
         file.readText().replace(Regex("/\\*.*?\\*/", RegexOption.DOT_MATCHES_ALL), "")
             .lineSequence().map { it.substringBefore("//") }.joinToString("\n")

@@ -18,7 +18,7 @@ class MainBibleActivityRemovalGuardTest {
     @Test
     fun nothingReachesTheReadingEventsThroughMainBibleActivity() {
         val pattern = Regex("""MainBibleActivity\.(""" + nested.joinToString("|") + """)\b""")
-        val offenders = listOf(File("src/main/java"), File("src/test/java")).flatMap { root ->
+        val offenders = (net.bible.test.ProductionSources.roots + File("src/test/java")).flatMap { root ->
             root.walkTopDown().filter { it.isFile && it.extension == "kt" }
                 .filter { f -> f.readLines().any { l -> !l.trimStart().startsWith("*") && !l.trimStart().startsWith("//") && pattern.containsMatchIn(l) } }
                 .map { it.name }.toList()
@@ -72,7 +72,7 @@ class MainBibleActivityRemovalGuardTest {
      */
     @Test
     fun noProductionCodeNamesTheClass() {
-        val offenders = File("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }
+        val offenders = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }.filter { it.isFile && it.extension == "kt" }
             .flatMap { f ->
                 f.readLines().filterNot { l -> l.trimStart().let { it.startsWith("*") || it.startsWith("//") || it.startsWith("/*") } }
                     .filter { l -> Regex("""\bMainBibleActivity\b""").containsMatchIn(l) }

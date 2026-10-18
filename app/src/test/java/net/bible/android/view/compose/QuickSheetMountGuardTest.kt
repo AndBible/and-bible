@@ -11,7 +11,7 @@ import org.junit.Test
  * point. A second `QuickSheetSlot()` call — the most plausible way this design decays — fails here.
  */
 class QuickSheetMountGuardTest {
-    private val host = File("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
+    private val host = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
 
     private fun sourceWithoutComments(): String =
         host.readLines()

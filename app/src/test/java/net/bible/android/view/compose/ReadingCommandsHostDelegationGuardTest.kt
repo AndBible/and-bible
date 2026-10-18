@@ -61,9 +61,9 @@ import org.junit.Test
  */
 class ReadingCommandsHostDelegationGuardTest {
     private val readingCommandsFile =
-        File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt")
     private val menuCommandHandlerFile =
-        File("src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt")
 
     /** Non-prose lines only, same idiom as [SpeakEntryPointGuardTest.codeLinesOf]: this file's own
      *  kdoc quotes the very strings these scans look for (e.g. this test's production counterpart
@@ -227,14 +227,14 @@ class ReadingCommandsHostDelegationGuardTest {
             "the owning-host windowRepository supplier is gone or renamed",
         )
         assertTrue(
-            File("src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt")
+            net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt")
                 .readText().contains("val windowRepository: () -> WindowRepository,"),
             "the bundle must declare the owning host's repository as a SUPPLIER, not a value",
         )
         // Slice 8 F3: the binding half now reads the nav host, the one host left
         // (`MainBibleActivity.kt`, which bound `{ windowRepository }`, is deleted in F4).
         assertTrue(
-            File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+            net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
                 .readText().contains("windowRepository = { hostWindowRepository },"),
             "the nav host binds its OWN repository into the bundle -- not windowControl's, which is " +
                 "whichever host most recently resumed",

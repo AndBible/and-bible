@@ -39,15 +39,15 @@ import java.io.File
 class AbThemeHostGuardTest {
     @Test
     fun `AbTheme is called only from AbAppTheme`() {
-        val root = File("src/main/java")
-        val offenders = root.walkTopDown()
-            .filter { it.isFile && it.extension == "kt" && it.name != "AbAppTheme.kt" }
-            .filter { file ->
+        val offenders = net.bible.test.ProductionSources.roots.flatMap { root -> root.walkTopDown().map { root to it }.toList() }
+            .asSequence()
+            .filter { (_, f) -> f.isFile && f.extension == "kt" && f.name != "AbAppTheme.kt" }
+            .filter { (_, file) ->
                 file.readLines()
                     .map { it.substringBefore("//") }
                     .any { it.contains("AbTheme(") }
             }
-            .map { it.relativeTo(root).path }
+            .map { (root, f) -> f.relativeTo(root).path }
             .sorted()
             .toList()
         assertEquals(

@@ -40,7 +40,7 @@ class InstallZipAwaitGuardTest {
     /** Every offending file name, one entry per offence. */
     private fun offences(): List<String> {
         val found = mutableListOf<String>()
-        File("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }.forEach { file ->
+        net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }.filter { it.isFile && it.extension == "kt" }.forEach { file ->
             if (file.name == "ScreenLauncher.kt") return@forEach
             val text = code(file)
             for (call in listOf("awaitIntent(", ".launch(")) {
@@ -68,7 +68,7 @@ class InstallZipAwaitGuardTest {
 
     @Test
     fun theScanSeesTheTree() {
-        assertTrue(File("src/main/java").isDirectory)
+        assertTrue(net.bible.test.ProductionSources.roots.all { it.isDirectory })
     }
 
     @Test

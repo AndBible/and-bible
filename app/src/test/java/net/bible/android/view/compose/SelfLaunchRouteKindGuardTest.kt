@@ -69,7 +69,7 @@ import org.junit.Test
  */
 class SelfLaunchRouteKindGuardTest {
 
-    private val mainSrc = File("src/main/java")
+    private val mainSrc = net.bible.test.ProductionSources.roots
 
     /** The route bases `ReadingResultKind` covers, spelled from `NavRoutes` so a rename cannot rot this. */
     private val answeredBases = setOf(
@@ -127,7 +127,7 @@ class SelfLaunchRouteKindGuardTest {
 
     @Test
     fun everySelfLaunchedAwaitIntentNamesARouteACollectorAnswers() {
-        require(mainSrc.isDirectory) { "src/main/java not found -- SelfLaunchRouteKindGuardTest scans it" }
+        require(mainSrc.all { it.isDirectory }) { "src/main/java not found -- SelfLaunchRouteKindGuardTest scans it" }
         require(migratedScreenBase.isNotEmpty()) {
             "ScreenLauncher.MIGRATED resolved empty -- the runtime lookup this guard relies on is broken"
         }
@@ -135,7 +135,7 @@ class SelfLaunchRouteKindGuardTest {
         val offenders = mutableListOf<String>()
         var selfLaunchSitesSeen = 0
 
-        mainSrc.walkTopDown().filter { it.extension == "kt" }.forEach { file ->
+        mainSrc.asSequence().flatMap { it.walkTopDown() }.filter { it.extension == "kt" }.forEach { file ->
             if (file.name in externalLauncherFiles) return@forEach
 
             val text = file.readText()

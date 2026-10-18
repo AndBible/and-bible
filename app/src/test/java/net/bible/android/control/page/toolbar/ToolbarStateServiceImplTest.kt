@@ -319,8 +319,7 @@ class ToolbarStateServiceImplTest {
         // thousand files, plain line-regex, no parsing) and self-updating as files are added/moved/
         // renamed. Sorted so a failure message is stable/reproducible across runs (walkTopDown's
         // order is filesystem-dependent, not guaranteed).
-        val root = java.io.File("src/main/java")
-        val sourceFiles = root.walkTopDown()
+        val sourceFiles = net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }
             .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
             .sortedBy { it.path }
             .toList()

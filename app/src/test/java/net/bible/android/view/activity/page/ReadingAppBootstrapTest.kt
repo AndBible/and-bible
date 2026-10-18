@@ -131,7 +131,7 @@ class ReadingAppBootstrapTest {
     )
 
     private val navHostActivity =
-        File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
 
     /** Source lines with comment-only lines dropped, so a mention in a KDoc is not a call site. */
     private fun codeLinesOf(file: File): List<String> =
