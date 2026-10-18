@@ -22,6 +22,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class IosLocalePortsTest {
     private val calendar = IosLocalCalendar()
@@ -57,10 +58,26 @@ class IosLocalePortsTest {
         assertFailsWith<IllegalArgumentException> { calendar.parseMonthDayYear("garbage") }
     }
 
+    private fun symbolDump(id: String): String {
+        val f = platform.Foundation.NSDateFormatter().apply {
+            this.locale = locale(id)
+            calendar = gregorian()
+        }
+        return "$id short=${f.shortMonthSymbols} shortStandalone=${f.shortStandaloneMonthSymbols} " +
+            "full=${f.monthSymbols} standalone=${f.standaloneMonthSymbols}"
+    }
+
     @Test fun parseMonthDayYearFallsBackToLocaleMonthNamesInGregorian() {
         // Finnish "helmik." is not a US month name; a Buddhist device calendar must not shift the year to 2569.
-        val c = comps(IosLocalCalendar { locale("fi_FI@calendar=buddhist") }.parseMonthDayYear("helmik.-1/2026"))
+        val ms = try {
+            IosLocalCalendar { locale("fi_FI@calendar=buddhist") }.parseMonthDayYear("helmik.-1/2026")
+        } catch (e: IllegalArgumentException) {
+            fail("${e.message}\n${symbolDump("fi_FI")}\n${symbolDump("fi_FI@calendar=buddhist")}")
+        }
+        val c = comps(ms)
         assertEquals(2026L, c.year); assertEquals(2L, c.month); assertEquals(1L, c.day)
+        // Full names and a bare prefix reach the same month.
+        assertEquals(2L, comps(IosLocalCalendar { locale("fi_FI") }.parseMonthDayYear("helmikuu-1/2026")).month)
     }
 
     @Test fun currentYearIsGregorianEvenOnABuddhistCalendarLocale() {

@@ -30,6 +30,9 @@ import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDateFormatterMediumStyle
 import platform.Foundation.NSDateFormatterNoStyle
 import platform.Foundation.NSLocale
+import platform.Foundation.NSString
+import platform.Foundation.decomposedStringWithCanonicalMapping
+import platform.Foundation.localeIdentifier
 import platform.Foundation.NSTimeZone
 import platform.Foundation.defaultTimeZone
 import platform.Foundation.currentLocale
@@ -79,7 +82,7 @@ class IosLocalCalendar(
      * accept an abbreviation that ends in a dot, such as Finnish `helmik.`).
      */
     override fun parseMonthDayYear(text: String): Long {
-        val locale = localeProvider()
+        val locale = plainLocale(localeProvider())
         fun parse(loc: NSLocale, pattern: String, lenient: Boolean) = NSDateFormatter().apply {
             this.locale = loc
             calendar = this@IosLocalCalendar.calendar
@@ -93,21 +96,40 @@ class IosLocalCalendar(
         return parseByMonthSymbols(text, locale) ?: throw IllegalArgumentException("Unable to parse date ($text) as MMM-d/yyyy")
     }
 
+    /** [locale] without `@calendar=...;numbers=...` keywords, so its month symbols are the Gregorian ones. */
+    private fun plainLocale(locale: NSLocale): NSLocale =
+        NSLocale.localeWithLocaleIdentifier(locale.localeIdentifier.substringBefore('@'))
+
     private fun parseByMonthSymbols(text: String, locale: NSLocale): Long? {
         val match = Regex("""^\s*(.+?)-(\d{1,2})/(\d{4})\s*$""").matchEntire(text) ?: return null
         val (name, day, year) = match.destructured
-        fun norm(s: String) = s.trim().trimEnd('.').lowercase()
-        val formatter = NSDateFormatter().apply { this.locale = locale }
-        val lists = listOf(formatter.shortMonthSymbols, formatter.shortStandaloneMonthSymbols, formatter.monthSymbols, formatter.standaloneMonthSymbols)
-        for (symbols in lists) {
-            val index = symbols.indexOfFirst { norm(it as String) == norm(name) }
-            if (index < 0) continue
-            val parts = NSDateComponents().apply {
-                this.year = year.toLong(); month = (index + 1).toLong(); this.day = day.toLong()
-            }
-            return calendar.dateFromComponents(parts)?.toEpochMs()
+        val formatter = NSDateFormatter().apply {
+            this.locale = plainLocale(locale)
+            // Set before reading the symbols: they come from the formatter's calendar.
+            calendar = this@IosLocalCalendar.calendar
         }
-        return null
+        val lists = listOf(
+            formatter.shortMonthSymbols, formatter.shortStandaloneMonthSymbols,
+            formatter.monthSymbols, formatter.standaloneMonthSymbols,
+        ).map { list -> list.map { normalizeMonthName(it as String) } }
+        val wanted = normalizeMonthName(name)
+        var index = lists.firstNotNullOfOrNull { l -> l.indexOf(wanted).takeIf { it >= 0 } }
+        if (index == null && wanted.length >= 3) {
+            val candidates = lists.flatMap { l -> l.withIndex().filter { it.value.startsWith(wanted) }.map { it.index } }.toSet()
+            index = candidates.singleOrNull()
+        }
+        if (index == null) return null
+        val parts = NSDateComponents().apply {
+            this.year = year.toLong(); month = (index + 1).toLong(); this.day = day.toLong()
+        }
+        return calendar.dateFromComponents(parts)?.toEpochMs()
+    }
+
+    /** Lower case, no dots, no combining diacritics (Finnish `helmik.` and `Helmik` compare equal). */
+    private fun normalizeMonthName(s: String): String {
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        val decomposed = (s as NSString).decomposedStringWithCanonicalMapping
+        return decomposed.filter { it.code !in 0x300..0x36F && it != '.' }.trim().lowercase()
     }
 
     override fun startOfLocalDay(epochMs: Long): Long = startOfDay(epochMs)
