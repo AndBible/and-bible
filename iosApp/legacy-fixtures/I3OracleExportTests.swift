@@ -118,12 +118,11 @@ final class I3OracleExportTests: XCTestCase {
         try fileManager.createDirectory(at: scratch, withIntermediateDirectories: true)
         defer { try? fileManager.removeItem(at: scratch) }
         let preservedRoot = scratch.appendingPathComponent("PreservedDatabases", isDirectory: true)
-        let fixturePreserved = fixture.appendingPathComponent("PreservedDatabases", isDirectory: true)
-        if fileManager.fileExists(atPath: fixturePreserved.path) {
-            try fileManager.copyItem(at: fixturePreserved, to: preservedRoot)
-        } else {
-            try fileManager.createDirectory(at: preservedRoot, withIntermediateDirectories: true)
-        }
+        // The preserved Android ai_settings.sqlite3 is deliberately NOT fed to the exporter: it is schema
+        // v23 and the pin only accepts up to v22, and the oracle must show what the Swift app exports from
+        // its own rows (Swift rows win). The AI oracle is ai_settings.sqlite3 from step 4b; the union with
+        // the preserved file is computed by the Kotlin side.
+        try fileManager.createDirectory(at: preservedRoot, withIntermediateDirectories: true)
         let backupService = AndroidDatabaseBackupService(
             temporaryDirectory: scratch,
             repositorySourceManager: RepositorySourceManager(
