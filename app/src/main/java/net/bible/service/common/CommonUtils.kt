@@ -107,6 +107,9 @@ import net.bible.sharedcore.platform.AppJson
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.getEnumSet
 import net.bible.sharedcore.platform.setEnumSet
+import net.bible.sharedcore.platform.resolveDisableAnimations
+import net.bible.sharedcore.platform.resolveDisplayColorMode
+import net.bible.sharedcore.platform.resolveThemePaletteStyle
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -384,17 +387,17 @@ object CommonUtils : CommonUtilsBase() {
         override fun setDouble(key: String, value: Double?) = store.setDouble(key, value)
         override fun setFloat(key: String, value: Float?) = store.setDouble(key, value?.toDouble())
 
-        val displayColorMode: DisplayColorMode get() =
-            DisplayColorMode.fromValue(getString("display_color_mode", null))
-                ?: DisplayColorMode.defaultFor(isOnyxDevice)
+        /** Resolved in common code: [net.bible.sharedcore.platform.resolveDisplayColorMode]. */
+        val displayColorMode: DisplayColorMode get() = resolveDisplayColorMode(isOnyxDevice)
         val monochromeMode: Boolean get() = displayColorMode != DisplayColorMode.NORMAL
         val colorEinkMode: Boolean get() = displayColorMode == DisplayColorMode.COLOR_EINK
         /** True only for MONOCHROME: pure black & white, stricter than [monochromeMode]. */
         val pureMonochromeMode: Boolean get() = displayColorMode == DisplayColorMode.MONOCHROME
-        val themePaletteStyle: ThemePaletteStyle get() =
-            ThemePaletteStyle.fromValue(getString(THEME_PALETTE_STYLE_KEY, null)) ?: ThemePaletteStyle.DEFAULT
+        /** Resolved in common code: [net.bible.sharedcore.platform.resolveThemePaletteStyle]. */
+        val themePaletteStyle: ThemePaletteStyle get() = resolveThemePaletteStyle()
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
-        val disableAnimations: Boolean get() = getBoolean("disable_animations", isOnyxDevice)
+        /** Resolved in common code: [net.bible.sharedcore.platform.resolveDisableAnimations]. */
+        val disableAnimations: Boolean get() = resolveDisableAnimations(isOnyxDevice)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
         val hideStatusBar: Boolean get() = getBoolean("hide_status_bar", false)
         val notesContentType: String get() = getString("notes_content_type", "HTML") ?: "HTML"

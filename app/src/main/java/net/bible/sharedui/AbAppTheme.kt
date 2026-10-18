@@ -26,7 +26,7 @@ import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import net.bible.sharedui.theme.AbTheme
+import net.bible.sharedui.theme.AbHostTheme
 import org.koin.core.context.GlobalContext
 
 /** [workspaceThemeSeedArgb] applied to the live singleton: the active workspace's own colour. */
@@ -87,12 +87,11 @@ fun AbAppTheme(darkTheme: Boolean? = null, content: @Composable () -> Unit) {
         onDispose { subscription.cancel() }
     }
     ProvideAppLocals {
-        AbTheme(
-            seedArgb = seedArgb,
+        AbHostTheme(
             darkTheme = darkTheme ?: ScreenSettings.nightMode,
-            colorMode = CommonUtils.settings.displayColorMode,
-            disableAnimations = CommonUtils.settings.disableAnimations,
-            paletteStyle = CommonUtils.settings.themePaletteStyle,
+            settings = CommonUtils.settings,
+            isOnyx = CommonUtils.isOnyxDevice,
+            workspaceSeed = { seedArgb },
             content = content,
         )
     }
