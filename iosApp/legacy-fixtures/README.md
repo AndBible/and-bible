@@ -1,6 +1,6 @@
 # Legacy SwiftData fixtures (I3 legacy migration)
 
-CI-only tooling that produces the test inputs and the test oracle for the I3 migration of the native
+Tooling (run on the remote Mac, CI as fallback) that produces the test inputs and the test oracle for the I3 migration of the native
 Swift app's data (SwiftData / Core Data SQLite stores) into the Compose app. Nothing here is shipped.
 Spec: `docs/superpowers/specs/2026-10-17-i3-legacy-migration-design.md` (section 8, "Fixtures" and
 "Oracle comparison"). Plan: `docs/superpowers/plans/2026-10-17-i3a-legacy-migration-reader-mapper.md`, Task 1.
@@ -11,7 +11,9 @@ Spec: `docs/superpowers/specs/2026-10-17-i3-legacy-migration-design.md` (section
 | --- | --- |
 | `I3FixtureGeneratorTests.swift` | XCTest. Seeds four scenarios with the Swift app's real models. Compiles against 1.0.1 and the pin. |
 | `I3OracleExportTests.swift` | XCTest, pin only. Runs the app's startup repair on each generated store and writes the Swift exporters' outputs. |
-| `../../.github/workflows/ios-i3-legacy-fixtures.yml` | Builds both tests into the legacy checkout and runs them on iOS simulators. |
+| `run-on-mac.sh` | Remote-Mac driver: `generate <app> <ios>`, `oracle`, `package`. |
+| `package_fixtures.py` (+ `test_package_fixtures.py`) | Packs generated stores and oracle outputs into deterministic zips plus `manifest.json`. |
+| `../../.github/workflows/ios-i3-legacy-fixtures.yml` | Fallback: the same build and run on CI simulators. |
 
 Swift app revisions (repository `AndBible/and-bible-ios`):
 
@@ -23,15 +25,46 @@ Swift app revisions (repository `AndBible/and-bible-ios`):
 
 ## How to regenerate
 
-1. Push to the `ios` branch (any change under `iosApp/legacy-fixtures/**` or the workflow file triggers the
-   run) or start **iOS I3 legacy fixtures** with `workflow_dispatch`.
-2. Wait for the `generate` matrix (app `1.0.1`, `1.0.2` x iOS `17`, `18`, `26`) and the `oracle` job.
-3. `gh run download <run-id> -n i3-legacy-fixtures -D <dir>`. The artifact holds
-   `<app>/<ios>/<scenario>.zip` and `manifest.json` (`[{app, ios, scenario, path, sha256, fingerprint}]`).
-4. Copy the contents to `sharedLogic/src/jvmTest/resources/legacymigration/fixtures/` (total at most 20 MB,
-   check with `du -sh`) and commit them together with the CI run id in the message.
+Primary path, the remote Mac (skill `ios-mac`; each `run` syncs the tree and takes the Mac build lock):
 
-Intermediate artifacts (`i3-generated-<app>-<ios>`, `*-logs-*`) are only for debugging a failed cell.
+```
+for app in 1.0.1 1.0.2; do for ios in 17 18 26; do
+  scripts/mac-remote.sh run bash iosApp/legacy-fixtures/run-on-mac.sh generate $app $ios
+done; done
+scripts/mac-remote.sh run bash iosApp/legacy-fixtures/run-on-mac.sh oracle     # pin, iOS 26, all stores
+scripts/mac-remote.sh run bash iosApp/legacy-fixtures/run-on-mac.sh package
+scripts/mac-remote.sh fetch build/i3-fixtures
+```
+
+Copy `build/i3-fixtures/package/*` (the `<app>/<ios>/<scenario>.zip` files and `manifest.json`; manifest
+`path` values are relative to that directory) to `sharedLogic/src/jvmTest/resources/legacymigration/fixtures/`
+(total at most 20 MB, check with `du -sh`; currently 2.8 MB, 24 zips). Legacy checkouts and DerivedData live in
+`~/work/i3-legacy` on the Mac; logs in `build/i3-fixtures/logs`.
+
+The packaging test must run from its own directory: `cd iosApp/legacy-fixtures && python3 -m unittest test_package_fixtures`.
+
+Fallback, CI: push to `ios` (changes under `iosApp/legacy-fixtures/**` or the workflow file) or start
+**iOS I3 legacy fixtures** with `workflow_dispatch`, then
+`gh run download <run-id> -n i3-legacy-fixtures -D <dir>` and copy as above. Intermediate artifacts
+(`i3-generated-<app>-<ios>`, `*-logs-*`) are only for debugging a failed cell.
+
+## Committed cells
+
+Generated on the remote Mac, Xcode 26.6, simulator runtimes iOS 17.5, 18.6 and 26.5. Apps `1.0.1` and `1.0.2`
+x iOS `17`, `18`, `26` x scenarios `fresh`, `rich`, `restored-android`, `preserved-ai` (24 zips). The oracle ran
+on the pin under iOS 26 over all stores. Distinct model fingerprints (first 12 hex): 1.0.1/17 `b9c461c2cd73`;
+1.0.1/18 and 1.0.1/26 `f350194971fe`; 1.0.2/17 `e5fea2ccf6c5`; 1.0.2/18 and 1.0.2/26 `8cdd5de71d3a`.
+
+The fingerprints above come from the Swift oracle (hash of the per-store digests). The Kotlin reader uses its own
+`modelFingerprint` (SHA-256 over the sorted entity names and raw version hashes); the committed schema maps are named by
+it: `b9c461c2cd73` = `SchemaMap_9c047651d5fa`, `f350194971fe` = `SchemaMap_ed88d3de6894`, `e5fea2ccf6c5` =
+`SchemaMap_69710f0b5afe`, `8cdd5de71d3a` = `SchemaMap_32e8587e3035`.
+
+`1.0.0` has no cells of its own: it has the 1.0.1 model (see above), so the 1.0.1 cells cover it.
+
+Known quirk, `preserved-ai`: the preserved Android `ai_settings.sqlite3` is schema v23 and the pin supports 22, so
+the oracle `.abdb.zip` has no `aiSettings` entry there. The AI oracle for that scenario is
+`oracle/ai_settings.sqlite3` written from the Swift rows only; the Kotlin test performs the U11 union itself.
 
 ### Zip layout
 
@@ -143,12 +176,3 @@ Differences that matter for the data, and how they are handled:
 - `DataMigration.migrateIfNeeded()` acts on the simulator's Application Support directory, which is why the
   oracle installs each store there before running it. It is a no-op for healthy `AndBible.store` files.
 - The oracle never modifies `I3_FIXTURE_IN`.
-
-## Unverified (no macOS in the authoring environment)
-
-The Swift files and the workflow were written on Linux against the sources of the pinned clone; nothing here
-has been compiled or run yet. Items to confirm in the first CI rounds: that `-scheme BibleCoreTests` resolves in
-`AndBible.xcodeproj` on both revisions, the `-downloadPlatform iOS -buildVersion <ios>.x` spelling, that an
-iOS 17 runtime is obtainable with the runner's Xcode (a cell proven impossible is recorded here and removed from
-the matrix), and that the simulator can write to the host path in `TEST_RUNNER_I3_FIXTURE_OUT` (the workflow
-falls back to the simulator's temporary directory otherwise).
