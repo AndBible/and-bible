@@ -47,8 +47,12 @@ class ReadingOverlayExclusionWiringGuardTest {
     private val hostStateSource =
         File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/ReadingHostState.kt")
 
+    /** The text-settings editor's application site (`showTextSettingEditor`) moved to common code (R1 Task 5). */
+    private val textSettingsSlotSource =
+        File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots/TextSettingsSlot.kt")
+
     @Test fun bothScannedSourcesExist() {
-        listOf(enumSource, hostSource, hostStateSource).forEach {
+        listOf(enumSource, hostSource, hostStateSource, textSettingsSlotSource).forEach {
             assertTrue("${it.path} no longer exists — this guard would pass vacuously", it.isFile)
         }
     }
@@ -73,12 +77,12 @@ class ReadingOverlayExclusionWiringGuardTest {
     }
 
     /**
-     * Every overlay must have an application site in the host (or its common `ReadingHostState`): opening it closes the others. A
+     * Every overlay must have an application site in the host (or its common `ReadingHostState` / text-settings slot): opening it closes the others. A
      * missing one is the completeness gap the 14a status entry recorded, and it is invisible at
      * runtime today only because a modal scrim happens to cover every route to a second sheet.
      */
     @Test fun everyOverlayHasAnExclusionApplicationSiteInTheHost() {
-        val code = codeLinesOf(hostSource) + "\n" + codeLinesOf(hostStateSource)
+        val code = codeLinesOf(hostSource) + "\n" + codeLinesOf(hostStateSource) + "\n" + codeLinesOf(textSettingsSlotSource)
         val unwired = overlayNames()
             .filterNot { code.contains("ReadingOverlayExclusion.closedBy(ReadingOverlay.$it)") }
         assertEquals(

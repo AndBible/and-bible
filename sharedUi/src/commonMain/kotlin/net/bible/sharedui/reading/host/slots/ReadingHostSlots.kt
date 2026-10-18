@@ -23,7 +23,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ImageBitmap
+import kotlinx.coroutines.CoroutineScope
 import net.bible.android.view.activity.page.screen.speakBarVisible
+import net.bible.sharedcore.settings.ColorSettingsController
+import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsEditorStack
+import net.bible.sharedcore.settings.SettingsScope
+import net.bible.sharedcore.settings.TextDisplaySettingsController
+import net.bible.sharedcore.settings.TextDisplaySettingsService
+import net.bible.sharedui.app.ports.ImagePicker
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.reading.speakBarOwnsTopEdge
 import net.bible.sharedcore.speak.SpeakTransportController
@@ -39,6 +48,9 @@ import net.bible.sharedui.strings.Strings
  * (no Koin, no platform types); [strings] and [disableAnimations] are lambdas so a late change
  * (locale, the animations preference) is read on each composition. [fullScreen] is read inside
  * composition, so passing a `State`'s getter makes the speak bar recompose when it flips.
+ *
+ * The text-settings editor takes the platform's [imagePicker] (background import) and
+ * [thumbnailFor] (provided-background thumbnails), and a [scope] for the colour controller's work.
  *
  * The agent log's glyph comes from [LocalAgentStatusIcon]; `AgentLogController` is built by the
  * host (its raw-log action starts a platform activity).
@@ -56,7 +68,37 @@ class ReadingHostSlots(
     val searchSettingsForEpub: () -> Boolean,
     val currentBookName: () -> String,
     val onSearchSettingsClosed: () -> Unit,
+    val textDisplaySettingsService: () -> TextDisplaySettingsService,
+    val scope: CoroutineScope,
+    val imagePicker: ImagePicker,
+    val thumbnailFor: (String) -> ImageBitmap?,
 ) {
+    private val textSettings = TextSettingsEditorState(
+        hostState, textDisplaySettingsService, scope, strings, imagePicker, thumbnailFor,
+    )
+
+    /** The in-place text-settings editor's page stack (independent of the settings screen's stack). */
+    val textSettingsEditor: SettingsEditorStack get() = textSettings.editor
+
+    /**
+     * Opens the in-place text-settings editor at [page] for [settingsScope]; [onReady] runs after each
+     * change lands. Closes the other modal overlays first.
+     */
+    fun showTextSettingEditor(settingsScope: SettingsScope, page: SettingsEditorPage, onReady: () -> Unit) =
+        textSettings.show(settingsScope, page, onReady)
+
+    /** The cached text-settings controller for [settingsScope] (one per visited scope). */
+    fun textSettingsControllerFor(settingsScope: SettingsScope): TextDisplaySettingsController =
+        textSettings.controllerFor(settingsScope)
+
+    /** A fresh, never-cached colour controller for [settingsScope]. */
+    fun colorControllerFor(settingsScope: SettingsScope): ColorSettingsController =
+        textSettings.colorControllerFor(settingsScope)
+
+    /** The text-settings editor sheet; renders nothing while its page stack is empty. */
+    @Composable
+    fun TextSettingsEditor() = textSettings.Content()
+
     /** The reading view's own dialogs (help text, delete-page confirmation). */
     @Composable
     fun ReadingDialog() = ReadingDialogContent(hostState, strings(), externalLinks)

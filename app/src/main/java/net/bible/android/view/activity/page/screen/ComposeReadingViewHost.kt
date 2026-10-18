@@ -124,10 +124,6 @@ import net.bible.android.view.activity.search.epubSearchModeFromClassicName
 import net.bible.android.view.activity.search.epubSearchRunFor
 import net.bible.android.view.activity.search.toClassicSearchTypeName
 import net.bible.android.view.activity.settings.BackgroundThumbnailResolver
-import net.bible.android.view.activity.settings.buildBackgroundImageChooserLabels
-import net.bible.android.view.activity.settings.buildColorSettingsLabels
-import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
-import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.common.automaticSpeakBookmarkingVideo
@@ -195,14 +191,10 @@ import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.forEpubOf
 import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.search.searchTranslationIds
-import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsScope
-import net.bible.sharedcore.settings.SettingsScreenState
-import net.bible.sharedcore.settings.TextDisplaySettingsController
 import net.bible.sharedcore.settings.TextDisplaySettingsService
-import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.speak.AdvancedSpeakSettingsController
 import net.bible.sharedcore.speak.BibleSpeakSettingsController
 import net.bible.sharedcore.speak.PickedVerse
@@ -252,6 +244,7 @@ import net.bible.sharedui.reading.ShareVersesSheet
 import net.bible.sharedui.reading.host.slots.ReadingHostSlots
 import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
+import net.bible.sharedui.app.ports.ImagePicker
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.search.BibleResultsActions
@@ -262,9 +255,6 @@ import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.search.SearchSheetContent
 import net.bible.sharedui.search.bibleResultRows
 import net.bible.sharedui.search.epubResultRows
-import net.bible.sharedui.settings.ColorSettingsEditorSheet
-import net.bible.sharedui.settings.GenericSettingsEditorSheet
-import net.bible.sharedui.settings.TextSettingRowEditorSheet
 import net.bible.sharedui.speak.AdvancedSpeakSettingsContent
 import net.bible.sharedui.speak.SleepTimerContent
 import net.bible.sharedui.speak.SpeakRangeContent
@@ -808,6 +798,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /** The search settings state (common code, `:sharedUi`); the fields below delegate to it. */
     private val searchState = ReadingSearchState(CommonUtils.settings, hostScope)
 
+    private val textDisplaySettingsService: TextDisplaySettingsService by inject()
+    private val backgroundThumbnailResolver = BackgroundThumbnailResolver()
+
     /**
      * The reading view's host-built slots, in common code (`:sharedUi` `ReadingHostSlots`): the
      * reading dialogs, the agent-log panel and the Speak bar. Declared after [agentLog] and
@@ -825,7 +818,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         searchSettingsForEpub = ::searchSettingsForEpub,
         currentBookName = { searchControl.currentBookName },
         onSearchSettingsClosed = { searchController.settingsClosed() },
+        textDisplaySettingsService = { textDisplaySettingsService },
+        scope = hostScope,
+        imagePicker = object : ImagePicker {
+            override suspend fun pickImage(): String? = activity.readingCommands.textSettingsImagePicker()
+        },
+        thumbnailFor = backgroundThumbnailResolver::resolve,
     )
+
 
     // ------------------------------------------------------------------------------------------
     // F6 Task 8a — SWORD search inside the reading view (the toolbar's search mode + the sheet).
@@ -867,212 +867,23 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val searchAvailableTranslations get() = searchState.searchAvailableTranslations
 
     // ------------------------------------------------------------------------------------------
-    // Settings editor sheets T10 — the reading view's in-place text-settings editor, opened over
-    // the reading view instead of launching TextDisplaySettingsComposeActivity (which pushed two
-    // destinations the user had to back out of separately). Wired to a menu in a later task; this
-    // task only builds the callable, tested surface.
+    // Settings editor sheets T10 -- the reading view's in-place text-settings editor. Its page
+    // stack, controllers and sheet live in common code ([ReadingHostSlots]); this host forwards.
     // ------------------------------------------------------------------------------------------
 
-    private val textDisplaySettingsService: TextDisplaySettingsService by inject()
-
-    /** The in-place text-settings editor's page stack — the reading view's own instance,
-     *  independent of the settings activity's [SettingsEditorStack]. */
-    internal val textSettingsEditor = SettingsEditorStack()
-
-    /** The scope the open editor edits, and what to run after a change lands. Set by
-     *  [showTextSettingEditor]; the callback is the caller's own `onReady`, so a future workspace-
-     *  menu dispatch site can refresh every window while a pane-menu one refreshes just its own.
-     *  `mutableStateOf`, not a plain `var`: [TextSettingsEditorSlot] reads it in composition via
-     *  `remember(scope)`, and a plain non-snapshot read is never recomposed for -- the same
-     *  "modifier runs before content" class of bug [searchResultsListState] elsewhere in this file
-     *  already paid for once, one property away from repeating it here. */
-    private var textSettingsScope: SettingsScope? by mutableStateOf(null)
-    private var textSettingsOnReady: () -> Unit = {}
-
-    /** One [TextDisplaySettingsController] per visited [SettingsScope] — cached like
-     *  `TextDisplaySettingsComposeActivity.controllerCache`, for the same reason: a `collectAsState`
-     *  subscriber must not lose its subscription across recompositions. */
-    private val textSettingsControllers = mutableMapOf<SettingsScope, TextDisplaySettingsController>()
-
-    private val textSettingsLabels by lazy { buildTextDisplayControllerLabels(activity.hostContext) }
-    private val textSettingsScreenLabels by lazy { buildTextDisplayScreenLabels(activity.hostContext) }
-    private val colorSettingsLabels by lazy { buildColorSettingsLabels(activity.hostContext) }
-    private val backgroundChooserLabels by lazy { buildBackgroundImageChooserLabels(activity.hostContext) }
-    private val backgroundThumbnailResolver = BackgroundThumbnailResolver()
+    /** The in-place text-settings editor's page stack (owned by [slots]). */
+    internal val textSettingsEditor: SettingsEditorStack get() = slots.textSettingsEditor
 
     /**
      * Open the in-place editor for one text display setting, over the reading view. Meant to be
-     * called from `MainBibleActivity`'s two menu dispatch sites instead of `Preference.openDialog`
-     * (a later task), so the user never leaves the reading view and back has nowhere to land but
-     * here — the defect this whole feature exists to fix dies by construction rather than being
-     * worked around.
+     * called from `MainBibleActivity`'s two menu dispatch sites instead of `Preference.openDialog`,
+     * so the user never leaves the reading view and back has nowhere to land but here.
      */
     internal fun showTextSettingEditor(
         scope: SettingsScope,
         page: SettingsEditorPage,
         onReady: () -> Unit,
-    ) {
-        // Total mutual exclusion (see [readingLlmDialogs]'s `onSheetOpening` kdoc for the rule and
-        // why it is stated once, purely, in `:sharedCore`): this editor is a modal overlay of the
-        // reading view, so opening it closes whatever other one is up. Applied at the 14a/14a-2
-        // merge, per round 14a's status entry.
-        ReadingOverlayExclusion.closedBy(ReadingOverlay.TextSettingsEditor).forEach(::closeOverlay)
-        // Close first: [SettingsEditorStack.open] assigns a `MutableStateFlow`, which conflates an
-        // equal value, so opening the SAME page for a DIFFERENT scope right after a previous open
-        // would emit nothing and [TextSettingsEditorSlot] would keep rendering the OLD scope's
-        // cached controller. Closing unconditionally first guarantees `open`'s value always differs
-        // from empty, so it always emits.
-        textSettingsEditor.close()
-        textSettingsScope = scope
-        textSettingsOnReady = onReady
-        // The cached controller for this scope (see [textSettingsControllerFor]) only reloads after
-        // its OWN writes, so an edit made through a different controller instance — the settings
-        // screen's, a second window's, sync, or a classic dialog — would otherwise leave this one
-        // showing a stale snapshot: the sheet's slider could start at an old value and, worse, WRITE
-        // it back on confirm, undoing the other edit. Mirrors
-        // `TextDisplaySettingsComposeActivity.pop()`'s `controllerFor(scope).refresh()` for exactly
-        // the same reason.
-        textSettingsControllerFor(scope).refresh()
-        textSettingsEditor.open(page)
-    }
-
-    /** `internal`, not `private` -- same test-visibility convention as [searchSettingsOpen] above:
-     *  `:app` has no `ComposeTestRule` to drive [TextSettingsEditorSlot]'s composition, so proving
-     *  this construction itself never bumps [generation] means a test calling it directly. */
-    internal fun textSettingsControllerFor(scope: SettingsScope): TextDisplaySettingsController =
-        textSettingsControllers.getOrPut(scope) {
-            TextDisplaySettingsController(
-                service = textDisplaySettingsService,
-                settingsScope = scope,
-                labels = textSettingsLabels,
-                // The in-place editor never navigates: every navigating key (the two drill-up
-                // links, COLORS, BOOKMARKS_HIDELABELS) is filtered out by textSettingEditorPageFor
-                // before showTextSettingEditor is ever reached with this scope's controller.
-                onNavigateCallback = { },
-            )
-        }
-
-    /** NOT cached across editor opens, for the exact reason
-     *  `TextDisplaySettingsComposeActivity.colorControllerFor`'s kdoc gives: its state is loaded
-     *  once in the constructor, and a whole-scope reset elsewhere (this controller's own `onReset`)
-     *  can change colours behind an idle instance — a cached, stale instance would then reopen
-     *  showing pre-reset values.
-     *
-     *  `internal`, not `private` -- same test-visibility reason as [textSettingsControllerFor]
-     *  above: a test needs to construct one directly to prove doing so never bumps [generation]. */
-    internal fun colorControllerFor(scope: SettingsScope): ColorSettingsController =
-        ColorSettingsController(
-            service = textDisplaySettingsService,
-            scope = scope,
-            coroutineScope = hostScope,
-            imagePicker = activity.readingCommands.textSettingsImagePicker,
-        )
-
-    /**
-     * Which of the eight [SettingsEditorPage.Row] keys [net.bible.sharedcore.settings
-     * .textSettingEditorPageFor] can hand back are rendered as a [GenericSettingsEditorSheet]
-     * list-choice page rather than a [TextSettingRowEditorSheet] numeric/margin page — mirrors
-     * `TextDisplaySettingsScreen`'s `SHEET_EDITED_TEXT_SETTING_KEYS` split, inverted: that screen's
-     * own [AbSettingsContent] (via `AbListChoiceDialog`) renders these four inline and never routes
-     * them through its editor stack at all, but this host has no such native list-choice dialog of
-     * its own, so it must render the same page body [GenericSettingsEditorSheet] does.
-     */
-    private val listChoiceTextSettingKeys = setOf(
-        TextSettingType.FONTFAMILY.name,
-        TextSettingType.STRONGS.name,
-        TextSettingType.PAGE_SCROLL_AMOUNT.name,
-        TextSettingType.SCROLL_HELPER_LINE_STYLE.name,
-    )
-
-    /** The in-place text-settings editor sheet — mounted as the FIFTH sibling overlay next to
-     *  [ReadingHostSlots.SearchSettings] (see its own mounting comment at the `mountComposeView` call site).
-     *  Self-hides via [SettingsEditorSheet]/[TextSettingRowEditorSheet]/[ColorSettingsEditorSheet]'s
-     *  own null/empty-pages early-return, so a host can render this unconditionally. */
-    @Composable
-    private fun TextSettingsEditorSlot() {
-        val pages by textSettingsEditor.pages.collectAsState()
-        val page = pages.lastOrNull() ?: return
-        val scope = textSettingsScope ?: return
-        val controller = remember(scope) { textSettingsControllerFor(scope) }
-        val state by controller.state.collectAsState()
-
-        when (page) {
-            is SettingsEditorPage.Row -> {
-                if (page.key in listChoiceTextSettingKeys) {
-                    GenericSettingsEditorSheet(
-                        state = SettingsScreenState(title = state.title, items = state.items),
-                        editor = textSettingsEditor,
-                        page = page,
-                        depth = pages.size,
-                        onListChoice = { key, v -> controller.onListChoice(key, v); textSettingsOnReady() },
-                        // Neither TextInputRow nor MultiSelectRow ever occurs among text-display
-                        // settings (see TextDisplaySettingsController.buildRow's when), so these
-                        // two are unreachable here — kept as harmless no-ops rather than throwing,
-                        // matching GenericSettingsEditorSheet's own "safe no-op" discipline for a
-                        // SettingsItem shape RenderSettingsItem never produces for this row kind.
-                        onTextInput = { _, _ -> },
-                        onMultiSelectChange = { _, _ -> },
-                    )
-                } else {
-                    TextSettingRowEditorSheet(
-                        pages = pages,
-                        rows = state.rows,
-                        dialogLabels = textSettingsScreenLabels,
-                        onNumericChange = { key, v -> controller.onNumericChange(key, v); textSettingsOnReady() },
-                        onMarginsChange = { key, l, r, m ->
-                            controller.onMarginsChange(key, l, r, m); textSettingsOnReady()
-                        },
-                        onRevert = { key -> controller.onRevert(key); textSettingsOnReady() },
-                        onPop = { textSettingsEditor.pop() },
-                        onClose = { textSettingsEditor.close() },
-                    )
-                }
-            }
-            is SettingsEditorPage.Colors,
-            is SettingsEditorPage.ColorPick,
-            is SettingsEditorPage.BackgroundImage -> {
-                val colorController = remember(scope) { colorControllerFor(scope) }
-                val colorState by colorController.state.collectAsState()
-                ColorSettingsEditorSheet(
-                    pages = pages,
-                    state = colorState,
-                    labels = colorSettingsLabels,
-                    chooserLabels = backgroundChooserLabels,
-                    thumbnailFor = backgroundThumbnailResolver::resolve,
-                    importVisible = true,
-                    onColorChange = { f, c -> colorController.onColorChange(f, c); textSettingsOnReady() },
-                    onWorkspaceColorChange = { c -> colorController.onWorkspaceColorChange(c); textSettingsOnReady() },
-                    onWorkspaceColorReset = { colorController.onWorkspaceColorReset(); textSettingsOnReady() },
-                    onNoiseChange = { n, v -> colorController.onNoiseChange(n, v); textSettingsOnReady() },
-                    onOpacityChange = { n, v -> colorController.onOpacityChange(n, v); textSettingsOnReady() },
-                    onSelectBackgroundImage = { n, i ->
-                        colorController.onSelectBackgroundImage(n, i); textSettingsOnReady()
-                    },
-                    onImportBackgroundImage = colorController::onImportBackgroundImage,
-                    onRequestDeleteBackgroundImage = colorController::onRequestDeleteBackgroundImage,
-                    onConfirmDeleteBackgroundImage = colorController::onConfirmDeleteBackgroundImage,
-                    onDismissDeleteConfirm = colorController::onDismissDeleteConfirm,
-                    // Final fix wave, Fix 4: reuses the SAME textSettingsScreenLabels resolved
-                    // strings the Row-page branch above already passes to TextSettingRowEditorSheet
-                    // -- no new string, no new label bundle.
-                    onReset = { colorController.onReset(); textSettingsOnReady() },
-                    resetConfirmMessage = textSettingsScreenLabels.resetConfirmMessage,
-                    confirmLabel = textSettingsScreenLabels.okLabel,
-                    cancelLabel = textSettingsScreenLabels.cancelLabel,
-                    onPush = { textSettingsEditor.push(it) },
-                    onPop = { textSettingsEditor.pop() },
-                    onClose = { textSettingsEditor.close() },
-                )
-            }
-        }
-    }
-
-    // ------------------------------------------------------------------------------------------
-    // Round 13a — the Speak settings sheet over the reading view. Replaces the two deleted Compose
-    // Speak activities (T4); S13 then deleted the classic ones and Batch Z-late's epilogue removed
-    // the `Screen.BibleSpeak` enum entry, so this host is the WHOLE Speak settings surface, on
-    // either side of the port. Guarded by `SpeakEntryPointGuardTest`.
-    // ------------------------------------------------------------------------------------------
+    ) = slots.showTextSettingEditor(scope, page, onReady)
 
     /** The Speak sheet's page stack. One instance per host, like [textSettingsEditor] -- `internal`
      *  for the same reason (test-only reads of which page is open, no `ComposeTestRule` in this
@@ -1182,7 +993,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /**
-     * The Speak settings sheet — mounted as the SIXTH sibling overlay next to [TextSettingsEditorSlot]
+     * The Speak settings sheet — mounted as the SIXTH sibling overlay next to [ReadingHostSlots.TextSettingsEditor]
      * (see its own mounting comment at the [mountComposeView] call site). [SpeakSettingsSheet]
      * self-hides on a null page, so the host renders this unconditionally.
      */
@@ -3113,7 +2924,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         searchSheetSlot = { SearchSheetSlot() },
         searchSettingsSlot = { slots.SearchSettings() },
         // Settings editor sheets T10: the reading view's in-place text-settings editor.
-        textSettingsEditorSlot = { TextSettingsEditorSlot() },
+        textSettingsEditorSlot = { slots.TextSettingsEditor() },
         // Round 13a: the Speak settings sheet.
         speakSettingsSlot = { SpeakSettingsSlot() },
         quickSheetContent = { sheet -> QuickSheetContent(sheet) },

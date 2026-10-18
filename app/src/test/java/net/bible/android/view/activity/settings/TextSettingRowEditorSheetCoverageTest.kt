@@ -165,10 +165,10 @@ class TextSettingRowEditorSheetCoverageTest {
     // ---- Final fix wave, Fix 3: the HOST's list-choice routing table needs the same guard --------
 
     /**
-     * `ComposeReadingViewHost.listChoiceTextSettingKeys` is the reading view's counterpart of
+     * `TextSettingsEditorState.listChoiceTextSettingKeys` is the reading view's counterpart of
      * `SHEET_EDITED_TEXT_SETTING_KEYS` above -- together the two tables decide, for every
      * [TextSettingType] that [textSettingEditorPageFor] resolves to a [SettingsEditorPage.Row], which
-     * of the two page bodies [ComposeReadingViewHost.TextSettingsEditorSlot] renders:
+     * of the two page bodies [net.bible.sharedui.reading.host.slots.ReadingHostSlots.TextSettingsEditor] renders:
      * `GenericSettingsEditorSheet` (list-choice keys) or [net.bible.sharedui.settings
      * .TextSettingRowEditorSheet] (everything else -- FONTSIZE/TOPMARGIN/LINE_SPACING/MARGINSIZE).
      * `TextSettingRowEditorSheet.kt`'s two unsafe casts (`as TextSettingRowValue.Numeric`/`Margins`)
@@ -187,7 +187,7 @@ class TextSettingRowEditorSheetCoverageTest {
      * `when` branch in `TextSettingsEditorSlot` runs first).
      */
     private val hostSource = java.io.File(
-        "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt"
+        "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots/TextSettingsSlot.kt"
     ).readText()
 
     private fun actualListChoiceKeys(): Set<String> {
@@ -195,7 +195,7 @@ class TextSettingRowEditorSheetCoverageTest {
             "listChoiceTextSettingKeys = setOf\\(([^)]*)\\)",
             RegexOption.DOT_MATCHES_ALL,
         ).find(hostSource)?.groupValues?.get(1)
-            ?: error("listChoiceTextSettingKeys = setOf(...) not found in ComposeReadingViewHost.kt")
+            ?: error("listChoiceTextSettingKeys = setOf(...) not found in TextSettingsSlot.kt")
         return Regex("TextSettingType\\.([A-Z_]+)\\.name").findAll(block).map { it.groupValues[1] }.toSet()
     }
 
@@ -213,9 +213,9 @@ class TextSettingRowEditorSheetCoverageTest {
         val sheetEdited = actualSheetEditedKeys()
 
         assertThat(
-            "listChoiceTextSettingKeys (ComposeReadingViewHost.kt) and SHEET_EDITED_TEXT_SETTING_KEYS " +
+            "listChoiceTextSettingKeys (TextSettingsSlot.kt) and SHEET_EDITED_TEXT_SETTING_KEYS " +
                 "(TextDisplaySettingsScreen.kt) must be disjoint -- a key claimed by both would " +
-                "non-deterministically pick a page body in TextSettingsEditorSlot's `when`",
+                "non-deterministically pick a page body in TextSettingsEditorState.Content's `when`",
             listChoice.intersect(sheetEdited),
             equalTo(emptySet()),
         )

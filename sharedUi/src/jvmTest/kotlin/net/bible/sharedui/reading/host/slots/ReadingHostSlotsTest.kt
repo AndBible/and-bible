@@ -22,6 +22,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
@@ -44,6 +45,23 @@ import net.bible.sharedcore.ai.reading.AgentLogSnapshot
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingModelVd
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.settings.BackgroundImageOption
+import net.bible.sharedcore.settings.ColorField
+import net.bible.sharedcore.settings.ColorsSnapshot
+import net.bible.sharedcore.settings.InheritedFrom
+import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.settings.SettingsScope
+import net.bible.sharedcore.settings.TextDisplaySettingsService
+import net.bible.sharedcore.settings.TextSettingRow
+import net.bible.sharedcore.settings.TextSettingRowValue
+import net.bible.sharedcore.settings.TextSettingType
+import net.bible.sharedcore.settings.TextSettingsSnapshot
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertCountEquals
+import java.lang.reflect.Proxy
 import net.bible.sharedcore.speak.AdvancedSpeakVd
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakPlaybackVd
@@ -52,6 +70,7 @@ import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
 import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.app.ports.ImagePicker
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
@@ -129,6 +148,65 @@ class ReadingHostSlotsTest {
 
     private val strings: Strings = iosStrings("en")
 
+    private var pickedImage: String? = null
+    private val imagePicker = object : ImagePicker {
+        override suspend fun pickImage(): String? = pickedImage
+    }
+
+    /** The font size the fake text-settings service reports; a test changes it to model an edit made elsewhere. */
+    private var fontSize = 18
+
+    private fun snapshot(scope: SettingsScope): TextSettingsSnapshot {
+        val choice = TextSettingRowValue.Choice("0", listOf(SettingsItem.Choice("0", "Off")))
+        val rows = TextSettingType.entries.associateWith { t ->
+            val value: TextSettingRowValue = when (t) {
+                TextSettingType.STRONGS, TextSettingType.PAGE_SCROLL_AMOUNT,
+                TextSettingType.SCROLL_HELPER_LINE_STYLE -> choice
+                TextSettingType.FONTFAMILY ->
+                    TextSettingRowValue.Choice("sans-serif", listOf(SettingsItem.Choice("sans-serif", "Sans serif")))
+                TextSettingType.FONTSIZE -> TextSettingRowValue.Numeric(fontSize, 1, 60, "$fontSize pt")
+                TextSettingType.TOPMARGIN, TextSettingType.LINE_SPACING ->
+                    TextSettingRowValue.Numeric(16, 1, 60, "16 pt")
+                TextSettingType.MARGINSIZE -> TextSettingRowValue.Margins(3, 3, 170, 30, 30, 500, "3/3/170 mm")
+                TextSettingType.COLORS -> TextSettingRowValue.ColorsNav("Colours")
+                TextSettingType.BOOKMARKS_HIDELABELS -> TextSettingRowValue.HideLabels("2 labels hidden")
+                else -> TextSettingRowValue.Bool(true)
+            }
+            TextSettingRow(t, value, InheritedFrom.NONE, enabled = true, visible = true, iconKey = null)
+        }
+        return TextSettingsSnapshot(
+            scope, "Title", "My WS", rows,
+            showParentCategory = false, showWorkspaceLink = false, showGlobalLink = false,
+        )
+    }
+
+    private val colours = ColorsSnapshot(
+        title = "Colours", dayTextColor = 0, dayBackground = 0, dayNoise = 0,
+        nightTextColor = 0, nightBackground = 0, nightNoise = 0,
+        workspaceColor = 0, workspaceColorVisible = false,
+        dayBackgroundImageInitials = null, dayBackgroundImageName = "None", dayBackgroundImageOpacity = 100,
+        nightBackgroundImageInitials = null, nightBackgroundImageName = "None", nightBackgroundImageOpacity = 100,
+        inheritedFrom = InheritedFrom.NONE,
+    )
+
+    private val unusedService: TextDisplaySettingsService = Proxy.newProxyInstance(
+        javaClass.classLoader, arrayOf(TextDisplaySettingsService::class.java),
+    ) { _, method, _ -> error("unexpected call: ${method.name}") } as TextDisplaySettingsService
+
+    private val textSettingsService: TextDisplaySettingsService = object : TextDisplaySettingsService by unusedService {
+        override fun loadText(scope: SettingsScope) = snapshot(scope)
+        override fun loadColors(scope: SettingsScope) = colours
+        override fun loadBackgroundOptions(): List<BackgroundImageOption> = emptyList()
+        override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
+            pickedImage = picker()
+            return null
+        }
+    }
+
+    private fun fontSizeOf(slots: ReadingHostSlots, scope: SettingsScope) =
+        (slots.textSettingsControllerFor(scope).state.value.rows.getValue(TextSettingType.FONTSIZE).value
+            as TextSettingRowValue.Numeric).value
+
     /** [DocumentControl] has nine collaborators and is only read by the document tabs; skip its constructor. */
     private fun allocateDocumentControl(): DocumentControl {
         val field = Class.forName("sun.misc.Unsafe").getDeclaredField("theUnsafe").apply { isAccessible = true }
@@ -141,6 +219,7 @@ class ReadingHostSlotsTest {
         links: ExternalLinks = FakeLinks(false),
         transportVisible: Boolean = false,
         fullScreen: Boolean = false,
+        textService: TextDisplaySettingsService = textSettingsService,
     ): Pair<ReadingHostSlots, ReadingHostState> {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val windowControl = WindowControl()
@@ -166,6 +245,10 @@ class ReadingHostSlotsTest {
             searchSettingsForEpub = { false },
             currentBookName = { "Genesis" },
             onSearchSettingsClosed = {},
+            textDisplaySettingsService = { textService },
+            scope = scope,
+            imagePicker = imagePicker,
+            thumbnailFor = { null },
         )
         return slots to hostState
     }
@@ -213,5 +296,102 @@ class ReadingHostSlotsTest {
             }
         }
         onNodeWithText("Reading Genesis").assertExists()
+    }
+
+    // ---- text-settings editor ----------------------------------------------------------------
+
+    @Test
+    fun showTextSettingEditorOpensTheStackAtThatPage() {
+        val (slots, _) = slots()
+        slots.showTextSettingEditor(SettingsScope.Workspace("ws"), SettingsEditorPage.Row("FONTSIZE")) { }
+        assertEquals(SettingsEditorPage.Row("FONTSIZE"), slots.textSettingsEditor.current)
+        assertEquals(1, slots.textSettingsEditor.depth)
+        // Re-opening starts a fresh stack rather than stacking on the old one.
+        slots.textSettingsEditor.push(SettingsEditorPage.ColorPick(ColorField.DAY_TEXT))
+        slots.showTextSettingEditor(SettingsScope.Workspace("ws"), SettingsEditorPage.Row("FONTSIZE")) { }
+        assertEquals(1, slots.textSettingsEditor.depth)
+    }
+
+    @Test
+    fun showTextSettingEditorRefreshesTheCachedControllerBeforeReopening() {
+        val (slots, _) = slots()
+        val scope = SettingsScope.Workspace("ws")
+        slots.showTextSettingEditor(scope, SettingsEditorPage.Row(TextSettingType.FONTSIZE.name)) { }
+        assertEquals(18, fontSizeOf(slots, scope))
+        slots.textSettingsEditor.close()
+
+        fontSize = 30 // an edit made through some other controller instance
+        slots.showTextSettingEditor(scope, SettingsEditorPage.Row(TextSettingType.FONTSIZE.name)) { }
+
+        assertEquals(30, fontSizeOf(slots, scope))
+    }
+
+    @Test
+    fun textSettingsControllerIsCachedPerScopeAndColourControllerIsNot() {
+        val (slots, _) = slots()
+        val a = SettingsScope.Workspace("a")
+        assertTrue(slots.textSettingsControllerFor(a) === slots.textSettingsControllerFor(a))
+        assertTrue(slots.textSettingsControllerFor(a) !== slots.textSettingsControllerFor(SettingsScope.Workspace("b")))
+        assertTrue(slots.colorControllerFor(a) !== slots.colorControllerFor(a))
+    }
+
+    @Test
+    fun colourControllerImportUsesTheImagePickerPort() {
+        val (slots, _) = slots()
+        pickedImage = "img-token"
+        val controller = slots.colorControllerFor(SettingsScope.Workspace("ws"))
+        controller.onImportBackgroundImage()
+        assertEquals("img-token", pickedImage)
+    }
+
+    @Test
+    fun rowEditorBackClosesTheRowFirst() = runComposeUiTest {
+        val (slots, _) = slots()
+        val scope = SettingsScope.Workspace("ws")
+        slots.showTextSettingEditor(scope, SettingsEditorPage.Colors) { }
+        slots.textSettingsEditor.push(SettingsEditorPage.ColorPick(ColorField.DAY_TEXT))
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                MaterialTheme { slots.TextSettingsEditor() }
+            }
+        }
+        assertEquals(2, slots.textSettingsEditor.depth)
+
+        // Back / dismiss on the stacked row editor steps back one page; the colours page stays open.
+        onNodeWithContentDescription(strings.settingsEditorBack).performClick()
+
+        assertEquals(1, slots.textSettingsEditor.depth)
+        assertEquals(SettingsEditorPage.Colors, slots.textSettingsEditor.current)
+    }
+
+    /**
+     * `StateRestorationTester` is not implemented on the skiko (JVM/iOS) test target, so recreation is
+     * emulated by disposing the whole composition and composing the slot afresh: the editor must come
+     * back on the same page, because its stack lives in [ReadingHostSlots], not in composition.
+     */
+    @Test
+    fun editorStateSurvivesRecreation() = runComposeUiTest {
+        val (slots, _) = slots()
+        var composed by mutableStateOf(true)
+        slots.showTextSettingEditor(
+            SettingsScope.Workspace("ws"), SettingsEditorPage.Row(TextSettingType.FONTSIZE.name),
+        ) { }
+        setContent {
+            if (composed) {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    MaterialTheme { slots.TextSettingsEditor() }
+                }
+            }
+        }
+        onNodeWithText(strings.okay).assertExists()
+
+        composed = false
+        waitForIdle()
+        onAllNodesWithText(strings.okay).assertCountEquals(0)
+        composed = true
+        waitForIdle()
+
+        assertEquals(SettingsEditorPage.Row(TextSettingType.FONTSIZE.name), slots.textSettingsEditor.current)
+        onNodeWithText(strings.okay).assertExists()
     }
 }
