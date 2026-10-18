@@ -160,6 +160,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentSyncWifiOnlyTitle: String get() = context.getString(R.string.document_sync_wifi_only_title)
     override val documentSyncAutoDeleteTitle: String get() = context.getString(R.string.document_sync_auto_delete_title)
     override val webdavHttpsRequired: String get() = context.getString(R.string.webdav_https_required)
+    override fun multiSearchResults(total: Int, selectedCount: Int): String =
+        context.getString(R.string.multi_search_results, total, selectedCount)
+    override val errorExecutingSearch: String get() = context.getString(R.string.error_executing_search)
     // --- end I2 Stream A (app root) ---
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val okay: String get() = context.getString(R.string.okay)

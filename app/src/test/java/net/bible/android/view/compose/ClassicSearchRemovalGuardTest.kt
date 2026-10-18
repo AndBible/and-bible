@@ -134,9 +134,11 @@ class ClassicSearchRemovalGuardTest {
      */
     @Test fun theSurvivingSearchCollaboratorsStillExist() {
         val expected = listOf(
-            "src/main/java/net/bible/android/view/activity/search/EpubSearchResultKey.kt",
+            // The two pure helpers moved to :sharedUi commonMain (same FQN) in I2 Stream A Task 5, because the
+            // common SearchHost needs them.
+            "../sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/search/EpubSearchResultKey.kt",
             "src/main/java/net/bible/android/view/activity/search/AndroidEpubSearchService.kt",
-            "src/main/java/net/bible/android/view/activity/search/EpubSearchModeWire.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/search/EpubSearchModeWire.kt",
         )
         val missing = expected.filterNot { File(it).isFile }
         assertEquals("S1 deleted a file it was supposed to keep", emptyList<String>(), missing)

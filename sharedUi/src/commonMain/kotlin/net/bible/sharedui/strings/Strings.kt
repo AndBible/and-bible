@@ -165,6 +165,9 @@ interface Strings {
     val documentSyncWifiOnlyTitle: String
     val documentSyncAutoDeleteTitle: String
     val webdavHttpsRequired: String
+    // Search cluster
+    fun multiSearchResults(total: Int, selectedCount: Int): String   // R.string.multi_search_results
+    val errorExecutingSearch: String                                  // R.string.error_executing_search
     // --- end I2 Stream A (app root) ---
     val errorOccurred: String
     val okay: String

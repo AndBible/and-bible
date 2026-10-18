@@ -32,8 +32,6 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.OpenableColumns
 import android.text.format.Formatter
 import net.bible.sharedcore.log.Log
@@ -104,7 +102,6 @@ import kotlinx.coroutines.CompletableDeferred
 import net.bible.sharedcore.platform.AppCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
@@ -210,10 +207,6 @@ import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.syncScope
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
-import net.bible.android.view.activity.search.epubKeyFor
-import net.bible.android.view.activity.search.epubSearchModeFromClassicName
-import net.bible.android.view.activity.search.toClassicSearchTypeName
 import net.bible.android.view.activity.settings.BackgroundThumbnailResolver
 import net.bible.android.view.activity.settings.TextDisplaySettingsRouteEntry
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
@@ -264,10 +257,8 @@ import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.sword.csvprompt.addCsvPromptBook
 import okio.Path.Companion.toOkioPath
 import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.ai.AgentPermissionModeIds
@@ -364,17 +355,9 @@ import net.bible.sharedcore.readingplan.ReadingItem
 import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
 import net.bible.sharedcore.readingplan.SpeakState
 import net.bible.sharedcore.search.BibleSearchService
-import net.bible.sharedcore.search.EpubSearchMode
-import net.bible.sharedcore.search.EpubSearchResultsController
 import net.bible.sharedcore.search.EpubSearchService
-import net.bible.sharedcore.search.ProgressJob
-import net.bible.sharedcore.search.SearchFormController
 import net.bible.sharedcore.search.SearchIndexService
-import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
-import net.bible.sharedcore.search.SearchResultsController
-import net.bible.sharedcore.search.SearchType
-import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScope
@@ -432,20 +415,6 @@ import net.bible.sharedui.readingplan.nav.LoadedReadingDay
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
 import net.bible.sharedui.readingplan.nav.ReadingPlanSelection
 import net.bible.sharedui.readingplan.nav.SelectorDeps
-import net.bible.sharedui.search.nav.IndexOutcome
-import net.bible.sharedui.search.nav.EpubSearchFormDeps
-import net.bible.sharedui.search.nav.EpubSearchResultsDeps
-import net.bible.sharedui.search.nav.EpubSearchSetup
-import net.bible.sharedui.search.nav.EpubSearchTarget
-import net.bible.sharedui.search.nav.IndexTarget
-import net.bible.sharedui.search.nav.SearchFormDeps
-import net.bible.sharedui.search.nav.SearchFormSetup
-import net.bible.sharedui.search.nav.SearchIndexPromptDeps
-import net.bible.sharedui.search.nav.SearchIndexProgressDeps
-import net.bible.sharedui.search.nav.SearchNavDeps
-import net.bible.sharedui.search.nav.SearchResultsDeps
-import net.bible.sharedui.search.nav.SearchSubmission
-import net.bible.sharedui.search.nav.TranslationSelection
 import net.bible.sharedui.settings.nav.AppSettingsDeps
 import net.bible.sharedui.settings.nav.ReadingProgressDeps
 import net.bible.sharedui.settings.nav.ReadingProgressSettingsDeps
@@ -464,10 +433,7 @@ import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.index.IndexStatus
-import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
 import org.crosswire.jsword.versification.BookName
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.view.activity.base.SharedActivityState
@@ -3640,74 +3606,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         ),
                     )
                 }
-                val searchDeps = remember {
-                    SearchNavDeps(
-                        exitHost = { finish() },
-                        setWindowTitle = { title -> setTitle(title) },
-                        setHistoryRoute = { owner, route -> setHistoryRoute(owner, route) },
-                        clearHistoryRoute = { owner -> clearHistoryRoute(owner) },
-                        goBackInHistory = ::goBackInHistory,
-                        searchForm = SearchFormDeps(
-                            prepare = { restoredBibleBook -> prepareSearchForm(restoredBibleBook) },
-                            loadTranslations = { loadSearchTranslations() },
-                            controllerFor = { currentBookName -> buildSearchFormController(currentBookName) },
-                            submit = { request -> submitSearch(request) },
-                        ),
-                        searchIndex = SearchIndexPromptDeps(
-                            resolve = { searchDocument -> resolveIndexTarget(searchDocument) },
-                            createIndex = { documentId -> searchIndexService.createIndex(documentId) },
-                            title = getString(R.string.search_index),
-                        ),
-                        searchIndexProgress = SearchIndexProgressDeps(
-                            // Classic SearchIndexProgressComposeActivity.kt:82, which is a suspend
-                            // call: the host owns the scope so the graph's deps slot can stay a
-                            // plain () -> Unit.
-                            requestNotificationPermission = {
-                                lifecycleScope.launch {
-                                    CommonUtils.requestNotificationPermission(this@NavHostComposeActivity)
-                                }
-                            },
-                            observeJobs = { onJobs, onJobFinished -> observeIndexJobs(onJobs, onJobFinished) },
-                            awaitIndexed = { documentId -> awaitIndexed(documentId) },
-                            title = getString(R.string.search_index),
-                        ),
-                        searchResults = SearchResultsDeps(
-                            controllerFor = { buildSearchResultsController() },
-                            isScriptureReference = { searchText -> isScriptureReference(searchText) },
-                            openScriptureReference = { searchText -> openScriptureReference(searchText) },
-                            title = { total, selectedCount ->
-                                getString(R.string.multi_search_results, total, selectedCount)
-                            },
-                            showError = { showSearchError() },
-                            openReference = { referenceName, translationId, selectedTranslations ->
-                                openSearchResult(referenceName, translationId, selectedTranslations)
-                            },
-                            openResultsInWindow = { rows, selectedTranslations ->
-                                openSearchResultsInAWindow(rows, selectedTranslations)
-                            },
-                        ),
-                        epubSearch = EpubSearchFormDeps(
-                            prepare = { prepareEpubSearchForm() },
-                            loadMode = { loadEpubSearchMode() },
-                            saveMode = { mode -> saveEpubSearchMode(mode) },
-                            modeWireName = { mode -> mode.toClassicSearchTypeName() },
-                            askBeforeOpeningLink = { CommonUtils.isDiscrete },
-                            onOpenExternal = { CommonUtils.openLinkNow(it) },
-                        ),
-                        epubSearchResults = EpubSearchResultsDeps(
-                            resolve = { searchDocument -> resolveEpubSearchTarget(searchDocument) },
-                            modeFromWireName = { name -> epubSearchModeFromClassicName(name) },
-                            controllerFor = { documentId -> buildEpubSearchResultsController(documentId) },
-                            logSearch = { documentId, searchText, mode ->
-                                Log.i(TAG_EPUB_SEARCH_RESULTS, "Searching '$searchText' ($mode) in $documentId")
-                            },
-                            title = { resultCount, documentAbbreviation ->
-                                epubSearchResultsTitle(resultCount, documentAbbreviation)
-                            },
-                            showError = { showSearchError() },
-                        ),
-                    )
-                }
+                val searchDeps = remember { appHosts.search.navDeps(navController) }
                 val settingsDeps = remember { appHosts.settings.navDeps(navController, readingProgressResults) }
                 val bookmarkDeps = remember {
                     BookmarkNavDeps(
@@ -3858,7 +3757,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                     CommonUtils.requestNotificationPermission(this@NavHostComposeActivity)
                                 }
                             },
-                            observeJobs = { onJobs -> observeProgressStatusJobs(onJobs) },
+                            observeJobs = { onJobs -> appHosts.search.observeProgressStatusJobs(onJobs) },
                         ),
                         cloudDocuments = CloudDocumentsDeps(
                             // PER-ENTRY factory (task-8 fix round 1) -- see
@@ -6766,460 +6665,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun subscribeReadingPlansUpdated(onReadingPlansChanged: () -> Unit): () -> Unit =
         subscribeToReadingPlanSync(onReadingPlansChanged)
 
-    // --- Search cluster host baggage -----------------------------------------------------------
-    // Ported from classic SearchComposeActivity / SearchIndexComposeActivity /
-    // SearchIndexProgressComposeActivity (which stay in the tree, unreachable, until Task 9).
-    // Everything here is JSword, app settings or an Android Handler -- none of it can live in
-    // :sharedUi's commonMain, which is why each is a lambda on SearchNavDeps.
-
-    /** Classic SearchComposeActivity's `windowControl.activeWindowPageManager.currentPage.currentDocument`. */
-    private val currentSearchDocument get() = windowControl.activeWindowPageManager.currentPage.currentDocument
-
-    /**
-     * Classic `SearchComposeActivity.onCreate`'s preamble: the `search-last-used` stamp, the
-     * "nothing to search" gate (null here == classic's immediate `finish()`) and the two strings the
-     * form needs. [restoredBibleBook] is the route's own `bibleBook` argument, which classic read
-     * from its history-restore extra before falling back to the current book name.
-     */
-    private fun prepareSearchForm(restoredBibleBook: String?): SearchFormSetup? {
-        Log.i(TAG_SEARCH, "Displaying Compose search view")
-        CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
-        val currentDoc = currentSearchDocument ?: return null
-        return SearchFormSetup(
-            title = getString(R.string.search_in, currentDoc.abbreviation),
-            currentBookName = restoredBibleBook ?: searchControl.currentBookName,
-        )
-    }
-
-    /**
-     * Classic's `onCreate` seed AND its `onResume` re-seed in one call (they read the same two
-     * things): every installed Bible as `initials to abbreviation` sorted by abbreviation, and the
-     * persisted selection falling back to the current document.
-     */
-    private fun loadSearchTranslations(): TranslationSelection {
-        val bibles = SwordDocumentFacade.bibles
-            .filterIsInstance<SwordBook>()
-            .sortedBy { it.abbreviation }
-        val saved = loadSelectedSearchTranslations()
-        val fallback = currentSearchDocument?.initials?.let { listOf(it) } ?: emptyList()
-        return TranslationSelection(
-            available = bibles.map { it.initials to it.abbreviation },
-            selected = saved.ifEmpty { fallback },
-        )
-    }
-
-    /** Classic Search.loadSelectedTranslations: only initials that still resolve to a Bible. */
-    private fun loadSelectedSearchTranslations(): List<String> {
-        val saved = CommonUtils.settings.getString(SEARCH_SELECTED_TRANSLATIONS_KEY, null)
-        if (saved.isNullOrBlank()) return emptyList()
-        val available = SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().map { it.initials }.toSet()
-        return saved.split(",").filter { it in available }
-    }
-
-    /** Classic Search.loadRecentTerms (F22): newline-separated, since a query may contain commas. */
-    private fun loadRecentSearchTerms(): List<String> {
-        val saved = CommonUtils.settings.getString(SEARCH_RECENT_TERMS_KEY, null)
-        if (saved.isNullOrBlank()) return emptyList()
-        return saved.split("\n").filter { it.isNotBlank() }
-    }
-
-    /** The form's controller: host-side only because all three of its lambdas reach app settings. */
-    private fun buildSearchFormController(currentBookName: String) = SearchFormController(
-        currentBookName = currentBookName,
-        persistTranslations = { ids ->
-            CommonUtils.settings.setString(SEARCH_SELECTED_TRANSLATIONS_KEY, ids.joinToString(","))
-        },
-        persistRecentTerms = { terms ->
-            CommonUtils.settings.setString(SEARCH_RECENT_TERMS_KEY, terms.joinToString("\n"))
-        },
-        loadRecentTerms = { loadRecentSearchTerms() },
-    )
-
-    /**
-     * Classic `SearchComposeActivity.onSubmit`'s JSword half. It returns the DECISION rather than
-     * navigating: both of classic's arms were `startActivity(...); finish()`, and in the graph both
-     * are `navController.navigate(...)`, which only the graph can do -- see [SearchSubmission].
-     */
-    private fun submitSearch(request: SearchRequest): SearchSubmission {
-        if (!bibleSearchService.validateIndex(request)) {
-            // The first selected translation without a usable index (classic parity).
-            val firstUnindexed = request.translationIds.firstOrNull {
-                SwordDocumentFacade.getDocumentByInitials(it)?.indexStatus != IndexStatus.DONE
-            }
-            return SearchSubmission.NeedsIndex(firstUnindexed)
-        }
-        return SearchSubmission.Results(
-            decoratedQuery = bibleSearchService.decorate(request),
-            // Section-less highlight query (classic Search.onSearch -> SEARCH_HIGHLIGHT_TEXT).
-            highlightText = searchControl.highlightSearchString(
-                request.query,
-                request.searchType.toClassicJSwordSearchType(),
-            ),
-            // Classic passed the CURRENT PAGE's document here, not one of the selected translations.
-            searchDocument = currentSearchDocument?.initials,
-            translationIds = request.translationIds,
-        )
-    }
-
-    /** :sharedCore SearchType -> classic JSword SearchType (kept consistent with BibleSearchServiceImpl). */
-    private fun SearchType.toClassicJSwordSearchType(): JSwordSearchType = when (this) {
-        SearchType.ALL_WORDS -> JSwordSearchType.ALL_WORDS
-        SearchType.ANY_WORDS -> JSwordSearchType.ANY_WORDS
-        SearchType.PHRASE -> JSwordSearchType.PHRASE
-    }
-
-    /**
-     * Classic `SearchIndexComposeActivity.documentToIndex` (`:44-49`) plus its `hasIndex` read.
-     * Null == classic's "nothing to index -> finish()". The resolved initials are what the graph
-     * overrides the next hop's `searchDocument` with, so an argument-free prompt still hands the
-     * progress destination a concrete document.
-     */
-    private fun resolveIndexTarget(searchDocument: String?): IndexTarget? {
-        val doc =
-            if (!searchDocument.isNullOrEmpty()) SwordDocumentFacade.getDocumentByInitials(searchDocument)
-            else pageControl.currentPageManager.currentPage.currentDocument
-        doc ?: return null
-        return IndexTarget(
-            documentId = doc.initials,
-            documentName = doc.name,
-            isRebuild = searchIndexService.hasIndex(doc.initials),
-            engineChanged = searchIndexService.hasLegacyIndex(doc.initials),
-        )
-    }
-
-    /** Classic SearchIndexProgressComposeActivity's `uiHandler`. */
-    private val indexProgressHandler = Handler(Looper.getMainLooper())
-
-    /**
-     * Classic's `finishedJobs: HashSet<Progress>` -- the once-per-job de-duplication, keyed on
-     * JSword `Progress` identities, which is why it cannot move into the graph.
-     */
-    private val finishedIndexJobs = HashSet<Progress>()
-
-    /**
-     * Classic `SearchIndexProgressComposeActivity`'s `onResume`/`onPause` PAIR (`:80-96`) as one
-     * call returning its own undo: the initial `refreshJobs()`, then `JobManager.addWorkListener`,
-     * and the returned lambda is `JobManager.removeWorkListener`. The graph drives it from a
-     * `LifecycleResumeEffect`, so the removal happens on pause AND on disposal -- leaking the
-     * listener would leak the destination it closes over.
-     */
-    private fun observeIndexJobs(
-        onJobs: (List<ProgressJob>) -> Unit,
-        onJobFinished: () -> Unit,
-    ): () -> Unit {
-        onJobs(indexJobSnapshot())
-        val listener = object : WorkListener {
-            override fun workProgressed(ev: WorkEvent) = onIndexWorkEvent(ev, onJobs, onJobFinished)
-            override fun workStateChanged(ev: WorkEvent) = onIndexWorkEvent(ev, onJobs, onJobFinished)
-        }
-        JobManager.addWorkListener(listener)
-        return { JobManager.removeWorkListener(listener) }
-    }
-
-    private fun onIndexWorkEvent(
-        ev: WorkEvent,
-        onJobs: (List<ProgressJob>) -> Unit,
-        onJobFinished: () -> Unit,
-    ) {
-        indexProgressHandler.post {
-            onJobs(indexJobSnapshot())
-            val job = ev.job
-            if (job.isFinished && finishedIndexJobs.add(job)) onJobFinished()
-        }
-    }
-
-    /** Classic's `refreshJobs()` snapshot. */
-    private fun indexJobSnapshot(): List<ProgressJob> {
-        val snapshot = ArrayList<ProgressJob>()
-        val it = JobManager.iterator()
-        while (it.hasNext()) {
-            val job = it.next()
-            snapshot.add(
-                ProgressJob(
-                    id = System.identityHashCode(job).toString(),
-                    label = job.jobName,
-                    percent = job.work,
-                    indeterminate = job.work == 0,
-                )
-            )
-        }
-        return snapshot
-    }
-
-    /**
-     * `PROGRESS_STATUS_PATTERN`'s `observeJobs`: classic `ProgressStatusComposeActivity`'s
-     * `onResume`/`onPause` PAIR (`:82-98`) as one call, reusing [indexJobSnapshot] -- the snapshot
-     * it builds is generic over JSword's `JobManager`, not index-specific. Unlike
-     * [observeIndexJobs], there is no `onJobFinished` callback and no `finishedIndexJobs`
-     * de-duplication: [net.bible.sharedui.download.nav.ProgressStatusDeps] has no "indexing
-     * finished" routing to drive, only a job-list refresh.
-     */
-    private fun observeProgressStatusJobs(onJobs: (List<ProgressJob>) -> Unit): () -> Unit {
-        onJobs(indexJobSnapshot())
-        val listener = object : WorkListener {
-            override fun workProgressed(ev: WorkEvent) {
-                indexProgressHandler.post { onJobs(indexJobSnapshot()) }
-            }
-            override fun workStateChanged(ev: WorkEvent) {
-                indexProgressHandler.post { onJobs(indexJobSnapshot()) }
-            }
-        }
-        JobManager.addWorkListener(listener)
-        return { JobManager.removeWorkListener(listener) }
-    }
-
-    /** Classic's `isAllJobsFinished`. */
-    private val isAllIndexJobsFinished: Boolean
-        get() {
-            val it = JobManager.iterator()
-            while (it.hasNext()) if (!it.next().isFinished) return false
-            return true
-        }
-
-    /**
-     * Classic `jobFinished`'s wait (`:132-137`) -- "give the document up to 12 secs to reload: the
-     * Progress declares itself finished before the index status has been changed" -- and nothing
-     * else. It is BLOCKING (six rounds of `CommonUtils.pause(2)`), so it runs on [Dispatchers.IO]
-     * and the graph awaits it: a composition must never block. What it returns is only what the
-     * routing decision needs; the decision itself stays in the graph.
-     */
-    private suspend fun awaitIndexed(documentId: String?): IndexOutcome = withContext(Dispatchers.IO) {
-        val document = SwordDocumentFacade.getDocumentByInitials(documentId)
-        var attempts = 0
-        while ((document == null || IndexStatus.DONE != document.indexStatus) && attempts++ < 6) {
-            pause(2)
-        }
-        when {
-            IndexStatus.DONE == document?.indexStatus -> {
-                Log.i(TAG_SEARCH_INDEX, "Index created")
-                if (document.isEpub) IndexOutcome.INDEXED_EPUB else IndexOutcome.INDEXED
-            }
-            isAllIndexJobsFinished -> {
-                Log.e(TAG_SEARCH_INDEX, "Index finished but document's index is invalid")
-                IndexOutcome.FAILED
-            }
-            else -> IndexOutcome.STILL_RUNNING
-        }
-    }
-
-    // --- Search RESULTS host baggage (classic SearchResultsComposeActivity) -----------------------
-
-    /** Classic's `SearchResultsController(bibleSearchService, lifecycleScope, searchResultsCache)`. */
-    private fun buildSearchResultsController(): SearchResultsController {
-        Log.i(TAG_SEARCH_RESULTS, "Displaying Compose search results view")
-        return SearchResultsController(bibleSearchService, lifecycleScope, searchResultsCache)
-    }
-
-    /**
-     * The DECIDING half of classic `SearchResultsComposeActivity.kt:90-95`'s ref short circuit:
-     * does this search text parse as a plain scripture reference? Pure — `LinkControl.resolveRef`
-     * reads `WindowControl.defaultBibleDoc` (a getter over the active window's current Bible) and
-     * calls `SwordContentFacade.resolveRef`, and neither mutates anything — which is what lets the
-     * graph ask it during composition, as classic asked it before `setContent`.
-     */
-    private fun isScriptureReference(searchText: String): Boolean =
-        linkControl.resolveRef(searchText) != null
-
-    /**
-     * The ACTING half: open the reference in the reading view and undo the one history item that
-     * opening it pushes.
-     *
-     * **Why ONE pop, where classic did two.** Classic popped `{this results screen's item, the
-     * launcher's item}`, and in the graph the second of those does not exist:
-     *
-     *  - `ActivityBase.startActivity` (`:198-203`) makes a direct `HistoryManager.recordIfCreated` call only when the `open val`
-     *    `integrateWithHistoryManager` is true, and this host deliberately does not override it
-     *    (see [setHistoryRoute]'s kdoc for why it drives the `var` instead), so it is permanently
-     *    false. And the in-graph `Search form -> results` hop is a `navigate`, not a
-     *    `startActivity`, so there is nothing to gate anyway: **no launcher item is ever pushed for
-     *    these screens.** Classic's second pop would therefore eat the entry BELOW — which is the
-     *    `KeyHistoryItem` `MainBibleActivity` (whose `integrateWithHistoryManager` IS true,
-     *    `:373`) pushed for the user's reading position when it launched the search. Every
-     *    "the search text was actually a reference" jump would silently lose the way back.
-     *  - The one item that IS pushed comes from this very call: `tryToOpenRef` ->
-     *    `showLink(forceOpenHere = true)` -> `setCurrentDocumentAndKey` -> `setKey` ->
-     *    a direct `HistoryManager.recordIfCreated` call (`CurrentPageBase.kt:112`) ->
-     *    `HistoryManager.createHistoryItem`, which for this host builds an `IntentHistoryItem` from
-     *    `isIntegrateWithHistoryManager` + [intentForHistoryList]. The graph publishes this
-     *    destination's route immediately before calling this, precisely so that item exists and
-     *    names the results screen — so exactly one pop removes exactly what classic's first pop
-     *    removed, and the reading position below it survives.
-     *
-     * The `canGoBack()` guard is not decoration: `HistoryManager.popHistoryItem` is a bare
-     * `Stack.pop()` (`:145-147`), which throws `EmptyStackException` on an empty stack — and the
-     * stack it pops is the ACTIVE window's, which `showLink` can have changed under us when the
-     * user has "open links in a new window" configured (`WindowMode.WINDOW_MODE_NEW` ->
-     * `addNewWindow`). Classic had the same hazard, twice over.
-     */
-    private fun openScriptureReference(searchText: String) {
-        if (!linkControl.tryToOpenRef(searchText)) return
-        if (historyTraversal.historyManager.canGoBack()) {
-            historyTraversal.historyManager.popHistoryItem()
-        }
-    }
-
-    /** Classic's error path (`:126-136`): a transient toast, then out — never a dialog. */
-    private fun showSearchError() {
-        Toast.makeText(this, R.string.error_executing_search, Toast.LENGTH_SHORT).show()
-    }
-
-    /**
-     * Classic `resolveBook` (`:166-168`): the row's own translation, else the first of the current
-     * selection. [selectedTranslations] is passed in because the graph owns that state now (it is
-     * the results controller's live selection), where classic kept a mutable field.
-     */
-    private fun resolveSearchResultBook(
-        translationId: String?,
-        selectedTranslations: List<String>,
-    ): SwordBook? =
-        (translationId?.let { SwordDocumentFacade.getDocumentByInitials(it) }
-            ?: selectedTranslations.firstOrNull()?.let { SwordDocumentFacade.getDocumentByInitials(it) }) as? SwordBook
-
-    /**
-     * Classic `onSelect` (`:171-183`), unchanged apart from the dropped `intent.putExtra(
-     * LIST_POSITION, ...)`: the list position now lives in the destination's own `rememberSaveable`,
-     * so there is no intent left to write it onto.
-     *
-     * **reading-host re-typing T8b**: the target is now this host on [NavRoutes.READING], with
-     * `FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP` unchanged. This is the host starting
-     * ITSELF by Intent, and here that is the right shape rather than the defect T8b's step 4 is
-     * about: the manifest's `singleTop` plus `CLEAR_TOP` delivers it to [onNewIntent] on this same
-     * instance, which navigates the live graph to `reading` — which is exactly what "go to the
-     * verse I just picked" means. Nothing here awaits a RESULT, so the one thing an Intent to self
-     * cannot do (bring an answer back to the caller) is not asked of it, and [onCreate]'s start
-     * route is pinned by `savedStartRoute` so the `setIntent` inside [onNewIntent] cannot change
-     * what a later `recreate()` starts on.
-     */
-    private fun openSearchResult(
-        referenceName: String,
-        translationId: String?,
-        selectedTranslations: List<String>,
-    ) {
-        val book = resolveSearchResultBook(translationId, selectedTranslations) ?: return
-        try {
-            val key = book.getKey(referenceName)
-            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
-            startActivity(
-                intentFor(this, NavRoutes.READING).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-            )
-        } catch (e: Exception) {
-            Log.e(TAG_SEARCH_RESULTS, "Could not resolve key '$referenceName' in ${book.initials}", e)
-        }
-    }
-
-    /** Classic `openResultsInAWindow` (`:208-224`) minus its `finish()`, which is the graph's pop. */
-    private fun openSearchResultsInAWindow(rows: List<SwordResultRow>, selectedTranslations: List<String>) {
-        val list = BookAndKeyList()
-        for (row in rows) {
-            for (match in row.matches) {
-                val book = resolveSearchResultBook(match.translationId, selectedTranslations) ?: continue
-                val key = try {
-                    book.getKey(row.referenceName)
-                } catch (e: Exception) {
-                    Log.e(TAG_SEARCH_RESULTS, "openResultsInAWindow: bad key '${row.referenceName}' in ${book.initials}", e)
-                    continue
-                }
-                list.addAll(BookAndKey(key, book))
-            }
-        }
-        linkControl.showLink(fakeBookFactory.multiDocument, list)
-    }
-
-    // --- EPUB search host baggage (classic EpubSearch/EpubSearchResultsComposeActivity) -----------
-
-    /**
-     * Classic `EpubSearchComposeActivity.onCreate`'s preamble. Null is the one deliberate
-     * difference: classic wrote `currentPage.currentDocument!!` and would have thrown.
-     */
-    private fun prepareEpubSearchForm(): EpubSearchSetup? {
-        Log.i(TAG_EPUB_SEARCH, "Displaying Compose EPUB search view")
-        CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
-        val doc = pageControl.currentPageManager.currentPage.currentDocument
-        if (doc == null) {
-            Log.w(TAG_EPUB_SEARCH, "No current document to search in; leaving the EPUB search form")
-            return null
-        }
-        return EpubSearchSetup(
-            title = getString(R.string.search_in, doc.abbreviation),
-            documentId = doc.initials,
-        )
-    }
-
-    /** The persisted word-mode, through the shared classic wire format (`EpubSearchModeWire.kt`). */
-    private fun loadEpubSearchMode(): EpubSearchMode =
-        epubSearchModeFromClassicName(CommonUtils.settings.getString(EPUB_SEARCH_TYPE_KEY))
-
-    private fun saveEpubSearchMode(mode: EpubSearchMode) {
-        CommonUtils.settings.setString(EPUB_SEARCH_TYPE_KEY, mode.toClassicSearchTypeName())
-    }
-
-    /**
-     * Classic `EpubSearchResultsComposeActivity.onCreate`'s document resolution and its two guards
-     * (`:205-227`) as one call. Null == "not installed, or not an epub" (classic's `Log.e` +
-     * `finish()`); the `!!` on the current Bible's document is a `?: return null` for the same
-     * reason [prepareEpubSearchForm]'s is.
-     */
-    private fun resolveEpubSearchTarget(searchDocument: String?): EpubSearchTarget? {
-        // Classic `EpubSearchResultsComposeActivity.onCreate`'s FIRST line (`:63`) — the one classic
-        // log line slices 3/5/6 left behind (whole-branch review M7). It belongs here, at the first
-        // host call the EPUB-results arm makes, for the same reason its two siblings sit where they
-        // do: [prepareEpubSearchForm] opens with the EPUB search form's line, and
-        // [buildSearchResultsController] with the SWORD results' one.
-        Log.i(TAG_EPUB_SEARCH_RESULTS, "Displaying Compose EPUB search results view")
-        val docId =
-            if (searchDocument.isNullOrEmpty())
-                windowControl.activeWindowPageManager.currentBible.currentDocument?.initials
-                    ?: run {
-                        Log.e(TAG_EPUB_SEARCH_RESULTS, "No searchDocument and no current Bible document; aborting")
-                        return null
-                    }
-            else searchDocument
-        val doc = Books.installed().getBook(docId)
-        if (doc == null || !doc.isEpub) {
-            Log.e(TAG_EPUB_SEARCH_RESULTS, "Document ${doc?.name} is not an epub; aborting")
-            return null
-        }
-        return if (!epubSearchService.isIndexed(docId)) EpubSearchTarget.NeedsIndex(docId)
-        else EpubSearchTarget.Ready(documentId = docId, documentAbbreviation = doc.abbreviation)
-    }
-
-    /** The EPUB results controller, with classic's `onSelect` (`:280-291`) already bound to [documentId]. */
-    private fun buildEpubSearchResultsController(documentId: String) = EpubSearchResultsController(
-        lifecycleScope,
-        epubSearchService,
-        onSelect = { keyId, ordinal -> openEpubSearchResult(documentId, keyId, ordinal) },
-    )
-
-    /** Classic `EpubSearchResults.onSelect`: re-resolve the hit's key, then open the reading view. */
-    private fun openEpubSearchResult(documentId: String, keyId: String, ordinal: Int) {
-        val book = Books.installed().getBook(documentId) ?: return
-        try {
-            val key = epubKeyFor(book, documentId, keyId, ordinal)
-            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
-            startActivity(
-                intentFor(this, NavRoutes.READING).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-            )
-        } catch (e: Exception) {
-            Log.e(TAG_EPUB_SEARCH_RESULTS, "Could not resolve key '$keyId' in $documentId", e)
-        }
-    }
-
-    /**
-     * Classic's results title INCLUDING its "+" overflow affordance (`:253-257`): the service caps
-     * at `MAX_SEARCH_RESULTS + 1`, so a size over the cap is detectable and shown as "5000+".
-     * Host-side because `SearchControl.MAX_SEARCH_RESULTS` is an `:app` constant.
-     */
-    private fun epubSearchResultsTitle(resultCount: Int, documentAbbreviation: String): String {
-        val resultAmount =
-            if (resultCount > SearchControl.MAX_SEARCH_RESULTS) "${SearchControl.MAX_SEARCH_RESULTS}+"
-            else resultCount.toString()
-        return getString(R.string.search_with_results2, resultAmount, documentAbbreviation)
-    }
-
     /**
      * The SAF seam for plan import, ported from classic `:268-271`. The picked file goes straight to the
      * InstallZip destination as an ACTION_VIEW entry (confirm first), exactly the Intent classic built. Its
@@ -9509,11 +8954,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     companion object {
         private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
-        private const val TAG_SEARCH = "SearchCompose"
-        private const val TAG_SEARCH_INDEX = "SearchIndexProgCompose"
-        private const val TAG_SEARCH_RESULTS = "SearchResultsCompose"
-        private const val TAG_EPUB_SEARCH = "EpubSearchCompose"
-        private const val TAG_EPUB_SEARCH_RESULTS = "EpubSearchResultsCompose"
         private const val TAG_MANAGE_LABELS = "ManageLabelsNavHost"
         private const val TAG_BOOKMARKS = "BookmarksNavHost"
         private const val TAG_MY_DOCUMENT_PAGES = "MyDocPagesNavHost"
@@ -9560,10 +9000,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
          * content-search mode survives the migration (`ManageLabelsComposeActivity.kt:154`, `:577`).
          */
         private const val MANAGE_LABELS_SEARCH_MODE_KEY = "labels_list_search_mode"
-
-        /** Classic Search's settings keys, unchanged so a user's saved state survives the migration. */
-        private const val SEARCH_SELECTED_TRANSLATIONS_KEY = "search_selected_translations"
-        private const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
 
         /** Host-wide concerns (onNewIntent routing), as opposed to one cluster's baggage. */
         private const val TAG_NAV_HOST = "NavHostCompose"

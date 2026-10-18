@@ -3,14 +3,26 @@ package net.bible.sharedui.app
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
+import net.bible.android.control.link.LinkControl
+import net.bible.android.control.page.PageControl
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
+import net.bible.android.control.search.SearchControl
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.history.HistoryManager
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.EpubSearchService
+import net.bible.sharedcore.search.SearchIndexService
+import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedui.app.ports.DebugActions
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.app.ports.SettingsPlatform
+import net.bible.sharedui.app.search.SearchHost
 import net.bible.sharedui.app.settings.SettingsHost
 import net.bible.sharedui.app.welcome.WelcomeHost
 import net.bible.sharedui.strings.Strings
@@ -57,6 +69,32 @@ class AppHosts(
             syncSettingsServiceProvider = { koin.get<SyncSettingsServiceImpl> { parametersOf(shell.hostScope) } },
             readingProgressSettingsServiceProvider = { koin.get() },
             readingProgressServiceProvider = { koin.get<ReadingProgressServiceImpl>() },
+        )
+    }
+
+    /**
+     * The search cluster's deps builder. Built on first use; every controller and service resolves lazily from
+     * Koin, so this touches no database.
+     */
+    val search: SearchHost by lazy {
+        SearchHost(
+            shell = shell,
+            strings = strings,
+            appSettingsProvider = { koin.get<AppSettings>() },
+            userNotifierProvider = { koin.get<UserNotifier>() },
+            notificationPermission = ports.notificationPermission,
+            links = koin.get<ExternalLinks>(),
+            searchControlProvider = { koin.get<SearchControl>() },
+            bibleSearchServiceProvider = { koin.get<BibleSearchService>() },
+            searchIndexServiceProvider = { koin.get<SearchIndexService>() },
+            windowControlProvider = { koin.get<WindowControl>() },
+            pageControlProvider = { koin.get<PageControl>() },
+            searchResultsCacheProvider = { koin.get<SearchResultsCache>() },
+            epubSearchServiceProvider = { koin.get<EpubSearchService>() },
+            linkControlProvider = { koin.get<LinkControl>() },
+            fakeBookFactoryProvider = { koin.get<FakeBookFactory>() },
+            // The activity's history traversal wraps this same singleton.
+            historyManagerProvider = { koin.get<HistoryManager>() },
         )
     }
 
