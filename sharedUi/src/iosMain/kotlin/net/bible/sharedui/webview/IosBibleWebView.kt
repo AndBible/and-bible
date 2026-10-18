@@ -78,6 +78,16 @@ internal fun createBibleWkWebView(
     return webView
 }
 
+/** The BibleView page URL for [index]: `index.html?lang=..&night=..`. */
+internal fun bibleBundleUrl(index: NSURL, lang: String, dark: Boolean): NSURL {
+    val components = NSURLComponents(uRL = index, resolvingAgainstBaseURL = false)
+    components.queryItems = listOf(
+        NSURLQueryItem(name = "lang", value = lang),
+        NSURLQueryItem(name = "night", value = dark.toString()),
+    )
+    return components.URL ?: index
+}
+
 /** Loads the bundled BibleView page (`index.html?lang=..&night=..`) into [webView]. */
 @OptIn(ExperimentalForeignApi::class)
 internal fun loadBibleBundle(webView: WKWebView, lang: String, dark: Boolean) {
@@ -87,13 +97,7 @@ internal fun loadBibleBundle(webView: WKWebView, lang: String, dark: Boolean) {
         nsLog("bridge: bibleview-js bundle folder missing")
         return
     }
-    val components = NSURLComponents(uRL = index, resolvingAgainstBaseURL = false)
-    components.queryItems = listOf(
-        NSURLQueryItem(name = "lang", value = lang),
-        NSURLQueryItem(name = "night", value = dark.toString()),
-    )
-    val url: NSURL = components.URL ?: index
-    webView.loadFileURL(url, allowingReadAccessToURL = folder)
+    webView.loadFileURL(bibleBundleUrl(index, lang, dark), allowingReadAccessToURL = folder)
 }
 
 /** One window's WebView plus the objects WebKit only holds weakly (spec §5 rule 2). */

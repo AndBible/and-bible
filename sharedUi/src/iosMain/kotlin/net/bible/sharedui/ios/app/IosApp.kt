@@ -27,6 +27,18 @@ import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.testTag
+import net.bible.sharedui.ios.reading.IosNightModeObserver
+import net.bible.sharedui.ios.reading.IosReadingHost
+import net.bible.sharedui.ios.reading.IosReadingWindows
+import net.bible.sharedui.ios.reading.iosReadingNavDeps
+import net.bible.sharedui.ios.reading.rememberIosReadingIcons
+import net.bible.sharedui.reading.host.LocalReadingPane
+import net.bible.sharedui.reading.host.ReadingHost
+import net.bible.sharedui.reading.nav.readingNavGraph
+import net.bible.sharedui.webview.iosReadingPaneFactory
+import org.koin.core.Koin
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -74,16 +86,10 @@ internal suspend fun resolveIosStartRoute(bibles: () -> List<Book> = { SwordDocu
         gatedReadingRoute(NavRoutes.READING, { hasUsableBible(bibles()) }) { nsLog("IosApp: $it") }
     }
 
-/** The start route, with the app initialised first when it is READING (the Welcome flow initialises later). */
+/** The start route, with reading made ready first when it is READING (the Welcome flow does it on entering reading). */
 private suspend fun prepareIosStart(table: StringTable): String {
     val route = resolveIosStartRoute()
-    if (route == NavRoutes.READING) {
-        withContext(Dispatchers.Default) {
-            val platform = IosReadingAppInitPlatform(table)
-            ReadingAppInit.prepareData(platform)
-            ReadingAppInit.initialise(platform)
-        }
-    }
+    if (route == NavRoutes.READING) IosReadingReady.ensure(table)
     return route
 }
 
@@ -118,10 +124,16 @@ internal fun leaveWelcomeFor(scope: CoroutineScope, shell: IosHostShell, table: 
  */
 @Composable
 @kotlin.native.HiddenFromObjC
-fun IosApp(strings: Strings, readingGraph: NavGraphBuilder.(NavHostController) -> Unit) {
+fun IosApp(strings: Strings) {
     val koin = remember { KoinPlatform.getKoin() }
     val table = remember { IosAppStartup.stringTable }
-    val dark = remember { koin.get<NightModeState>().nightMode }
+    val nightObserver = remember { IosNightModeObserver(koin.get<NightModeState>()) { IosReadingWindows.nightModeChanged() } }
+    DisposableEffect(nightObserver) {
+        nightObserver.start()
+        nightObserver.refresh()
+        onDispose { nightObserver.stop() }
+    }
+    val dark by nightObserver.dark
     val startRoute by produceState<String?>(null) {
         value = try {
             prepareIosStart(table)
@@ -144,7 +156,7 @@ fun IosApp(strings: Strings, readingGraph: NavGraphBuilder.(NavHostController) -
                     CircularProgressIndicator()
                 }
             } else {
-                IosAppContent(strings, table, route, readingGraph)
+                IosAppContent(strings, table, route, nightObserver)
             }
         }
     }
@@ -155,7 +167,7 @@ private fun IosAppContent(
     strings: Strings,
     table: StringTable,
     route: String,
-    readingGraph: NavGraphBuilder.(NavHostController) -> Unit,
+    nightObserver: IosNightModeObserver,
 ) {
     val koin = remember { KoinPlatform.getKoin() }
     val navController = rememberNavController()
@@ -164,12 +176,70 @@ private fun IosAppContent(
     val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
     val channels = remember { iosResultChannels { navController } }
+    val readingToken = remember { Any() }
+    val readingHostHolder = remember { ReadingHostHolder() }
     val graphs = remember(navController) { appHosts.graphs(navController, channels) }
     AppRoot(
         navController = navController,
         startRoute = route,
         graphs = graphs,
-        readingGraph = { readingGraph(navController) },
+        readingGraph = {
+            readingNavGraph(navController, iosReadingNavDeps(readingToken, shell, table) {
+                IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
+            })
+        },
         overlays = { appHosts.Overlays() },
     )
+}
+
+/** Holds the one [IosReadingHost] for the app's lifetime so leaving and re-entering reading keeps the sessions. */
+private class ReadingHostHolder {
+    private var host: IosReadingHost? = null
+
+    fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver): IosReadingHost =
+        host ?: IosReadingHost(
+            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark,
+        ).also {
+            host = it
+            IosReadingWindows.bind(it, IosReadingReady.scope, koin, koin.get<NightModeState>())
+        }
+}
+
+/**
+ * The reading destination's content: a spinner until [IosReadingReady] has run (the Welcome path gets here before
+ * it), then the shared [ReadingHost] with the iOS pane factory. A failure is logged and leaves the spinner (nothing
+ * to retry from here).
+ */
+@Composable
+private fun IosReadingDestination(
+    shell: IosHostShell,
+    table: StringTable,
+    koin: Koin,
+    nightObserver: IosNightModeObserver,
+    holder: ReadingHostHolder,
+) {
+    val ready by produceState(false) {
+        value = try {
+            IosReadingReady.ensure(table)
+            true
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            nsLog("IosApp: reading not ready: ${e.stackTraceToString()}")
+            false
+        }
+    }
+    if (!ready) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+    val host = remember { holder.get(shell, koin, nightObserver) }
+    val icons = rememberIosReadingIcons()
+    val deps = remember(host) { host.deps(icons) }
+    val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor) { IosReadingWindows.nightMode } }
+    CompositionLocalProvider(LocalReadingPane provides paneFactory) {
+        ReadingHost(deps, Modifier.testTag("reading-host"))
+    }
 }

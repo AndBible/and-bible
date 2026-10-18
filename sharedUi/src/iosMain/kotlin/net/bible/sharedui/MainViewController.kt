@@ -19,8 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.IosDeviceSettings
-import androidx.navigation.compose.composable
-import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.ios.app.IosApp
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
@@ -114,12 +112,7 @@ fun MainViewController(): UIViewController {
         // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
         if (env["SCREENSHOT_SCENARIO"] as? String == null) {
             CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
-                IosApp(strings) { _ ->
-                    // Reading destination placeholder until the reading host lands.
-                    composable(NavRoutes.READING) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(strings.appName) }
-                    }
-                }
+                IosApp(strings)
             }
             return@ComposeUIViewController
         }

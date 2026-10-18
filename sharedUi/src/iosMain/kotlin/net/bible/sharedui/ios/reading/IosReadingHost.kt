@@ -19,6 +19,7 @@
 package net.bible.sharedui.ios.reading
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.control.document.DocumentControl
@@ -51,6 +52,8 @@ class IosReadingHost(
     private val shell: IosHostShell,
     private val koin: Koin,
     private val nightModeState: NightModeState = koin.get(),
+    /** A live night-mode source (see [IosNightModeObserver]); null keeps a snapshot of [nightModeState]. */
+    private val nightModeSource: State<Boolean>? = null,
 ) {
     private val windowControl: WindowControl = koin.get()
 
@@ -97,19 +100,27 @@ class IosReadingHost(
         controller = ReadingViewController(koin.get<WindowStateService>(), koin.get<WindowCommands>()),
         toolbarCallbacks = callbacks(),
         toolbarIcons = { icons },
-        // A snapshot taken when the deps are built; following appearance changes live is Task 7 / Stream R's job.
-        nightMode = mutableStateOf(nightModeState.nightMode),
+        nightMode = nightModeSource ?: mutableStateOf(nightModeState.nightMode),
     )
 
-    fun navDeps(content: @Composable () -> Unit): ReadingNavDeps = ReadingNavDeps(
-        host = this,
-        windowTitle = IosAppStartup.stringTable.text("app_name_short"),
-        onBack = { passThrough -> passThrough() },
-        content = content,
-        onKey = { false },
-        onScreenTurnedOn = {},
-        onScreenTurnedOff = {},
-        setWindowTitle = shell::setWindowTitle,
-        results = emptyList(),
-    )
+    fun navDeps(content: @Composable () -> Unit): ReadingNavDeps = iosReadingNavDeps(this, shell, IosAppStartup.stringTable, content)
 }
+
+/** The reading destination's [ReadingNavDeps]; [hostToken] is the identity the destination registers under. */
+@kotlin.native.HiddenFromObjC
+fun iosReadingNavDeps(
+    hostToken: Any,
+    shell: IosHostShell,
+    table: net.bible.sharedui.strings.keyed.StringTable,
+    content: @Composable () -> Unit,
+): ReadingNavDeps = ReadingNavDeps(
+    host = hostToken,
+    windowTitle = table.text("app_name_short"),
+    onBack = { passThrough -> passThrough() },
+    content = content,
+    onKey = { false },
+    onScreenTurnedOn = {},
+    onScreenTurnedOff = {},
+    setWindowTitle = shell::setWindowTitle,
+    results = emptyList(),
+)
