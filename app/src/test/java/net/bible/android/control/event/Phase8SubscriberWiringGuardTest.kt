@@ -24,6 +24,24 @@ class Phase8SubscriberWiringGuardTest {
         assertContains(p, "CommonUtils.llmConfiguredChanges.subscribe { updateConfig() }", "Review Focus 3: llmConfigured follows the refreshed value")
     }
 
+    @Test fun sessionEventRelayKeepsEveryControllerSubscriptionOnTheEmitterThread() {
+        // I2 Stream B Task 9 moved these five subscriptions out of BibleView.listenEvents; BibleView keeps five others.
+        val p = "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/session/SessionEventRelay.kt"
+        assertContains(p, "windowChanges().subscribe { change ->", "window/active-window changes")
+        assertContains(p, "progressChanges.subscribe { change ->", "read status, active cycle, memorization")
+        assertContains(p, "readingProgressSettingsChanged.subscribe { onReadingProgressSettingsChanged() }", "reading progress settings")
+        assertContains(p, "bookmarkChangeEvents().subscribe { change ->", "bookmark changes: favourites apply on the emitter thread")
+        assertContains(p, "documentLoader.favouriteLabels.apply(change)", "favourites change synchronously, before the ordered JS handling")
+        assertContains(p, "bookmarkChanges.launch(\"bibleview-bookmarks-${'$'}{window.id}\") { onBookmarkChange(change) }", "ordered JS handling")
+        assertContains(p, "aiDocChanges.subscribe {", "AI document pages")
+        assertEquals(5, Regex("""subscriptions\.add\(""").findAll(src(p)).count(), "five subscriptions moved")
+        assertTrue(!src(p).contains("subscribeOnMain"), "the old subscribers ran on the emitter thread")
+        val view = src("android/view/activity/page/BibleView.kt")
+        assertEquals(5, Regex("""subscriptions\.add\(""").findAll(view).count(), "BibleView keeps addons, settings, llm, insets, full screen")
+        assertContains("android/view/activity/page/BibleView.kt", "eventRelay.start()", "listenEvents starts the relay")
+        assertContains("android/view/activity/page/BibleView.kt", "eventRelay.stop()", "listenEvents stops the relay")
+    }
+
     @Test fun aiServicesRegisterConfigRefreshWithApplicationOwner() {
         listOf("AiSettingsServiceImpl", "LlmProviderServiceImpl", "LlmModelServiceImpl", "PromptServiceImpl").forEach {
             assertContains("android/view/activity/ai/$it.kt", "settings.configChanged.collectOwned(appScope) { refresh() }", "synchronous registration with application-owned suspend processing")
