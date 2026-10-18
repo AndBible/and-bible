@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.nav.ports
 
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.CancellableContinuation
@@ -21,9 +20,8 @@ class AndroidImagePicker(activity: ComponentActivity) : ImagePicker {
         pending = null
     }
 
-    internal val registeredLauncher: ActivityResultLauncher<*> get() = launcher
-
     override suspend fun pickImage(): String? = suspendCancellableCoroutine { cont ->
+        pending?.resume(null)
         pending = cont
         launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         cont.invokeOnCancellation { pending = null }

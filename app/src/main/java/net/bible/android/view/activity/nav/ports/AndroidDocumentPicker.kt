@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.CompletableDeferred
@@ -14,7 +13,8 @@ import net.bible.sharedui.app.ports.DocumentRef
 /**
  * [DocumentPicker] over `registerForActivityResult`. The launchers are registered in the constructor, so the
  * instance must be created while the Activity is still CREATED (a field initializer), or the registry throws.
- * One pick is in flight at a time per launcher; a cancelled pick answers empty/null.
+ * One pick is in flight at a time per launcher: a newer pick answers the older one empty/null, as does a
+ * cancelled pick.
  */
 class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
     private var pendingOpenMultiple: CompletableDeferred<List<Uri>>? = null
@@ -39,28 +39,24 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
         pendingTree = null
     }
 
-    /** The registered launchers, so a test can prove registration happened before STARTED. */
-    internal val launchers: List<ActivityResultLauncher<*>>
-        get() = listOf(openMultipleLauncher, openSingleLauncher, createLauncher, treeLauncher)
-
     override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean): List<DocumentRef> {
         val types = mimeTypes.ifEmpty { listOf("*/*") }
         return if (multiple) {
-            CompletableDeferred<List<Uri>>().also { pendingOpenMultiple = it }
+            CompletableDeferred<List<Uri>>().also { pendingOpenMultiple?.complete(emptyList()); pendingOpenMultiple = it }
                 .also { openMultipleLauncher.launch(types) }.await().map { DocumentRef(it.toString()) }
         } else {
-            val uri = CompletableDeferred<Uri?>().also { pendingOpenSingle = it }
+            val uri = CompletableDeferred<Uri?>().also { pendingOpenSingle?.complete(null); pendingOpenSingle = it }
                 .also { openSingleLauncher.launch(types) }.await()
             listOfNotNull(uri?.let { DocumentRef(it.toString()) })
         }
     }
 
     override suspend fun createDocument(suggestedName: String, mimeType: String): DocumentRef? =
-        CompletableDeferred<Uri?>().also { pendingCreate = it }
+        CompletableDeferred<Uri?>().also { pendingCreate?.complete(null); pendingCreate = it }
             .also { createLauncher.launch(suggestedName to mimeType) }.await()?.let { DocumentRef(it.toString()) }
 
     override suspend fun openDocumentTree(): DocumentRef? =
-        CompletableDeferred<Uri?>().also { pendingTree = it }
+        CompletableDeferred<Uri?>().also { pendingTree?.complete(null); pendingTree = it }
             .also { treeLauncher.launch(null) }.await()?.let { DocumentRef(it.toString()) }
 
     /** `ACTION_OPEN_DOCUMENT` with an explicit MIME type list, single or multiple. */

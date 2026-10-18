@@ -35,9 +35,12 @@ class AppHosts(
     fun Overlays() {
     }
 
-    fun saveState(): AppHostsState = AppHostsState()
+    private var current = AppHostsState()
 
-    @Suppress("UNUSED_PARAMETER")
+    /** The snapshot to persist; feature hosts contribute their fields as they are lifted in. */
+    fun saveState(): AppHostsState = current
+
     fun restoreState(state: AppHostsState?) {
+        current = state ?: AppHostsState()
     }
 }

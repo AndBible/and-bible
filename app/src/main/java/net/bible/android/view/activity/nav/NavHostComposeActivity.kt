@@ -164,6 +164,7 @@ import net.bible.android.view.activity.nav.ports.AndroidNotificationPermission
 import net.bible.android.view.activity.nav.ports.AndroidSystemScreens
 import net.bible.android.view.activity.nav.ports.AndroidTextShare
 import net.bible.sharedui.app.AppHosts
+import org.koin.java.KoinJavaComponent.getKoin
 import net.bible.sharedui.app.AppHostsState
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.HostPorts
@@ -3448,7 +3449,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // mode rather than leaving a non-reading start to the manifest by omission.
         applyWindowModeFor(startRoute)
         refreshSystemBars(startRoute)
-        appHosts = AppHosts(org.koin.java.KoinJavaComponent.getKoin(), this, hostPorts, AndroidStrings(this)).also { hosts ->
+        appHosts = AppHosts(getKoin(), this, hostPorts, AndroidStrings(this)).also { hosts ->
             hosts.restoreState(savedInstanceState?.getString(STATE_APP_HOSTS)?.let {
                 runCatching { CommonUtils.json.decodeFromString(AppHostsState.serializer(), it) }
                     .onFailure { e -> Log.w("AppHosts", "Ignoring unreadable app hosts state", e) }
