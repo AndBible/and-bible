@@ -220,7 +220,7 @@ class ReadingBridgeProgressLinkFamilyTest {
         return runBlocking { ProgressControl.getChapterReadCount(KJVA, verse.book, 1) }
     }
 
-    @Test fun recordChapterReadIgnoresUnknownSource() {
+    @Test fun recordChapterReadUnknownSourceFallsBackToManual() {
         // The source string is a ReadingSource name; an unknown one falls back to MANUAL (the row
         // is recorded, nothing throws).
         val ordinal = KJVA.getOrdinal(org.crosswire.jsword.passage.Verse(KJVA, BibleBook.GEN, 1, 1))
