@@ -16,6 +16,7 @@
 #   generate <app> <ios>   app = 1.0.1 | 1.0.2, ios = major version of the simulator runtime (17, 18, 26)
 #   oracle                 pinned app on an iOS 26 simulator, I3OracleExportTests over build/i3-fixtures/gen
 #   package                build/i3-fixtures/{gen,oracle} -> build/i3-fixtures/package (zips + manifest.json)
+# The Python test runs from its own directory: cd iosApp/legacy-fixtures && python3 -m unittest test_package_fixtures
 set -euo pipefail
 
 # Pinned Swift app commit and the App Store 1.0.1 release (see the workflow).
@@ -51,12 +52,12 @@ record_toolchain() {
 checkout_legacy() {
     local name="$1" ref="$2" dir="$STATE/$1"
     if [ ! -d "$dir/.git" ]; then
-        git clone "$LEGACY_REPO_URL" "$dir"
+        git clone "$LEGACY_REPO_URL" "$dir" >&2
     else
-        git -C "$dir" fetch --tags origin
+        git -C "$dir" fetch --tags origin >&2
     fi
-    git -C "$dir" checkout -f "$ref"
-    git -C "$dir" clean -fdx -e libsword/
+    git -C "$dir" checkout -f "$ref" >&2
+    git -C "$dir" clean -fdx -e libsword/ >&2
     echo "$dir"
 }
 
@@ -132,7 +133,7 @@ sim_fallback() {
 
 mode_generate() {
     [ $# -eq 2 ] || die "usage: generate <app 1.0.1|1.0.2> <ios major>"
-    local app="$1" ios="$2" ref dir out log
+    local app="$1" ios="$2" ref dir out log bundle
     case "$app" in
         1.0.1) ref="$LEGACY_101" ;;
         1.0.2) ref="$LEGACY_PIN" ;;
@@ -145,7 +146,8 @@ mode_generate() {
     build_libsword "$dir"
     make_simulator "I3 fixtures iOS $ios" "$ios" "generate-$app-$ios"
     install_test "$dir" I3FixtureGeneratorTests.swift
-    rm -rf "$out"; mkdir -p "$out"
+    bundle="$LOGS/generate-$app-$ios.xcresult"
+    rm -rf "$out" "$bundle"; mkdir -p "$out"
     local rc=0
     ( cd "$dir" && TEST_RUNNER_I3_FIXTURE_OUT="$out" xcodebuild test \
         -project AndBible.xcodeproj \
@@ -153,7 +155,7 @@ mode_generate() {
         -configuration Debug \
         -destination "id=$SIM_UDID" \
         -derivedDataPath "$STATE/derived-$app" \
-        -resultBundlePath "$STATE/generate-$app-$ios.xcresult" \
+        -resultBundlePath "$bundle" \
         -only-testing:BibleCoreTests/I3FixtureGeneratorTests \
         CODE_SIGNING_ALLOWED=NO ) 2>&1 | tee "$log" || rc=$?
     sim_fallback "$out" "$SIM_UDID"
@@ -162,22 +164,23 @@ mode_generate() {
 }
 
 mode_oracle() {
-    local dir out log rc=0
+    local dir out log bundle rc=0
     out="$FIX/oracle"; log="$LOGS/oracle.log"
     [ -d "$FIX/gen" ] || die "no $FIX/gen; run generate first"
     record_toolchain oracle
-    dir="$(checkout_legacy "app-pin" "$LEGACY_PIN")"
+    dir="$(checkout_legacy "app-1.0.2" "$LEGACY_PIN")"
     build_libsword "$dir"
     make_simulator "I3 oracle iOS 26" 26 oracle
     install_test "$dir" I3OracleExportTests.swift
-    rm -rf "$out"; mkdir -p "$out"
+    bundle="$LOGS/oracle.xcresult"
+    rm -rf "$out" "$bundle"; mkdir -p "$out"
     ( cd "$dir" && TEST_RUNNER_I3_FIXTURE_IN="$FIX/gen" TEST_RUNNER_I3_FIXTURE_OUT="$out" xcodebuild test \
         -project AndBible.xcodeproj \
         -scheme BibleCoreTests \
         -configuration Debug \
         -destination "id=$SIM_UDID" \
-        -derivedDataPath "$STATE/derived-pin" \
-        -resultBundlePath "$STATE/oracle.xcresult" \
+        -derivedDataPath "$STATE/derived-1.0.2" \
+        -resultBundlePath "$bundle" \
         -only-testing:BibleCoreTests/I3OracleExportTests \
         CODE_SIGNING_ALLOWED=NO ) 2>&1 | tee "$log" || rc=$?
     find "$out" -type f | sort | tee "$LOGS/oracle-files.txt"
@@ -185,6 +188,8 @@ mode_oracle() {
 }
 
 mode_package() {
+    [ -d "$FIX/gen" ] || die "no $FIX/gen; run generate first"
+    record_toolchain package
     rm -rf "$FIX/package"
     python3 "$TREE/$HERE/package_fixtures.py" "$FIX/gen" "$FIX/oracle" "$FIX/package" 2>&1 | tee "$LOGS/package.log"
     du -sh "$FIX/package"
