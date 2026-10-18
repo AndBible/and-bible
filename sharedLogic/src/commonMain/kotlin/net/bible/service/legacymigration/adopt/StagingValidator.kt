@@ -1,7 +1,6 @@
 package net.bible.service.legacymigration.adopt
 
 import androidx.room3.RoomDatabase
-import androidx.room3.useReaderConnection
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
@@ -10,6 +9,7 @@ import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
+import net.bible.service.db.useReaderConnectionMarked
 import net.bible.service.legacymigration.LegacyMigrationException
 import net.bible.service.legacymigration.LegacyMigrationException.Kind
 import net.bible.service.legacymigration.map.LegacyCategory
@@ -177,7 +177,7 @@ class StagingValidator(private val databases: LegacyDatabaseFactory, private val
         skippedFor: (LegacyCategory, String) -> Int,
         readerCount: (String) -> Int,
     ) {
-        db.useReaderConnection { c ->
+        db.useReaderConnectionMarked { c ->
             val integrity = c.usePrepared("PRAGMA integrity_check") { st -> buildList { while (st.step()) add(st.getText(0)) } }
             if (integrity != listOf("ok")) fail("integrity_check of $name: ${integrity.take(3)}")
 

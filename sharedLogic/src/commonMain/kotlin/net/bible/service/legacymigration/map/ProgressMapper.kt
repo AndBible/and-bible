@@ -1,7 +1,6 @@
 package net.bible.service.legacymigration.map
 
 import androidx.room3.immediateTransaction
-import androidx.room3.useWriterConnection
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -18,6 +17,7 @@ import net.bible.android.database.progress.GlobalReadingProgressSettings
 import net.bible.android.database.progress.MemorizationTarget
 import net.bible.android.database.progress.MemorizedVerse
 import net.bible.android.database.progress.ReadingSource
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.stage.StagingDatabases
 import okio.ByteString.Companion.encodeUtf8
@@ -78,7 +78,7 @@ class ProgressMapper : CategoryMapper {
         val stage = build(data, report)
         val db = staging.progress
         val dao = db.progressDao()
-        db.useWriterConnection { transactor ->
+        db.useWriterConnectionMarked { transactor ->
             transactor.immediateTransaction {
                 stage.verses.forEach { dao.insertMemorizedVerse(it) }
                 stage.targets.forEach { dao.insertMemorizationTarget(it) }

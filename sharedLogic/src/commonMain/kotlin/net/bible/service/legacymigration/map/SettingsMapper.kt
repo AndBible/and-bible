@@ -1,10 +1,10 @@
 package net.bible.service.legacymigration.map
 
-import androidx.room3.immediateTransaction
-import androidx.room3.useReaderConnection
-import androidx.room3.useWriterConnection
 import androidx.room3.RoomDatabase
+import androidx.room3.immediateTransaction
 import net.bible.android.database.IdType
+import net.bible.service.db.useReaderConnectionMarked
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.stage.StagingDatabases
 
@@ -116,7 +116,7 @@ class SettingsMapper(private val userDefaults: () -> Map<String, Any?>) : Catego
             else drops.add("selected reading plan that was not migrated, no plan selected")
         }
 
-        staging.settings.useWriterConnection { transactor ->
+        staging.settings.useWriterConnectionMarked { transactor ->
             transactor.immediateTransaction {
                 for ((def, rows) in listOf(BOOLEAN to booleans, LONG to longs, STRING to strings)) {
                     for (cells in rows) usePrepared(def.insertSql) { it.bindCells(cells); it.step() }
@@ -131,7 +131,7 @@ class SettingsMapper(private val userDefaults: () -> Map<String, Any?>) : Catego
     private suspend fun migratedWorkspaceId(raw: String, workspaces: RoomDatabase): IdType? {
         val id = try { IdType.fromString(raw.trim().lowercase()) } catch (e: Exception) { return null }
         val wanted = id.toByteArray() ?: return null
-        val found = workspaces.useReaderConnection { c ->
+        val found = workspaces.useReaderConnectionMarked { c ->
             c.usePrepared("SELECT 1 FROM Workspace WHERE id = ?") { st -> st.bindBlob(1, wanted); st.step() }
         }
         return id.takeIf { found }
@@ -140,7 +140,7 @@ class SettingsMapper(private val userDefaults: () -> Map<String, Any?>) : Catego
     /** Whether the staged reading plan database holds a plan with [code] (an unopened database holds none). */
     private suspend fun migratedPlanCode(code: String, staging: StagingDatabases): Boolean {
         val plans = staging.openedDatabase("readingplans.sqlite3") ?: return false
-        return plans.useReaderConnection { c ->
+        return plans.useReaderConnectionMarked { c ->
             c.usePrepared("SELECT 1 FROM ReadingPlan WHERE planCode = CAST(? AS TEXT)") { st -> st.bindBlob(1, code.encodeToByteArray()); st.step() }
         }
     }

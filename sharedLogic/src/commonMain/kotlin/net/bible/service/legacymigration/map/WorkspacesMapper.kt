@@ -1,5 +1,6 @@
 package net.bible.service.legacymigration.map
 
+import androidx.room3.immediateTransaction
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -15,14 +16,13 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import androidx.room3.immediateTransaction
-import androidx.room3.useWriterConnection
 import net.bible.android.database.DbDate
 import net.bible.android.database.GlobalTextDisplaySettings
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.legacymigration.plist.LegacyUuid
 import net.bible.service.legacymigration.read.LegacyRow
 import net.bible.service.legacymigration.read.LegacySnapshot
@@ -107,7 +107,7 @@ class WorkspacesMapper : CategoryMapper {
         val dao = db.workspaceDao()
         // One writer transaction: the staging file is either fully written or (on a crash) discarded, and a heavy
         // user's history is not committed row by row.
-        db.useWriterConnection { transactor ->
+        db.useWriterConnectionMarked { transactor ->
             transactor.immediateTransaction {
                 stage.workspaces.forEach { dao.insertWorkspace(it) }
                 stage.windows.forEach { dao.insertWindow(it) }

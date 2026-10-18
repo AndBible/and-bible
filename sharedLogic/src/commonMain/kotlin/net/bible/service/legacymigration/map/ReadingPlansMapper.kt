@@ -1,7 +1,6 @@
 package net.bible.service.legacymigration.map
 
 import androidx.room3.immediateTransaction
-import androidx.room3.useWriterConnection
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -13,6 +12,7 @@ import net.bible.android.database.DbDate
 import net.bible.android.database.IdType
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.legacymigration.read.LegacyRow
 import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.read.LegacyValue
@@ -86,7 +86,7 @@ class ReadingPlansMapper : CategoryMapper {
         if (stage.plans.isEmpty() && stage.statuses.isEmpty()) return
         val db = staging.readingPlans
         val dao = db.readingPlanDao()
-        db.useWriterConnection { transactor ->
+        db.useWriterConnectionMarked { transactor ->
             transactor.immediateTransaction {
                 stage.plans.forEach { dao.updatePlan(it) }
                 stage.statuses.forEach { dao.addPlanStatus(it) }

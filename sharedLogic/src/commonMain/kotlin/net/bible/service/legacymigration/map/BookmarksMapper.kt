@@ -1,24 +1,24 @@
 package net.bible.service.legacymigration.map
 
 import androidx.room3.immediateTransaction
-import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteStatement
+import net.bible.android.common.isConvertibleTo
+import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.AI_LABEL_ID
 import net.bible.android.database.bookmarks.AI_LABEL_NAME
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.legacymigration.read.LegacyRow
 import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.read.LegacyValue
 import net.bible.service.legacymigration.stage.StagingDatabases
-import net.bible.android.common.isConvertibleTo
-import net.bible.android.common.toV11n
-import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.system.Versifications
@@ -193,7 +193,7 @@ class BookmarksMapper : CategoryMapper {
         val stage = build(data, report)
         val db = staging.bookmarks
         // One writer transaction: the staging file is either fully written or (on a crash) discarded.
-        db.useWriterConnection { transactor ->
+        db.useWriterConnectionMarked { transactor ->
             transactor.immediateTransaction {
                 for (l in stage.labels) usePrepared(LABEL_SQL) { it.bindLabel(l); it.step() }
                 for (b in stage.bibleBookmarks) usePrepared(BIBLE_BOOKMARK_SQL) { it.bindBibleBookmark(b); it.step() }

@@ -1,7 +1,6 @@
 package net.bible.service.legacymigration.map
 
 import androidx.room3.immediateTransaction
-import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLITE_DATA_BLOB
 import androidx.sqlite.SQLITE_DATA_FLOAT
 import androidx.sqlite.SQLITE_DATA_INTEGER
@@ -13,6 +12,7 @@ import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.migrations.aiSettingsMigrations
 import net.bible.service.db.buildAppDatabase
 import net.bible.service.db.openSqlite
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.legacymigration.read.LegacyRow
 import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.stage.StagingDatabases
@@ -85,7 +85,7 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
             drops.flushTo(report, category)
         }
         if (stage.all { it.second.isEmpty() }) return
-        staging.aiSettings.useWriterConnection { transactor ->
+        staging.aiSettings.useWriterConnectionMarked { transactor ->
             transactor.immediateTransaction {
                 for ((def, rows) in stage) for (cells in rows) usePrepared(def.insertSql) { it.bindCells(cells); it.step() }
             }
@@ -176,7 +176,7 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
             if (version < AI_SETTINGS_DATABASE_VERSION) {
                 val db = buildAppDatabase<AiSettingsDatabase>(copy.toString(), *aiSettingsMigrations)
                 try {
-                    db.useWriterConnection { it.usePrepared("SELECT 1") { st -> st.step() } }
+                    db.useWriterConnectionMarked { it.usePrepared("SELECT 1") { st -> st.step() } }
                 } finally {
                     db.close()
                 }

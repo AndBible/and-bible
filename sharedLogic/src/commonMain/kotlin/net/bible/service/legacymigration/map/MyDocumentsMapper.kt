@@ -1,8 +1,8 @@
 package net.bible.service.legacymigration.map
 
 import androidx.room3.immediateTransaction
-import androidx.room3.useWriterConnection
 import net.bible.android.database.IdType
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.legacymigration.read.LegacyRow
 import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.read.LegacyValue
@@ -63,7 +63,7 @@ class MyDocumentsMapper : CategoryMapper {
             DOCUMENT to stage.documents, PAGE to stage.pages, CONTENT to stage.contents, CACHE to stage.cacheEntries,
         )
         if (sections.all { it.second.isEmpty() }) return
-        staging.myDocuments.useWriterConnection { transactor ->
+        staging.myDocuments.useWriterConnectionMarked { transactor ->
             transactor.immediateTransaction {
                 for ((def, rows) in sections) for (cells in rows) usePrepared(def.insertSql) { it.bindCells(cells); it.step() }
             }
