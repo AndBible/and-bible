@@ -29,8 +29,10 @@ import net.bible.service.sword.SwordContentFacade
 import fi.sykero.kdom.Document
 import fi.sykero.kdom.Element
 import net.bible.sharedlogic.util.currentTimeMillis
+import net.bible.sharedlogic.platform.EpubStoreEdge
 import net.bible.sharedlogic.util.decodeUrl
 import org.crosswire.common.util.KFiles
+import org.koin.mp.KoinPlatform
 
 private val urlRe = Regex("""^https?://.*""")
 
@@ -201,7 +203,7 @@ fun EpubBackendState.optimizeEpub() {
     // The database file lives in internal storage and can outlive the (external) epub dir
     // when a module is removed via the failure path. Clear any stale rows from a previous
     // optimization so newly-written fragment files are the only ones referenced.
-    org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.EpubStoreEdge>().clear(writeDao)
+    KoinPlatform.getKoin().get<EpubStoreEdge>().clear(writeDao)
     val start = currentTimeMillis()
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: strings.namelessTitle
@@ -220,7 +222,7 @@ fun EpubBackendState.optimizeEpub() {
             .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
             .mapNotNull { StyleSheet(k, it.getAttribute("href")!!.value) }.toTypedArray()
 
-        org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.EpubStoreEdge>().insertFragments(writeDao, fragments, k, styleSheets)
+        KoinPlatform.getKoin().get<EpubStoreEdge>().insertFragments(writeDao, fragments, k, styleSheets)
 
         val epubHtmlToFrags = mutableListOf<EpubHtmlToFrag>()
         for(frag in fragments) {
@@ -229,7 +231,7 @@ fun EpubBackendState.optimizeEpub() {
             findIds(frag).mapTo(epubHtmlToFrags) { EpubHtmlToFrag("$k#$it", frag.id) }
             frag.element = null // clear up memory
         }
-        org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.EpubStoreEdge>().insertHtmlToFrags(writeDao, epubHtmlToFrags)
+        KoinPlatform.getKoin().get<EpubStoreEdge>().insertHtmlToFrags(writeDao, epubHtmlToFrags)
         fileForOriginalId(k)?.let { KFiles.delete(it) }
     }
     KFiles.write(versionFile, "$EPUB_OPTIMIZER_VERSION".encodeToByteArray())

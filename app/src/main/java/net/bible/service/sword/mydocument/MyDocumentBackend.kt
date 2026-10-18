@@ -34,6 +34,7 @@ import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
+import net.bible.sharedlogic.platform.MyDocumentStoreEdge
 import net.bible.sharedlogic.platform.PlatformLocales
 import net.bible.sharedcore.platform.MarkdownRenderer
 import org.koin.mp.KoinPlatform
@@ -79,7 +80,7 @@ class MyDocumentBackend(
     private var cachedPages: List<MyDocumentPage>? = null
 
     private fun getPages(): List<MyDocumentPage> {
-        return cachedPages ?: org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.MyDocumentStoreEdge>().pages(dao(), documentId).also { cachedPages = it }
+        return cachedPages ?: KoinPlatform.getKoin().get<MyDocumentStoreEdge>().pages(dao(), documentId).also { cachedPages = it }
     }
 
     override fun initState(): MyDocumentOpenFileState {
@@ -133,7 +134,7 @@ class MyDocumentBackend(
         if (key == null) return ""
 
         val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
-        val page = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.MyDocumentStoreEdge>().pageWithContent(dao(), documentId, pageKey)
+        val page = KoinPlatform.getKoin().get<MyDocumentStoreEdge>().pageWithContent(dao(), documentId, pageKey)
 
         if (page == null) {
             Log.w(TAG, "Page not found: $pageKey in document $documentId")

@@ -216,7 +216,8 @@ Part B status (G1, 2026-10-17; superseded by the phase-1 close-out in section 7,
   sword domain files call platform files in the same package: `EpubEdges.kt` (`epub*Blocking`, from
   `EpubBackendState.kt`, `EpubOptimization.kt`) and `MyDocumentEdges.kt` (`myDocument*Blocking`, from
   `MyDocumentBackend.kt`). They are `:app` platform files (the `blockingAtEdge` bridges), so after the move
-  phase 2 must give each an `androidMain` actual or a port. `MyDocumentBackend` reaches `MarkdownToXhtml` only
+  phase 2 must give each an `androidMain` actual or a port. (Resolved by C20: `EpubStoreEdge` / `MyDocumentStoreEdge`
+  ports in `:sharedLogic`, Android implementations in `:app` `net.bible.android.platform`.) `MyDocumentBackend` reaches `MarkdownToXhtml` only
   through the `MarkdownRenderer` port (resolved at the call). The three G3 imports above are therefore the only
   *counted* `app` rows, not the only real sword dependencies on `:app`.
 - `download` is 0 in every column but has `catch (oom: OutOfMemoryError)` at `DownloadManager.kt:132`, which

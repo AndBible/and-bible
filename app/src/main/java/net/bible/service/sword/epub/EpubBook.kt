@@ -22,6 +22,7 @@ import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedlogic.sync.withMonitor
 import org.crosswire.common.util.KFiles
+import net.bible.sharedlogic.platform.EpubStoreEdge
 import org.koin.mp.KoinPlatform
 import net.bible.android.database.EpubDatabase
 import net.bible.android.database.epubMigrations
@@ -172,7 +173,7 @@ suspend fun installEpubModule(dir: Path, block: () -> Boolean): Boolean = withCo
 /** Retire the registered owner before removing external files and the internal metadata cache. */
 fun deleteEpubModule(epubDir: Path) {
     val owner = moduleOwner(epubDir)
-    org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.EpubStoreEdge>().lockOwner(owner)
+    KoinPlatform.getKoin().get<EpubStoreEdge>().lockOwner(owner)
     try { deleteOwnedEpubModule(epubDir) } finally { owner.unlock() }
 }
 

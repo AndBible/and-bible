@@ -47,7 +47,7 @@ import java.io.File
 
 /**
  * The EPUB domain reaches its blocking store edge through the [EpubStoreEdge] port, resolved at the call.
- * A backend state must therefore be constructible before Koin has started, and reads must go through
+ * Construction of an already-optimized module must not resolve the edge, and reads must go through
  * whatever the Koin graph binds.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -116,7 +116,7 @@ class EpubStoreEdgeResolutionTest {
      * edge, so the binding is replaced by one that throws on resolution.
      */
     @Test
-    fun backendStateConstructionDoesNotNeedKoin() {
+    fun optimizedBackendStateConstructionDoesNotResolveTheEdge() {
         val dir = buildEpub("no-edge-at-construction")
         newState(dir) // first open optimizes the module and needs the real edge; the second construction is the test
         val koin = GlobalContext.get()

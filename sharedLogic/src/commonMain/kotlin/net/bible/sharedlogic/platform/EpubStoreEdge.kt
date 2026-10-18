@@ -28,7 +28,7 @@ import net.bible.android.database.StyleSheet
  *
  * Every member is synchronous because the JSword `Backend`/driver contract is synchronous. The Android
  * implementation blocks through `blockingAtEdge`; iOS supplies its own in I2. Making these `suspend` is the
- * edge-reduction backlog. Call sites resolve the port at the call, never at construction.
+ * edge-reduction backlog. Call sites resolve the port at the call, never held by a constructor or property initializer.
  */
 interface EpubStoreEdge {
     /** Reads one fragment by id. */
