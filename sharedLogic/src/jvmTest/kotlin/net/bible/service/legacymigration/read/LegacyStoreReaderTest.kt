@@ -93,14 +93,33 @@ class LegacyStoreReaderTest {
     }
 
     @Test
-    fun snapshotSettingsMergeBothStores() {
+    fun snapshotSettingsComeFromLocalStoreRows() {
         val fx = fixture("1.0.2", "18", "rich")
+        val expected = withRw(fx.store("LocalStore.store")) { c ->
+            val s = c.prepare("SELECT ZKEY, ZVALUE FROM ZSETTING")
+            try {
+                buildMap { while (s.step()) put(s.getText(0), if (s.isNull(1)) "" else s.getText(1)) }
+            } finally {
+                s.close()
+            }
+        }
+        assertEquals(fx.reportCounts().getValue("LocalStore.Setting"), expected.size)
         LegacySnapshot(
             LegacyStoreReader(fx.store("AndBible.store").path),
             LegacyStoreReader(fx.store("LocalStore.store").path),
-        ).use { snapshot ->
-            assertTrue(snapshot.settings.size >= fx.reportCounts().getValue("LocalStore.Setting") - 1, "${snapshot.settings.size}")
-        }
+        ).use { snapshot -> assertEquals(expected, snapshot.settings) }
+    }
+
+    @Test
+    fun missingMappedTableOrColumnIsCorrupt() {
+        val fx = fixture("1.0.2", "18", "rich")
+        val store = fx.store("AndBible.store")
+        execute(store, "ALTER TABLE ZWORKSPACE RENAME COLUMN ZNAME TO ZNAME_X")
+        assertEquals(Kind.CORRUPT_STORE, assertFailsWith<LegacyMigrationException> { LegacyStoreReader(store.path) }.kind)
+        val fx2 = fixture("1.0.2", "18", "rich")
+        val store2 = fx2.store("AndBible.store")
+        execute(store2, "ALTER TABLE ZLABEL RENAME TO ZLABEL_X")
+        assertEquals(Kind.CORRUPT_STORE, assertFailsWith<LegacyMigrationException> { LegacyStoreReader(store2.path) }.kind)
     }
 
     @Test

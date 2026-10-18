@@ -51,6 +51,7 @@ class LegacyStoreReader(path: String) : AutoCloseable {
             fingerprint = modelFingerprint(versionHashes(opened))
             map = KnownSchemaMaps.forFingerprint(fingerprint)
                 ?: throw LegacyMigrationException(Kind.UNKNOWN_MODEL, "unknown SwiftData model $fingerprint in $path")
+            validateLayout(opened, map, path)
         } catch (e: Throwable) {
             runCatching { opened.close() }
             throw if (e is LegacyMigrationException) e else LegacyMigrationException(Kind.CORRUPT_STORE, "cannot read store $path: ${e.message}", e)
@@ -151,6 +152,24 @@ class LegacyStoreReader(path: String) : AutoCloseable {
             if (bytes.size != 16) throw LegacyMigrationException(Kind.CORRUPT_STORE, "UUID in $where has ${bytes.size} bytes, expected 16")
             val hex = bytes.joinToString("") { (it.toInt() and 0xff).toString(16).padStart(2, '0') }
             return "${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}"
+        }
+
+        /** Closed-set rule: every table and column the map names must exist in the store. */
+        fun validateLayout(db: SQLiteConnection, map: SchemaMap, path: String) {
+            for (e in map.entities.values) {
+                val present = mutableSetOf<String>()
+                val statement = db.prepare("PRAGMA table_info(${e.table})")
+                try {
+                    while (statement.step()) present += statement.getText(1).uppercase()
+                } finally {
+                    statement.close()
+                }
+                if (present.isEmpty()) throw LegacyMigrationException(Kind.CORRUPT_STORE, "table ${e.table} missing in $path")
+                val missing = (listOf("Z_PK") + e.columns.values.map { it.column } + e.toOne.values).filter { it.uppercase() !in present }
+                if (missing.isNotEmpty()) {
+                    throw LegacyMigrationException(Kind.CORRUPT_STORE, "columns $missing missing in table ${e.table} of $path")
+                }
+            }
         }
 
         fun firstText(db: SQLiteConnection, sql: String): String? {
