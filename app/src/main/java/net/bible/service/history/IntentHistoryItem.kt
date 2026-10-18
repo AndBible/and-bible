@@ -17,6 +17,7 @@
 
 package net.bible.service.history
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import net.bible.sharedcore.log.Log
 
@@ -55,11 +56,21 @@ class IntentHistoryItem(
     override fun revertTo() {
         Log.i(TAG, "Revert to history item:$description")
         // need to get current activity and call startActivity on that
-        val currentActivity = CurrentActivityHolder.currentActivity
+        val currentActivity = CurrentActivityHolder.currentActivity ?: return
 
+        // An entry naming an Activity that no longer exists (the Compose port replaced them with nav routes) must
+        // not crash Back: skip it, the history stack has already dropped it.
+        if (intent.resolveActivity(currentActivity.packageManager) == null) {
+            Log.w(TAG, "Skipping history item '$description': nothing resolves $intent")
+            return
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-        // start activity chosen from activity
-        currentActivity?.startActivityForResult(intent, STD_REQUEST_CODE)
+        try {
+            // start activity chosen from activity
+            currentActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+        } catch (e: ActivityNotFoundException) {
+            Log.w(TAG, "Skipping history item '$description': activity not found for $intent", e)
+        }
     }
 
     override fun hashCode(): Int {
