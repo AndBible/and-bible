@@ -78,6 +78,11 @@ class HistoryRouteBackTest {
         // out when there is no current document to search), so the search-form route is used instead.
         nav.navigate(NavRoutes.searchForm())
         idle()
+        // The route is published by a LaunchedEffect on the Compose test clock: wait for it in real time, driving
+        // that clock, instead of assuming 2 simulated seconds were enough on a contended forked run.
+        net.bible.test.awaitHostCondition("search form must publish its history route", { compose.waitForIdle() }) {
+            activity.isIntegrateWithHistoryManager
+        }
         assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)
         return activity to nav
     }
@@ -140,6 +145,10 @@ class HistoryRouteBackTest {
         }
         idle()
         assertEquals("fixture: on daily reading", NavRoutes.dailyReading().substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
+        // The graph publishes the route from a LaunchedEffect keyed on the loaded day, after the route is current.
+        net.bible.test.awaitHostCondition("daily reading must publish its history route", { compose.waitForIdle() }) {
+            activity.isIntegrateWithHistoryManager
+        }
         assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)
         val manager: HistoryManager = GlobalContext.get().get()
         val window = CommonUtils.windowControl.activeWindow
