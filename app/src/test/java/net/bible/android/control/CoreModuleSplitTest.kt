@@ -10,7 +10,7 @@ import org.koin.dsl.koinApplication
 import java.io.File
 
 /**
- * Guards the split of [buildCoreModule] into platform and shared bindings: the set of registered definitions must stay
+ * Guards the split of [buildCoreModule] into platform, shared and host bindings: the set of registered definitions must stay
  * exactly the one recorded in `core-module-definitions.txt`, whichever part a definition lives in.
  *
  * Registering definitions does not run their factories, so no Android context is needed here.
@@ -51,8 +51,10 @@ class CoreModuleSplitTest {
     fun sharedBindingsAreOnlyThePlatformFreeOnes() {
         val platform = definitionsOf(buildPlatformBindings())
         val shared = definitionsOf(buildSharedBindings())
+        val host = definitionsOf(buildHostBindings())
         assertTrue("platform and shared must be disjoint", platform.intersect(shared.toSet()).isEmpty())
-        assertEquals(snapshot(), (platform + shared).sorted())
+        assertTrue("host bindings must be disjoint from the others", host.intersect((platform + shared).toSet()).isEmpty())
+        assertEquals(snapshot(), (platform + shared + host).sorted())
         assertTrue("shared part must not be empty", shared.isNotEmpty() && platform.isNotEmpty())
     }
 

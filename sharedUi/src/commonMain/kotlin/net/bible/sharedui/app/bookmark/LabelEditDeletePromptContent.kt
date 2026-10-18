@@ -1,11 +1,11 @@
 package net.bible.sharedui.app.bookmark
 
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import net.bible.sharedcore.bookmark.DeletePrompt
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedui.components.AbAlertDialog
 import net.bible.sharedui.components.AbOptionsDialog
 
 /**
@@ -15,7 +15,7 @@ import net.bible.sharedui.components.AbOptionsDialog
  *
  * `AbOptionsDialog` (spec §6.2) renders [DeletePrompt.Orphaned]'s three answers (delete both, delete label only,
  * cancel), same labels and order as the classic row it replaced. [DeletePrompt.Confirm] (a plain 2-way "delete this
- * label?") keeps its `AlertDialog`.
+ * label?") keeps a plain `AbAlertDialog`.
  */
 @Composable
 fun LabelEditDeletePromptContent(
@@ -42,7 +42,7 @@ fun LabelEditDeletePromptContent(
             onDismissRequest = onDismiss,
             dismissText = cancelLabel,
         )
-        DeletePrompt.Confirm -> AlertDialog(
+        DeletePrompt.Confirm -> AbAlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(title) },
             confirmButton = { TextButton(onClick = { onConfirm(false) }) { Text(confirmLabel) } },
