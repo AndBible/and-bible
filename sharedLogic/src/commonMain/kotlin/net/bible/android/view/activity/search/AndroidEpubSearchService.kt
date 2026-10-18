@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.search
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import net.bible.android.control.search.SearchControl
 import net.bible.sharedcore.search.EpubResultRow
