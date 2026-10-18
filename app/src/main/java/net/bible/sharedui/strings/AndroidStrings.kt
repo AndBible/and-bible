@@ -382,8 +382,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val speakHelpPlaybackSettings: String get() = context.getString(R.string.speak_help_playback_settings)
     override val speakHelpPlaybackSettingsExample: String get() = context.getString(R.string.speak_help_playback_settings_example)
     override val choosePassageBookName: String get() = context.getString(R.string.choosePassageBookName)
-    override val docTypeMap: String get() = context.getString(R.string.doc_type_map)
-    override val generalBook: String get() = context.getString(R.string.general_book)
     override val shareVerseMenuTitle: String get() = context.getString(R.string.share_verse_menu_title)
     override val textCopiedToClipboard: String get() = context.getString(R.string.text_copied_to_clicpboard)
     // --- end I2 phase 2 R1 ---

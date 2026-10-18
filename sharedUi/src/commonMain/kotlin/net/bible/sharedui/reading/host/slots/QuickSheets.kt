@@ -85,9 +85,9 @@ internal fun QuickSheetContent(slots: ReadingHostSlots, sheet: ReadingQuickSheet
             // Both are flat single-level lists with no page stack, so they take the shell's DEFAULT
             // dismiss contract (swipe, scrim and back all simply close). The grid is the only sheet
             // here that needs `dismissRoutesToBack = false`.
-            KeyChooserKind.Map -> KeyListSheet(slots, sheet, KeyChooserKind.Map, slots.strings().docTypeMap)
+            KeyChooserKind.Map -> KeyListSheet(slots, sheet, KeyChooserKind.Map, slots.strings().mapTitle)
             KeyChooserKind.GeneralBook ->
-                KeyListSheet(slots, sheet, KeyChooserKind.GeneralBook, slots.strings().generalBook)
+                KeyListSheet(slots, sheet, KeyChooserKind.GeneralBook, slots.strings().generalBookTitle)
         }
     }
 }

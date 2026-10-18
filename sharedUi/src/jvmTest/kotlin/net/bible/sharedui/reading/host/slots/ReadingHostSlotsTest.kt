@@ -733,7 +733,7 @@ class ReadingHostSlotsTest {
         val (slots, state) = slots(quick = quick)
         state.showKeyChooserSheet(net.bible.sharedcore.reading.KeyChooserKind.Map, keys)
         mountKeySheet(slots, state)
-        onNodeWithText(strings.docTypeMap).assertExists() // the sheet title
+        onNodeWithText(strings.mapTitle).assertExists() // the sheet title
         onNodeWithText("Gamma").performClick()
         // The row id is the INDEX into the list the opening handed in, and a map pick belongs to the
         // page's current document.
@@ -750,7 +750,7 @@ class ReadingHostSlotsTest {
         val (slots, state) = slots(quick = quick)
         state.showKeyChooserSheet(net.bible.sharedcore.reading.KeyChooserKind.GeneralBook, listOf(tocKey, plain))
         mountKeySheet(slots, state)
-        onNodeWithText(strings.generalBook).assertExists()
+        onNodeWithText(strings.generalBookTitle).assertExists()
         // An EPUB table-of-contents entry shows its bare name and carries its OWN document.
         onNodeWithText("Chapter 1").performClick()
         assertEquals(1, quick.appliedKeys.size)
