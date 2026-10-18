@@ -99,6 +99,13 @@ class AndroidReadingNavigator(
         activity.startActivityForResult(intent, WORKSPACE_CHANGED)
     }
 
+    override fun openChooseDocument(type: String?) {
+        host().startActivityForResult(
+            NavHostComposeActivity.intentFor(host(), NavRoutes.chooseDocument(type)),
+            STD_REQUEST_CODE,
+        )
+    }
+
     override fun openSearch(document: Book?) {
         val activity = host()
         searchIntent(document, activity)?.let { activity.startActivityForResult(it, STD_REQUEST_CODE) }

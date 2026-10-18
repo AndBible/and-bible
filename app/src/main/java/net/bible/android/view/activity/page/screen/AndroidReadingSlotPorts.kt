@@ -17,6 +17,12 @@
 package net.bible.android.view.activity.page.screen
 
 import android.content.Context
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import net.bible.android.view.activity.page.ReadingHostActivity
+import net.bible.sharedui.reading.host.slots.ReadingQuickActions
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.passage.Key
 import net.bible.android.platform.openSystemTtsSettings
 import net.bible.sharedui.reading.host.slots.SpeakSettingsPlatform
 
@@ -27,4 +33,26 @@ import net.bible.sharedui.reading.host.slots.SpeakSettingsPlatform
  */
 class AndroidSpeakSettingsPlatform(private val context: () -> Context) : SpeakSettingsPlatform {
     override fun openSystemTtsSettings() = openSystemTtsSettings(context())
+}
+
+/**
+ * Android [ReadingQuickActions]: each member is the body the matching full-screen chooser result
+ * runs, through the hosting activity's `ReadingCommands`. [activity] is read per call because the
+ * host's activity can be recreated.
+ */
+class AndroidReadingQuickActions(private val activity: () -> ReadingHostActivity) : ReadingQuickActions {
+    /**
+     * The quick sheet never pauses the activity, so nothing else flushes the outgoing workspace's
+     * windows/page-managers/history before switching: use the save-then-switch entry point, never
+     * plain `switchToWorkspace`.
+     */
+    override fun quickSwitchToWorkspace(id: String) {
+        val host = activity()
+        host.lifecycleScope.launch { host.readingCommands.quickSwitchToWorkspace(id) }
+    }
+
+    override fun applyChosenDocument(bookStr: String?) = activity().readingCommands.applyChosenDocument(bookStr)
+
+    override fun applyChosenGenBookKey(book: Book?, key: Key) =
+        activity().readingCommands.applyChosenGenBookKey(book, key)
 }

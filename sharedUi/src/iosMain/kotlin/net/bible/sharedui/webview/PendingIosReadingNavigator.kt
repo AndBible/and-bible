@@ -23,6 +23,7 @@ object PendingIosReadingNavigator : ReadingNavigator {
     override fun openReadingProgress(tab: Int) { pending.pending("openReadingProgress") }
     override fun openReadingProgressSettings() { pending.pending("openReadingProgressSettings") }
     override fun openWorkspaceSelector() { pending.pending("openWorkspaceSelector") }
+    override fun openChooseDocument(type: String?) { pending.pending("openChooseDocument") }
     override fun openSearch(document: Book?) { pending.pending("openSearch") }
     override fun openPromptEditor(promptId: String) { pending.pending("openPromptEditor") }
     override fun openExternalUrl(url: String) { pending.pending("openExternalUrl") }

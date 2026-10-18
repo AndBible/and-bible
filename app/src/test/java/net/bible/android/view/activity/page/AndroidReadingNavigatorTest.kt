@@ -110,6 +110,16 @@ class AndroidReadingNavigatorTest {
         assertEquals(WORKSPACE_CHANGED, started.requestCode)
     }
 
+    @Test fun openChooseDocumentStartsTheChooserRouteWithTheStdRequestCode() {
+        val activity = activity()
+        AndroidReadingNavigator({ activity }).openChooseDocument("bible")
+
+        val started = shadowOf(activity).nextStartedActivityForResult
+        assertNotNull("no activity was started", started)
+        assertSameRoute(NavHostComposeActivity.intentFor(activity, NavRoutes.chooseDocument("bible")), started.intent)
+        assertEquals(STD_REQUEST_CODE, started.requestCode)
+    }
+
     @Test fun assignLabelsReturnsNullWhenCancelled() {
         val activity = activity()
         val navigator = AndroidReadingNavigator({ activity })

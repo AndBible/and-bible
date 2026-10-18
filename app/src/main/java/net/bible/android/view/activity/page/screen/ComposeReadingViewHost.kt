@@ -16,8 +16,6 @@
  */
 package net.bible.android.view.activity.page.screen
 
-import android.content.ClipData
-import android.content.Intent
 import android.text.format.DateFormat.format
 import android.util.Log
 import android.view.ViewGroup
@@ -32,20 +30,16 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -71,7 +65,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.PageChange
@@ -97,7 +90,6 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.FailClosedLinkRouting
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
@@ -109,7 +101,6 @@ import net.bible.android.view.activity.page.KeyIsNull
 import net.bible.android.view.activity.page.ReadingCommands
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.page.Selection
-import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.androidBibleView
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
@@ -140,8 +131,6 @@ import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingLlmDialog
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmService
-import net.bible.sharedcore.history.HistoryController
-import net.bible.sharedcore.history.HistoryEntry
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
@@ -197,18 +186,10 @@ import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
-import net.bible.sharedcore.workspaces.WorkspaceQuickController
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
-import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbQuickSheet
-import net.bible.sharedui.components.AbQuickSheetFooterRow
-import net.bible.sharedui.components.AbQuickSheetTab
-import net.bible.sharedui.history.HistoryListContent
-import net.bible.sharedui.progress.AbReadHistorySheet
-import net.bible.sharedui.progress.ReadHistoryRow
-import net.bible.sharedui.navigation.DocumentQuickContent
 import net.bible.sharedui.navigation.GridChoosePassageContent
 import net.bible.sharedui.navigation.GridOptionsOverflow
 import net.bible.sharedui.navigation.KeyListBody
@@ -222,11 +203,15 @@ import net.bible.sharedui.reading.host.ReadingHostDeps
 import net.bible.sharedui.reading.host.ReadingHostHooks
 import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.reading.host.ReadingHostState
-import net.bible.sharedui.reading.ShareVersesSheet
 import net.bible.sharedui.reading.host.slots.ReadingHostSlots
 import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
+import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.ImagePicker
+import net.bible.sharedui.app.ports.TextShare
+import net.bible.android.view.activity.nav.ports.AndroidClipboardText
+import net.bible.android.view.activity.nav.ports.AndroidTextShare
+import net.bible.android.view.activity.page.AndroidReadingNavigator
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.search.BibleResultsActions
@@ -235,9 +220,7 @@ import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.search.SearchSheetContent
 import net.bible.sharedui.search.bibleResultRows
 import net.bible.sharedui.search.epubResultRows
-import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.textOptionDrawableRes
-import net.bible.sharedui.workspaces.WorkspaceQuickContent
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
@@ -484,45 +467,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     internal fun showReadHistorySheet(bookId: String, chapter: Int) = hostState.showReadHistorySheet(bookId, chapter)
 
-    /** Fires the same `Intent.ACTION_SEND` chooser the classic `ShareWidget`'s Share button did. */
-    internal fun shareVersesText(text: String) {
-        val sendIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_TEXT, text)
-            type = "text/plain"
-        }
-        val chooserIntent = Intent.createChooser(sendIntent, activity.hostContext.getString(R.string.share_verse_menu_title))
-        activity.hostContext.startActivity(chooserIntent)
-    }
-
-    /** Copies [text] to the clipboard exactly as the classic `ShareWidget`'s Copy button did (same
-     *  toast, via [CommonUtils.copyToClipboard]). [clipLabel] is only the `ClipData`'s invisible
-     *  description, not part of the copied text. */
-    internal fun copyVersesText(text: String, clipLabel: String?) {
-        CommonUtils.copyToClipboard(ClipData.newPlainText(clipLabel, text))
-    }
-
-    /**
-     * [ReadingQuickSheet.Share]'s `onShare`/`onCopy` wiring (I3, run 3 final-review fix wave): the
-     * classic `ShareWidget` dialog's Share and Copy were `AlertDialog` buttons, which dismiss the
-     * dialog on click -- these wrap [shareVersesText]/[copyVersesText] with [closeQuickSheet] to
-     * restore that. Without it the sheet stayed open after the share chooser returned, or after
-     * Copy's toast, across all three entry points (selection menu, bookmark share, JS share).
-     *
-     * `internal`, not private lambdas inlined at the `QuickSheetContent` call site, purely so
-     * `ComposeReadingViewHostTest` can pin the close-after-action behaviour directly -- an open
-     * `ModalBottomSheet` must never be idled in a Robolectric test (this run's "Hang protection"
-     * rule), so the wiring has to be reachable without rendering the sheet.
-     */
-    internal fun shareVersesTextAndCloseSheet(text: String) {
-        shareVersesText(text)
-        closeQuickSheet()
-    }
-
-    internal fun copyVersesTextAndCloseSheet(text: String, clipLabel: String?) {
-        copyVersesText(text, clipLabel)
-        closeQuickSheet()
-    }
-
     /**
      * The document quick sheet's three tabs, built from the same inputs the full ChooseDocument
      * screen uses (spec §4.5).
@@ -538,14 +482,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     internal fun buildDocumentQuickTabsForHost(scope: DocumentSheetScope): DocumentQuickTabs =
         hostState.buildDocumentQuickTabsForHost(scope)
 
-    @Composable
-    private fun quickDocTabLabel(tab: DocumentQuickTab): String = when (tab) {
-        DocumentQuickTab.RECENT -> LocalStrings.current.documentTabRecent
-        DocumentQuickTab.FOR_VERSE -> LocalStrings.current.documentTabForVerse
-        DocumentQuickTab.LAST_FILTER -> LocalStrings.current.documentTabLastFilter
-        DocumentQuickTab.ALL -> LocalStrings.current.documentTabAll
-    }
-
     /**
      * The last tab the user picked, as a tab ID — never an index. An empty tab is HIDDEN, so
      * `visible`'s shape differs between openings (no MRU yet, no commentary for this verse, …) and a
@@ -558,21 +494,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
     internal fun persistQuickDocTab(scope: DocumentSheetScope, tabId: String) =
         hostState.persistQuickDocTab(scope, tabId)
-
-    /** The document shown in the active window — the row the sheet draws bold and inert. */
-    private fun currentDocumentInitials(): String? = documentControl.currentDocument?.initials
-
-    /**
-     * The full ChooseDocument screen — `MainBibleActivity.composeChooseDocument`'s classic body,
-     * repeated rather than delegated because that method now routes BACK here (it is the title
-     * long-press's reroute point), so calling it would recurse.
-     */
-    private fun openChooseDocument(type: String? = null) {
-        activity.hostActivity.startActivityForResult(
-            NavHostComposeActivity.intentFor(activity.hostContext, NavRoutes.chooseDocument(type)),
-            ActivityBase.STD_REQUEST_CODE,
-        )
-    }
 
     /**
      * The key list the CURRENTLY OPEN key-chooser sheet is showing, handed in by
@@ -704,18 +625,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         KeyChooserKind.Grid -> Unit
     }
 
-    /**
-     * The [HistoryEntry] list, mirroring the `controller` of the since-deleted
-     * `HistoryComposeActivity` verbatim
-     * (`historyManager.getHistory(activeWindow.id)` + the `"h:mm a, E d MMM "` timestamp format
-     * both the classic screen and the goldens depend on). [historyItems] is stashed alongside so
-     * [revertToHistoryItem] can resolve an entry's `id` (its list index, not a stable key) back to
-     * the [HistoryItem] to revert.
-     */
-    private fun historyEntriesForActiveWindow(): List<HistoryEntry> = hostState.historyEntriesForActiveWindow()
-
-    private fun revertToHistoryItem(id: Int) = hostState.revertToHistoryItem(id)
-
     // The REVERSE directions of the same rule live at the two other opening sites --
     // [showTextSettingEditor] and [showSpeakSettings] -- and were APPLIED AT THE 14a/14a-2 MERGE,
     // which is where round 14a's status entry deferred them to. They could not be written in 14a
@@ -812,6 +721,23 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         speakSettingsService = speakSettingsService,
         speakPlatform = AndroidSpeakSettingsPlatform { activity.hostActivity },
         gridPassages = gridFactory,
+        workspaceService = { workspaceService },
+        readingProgressService = { readingProgressService },
+        quickActions = AndroidReadingQuickActions { activity },
+        navigator = AndroidReadingNavigator({ activity.hostActivity }),
+        textShare = object : TextShare {
+            override fun shareText(text: String, chooserTitle: String) =
+                AndroidTextShare(activity.hostActivity).shareText(text, chooserTitle)
+        },
+        clipboard = object : ClipboardText {
+            private val delegate get() = AndroidClipboardText(activity.hostContext)
+            override fun read(): String? = delegate.read()
+            override fun write(label: String, text: String) = delegate.write(label, text)
+        },
+        toast = { UserMessages.toast(it) },
+        workspaceName = { activity.hostWindowRepository.name },
+        activeWindowPosition = { windowControl.activeWindowPosition },
+        currentDocumentInitials = { documentControl.currentDocument?.initials },
     )
 
     // ------------------------------------------------------------------------------------------
@@ -913,165 +839,21 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `ModalBottomSheet` renders in its own window regardless of where it is composed, so opening
      * one can never re-key the pane subtree and destroy the panes' BibleView WebViews.
      *
-     * All four quick sheets mount HERE and nowhere else; `QuickSheetMountGuardTest` enforces it.
-     * The common `ReadingHost` decides WHEN one is open (from `hostState.quickSheet`) and calls this
-     * with the open [sheet].
+     * The quick sheets mount here and in `ReadingHostSlots.QuickSheet` and nowhere else;
+     * `QuickSheetMountGuardTest` enforces it. The History, Workspaces, Documents, Share and
+     * ReadHistory sheets live in the common slot; the key-chooser sheets (Map, GeneralBook, Grid)
+     * are still built here. The common `ReadingHost` decides WHEN one is open (from
+     * `hostState.quickSheet`) and calls this with the open [sheet].
      */
     @Composable
     private fun QuickSheetContent(sheet: ReadingQuickSheet) {
         when (sheet) {
-            ReadingQuickSheet.History -> {
-                // Built per opening, exactly as HistoryComposeActivity.kt:46-64 built it before
-                // the Z-late epilogue deleted that file: the
-                // controller reads the history once at construction, so a stale instance would show
-                // a stale list.
-                val controller = remember(sheet) {
-                    HistoryController(
-                        loadEntries = { historyEntriesForActiveWindow() },
-                        onRevert = { id -> revertToHistoryItem(id); closeQuickSheet() },
-                    )
-                }
-                val entries by controller.entries.collectAsState()
-                val error by controller.error.collectAsState()
-                val listState = rememberLazyListState()
-                AbQuickSheet(
-                    open = true,
-                    // Exactly the arguments HistoryComposeActivity.kt:68 passed before the
-                    // Z-late epilogue deleted that file — the format string is
-                    // "History (%1$s: Window %2$d)" and the goldens depend on both.
-                    title = activity.hostContext.getString(
-                        R.string.history_for,
-                        activity.hostWindowRepository.name,
-                        windowControl.activeWindowPosition + 1,
-                    ),
-                    onDismiss = { closeQuickSheet() },
-                    canScrollForward = { listState.canScrollForward },
-                ) {
-                    HistoryListContent(entries = entries, onSelect = { controller.onSelect(it) }, listState = listState)
-                }
-                if (error != null) {
-                    AbErrorDialog(
-                        message = activity.getString(R.string.error_occurred),
-                        confirmText = activity.getString(R.string.okay),
-                        onDismiss = { controller.dismissError() },
-                    )
-                }
-            }
-            ReadingQuickSheet.Workspaces -> {
-                val controller = remember(sheet) {
-                    WorkspaceQuickController(workspaceService, activity.lifecycleScope) { id ->
-                        closeQuickSheet()
-                        // C1: the quick sheet never pauses the activity, so nothing else flushes the
-                        // outgoing workspace's windows/page-managers/history before switching. Use
-                        // the save-then-switch entry point, never plain switchToWorkspace here.
-                        activity.lifecycleScope.launch { activity.readingCommands.quickSwitchToWorkspace(id) }
-                    }
-                }
-                val rows by controller.rows.collectAsState()
-                val listState = rememberLazyListState()
-                AbQuickSheet(
-                    open = true,
-                    title = activity.getString(R.string.switch_to_workspace),
-                    onDismiss = { closeQuickSheet() },
-                    canScrollForward = { listState.canScrollForward },
-                    footer = {
-                        AbQuickSheetFooterRow(text = LocalStrings.current.manageWorkspaces) {
-                            closeQuickSheet()
-                            activity.hostActivity.startActivityForResult(
-                                NavHostComposeActivity.intentFor(activity.hostContext, NavRoutes.WORKSPACE_SELECTOR),
-                                WORKSPACE_CHANGED,
-                            )
-                        }
-                    },
-                ) {
-                    WorkspaceQuickContent(rows = rows, onSelect = { controller.select(it) }, listState = listState)
-                }
-            }
-            is ReadingQuickSheet.Documents -> {
-                val scope = sheet.scope
-                // Built OFF the composition pass, unlike History and Workspaces above: enumerating
-                // every installed book, asking `downloadControl` for each one's status and sorting
-                // the result is a hundreds-of-rows job, and doing it synchronously in composition
-                // would stall the first frame of the sheet (Plan A's whole-branch review flagged
-                // exactly this for this task).
-                val tabsState by produceState<DocumentQuickTabs?>(initialValue = null, sheet) {
-                    // Clear first: a direct scope change (BIBLE -> COMMENTARY) re-runs this producer
-                    // and must not show the previous scope's tabs under the new title meanwhile.
-                    value = null
-                    value = withContext(Dispatchers.Default) { buildDocumentQuickTabsForHost(scope) }
-                }
-                // `null` means STILL LOADING, and is deliberately distinguished from "loaded, and
-                // there is nothing to offer" below: routing away on a not-yet-loaded list would send
-                // the user to the full screen every time the sheet opened faster than the books.
-                val tabs = tabsState
-                // D1 (whole-branch review fix wave): rememberSaveable, not remember, so the pick
-                // survives this composable being torn down and rebuilt when the user closes and
-                // reopens the Documents sheet within the same session (`remember` would not -- a
-                // fresh slot means a fresh `null`). It does NOT survive a device rotation, contrary
-                // to what an earlier version of this comment claimed -- MainBibleActivity's manifest
-                // omits `orientation` from `configChanges`, so rotation recreates the Activity and
-                // this whole host, `quickSheet` (a plain field, never itself saved) resets to null,
-                // and every quick sheet -- this one included -- simply closes. What restores the
-                // tab after THAT is the persisted `document_quick_tab` setting
-                // (`persistQuickDocTab`/`restoreQuickDocTab` below), not this state holder.
-                // Null until the user taps a tab; the persisted key supplies the initial selection
-                // once `visible` is known (it cannot be known at remember time — the load is async).
-                var pickedTabId by rememberSaveable(sheet) { mutableStateOf<String?>(null) }
-                val listState = rememberLazyListState()
-                // Memoised on `tabs`, not recomputed inline: `restoreQuickDocTab` is a synchronous
-                // settings (Room) read, and computing it in the composition body would run it on the
-                // main thread on EVERY recomposition of this branch until the user taps a tab —
-                // the same objection that moved the tab build itself off the composition pass.
-                val restoredTabId = remember(scope, tabs) { tabs?.let { restoreQuickDocTab(scope, it.visible) } }
-                if (tabs != null && tabs.visible.isEmpty()) {
-                    // Nothing to offer — go straight to the full screen rather than showing an
-                    // empty sheet with only a footer row.
-                    LaunchedEffect(Unit) { closeQuickSheet(); openChooseDocument(scope.chooserType) }
-                } else {
-                    val selectedTabId = tabs?.let { loaded ->
-                        pickedTabId?.takeIf { id -> loaded.visible.any { it.name == id } } ?: restoredTabId
-                    }
-                    AbQuickSheet(
-                        open = true,
-                        title = activity.getString(
-                            when (scope) {
-                                DocumentSheetScope.ALL -> R.string.chooseBook
-                                DocumentSheetScope.BIBLE -> R.string.doc_type_bible
-                                DocumentSheetScope.COMMENTARY -> R.string.doc_type_commentary
-                            },
-                        ),
-                        onDismiss = { closeQuickSheet() },
-                        // Identity-keyed tabs: the enum's own `name` is the stable id, which is what
-                        // lets a hidden tab and an async tab list coexist with a persisted selection.
-                        tabs = tabs?.visible.orEmpty().map { AbQuickSheetTab(it.name, quickDocTabLabel(it)) },
-                        selectedTabId = selectedTabId,
-                        onTabSelected = { id -> pickedTabId = id; persistQuickDocTab(scope, id) },
-                        canScrollForward = { listState.canScrollForward },
-                        footer = {
-                            AbQuickSheetFooterRow(text = LocalStrings.current.allDocuments) {
-                                closeQuickSheet()
-                                openChooseDocument(scope.chooserType)
-                            }
-                        },
-                    ) {
-                        // While the load is in flight the shell renders header + footer with an
-                        // empty body; the rows appear (and the sheet grows) when it completes.
-                        if (tabs != null && selectedTabId != null) {
-                            DocumentQuickContent(
-                                rows = tabs.rowsByTab.getValue(DocumentQuickTab.valueOf(selectedTabId)),
-                                currentDocId = currentDocumentInitials(),
-                                onSelect = { docId ->
-                                    closeQuickSheet()
-                                    // The SAME body the `ChooseDocument` activity-result arm runs —
-                                    // the sheet returns no Intent, so it cannot use that arm itself.
-                                    activity.readingCommands.applyChosenDocument(docId)
-                                },
-                                listState = listState,
-                            )
-                        }
-                    }
-                }
-            }
+            ReadingQuickSheet.History,
+            ReadingQuickSheet.Workspaces,
+            is ReadingQuickSheet.Documents,
+            is ReadingQuickSheet.Share,
+            is ReadingQuickSheet.ReadHistory,
+            -> slots.QuickSheet(sheet)
             is ReadingQuickSheet.KeyChooser -> when (sheet.kind) {
                 KeyChooserKind.Grid -> {
                     val gridScope = rememberCoroutineScope()
@@ -1167,53 +949,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     kind = KeyChooserKind.GeneralBook,
                     title = activity.getString(R.string.general_book),
                 )
-            }
-            is ReadingQuickSheet.Share -> ShareVersesSheet(
-                open = true,
-                title = LocalStrings.current.shareSheetTitle,
-                options = shareVersesOptions,
-                onOptionsChange = ::updateShareVersesOptions,
-                input = sheet.input,
-                onShare = ::shareVersesTextAndCloseSheet,
-                // The clip's invisible description only — the classic ShareWidget used the
-                // selection's (ambient-locale) verse-range name for it; `referenceFull` is the
-                // same JSword call this input already resolved for the "abbreviate reference"
-                // toggle, so no extra JSword lookup is needed here.
-                onCopy = { text -> copyVersesTextAndCloseSheet(text, sheet.input.referenceFull) },
-                onDismiss = ::closeQuickSheet,
-            )
-            is ReadingQuickSheet.ReadHistory -> {
-                // Loaded once per opening, exactly as classic `ReadHistoryDialog.loadAndShow` loaded
-                // before calling `show` — the dialog never appeared while the query ran, so neither
-                // does this sheet: `rows == null` renders nothing rather than an empty shell.
-                var rows by remember(sheet) { mutableStateOf<List<ReadHistoryRow>?>(null) }
-                var cycle by remember(sheet) { mutableIntStateOf(0) }
-                LaunchedEffect(sheet) {
-                    val activeCycle = readingProgressService.currentCycle()
-                    val entries = readingProgressService.readHistoryForChapter(sheet.bookId, sheet.chapter, activeCycle)
-                    val versionUnknownText = activity.getString(R.string.reading_progress_history_version_unknown)
-                    cycle = activeCycle
-                    rows = entries.map { entry ->
-                        chapterReadHistoryRow(
-                            entry = entry,
-                            date = readingProgressService.formatEntryDate(entry.readAt),
-                            time = readingProgressService.formatEntryTime(entry.readAt),
-                            versionUnknownText = versionUnknownText,
-                        )
-                    }
-                }
-                val loadedRows = rows
-                if (loadedRows != null) {
-                    AbReadHistorySheet(
-                        title = activity.hostContext.getString(
-                            R.string.reading_progress_history_for,
-                            "${readingProgressService.bookShortName(sheet.bookId)} ${sheet.chapter}",
-                        ),
-                        rows = loadedRows,
-                        onApplyDeletes = readHistoryApplyDeletes(activity.lifecycleScope, readingProgressService, cycle),
-                        onDismiss = ::closeQuickSheet,
-                    )
-                }
             }
         }
     }

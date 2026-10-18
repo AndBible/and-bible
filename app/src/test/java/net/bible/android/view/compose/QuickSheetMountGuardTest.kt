@@ -18,6 +18,8 @@ import org.junit.Test
  */
 class QuickSheetMountGuardTest {
     private val host = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
+    private val slotsDir = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots")
+    private val quickSheets = File(slotsDir, "QuickSheets.kt")
     private val commonHost = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/ReadingHost.kt")
 
     private fun withoutComments(file: File): String =
@@ -52,6 +54,44 @@ class QuickSheetMountGuardTest {
             1, Regex("""(?<![\w.])content\(sheet\)""").findAll(common).count(),
         )
         assertEquals("no other read of the slot", 1, Regex("""deps\.quickSheetContent""").findAll(common).count())
+    }
+
+    /** Offsets of every shell-composable call that sits BEFORE the slot's declaration in [src]. */
+    private fun mountsOutsideSlot(src: String, slotDeclaration: String): List<Int> {
+        val slotStart = src.indexOf(slotDeclaration)
+        assertTrue("the source must declare $slotDeclaration", slotStart >= 0)
+        return Regex("""\bAbQuickSheet\(""").findAll(src).map { it.range.first }.filter { it < slotStart }.toList()
+    }
+
+    @Test fun theCommonSlotDeclaresOneQuickSheetContentAndEveryMountIsInsideIt() {
+        assertTrue("QuickSheets.kt must exist at ${quickSheets.path}", quickSheets.exists())
+        val src = withoutComments(quickSheets)
+        val decl = "internal fun QuickSheetContent(slots: ReadingHostSlots, sheet: ReadingQuickSheet)"
+        assertEquals("exactly one slot declaration", 1, Regex(Regex.escape(decl)).findAll(src).count())
+        assertTrue("the scan must find the sheets it guards", Regex("""\bAbQuickSheet\(""").findAll(src).count() >= 3)
+        assertEquals("no AbQuickSheet call precedes the slot", emptyList<Int>(), mountsOutsideSlot(src, decl))
+        // The slot is reached through exactly one public member of ReadingHostSlots.
+        val slots = withoutComments(File(slotsDir, "ReadingHostSlots.kt"))
+        assertEquals(1, Regex("""QuickSheetContent\(this,\s*sheet\)""").findAll(slots).count())
+    }
+
+    @Test fun noOtherSlotFileMountsAQuickSheet() {
+        val others = slotsDir.listFiles { f -> f.extension == "kt" && f.name != "QuickSheets.kt" }!!
+        assertTrue("the scan must see the slot files", others.isNotEmpty())
+        others.forEach {
+            assertEquals("${it.name} mounts a quick sheet outside QuickSheets.kt", 0,
+                Regex("""\bAbQuickSheet\(""").findAll(withoutComments(it)).count())
+        }
+    }
+
+    @Test fun aPlantedMountOutsideTheSlotIsCaught() {
+        // Spelled through [shell] so this file never contains the raw call text the golden-capture guard scans for.
+        val shell = "AbQuick" + "Sheet"
+        val decl = "internal fun QuickSheetContent("
+        val planted = "private fun Rogue() { $shell(open = true) }\n$decl) { $shell(open = true) }"
+        assertEquals("the planted mount must be reported", 1, mountsOutsideSlot(planted, decl).size)
+        val clean = "$decl) { $shell(open = true) }\nprivate fun Later() { $shell(open = true) }"
+        assertEquals(emptyList<Int>(), mountsOutsideSlot(clean, decl))
     }
 
     @Test fun noQuickSheetIsMountedOutsideTheSlot() {

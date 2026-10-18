@@ -75,15 +75,14 @@ class WorkspaceQuickEntryPointGuardTest {
      * launch in the same file is still policed. Each entry records WHY no `showWorkspaceSheet`
      * branch is required there. (The classic title-fling and `workspaceButton` exclusions went with
      * `MainBibleActivity` in slice 8 F4.)
-     *  - the quick sheet's own footer row (`AbQuickSheetFooterRow`, "manage workspaces") — this IS
-     *    the reroute target the other two sites reach, opened FROM INSIDE the sheet; requiring it to
-     *    also open the sheet it is already showing would be circular.
+     *  - (the quick sheet's own footer row, "manage workspaces", used to be excluded here. Since I2
+     *    phase 2 R1 Task 7 it calls `ReadingNavigator.openWorkspaceSelector()` from the common
+     *    `QuickSheets.kt`; that call is pinned exactly by
+     *    [theNavigatorWorkspaceSelectorHasOneCallerAndItIsGatedByTheHostedSheet].)
      * [everyExcludedMarkerStillExists] is the anti-rot check: a renamed/removed marker must resurface
      * as a failure, not a silent narrowing of what the exclusion covers.
      */
     private val excludedMarkers = listOf(
-        "AbQuickSheetFooterRow" to
-            "the quick sheet's own footer row reaching the full selector — it IS the reroute target",
         // I2 Stream B Task 1: the Ctrl+W fallback launch moved from BibleJavascriptInterface into
         // the ReadingNavigator implementation. The navigator method is the fallback arm itself; the
         // gate now lives in its single caller, policed by
@@ -149,15 +148,17 @@ class WorkspaceQuickEntryPointGuardTest {
 
     @Test fun theScanFoundAtLeastTheKnownSites() {
         val sites = findLaunchSites()
-        // Anti-vacuity: 3 known sites — 1 excluded (the sheet's own footer row) + 2 guarded (the
-        // (i) overflow menu item, Ctrl+W). Lowered from 5 in slice 8 F3: the two classic-only sites
+        // Anti-vacuity: 2 known sites — 1 excluded (the ReadingNavigator fallback launch, which is
+        // also what the sheet's footer row now calls) + 1 guarded (the (i) overflow menu item). Lowered
+        // from 3 in I2 phase 2 R1 Task 7: the footer's inline launch moved from the host into
+        // `AndroidReadingNavigator.openWorkspaceSelector`, so it is the same site as the Ctrl+W fallback. Lowered from 5 in slice 8 F3: the two classic-only sites
         // went with MainBibleActivity. A count below this means the search pattern stopped matching
         // real source, not that sites were legitimately removed — if sites are ever legitimately
         // removed, lower this number deliberately and explain why in this comment.
         assertTrue(
             "the src/main walk found only ${sites.size} workspace-selector launch site(s), " +
-                "expected at least 3 — the search pattern may have stopped matching real source",
-            sites.size >= 3,
+                "expected at least 2 — the search pattern may have stopped matching real source",
+            sites.size >= 2,
         )
     }
 
@@ -170,10 +171,18 @@ class WorkspaceQuickEntryPointGuardTest {
                     .map { f.name to it.trim() }
             }
         assertEquals(
-            "exactly one production caller of ReadingNavigator.openWorkspaceSelector(), the Ctrl+W branch gated on showWorkspaceSheetIfHosted()",
-            listOf("ReadingBridge.kt" to "\"CtrlKeyW\" -> if (keys?.showWorkspaceSheetIfHosted() != true) session.navigator.openWorkspaceSelector()"),
-            callers,
+            "exactly two production callers of ReadingNavigator.openWorkspaceSelector(): the Ctrl+W branch gated on " +
+                "showWorkspaceSheetIfHosted(), and the workspace quick sheet's own footer row (it IS the reroute target)",
+            listOf(
+                "QuickSheets.kt" to "slots.navigator.openWorkspaceSelector()",
+                "ReadingBridge.kt" to "\"CtrlKeyW\" -> if (keys?.showWorkspaceSheetIfHosted() != true) session.navigator.openWorkspaceSelector()",
+            ),
+            callers.sortedBy { it.first },
         )
+        // The footer call must stay inside the sheet's own AbQuickSheetFooterRow.
+        val sheets = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots/QuickSheets.kt").readLines()
+        val at = sheets.indexOfFirst { it.contains("slots.navigator.openWorkspaceSelector()") }
+        assertTrue("the footer reroute must sit within an AbQuickSheetFooterRow", sheets.subList(maxOf(0, at - 4), at).any { it.contains("AbQuickSheetFooterRow") })
     }
 
     @Test fun theHostExposesExactlyOneWorkspaceSheetOpener() {

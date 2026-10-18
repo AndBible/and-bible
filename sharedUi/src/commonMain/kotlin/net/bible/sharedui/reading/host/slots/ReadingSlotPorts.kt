@@ -18,6 +18,9 @@
 
 package net.bible.sharedui.reading.host.slots
 
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.passage.Key
+
 /**
  * What the Speak settings sheet needs from the platform: a way into the system text-to-speech
  * settings. Android starts the TTS settings intent (falling back to the general settings); a
@@ -27,4 +30,27 @@ package net.bible.sharedui.reading.host.slots
 interface SpeakSettingsPlatform {
     /** Opens the platform's text-to-speech settings screen. */
     fun openSystemTtsSettings()
+}
+
+/**
+ * What the quick sheets ask the platform to do once the user has picked something. Each member is
+ * the body the matching full-screen chooser result runs, so the sheet and the screen cannot drift
+ * apart.
+ */
+@kotlin.native.HiddenFromObjC
+interface ReadingQuickActions {
+    /**
+     * Switches to workspace [id] from the quick sheet. Saves the outgoing workspace first (the quick
+     * sheet never pauses the activity, so nothing else flushes it), then switches.
+     */
+    fun quickSwitchToWorkspace(id: String)
+
+    /** Applies the document [bookStr] (an initials string, or null) chosen in the Documents sheet to the active window. */
+    fun applyChosenDocument(bookStr: String?)
+
+    /**
+     * Applies a general-book, map or dictionary [key] chosen in a key-chooser sheet to the active
+     * window. [book] is explicit because an EPUB table-of-contents key carries its own document.
+     */
+    fun applyChosenGenBookKey(book: Book?, key: Key)
 }

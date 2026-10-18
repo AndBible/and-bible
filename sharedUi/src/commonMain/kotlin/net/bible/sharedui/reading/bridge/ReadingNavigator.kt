@@ -44,6 +44,12 @@ interface ReadingNavigator {
 
     fun openWorkspaceSelector()
 
+    /**
+     * The full ChooseDocument screen, optionally pre-filtered to [type] (a `DocumentSheetScope.chooserType`
+     * value, null for every document type). Its result is applied by the platform host.
+     */
+    fun openChooseDocument(type: String?)
+
     fun openSearch(document: Book?)
 
     fun openPromptEditor(promptId: String)

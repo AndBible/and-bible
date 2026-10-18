@@ -388,6 +388,7 @@ interface Strings {
     val docTypeMap: String                               // R.string.doc_type_map
     val generalBook: String                              // R.string.general_book
     val shareVerseMenuTitle: String                      // R.string.share_verse_menu_title
+    val textCopiedToClipboard: String                    // R.string.text_copied_to_clicpboard
     // --- end I2 phase 2 R1 ---
     val errorOccurred: String
     val okay: String

@@ -40,7 +40,13 @@ import net.bible.sharedcore.reading.speakBarOwnsTopEdge
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakSheetStack
 import net.bible.sharedcore.speak.SpeakTransportController
+import net.bible.sharedcore.progress.ReadingProgressService
+import net.bible.sharedcore.reading.ReadingQuickSheet
+import net.bible.sharedcore.workspaces.WorkspaceService
+import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.app.ports.TextShare
+import net.bible.sharedui.reading.bridge.ReadingNavigator
 import net.bible.sharedui.reading.SpeakTransportBar
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.strings.Strings
@@ -59,6 +65,12 @@ import net.bible.sharedui.strings.Strings
  * The Speak sheet takes [speakSettingsService], the [speakPlatform] port (system TTS settings) and
  * the [gridPassages] factory for its verse picker; the host builds the factory once and also uses it
  * for the key-chooser grid.
+ *
+ * The quick sheets (History, Workspaces, Documents, Share, ReadHistory) take [workspaceService] and
+ * [readingProgressService] (providers, resolved when a sheet opens) for their rows, [quickActions] and [navigator] for what a pick does,
+ * [textShare], [clipboard] and [toast] for Share and Copy, and [workspaceName],
+ * [activeWindowPosition] and [currentDocumentInitials] for the History title and the current-document
+ * mark. The key-chooser sheets stay in the platform host for now.
  *
  * The agent log's glyph comes from [LocalAgentStatusIcon]; `AgentLogController` is built by the
  * host (its raw-log action starts a platform activity).
@@ -83,6 +95,16 @@ class ReadingHostSlots(
     val speakSettingsService: SpeakSettingsService,
     val speakPlatform: SpeakSettingsPlatform,
     val gridPassages: GridPassageControllerFactory,
+    val workspaceService: () -> WorkspaceService,
+    val readingProgressService: () -> ReadingProgressService,
+    val quickActions: ReadingQuickActions,
+    val navigator: ReadingNavigator,
+    val textShare: TextShare,
+    val clipboard: ClipboardText,
+    val toast: (String) -> Unit,
+    val workspaceName: () -> String,
+    val activeWindowPosition: () -> Int,
+    val currentDocumentInitials: () -> String?,
 ) {
     private val textSettings = TextSettingsEditorState(
         hostState, textDisplaySettingsService, scope, strings, imagePicker, thumbnailFor,
@@ -158,6 +180,13 @@ class ReadingHostSlots(
     fun SearchSettings() = SearchSettingsSlotContent(
         searchState, searchSettingsForEpub, currentBookName, onSearchSettingsClosed,
     )
+
+    /**
+     * The quick sheet [sheet] (History, Workspaces, Documents, Share or ReadHistory); renders nothing
+     * for a key-chooser sheet, which the platform host still mounts itself.
+     */
+    @Composable
+    fun QuickSheet(sheet: ReadingQuickSheet) = QuickSheetContent(this, sheet)
 
     /** The Speak transport bar, hidden in full screen and while the transport is not visible. */
     @Composable

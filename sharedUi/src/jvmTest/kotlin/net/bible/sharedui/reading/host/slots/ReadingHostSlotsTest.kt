@@ -77,6 +77,8 @@ import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.ImagePicker
+import net.bible.sharedcore.navigation.DocumentSheetScope
+import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.AbTheme
@@ -236,12 +238,78 @@ class ReadingHostSlotsTest {
         override fun openSystemTtsSettings() { opened++ }
     }
 
+    /** A `Proxy` that fails on any call: the collaborator is wired but the test never reaches it. */
+    private inline fun <reified T : Any> proxyOf(): T = Proxy.newProxyInstance(
+        T::class.java.classLoader, arrayOf(T::class.java),
+    ) { _, m, _ -> error("unexpected call ${m.name}") } as T
+
+    /** Recording fakes for the quick sheets' ports. */
+    private class QuickFakes {
+        val switched = mutableListOf<String>()
+        val chooserTypes = mutableListOf<String?>()
+        val workspaceSelectorOpens = mutableListOf<Unit>()
+        val shared = mutableListOf<Pair<String, String>>()
+        val clips = mutableListOf<Pair<String, String>>()
+        val toasts = mutableListOf<String>()
+        val workspaceRows = listOf(
+            net.bible.sharedcore.workspaces.WorkspaceRowVd("w1", "Alpha", null, 0, isCurrent = true),
+            net.bible.sharedcore.workspaces.WorkspaceRowVd("w2", "Beta", null, 0, isCurrent = false),
+        )
+
+        val actions = object : ReadingQuickActions {
+            override fun quickSwitchToWorkspace(id: String) { switched += id }
+            override fun applyChosenDocument(bookStr: String?) = error("unexpected")
+            override fun applyChosenGenBookKey(book: org.crosswire.jsword.book.Book?, key: org.crosswire.jsword.passage.Key) =
+                error("unexpected")
+        }
+
+        val navigator: net.bible.sharedui.reading.bridge.ReadingNavigator = Proxy.newProxyInstance(
+            net.bible.sharedui.reading.bridge.ReadingNavigator::class.java.classLoader,
+            arrayOf(net.bible.sharedui.reading.bridge.ReadingNavigator::class.java),
+        ) { _, m, args ->
+            when (m.name) {
+                "openChooseDocument" -> chooserTypes += args[0] as String?
+                "openWorkspaceSelector" -> workspaceSelectorOpens += Unit
+                else -> error("unexpected navigator call ${m.name}")
+            }
+            null
+        } as net.bible.sharedui.reading.bridge.ReadingNavigator
+
+        val share = object : net.bible.sharedui.app.ports.TextShare {
+            override fun shareText(text: String, chooserTitle: String) { shared += text to chooserTitle }
+        }
+
+        val clipboard = object : net.bible.sharedui.app.ports.ClipboardText {
+            override fun read(): String? = null
+            override fun write(label: String, text: String) { clips += label to text }
+        }
+
+        val workspaceService: net.bible.sharedcore.workspaces.WorkspaceService = Proxy.newProxyInstance(
+            net.bible.sharedcore.workspaces.WorkspaceService::class.java.classLoader,
+            arrayOf(net.bible.sharedcore.workspaces.WorkspaceService::class.java),
+        ) { _, m, _ -> if (m.name == "loadAll") workspaceRows else error("unexpected ${m.name}") } as
+            net.bible.sharedcore.workspaces.WorkspaceService
+    }
+
+    private val shareInput = net.bible.sharedcore.reading.ShareVersesInput(
+        verses = listOf(net.bible.sharedcore.reading.ShareVersesEntry(1, "In the beginning")),
+        startOffset = null,
+        endOffset = null,
+        referenceAbbreviated = "Gen 1:1",
+        referenceFull = "Genesis 1:1",
+        versionAbbreviation = "KJV",
+        notesText = null,
+        advertiseText = "",
+        hasRange = false,
+    )
+
     private fun slots(
         links: ExternalLinks = FakeLinks(false),
         transportVisible: Boolean = false,
         fullScreen: Boolean = false,
         textService: TextDisplaySettingsService = textSettingsService,
         speakPlatform: SpeakSettingsPlatform = FakeSpeakPlatform(),
+        quick: QuickFakes = QuickFakes(),
     ): Pair<ReadingHostSlots, ReadingHostState> {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val windowControl = WindowControl()
@@ -251,7 +319,7 @@ class ReadingHostSlotsTest {
             windowControl = windowControl,
             historyManager = HistoryManager(windowControl, NoPlatform()),
             documentControl = allocateDocumentControl(),
-            hooks = net.bible.sharedui.reading.host.ReadingHostHooks(),
+            hooks = net.bible.sharedui.reading.host.ReadingHostHooks(forVerseInitials = { emptySet() }),
         )
         val slots = ReadingHostSlots(
             hostState = hostState,
@@ -276,6 +344,16 @@ class ReadingHostSlotsTest {
             gridPassages = GridPassageControllerFactory(
                 allocate(NavigationControl::class.java), windowControl, MapSettings(), { "Workspace" }, { true },
             ),
+            workspaceService = { quick.workspaceService },
+            readingProgressService = { proxyOf() },
+            quickActions = quick.actions,
+            navigator = quick.navigator,
+            textShare = quick.share,
+            clipboard = quick.clipboard,
+            toast = { quick.toasts += it },
+            workspaceName = { "Workspace" },
+            activeWindowPosition = { 0 },
+            currentDocumentInitials = { null },
         )
         return slots to hostState
     }
@@ -510,5 +588,92 @@ class ReadingHostSlotsTest {
         slots.speakSettingsState.gridBack = null // picker left composition
         slots.speakSettingsState.dismiss()
         assertEquals(SpeakSheetPage.Settings, slots.speakSheet.current)
+    }
+
+    @Test
+    fun shareBranchSharesWithTheChooserTitle() = runComposeUiTest {
+        val quick = QuickFakes()
+        val (slots, state) = slots(quick = quick)
+        state.showShareSheet(shareInput)
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) { slots.QuickSheet(state.quickSheet.value!!) }
+            }
+        }
+        onNodeWithText(strings.shareLabel).performClick()
+        assertEquals(1, quick.shared.size)
+        assertEquals(strings.shareVerseMenuTitle, quick.shared.single().second)
+        assertTrue(quick.shared.single().first.contains("In the beginning"), quick.shared.single().first)
+        assertTrue(quick.clips.isEmpty())
+        assertTrue(state.quickSheet.value == null, "Share closes the sheet")
+    }
+
+    @Test
+    fun copyBranchWritesClipboardAndToasts() = runComposeUiTest {
+        val quick = QuickFakes()
+        val (slots, state) = slots(quick = quick)
+        state.showShareSheet(shareInput)
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) { slots.QuickSheet(state.quickSheet.value!!) }
+            }
+        }
+        onNodeWithText(strings.copyLabel).performClick()
+        assertEquals(1, quick.clips.size)
+        assertEquals("Genesis 1:1", quick.clips.single().first)
+        assertTrue(quick.clips.single().second.contains("In the beginning"))
+        assertEquals(listOf(strings.textCopiedToClipboard), quick.toasts)
+        assertTrue(quick.shared.isEmpty())
+        assertTrue(state.quickSheet.value == null, "Copy closes the sheet")
+    }
+
+    @Test
+    fun workspaceBranchSwitchesThroughQuickActions() = runComposeUiTest {
+        val quick = QuickFakes()
+        val (slots, state) = slots(quick = quick)
+        state.showWorkspaceSheet()
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) { slots.QuickSheet(state.quickSheet.value!!) }
+            }
+        }
+        waitForIdle()
+        onNodeWithText("Beta").performClick()
+        assertEquals(listOf("w2"), quick.switched)
+        assertTrue(state.quickSheet.value == null, "a switch closes the sheet")
+    }
+
+    @Test
+    fun workspaceBranchCurrentRowIsInertAndFooterOpensTheSelector() = runComposeUiTest {
+        val quick = QuickFakes()
+        val (slots, state) = slots(quick = quick)
+        state.showWorkspaceSheet()
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) { slots.QuickSheet(state.quickSheet.value!!) }
+            }
+        }
+        waitForIdle()
+        onNodeWithText(strings.workspaceListingWithCurrent("Alpha")).performClick()
+        assertTrue(quick.switched.isEmpty(), "the current workspace row does nothing")
+        onNodeWithText(strings.manageWorkspaces).performClick()
+        assertEquals(1, quick.workspaceSelectorOpens.size)
+        assertTrue(state.quickSheet.value == null)
+    }
+
+    @Test
+    fun documentsBranchOpensChooserThroughNavigator() = runComposeUiTest {
+        val quick = QuickFakes()
+        val (slots, state) = slots(quick = quick)
+        // No installed documents: nothing to offer, so the sheet routes straight to the full chooser.
+        state.showQuickSheet(ReadingQuickSheet.Documents(DocumentSheetScope.BIBLE))
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                net.bible.sharedui.theme.AbTheme(darkTheme = false) { state.quickSheet.value?.let { slots.QuickSheet(it) } }
+            }
+        }
+        waitUntil(timeoutMillis = 5_000) { quick.chooserTypes.isNotEmpty() }
+        assertEquals(listOf<String?>("BIBLE"), quick.chooserTypes)
+        assertTrue(state.quickSheet.value == null, "the empty sheet closes itself")
     }
 }
