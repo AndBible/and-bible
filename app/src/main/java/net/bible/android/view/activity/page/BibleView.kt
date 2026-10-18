@@ -57,6 +57,8 @@ import androidx.lifecycle.lifecycleScope
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.bridge.ReadingKeyActions
 import net.bible.sharedui.reading.session.BibleWindowSession
+import net.bible.sharedui.reading.session.ReadingLinkHandler
+import net.bible.sharedui.reading.session.UriConstants
 import net.bible.sharedui.reading.session.ConfigCommand
 import net.bible.sharedui.reading.session.ConfigInputs
 import net.bible.sharedui.reading.session.DocumentLoader
@@ -389,6 +391,9 @@ class BibleView(
 
     /** The platform-independent JS bridge; [BibleJavascriptInterface] delegates the moved families to it. */
     val readingBridge = ReadingBridge(session, viewIsCurrent = { window.bibleView === this })
+    private val linkHandler = ReadingLinkHandler(session) { book, backend, keyStr, idStr ->
+        openEpubLink(book, backend, keyStr, idStr)
+    }
 
     internal val windowRef: WeakReference<Window> get() = WeakReference(session.windowOrNull)
 
@@ -959,21 +964,6 @@ class BibleView(
         onDestroy?.invoke()
     }
 
-    object UriConstants {
-        const val SCHEME_DOWNLOAD = "download"
-        const val SCHEME_ERROR = "ab-error"
-        const val SCHEME_W = "ab-w"
-        const val SCHEME_REFERENCE = "osis"
-        const val MULTI_REFERENCE = "multi"
-        const val SCHEME_MYNOTES = "my-notes"
-        const val SCHEME_EPUB_REF = "epub-ref"
-        const val SCHEME_STUDYPAD = "journal"
-        const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
-        const val SCHEME_SWORD = "sword"
-        const val SCHEME_STRONGS = "strongs"
-        const val SCHEME_MORPHOLOGY = "morphology"
-    }
-
     class ModuleAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse {
             val parts = path.split("/", limit = 2);
@@ -1143,117 +1133,13 @@ class BibleView(
     internal fun openEpubLink(book: SwordGenBook, backend: EpubBackend, keyStr: String, idStr: String) =
         readingBridge.openEpubLink(book, backend, keyStr, idStr)
 
-    fun openLink(uri: Uri): Boolean = when(uri.scheme) {
-        UriConstants.SCHEME_W -> {
-            val links = mutableListOf<BibleLink>()
-            for (paramName in uri.queryParameterNames) {
-                links.addAll(uri.getQueryParameters(paramName).map { BibleLink(paramName, it) })
-            }
-            if (links.size > 1) {
-                linkControl.openMulti(links)
-            } else {
-                linkControl.loadApplicationUrl(links.first(), null)
-            }
-            true
-        }
-        UriConstants.SCHEME_MYNOTES -> {
-            val ordinal = uri.getQueryParameter("ordinal")?.toInt()!!
-            val v11n = uri.getQueryParameter("v11n")
-            linkControl.openMyNotes(v11n!!, ordinal)
-        }
-        UriConstants.SCHEME_EPUB_REF -> {
-            val bookStr = uri.getQueryParameter("book")!!
-            val keyStr = uri.getQueryParameter("toKey")!!
-            val idStr = uri.getQueryParameter("toId")!!
-
-            val book = Books.installed().getBook(bookStr) as SwordGenBook
-            val backend = book.backend as EpubBackend
-            openEpubLink(book, backend, keyStr, idStr)
-            true
-        }
-        UriConstants.MULTI_REFERENCE -> {
-            val osisRefs = uri.getQueryParameters("osis")
-            val v11n = uri.getQueryParameter("v11n")
-            if (osisRefs != null) {
-                linkControl.openMulti(osisRefs.map { BibleLink("osis", it, v11n) })
-            } else false
-        }
-        UriConstants.SCHEME_STUDYPAD -> {
-            val id = uri.getQueryParameter("id")
-            val entryId = uri.getQueryParameter("entryId") ?: uri.getQueryParameter("bookmarkId")
-            if (id != null) {
-                // The label lookup suspends, so launch; the context-menu window mode is read now because
-                // the menu handler resets it as soon as this synchronous URL handler returns.
-                val windowMode = linkControl.windowMode
-                scope.launch(Dispatchers.Main) { linkControl.openStudyPad(IdType(id), IdType(entryId), windowMode) }
-                true
-            } else false
-        }
-        UriConstants.SCHEME_REFERENCE -> {
-            val osisRef = uri.getQueryParameter("osis")
-            val doc = uri.getQueryParameter("doc")
-            val ordinal = uri.getQueryParameter("ordinal")
-            val v11n = uri.getQueryParameter("v11n")
-            val forceDoc = uri.getBooleanQueryParameter("force-doc", false)
-            val book = Books.installed().getBook(doc)
-            if(ordinal != null && ordinal.toIntOrNull() != null && book != null) {
-                val bookKey = book.getKey(osisRef).let {if(it is RangedPassage) it.first() else it }
-                linkControl.showLink(book, BookAndKey(bookKey, book, OrdinalRange(ordinal.toInt())))
-            } else if (osisRef != null) {
-                linkControl.loadApplicationUrl(BibleLink("osis", osisRef.trim(), v11n, forceDoc = forceDoc), book)
-            } else {
-                val contentRef = uri.getQueryParameter("content")!!
-                linkControl.loadApplicationUrl(BibleLink("content", contentRef.trim(), v11n, forceDoc = forceDoc), book)
-            }
-            true
-        }
-        UriConstants.SCHEME_FIND_ALL_OCCURRENCES -> {
-            val type = uri.getQueryParameter("type")!!
-            var name = uri.getQueryParameter("name")!!.lowercase()
-            if(!(name.startsWith("g") || name.startsWith("h"))) {
-                name = type[0] + name
-            }
-            linkControl.showAllOccurrences(name, SearchControl.SearchBibleSection.ALL)
-            true
-        }
-        UriConstants.SCHEME_ERROR -> {
-            linkControl.errorLink()
-            true
-        }
-        UriConstants.SCHEME_DOWNLOAD -> {
-            navigator.openDownloadSearch(uri.getQueryParameter("initials"))
-            true
-        }
-        UriConstants.SCHEME_SWORD -> {
-            // Handle sword://MODULE/KEY format
-            // URI like sword://KJV/Matt.5.3 or sword://MHC/Matt.5.3
-            val url = uri.toString()
-            linkControl.loadApplicationUrl(BibleLink("sword", url), null)
-            true
-        }
-        UriConstants.SCHEME_STRONGS -> {
-            // Document-independent Strong's links: strongs://G2316, strongs://H430
-            // Resolves to user's configured default Strong's dictionary via UriAnalyzer
-            val ref = uri.authority ?: uri.schemeSpecificPart
-            linkControl.loadApplicationUrl(BibleLink("strong", ref), null)
-            true
-        }
-        UriConstants.SCHEME_MORPHOLOGY -> {
-            // Document-independent morphology links: morphology://robinson/V-PAI-3S
-            // Resolves to user's configured default morphology dictionary via UriAnalyzer
-            val morphType = uri.authority ?: ""
-            val code = uri.path?.trimStart('/') ?: ""
-            linkControl.loadApplicationUrl(BibleLink(morphType, code), null)
-            true
-        }
-        "http", "https" -> {
-            CommonUtils.openLink(uri.toString())
-            true
-        }
-        else -> {
-            Log.e(TAG, "Unsupported scheme ${uri.scheme}")
-            true
-        }
+    /**
+     * Opens [uri] through [linkHandler]. A link with an unknown scheme is still swallowed (as before) so the
+     * WebView does not navigate to it; a known scheme with unusable parameters is not handled.
+     */
+    fun openLink(uri: Uri): Boolean {
+        val url = uri.toString()
+        return linkHandler.handle(url) || !linkHandler.isKnownScheme(url)
     }
 
     private inner class BibleViewClient: WebViewClient() {

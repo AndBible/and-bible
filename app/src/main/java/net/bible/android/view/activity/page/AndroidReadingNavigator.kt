@@ -117,6 +117,10 @@ class AndroidReadingNavigator(
         CommonUtils.openLink(url, forceAsk = true)
     }
 
+    override fun openWebLink(url: String) {
+        CommonUtils.openLink(url)
+    }
+
     override fun startKeyChooser(page: CurrentPage) {
         AndroidKeyChooserLauncher { host() }.startKeyChooser(page)
     }

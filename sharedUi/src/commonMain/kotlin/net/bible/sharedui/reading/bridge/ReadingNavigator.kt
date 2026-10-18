@@ -47,6 +47,12 @@ interface ReadingNavigator {
 
     fun openExternalUrl(url: String)
 
+    /**
+     * An http(s) link tapped in the reading text. Defaults to [openExternalUrl]; Android overrides it to
+     * keep asking first only in discrete mode, as the text's links always did.
+     */
+    fun openWebLink(url: String) = openExternalUrl(url)
+
     /** Start the key chooser that fits [page]'s document type. */
     fun startKeyChooser(page: CurrentPage)
 
