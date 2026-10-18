@@ -18,6 +18,7 @@
 package net.bible.service.sword.epub
 
 import androidx.annotation.VisibleForTesting
+import net.bible.sharedlogic.platform.EpubStoreEdge
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.AppEnvironment
 import kotlinx.coroutines.Dispatchers
@@ -171,7 +172,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     private fun queryMetadata(key: String): String? = XmlQueries.dcElements(content, key, dcNamespace).firstOrNull()?.value
 
-    private fun fragmentBlocking(key: Key): EpubFragment? = epubFragmentBlocking(dao, key.getOsisRef().toLong())
+    private fun fragmentBlocking(key: Key): EpubFragment? = KoinPlatform.getKoin().get<EpubStoreEdge>().fragment(dao, key.getOsisRef().toLong())
 
     private suspend fun fragment(key: Key): EpubFragment? = dao.getFragment(key.getOsisRef().toLong())
 
@@ -244,7 +245,7 @@ class EpubBackendState(private val epubDir: Path, internal val strings: CoreStri
 
     internal val originalIds: List<String> get() = XmlQueries.spineItemrefs(content, epubNamespace).map { it.getAttribute("idref")!!.value }
 
-    val keys: List<Key> get() = withOpen { epubFragmentsBlocking(dao).map { getKey(it) } }
+    val keys: List<Key> get() = withOpen { KoinPlatform.getKoin().get<EpubStoreEdge>().fragments(dao).map { getKey(it) } }
 
     @VisibleForTesting val fragDir get() = epubDir.child("optimized")
     internal val versionFile = fragDir.child("version.txt")

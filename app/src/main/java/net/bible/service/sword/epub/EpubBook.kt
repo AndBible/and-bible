@@ -172,7 +172,7 @@ suspend fun installEpubModule(dir: Path, block: () -> Boolean): Boolean = withCo
 /** Retire the registered owner before removing external files and the internal metadata cache. */
 fun deleteEpubModule(epubDir: Path) {
     val owner = moduleOwner(epubDir)
-    epubLockOwnerBlocking(owner)
+    org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.EpubStoreEdge>().lockOwner(owner)
     try { deleteOwnedEpubModule(epubDir) } finally { owner.unlock() }
 }
 

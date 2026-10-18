@@ -15,16 +15,18 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.sword.mydocument
+package net.bible.android.platform
 
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocumentDao
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.database.mydocument.MyDocumentPageWithContent
 import net.bible.service.db.blockingAtEdge
+import net.bible.sharedlogic.platform.MyDocumentStoreEdge
 
-// Android blocking edges for the JSword synchronous Backend contract (blockingAtEdge stays in :app).
+/** Android [MyDocumentStoreEdge]; blockingAtEdge stays in :app. */
+object AndroidMyDocumentStoreEdge : MyDocumentStoreEdge {
+    override fun pages(dao: MyDocumentDao, documentId: IdType): List<MyDocumentPage> = blockingAtEdge { dao.pagesForDocument(documentId) } // L1-edge: JSword synchronous Backend contract
 
-internal fun myDocumentPagesBlocking(dao: MyDocumentDao, documentId: IdType): List<MyDocumentPage> = blockingAtEdge { dao.pagesForDocument(documentId) } // L1-edge: JSword synchronous Backend contract
-
-internal fun myDocumentPageWithContentBlocking(dao: MyDocumentDao, documentId: IdType, pageKey: String): MyDocumentPageWithContent? = blockingAtEdge { dao.pageByKeyWithContent(documentId, pageKey) } // L1-edge: JSword synchronous Backend contract
+    override fun pageWithContent(dao: MyDocumentDao, documentId: IdType, pageKey: String): MyDocumentPageWithContent? = blockingAtEdge { dao.pageByKeyWithContent(documentId, pageKey) } // L1-edge: JSword synchronous Backend contract
+}

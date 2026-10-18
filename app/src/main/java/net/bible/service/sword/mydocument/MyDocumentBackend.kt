@@ -79,7 +79,7 @@ class MyDocumentBackend(
     private var cachedPages: List<MyDocumentPage>? = null
 
     private fun getPages(): List<MyDocumentPage> {
-        return cachedPages ?: myDocumentPagesBlocking(dao(), documentId).also { cachedPages = it }
+        return cachedPages ?: org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.MyDocumentStoreEdge>().pages(dao(), documentId).also { cachedPages = it }
     }
 
     override fun initState(): MyDocumentOpenFileState {
@@ -133,7 +133,7 @@ class MyDocumentBackend(
         if (key == null) return ""
 
         val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
-        val page = myDocumentPageWithContentBlocking(dao(), documentId, pageKey)
+        val page = org.koin.mp.KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.MyDocumentStoreEdge>().pageWithContent(dao(), documentId, pageKey)
 
         if (page == null) {
             Log.w(TAG, "Page not found: $pageKey in document $documentId")
