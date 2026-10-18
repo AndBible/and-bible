@@ -64,7 +64,7 @@ import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import kotlin.reflect.KClass
 
 /**
- * The port types `IosPlatformBindings` (sharedUi iosMain) binds, declared here (common code) so a JVM test can compare
+ * The port types `IosPlatformBindings` (sharedUi iosMain) and `buildIosSyncBindings` (sharedLogic iosMain) bind, declared here (common code) so a JVM test can compare
  * them with what the shared definitions require, without a Mac. `IosAssemblyTest.boundPortListMatchesTheModule`
  * checks, on Native, that this list and the real Koin module are the same set. Keep both in step.
  */
@@ -80,12 +80,6 @@ val IOS_BOUND_PORT_TYPES: List<KClass<*>> = listOf(
     GlobalTextDisplaySettingsSource::class, WindowSettingsPicker::class, KeyChooserLauncher::class,
     HistoryPlatform::class, LinkPlatform::class, HtmlToPlainText::class, ContentSource::class,
     SaxTextPolicy::class, SearchTextHighlighter::class, ManualInstallFolderEnabler::class, TextDisplayPrefItems::class,
-)
-
-/**
- * Stream D's ports, plus `SyncScheduler`: not bound in production by Stream C. The acceptance test supplies them
- * through test doubles so the definitions depending on them still resolve.
- */
-val SYNC_PORT_TYPES: List<KClass<*>> = listOf(
+    // Stream D, bound by `buildIosSyncBindings` (joined into the Koin start in I2 phase 2)
     CloudAdapterFactory::class, SyncSettingsPlatform::class, DocumentSyncStarter::class, SyncScheduler::class,
 )

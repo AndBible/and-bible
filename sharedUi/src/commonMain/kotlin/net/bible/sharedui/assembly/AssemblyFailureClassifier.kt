@@ -18,7 +18,7 @@ package net.bible.sharedui.assembly
 
 /** How the debug assembly probe files an unresolvable Koin definition. */
 enum class AssemblyFailureKind {
-    /** Needs Stream D's sync ports or an initialised workspace: expected in production phase 1, joins in phase 2. */
+    /** Needs an initialised workspace (the workspace init is a later join); expected until then. */
     PHASE_2_DEPENDENT,
 
     /** Anything else: a real assembly bug. */
@@ -27,16 +27,14 @@ enum class AssemblyFailureKind {
 
 /**
  * Pure classification of a resolution failure from the text of its whole cause chain (every layer's message, joined).
- * A failure is a phase 2 dependent when the chain names a Stream D port type ([SYNC_PORT_TYPES]) or shows the
- * uninitialised workspace: an empty window list (`index: 0, size: 0`) that only counts when the chain names
+ * A failure is a phase 2 dependent only when the chain shows the uninitialised workspace: an empty window list (`index: 0, size: 0`) that only counts when the chain names
  * [WORKSPACE_DEPENDENT_TYPES] (`TextToSpeechServiceManager` reads the first window while it is built). The same
  * message under any other definition is a real bug. Nothing else is excused.
  */
 fun classifyAssemblyFailure(causeChainText: String): AssemblyFailureKind {
-    val ports = SYNC_PORT_TYPES.mapNotNull { it.qualifiedName }
     val emptyWorkspace = causeChainText.contains("index: 0, size: 0") &&
         WORKSPACE_DEPENDENT_TYPES.any { causeChainText.contains(it) }
-    return if (ports.any { causeChainText.contains(it) } || emptyWorkspace) {
+    return if (emptyWorkspace) {
         AssemblyFailureKind.PHASE_2_DEPENDENT
     } else {
         AssemblyFailureKind.UNEXPECTED

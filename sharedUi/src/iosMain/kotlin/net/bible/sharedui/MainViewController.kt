@@ -32,6 +32,7 @@ import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.setUnhandledExceptionHook
 import kotlinx.cinterop.ExperimentalForeignApi
 import net.bible.sharedcore.log.nsLog
+import net.bible.sharedui.platform.IosPlatformBootstrap
 import net.bible.sharedui.poc.IosPocApp
 import net.bible.sharedui.poc.PocScenario
 import net.bible.sharedui.probe.PlatformProbeScreen
@@ -93,6 +94,7 @@ fun MainViewController(): UIViewController {
             }
             StartupPhase.Ready -> Unit
         }
+        LaunchedEffect(Unit) { IosPlatformBootstrap.scheduleBackgroundSync() }
         if (Platform.isDebugBinary) {
             LaunchedEffect(Unit) {
                 withContext(Dispatchers.Default) {

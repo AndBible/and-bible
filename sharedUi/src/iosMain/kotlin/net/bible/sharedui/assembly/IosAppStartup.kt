@@ -25,6 +25,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
+import net.bible.service.cloudsync.ios.buildIosSyncBindings
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppDirectories
@@ -39,6 +40,7 @@ import net.bible.sharedlogic.platform.ios.IosLocaleProvider
 import net.bible.sharedlogic.platform.ios.IosSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import net.bible.sharedlogic.startup.StartupHooks
+import net.bible.sharedui.platform.IosPlatformBootstrap
 import net.bible.sharedui.strings.keyed.StringTable
 import okio.FileSystem
 import okio.Path
@@ -162,7 +164,10 @@ object IosAppStartup {
         SharedAppStartup.start(
             StartupHooks(
                 initialiseJSwordFolders = { IosSwordEnvironment.initialiseJSwordFolders(p.directories.modulesDir) },
-                koinModules = { listOf(buildIosCoreModule(p.config, extraModules, p)) },
+                koinModules = {
+                    val sync = buildIosSyncBindings(iosSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)
+                    listOf(buildIosCoreModule(p.config, listOf(sync) + extraModules, p))
+                },
                 reportJSwordError = { ev -> reportJSwordError(p, ev) },
                 isSwordLoaded = { IosSwordEnvironment.isLoaded },
             ),

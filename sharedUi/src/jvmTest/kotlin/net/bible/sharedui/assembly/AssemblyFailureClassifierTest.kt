@@ -21,11 +21,14 @@ import kotlin.test.assertEquals
 
 class AssemblyFailureClassifierTest {
     @Test
-    fun everyStreamDPortNameMakesAPhase2Dependent() {
-        for (port in SYNC_PORT_TYPES) {
-            val chain = "Could not create instance for X | No definition found for type '${port.qualifiedName}'"
-            assertEquals(AssemblyFailureKind.PHASE_2_DEPENDENT, classifyAssemblyFailure(chain), port.simpleName)
+    fun aSyncTypeInTheCauseChainIsUnexpected() {
+        // The sync bindings joined the iOS start (phase 2): an unbound sync port is a real assembly bug now.
+        for (port in listOf("CloudAdapterFactory", "SyncSettingsPlatform", "SyncScheduler")) {
+            val chain = "Could not create instance for X | No definition found for type 'net.bible.service.cloudsync.$port'"
+            assertEquals(AssemblyFailureKind.UNEXPECTED, classifyAssemblyFailure(chain), port)
         }
+        val starter = "No definition found for type 'net.bible.sharedcore.cloud.DocumentSyncStarter'"
+        assertEquals(AssemblyFailureKind.UNEXPECTED, classifyAssemblyFailure(starter))
     }
 
     @Test
