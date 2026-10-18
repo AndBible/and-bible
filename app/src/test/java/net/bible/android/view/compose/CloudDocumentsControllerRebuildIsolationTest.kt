@@ -35,6 +35,7 @@ import java.io.File
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedui.app.download.CloudDocumentsHost
 import net.bible.service.cloudsync.documents.SyncPlan
 import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.cloud.CloudDocumentsDialog
@@ -56,8 +57,9 @@ import kotlin.test.assertTrue
  * Task-8 fix round 2, finding B: [CloudDocumentsInGraphArmTest]'s
  * `theArmAsksControllerForAfreshOnEveryGenuineNewEntry` exercises the ARM's contract with a FAKE
  * `CloudDocumentsDeps`, which cannot fail against a reverted, `by lazy`-singleton
- * `NavHostComposeActivity.cloudDocumentsController` -- the bug (and fix round 1's repair of it)
- * live entirely in the HOST's own field. This file drives the REAL `NavHostComposeActivity`
+ * `CloudDocumentsHost.cloudDocumentsController` -- the bug (and fix round 1's repair of it)
+ * live entirely in the HOST's own field. This file drives the REAL `NavHostComposeActivity` and its
+ * `CloudDocumentsHost` (I2 Stream A Task 13 moved the baggage there, so the reflection targets that class)
  * instead, using the same private-field/method reflection technique `ClientPageObjectsTest` and
  * `TextDisplaySettingsComposeActivityColorsTest` already use in this module for state a production
  * class deliberately keeps private, and `ComposeHostActionBarTest`'s
@@ -175,11 +177,14 @@ class CloudDocumentsControllerRebuildIsolationTest {
         override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = error("unexpected getConfigs")
     }
 
+    /** The activity's own `CloudDocumentsHost`: the object whose private members these tests reflect on. */
+    private fun host(activity: NavHostComposeActivity): CloudDocumentsHost = activity.appHosts.cloudDocuments
+
     /** `buildCloudDocumentsController` is `private fun buildCloudDocumentsController(): CloudDocumentsController`. */
     private fun buildController(activity: NavHostComposeActivity): CloudDocumentsController {
-        val method = NavHostComposeActivity::class.java.getDeclaredMethod("buildCloudDocumentsController")
+        val method = CloudDocumentsHost::class.java.getDeclaredMethod("buildCloudDocumentsController")
         method.isAccessible = true
-        return method.invoke(activity) as CloudDocumentsController
+        return method.invoke(host(activity)) as CloudDocumentsController
     }
 
     /**
@@ -190,9 +195,9 @@ class CloudDocumentsControllerRebuildIsolationTest {
      * same reflective way everything else in this file is.
      */
     private fun currentEntry(activity: NavHostComposeActivity): Any {
-        val field = NavHostComposeActivity::class.java.getDeclaredField("cloudDocumentsEntryRef")
+        val field = CloudDocumentsHost::class.java.getDeclaredField("cloudDocumentsEntryRef")
         field.isAccessible = true
-        return requireNotNull(field.get(activity)) { "no CloudDocuments entry has been built yet" }
+        return requireNotNull(field.get(host(activity))) { "no CloudDocuments entry has been built yet" }
     }
 
     private fun lastPlanField(entry: Any) =
@@ -210,10 +215,10 @@ class CloudDocumentsControllerRebuildIsolationTest {
      * real-thread timing this test cannot control -- see the kdoc on the source-scan tests below).
      */
     private fun presentSyncNow(activity: NavHostComposeActivity, entry: Any, plan: SyncPlan) {
-        val method = NavHostComposeActivity::class.java.declaredMethods
+        val method = CloudDocumentsHost::class.java.declaredMethods
             .single { it.name == "cloudDocumentsPresentSyncNow" }
         method.isAccessible = true
-        method.invoke(activity, entry, plan)
+        method.invoke(host(activity), entry, plan)
     }
 
     @Test
@@ -306,10 +311,10 @@ class CloudDocumentsControllerRebuildIsolationTest {
 
     /** `private fun cloudDocumentsShowSyncNow(entry: CloudDocumentsEntry)` -- located by name, since its parameter type is private. */
     private fun showSyncNow(activity: NavHostComposeActivity, entry: Any) {
-        val method = NavHostComposeActivity::class.java.declaredMethods
+        val method = CloudDocumentsHost::class.java.declaredMethods
             .single { it.name == "cloudDocumentsShowSyncNow" }
         method.isAccessible = true
-        method.invoke(activity, entry)
+        method.invoke(host(activity), entry)
     }
 
     /**
@@ -354,13 +359,16 @@ class CloudDocumentsControllerRebuildIsolationTest {
         assertTrue(liveEntry !== abandonedEntry, "sanity: the reopen built a genuinely new entry")
         assertNull(lastPlanOf(liveEntry), "a fresh entry must start with no pinned plan")
 
-        val pinnedBy = NavHostComposeActivity::class.java.declaredFields
+        // The host owns the entry now, so its own fields are the ones that must not pin the abandoned entry; the
+        // Activity's fields are scanned as well (it must not grow a second holder).
+        fun pinnedFieldsOf(owner: Any, label: String) = owner.javaClass.declaredFields
             .filterNot { java.lang.reflect.Modifier.isStatic(it.modifiers) }
             .filter { field ->
                 field.isAccessible = true
-                retains(field.get(activity), abandonedEntry, abandoned, plan)
+                retains(field.get(owner), abandonedEntry, abandoned, plan)
             }
-            .map { it.name }
+            .map { "$label.${it.name}" }
+        val pinnedBy = pinnedFieldsOf(host(activity), "CloudDocumentsHost") + pinnedFieldsOf(activity, "NavHostComposeActivity")
         assertEquals(
             emptyList(), pinnedBy,
             "no host field may still hold an abandoned CloudDocuments entry, its controller or its " +
@@ -448,7 +456,10 @@ class CloudDocumentsControllerRebuildIsolationTest {
     }
 
     private val navHostComposeActivitySource by lazy {
-        stripComments(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt").readText())
+        // The cloud documents host's source, where the two scanned functions live since I2 Stream A Task 13.
+        stripComments(java.io.File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/download/CloudDocumentsHost.kt").also {
+            assertTrue(it.isFile, "the scanned host source must exist (the guard would pass vacuously): $it")
+        }.readText())
     }
 
     /**
@@ -495,7 +506,7 @@ class CloudDocumentsControllerRebuildIsolationTest {
      */
     private fun extractFunctionBody(source: String, functionName: String): String {
         val signatureIndex = source.indexOf("fun $functionName(")
-        require(signatureIndex >= 0) { "no `fun $functionName(` found in NavHostComposeActivity.kt -- has it been renamed or moved?" }
+        require(signatureIndex >= 0) { "no `fun $functionName(` found in CloudDocumentsHost.kt -- has it been renamed or moved?" }
         val openBraceIndex = source.indexOf('{', signatureIndex)
         require(openBraceIndex >= 0) { "no opening brace found after `fun $functionName(...)`" }
         var depth = 0

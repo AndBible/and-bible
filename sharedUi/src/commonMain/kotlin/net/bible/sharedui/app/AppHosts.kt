@@ -15,10 +15,17 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.bookmark.BookmarkRecreationState
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
+import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.history.HistoryManager
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.cloud.DocumentSyncStarter
+import net.bible.sharedcore.download.CustomRepositoryService
+import net.bible.sharedcore.http.DownloadHttp
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.bookmark.LabelEditService
@@ -39,12 +46,16 @@ import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.sharedui.app.backup.BackupFeatureHost
 import net.bible.sharedui.app.bookmark.BookmarkHost
 import net.bible.sharedui.app.chooser.ChooserHost
+import net.bible.sharedui.app.download.CloudDocumentsHost
+import net.bible.sharedui.app.download.DownloadHost
 import net.bible.sharedui.app.installzip.InstallZipHost
 import net.bible.sharedui.app.installzip.InstallZipOpener
+import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.DocumentInstallStarter
 import net.bible.sharedui.app.ports.DebugActions
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.app.ports.PlatformText
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.ports.TextDisplayPlatform
 import net.bible.sharedui.app.mydocuments.MyDocumentsHost
@@ -285,6 +296,57 @@ class AppHosts(
 
     /** The other hosts' way into InstallZip; resolves [installZip] only when one of them opens it. */
     private val installZipOpener: InstallZipOpener = { action, uris, onResult -> installZip.open(action, uris, onResult) }
+
+    /**
+     * The download cluster's deps builder (download, custom repositories, progress status). Built on first use; every
+     * service behind it resolves lazily, so this touches no database.
+     */
+    val download: DownloadHost by lazy {
+        DownloadHost(
+            shell = shell,
+            strings = strings,
+            platform = ports.downloadPlatform(),
+            notificationPermission = ports.notificationPermission,
+            clipboard = koin.get<ClipboardText>(),
+            openInstallZip = installZipOpener,
+            // The search host owns the index jobs Progress status lists.
+            observeProgressJobs = { onJobs -> search.observeProgressStatusJobs(onJobs) },
+            appSettingsProvider = { koin.get<AppSettings>() },
+            userNotifierProvider = { koin.get<UserNotifier>() },
+            directoriesProvider = { koin.get<AppDirectories>() },
+            environmentProvider = { koin.get<AppEnvironment>() },
+            coreStringsProvider = { koin.get<CoreStrings>() },
+            downloadHttpProvider = { koin.get<DownloadHttp>() },
+            bookInstallWatcherProvider = { koin.get<BookInstallWatcher>() },
+            downloadControlProvider = { koin.get<DownloadControl>() },
+            documentControlProvider = { koin.get<DocumentControl>() },
+            fakeBookFactoryProvider = { koin.get<FakeBookFactory>() },
+            customRepositoryServiceProvider = { koin.get<CustomRepositoryService>() },
+            documentSyncSettingsProvider = { koin.get<DocumentSyncSettings>() },
+        )
+    }
+
+    /**
+     * The cloud documents deps builder, which [download] shares its graph with. Built on first use; every service
+     * behind it resolves lazily, so this touches no database.
+     */
+    val cloudDocuments: CloudDocumentsHost by lazy {
+        CloudDocumentsHost(
+            shell = shell,
+            strings = strings,
+            platformText = koin.get<PlatformText>(),
+            platform = ports.cloudDocumentsPlatform(),
+            helpDialogs = ports.helpDialogs,
+            syncStarter = koin.get<DocumentSyncStarter>(),
+            appSettingsProvider = { koin.get<AppSettings>() },
+            documentSyncSettingsProvider = { koin.get<DocumentSyncSettings>() },
+            documentSyncProvider = { koin.get<DocumentSync>() },
+            cloudSyncProvider = { koin.get<CloudSync>() },
+            // The bookmark host's saved state carries the screen's filters across a recreation.
+            restoredFilters = { bookmark.restoredState?.cloudFilters },
+            consumeRestoredFilters = { bookmark.updateRestored { state -> state?.copy(cloudFilters = null) } },
+        )
+    }
 
     /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
     fun onHostDestroy() {

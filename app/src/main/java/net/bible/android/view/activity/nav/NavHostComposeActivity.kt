@@ -33,7 +33,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.text.format.Formatter
 import net.bible.sharedcore.log.Log
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -41,40 +40,26 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.AlertDialog as ComposeAlertDialog
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -91,20 +76,13 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.reflect.KFunction1
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.CancellationException
 import net.bible.sharedcore.platform.AppCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.serializer
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
@@ -114,11 +92,7 @@ import net.bible.android.control.event.UserMessages
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.document.canDelete
-import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.download.LanguageGrouping
-import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowChange
@@ -131,11 +105,7 @@ import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
-import net.bible.android.database.SettingsBundle
-import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
-import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
@@ -146,7 +116,9 @@ import net.bible.android.view.activity.nav.ports.AndroidReadingPlanHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidChooserHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidLabelIcons
 import net.bible.android.view.activity.nav.ports.AndroidStudyPadExportPlatform
+import net.bible.android.view.activity.nav.ports.AndroidCloudDocumentsHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidDocumentDialogs
+import net.bible.android.view.activity.nav.ports.AndroidDownloadHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidDocumentPicker
 import net.bible.android.view.activity.nav.ports.AndroidHelpDialogs
 import net.bible.android.view.activity.nav.ports.AndroidImagePicker
@@ -168,28 +140,8 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.themePixelSize
 import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.download.DocumentConfiguration
-import net.bible.service.download.PseudoBook
-import net.bible.android.view.activity.download.installedDocument
-import net.bible.android.view.activity.bookmark.CloudFiltersValue
 import net.bible.sharedui.app.bookmark.BookmarkDocumentsRecreation
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
-import net.bible.android.view.activity.bookmark.LabelEditContract
-import net.bible.android.view.activity.bookmark.LabelEditMapper
-import net.bible.android.view.activity.bookmark.ManageLabelsContract
-import net.bible.android.view.activity.bookmark.ManageLabelsMapper
-import net.bible.android.view.activity.bookmark.customIconMap
-import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.bookmark.toLabelItem
-import net.bible.android.view.activity.bookmark.ManageLabelsWrites
-import net.bible.android.view.activity.bookmark.assignableLabelItems
-import net.bible.android.view.activity.download.BadDocumentAction
-import net.bible.android.view.activity.download.DownloadProgressBridge
-import net.bible.android.view.activity.download.RowDownloadStatus
-import net.bible.android.view.activity.download.isBadDocument
-import net.bible.android.view.activity.download.isInstalled
-import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.androidBibleView
@@ -205,41 +157,19 @@ import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.syncScope
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.activity.settings.BackgroundThumbnailResolver
-import net.bible.android.view.activity.settings.TextDisplaySettingsRouteEntry
-import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
-import net.bible.android.view.activity.settings.buildBackgroundImageChooserLabels
-import net.bible.android.view.activity.settings.buildColorSettingsLabels
-import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
-import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.AndBibleAddons
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.cloudsync.documents.DocumentSync
-import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
-import net.bible.service.cloudsync.documents.SyncPlan
-import net.bible.sharedcore.cloud.CloudDocAction
-import net.bible.sharedcore.cloud.CloudDocItem
-import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.event.Subscriptions
-import net.bible.sharedcore.cloud.pushOnUnblock
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.displayName
-import net.bible.service.common.labelsAndBookmarksPlaylist
-import net.bible.service.common.studyPadsVideo
-import net.bible.service.download.FakeBookFactory
-import net.bible.service.download.DownloadManager
-import net.bible.service.download.GenericFileDownloader
-import net.bible.service.download.RepoFactory
-import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.hasUsableBible
 import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
-import net.bible.android.platform.exportStudyPads
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
 import okio.sink
@@ -251,17 +181,12 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.sword.csvprompt.addCsvPromptBook
 import okio.Path.Companion.toOkioPath
-import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.StudyPadKey
-import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.docs.DocsLinks
-import net.bible.service.common.fromUri
 import android.Manifest
 import androidx.core.content.ContextCompat
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.sharedcore.nav.InstallZipResult
-import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.android.view.activity.WelcomeFlow
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
@@ -282,33 +207,11 @@ import net.bible.sharedcore.ai.RawLogHistoryController
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
-import net.bible.sharedcore.bookmark.BookmarksController
-import net.bible.sharedcore.bookmark.DeletePrompt
-import net.bible.sharedcore.bookmark.LabelEditController
 import net.bible.sharedcore.bookmark.LabelEditService
-import net.bible.sharedcore.bookmark.LabelEditState
-import net.bible.sharedcore.bookmark.ManageLabelsController
-import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsService
-import net.bible.sharedcore.bookmark.LabelItem
-import net.bible.sharedcore.bookmark.SearchMode
-import net.bible.sharedcore.bookmark.defaultLabelName
-import net.bible.sharedcore.bookmark.LabelEditResult as ControllerLabelEditResult
-import net.bible.sharedcore.download.CustomRepositoryController
-import net.bible.sharedcore.download.CustomRepositoryEditorController
-import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.download.RepositoryResult
-import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import net.bible.sharedcore.nav.TextSettingsResult
 import net.bible.sharedcore.nav.WorkspaceResult
-import net.bible.sharedcore.navigation.DocGroupBy
-import net.bible.sharedcore.navigation.DocInstallStatus
-import net.bible.sharedcore.navigation.DocRow
-import net.bible.sharedcore.navigation.DocSortKey
-import net.bible.sharedcore.navigation.DocTypeFilter
-import net.bible.sharedcore.navigation.DocumentSelectionController
-import net.bible.sharedcore.navigation.LangOption
-import net.bible.sharedcore.navigation.ProceedAnswer
 import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult as NavLabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
@@ -325,18 +228,11 @@ import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchResultsCache
-import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.SettingsItem
-import net.bible.sharedcore.settings.SettingsScope
-import net.bible.sharedcore.settings.TextDisplaySettingsController
-import net.bible.sharedcore.settings.TextSettingType
-import net.bible.sharedcore.workspaces.WorkspaceSelectorController
-import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.HostSystemBars
 import net.bible.sharedui.components.LocalHostSystemBars
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.nav.NavSessionMemo
 import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
 import net.bible.sharedui.ai.nav.AiDocumentFilterDeps
 import net.bible.sharedui.ai.nav.AiModelsDeps
@@ -349,83 +245,21 @@ import net.bible.sharedui.ai.nav.RawLlmLogDeps
 import net.bible.sharedui.ai.nav.RawLogHistoryDeps
 import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
-import net.bible.sharedui.bookmark.ManageLabelsHelpDialog
 import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
-import net.bible.sharedui.bookmark.nav.BookmarksDeps
-import net.bible.sharedui.bookmark.nav.LabelEditDeps
-import net.bible.sharedui.bookmark.nav.ManageLabelsDeps
-import net.bible.sharedui.download.nav.CloudDocumentsDeps
-import net.bible.sharedui.download.nav.CustomRepositoriesDeps
-import net.bible.sharedui.docCategoryOf
-import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
-import net.bible.sharedui.download.nav.DownloadNavDeps
-import net.bible.sharedui.download.nav.DownloadDeps
-import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentPagesDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
-import net.bible.sharedui.components.AbActionIconSize
-import net.bible.sharedui.components.AbActionSheet
-import net.bible.sharedui.components.AbActionSheetRow
-import net.bible.sharedui.components.AbMenuItem
-import net.bible.sharedui.components.AbMultiSelectSheet
-import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.nav.readingNavGraph
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
-import net.bible.sharedui.settings.nav.AppSettingsDeps
-import net.bible.sharedui.settings.nav.ReadingProgressDeps
-import net.bible.sharedui.settings.nav.ReadingProgressSettingsDeps
-import net.bible.sharedui.settings.nav.SettingsNavDeps
-import net.bible.sharedui.settings.nav.SyncSettingsDeps
-import net.bible.sharedui.settings.nav.settingsNavGraph
-import net.bible.sharedui.workspaces.nav.TextDisplaySettingsDeps
-import net.bible.sharedui.workspaces.nav.TextDisplaySettingsNavState
-import net.bible.sharedui.workspaces.nav.TextDisplaySettingsSession
-import net.bible.sharedui.workspaces.nav.WorkspaceNavDeps
-import net.bible.sharedui.workspaces.nav.WorkspaceSelectorDeps
-import org.crosswire.common.progress.JobManager
-import org.crosswire.common.progress.Progress
-import org.crosswire.common.progress.WorkEvent
-import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.sword.SwordBookMetaData
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.navigation.DocRowMapper
-import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
-import net.bible.android.view.activity.navigation.buildGridStep
-import net.bible.android.view.activity.navigation.initialGridOptions
-import net.bible.android.view.activity.navigation.persistGridOptions
-import net.bible.android.view.activity.navigation.pickGridBook
-import net.bible.android.view.activity.navigation.pickGridChapter
-import net.bible.service.download.hideFromSelector
-import net.bible.service.sword.OsisError
-import net.bible.service.sword.SwordContentFacade.Companion.readOsisFragment
-import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.PassageResult
-import net.bible.sharedcore.navigation.ChooseDictionaryWordController
-import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
-import net.bible.sharedcore.navigation.ChooseMapKeyController
-import net.bible.sharedcore.navigation.DictRow
-import net.bible.sharedcore.navigation.GridChoosePassageController
-import net.bible.sharedcore.navigation.KeyRow
-import net.bible.sharedcore.navigation.anySelectedDeletable
-import net.bible.sharedui.navigation.nav.ChooseDictionaryWordDeps
-import net.bible.sharedui.navigation.nav.ChooseDocumentDeps
-import net.bible.sharedui.navigation.nav.ChooseGeneralBookKeyDeps
-import net.bible.sharedui.navigation.nav.ChooseMapKeyDeps
 import net.bible.sharedui.navigation.nav.ChooserNavDeps
-import net.bible.sharedui.navigation.nav.GridChoosePassageDeps
-import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
-import fi.sykero.kdom.Element
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.getKoin
 
@@ -459,6 +293,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         backupHost = AndroidBackupHost { this },
         orientationLock = AndroidOrientationLock(this),
         installZipPlatform = { AndroidInstallZipHostPlatform(this) },
+        downloadPlatform = { AndroidDownloadHostPlatform(this) },
+        cloudDocumentsPlatform = { AndroidCloudDocumentsHostPlatform() },
     )
 
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
@@ -479,8 +315,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         )
     }
     override fun navigate(route: String) = navigateInGraph(route)
-
-    private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
 
     override fun onBibleViewTouched() { composeReadingViewHost?.onBibleViewTouched() }
 
@@ -537,7 +371,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val bookmarksService: BookmarksServiceImpl by inject()
 
     /** The custom-repository list/editor pair's Room-backed service -- see `CoreModule.kt:88`. */
-    private val customRepositoryService: CustomRepositoryService by inject()
 
     /** The Download destination's two JSword controls, classic `DownloadComposeActivity.kt:135-136`. */
     private val downloadControl: DownloadControl by inject()
@@ -3449,100 +3282,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     appHosts.bookmark.navDeps(navController, bookmarkResults, manageLabelsResults, labelEditResults)
                 }
                 val downloadDeps = remember {
-                    DownloadNavDeps(
-                        exitHost = { finish() },
-                        setWindowTitle = { title -> setTitle(title) },
-                        repositoryEditorResults = repositoryEditorResults,
-                        customRepositories = CustomRepositoriesDeps(
-                            // A per-entry factory, not host-memoised -- see CustomRepositoriesDeps
-                            // .controllerFor: this destination is the host's start destination on
-                            // every live edge, so there is no sitting child for a memoised
-                            // controller to survive.
-                            controllerFor = { onDuplicate ->
-                                CustomRepositoryController(customRepositoryService, lifecycleScope).apply {
-                                    this.onDuplicate = onDuplicate
-                                    this.onChanged = { pendingDownloadCatalogueReload = true }
-                                }
-                            },
-                            title = getString(R.string.custom_repositories),
-                            onDuplicate = { name ->
-                                UserMessages.toast(getString(R.string.duplicate_custom_repository, name))
-                            },
-                        ),
-                        customRepositoryEditor = CustomRepositoryEditorDeps(
-                            controllerFor = { initial ->
-                                CustomRepositoryEditorController(customRepositoryService, lifecycleScope, initial)
-                            },
-                            // Classic's manifest gives BOTH Activities in this cluster the same
-                            // android:label ("Custom repositories"); one host now serves both.
-                            title = getString(R.string.custom_repositories),
-                            initialFor = { id -> customRepositoryEditorInitialFor(id) },
-                            readClipboard = { readCustomRepositoryClipboard() },
-                        ),
-                        download = DownloadDeps(
-                            // Host-memoised, not per-entry: the controller is only half of this
-                            // screen's state -- downloadSession holds the loaded Books, the
-                            // repoIdentity maps and the DocRow mirror every seam below reads -- and
-                            // CustomRepositories sits on top of this destination, disposing its
-                            // composition. Same shape as myDocumentsControllerFor.
-                            controllerFor = { initialTypeFilter -> downloadControllerFor(initialTypeFilter) },
-                            // Read by the arm AFTER controllerFor, so it is the token of whichever
-                            // session that call returned or built.
-                            sessionToken = { downloadSessionToken },
-                            // Classic's manifest label AND the string its screen drew are both
-                            // @string/download (AndroidManifest.xml:216, AndroidStrings.kt:75).
-                            title = getString(R.string.download),
-                            topBarActions = { firstDownload -> DownloadOverflowMenu(navController, firstDownload) },
-                            askIfWantToProceed = { askIfWantToProceedWithDownload() },
-                            // Classic DownloadComposeActivity.kt:238, a suspend call: the host owns
-                            // the scope so the graph's deps slot can stay a plain () -> Unit, the
-                            // same shape ProgressStatusDeps.requestNotificationPermission uses.
-                            requestNotificationPermission = {
-                                lifecycleScope.launch {
-                                    CommonUtils.requestNotificationPermission(this@NavHostComposeActivity)
-                                }
-                            },
-                            refreshCatalogue = { refresh -> refreshDownloadCatalogue(refresh) },
-                            onAutoDownload = { documentIds, downloadRecommended ->
-                                handleAutoDownloadExtras(documentIds, downloadRecommended)
-                            },
-                            reloadCatalogueIfRequested = { reloadDownloadCatalogueIfRequested() },
-                            onCancelDownload = { docId -> cancelDownload(docId) },
-                            hasBible = downloadHasBible,
-                            subscribeDownloadProgress = { subscribeDownloadProgress() },
-                            subscribeMonitoring = { firstDownload -> subscribeDownloadMonitoring(firstDownload) },
-                            persistTypeFilter = { filter ->
-                                CommonUtils.settings.setInt("selected_document_filter_no", filter.ordinal)
-                            },
-                            initialTypeFilter = { addons -> initialDownloadTypeFilter(addons) },
-                        ),
-                        progressStatus = ProgressStatusDeps(
-                            title = getString(R.string.progress_status),
-                            // Classic ProgressStatusComposeActivity.kt:84, a suspend call: the host
-                            // owns the scope so the graph's deps slot can stay a plain () -> Unit.
-                            requestNotificationPermission = {
-                                lifecycleScope.launch {
-                                    CommonUtils.requestNotificationPermission(this@NavHostComposeActivity)
-                                }
-                            },
-                            observeJobs = { onJobs -> appHosts.search.observeProgressStatusJobs(onJobs) },
-                        ),
-                        cloudDocuments = CloudDocumentsDeps(
-                            // PER-ENTRY factory (task-8 fix round 1) -- see
-                            // cloudDocumentsEntryRef's kdoc for why a fresh instance every call
-                            // (not a host-memoised singleton) is required here.
-                            controllerFor = { buildCloudDocumentsController() },
-                            title = getString(R.string.document_sync_manage_title),
-                            topBarActions = { CloudDocumentsOverflowMenu() },
-                            openOrGate = { cloudDocumentsOpenOrGate() },
-                            seedItems = { cloudDocumentsSeedItems() },
-                            refreshFromNetwork = { cloudDocumentsRefreshFromNetwork() },
-                            subscribeProgress = { onRunning -> cloudDocumentsSubscribeProgress(onRunning) },
-                            statusFilterLabels = { showRemoved -> cloudDocumentsStatusFilterLabels(showRemoved) },
-                            categoryFilterLabels = { cloudDocumentsCategoryFilterLabels() },
-                            countLabel = { count, bytes -> cloudDocumentsCountLabel(count, bytes) },
-                        ),
-                    )
+                    appHosts.download.navDeps(navController, repositoryEditorResults, appHosts.cloudDocuments.deps())
                 }
                 val myDocumentsDeps = remember {
                     appHosts.myDocuments.navDeps(
@@ -3647,9 +3387,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         documentsSearch = appHosts.myDocuments.documentsSearchValue(),
         pages = appHosts.myDocuments.pagesValue(isOnRoute(NavRoutes.MY_DOCUMENT_PAGES_PATTERN)),
         // The entry belongs to the screen only while it is on top; a stale entry from an earlier visit is not saved.
-        cloudFilters = cloudDocumentsEntryRef?.takeIf { isOnRoute(NavRoutes.CLOUD_DOCUMENTS_PATTERN) }?.controller?.filterSnapshot()?.let {
-            CloudFiltersValue(it.status, it.category)
-        },
+        cloudFilters = appHosts.cloudDocuments.filtersValue(isOnRoute(NavRoutes.CLOUD_DOCUMENTS_PATTERN)),
     )
 
     private fun isOnRoute(pattern: String): Boolean =
@@ -4102,24 +3840,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         error("CustomRepositoryEditor is reachable only from CustomRepositories; it has no external entry")
     }
 
-    /**
-     * [id] resolves through the same [customRepositoryService] the list uses; `null` (a NEW
-     * repository, plan D9) maps to a blank [RepositoryResult] -- classic's `newItem()` -- rather
-     * than throwing, and an id that no longer resolves (deleted from under the editor) falls back
-     * to the same blank state instead of crashing the editor arm.
-     */
-    private suspend fun customRepositoryEditorInitialFor(id: Long?): RepositoryResult {
-        val repo = id?.let { wanted -> customRepositoryService.list().find { it.id == wanted } }
-        return RepositoryResult(repository = repo)
-    }
-
-    /** Classic `CustomRepositoryEditorComposeActivity.pasteFromClipboard()`: the clipboard's
-     *  primary text clip, or null when there is none. */
-    private fun readCustomRepositoryClipboard(): String? {
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        return clipboard.primaryClip?.getItemAt(0)?.text?.toString()
-    }
-
     // --- My Documents cluster (MyDocumentsHost) ---------------------------------------------------
     // The document list's and the pages editor's deps, sessions, controllers and file flows live in
     // `appHosts.myDocuments` (`:sharedUi`, `net.bible.sharedui.app.mydocuments`). The two result channels stay
@@ -4154,1289 +3874,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         finish()
     }
 
-    // --- Download host baggage ------------------------------------------------------------------
-    // Ported from classic DownloadComposeActivity (deleted by nav-graph slice 4 Task 9): the
-    // download screen's network JSON fetches, its JSword load/delete/unlock seams, its six
-    // platform AlertDialogs and
-    // its live per-row progress bridge. None of it can cross into commonMain -- every line names a
-    // JSword type, an Android dialog or a `settings` key -- so it reaches the destination as the
-    // lambdas of DownloadDeps.
-
-    private val swordDocumentInfoDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-    private val downloadBookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-
-    /**
-     * Classic `DownloadComposeActivity`'s own fields (`:139-166`) plus the controller they are
-     * memoised alongside -- see [DownloadDeps.controllerFor] for why this whole session must survive
-     * `CustomRepositories` sitting on top of its destination, the same shape [MyDocumentsSession]
-     * uses for the pages editor.
-     */
-    private class DownloadSession {
-        lateinit var controller: DocumentSelectionController
-        lateinit var downloadManager: DownloadManager
-        lateinit var repoFactory: RepoFactory
-        lateinit var genericFileDownloader: GenericFileDownloader
-        val bridge = DownloadProgressBridge()
-
-        /** Network-fetched configs (parity with classic `Ref<…>` fields). */
-        var recommendedDocuments: DocumentConfiguration? = null
-        var defaultDocuments: DocumentConfiguration? = null
-        var badDocuments: DocumentConfiguration? = null
-        var pseudoBooks: List<PseudoBook>? = null
-
-        /** docId (`Book.repoIdentity`) -> Book, rebuilt on every (re)load. */
-        var booksById: Map<String, Book> = emptyMap()
-        /** The full loaded book list (for `findBookByInitials` in the auto-download extras). */
-        var allBooks: List<Book> = emptyList()
-        /** Current `DocRow`s host-side so progress updates can rebuild only the affected rows. */
-        var currentRows: List<DocRow> = emptyList()
-        /** groupingKey -> sort rank from `downloadControl.sortLanguages` (RelevantLanguageSorter). */
-        var langRank: Map<String, Int> = emptyMap()
-        val booksNotFound = ArrayList<String>()
-
-        val hasErrors get() =
-            genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
-
-        /**
-         * The deletable subset [handleDownloadDelete] partitioned out (a live
-         * `documentControl.canDelete` recheck the framework-free controller cannot do), parked here
-         * for [handleDownloadDeleteConfirmed] the same way [CloudDocumentsEntry.lastPlan] parks a
-         * resolved plan (task 16, run-2 plan): the question (the controller's `ConfirmDelete`
-         * dialog) and the answer are two different calls, and this is what carries the partition
-         * between them without recomputing it (which would re-toast "can't delete" for the SAME
-         * non-deletable documents a second time).
-         */
-        var pendingDelete: List<Book> = emptyList()
-    }
-
-    /**
-     * `Download` has no re-entry of its own (its only child destination is `CustomRepositories`), so
-     * this is built once and never dropped -- [myDocumentsSession]'s own reasoning.
-     *
-     * It is a plain field, so it does NOT survive an Activity recreation, while the arm's one-shot
-     * guards are `rememberSaveable` and DO -- see [downloadSessionToken], which is what keeps the
-     * two from disagreeing.
-     */
-    private var downloadSession: DownloadSession? = null
-
-    /**
-     * Identity of the CURRENT [downloadSession], handed to the graph as [DownloadDeps.sessionToken]
-     * and regenerated ONLY by [downloadControllerFor] when it actually builds a new session.
-     *
-     * Slice 4 final-review fix (findings I1+I2). The arm's `seededRouteStateFor`/`ranEntrySetupFor`
-     * one-shots are keyed on this token combined with the route's own argument signature, so that
-     * "this entry has been set up" becomes "this entry has been set up AGAINST THIS SESSION, WITH
-     * THESE ARGUMENTS" -- see [DownloadDeps.sessionToken]'s kdoc for the two symptoms that closes.
-     * The value must be unique across Activity INSTANCES, not merely within one, or a restored
-     * saveable key would match a token a rebuilt session happened to reuse; a counter restarting at
-     * zero on every recreation would do exactly that, which is why this is a random UUID rather
-     * than a sequence number.
-     */
-    private var downloadSessionToken: String = UUID.randomUUID().toString()
-
-    /**
-     * Drives the `firstDownload` OK gate's enabled state: true once >=1 Bible is installed. Latches
-     * (classic `okayButtonEnabled` never flips back off), fed by [downloadCompletionListener].
-     *
-     * A HOST field rather than a session one because [DownloadDeps] is built before any destination
-     * has asked for a controller, so the flow has to exist ahead of the session.
-     */
-    private val downloadHasBible = MutableStateFlow(false)
-
-    /** Mirror of classic FirstDownload's `JobManager` WorkListener: enable OK once a Bible lands. */
-    private val downloadCompletionListener = object : WorkListener {
-        override fun workProgressed(workEvent: WorkEvent) {
-            if (workEvent.job.isFinished) updateHasBible()
-        }
-        // Never called by JSword in practice, so all the work is done in workProgressed (classic note).
-        override fun workStateChanged(workEvent: WorkEvent) {}
-    }
-
-    /** Latching check: once a Bible is installed, OK stays enabled (classic `enableOkayButtonIfBibles`). */
-    private fun updateHasBible() {
-        if (!downloadHasBible.value) {
-            downloadHasBible.value = Books.installed().getBooks().any { it.bookCategory == BookCategory.BIBLE }
-        }
-    }
-
-    /**
-     * Classic `DownloadComposeActivity`'s `controller` (`:196-227`) and the `onCreate` setup around
-     * it (`:229-231`), memoised on [downloadSession].
-     */
-    private fun downloadControllerFor(initialTypeFilter: DocTypeFilter): DocumentSelectionController {
-        downloadSession?.let { return it.controller }
-
-        val session = DownloadSession()
-        session.genericFileDownloader = GenericFileDownloader(
-            lifecycleScope,
-            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
-            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.UserNotifier::class.java),
-            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.CoreStrings::class.java),
-            onErrorsChange = {},
-            http = org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.http.DownloadHttp::class.java),
-            copyFile = { from, to -> net.bible.service.common.FileManager.copyFile(from.toFile(), to.toFile()) },
-        )
-        session.downloadManager = DownloadManager(
-            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppSettings::class.java),
-            org.koin.java.KoinJavaComponent.get(net.bible.android.control.versification.BookInstallWatcher::class.java),
-            session.genericFileDownloader,
-            org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java),
-        ) { }
-        session.repoFactory = RepoFactory(session.downloadManager, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))
-
-        session.controller = DocumentSelectionController(
-            // classic sortLanguages order (RelevantLanguageSorter): rank by the precomputed index.
-            langComparator = Comparator { a, b ->
-                (session.langRank[a.groupingKey] ?: Int.MAX_VALUE)
-                    .compareTo(session.langRank[b.groupingKey] ?: Int.MAX_VALUE)
-            },
-            onSelect = { docId -> handleDownloadSelection(docId) },
-            onDelete = { ids -> handleDownloadDelete(ids) },
-            onConfirmDownload = { docId -> session.booksById[docId]?.let { doDownload(session, it) } },
-            onConfirmDelete = { handleDownloadDeleteConfirmed(session) },
-            onConfirmDeleteIndex = { docId -> handleDownloadDeleteIndexConfirmed(session, docId) },
-            onAbout = { docId -> handleDownloadAbout(docId) },
-            onUnlock = { docId -> handleDownloadUnlock(docId) },
-            onStickyLanguage = { lang -> CommonUtils.settings.setString("selected_language_code", lang?.code) },
-            // Every key applies here: this list is the only one with an install size, and the only
-            // one that loads the recommended-documents config.
-            applicableSortKeys = DocSortKey.entries.toSet(),
-            applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
-            storedArrangement = if (CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true))
-                CommonUtils.settings.getString(ARRANGEMENT_KEY, null) else null,
-            rememberArrangementInitially = CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true),
-            onArrangementChange = { encoded, remember ->
-                CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
-                CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
-            },
-            // Round 17e-1 final-review fix (I3): debounces the drag-reorder commit.
-            scope = lifecycleScope,
-        )
-        session.controller.setTypeFilter(initialTypeFilter)
-        downloadSession = session
-        // A NEW session, so a new identity: every one-shot the arm stamped against the previous one
-        // (in this Activity instance or in the one a recreation replaced) is now stale by
-        // construction. See [downloadSessionToken].
-        downloadSessionToken = UUID.randomUUID().toString()
-        return session.controller
-    }
-
-    /**
-     * Classic `initialTypeFilter()` (`:909-916`) minus its `"type"` extra (plan D1): the tree's only
-     * `putExtra("type"` is gone, so only the `addons` branch and the persisted fallback remain.
-     */
-    private fun initialDownloadTypeFilter(addons: Boolean): DocTypeFilter =
-        if (addons) DocTypeFilter.ADDON
-        else DocTypeFilter.entries.getOrElse(
-            CommonUtils.settings.getInt("selected_document_filter_no", 0),
-        ) { DocTypeFilter.ALL }
-
-    /**
-     * Classic `askIfWantToProceed()` (`:460-478`), a platform AlertDialog that can answer NO. Task
-     * 23: the question itself is now [DocumentSelectionController.askProceed], a Compose
-     * [net.bible.sharedui.components.AbOptionsDialog] driven by [DocumentSelectionDialog
-     * .ProceedWithDownload]; this host method keeps exactly what [DocumentSelectionController]
-     * cannot do -- the "download_do_not_ask" pref read/write, an Android `SharedPreferences` seam
-     * unreachable from the framework-free `:sharedCore` controller (D5).
-     */
-    private suspend fun askIfWantToProceedWithDownload(): Boolean = withContext(Dispatchers.Main) {
-        if (CommonUtils.settings.getBoolean("download_do_not_ask", false)) {
-            true
-        } else {
-            when (downloadSession?.controller?.askProceed()) {
-                ProceedAnswer.YES -> true
-                ProceedAnswer.DONT_ASK_AGAIN -> {
-                    CommonUtils.settings.setBoolean("download_do_not_ask", true)
-                    true
-                }
-                null -> false
-            }
-        }
-    }
-
-    /**
-     * Classic's `downloadDocJson()` + `loadDocuments()` + `updateLastRepoRefreshDate()` block
-     * (`:239-243` on entry, `:286-297` on pull-to-refresh) as one call.
-     *
-     * [refresh] means FORCE a repository re-fetch (the gesture). The staleness cache stays here,
-     * where `settings` lives: a non-forced call still refreshes when the repo list is old, which is
-     * exactly what classic's `val refresh = isRepoBookListOld` did on entry.
-     */
-    private suspend fun refreshDownloadCatalogue(refresh: Boolean) {
-        val session = downloadSession ?: return
-        downloadDocJson(session)
-        val doRefresh = refresh || isRepoBookListOld
-        loadDownloadDocuments(session, doRefresh)
-        if (doRefresh) CommonUtils.settings.setLong(REPO_REFRESH_DATE, Date().time)
-    }
-
-    /**
-     * Armed by [CustomRepositoryController.onChanged] when a repository was added, edited or deleted
-     * (F96, fix batch 3 -- classic reloaded after every visit), disarmed by
-     * [reloadDownloadCatalogueIfRequested]. Classic awaited that Activity's result and then reloaded
-     * (`DownloadComposeActivity.kt:899-905`); an in-graph hop has no result to await, so the
-     * "and then reloaded" half is carried here instead of being lost.
-     */
-    private var pendingDownloadCatalogueReload = false
-
-    /**
-     * Classic `onCustomRepositories()`'s `loadDocuments(true)` (`:904`), verbatim: a FORCED reload,
-     * not [refreshDownloadCatalogue]'s staleness-cached one -- adding or editing a repository is
-     * exactly what changes the downloadable set, and a `refresh = false` load may serve the day-old
-     * cached catalogue. No `downloadDocJson()` either: classic did not re-fetch the JSON configs on
-     * this path.
-     */
-    private suspend fun reloadDownloadCatalogueIfRequested() {
-        if (!pendingDownloadCatalogueReload) return
-        pendingDownloadCatalogueReload = false
-        val session = downloadSession ?: return
-        loadDownloadDocuments(session, refresh = true)
-    }
-
-    /** Classic `downloadDocJson()` (`:406-414`), minus the defaults list -- see [handleAutoDownloadExtras]. */
-    private suspend fun downloadDocJson(session: DownloadSession) = coroutineScope {
-        awaitAll(
-            async { loadRecommendedDocuments(session) },
-            async { loadPseudoBooks(session) },
-            async { loadBadDocuments(session) },
-        )
-    }
-
-    private suspend fun loadRecommendedDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
-        val source = org.crosswire.common.util.KUri("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
-        val target = File(SharedConstants.modulesDir, SharedConstants.RECOMMENDED_JSON)
-        session.genericFileDownloader.downloadFile(source, target.toOkioPath(), "Recommendations", reportError = !target.canRead())
-        if (target.canRead()) {
-            session.recommendedDocuments =
-                CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
-        } else {
-            Log.e(TAG_DOWNLOAD, "Could not load recommendations")
-        }
-    }
-
-    private suspend fun loadBadDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
-        val source = org.crosswire.common.util.KUri("https://andbible.github.io/data/${SharedConstants.BAD_DOCS_JSON}")
-        val target = File(SharedConstants.modulesDir, SharedConstants.BAD_DOCS_JSON)
-        session.genericFileDownloader.downloadFile(source, target.toOkioPath(), "Bad documents list", reportError = !target.canRead())
-        if (target.canRead()) {
-            session.badDocuments =
-                CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
-        } else {
-            Log.e(TAG_DOWNLOAD, "Could not load bad documents list")
-        }
-    }
-
-    private suspend fun loadDefaultDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
-        val source = org.crosswire.common.util.KUri("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
-        val target = File(SharedConstants.modulesDir, SharedConstants.DEFAULT_JSON)
-        session.genericFileDownloader.downloadFile(source, target.toOkioPath(), "Defaults", reportError = !target.canRead())
-        if (target.canRead()) {
-            session.defaultDocuments =
-                CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
-        } else {
-            Log.e(TAG_DOWNLOAD, "Could not load default document list")
-        }
-    }
-
-    private suspend fun loadPseudoBooks(session: DownloadSession) = withContext(Dispatchers.IO) {
-        val source = org.crosswire.common.util.KUri("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
-        val target = File(SharedConstants.modulesDir, SharedConstants.PSEUDO_BOOKS)
-        session.genericFileDownloader.downloadFile(source, target.toOkioPath(), "Pseudo books", reportError = !target.canRead())
-        if (target.canRead()) {
-            session.pseudoBooks = CommonUtils.json.decodeFromString(serializer(), String(target.readBytes()))
-        } else {
-            Log.e(TAG_DOWNLOAD, "Could not load pseudo book list")
-        }
-    }
-
-    /**
-     * (Re)load downloadable Books off-main, rebuild the docId->Book map and the `DocRow` list, and
-     * push them into the controller. Classic `loadDocuments()` (`:485-528`).
-     */
-    private suspend fun loadDownloadDocuments(session: DownloadSession, refresh: Boolean) {
-        try {
-            val books = withContext(Dispatchers.Default) {
-                session.downloadManager.refreshInstallManager()
-                val docs = downloadControl.getDownloadableDocuments(session.repoFactory, refresh)
-                if (docs.isNotEmpty()) docs + fakeBookFactory.pseudoDocuments(session.pseudoBooks) else docs
-            }
-            val rows = withContext(Dispatchers.Default) {
-                val grouping = LanguageGrouping(books.mapNotNull { it.language })
-                val langByKey: Map<String, LangOption> = grouping.representatives.mapNotNull { lang ->
-                    val key = grouping.key(lang) ?: return@mapNotNull null
-                    key to LangOption(lang.code ?: "", lang.name, key)
-                }.toMap()
-                // classic sortLanguages(representatives) order -> groupingKey -> rank index.
-                session.langRank = downloadControl.sortLanguages(grouping.representatives)
-                    .mapIndexedNotNull { i, lang -> grouping.key(lang)?.let { it to i } }
-                    .toMap()
-                // Bad documents flagged HIDE are excluded (classic filterDocuments); WARN -> badWarn.
-                books.filterNot { it.isBadDocument(session.badDocuments, BadDocumentAction.HIDE) }
-                    .map { it.toDocRow(session, grouping, langByKey) }
-            }
-            session.allBooks = books
-            // docId is the opaque repoIdentity ("repo--initials"), unique per repo+initials.
-            session.booksById = books.associateBy { it.repoIdentity }
-            // Progress events already carry repoIdentity as DocumentStatus.id, and docId ==
-            // repoIdentity now, so the bridge's repoIdentity -> docId map is the identity.
-            session.bridge.setRepoIdentityMap(books.associate { it.repoIdentity to it.repoIdentity })
-            session.currentRows = rows
-            session.controller.setDocuments(rows)
-        } catch (e: Exception) {
-            Log.e(TAG_DOWNLOAD, "Error loading download documents", e)
-            session.controller.showError()
-        }
-    }
-
-    private fun Book.toDocRow(
-        session: DownloadSession,
-        grouping: LanguageGrouping,
-        langByKey: Map<String, LangOption>,
-    ): DocRow {
-        val status = downloadControl.getDocumentStatus(this)
-        val key = grouping.key(language) ?: (language.code ?: "")
-        val sizeMb = bookMetaData.getProperty(SwordBookMetaData.KEY_INSTALL_SIZE)
-            ?.toDoubleOrNull()?.let { it / 1e6 }
-        return DocRow(
-            docId = repoIdentity,
-            osisId = osisID,
-            abbreviation = abbreviation,
-            name = name,
-            language = langByKey[key] ?: LangOption(language.code ?: "", language.name, key),
-            repository = getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-            category = docCategoryOf(bookCategory),
-            installStatus = status.documentInstallStatus.toDocInstallStatus(),
-            percentDone = status.percentDone,
-            recommended = isRecommended(session.recommendedDocuments),
-            badWarn = isBadDocument(session.badDocuments, BadDocumentAction.WARN),
-            locked = isLocked,
-            enciphered = isEnciphered,
-            canDelete = canDeleteNow(this),
-            installSizeMb = sizeMb,
-        )
-    }
-
-    /**
-     * From the INSTALLED copy, not the repository catalogue entry: a repo Book's driver is an
-     * installer driver and is never deletable. Re-resolved on every in-place row update, because the
-     * installed copy does not exist until the download finishes (classic `canDeleteNow`, `:559-560`).
-     */
-    private fun canDeleteNow(book: Book?): Boolean =
-        runCatching { book?.installedDocument?.canDelete ?: false }.getOrDefault(false)
-
-    /**
-     * Classic's `lifecycleScope.launch { bridge.statuses.collect { applyProgress(it) } }`
-     * (`:253-255`), started and stopped by the destination instead of by an Activity -- see
-     * [DownloadDeps.subscribeDownloadProgress] for why no payload crosses into the graph.
-     */
-    private fun subscribeDownloadProgress(): () -> Unit {
-        val session = downloadSession ?: return {}
-        val job = lifecycleScope.launch {
-            session.bridge.statuses.collect { statusMap -> applyDownloadProgress(session, statusMap) }
-        }
-        return { job.cancel() }
-    }
-
-    /** Classic `onStart`/`onStop` (`:376-394`) as one subscribe/unsubscribe pair. */
-    private fun subscribeDownloadMonitoring(firstDownload: Boolean): () -> Unit {
-        val session = downloadSession ?: return {}
-        session.bridge.register(downloadControl.progress)
-        downloadControl.startMonitoringDownloads()
-        if (firstDownload) {
-            updateHasBible()
-            JobManager.addWorkListener(downloadCompletionListener)
-        }
-        return {
-            session.bridge.unregister()
-            downloadControl.stopMonitoringDownloads()
-            if (firstDownload) JobManager.removeWorkListener(downloadCompletionListener)
-        }
-    }
-
-    /** Classic `applyProgress` (`:565-590`), verbatim apart from the session indirection. */
-    private fun applyDownloadProgress(session: DownloadSession, statusMap: Map<String, RowDownloadStatus>) {
-        if (statusMap.isEmpty()) return
-        // Push each row's live status straight into the controller, which updates it IN PLACE -- no
-        // re-sort, no clearSelection() -- unlike setDocuments()/refilter(). Keep the host-side
-        // currentRows mirror in sync so a later refreshRowStatus()/setDocuments() doesn't revert the
-        // in-progress status.
-        var mirror = session.currentRows
-        for ((docId, s) in statusMap) {
-            // A completed install arrives HERE, not through refreshRowStatus, so this is the path on
-            // which canDelete actually flips, and it has to be re-resolved.
-            val canDelete = canDeleteNow(session.booksById[docId])
-            session.controller.updateDownloadStatus(docId, s.status, s.percentDone, canDelete)
-            mirror = mirror.map { row ->
-                if (row.docId == docId &&
-                    (row.installStatus != s.status || row.percentDone != s.percentDone || row.canDelete != canDelete)
-                ) {
-                    row.copy(installStatus = s.status, percentDone = s.percentDone, canDelete = canDelete)
-                } else row
-            }
-        }
-        session.currentRows = mirror
-    }
-
-    /** Refresh one row's status directly from getDocumentStatus (classic `refreshRowStatus`, `:593-617`). */
-    private fun refreshDownloadRowStatus(session: DownloadSession, book: Book) {
-        val status = downloadControl.getDocumentStatus(book)
-        val canDelete = canDeleteNow(book)
-        val updated = session.currentRows.map { row ->
-            if (row.docId == book.repoIdentity) {
-                row.copy(
-                    installStatus = status.documentInstallStatus.toDocInstallStatus(),
-                    percentDone = status.percentDone,
-                    canDelete = canDelete,
-                )
-            } else row
-        }
-        if (updated != session.currentRows) {
-            session.currentRows = updated
-            // updateDownloadStatus() updates the row IN PLACE, never re-sorting/clearing selection.
-            session.controller.updateDownloadStatus(
-                book.repoIdentity,
-                status.documentInstallStatus.toDocInstallStatus(),
-                status.percentDone,
-                canDelete,
-            )
-        }
-    }
-
-    /** Classic `handleDocumentSelection` (`:622-631`): a selection starts a download, in place. */
-    private fun handleDownloadSelection(docId: String) {
-        val session = downloadSession ?: return
-        val book = session.booksById[docId] ?: return
-        Log.i(TAG_DOWNLOAD, "Document selected:" + book.initials)
-        lifecycleScope.launch {
-            try {
-                manageDownload(session, book)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
-                Toast.makeText(this@NavHostComposeActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    /** Classic `manageDownload` (`:633-654`), including its confirm-before-download AlertDialog. */
-    private suspend fun manageDownload(session: DownloadSession, documentToDownload: Book?) {
-        if (documentToDownload != null &&
-            downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus != DocumentInstallStatus.BEING_INSTALLED &&
-            !documentToDownload.isPseudoBook
-        ) {
-            if (documentToDownload.isInstalled && DatabaseContainer.ready &&
-                downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) > 0
-            ) {
-                if (CommonUtils.documentUpgradeConfirmation(this@NavHostComposeActivity)) {
-                    doDownload(session, documentToDownload)
-                }
-            } else {
-                session.controller.requestDownloadConfirm(
-                    documentToDownload.repoIdentity,
-                    // M4: this plain-text message (a document's `name` can itself contain "<...>")
-                    // goes through AbMessageDialog, which always parses its body as HTML -- I2's
-                    // helper keeps it literal instead of silently dropping an unknown "tag".
-                    plainTextToHtml(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name),
-                )
-            }
-        }
-    }
-
-    /**
-     * Classic's own `downloadScope` (`DownloadComposeActivity.kt:167`), deliberately NOT
-     * [lifecycleScope]: `downloadControl.downloadDocument` is a SUSPEND call, so a cancellation
-     * between "user tapped" and "job enqueued" would silently drop the download -- and leaving the
-     * screen is exactly when that happens.
-     */
-    private val downloadScope = CoroutineScope(Dispatchers.Default)
-
-    /** Classic `doDownload` (`:656-665`). */
-    private fun doDownload(session: DownloadSession, document: Book) = downloadScope.launch(Dispatchers.Main) {
-        try {
-            downloadControl.downloadDocument(session.repoFactory, document)
-            refreshDownloadRowStatus(session, document)
-            DocumentChanges.notifyInstalledChanged()
-        } catch (e: Exception) {
-            Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
-            Toast.makeText(this@NavHostComposeActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /** Classic `onCancel` (`:344`): the per-row cancel button, resolved through the session's map. */
-    private fun cancelDownload(docId: String) {
-        val session = downloadSession ?: return
-        session.booksById[docId]?.let { downloadControl.cancelDownload(it) }
-    }
-
-    /**
-     * Classic `handleDelete` (`:673-707`): ONE dialog listing every document that will be deleted,
-     * with the non-deletable remainder reported once rather than once per document.
-     */
-    private fun handleDownloadDelete(ids: Set<String>) {
-        val session = downloadSession ?: return
-        val selected = ids.mapNotNull { session.booksById[it] }
-        val (deletable, rest) = selected.partition { documentControl.canDelete(it.installedDocument) }
-        if (rest.isNotEmpty()) UserMessages.toast(R.string.cant_delete_document)
-        if (deletable.isEmpty()) return
-        val msg: String = if (deletable.size == 1) {
-            getString(R.string.delete_doc, deletable.single().name)
-        } else {
-            getString(R.string.delete_docs_confirm) + "\n\n" + deletable.joinToString("\n") { it.name }
-        }
-        session.pendingDelete = deletable
-        session.controller.requestDeleteConfirm(msg)
-    }
-
-    /**
-     * Task 16 (run-2 plan, NH row 8004): the confirmed half of [handleDownloadDelete] -- the
-     * `deletable` list it partitioned, parked on [DownloadSession.pendingDelete]. Unchanged from the
-     * classic `AlertDialog`'s positive button, including the per-document `canDelete` RECHECK inside
-     * the loop (`Book.canDelete` is `!lastBible && ...`, so deleting one of exactly two installed
-     * Bibles flips the other's flag -- this is a genuinely different, later check than the one
-     * [handleDownloadDelete] already toasted for).
-     */
-    private fun handleDownloadDeleteConfirmed(session: DownloadSession) {
-        val deletable = session.pendingDelete
-        // deleteDocument suspends (it clears the backup row); launch, and keep the tail in order after it.
-        lifecycleScope.launch {
-            // The loop, the per-document tidy-up and the installed-changed notification complete in the app scope.
-            val result = documentControl.deleteDocuments(deletable.map { it.installedDocument })
-            for ((_, e) in result.failures) {
-                Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
-                Dialogs.showErrorMsg(R.string.error_occurred, e)
-            }
-            if (result.skipped) UserMessages.toast(R.string.cant_delete_document)
-            loadDownloadDocuments(session, false)
-        }
-    }
-
-    /**
-     * Task 16 (D8-3 fix, NH row 8034): classic's `handleDeleteIndex` (`:710-727`) opened one stacked
-     * platform dialog per selected document; [DocumentSelectionController.deleteIndex] now asks one
-     * at a time and calls this ONLY for the document just confirmed -- the delete-index action itself
-     * (no `canDelete` check in classic, and none here either) is unchanged.
-     */
-    private fun handleDownloadDeleteIndexConfirmed(session: DownloadSession, docId: String) {
-        val document = session.booksById[docId] ?: return
-        try {
-            Log.i(TAG_DOWNLOAD, "Deleting index:$document")
-            SwordDocumentFacade.deleteDocumentIndex(document.installedDocument)
-        } catch (e: Exception) {
-            Log.e(TAG_DOWNLOAD, "Deleting index crashed", e)
-            Dialogs.showErrorMsg(R.string.error_occurred, e)
-        }
-    }
-
-    /** Classic `handleAbout` (`:730-746`): reload the SBMD (retaining repo/BadDocument), then showAbout. */
-    private fun handleDownloadAbout(docId: String) {
-        val session = downloadSession ?: return
-        val document = session.booksById[docId] ?: return
-        try {
-            val sbmd = document.bookMetaData as SwordBookMetaData
-            val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
-            val badDocument = sbmd.getProperty("BadDocument")
-            sbmd.reload()
-            sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
-            sbmd.putProperty("BadDocument", badDocument)
-            lifecycleScope.launch(Dispatchers.Main) {
-                CommonUtils.showAbout(this@NavHostComposeActivity, document)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG_DOWNLOAD, "Error expanding SwordBookMetaData for $document", e)
-            Dialogs.showErrorMsg(R.string.error_occurred, e)
-        }
-    }
-
-    /** Classic `handleUnlock` (`:748-756`). */
-    private fun handleDownloadUnlock(docId: String) {
-        val session = downloadSession ?: return
-        val document = session.booksById[docId] ?: return
-        lifecycleScope.launch(Dispatchers.Main) {
-            CommonUtils.unlockDocument(this@NavHostComposeActivity, document)
-            loadDownloadDocuments(session, false)
-        }
-    }
-
-    /**
-     * Classic `handleAutoDownloadExtras` (`:759-786`), with its two Intent extras now route
-     * arguments. The defaults list is fetched HERE rather than in [downloadDocJson]: classic fetched
-     * it in parallel with the other three but gated on the same `download-recommended` extra this
-     * takes, and nothing else reads `defaultDocuments` -- so the fetch follows its one consumer
-     * instead of needing a flag [DownloadDeps.refreshCatalogue] does not carry.
-     */
-    private suspend fun handleAutoDownloadExtras(documentIds: String?, downloadRecommended: Boolean) {
-        val session = downloadSession ?: return
-        // Cleared per run: the session outlives one visit to this destination (a second entry into
-        // the singleTop host reuses it), and a stale list would report books that were not found on
-        // a PREVIOUS visit in this visit's "books not downloaded" dialog.
-        session.booksNotFound.clear()
-        withContext(Dispatchers.Main) {
-            if (documentIds != null) {
-                val booksToDownload: List<SwordDocumentInfo> =
-                    CommonUtils.json.decodeFromString(serializer(), documentIds)
-                downloadRequestedBooks(session, booksToDownload)
-                if (session.booksNotFound.size > 0) {
-                    warnUserBooksNotDownloaded(session)
-                }
-            }
-            if (!downloadRecommended) return@withContext
-            loadDefaultDocuments(session)
-            val defaults = session.defaultDocuments ?: return@withContext
-            for (l in listOf(
-                defaults.bibles["en"], defaults.commentaries["en"], defaults.addons["en"],
-                defaults.books["en"], defaults.dictionaries["en"], defaults.maps["en"],
-            )) {
-                val l2 = l?.map {
-                    if (it.contains("::")) {
-                        val (initials, repository) = it.split("::")
-                        SwordDocumentInfo(initials = initials, repository = repository, language = "en", abbreviation = "", name = "")
-                    } else {
-                        SwordDocumentInfo(initials = it, repository = "", language = "en", abbreviation = "", name = "")
-                    }
-                }
-                downloadRequestedBooks(session, l2)
-            }
-        }
-    }
-
-    /** Classic `downloadRequestedBooks` (`:789-800`). */
-    private fun downloadRequestedBooks(session: DownloadSession, osisIds: List<SwordDocumentInfo>?) {
-        osisIds ?: return
-        for (it in osisIds) {
-            Log.i(TAG_DOWNLOAD, "User request to download $it")
-            val book: Book? = findBookByInitials(session, it.initials, if (it.repository == "") null else it.repository)
-            if (book != null) {
-                doDownload(session, book)
-            } else {
-                session.booksNotFound.add(it.initials)
-            }
-        }
-    }
-
-    private fun findBookByInitials(session: DownloadSession, initials: String, repository: String?): Book? =
-        session.allBooks.find {
-            if (repository != null) {
-                it.initials == initials && it.getProperty(DownloadManager.REPOSITORY_KEY) == repository
-            } else {
-                it.initials == initials
-            }
-        }
-
-    /**
-     * Classic `warnUserBooksNotDownloaded` (`:803-821`) -- used to inflate a LAYOUT
-     * (`R.layout.books_not_downloaded_dialog`, `TextView` intro + `ListView`); Task 23 replaces it
-     * with [DocumentSelectionController.showBooksNotDownloaded], an HTML message built here (D5:
-     * needs `getString`/`swordDocumentInfoDao`) and rendered as `AbMessageDialog` by
-     * [DocumentSelectionScreen]. Fix round 1: the layout's intro `TextView`
-     * (`R.string.download_dialog_message`, "The following books could not be downloaded:") is
-     * restored ABOVE the list, exactly where the old layout put it -- [notInstalled] mirrors the
-     * `getString(R.string.delete_docs_confirm) + "\n\n" + …joinToString("\n")` shape
-     * [handleDownloadDelete]/[handleChooseDocumentDelete] already use for "a title line, blank line,
-     * then one name per line". The WHOLE assembled string (intro + names) goes through
-     * [plainTextToHtml] together, not per-name: user-visible module names can contain
-     * `&`/`<`/`>`/newlines that must not corrupt the HTML the rest of the message parses as, and a
-     * single pass escapes the intro too (harmless -- it is trusted app copy with no such characters)
-     * while turning both `\n\n` (intro/list gap) and each `\n` (one name per line) into `<br>`s
-     * uniformly. `books_not_downloaded_dialog.xml`/`books_not_downloaded_list_item.xml` are deleted
-     * with this change; nothing else inflates them.
-     */
-    private fun warnUserBooksNotDownloaded(session: DownloadSession) {
-        val books = session.booksNotFound.toTypedArray()
-        lifecycleScope.launch {
-            val notInstalled: List<String> = books.mapNotNull { swordDocumentInfoDao.getBook(it)?.name }
-            withContext(Dispatchers.Main) {
-                val message = getString(R.string.download_dialog_message) + "\n\n" + notInstalled.joinToString("\n")
-                session.controller.showBooksNotDownloaded(plainTextToHtml(message))
-            }
-        }
-    }
-
-    /** Classic `isRepoBookListOld` (`:826-831`): not refreshed in a day means old. */
-    private val isRepoBookListOld: Boolean
-        get() {
-            val repoRefreshDate = CommonUtils.settings.getLong(REPO_REFRESH_DATE, 0)
-            return (Date().time - repoRefreshDate) / MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS
-        }
-
-    /**
-     * Classic's overflow menu (`:839-876`). `AbMenuItem`, never `DropdownMenuItem`: this file is
-     * scanned by `MenuSeamGuardTest`.
-     */
-    @Composable
-    private fun DownloadOverflowMenu(navController: NavHostController, firstDownload: Boolean) {
-        AbOverflowMenu(contentDescription = null) { close ->
-            if (downloadSession?.hasErrors == true) {
-                AbMenuItem(
-                    text = getString(R.string.download_errors),
-                    onClick = { close(); showDownloadErrors() },
-                    icon = { Icon(painterResource(R.drawable.ic_error_outline_black_24dp), contentDescription = null) },
-                )
-            }
-            if (!firstDownload) { // classic FirstDownload hides installZip
-                AbMenuItem(
-                    text = getString(R.string.install_zip),
-                    onClick = { close(); onInstallZip() },
-                    icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
-                )
-            }
-            AbMenuItem(
-                text = getString(R.string.custom_repositories),
-                // An in-graph hop, not classic's awaitIntent(Screen.CustomRepositories): that
-                // destination lives in THIS graph (Task 3), so an Intent would launch this host at
-                // itself. An in-graph hop has no result to await; classic's follow-up
-                // `loadDocuments(true)` (:904) is armed by CustomRepositoryController.onChanged (F96),
-                // so a view-only visit reloads nothing, and performed by
-                // [reloadDownloadCatalogueIfRequested] when the destination composes again.
-                onClick = {
-                    close()
-                    navController.navigate(NavRoutes.customRepositories())
-                },
-                // Icons.Filled.Dns (a stack of servers) rather than the "Install zip" unarchive
-                // glyph this row used to share.
-                icon = { Icon(Icons.Filled.Dns, contentDescription = null) },
-            )
-            if (documentSyncSettings.enabled) {
-                AbMenuItem(
-                    text = getString(R.string.document_sync_manage_title),
-                    // An in-graph hop, not classic's awaitIntent(Screen.CloudDocuments): nav-graph
-                    // slice 4 Task 8 registered CloudDocuments as a destination in THIS graph, so an
-                    // Intent would launch this host at itself.
-                    onClick = { close(); navController.navigate(NavRoutes.cloudDocuments()) },
-                    icon = { Icon(painterResource(R.drawable.ic_syncdb_24dp), contentDescription = null) },
-                )
-            }
-        }
-    }
-
-    /** Classic `showErrors` (`:878-890`). */
-    private fun showDownloadErrors() {
-        val session = downloadSession ?: return
-        var message = ""
-        if (session.downloadManager.failedRepos.isNotEmpty()) {
-            message += getString(R.string.failed_repositories_message, session.downloadManager.failedRepos.joinToString(",\n"))
-        }
-        if (session.genericFileDownloader.errors.isNotEmpty()) {
-            message += getString(R.string.failed_downloads_message, session.genericFileDownloader.errors.joinToString(",\n"))
-        }
-        session.controller.showErrors(getString(R.string.download_errors), message)
-    }
-
-    /** Classic `onInstallZip` (`:891-897`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
-    private fun onInstallZip() {
-        openInstallZip { DocumentChanges.notifyInstalledChanged() }
-    }
-
-    private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
-        DocumentInstallStatus.INSTALLED -> DocInstallStatus.INSTALLED
-        DocumentInstallStatus.NOT_INSTALLED -> DocInstallStatus.NOT_INSTALLED
-        DocumentInstallStatus.BEING_INSTALLED -> DocInstallStatus.BEING_INSTALLED
-        DocumentInstallStatus.UPGRADE_AVAILABLE -> DocInstallStatus.UPGRADE_AVAILABLE
-        DocumentInstallStatus.ERROR_DOWNLOADING -> DocInstallStatus.ERROR_DOWNLOADING
-        DocumentInstallStatus.INSTALL_CANCELLED -> DocInstallStatus.INSTALL_CANCELLED
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════════════════
-    // CLOUD DOCUMENTS -- nav-graph slice 4, Task 8. Ported from classic
-    // CloudDocumentsComposeActivity, whose line numbers the comments below cite.
-    // ═══════════════════════════════════════════════════════════════════════════════════════
-
-    /**
-     * One CloudDocuments back-stack entry's host-side state: the controller the arm renders, plus
-     * every piece of host scratch state whose lifetime is EXACTLY that controller's -- currently
-     * just [lastPlan]. This is classic's own shape restored: a `CloudDocumentsComposeActivity`
-     * instance WAS one entry, so its `controller by lazy` (`:80-100`) and its `lastPlan` field
-     * (`:78`) were born and died together and neither ever needed pruning. In the nav host ONE
-     * Activity hosts MANY entries, which pulled "per Activity" and "per entry" apart; this class
-     * puts them back together (task-8 fix round 4).
-     *
-     * **Why this, and not the host-lifetime `Map<CloudDocumentsController, SyncPlan>` fix rounds 2
-     * and 3 had:** a map keyed by controller is a container whose lifetime is the HOST's, so every
-     * way an entry can end needs its own pruning path -- and each round closed one and left the next
-     * open (confirm, then explicit dismiss, then "the destination was popped while the Sync-now
-     * sheet was still up", where neither of those ever fires, round 3's one-shot
-     * `syncNowDialog.first { it == null }` watcher waits forever, and the watcher itself -- a
-     * suspended `lifecycleScope` coroutine holding a hard reference -- pins the very controller it
-     * was meant to release). A field on a per-entry object needs no pruning path at all: when the
-     * entry is abandoned the whole object, plan included, becomes garbage as soon as the arm's
-     * composition and any coroutine still working for that entry let go of it.
-     */
-    private class CloudDocumentsEntry {
-        /** Assigned once, immediately after construction, before any of its callbacks can fire. */
-        lateinit var controller: CloudDocumentsController
-
-        /**
-         * Classic's `lastPlan` field (`:78`): the last resolved Sync-now plan, retained so
-         * confirming it dispatches without a second resolve. Set by [cloudDocumentsShowSyncNow],
-         * consumed AND cleared by [handleCloudDocumentsSyncNowConfirm], overwritten by the next
-         * open. Deliberately NOT cleared on dismiss -- classic did not clear it either, the screen
-         * only offers a confirm button while `syncNowDialog` is non-null (so a dismissed sheet has
-         * no path to a confirm without a fresh `showSyncNow` resolving a new plan first), and the
-         * value dies with this entry regardless.
-         */
-        var lastPlan: SyncPlan? = null
-    }
-
-    /**
-     * The CURRENT entry's state -- task-8 fix round 1 (the controller), round 4 (everything else
-     * that is per-entry). [buildCloudDocumentsController] REASSIGNS this every time
-     * [CloudDocumentsDeps.controllerFor] is called, one per genuine composition entry, the
-     * [CustomRepositoriesDeps.controllerFor] idiom rather than a `by lazy` singleton: this
-     * destination has TWO distinct entry points (Download's overflow row, Settings' sync row) and no
-     * covering child, so a genuine leave-and-reopen within one host session is a real, reachable
-     * path, and classic reset every filter/selection/search/arrangement on each such open by getting
-     * a fresh Activity and a fresh controller. A singleton would have let all of that silently
-     * survive a round trip instead.
-     *
-     * **Read ONLY from [cloudDocumentsOpenOrGate]/[cloudDocumentsRefreshFromNetwork] (through the
-     * [cloudDocumentsController] accessor below), and only ONCE, synchronously, before either
-     * function's first suspension point** -- both capture it into a local `val controller`
-     * immediately and use ONLY that local afterward, INCLUDING inside a `finally` block (fix round
-     * 3: `finally` runs even when the surrounding coroutine is being CANCELLED, e.g. because the
-     * arm's composition was just disposed by a leave-and-reopen, so a `finally {
-     * cloudDocumentsController.pushBusy(false) }` that re-read the property there could clear busy
-     * on a SECOND entry's controller instead of the one that set it true -- capturing once up front
-     * removes the second read entirely, not just delays it). **Composable functions** get their own
-     * composition-time snapshot instead (see [CloudDocumentsOverflowMenu]). Every other function
-     * below that touches an entry does so through an EXPLICIT `controller: CloudDocumentsController`
-     * (or `entry: CloudDocumentsEntry`) parameter, captured once at the point the operation started,
-     * never by re-reading this property after a suspension point or from a callback that can fire
-     * later than its origin (task-8 fix round 2, finding A) -- `lifecycleScope.launch { ... }` is
-     * host-Activity-scoped, not cancelled when the arm's composition is disposed, so a coroutine
-     * started by one entry (or an `AlertDialog` positive-button callback armed by one entry, which
-     * can fire arbitrarily later) can easily resume or fire AFTER a leave-and-reopen has already
-     * rebuilt this ref onto a second, DIFFERENT entry; reading the property at that point would
-     * silently misdirect the first entry's result onto the second entry's live controller. Binding
-     * every such callback to the specific entry it was built for -- the `entry` capture in
-     * [buildCloudDocumentsController] -- makes that misdirection structurally impossible instead of
-     * merely unlikely.
-     */
-    private var cloudDocumentsEntryRef: CloudDocumentsEntry? = null
-    private val cloudDocumentsEntry: CloudDocumentsEntry
-        get() = requireNotNull(cloudDocumentsEntryRef) {
-            "CloudDocuments controller read before its destination composed"
-        }
-    private val cloudDocumentsController: CloudDocumentsController
-        get() = cloudDocumentsEntry.controller
-
-    /**
-     * Classic's own `controller by lazy` field (`CloudDocumentsComposeActivity.kt:80-100`), ported as
-     * a PER-ENTRY factory -- see [cloudDocumentsEntryRef]'s kdoc for both halves of why: the
-     * per-entry rebuild itself, and why every constructor callback below is a LAMBDA closing over the
-     * local `entry` (whose `controller` is assigned before any of them can fire) rather than a bare
-     * method reference -- a method reference is the SAME function for every instance and cannot tell
-     * "its own" entry from the ref's current one, which is exactly the bug fix round 2 closes.
-     */
-    private val documentSyncSettings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
-
-    private fun buildCloudDocumentsController(): CloudDocumentsController {
-        val entry = CloudDocumentsEntry()
-        entry.controller = CloudDocumentsController(
-            syncEnabled = { documentSyncSettings.enabled },
-            onAction = { action, initials -> handleCloudDocumentsAction(entry.controller, action, initials) },
-            onBulkAction = { action, initials -> handleCloudDocumentsBulkAction(entry.controller, action, initials) },
-            onSyncNow = { download, upload, delete -> handleCloudDocumentsSyncNowConfirm(entry, download, upload, delete) },
-            onRescan = { cloudDocumentsRunSyncAction(entry.controller) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).resetListingCache() } },
-            onShowRemovedChange = { show -> handleCloudDocumentsShowRemovedChange(entry.controller, show) },
-            onConfirmRemove = { initials -> handleCloudDocumentsRemoveConfirmed(entry.controller, initials) },
-            onConfirmPurge = { initials -> handleCloudDocumentsPurgeConfirmed(entry.controller, initials) },
-            onConfirmBlock = { initials -> handleCloudDocumentsBlockConfirmed(entry.controller, initials) },
-            storedArrangement = if (CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true))
-                CommonUtils.settings.getString(CLOUD_ARRANGEMENT_KEY, null) else null,
-            rememberArrangementInitially = CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true),
-            onArrangementChange = { encoded, remember ->
-                CommonUtils.settings.setBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, remember)
-                CommonUtils.settings.setString(CLOUD_ARRANGEMENT_KEY, encoded)
-            },
-            scope = lifecycleScope,
-        )
-        // Consumed once: a later leave-and-reopen within this host starts fresh, like classic. The sign-in
-        // error dialog is deliberately not carried: it is re-raised by the gate's sign-in attempt, which is
-        // a real network step that cannot be skipped just because the Activity was recreated.
-        appHosts.bookmark.restoredState?.cloudFilters?.let {
-            entry.controller.restoreFilters(it.toSnapshot())
-            appHosts.bookmark.updateRestored { state -> state?.copy(cloudFilters = null) }
-        }
-        cloudDocumentsEntryRef = entry
-        return entry.controller
-    }
-
-    /**
-     * Classic `openOrGate()` in full (`:193-208`) -- see [CloudDocumentsDeps.openOrGate]'s kdoc.
-     * A single cache scan serves both the sign-in-gate's emptiness check and the seed, exactly as
-     * classic's own `cached` local did.
-     *
-     * `controller` is captured on the FIRST LINE, ahead of the `CloudSync.signIn` and
-     * [cloudDocumentsSeedItems] suspension points -- see [cloudDocumentsEntryRef]'s kdoc (fix round
-     * 3). Slice 4's final-review finding M1: the capture used to sit BELOW both of them, which was
-     * still safe (the caller is the arm's own `LaunchedEffect`, so a disposal cancels this
-     * coroutine and neither call below runs at all) but did not match what this kdoc claimed, and
-     * the guard protecting the invariant -- `CloudDocumentsControllerRebuildIsolationTest` --
-     * counted occurrences without checking position, so it could not have caught the drift its own
-     * message described. The capture is now genuinely first, and that guard now asserts the position
-     * as well as the count.
-     */
-    private suspend fun cloudDocumentsOpenOrGate(): Boolean {
-        val controller = cloudDocumentsController
-        documentSyncSettings.ensureLoaded()
-        var signedIn = cloudSync.signedIn
-        if (!signedIn) signedIn = cloudSync.signIn() == true
-        val items = cloudDocumentsSeedItems()
-        if (!signedIn && items.isEmpty()) {
-            Toast.makeText(this, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
-            return false
-        }
-        controller.setShowRemoved(documentSyncSettings.showRemovedDocuments)
-        controller.setItems(items)
-        if (signedIn && (!documentSyncSettings.enabled || items.isEmpty())) cloudDocumentsRefreshFromNetwork()
-        return true
-    }
-
-    /**
-     * Classic's shared cache-only scan+flatten, the middle of both `openOrGate()` (`:198`, `:205`)
-     * and `renderFromCache()` (`:229`) -- see [CloudDocumentsDeps.seedItems]'s kdoc for why this
-     * stays PURE (no controller mutation): it is reached from [handleCloudDocumentsShowRemovedChange],
-     * itself reached from [CloudDocumentsController.setShowRemoved], which calls its
-     * `onShowRemovedChange` callback UNCONDITIONALLY on every invocation -- a `setShowRemoved` call
-     * inside this function would recurse through that callback forever.
-     */
-    private suspend fun cloudDocumentsSeedItems(): List<CloudDocItem> = withContext(Dispatchers.IO) {
-        documentSyncSettings.ensureLoaded()
-        org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scanCached(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
-    }
-
-    /**
-     * Classic `refreshFromNetwork()` (`:212-218`): a network scan, flattened and pushed with a busy
-     * pair around it. `controller` is captured ONCE, before the `finally` even exists to run --
-     * fix round 3: the property was read a second time inside `finally { cloudDocumentsController
-     * .pushBusy(false) }`, and `finally` blocks run even when this coroutine is CANCELLED (e.g. a
-     * leave-and-reopen disposed the arm's composition while the scan above was suspended), so that
-     * second read could resolve to a SECOND entry's controller and clear ITS busy flag instead of
-     * this call's own. Capturing once removes the second read entirely.
-     */
-    private suspend fun cloudDocumentsRefreshFromNetwork() {
-        val controller = cloudDocumentsController
-        controller.pushBusy(true)
-        try {
-            val items = withContext(Dispatchers.IO) {
-                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
-            }
-            controller.setItems(items)
-        } finally {
-            controller.pushBusy(false)
-        }
-    }
-
-    /**
-     * Classic's `renderFromCache()` (`:226-232`), reached only from
-     * [CloudDocumentsController.setShowRemoved]'s `onShowRemovedChange` callback -- persist the
-     * setting, then re-seed from the cache with the new `includeDeleted` value. [controller] is the
-     * SPECIFIC instance [buildCloudDocumentsController] bound this callback to, not
-     * [cloudDocumentsController]'s current value -- see that property's kdoc (fix round 2, finding A):
-     * this launches on `lifecycleScope`, which outlives the arm's composition, so by the time it
-     * resumes past the suspending seed a leave-and-reopen may already have rebuilt the ref onto a
-     * different controller.
-     */
-    private fun handleCloudDocumentsShowRemovedChange(controller: CloudDocumentsController, show: Boolean) {
-        documentSyncSettings.showRemovedDocuments = show
-        lifecycleScope.launch {
-            controller.pushBusy(true)
-            try {
-                controller.setItems(cloudDocumentsSeedItems())
-            } finally {
-                controller.pushBusy(false)
-            }
-        }
-    }
-
-    /**
-     * Classic `bridge.register()`/`unregister()` plus the `bridge.running.drop(1).collect { ... }`
-     * body as one subscribe/stop pair -- see [CloudDocumentsDeps.subscribeProgress]'s kdoc. Each call
-     * is its own subscription on [lifecycleScope] (this destination can be entered and left several
-     * times within one host instance); there is no bridge and no `drop(1)`, since no initial value
-     * exists to skip.
-     */
-    private fun cloudDocumentsSubscribeProgress(onRunning: (Boolean) -> Unit): () -> Unit =
-        subscribeToDocumentSyncRunning(lifecycleScope, org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).runningChanged, onRunning)
-
-    /**
-     * Classic `runSyncAction` (`:234-241`), used by [buildCloudDocumentsController]'s `onRescan`.
-     * [controller] is the SPECIFIC instance the callback was bound to -- see
-     * [cloudDocumentsEntryRef]'s kdoc (fix round 2, finding A); this also launches on
-     * `lifecycleScope`, so the same "may resume after a leave-and-reopen" hazard applies.
-     */
-    private fun cloudDocumentsRunSyncAction(controller: CloudDocumentsController, block: suspend () -> Unit): kotlinx.coroutines.Job = lifecycleScope.launch {
-        controller.pushBusy(true)
-        try {
-            withContext(Dispatchers.IO) { block() }
-            val items = withContext(Dispatchers.IO) {
-                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = documentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
-            }
-            controller.setItems(items)
-        } finally {
-            controller.pushBusy(false)
-        }
-    }
-
-    /**
-     * Classic `handleAction` (`:258-268`). [controller] is the instance
-     * [buildCloudDocumentsController] bound `onAction` to; [handleCloudDocumentsRemoveConfirmed]/
-     * [handleCloudDocumentsPurgeConfirmed] (bound to the SAME instance at construction) are what
-     * eventually run the confirmed action, so a confirm tap -- which can fire arbitrarily later than
-     * this call, long past any leave-and-reopen -- still lands on the RIGHT controller (fix round 2,
-     * finding A).
-     */
-    private fun handleCloudDocumentsAction(controller: CloudDocumentsController, action: CloudDocAction, initials: String) {
-        val item = controller.items.value.firstOrNull { it.initials == initials } ?: return
-        when (action) {
-            CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), listOf(initials))
-            CloudDocAction.PUSH, CloudDocAction.RESTORE -> DocumentSyncService.start(this, listOf(initials), emptyList())
-            CloudDocAction.BLOCK -> {
-                documentSyncSettings.blockList.block(initials)
-                controller.setBlocked(initials, true)
-            }
-            CloudDocAction.UNBLOCK -> {
-                val push = pushOnUnblock(controller.items.value, listOf(initials))
-                documentSyncSettings.blockList.unblock(initials)
-                controller.setBlocked(initials, false)
-                if (push.isNotEmpty()) DocumentSyncService.start(this, push, emptyList())
-            }
-            CloudDocAction.REMOVE_CLOUD -> {
-                val enabled = documentSyncSettings.enabled
-                val message = getString(
-                    if (enabled) R.string.cloud_doc_remove_all_confirm else R.string.cloud_doc_remove_cloud_confirm,
-                    item.name,
-                )
-                controller.requestConfirmRemove(listOf(initials), message, allDevices = enabled)
-            }
-            CloudDocAction.PURGE -> {
-                controller.requestConfirmPurge(listOf(initials), getString(R.string.cloud_doc_purge_confirm, item.name))
-            }
-        }
-    }
-
-    /** Classic `handleBulkAction` (`:270-279`) -- [controller] as [handleCloudDocumentsAction]'s own kdoc explains. */
-    private fun handleCloudDocumentsBulkAction(controller: CloudDocumentsController, action: CloudDocAction, initials: List<String>) {
-        when (action) {
-            CloudDocAction.DOWNLOAD -> {
-                DocumentSyncService.start(this, emptyList(), initials)
-                controller.clearSelection()
-            }
-            CloudDocAction.PUSH, CloudDocAction.RESTORE -> {
-                DocumentSyncService.start(this, initials, emptyList())
-                controller.clearSelection()
-            }
-            CloudDocAction.BLOCK -> {
-                // F75: ask first; the confirmed half is handleCloudDocumentsBlockConfirmed.
-                val message = resources.getQuantityString(R.plurals.cloud_doc_bulk_block_confirm, initials.size, initials.size)
-                controller.requestConfirmBlock(initials, message)
-            }
-            CloudDocAction.UNBLOCK -> {
-                val push = pushOnUnblock(controller.items.value, initials)
-                initials.forEach { documentSyncSettings.blockList.unblock(it); controller.setBlocked(it, false) }
-                if (push.isNotEmpty()) DocumentSyncService.start(this, push, emptyList())
-                controller.clearSelection()
-            }
-            CloudDocAction.REMOVE_CLOUD -> {
-                val enabled = documentSyncSettings.enabled
-                val message = resources.getQuantityString(
-                    if (enabled) R.plurals.cloud_doc_bulk_remove_all_confirm else R.plurals.cloud_doc_bulk_remove_cloud_confirm,
-                    initials.size, initials.size,
-                )
-                controller.requestConfirmRemove(initials, message, allDevices = enabled)
-            }
-            CloudDocAction.PURGE -> {
-                val message = resources.getQuantityString(R.plurals.cloud_doc_bulk_purge_confirm, initials.size, initials.size)
-                controller.requestConfirmPurge(initials, message)
-            }
-        }
-    }
-
-    /**
-     * Task 17 (run-2 plan, NH rows 8574/8586): the confirmed half of both
-     * [handleCloudDocumentsAction]'s and [handleCloudDocumentsBulkAction]'s REMOVE_CLOUD branch --
-     * classic's positive button did exactly this (`DocumentSyncService.start` +
-     * `applyRemoval`/`clearSelection`) regardless of single-vs-bulk, since a bulk call is just a
-     * longer [initials]; unifying the two near-copies here is what the plan's "share it" note asks.
-     */
-    private fun handleCloudDocumentsRemoveConfirmed(controller: CloudDocumentsController, initials: List<String>) {
-        DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = initials)
-        initials.forEach { controller.applyRemoval(it) }
-        controller.clearSelection()
-    }
-
-    /** Task 17 -- the PURGE counterpart of [handleCloudDocumentsRemoveConfirmed]. */
-    private fun handleCloudDocumentsPurgeConfirmed(controller: CloudDocumentsController, initials: List<String>) {
-        DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = initials)
-        initials.forEach { controller.applyPurge(it) }
-        controller.clearSelection()
-    }
-
-    /** F75 -- the confirmed half of [handleCloudDocumentsBulkAction]'s BLOCK branch (classic's direct body). */
-    private fun handleCloudDocumentsBlockConfirmed(controller: CloudDocumentsController, initials: List<String>) {
-        initials.forEach { documentSyncSettings.blockList.block(it); controller.setBlocked(it, true) }
-        controller.clearSelection()
-    }
-
-    /**
-     * Classic `showSyncNow` (`:308-324`), triggered from [CloudDocumentsOverflowMenu]'s "Sync now"
-     * row. [entry] is the OverflowMenu's own composition-time snapshot (see that composable's
-     * kdoc), not [cloudDocumentsEntry]'s current value -- this launches on `lifecycleScope` and
-     * awaits a network round trip, so a leave-and-reopen could otherwise land the resolved plan and
-     * dialog on the WRONG (second) entry's controller (fix round 2, finding A).
-     *
-     * The resolved plan is parked on THAT entry ([CloudDocumentsEntry.lastPlan]), exactly where
-     * classic parked it (a field of the one Activity that was the one entry), so it needs no
-     * cleanup of its own on any of the ways this sheet can end -- confirm, cancel, or the
-     * destination being popped with the sheet still up (task-8 fix round 4; see
-     * [cloudDocumentsEntryRef]'s kdoc for the map-shaped predecessor this replaced and why).
-     */
-    private fun cloudDocumentsShowSyncNow(entry: CloudDocumentsEntry) {
-        val controller = entry.controller
-        lifecycleScope.launch {
-            controller.pushBusy(true)
-            val plan = try {
-                withContext(Dispatchers.IO) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).computeSyncPlan(download = true, upload = true, delete = true) }
-            } catch (e: Exception) {
-                Toast.makeText(this@NavHostComposeActivity, R.string.sync_error, Toast.LENGTH_SHORT).show()
-                return@launch
-            } finally {
-                controller.pushBusy(false)
-            }
-            cloudDocumentsPresentSyncNow(entry, plan)
-        }
-    }
-
-    /**
-     * The tail of classic's `showSyncNow` (`:316-324`): park the resolved plan on the entry it was
-     * resolved FOR, label it, and put the sheet up. Split out of [cloudDocumentsShowSyncNow] so that
-     * parking decision -- the whole subject of task-8 fix round 4 -- is reachable without the IO
-     * round trip that resolves the plan; `CloudDocumentsControllerRebuildIsolationTest` drives this
-     * directly rather than writing [CloudDocumentsEntry.lastPlan] reflectively, so its "an abandoned
-     * entry pins nothing on the host" assertion is made against the REAL parking path.
-     */
-    private fun cloudDocumentsPresentSyncNow(entry: CloudDocumentsEntry, plan: SyncPlan) {
-        entry.lastPlan = plan
-        val labels = listOf(
-            getString(R.string.cloud_doc_sync_now_download) + "\n" +
-                cloudDocumentsCountLabel(plan.toDownload.size, plan.downloadBytes),
-            getString(R.string.cloud_doc_sync_now_upload) + "\n" +
-                cloudDocumentsCountLabel(plan.toUpload.size, plan.uploadBytes),
-            getString(R.string.cloud_doc_sync_now_delete) + "\n" +
-                cloudDocumentsCountLabel(plan.toUninstall.size, null),
-        )
-        val checked = listOf(
-            documentSyncSettings.syncNowDownload, documentSyncSettings.syncNowUpload, documentSyncSettings.syncNowDelete,
-        )
-        entry.controller.showSyncNow(labels, checked)
-    }
-
-    /**
-     * Classic `handleSyncNowConfirm` (`:326-337`). [entry] is the one
-     * [buildCloudDocumentsController] bound `onSyncNow` to, and the resolved plan is read (and
-     * cleared) from THAT entry's own [CloudDocumentsEntry.lastPlan], so a plan resolved for one
-     * entry can never answer another entry's confirm.
-     */
-    private fun handleCloudDocumentsSyncNowConfirm(entry: CloudDocumentsEntry, download: Boolean, upload: Boolean, delete: Boolean) {
-        val plan = entry.lastPlan ?: return
-        entry.lastPlan = null
-        documentSyncSettings.syncNowDownload = download
-        documentSyncSettings.syncNowUpload = upload
-        documentSyncSettings.syncNowDelete = delete
-        DocumentSyncService.start(
-            this,
-            pushInitials = if (upload) plan.toUpload else emptyList(),
-            downloadInitials = if (download) plan.toDownload else emptyList(),
-            uninstallInitials = if (delete) plan.toUninstall else emptyList(),
-        )
-    }
-
-    /** Classic `countLabel` (`:339-343`) -- the third/fourth of the batch's four plural call sites. */
-    private fun cloudDocumentsCountLabel(count: Int, bytes: Long?): String = when {
-        count == 0 -> getString(R.string.cloud_doc_sync_now_count_none)
-        bytes != null && bytes > 0 ->
-            resources.getQuantityString(R.plurals.cloud_doc_sync_now_count_size, count, count, Formatter.formatShortFileSize(this, bytes))
-        else -> resources.getQuantityString(R.plurals.cloud_doc_sync_now_count, count, count)
-    }
-
-    /**
-     * Classic `OverflowMenu()` (`:346-375`) -- the `topBarActions` slot, host-side because every row
-     * is host work (`R.drawable` icons, `CloudSync.signedIn`, `CommonUtils.showHelpDialog`).
-     * `AbMenuItem`, never `DropdownMenuItem`: this file is scanned by `MenuSeamGuardTest`.
-     *
-     * The [CloudDocumentsEntry] is read ONCE, as a composition-time snapshot of
-     * [cloudDocumentsEntry] -- this composable recomposes fresh for every genuine entry (it is
-     * nested inside the arm's own composition via the `topBarActions` slot), so the snapshot always
-     * names the CURRENT entry. Its `onClick` rows close over that local val, not the live property,
-     * so a tap (which can fire after the menu has been open for a moment) still targets the entry it
-     * was opened from rather than whatever the ref happens to hold at tap time (fix round 2,
-     * finding A) -- and "Sync now" parks its resolved plan on that same snapshot, so the plan cannot
-     * outlive the entry it was resolved for (fix round 4).
-     */
-    @Composable
-    private fun CloudDocumentsOverflowMenu() {
-        val entry = cloudDocumentsEntry
-        AbOverflowMenu(contentDescription = null) { close ->
-            if (cloudSync.signedIn) {
-                AbMenuItem(
-                    text = getString(R.string.cloud_doc_sync_now),
-                    onClick = { close(); cloudDocumentsShowSyncNow(entry) },
-                    icon = { Icon(painterResource(R.drawable.ic_sync_white_24dp), contentDescription = null) },
-                )
-                AbMenuItem(
-                    text = getString(R.string.cloud_doc_rescan),
-                    onClick = { close(); entry.controller.rescan() },
-                    icon = { Icon(painterResource(R.drawable.ic_baseline_refresh_24), contentDescription = null) },
-                )
-            }
-            AbMenuItem(
-                text = getString(R.string.help),
-                onClick = {
-                    close()
-                    CommonUtils.showHelpDialog(
-                        activity = this@NavHostComposeActivity,
-                        titleResId = R.string.help,
-                        messageResId = R.string.help_document_sync_text,
-                        helpUrl = DocsLinks.page("document_sync"),
-                    )
-                },
-                icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },
-            )
-        }
-    }
-
-    /** Classic's view-data flatten (`:378-385`). */
-    private fun DocumentSync.DocumentStatusItem.toCloudDocItem(): CloudDocItem = CloudDocItem(
-        initials = initials, name = name, category = category?.let { docCategoryOf(it) },
-        cloudVersion = cloudVersion, localVersion = localVersion,
-        cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable, localNewer = localNewer,
-        blocked = blocked, canDeleteLocal = canDeleteLocal, cloudDeleted = cloudDeleted,
-        sizeLabel = if (sizeBytes > 0) Formatter.formatShortFileSize(this@NavHostComposeActivity, sizeBytes) else null,
-        sizeBytes = sizeBytes.takeIf { it > 0 },
-    )
-
-    /** Classic `statusFilterLabels` (`:387-396`), `getString` only -- see [CloudDocumentsDeps.statusFilterLabels]'s kdoc. */
-    private fun cloudDocumentsStatusFilterLabels(showRemoved: Boolean): List<String> = buildList {
-        add(getString(R.string.cloud_doc_filter_all))
-        add(getString(R.string.cloud_doc_filter_installed))
-        add(getString(R.string.cloud_doc_filter_cloud))
-        add(getString(R.string.cloud_doc_filter_updates))
-        add(getString(R.string.cloud_doc_filter_blocked))
-        add(getString(R.string.cloud_doc_filter_device_only))
-        add(getString(R.string.cloud_doc_filter_cloud_only))
-        if (showRemoved) add(getString(R.string.cloud_doc_filter_removed))
-    }
-
-    /** Classic `categoryFilterLabels` (`:398-406`), `getString` only. */
-    private fun cloudDocumentsCategoryFilterLabels(): List<String> = listOf(
-        getString(R.string.doc_type_all),
-        getString(R.string.doc_type_bible),
-        getString(R.string.doc_type_commentary),
-        getString(R.string.doc_type_dictionary),
-        getString(R.string.doc_type_book),
-        getString(R.string.doc_type_map),
-        getString(R.string.doc_type_addons),
-    )
+    // --- Download cluster (DownloadHost, CloudDocumentsHost) --------------------------------------
+    // The download, custom repository, progress status and cloud documents destinations' deps, sessions, controllers
+    // and menus live in `appHosts.download` and `appHosts.cloudDocuments` (`:sharedUi`,
+    // `net.bible.sharedui.app.download`). `repositoryEditorResults` stays declared above: the channel guards read it.
 
     // --- Chooser cluster (ChooserHost) -----------------------------------------------------------
     // The five chooser destinations' deps, sessions and controllers live in `appHosts.chooser` (`:sharedUi`,
@@ -5549,35 +3990,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
+    private val documentSyncSettings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
     companion object {
         private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
         private const val TAG_BOOKMARKS = "BookmarksNavHost"
-        private const val TAG_DOWNLOAD = "DownloadNavHost"
-
-        /**
-         * Per-SCREEN arrangement preference keys, classic `DownloadComposeActivity.kt:113-114`:
-         * sorting a download list by size is a different intent from ordering the reading view's
-         * document picker, so they are deliberately NOT the chooser's keys.
-         */
-        private const val ARRANGEMENT_KEY = "download.arrangement"
-        private const val ARRANGEMENT_REMEMBER_KEY = "download.arrangement.remember"
-
-
-        /**
-         * Classic `CloudDocumentsComposeActivity`'s own key prefix (round 17e-2), reused VERBATIM
-         * (not the Download cluster's [ARRANGEMENT_KEY] pair) so a user's persisted sync-list
-         * arrangement survives while the classic Activity and this arm coexist -- both read/write
-         * the same settings key.
-         */
-        private const val CLOUD_ARRANGEMENT_KEY = "cloudDocs.arrangement"
-        private const val CLOUD_ARRANGEMENT_REMEMBER_KEY = "cloudDocs.arrangement.remember"
-
-        /** Classic's repository-staleness cache (`DownloadComposeActivity.kt:938-940`). */
-        private const val REPO_REFRESH_DATE = "repoRefreshDate"
-        private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
-        private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
-
 
         /** Host-wide concerns (onNewIntent routing), as opposed to one cluster's baggage. */
         private const val TAG_NAV_HOST = "NavHostCompose"
@@ -5651,17 +4068,3 @@ private fun Tool.toToolVd() = ToolVd(
     requiresPermission = requiresPermission,
     categoryId = category.name,
 )
-
-/**
- * Delivers every document-sync running edge to [onRunning] on [scope] until the returned stop runs.
- * `asFlow()` is loss-free: a drain that emits `true` then `false` before the collector resumes still
- * delivers both (a `StateFlow` would conflate them to nothing and skip the rescan).
- */
-internal fun subscribeToDocumentSyncRunning(
-    scope: CoroutineScope,
-    runningChanged: Events<Boolean>,
-    onRunning: (Boolean) -> Unit,
-): () -> Unit {
-    val job = scope.launch { runningChanged.asFlow().collect { onRunning(it) } }
-    return { job.cancel() }
-}

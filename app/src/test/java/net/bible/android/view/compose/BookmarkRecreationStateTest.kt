@@ -321,7 +321,7 @@ class BookmarkRecreationStateTest {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.cloudDocuments()),
         ).also { hosts += it }.create().start().resume().visible().get()
         fun cloudOrNull(host: NavHostComposeActivity): net.bible.sharedcore.cloud.CloudDocumentsController? =
-            field(host, "cloudDocumentsEntryRef")?.let { field(it, "controller") as net.bible.sharedcore.cloud.CloudDocumentsController }
+            field(host.appHosts.cloudDocuments, "cloudDocumentsEntryRef")?.let { field(it, "controller") as net.bible.sharedcore.cloud.CloudDocumentsController }
         awaitHostCondition("cloud controller built", ::advance) { cloudOrNull(activity) != null }
         val old = requireNotNull(cloudOrNull(activity))
         old.setCategoryFilter(net.bible.sharedcore.navigation.DocCategory.COMMENTARY)

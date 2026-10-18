@@ -67,6 +67,10 @@ class MenuSeamGuardTest {
         // The bookmark host: carries the label manager's and label editor's overflow menus
         // (`ManageLabelsActions`, `LabelEditActions`) since I2 Stream A Task 8 lifted them out of the nav host.
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/bookmark/BookmarkHost.kt",
+        // The download and cloud documents hosts: carry the two overflow menus (`DownloadOverflowMenu`,
+        // `CloudDocumentsOverflowMenu`) since I2 Stream A Task 13 lifted them out of the nav host.
+        "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/download/DownloadHost.kt",
+        "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/download/CloudDocumentsHost.kt",
     )
 
     /**
