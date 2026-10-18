@@ -87,7 +87,8 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
+import net.bible.sharedui.app.AppGraphs
+import net.bible.sharedui.app.AppRoot
 import androidx.navigation.compose.rememberNavController
 import java.io.File
 import java.io.FileOutputStream
@@ -280,7 +281,6 @@ import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.backup.BackupController
 import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.backup.nav.BackupNavDeps
-import net.bible.sharedui.backup.nav.backupNavGraph
 import android.Manifest
 import android.content.pm.ActivityInfo
 import androidx.core.content.ContextCompat
@@ -298,8 +298,6 @@ import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedui.installzip.nav.InstallZipNavDeps
 import net.bible.sharedui.installzip.nav.InstallZipSession
-import net.bible.sharedui.installzip.nav.installZipNavGraph
-import net.bible.sharedui.startup.nav.welcomeNavGraph
 import net.bible.android.view.activity.WelcomeFlow
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
@@ -423,7 +421,6 @@ import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.bookmark.nav.BookmarksDeps
 import net.bible.sharedui.bookmark.nav.LabelEditDeps
 import net.bible.sharedui.bookmark.nav.ManageLabelsDeps
-import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
 import net.bible.sharedui.download.nav.CloudDocumentsDeps
 import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.docCategoryOf
@@ -431,11 +428,9 @@ import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
 import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.ProgressStatusDeps
-import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.mydocuments.nav.MyDocumentPagesDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentsDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
-import net.bible.sharedui.mydocuments.nav.myDocumentsNavGraph
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
@@ -455,7 +450,6 @@ import net.bible.sharedui.readingplan.nav.LoadedReadingDay
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
 import net.bible.sharedui.readingplan.nav.ReadingPlanSelection
 import net.bible.sharedui.readingplan.nav.SelectorDeps
-import net.bible.sharedui.readingplan.nav.readingPlanNavGraph
 import net.bible.sharedui.search.nav.IndexOutcome
 import net.bible.sharedui.search.nav.EpubSearchFormDeps
 import net.bible.sharedui.search.nav.EpubSearchResultsDeps
@@ -470,7 +464,6 @@ import net.bible.sharedui.search.nav.SearchNavDeps
 import net.bible.sharedui.search.nav.SearchResultsDeps
 import net.bible.sharedui.search.nav.SearchSubmission
 import net.bible.sharedui.search.nav.TranslationSelection
-import net.bible.sharedui.search.nav.searchNavGraph
 import net.bible.sharedui.settings.nav.AppSettingsDeps
 import net.bible.sharedui.settings.nav.ReadHistoryRequest
 import net.bible.sharedui.settings.nav.ReadingProgressDeps
@@ -483,7 +476,6 @@ import net.bible.sharedui.workspaces.nav.TextDisplaySettingsNavState
 import net.bible.sharedui.workspaces.nav.TextDisplaySettingsSession
 import net.bible.sharedui.workspaces.nav.WorkspaceNavDeps
 import net.bible.sharedui.workspaces.nav.WorkspaceSelectorDeps
-import net.bible.sharedui.workspaces.nav.workspaceNavGraph
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
@@ -525,7 +517,6 @@ import net.bible.sharedui.navigation.nav.ChooseGeneralBookKeyDeps
 import net.bible.sharedui.navigation.nav.ChooseMapKeyDeps
 import net.bible.sharedui.navigation.nav.ChooserNavDeps
 import net.bible.sharedui.navigation.nav.GridChoosePassageDeps
-import net.bible.sharedui.navigation.nav.chooserNavGraph
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -4289,161 +4280,157 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         results = readingResultCollectors,
                     )
                 }
-                NavHost(
+                AppRoot(
                     navController = navController,
-                    startDestination = startRoute,
-                    // Paint an opaque themed ground BEHIND the graph. navigation-compose's default
-                    // transition is a crossfade, and while both screens are semi-transparent the
-                    // window background shows through — which on a dark or e-ink theme reads as a
-                    // flash of the wrong colour on every navigation. AMR hit exactly this.
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
-                ) {
-                    aiNavGraph(navController, deps)
-                    bookmarkNavGraph(navController, bookmarkDeps)
-                    readingPlanNavGraph(navController, readingPlanDeps)
-                    searchNavGraph(navController, searchDeps)
-                    settingsNavGraph(navController, settingsDeps)
-                    downloadNavGraph(navController, downloadDeps)
-                    myDocumentsNavGraph(navController, myDocumentsDeps)
-                    chooserNavGraph(navController, chooserDeps)
-                    workspaceNavGraph(navController, workspaceDeps)
-                    backupNavGraph(navController, backupDeps)
-                    installZipNavGraph(navController, installZipDeps)
-                    welcomeNavGraph(welcomeDeps)
-                    readingNavGraph(navController, readingNavDeps)
-                }
-                InstallZipReturnCollector()
-                // CR-5: the bookmark list's claim on a label-manager answer. Host-level, outside the
-                // NavHost, for InstallZipReturnCollector's reason: the arm that asked is disposed while
-                // the label manager is on top, and the settings arm (which shares this channel) may be
-                // the resumed destination when the answer arrives. An arm-local consume would miss it,
-                // leave it pending, and apply it stale the next time the list composed.
-                BookmarksManageLabelsCollector()
+                    startRoute = startRoute,
+                    graphs = AppGraphs(
+                        ai = deps,
+                        bookmark = bookmarkDeps,
+                        readingPlan = readingPlanDeps,
+                        search = searchDeps,
+                        settings = settingsDeps,
+                        download = downloadDeps,
+                        myDocuments = myDocumentsDeps,
+                        chooser = chooserDeps,
+                        workspace = workspaceDeps,
+                        backup = backupDeps,
+                        installZip = installZipDeps,
+                        welcome = welcomeDeps,
+                    ),
+                    readingGraph = { readingNavGraph(navController, readingNavDeps) },
+                    overlays = {
+                    InstallZipReturnCollector()
+                    // CR-5: the bookmark list's claim on a label-manager answer. Host-level, outside the
+                    // NavHost, for InstallZipReturnCollector's reason: the arm that asked is disposed while
+                    // the label manager is on top, and the settings arm (which shares this channel) may be
+                    // the resumed destination when the answer arrives. An arm-local consume would miss it,
+                    // leave it pending, and apply it stale the next time the list composed.
+                    BookmarksManageLabelsCollector()
 
-                // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
-                // lifecycleScope and outlives the destination that started it, so a chooser scoped
-                // to that destination's composition could be disposed mid-await and leave the
-                // export hanging on a deferred nobody can complete. Verbatim from classic
-                // `LabelEditComposeActivity.kt:128-153`, including the no-Cancel-row shape (round
-                // 14a G2.9): dismissing IS "chose nothing", completing with null.
-                // The label manager's help dialog and StudyPad-export multiselect, host-level for
-                // `destinationRequest`'s reason above and for one of their own: both are raised from
-                // the ManageLabels top-bar overflow, which is a `RowScope` slot inside the nav
-                // graph's top app bar — a sheet composed there would be a child of the bar's own
-                // layout.
-                //
-                // ORDER IS LOAD-BEARING, and this is the correction of a justification that used to
-                // stand here claiming the opposite. The two booleans are read UNCONDITIONALLY, with
-                // the plain-field [manageLabelsSession] looked up INSIDE each branch — never the
-                // other way round. `manageLabelsSession` is NOT snapshot state, so a scope that can
-                // only reach the booleans through a `?.let` on it registers no dependency on them
-                // whenever the field is null at the moment this lambda composes. This lambda
-                // composes ONCE per Activity (NavHost's own recompositions do not invalidate it),
-                // and when the host is launched on `bookmarks` and the user navigates to the label
-                // manager from there (`MenuCommandHandler.kt:207`), the field IS null then — so the
-                // overflow's Help and Export StudyPads items would flip a boolean nobody observes
-                // and open nothing. Reading the state first makes the subscription unconditional;
-                // the plain-field read inside is safe because it runs only when a boolean is true,
-                // and only a LIVE ManageLabels destination's overflow can make one true.
-                // `ManageLabelsOverflowSubscriptionTest` proves both halves — do not re-nest these.
-                if (manageLabelsHelpOpen) {
-                    manageLabelsSession?.second?.let { session ->
-                        ManageLabelsHelpDialog(
-                            mode = session.controller.mode,
-                            title = getString(session.data.titleId),
-                            // Classic showed this only for WORKSPACE and HIDE, the two scoped
-                            // settings (`ManageLabelsComposeActivity.kt:254-263`).
-                            scopeSentence = if (
-                                session.controller.mode == ManageLabelsMode.WORKSPACE ||
-                                session.controller.mode == ManageLabelsMode.HIDELABELS
-                            ) {
-                                getString(
-                                    R.string.setting_scope,
+                    // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
+                    // lifecycleScope and outlives the destination that started it, so a chooser scoped
+                    // to that destination's composition could be disposed mid-await and leave the
+                    // export hanging on a deferred nobody can complete. Verbatim from classic
+                    // `LabelEditComposeActivity.kt:128-153`, including the no-Cancel-row shape (round
+                    // 14a G2.9): dismissing IS "chose nothing", completing with null.
+                    // The label manager's help dialog and StudyPad-export multiselect, host-level for
+                    // `destinationRequest`'s reason above and for one of their own: both are raised from
+                    // the ManageLabels top-bar overflow, which is a `RowScope` slot inside the nav
+                    // graph's top app bar — a sheet composed there would be a child of the bar's own
+                    // layout.
+                    //
+                    // ORDER IS LOAD-BEARING, and this is the correction of a justification that used to
+                    // stand here claiming the opposite. The two booleans are read UNCONDITIONALLY, with
+                    // the plain-field [manageLabelsSession] looked up INSIDE each branch — never the
+                    // other way round. `manageLabelsSession` is NOT snapshot state, so a scope that can
+                    // only reach the booleans through a `?.let` on it registers no dependency on them
+                    // whenever the field is null at the moment this lambda composes. This lambda
+                    // composes ONCE per Activity (NavHost's own recompositions do not invalidate it),
+                    // and when the host is launched on `bookmarks` and the user navigates to the label
+                    // manager from there (`MenuCommandHandler.kt:207`), the field IS null then — so the
+                    // overflow's Help and Export StudyPads items would flip a boolean nobody observes
+                    // and open nothing. Reading the state first makes the subscription unconditional;
+                    // the plain-field read inside is safe because it runs only when a boolean is true,
+                    // and only a LIVE ManageLabels destination's overflow can make one true.
+                    // `ManageLabelsOverflowSubscriptionTest` proves both halves — do not re-nest these.
+                    if (manageLabelsHelpOpen) {
+                        manageLabelsSession?.second?.let { session ->
+                            ManageLabelsHelpDialog(
+                                mode = session.controller.mode,
+                                title = getString(session.data.titleId),
+                                // Classic showed this only for WORKSPACE and HIDE, the two scoped
+                                // settings (`ManageLabelsComposeActivity.kt:254-263`).
+                                scopeSentence = if (
+                                    session.controller.mode == ManageLabelsMode.WORKSPACE ||
+                                    session.controller.mode == ManageLabelsMode.HIDELABELS
+                                ) {
                                     getString(
-                                        if (session.data.isWindow) R.string.setting_scope_window
-                                        else R.string.setting_scope_workspace,
-                                    ),
-                                )
-                            } else null,
-                            // STUDYPAD keeps its own playlist; the other three modes use the
-                            // Labels & Bookmarks one. Don't collapse this to one URL.
-                            readMoreUrl = if (session.controller.mode == ManageLabelsMode.STUDYPAD) {
-                                studyPadsVideo
-                            } else {
-                                labelsAndBookmarksPlaylist
-                            },
-                            onDismiss = { manageLabelsHelpOpen = false },
-                        )
-                    }
-                }
-
-                // Classic `ManageLabelsComposeActivity.kt:218-248` (the export_studypads menu
-                // handler): a multiselect over every assignable label, then exportStudyPads for
-                // the chosen ones. The `manageLabelsSession != null` half keeps the old gate ("only
-                // while a label manager is live") without putting the session read in FRONT of the
-                // boolean — see the note above; `&&` short-circuits left to right, so the state is
-                // still read on every composition of this scope.
-                if (manageLabelsExportOpen && manageLabelsSession != null) {
-                    val loadedExportableLabels by produceState<List<BookmarkEntities.Label>?>(null, manageLabelsExportOpen) { value = bookmarkControl.assignableLabels() }
-                    // Not shown until the list has loaded, so it never opens with an empty option list.
-                    val exportableLabels = loadedExportableLabels
-                    if (exportableLabels != null) AbMultiSelectSheet(
-                        open = true,
-                        title = getString(R.string.export_something, getString(R.string.studypads)),
-                        options = exportableLabels,
-                        selectedIds = emptyList(),
-                        idOf = { it.id.toString() },
-                        labelOf = { it.displayName },
-                        confirmText = getString(R.string.okay),
-                        dismissText = getString(R.string.cancel),
-                        onConfirm = { ids ->
-                            manageLabelsExportOpen = false
-                            val selected = exportableLabels.filter { ids.contains(it.id.toString()) }
-                            if (selected.isNotEmpty()) {
-                                lifecycleScope.launch(Dispatchers.Main) {
-                                    exportStudyPads(
-                                        this@NavHostComposeActivity,
-                                        *selected.toTypedArray(),
-                                        chooseDestination = ::askDestination,
+                                        R.string.setting_scope,
+                                        getString(
+                                            if (session.data.isWindow) R.string.setting_scope_window
+                                            else R.string.setting_scope_workspace,
+                                        ),
                                     )
-                                }
-                            }
-                        },
-                        onDismiss = { manageLabelsExportOpen = false },
-                        selectAllText = getString(R.string.select_all),
-                        selectNoneText = getString(R.string.select_none),
-                    )
-                }
+                                } else null,
+                                // STUDYPAD keeps its own playlist; the other three modes use the
+                                // Labels & Bookmarks one. Don't collapse this to one URL.
+                                readMoreUrl = if (session.controller.mode == ManageLabelsMode.STUDYPAD) {
+                                    studyPadsVideo
+                                } else {
+                                    labelsAndBookmarksPlaylist
+                                },
+                                onDismiss = { manageLabelsHelpOpen = false },
+                            )
+                        }
+                    }
 
-                destinationRequest?.let { req ->
-                    AbActionSheet(
-                        open = true,
-                        title = getString(R.string.export_destination_title),
-                        message = getString(R.string.export_destination_message),
-                        onDismiss = { req.complete(null) },
-                    ) {
-                        AbActionSheetRow(
-                            label = getString(R.string.share),
-                            onClick = { req.complete(SaveOrShare.SHARE) },
-                            icon = { Icon(painterResource(R.drawable.ic_baseline_share_24), contentDescription = null) },
-                        )
-                        AbActionSheetRow(
-                            label = getString(R.string.backup_phone_storage),
-                            onClick = { req.complete(SaveOrShare.SAVE) },
-                            icon = { Icon(painterResource(R.drawable.ic_save_24dp), contentDescription = null) },
+                    // Classic `ManageLabelsComposeActivity.kt:218-248` (the export_studypads menu
+                    // handler): a multiselect over every assignable label, then exportStudyPads for
+                    // the chosen ones. The `manageLabelsSession != null` half keeps the old gate ("only
+                    // while a label manager is live") without putting the session read in FRONT of the
+                    // boolean — see the note above; `&&` short-circuits left to right, so the state is
+                    // still read on every composition of this scope.
+                    if (manageLabelsExportOpen && manageLabelsSession != null) {
+                        val loadedExportableLabels by produceState<List<BookmarkEntities.Label>?>(null, manageLabelsExportOpen) { value = bookmarkControl.assignableLabels() }
+                        // Not shown until the list has loaded, so it never opens with an empty option list.
+                        val exportableLabels = loadedExportableLabels
+                        if (exportableLabels != null) AbMultiSelectSheet(
+                            open = true,
+                            title = getString(R.string.export_something, getString(R.string.studypads)),
+                            options = exportableLabels,
+                            selectedIds = emptyList(),
+                            idOf = { it.id.toString() },
+                            labelOf = { it.displayName },
+                            confirmText = getString(R.string.okay),
+                            dismissText = getString(R.string.cancel),
+                            onConfirm = { ids ->
+                                manageLabelsExportOpen = false
+                                val selected = exportableLabels.filter { ids.contains(it.id.toString()) }
+                                if (selected.isNotEmpty()) {
+                                    lifecycleScope.launch(Dispatchers.Main) {
+                                        exportStudyPads(
+                                            this@NavHostComposeActivity,
+                                            *selected.toTypedArray(),
+                                            chooseDestination = ::askDestination,
+                                        )
+                                    }
+                                }
+                            },
+                            onDismiss = { manageLabelsExportOpen = false },
+                            selectAllText = getString(R.string.select_all),
+                            selectNoneText = getString(R.string.select_none),
                         )
                     }
-                }
 
-                AppDialogOverlay(
-                    onSheetOpening = {
-                        composeReadingViewHost?.closeModalOverlays()
-                        // Plan correction 11: an app-wide sheet request pre-empts a showing
-                        // import-mode choice (two modal sheets must never stack) -- see
-                        // AiPromptsDeps.onControllerLifecycle's kdoc.
-                        liveAiPromptsController?.dismissImportModeChoice()
+                    destinationRequest?.let { req ->
+                        AbActionSheet(
+                            open = true,
+                            title = getString(R.string.export_destination_title),
+                            message = getString(R.string.export_destination_message),
+                            onDismiss = { req.complete(null) },
+                        ) {
+                            AbActionSheetRow(
+                                label = getString(R.string.share),
+                                onClick = { req.complete(SaveOrShare.SHARE) },
+                                icon = { Icon(painterResource(R.drawable.ic_baseline_share_24), contentDescription = null) },
+                            )
+                            AbActionSheetRow(
+                                label = getString(R.string.backup_phone_storage),
+                                onClick = { req.complete(SaveOrShare.SAVE) },
+                                icon = { Icon(painterResource(R.drawable.ic_save_24dp), contentDescription = null) },
+                            )
+                        }
+                    }
+
+                    AppDialogOverlay(
+                        onSheetOpening = {
+                            composeReadingViewHost?.closeModalOverlays()
+                            // Plan correction 11: an app-wide sheet request pre-empts a showing
+                            // import-mode choice (two modal sheets must never stack) -- see
+                            // AiPromptsDeps.onControllerLifecycle's kdoc.
+                            liveAiPromptsController?.dismissImportModeChoice()
+                        },
+                    )
                     },
                 )
               }
