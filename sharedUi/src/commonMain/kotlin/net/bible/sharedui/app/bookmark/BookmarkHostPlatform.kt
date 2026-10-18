@@ -36,12 +36,6 @@ interface BookmarkHostPlatform {
      */
     fun openInstallZip(onResult: () -> Unit)
 
-    /** Classic's `Dialogs.showErrorMsg(R.string.error_occurred, e)`: error dialog with a report button. */
-    fun showError(e: Exception)
-
-    /** A short toast. */
-    fun toast(text: String)
-
     /** The "read more" link of the label manager's help dialog: the StudyPad playlist or the labels one. */
     fun helpReadMoreUrl(studyPad: Boolean): String
 

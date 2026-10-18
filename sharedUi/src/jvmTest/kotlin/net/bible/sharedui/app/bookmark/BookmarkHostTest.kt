@@ -47,8 +47,6 @@ class BookmarkHostTest {
         override suspend fun exportBookmarksCsv(bookmarks: List<net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes>) = Unit
         override suspend fun importBookmarksCsv() = Unit
         override fun openInstallZip(onResult: () -> Unit) = Unit
-        override fun showError(e: Exception) = Unit
-        override fun toast(text: String) = Unit
         override fun helpReadMoreUrl(studyPad: Boolean): String = "https://example.test/help"
         override fun documentsRecreation() = BookmarkDocumentsRecreation()
     }
@@ -98,6 +96,7 @@ class BookmarkHostTest {
         fakeBookFactoryProvider = { error("fakeBookFactory must stay lazy") },
         appScopeProvider = { error("appScope must stay lazy") },
         orderedLauncherProvider = { error("orderedLauncher must stay lazy") },
+        userNotifierProvider = { error("userNotifier must stay lazy") },
         restored = null,
     )
 

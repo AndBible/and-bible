@@ -32,11 +32,11 @@ import kotlinx.serialization.Serializable
  * for a shared package — stays qualified at every call site, exactly as it was when nested in the
  * activity.
  *
- * The `Json` instance is FULLY QUALIFIED on purpose. `ManageLabels.kt` both imported
- * `AppJson` and declared a same-package `val json` with different settings; the import won,
- * but relying on that resolution rule after a file move is how a payload quietly starts rejecting
- * unknown properties. Same reasoning, and the same shape, as `RepositoryData` in
- * `download/CustomRepositoryEditor.kt`.
+ * The payload is encoded and decoded with the shared `AppJson` (`net.bible.sharedcore.platform`),
+ * named explicitly in `toJSON`/`fromJSON`. The old `ManageLabels.kt` imported `AppJson` and also
+ * declared a same-package `val json` with different settings; the import won, but relying on that
+ * resolution rule is how a payload quietly starts rejecting unknown properties, so no competing
+ * `json` is declared here. Same shape as `RepositoryData` in `download/CustomRepositoryEditor.kt`.
  */
 object ManageLabelsContract {
     enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS}

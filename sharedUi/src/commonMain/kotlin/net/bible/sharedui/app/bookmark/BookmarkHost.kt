@@ -1,6 +1,7 @@
 package net.bible.sharedui.app.bookmark
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -58,6 +59,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedui.app.HostShell
@@ -74,7 +76,6 @@ import net.bible.sharedui.components.AbMultiSelectSheet
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.strings.Strings
-import androidx.compose.foundation.layout.size
 
 private const val TAG_MANAGE_LABELS = "ManageLabelsNavHost"
 private const val TAG_BOOKMARKS = "BookmarksNavHost"
@@ -163,6 +164,7 @@ class BookmarkHost(
     private val fakeBookFactoryProvider: () -> FakeBookFactory,
     private val appScopeProvider: () -> AppCoroutineScope,
     private val orderedLauncherProvider: () -> OrderedLauncher,
+    private val userNotifierProvider: () -> UserNotifier,
     restored: BookmarkRecreationState?,
 ) {
     private val appSettings: AppSettings by lazy(appSettingsProvider)
@@ -175,6 +177,7 @@ class BookmarkHost(
     private val fakeBookFactory: FakeBookFactory by lazy(fakeBookFactoryProvider)
     private val appScope: AppCoroutineScope by lazy(appScopeProvider)
     private val orderedLauncher: OrderedLauncher by lazy(orderedLauncherProvider)
+    private val userNotifier: UserNotifier by lazy(userNotifierProvider)
 
     /** Set by [navDeps]: the host's controller and the activity-declared channels the baggage delivers into. */
     private var navController: NavHostController? = null
@@ -444,7 +447,7 @@ class BookmarkHost(
             }
         } catch (e: Exception) {
             Log.e(TAG_BOOKMARKS, "Error on bookmarkSelected", e)
-            platform.toast(strings.errorOccurred)
+            userNotifier.showInfo(strings.errorOccurred)
             null
         }
     }
@@ -584,11 +587,11 @@ class BookmarkHost(
      * ([deliverManageLabelsResult]), so a later entry with a different payload — or a re-entry after
      * this one has finished — is seeded afresh rather than resuming a stale working set.
      */
-    var manageLabelsSession: Pair<String, ManageLabelsSession>? = null
+    internal var manageLabelsSession: Pair<String, ManageLabelsSession>? = null
 
     /** Raised from the ManageLabels overflow; rendered host-level in [Overlays]. */
-    var manageLabelsHelpOpen by mutableStateOf(false)
-    var manageLabelsExportOpen by mutableStateOf(false)
+    internal var manageLabelsHelpOpen by mutableStateOf(false)
+    internal var manageLabelsExportOpen by mutableStateOf(false)
 
     private fun manageLabelsControllerFor(
         data: String,
@@ -813,7 +816,7 @@ class BookmarkHost(
             )
         } catch (e: Exception) {
             Log.e(TAG_MANAGE_LABELS, "Error on attempt to show journal", e)
-            platform.showError(e)
+            userNotifier.showError(strings.errorOccurred, e)
         }
         saveManageLabelsAndExit(session, onResult)
     }
@@ -1025,7 +1028,7 @@ class BookmarkHost(
      * classic `LabelEditComposeActivity.kt:89-95`, including the `finally` that clears the field and
      * so closes the sheet.
      */
-    var destinationRequest: CompletableDeferred<SaveOrShare?>? by mutableStateOf(null)
+    internal var destinationRequest: CompletableDeferred<SaveOrShare?>? by mutableStateOf(null)
 
     /**
      * Asks "save or share?" through the host-level sheet in [Overlays]. Also the chooser of the My Documents page

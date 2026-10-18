@@ -1,10 +1,7 @@
 package net.bible.android.view.activity.nav.ports
 
-import android.widget.Toast
-import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.bookmark.BookmarkCsvFlow
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.nav.subscribeToBookmarkSync
@@ -33,12 +30,6 @@ class AndroidBookmarkHostPlatform(private val activity: NavHostComposeActivity) 
 
     override fun openInstallZip(onResult: () -> Unit) {
         activity.openInstallZip { onResult() }
-    }
-
-    override fun showError(e: Exception) = Dialogs.showErrorMsg(R.string.error_occurred, e)
-
-    override fun toast(text: String) {
-        Toast.makeText(activity, text, Toast.LENGTH_SHORT).show()
     }
 
     override fun helpReadMoreUrl(studyPad: Boolean): String =

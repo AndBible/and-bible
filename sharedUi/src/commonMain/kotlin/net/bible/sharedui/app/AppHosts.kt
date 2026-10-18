@@ -17,6 +17,7 @@ import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.history.HistoryManager
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
+import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.bookmark.LabelEditService
@@ -44,6 +45,8 @@ import net.bible.sharedui.app.workspace.WorkspaceHost
 import net.bible.sharedui.strings.Strings
 import org.koin.core.Koin
 import org.koin.core.parameter.parametersOf
+
+private const val TAG = "AppHosts"
 
 /**
  * Serializable snapshot of the host-held state that must survive `recreate()` and process death.
@@ -174,6 +177,7 @@ class AppHosts(
             fakeBookFactoryProvider = { koin.get<FakeBookFactory>() },
             appScopeProvider = { koin.get<AppCoroutineScope>() },
             orderedLauncherProvider = { koin.get<OrderedLauncher>() },
+            userNotifierProvider = { koin.get<UserNotifier>() },
             restored = current.bookmarks,
         )
     }
@@ -211,7 +215,12 @@ class AppHosts(
      */
     fun saveState(): AppHostsState {
         if (bookmarkLazy.isInitialized()) {
-            current = current.copy(bookmarks = bookmark.recreationSnapshot().takeUnless { it == BookmarkRecreationState() })
+            // Per host: one throwing snapshot must not drop the state of the other hosts.
+            val bookmarks = runCatching {
+                bookmark.recreationSnapshot().takeUnless { it == BookmarkRecreationState() }
+            }.onFailure { Log.e(TAG, "Saving the bookmark host state failed", it) }
+                .getOrDefault(current.bookmarks)
+            current = current.copy(bookmarks = bookmarks)
         }
         return current
     }

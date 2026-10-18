@@ -43,8 +43,8 @@ import org.robolectric.annotation.GraphicsMode
 
 /**
  * The label manager's overflow dialogs (Help, Export StudyPads) are raised from a `RowScope` slot
- * inside the nav graph's top app bar but COMPOSED at host level, in `NavHostComposeActivity`'s
- * `setContent` body, outside the `NavHost`. Whether they can appear at all is therefore a question
+ * inside the nav graph's top app bar but COMPOSED at host level, in `BookmarkHost.Overlays()`
+ * (reached from `NavHostComposeActivity`'s `setContent` body), outside the `NavHost`. Whether they can appear at all is therefore a question
  * about which scope is subscribed to which state — and the batch that made `ManageLabels` a CHILD of
  * `Bookmarks` broke that subscription without any test noticing.
  *

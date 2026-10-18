@@ -53,6 +53,7 @@ class WorkspaceHostTest {
 
     private val strings: Strings = iosStrings("en")
     private var picks = 0
+    private var pickerResult: String? = null
     private val imagePicker = object : ImagePicker {
         override suspend fun pickImage(): String? { picks++; return "content://photo/1" }
     }
@@ -79,7 +80,7 @@ class WorkspaceHostTest {
         override fun loadColors(scope: SettingsScope) = colors
         override fun loadBackgroundOptions(): List<BackgroundImageOption> = emptyList()
         override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
-            picker()
+            pickerResult = picker()
             return null
         }
     }
@@ -114,6 +115,7 @@ class WorkspaceHostTest {
         controller.onImportBackgroundImage()
         advanceUntilIdle()
         assertEquals(1, picks)
+        assertEquals("content://photo/1", pickerResult)
     }
 
     @Test
