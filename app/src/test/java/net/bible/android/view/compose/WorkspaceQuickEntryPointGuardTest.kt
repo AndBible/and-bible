@@ -149,10 +149,11 @@ class WorkspaceQuickEntryPointGuardTest {
     @Test fun theScanFoundAtLeastTheKnownSites() {
         val sites = findLaunchSites()
         // Anti-vacuity: 2 known sites — 1 excluded (the ReadingNavigator fallback launch, which is
-        // also what the sheet's footer row now calls) + 1 guarded (the (i) overflow menu item). Lowered
-        // from 3 in I2 phase 2 R1 Task 7: the footer's inline launch moved from the host into
-        // `AndroidReadingNavigator.openWorkspaceSelector`, so it is the same site as the Ctrl+W fallback. Lowered from 5 in slice 8 F3: the two classic-only sites
-        // went with MainBibleActivity. A count below this means the search pattern stopped matching
+        // also what the sheet's footer row now calls) + 1 guarded (the (i) overflow menu item).
+        // Lowered from 3 in I2 phase 2 R1 Task 7: the footer's inline launch moved from the host
+        // into `AndroidReadingNavigator.openWorkspaceSelector`, so it is the same site as the
+        // Ctrl+W fallback. Lowered from 5 in slice 8 F3: the two classic-only sites went with
+        // MainBibleActivity. A count below this means the search pattern stopped matching
         // real source, not that sites were legitimately removed — if sites are ever legitimately
         // removed, lower this number deliberately and explain why in this comment.
         assertTrue(
