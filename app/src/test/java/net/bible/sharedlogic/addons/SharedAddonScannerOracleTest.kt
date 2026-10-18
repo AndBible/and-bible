@@ -82,11 +82,15 @@ class SharedAddonScannerOracleTest {
             book("B", "b", plans = listOf("three.properties"), dateBased = "yes"),
             book("C", "c", plans = listOf("one.properties")), // overrides A's "one"
             book("D", "d"),
+            book("E", "e", plans = listOf("lower.properties"), dateBased = "true"),
+            book("F", "f", plans = listOf("upper.properties"), dateBased = "TRUE"),
+            book("G", "g", plans = listOf("/abs.properties", "/dir/abs2.properties")), // Android drops the leading '/'
         )
         inject(books)
         val android = AndBibleAddons.providedReadingPlans
         val shared = SharedAddonScanner({ books }).readingPlans()
-        assertEquals(setOf("one", "two.v2", "three"), android.keys)
+        assertEquals(setOf("one", "two.v2", "three", "lower", "upper", "abs", "abs2"), android.keys)
+        assertTrue(android.getValue("lower").isDateBased && android.getValue("upper").isDateBased)
         assertEquals(android.keys, shared.keys)
         for ((code, a) in android) {
             val s = shared.getValue(code)
@@ -105,11 +109,12 @@ class SharedAddonScannerOracleTest {
             book("B", "b", prompts = "deep/dir/p.csv"),
             book("Missing", "m", prompts = "gone.csv", createPrompts = false),
             book("None", "n"),
+            book("Abs", "x", prompts = "/lead.csv"), // Android drops the leading '/'
         )
         inject(books)
         val android = AndBibleAddons.providedPromptPacks.map { it.moduleName to it.file.path }
         val shared = SharedAddonScanner({ books }).promptPacks().map { it.moduleName to it.path }
-        assertEquals(listOf("A", "B"), android.map { it.first })
+        assertEquals(listOf("A", "B", "Abs"), android.map { it.first })
         assertEquals(android, shared)
     }
 }

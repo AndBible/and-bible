@@ -33,9 +33,12 @@ import platform.UniformTypeIdentifiers.UTType
  * [displayName] is the last path component, [mimeType] the preferred MIME type of the extension (null when unknown).
  */
 class IosContentSource(private val files: FileSystem = FileSystem.SYSTEM) : ContentSource {
-    private fun fileUrl(uri: String): NSURL? = if (uri.startsWith("file:")) NSURL.URLWithString(uri) else null
+    private fun fileUrl(uri: String): NSURL? =
+        if (!uri.startsWith("file:")) null
+        // A file URI with unescaped characters (spaces) does not parse as a URL: take what follows "file://" as a raw path.
+        else NSURL.URLWithString(uri) ?: NSURL.fileURLWithPath(uri.removePrefix("file://"))
 
-    private fun pathOf(uri: String): Path? = (fileUrl(uri)?.path ?: uri.takeUnless { it.startsWith("file:") })?.toPath()
+    private fun pathOf(uri: String): Path? = (if (uri.startsWith("file:")) fileUrl(uri)?.path else uri)?.toPath()
 
     override fun openSource(uri: String): Source? {
         val path = pathOf(uri) ?: return null

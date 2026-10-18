@@ -38,6 +38,11 @@ class HtmlToXhtmlTest {
         assertEquals("a b — … ä", HtmlToXhtml.toXhtml("a&nbsp;b &mdash; &hellip; &auml;"))
     }
 
+    @Test fun everyHtml4EntityIsResolvedNotJustCommonOnes() {
+        // Expected characters written as code points by hand (Latin-1 capital E acute, Greek alpha, ...).
+        assertEquals("\u00C9 \u03B1 \u00F1 \u00E7 \u00F8 \u03A9 \u2014 \u00A9 \u2026", HtmlToXhtml.toXhtml("&Eacute; &alpha; &ntilde; &ccedil; &oslash; &Omega; &mdash; &copy; &hellip;"))
+    }
+
     @Test fun unknownNamedEntityIsEscapedSoTheResultStaysWellFormed() {
         val out = HtmlToXhtml.toXhtml("<p>&bogus; &nbsp;</p>")
         assertEquals("<p>&amp;bogus;  </p>", out)

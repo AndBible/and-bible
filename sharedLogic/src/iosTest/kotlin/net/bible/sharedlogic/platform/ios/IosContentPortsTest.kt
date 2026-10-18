@@ -7,6 +7,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
+import androidx.sqlite.SQLiteException
+import androidx.sqlite.execSQL
+import net.bible.service.db.openSqlite
+import net.bible.service.db.queryRows
 import net.bible.android.control.speak.PERSIST_SETTINGS
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.IosDeviceSettings
@@ -27,6 +32,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -80,6 +86,14 @@ class IosContentPortsTest {
             assertContentEquals(byteArrayOf(1, 2, 3), source.openSource(uri)!!.buffer().use { it.readByteArray() }, uri)
             assertEquals("my file.json", source.displayName(uri), uri)
         }
+    }
+
+    @Test fun contentSourceAcceptsAFileUriWithUnescapedSpaces() {
+        val file = tmp / "un escaped.txt"
+        fs.write(file) { writeUtf8("hi") }
+        val uri = "file://$file" // a space makes NSURL.URLWithString return null
+        assertEquals("hi", IosContentSource().openSource(uri)!!.buffer().use { it.readUtf8() })
+        assertEquals("un escaped.txt", IosContentSource().displayName(uri))
     }
 
     @Test fun contentSourceMissingFileGivesNullSource() {
@@ -187,9 +201,12 @@ class IosContentPortsTest {
         val a = fakeAddonBook("A", "/a")
         f.gate.complete(Unit)
         f.scheduler.enqueue(a)
-        f.await { f.builtNow().size == 1 }
-        // The first request may still be winding down; enqueue is ignored until it is done, then accepted again.
-        f.await { f.scheduler.enqueue(a); f.builtNow().size >= 2 }
+        f.scheduler.enqueue(fakeAddonBook("B", "/b"))
+        // The queue is FIFO under one mutex: when B has been built, A's whole run (bookkeeping included) is over.
+        f.await { f.builtNow().size == 2 }
+        f.scheduler.enqueue(a)
+        f.await { f.builtNow().size == 3 }
+        assertEquals(listOf("A", "B", "A"), f.builtNow())
     }
 
     @Test fun schedulerUnderExpiredBackgroundTimeCancelsTheJobAndLeavesUndone() {
@@ -208,7 +225,25 @@ class IosContentPortsTest {
 
     // --- edges (the DAO-backed edges are exercised by the Task 9 acceptance test)
 
-    @Test fun firstLoadEdgeReturnsTheBodyResult() {
-        assertEquals(7, IosFirstLoadEdge.awaitFirstLoad { 3 + 4 })
+    @Test fun firstLoadEdgeBlocksUntilASuspendingBodyFinishesAndPropagatesFailures() {
+        assertEquals("done", IosFirstLoadEdge.awaitFirstLoad { delay(20); yield(); "done" })
+        assertFailsWith<IllegalStateException> { IosFirstLoadEdge.awaitFirstLoad<Unit> { delay(5); error("boom") } }
+    }
+
+    // --- IosReadOnlyModuleDbOpener
+
+    @Test fun readOnlyOpenerOpensAValidDatabaseReadOnly() {
+        val path = tmp / "module.sqlite"
+        openSqlite(path.toString()).use { it.execSQL("CREATE TABLE t(a INTEGER)"); it.execSQL("INSERT INTO t VALUES (42)") }
+        IosReadOnlyModuleDbOpener().open(path).use { db ->
+            assertEquals(listOf(42L), db.queryRows("SELECT a FROM t") { it.getLong(0) })
+            assertFailsWith<SQLiteException> { db.execSQL("INSERT INTO t VALUES (1)") } // read-only
+        }
+    }
+
+    @Test fun readOnlyOpenerThrowsSqliteExceptionForANonDatabaseFile() {
+        val path = tmp / "junk.sqlite"
+        fs.write(path) { writeUtf8("this is definitely not a sqlite database file, just text".repeat(20)) }
+        assertFailsWith<SQLiteException> { IosReadOnlyModuleDbOpener().open(path) }
     }
 }

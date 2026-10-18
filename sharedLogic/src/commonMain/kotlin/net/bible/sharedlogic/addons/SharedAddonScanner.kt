@@ -57,6 +57,9 @@ class SharedAddonScanner(
 
     private fun Book.base(): Path? = bookMetaData.location?.getPath()?.toPath()
 
+    /** `File(parent, child)` on Android drops leading separators of a relative-looking child; do the same. */
+    private fun Path.child(name: String): Path = this / name.trimStart('/')
+
     fun readingPlans(): Map<String, AddonReadingPlan> {
         val byCode = LinkedHashMap<String, AddonReadingPlan>()
         for (book in addons) {
@@ -64,7 +67,7 @@ class SharedAddonScanner(
             val base = book.base() ?: continue
             val dateBased = book.bookMetaData.getProperty("AndBibleReadingPlanDateBased")?.equals("True", ignoreCase = true) == true
             for (fileName in values) {
-                val path = base / fileName
+                val path = base.child(fileName)
                 byCode[path.name.substringBeforeLast('.', path.name)] = AddonReadingPlan(book, fileName, dateBased, path)
             }
         }
@@ -75,7 +78,7 @@ class SharedAddonScanner(
         val packs = mutableListOf<PromptPackRef>()
         for (book in addons) {
             val csvPath = book.bookMetaData.getProperty("AndBibleProvidesPrompts") ?: continue
-            val file = (book.base() ?: continue) / csvPath
+            val file = (book.base() ?: continue).child(csvPath)
             if (files.metadataOrNull(file)?.isRegularFile == true) {
                 packs.add(PromptPackRef(book.initials, file.toString()))
             } else {
@@ -88,15 +91,15 @@ class SharedAddonScanner(
 
 /**
  * [AddonCatalog] over a [SharedAddonScanner]. [clearCaches] drops the scanner cache and then fires
- * [SharedPromptPackSource.reloaded] when a [promptPacks] source is given.
+ * [promptPacks]`.reloaded`, as `AndBibleAddons.clearCaches` always does (hence not optional).
  */
 class SharedAddonCatalog(
     private val scanner: SharedAddonScanner,
-    private val promptPacks: SharedPromptPackSource? = null,
+    private val promptPacks: SharedPromptPackSource,
 ) : AddonCatalog {
     override fun clearCaches() {
         scanner.clearCaches()
-        promptPacks?.notifyReloaded()
+        promptPacks.notifyReloaded()
     }
 
     override val readingPlans: Map<String, AddonReadingPlan> get() = scanner.readingPlans()

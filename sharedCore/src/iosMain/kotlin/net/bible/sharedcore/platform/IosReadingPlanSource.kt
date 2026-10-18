@@ -25,7 +25,7 @@ import platform.Foundation.NSBundle
 /**
  * The reading plans bundled with the app, read from [bundleDir] (the app bundle's `readingplan` folder, filled by
  * the Xcode project step from `app/src/main/assets/readingplan`; the folder name is `SharedConstants.READINGPLAN_DIR_NAME`).
- * Same contract as `AndroidReadingPlanSource`: codes are the `*.properties` file names without the suffix and the
+ * Same contract as `AndroidReadingPlanSource` (which uses `replace`, equal for real file names): codes are the `*.properties` file names without the suffix and the
  * text is the file's bytes decoded as ISO-8859-1.
  */
 class IosReadingPlanSource(
@@ -35,7 +35,7 @@ class IosReadingPlanSource(
     override fun builtInPlanCodes(): List<String> =
         try {
             files.list(bundleDir.toPath()).map { it.name }.filter { it.endsWith(DOT_PROPERTIES) }.sorted()
-                .map { it.replace(DOT_PROPERTIES, "") }
+                .map { it.removeSuffix(DOT_PROPERTIES) }
         } catch (e: IOException) {
             emptyList()
         }

@@ -26,21 +26,16 @@ import net.bible.android.database.StyleSheet
 import net.bible.android.database.mydocument.MyDocumentDao
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.database.mydocument.MyDocumentPageWithContent
-import net.bible.service.db.isInDbTransactionOnThread
 import net.bible.sharedlogic.platform.EpubStoreEdge
 import net.bible.sharedlogic.platform.FirstLoadEdge
 import net.bible.sharedlogic.platform.MyDocumentStoreEdge
 
-/** Thrown when an edge bridge is called inside a database transaction (a nested `runBlocking` would wait forever). */
-class IosBlockingDbInTransaction : IllegalStateException(
-    "blocking edge called inside a database transaction: make the caller suspend instead.",
-)
-
-/** The Native twin of `blockingAtEdge`: refused inside a marked transaction, otherwise `runBlocking`. */
-private fun <T> blockingEdge(block: suspend () -> T): T {
-    if (isInDbTransactionOnThread()) throw IosBlockingDbInTransaction()
-    return runBlocking { block() }
-}
+/**
+ * The Native twin of `blockingAtEdge`. Unlike Android there is no transaction guard: `isInDbTransactionOnThread()`
+ * is constant false on iOS (`DbTransactionMarker.ios.kt`), so the Android check would be dead code. A bridge called
+ * from inside a Room transaction would therefore deadlock instead of failing fast; callers must not do that.
+ */
+private fun <T> blockingEdge(block: suspend () -> T): T = runBlocking { block() }
 
 /** iOS [FirstLoadEdge]: same contract as `AndroidFirstLoadEdge`, bridged with `runBlocking`. */
 object IosFirstLoadEdge : FirstLoadEdge {
