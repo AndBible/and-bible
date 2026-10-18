@@ -129,7 +129,7 @@ class IosAppConfig(
     val uiLanguage: String? = null,
     val repositories: org.crosswire.common.util.PropertyMap? = null,
     /** TESTS ONLY: replaces the Keychain-backed store (an unsigned simulator test binary cannot reach the keychain). */
-    val secretStore: net.bible.sharedcore.platform.secrets.SecretStore? = null,
+    internal val secretStore: net.bible.sharedcore.platform.secrets.SecretStore? = null,
 ) {
     companion object {
         const val DOCUMENTS_DIR = "Documents"

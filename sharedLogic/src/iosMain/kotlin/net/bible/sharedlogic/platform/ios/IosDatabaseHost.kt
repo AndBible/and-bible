@@ -27,6 +27,8 @@ import net.bible.sharedcore.platform.IosAppEnvironment
 import net.bible.sharedcore.settings.store.SettingsStore
 import okio.FileSystem
 import okio.Path.Companion.toPath
+import org.koin.core.error.InstanceCreationException
+import org.koin.core.error.NoDefinitionFoundException
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
@@ -86,14 +88,22 @@ class IosDatabaseHost(
 
     /**
      * The pre-upgrade safety backup. `BackupControl` is resolved from Koin, and phase 1 does not bind every port it
-     * needs (Stream D's sync ports), so it may be unresolvable; that must not stop the databases from opening (a fresh
-     * install has nothing to back up). A failure is logged and the backup skipped.
+     * needs (Stream D's sync ports), so it may be unresolvable; only THAT (a Koin resolution failure) skips the
+     * backup, with a warning (a fresh install has nothing to back up). A failure of `zipDatabaseFiles()` itself is
+     * NOT swallowed: a migration must not run without its safety backup (the container's own rule on Android), so
+     * the I/O error propagates and `openDatabases` reports it.
      */
-    override fun zipDatabaseFilesForUpgradeBackup(): String? = try {
-        KoinPlatform.getKoinOrNull()?.getOrNull<BackupControl>()?.zipDatabaseFiles()?.toString()
-    } catch (e: Exception) {
-        Log.w(TAG, "Upgrade backup skipped: BackupControl is not available", e)
-        null
+    override fun zipDatabaseFilesForUpgradeBackup(): String? {
+        val backup = try {
+            KoinPlatform.getKoinOrNull()?.getOrNull<BackupControl>()
+        } catch (e: NoDefinitionFoundException) {
+            Log.w(TAG, "Upgrade backup skipped: BackupControl is not available", e)
+            null
+        } catch (e: InstanceCreationException) {
+            Log.w(TAG, "Upgrade backup skipped: BackupControl cannot be created", e)
+            null
+        }
+        return backup?.zipDatabaseFiles()?.toString()
     }
 
     override val databaseBackupSuffix: String get() = DATABASE_BACKUP_SUFFIX

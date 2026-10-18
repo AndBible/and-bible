@@ -21,6 +21,8 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import net.bible.service.db.DatabaseContainer
@@ -137,15 +139,23 @@ object IosAppStartup {
     private val shownErrors = HashMap<String, Long>()
     private val errorLock = NSRecursiveLock()
 
+    private val openLock = Mutex()
+
     @kotlin.concurrent.Volatile
     private var opened = false
+
+    /** Test seam: how many times the JSword error hook ran (once per registered listener per event, before de-duplication). */
+    @kotlin.concurrent.Volatile
+    internal var errorHookCalls = 0
+        private set
 
     /** True once [openDatabases] finished; `DatabaseAppSettings` answers defaults before that. */
     val databasesOpen: Boolean get() = opened
 
     /**
-     * Environment + Koin; never touches the databases. Idempotent: a second call reuses the first call's [config]
-     * (the argument is ignored), and `SharedAppStartup.start` itself starts Koin and the error listener once.
+     * Environment + Koin; never touches the databases. MAIN THREAD ONLY (it is not thread-safe). Idempotent: a repeated
+     * call reuses the first call's [config] and [extraModules]; different arguments are IGNORED. `SharedAppStartup.start`
+     * itself starts Koin and the JSword error listener once.
      */
     fun start(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
         val existing = parts
@@ -170,7 +180,8 @@ object IosAppStartup {
      * first screen. On failure the databases stay closed (`databasesOpen` false, `ready` off) and the error
      * propagates for the startup state to show.
      */
-    suspend fun openDatabases() {
+    suspend fun openDatabases() = openLock.withLock {
+        if (opened) return@withLock // a repeated or concurrent call after success must not touch `ready` again
         withContext(Dispatchers.IO) {
             DatabaseContainer.ready = true
             try {
@@ -185,6 +196,7 @@ object IosAppStartup {
 
     /** Shows a JSword error once per five minutes per message, as Android's `reportJSwordError` does. */
     private fun reportJSwordError(p: IosPlatformParts, ev: ReporterEvent) {
+        errorHookCalls++
         val message = when {
             !ev.message.isNullOrEmpty() -> ev.message!!
             !ev.exception?.message.isNullOrEmpty() -> p.strings.fmt("error_occurred_with_link", ev.exception?.message)
@@ -222,6 +234,7 @@ object IosAppStartup {
         runCatching { parts?.environment?.close() }.onFailure { Log.w(TAG, "environment close failed", it) }
         parts = null
         opened = false
+        errorHookCalls = 0
         errorLock.lock()
         try { shownErrors.clear() } finally { errorLock.unlock() }
     }

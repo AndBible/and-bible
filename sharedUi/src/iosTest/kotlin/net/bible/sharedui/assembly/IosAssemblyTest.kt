@@ -172,12 +172,41 @@ class IosAssemblyTest {
         assertTrue(koin === KoinPlatform.getKoin(), "a second start must not start a second Koin")
         assertTrue(environment === KoinPlatform.getKoin().get<AppEnvironment>())
 
-        // One JSword error listener: one report shows exactly one dialog.
+        // One JSword error listener. The hook de-duplicates per message, so the dialog count cannot show a second
+        // listener; the hook's own call counter does: every registered listener calls it once per event.
         val dialogs = koin.get<AppDialogController>()
         Reporter.informUser(this, "assembly test error")
+        assertEquals(1, IosAppStartup.errorHookCalls, "two JSword error listeners are registered")
         val first = assertNotNull(dialogs.pending.value, "the error was not reported to the user")
         dialogs.dismiss(first.id)
-        assertNull(dialogs.pending.value, "the error was reported twice: two listeners are registered")
+        assertNull(dialogs.pending.value, "one error must show one dialog")
+    }
+
+    @Test
+    fun openDatabasesTwiceKeepsTheSameOpenContainer() {
+        startWithDoubles()
+        openDatabasesDiagnosing()
+        val container = DatabaseContainer.instance
+        openDatabasesDiagnosing() // a repeated call is a no-op
+        assertTrue(DatabaseContainer.ready)
+        assertTrue(container === DatabaseContainer.instance, "the second call replaced the container")
+    }
+
+    @Test
+    fun aFailedOpenLeavesTheDatabasesClosedAndCanBeRetried() {
+        startWithDoubles()
+        // An unusable database location: a regular file where the databases directory must be.
+        files.createDirectories(databaseDir.parent!!)
+        files.write(databaseDir) { writeUtf8("not a directory") }
+        val failure = runCatching { runBlocking { IosAppStartup.openDatabases() } }.exceptionOrNull()
+        assertNotNull(failure, "opening with an unusable database location must fail")
+        assertFalse(IosAppStartup.databasesOpen)
+        assertFalse(DatabaseContainer.ready, "a failed open must not leave the databases marked ready")
+
+        files.delete(databaseDir)
+        openDatabasesDiagnosing() // the retry succeeds
+        assertTrue(IosAppStartup.databasesOpen)
+        for (name in ALL_DB_FILENAMES) assertTrue(files.exists(databaseDir / name), "$name missing after the retry")
     }
 
     @Test
@@ -190,26 +219,30 @@ class IosAssemblyTest {
 
         var reloaded = 0
         val subscription = koin.get<PromptPackSource>().reloaded.subscribe { reloaded++ }
+        val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+        // Bounded wait for a condition on the backup database (the watcher writes on the app scope, in order).
+        fun awaitRow(present: Boolean) = runBlocking {
+            var waited = 0
+            var row = dao.getBook(book.initials)
+            while ((row != null) != present && waited < 10_000) { delay(100); waited += 100; row = dao.getBook(book.initials) }
+            row
+        }
         try {
             // The watcher clears the add-on catalog on every install/uninstall, and the catalog tells PromptPackSource.
             Books.installed().removeBook(book)
             assertTrue(reloaded >= 1, "removing a book did not reach the watcher (it was not started)")
+            // A row that existed before (a start-up scan) must be gone, so the row below provably comes from the add.
+            assertNull(awaitRow(present = false), "the watcher did not remove ${book.initials} from the backup database")
             Books.installed().addBook(book)
             assertTrue(reloaded >= 2, "adding a book did not reach the watcher")
-            // ... and records the book in the document backup database, in order, on the app scope.
-            val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-            val row = runBlocking {
-                var found = dao.getBook(book.initials)
-                var waited = 0
-                while (found == null && waited < 10_000) { delay(100); waited += 100; found = dao.getBook(book.initials) }
-                found
-            }
-            val info = assertNotNull(row, "the watcher did not record ${book.initials} in the backup database")
+            val info = assertNotNull(awaitRow(present = true), "the watcher did not record ${book.initials} in the backup database")
             assertEquals(book.initials, info.initials)
             assertEquals(book.name, info.name)
             assertEquals(book.abbreviation, info.abbreviation)
         } finally {
             subscription.cancel()
+            // Books is process-wide: never leave the module removed for the tests that follow.
+            if (Books.installed().getBook(book.initials) == null) Books.installed().addBook(book)
         }
     }
 
@@ -299,6 +332,12 @@ class IosAssemblyTest {
 
         /** One sandbox for the whole class, created (with the module fixture) on first use. */
         val sharedRoot: Path by lazy {
+            // Remove the sandboxes of earlier runs so the simulator's tmp does not accumulate.
+            val tmp = NSTemporaryDirectory().trimEnd('/').toPath()
+            runCatching {
+                FileSystem.SYSTEM.list(tmp).filter { it.name.startsWith("andbible-assembly-") }
+                    .forEach { FileSystem.SYSTEM.deleteRecursively(it) }
+            }
             val root = (NSTemporaryDirectory().trimEnd('/') + "/andbible-assembly-" + NSUUID().UUIDString).toPath()
             val sword = root / IosAppConfig.DOCUMENTS_DIR / "sword"
             StartupFixture.files.forEach { (name, bytes) ->
