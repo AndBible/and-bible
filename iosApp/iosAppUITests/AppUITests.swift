@@ -2,9 +2,9 @@ import XCTest
 
 /// Real-app flows (I2 phase 2 join): fresh install -> Welcome -> Easy start download -> reading; relaunch; iPad.
 /// Uses the debug-only launch arguments `-resetData` (fresh install) and `-openRef <osisRef>` (see
-/// `IosDebugLaunchArgs.kt`). The tests run in definition order within the class (XCTest sorts alphabetically:
-/// testFreshInstall..., testIpad..., testRelaunch...), and `testRelaunchReopensWorkspace` needs the data the first
-/// one left; it skips when there is none.
+/// `IosDebugLaunchArgs.kt`). XCTest runs the tests alphabetically: testFreshInstall..., testIpad..., testRelaunch....
+/// `testRelaunchReopensWorkspace` needs the data the Fresh test left; on iPhone the iPad test is skipped (no wipe) so
+/// the order works; on iPad the iPad test wipes the data first and the Relaunch test skips (no installed data).
 final class AppUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
@@ -31,6 +31,16 @@ final class AppUITests: XCTestCase {
         let a = XCTAttachment(string: app.debugDescription); a.name = "tree-\(step)"; a.lifetime = .keepAlways; add(a)
     }
 
+    /// The first download asks 'Do you want to proceed to download documents?' (the persecuted-country warning, same
+    /// as Android). Taps the exact 'Yes' button (not 'Yes, do not ask again'); tolerates the dialog not appearing.
+    private func confirmDownloadIfAsked(_ app: XCUIApplication) {
+        let yes = app.buttons.matching(NSPredicate(format: "label == 'Yes'")).firstMatch
+        if yes.waitForExistence(timeout: 15) {
+            shot(app, "download-confirmation")
+            yes.tap()
+        }
+    }
+
     func testFreshInstallEasyStartReadsJohn3() {
         let app = launch(["-resetData", "-openRef", "John.3.16"])
         let welcome = element(app, "welcome-screen")
@@ -40,6 +50,7 @@ final class AppUITests: XCTestCase {
         if !easy.waitForExistence(timeout: 10) { attachTree(app, "welcome-no-easy-start") }
         XCTAssertTrue(easy.exists, "welcome-easy-start not exposed as an accessibility identifier")
         easy.tap()
+        confirmDownloadIfAsked(app)
 
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 180), "reading host not shown within 180 s")
         let verse = app.webViews.staticTexts
