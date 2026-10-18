@@ -48,10 +48,24 @@ Results land in `.local/mac/<container>/`: `native-tests/<module>/test-results/â
 - Steps longer than a few minutes (`native-tests`, `xcode-test`, `xcode-build`, cold Gradle): Bash
   `run_in_background: true` with output redirected to a file, then wait for the completion
   notification. Do not poll, do not sleep. Shorter steps: foreground with `timeout: 600000`.
-- The Mac runs one build at a time (a lock in `~/work/.build-lock`, shared by every container);
-  a second call waits for it. `unlock` only after `check` shows the holder is dead.
-- Mac builds do not count against the container's one-Gradle-run rule: a container gate and a
-  Mac run may overlap.
+- **Several containers share the Mac.** One Mac-wide lock (`~/work/.build-lock`) lets only one heavy
+  step run at a time (16 GiB RAM, shared with the owner's session). `gradle`, `native-tests`,
+  `xcode-test`, `xcode-build`, `run` and the simulator-driving `sim boot|shot|launch|shutdown` take
+  it; `sync`, `fetch`, `check` and `sim list|log|sample|crashes` do not. A call that finds the lock
+  taken waits, printing the holder every 5 minutes (`MAC_LOCK_WAIT`, default 90 min). Waiting
+  behind another container's run is normal: do not `unlock`, do not retry in a loop.
+- **No dead-lock waits.** A waiter breaks the lock by itself when the holder process is gone (killed,
+  Mac rebooted). A holder whose container side disappears (local job killed, session ended) is
+  stopped on the Mac by a watchdog within ~10 s (`check` shows its last lines), so it frees the lock
+  and the RAM. Therefore: a waiting Mac call belongs to the controller, in the background; a subagent
+  never starts one (it cannot wait that long). `unlock` is only for a case `check` shows as stuck.
+- Between two separate calls another container may use the simulator (e.g. between `xcode-build`
+  and `sim shot`). If a screenshot shows something unexpected, repeat the pair.
+- **Overlap the container and the Mac: they are different machines.** Mac runs do not count against
+  the container's one-Gradle-run rule. The working tree is copied to the Mac when the call starts
+  (before any lock wait), so the usual pattern is: start the Mac round in the background, then run
+  the container gate (verify, jvmTest, assemble) in the foreground at the same time, and read both
+  results. Editing files after the call printed `synced` does not affect that Mac run.
 - Count results from the fetched XML (classes, tests, failures, skipped), not from
   "BUILD SUCCESSFUL": a filter matching nothing is green too. A test task reported `UP-TO-DATE` did
   not run: its inputs equal an earlier run's, whose XML you are reading. That is a valid result for
@@ -85,7 +99,10 @@ using Foundation/UIKit needs the Mac.
   first use; iPads use `iPad Air 11-inch (M4)` (Xcode 26.6 has no M2 type).
 - XCUITests run over SSH without a GUI session or Automation Mode.
 - 16 GiB RAM shared with the owner's own session: Gradle peaks at ~4.6 GB during the framework link.
-  After the last Mac step of a session: `run './gradlew --stop'` and `sim shutdown`.
+  `check` and each lock acquisition print the free memory. Runs of all containers reuse one warm
+  Gradle daemon while `gradle.properties` (JVM args) is the same, so `check` should show 1; after the last Mac step of a session:
+  `run './gradlew --stop'` and `sim shutdown` (both take the lock, so they never cut another
+  container's run short; the next run boots the simulator again).
 - Known red on the Mac exactly as on CI: `KeychainSelfTests` -34018 (simulator app unsigned; status
   backlog item), not a setup problem.
 - Never install software or change settings on the Mac yourself; the build user is not an admin.

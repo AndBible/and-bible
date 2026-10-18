@@ -18,6 +18,9 @@
 #   scripts/mac-remote.sh xcode-build [iphone|ipad]
 #                                               build the app for the simulator, install it, launch it
 #   scripts/mac-remote.sh run <shell command>   run a command in the remote tree (under the build lock)
+#   (gradle, native-tests, xcode-*, run and the sim subcommands that drive the shared simulator — boot,
+#   shot, launch, shutdown — all take the one Mac-wide build lock; sync, fetch, check, sim list/log/
+#   sample/crashes do not)
 #   scripts/mac-remote.sh fetch <remote-rel-path> [local-dir]
 #                                               copy a path from the remote tree to .local/mac/<container>/
 #   scripts/mac-remote.sh sim <sub>             simulator helpers, on the booted simulator unless noted:
@@ -39,7 +42,8 @@
 #   MAC_SIM_IPHONE   iPhone simulator name (default "iPhone 16", as in CI; created if missing)
 #   MAC_SIM_IPAD     iPad simulator name (default "iPad Air 11-inch (M4)"; created if missing)
 #   MAC_TIMEOUT      seconds before a remote Gradle/xcodebuild step is killed (default 3000)
-#   MAC_LOCK_WAIT    seconds to wait for another container's build lock (default 1800)
+#   MAC_LOCK_WAIT    seconds to wait for another container's build lock (default 5400; a dead holder's
+#                    lock is broken automatically, so this only bounds waiting behind live runs)
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -52,7 +56,7 @@ OUT="$repo/.local/mac/$NAME"
 SIM_IPHONE="${MAC_SIM_IPHONE:-iPhone 16}"
 SIM_IPAD="${MAC_SIM_IPAD:-iPad Air 11-inch (M4)}"
 TIMEOUT="${MAC_TIMEOUT:-3000}"
-LOCK_WAIT="${MAC_LOCK_WAIT:-1800}"
+LOCK_WAIT="${MAC_LOCK_WAIT:-5400}"
 APP_ID=org.andbible.ios.poc
 APP_PROCESS=AndBiblePoC
 
@@ -61,6 +65,9 @@ die() { echo "mac-remote: $*" >&2; exit 1; }
 [ -f "$SSH_CONFIG" ] || die "no ssh config at $SSH_CONFIG. Ask the user to run on the host: jailbee mount mac-ssh $NAME (see docs/ios-remote-mac.md)"
 
 SSH=(ssh -F "$SSH_CONFIG")
+# Remote runs get their own connection, never the shared ControlMaster one: the build-lock watchdog
+# watches this run's sshd-session, which only ends with its own connection.
+SSH_RUN=(ssh -F "$SSH_CONFIG" -o ControlMaster=no -o ControlPath=none)
 RSYNC=(rsync -az -e "ssh -F $SSH_CONFIG" --rsync-path=/opt/homebrew/bin/rsync)
 
 # Shell-quote arguments for the remote command line.
@@ -68,7 +75,7 @@ q() { [ $# -eq 0 ] || printf '%q ' "$@"; }
 
 # Run a bash script on the Mac. $1 = script text; the remote bash gets the login PATH from ~/.zshenv
 # because ssh starts the command through the user's zsh.
-remote() { "${SSH[@]}" "$HOST" 'bash -s' <<<"$1"; }
+remote() { "${SSH_RUN[@]}" "$HOST" 'bash -s' <<<"$1"; }
 
 # Prologue for remote scripts: cd into the tree, helpers, optional build lock.
 prologue() {
@@ -97,17 +104,50 @@ sim_boot() {
 EOF
 }
 
+# The Mac build lock (one heavy step at a time for every container; the Mac has 16 GiB shared with
+# its owner's session). A waiter breaks the lock when its holder process is gone (killed, Mac
+# rebooted), so a dead run never blocks the others. A holder whose container side disappears (ssh
+# connection lost: local job killed, session ended) is stopped by a watchdog, so it does not keep
+# the lock or the RAM for a result nobody will read.
 lock() {
     cat <<EOF
-L=\$HOME/work/.build-lock; got=
+L=\$HOME/work/.build-lock; got=; t0=\$SECONDS
+lock_stale() {   # the holder's pid is no longer a live bash, or the dir has had no owner for 60 s
+    local pid
+    if [ -f "\$L/owner" ]; then
+        pid=\$(sed -n 's/.* pid \\([0-9]*\\) .*/\\1/p' "\$L/owner")
+        [ -n "\$pid" ] && ! ps -p "\$pid" -o comm= 2>/dev/null | grep -q bash
+    else
+        [ \$(( \$(date +%s) - \$(stat -f %m "\$L" 2>/dev/null || date +%s) )) -gt 60 ]
+    fi
+}
 for i in \$(seq 1 $((LOCK_WAIT / 5 + 1))); do
     if mkdir "\$L" 2>/dev/null; then got=1; break; fi
-    [ "\$i" = 1 ] && echo "mac-remote: waiting for the build lock held by: \$(cat "\$L/owner" 2>/dev/null)" >&2
+    if lock_stale; then
+        echo "mac-remote: breaking a stale build lock (holder gone): \$(cat "\$L/owner" 2>/dev/null)" >&2
+        rm -rf "\$L"; continue
+    fi
+    [ \$(( i % 60 )) = 1 ] && echo "mac-remote: waiting \$(( SECONDS - t0 )) s for the build lock held by: \$(cat "\$L/owner" 2>/dev/null)" >&2
     sleep 5
 done
-[ -n "\$got" ] || { echo "mac-remote: build lock not free after ${LOCK_WAIT}s (held by: \$(cat "\$L/owner" 2>/dev/null)); 'unlock' only if that run is dead" >&2; exit 75; }
+[ -n "\$got" ] || { echo "mac-remote: build lock not free after ${LOCK_WAIT}s (held by: \$(cat "\$L/owner" 2>/dev/null))" >&2; exit 75; }
 echo "$NAME pid \$\$ since \$(date '+%F %T')" > "\$L/owner"
-trap 'rm -rf "\$L"' EXIT
+# Watchdog: the nearest sshd ancestor is this connection; when it is gone, stop this process group.
+# Its fds go to /dev/null, otherwise it would hold the ssh channel open after a normal exit.
+sshd_pid=; p=\$\$
+while [ -n "\$p" ] && [ "\$p" -gt 1 ]; do
+    case "\$(ps -p "\$p" -o command= 2>/dev/null)" in sshd*) sshd_pid=\$p; break ;; esac
+    p=\$(ps -p "\$p" -o ppid= 2>/dev/null | tr -d ' ')
+done
+WD=
+if [ -n "\$sshd_pid" ]; then
+    ( while ps -p "\$sshd_pid" >/dev/null 2>&1; do sleep 10; done
+      echo "\$(date '+%F %T') $NAME: ssh connection gone, stopping run \$\$" >> "\$HOME/work/.mac-remote-watchdog.log"
+      kill -TERM 0 ) </dev/null >/dev/null 2>&1 &
+    WD=\$!
+fi
+echo "mac-remote: build lock acquired after \$(( SECONDS - t0 )) s; free memory \$(vm_stat | awk '/page size/{ps=\$8} /Pages free/{f=\$3} /Pages inactive/{n=\$3} END{printf "%.1f", (f+n)*ps/1073741824}') GiB" >&2
+trap 'rm -rf "\$L"; [ -n "\$WD" ] && kill \$WD 2>/dev/null' EXIT
 trap 'exit 129' HUP INT TERM
 EOF
 }
@@ -150,6 +190,8 @@ xcodebuild -version | head -1; java -version 2>&1 | head -1; echo "node $(node -
 xcrun simctl list runtimes available | grep iOS || echo "NO iOS simulator runtime"
 xcrun simctl list devices booted | grep -v '^==' || true
 L=$HOME/work/.build-lock; [ -d "$L" ] && echo "BUILD LOCK held by: $(cat "$L/owner" 2>/dev/null)" || echo "build lock: free"
+echo "free memory: $(vm_stat | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{n=$3} END{printf "%.1f", (f+n)*ps/1073741824}') GiB; Gradle daemons: $(pgrep -f GradleDaemon | wc -l | tr -d ' '); Kotlin daemons: $(pgrep -f KotlinCompileDaemon | wc -l | tr -d ' ')"
+[ -f ~/work/.mac-remote-watchdog.log ] && { echo "watchdog (last 3):"; tail -3 ~/work/.mac-remote-watchdog.log; }
 echo "trees: $(ls ~/work 2>/dev/null | tr '\n' ' ')"
 EOF
     ;;
@@ -267,15 +309,18 @@ sim)
 xcrun simctl list devices available | grep -v unavailable" ;;
     boot) case "${1:-iphone}" in iphone) s="$SIM_IPHONE" ;; ipad) s="$SIM_IPAD" ;; *) s="$1" ;; esac
           remote "$(prologue)
+$(lock)
 sim_boot $(q "$s")" ;;
     shot) [ $# -ge 1 ] || die "usage: sim shot <name>"
           remote "$(prologue)
+$(lock)
 mkdir -p build/shots && xcrun simctl io booted screenshot $(q "build/shots/$1.png")>/dev/null 2>&1"
           fetch "build/shots/$1.png" "$OUT/shots" ;;
     log)  min="${1:-5}"; pred="${2:-process == \"$APP_PROCESS\"}"
           remote "$(prologue)
 xcrun simctl spawn booted log show --style compact --last ${min}m --predicate $(q "$pred")" ;;
     launch) remote "$(prologue)
+$(lock)
 xcrun simctl terminate booted $(q "${1:-$APP_ID}") 2>/dev/null; xcrun simctl launch booted $(q "${1:-$APP_ID}")" ;;
     sample) remote "$(prologue)
 p=\$(pgrep -n $(q "${1:-$APP_PROCESS}")) || { echo 'process not running' >&2; exit 1; }
@@ -284,6 +329,7 @@ sample \$p 5 -file /tmp/mac-remote-sample.txt >/dev/null 2>&1; cat /tmp/mac-remo
 mkdir -p build/crashes && find ~/Library/Logs/DiagnosticReports -name '$APP_PROCESS*' -mtime -2 -exec cp {} build/crashes/ \\; 2>/dev/null; ls -t build/crashes | head"
           fetch build/crashes "$OUT" ;;
     shutdown) remote "$(prologue)
+$(lock)
 xcrun simctl shutdown all" ;;
     *) die "unknown sim subcommand: $sub" ;;
     esac

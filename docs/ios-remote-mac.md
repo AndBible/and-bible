@@ -225,4 +225,8 @@ no `.local/`, `docs/`, `website/`, build outputs or `node_modules`. Excluded pat
 stub repository on the Mac satisfies `:app`'s `git rev-parse` / `git describe`.
 
 Each container gets its own tree under `~/work/<container>`; `~/.gradle` and `~/.konan` on the Mac
-are shared by all of them, and the build lock lets only one heavy run go at a time.
+are shared by all of them, and the build lock lets only one heavy run go at a time. A waiter breaks
+the lock when its holder process is gone, and each run has a watchdog that stops it when its own ssh
+connection ends (remote runs use a separate, non-multiplexed connection for that reason), so a killed
+container-side job never leaves the Mac locked or busy. Watchdog events go to
+`~/work/.mac-remote-watchdog.log` (shown by `check`).
