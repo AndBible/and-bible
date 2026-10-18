@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.sharedlogic.platform.ios
+
+import net.bible.sharedlogic.platform.LocalCalendar
+import platform.Foundation.NSCalendar
+import platform.Foundation.NSCalendarUnitDay
+import platform.Foundation.NSCalendarUnitMonth
+import platform.Foundation.NSCalendarUnitWeekOfYear
+import platform.Foundation.NSCalendarUnitYear
+import platform.Foundation.NSCalendarUnitYearForWeekOfYear
+import platform.Foundation.NSDate
+import platform.Foundation.NSDateFormatter
+import platform.Foundation.NSDateFormatterMediumStyle
+import platform.Foundation.NSDateFormatterNoStyle
+import platform.Foundation.NSLocale
+import platform.Foundation.currentLocale
+import platform.Foundation.dateWithTimeIntervalSince1970
+import platform.Foundation.localeWithLocaleIdentifier
+import platform.Foundation.timeIntervalSince1970
+
+/**
+ * [LocalCalendar] on `NSCalendar.currentCalendar`: DST-aware (calendar-day arithmetic keeps the wall-clock time) and
+ * with the locale's first weekday. The calendar is read on every call so a changed time zone or locale is seen.
+ */
+class IosLocalCalendar : LocalCalendar {
+    private val calendar: NSCalendar get() = NSCalendar.currentCalendar
+
+    private fun date(epochMs: Long) = NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0)
+    private fun NSDate.toEpochMs(): Long = (timeIntervalSince1970 * 1000.0).toLong()
+
+    override fun startOfToday(): Long = startOfDay(NSDate().toEpochMs())
+
+    override fun startOfDay(epochMs: Long): Long = calendar.startOfDayForDate(date(epochMs)).toEpochMs()
+
+    override fun addDays(epochMs: Long, days: Int): Long = plusUnit(epochMs, NSCalendarUnitDay, days)
+
+    override fun currentYear(): Int = calendar.component(NSCalendarUnitYear, fromDate = NSDate()).toInt()
+
+    override fun formatDefaultDate(epochMs: Long): String = NSDateFormatter().apply {
+        locale = NSLocale.currentLocale
+        dateStyle = NSDateFormatterMediumStyle
+        timeStyle = NSDateFormatterNoStyle
+    }.stringFromDate(date(epochMs))
+
+    /** `MMM-d/yyyy` with US month names first, then the current locale's; neither parsing is an [IllegalArgumentException]. */
+    override fun parseMonthDayYear(text: String): Long {
+        for (locale in listOf(NSLocale.localeWithLocaleIdentifier("en_US_POSIX"), NSLocale.currentLocale)) {
+            val parsed = NSDateFormatter().apply {
+                this.locale = locale
+                dateFormat = "MMM-d/yyyy"
+            }.dateFromString(text)
+            if (parsed != null) return parsed.toEpochMs()
+        }
+        throw IllegalArgumentException("Unable to parse date ($text) as MMM-d/yyyy")
+    }
+
+    override fun startOfLocalDay(epochMs: Long): Long = startOfDay(epochMs)
+
+    override fun plusLocalDays(epochMs: Long, days: Int): Long = plusUnit(epochMs, NSCalendarUnitDay, days)
+
+    override fun plusWeeks(epochMs: Long, weeks: Int): Long = plusUnit(epochMs, NSCalendarUnitWeekOfYear, weeks)
+
+    override fun startOfLocalWeek(epochMs: Long): Long {
+        val cal = calendar
+        val parts = cal.components(NSCalendarUnitYearForWeekOfYear or NSCalendarUnitWeekOfYear, fromDate = date(epochMs))
+        parts.weekday = cal.firstWeekday.toLong()
+        // Unset hour/minute/second components default to zero, so this is local midnight of the week's first day.
+        return cal.dateFromComponents(parts)?.toEpochMs() ?: startOfDay(epochMs)
+    }
+
+    /** Month 0-11. */
+    override fun localMonth(epochMs: Long): Int = calendar.component(NSCalendarUnitMonth, fromDate = date(epochMs)).toInt() - 1
+
+    override fun shortMonthName(epochMs: Long): String = NSDateFormatter().apply {
+        locale = NSLocale.currentLocale
+        dateFormat = "LLL"
+    }.stringFromDate(date(epochMs))
+
+    private fun plusUnit(epochMs: Long, unit: ULong, amount: Int): Long =
+        calendar.dateByAddingUnit(unit, amount.toLong(), toDate = date(epochMs), options = 0u)?.toEpochMs() ?: epochMs
+}
