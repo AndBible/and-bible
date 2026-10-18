@@ -57,19 +57,29 @@ class HistoryRouteBackTest {
     }
 
     /**
-     * Forced interleaving of the contended-suite flake: a background thread holds `DatabaseContainer.aiLifetime` for
-     * [ms] of real time, so the host's settings gate (`aiSettings.ensureLoaded()` in `setContent`) cannot open sooner.
-     * The thread running the hold is a plain daemon thread, never the test/main thread.
+     * Forced interleaving, a regression pin for the earlier settings-gate race (f62a9ec1d8): it is NOT a reproduction
+     * of the recurring contended-suite flake (these variants also pass on the old code). A background thread runs a
+     * full `DatabaseContainer.aiLifetime.replace` (which cancels/joins owned jobs and bumps the generation) whose
+     * block lasts [ms] of real time, so the host's settings gate (`aiSettings.ensureLoaded()` in `setContent`)
+     * cannot open sooner. The thread running the replace is a plain daemon thread, never the test/main thread.
      */
     private fun withAiLifetimeHeld(ms: Long, body: () -> Unit) {
         val held = java.util.concurrent.CountDownLatch(1)
         val holder = Thread {
             kotlinx.coroutines.runBlocking {
-                DatabaseContainer.aiLifetime.replace { _ -> held.countDown(); Thread.sleep(ms) }
+                DatabaseContainer.aiLifetime.replace { _ ->
+                    held.countDown()
+                    Thread.sleep(ms) // runs on the holder thread (inside the replace block), not the test thread
+                }
             }
         }.apply { isDaemon = true; start() }
-        assertTrue("fixture: lock taken", held.await(5, java.util.concurrent.TimeUnit.SECONDS))
-        try { body() } finally { holder.join() }
+        try {
+            assertTrue("fixture: lock taken", held.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            body()
+        } finally {
+            holder.join(10_000)
+            check(!holder.isAlive) { "aiLifetime holder thread did not finish" }
+        }
     }
 
     private fun idle() {

@@ -14,7 +14,7 @@ import org.robolectric.annotation.Config
 class AwaitHostConditionTest {
     /**
      * Reproduces the contended-machine case: a host effect that completes after 12 s of wall clock while each
-     * composition pump is slow. The former fixed 10 s deadline threw here (ReadingPlanSelectorResetFlowTest, 40-50 s cold).
+     * composition pump is slow. The former fixed 10 s deadline threw here (ReadingPlanSelectorResetFlowTest; 40-50 s is that WHOLE test cold, not the wait).
      */
     @Test fun aConditionThatSettlesAfterTwelveSecondsOfWallClockIsAwaited() {
         val start = System.nanoTime()

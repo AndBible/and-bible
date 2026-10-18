@@ -118,6 +118,11 @@ class ClassicRemovalScanAssertionsTest {
             |""".trimMargin(),
         )
 
+        assertFalse(
+            "the fixture must live outside the scanned src/ tree, or it races concurrent scans",
+            fixtureSrcRoot.root.canonicalFile.startsWith(File("src").canonicalFile),
+        )
+
         val namedInSource = ClassicRemovalScan.appSources()
             .filter { ref.containsMatchIn(ClassicRemovalScan.codeLinesOf(it.path, keepImports = true)) }
             .map { it.path }
@@ -128,11 +133,8 @@ class ClassicRemovalScanAssertionsTest {
         assertTrue(
             "the fixture resource file this test just wrote was not found by appResourceXml() — " +
                 "either the walk or this test's own temp-folder placement is broken",
-            ClassicRemovalScan.appResourceXml(listOf(File("src"), fixtureSrcRoot.root)).any { f -> f.readLines().any { ref.containsMatchIn(it) } },
-        )
-        assertFalse(
-            "the fixture must live outside the scanned src/ tree, or it races concurrent scans",
-            fixtureSrcRoot.root.canonicalFile.startsWith(File("src").canonicalFile),
+            ClassicRemovalScan.appResourceXml(listOf(File("src"), fixtureSrcRoot.root))
+                .any { f -> f.readLines().any { ref.containsMatchIn(it) } },
         )
         // Without the extra root the real tree is clean, so the failure below comes from the fixture alone.
         ClassicRemovalScan.assertNoSourceNames(listOf(fq), "the real tree must not name the fixture class")

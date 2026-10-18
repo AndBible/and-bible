@@ -1,9 +1,9 @@
 package net.bible.android.platform
 
 import android.content.Intent
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.base.AndBibleActivity
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.ActivityResultKind
@@ -37,7 +37,8 @@ class AndroidHistoryPlatform : HistoryPlatform {
      * dropped the component, so the entry resolved to nothing and `revertTo` threw `ActivityNotFoundException`.
      * Screens now are routes of [NavHostComposeActivity], which is also how reading-plan and search entries are
      * recorded (`intentForHistoryList`), so the entry is mapped to the bookmarks list route (same label filter).
-     * The entry's title is read from the original intent by the caller. The result intent itself is left untouched: it is still delivered to the reading view.
+     * The entry's title is read from the original intent by the caller.
+     * The result intent itself is left untouched: it is still delivered to the reading view.
      */
     private fun routeIntentFor(intent: Intent): Intent? {
         if (intent.component != null) return null

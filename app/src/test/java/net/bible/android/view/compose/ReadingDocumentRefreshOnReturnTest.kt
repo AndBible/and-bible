@@ -140,13 +140,13 @@ class ReadingDocumentRefreshOnReturnTest {
             armed.set(true)
             activity.hostWindowRepository.activeWindow.loadText()
             assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS), "actual Window settings read must enter the held source")
-            println("WINDOW_OWNER beforeClose=$job children=${job.children.toList()}")
+            println("WINDOW_OWNER beforeClose=${net.bible.test.DatabaseResetter.jobState(job)}")
             closeHostsAndReset(afterClose = {
-                println("WINDOW_OWNER afterClose=$job children=${job.children.toList()}")
+                println("WINDOW_OWNER afterClose=${net.bible.test.DatabaseResetter.jobState(job)}")
                 assertFalse(job.isCompleted, "the held actual reader must still own cancellation work")
                 android.os.Handler(Looper.getMainLooper()).post { release.complete(Unit) }
             }, reset = {
-                println("WINDOW_OWNER resetBoundary=$job children=${job.children.toList()}")
+                println("WINDOW_OWNER resetBoundary=${net.bible.test.DatabaseResetter.jobState(job)}")
                 assertTrue(job.isCompleted, "fixture must join the real Window owner before database reset")
                 DatabaseResetter.resetDatabase()
             })

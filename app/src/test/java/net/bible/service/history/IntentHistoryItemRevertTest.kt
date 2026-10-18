@@ -99,7 +99,7 @@ class IntentHistoryItemRevertTest {
     }
 
     @Test
-    fun skippingAnUnresolvableItemLeavesTheHistoryStackIntact() {
+    fun skippingAnUnresolvableItemConsumesItAndKeepsTheRestOfTheStack() {
         val current = activity()
         val manager = HistoryManager(CommonUtils.windowControl, platform)
         manager.addHistoryItem(window, bookmarkPick(1))
