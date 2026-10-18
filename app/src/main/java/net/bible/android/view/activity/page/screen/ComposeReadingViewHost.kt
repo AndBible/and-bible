@@ -143,6 +143,7 @@ import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.activity.page.androidBibleView
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -288,6 +289,8 @@ import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.host.ReadingHostHooks
+import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.reading.ShareVersesSheet
 import net.bible.sharedui.reading.SpeakTransportBar
 import net.bible.sharedui.reading.WindowButton
@@ -391,6 +394,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val navigationControl: NavigationControl by inject()
     private val windowControl: WindowControl by inject()
     private val documentControl: DocumentControl by inject()
+    private val historyManager: HistoryManager by inject()
     private val speakControl: SpeakControl by inject()
     private val linkControl: LinkControl by inject()
 
@@ -398,6 +402,51 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      *  [dispose] — one host per activity (re-)creation, mirroring the [subscriptions]
      *  lifecycle right below. */
     private val hostScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    /**
+     * The overlay/sheet/dialog/history/share/pane-menu/drawer state, in common code (`:sharedUi`
+     * `ReadingHostState`); this class forwards to it and supplies what only the Android host can: the
+     * three overlays it still owns, the actions behind the sheets, date formatting and document rows.
+     * Declared BEFORE [readingLlmDialogs] and after the injected collaborators it reads; every hook is
+     * a lambda that runs on a user action, long after construction, so the properties it names below
+     * (`speakSheet`, `textSettingsEditor`, `paneMenuStateBuilder`) may be declared further down.
+     */
+    internal val hostState = ReadingHostState(
+        scope = hostScope,
+        settings = CommonUtils.settings,
+        windowControl = windowControl,
+        historyManager = historyManager,
+        documentControl = documentControl,
+        hooks = ReadingHostHooks(
+            closeSpeakSheet = { speakSheet.close() },
+            closeTextSettingsEditor = { textSettingsEditor.close() },
+            dismissLlmSheets = {
+                when (readingLlmDialogs.state.value.dialog) {
+                    is ReadingLlmDialog.PromptSelector, is ReadingLlmDialog.ModelSelection -> readingLlmDialogs.dismiss()
+                    is ReadingLlmDialog.None, is ReadingLlmDialog.SpecifyBeforeRun, is ReadingLlmDialog.Regenerate -> Unit
+                }
+            },
+            openPromptSelector = { selection, context, category -> showPromptSelector(selection, context, category) },
+            // The BibleView adapter still calls `showRegenerate(pageId, bibleView)` directly (it has the view);
+            // this arm only serves a caller that holds nothing but the page id, so it uses the active window's view.
+            openRegenerate = { pageId ->
+                activity.hostWindowRepository.activeWindow.androidBibleView?.let { showRegenerate(pageId, it) }
+            },
+            openCompare = { range -> linkControl.openCompare(range) },
+            applyChosenVerse = { osisId -> activity.readingCommands.applyChosenVerse(osisId) },
+            formatHistoryTimestamp = { createdAt -> format("h:mm a, E d MMM ", createdAt).toString() },
+            paneMenuItemsFor = { windowId ->
+                activity.hostWindowRepository.getWindow(IdType(windowId))?.let { paneMenuStateBuilder.build(it) }
+            },
+            installedDocRows = {
+                val books = SwordDocumentFacade.documents +
+                    fakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
+                val mapper = DocRowMapper(downloadControl, books)
+                books.map { mapper.toDocRow(it) }
+            },
+            recentDocumentInitials = { recentDocumentsStore.read() },
+        ),
+    )
 
     /**
      * State machine driving the reading-view LLM surfaces (Batch 12e-A Task 6): prompt selector,
@@ -440,145 +489,60 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * LLM answer (e.g. free-text instructions the user had already typed) the moment ANY other
      * overlay/sheet opened, including an unrelated app-wide one via [closeModalOverlays].
      */
-    private fun closeOverlay(overlay: ReadingOverlay) {
-        when (overlay) {
-            ReadingOverlay.Llm -> when (readingLlmDialogs.state.value.dialog) {
-                is ReadingLlmDialog.PromptSelector, is ReadingLlmDialog.ModelSelection -> readingLlmDialogs.dismiss()
-                is ReadingLlmDialog.None, is ReadingLlmDialog.SpecifyBeforeRun, is ReadingLlmDialog.Regenerate -> Unit
-            }
-            ReadingOverlay.SpeakSheet -> speakSheet.close()
-            ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
-            ReadingOverlay.QuickSheet -> closeQuickSheet()
-        }
-    }
+    private fun closeOverlay(overlay: ReadingOverlay): Unit = hostState.closeOverlay(overlay)
 
     /**
      * Close every modal reading-view overlay (spec Task 5): called from `AppDialogOverlay`'s
      * `onSheetOpening` when an app-wide dialog/sheet is about to be shown, so it never stacks under
      * (or is stacked under by) one of these.
      */
-    internal fun closeModalOverlays() {
-        ReadingOverlay.entries.forEach(::closeOverlay)
-    }
+    internal fun closeModalOverlays() = hostState.closeModalOverlays()
 
     /**
      * Platform-dialog removal Task 18: the reading view's own dialogs (see [ReadingDialog]'s kdoc
      * for why this is not a [ReadingOverlay]). ONE state, rendered through the one host-private
      * slot [ReadingDialogSlot] — the same shape as [quickSheet]/[QuickSheetSlot].
      */
-    internal val readingDialog = mutableStateOf<ReadingDialog?>(null)
+    internal val readingDialog get() = hostState.readingDialog
 
     /** `BibleJavascriptInterface.helpDialog`/`.helpBookmarks`'s entry point. */
-    internal fun showHelp(title: String?, html: String) {
-        readingDialog.value = ReadingDialog.Help(title, html)
-    }
+    internal fun showHelp(title: String?, html: String) = hostState.showHelp(title, html)
 
-    /** `BibleJavascriptInterface.deleteMyDocumentPage`'s entry point — see [ReadingDialog
-     *  .ConfirmDeleteDocumentPage]'s kdoc for why [onConfirm] is the caller's job. */
-    internal fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit) {
-        readingDialog.value = ReadingDialog.ConfirmDeleteDocumentPage(onConfirm)
-    }
+    /** `BibleJavascriptInterface.deleteMyDocumentPage`'s entry point. */
+    internal fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit) = hostState.showDeleteDocumentPageConfirm(onConfirm)
 
-    /**
-     * Runs the showing dialog's confirm action (if it has one) and clears it. A no-op when nothing
-     * is showing, so a second/duplicate confirm (e.g. a fast double-tap) never re-runs the deletion.
-     */
-    internal fun confirmReadingDialog() {
-        val dialog = readingDialog.value ?: return
-        readingDialog.value = null
-        if (dialog is ReadingDialog.ConfirmDeleteDocumentPage) dialog.onConfirm()
-    }
+    /** Runs the showing dialog's confirm action (if any) and clears it; see [ReadingHostState.confirmReadingDialog]. */
+    internal fun confirmReadingDialog() = hostState.confirmReadingDialog()
 
-    /** Dismisses whatever [ReadingDialog] is showing, running no action. A no-op when nothing is
-     *  showing. */
-    internal fun dismissReadingDialog() {
-        readingDialog.value = null
-    }
+    /** Dismisses whatever [ReadingDialog] is showing, running no action. */
+    internal fun dismissReadingDialog() = hostState.dismissReadingDialog()
 
-    /**
-     * Round 15b: which quick sheet is open over the reading view, if any. ONE state for all four
-     * (see [ReadingQuickSheet]) — which is why the exclusion rule needs one member and this file
-     * one slot.
-     */
-    internal val quickSheet = mutableStateOf<ReadingQuickSheet?>(null)
+    /** Which quick sheet is open over the reading view, if any (see [ReadingQuickSheet]). */
+    internal val quickSheet get() = hostState.quickSheet
 
-    /**
-     * The verse an out-of-process caller — today only `BibleJavascriptInterface.refChooserDialog`,
-     * via [openVerseChooserSheetForResult] — is waiting for, or `null` when the Grid sheet is
-     * simply navigating the reading view as usual.
-     *
-     * A plain `var`, not snapshot state, for the same reason as [keyChooserKeys]: it is written
-     * before the [quickSheet] state that triggers the composition, and nothing ever recomposes off
-     * it. Every exit from the sheet MUST resolve it — a request left pending leaks a JS promise for
-     * the life of the page — which is why both [closeQuickSheet] and [showQuickSheet] abandon it.
-     */
-    private var pendingChosenVerse: CompletableDeferred<String?>? = null
+    /** Opens the Grid sheet to pick ONE verse; see [ReadingHostState.openVerseChooserSheetForResult]. */
+    internal fun openVerseChooserSheetForResult(): CompletableDeferred<String?> = hostState.openVerseChooserSheetForResult()
 
-    /**
-     * Open the Grid quick sheet to pick ONE verse and hand it back, instead of navigating to it.
-     *
-     * nav-graph slice 7 §6.3: this is what `refChooserDialog` calls now, replacing a full-screen
-     * `Screen.GridChoosePassageBook` round-trip through `awaitIntent`. Two things the Intent forced
-     * are forced here instead — `navigateToVerse` (spec §6.1.1's trap: the ordinary sheet reads a
-     * preference that is off by default, and a reference chooser that stops at chapter level cannot
-     * answer the call) and scripture-only books, which the Grid arm already hard-codes because both
-     * of its other callers want it.
-     *
-     * The returned [CompletableDeferred] completes with the chosen verse's osisID, or with `null`
-     * if the sheet is dismissed or superseded.
-     */
-    internal fun openVerseChooserSheetForResult(): CompletableDeferred<String?> {
-        val pending = CompletableDeferred<String?>()
-        // Claim the slot AFTER opening: showQuickSheet abandons whatever request was outstanding.
-        showQuickSheet(ReadingQuickSheet.KeyChooser(KeyChooserKind.Grid, navigateToVerse = true))
-        pendingChosenVerse = pending
-        return pending
-    }
-
-    /**
-     * The Grid sheet's one exit with a verse in hand, shared by both of its openings: it answers an
-     * outstanding [openVerseChooserSheetForResult] request if there is one, and otherwise navigates
-     * the reading view through Task 7's single parse-and-apply path. Taking ownership of the pending
-     * request BEFORE closing is what stops [closeQuickSheet]'s abandon from resolving it with `null`.
-     */
-    internal fun onGridPassageChosen(osisId: String) {
-        val pending = pendingChosenVerse
-        pendingChosenVerse = null
-        closeQuickSheet()
-        if (pending != null) pending.complete(osisId) else activity.readingCommands.applyChosenVerse(osisId)
-    }
-
-    /** Answer an outstanding verse request with "no verse"; a no-op when there is none. */
-    private fun abandonPendingChosenVerse() {
-        val pending = pendingChosenVerse ?: return
-        pendingChosenVerse = null
-        pending.complete(null)
-    }
+    /** The Grid sheet's one exit with a verse in hand; see [ReadingHostState.onGridPassageChosen]. */
+    internal fun onGridPassageChosen(osisId: String) = hostState.onGridPassageChosen(osisId)
 
     /** Open a quick sheet, closing every other modal overlay first (spec §4.1). */
-    internal fun showQuickSheet(sheet: ReadingQuickSheet) {
-        abandonPendingChosenVerse()
-        ReadingOverlayExclusion.closedBy(ReadingOverlay.QuickSheet).forEach(::closeOverlay)
-        quickSheet.value = sheet
-    }
+    internal fun showQuickSheet(sheet: ReadingQuickSheet) = hostState.showQuickSheet(sheet)
 
-    internal fun closeQuickSheet() {
-        quickSheet.value = null
-        abandonPendingChosenVerse()
-    }
+    internal fun closeQuickSheet() = hostState.closeQuickSheet()
 
     /** Round 15b: the reading view's History list as a quick sheet (spec §4.3). */
-    internal fun showHistorySheet() = showQuickSheet(ReadingQuickSheet.History)
+    internal fun showHistorySheet() = hostState.showHistorySheet()
 
     private val workspaceService: WorkspaceService by inject()
 
     /** Round 15b: the workspace QUICK switch (spec §4.4). The full selector is the footer row. */
-    internal fun showWorkspaceSheet() = showQuickSheet(ReadingQuickSheet.Workspaces)
+    internal fun showWorkspaceSheet() = hostState.showWorkspaceSheet()
 
     private val downloadControl: DownloadControl by inject()
 
     /** Round 15b: the document QUICK switch (spec §4.5). ChooseDocument is the footer row. */
-    internal fun showDocumentSheet() = showQuickSheet(ReadingQuickSheet.Documents())
+    internal fun showDocumentSheet() = hostState.showDocumentSheet()
 
     /**
      * Task 26 (platform-dialog removal, run 3): the verse-share sheet's toggle state, loaded once
@@ -587,19 +551,16 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * preview redraws) and persists it (so it survives a reopen, exactly as the classic
      * `ShareWidget`'s per-click `CommonUtils.settings.setBoolean(...)` did).
      */
-    internal var shareVersesOptions by mutableStateOf(loadShareVersesOptions())
+    internal val shareVersesOptions get() = hostState.shareVersesOptions
 
     /**
      * `BibleView`'s "Share" selection action and `BibleJavascriptInterface`'s two share entry
      * points (bookmark share, JS selection share) all resolve a [ShareVersesInput] via
      * `SwordContentFacade.buildShareVersesInput` and call this.
      */
-    internal fun showShareSheet(input: ShareVersesInput) = showQuickSheet(ReadingQuickSheet.Share(input))
+    internal fun showShareSheet(input: ShareVersesInput) = hostState.showShareSheet(input)
 
-    internal fun updateShareVersesOptions(options: ShareVersesOptions) {
-        shareVersesOptions = options
-        persistShareVersesOptions(options)
-    }
+    internal fun updateShareVersesOptions(options: ShareVersesOptions) = hostState.updateShareVersesOptions(options)
 
     private val readingProgressService: ReadingProgressServiceImpl by inject()
 
@@ -609,8 +570,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `ReadHistoryDialog.showForChapter`, which it already resolves the tapped verse's KJV book/
      * chapter for.
      */
-    internal fun showReadHistorySheet(bookId: String, chapter: Int) =
-        showQuickSheet(ReadingQuickSheet.ReadHistory(bookId, chapter))
+    internal fun showReadHistorySheet(bookId: String, chapter: Int) = hostState.showReadHistorySheet(bookId, chapter)
 
     /** Fires the same `Intent.ACTION_SEND` chooser the classic `ShareWidget`'s Share button did. */
     internal fun shareVersesText(text: String) {
@@ -663,48 +623,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * through the shared [DocRowMapper], so a document's language grouping and category are
      * identical in the sheet and in the full screen.
      */
-    internal fun buildDocumentQuickTabsForHost(scope: DocumentSheetScope): DocumentQuickTabs {
-        val books = SwordDocumentFacade.documents +
-            fakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
-        val mapper = DocRowMapper(downloadControl, books)
-        val rows = books.map { mapper.toDocRow(it) }
-        // `initials`, NOT `osisID`: DocRow.docId is the book's initials and so is the MRU's key —
-        // only the document SEARCH path keys on osisId. The two collapse to the same value for most
-        // real modules, so getting this wrong would show up only for the modules where they differ.
-        // The This-verse tab follows the sheet's scope: Bibles for the Bible sheet, commentaries for
-        // the Commentary sheet, both for the title sheet.
-        val forVerseBooks = when (scope) {
-            DocumentSheetScope.BIBLE -> documentControl.biblesForVerse
-            DocumentSheetScope.COMMENTARY -> documentControl.commentariesForVerse
-            DocumentSheetScope.ALL -> documentControl.biblesForVerse + documentControl.commentariesForVerse
-        }
-        val forVerseIds = forVerseBooks.map { it.initials }.toSet()
-        // The two keys ChooseDocument itself persists (its sticky-language seam and its type-filter
-        // spinner), read here so the "Last filter" tab reproduces what the user last looked at.
-        // KNOWN: `selected_document_filter_no` is written by the Download destination too
-        // (`NavHostComposeActivity.persistTypeFilter`), so "Last filter" can reflect a filter the
-        // user last set on the DOWNLOAD screen.
-        // That is the classic key's existing behaviour, shared by both document screens — not a bug
-        // to fix here, and not a second key to invent.
-        val lastLanguageCode = CommonUtils.settings.getString("selected_language_code", null)
-        val lastLanguage = lastLanguageCode?.let { code -> rows.firstOrNull { it.language.code == code }?.language }
-        val lastTypeFilter = DocTypeFilter.entries.getOrElse(
-            CommonUtils.settings.getInt("selected_document_filter_no", 0),
-        ) { DocTypeFilter.ALL }
-        return buildDocumentQuickTabs(
-            // Every mapped row, unfiltered: dropping the ones a sheet cannot action (locked modules,
-            // AND_BIBLE pseudo-documents) is [buildDocumentQuickTabs]' own job — see its kdoc, and
-            // `DocumentQuickTabsTest` for the guard. Note `lastLanguage` above is deliberately
-            // resolved against this FULL list, so a language whose only document is locked does not
-            // silently lose the user's saved filter.
-            installed = rows,
-            recentInitials = recentDocumentsStore.read(),
-            forVerseIds = forVerseIds,
-            lastLanguage = lastLanguage,
-            lastTypeFilter = lastTypeFilter,
-            scope = scope,
-        )
-    }
+    internal fun buildDocumentQuickTabsForHost(scope: DocumentSheetScope): DocumentQuickTabs =
+        hostState.buildDocumentQuickTabsForHost(scope)
 
     @Composable
     private fun quickDocTabLabel(tab: DocumentQuickTab): String = when (tab) {
@@ -721,51 +641,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * names no currently-visible tab simply falls back to the first visible one. Each [scope] keeps
      * its own saved tab ([DocumentSheetScope.tabSettingKey]).
      */
-    internal fun restoreQuickDocTab(scope: DocumentSheetScope, visible: List<DocumentQuickTab>): String? {
-        val saved = CommonUtils.settings.getString(scope.tabSettingKey, null)
-        return visible.firstOrNull { it.name == saved }?.name ?: visible.firstOrNull()?.name
-    }
+    internal fun restoreQuickDocTab(scope: DocumentSheetScope, visible: List<DocumentQuickTab>): String? =
+        hostState.restoreQuickDocTab(scope, visible)
 
     internal fun persistQuickDocTab(scope: DocumentSheetScope, tabId: String) =
-        CommonUtils.settings.setString(scope.tabSettingKey, tabId)
+        hostState.persistQuickDocTab(scope, tabId)
 
     /** The document shown in the active window — the row the sheet draws bold and inert. */
     private fun currentDocumentInitials(): String? = documentControl.currentDocument?.initials
-
-    /** Loads the verse-share sheet's toggle state from the same pref keys the classic
-     *  `ShareWidget` read, with the same defaults. */
-    private fun loadShareVersesOptions(): ShareVersesOptions = ShareVersesOptions(
-        showVerseNumbers = CommonUtils.settings.getBoolean(SHARE_VERSE_NUMBERS_KEY, true),
-        advertiseApp = CommonUtils.settings.getBoolean(SHARE_SHOW_ADD_KEY, true),
-        showReference = CommonUtils.settings.getBoolean(SHARE_SHOW_REFERENCE_KEY, true),
-        abbreviateReference = CommonUtils.settings.getBoolean(SHARE_ABBREVIATE_REFERENCE_KEY, true),
-        showVersion = CommonUtils.settings.getBoolean(SHARE_SHOW_VERSION_KEY, true),
-        showNotes = CommonUtils.settings.getBoolean(SHARE_SHOW_NOTES_KEY, true),
-        showSelectionOnly = CommonUtils.settings.getBoolean(SHARE_SHOW_SELECTION_ONLY_KEY, true),
-        showEllipsis = CommonUtils.settings.getBoolean(SHARE_SHOW_ELLIPSIS_KEY, true),
-        showReferenceAtFront = CommonUtils.settings.getBoolean(SHARE_SHOW_REFERENCE_AT_FRONT_KEY, true),
-        showQuotes = CommonUtils.settings.getBoolean(SHARE_SHOW_QUOTES_KEY, false),
-        separateVersesWithNewlines = CommonUtils.settings.getBoolean(SHARE_SEPARATE_VERSES_NEWLINES_KEY, false),
-    )
-
-    /** Persists every toggle back to the same keys [loadShareVersesOptions] reads — the classic
-     *  `ShareWidget` wrote all eleven on every single click (`updateSelectionOptions`); this does
-     *  the same on every [updateShareVersesOptions] call. */
-    private fun persistShareVersesOptions(options: ShareVersesOptions) {
-        CommonUtils.settings.apply {
-            setBoolean(SHARE_VERSE_NUMBERS_KEY, options.showVerseNumbers)
-            setBoolean(SHARE_SHOW_ADD_KEY, options.advertiseApp)
-            setBoolean(SHARE_SHOW_REFERENCE_KEY, options.showReference)
-            setBoolean(SHARE_ABBREVIATE_REFERENCE_KEY, options.abbreviateReference)
-            setBoolean(SHARE_SHOW_VERSION_KEY, options.showVersion)
-            setBoolean(SHARE_SHOW_NOTES_KEY, options.showNotes)
-            setBoolean(SHARE_SHOW_SELECTION_ONLY_KEY, options.showSelectionOnly)
-            setBoolean(SHARE_SHOW_ELLIPSIS_KEY, options.showEllipsis)
-            setBoolean(SHARE_SHOW_REFERENCE_AT_FRONT_KEY, options.showReferenceAtFront)
-            setBoolean(SHARE_SHOW_QUOTES_KEY, options.showQuotes)
-            setBoolean(SHARE_SEPARATE_VERSES_NEWLINES_KEY, options.separateVersesWithNewlines)
-        }
-    }
 
     /**
      * The full ChooseDocument screen — `MainBibleActivity.composeChooseDocument`'s classic body,
@@ -787,7 +670,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * state that triggers the composition which reads it, so no recomposition ever has to observe
      * it changing.
      */
-    private var keyChooserKeys: List<Key> = emptyList()
+    private val keyChooserKeys: List<Key> get() = hostState.keyChooserKeys
 
     /**
      * Round 15b: the key chooser for the three page shapes simple enough for a sheet (spec §4.6).
@@ -805,21 +688,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * transition. One resolution also means the emptiness decision and the rows on screen can never
      * disagree — the `keyId`-is-an-index contract depends on exactly that.
      */
-    internal fun showKeyChooserSheet(kind: KeyChooserKind, keys: List<Key>) {
-        keyChooserKeys = keys
-        showQuickSheet(
-            ReadingQuickSheet.KeyChooser(
-                kind,
-                // The same source the full-screen twin falls back to when nothing overrides it
-                // (`GridChoosePassageComposeActivity`) -- never a hard-coded true, which would force
-                // a verse step the user turned off. Read HERE rather than in the sheet's composable
-                // arm precisely so the other opening ([openVerseChooserSheetForResult]) can differ:
-                // spec §6.1.1. Meaningless for the two flat list kinds, which have no verse step.
-                navigateToVerse = kind == KeyChooserKind.Grid &&
-                    CommonUtils.settings.getBoolean("navigate_to_verse_pref", false),
-            ),
-        )
-    }
+    internal fun showKeyChooserSheet(kind: KeyChooserKind, keys: List<Key>) = hostState.showKeyChooserSheet(kind, keys)
 
     private val mapPage: CurrentMapPage get() = windowControl.activeWindowPageManager.currentMap
     private val generalBookPage: CurrentGeneralBookPage get() = windowControl.activeWindowPageManager.currentGeneralBook
@@ -923,8 +792,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         KeyChooserKind.Grid -> Unit
     }
 
-    private val historyManager: HistoryManager by inject()
-
     /**
      * The [HistoryEntry] list, mirroring the `controller` of the since-deleted
      * `HistoryComposeActivity` verbatim
@@ -933,22 +800,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * [revertToHistoryItem] can resolve an entry's `id` (its list index, not a stable key) back to
      * the [HistoryItem] to revert.
      */
-    private var historyItems: List<HistoryItem> = emptyList()
+    private fun historyEntriesForActiveWindow(): List<HistoryEntry> = hostState.historyEntriesForActiveWindow()
 
-    private fun historyEntriesForActiveWindow(): List<HistoryEntry> {
-        historyItems = historyManager.getHistory(windowControl.activeWindow.id)
-        return historyItems.mapIndexed { index, item ->
-            HistoryEntry(
-                id = index,
-                title = item.description.toString(),
-                timestamp = format("h:mm a, E d MMM ", item.createdAt).toString(),
-            )
-        }
-    }
-
-    private fun revertToHistoryItem(id: Int) {
-        historyItems[id].revertTo()
-    }
+    private fun revertToHistoryItem(id: Int) = hostState.revertToHistoryItem(id)
 
     // The REVERSE directions of the same rule live at the two other opening sites --
     // [showTextSettingEditor] and [showSpeakSettings] -- and were APPLIED AT THE 14a/14a-2 MERGE,
@@ -2634,7 +2488,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     val controller = ReadingViewController(windowState, commands)
 
     /** See [WindowButtonsVisibility]. */
-    private val windowButtonsVisibility = WindowButtonsVisibility()
+    private val windowButtonsVisibility get() = hostState.windowButtonsVisibility
 
     /**
      * Builds the per-window (☰) pane popup menu's item list (Task 4) — constructed from the host's
@@ -2649,8 +2503,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * [openPaneMenu] (the pane overlay's ☰-button tap, or the Plan-A restore rail's long-press);
      * closed by [closePaneMenu] (`onDismiss`, or after a non-toggle item acts).
      */
-    private val paneMenuWindowId = mutableStateOf<String?>(null)
-    private val paneMenuItems = mutableStateOf(emptyList<WindowPaneMenuItem>())
+    private val paneMenuWindowId get() = hostState.paneMenuWindowId
+    private val paneMenuItems get() = hostState.paneMenuItems
 
     /**
      * Which surface ([PaneMenuAnchor]) the currently-open [paneMenuWindowId] menu is anchored to —
@@ -2660,7 +2514,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * ever reports itself expanded — see the pane overlay's `paneOverlay` lambda and the rail's
      * `tabBar` lambda in [mountComposeView].
      */
-    private val paneMenuAnchor = mutableStateOf(PaneMenuAnchor.Pane)
+    private val paneMenuAnchor get() = hostState.paneMenuAnchor
 
     internal val paneMenuWindowIdForTest: String? get() = paneMenuWindowId.value
     internal val paneMenuAnchorForTest: PaneMenuAnchor get() = paneMenuAnchor.value
@@ -2769,7 +2623,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `DrawerState` (and back again, so a swipe/scrim close clears it) — see its `drawerOpenState`
      * parameter. Flipped by [toggleDrawer], cleared when a row is clicked.
      */
-    private val drawerOpen = mutableStateOf(false)
+    private val drawerOpen get() = hostState.drawerOpen
 
     /**
      * Last values pushed by [MainBibleActivity.updateActions]' `showSearch`/`showSpeak` locals (see
@@ -2804,7 +2658,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /** Toggles the Compose drawer — the target of [MainBibleActivity.toggleDrawer]. */
-    fun toggleDrawer() { drawerOpen.value = !drawerOpen.value }
+    fun toggleDrawer() = hostState.toggleDrawer()
 
     /**
      * Whether the Compose drawer is open. Reads the same request flag `mountComposeView` keeps in
@@ -2815,16 +2669,16 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `drawerLayout.isDrawerVisible(GravityCompat.START)` on the native `DrawerLayout` — always
      * `false` there, since `setupUi` locks it as soon as the host is installed.
      */
-    val isDrawerOpen: Boolean get() = drawerOpen.value
+    val isDrawerOpen: Boolean get() = hostState.isDrawerOpen
 
     /** Opens the Compose drawer (idempotent) — see [isDrawerOpen]. */
-    fun openDrawer() { drawerOpen.value = true }
+    fun openDrawer() = hostState.openDrawer()
 
     /** A tap on one of this host's BibleViews: re-show the window buttons (classic SplitBibleArea.kt:203-205). */
     fun onBibleViewTouched() = windowButtonsVisibility.onTouch()
 
     /** Closes the Compose drawer (idempotent) — see [isDrawerOpen]. */
-    fun closeDrawer() { drawerOpen.value = false }
+    fun closeDrawer() = hostState.closeDrawer()
 
     init {
         subscriptions.add(SharedActivityState.instance.fullScreenChanged.subscribeOnMain { fullScreen.value = it })
@@ -2932,16 +2786,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * surface matching [anchor] ever renders the menu expanded — a rail long-press no longer opens
      * it at the pane's floating ☰ button (the A/B batch 3 F5 bug this anchor fixes).
      */
-    fun openPaneMenu(windowId: String, anchor: PaneMenuAnchor) {
-        windowButtonsVisibility.onTouch()
-        val window = activity.hostWindowRepository.getWindow(IdType(windowId)) ?: return
-        paneMenuItems.value = paneMenuStateBuilder.build(window)
-        paneMenuAnchor.value = anchor
-        paneMenuWindowId.value = windowId
-    }
+    fun openPaneMenu(windowId: String, anchor: PaneMenuAnchor) = hostState.openPaneMenu(windowId, anchor)
 
     /** Closes whichever per-window ☰ menu is open (`onDismiss`, or after a non-toggle item acts). */
-    fun closePaneMenu() { paneMenuWindowId.value = null }
+    fun closePaneMenu() = hostState.closePaneMenu()
 
     /**
      * The reader background colour for ONE pane — classic `BibleFrame.kt:138`'s
@@ -3686,17 +3534,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
         /** Task 26: the verse-share sheet's toggle pref keys — verbatim from the classic
          *  `ShareWidget`, so an existing user's saved choices carry over unchanged. */
-        private const val SHARE_VERSE_NUMBERS_KEY = "share_verse_numbers"
-        private const val SHARE_SHOW_ADD_KEY = "share_show_add"
-        private const val SHARE_SHOW_REFERENCE_KEY = "share_show_reference"
-        private const val SHARE_ABBREVIATE_REFERENCE_KEY = "share_abbreviate_reference"
-        private const val SHARE_SHOW_VERSION_KEY = "share_show_version"
-        private const val SHARE_SHOW_NOTES_KEY = "show_notes"
-        private const val SHARE_SHOW_SELECTION_ONLY_KEY = "show_selection_only"
-        private const val SHARE_SHOW_ELLIPSIS_KEY = "show_ellipsis"
-        private const val SHARE_SHOW_REFERENCE_AT_FRONT_KEY = "share_show_reference_at_front"
-        private const val SHARE_SHOW_QUOTES_KEY = "share_show_quotes"
-        private const val SHARE_SEPARATE_VERSES_NEWLINES_KEY = "share_separate_verses_newlines"
 
         /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
         private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
