@@ -450,7 +450,7 @@ class BibleView(
                 return true
             }
             R.id.web_search -> {
-                if (currentSelectionText != null) { openWebSearch(host.hostContext, currentSelectionText!!) }
+                if (currentSelectionText != null) { surface.openWebSearch(currentSelectionText!!) }
                 return true
             }
             R.id.lookup_dictionary -> {
@@ -630,16 +630,6 @@ class BibleView(
         }
     }
 
-    fun openWebSearch(context: Context, query: String) {
-        try {
-            val intent = Intent(Intent.ACTION_WEB_SEARCH)
-            intent.putExtra(SearchManager.QUERY, query)
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            Log.e(TAG, "Browser app not available to search: " + query)
-        }
-    }
-
     internal fun compareSelection(selection: Selection? = currentSelection) {
         Log.i(TAG, "compareSelection")
         val verseRange = selection?.verseRange ?: return
@@ -657,27 +647,20 @@ class BibleView(
     private val bookmarkChanges by lazy { net.bible.sharedcore.platform.OrderedLauncher(scope) }
     private var documentLoadGeneration = 0L
 
+    /** Platform seams (see [AndroidReadingNavigator], [BibleViewSurface]). */
+    val navigator by lazy {
+        AndroidReadingNavigator(
+            host = { hostCallbacks.hostActivity },
+            downloadControl = { downloadControl },
+            workspaceSettings = { windowControl.windowRepository.workspaceSettings },
+        )
+    }
+    val surface by lazy { BibleViewSurface(this) }
+
     internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.Main) {
         val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
-        // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data` argument is
-        // required), and the classic ManageLabelsComposeActivity ScreenLauncher.targetFor used to
-        // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host Intent
-        // directly. The "data" extra on the RESULT is unchanged -- NavResultIntents.forManageLabels
-        // still writes it under that key.
-        val data = ManageLabelsContract.ManageLabelsData(
-            mode = ManageLabelsContract.Mode.ASSIGN,
-            selectedLabels = labels.toMutableSet(),
-            bookmarkPrimaryLabel = bookmark.primaryLabelId
-        ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
-        val intent = NavHostComposeActivity.intentFor(host.hostContext, NavRoutes.manageLabels(data))
-        val result = hostCallbacks.hostActivity.awaitIntent(intent)
-
-        if(result.resultCode == Activity.RESULT_OK) {
-            val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
-            bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
-            withContext(Dispatchers.IO) { bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels) }
-            windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
-        }
+        val chosen = navigator.assignLabels(bookmark, labels) ?: return@launch
+        withContext(Dispatchers.IO) { bookmarkControl.addOrUpdateBookmark(bookmark, chosen.toSet()) }
     }
 
     var menuPrepared = false
@@ -1506,10 +1489,7 @@ class BibleView(
             true
         }
         UriConstants.SCHEME_DOWNLOAD -> {
-            val initials = uri.getQueryParameter("initials")
-
-            val intent = NavHostComposeActivity.intentFor(host.hostContext, NavRoutes.download(search = initials))
-            hostCallbacks.hostActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+            navigator.openDownloadSearch(uri.getQueryParameter("initials"))
             true
         }
         UriConstants.SCHEME_SWORD -> {

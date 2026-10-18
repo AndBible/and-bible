@@ -402,13 +402,8 @@ class BibleJavascriptInterface(
     }
 
     override fun openDownloads() {
-        // DL-8: called on the JavaBridge thread; the reading host answers this launch by navigating
-        // its graph, which is main-thread-only.
-        scope.launch(Dispatchers.Main) {
-            if (!downloadControl.checkDownloadOkay()) return@launch
-            val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.download(addons = true))
-            hostActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
-        }
+        // DL-8: called on the JavaBridge thread; the navigator posts the launch to the main thread.
+        bibleView.navigator.openDownloads(addons = true)
     }
 
     override fun setEditing(enabled: Boolean) {
@@ -449,7 +444,7 @@ class BibleJavascriptInterface(
     }
 
     override fun toast(text: String) {
-        UserMessages.toast(text)
+        bibleView.surface.toast(text)
     }
 
     override fun updateStudyPadTextEntry(data: String) {
@@ -576,24 +571,14 @@ class BibleJavascriptInterface(
      * `startActivityForResult(..., STD_REQUEST_CODE)` is unchanged and still matters: this screen
      * returns `ActivityResultKind.ReadingProgress` to `MainBibleActivity.onActivityResult`.
      */
-    override fun openReadingProgress(tab: Int) {
-        scope.launch(Dispatchers.Main) {
-            val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.readingProgress(tab))
-            hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
-        }
-    }
+    override fun openReadingProgress(tab: Int) = bibleView.navigator.openReadingProgress(tab)
 
     /**
      * Still `startActivityForResult` although this screen never calls `setResult`, so it always
      * returns `RESULT_CANCELED` into `MainBibleActivity.kt:2882-2890`'s early branch. That is
      * pre-existing, harmless and deliberately NOT changed here.
      */
-    override fun openReadingProgressSettings() {
-        scope.launch(Dispatchers.Main) {
-            val intent = ScreenLauncher.intentFor(hostActivity, Screen.ReadingProgressSettings)
-            hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
-        }
-    }
+    override fun openReadingProgressSettings() = bibleView.navigator.openReadingProgressSettings()
 
     /**
      * Show a help dialog for a Vue-side view. The [scopeKey] string is
@@ -790,31 +775,13 @@ class BibleJavascriptInterface(
     }
 
     override fun shareHtml(html: String) {
-        val targetDir = File(SharedConstants.internalFilesDir, "backup/")
-        targetDir.mkdirs()
-        val targetFile = File(targetDir, "shared.html")
-        targetFile.writeText(html)
-
         val docName = when(val firstDoc = bibleView.firstDocument) {
             is StudyPadDocument -> firstDoc.label.displayName
             is MultiFragmentDocument -> hostActivity.getString(R.string.multi_description)
             is MyNotesDocument -> hostActivity.getString(R.string.my_notes_abbreviation)
             else -> throw RuntimeException("Illegal doc type")
         }
-
-        val titleStr = hostActivity.getString(R.string.export_fileformat, "HTML")
-        scope.launch {
-            org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
-                AndroidBackupHost { hostActivity },
-                targetFile.toOkioPath(),
-                fileName = "shared.html",
-                shareMimeType = "text/html",
-                saveMimeType = "text/html",
-                chooserTitle = titleStr,
-                message = titleStr,
-                subject = docName
-            )
-        }
+        bibleView.surface.shareHtml(html, docName)
     }
 
     override fun onKeyDown(key: String) {
@@ -858,7 +825,7 @@ class BibleJavascriptInterface(
                 // -- is gone. That caller now opens the sheet and is resolved by a
                 // `CompletableDeferred`; this shortcut's active-window mismatch is unaffected, so
                 // it stays on the classic path. Spec §6.3 records the two remaining bypasses.)
-                "CtrlKeyB" -> net.bible.android.platform.AndroidKeyChooserLauncher { hostActivity }.startKeyChooser(bibleView.window.pageManager.currentPage)
+                "CtrlKeyB" -> bibleView.navigator.startKeyChooser(bibleView.window.pageManager.currentPage)
                 "CtrlKeyW" -> {
                     // M1 (whole-branch review fix wave): guard on the MOUNTED HOST -- see
                     // MainBibleActivity's R.id.switchToWorkspace for the full rationale.
@@ -866,8 +833,7 @@ class BibleJavascriptInterface(
                     if (host != null) {
                         host.showWorkspaceSheet()
                     } else {
-                        val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.WORKSPACE_SELECTOR)
-                        hostActivity.startActivityForResult(intent, WORKSPACE_CHANGED)
+                        bibleView.navigator.openWorkspaceSelector()
                     }
                 }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
@@ -875,8 +841,7 @@ class BibleJavascriptInterface(
                     // F6 Task 8b entry point 5: retarget into the reading view's search when a
                     // Compose host is mounted; classic behaviour unchanged otherwise.
                     if (!hostCallbacks.composeSearchIfHosted(/* seedQuery = */ null, /* preDecorated = */ false)) {
-                        val intent = searchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, hostActivity)
-                        intent?.let {hostActivity.startActivityForResult(it, ActivityBase.STD_REQUEST_CODE)}
+                        bibleView.navigator.openSearch(windowControl.activeWindowPageManager.currentPage.currentDocument)
                     }
                 }
                 "Space" -> {
@@ -975,12 +940,7 @@ class BibleJavascriptInterface(
         scope.launch {
             val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey) ?: return@launch
             withContext(Dispatchers.Main) {
-                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_TEXT, result.content)
-                    putExtra(Intent.EXTRA_SUBJECT, result.title)
-                    type = "text/plain"
-                }
-                hostActivity.startActivity(Intent.createChooser(sendIntent, hostActivity.getString(R.string.share)))
+                bibleView.surface.shareText(result.content, result.title)
             }
         }
     }
@@ -989,7 +949,7 @@ class BibleJavascriptInterface(
         scope.launch {
             val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey) ?: return@launch
             withContext(Dispatchers.Main) {
-                CommonUtils.copyToClipboard(ClipData.newPlainText(result.title, result.content))
+                bibleView.surface.copyText(result.title, result.content)
             }
         }
     }
@@ -1038,17 +998,7 @@ class BibleJavascriptInterface(
         }
     }
 
-    override fun openPromptEditor(promptId: String) {
-        scope.launch(Dispatchers.Main) {
-            // Screen.PromptEdit is migrated (Task 7) -- ScreenLauncher.MIGRATED can only carry an
-            // argument-less route, so a caller needing promptId must build the concrete route
-            // itself and go straight to NavHostComposeActivity (a putExtra on top of
-            // ScreenLauncher.intentFor's result would be silently dropped; see
-            // NavHostRoutingGuardTest's migratedScreenArgumentIsNeverDroppedByAPutExtra).
-            val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.promptEdit(promptId = promptId))
-            hostActivity.startActivity(intent)
-        }
-    }
+    override fun openPromptEditor(promptId: String) = bibleView.navigator.openPromptEditor(promptId)
 
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
 }
