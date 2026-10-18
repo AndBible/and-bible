@@ -21,10 +21,17 @@ package net.bible.sharedui.ios.ports
 import net.bible.sharedui.app.readingplan.ReadingPlanHostPlatform
 import net.bible.sharedui.ios.IosPending
 
-/** Pending (stream H): portrait, and a fixed epoch date until the real platform half lands. */
+/**
+ * Pending stand-in (stream H), not a real implementation: always portrait, [localYmd] always answers 1970-01-01 and
+ * [withLocalYmd] echoes its input, until the real platform half lands.
+ */
 @kotlin.native.HiddenFromObjC
 class IosReadingPlanHostPlatform : ReadingPlanHostPlatform {
-    override val isPortrait: Boolean get() = true
+    override val isPortrait: Boolean
+        get() {
+            IosPending.log("ReadingPlanHostPlatform.isPortrait")
+            return true
+        }
 
     override fun localYmd(epochMs: Long): Triple<Int, Int, Int> {
         IosPending.log("ReadingPlanHostPlatform.localYmd")

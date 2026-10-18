@@ -65,11 +65,11 @@ class IosChooserHostPlatform : ChooserHostPlatform {
                 groupByCategory = false, longNames = false, showProgress = false,
             ),
             buildStep = { step, _ -> GridUi(step, "", 1, false, false, false, emptyList()) },
-            onPersistOptions = {},
-            onPickBook = { BookPick.GoChapter },
-            onPickChapter = { ChapterPick.GoVerse },
-            onPickVerse = { "" },
-            onFinish = {},
+            onPersistOptions = { IosPending.log("ChooserHostPlatform.grid.onPersistOptions") },
+            onPickBook = { IosPending.log("ChooserHostPlatform.grid.onPickBook"); BookPick.GoChapter },
+            onPickChapter = { IosPending.log("ChooserHostPlatform.grid.onPickChapter"); ChapterPick.GoVerse },
+            onPickVerse = { IosPending.log("ChooserHostPlatform.grid.onPickVerse"); "" },
+            onFinish = { IosPending.log("ChooserHostPlatform.grid.onFinish") },
         )
     }
 

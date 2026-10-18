@@ -28,7 +28,10 @@ import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.installzip.InstallUiState
 import net.bible.sharedui.ios.IosPending
 
-/** Pending (stream F): no jobs, nothing to install. */
+/**
+ * Pending (stream F): no jobs, nothing to install. [mapPhase] answers an empty [InstallUiState.Error] because
+ * [InstallUiState] has no neutral state; it is unreachable while [jobs] stays empty.
+ */
 @kotlin.native.HiddenFromObjC
 class IosInstallZipHostPlatform : InstallZipHostPlatform {
     override val jobs: StateFlow<List<InstallJobState>> = MutableStateFlow<List<InstallJobState>>(emptyList()).asStateFlow()

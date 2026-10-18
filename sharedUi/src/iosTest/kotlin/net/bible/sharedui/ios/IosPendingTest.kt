@@ -81,7 +81,7 @@ class IosHostPortsTest {
             val shell = net.bible.sharedui.ios.app.IosHostShell(scope, object : net.bible.sharedui.ios.app.IosNavigator {
                 override fun navigate(route: String) = Unit
                 override fun popBackStack() = false
-                override fun popUpTo(route: String, inclusive: Boolean) = Unit
+                override fun popBackStackTo(route: String, inclusive: Boolean) = false
             })
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin)
             ports.welcomePlatform().onDownload()

@@ -29,7 +29,8 @@ import net.bible.sharedui.ios.IosPending
 interface IosNavigator {
     fun navigate(route: String)
     fun popBackStack(): Boolean
-    fun popUpTo(route: String, inclusive: Boolean)
+    /** Pops back to [route]; false (and no change) when [route] is not on the back stack. */
+    fun popBackStackTo(route: String, inclusive: Boolean): Boolean
 }
 
 /** [IosNavigator] over the single iOS [NavHostController]; the controller is read lazily (it exists after the first composition). */
@@ -39,9 +40,8 @@ class NavControllerNavigator(private val navController: () -> NavHostController)
 
     override fun popBackStack(): Boolean = navController().popBackStack()
 
-    override fun popUpTo(route: String, inclusive: Boolean) {
+    override fun popBackStackTo(route: String, inclusive: Boolean): Boolean =
         navController().popBackStack(route, inclusive)
-    }
 }
 
 /**
@@ -54,6 +54,7 @@ class IosHostShell(
     override val hostScope: CoroutineScope,
     private val navigator: IosNavigator,
 ) : HostShell {
+    // The history-route fields are main-thread only (composition effects), so they take no lock.
     private var historyRouteOwner: Any? = null
 
     /** The route the current owner published, or null. */
@@ -72,7 +73,11 @@ class IosHostShell(
     }
 
     override fun openReading() {
-        navigator.popUpTo(NavRoutes.WELCOME, inclusive = true)
+        // Like Android's CLEAR_TOP | SINGLE_TOP: reuse a reading entry that is already on the stack (Search paths).
+        if (navigator.popBackStackTo(NavRoutes.READING, inclusive = false)) return
+        // First-run flow: Download sits above Welcome, so pop it first; either may be absent.
+        navigator.popBackStackTo(NavRoutes.DOWNLOAD_PATTERN, inclusive = true)
+        navigator.popBackStackTo(NavRoutes.WELCOME, inclusive = true)
         navigator.navigate(NavRoutes.READING)
     }
 
