@@ -41,6 +41,25 @@ final class AppUITests: XCTestCase {
         }
     }
 
+    /// In first-download mode the Download Documents screen is gated by an 'OK' button that enables once a Bible
+    /// install has finished (same as Android: the user presses OK). Waits for it to exist AND be enabled, then taps.
+    private func waitForEnabledOkAndTap(_ app: XCUIApplication, timeout: TimeInterval = 180) -> Bool {
+        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
+        let enabled = waitUntil(timeout: timeout) { ok.exists && ok.isEnabled }
+        if enabled { ok.tap() }
+        return enabled
+    }
+
+    /// Polls until `condition` holds or `timeout` elapses; returns the final result.
+    private func waitUntil(timeout: TimeInterval, _ condition: () -> Bool) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if condition() { return true }
+            usleep(500_000)
+        }
+        return condition()
+    }
+
     func testFreshInstallEasyStartReadsJohn3() {
         let app = launch(["-resetData", "-openRef", "John.3.16"])
         let welcome = element(app, "welcome-screen")
@@ -51,8 +70,11 @@ final class AppUITests: XCTestCase {
         XCTAssertTrue(easy.exists, "welcome-easy-start not exposed as an accessibility identifier")
         easy.tap()
         confirmDownloadIfAsked(app)
+        let okTapped = waitForEnabledOkAndTap(app)
+        if !okTapped { attachTree(app, "no-enabled-ok") }
+        XCTAssertTrue(okTapped, "Download Documents OK button not enabled within 180 s (no Bible installed?)")
 
-        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 180), "reading host not shown within 180 s")
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading host not shown after OK")
         let verse = app.webViews.staticTexts
             .containing(NSPredicate(format: "label CONTAINS 'For God so loved the world'")).firstMatch
         let found = verse.waitForExistence(timeout: 60)
