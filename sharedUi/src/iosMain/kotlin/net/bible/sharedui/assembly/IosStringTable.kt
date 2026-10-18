@@ -24,7 +24,11 @@ import net.bible.sharedui.strings.lookupPlural
 /**
  * The generated string tables of language [tag] as a [StringTable]. Templates are filled by
  * [net.bible.sharedui.strings.keyed.formatTemplate] (the generated `fmt` only knows positional `%1$s` specs, while
- * many Android strings use plain `%s`, `%d` and `%.1f`).
+ * many Android strings use plain `%s`, `%d` and `%.1f`). [raw] reads a raw text resource (the LLM system prompts);
+ * the app supplies it from the bundle, see `IosPlatformParts`.
  */
-fun iosStringTable(tag: String): StringTable =
-    StringTable.of(tag, { lookup(tag, it) }, { name, count -> lookupPlural(tag, name, count) }, { lookupArray(tag, it) })
+fun iosStringTable(
+    tag: String,
+    raw: (name: String) -> String = { error("Raw text resource '$it' is not available") },
+): StringTable =
+    StringTable.of(tag, { lookup(tag, it) }, { name, count -> lookupPlural(tag, name, count) }, { lookupArray(tag, it) }, raw)

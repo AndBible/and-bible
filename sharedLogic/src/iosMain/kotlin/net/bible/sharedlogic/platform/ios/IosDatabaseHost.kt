@@ -84,8 +84,17 @@ class IosDatabaseHost(
 
     override fun migrateOldSettingsKeys() = Unit
 
-    override fun zipDatabaseFilesForUpgradeBackup(): String? =
+    /**
+     * The pre-upgrade safety backup. `BackupControl` is resolved from Koin, and phase 1 does not bind every port it
+     * needs (Stream D's sync ports), so it may be unresolvable; that must not stop the databases from opening (a fresh
+     * install has nothing to back up). A failure is logged and the backup skipped.
+     */
+    override fun zipDatabaseFilesForUpgradeBackup(): String? = try {
         KoinPlatform.getKoinOrNull()?.getOrNull<BackupControl>()?.zipDatabaseFiles()?.toString()
+    } catch (e: Exception) {
+        Log.w(TAG, "Upgrade backup skipped: BackupControl is not available", e)
+        null
+    }
 
     override val databaseBackupSuffix: String get() = DATABASE_BACKUP_SUFFIX
     override val legacyMonolithicMigrations: Array<out androidx.room3.migration.Migration> get() = emptyArray()
