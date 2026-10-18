@@ -51,11 +51,19 @@ class IosUiLanguageTest {
     }
 
     @Test
+    fun matchingIgnoresCaseAndAnswersTheSupportedSpelling() {
+        assertEquals("sr-Latn", IosUiLanguage.resolve(null, listOf("sr-latn-RS"), supported))
+        assertEquals("zh-Hans", IosUiLanguage.resolve("ZH-hans", emptyList(), supported))
+        assertEquals("fi", IosUiLanguage.resolve(null, listOf("FI"), supported))
+    }
+
+    @Test
     fun noPreferencesAtAllMeansEnglish() = assertEquals("en", IosUiLanguage.resolve(null, emptyList(), emptySet()))
 
     @Test
-    fun theGeneratedTablesServeEveryAnswer() {
-        val tables = iosStringTable("fi")
-        assertTrue(tables.text("speak").isNotBlank())
+    fun theFallbackLanguageHasGeneratedTables() {
+        val en = iosStringTable(IosUiLanguage.resolve(null, emptyList(), emptySet()))
+        assertTrue(en.text("speak") != "speak" && en.text("speak").isNotBlank())
+        assertTrue(iosStringTable("fi").text("speak") != en.text("speak"))
     }
 }

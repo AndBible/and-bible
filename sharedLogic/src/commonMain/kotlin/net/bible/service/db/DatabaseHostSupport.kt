@@ -16,6 +16,7 @@
  */
 package net.bible.service.db
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.android.control.page.window.WorkspacePersistence
 import net.bible.service.common.GlobalTextDisplaySettingsStore
@@ -57,7 +58,7 @@ object DatabaseHostSupport {
             val keys = listOf(WorkspacePersistence.KEY, GlobalTextDisplaySettingsStore.KEY, ReadingProgressSettingsStore.KEY)
             if (withTimeoutOrNull(timeoutMs ?: ORDERED_WRITES_EXIT_WAIT_MS) { keys.forEach { launcher.join(it) } } == null)
                 Log.w(TAG, "Ordered write queues did not drain before exit")
-        } catch (e: kotlinx.coroutines.CancellationException) {
+        } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) { Log.e(TAG, "Settings flush failed", e) }
     }

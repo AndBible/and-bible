@@ -44,6 +44,7 @@ class IosDatabaseHost(
 ) : DatabaseHost {
     private val files = FileSystem.SYSTEM
 
+    // env.databasePath() creates the databases directory, which databaseList() relies on.
     private val directory: String
         get() = dbRoot?.also { files.createDirectories(it.toPath()) } ?: env.databasePath("x").substringBeforeLast('/')
 

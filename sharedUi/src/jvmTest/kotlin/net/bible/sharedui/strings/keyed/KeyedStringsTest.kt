@@ -22,6 +22,7 @@ import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.service.llm.AgentTool
 import net.bible.sharedlogic.settings.TextDisplayArray
 import net.bible.sharedlogic.settings.TextDisplayString
+import net.bible.sharedui.strings.StringsData
 import net.bible.sharedui.strings.lookup
 import net.bible.sharedui.strings.lookupArray
 import net.bible.sharedui.strings.lookupPlural
@@ -37,9 +38,24 @@ import kotlin.test.assertTrue
  * against the generated tables and must answer real, fully filled text.
  */
 class KeyedStringsTest {
-    private fun tableFor(tag: String, raw: ((String) -> String)? = null): StringTable =
-        if (raw == null) StringTable.of(tag, { lookup(tag, it) }, { n, c -> lookupPlural(tag, n, c) }, { lookupArray(tag, it) })
-        else StringTable.of(tag, { lookup(tag, it) }, { n, c -> lookupPlural(tag, n, c) }, { lookupArray(tag, it) }, raw)
+    /**
+     * A table over the generated tables of [tag] that fails, naming the key, when a key (or plural/array name) is not
+     * in the English table. A missing key would otherwise answer itself, which no text check can tell from real text
+     * for a one-word key such as `cancel`.
+     */
+    private fun tableFor(tag: String, raw: ((String) -> String)? = null): StringTable {
+        fun known(key: String) = key.also { check(it in StringsData.data.getValue("en")) { "Unknown string key: $it" } }
+        val text = { key: String -> lookup(tag, known(key)) }
+        val plural = { name: String, count: Int ->
+            check(name in StringsData.plurals.getValue("en")) { "Unknown plural: $name" }
+            lookupPlural(tag, name, count)
+        }
+        val array = { name: String ->
+            check(name in StringsData.arrays.getValue("en")) { "Unknown array: $name" }
+            lookupArray(tag, name)
+        }
+        return if (raw == null) StringTable.of(tag, text, plural, array) else StringTable.of(tag, text, plural, array, raw)
+    }
 
     private val table = tableFor("en")
     private val placeholder = Regex("%(\\d+\\$)?[0-9.]*[sdfxX]")

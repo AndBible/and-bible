@@ -23,15 +23,16 @@ object IosUiLanguage {
     /**
      * The `locale_pref` setting if set (blank counts as unset) and supported, else the first of the iOS
      * [preferred] languages that [supported] has, else English. A tag may match through a shorter form: `pt-BR`
-     * matches `pt`, `sr-Latn-RS` matches `sr-Latn` and then `sr`; underscores are read as dashes. The answer is
+     * matches `pt`, `sr-Latn-RS` matches `sr-Latn` and then `sr`; underscores are read as dashes and case is ignored. The answer is
      * the supported tag that matched, so it is always one `iosStrings` can serve.
      */
     fun resolve(localePref: String?, preferred: List<String>, supported: Set<String>): String {
+        val byLowercase = supported.associateBy { it.lowercase() }
         val candidates = listOfNotNull(localePref?.takeIf { it.isNotBlank() }) + preferred
         for (candidate in candidates) {
             var tag = candidate.trim().replace('_', '-')
             while (tag.isNotEmpty()) {
-                if (tag in supported) return tag
+                byLowercase[tag.lowercase()]?.let { return it }
                 val dash = tag.lastIndexOf('-')
                 if (dash <= 0) break
                 tag = tag.substring(0, dash)
