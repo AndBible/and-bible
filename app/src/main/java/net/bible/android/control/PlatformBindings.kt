@@ -4,8 +4,6 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.search.SearchHighlighter
 import net.bible.android.control.search.SearchTextHighlighter
-import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
-import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.android.platform.AndroidDocumentSyncStarter
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
@@ -98,16 +96,7 @@ fun buildPlatformBindings() = module {
     single<net.bible.sharedcore.llm.http.LlmHttpTransport> {
         net.bible.sharedcore.llm.http.KtorLlmHttpTransport(get<net.bible.android.platform.AndroidHttpClients>()::clientFor)
     }
-    // Explicit (not singleOf): TextDisplaySettingsServiceImpl now takes an optional
-    // DetachedWorkspaceEdit? constructor param, which singleOf would try (and fail) to resolve as
-    // a Koin dependency. The shared singleton always gets the plain, non-detached instance; a
-    // detached instance (workspace-selector settings edit) is constructed separately, never via Koin.
-    // `single { ... } bind ...::class` (not `single<TextDisplaySettingsService> { ... }`) keeps the
-    // CONCRETE class as the definition's primary type, with the interface as a secondary one --
-    // TextDisplaySettingsComposeActivity injects the concrete TextDisplaySettingsServiceImpl (for
-    // the HIDELABELS bridge helper, outside the portable interface), same reason as the
-    // singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() } pattern (that binding lives in SharedBindings.kt).
-    single { TextDisplaySettingsServiceImpl() } bind TextDisplaySettingsService::class
+    single<net.bible.sharedlogic.settings.TextDisplayPrefItems> { net.bible.android.platform.AndroidTextDisplayPrefItems() }
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
     single<net.bible.android.control.speak.SpeakPlatform> { net.bible.android.platform.AndroidSpeakPlatform(androidContext()) }

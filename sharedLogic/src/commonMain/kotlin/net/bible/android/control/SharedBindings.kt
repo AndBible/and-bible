@@ -40,6 +40,8 @@ import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditServiceImpl
 import net.bible.android.view.activity.bookmark.ManageLabelsServiceImpl
 import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
+import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
+import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
@@ -178,6 +180,16 @@ fun buildSharedBindings() = module {
     single { BookmarkJsActions(get(), get()) }
     single { SyncSettingsCategories(get()) }
     singleOf(::ReadingProgressSettingsServiceImpl) { bind<ReadingProgressSettingsService>() }
+    // Explicit (not singleOf): TextDisplaySettingsServiceImpl now takes an optional
+    // DetachedWorkspaceEdit? constructor param, which singleOf would try (and fail) to resolve as
+    // a Koin dependency. The shared singleton always gets the plain, non-detached instance; a
+    // detached instance (workspace-selector settings edit) is constructed separately, never via Koin.
+    // `single { ... } bind ...::class` (not `single<TextDisplaySettingsService> { ... }`) keeps the
+    // CONCRETE class as the definition's primary type, with the interface as a secondary one --
+    // TextDisplaySettingsComposeActivity injects the concrete TextDisplaySettingsServiceImpl (for
+    // the HIDELABELS bridge helper, outside the portable interface), same reason as the
+    // singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() } pattern (that binding lives in SharedBindings.kt).
+    single { TextDisplaySettingsServiceImpl() } bind TextDisplaySettingsService::class
     factory { (scope: kotlinx.coroutines.CoroutineScope) ->
         SyncSettingsServiceImpl(
             scope, get<AppCoroutineScope>(), get(), get(), get(), get(), get(), get(), get(), get(), get(),

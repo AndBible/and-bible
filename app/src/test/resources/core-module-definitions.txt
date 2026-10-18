@@ -141,3 +141,4 @@ net.bible.sharedlogic.platform.PromptPackSource::_root_
 net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener::_root_
 net.bible.sharedlogic.platform.SearchIndexScheduler::_root_
 net.bible.sharedlogic.platform.SentenceBreaker::_root_
+net.bible.sharedlogic.settings.TextDisplayPrefItems::_root_
