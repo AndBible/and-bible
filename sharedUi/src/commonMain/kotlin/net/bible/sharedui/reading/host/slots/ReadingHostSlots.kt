@@ -19,12 +19,14 @@
 package net.bible.sharedui.reading.host.slots
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.coroutines.CoroutineScope
+import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.view.activity.page.screen.speakBarVisible
 import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.SettingsEditorPage
@@ -35,6 +37,8 @@ import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.sharedui.app.ports.ImagePicker
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.reading.speakBarOwnsTopEdge
+import net.bible.sharedcore.speak.SpeakSettingsService
+import net.bible.sharedcore.speak.SpeakSheetStack
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.reading.SpeakTransportBar
@@ -51,6 +55,10 @@ import net.bible.sharedui.strings.Strings
  *
  * The text-settings editor takes the platform's [imagePicker] (background import) and
  * [thumbnailFor] (provided-background thumbnails), and a [scope] for the colour controller's work.
+ *
+ * The Speak sheet takes [speakSettingsService], the [speakPlatform] port (system TTS settings) and
+ * the [gridPassages] factory for its verse picker; the host builds the factory once and also uses it
+ * for the key-chooser grid.
  *
  * The agent log's glyph comes from [LocalAgentStatusIcon]; `AgentLogController` is built by the
  * host (its raw-log action starts a platform activity).
@@ -72,10 +80,38 @@ class ReadingHostSlots(
     val scope: CoroutineScope,
     val imagePicker: ImagePicker,
     val thumbnailFor: (String) -> ImageBitmap?,
+    val speakSettingsService: SpeakSettingsService,
+    val speakPlatform: SpeakSettingsPlatform,
+    val gridPassages: GridPassageControllerFactory,
 ) {
     private val textSettings = TextSettingsEditorState(
         hostState, textDisplaySettingsService, scope, strings, imagePicker, thumbnailFor,
     )
+
+    private val speak = SpeakSettingsState(
+        hostState, speakSettingsService, strings, externalLinks, speakPlatform, gridPassages,
+    )
+
+    /** The Speak sheet's page stack (test-only reads of which page is open). */
+    val speakSheet: SpeakSheetStack get() = speak.sheet
+
+    /** The Speak help dialog's HTML while it is open (test-only reads). */
+    val speakHelp: MutableState<String?> get() = speak.help
+
+    internal val speakSettingsState: SpeakSettingsState get() = speak
+
+    /** Opens the Speak settings sheet on its Settings page, closing the other modal overlays first. */
+    fun showSpeakSettings() = speak.show()
+
+    /** Sets the Speak help dialog's content (title plus the tutorial-video link). */
+    fun showSpeakHelp() = speak.showHelp()
+
+    /** Sets the Advanced Speak help dialog's content (auto-bookmarking and playback-settings explanations). */
+    fun showAdvancedSpeakHelp() = speak.showAdvancedHelp()
+
+    /** The Speak settings sheet; renders nothing while its page stack is empty. */
+    @Composable
+    fun SpeakSettings() = speak.Content()
 
     /** The in-place text-settings editor's page stack (independent of the settings screen's stack). */
     val textSettingsEditor: SettingsEditorStack get() = textSettings.editor

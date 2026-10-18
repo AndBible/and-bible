@@ -32,9 +32,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -42,11 +40,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -102,12 +101,8 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.FailClosedLinkRouting
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
-import net.bible.android.view.activity.navigation.buildGridStep
+import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
-import net.bible.android.view.activity.navigation.initialGridOptions
-import net.bible.android.view.activity.navigation.persistGridOptions
-import net.bible.android.view.activity.navigation.pickGridBook
-import net.bible.android.view.activity.navigation.pickGridChapter
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.KeyIsNull
@@ -126,8 +121,6 @@ import net.bible.android.view.activity.search.toClassicSearchTypeName
 import net.bible.android.view.activity.settings.BackgroundThumbnailResolver
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.RecentDocumentsStore
-import net.bible.service.common.automaticSpeakBookmarkingVideo
-import net.bible.service.common.speakHelpVideo
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
@@ -144,7 +137,6 @@ import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
-import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.ai.reading.ReadingLlmDialog
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmService
@@ -195,16 +187,10 @@ import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.TextDisplaySettingsService
-import net.bible.sharedcore.speak.AdvancedSpeakSettingsController
-import net.bible.sharedcore.speak.BibleSpeakSettingsController
-import net.bible.sharedcore.speak.PickedVerse
-import net.bible.sharedcore.speak.SpeakRangeEditor
 import net.bible.sharedcore.speak.SpeakSettingsService
-import net.bible.sharedcore.speak.SpeakSheetPage
 import net.bible.sharedcore.speak.SpeakSheetStack
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportService
-import net.bible.sharedcore.speak.sleepTimerSelectionFor
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowLayoutState
@@ -214,12 +200,8 @@ import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedcore.workspaces.WorkspaceQuickController
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
-import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
-import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
-import net.bible.sharedui.components.AbLinkRouting
-import net.bible.sharedui.components.AbMessageDialog
 import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetFooterRow
 import net.bible.sharedui.components.AbQuickSheetTab
@@ -248,18 +230,11 @@ import net.bible.sharedui.app.ports.ImagePicker
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.search.BibleResultsActions
-import net.bible.sharedui.search.BibleSearchSettings
-import net.bible.sharedui.search.EpubSearchSettings
 import net.bible.sharedui.search.SearchIndexPanel
 import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.search.SearchSheetContent
 import net.bible.sharedui.search.bibleResultRows
 import net.bible.sharedui.search.epubResultRows
-import net.bible.sharedui.speak.AdvancedSpeakSettingsContent
-import net.bible.sharedui.speak.SleepTimerContent
-import net.bible.sharedui.speak.SpeakRangeContent
-import net.bible.sharedui.speak.SpeakSettingsContent
-import net.bible.sharedui.speak.SpeakSettingsSheet
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.textOptionDrawableRes
 import net.bible.sharedui.workspaces.WorkspaceQuickContent
@@ -270,9 +245,6 @@ import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseFactory
-import org.crosswire.jsword.versification.BibleBook
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -357,7 +329,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         historyManager = historyManager,
         documentControl = documentControl,
         hooks = ReadingHostHooks(
-            closeSpeakSheet = { speakSheet.close() },
+            closeSpeakSheet = { slots.speakSheet.close() },
             closeTextSettingsEditor = { textSettingsEditor.close() },
             dismissLlmSheets = {
                 when (readingLlmDialogs.state.value.dialog) {
@@ -802,11 +774,24 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val backgroundThumbnailResolver = BackgroundThumbnailResolver()
 
     /**
+     * Builds the passage-grid controllers of the Speak sheet's verse picker (inside [slots]) and of
+     * the key-chooser quick sheet below, from `GridPassageHostSupport.kt`'s seams.
+     */
+    private val gridFactory = GridPassageControllerFactory(
+        navigationControl = navigationControl,
+        windowControl = windowControl,
+        settings = CommonUtils.settings,
+        workspaceName = { activity.hostWindowRepository.name },
+        isPortrait = { CommonUtils.isPortrait },
+    )
+
+    /**
      * The reading view's host-built slots, in common code (`:sharedUi` `ReadingHostSlots`): the
-     * reading dialogs, the agent-log panel and the Speak bar. Declared after [agentLog] and
+     * reading dialogs, the agent-log panel, the Speak bar, the search settings, the text-settings editor
+     * and the Speak settings sheet. Declared after [agentLog] and
      * [speakTransport], which it wraps; [fullScreen] is read lazily, in composition.
      */
-    internal val slots = ReadingHostSlots(
+    internal val slots: ReadingHostSlots = ReadingHostSlots(
         hostState = hostState,
         strings = { AndroidStrings(activity.hostContext) },
         externalLinks = AndroidExternalLinks(),
@@ -824,6 +809,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             override suspend fun pickImage(): String? = activity.readingCommands.textSettingsImagePicker()
         },
         thumbnailFor = backgroundThumbnailResolver::resolve,
+        speakSettingsService = speakSettingsService,
+        speakPlatform = AndroidSpeakSettingsPlatform { activity.hostActivity },
+        gridPassages = gridFactory,
     )
 
     // ------------------------------------------------------------------------------------------
@@ -884,45 +872,11 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         onReady: () -> Unit,
     ) = slots.showTextSettingEditor(scope, page, onReady)
 
-    /** The Speak sheet's page stack. One instance per host, like [textSettingsEditor] -- `internal`
-     *  for the same reason (test-only reads of which page is open, no `ComposeTestRule` in this
-     *  module). */
-    internal val speakSheet = SpeakSheetStack()
+    /** The Speak sheet's page stack (owned by [slots]); `internal` for test-only reads of which page is open. */
+    internal val speakSheet: SpeakSheetStack get() = slots.speakSheet
 
-    /** The repeat-range draft. Deliberately host-lived rather than page-lived: its endpoints are
-     *  picked on the PickVerse page, so a draft that died with the RepeatRange page's composition
-     *  would lose the endpoint the user just chose. */
-    private val speakRangeEditor = SpeakRangeEditor()
-    private val speakSettingsController = BibleSpeakSettingsController(speakSettingsService)
-    private val advancedSpeakController = AdvancedSpeakSettingsController(speakSettingsService)
-
-    /**
-     * Non-null only while the verse-picker page is composed. [GridChoosePassageController.back]
-     * returns `false` at its own root, which is exactly "the grid has nothing left to pop" — so the
-     * sheet's dismiss can unwind BOOK←CHAPTER←VERSE first and only pop the sheet page once the
-     * grid is exhausted. Without this, one dismiss would jump straight out of the picker.
-     */
-    private var speakGridBack: (() -> Boolean)? = null
-
-    /**
-     * Open the Speak settings sheet over the reading view. The only way in: round 13a deleted the
-     * Compose Speak activities, S13 the classic ones, and Batch Z-late's epilogue the
-     * `Screen.BibleSpeak` enum entry that used to route to them.
-     */
-    internal fun showSpeakSettings() {
-        // Total mutual exclusion, the third and last application site of the rule -- see
-        // [readingLlmDialogs]'s `onSheetOpening` kdoc. Applied at the 14a/14a-2 merge, per round
-        // 14a's status entry.
-        ReadingOverlayExclusion.closedBy(ReadingOverlay.SpeakSheet).forEach(::closeOverlay)
-        // `open` assigns `listOf(page)`, so this always lands on the Settings page whatever depth
-        // the sheet was left at — reopening never resumes a half-finished range edit. The `close()`
-        // is kept for symmetry with [showTextSettingEditor] (and because an explicit empty state
-        // before the open is the cheapest way to keep that guarantee obvious); unlike there, no
-        // conflation hazard applies here, since the only value `open` could conflate with is
-        // `[Settings]` itself, which is already what this method wants.
-        speakSheet.close()
-        speakSheet.open(SpeakSheetPage.Settings)
-    }
+    /** Open the Speak settings sheet over the reading view; the only way in. */
+    internal fun showSpeakSettings(): Unit = slots.showSpeakSettings()
 
     /**
      * Round 14b §8: show the Speak transport bar and nothing else — no playback, no sheet, no
@@ -947,166 +901,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         activity.readingCommands.composeShowSpeakTransport()
     }
 
-    /** Moved here verbatim from the deleted `BibleSpeakComposeActivity`, which owned it until 13a
-     *  (its `onSystemTtsSettings` lambda — an implicit intent, no extras, no result handling). */
-    private fun openSystemTtsSettings() {
-        activity.hostActivity.startActivity(Intent("com.android.settings.TTS_SETTINGS"))
-    }
+    /** The Speak/Advanced-Speak help dialogs' state (owned by [slots]); `internal` for test-only reads. */
+    internal val speakHelp: MutableState<String?> get() = slots.speakHelp
 
-    /**
-     * Platform-dialog removal Task 18: the Speak/Advanced-Speak help dialogs' shared state — ONE
-     * `MutableState` (only one of the two sheet pages that opens either is ever composed at a time),
-     * set by [showSpeakHelp]/[showAdvancedSpeakHelp] and rendered inside [SpeakSettingsSlot] as a
-     * dialog OVER the sheet ([ReadingOverlayExclusion]'s kdoc: dialog-over-sheet is fine), so this
-     * needs no new overlay/slot param — the same reasoning as [ReadingDialog]. `internal`, like
-     * [textSettingsControllerFor]/[colorControllerFor], purely for test-only reads (no
-     * `ComposeTestRule` in this module).
-     */
-    internal val speakHelp = mutableStateOf<String?>(null)
+    internal fun showSpeakHelp(): Unit = slots.showSpeakHelp()
 
-    /** The Speak help dialog's content, moved here verbatim from the deleted
-     *  `BibleSpeakComposeActivity`'s `showHelp()`. `internal` for the same test-only reason as
-     *  [speakHelp]. */
-    internal fun showSpeakHelp() {
-        speakHelp.value = ("<b>${activity.getString(R.string.speak)}</b><br><br>"
-            + "<b><a href=\"$speakHelpVideo\">${activity.getString(R.string.watch_tutorial_video)}</a></b>")
-    }
-
-    /**
-     * The ADVANCED Speak help dialog's content — the auto-bookmarking / playback-settings
-     * explanations, moved here verbatim from the deleted `SpeakSettingsComposeActivity`'s
-     * `showHelp()`. A second seam next to [showSpeakHelp] because it is a different dialog with
-     * different content: this one explains the two least self-evident switches on the Advanced page
-     * (`conf_speak_auto_bookmark` and `conf_save_playback_settings_to_bookmarks`). `internal` for
-     * the same test-only reason as [showSpeakHelp].
-     */
-    internal fun showAdvancedSpeakHelp() {
-        speakHelp.value = (
-            "<b>${activity.getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
-                + "<b><a href=\"$automaticSpeakBookmarkingVideo\">${activity.getString(R.string.watch_tutorial_video)}</a></b><br><br>"
-                + activity.getString(R.string.speak_help_auto_bookmark)
-                + "<br><br><b>${activity.getString(R.string.conf_save_playback_settings_to_bookmarks)}</b><br><br>"
-                + activity.getString(R.string.speak_help_playback_settings)
-                + "<br><br>" + activity.getString(R.string.speak_help_playback_settings_example)
-            )
-    }
-
-    /**
-     * The Speak settings sheet — mounted as the SIXTH sibling overlay next to [ReadingHostSlots.TextSettingsEditor]
-     * (see its own mounting comment at the [mountComposeView] call site). [SpeakSettingsSheet]
-     * self-hides on a null page, so the host renders this unconditionally.
-     */
-    @Composable
-    private fun SpeakSettingsSlot() {
-        val pages by speakSheet.pages.collectAsState()
-        val page = pages.lastOrNull()
-        val playback by speakSettingsController.playback.collectAsState()
-        SpeakSettingsSheet(
-            page = page,
-            depth = pages.size,
-            // Grid-aware: the verse-picker page owns an inner BOOK→CHAPTER→VERSE back-stack, and a
-            // plain `pop()` would skip every one of its steps. See [speakGridBack].
-            onDismiss = {
-                val gridBack = speakGridBack
-                if (gridBack == null || !gridBack()) speakSheet.pop()
-            },
-            onClose = { speakSheet.close() },
-        ) { current, scroll ->
-            when (current) {
-                SpeakSheetPage.Settings -> SpeakSettingsContent(
-                    playback = playback,
-                    onSpeedChange = speakSettingsController::setSpeed,
-                    onSpeakChapterChanges = speakSettingsController::setSpeakChapterChanges,
-                    onSpeakTitles = speakSettingsController::setSpeakTitles,
-                    onSpeakFootnotes = speakSettingsController::setSpeakFootnotes,
-                    onOpenRepeatRange = {
-                        speakRangeEditor.seed(playback.repeatRangeStart, playback.repeatRangeEnd)
-                        speakSheet.push(SpeakSheetPage.RepeatRange)
-                    },
-                    onOpenSleepTimer = { speakSheet.push(SpeakSheetPage.SleepTimer) },
-                    onOpenAdvanced = { speakSheet.push(SpeakSheetPage.Advanced) },
-                    onSystemTtsSettings = { openSystemTtsSettings() },
-                    onHelp = { showSpeakHelp() },
-                    // Round 14b §7.b: the sheet shell owns this state so it can fade the clip.
-                    scrollState = scroll,
-                )
-                SpeakSheetPage.Advanced -> {
-                    val advanced by advancedSpeakController.advanced.collectAsState()
-                    AdvancedSpeakSettingsContent(
-                        advanced = advanced,
-                        onSynchronize = advancedSpeakController::setSynchronize,
-                        onReplaceDivineName = advancedSpeakController::setReplaceDivineName,
-                        onAutoBookmark = advancedSpeakController::setAutoBookmark,
-                        onRestoreSettingsFromBookmarks = advancedSpeakController::setRestoreSettingsFromBookmarks,
-                        onHelp = { showAdvancedSpeakHelp() },
-                        scrollState = scroll,
-                    )
-                }
-                SpeakSheetPage.RepeatRange -> {
-                    val start by speakRangeEditor.start.collectAsState()
-                    val end by speakRangeEditor.end.collectAsState()
-                    val orderError by speakRangeEditor.showOrderError.collectAsState()
-                    val canCommit by speakRangeEditor.canCommit.collectAsState()
-                    SpeakRangeContent(
-                        start = start,
-                        end = end,
-                        showOrderError = orderError,
-                        canCommit = canCommit,
-                        onPickStart = { speakSheet.push(SpeakSheetPage.PickVerse(end = false)) },
-                        onPickEnd = { speakSheet.push(SpeakSheetPage.PickVerse(end = true)) },
-                        onClear = {
-                            speakRangeEditor.clearDraft()
-                            speakSettingsController.clearRepeatRange()
-                            speakSheet.pop()
-                        },
-                        onConfirm = {
-                            // Read the flows, not the collected values: `onConfirm` can fire in the
-                            // same frame a pick landed, before this composition has recomposed.
-                            // The binding rule is `SpeakRangeEditor.canCommit` — both endpoints set
-                            // AND end.ordinal > start.ordinal — and it is read from the same
-                            // snapshot as the endpoints. The host must not restate a laxer version
-                            // of it: the ordering rule lives in :sharedCore, once.
-                            val s = speakRangeEditor.start.value
-                            val e = speakRangeEditor.end.value
-                            if (speakRangeEditor.canCommit.value && s != null && e != null) {
-                                speakSettingsController.setRepeatRange(s.osisId, e.osisId)
-                            }
-                            speakSheet.pop()
-                        },
-                        onCancel = { speakSheet.pop() },
-                    )
-                }
-                is SpeakSheetPage.PickVerse -> SpeakVersePickerPage(current.end)
-                SpeakSheetPage.SleepTimer -> SleepTimerContent(
-                    selection = sleepTimerSelectionFor(playback.sleepTimerMinutes),
-                    // A never-set timer has no stored value to open the custom slider on, so fall
-                    // back to the last one the user chose (`lastSleepTimer`, classic's own memory).
-                    customMinutes = playback.sleepTimerMinutes.takeIf { it > 0 }
-                        ?: playback.lastSleepTimerMinutes,
-                    onPick = { minutes, closeAfter ->
-                        speakSettingsController.setSleepTimerMinutes(minutes)
-                        // `closeAfter` comes from the CHIP, not from the value: a custom slider
-                        // released on exactly 30 is a preset NUMBER but not a chip tap, and popping
-                        // on the number closed the page in the middle of an adjustment. Off and the
-                        // presets commit outright; a custom drag stays on the page.
-                        if (closeAfter) speakSheet.pop()
-                    },
-                )
-            }
-        }
-        // A dialog over the sheet (ReadingOverlayExclusion's kdoc) -- see [speakHelp]'s kdoc.
-        speakHelp.value?.let { html ->
-            AbLinkRouting(askFirst = CommonUtils.isDiscrete, onOpenExternal = { CommonUtils.openLinkNow(it) }) {
-                AbMessageDialog(
-                    title = null,
-                    html = html,
-                    confirmText = activity.getString(android.R.string.ok),
-                    onConfirm = { speakHelp.value = null },
-                    onDismissRequest = { speakHelp.value = null },
-                )
-            }
-        }
-    }
+    internal fun showAdvancedSpeakHelp(): Unit = slots.showAdvancedSpeakHelp()
 
     /**
      * Round 15b's quick sheets — a SEVENTH sibling overlay, for the same reason as the six above: a
@@ -1276,7 +1076,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 KeyChooserKind.Grid -> {
                     val gridScope = rememberCoroutineScope()
                     val controller = remember(sheet) {
-                        newGridPassageController(
+                        gridFactory.create(
                             scope = gridScope,
                             // The full-screen twin's own default title (GridChoosePassageComposeActivity
                             // reads the same string when no "title" intent extra overrides it) --
@@ -1456,79 +1256,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 listState = listState,
             )
         }
-    }
-
-    /**
-     * The passage grid as a sheet page, picking ONE endpoint of the repeat range. A fresh controller
-     * per endpoint (spec §6.5 point 4): entering the page always starts at BOOK, so the step
-     * back-stack needs no reset logic of its own.
-     */
-    @Composable
-    private fun SpeakVersePickerPage(pickingEnd: Boolean) {
-        val strings = LocalStrings.current
-        val title = if (pickingEnd) strings.speakEndingOfPassage else strings.speakBeginningOfPassage
-        val gridScope = rememberCoroutineScope()
-        val controller = remember(pickingEnd) {
-            newGridPassageController(
-                scope = gridScope,
-                baseTitle = title,
-                isScripture = true,
-                navigateToVerse = true,
-                onFinish = { osisId ->
-                    val verse = VerseFactory.fromString(navigationControl.versification, osisId)!!
-                    speakRangeEditor.set(pickingEnd, PickedVerse(verse.getOsisID(), verse.getName(), verse.ordinal))
-                    speakSheet.pop()
-                },
-            )
-        }
-        DisposableEffect(controller) {
-            speakGridBack = controller::back
-            onDispose { speakGridBack = null }
-        }
-        val ui by controller.ui.collectAsState()
-        // The sheet shell bounds the body to 400dp (Task 11), so `fillMaxSize()` here is
-        // bounded and safe — the grid sizes its cells against that height.
-        val rendered = ui
-        GridChoosePassageContent(rendered, { id -> rendered?.let { controller.pick(id, it) } }, Modifier.fillMaxSize())
-    }
-
-    /**
-     * The seven lambdas `GridChoosePassageComposeActivity` builds, assembled for a sheet page. Every
-     * one of them calls into `GridPassageHostSupport.kt` — that activity's own extracted helpers, so
-     * there is one implementation behind both hosts rather than a copy here.
-     */
-    private fun newGridPassageController(
-        scope: CoroutineScope,
-        baseTitle: String,
-        isScripture: Boolean,
-        navigateToVerse: Boolean,
-        onFinish: (String) -> Unit,
-    ): GridChoosePassageController {
-        var selectedBookNo = 0
-        var selectedChapter = 1
-        val v11n = navigationControl.versification
-        val workspaceName = activity.hostWindowRepository.name
-        return GridChoosePassageController(
-            scope = scope,
-            initialOptions = initialGridOptions(navigationControl, isScripture),
-            buildStep = { step, opts ->
-                buildGridStep(step, opts, baseTitle, workspaceName, selectedBookNo, selectedChapter,
-                    navigationControl, windowControl)
-            },
-            onPersistOptions = { persistGridOptions(it, navigationControl) },
-            onPickBook = { bookNo ->
-                selectedBookNo = bookNo
-                pickGridBook(bookNo, navigateToVerse, navigationControl) { selectedChapter = it }
-            },
-            onPickChapter = { chapter ->
-                selectedChapter = chapter
-                pickGridChapter(chapter, selectedBookNo, navigateToVerse, navigationControl, windowControl)
-            },
-            onPickVerse = { verse ->
-                Verse(v11n, BibleBook.values()[selectedBookNo], selectedChapter, verse).getOsisID()
-            },
-            onFinish = onFinish,
-        )
     }
 
     /**
@@ -2925,7 +2652,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // Settings editor sheets T10: the reading view's in-place text-settings editor.
         textSettingsEditorSlot = { slots.TextSettingsEditor() },
         // Round 13a: the Speak settings sheet.
-        speakSettingsSlot = { SpeakSettingsSlot() },
+        speakSettingsSlot = { slots.SpeakSettings() },
         quickSheetContent = { sheet -> QuickSheetContent(sheet) },
         // Platform-dialog removal Task 18: the reading view's own dialogs (BJI help/delete-confirm).
         readingDialogSlot = { slots.ReadingDialog() },

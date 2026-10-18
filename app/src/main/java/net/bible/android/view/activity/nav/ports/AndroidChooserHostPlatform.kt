@@ -78,14 +78,14 @@ class AndroidChooserHostPlatform(private val activity: NavHostComposeActivity) :
         val workspaceName = activity.hostWindowRepository.name
         return GridChoosePassageController(
             scope = scope,
-            initialOptions = initialGridOptions(navigationControl, isScripture),
+            initialOptions = initialGridOptions(navigationControl, isScripture, CommonUtils.settings),
             buildStep = { step, opts ->
                 buildGridStep(
                     step, opts, baseTitle, workspaceName, selectedBookNo, selectedChapter,
-                    navigationControl, windowControl,
+                    navigationControl, windowControl, CommonUtils.isPortrait,
                 )
             },
-            onPersistOptions = { persistGridOptions(it, navigationControl) },
+            onPersistOptions = { persistGridOptions(it, navigationControl, CommonUtils.settings) },
             onPickBook = { bookNo ->
                 selectedBookNo = bookNo
                 pickGridBook(bookNo, navigateToVerse, navigationControl) { selectedChapter = it }

@@ -110,24 +110,29 @@ class AndroidSpeakPlatform(private val context: Context) : SpeakPlatform {
         Dialogs.showErrorMsgWithAction(msgId, R.string.open_settings) { openSystemTtsSettings() }
     }
 
-    /** Opens the system text-to-speech settings, or the general settings where that screen is missing. */
-    private fun openSystemTtsSettings() {
-        val context: Context = CurrentActivityHolder.currentActivity ?: context
-        val flags = if (context is Activity) 0 else Intent.FLAG_ACTIVITY_NEW_TASK
-        // Exception, not just ActivityNotFoundException: some OEM settings screens are not exported.
-        try {
-            context.startActivity(Intent(ACTION_TTS_SETTINGS).addFlags(flags))
-        } catch (e: Exception) {
-            Log.w("Speak", "No TTS settings screen, opening general settings", e)
-            try {
-                context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(flags))
-            } catch (e2: Exception) {
-                Log.e("Speak", "No settings screen at all", e2)
-            }
-        }
-    }
+    private fun openSystemTtsSettings() = openSystemTtsSettings(context)
 
-    private companion object {
-        const val ACTION_TTS_SETTINGS = "com.android.settings.TTS_SETTINGS"
+}
+
+private const val ACTION_TTS_SETTINGS = "com.android.settings.TTS_SETTINGS"
+
+/**
+ * Opens the system text-to-speech settings, or the general settings where that screen is missing.
+ * Prefers the current activity over [fallbackContext]. Shared by [AndroidSpeakPlatform] and the
+ * reading view's Speak sheet (`AndroidSpeakSettingsPlatform`).
+ */
+internal fun openSystemTtsSettings(fallbackContext: Context) {
+    val context: Context = CurrentActivityHolder.currentActivity ?: fallbackContext
+    val flags = if (context is Activity) 0 else Intent.FLAG_ACTIVITY_NEW_TASK
+    // Exception, not just ActivityNotFoundException: some OEM settings screens are not exported.
+    try {
+        context.startActivity(Intent(ACTION_TTS_SETTINGS).addFlags(flags))
+    } catch (e: Exception) {
+        Log.w("Speak", "No TTS settings screen, opening general settings", e)
+        try {
+            context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(flags))
+        } catch (e2: Exception) {
+            Log.e("Speak", "No settings screen at all", e2)
+        }
     }
 }

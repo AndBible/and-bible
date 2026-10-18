@@ -15,19 +15,23 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.navigation
 
 import net.bible.android.control.navigation.BibleBookSortOrder
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ProgressControl
-import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.navigation.BookPick
 import net.bible.sharedcore.navigation.ChapterPick
+import kotlinx.coroutines.CoroutineScope
 import net.bible.sharedcore.navigation.GridButton
+import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
+import net.bible.sharedcore.platform.AppSettings
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -37,7 +41,7 @@ import kotlin.math.ceil
 /**
  * The Book→Chapter→Verse grid's host-side logic, extracted from [GridChoosePassageComposeActivity]
  * in round 13a so that BOTH the activity and the Speak sheet's verse-picker page
- * (`ComposeReadingViewHost.SpeakVersePickerPage`) drive the identical
+ * (`SpeakSettingsSlot`'s verse-picker page) drive the identical
  * [net.bible.sharedcore.navigation.GridChoosePassageController] seams. One implementation, two
  * hosts: every function here was that activity's own `private fun`, with each field it read
  * (`navigationControl`, `windowControl`, `selectedBookNo`, `selectedChapter`, `navigateToVerse`)
@@ -45,18 +49,20 @@ import kotlin.math.ceil
  */
 
 /** The activity's `initialOptions` block — the persisted grid preferences, verbatim. */
-internal fun initialGridOptions(navigationControl: NavigationControl, isScripture: Boolean) = GridOptions(
+@kotlin.native.HiddenFromObjC
+fun initialGridOptions(navigationControl: NavigationControl, isScripture: Boolean, settings: AppSettings) = GridOptions(
     showScripture = isScripture,
     alphabetical = navigationControl.bibleBookSortOrder == BibleBookSortOrder.ALPHABETICAL,
-    ltr = CommonUtils.settings.getBoolean("book_grid_ltr", false),
-    groupByCategory = CommonUtils.settings.getBoolean("book_grid_group_by_category", false),
-    longNames = CommonUtils.settings.getBoolean("book_grid_show_long_name", false),
-    showProgress = CommonUtils.settings.getBoolean("book_grid_show_progress", true),
+    ltr = settings.getBoolean("book_grid_ltr", false),
+    groupByCategory = settings.getBoolean("book_grid_group_by_category", false),
+    longNames = settings.getBoolean("book_grid_show_long_name", false),
+    showProgress = settings.getBoolean("book_grid_show_progress", true),
 )
 
 // ---- buildStep: ports bibleBookButtonInfo / getBibleChaptersButtonInfo / getBibleVersesButtonInfo ----
 
-internal suspend fun buildGridStep(
+@kotlin.native.HiddenFromObjC
+suspend fun buildGridStep(
     step: GridStep,
     opts: GridOptions,
     baseTitle: String,
@@ -65,10 +71,11 @@ internal suspend fun buildGridStep(
     selectedChapter: Int,
     navigationControl: NavigationControl,
     windowControl: WindowControl,
+    isPortrait: Boolean,
 ): GridUi = when (step) {
-        GridStep.BOOK -> buildBookStep(opts, baseTitle, workspaceName, navigationControl, windowControl)
-        GridStep.CHAPTER -> buildChapterStep(opts, selectedBookNo, navigationControl, windowControl)
-        GridStep.VERSE -> buildVerseStep(opts, selectedBookNo, selectedChapter, navigationControl, windowControl)
+    GridStep.BOOK -> buildBookStep(opts, baseTitle, workspaceName, navigationControl, windowControl, isPortrait)
+    GridStep.CHAPTER -> buildChapterStep(opts, selectedBookNo, navigationControl, windowControl, isPortrait)
+    GridStep.VERSE -> buildVerseStep(opts, selectedBookNo, selectedChapter, navigationControl, windowControl, isPortrait)
 }
 
 private suspend fun buildBookStep(
@@ -77,6 +84,7 @@ private suspend fun buildBookStep(
     workspaceName: String,
     navigationControl: NavigationControl,
     windowControl: WindowControl,
+    isPortrait: Boolean,
 ): GridUi {
     val v11n = navigationControl.versification
     val books = navigationControl.getBibleBooks(opts.showScripture)
@@ -93,10 +101,10 @@ private suspend fun buildBookStep(
             memProgress = if (opts.showProgress) ProgressControl.getMemorizationProgress(v11n, book) else 0f,
         )
     }
-    val layout = layoutGrid(buttons.size, CommonUtils.isPortrait, isBookGrid = true)
+    val layout = layoutGrid(buttons.size, isPortrait, isBookGrid = true)
     val columns = layout.columns
     val sections = if (opts.groupByCategory) buttons.groupBy { coarseGroup(it.id) }.values.toList() else null
-    val ordered = if (sections == null && CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
+    val ordered = if (sections == null && isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
     val showDeut = navigationControl.getBibleBooks(false).isNotEmpty()
     return assembleGridUi(GridStep.BOOK, "$baseTitle ($workspaceName)", layout,
         showLongNames = opts.longNames, showProgress = opts.showProgress, showDeutToggle = showDeut,
@@ -108,6 +116,7 @@ private suspend fun buildChapterStep(
     selectedBookNo: Int,
     navigationControl: NavigationControl,
     windowControl: WindowControl,
+    isPortrait: Boolean,
 ): GridUi {
     val v11n = navigationControl.versification
     val book = BibleBook.values()[selectedBookNo]
@@ -122,9 +131,9 @@ private suspend fun buildChapterStep(
             memProgress = if (opts.showProgress) ProgressControl.getMemorizationProgress(v11n, book, ch) else 0f,
         )
     }
-    val layout = layoutGrid(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
+    val layout = layoutGrid(buttons.size, isPortrait, isBookGrid = false)
     val columns = layout.columns
-    val ordered = if (CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
+    val ordered = if (isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
     return assembleGridUi(GridStep.CHAPTER, v11n.getLongName(book), layout,
         showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
 }
@@ -135,6 +144,7 @@ private suspend fun buildVerseStep(
     selectedChapter: Int,
     navigationControl: NavigationControl,
     windowControl: WindowControl,
+    isPortrait: Boolean,
 ): GridUi {
     val v11n = navigationControl.versification
     val book = BibleBook.values()[selectedBookNo]
@@ -150,9 +160,9 @@ private suspend fun buildVerseStep(
             memProgress = if (opts.showProgress && ProgressControl.isVerseMemorized(v11n, book, selectedChapter, vs)) 1f else 0f,
         )
     }
-    val layout = layoutGrid(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
+    val layout = layoutGrid(buttons.size, isPortrait, isBookGrid = false)
     val columns = layout.columns
-    val ordered = if (CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
+    val ordered = if (isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
     return assembleGridUi(GridStep.VERSE, "${v11n.getLongName(book)} $selectedChapter", layout,
         showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
 }
@@ -163,7 +173,8 @@ private suspend fun buildVerseStep(
  * [onSelectedChapter] replaces the activity's own `selectedChapter = 1` write — the one field this
  * branch mutates that the caller must see (the caller already owns `selectedBookNo`).
  */
-internal fun pickGridBook(
+@kotlin.native.HiddenFromObjC
+fun pickGridBook(
     bookNo: Int,
     navigateToVerse: Boolean,
     navigationControl: NavigationControl,
@@ -177,7 +188,8 @@ internal fun pickGridBook(
     } else BookPick.GoChapter
 }
 
-internal fun pickGridChapter(
+@kotlin.native.HiddenFromObjC
+fun pickGridChapter(
     chapter: Int,
     selectedBookNo: Int,
     navigateToVerse: Boolean,
@@ -193,11 +205,12 @@ internal fun pickGridChapter(
 
 // ---- options persistence (mirror classic saveOptions + inline show_progress + sort order) ----
 
-internal fun persistGridOptions(o: GridOptions, navigationControl: NavigationControl) {
-    CommonUtils.settings.setBoolean("book_grid_ltr", o.ltr)
-    CommonUtils.settings.setBoolean("book_grid_group_by_category", o.groupByCategory)
-    CommonUtils.settings.setBoolean("book_grid_show_long_name", o.longNames)
-    CommonUtils.settings.setBoolean("book_grid_show_progress", o.showProgress)
+@kotlin.native.HiddenFromObjC
+fun persistGridOptions(o: GridOptions, navigationControl: NavigationControl, settings: AppSettings) {
+    settings.setBoolean("book_grid_ltr", o.ltr)
+    settings.setBoolean("book_grid_group_by_category", o.groupByCategory)
+    settings.setBoolean("book_grid_show_long_name", o.longNames)
+    settings.setBoolean("book_grid_show_progress", o.showProgress)
     navigationControl.bibleBookSortOrder = if (o.alphabetical) BibleBookSortOrder.ALPHABETICAL else BibleBookSortOrder.BIBLE_BOOK
     // showScripture is in-memory only (classic isCurrentlyShowingScripture) — not persisted.
 }
@@ -248,7 +261,8 @@ private fun columnMajor(items: List<GridButton>, columns: Int): List<GridButton>
 }
 
 /** Column AND row count reproducing LayoutDesigner's intent (66-book special case + MIN_COLS). */
-internal data class GridLayout(val columns: Int, val rows: Int)
+@kotlin.native.HiddenFromObjC
+data class GridLayout(val columns: Int, val rows: Int)
 
 /**
  * Classic sizes a grid cell as `height / rows` for a FIXED row count and pads the shortfall
@@ -257,7 +271,8 @@ internal data class GridLayout(val columns: Int, val rows: Int)
  * the layout, not a throwaway intermediate — see LayoutDesigner.kt:84's comment about
  * "a couple of large buttons on the screen".
  */
-internal fun layoutGrid(count: Int, isPortrait: Boolean, isBookGrid: Boolean): GridLayout {
+@kotlin.native.HiddenFromObjC
+fun layoutGrid(count: Int, isPortrait: Boolean, isBookGrid: Boolean): GridLayout {
     if (isBookGrid && count == 66) {
         return if (isPortrait) GridLayout(columns = 6, rows = 11) else GridLayout(columns = 11, rows = 6)
     }
@@ -278,7 +293,8 @@ internal fun layoutGrid(count: Int, isPortrait: Boolean, isBookGrid: Boolean): G
  * construction, so this one function is what a dropped `minRows` wiring would actually break,
  * and it can be tested without an Activity instance (see `GridLayoutRowsTest`).
  */
-internal fun assembleGridUi(
+@kotlin.native.HiddenFromObjC
+fun assembleGridUi(
     step: GridStep,
     title: String,
     layout: GridLayout,
@@ -292,3 +308,57 @@ internal fun assembleGridUi(
     showLongNames = showLongNames, showProgress = showProgress, showDeutToggle = showDeutToggle,
     buttons = buttons, sections = sections, minRows = layout.rows,
 )
+
+/**
+ * Builds the [GridChoosePassageController]s of the sheet hosts (the Speak sheet's verse picker and
+ * the reading view's key-chooser grid) from the seams above: the seven lambdas
+ * `GridChoosePassageComposeActivity` builds, assembled once. The two step fields classic held as
+ * Activity state (`selectedBookNo`, `selectedChapter`) are locals of each [create] call, so they
+ * belong to the entry that asked for the controller. [workspaceName] and [isPortrait] are read
+ * per use, not at construction.
+ */
+@kotlin.native.HiddenFromObjC
+class GridPassageControllerFactory(
+    private val navigationControl: NavigationControl,
+    private val windowControl: WindowControl,
+    private val settings: AppSettings,
+    private val workspaceName: () -> String,
+    private val isPortrait: () -> Boolean,
+) {
+    /** The versification of the current passage document, for turning a picked OSIS id into a verse. */
+    val versification: Versification get() = navigationControl.versification
+
+    fun create(
+        scope: CoroutineScope,
+        baseTitle: String,
+        isScripture: Boolean,
+        navigateToVerse: Boolean,
+        onFinish: (String) -> Unit,
+    ): GridChoosePassageController {
+        var selectedBookNo = 0
+        var selectedChapter = 1
+        val v11n = navigationControl.versification
+        val workspaceName = workspaceName()
+        return GridChoosePassageController(
+            scope = scope,
+            initialOptions = initialGridOptions(navigationControl, isScripture, settings),
+            buildStep = { step, opts ->
+                buildGridStep(step, opts, baseTitle, workspaceName, selectedBookNo, selectedChapter,
+                    navigationControl, windowControl, isPortrait())
+            },
+            onPersistOptions = { persistGridOptions(it, navigationControl, settings) },
+            onPickBook = { bookNo ->
+                selectedBookNo = bookNo
+                pickGridBook(bookNo, navigateToVerse, navigationControl) { selectedChapter = it }
+            },
+            onPickChapter = { chapter ->
+                selectedChapter = chapter
+                pickGridChapter(chapter, selectedBookNo, navigateToVerse, navigationControl, windowControl)
+            },
+            onPickVerse = { verse ->
+                Verse(v11n, BibleBook.values()[selectedBookNo], selectedChapter, verse).getOsisID()
+            },
+            onFinish = onFinish,
+        )
+    }
+}

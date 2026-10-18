@@ -30,6 +30,7 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.runComposeUiTest
 import java.lang.reflect.Proxy
 import kotlin.test.Test
@@ -41,6 +42,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.history.HistoryItem
@@ -50,6 +53,7 @@ import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentLogSnapshot
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingModelVd
+import net.bible.sharedcore.docs.HelpVideos
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.settings.BackgroundImageOption
 import net.bible.sharedcore.settings.ColorField
@@ -67,6 +71,7 @@ import net.bible.sharedcore.speak.AdvancedSpeakVd
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakPlaybackVd
 import net.bible.sharedcore.speak.SpeakSettingsService
+import net.bible.sharedcore.speak.SpeakSheetPage
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
@@ -74,6 +79,7 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.ImagePicker
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
 
@@ -215,11 +221,19 @@ class ReadingHostSlotsTest {
             as TextSettingRowValue.Numeric).value
 
     /** [DocumentControl] has nine collaborators and is only read by the document tabs; skip its constructor. */
-    private fun allocateDocumentControl(): DocumentControl {
+    private fun allocateDocumentControl(): DocumentControl = allocate(DocumentControl::class.java)
+
+    /** Skips the constructor of a final collaborator the test never reads. */
+    private fun <T> allocate(type: Class<T>): T {
         val field = Class.forName("sun.misc.Unsafe").getDeclaredField("theUnsafe").apply { isAccessible = true }
         val unsafe = field.get(null)
-        return unsafe.javaClass.getMethod("allocateInstance", Class::class.java)
-            .invoke(unsafe, DocumentControl::class.java) as DocumentControl
+        @Suppress("UNCHECKED_CAST")
+        return unsafe.javaClass.getMethod("allocateInstance", Class::class.java).invoke(unsafe, type) as T
+    }
+
+    private class FakeSpeakPlatform : SpeakSettingsPlatform {
+        var opened = 0
+        override fun openSystemTtsSettings() { opened++ }
     }
 
     private fun slots(
@@ -227,6 +241,7 @@ class ReadingHostSlotsTest {
         transportVisible: Boolean = false,
         fullScreen: Boolean = false,
         textService: TextDisplaySettingsService = textSettingsService,
+        speakPlatform: SpeakSettingsPlatform = FakeSpeakPlatform(),
     ): Pair<ReadingHostSlots, ReadingHostState> {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         val windowControl = WindowControl()
@@ -256,6 +271,11 @@ class ReadingHostSlotsTest {
             scope = scope,
             imagePicker = imagePicker,
             thumbnailFor = { null },
+            speakSettingsService = FakeSpeakSettings(),
+            speakPlatform = speakPlatform,
+            gridPassages = GridPassageControllerFactory(
+                allocate(NavigationControl::class.java), windowControl, MapSettings(), { "Workspace" }, { true },
+            ),
         )
         return slots to hostState
     }
@@ -427,5 +447,68 @@ class ReadingHostSlotsTest {
 
         assertEquals(SettingsEditorPage.Row(TextSettingType.FONTSIZE.name), slots.textSettingsEditor.current)
         onNodeWithText(strings.okay).assertExists()
+    }
+
+    // ---- speak settings ----------------------------------------------------------------------
+
+    @Test
+    fun speakHelpHtmlContainsTheVideoLink() {
+        val (slots, _) = slots()
+        slots.showSpeakHelp()
+        val speakHtml = slots.speakHelp.value
+        assertTrue(
+            speakHtml != null && speakHtml.contains("<a href=\"${HelpVideos.SPEAK}\">${strings.watchTutorialVideo}</a>"),
+            "speak help must link the exact Speak playlist, was: $speakHtml",
+        )
+        slots.showAdvancedSpeakHelp()
+        val advancedHtml = slots.speakHelp.value
+        assertTrue(
+            advancedHtml != null &&
+                advancedHtml.contains("<a href=\"${HelpVideos.AUTOMATIC_SPEAK_BOOKMARKING}\">${strings.watchTutorialVideo}</a>") &&
+                advancedHtml.contains(strings.speakHelpAutoBookmark) &&
+                advancedHtml.contains(strings.speakHelpPlaybackSettings) &&
+                advancedHtml.contains(strings.speakHelpPlaybackSettingsExample),
+            "advanced help must carry the video link and all three explanations, was: $advancedHtml",
+        )
+    }
+
+    @Test
+    fun systemTtsSettingsGoesThroughThePort() = runComposeUiTest {
+        val platform = FakeSpeakPlatform()
+        val (slots, _) = slots(speakPlatform = platform)
+        slots.showSpeakSettings()
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = false) { slots.SpeakSettings() }
+            }
+        }
+        assertEquals(0, platform.opened)
+        waitForIdle() // let the sheet settle at its expanded position before clicking into it
+        onNodeWithText(strings.systemSpeakSettings).performScrollTo().performClick()
+        waitForIdle()
+        assertEquals(1, platform.opened)
+    }
+
+    @Test
+    fun verseGridBackClosesTheGridBeforeTheSheet() {
+        val (slots, _) = slots()
+        slots.showSpeakSettings()
+        slots.speakSheet.push(SpeakSheetPage.RepeatRange)
+        slots.speakSheet.push(SpeakSheetPage.PickVerse(end = false))
+        // The picker page registers its controller's back; the grid has two steps to unwind.
+        var gridSteps = 2
+        slots.speakSettingsState.gridBack = { if (gridSteps > 0) { gridSteps--; true } else false }
+
+        slots.speakSettingsState.dismiss()
+        slots.speakSettingsState.dismiss()
+        assertEquals(SpeakSheetPage.PickVerse(end = false), slots.speakSheet.current, "grid steps unwind first")
+        assertEquals(3, slots.speakSheet.depth)
+
+        slots.speakSettingsState.dismiss() // grid exhausted: now the sheet page pops
+        assertEquals(SpeakSheetPage.RepeatRange, slots.speakSheet.current)
+
+        slots.speakSettingsState.gridBack = null // picker left composition
+        slots.speakSettingsState.dismiss()
+        assertEquals(SpeakSheetPage.Settings, slots.speakSheet.current)
     }
 }
