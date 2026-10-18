@@ -124,6 +124,8 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
+import net.bible.service.startup.ReadingAppInit
+import net.bible.service.startup.ReadingAppInitPlatform
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
 import net.bible.service.sword.epub.isEpub
@@ -460,13 +462,7 @@ object CommonUtils : CommonUtilsBase() {
         return llmConfiguredSource
     }
 
-    internal suspend fun runEachCatching(vararg steps: suspend () -> Unit) {
-        for (step in steps) {
-            try { step() }
-            catch (e: kotlinx.coroutines.CancellationException) { throw e }
-            catch (e: Exception) { Log.e(TAG, "Snapshot store step failed", e) }
-        }
-    }
+    internal suspend fun runEachCatching(vararg steps: suspend () -> Unit) = ReadingAppInit.runEachCatching(*steps)
 
     private val readingProgressSettingsStore: ReadingProgressSettingsStore
         get() = org.koin.java.KoinJavaComponent.get(ReadingProgressSettingsStore::class.java)
@@ -1084,9 +1080,22 @@ object CommonUtils : CommonUtilsBase() {
     internal var myDocumentRegistration: kotlinx.coroutines.Job? = null
         private set
 
-    var initialized = false
-    private var booksInitialized = false
+    /** Owned by [ReadingAppInit]; kept here so every existing reader and test double keeps working. */
+    var initialized: Boolean
+        get() = ReadingAppInit.initialized
+        set(value) { if (value) ReadingAppInit.markInitialized() else ReadingAppInit.reset() }
+    private val readingAppInitPlatform: ReadingAppInitPlatform by lazy { net.bible.android.platform.AndroidReadingAppInitPlatform() }
     val isOnyxDevice get() = Build.BRAND.lowercase() == "onyx"
+
+    /** Creates the TTS notification manager and the speak widget manager once; call on the main thread. */
+    internal fun startPlatformServices() {
+        if (ttsNotificationManager == null) {
+            ttsNotificationManager = TextToSpeechNotificationManager()
+        }
+        if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
+            ttsWidgetManager = SpeakWidgetManager()
+        }
+    }
 
     fun initializeApp() {
         if(!initialized) {
@@ -1100,12 +1109,7 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
             loadSnapshotStoresInBackground()
-            if (ttsNotificationManager == null) {
-                ttsNotificationManager = TextToSpeechNotificationManager()
-            }
-            if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
-                ttsWidgetManager = SpeakWidgetManager()
-            }
+            startPlatformServices()
 
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
@@ -1127,18 +1131,10 @@ object CommonUtils : CommonUtilsBase() {
             //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
             //}
 
-            initialized = true
+            ReadingAppInit.markInitialized()
         }
 
-        if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
-            if(!application.isRunningTests) {
-                for (it in blockingAtEdge { docDao.getUnlocked() }) { // L1-edge: synchronous app bootstrap (widget/media-button entry before any coroutine)
-                    val book = Books.installed().getBook(it.initials)
-                    book!!.unlock(it.cipherKey)
-                }
-            }
-            booksInitialized = true
-        }
+        blockingAtEdge { ReadingAppInit.unlockStoredCipherKeys() } // L1-edge: synchronous app bootstrap (widget/media-button entry before any coroutine)
     }
 
     /**
@@ -1150,96 +1146,16 @@ object CommonUtils : CommonUtilsBase() {
      * through [awaitSnapshotLoadsAtEdge].
      */
     @androidx.annotation.VisibleForTesting
-    internal fun loadSnapshotStoresInBackground(): kotlinx.coroutines.Job {
-        val scope = org.koin.java.KoinJavaComponent.get<net.bible.sharedcore.platform.AppCoroutineScope>(net.bible.sharedcore.platform.AppCoroutineScope::class.java)
-        return scope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
-            runEachCatching(
-                { globalTextDisplaySettingsStore.load() },
-                { readingProgressSettingsStore.load() },
-                { promptService.refresh() },
-            )
-        }.also {
-            snapshotLoadJob = it
-            DatabaseContainer.aiLifetime.ownUntilReplace(it)
-            it.start()
-        }
-    }
-
-    @Volatile private var snapshotLoadJob: kotlinx.coroutines.Job? = null
+    internal fun loadSnapshotStoresInBackground(): kotlinx.coroutines.Job = ReadingAppInit.loadSnapshotStoresInBackground()
 
     /**
      * The cold-start barrier for the snapshot stores: the process-death path never runs [initializeAppCoroutine], so
-     * the host bootstrap joins the background load here before anything reads a store (otherwise a first render reads
-     * factory defaults and nothing re-renders when the load lands). Bounded by one row read per store. A cancelled
-     * load (a reset or restore took ownership) completes the join at once instead of hanging; the stores then keep
-     * their defaults until a later load.
+     * the host bootstrap joins the background load here before anything reads a store. See
+     * [ReadingAppInit.awaitSnapshotLoadsAtEdge].
      */
-    internal fun awaitSnapshotLoadsAtEdge() {
-        val job = snapshotLoadJob ?: return
-        if (job.isCompleted) return
-        blockingAtEdge { job.join() } // L1-edge: cold-start barrier for the snapshot stores (host bootstrap, process-death path)
-    }
+    internal fun awaitSnapshotLoadsAtEdge() = ReadingAppInit.awaitSnapshotLoadsAtEdge()
 
-    suspend fun initializeAppCoroutine() {
-        DatabaseContainer.ready = true
-        aiSettings.ensureLoaded()
-        // Per-step isolation, as in the background variant: an unreadable AI/settings row must not abort startup.
-        runEachCatching(
-            { globalTextDisplaySettingsStore.load() },
-            { readingProgressSettingsStore.load() },
-            { promptService.refresh() },
-        )
-        MyDocumentBookManager.launcher.join("mydocument-sync")
-        if(!initialized) {
-            try {
-                val pid = android.os.Process.myPid()
-                Runtime.getRuntime().exec("logcat -P '$pid'").waitFor()
-            } catch (e: Exception) {
-                Log.w(TAG, "Logcat could not be run")
-            }
-
-            DatabaseContainer.ready = true
-            DatabaseContainer.instance
-            org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
-                net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java
-            ).ensureLoaded()
-            withContext(Dispatchers.Main) {
-                if (ttsNotificationManager == null) {
-                    ttsNotificationManager = TextToSpeechNotificationManager()
-                }
-                if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
-                    ttsWidgetManager = SpeakWidgetManager()
-                }
-            }
-            withContext(Dispatchers.IO) {
-                addManuallyInstalledMyBibleBooks()
-                addManuallyInstalledMySwordBooks()
-                addManuallyInstalledESwordBooks()
-                addManuallyInstalledEpubBooks(net.bible.android.platform.AndroidCoreStrings(application), net.bible.android.platform.AndroidAppEnvironment(application))
-                addManuallyInstalledTtfBooks()
-                addManuallyInstalledCsvPromptBooks()
-            }
-            MyDocumentBookManager.registerAllDocuments()
-            SwordEnvironmentInitialisation.deleteOrphanLegacyIndexesInBackground()
-
-            // IN practice we don't need to restore this data, because it is stored by JSword in book
-            // metadata (persisted by JSWORD to files) too.
-            //docDao.getAll().forEach {
-            //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
-            //}
-
-            initialized = true
-        }
-
-        if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
-            if(!application.isRunningTests) {
-                for (it in docDao.getUnlocked()) {
-                    Books.installed().getBook(it.initials)?.unlock(it.cipherKey)
-                }
-            }
-            booksInitialized = true
-        }
-    }
+    suspend fun initializeAppCoroutine() = ReadingAppInit.initialise(readingAppInitPlatform)
 
     fun prepareForDestruction() {
         if(!initialized) return
@@ -1251,123 +1167,18 @@ object CommonUtils : CommonUtilsBase() {
         ttsWidgetManager?.destroy()
         ttsNotificationManager = null
         ttsWidgetManager = null
-        initialized = false
+        ReadingAppInit.reset()
     }
 
     fun prepareData() {
-        val dataVersionNow = 1L
-        val dataVersion = settings.getLong("data-version", 0)
-        if(dataVersion < 1) {
-            prepareExampleBookmarksAndWorkspaces()
-        }
-        if(dataVersion != dataVersionNow) {
-            settings.setLong("data-version", dataVersionNow)
-        }
+        // L1-edge: synchronous first-run bootstrap (prepareData runs on the host UI thread before the window repository exists)
+        blockingAtEdge { ReadingAppInit.prepareData(readingAppInitPlatform) }
     }
 
-    const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    const val lorem = ReadingAppInit.LOREM
 
     val defaultBible get() = net.bible.android.control.page.defaultBible()
     val defaultVerse: VerseRange get() = net.bible.android.control.page.defaultVerse()
-
-    private fun prepareExampleBookmarksAndWorkspaces() {
-        blockingAtEdge { prepareExampleBookmarks() } // L1-edge: synchronous first-run bootstrap (prepareData runs on the host UI thread before the window repository exists)
-        prepareExampleWorkspaces()
-    }
-
-    /** First-run example bookmarks and highlight labels; one bridge at the caller covers every DAO call here. */
-    private suspend fun prepareExampleBookmarks() {
-        val bookmarkDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
-
-        val migratedNotesName = application.getString(R.string.migrated_my_notes)
-        var highlightLabels = emptyList<BookmarkEntities.Label>()
-
-        if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
-            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), displayStyleWholeVerse = null, favourite = true)
-            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), displayStyleWholeVerse = null, favourite = true)
-            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), displayStyleWholeVerse = null, favourite = true)
-            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), displayStyle = BookmarkDisplayStyle.UNDERLINE, displayStyleWholeVerse = null, favourite = true)
-
-            highlightLabels = listOf(
-                redLabel,
-                greenLabel,
-                underlineLabel,
-                blueLabel,
-            )
-
-            val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
-            bookmarkDao.insertLabels(highlightLabels)
-
-            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.BibleBookmarkWithNotes {
-                val v1 = verseRange.toVerseArray()[start.toInt()]
-                val v2 = verseRange.toVerseArray()[end.toInt()]
-                val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy()).length
-                val l2 = SwordContentFacade.getCanonicalText(defaultBible, v2, true, strings = org.koin.core.context.GlobalContext.get().get<net.bible.sharedcore.platform.CoreStrings>(), saxTextPolicy = net.bible.android.platform.androidSaxTextPolicy()).length
-                val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
-                val v = VerseRange(v1.versification, v1, v2)
-
-                return BookmarkEntities.BibleBookmarkWithNotes(v, textRange = tr, wholeVerse = false, book = defaultBible)
-            }
-
-            if(!hasExistingBookmarks) {
-                bookmarkDao.insert(salvationLabel)
-
-                // first bookmark, full verses, with underline
-                var b = BookmarkEntities.BibleBookmarkWithNotes(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id }
-                bookmarkDao.insert(b.bookmarkEntity)
-                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, underlineLabel.id))
-                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, salvationLabel.id))
-
-                // second bookmark, red
-                b = getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id }
-                bookmarkDao.insert(b.bookmarkEntity)
-                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, redLabel.id))
-
-                // third bookmark, green
-                b = getBookmark(defaultVerse, 1.2, 1.4).apply {
-                    primaryLabelId = greenLabel.id
-                    notes = lorem
-                }
-                bookmarkDao.insert(b.bookmarkEntity)
-                bookmarkDao.insert(b.noteEntity!!)
-
-                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, greenLabel.id))
-
-                val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
-                    .mapNotNull { try {VerseRangeFactory.fromString(KJVA, it)} catch (e: NoSuchVerseException) {
-                        Log.e("CommonUtils", "NoSuchVerseException for ${it}??!", e)
-                        null 
-                    }}
-
-                salvationVerses
-                    .map {
-                        BookmarkEntities.BibleBookmarkWithNotes(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
-                    }.forEach {
-                        bookmarkDao.insert(it.bookmarkEntity)
-                        bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(it.id, salvationLabel.id))
-                    }
-            }
-        }
-    }
-
-    private fun prepareExampleWorkspaces() {
-        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        val ws = blockingAtEdge { workspaceDao.allWorkspaces() } // L1-edge: synchronous first-run bootstrap (prepareData)
-        if(ws.isNotEmpty()) {
-            blockingAtEdge { workspaceDao.updateWorkspaces(ws) } // L1-edge: synchronous first-run bootstrap (prepareData)
-            settings.setBoolean("first-time", false)
-        } else {
-            val workspaceSettings = WorkspaceEntities.WorkspaceSettings()
-            val newWorkspaces = listOf(
-                WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
-                WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
-            )
-            blockingAtEdge { newWorkspaces.forEach { workspaceDao.insertWorkspace(it) } } // L1-edge: synchronous first-run bootstrap (prepareData)
-            val workspaceIds = newWorkspaces.map { it.id }
-            settings.setString("current_workspace_id", workspaceIds[0].toString())
-        }
-    }
 
     fun makeLarger(icon: Drawable, sizeMultiplier: Float = 1.0f): Drawable = LayerDrawable(arrayOf(icon)).apply {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
