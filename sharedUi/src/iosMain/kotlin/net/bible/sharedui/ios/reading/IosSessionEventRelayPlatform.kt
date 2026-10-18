@@ -28,15 +28,18 @@ import net.bible.sharedui.reading.session.SessionEventRelayPlatform
  */
 @kotlin.native.HiddenFromObjC
 class IosSessionEventRelayPlatform(private val updateConfigNow: () -> Unit) : SessionEventRelayPlatform {
-    /** Set by a layout configuration change; the next load-time check re-reads the windows (nothing reads it on iOS yet). */
-    var checkWindows: Boolean = false
+    /**
+     * How often a layout configuration change was marked; the next load-time check re-reads the windows (nothing reads
+     * it on iOS yet). Doubles as the test's view of whether the relay still forwards events.
+     */
+    var windowsCheckMarks: Int = 0
         private set
 
     override fun onActiveWindowChanged(isThisWindowActive: Boolean) = Unit
 
     override fun updateOffsets(immediate: Boolean) = Unit
 
-    override fun markWindowsCheckNeeded() { checkWindows = true }
+    override fun markWindowsCheckNeeded() { windowsCheckMarks++ }
 
     override fun updateConfig() = updateConfigNow()
 }

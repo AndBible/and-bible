@@ -63,9 +63,9 @@ object IosReadingWindows {
         val loader: DocumentLoader,
         val relay: SessionEventRelay,
         val bridge: ReadingBridge,
+        val relayPlatform: IosSessionEventRelayPlatform,
         @Suppress("unused") val linkHandler: ReadingLinkHandler,
     ) {
-        var relayStarted = true
     }
 
     private class Binding(
@@ -122,7 +122,17 @@ object IosReadingWindows {
     /** The window's bridge (the one `sessionFor` assembled), for the WebView's message handler. */
     fun bridgeFor(windowId: String): BibleBridge = assembly(windowId).bridge
 
-    internal fun relayStarted(windowId: String): Boolean = assemblies[windowId]?.relayStarted ?: false
+    /** The window's relay platform (test view of what the relay forwards); null when not assembled. */
+    internal fun relayPlatformFor(windowId: String): IosSessionEventRelayPlatform? = assemblies[windowId]?.relayPlatform
+
+    internal fun hasAssembly(windowId: String): Boolean = assemblies.containsKey(windowId)
+
+    /** True when [windowId] names a window that exists and is not closed; only such windows get a session or a WebView. */
+    fun isOpen(windowId: String): Boolean {
+        val b = binding ?: return false
+        val w = b.koin.get<WindowControl>().windowRepository.getWindow(IdType(windowId))
+        return w != null && w.windowState != WindowLayout.WindowState.CLOSED
+    }
 
     /** Night mode changed: re-send `set_config` to every window. */
     fun nightModeChanged() {
@@ -135,7 +145,9 @@ object IosReadingWindows {
         val b = requireBinding()
         val koin = b.koin
         val windowControl = koin.get<WindowControl>()
-        val window = checkNotNull(windowControl.windowRepository.getWindow(IdType(windowId))) { "no window $windowId" }
+        // Refuse before creating anything: no WebView entry, no session, nothing cached for a closed or missing window.
+        val window = windowControl.windowRepository.getWindow(IdType(windowId))
+        check(window != null && window.windowState != WindowLayout.WindowState.CLOSED) { "window $windowId is closed or missing" }
         val webView = IosReadingWebViews.webViewFor(windowId)
         val host = WkWebViewJsHost(webView)
         val session = BibleWindowSession(
@@ -145,24 +157,32 @@ object IosReadingWindows {
             surface = IosReadingWindowSurface(host),
             navigator = PendingIosReadingNavigator,
         )
-        session.hostSheets = b.host.hostState
-        session.keyActions = pendingKeyActions
-        session.verseChooser = { IosPending.log("verseChooser"); null }
-        val settings = koin.get<AppSettings>()
-        val platform = IosDocumentLoaderPlatform(
-            window = { session.window },
-            windowControl = { windowControl },
-            settings = { settings },
-            nightModeState = { b.nightModeState },
-            llmConfigured = { runCatching { koin.get<PromptService>().configured.value }.getOrDefault(false) },
-        )
-        // The loader is the session's paging seam: it must exist before the bridge can receive a call.
-        val loader = DocumentLoader(session, platform).also { session.paging = it }
-        val bridge = ReadingBridge(session, viewIsCurrent = { windowControl.activeWindow.id.toString() == windowId })
-        val linkHandler = ReadingLinkHandler(session) { _, _, _, _ -> IosPending.log("openEpubLink") }
-        val relay = SessionEventRelay(session, loader, IosSessionEventRelayPlatform { loader.updateConfig() })
-        relay.start()
-        return Assembly(session, loader, relay, bridge, linkHandler)
+        try {
+            session.hostSheets = b.host.hostState
+            session.keyActions = pendingKeyActions
+            session.verseChooser = { IosPending.log("verseChooser"); null }
+            val settings = koin.get<AppSettings>()
+            val platform = IosDocumentLoaderPlatform(
+                window = { session.window },
+                windowControl = { windowControl },
+                settings = { settings },
+                nightModeState = { b.nightModeState },
+                llmConfigured = { runCatching { koin.get<PromptService>().configured.value }.getOrDefault(false) },
+            )
+            // The loader is the session's paging seam: it must exist before the bridge can receive a call.
+            val loader = DocumentLoader(session, platform).also { session.paging = it }
+            val bridge = ReadingBridge(session, viewIsCurrent = { windowControl.activeWindow.id.toString() == windowId })
+            val linkHandler = ReadingLinkHandler(session) { _, _, _, _ -> IosPending.log("openEpubLink") }
+            val relayPlatform = IosSessionEventRelayPlatform { loader.updateConfig() }
+            val relay = SessionEventRelay(session, loader, relayPlatform)
+            relay.start()
+            return Assembly(session, loader, relay, bridge, relayPlatform, linkHandler)
+        } catch (t: Throwable) {
+            // Nothing is in the map yet: dispose what was built so no scope or WebView entry outlives the failure.
+            session.dispose()
+            IosReadingWebViews.release(windowId)
+            throw t
+        }
     }
 
     /** Disposes the window's session, stops its relay and drops its WebView (removing the `"bridge"` handler). */
@@ -170,7 +190,6 @@ object IosReadingWindows {
         val a = assemblies.remove(windowId)
         if (a != null) {
             a.relay.stop()
-            a.relayStarted = false
             a.session.dispose()
         }
         IosReadingWebViews.release(windowId)

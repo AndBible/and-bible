@@ -22,10 +22,12 @@ package net.bible.sharedui.ios.app
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.service.startup.ReadingAppInit
+import net.bible.service.startup.ReadingAppInitPlatform
 import net.bible.sharedui.strings.keyed.StringTable
 
 /**
@@ -36,25 +38,50 @@ import net.bible.sharedui.strings.keyed.StringTable
  */
 @kotlin.native.HiddenFromObjC
 internal object IosReadingReady {
-    /** Process-lifetime scope the window repository, the reading host and the window sessions run on (main thread). */
-    val scope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
+    private var currentScope: CoroutineScope? = null
+
+    /**
+     * Process-lifetime scope the window repository, the reading host and the window sessions run on (main thread).
+     * Valid once [ensure] has completed; each attempt of [ensure] uses a fresh scope, so a retry after a failure
+     * builds a new repository instead of reusing a half-loaded one.
+     */
+    val scope: CoroutineScope get() = checkNotNull(currentScope) { "IosReadingReady.ensure has not completed" }
 
     private val mutex = Mutex()
     @kotlin.concurrent.Volatile private var ready = false
+
+    // Test seams: the three steps, so a test can see their order and count.
+    internal var initialise: suspend (ReadingAppInitPlatform) -> Unit = { ReadingAppInit.initialise(it) }
+    internal var prepareData: suspend (ReadingAppInitPlatform) -> Unit = { ReadingAppInit.prepareData(it) }
+    internal var createRepository: (CoroutineScope) -> Unit = { ReadingAppInit.createWindowRepository(it) }
 
     suspend fun ensure(table: StringTable) {
         if (ready) return
         mutex.withLock {
             if (ready) return
-            withContext(Dispatchers.Default) {
-                val platform = IosReadingAppInitPlatform(table)
-                ReadingAppInit.initialise(platform)
-                ReadingAppInit.prepareData(platform)
-                ReadingAppInit.createWindowRepository(scope)
+            val attempt = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+            try {
+                withContext(Dispatchers.Default) {
+                    val platform = IosReadingAppInitPlatform(table)
+                    initialise(platform)
+                    prepareData(platform)
+                    createRepository(attempt)
+                }
+            } catch (t: Throwable) {
+                attempt.cancel()
+                throw t
             }
+            currentScope = attempt
             ready = true
         }
     }
 
-    internal fun resetForTest() { ready = false }
+    internal fun resetForTest() {
+        ready = false
+        currentScope?.cancel()
+        currentScope = null
+        initialise = { ReadingAppInit.initialise(it) }
+        prepareData = { ReadingAppInit.prepareData(it) }
+        createRepository = { ReadingAppInit.createWindowRepository(it) }
+    }
 }

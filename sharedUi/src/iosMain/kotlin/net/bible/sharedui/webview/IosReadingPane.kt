@@ -81,6 +81,9 @@ object IosReadingWebViews {
     /** Number of `"bridge"` handlers registered on the window's WebView (0 once released). */
     internal fun bridgeHandlerCount(windowId: String): Int = entries[windowId]?.handlerCount ?: 0
 
+    /** Whether a WebView entry is cached for the window (without creating one). */
+    internal fun hasEntry(windowId: String): Boolean = entries.containsKey(windowId)
+
     /**
      * Drops the window's WebView for good (window closed): unregisters the handler. The owner must also
      * `dispose()` the window's [BibleWindowSession]; this does not.
@@ -115,7 +118,10 @@ object IosReadingWebViews {
         }
     }
 
-    /** Adds the bridge handler and loads the bundle, once per window; [dark] is the `night` URL parameter. */
+    /**
+     * Adds the bridge handler and loads the bundle, once per window. [dark] is only the attach-time initial value of
+     * the `night` URL parameter; live night mode reaches the page through `set_config`.
+     */
     internal fun attachSession(windowId: String, session: BibleWindowSession, bridge: BibleBridge, dark: Boolean) {
         val entry = entry(windowId)
         if (entry.handler != null) return
@@ -144,7 +150,10 @@ internal fun attachReadingPane(
     sessionFor: (windowId: String) -> BibleWindowSession,
     bridgeFor: ((windowId: String) -> BibleBridge)?,
     nightMode: () -> Boolean,
+    isOpen: (windowId: String) -> Boolean = { true },
 ) {
+    // A closed or missing window gets no entry, no session and no WebView, whatever the recomposition order.
+    if (!isOpen(windowId)) return
     val entry = IosReadingWebViews.entry(windowId)
     if (entry.handler != null || entry.failed) return
     try {
@@ -168,15 +177,20 @@ fun iosReadingPaneFactory(
     sessionFor: (windowId: String) -> BibleWindowSession,
     bridgeFor: ((windowId: String) -> BibleBridge)? = null,
     nightMode: () -> Boolean = { false },
+    isOpen: (windowId: String) -> Boolean = { true },
 ): ReadingPaneFactory = { windowId, modifier ->
-    attachReadingPane(windowId, sessionFor, bridgeFor, nightMode)
-    val entry = IosReadingWebViews.entry(windowId)
-    UIKitView(
-        // Detach from any previous (disposed) interop holder before re-parenting the cached view.
-        factory = { entry.webView.apply { removeFromSuperview() } },
-        modifier = modifier.testTag("pane-$windowId"),
-        update = {},
-        onRelease = {}, // never destroy or detach the shared WKWebView; IosReadingWebViews owns it
-        properties = UIKitInteropProperties(isInteractive = true, isNativeAccessibilityEnabled = true),
-    )
+    attachReadingPane(windowId, sessionFor, bridgeFor, nightMode, isOpen)
+    // ReadingHost composes panes only for windows in the layout; this check covers the gap between the window
+    // closing and the asynchronous release, so recomposition never recreates a released window's WebView.
+    if (isOpen(windowId)) {
+        val entry = IosReadingWebViews.entry(windowId)
+        UIKitView(
+            // Detach from any previous (disposed) interop holder before re-parenting the cached view.
+            factory = { entry.webView.apply { removeFromSuperview() } },
+            modifier = modifier.testTag("pane-$windowId"),
+            update = {},
+            onRelease = {}, // never destroy or detach the shared WKWebView; IosReadingWebViews owns it
+            properties = UIKitInteropProperties(isInteractive = true, isNativeAccessibilityEnabled = true),
+        )
+    }
 }

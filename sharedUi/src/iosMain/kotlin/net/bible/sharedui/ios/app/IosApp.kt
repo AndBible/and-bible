@@ -238,7 +238,7 @@ private fun IosReadingDestination(
     val host = remember { holder.get(shell, koin, nightObserver) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }
-    val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor) { IosReadingWindows.nightMode } }
+    val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
     CompositionLocalProvider(LocalReadingPane provides paneFactory) {
         ReadingHost(deps, Modifier.testTag("reading-host"))
     }

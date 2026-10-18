@@ -92,6 +92,7 @@ class IosDocumentLoaderPlatform(
         )
     }
 
+    // Pending: always true; sessions are not rebound when a Window object is re-created from the database.
     override fun isCurrentView(): Boolean = true
 
     override fun enableZoomForMap(isMap: Boolean) = Unit
