@@ -80,6 +80,8 @@ if [ $CHECK -eq 1 ] && grep -qxF '@no-common-blocking' "$DONE" 2>/dev/null; then
     | while read -r f; do
         # Exempt: the plan-mandated JSword synchronous-contract bridges of the iOS edges (every call carries // L1-edge:).
         case "$f" in */sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios/IosEdges.kt) continue;; esac
+        # Exempt: IosDatabaseHost's plan-mandated sync bridges of the DatabaseHost contract, called off the main thread (C2).
+        case "$f" in */sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios/IosDatabaseHost.kt) continue;; esac
         awk -v f="$f" '{ l=$0; if (l ~ /^[[:space:]]*(\*|\/\*|\/\/)/) next; sub(/\/\/.*/, "", l);
           if (l ~ /runBlocking|blockingAtEdge/) print f ":" NR ": " $0 }' "$f"
       done)
