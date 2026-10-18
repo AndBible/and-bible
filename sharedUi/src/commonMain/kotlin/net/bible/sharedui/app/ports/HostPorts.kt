@@ -33,4 +33,6 @@ class HostPorts(
     val readingPlanPlatform: () -> ReadingPlanHostPlatform,
     /** The file I/O of the My Documents screens, which needs the Activity on Android. */
     val myDocumentFiles: MyDocumentFiles,
+    /** The Backup screen's file pickers, share sheet and dialogs, which need the Activity on Android. */
+    val backupHost: net.bible.android.control.backup.BackupHost,
 )

@@ -32,6 +32,11 @@ import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.workspaces.WorkspaceService
+import net.bible.android.control.backup.BackupControl
+import net.bible.sharedcore.platform.AppDirectories
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.DateTimeFormats
+import net.bible.sharedui.app.backup.BackupFeatureHost
 import net.bible.sharedui.app.bookmark.BookmarkHost
 import net.bible.sharedui.app.chooser.ChooserHost
 import net.bible.sharedui.app.ports.DebugActions
@@ -235,6 +240,24 @@ class AppHosts(
      * first use; the database is read only when a screen loads or an export runs, so this touches no database.
      */
     val myDocuments: MyDocumentsHost by myDocumentsLazy
+
+    /**
+     * The Backup & restore deps builder. Built on first use; every collaborator resolves lazily from Koin (the
+     * Backup start is uninitialised), so this touches no database.
+     */
+    val backup: BackupFeatureHost by lazy {
+        BackupFeatureHost(
+            shell = shell,
+            strings = strings,
+            backupHost = ports.backupHost,
+            backupControlProvider = { koin.get<BackupControl>() },
+            settingsProvider = { koin.get<AppSettings>() },
+            environmentProvider = { koin.get<AppEnvironment>() },
+            coreStringsProvider = { koin.get<CoreStrings>() },
+            directoriesProvider = { koin.get<AppDirectories>() },
+            dateTimeFormatsProvider = { koin.get<DateTimeFormats>() },
+        )
+    }
 
     /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
     fun onHostDestroy() {

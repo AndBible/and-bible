@@ -96,7 +96,6 @@ import kotlin.coroutines.resume
 import kotlin.reflect.KFunction1
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
 import net.bible.sharedcore.platform.AppCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -238,7 +237,6 @@ import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.hasUsableBible
 import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.backup.BackupServiceImpl
 import net.bible.android.platform.exportStudyPads
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
@@ -255,9 +253,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.AgentPermissionModeIds
-import net.bible.sharedcore.backup.BackupController
 import net.bible.sharedcore.docs.DocsLinks
-import net.bible.sharedui.backup.nav.BackupNavDeps
 import android.Manifest
 import android.content.pm.ActivityInfo
 import androidx.core.content.ContextCompat
@@ -469,6 +465,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         bookmarkPlatform = { AndroidBookmarkHostPlatform(this) },
         readingPlanPlatform = { AndroidReadingPlanHostPlatform(this) },
         myDocumentFiles = AndroidMyDocumentFiles(this, { backupControl }, { appHosts.bookmark.askDestination() }),
+        backupHost = AndroidBackupHost { this },
     )
 
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
@@ -495,9 +492,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     override fun onBibleViewTouched() { composeReadingViewHost?.onBibleViewTouched() }
 
     private val backupControl: BackupControl by inject()
-    private val backupSettings: net.bible.sharedcore.platform.AppSettings by inject()
-    private val backupEnvironment: net.bible.sharedcore.platform.AppEnvironment by inject()
-    private val coreStrings: net.bible.sharedcore.platform.CoreStrings by inject()
     private val documentFilterService: DocumentFilterService by inject()
     private val toolPermissionService: ToolPermissionService by inject()
     private val llmModelService: LlmModelService by inject()
@@ -2576,48 +2570,30 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
-     * Slice 8 C3 (plan Correction 4): the one in-flight [awaitBackupDestination], completed when the
-     * Backup entry is no longer on the back stack -- not when it stops being the CURRENT destination,
-     * because Backup's own "restore modules" pushes InstallZip on top of it.
-     */
-    private var backupReturn: CompletableDeferred<Unit>? = null
-
-    /**
-     * Open Backup & restore in-graph and suspend until the user has left it. `BackupNavigation.backupPopup`
-     * calls this on the nav host; its other callers' `showErrorDialog` loop re-shows its dialog only once
-     * this returns. A second request supersedes the first (the first returns).
-     *
-     * Already ON Backup (an error dialog raised inside it offered "Backup & restore"): return at once, so
-     * the dialog re-shows over Backup. Classic pushed a second Backup screen and re-showed over that;
-     * here a `launchSingleTop` navigate is a no-op, and waiting for Backup to leave would hold the dialog
-     * back until the user was on another screen. Any outer await stays armed.
+     * Open Backup & restore in-graph and suspend until the user has left it (`BackupNavigation.backupPopup` calls
+     * this on the nav host). The in-flight request and its supersede/already-there rules live in
+     * [net.bible.sharedui.app.backup.BackupFeatureHost.awaitDestination].
      */
     internal suspend fun awaitBackupDestination() {
         val controller = navController ?: run {
             Log.w(TAG_NAV_HOST, "Backup requested before the graph composed; ignored.")
             return
         }
-        if (controller.currentDestination?.route == NavRoutes.BACKUP) return
-        val done = CompletableDeferred<Unit>()
-        backupReturn?.complete(Unit)
-        backupReturn = done
-        navigateToRoute(controller, NavRoutes.BACKUP)
-        done.await()
+        appHosts.backup.awaitDestination(controller.currentDestination?.route) {
+            navigateToRoute(controller, NavRoutes.BACKUP)
+        }
     }
 
-    /** Called by the destination listener -- see [backupReturn]. */
+    /** Called by the destination listener: releases a pending [awaitBackupDestination] once Backup left the stack. */
     private fun completeBackupReturnIfLeft(controller: NavController) {
-        val pending = backupReturn ?: return
+        if (!appHosts.backup.hasPendingReturn) return
         val stillThere = try {
             controller.getBackStackEntry(NavRoutes.BACKUP)
             true
         } catch (e: IllegalArgumentException) {
             false
         }
-        if (!stillThere) {
-            backupReturn = null
-            pending.complete(Unit)
-        }
+        if (!stillThere) appHosts.backup.completeReturn()
     }
 
     /** The channel each [ReadingResultKind]'s collector reads. Exhaustive, so a new kind cannot be forgotten. */
@@ -3582,22 +3558,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     )
                 }
                 val chooserDeps = remember { appHosts.chooser.navDeps(navController, keyChooserResults, passageResults, documentResults) }
-                // Slice 8 C3: Backup & restore, formerly BackupComposeActivity. The service is built per
-                // controller with THIS host, because BackupControl's dialog/SAF calls need the calling
-                // Activity (BackupServiceImpl's kdoc).
-                val backupDeps = remember {
-                    BackupNavDeps(
-                        exitHost = { finish() },
-                        setWindowTitle = { title -> setTitle(title) },
-                        windowTitle = getString(R.string.backup_and_restore),
-                        controllerFor = {
-                            BackupController(BackupServiceImpl(
-                                AndroidBackupHost { this@NavHostComposeActivity },
-                                backupControl, backupSettings, backupEnvironment, coreStrings,
-                            ), lifecycleScope)
-                        },
-                    )
-                }
+                val backupDeps = remember { appHosts.backup.navDeps(navController) }
                 val installZipDeps = remember {
                     InstallZipNavDeps(
                         setWindowTitle = { title -> setTitle(title) },
