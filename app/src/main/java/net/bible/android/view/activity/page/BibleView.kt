@@ -203,83 +203,6 @@ fun bibleViewBackgroundColorFor(window: Window): Int {
     return (if (ScreenSettings.nightMode) nightBackground else dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
 }
 
-@Serializable
-class Selection(
-    override val bookInitials: String?,
-    override val startOrdinal: Int,
-    override val startOffset: Int?,
-    override val endOrdinal: Int,
-    override val endOffset: Int?,
-    val bookmarks: List<IdType>,
-    override val notes: String? = null,
-    override val text: String = "",
-    override val osisRef: String? = null,
-    override val noteEditorEntityType: NoteEditorEntityType? = null,
-    /** Note editor entity ID (bookmark UUID, studypad entry UUID, or MyDocument page ID) */
-    override val noteEditorEntityId: String? = null,
-    /** Current text content in the note editor */
-    override val noteEditorContent: String? = null,
-    /** Content type of the editor: "MARKDOWN" or "HTML" */
-    override val noteEditorContentType: String? = null,
-) : KoinComponent, net.bible.service.sword.ShareSelection, net.bible.service.llm.agent.LlmSelection
-{
-    constructor(bookmark: BookmarkEntities.BibleBookmarkWithNotes):
-        this(
-            bookInitials = bookmark.book?.initials,
-            startOrdinal = bookmark.ordinalStart,
-            startOffset = bookmark.startOffset,
-            endOrdinal = bookmark.ordinalEnd,
-            endOffset = bookmark.endOffset,
-            bookmarks = emptyList(),
-            notes = bookmark.notes
-        )
-
-    constructor(bookInitials: String, startOrdinal: Int, endOrdinal: Int?, text: String = ""):
-        this(
-            bookInitials = bookInitials,
-            startOrdinal = startOrdinal,
-            startOffset = 0,
-            endOrdinal = endOrdinal?: startOrdinal,
-            endOffset = null,
-            bookmarks = emptyList(),
-            text = text,
-        )
-    constructor(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int?, text: String = ""):
-        this(
-            bookInitials = bookInitials,
-            osisRef = osisRef,
-            startOrdinal = startOrdinal,
-            startOffset = 0,
-            endOrdinal = endOrdinal?: startOrdinal,
-            endOffset = null,
-            bookmarks = emptyList(),
-            text = text,
-        )
-
-    @Transient val windowControl: WindowControl by inject()
-    @Transient private val swordContentFacade: SwordContentFacade by inject()
-
-
-    val hasRange get() = startOffset != null && endOffset != null
-
-    val book: Book? get() = Books.installed().getBook(bookInitials)
-    val swordBook: SwordBook? get() =
-        if(book is SwordBook)
-            book as SwordBook? ?: windowControl.defaultBibleDoc(false)
-        else null
-    override val verseRange: VerseRange? get() {
-        swordBook?: return null
-        val v11n = swordBook?.versification ?: KJVA
-        return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
-    }
-
-    fun copyToClipboard() {
-        CommonUtils.copyToClipboard(
-            ClipData.newPlainText(verseRange?.getName(), CommonUtils.getShareableDocumentText(this, swordContentFacade))
-        )
-    }
-}
-
 /** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
 class BibleView(
@@ -529,7 +452,7 @@ class BibleView(
 
         val textRange =
             if (selection.startOffset != null && selection.endOffset != null)
-                BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+                BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
             else null
 
         val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
@@ -604,7 +527,7 @@ class BibleView(
 
         val textRange =
             if (selection.startOffset != null && selection.endOffset != null)
-                BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+                BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
             else null
 
         val bookmark: BookmarkEntities.BaseBookmarkWithNotes =

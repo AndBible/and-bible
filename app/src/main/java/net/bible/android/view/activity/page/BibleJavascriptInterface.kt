@@ -101,30 +101,6 @@ import java.io.File
 import java.lang.ClassCastException
 
 
-/**
- * How [BibleJavascriptInterface.refChooserDialog] renders the chosen verse for the JS side: SHORT
- * book-name form, whatever `BookName.isFullBookName()` happens to be globally, and that global
- * restored afterwards. Verbatim from the version that read the chooser Activity's result — the
- * format is part of the JS contract, not incidental — extracted only so it can be tested without a
- * WebView (`RefChooserSheetTest`).
- *
- * `null` (a dismissed chooser) renders as the empty string, which is what the JS promise resolves
- * to when the user picks nothing.
- */
-internal fun refChooserVerseName(verseStr: String?): String {
-    val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
-
-    return synchronized(BookName::class.java) {
-        val oldValue = BookName.isFullBookName()
-        BookName.setFullBookName(false)
-        try {
-            verse?.getName() ?: ""
-        } finally {
-            BookName.setFullBookName(oldValue)
-        }
-    }
-}
-
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) : KoinComponent, BibleBridge {
@@ -475,11 +451,6 @@ class BibleJavascriptInterface(
                 )
             }
         }
-    }
-
-    private fun positiveOrNull(value: Int): Int? {
-        if(value < 0) return null
-        return value
     }
 
     override fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
