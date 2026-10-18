@@ -12,6 +12,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.app.ports.DocumentRef
+import net.bible.sharedui.app.ports.NoDocumentPickerException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -21,6 +22,8 @@ import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 /**
  * A picker that is open while the Activity is recreated: the registry redelivers its result to the launcher the
@@ -34,6 +37,14 @@ class AndroidDocumentPickerOrphanResultTest {
     /** Registers the picker in a field initializer, as the nav host does, so it is ready before STARTED. */
     class PickerActivity : ComponentActivity() {
         val picker = AndroidDocumentPicker(this)
+    }
+
+    /** An Activity on a device where no app can show a picker: every launch throws `ActivityNotFoundException`. */
+    class NoPickerActivity : ComponentActivity() {
+        val picker = AndroidDocumentPicker(this)
+        override fun startActivityForResult(intent: Intent, requestCode: Int, options: android.os.Bundle?) {
+            throw android.content.ActivityNotFoundException("no picker")
+        }
     }
 
     private val treeUri = Uri.parse("content://tree/folder")
@@ -106,6 +117,17 @@ class AndroidDocumentPickerOrphanResultTest {
         assertEquals(listOf(DocumentRef(newUri.toString())), runBlocking { fresh.await() })
         val resumed = GlobalScope.async(Dispatchers.Unconfined) { second.picker.resumeOpenDocuments() }
         assertFalse(resumed.isCompleted, "the stale orphan must not be returned")
+        resumed.cancel()
+    }
+
+    @Test
+    fun openDocumentTreeWithoutAPickerAppThrowsAndLeavesNothingPending() {
+        val activity = Robolectric.buildActivity(NoPickerActivity::class.java).setup().get()
+        val e = assertFailsWith<NoDocumentPickerException> { runBlocking { activity.picker.openDocumentTree() } }
+        assertTrue(e.cause is android.content.ActivityNotFoundException)
+        // No stale deferred: a later resume waits for a redelivery instead of being answered by the failed pick.
+        val resumed = GlobalScope.async(Dispatchers.Unconfined) { activity.picker.resumeDocumentTree() }
+        assertFalse(resumed.isCompleted)
         resumed.cancel()
     }
 }

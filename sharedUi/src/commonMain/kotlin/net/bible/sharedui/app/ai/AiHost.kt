@@ -454,7 +454,9 @@ class AiHost(
             }
         } catch (e: Exception) {
             Log.e(TAG_AI_PROMPTS, "Error exporting prompts to CSV", e)
-            platform.showErrorDialog(strings.csvExportFailed(e.message.toString()), e)
+            // The Activity's own message when nothing could show a picker, as the intent launch threw it before.
+            val message = (e as? NoDocumentPickerException)?.cause?.message ?: e.message
+            platform.showErrorDialog(strings.csvExportFailed(message.toString()), e)
         }
     }
 

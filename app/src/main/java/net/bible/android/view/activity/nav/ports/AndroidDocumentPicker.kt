@@ -82,7 +82,7 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
     override suspend fun openDocumentTree(): DocumentRef? {
         orphanTree = null   // a new normal pick supersedes an unclaimed stale result
         return CompletableDeferred<Uri?>().also { pendingTree?.complete(null); pendingTree = it }
-            .also { treeLauncher.launch(null) }.await()?.let { DocumentRef(it.toString()) }
+            .also { launchOrThrow({ pendingTree = null }) { treeLauncher.launch(null) } }.await()?.let { DocumentRef(it.toString()) }
     }
 
     override suspend fun resumeOpenDocuments(): List<DocumentRef> {
