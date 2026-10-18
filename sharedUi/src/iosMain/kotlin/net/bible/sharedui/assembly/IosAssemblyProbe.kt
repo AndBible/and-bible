@@ -21,17 +21,16 @@ import org.koin.core.Koin
 import org.koin.core.annotation.KoinInternalApi
 import org.koin.mp.KoinPlatform
 
-/** Outcome of resolving every Koin definition: how many resolved, which failed only for want of a Stream D port, which failed otherwise. */
-data class AssemblyProbeResult(val resolved: Int, val syncDependents: List<String>, val failures: List<String>)
+/** Outcome of resolving every Koin definition: how many resolved, which are phase 2 dependents, which failed otherwise. */
+data class AssemblyProbeResult(val resolved: Int, val phase2Dependents: List<String>, val failures: List<String>)
 
 /**
- * Debug-only proof that the real graph assembles (spec section 4): resolves every definition. A definition whose
- * failure chain names one of [SYNC_PORT_TYPES] is a Stream D dependent (phase 1 leaves those ports unbound) and is
- * counted separately; any other failure is a real assembly bug and is listed.
+ * Debug-only proof that the real graph assembles (spec section 4): resolves every definition. A failure that
+ * [classifyAssemblyFailure] calls a phase 2 dependent (Stream D ports unbound, workspace not initialised: the
+ * workspace init is a phase 2 join) is counted separately; any other failure is a real assembly bug and is listed.
  */
 @OptIn(KoinInternalApi::class)
 internal fun Koin.probeAllDefinitions(): AssemblyProbeResult {
-    val syncNames = SYNC_PORT_TYPES.mapNotNull { it.qualifiedName }
     var resolved = 0
     val sync = mutableListOf<String>()
     val failures = mutableListOf<String>()
@@ -46,7 +45,8 @@ internal fun Koin.probeAllDefinitions(): AssemblyProbeResult {
             resolved++
         } catch (e: Throwable) {
             val chain = generateSequence(e) { it.cause }.joinToString(" | ") { it.message.orEmpty() }
-            if (syncNames.any { chain.contains(it) }) sync += name else failures += "$name: ${chain.take(400)}"
+            if (classifyAssemblyFailure(chain) == AssemblyFailureKind.PHASE_2_DEPENDENT) sync += name
+            else failures += "$name: ${generateSequence(e) { it.cause }.last().message.orEmpty().take(400)}"
         }
     }
     return AssemblyProbeResult(resolved, sync, failures)
@@ -62,6 +62,6 @@ private fun parameters(type: kotlin.reflect.KClass<*>): org.koin.core.parameter.
 internal fun logAssemblyProbe() {
     val r = KoinPlatform.getKoin().probeAllDefinitions()
     nsLog("I2 assembly: Koin graph resolved (${r.resolved} definitions), databases open")
-    nsLog("I2 assembly: ${r.syncDependents.size} Stream D dependents unresolved (sync ports unbound)")
-    if (r.failures.isNotEmpty()) nsLog("I2 assembly: ${r.failures.size} UNEXPECTED failures:\n" + r.failures.joinToString("\n"))
+    nsLog("I2 assembly: ${r.phase2Dependents.size} phase-2 dependents not resolved (Stream D ports / workspace): ${r.phase2Dependents.joinToString()}")
+    r.failures.forEach { nsLog("I2 assembly: UNEXPECTED unresolvable: $it") }
 }

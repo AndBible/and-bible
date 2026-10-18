@@ -32,14 +32,14 @@ sealed interface StartupPhase {
 }
 
 /**
- * Runs the off-main-thread part of the cold start ([open]: databases, then the workspace) and exposes it as [phase].
+ * Runs the off-main-thread part of the cold start ([open]: the databases only; Ready = databases open).
+ * Workspace initialisation (`WindowRepository.initializeAtEdge`) is a phase 2 join: it needs Stream D's sync ports
+ * and an installed Bible, neither of which exists in production phase 1, so it is NOT part of this startup.
+ * The state exposes the progress as [phase].
  * Never stuck in [StartupPhase.Starting] after a failure: any exception becomes [StartupPhase.Failed].
  */
 class IosAppStartupState(
-    private val open: suspend () -> Unit = {
-        IosAppStartup.openDatabases()
-        IosAppStartup.loadWorkspace()
-    },
+    private val open: suspend () -> Unit = { IosAppStartup.openDatabases() },
 ) {
     private val _phase = MutableStateFlow<StartupPhase>(StartupPhase.Starting)
     val phase: StateFlow<StartupPhase> = _phase
