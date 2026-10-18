@@ -30,6 +30,7 @@ import net.bible.service.legacymigration.testsupport.FailingCleanupFileSystem
 import net.bible.service.legacymigration.testsupport.FailingDeleteFileSystem
 import net.bible.service.legacymigration.testsupport.ThrowAfterDoneMoveFileSystem
 import net.bible.service.legacymigration.testsupport.execSql
+import net.bible.service.legacymigration.testsupport.readText
 import net.bible.service.legacymigration.testsupport.FakeLegacyPlatform
 import net.bible.service.legacymigration.testsupport.FixtureDir
 import net.bible.service.legacymigration.testsupport.JvmLegacyDatabaseFactory
@@ -432,12 +433,33 @@ class LegacyMigratorTest {
     }
 
     @Test
-    fun twoWindowsSharingOnePageManagerRowMigrate() {
+    fun twoWindowsSharingOnePageManagerRowMigrateAndTheOrphanIsReported() {
         val e = env()
-        execSql(store(e), "UPDATE ZWINDOW SET ZPAGEMANAGER = (SELECT MIN(ZPAGEMANAGER) FROM ZWINDOW) WHERE Z_PK = (SELECT MAX(Z_PK) FROM ZWINDOW)")
-        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        execSql(store(e), "UPDATE ZWINDOW SET ZPAGEMANAGER = (SELECT MIN(Z_PK) FROM ZPAGEMANAGER) WHERE Z_PK = (SELECT MIN(Z_PK) FROM ZWINDOW)")
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
         val ws = databaseSummary(e.databases).getValue("workspaces.sqlite3")
         assertEquals(ws.getValue("Window"), ws.getValue("PageManager"))
+        // The legacy page manager the last window used to own is now used by nobody: reported, not silent.
+        val skips = migrated.report.entries.filterIsInstance<net.bible.service.legacymigration.map.ReportEntry.Skipped>()
+        assertTrue(skips.any { it.table == "PageManager" && it.rows == 1 && it.reason.startsWith("page manager without") }, skips.toString())
+    }
+
+    @Test
+    fun twoHistoryRowsWithOneAliasedUuidMigrateAndTheDuplicateIsReported() {
+        val e = env()
+        val local = File(e.platform.applicationSupport.toString(), "LocalStore.store")
+        fun uuidText(pk: String) = "(SELECT lower(substr(hex(ZID),1,8)||'-'||substr(hex(ZID),9,4)||'-'||substr(hex(ZID),13,4)||'-'||substr(hex(ZID),17,4)||'-'||substr(hex(ZID),21,12)) FROM ZHISTORYITEM WHERE Z_PK = $pk)"
+        val minPk = "(SELECT MIN(Z_PK) FROM ZHISTORYITEM)"
+        val maxPk = "(SELECT MAX(Z_PK) FROM ZHISTORYITEM)"
+        // Two history rows now share one id, and a fidelity alias gives that id a fixed Android id: the same Room key twice.
+        execSql(store(e), "UPDATE ZHISTORYITEM SET ZID = (SELECT ZID FROM ZHISTORYITEM WHERE Z_PK = $minPk) WHERE Z_PK = $maxPk")
+        val alias = readText(store(e), "SELECT ${uuidText(minPk)}")
+        execSql(local, "INSERT INTO ZSETTING (Z_ENT, Z_OPT, ZKEY, ZVALUE) VALUES ((SELECT Z_ENT FROM ZSETTING LIMIT 1), 1, 'remote_sync.workspaces.fidelity.history_alias.500', '$alias')")
+        val migrated = assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
+        val skips = migrated.report.entries.filterIsInstance<net.bible.service.legacymigration.map.ReportEntry.Skipped>()
+        assertTrue(skips.any { it.table == "HistoryItem" && it.reason == "duplicate history item id" && it.rows == 1 }, skips.toString())
+        val written = migrated.report.entries.filterIsInstance<net.bible.service.legacymigration.map.ReportEntry.Written>().first { it.table == "HistoryItem" }.rows
+        assertEquals(written, databaseSummary(e.databases).getValue("workspaces.sqlite3").getValue("HistoryItem"))
     }
 
     // ---- mapper order ---------------------------------------------------------------------------------------

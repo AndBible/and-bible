@@ -146,3 +146,13 @@ class ThrowAfterDoneMoveFileSystem(delegate: FileSystem) : ForwardingFileSystem(
         if (target.name == "done.json") throw okio.IOException("injected failure after the done.json rename")
     }
 }
+
+/** The first column of the first row of [sql] against [file], as text. */
+fun readText(file: File, sql: String): String {
+    val c = openSqlite(file.path, readOnly = true)
+    try {
+        return c.prepare(sql).let { try { check(it.step()); it.getText(0) } finally { it.close() } }
+    } finally {
+        c.close()
+    }
+}

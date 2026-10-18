@@ -143,7 +143,7 @@ class WorkspacesMapper : CategoryMapper {
         // same order; a later row with the same id replaces an earlier one (the Swift dictionaries are keyed by id).
         val workspaceRows = data.workspaces
             .filter { it.id("id") != null }
-            .also { skip(report, "workspace without id", data.workspaces.size - it.size) }
+            .also { skip(report, "workspace without id", data.workspaces.size - it.size, "Workspace") }
             .sortedWith(compareBy<LegacyRow>({ it.int("orderNumber") ?: 0 }, { it.id("id")!!.toString() }))
         val workspaces = LinkedHashMap<String, WorkspaceEntities.Workspace>()
         val workspacePkToId = HashMap<Long, IdType>()
@@ -152,13 +152,13 @@ class WorkspacesMapper : CategoryMapper {
             workspacePkToId[row.pk] = id
             workspaces[id.toString()] = workspace(row, id, fidelity, report)
         }
-        skip(report, "duplicate workspace id", workspaceRows.size - workspaces.size)
+        skip(report, "duplicate workspace id", workspaceRows.size - workspaces.size, "Workspace")
 
         val pageManagersByPk = data.pageManagers.associateBy { it.pk }
         val pageManagerPkByWindowPk = data.pageManagers.mapNotNull { pm -> pm.toOne["window"]?.let { it to pm.pk } }.toMap()
         val windowRows = data.windows
             .filter { it.id("id") != null && it.toOne["workspace"] in workspacePkToId }
-            .also { skip(report, "window without id or workspace", data.windows.size - it.size) }
+            .also { skip(report, "window without id or workspace", data.windows.size - it.size, "Window") }
             .sortedWith(
                 compareBy<LegacyRow>(
                     { workspacePkToId.getValue(it.toOne["workspace"]!!).toString() },
@@ -168,22 +168,22 @@ class WorkspacesMapper : CategoryMapper {
             )
         val windows = LinkedHashMap<String, WorkspaceEntities.Window>()
         val pageManagers = LinkedHashMap<String, WorkspaceEntities.PageManager>()
-        var usedPageManagers = 0
+        val usedPageManagerPks = HashSet<Long>() // a legacy page manager shared by two windows counts once
         for (row in windowRows) {
             val id = row.id("id")!!
             windows[id.toString()] = window(row, id, workspacePkToId.getValue(row.toOne["workspace"]!!))
             val pmRow = (row.toOne["pageManager"] ?: pageManagerPkByWindowPk[row.pk])?.let { pageManagersByPk[it] }
-            if (pmRow != null) usedPageManagers++
+            if (pmRow != null) usedPageManagerPks += pmRow.pk
             pageManagers[id.toString()] = pageManager(pmRow, id, fidelity, report)
         }
-        skip(report, "duplicate window id", windowRows.size - windows.size)
-        skip(report, "page manager without an exported window", data.pageManagers.size - usedPageManagers)
+        skip(report, "duplicate window id", windowRows.size - windows.size, "Window")
+        skip(report, "page manager without an exported window", data.pageManagers.size - usedPageManagerPks.size, "PageManager")
 
         val history = historyItems(data, windows.keys, fidelity, report)
 
         val overrides = fidelity.labelOverrides.filter { it.workspaceId.toString() in workspaces }
             .sortedWith(compareBy({ it.workspaceId.toString() }, { it.labelId.toString() }))
-        skip(report, "label override of an unknown workspace", fidelity.labelOverrides.size - overrides.size)
+        skip(report, "label override of an unknown workspace", fidelity.labelOverrides.size - overrides.size, "WorkspaceLabelOverride")
 
         return WorkspaceStage(
             workspaces = workspaces.values.toList(),
@@ -195,8 +195,8 @@ class WorkspacesMapper : CategoryMapper {
         )
     }
 
-    private fun skip(report: MigrationReport, reason: String, rows: Int) {
-        if (rows > 0) report.skipped(category, reason, rows)
+    private fun skip(report: MigrationReport, reason: String, rows: Int, table: String? = null) {
+        if (rows > 0) report.skipped(category, reason, rows, table)
     }
 
     // ---- Workspace -------------------------------------------------------------------------------------------
@@ -410,15 +410,24 @@ class WorkspacesMapper : CategoryMapper {
                 id = v.id("id")?.toString() ?: "",
             )
         }
-        skip(report, "history item without an exported window", data.historyItems.size - items.size)
+        skip(report, "history item without an exported window", data.historyItems.size - items.size, "HistoryItem")
         val sorted = items.sortedWith(
             compareBy<Item>({ it.window }, { it.createdAt }, { it.document }, { it.key }, { it.id }),
         )
         var next = (fidelity.historyAliases.values.maxOrNull() ?: 0L) + 1
-        return sorted.map { item ->
+        // Two legacy rows with one UUID get the same aliased Android id. The Swift exporter would then fail on the primary
+        // key; the Room DAO ignores the second insert silently. Either way the staged count would differ from the report, so
+        // the later row is skipped here and reported.
+        val usedRemoteIds = HashSet<Long>()
+        var duplicates = 0
+        val result = ArrayList<WorkspaceEntities.HistoryItem>(sorted.size)
+        for (item in sorted) {
             val remoteId = fidelity.historyAliases[item.id] ?: next++
-            WorkspaceEntities.HistoryItem(IdType.fromString(item.window), DbDate(item.createdAt), item.document, item.key, item.anchor, remoteId)
+            if (!usedRemoteIds.add(remoteId)) { duplicates++; continue }
+            result += WorkspaceEntities.HistoryItem(IdType.fromString(item.window), DbDate(item.createdAt), item.document, item.key, item.anchor, remoteId)
         }
+        skip(report, "duplicate history item id", duplicates, "HistoryItem")
+        return result
     }
 
     // ---- Global text display settings ------------------------------------------------------------------------

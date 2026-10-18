@@ -285,7 +285,7 @@ class LegacyMigrator(
             throw e
         } catch (e: Exception) {
             // done.json may exist although writeDone threw (the rename can succeed before the call fails): that is committed.
-            if (committed || (finished != null && fs.exists(doneFile))) {
+            if (committed || (finished != null && runCatching { fs.exists(doneFile) }.getOrDefault(false))) {
                 bestEffort { deleteSearchIndex() }
                 bestEffortCleanUp()
                 return LegacyMigrationOutcome.Migrated(report, finished!!)

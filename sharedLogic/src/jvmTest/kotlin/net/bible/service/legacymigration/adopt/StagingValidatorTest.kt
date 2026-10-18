@@ -110,7 +110,7 @@ class StagingValidatorTest {
 
     @Test
     fun reportedSkipsExcuseMissingRowsOfTheirCategoryOnly() {
-        // Known limitation, documented on ROW_EXPECTATIONS: a skip entry has a reason but no table, so it is credited per category.
+        // An unattributed skip (table null) is credited to every table of its category; an attributed one only to its table.
         val s = staged()
         sql(File(s.dir.toFile(), "bookmarks.sqlite3"), "DELETE FROM BibleBookmark WHERE id = (SELECT id FROM BibleBookmark LIMIT 1)")
         validate(s, consistentReport(s, skipped = 1)) // one row lost, one skip reported: accepted

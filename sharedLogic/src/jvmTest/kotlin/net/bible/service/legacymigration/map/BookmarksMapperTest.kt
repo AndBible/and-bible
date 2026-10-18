@@ -214,10 +214,9 @@ class BookmarksMapperTest {
                     assertEquals(0, scalar(staging, "SELECT COUNT(*) FROM BibleBookmarkToLabel WHERE hex(bookmarkId) = '$hex'"), state)
                     val skips = report.entries.filterIsInstance<ReportEntry.Skipped>()
                     assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, reason, 1, "BibleBookmark")), skips.filter { it.reason.startsWith("ordinal trust") }, state)
-                    // The note and the label links that went with the hidden bookmark are counted, attributed to their tables.
-                    assertTrue(skips.any { it.table == "BibleBookmarkNotes" && it.rows == 1 }, "$state: $skips")
-                    assertTrue(skips.any { it.table == "BibleBookmarkToLabel" && it.rows >= 1 }, "$state: $skips")
-                    assertEquals(emptyList(), skips.filter { !it.reason.startsWith("ordinal trust") && it.table !in setOf("BibleBookmarkNotes", "BibleBookmarkToLabel") }, state)
+                    // Nothing else is skipped: exactly the trust entry plus the hidden bookmark's own note and label links.
+                    assertEquals(hiddenChildren(fx, victim.pk).toSet(), skips.filter { !it.reason.startsWith("ordinal trust") }.toSet(), state)
+                    assertTrue(hiddenChildren(fx, victim.pk).size == 2, "the victim owns both a note and a link")
                     // Everything else still equals the oracle, except the one bookmark (and its note and links) the oracle also leaves out.
                     val diffs = compareWithOracleDetailed(fx, LegacyCategory.BOOKMARKS, staging, approved).differences
                     assertTrue(diffs.all { it.contains("missing in staged database") }, diffs.toString())
@@ -229,6 +228,17 @@ class BookmarksMapperTest {
             val changed = (before.keys + after.keys).filter { before[it] != after[it] }.sorted()
             assertEquals(emptyList(), changed.filterNot { it.endsWith("-shm") }, "$state: changed source files")
         }
+    }
+
+    /** The skips the mapper must report for the children (label links, note) of the hidden Bible bookmark [pk]. */
+    private fun hiddenChildren(fx: FixtureDir, pk: Long): List<ReportEntry.Skipped> = snapshot(fx).use { s ->
+        val id = (s.cloud.rows("BibleBookmark").first { it.pk == pk }.values["id"] as LegacyValue.UuidV).value
+        val links = s.cloud.rows("BibleBookmarkToLabel").count { it.toOne["bookmark"] == pk }
+        val notes = s.cloud.rows("BibleBookmarkNotes").count { (it.values["bookmarkId"] as? LegacyValue.UuidV)?.value == id }
+        listOfNotNull(
+            links.takeIf { it > 0 }?.let { ReportEntry.Skipped(LegacyCategory.BOOKMARKS, "Bible bookmark label link of a hidden bookmark", it, "BibleBookmarkToLabel") },
+            notes.takeIf { it > 0 }?.let { ReportEntry.Skipped(LegacyCategory.BOOKMARKS, "note of a hidden Bible bookmark", it, "BibleBookmarkNotes") },
+        )
     }
 
     private fun scalar(staging: StagingDatabases, sql: String): Int = runBlocking {
@@ -255,6 +265,12 @@ class BookmarksMapperTest {
                     assertEquals(
                         listOf(ReportEntry.Skipped(LegacyCategory.BOOKMARKS, "ordinal trust verifiedAndroid inconsistent", 1, "BibleBookmark")),
                         report.entries.filterIsInstance<ReportEntry.Skipped>().filter { it.reason.startsWith("ordinal trust") },
+                        change,
+                    )
+                    // The only other skips are the hidden bookmark's own children.
+                    assertEquals(
+                        hiddenChildren(fx, pk).toSet(),
+                        report.entries.filterIsInstance<ReportEntry.Skipped>().filter { !it.reason.startsWith("ordinal trust") }.toSet(),
                         change,
                     )
                 }

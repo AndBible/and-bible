@@ -280,7 +280,7 @@ class WorkspacesMapperTest {
         assertEquals(null, bare.biblePage.document)
         assertEquals(listOf("KJV", 2, 1, 1), bare.biblePage.verse.let { listOf(it.versification, it.bibleBook, it.chapterNo, it.verseNo) })
         assertEquals("MAPS", stage.pageManagers.single { it.windowId.toString() == win1 }.currentCategoryName)
-        assertTrue(report.entries.contains(ReportEntry.Skipped(LegacyCategory.WORKSPACES, "page manager without an exported window", 1)))
+        assertTrue(report.entries.contains(ReportEntry.Skipped(LegacyCategory.WORKSPACES, "page manager without an exported window", 1, "PageManager")))
     }
 
     @Test
@@ -301,7 +301,7 @@ class WorkspacesMapperTest {
         val history = build(handBuilt(aliases, items), report).historyItems
         // Ordered by window id, then time; the aliased item keeps 41, the others continue from 42.
         assertEquals(listOf("early-w1" to 42L, "late-w1" to 41L, "late-w2" to 43L), history.map { it.key to it.id })
-        assertTrue(report.entries.contains(ReportEntry.Skipped(LegacyCategory.WORKSPACES, "history item without an exported window", 1)))
+        assertTrue(report.entries.contains(ReportEntry.Skipped(LegacyCategory.WORKSPACES, "history item without an exported window", 1, "HistoryItem")))
     }
 
     @Test
