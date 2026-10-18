@@ -105,10 +105,9 @@ targets:
           - $(inherited)
           - $(SRCROOT)/../sharedUi/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
         "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
-        # Ad hoc like the host app (see iosApp); the tests run inside the host's process and keychain entitlement.
-        "CODE_SIGNING_REQUIRED[sdk=iphonesimulator*]": "NO"
-        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "YES"
-        "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
+        # Unsigned (the bundle has no Info.plist, so it cannot be signed): the tests run inside the signed host app's
+        # process and use ITS keychain entitlement.
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
 schemes:
   iosApp:
     build:
