@@ -35,6 +35,7 @@ import okio.Path
 import okio.Path.Companion.toPath
 import org.crosswire.common.util.Reporter
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.index.fts.SearchFields
 import org.koin.core.module.Module
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
@@ -143,7 +144,10 @@ class IosAssemblyTest {
     @Test
     fun startOnAnEmptySandboxCreatesTheFoldersAndNeverTouchesTheDatabases() {
         startWithDoubles()
-        assertTrue(files.exists(moduleDir), "module folder created by startup")
+        // The fixture ships only mods.d and the module data, so the search folder exists only if startup created it.
+        // (JSword's loaded flag is process-wide, so the folder creation itself runs once; the folders persist in the
+        // shared root. Creation from a fully empty directory is covered by IosSwordEnvironmentTest in :sharedLogic.)
+        assertTrue(files.exists(moduleDir / SearchFields.DIR_SEARCH), "search folder created by startup")
         assertTrue(IosSwordEnvironment.isLoaded)
         assertFalse(IosAppStartup.databasesOpen)
         assertFalse(DatabaseContainer.ready, "start() must not mark the databases ready (C2)")
@@ -207,6 +211,29 @@ class IosAssemblyTest {
         openDatabasesDiagnosing() // the retry succeeds
         assertTrue(IosAppStartup.databasesOpen)
         for (name in ALL_DB_FILENAMES) assertTrue(files.exists(databaseDir / name), "$name missing after the retry")
+    }
+
+    @Test
+    fun aCorruptDatabaseFileIsMovedAsideAndRecreatedEmpty() {
+        startWithDoubles()
+        // Garbage in one database file: buildAppDatabase (recoverIfCorrupt) moves it to `<name>.corrupt-<ts>` and the
+        // container recreates the database, so the open SUCCEEDS (it does not report Failed).
+        val victim = ALL_DB_FILENAMES.first()
+        files.createDirectories(databaseDir)
+        files.write(databaseDir / victim) { writeUtf8("this is not a sqlite database ".repeat(200)) }
+
+        openDatabasesDiagnosing()
+
+        assertTrue(IosAppStartup.databasesOpen)
+        assertTrue(DatabaseContainer.ready)
+        val movedAside = files.list(databaseDir).map { it.name }.filter { it.startsWith("$victim.corrupt-") }
+        assertEquals(1, movedAside.size, "the corrupt $victim was not moved aside: ${files.list(databaseDir).map { it.name }}")
+        assertTrue(files.metadata(databaseDir / victim).size!! > 0L, "$victim was not recreated")
+        assertTrue(
+            files.read(databaseDir / victim) { readUtf8(15) } == "SQLite format 3",
+            "the recreated $victim is not a SQLite database",
+        )
+        for (name in ALL_DB_FILENAMES) assertTrue(files.exists(databaseDir / name), "$name missing")
     }
 
     @Test

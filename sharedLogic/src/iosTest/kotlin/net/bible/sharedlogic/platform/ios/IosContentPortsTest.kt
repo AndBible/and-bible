@@ -108,18 +108,30 @@ class IosContentPortsTest {
         assertNull(source.mimeType("weird.zzqqxx9"))
     }
 
-    @Test fun contentSourceMimeTypeFallbackTableCoversExchangedTypes() {
-        val source = IosContentSource()
-        // Exact values; the system UTType database may answer first for some, so these are the values both agree on.
+    @Test fun contentSourceMimeTypeFallbackTableHasTheExchangedTypes() {
+        // The explicit table, read directly (not through UTType, which answers first and varies by runtime).
         val expected = mapOf(
-            "a.json" to "application/json", "a.xml" to "application/xml", "a.txt" to "text/plain", "a.html" to "text/html",
-            "a.csv" to "text/csv", "a.md" to "text/markdown", "a.zip" to "application/zip",
-            "a.epub" to "application/epub+zip", "a.pdf" to "application/pdf", "a.png" to "image/png",
-            "a.JPG" to "image/jpeg", "a.jpeg" to "image/jpeg", "a.gif" to "image/gif", "a.db" to "application/octet-stream",
-            "a.sqlite" to "application/vnd.sqlite3", "a.mp3" to "audio/mpeg", "a.wav" to "audio/wav", "a.m4a" to "audio/mp4",
-            "a.mp4" to "video/mp4", "a.conf" to "text/plain", "a.properties" to "text/plain",
+            "json" to "application/json", "xml" to "application/xml", "txt" to "text/plain", "html" to "text/html",
+            "csv" to "text/csv", "md" to "text/markdown", "zip" to "application/zip",
+            "epub" to "application/epub+zip", "pdf" to "application/pdf", "png" to "image/png",
+            "jpg" to "image/jpeg", "jpeg" to "image/jpeg", "gif" to "image/gif", "db" to "application/octet-stream",
+            "sqlite" to "application/vnd.sqlite3", "mp3" to "audio/mpeg", "wav" to "audio/wav", "m4a" to "audio/mp4",
+            "mp4" to "video/mp4", "conf" to "text/plain", "properties" to "text/plain",
         )
-        for ((name, mime) in expected) assertEquals(mime, source.mimeType(name), name)
+        for ((extension, mime) in expected) assertEquals(mime, IosContentSource.FALLBACK_MIME_TYPES[extension], extension)
+    }
+
+    @Test fun contentSourceMimeTypeEndToEndIsStableOrLoosened() {
+        val source = IosContentSource()
+        // Same answer from the system database and the fallback table.
+        assertEquals("application/json", source.mimeType("a.json"))
+        assertEquals("application/json", source.mimeType("A.JSON"), "the extension is case-insensitive")
+        // The system UTType database answers first and differs between simulator runtimes: only the media class is pinned.
+        for (name in listOf("a.db", "a.wav", "a.mp3", "a.m4a", "a.sqlite", "a.mp4", "a.epub", "a.md", "a.conf")) {
+            val mime = source.mimeType(name)
+            val major = IosContentSource.FALLBACK_MIME_TYPES.getValue(name.substringAfterLast('.')).substringBefore('/')
+            assertTrue(mime != null && mime.startsWith("$major/"), "$name -> $mime (expected a $major/* type)")
+        }
     }
 
     // --- IosMarkdownRenderer

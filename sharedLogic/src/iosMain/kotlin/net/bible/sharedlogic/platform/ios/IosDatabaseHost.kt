@@ -112,10 +112,10 @@ class IosDatabaseHost(
     override suspend fun awaitWorkspacePersisted() = DatabaseHostSupport.awaitWorkspacePersisted()
 
     override fun flushSettingsBeforeExit(store: SettingsStore?, timeoutMs: Long?) {
-        runBlocking { DatabaseHostSupport.flushOrderedWrites(store, timeoutMs) }
+        runBlocking { DatabaseHostSupport.flushOrderedWrites(store, timeoutMs) } // L1-edge: DatabaseHost sync contract, off the main thread (C2)
     }
 
-    override fun openContainer(): DatabaseContainer = runBlocking { DatabaseContainer.create() }
+    override fun openContainer(): DatabaseContainer = runBlocking { DatabaseContainer.create() } // L1-edge: DatabaseHost sync contract, called off the main thread (C2)
 
     private companion object { const val TAG = "IosDatabaseHost" }
 }

@@ -39,12 +39,17 @@ object IosSwordEnvironment {
     /** True once [initialiseJSwordFolders] has set JSword up. */
     val isLoaded: Boolean get() = loaded
 
+    /** Creates the module folder and its `mods.d`, `modules` and `search` subfolders (idempotent); no JSword state is touched. */
+    fun createModuleFolders(modulesDir: Path) {
+        val files = FileSystem.SYSTEM
+        listOf(modulesDir, modulesDir / SwordConstants.DIR_CONF, modulesDir / SwordConstants.DIR_DATA, modulesDir / SearchFields.DIR_SEARCH)
+            .forEach { files.createDirectories(it) }
+    }
+
     fun initialiseJSwordFolders(modulesDir: Path) {
         if (loaded) return
         try {
-            val files = FileSystem.SYSTEM
-            listOf(modulesDir, modulesDir / SwordConstants.DIR_CONF, modulesDir / SwordConstants.DIR_DATA, modulesDir / SearchFields.DIR_SEARCH)
-                .forEach { files.createDirectories(it) }
+            createModuleFolders(modulesDir)
             // Optimize for less memory
             PassageKeyFactory.setDefaultType(PassageType.MIX)
             CWProject.instance().setFrontendName("and-bible")

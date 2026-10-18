@@ -63,7 +63,11 @@ private fun parameters(
 ): org.koin.core.parameter.ParametersDefinition? =
     if (type == net.bible.android.view.activity.settings.SyncSettingsServiceImpl::class) {
         {
-            val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Job()).also { ownedScopes += it }
+            val scope = kotlinx.coroutines.CoroutineScope(
+                kotlinx.coroutines.Job() + kotlinx.coroutines.CoroutineExceptionHandler { _, e ->
+                    nsLog("I2 assembly: probe scope background failure (ignored): $e")
+                },
+            ).also { ownedScopes += it }
             org.koin.core.parameter.parametersOf(scope)
         }
     } else null

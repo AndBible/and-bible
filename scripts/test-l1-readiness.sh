@@ -112,6 +112,16 @@ set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=
 rm "$T5/mod/src/commonMain/kotlin/A.kt" "$T5/mod/src/iosMain/kotlin/B.kt"
 "$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
   || { echo "FAIL: @no-common-blocking failed on allowed uses"; exit 1; }
+# The edge-file exemption is per LINE: a marked runBlocking in IosDatabaseHost.kt passes, an unmarked one fails.
+EDGE="$T5/sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios"; mkdir -p "$EDGE"
+printf 'import kotlinx.coroutines.runBlocking\nfun h() = runBlocking { 1 } // L1-edge: test reason\n' > "$EDGE/IosDatabaseHost.kt"
+"$HERE/l1-readiness.sh" --root "$T5" --check >/dev/null 2>&1 \
+  || { echo "FAIL: a marked runBlocking in an edge file was flagged"; exit 1; }
+printf 'fun x() = runBlocking { 2 }\n' >> "$EDGE/IosDatabaseHost.kt"
+set +e; err=$("$HERE/l1-readiness.sh" --root "$T5" --check 2>&1 >/dev/null); rc=$?; set -e
+[ $rc -eq 1 ] && echo "$err" | grep -q 'IosDatabaseHost.kt:3:' \
+  || { echo "FAIL: an unmarked runBlocking in an edge file was not caught: $err"; exit 1; }
+rm "$EDGE/IosDatabaseHost.kt"
 # Two roots: a domain whose files live only under :sharedLogic commonMain is still seen (a planted
 # runBlocking counts as a bridge and fails a done domain); a mapped domain with no files in either
 # root fails --check as "maps to no files" (a check that cannot see its subject must not pass).

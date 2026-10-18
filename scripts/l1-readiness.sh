@@ -78,11 +78,16 @@ if [ $CHECK -eq 1 ] && grep -qxF '@no-common-blocking' "$DONE" 2>/dev/null; then
   # No blocking bridge in any module's commonMain/iosMain code. Comment lines are dropped and trailing // cut first.
   common=$(find "$ROOT"/*/src/commonMain "$ROOT"/*/src/iosMain -name '*.kt' 2>/dev/null | sort \
     | while read -r f; do
-        # Exempt: the plan-mandated JSword synchronous-contract bridges of the iOS edges (every call carries // L1-edge:).
-        case "$f" in */sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios/IosEdges.kt) continue;; esac
-        # Exempt: IosDatabaseHost's plan-mandated sync bridges of the DatabaseHost contract, called off the main thread (C2).
-        case "$f" in */sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios/IosDatabaseHost.kt) continue;; esac
-        awk -v f="$f" '{ l=$0; if (l ~ /^[[:space:]]*(\*|\/\*|\/\/)/) next; sub(/\/\/.*/, "", l);
+        # Edge files: the plan-mandated sync bridges (JSword synchronous contract in IosEdges.kt; the DatabaseHost sync
+        # contract in IosDatabaseHost.kt, called off the main thread, C2). The exemption is per LINE: only a line that
+        # carries a `// L1-edge:` marker is exempt (import lines never count), so a new unmarked bridge is still caught.
+        edge=0
+        case "$f" in
+          */sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios/IosEdges.kt) edge=1;;
+          */sharedLogic/src/iosMain/kotlin/net/bible/sharedlogic/platform/ios/IosDatabaseHost.kt) edge=1;;
+        esac
+        awk -v f="$f" -v edge="$edge" '{ l=$0; if (l ~ /^[[:space:]]*(\*|\/\*|\/\/)/) next;
+          if (edge == 1 && (l ~ /^[[:space:]]*import / || l ~ /\/\/ L1-edge:/)) next; sub(/\/\/.*/, "", l);
           if (l ~ /runBlocking|blockingAtEdge/) print f ":" NR ": " $0 }' "$f"
       done)
   if [ -n "$common" ]; then

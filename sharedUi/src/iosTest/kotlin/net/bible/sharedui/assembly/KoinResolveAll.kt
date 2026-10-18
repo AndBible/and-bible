@@ -16,8 +16,10 @@
  */
 package net.bible.sharedui.assembly
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import org.koin.core.Koin
 import org.koin.core.annotation.KoinInternalApi
@@ -31,8 +33,19 @@ import kotlin.reflect.KClass
  * `SyncSettingsServiceImpl` is built per settings screen from a screen-owned scope.
  */
 val PARAMETERISED_FACTORIES: Map<KClass<*>, ParametersDefinition> = mapOf(
-    SyncSettingsServiceImpl::class to { parametersOf(CoroutineScope(Job())) },
+    SyncSettingsServiceImpl::class to { parametersOf(newResolveScope()) },
 )
+
+/** Scopes handed to parameterised factories; cancelled by [resolveAllDefinitions] when it finishes. */
+private val resolveScopes = mutableListOf<CoroutineScope>()
+
+/**
+ * A screen-owned stand-in scope. Its handler logs instead of letting a late failure of a background read (for example
+ * the database closing under it in tearDown) reach the Native unhandled-exception hook, which aborts the test binary.
+ */
+private fun newResolveScope(): CoroutineScope =
+    CoroutineScope(Job() + CoroutineExceptionHandler { _, e -> println("resolve-all scope: background failure ignored: $e") })
+        .also { resolveScopes += it }
 
 /**
  * Test helper: resolves EVERY definition of this Koin application (by primary type and qualifier, one per factory)
@@ -46,7 +59,7 @@ fun Koin.resolveAllDefinitions(
 ): List<Pair<String, Throwable>> {
     val failures = mutableListOf<Pair<String, Throwable>>()
     val seen = mutableSetOf<Any>()
-    for (factory in instanceRegistry.instances.values.toList()) {
+    try { for (factory in instanceRegistry.instances.values.toList()) {
         val definition = factory.beanDefinition
         if (!seen.add(definition)) continue // a definition is indexed under its primary and each secondary type
         val name = (definition.primaryType.qualifiedName ?: definition.primaryType.toString()) +
@@ -56,6 +69,9 @@ fun Koin.resolveAllDefinitions(
         } catch (e: Throwable) {
             failures += name to IllegalStateException("$name\n${causeChain(e)}\nROOT CAUSE TRACE:\n${rootTrace(e)}", e)
         }
+    } } finally {
+        resolveScopes.forEach { it.cancel() }
+        resolveScopes.clear()
     }
     return failures
 }

@@ -69,7 +69,7 @@ class IosContentSource(private val files: FileSystem = FileSystem.SYSTEM) : Cont
             ?: FALLBACK_MIME_TYPES[extension.lowercase()]
     }
 
-    private companion object {
+    internal companion object {
         /**
          * The simulator's UTType database can lack a MIME type for common extensions (json came back null), so the
          * types AndBible exchanges are listed explicitly; anything else stays null.

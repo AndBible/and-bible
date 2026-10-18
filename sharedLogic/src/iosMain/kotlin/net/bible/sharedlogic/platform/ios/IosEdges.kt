@@ -35,7 +35,7 @@ import net.bible.sharedlogic.platform.MyDocumentStoreEdge
  * is constant false on iOS (`DbTransactionMarker.ios.kt`), so the Android check would be dead code. A bridge called
  * from inside a Room transaction would therefore deadlock instead of failing fast; callers must not do that.
  */
-private fun <T> blockingEdge(block: suspend () -> T): T = runBlocking { block() }
+private fun <T> blockingEdge(block: suspend () -> T): T = runBlocking { block() } // L1-edge: the one bridge of the JSword synchronous Backend contract
 
 /** iOS [FirstLoadEdge]: same contract as `AndroidFirstLoadEdge`, bridged with `runBlocking`. */
 object IosFirstLoadEdge : FirstLoadEdge {

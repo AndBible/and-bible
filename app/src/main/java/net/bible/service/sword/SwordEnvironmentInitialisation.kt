@@ -128,9 +128,6 @@ object SwordEnvironmentInitialisation {
         }
     }
 
-    /** Delegates to [SharedAppStartup.installDownloadTransport] (single copy of the logic). */
-    fun installDownloadTransport() = SharedAppStartup.installDownloadTransport(KoinPlatform.getKoin())
-
     /**
      * Registers the book install/uninstall listener (backup db + sync) through [SharedAppStartup]. Must run AFTER
      * Koin has started and after [initialiseJSwordFolders]; a no-op if JSword was never initialised.
