@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.components
 
 import net.bible.sharedui.app.ports.ExternalLinks
@@ -182,5 +184,6 @@ fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: 
  * itself simply re-provides the opener one level deeper, which is harmless.
  */
 @Composable
+@kotlin.native.HiddenFromObjC
 fun FailClosedLinkRouting(externalLinks: ExternalLinks, content: @Composable () -> Unit) =
     AbLinkRouting(askFirst = externalLinks.askBeforeOpening, onOpenExternal = externalLinks::open, content = content)

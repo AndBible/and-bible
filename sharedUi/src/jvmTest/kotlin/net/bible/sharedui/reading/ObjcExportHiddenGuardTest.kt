@@ -59,8 +59,12 @@ class ObjcExportHiddenGuardTest {
                 "android/view/activity/search/EpubSearchModeWire.kt",
                 "android/view/activity/search/EpubSearchResultKey.kt",
                 "sharedui/DocCategoryMapping.kt",
+                "android/view/activity/navigation/GridPassageHostSupport.kt",
             ).map { File(common, it) }
-        return listOf("bridge", "session", "host").flatMap { File(reading, it).listFiles().orEmpty().toList() } + appRoot +
+        return listOf("bridge", "session", "host").flatMap {
+            // Recursive: reading/host/slots/** is a subdirectory of host.
+            File(reading, it).walkTopDown().filter { f -> f.isFile && f.extension == "kt" }.toList()
+        } + appRoot +
             listOf(File(page, "Selection.kt"), File(page, "FavouriteLabelIdsCache.kt"), File(page, "screen/ReadingHostHelpers.kt")) +
             ios.listFiles().orEmpty().filter { it.name.contains("Reading") || it.name == "WkWebViewJsHost.kt" }
     }
@@ -108,6 +112,9 @@ class ObjcExportHiddenGuardTest {
     fun everyPublicReadingDeclarationIsHiddenFromObjC() {
         val files = scopedFiles()
         assertTrue(files.size > 20, "scope must find the reading files (cwd=${File(".").absolutePath}), got ${files.size}")
+        val names = files.map { it.name }.toSet()
+        assertTrue("ReadingHostSlots.kt" in names && "QuickSheets.kt" in names && "GridPassageHostSupport.kt" in names,
+            "scope must include the recursive slots tree and the moved grid support, got $names")
         val (missing, publicCount) = violations(files)
         assertTrue(publicCount > 30, "scanner must see the public declarations, saw $publicCount")
         assertTrue(missing.isEmpty(), "public declarations without @kotlin.native.HiddenFromObjC:\n" + missing.joinToString("\n"))

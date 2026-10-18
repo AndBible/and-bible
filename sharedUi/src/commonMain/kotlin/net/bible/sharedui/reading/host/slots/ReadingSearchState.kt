@@ -62,7 +62,6 @@ import net.bible.sharedcore.search.forEpubOf
 import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.search.searchTranslationIds
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
-import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.book.Book
 
 /** The search services [ReadingSearchState] builds its controllers over (Koin singletons on Android). */
@@ -102,7 +101,6 @@ class ReadingSearchState(
     internal val platform: ReadingSearchPlatform,
     private val indexJobs: SearchIndexJobs,
     services: ReadingSearchServices,
-    internal val strings: () -> Strings,
     private val onLeaveFullScreen: () -> Unit,
     resultsScope: CoroutineScope = scope,
     private val pollPause: suspend () -> Unit = { delay(SEARCH_INDEX_POLL_INTERVAL_MS) },

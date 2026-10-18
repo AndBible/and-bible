@@ -34,7 +34,6 @@ import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.service.sword.BookAndKeyList
-import net.bible.sharedui.strings.iosStrings
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -171,7 +170,6 @@ class SearchFixture(
         platform = platform,
         indexJobs = jobs,
         services = ReadingSearchServices(bible, FakeEpubSearch(), SearchResultsCache(), index),
-        strings = { iosStrings("en") },
         onLeaveFullScreen = { leftFullScreen++ },
         pollPause = {},
     )

@@ -1571,7 +1571,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Classic `MainBibleActivity.onActivityResult` is the ONLY reader of `STD_REQUEST_CODE` in the
      * tree, and the reading view's own entry points still use it for every chooser that is a
      * separate Activity rather than a nav-graph destination: `ChooseDocument` (the document sheet's
-     * full-screen footer row, `ComposeReadingViewHost.openChooseDocument`,
+     * full-screen footer row, `AndroidReadingNavigator.openChooseDocument`,
      * `ReadingCommands.startDocumentChooser`, `MenuCommandHandler`'s `chooseDocumentButton`),
      * `ChooseDictionaryWord` and `ChooseMapKey` (`KeyChooserRoute.sheetFor` deliberately returns
      * null for the dictionary, so that chooser is ALWAYS the full screen), `ChooseGeneralBookKey`

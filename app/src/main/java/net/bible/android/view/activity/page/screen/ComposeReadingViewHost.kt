@@ -340,7 +340,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /**
      * Platform-dialog removal Task 18: the reading view's own dialogs (see [ReadingDialog]'s kdoc
      * for why this is not a [ReadingOverlay]). ONE state, rendered through the one host-private
-     * slot [ReadingDialogSlot] — the same shape as [quickSheet]/[QuickSheetContent].
+     * slot [ReadingDialogSlot] — the same shape as [quickSheet] and the common `QuickSheetContent`.
      */
     internal val readingDialog get() = hostState.readingDialog
 
@@ -441,7 +441,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
     /**
      * Round 15b: the key chooser for the three page shapes simple enough for a sheet (spec §4.6).
-     * Which shapes those are is `KeyChooserRoute`'s decision, never this function's.
+     * Which shapes those are is `KeyChooserRoute`'s decision, never this function's. This only
+     * records the open sheet in [hostState]; the sheet itself is built by the common
+     * `QuickSheetContent` (`:sharedUi`, `reading/host/slots/QuickSheets.kt`), not host-side.
      *
      * **[keys] IS PASSED IN, NOT RE-RESOLVED, AND THAT IS A PERFORMANCE CONTRACT — do not
      * "simplify" this back to a resolve inside the sheet.** The caller has already resolved the list
@@ -603,7 +605,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         platform = searchPlatform,
         indexJobs = AndroidSearchIndexJobs(),
         services = ReadingSearchServices(bibleSearchService, epubSearchService, searchResultsCache, searchIndexService),
-        strings = { AndroidStrings(activity.hostContext) },
         onLeaveFullScreen = { activity.fullScreen = false },
         resultsScope = activity.lifecycleScope,
     )
@@ -1239,7 +1240,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // F6 Task 8a: a `JobManager` WorkListener outlives the activity that registered it (the
         // manager is a process-wide static), so an in-flight index build would otherwise leak this
         // host through it.
-        searchState.dispose()
+        slots.dispose()
         hostScope.cancel()
     }
 

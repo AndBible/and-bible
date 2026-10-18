@@ -80,32 +80,32 @@ import net.bible.sharedui.strings.Strings
  */
 @kotlin.native.HiddenFromObjC
 class ReadingHostSlots(
-    val hostState: ReadingHostState,
-    val strings: () -> Strings,
-    val externalLinks: ExternalLinks,
-    val agentLog: AgentLogController,
-    val speakTransport: SpeakTransportController,
-    val disableAnimations: () -> Boolean,
-    val fullScreen: () -> Boolean,
-    val searchState: ReadingSearchState,
-    val textDisplaySettingsService: () -> TextDisplaySettingsService,
-    val scope: CoroutineScope,
-    val imagePicker: ImagePicker,
-    val thumbnailFor: (String) -> ImageBitmap?,
-    val speakSettingsService: SpeakSettingsService,
-    val speakPlatform: SpeakSettingsPlatform,
-    val gridPassages: GridPassageControllerFactory,
-    val workspaceService: () -> WorkspaceService,
-    val readingProgressService: () -> ReadingProgressService,
-    val quickActions: ReadingQuickActions,
+    internal val hostState: ReadingHostState,
+    internal val strings: () -> Strings,
+    internal val externalLinks: ExternalLinks,
+    internal val agentLog: AgentLogController,
+    internal val speakTransport: SpeakTransportController,
+    internal val disableAnimations: () -> Boolean,
+    internal val fullScreen: () -> Boolean,
+    internal val searchState: ReadingSearchState,
+    internal val textDisplaySettingsService: () -> TextDisplaySettingsService,
+    internal val scope: CoroutineScope,
+    internal val imagePicker: ImagePicker,
+    internal val thumbnailFor: (String) -> ImageBitmap?,
+    internal val speakSettingsService: SpeakSettingsService,
+    internal val speakPlatform: SpeakSettingsPlatform,
+    internal val gridPassages: GridPassageControllerFactory,
+    internal val workspaceService: () -> WorkspaceService,
+    internal val readingProgressService: () -> ReadingProgressService,
+    internal val quickActions: ReadingQuickActions,
     val keyChooserPage: ReadingKeyChooserPage,
     val navigator: ReadingNavigator,
-    val textShare: TextShare,
-    val clipboard: ClipboardText,
-    val toast: (String) -> Unit,
-    val workspaceName: () -> String,
-    val activeWindowPosition: () -> Int,
-    val currentDocumentInitials: () -> String?,
+    internal val textShare: TextShare,
+    internal val clipboard: ClipboardText,
+    internal val toast: (String) -> Unit,
+    internal val workspaceName: () -> String,
+    internal val activeWindowPosition: () -> Int,
+    internal val currentDocumentInitials: () -> String?,
 ) {
     private val textSettings = TextSettingsEditorState(
         hostState, textDisplaySettingsService, scope, strings, imagePicker, thumbnailFor,
@@ -122,6 +122,13 @@ class ReadingHostSlots(
     val speakHelp: MutableState<String?> get() = speak.help
 
     internal val speakSettingsState: SpeakSettingsState get() = speak
+
+    /**
+     * Ends the slots' own background work (today: the search index feed, a process-wide
+     * `JobManager` listener that would otherwise leak the host). The host calls it once from its
+     * dispose path, BEFORE cancelling the [scope] the feed runs in.
+     */
+    fun dispose() = searchState.dispose()
 
     /** Opens the Speak settings sheet on its Settings page, closing the other modal overlays first. */
     fun showSpeakSettings() = speak.show()

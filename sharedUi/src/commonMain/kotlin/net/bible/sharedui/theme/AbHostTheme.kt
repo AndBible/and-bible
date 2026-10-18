@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.theme
 
 import androidx.compose.runtime.Composable
@@ -20,6 +22,7 @@ import net.bible.sharedcore.platform.resolveThemePaletteStyle
  * @param isOnyx whether the device is an Onyx e-ink device (changes the colour-mode and animation defaults).
  */
 @Composable
+@kotlin.native.HiddenFromObjC
 fun AbHostTheme(
     darkTheme: Boolean,
     settings: AppSettings,

@@ -49,7 +49,6 @@ import net.bible.sharedui.speak.SleepTimerContent
 import net.bible.sharedui.speak.SpeakRangeContent
 import net.bible.sharedui.speak.SpeakSettingsContent
 import net.bible.sharedui.speak.SpeakSettingsSheet
-import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import org.crosswire.jsword.passage.VerseFactory
 
@@ -255,7 +254,7 @@ internal class SpeakSettingsState(
      */
     @Composable
     private fun VersePickerPage(pickingEnd: Boolean) {
-        val localStrings = LocalStrings.current
+        val localStrings = strings()
         val title = if (pickingEnd) localStrings.speakEndingOfPassage else localStrings.speakBeginningOfPassage
         val gridScope = rememberCoroutineScope()
         val controller = remember(pickingEnd) {

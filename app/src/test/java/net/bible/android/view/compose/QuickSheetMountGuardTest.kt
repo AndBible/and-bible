@@ -94,6 +94,39 @@ class QuickSheetMountGuardTest {
         assertEquals(emptyList<Int>(), mountsOutsideSlot(clean, decl))
     }
 
+    private val productionRoots = listOf(File("src/main"), File("../sharedUi/src/commonMain"),
+        File("../sharedUi/src/androidMain"), File("../sharedUi/src/iosMain"))
+
+    /** Files (relative name -> call count) that CALL `GridKeyChooserSheetFor(` in [roots], declarations and comments excluded. */
+    private fun gridSheetCallers(roots: List<File>): Map<String, Int> {
+        val call = Regex("""(?<!fun )(?<![\w.])GridKeyChooserSheetFor\(""")
+        return roots.filter { it.isDirectory }.flatMap { it.walkTopDown().filter { f -> f.isFile && f.extension == "kt" }.toList() }
+            .associate { it.name to call.findAll(withoutComments(it)).count() }
+            .filterValues { it > 0 }
+    }
+
+    /**
+     * `GridKeyChooserSheetFor` is public (the `:app` back test mounts it) and mounts an `AbQuickSheet`
+     * itself, so the "five AbQuickSheet calls in QuickSheets.kt" count cannot see a second production
+     * caller. Exactly one may exist: the grid arm of `QuickSheetContent`.
+     */
+    @Test fun theGridChooserSheetHasExactlyOneProductionCaller() {
+        assertTrue("the scan must see the shared sources", productionRoots.any { it.isDirectory && it.path.contains("sharedUi") })
+        assertEquals(mapOf("QuickSheets.kt" to 1), gridSheetCallers(productionRoots))
+    }
+
+    @Test fun aPlantedSecondGridSheetCallerIsCaught() {
+        val dir = kotlin.io.path.createTempDirectory("grid-callers").toFile()
+        try {
+            File(dir, "QuickSheets.kt").writeText("fun a() { GridKeyChooserSheetFor(c, \"t\") { } }\nfun GridKeyChooserSheetFor(x: Int) {}")
+            assertEquals(mapOf("QuickSheets.kt" to 1), gridSheetCallers(listOf(dir)))
+            File(dir, "Rogue.kt").writeText("fun b() { GridKeyChooserSheetFor(c, \"t\") { } }")
+            assertEquals(mapOf("QuickSheets.kt" to 1, "Rogue.kt" to 1), gridSheetCallers(listOf(dir)))
+        } finally {
+            dir.deleteRecursively()
+        }
+    }
+
     private fun mountCount(src: String) = Regex("""\bAbQuickSheet\(""").findAll(src).count()
 
     @Test fun theAndroidHostAndTheCommonHostMountNoQuickSheet() {

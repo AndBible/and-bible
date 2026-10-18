@@ -486,8 +486,13 @@ class ReadingHostSlotsTest {
         assertEquals("img-token", importReceived, "the import must receive the port's answer")
     }
 
+    /**
+     * Plan name: `rowEditorBackClosesTheRowFirst`. Drives the editor HEADER back arrow only:
+     * `PlatformBackHandler` is a no-op on the JVM, so system back is not exercised here (the `:app`
+     * `GridKeyChooserBackTest` covers real system back for the grid sheet).
+     */
     @Test
-    fun rowEditorBackClosesTheRowFirst() = runComposeUiTest {
+    fun rowEditorHeaderBackClosesTheRowFirst() = runComposeUiTest {
         val (slots, _) = slots()
         val scope = SettingsScope.Workspace("ws")
         slots.showTextSettingEditor(scope, SettingsEditorPage.Colors) { }
@@ -787,8 +792,13 @@ class ReadingHostSlotsTest {
         )
     }
 
+    /**
+     * Plan name: `gridBackClosesTheGridLevelFirst`. Drives the sheet HEADER back arrow only:
+     * `PlatformBackHandler` is a no-op on the JVM, so system back is covered by the `:app`
+     * `GridKeyChooserBackTest`, not here.
+     */
     @Test
-    fun gridBackClosesTheGridLevelFirst() = runComposeUiTest {
+    fun gridHeaderBackClosesTheGridLevelFirst() = runComposeUiTest {
         val finished = mutableListOf<String>()
         val controller = gridController(CoroutineScope(SupervisorJob() + Dispatchers.Unconfined), finished)
         var closed = 0
