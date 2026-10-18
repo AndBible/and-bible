@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import net.bible.service.cloudsync.ios.buildIosSyncBindings
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedui.ios.app.buildIosHostBindings
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedcore.platform.CoreStrings
@@ -166,7 +167,7 @@ object IosAppStartup {
                 initialiseJSwordFolders = { IosSwordEnvironment.initialiseJSwordFolders(p.directories.modulesDir) },
                 koinModules = {
                     val sync = buildIosSyncBindings(iosSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)
-                    listOf(buildIosCoreModule(p.config, listOf(sync) + extraModules, p))
+                    listOf(buildIosCoreModule(p.config, listOf(sync, buildIosHostBindings()) + extraModules, p))
                 },
                 reportJSwordError = { ev -> reportJSwordError(p, ev) },
                 isSwordLoaded = { IosSwordEnvironment.isLoaded },

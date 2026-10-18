@@ -326,6 +326,15 @@ class IosAssemblyTest {
     }
 
     @Test
+    fun theEightHostPortsResolve() {
+        startApp()
+        val koin = KoinPlatform.getKoin()
+        val unresolved = IOS_HOST_BINDING_TYPES.filter { type -> runCatching { koin.get<Any>(type) }.isFailure }
+        assertEquals(emptyList(), unresolved.map { it.qualifiedName }, "host ports that do not resolve")
+        assertEquals(8, IOS_HOST_BINDING_TYPES.size)
+    }
+
+    @Test
     fun theResolveAllHelperReportsEveryFailureByName() {
         class Broken
         class Fine

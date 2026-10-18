@@ -84,3 +84,14 @@ val IOS_BOUND_PORT_TYPES: List<KClass<*>> = listOf(
     // Stream D, bound by `buildIosSyncBindings` (joined into the Koin start in I2 phase 2)
     CloudAdapterFactory::class, SyncSettingsPlatform::class, DocumentSyncStarter::class, SyncScheduler::class,
 )
+
+/**
+ * The host ports `buildIosHostBindings` (sharedUi iosMain) binds. Kept apart from [IOS_BOUND_PORT_TYPES]: Android binds
+ * these in `:app`, outside `buildPlatformBindings`, so the Android parity test does not apply to them.
+ */
+val IOS_HOST_BINDING_TYPES: List<KClass<*>> = listOf(
+    net.bible.sharedui.app.ports.ExternalLinks::class, net.bible.sharedui.app.ports.ClipboardText::class,
+    net.bible.sharedui.app.ports.PlatformText::class, net.bible.sharedui.app.ports.DebugActions::class,
+    net.bible.sharedui.app.ports.SettingsPlatform::class, net.bible.sharedui.app.ports.TextDisplayPlatform::class,
+    net.bible.sharedui.app.ports.DocumentInstallStarter::class, net.bible.sharedcore.settings.AppSettingsService::class,
+)
