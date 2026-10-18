@@ -252,7 +252,7 @@ class BackupControl(
 
     /** The old (pre-split, version <= [OLD_DATABASE_VERSION]) single-file database, gzipped or not. Closes [source]. */
     @VisibleForTesting
-    @VisibleForTesting suspend fun restoreOldMonolithicDatabase(source: Source): Boolean = withContext(Dispatchers.IO) {
+    suspend fun restoreOldMonolithicDatabase(source: Source): Boolean = withContext(Dispatchers.IO) {
         val tmpFile = internalDbBackupDir / OLD_MONOLITHIC_DATABASE_NAME
         try {
             if (!unpackOldMonolithicDatabase(source, tmpFile)) return@withContext false
@@ -270,7 +270,7 @@ class BackupControl(
      * source, a full disk) is the answer `false`, which rolls the restore back.
      */
     @VisibleForTesting
-    @VisibleForTesting var copyStagedDatabase: (Path, Path) -> Boolean = { from, to ->
+    var copyStagedDatabase: (Path, Path) -> Boolean = { from, to ->
         try {
             FileSystem.SYSTEM.copy(from, to)
             true
@@ -352,7 +352,7 @@ class BackupControl(
 
     /** Test seam: the rename behind [moveFile], so a test can make the put-back of a rollback fail too. */
     @VisibleForTesting
-    @VisibleForTesting var atomicMove: (Path, Path) -> Unit = { from, to -> FileSystem.SYSTEM.atomicMove(from, to) }
+    var atomicMove: (Path, Path) -> Unit = { from, to -> FileSystem.SYSTEM.atomicMove(from, to) }
 
     /** `File.renameTo`: false instead of an exception when the move fails. */
     private fun moveFile(from: Path, to: Path): Boolean = try {
