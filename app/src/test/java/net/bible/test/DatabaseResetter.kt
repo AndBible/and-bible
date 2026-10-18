@@ -279,8 +279,15 @@ object DatabaseResetter {
         } finally { mutex.unlock() }
     }
 
-    private fun jobState(job: kotlinx.coroutines.Job): String =
-        "$job identity=${System.identityHashCode(job)} active=${job.isActive} completed=${job.isCompleted} cancelled=${job.isCancelled} context=${(job as? CoroutineScope)?.coroutineContext} children=${job.children.toList()}"
+    /**
+     * Describes [job] for a reset checkpoint without ever calling `toString()` on a coroutine.
+     * kotlinx's `AbstractCoroutine` registers with its parent before it assigns its own `context`,
+     * so a producer launched on another thread while the reset snapshots `children` is visible with a
+     * null context for a moment, and its `toString()` (via `nameString`) throws an NPE on `coroutineName`.
+     */
+    internal fun jobState(job: kotlinx.coroutines.Job): String =
+        "${job.javaClass.simpleName}@${System.identityHashCode(job)} active=${job.isActive} completed=${job.isCompleted} " +
+            "cancelled=${job.isCancelled} children=${job.children.joinToString(prefix = "[", postfix = "]") { "${it.javaClass.simpleName}@${System.identityHashCode(it)}" }}"
 
     private suspend fun checkpoint(stage: String, details: String = "") {
         kotlinx.coroutines.currentCoroutineContext()[ResetDecision]?.checkpoint(stage, details)
