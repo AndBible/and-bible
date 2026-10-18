@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
 package net.bible.android.view.activity.installzip
 
 import kotlinx.coroutines.CancellationException
@@ -13,6 +29,7 @@ import net.bible.service.installzip.JobId
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedui.app.ports.DocumentRef
+import net.bible.sharedui.app.ports.NoDocumentPickerException
 import net.bible.sharedui.installzip.InstallUiState
 import net.bible.sharedui.installzip.nav.InstallZipSession
 
@@ -31,9 +48,11 @@ sealed interface InstallZipRouteDecision {
 }
 
 /**
- * The destination's entry decision, from its ROUTE arguments rather than from an Intent (slice 8 D1): an external
- * `ACTION_VIEW` confirms first unless it is a StudyPad export; `SEND`/`SEND_MULTIPLE` enqueue at once; an in-app
- * entry (no action, no URIs) shows the picker prelude. [InstallZipRouteDecision.Invalid] means an action with no URIs.
+ * The destination's entry decision, from its ROUTE arguments rather than from an Intent (slice 8 D1).
+ * Mirrors `classifyEntry`: an external `ACTION_VIEW` confirms first unless it is a StudyPad export;
+ * `SEND`/`SEND_MULTIPLE` enqueue at once; an in-app entry (no action, no URIs) shows the picker prelude.
+ * The redirect Activity has already dropped every malformed Intent, so [InstallZipRouteDecision.Invalid]
+ * here means an action with no URIs.
  */
 suspend fun classifyInstallZipRoute(
     action: String?,
@@ -49,11 +68,27 @@ suspend fun classifyInstallZipRoute(
     else -> InstallZipRouteDecision.EnqueueNow(uris, action)
 }
 
-/** Picks the job to render: one paused on a decision first, else the first in the queue. */
+/**
+ * Picks the job the host should currently render out of [jobs]: a job paused on
+ * [InstallPhase.AwaitingDecision] takes priority over any other (mirrors
+ * `DocumentInstallService.onJobsChanged`'s own notification-picking logic -- a pending ask-back
+ * must never be starved by a later-queued job's progress), otherwise the first job in the queue.
+ */
 fun pickActiveJob(jobs: List<InstallJobState>): InstallJobState? =
     jobs.firstOrNull { it.phase is InstallPhase.AwaitingDecision } ?: jobs.firstOrNull()
 
-/** Only a job THIS entry enqueued may finish it with OK, once the (app-wide) queue drains. */
+/**
+ * Whether the jobs-drained-to-empty watcher in `InstallZipComposeActivity.Content` should finish
+ * the host with `RESULT_OK`. Gated on [enqueuedHere] -- whether THIS host instance actually
+ * enqueued a job itself (see `InstallZipComposeActivity.enqueue`) -- rather than merely on having
+ * observed the shared, app-scoped `DocumentInstallService.controller.jobs` queue become non-empty
+ * at some point: the design allows backing out of a running install (the service keeps running in
+ * the background), so a SECOND host can open while a PRIOR host's install still runs. That
+ * foreign job draining to empty must NOT finish *this* host with `RESULT_OK` if it never enqueued
+ * anything itself -- e.g. it is still sitting at its `ConfirmInstall`/`FormatInfo` prelude, having
+ * enqueued nothing. Extracted as a pure predicate so this precise "RESULT_OK iff >=1 source
+ * enqueued by THIS prelude" contract is directly unit-testable (see Task B3 finding I1).
+ */
 fun shouldFinishOnDrain(enqueuedHere: Boolean, jobsEmpty: Boolean): Boolean = enqueuedHere && jobsEmpty
 
 /**
@@ -168,7 +203,7 @@ class InstallZipFlow(
                 seams.pickFile()
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
+            } catch (e: NoDocumentPickerException) {
                 Log.e(TAG, "No activity found to handle the document picker", e)
                 seams.noFileManager()
                 finish(InstallZipResult.CANCELED)

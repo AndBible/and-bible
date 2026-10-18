@@ -17,8 +17,6 @@
 
 package net.bible.android.view.activity.installzip
 
-import net.bible.android.view.activity.installzip.pickActiveJob
-import net.bible.android.view.activity.installzip.shouldFinishOnDrain
 import net.bible.service.installzip.InstallError
 import android.content.ClipData
 import android.content.Intent

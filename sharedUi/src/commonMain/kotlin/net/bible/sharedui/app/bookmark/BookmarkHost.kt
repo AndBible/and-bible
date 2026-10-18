@@ -1174,7 +1174,7 @@ class BookmarkHost(
     @Composable
     fun Overlays() {
         // CR-5: the bookmark list's claim on a label-manager answer. Host-level, outside the
-        // NavHost, for InstallZipReturnCollector's reason: the arm that asked is disposed while
+        // NavHost, for InstallZipHost.Overlays' reason: the arm that asked is disposed while
         // the label manager is on top, and the settings arm (which shares this channel) may be
         // the resumed destination when the answer arrives. An arm-local consume would miss it,
         // leave it pending, and apply it stale the next time the list composed.

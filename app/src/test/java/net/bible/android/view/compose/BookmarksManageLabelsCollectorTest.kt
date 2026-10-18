@@ -54,7 +54,7 @@ import net.bible.sharedui.app.bookmark.BookmarkHost
  *
  * The claim therefore has to be made by whoever asked, from a composition that outlives every
  * destination. This drives the REAL host's collector the way `InstallZipReturnHostTest` drives
- * `InstallZipReturnCollector`: a focused test of the collector itself rather than two real arms in one
+ * `InstallZipHost.Overlays`: a focused test of the collector itself rather than two real arms in one
  * host, because putting the settings arm on the stack needs a workspace, a window and a settings
  * bundle that have nothing to do with who consumes the channel.
  *

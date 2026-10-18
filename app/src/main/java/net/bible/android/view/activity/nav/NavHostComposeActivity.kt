@@ -257,6 +257,8 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.docs.DocsLinks
 import net.bible.service.common.fromUri
+import android.Manifest
+import androidx.core.content.ContextCompat
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
@@ -5478,6 +5480,22 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val installZipResults = NavResultChannel<InstallZipResult> { result ->
         setResult(if (result == InstallZipResult.OK) RESULT_OK else RESULT_CANCELED)
         finish()
+    }
+
+    /** Registered at construction, i.e. before STARTED (the rule `ReadingCommands`' own launcher taught R8). */
+    private val installZipNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* no-op, as classic */ }
+
+    /**
+     * Classic InstallZip's notification-permission ask, kept exactly: API 33+ and only when not granted, a plain
+     * launcher, NO in-app rationale dialog (so not the shared `NotificationPermission` port).
+     */
+    internal fun requestInstallZipNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            installZipNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     /**

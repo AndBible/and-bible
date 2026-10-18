@@ -269,18 +269,19 @@ class AppHosts(
      * The InstallZip destination's deps builder, its opener and its host-level answer collector. Built on first use;
      * InstallZip starts uninitialised from Backup, so this touches no database.
      */
-    val installZip: InstallZipHost by lazy {
+    private val installZipLazy = lazy {
         InstallZipHost(
             shell = shell,
             strings = strings,
             settings = koin.get<SettingsPlatform>(),
             platform = ports.installZipPlatform(),
             starter = koin.get<DocumentInstallStarter>(),
-            notificationPermission = ports.notificationPermission,
             documentPicker = ports.documentPicker,
             orientation = ports.orientationLock,
         )
     }
+
+    val installZip: InstallZipHost by installZipLazy
 
     /** The other hosts' way into InstallZip; resolves [installZip] only when one of them opens it. */
     private val installZipOpener: InstallZipOpener = { action, uris, onResult -> installZip.open(action, uris, onResult) }
@@ -288,6 +289,7 @@ class AppHosts(
     /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
     fun onHostDestroy() {
         if (workspaceLazy.isInitialized()) workspace.onHostDestroy()
+        if (installZipLazy.isInitialized()) installZip.onHostDestroy()
     }
 
     /**

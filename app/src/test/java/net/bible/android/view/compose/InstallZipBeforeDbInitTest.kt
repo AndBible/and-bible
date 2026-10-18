@@ -72,7 +72,7 @@ class InstallZipBeforeDbInitTest {
     /**
      * The SESSION path (slice 8 final review, finding 8): an InstallZip entry that never passed through
      * `openInstallZip` -- a destination restored onto an uninitialised host after process death on Backup ->
-     * InstallZip -- is initialised by `installZipSessionFor` when the destination composes. Navigating the
+     * InstallZip -- is initialised by `InstallZipHost.sessionFor` when the destination composes. Navigating the
      * graph directly reaches only that init, so this is the one test that sees it.
      */
     @Test
@@ -102,7 +102,7 @@ class InstallZipBeforeDbInitTest {
         prefs.edit().putBoolean("show_calculator", true).commit()
         runningTests = false
         // Without it, after the first NavHost host in this JVM the InstallZip destination never composes, so
-        // `installZipSessionFor`'s initialisation had no effective test at all.
+        // `InstallZipHost.sessionFor`'s initialisation had no effective test at all.
         resetComposeUiDispatcher()
         val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,

@@ -17,9 +17,6 @@
 
 package net.bible.android.view.activity.installzip
 
-import net.bible.android.view.activity.installzip.classifyInstallZipRoute
-import net.bible.android.view.activity.installzip.InstallZipFlow
-import net.bible.android.view.activity.installzip.InstallZipRouteDecision
 import android.content.Intent
 import android.net.Uri
 import net.bible.sharedui.app.ports.DocumentRef

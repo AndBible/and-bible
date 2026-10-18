@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.CompletableDeferred
 import net.bible.sharedui.app.ports.DocumentPicker
 import net.bible.sharedui.app.ports.DocumentRef
+import net.bible.sharedui.app.ports.NoDocumentPickerException
 
 /**
  * [DocumentPicker] over `registerForActivityResult`. The launchers are registered in the constructor, so the
@@ -54,11 +55,21 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
         val types = mimeTypes.ifEmpty { listOf("*/*") }
         return if (multiple) {
             CompletableDeferred<List<Uri>>().also { pendingOpenMultiple?.complete(emptyList()); pendingOpenMultiple = it }
-                .also { openMultipleLauncher.launch(types) }.await().map { DocumentRef(it.toString()) }
+                .also { launchOrThrow({ pendingOpenMultiple = null }) { openMultipleLauncher.launch(types) } }.await().map { DocumentRef(it.toString()) }
         } else {
             val uri = CompletableDeferred<Uri?>().also { pendingOpenSingle?.complete(null); pendingOpenSingle = it }
-                .also { openSingleLauncher.launch(types) }.await()
+                .also { launchOrThrow({ pendingOpenSingle = null }) { openSingleLauncher.launch(types) } }.await()
             listOfNotNull(uri?.let { DocumentRef(it.toString()) })
+        }
+    }
+
+    /** Runs [launch]; an `ActivityNotFoundException` clears the pending pick ([clear]) and becomes [NoDocumentPickerException]. */
+    private inline fun launchOrThrow(clear: () -> Unit, launch: () -> Unit) {
+        try {
+            launch()
+        } catch (e: android.content.ActivityNotFoundException) {
+            clear()
+            throw NoDocumentPickerException(e)
         }
     }
 

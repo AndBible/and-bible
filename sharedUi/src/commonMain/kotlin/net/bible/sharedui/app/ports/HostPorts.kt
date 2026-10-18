@@ -4,6 +4,7 @@ import net.bible.sharedui.app.bookmark.BookmarkHostPlatform
 import net.bible.sharedui.app.bookmark.LabelIcons
 import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
 import net.bible.sharedui.app.chooser.ChooserHostPlatform
+import net.bible.sharedui.app.installzip.InstallZipHostPlatform
 import net.bible.sharedui.app.readingplan.ReadingPlanHostPlatform
 import net.bible.sharedui.app.welcome.WelcomeHostPlatform
 
@@ -38,5 +39,5 @@ class HostPorts(
     /** Pins the screen to portrait while InstallZip is showing. */
     val orientationLock: OrientationLock,
     /** The platform half of InstallZip; a provider because the host builds it on first use. */
-    val installZipPlatform: () -> net.bible.sharedui.app.installzip.InstallZipHostPlatform,
+    val installZipPlatform: () -> InstallZipHostPlatform,
 )

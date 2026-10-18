@@ -296,8 +296,8 @@ interface Strings {
     fun myDocumentPagesTitle(documentName: String): String    // R.string.my_document_pages_title
     val myDocumentExportSuccess: String       // R.string.my_document_export_success
     val myDocumentImportEmptySelection: String  // R.string.my_document_import_empty_selection
-    val installZipModule: String
-    val installZipModuleDiscrete: String
+    val installZipModule: String              // R.string.install_zip_module
+    val installZipModuleDiscrete: String      // R.string.install_zip_module_discrete
     // --- end I2 Stream A (app root) ---
     val errorOccurred: String
     val okay: String

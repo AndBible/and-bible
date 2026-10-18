@@ -6,7 +6,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import net.bible.android.view.activity.installzip.INSTALL_ZIP_SAF_MIME_TYPES
 import net.bible.android.view.activity.installzip.InstallZipFlow
 import net.bible.service.installzip.InstallJobState
@@ -16,8 +15,8 @@ import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.DocumentInstallStarter
+import net.bible.sharedui.app.ports.DocumentPicker
 import net.bible.sharedui.app.ports.DocumentRef
-import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.app.ports.OrientationLock
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.installzip.InstallUiState
@@ -50,6 +49,12 @@ interface InstallZipHostPlatform {
     /** Maps a job's phase to what the screen renders, with the platform's localized texts. */
     fun mapPhase(job: InstallJobState): InstallUiState
 
+    /**
+     * Asks for POST_NOTIFICATIONS the way classic InstallZip did: a plain permission launcher, no rationale dialog
+     * (not the shared `NotificationPermission` port, which raises one), fire-and-forget.
+     */
+    fun requestNotificationPermission()
+
     /** Tells the user that no app can pick a file. */
     fun noFileManager()
 
@@ -71,8 +76,7 @@ class InstallZipHost(
     private val settings: SettingsPlatform,
     private val platform: InstallZipHostPlatform,
     private val starter: DocumentInstallStarter,
-    private val notificationPermission: NotificationPermission,
-    private val documentPicker: net.bible.sharedui.app.ports.DocumentPicker,
+    private val documentPicker: DocumentPicker,
     private val orientation: OrientationLock,
 ) {
     /**
@@ -106,6 +110,16 @@ class InstallZipHost(
             hostBound = { starter.hostBound() },
             hostUnbound = { starter.hostUnbound() },
         )
+    }
+
+    /**
+     * The host instance is going away: forget the graph and drop the opener's callback, so a later [open] is ignored
+     * (no initialise, no stale [installZipReturn] to answer for an entry nobody opened).
+     */
+    fun onHostDestroy() {
+        controller = null
+        results = null
+        installZipReturn = null
     }
 
     /** The destination's window title: the discrete build's own wording in the calculator disguise. */
@@ -161,7 +175,7 @@ class InstallZipHost(
                 enqueue = { list, act -> starter.start(list, act) },
                 resolveDecision = platform::resolveDecision,
                 mapPhase = platform::mapPhase,
-                requestNotificationPermission = { shell.hostScope.launch { notificationPermission.request() } },
+                requestNotificationPermission = platform::requestNotificationPermission,
                 noFileManager = platform::noFileManager,
             ),
             onFinished = onFinished,
@@ -180,6 +194,8 @@ class InstallZipHost(
      */
     @Composable
     fun Overlays() {
+        // Ordering dependency: [results] is set by [navDeps], so the graph's deps must be built before this composes
+        // (the activity builds them in a `remember` ahead of AppRoot; Task 16's AppHosts.graphs must keep that order).
         val channel = results ?: return
         val pending by channel.pending.collectAsState()
         LaunchedEffect(pending) {

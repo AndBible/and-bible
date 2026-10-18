@@ -18,7 +18,7 @@ import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.DocumentInstallStarter
 import net.bible.sharedui.app.ports.DocumentPicker
 import net.bible.sharedui.app.ports.DocumentRef
-import net.bible.sharedui.app.ports.NotificationPermission
+import net.bible.android.view.activity.installzip.INSTALL_ZIP_SAF_MIME_TYPES
 import net.bible.sharedui.app.ports.OrientationLock
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.installzip.InstallUiState
@@ -34,6 +34,7 @@ class InstallZipHostTest {
     private val navigated = mutableListOf<String>()
     private val started = mutableListOf<Pair<List<DocumentRef>, String?>>()
     private var initialised = 0
+    private var notificationRequests = 0
 
     private fun shell(scope: CoroutineScope) = object : HostShell {
         override val hostScope: CoroutineScope = scope
@@ -61,6 +62,7 @@ class InstallZipHostTest {
         override fun formatsText() = "formats"
         override fun resolveDecision(jobId: JobId, proceed: Boolean) = Unit
         override fun mapPhase(job: InstallJobState) = InstallUiState.Progress(job.displayName, "status", percent = null, indeterminate = true)
+        override fun requestNotificationPermission() { notificationRequests++ }
         override fun noFileManager() = Unit
         override fun initialiseIfStartedUninitialised() { initialised++ }
     }
@@ -72,19 +74,22 @@ class InstallZipHostTest {
     }
 
     private class FakePicker(val answer: List<DocumentRef>) : DocumentPicker {
-        override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean) = answer
+        val asked = mutableListOf<Pair<List<String>, Boolean>>()
+        override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean): List<DocumentRef> {
+            asked += mimeTypes to multiple
+            return answer
+        }
         override suspend fun createDocument(suggestedName: String, mimeType: String): DocumentRef? = null
         override suspend fun openDocumentTree(): DocumentRef? = null
     }
 
-    private fun host(scope: CoroutineScope, picked: List<DocumentRef> = emptyList()) = InstallZipHost(
+    private fun host(scope: CoroutineScope, picker: FakePicker = FakePicker(emptyList())) = InstallZipHost(
         shell = shell(scope),
         strings = strings,
         settings = settings,
         platform = platform,
         starter = starter,
-        notificationPermission = object : NotificationPermission { override suspend fun request() = Unit },
-        documentPicker = FakePicker(picked),
+        documentPicker = picker,
         orientation = object : OrientationLock { override fun lockPortrait(): () -> Unit = { } },
     )
 
@@ -101,12 +106,15 @@ class InstallZipHostTest {
     @Test
     fun startsInstallThroughPort() = runTest(UnconfinedTestDispatcher()) {
         val picked = DocumentRef("content://x/module.zip")
-        val h = host(backgroundScope, listOf(picked))
+        val picker = FakePicker(listOf(picked))
+        val h = host(backgroundScope, picker)
         val session = h.sessionFor(null, emptyList()) { }
         session.start()
         assertEquals(InstallUiState.FormatInfo("formats"), session.state.value)
         session.confirm() // the formats prelude, then the picker
         assertEquals(listOf<Pair<List<DocumentRef>, String?>>(listOf(picked) to null), started)
+        assertEquals(listOf(INSTALL_ZIP_SAF_MIME_TYPES to false), picker.asked)
+        assertEquals(1, notificationRequests, "the session asks for the notification permission through the platform")
         assertTrue(initialised > 0, "the session initialises an uninitialised host before touching anything")
     }
 
