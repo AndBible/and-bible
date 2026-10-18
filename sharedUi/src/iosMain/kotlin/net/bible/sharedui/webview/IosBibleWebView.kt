@@ -25,6 +25,8 @@ import platform.WebKit.WKUserScript
 import platform.WebKit.WKUserScriptInjectionTime
 import platform.WebKit.WKWebView
 import platform.WebKit.WKWebViewConfiguration
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.Platform
 import platform.darwin.NSObject
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
@@ -48,7 +50,7 @@ internal class IosNavDelegate(private val windowId: String) : NSObject(), WKNavi
  * as the "bridge" message handler when given; the real reading pane passes null and adds it once its
  * session exists (see [IosReadingWebViews]). The caller must hold [handler] and [navDelegate] strongly.
  */
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
 internal fun createBibleWkWebView(
     windowId: String,
     navDelegate: IosNavDelegate,
@@ -65,14 +67,18 @@ internal fun createBibleWkWebView(
                 forMainFrameOnly = true,
             ),
         )
-        addUserScript(
-            WKUserScript(
-                source = CONSOLE_USER_SCRIPT,
-                injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
-                forMainFrameOnly = true,
-            ),
-        )
-        addScriptMessageHandler(sharedConsoleHandler, CONSOLE_HANDLER_NAME)
+        // Debug binaries only: console output and page errors carry Bible text and notes, so release builds neither
+        // inject the forwarder nor register its handler.
+        if (Platform.isDebugBinary) {
+            addUserScript(
+                WKUserScript(
+                    source = CONSOLE_USER_SCRIPT,
+                    injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
+                    forMainFrameOnly = true,
+                ),
+            )
+            addScriptMessageHandler(sharedConsoleHandler, CONSOLE_HANDLER_NAME)
+        }
         if (handler != null) addScriptMessageHandler(handler, "bridge")
     }
     val webView = newWebView(config)

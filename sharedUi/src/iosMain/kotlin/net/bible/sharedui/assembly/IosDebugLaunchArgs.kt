@@ -72,7 +72,6 @@ internal object IosDebugLaunchArgs {
     suspend fun openRefOnce() {
         val ref = openRef() ?: return
         if (openRefDone) return
-        openRefDone = true
         withContext(Dispatchers.Default) {
             repeat(10) { attempt ->
                 try {
@@ -80,6 +79,7 @@ internal object IosDebugLaunchArgs {
                     // The active window itself (showLink opens the links window, i.e. a NEW split window for a fresh workspace).
                     KoinPlatform.getKoin().get<WindowControl>().activeWindowPageManager.setCurrentDocumentAndKey(null, key)
                     nsLog("-openRef $ref: shown")
+                    openRefDone = true // only after success: a cancelled LaunchedEffect may run again
                     return@withContext
                 } catch (e: CancellationException) {
                     throw e

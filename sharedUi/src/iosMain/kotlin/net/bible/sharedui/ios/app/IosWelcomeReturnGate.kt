@@ -41,6 +41,7 @@ class IosWelcomeReturnGate(
         awaitingReturn = false
         scope.launch {
             try {
+                // pending: unlock-if-needed (Android gate (b) unlocks locked Bibles with stored keys first; no iOS port yet)
                 if (!usableBible()) {
                     refreshWelcome()
                     return@launch

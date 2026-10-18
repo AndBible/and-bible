@@ -72,6 +72,10 @@ class IosHostShell(
         windowTitle = title
     }
 
+    /**
+     * Pops back to an existing READING entry when there is one (Android gate (b) does the same with
+     * `popBackStack(READING)`), so the Welcome return gate can call this unconditionally without a second READING.
+     */
     override fun openReading() {
         // Like Android's CLEAR_TOP | SINGLE_TOP: reuse a reading entry that is already on the stack (Search paths).
         if (navigator.popBackStackTo(NavRoutes.READING, inclusive = false)) return

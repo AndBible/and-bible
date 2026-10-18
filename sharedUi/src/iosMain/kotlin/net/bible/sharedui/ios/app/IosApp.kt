@@ -187,7 +187,11 @@ private fun IosAppContent(
             ensureReading = { IosReadingReady.ensure(table) },
             currentRoute = { navController.currentDestination?.route },
             openReading = { shell.openReading() },
-            refreshWelcome = { nsLog("IosApp: no usable Bible after the flow, staying on Welcome") },
+            // Android: controller.setProgress(null) + refreshInfo(); the info load is cheap and database-free on iOS.
+            refreshWelcome = {
+                nsLog("IosApp: no usable Bible after the flow, staying on Welcome")
+                ports.welcomePlatform().controller.apply { setProgress(null); refresh() }
+            },
             log = { nsLog("IosApp: $it") },
         )
         val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->

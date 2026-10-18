@@ -104,7 +104,11 @@ final class AppUITests: XCTestCase {
         // Relaunch without -resetData: the workspace left by the first test must open straight into reading.
         let app = launch([])
         if element(app, "welcome-screen").waitForExistence(timeout: 3) {
-            throw XCTSkip("no installed data (run testFreshInstallEasyStartReadsJohn3 first)")
+            // On iPhone Fresh runs before Relaunch, so Welcome here means the fresh-install test failed (or did not run).
+            // On iPad the iPad test wiped the data first, so there is nothing to reopen.
+            try XCTSkipIf(isPad, "iPad: data was wiped by testIpadLaunchReachesWelcome")
+            XCTFail("Welcome shown on relaunch: the fresh-install test must pass first")
+            return
         }
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading host not shown on relaunch")
         XCTAssertFalse(element(app, "welcome-screen").exists, "Welcome shown on relaunch")

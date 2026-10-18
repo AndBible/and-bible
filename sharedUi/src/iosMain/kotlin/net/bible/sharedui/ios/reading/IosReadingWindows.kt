@@ -162,6 +162,8 @@ object IosReadingWindows {
             session.keyActions = pendingKeyActions
             session.verseChooser = { IosPending.log("verseChooser"); null }
             val settings = koin.get<AppSettings>()
+            // Known follow-up (Stream R): a Window object re-created after a workspace restore is not re-bound here
+            // (Android rebinds in BibleViewFactory.getOrCreateBibleView); this session keeps the window it was built for.
             val platform = IosDocumentLoaderPlatform(
                 window = { session.window },
                 windowControl = { windowControl },

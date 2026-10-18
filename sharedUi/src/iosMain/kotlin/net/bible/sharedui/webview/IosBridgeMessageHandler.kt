@@ -38,8 +38,8 @@ class IosBridgeMessageHandler(private val dispatcher: BridgeDispatcher) : NSObje
 
 /**
  * Forwards the page's console output and uncaught errors to the app log (`js[level] text`), through the
- * [CONSOLE_USER_SCRIPT] posting to the `"console"` handler. Stateless, so one instance serves every WebView; it is
- * held here because WebKit holds script-message handlers weakly. Registered by `createBibleWkWebView` and removed
+ * [CONSOLE_USER_SCRIPT] posting to the `"console"` handler. Stateless, so one instance serves every WebView (the top-level
+ * [sharedConsoleHandler]). Debug binaries only. Registered by `createBibleWkWebView` and removed
  * with `"bridge"` when the WebView is released ([removeConsoleHandler]).
  */
 @OptIn(ExperimentalForeignApi::class)
