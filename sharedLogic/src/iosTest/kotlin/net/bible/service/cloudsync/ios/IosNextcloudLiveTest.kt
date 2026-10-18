@@ -65,7 +65,7 @@ class IosNextcloudLiveTest {
             adapter.download(found.id, out)
             assertContentEquals(payload, out.readByteArray())
         } finally {
-            FileSystem.SYSTEM.delete(tmp)
+            FileSystem.SYSTEM.delete(tmp, mustExist = false)
             try { adapter.delete(base) } catch (e: Exception) { println("cleanup of $base failed: $e") }
         }
     }
