@@ -30,6 +30,7 @@ import org.junit.Test
  */
 class CollaboratorTypeGuardTest {
     private val files = listOf(
+        // Note: loader/relay code moved out of BibleView lives in :sharedUi, which cannot see :app types at compile time.
         "src/main/java/net/bible/android/control/page/PageTiltScrollControl.kt",
         // `LlmDialogHelper.kt` was scanned here until platform-dialog removal Task 10 deleted the
         // file outright (it was the pane menu's `?:` fallback, unreachable once slice 8 made NavHost

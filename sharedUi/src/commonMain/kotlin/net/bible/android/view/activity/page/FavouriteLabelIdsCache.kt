@@ -24,7 +24,7 @@ import net.bible.android.database.IdType
 import net.bible.sharedcore.bibleview.SessionLock
 
 /**
- * [BibleView]'s favourite label ids, read synchronously by its `set_config` command. Kept current from
+ * The favourite label ids of a reading window, read synchronously by its `set_config` command (owned by `DocumentLoader`). Kept current from
  * [BookmarkChange]s ([apply]) and re-read from the database ([refresh]); both may run on different
  * threads at once.
  *
