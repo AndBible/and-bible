@@ -19,6 +19,7 @@
 package net.bible.sharedui.reading.session
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkJsActions
@@ -136,12 +137,12 @@ class BookmarkCreation(
     /**
      * Lets the user choose labels for [bookmark] through [net.bible.sharedui.reading.bridge.ReadingNavigator]
      * and saves the choice; a cancelled chooser leaves the labels unchanged. Call it on the main
-     * thread (the chooser is UI); the database work moves off the main thread (Dispatchers.Default: no common IO dispatcher).
+     * thread (the chooser is UI); the database work moves to IO.
      */
     suspend fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) {
-        val labels = withContext(Dispatchers.Default) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
+        val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
         val chosen = session.navigator.assignLabels(bookmark, labels) ?: return
-        withContext(Dispatchers.Default) { bookmarkControl.addOrUpdateBookmark(bookmark, chosen.toSet()) }
+        withContext(Dispatchers.IO) { bookmarkControl.addOrUpdateBookmark(bookmark, chosen.toSet()) }
     }
 
     private companion object {
