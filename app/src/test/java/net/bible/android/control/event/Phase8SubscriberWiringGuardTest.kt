@@ -10,7 +10,9 @@ import kotlin.test.assertTrue
  * (`subscribe` vs `subscribeOnMain`) the phase 8 subscribers use. It does not prove handler bodies.
  */
 class Phase8SubscriberWiringGuardTest {
-    private fun src(path: String) = net.bible.test.ProductionSources.resolve("net/bible/$path").readText()
+    private fun src(path: String) =
+        if (path.startsWith("../")) java.io.File(path).readText() // `:sharedUi` is not a ProductionSources root
+        else net.bible.test.ProductionSources.resolve("net/bible/$path").readText()
 
     private fun assertContains(path: String, needle: String, why: String) =
         assertTrue(src(path).contains(needle), "$path must contain `$needle`: $why")
@@ -43,7 +45,9 @@ class Phase8SubscriberWiringGuardTest {
 
     @Test fun everyWorkspaceSettingsWriterNotifies() {
         mapOf(
-            "android/view/activity/page/BibleJavascriptInterface.kt" to 3,
+            "android/view/activity/page/BibleJavascriptInterface.kt" to 2,
+            // I2 Stream B Task 4 moved one writer (`setLimitAmbiguousModalSize`) into the shared bridge.
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/bridge/ReadingBridge.kt" to 1,
             "android/view/activity/bookmark/ManageLabelsContract.kt" to 1,
             "android/control/page/window/WindowRepository.kt" to 1,
             "android/control/bookmark/BookmarkControl.kt" to 2,

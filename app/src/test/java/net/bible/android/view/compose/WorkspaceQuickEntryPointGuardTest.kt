@@ -84,6 +84,12 @@ class WorkspaceQuickEntryPointGuardTest {
     private val excludedMarkers = listOf(
         "AbQuickSheetFooterRow" to
             "the quick sheet's own footer row reaching the full selector — it IS the reroute target",
+        // I2 Stream B Task 1: the Ctrl+W fallback launch moved from BibleJavascriptInterface into
+        // the ReadingNavigator implementation. The navigator method is the fallback arm itself; the
+        // gate now lives in its single caller, policed by
+        // [theNavigatorWorkspaceSelectorHasOneCallerAndItIsGatedByTheHostedSheet].
+        "override fun openWorkspaceSelector()" to
+            "the ReadingNavigator fallback launch; its one caller is gated on the hosted sheet",
     )
 
     @Test fun everyExcludedMarkerStillExists() {
@@ -152,6 +158,21 @@ class WorkspaceQuickEntryPointGuardTest {
             "the src/main walk found only ${sites.size} workspace-selector launch site(s), " +
                 "expected at least 3 — the search pattern may have stopped matching real source",
             sites.size >= 3,
+        )
+    }
+
+    @Test fun theNavigatorWorkspaceSelectorHasOneCallerAndItIsGatedByTheHostedSheet() {
+        val callers = listOf(File("src/main"), File("../sharedUi/src"), File("../sharedLogic/src"), File("../sharedCore/src"))
+            .filter { it.isDirectory }
+            .flatMap { root -> root.walkTopDown().filter { it.isFile && it.extension == "kt" }.toList() }
+            .flatMap { f ->
+                f.readLines().filter { it.contains("openWorkspaceSelector()") && !it.contains("fun openWorkspaceSelector()") && !it.trimStart().startsWith("*") && !it.trimStart().startsWith("//") }
+                    .map { f.name to it.trim() }
+            }
+        assertEquals(
+            "exactly one production caller of ReadingNavigator.openWorkspaceSelector(), the Ctrl+W branch gated on showWorkspaceSheetIfHosted()",
+            listOf("ReadingBridge.kt" to "\"CtrlKeyW\" -> if (keys?.showWorkspaceSheetIfHosted() != true) session.navigator.openWorkspaceSelector()"),
+            callers,
         )
     }
 
