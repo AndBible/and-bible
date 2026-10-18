@@ -38,10 +38,16 @@ object IosPending {
         val first = locked {
             if (member in seen) false else { seen = seen + member; true }
         }
-        if (first) NSLog("%@", "I2P2-pending: $member")
+        if (first) {
+            NSLog("%@", "I2P2-pending: $member")
+            onFirstReport?.invoke(member)
+        }
     }
 
-    internal fun resetForTest() = locked { seen = emptySet() }
+    /** Test hook: called once per member, on its first report only. */
+    internal var onFirstReport: ((String) -> Unit)? = null
+
+    internal fun resetForTest() = locked { seen = emptySet(); onFirstReport = null }
 
     private inline fun <T> locked(block: () -> T): T {
         lock.lock()

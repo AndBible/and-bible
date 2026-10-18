@@ -20,20 +20,26 @@ package net.bible.sharedui.ios.ports
 
 import androidx.compose.ui.graphics.ImageBitmap
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
+import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.TextDisplaySettingsController
 import net.bible.sharedui.app.ports.TextDisplayEntry
 import net.bible.sharedui.app.ports.TextDisplayPlatform
 import net.bible.sharedui.ios.IosPending
 
 /**
- * Pending on iOS (stream H). [entryFor] has no honest no-op value (it must return an entry), so it is reported and
- * then fails; the text display settings screen is not reachable on iOS until stream H replaces this class.
+ * Pending on iOS (stream H). [entryFor] is reported and answers an inert entry (global scope, an empty service that
+ * edits nothing), so entering the route never throws.
  */
 @kotlin.native.HiddenFromObjC
 class IosTextDisplayPlatform : TextDisplayPlatform {
     override fun entryFor(args: TextDisplaySettingsArgs): TextDisplayEntry {
         IosPending.log("TextDisplayPlatform.entryFor")
-        throw UnsupportedOperationException("TextDisplayPlatform.entryFor is pending on iOS")
+        return TextDisplayEntry(
+            service = IosInertTextDisplaySettingsService(),
+            scope = SettingsScope.Global,
+            hideLabelsPayload = { "{}" },
+            resultOnLeave = { null },
+        )
     }
 
     override fun applyHideLabelsResult(resultJson: String, controller: TextDisplaySettingsController) =

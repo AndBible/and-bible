@@ -24,7 +24,7 @@ import net.bible.sharedui.ios.IosPending
 import platform.Foundation.NSByteCountFormatter
 import platform.Foundation.NSByteCountFormatterCountStyleFile
 
-/** File sizes are real (locale formatted); plurals are pending (stream H) and answer an empty string. */
+/** File sizes are real (locale formatted); plurals are pending (stream H) and fall back to the bare count. */
 @kotlin.native.HiddenFromObjC
 class IosPlatformText : PlatformText {
     override fun formatFileSize(bytes: Long): String =
@@ -32,6 +32,6 @@ class IosPlatformText : PlatformText {
 
     override fun plural(key: PluralKey, count: Int, vararg args: Any): String {
         IosPending.log("PlatformText.plural")
-        return ""
+        return count.toString()
     }
 }
