@@ -10,6 +10,7 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
+import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.bookmark.BookmarkRecreationState
@@ -38,6 +39,8 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.ports.TextDisplayPlatform
+import net.bible.sharedui.app.readingplan.ReadingPlanHost
+import net.bible.sharedui.app.readingplan.ReadingPlanRecreationState
 import net.bible.sharedui.app.search.SearchHost
 import net.bible.sharedui.app.settings.SettingsHost
 import net.bible.sharedui.app.welcome.WelcomeHost
@@ -58,6 +61,8 @@ data class AppHostsState(
     val version: Int = 1,
     /** The bookmark list, label manager and label editor state; null when nothing is worth restoring. */
     val bookmarks: BookmarkRecreationState? = null,
+    /** The plans reset since they were last chosen; null when there are none. */
+    val readingPlan: ReadingPlanRecreationState? = null,
 )
 
 /**
@@ -188,6 +193,25 @@ class AppHosts(
      */
     val bookmark: BookmarkHost by bookmarkLazy
 
+    private val readingPlanLazy = lazy {
+        ReadingPlanHost(
+            shell = shell,
+            strings = strings,
+            platform = ports.readingPlanPlatform(),
+            documentPicker = ports.documentPicker,
+            readingPlanControlProvider = { koin.get<ReadingPlanControl>() },
+            speakControlProvider = { koin.get<SpeakControl>() },
+            appScopeProvider = { koin.get<AppCoroutineScope>() },
+            restored = current.readingPlan,
+        )
+    }
+
+    /**
+     * The reading plan cluster's deps builder (daily reading, day list, plan selector) with its loaded-day state.
+     * Built on first use; every control behind it resolves lazily, so this touches no database.
+     */
+    val readingPlan: ReadingPlanHost by readingPlanLazy
+
     /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
     fun onHostDestroy() {
         if (workspaceLazy.isInitialized()) workspace.onHostDestroy()
@@ -222,11 +246,19 @@ class AppHosts(
                 .getOrDefault(current.bookmarks)
             current = current.copy(bookmarks = bookmarks)
         }
+        if (readingPlanLazy.isInitialized()) {
+            val plan = runCatching {
+                readingPlan.recreationSnapshot().takeUnless { it == ReadingPlanRecreationState() }
+            }.onFailure { Log.e(TAG, "Saving the reading plan host state failed", it) }
+                .getOrDefault(current.readingPlan)
+            current = current.copy(readingPlan = plan)
+        }
         return current
     }
 
     fun restoreState(state: AppHostsState?) {
         current = state ?: AppHostsState()
         if (bookmarkLazy.isInitialized()) bookmark.updateRestored { current.bookmarks }
+        if (readingPlanLazy.isInitialized()) readingPlan.restore(current.readingPlan)
     }
 }

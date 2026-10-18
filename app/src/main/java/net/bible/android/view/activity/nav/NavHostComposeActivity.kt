@@ -90,7 +90,6 @@ import androidx.navigation.compose.rememberNavController
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -124,8 +123,6 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.LanguageGrouping
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.readingplan.ReadingPlanControl
-import net.bible.android.control.readingplan.ReadingPlanDayWrites
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
@@ -134,8 +131,6 @@ import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.control.speak.SpeakChange
-import net.bible.android.control.speak.SpeakChanges
 import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
@@ -153,6 +148,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.nav.ports.AndroidBookmarkHostPlatform
+import net.bible.android.view.activity.nav.ports.AndroidReadingPlanHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidChooserHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidLabelIcons
 import net.bible.android.view.activity.nav.ports.AndroidStudyPadExportPlatform
@@ -260,7 +256,6 @@ import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.PendingAgentResult
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
-import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.sword.csvprompt.addCsvPromptBook
 import okio.Path.Companion.toOkioPath
 import net.bible.service.sword.BookAndKey
@@ -353,14 +348,6 @@ import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewKey
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
-import net.bible.sharedcore.readingplan.DailyReadingController
-import net.bible.sharedcore.readingplan.DailyReadingListController
-import net.bible.sharedcore.readingplan.DailyReadingUi
-import net.bible.sharedcore.readingplan.DayEntry
-import net.bible.sharedcore.readingplan.PlanEntry
-import net.bible.sharedcore.readingplan.ReadingItem
-import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
-import net.bible.sharedcore.readingplan.SpeakState
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
@@ -408,20 +395,13 @@ import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
 import net.bible.sharedui.components.AbMenuItem
-import net.bible.sharedui.components.ymdToUtcMidnightMillis
 import net.bible.sharedui.components.AbMultiSelectSheet
 import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.nav.readingNavGraph
-import net.bible.sharedui.readingplan.nav.DailyReadingDeps
-import net.bible.sharedui.readingplan.nav.DailyReadingLoad
-import net.bible.sharedui.readingplan.nav.DayListDeps
-import net.bible.sharedui.readingplan.nav.LoadedReadingDay
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
-import net.bible.sharedui.readingplan.nav.ReadingPlanSelection
-import net.bible.sharedui.readingplan.nav.SelectorDeps
 import net.bible.sharedui.settings.nav.AppSettingsDeps
 import net.bible.sharedui.settings.nav.ReadingProgressDeps
 import net.bible.sharedui.settings.nav.ReadingProgressSettingsDeps
@@ -441,7 +421,6 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.versification.BookName
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
@@ -503,6 +482,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         labelIcons = AndroidLabelIcons(),
         studyPadExport = AndroidStudyPadExportPlatform(this),
         bookmarkPlatform = { AndroidBookmarkHostPlatform(this) },
+        readingPlanPlatform = { AndroidReadingPlanHostPlatform(this) },
     )
 
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
@@ -538,9 +518,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val llmProviderService: LlmProviderService by inject()
     private val promptService: PromptService by inject()
     private val rawLogService: RawLogService by inject()
-    private val readingPlanControl: ReadingPlanControl by inject()
-    /** Reading-plan writes that must land even if this screen goes away mid-way (app scope). */
-    private val readingPlanWrites by lazy { ReadingPlanDayWrites(readingPlanControl, appScope.coroutineContext) }
     private val speakControl: SpeakControl by inject()
     private val appScope: AppCoroutineScope by inject()
     private val orderedLauncher: net.bible.sharedcore.platform.OrderedLauncher by inject()
@@ -670,7 +647,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * Which back-stack entry published [historyRoute] — an opaque per-entry token the destination
      * `remember`s. Identity, not value: two entries for the SAME destination publish the identical
-     * route string (both read the host-global [loadedReadingDay]), so a value comparison in
+     * route string (both read the host-global `loadedReadingDay` of `appHosts.readingPlan`), so a value comparison in
      * [clearHistoryRoute] would let a disposing lower entry wipe the route the visible one had just
      * published. That is reachable since [onNewIntent] can push a second `DAILY_READING_PATTERN`
      * entry while a child destination is on top.
@@ -807,7 +784,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (isDailyReadingRoute(route)) {
             val (plan, day) = NavRoutes.readDailyReading(route)
             lifecycleScope.launch {
-                loadReadingPlanDay(plan, day) { arrival == intentArrival }
+                appHosts.readingPlan.loadReadingPlanDay(plan, day) { arrival == intentArrival }
                 if (arrival == intentArrival) navigateNewIntentRoute(route)
             }
             return
@@ -1032,21 +1009,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         } else {
             finish()
         }
-    }
-
-    /**
-     * Fix batch 1 §2.2 (F94): daily reading's Passage/Reset were classic
-     * `DailyReadingComposeActivity`'s `finish()` -- right when daily reading was its own Activity,
-     * wrong now that it is pushed above `reading` in THIS host, where it closes the reading view's
-     * own host. Pop back to `reading` when it is on the back stack; finish only when this host was
-     * started on the day itself (nothing beneath to return to).
-     */
-    private fun returnToReadingOrFinish() {
-        val controller = navController
-        val readingOnStack = controller?.currentBackStack?.value
-            ?.any { it.destination.route?.substringBefore('?') == NavRoutes.READING } == true
-        if (controller != null && readingOnStack) controller.popBackStack(NavRoutes.READING, inclusive = false)
-        else finish()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -3007,11 +2969,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (readingReturnDebts.isNotEmpty()) {
             outState.putIntArray(STATE_RETURN_DEBTS, readingReturnDebts.toIntArray())
         }
-        // E6 RP-RESET: a recreated host restores the back stack (it may still hold dailyReading(reset plan, day))
-        // but not this memory, so Back would load and select the reset plan again.
-        if (resetReadingPlanCodes.isNotEmpty()) {
-            outState.putStringArray(STATE_RESET_PLAN_CODES, resetReadingPlanCodes.toTypedArray())
-        }
+        // E6 RP-RESET: the reset plan codes travel in [appHosts]' state (`ReadingPlanRecreationState`).
         // Slice 8 E2 fix round 1: a WELCOME/BACKUP-started host that initialised later (a flow left Welcome,
         // InstallZip from Backup) still has its uninitialised START route saved above, so without this a
         // recreate -- or a process-death restore -- would bring it back uninitialised: no FLAG_SECURE in
@@ -3135,7 +3093,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Fix batch 1 §2.2 test seam: the daily reading controller the graph built. */
     @VisibleForTesting
-    internal fun dailyReadingControllerForTest() = checkNotNull(dailyReadingController)
+    internal fun dailyReadingControllerForTest() = checkNotNull(appHosts.readingPlan.dailyReadingController)
 
     /** Fix batch 1 test seam: the graph's current destination route (with its argument template). */
     @VisibleForTesting
@@ -3345,7 +3303,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun finishHostCreation(savedInstanceState: Bundle?, startRoute: String) {
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
-        savedInstanceState?.getStringArray(STATE_RESET_PLAN_CODES)?.let { resetReadingPlanCodes += it }
         setContent {
             // Direct settings/download entry points can precede the startup coroutine.
             // Do not compose synchronous settings consumers until their snapshot is loaded.
@@ -3531,82 +3488,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         ),
                     )
                 }
-                val readingPlanDeps = remember {
-                    ReadingPlanNavDeps(
-                        exitHost = { finish() },
-                        setWindowTitle = { title -> setTitle(title) },
-                        setHistoryRoute = { owner, route -> setHistoryRoute(owner, route) },
-                        clearHistoryRoute = { owner -> clearHistoryRoute(owner) },
-                        goBackInHistory = ::goBackInHistory,
-                        pendingSelection = pendingReadingPlanSelection,
-                        dailyReading = DailyReadingDeps(
-                            controllerFor = { onChangePlan, onChangeDay ->
-                                buildDailyReadingController(onChangePlan, onChangeDay)
-                            },
-                            loadDay = { plan, day -> loadReadingPlanDay(plan, day) },
-                            loaded = loadedReadingDay,
-                            subscribeEvents = { subscribeDailyReadingEvents() },
-                            onImportPlan = { importPlanLauncher.launch("application/zip") },
-                            onPlanMissing = { offerReadingPlanSelector() },
-                            title = getString(R.string.rdg_plan_title),
-                        ),
-                        dayList = DayListDeps(
-                            controllerFor = { scope, onSelect ->
-                                DailyReadingListController(
-                                    scope = scope,
-                                    loadDays = {
-                                        readingPlanControl.currentPlansReadingList().map {
-                                            DayEntry(it.day, readingPlanDayPrimaryText(it), it.readingsDesc)
-                                        }
-                                    },
-                                    onSelect = onSelect,
-                                )
-                            },
-                            subscribeEvents = { onReadingPlansChanged ->
-                                subscribeReadingPlansUpdated(onReadingPlansChanged)
-                            },
-                            title = getString(R.string.rdg_plan_title),
-                        ),
-                        selector = SelectorDeps(
-                            controllerFor = { scope, onSelect ->
-                                ReadingPlanSelectorController(
-                                    scope = scope,
-                                    loadPlans = {
-                                        readingPlanControl.readingPlanList().map {
-                                            PlanEntry(it.planCode, it.planName ?: "", it.planDescription ?: "")
-                                        }
-                                    },
-                                    hasDuplicates = { readingPlanControl.readingPlanUserDuplicates },
-                                    onSelect = { planCode ->
-                                        // Classic's guard, kept host-side: the plan may have
-                                        // vanished (sync) between the list load and the tap.
-                                        lifecycleScope.launch {
-                                            val dto = readingPlanControl.readingPlanList()
-                                                .firstOrNull { it.planCode == planCode }
-                                            if (dto != null) {
-                                                // the start write must land even if the screen goes away; the next
-                                                // screen reads it, so report the selection only after it
-                                                resetReadingPlanCodes.remove(planCode) // chosen again: loadable again
-                                                withContext(appScope.coroutineContext) { readingPlanControl.startReadingPlan(dto) }
-                                                onSelect(planCode)
-                                            }
-                                        }
-                                    },
-                                    onReset = { planCode ->
-                                        readingPlanControl.reset(planCode)
-                                        // the selector is already on screen: the day view that Back reveals, now
-                                        // plan-less, goes to the reader instead of offering the selector again
-                                        if (forgetResetReadingPlan(planCode)) readingPlanSelectorOffered = true
-                                    },
-                                )
-                            },
-                            subscribeEvents = { onReadingPlansChanged ->
-                                subscribeReadingPlansUpdated(onReadingPlansChanged)
-                            },
-                            title = getString(R.string.rdg_plan_selector_title),
-                        ),
-                    )
-                }
+                val readingPlanDeps = remember { appHosts.readingPlan.navDeps(navController) }
                 val searchDeps = remember { appHosts.search.navDeps(navController) }
                 val settingsDeps = remember { appHosts.settings.navDeps(navController, readingProgressResults) }
                 val bookmarkDeps = remember {
@@ -4250,44 +4132,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         promptService.refresh()
     }
 
-    // --- Reading plan host baggage ------------------------------------------------------------
-    // Ported from classic DailyReadingComposeActivity / DailyReadingListComposeActivity /
-    // ReadingPlanSelectorComposeActivity (all three deleted in nav-graph Task 9). Everything here
-    // needs ReadingPlanControl, SpeakControl, JSword's BookName, a SAF launcher or the
-    // :app-module owner event streams — none of which commonMain can reach. (Task 30b ported the reading-plan
-    // start-date picker off the platform `DatePickerDialog`; only computing its initial/max dates
-    // still needs ReadingPlanControl here.)
-    // See ReadingPlanNavGraph.kt's Deps kdocs for the seam each piece arrives through.
-
-    /**
-     * The live [DailyReadingController] the graph built for the destination currently on screen.
-     * Captured here (rather than created here) because the controller needs the graph's two
-     * navigation edges, while [pushReadingPlanUi]/[pushReadingPlanSpeakState] need to push INTO it
-     * from host code — and because navigation-compose disposes this destination's composition while
-     * a child is on top, a new instance replaces the old one on every re-entry.
-     *
-     * What keeps the field pointing at the instance the user can see is NOT that only one
-     * `DAILY_READING_PATTERN` entry exists — [onNewIntent] can push a second one while the day list
-     * or selector is on top, giving `[dailyReading, dayList, dailyReading]`. It is that
-     * navigation-compose composes only the VISIBLE entries: `controllerFor` runs as an entry becomes
-     * visible, so the last write always comes from the entry now on top, and an entry further down
-     * (whose composition is disposed, and whose controller nothing can reach) can never write again
-     * until it is composed once more — at which point it IS the visible one. During a transition
-     * both are briefly composed; the entering one composes second, so it wins.
-     */
-    private var dailyReadingController: DailyReadingController? = null
-    private var readingsDto: OneDaysReadingsDto? = null
-    private var dayLoaded: Int = 0
-    private var planCodeLoaded: String? = null
-
-    /** Classic's "the selector was already offered once" memory — see [offerReadingPlanSelector]. */
-    private var readingPlanSelectorOffered = false
-
-    /** What [loadReadingPlanDay] last landed on; the graph turns it into the history route. */
-    private val loadedReadingDay = MutableStateFlow<LoadedReadingDay?>(null)
-
-    /** Child -> parent channel for the day list / selector — see [ReadingPlanSelection]. */
-    private val pendingReadingPlanSelection = MutableStateFlow<ReadingPlanSelection?>(null)
+    // The reading plan destinations' deps, state and controllers live in `appHosts.readingPlan` (`:sharedUi`,
+    // `net.bible.sharedui.app.readingplan`).
 
     /**
      * How the reading-progress destination delivers its result, in either of the two ways it can
@@ -5103,308 +4949,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val activityResult = NavResultIntents.forMyDocuments(result)
         setResult(activityResult.resultCode, activityResult.data)
         finish()
-    }
-
-    private fun buildDailyReadingController(
-        onChangePlan: () -> Unit,
-        onChangeDay: () -> Unit,
-    ): DailyReadingController = DailyReadingController(
-        onToggleRead = { readingNo ->
-            lifecycleScope.launch {
-                readingPlanWrites.toggleRead(dayLoaded, readingNo)
-                pushReadingPlanUi()
-            }
-        },
-        onRead = { readingNo ->
-            val dto = readingsDto ?: return@DailyReadingController
-            val key = dto.getReadingKey(readingNo)
-            // read() makes a direct `HistoryManager.recordIfCreated` call synchronously, and HistoryManager then reads
-            // isIntegrateWithHistoryManager + intentForHistoryList off this host — both already
-            // pointing at the day on screen, because the destination set the history route when it
-            // loaded. Classic's belt-and-braces `isIntegrateWithHistoryManager = true` here is NOT
-            // ported: on classic it was a no-op on an already-true val, but here it would set the
-            // flag independently of `historyRoute`, and a true flag with a null route falls back to
-            // super.intentForHistoryList — the argument-free route, i.e. the wrong day. The two
-            // halves of the seam only ever move together, through setHistoryRoute.
-            lifecycleScope.launch {
-                readingPlanControl.read(dayLoaded, readingNo, key)
-                returnToReadingOrFinish()
-            }
-        },
-        onSpeak = { readingNo ->
-            val dto = readingsDto ?: return@DailyReadingController
-            lifecycleScope.launch {
-                readingPlanControl.speak(dayLoaded, readingNo, dto.getReadingKey(readingNo))
-                pushReadingPlanUi()
-            }
-        },
-        onSpeakAll = {
-            val dto = readingsDto ?: return@DailyReadingController
-            lifecycleScope.launch {
-                readingPlanControl.speak(dayLoaded, dto.getReadingKeys)
-                pushReadingPlanUi()
-            }
-        },
-        onDone = { onReadingPlanDone() },
-        onPauseSpeak = { if (speakControl.isPaused) speakControl.continueAfterPause() else speakControl.pause() },
-        onStopSpeak = { speakControl.stop() },
-        onChangePlan = onChangePlan,
-        onChangeDay = onChangeDay,
-        onSetCurrentDay = { setReadingPlanCurrentDay() },
-        onReset = {
-            val code = planCodeLoaded
-            if (code.isNullOrEmpty()) dailyReadingController?.showError()
-            else { readingPlanControl.reset(code); forgetResetReadingPlan(code); returnToReadingOrFinish() }
-        },
-        onSetStartDate = { showReadingPlanStartDatePicker() },
-        onConfirmStartDate = { year, month1to12, day -> confirmReadingPlanStartDate(year, month1to12, day) },
-        onImportPlan = { importPlanLauncher.launch("application/zip") },
-    ).also { dailyReadingController = it }
-
-    /**
-     * Classic `DailyReadingComposeActivity.onCreate`'s plan gate and its `loadDailyReading(plan,
-     * day)` in one call — the graph has no other way to reach `ReadingPlanControl`. The gate runs
-     * unconditionally, exactly as classic's did: by the time a plan code arrives here (from the
-     * selector, or from a history re-launch) a plan IS selected, because the selector calls
-     * `startReadingPlan` before reporting the code back.
-     */
-    private var readingDayLoadGeneration = 0L
-
-    private suspend fun loadReadingPlanDay(
-        plan: String?, day: Int?, applicable: () -> Boolean = { true },
-    ): DailyReadingLoad {
-        val generation = ++readingDayLoadGeneration
-        fun current() = generation == readingDayLoadGeneration && applicable()
-        val code = plan ?: readingPlanControl.currentPlanCode
-        if (code.isEmpty() || code in resetReadingPlanCodes) return DailyReadingLoad.NO_PLAN
-        return try {
-            if (!readingPlanControl.currentPlanExists(code)) {
-                if (!current()) throw CancellationException("Superseded reading day")
-                return DailyReadingLoad.NO_PLAN
-            }
-            val loadedDay = day ?: readingPlanControl.currentPlanDay(code)
-            val dto = readingPlanControl.getDaysReading(loadedDay, code)
-            val status = readingPlanControl.getReadingStatus(loadedDay, code)
-            val ui = readingPlanUi(dto, status)
-            // No host or selected-plan mutation until all suspend reads have finished.
-            if (!current()) throw CancellationException("Superseded reading day")
-            readingPlanControl.setReadingPlan(code)
-            dayLoaded = loadedDay
-            planCodeLoaded = code
-            readingsDto = dto
-            dailyReadingController?.setUi(ui)
-            loadedReadingDay.value = LoadedReadingDay(code, loadedDay)
-            readingPlanSelectorOffered = false // a plan is in use: a later removal must offer the selector again
-            DailyReadingLoad.LOADED
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            if (!current()) throw CancellationException("Superseded reading day", e)
-            Log.e(TAG_READING_PLAN, "Error showing daily readings", e)
-            dailyReadingController?.showError()
-            DailyReadingLoad.FAILED
-        }
-    }
-
-    /**
-     * Classic's two-step "no plan" behaviour, collapsed into one host-owned decision — see
-     * [DailyReadingDeps.onPlanMissing]. True = the caller should offer the selector; false = the
-     * selector was already declined once, so the flag is reset and the user is returned to the reader
-     * (classic's `if (!readingPlanControl.isReadingPlanSelected) finish()`; the host only finishes when
-     * it started on the day itself). The reset lets a later "Reading plan" open offer the selector again.
-     */
-    private fun offerReadingPlanSelector(): Boolean {
-        if (readingPlanSelectorOffered) {
-            readingPlanSelectorOffered = false
-            returnToReadingOrFinish() // not finish(): in the single host that would close the reader too
-            return false
-        }
-        readingPlanSelectorOffered = true
-        return true
-    }
-
-    /** Classic's `pushUi()`: the DTO + ReadingStatus snapshot, passage names formatted host-side. */
-    private suspend fun pushReadingPlanUi() {
-        val dto = readingsDto ?: return
-        val status = readingPlanControl.getReadingStatus(dayLoaded)
-        dailyReadingController?.setUi(readingPlanUi(dto, status))
-    }
-
-    private fun readingPlanUi(dto: OneDaysReadingsDto, status: net.bible.android.control.readingplan.ReadingStatus): DailyReadingUi {
-        val readings = synchronized(BookName::class.java) {
-            val save = BookName.isFullBookName()
-            BookName.setFullBookName(!CommonUtils.isPortrait)
-            try {
-                (1..dto.numReadings).map { i ->
-                    ReadingItem(i, dto.getReadingKey(i).getName(), status.isRead(i))
-                }
-            } finally {
-                BookName.setFullBookName(save)
-            }
-        }
-        return DailyReadingUi(
-                planName = dto.readingPlanInfo.planName ?: "",
-                dayDesc = dto.dayDesc,
-                dateString = dto.readingDateString,
-                readings = readings,
-                showSpeakAll = dto.numReadings > 1,
-                allRead = status.isAllRead,
-                isDateBasedPlan = dto.isDateBasedPlan,
-            )
-    }
-
-    private fun pushReadingPlanSpeakState() {
-        dailyReadingController?.pushSpeakState(
-            when {
-                speakControl.isPaused -> SpeakState.PAUSED
-                speakControl.isSpeaking -> SpeakState.SPEAKING
-                else -> SpeakState.NONE
-            }
-        )
-    }
-
-    /**
-     * Plans reset since they were last chosen in the selector. `reset()` only clears progress, so the plan still
-     * "exists": without this, popping back onto a daily-reading entry whose route arguments name the reset plan
-     * reloads it and selects it again. Such a load falls to the selector like a missing plan.
-     */
-    private val resetReadingPlanCodes = mutableSetOf<String>()
-
-    /**
-     * After a reset of [code] (selector or day view): never reload it, and drop it if it is the loaded one.
-     * Returns whether it was the loaded one.
-     */
-    private fun forgetResetReadingPlan(code: String): Boolean {
-        resetReadingPlanCodes += code
-        val wasLoaded = resetForgetsLoadedPlan(code, planCodeLoaded)
-        if (wasLoaded) forgetLoadedReadingPlan()
-        return wasLoaded
-    }
-
-    /** SU-15g I1: drops the host-wide last-loaded (plan, day) and readings once their plan was reset/removed. */
-    private fun forgetLoadedReadingPlan() {
-        readingDayLoadGeneration++ // an in-flight load of the removed plan must not re-select it when it lands
-        readingsDto = null
-        planCodeLoaded = null
-        loadedReadingDay.value = null
-    }
-
-    private fun onReadingPlanDone() {
-        val dto = readingsDto ?: return
-        val donePlanCode = planCodeLoaded
-        lifecycleScope.launch {
-            try {
-                val nextDayToShow = readingPlanWrites.done(dto.readingPlanInfo, dayLoaded)
-                if (nextDayToShow > 0) loadReadingPlanDay(planCodeLoaded, nextDayToShow)
-                // -1: plan finished or user up to date. Classic finish()ed its own Activity back to the
-                // reader; here that closes the reader's host (SU-15g D1), so pop to it instead.
-                else {
-                    // done() reset the plan on its last day: forget it, or the next open reloads it
-                    if (readingPlanControl.currentPlanCode.isEmpty()) {
-                        if (donePlanCode != null) forgetResetReadingPlan(donePlanCode) else forgetLoadedReadingPlan()
-                    }
-                    returnToReadingOrFinish()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
-                dailyReadingController?.showError()
-            }
-        }
-    }
-
-    private fun setReadingPlanCurrentDay() {
-        val dto = readingsDto ?: return
-        lifecycleScope.launch {
-            try {
-                readingPlanWrites.setCurrentDay(dto.readingPlanInfo, dayLoaded)
-                loadReadingPlanDay(planCodeLoaded, dayLoaded)
-            } catch (e: Exception) {
-                Log.e(TAG_READING_PLAN, "Error setting current day", e)
-                dailyReadingController?.showError()
-            }
-        }
-    }
-
-    /**
-     * Task 30b (correction 10 / ruling R3-2): classic's platform `android.app.DatePickerDialog`
-     * (`:245-256`) ported to [net.bible.sharedui.components.AbDatePickerDialog] via
-     * [DailyReadingController.showStartDatePicker]/`startDatePick`. This function keeps only what
-     * needs an Activity — computing the initial/max dates from [readingsDto] via
-     * [ReadingPlanInfoDto]/[Calendar] — and hands them over as UTC-midnight millis
-     * ([ymdToUtcMidnightMillis]). Both are read off the LOCAL calendar fields (never a raw instant)
-     * so the round trip through [confirmReadingPlanStartDate] reproduces exactly the same
-     * year/month/day classic's `Calendar.get(YEAR/MONTH/DAY_OF_MONTH)` did — see
-     * [ymdToUtcMidnightMillis]'s kdoc for why this sidesteps any real timezone conversion.
-     */
-    private fun showReadingPlanStartDatePicker() {
-        val dto = readingsDto ?: return
-        val nowTime = Calendar.getInstance()
-        val planStartDate = Calendar.getInstance()
-        planStartDate.time = dto.readingPlanInfo.startDate ?: nowTime.time
-        val initialUtcMillis = ymdToUtcMidnightMillis(
-            planStartDate.get(Calendar.YEAR), planStartDate.get(Calendar.MONTH) + 1, planStartDate.get(Calendar.DAY_OF_MONTH),
-        )
-        val maxUtcMillis = ymdToUtcMidnightMillis(
-            nowTime.get(Calendar.YEAR), nowTime.get(Calendar.MONTH) + 1, nowTime.get(Calendar.DAY_OF_MONTH),
-        )
-        dailyReadingController?.showStartDatePicker(initialUtcMillis, maxUtcMillis)
-    }
-
-    /**
-     * [DailyReadingController.confirmStartDate]'s host callback: classic's picker-listener body
-     * verbatim (`:245-256`), `month1to12` converted to `Calendar`'s 0-based month. Re-derives the
-     * SAME starting `Calendar` [showReadingPlanStartDatePicker] built (existing start date, or now's
-     * time-of-day) before applying `.set(year, month, day)` — classic's listener closed over that
-     * exact `planStartDate` instance, so its time-of-day fields (untouched by `.set(y, m, d)`) came
-     * from there, not from "now" at confirm time.
-     */
-    private fun confirmReadingPlanStartDate(year: Int, month1to12: Int, day: Int) {
-        val dto = readingsDto ?: return
-        val planStartDate = Calendar.getInstance()
-        planStartDate.time = dto.readingPlanInfo.startDate ?: planStartDate.time
-        planStartDate.set(year, month1to12 - 1, day)
-        lifecycleScope.launch {
-            readingPlanWrites.setStartDate(dto.readingPlanInfo, planStartDate.time)
-            loadReadingPlanDay(planCodeLoaded, dayLoaded)
-        }
-    }
-
-    /** Classic's day-row primary line (date for a date-based plan, otherwise the day description). */
-    private fun readingPlanDayPrimaryText(dto: OneDaysReadingsDto): String =
-        if (dto.isDateBasedPlan && dto.readingDate != null) dto.readingDateString else dto.dayDesc
-
-    /**
-     * Classic `DailyReadingComposeActivity`'s bus `register(this) { ... }` pair (now the `SpeakChanges` state subscription plus `DatabaseContainer.readingPlansSynced`), registered
-     * per DESTINATION rather than per host (see [DailyReadingDeps.subscribeEvents]).
-     * `recreate()` is classic's own reaction to a plan sync — it now recreates the
-     * whole host, which is the documented consequence (plan D5).
-     */
-    private fun subscribeDailyReadingEvents(): () -> Unit {
-        val speak = SpeakChanges.changes.subscribeOnMain { if (it is SpeakChange.State) pushReadingPlanSpeakState() }
-        val unsubscribePlans = subscribeToReadingPlanSync { recreate() }
-        // Seed the fresh controller with the CURRENT speak state. Classic never needed this: its
-        // Activity (and its controller) merely paused behind the selector / day list, so the state
-        // pushed by the last SpeakChanges notification was still there on return. Here the arm's composition is
-        // disposed and the controller rebuilt, so without this seed the screen would sit at
-        // SpeakState.NONE — and DailyReadingScreen.kt:90 gates the pause/play and stop buttons on
-        // `speakState != NONE`, so a user who changed day or plan mid-speech would lose the
-        // transport controls until the next SpeakChanges notification.
-        pushReadingPlanSpeakState()
-        return { speak.cancel(); unsubscribePlans() }
-    }
-
-    /** The day list's / selector's reaction to `DatabaseContainer.readingPlansSynced` (`controller.load()`). */
-    private fun subscribeReadingPlansUpdated(onReadingPlansChanged: () -> Unit): () -> Unit =
-        subscribeToReadingPlanSync(onReadingPlansChanged)
-
-    /**
-     * The SAF seam for plan import, ported from classic `:268-271`. The picked file goes straight to the
-     * InstallZip destination as an ACTION_VIEW entry (confirm first), exactly the Intent classic built. Its
-     * result was ignored (the imported plan is not auto-loaded), so no onResult.
-     */
-    private val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri ?: return@registerForActivityResult
-        openInstallZip(action = Intent.ACTION_VIEW, uris = listOf(uri))
     }
 
     // --- Download host baggage ------------------------------------------------------------------
@@ -6969,7 +6513,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** [onSaveInstanceState]'s key for [readingReturnDebts]. */
         private const val STATE_RETURN_DEBTS = "nav_reading_return_debts"
-        private const val STATE_RESET_PLAN_CODES = "nav_reset_reading_plan_codes"
 
         /** [onSaveInstanceState]'s key for [initialisedAfterStart] (slice 8 E2 fix round 1). */
         private const val STATE_INITIALISED_AFTER_START = "nav_initialised_after_start"

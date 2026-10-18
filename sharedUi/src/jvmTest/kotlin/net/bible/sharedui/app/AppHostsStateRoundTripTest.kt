@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import net.bible.android.view.activity.bookmark.BookmarkRecreationState
 import net.bible.android.view.activity.bookmark.BookmarksValue
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.app.readingplan.ReadingPlanRecreationState
 import net.bible.sharedui.strings.iosStrings
 import org.koin.dsl.koinApplication
 import sun.misc.Unsafe
@@ -60,5 +61,20 @@ class AppHostsStateRoundTripTest {
         // A fresh start carries nothing, so the default snapshot is stored as absent.
         appHosts.restoreState(null)
         assertEquals(null, appHosts.saveState().bookmarks)
+    }
+
+    @Test
+    fun readingPlanStateRoundTrips() {
+        val plan = ReadingPlanRecreationState(resetPlanCodes = setOf("y1ot1nt1", "chronological"))
+        val state = AppHostsState(readingPlan = plan)
+        val decoded = Json.decodeFromString<AppHostsState>(Json.encodeToString(state))
+        assertEquals(state, decoded)
+
+        val appHosts = hosts()
+        appHosts.restoreState(decoded)
+        assertEquals(plan, appHosts.saveState().readingPlan)
+        // A fresh start carries nothing, so the empty snapshot is stored as absent.
+        appHosts.restoreState(null)
+        assertEquals(null, appHosts.saveState().readingPlan)
     }
 }

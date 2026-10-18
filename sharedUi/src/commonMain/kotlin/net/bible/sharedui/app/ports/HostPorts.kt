@@ -4,6 +4,7 @@ import net.bible.sharedui.app.bookmark.BookmarkHostPlatform
 import net.bible.sharedui.app.bookmark.LabelIcons
 import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
 import net.bible.sharedui.app.chooser.ChooserHostPlatform
+import net.bible.sharedui.app.readingplan.ReadingPlanHostPlatform
 import net.bible.sharedui.app.welcome.WelcomeHostPlatform
 
 /**
@@ -28,4 +29,6 @@ class HostPorts(
     val studyPadExport: StudyPadExportPlatform,
     /** The platform half of the bookmark cluster; a provider because the host builds it on first use. */
     val bookmarkPlatform: () -> BookmarkHostPlatform,
+    /** The platform half of the reading plan cluster; a provider because the host builds it on first use. */
+    val readingPlanPlatform: () -> ReadingPlanHostPlatform,
 )
