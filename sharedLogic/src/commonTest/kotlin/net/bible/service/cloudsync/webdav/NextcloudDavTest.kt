@@ -40,4 +40,23 @@ class NextcloudDavTest {
         "https://c.example/remote.php/dav/files/anna%20maria/",
         nextcloudDavUrl("https://c.example/remote.php/dav/files/anna%20maria", "anna maria"),
     )
+
+    @Test fun davRootWithoutFilesGetsFilesAndUser() {
+        assertEquals(root, nextcloudDavUrl("https://cloud.example.com/remote.php/dav", "anna"))
+        assertEquals(root, nextcloudDavUrl("https://cloud.example.com/remote.php/dav/", "anna"))
+    }
+
+    @Test fun filesRootWithoutUserGetsTheUser() {
+        assertEquals(root, nextcloudDavUrl("https://cloud.example.com/remote.php/dav/files", "anna"))
+        assertEquals(root, nextcloudDavUrl("https://cloud.example.com/remote.php/dav/files/", "anna"))
+    }
+
+    @Test fun legacyWebdavRootIsNormalised() {
+        assertEquals(root, nextcloudDavUrl("https://cloud.example.com/remote.php/webdav", "anna"))
+    }
+
+    @Test fun subPathInstallWithDavSuffix() = assertEquals(
+        "https://example.com/nextcloud/remote.php/dav/files/anna/",
+        nextcloudDavUrl("https://example.com/nextcloud/remote.php/dav/files", "anna"),
+    )
 }
