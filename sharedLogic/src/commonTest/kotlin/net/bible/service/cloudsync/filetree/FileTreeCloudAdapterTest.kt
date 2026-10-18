@@ -43,6 +43,13 @@ class FileTreeCloudAdapterTest {
         return FileTreeCloudAdapter(store, "dev-1", tempDir, fs)
     }
 
+    /** A root that, like the iCloud container, only becomes available once readiness has been awaited. */
+    private fun lateRootAdapter(rootAfterReady: Path?): Pair<FileTreeCloudAdapter, () -> Boolean> {
+        var ready = false
+        val store = FileTreeCloudStore(fs, { if (ready) rootAfterReady else null }, now = { clock++ })
+        return FileTreeCloudAdapter(store, "dev-1", tempDir, fs, awaitReady = { ready = true }) to { ready }
+    }
+
     private fun source(content: String): Path = "/source".toPath().also { fs.write(it) { writeUtf8(content) } }
 
     private suspend fun withDb(block: suspend (SyncableDatabaseAccessor<*>) -> Unit) {
@@ -59,6 +66,18 @@ class FileTreeCloudAdapterTest {
         val a = adapter(signedIn = false)
         assertFalse(a.signedIn)
         assertFalse(a.signIn())
+    }
+
+    @Test fun signInAwaitsReadinessBeforeReadingTheRoot() = runTest {
+        val (a, ready) = lateRootAdapter(root)
+        assertTrue(a.signIn())
+        assertTrue(ready())
+    }
+
+    @Test fun signInIsFalseWhenRootIsStillNullAfterReady() = runTest {
+        val (a, ready) = lateRootAdapter(null)
+        assertFalse(a.signIn())
+        assertTrue(ready())
     }
 
     @Test fun unknownFolderUntilMarked() = runTest(timeout = 10.minutes) {

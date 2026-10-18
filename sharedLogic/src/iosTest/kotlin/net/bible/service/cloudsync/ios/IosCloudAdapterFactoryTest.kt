@@ -57,13 +57,17 @@ class IosCloudAdapterFactoryTest {
     private fun store(root: Path?): CloudFileStore =
         FileTreeCloudStore(fs, { root }, FileCoordination.PassThrough, now = { clock++ })
 
-    private fun factory(iCloud: () -> CloudFileStore = { store(tmpRoot) }) = IosCloudAdapterFactory(
+    private fun factory(
+        iCloud: () -> CloudFileStore = { store(tmpRoot) },
+        awaitReady: suspend () -> Unit = {},
+    ) = IosCloudAdapterFactory(
         platform, "dev-1", { "name-$it" }, iCloud, ui, tmpRoot / "tmp",
         clientFactory = { c: WebDavConfig, _: WebDavStateStore ->
             recorded += c
             // Sign-in would hit the network; the recorded config is all these tests need.
             error("I2-test: no network")
         },
+        awaitReady = awaitReady,
     )
 
     @Test fun availableOrder() {
@@ -90,6 +94,16 @@ class IosCloudAdapterFactoryTest {
         val a = factory(iCloud = { store(null) }).create("ICLOUD_DRIVE")
         assertFalse(a.signedIn)
         assertFalse(a.signIn())
+    }
+
+    @Test fun iCloudSignInAwaitsContainerReadiness() = runTest {
+        var ready = false
+        val a = factory(
+            iCloud = { FileTreeCloudStore(fs, { if (ready) tmpRoot else null }, FileCoordination.PassThrough, now = { clock++ }) },
+            awaitReady = { ready = true },
+        ).create("ICLOUD_DRIVE")
+        assertTrue(a.signIn(), "sign-in must wait for the container lookup before reading the root")
+        assertTrue(ready)
     }
 
     @Test fun nextCloudPresetBuildsDavConfig() = runTest {

@@ -18,6 +18,7 @@ import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.platform.cloud.IosUbiquityContainer
 import net.bible.sharedcore.platform.cloud.iCloudDriveStore
 import net.bible.sharedcore.platform.files.IosFileDelivery
 import net.bible.sharedcore.platform.files.IosFilePicker
@@ -57,6 +58,8 @@ private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 @OptIn(ExperimentalForeignApi::class)
 fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundRefresh): Module = module {
     single { IosDevicePrefs() }
+    // ONE container for the whole module: its lookup runs once and signIn() awaits that same lookup.
+    single { IosUbiquityContainer().also { it.prefetch() } }
     single<SyncSettingsPlatform> {
         IosSyncSettingsPlatform(get(), get<SecretStore>(), strings.webDavServerUrlHint)
     }
@@ -65,9 +68,10 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
             platform = get<SyncSettingsPlatform>() as IosSyncSettingsPlatform,
             deviceId = get<AppEnvironment>().deviceIdentifier,
             displayName = strings.adapterDisplayName,
-            iCloudStore = { iCloudDriveStore() },
+            iCloudStore = { iCloudDriveStore(get<IosUbiquityContainer>()) },
             signInUi = PendingWebDavSignInUi(strings.webDavMessage),
             tempDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY,
+            awaitReady = { get<IosUbiquityContainer>().awaitReady() },
         )
     }
     single<DocumentSyncStarter> {

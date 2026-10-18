@@ -21,6 +21,10 @@ private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
  * iOS cloud back ends (spec C9), in this order: iCloud Drive, Nextcloud (a [WebDavCloudAdapter]
  * preset), generic WebDAV. No Google Drive.
  *
+ * [awaitReady] is awaited by the iCloud adapter's `signIn()` (the ubiquity container resolves
+ * asynchronously and reads as null until then). The host binds ONE container and passes its
+ * `awaitReady`; `iCloudStore` must reuse that same container on every call.
+ *
  * `NEXT_CLOUD` and `WEBDAV` share the one WebDAV state store ([IosSyncSettingsPlatform.webDavState]),
  * so switching between them recalibrates from `UNKNOWN` and one certificate pin serves both. Known
  * limitation.
@@ -34,13 +38,14 @@ class IosCloudAdapterFactory(
     private val tempDir: Path,
     private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient =
         { c, s -> createIosWebDavClient(c, s, ::nowMs) },
+    private val awaitReady: suspend () -> Unit = {},
 ) : CloudAdapterFactory {
     override val available: List<String> = listOf("ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV")
 
     override fun displayName(id: String): String = displayName.invoke(id)
 
     override fun create(id: String): CloudAdapter = when (id) {
-        "ICLOUD_DRIVE" -> FileTreeCloudAdapter(iCloudStore(), deviceId, tempDir)
+        "ICLOUD_DRIVE" -> FileTreeCloudAdapter(iCloudStore(), deviceId, tempDir, awaitReady = awaitReady)
         "NEXT_CLOUD" -> {
             val user = platform.credential("cloud_sync_username")
             webDav(

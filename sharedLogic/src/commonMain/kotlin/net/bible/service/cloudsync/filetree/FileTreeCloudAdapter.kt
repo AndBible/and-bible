@@ -26,7 +26,17 @@ class FileTreeCloudAdapter(
     private val deviceId: String,
     private val tempDir: Path,
     private val fs: FileSystem = FileSystem.SYSTEM,
+    private val awaitReady: suspend () -> Unit = {},
 ) : CloudAdapter, CloudFileStore by store {
+
+    /**
+     * Waits for [awaitReady] first: a store whose root resolves asynchronously (the iCloud container)
+     * reports null until then, which would make every sign-in fail.
+     */
+    override suspend fun signIn(): Boolean {
+        awaitReady()
+        return store.signIn()
+    }
 
     override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
         val secret = dbDef.dao.getString(FILETREE_SECRET_FILE_NAME_KEY) ?: return false
