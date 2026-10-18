@@ -61,7 +61,7 @@ class BookAndKeyCloneTest {
     }
 
     @Test
-    fun bookAndKeyListKeepsRuntimeClassAndSharesItsCollection() {
+    fun bookAndKeyListKeepsRuntimeClassAndCopiesItsCollection() {
         val a = DefaultLeafKeyList("a", "A")
         val b = DefaultLeafKeyList("b", "B")
         val list = BookAndKeyList().apply { addAll(a) }
@@ -72,13 +72,15 @@ class BookAndKeyCloneTest {
         assertEquals("A", c.getOsisRef())
         assertSame(a, c.get(0))
         c.addAll(b)
-        assertTrue(list.contains(b))
-        assertEquals("A||B", list.getOsisRef())
+        assertFalse(list.contains(b))
+        assertEquals("A", list.getOsisRef())
+        assertEquals("A||B", c.getOsisRef())
         list.removeAll(a)
-        assertFalse(c.contains(a))
+        assertTrue(c.contains(a))
         c.setName("copy")
-        assertEquals("b", list.getName())
         assertEquals("copy", c.getName())
+        list.setName("custom")
+        assertEquals("custom", list.clone().getName())
     }
 
     @Test

@@ -802,7 +802,7 @@ class SwordContentFacade(
         )
     }
 
-    private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {
+    private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): List<SpeakCommand> = try {
         val data = BookData(book, key)
         val frag = data.getOsisFragment(false)
         val doc = frag.document ?: Document(frag)
@@ -812,7 +812,7 @@ class SwordContentFacade(
         (osisHandler as OsisToBibleSpeak).speakCommands
     } catch (e: Exception) {
         Log.e(TAG, "Error getting text from book", e)
-        ArrayList()
+        emptyList()
     }
 
     fun getBibleSpeakCommands(settings: SpeakSettings, book: SwordBook, verse: Verse?): SpeakCommandArray {

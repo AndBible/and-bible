@@ -150,8 +150,13 @@ class BookAndKey(
 
 }
 
-class BookAndKeyList: DefaultKeyList(), Cloneable {
-    override fun clone(): BookAndKeyList = super<Cloneable>.clone() as BookAndKeyList
+class BookAndKeyList: DefaultKeyList() {
+    /** An independent copy: same keys in the same order, no shared list. */
+    override fun clone(): BookAndKeyList = BookAndKeyList().also { copy ->
+        for (key in this) copy.addAll(key)
+        // A custom name (setName) is not derivable from the keys; carry it over.
+        if (copy.getName() != getName()) copy.setName(getName())
+    }
 
     override fun getOsisRef(): String {
         return this.joinToString("||") { it.getOsisRef() }

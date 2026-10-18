@@ -83,7 +83,17 @@ open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
 
 class ParagraphChangeCommand : SilenceCommand(true)
 
-class SpeakCommandArray(private val maxLength: Int): ArrayList<SpeakCommand>() {
+class SpeakCommandArray(private val maxLength: Int): AbstractMutableList<SpeakCommand>() {
+    private val store = ArrayList<SpeakCommand>()
+
+    override val size: Int get() = store.size
+    override fun get(index: Int): SpeakCommand = store[index]
+    override fun set(index: Int, element: SpeakCommand): SpeakCommand = store.set(index, element)
+    override fun removeAt(index: Int): SpeakCommand = store.removeAt(index)
+
+    /** Plain insertion, bypassing the merge rules of [add]. */
+    private fun rawAdd(index: Int, element: SpeakCommand) = store.add(index, element)
+
     private val endsWithSentenceBreak = Regex(""".*[.?!。]+[\p{Pf}"']*\W*""", RegexOption.DOT_MATCHES_ALL)
     private val splitIntoTwoSentences = Regex("""(.*)([.?!。]+[\p{Pf}"']*)(\W*.+)""", RegexOption.DOT_MATCHES_ALL)
     private val startsWithDelimiter = Regex("""([。,.?!"':;()，；]+|'s)(\p{Zs}.*|)""", RegexOption.DOT_MATCHES_ALL)
@@ -114,21 +124,21 @@ class SpeakCommandArray(private val maxLength: Int): ArrayList<SpeakCommand>() {
             if (currentCmd is TextCommand) {
                 val newText = "${element.text} ${currentCmd.text}"
                 if (newText.length > maxLength)
-                    return super.add(index, element)
+                    return rawAdd(index, element)
                 else {
                     this[index] = TextCommand(newText, element.type)
                     return
                 }
             }
             else {
-                return super.add(index, element)
+                return rawAdd(index, element)
             }
         }
         else if(element is SilenceCommand && currentCmd is SilenceCommand && element.enabled && currentCmd.enabled) {
             return // Do not add another
         }
         else {
-            return super.add(index, element)
+            return rawAdd(index, element)
         }
     }
 
@@ -143,20 +153,22 @@ class SpeakCommandArray(private val maxLength: Int): ArrayList<SpeakCommand>() {
                 else
                     "${lastCommand.text} ${element.text}"
                 if (newText.length > maxLength)
-                    super.add(element)
+                    rawAdd(size, element).let { true }
                 else {
                     this[this.size-1] = TextCommand(newText, lastCommand.type)
                     true
                 }
             } else {
-                super.add(element)
+                rawAdd(size, element)
+                true
             }
         }
         else if(element is SilenceCommand && lastCommand is SilenceCommand) {
             return false // Do not add another
         }
         else {
-            return super.add(element)
+            rawAdd(size, element)
+            return true
         }
     }
 
@@ -172,7 +184,7 @@ class SpeakCommandArray(private val maxLength: Int): ArrayList<SpeakCommand>() {
     }
 
 
-    fun addUntilSentenceBreak(commands: ArrayList<SpeakCommand>, rest: ArrayList<SpeakCommand>) {
+    fun addUntilSentenceBreak(commands: List<SpeakCommand>, rest: MutableList<SpeakCommand>) {
         var sentenceBreakFound = false
         var textContinuation = false
         for(cmd in commands) {
