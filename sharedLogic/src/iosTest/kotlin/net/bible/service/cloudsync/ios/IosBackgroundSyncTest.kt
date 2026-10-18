@@ -13,10 +13,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class IosBackgroundSyncTest {
-    private class FakeRefresh : BackgroundRefresh {
+    private class FakeRefresh(private val failSchedule: Boolean = false) : BackgroundRefresh {
         val scheduled = mutableListOf<Long>()
         override fun register(handler: suspend () -> Boolean) {}
-        override fun schedule(earliestSeconds: Long) { scheduled += earliestSeconds }
+        override fun schedule(earliestSeconds: Long) {
+            scheduled += earliestSeconds
+            if (failSchedule) throw IllegalStateException("schedule failed")
+        }
         override fun cancel() {}
     }
 
@@ -56,10 +59,52 @@ class IosBackgroundSyncTest {
     @Test
     fun entryRunsPolicyWhenStarted() = runTest {
         val refresh = FakeRefresh()
-        val sync = IosBackgroundSync(policy({ CompletableDeferred(false) }), refresh)
+        var started = 0
+        val sync = IosBackgroundSync(policy({ started++; CompletableDeferred(false) }), refresh)
         val app = koinApplication { modules(module { single { sync } }) }
         assertFalse(iosBackgroundRefreshEntry(app.koin))
+        assertEquals(1, started)
         assertEquals(1, refresh.scheduled.size)
+    }
+
+    @Test
+    fun rescheduleFailureDoesNotMaskPolicyFailure() = runTest {
+        val refresh = FakeRefresh(failSchedule = true)
+        val sync = IosBackgroundSync(policy({ throw IllegalStateException("policy boom") }), refresh)
+        val e = assertFailsWith<IllegalStateException> { sync.runAndReschedule() }
+        assertEquals("policy boom", e.message)
+        assertEquals(1, refresh.scheduled.size)
+    }
+
+    @Test
+    fun rescheduleFailureDoesNotFailSuccessfulRun() = runTest {
+        val refresh = FakeRefresh(failSchedule = true)
+        val sync = IosBackgroundSync(policy({ CompletableDeferred(true) }), refresh)
+        assertTrue(sync.runAndReschedule())
+        sync.schedule() // must not throw
+    }
+
+    @Test
+    fun entryWithKoinMissingSettingsReturnsFalse() = runTest {
+        val refresh = FakeRefresh()
+        // Built the way the real binding does: lambdas resolve AppSettings from Koin, which is not bound.
+        val app = koinApplication {
+            modules(module {
+                single {
+                    IosBackgroundSync(
+                        BackgroundSyncPolicy(
+                            syncEnabled = { get<net.bible.sharedcore.platform.AppSettings>().getBoolean("x", false) },
+                            replacing = { false }, intervalSeconds = { 900 }, lastSynchronizedMs = { 0L },
+                            nowMs = { 0L }, signedIn = { true }, signIn = { true },
+                            startSync = { CompletableDeferred(true) },
+                        ),
+                        refresh,
+                    )
+                }
+            })
+        }
+        assertFalse(iosBackgroundRefreshEntry(app.koin))
+        assertEquals(listOf(900L), refresh.scheduled)
     }
 
     @Test

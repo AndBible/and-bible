@@ -30,11 +30,7 @@ import okio.FileSystem
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import platform.Foundation.NSDate
-import platform.Foundation.NSThread
 import platform.Foundation.timeIntervalSince1970
-import platform.UIKit.UIApplication
-import platform.darwin.dispatch_get_main_queue
-import platform.darwin.dispatch_sync
 
 /** Localized texts the iOS sync classes need; supplied by the host (`:sharedLogic` cannot see `Strings`). */
 data class IosSyncStrings(
@@ -45,20 +41,6 @@ data class IosSyncStrings(
     val ok: () -> String,
 )
 
-/**
- * Runs [block] on the main thread and returns its result. UIKit wants `beginBackgroundTask` on main
- * and the starter needs the identifier synchronously, so a caller on another thread blocks in
- * `dispatch_sync` on the main queue; a caller already on main runs [block] directly (dispatch_sync
- * from main to main would deadlock).
- */
-private fun <T> onMainSync(block: () -> T): T {
-    if (NSThread.isMainThread) return block()
-    var result: Any? = null
-    dispatch_sync(dispatch_get_main_queue()) { result = block() }
-    @Suppress("UNCHECKED_CAST")
-    return result as T
-}
-
 private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 
 /**
@@ -66,6 +48,11 @@ private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
  * module would leak singletons between Koin applications). Needs `AppSettings`, `AppEnvironment`,
  * `SecretStore`, `UserNotifier`, `AppDialogController`, `AppCoroutineScope`, `CloudSync` and
  * `DocumentSync` from the host/shared bindings; all are resolved lazily.
+ *
+ * The starter and scheduler use their default UIKit background-task calls directly, with no main-queue
+ * hop: Apple documents `beginBackgroundTask`/`endBackgroundTask` as callable from any thread, and a
+ * blocking `dispatch_sync` to main from inside the scheduler lock could deadlock against a main-thread
+ * caller waiting for that lock.
  */
 @OptIn(ExperimentalForeignApi::class)
 fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundRefresh): Module = module {
@@ -90,16 +77,12 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
             cloudSync = CloudSyncProvider { get() },
             notifier = get<UserNotifier>(),
             syncErrorMessage = strings.syncError,
-            begin = ::beginBackgroundTaskOnMain,
-            end = ::endBackgroundTaskOnMain,
         )
     }
     single<SyncScheduler> {
         IosSyncScheduler(
             scope = get<AppCoroutineScope>(),
             sync = { runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>()) },
-            begin = ::beginBackgroundTaskOnMain,
-            end = ::endBackgroundTaskOnMain,
         )
     }
     single<BackupHost> {
@@ -121,11 +104,3 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
         )
     }
 }
-
-/** `beginBackgroundTask` hopped to the main thread (see [onMainSync]); the expiry handler is invoked by UIKit. */
-private fun beginBackgroundTaskOnMain(expire: () -> Unit): ULong = onMainSync {
-    UIApplication.sharedApplication.beginBackgroundTaskWithName("sync", expire)
-}
-
-/** `endBackgroundTask` hopped to the main thread; fire-and-forget would be enough, but sync keeps ordering simple. */
-private fun endBackgroundTaskOnMain(id: ULong) = onMainSync { UIApplication.sharedApplication.endBackgroundTask(id) }

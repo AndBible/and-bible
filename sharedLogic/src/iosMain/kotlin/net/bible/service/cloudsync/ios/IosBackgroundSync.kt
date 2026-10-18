@@ -18,11 +18,22 @@ class IosBackgroundSync(
     suspend fun runAndReschedule(): Boolean = try {
         policy.runOnce()
     } finally {
-        refresh.schedule(policy.nextEarliestSeconds())
+        safeSchedule()
     }
 
-    /** Requests the first (or next) background refresh, e.g. after startup. */
-    fun schedule() = refresh.schedule(policy.nextEarliestSeconds())
+    /** Requests the first (or next) background refresh, e.g. after startup. Failures are logged. */
+    fun schedule() = safeSchedule()
+
+    /** A failing reschedule must not mask the outcome (or exception) of the run; cancellation still propagates. */
+    private fun safeSchedule() {
+        try {
+            refresh.schedule(policy.nextEarliestSeconds())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "rescheduling background refresh failed", e)
+        }
+    }
 }
 
 /**

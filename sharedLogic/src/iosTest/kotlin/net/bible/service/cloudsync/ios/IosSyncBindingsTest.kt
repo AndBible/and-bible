@@ -114,8 +114,11 @@ class IosSyncBindingsTest {
     fun eachCallBuildsAnIndependentModule() {
         val a = koinApplication { modules(fakeCModule(), buildIosSyncBindings(strings, FakeRefresh())) }
         val b = koinApplication { modules(fakeCModule(), buildIosSyncBindings(strings, FakeRefresh())) }
-        assertSame(a.koin.get<SyncScheduler>(), a.koin.get<SyncScheduler>())
-        assertNotSame(a.koin.get<SyncScheduler>(), b.koin.get<SyncScheduler>())
-        a.close(); b.close()
+        try {
+            assertSame(a.koin.get<SyncScheduler>(), a.koin.get<SyncScheduler>())
+            assertNotSame(a.koin.get<SyncScheduler>(), b.koin.get<SyncScheduler>())
+        } finally {
+            a.close(); b.close()
+        }
     }
 }
