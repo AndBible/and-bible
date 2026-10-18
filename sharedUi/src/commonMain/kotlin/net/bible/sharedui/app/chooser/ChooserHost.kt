@@ -55,7 +55,11 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.passage.Key
 
-/** The installed counterpart of a pseudo or catalogue [Book] (`:app`'s `Book.installedDocument`). */
+/**
+ * The installed counterpart of a pseudo or catalogue [Book] (`:app`'s `Book.installedDocument`).
+ * TODO: duplicate of `Book.installedDocument` in `DocumentBadges.kt:90` (`:app`); drop this copy when that moves to
+ * common code.
+ */
 private val Book.installedDocument get() = Books.installed().getBook(initials)
 
 private const val TAG_CHOOSERS = "ChoosersNavHost"
@@ -319,7 +323,7 @@ class ChooserHost(
         // unreachable by construction, and a null here is the arm's "failed" signal.
         val session = chooseDictionarySession ?: return null
         return try {
-            session.keys = withContext(Dispatchers.Default) {
+            session.keys = withContext(Dispatchers.IO) {
                 chooseDictionaryPage.cachedGlobalKeyList ?: emptyList()
             }
             session.keys.mapIndexed { i, k -> DictRow(i.toString(), k.getName()) }
@@ -337,7 +341,7 @@ class ChooserHost(
     }
 
     /** Classic `snippetFor` (`:110-116`) plus its `withContext` call-site wrapper (`:100`). */
-    private suspend fun chooseDictionarySnippet(keyId: String): String = withContext(Dispatchers.Default) {
+    private suspend fun chooseDictionarySnippet(keyId: String): String = withContext(Dispatchers.IO) {
         val keys = chooseDictionarySession?.keys ?: return@withContext ""
         val key = keys.getOrNull(keyId.toIntOrNull() ?: -1) ?: return@withContext ""
         val book: Book = chooseDictionaryPage.currentDocument ?: return@withContext ""

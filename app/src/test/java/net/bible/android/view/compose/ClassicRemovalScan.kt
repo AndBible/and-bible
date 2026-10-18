@@ -121,8 +121,13 @@ object ClassicRemovalScan {
             })
             // The shared app root's feature hosts (`:sharedUi` `net.bible.sharedui.app`) took code that used to sit
             // in NavHostComposeActivity, so a scan that skipped them would go blind to it.
-            .plus(File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app").walkTopDown()
-                .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }.toList())
+            .plus(sharedAppRootSources())
+
+    /** The `:sharedUi` app-root sources; fails when none are found, so the scan cannot go blind silently. */
+    private fun sharedAppRootSources(): List<File> =
+        File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app").walkTopDown()
+            .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }.toList()
+            .also { check(it.isNotEmpty()) { "no :sharedUi app-root sources found; the removal scans would go blind" } }
 
     /**
      * Every resource XML under every SHIPPING source set's `res/` tree (`src/main/res`,

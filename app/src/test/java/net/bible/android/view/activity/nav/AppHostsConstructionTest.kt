@@ -59,6 +59,17 @@ class AppHostsConstructionTest {
             val nav = NavHostController(activity)
             standalone.settings.navDeps(nav, NavResultChannel<ReadingProgressResult> { })
             standalone.welcome.navDeps(nav)
+            standalone.search.navDeps(nav)
+            standalone.workspace.navDeps(
+                nav, NavResultChannel<net.bible.sharedcore.nav.WorkspaceResult> { },
+                NavResultChannel<net.bible.sharedcore.nav.TextSettingsResult> { },
+                NavResultChannel<net.bible.sharedcore.nav.ManageLabelsResult> { },
+            )
+            standalone.chooser.navDeps(
+                nav, NavResultChannel<net.bible.sharedcore.nav.KeyChooserResult> { },
+                NavResultChannel<net.bible.sharedcore.nav.PassageResult> { },
+                NavResultChannel<net.bible.sharedcore.nav.DocumentResult> { },
+            )
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
             assertNull("constructing the app hosts built the database container", DatabaseContainer.detachInstanceForTest())
             shadowOf(Looper.getMainLooper()).idle()
