@@ -32,7 +32,7 @@ import platform.darwin.dispatch_get_main_queue
 private const val BUNDLE_DIR = "bibleview-js"
 
 /** Reloads the page when WebKit kills the content process; the marker lets CI count terminations. */
-private class IosNavDelegate(private val windowId: String) : NSObject(), WKNavigationDelegateProtocol {
+internal class IosNavDelegate(private val windowId: String) : NSObject(), WKNavigationDelegateProtocol {
     override fun webViewWebContentProcessDidTerminate(webView: WKWebView) {
         try {
             nsLog("I0-WEBVIEW-TERMINATED $windowId")
@@ -41,6 +41,54 @@ private class IosNavDelegate(private val windowId: String) : NSObject(), WKNavig
             nsLog("bridge[$windowId]: terminate handler failure $t")
         }
     }
+}
+
+/**
+ * Creates the WKWebView every Bible pane uses (PoC and real reading pane share it). [handler] is added
+ * as the "bridge" message handler when given; the real reading pane passes null and adds it once its
+ * session exists (see [IosReadingWebViews]). The caller must hold [handler] and [navDelegate] strongly.
+ */
+@OptIn(ExperimentalForeignApi::class)
+internal fun createBibleWkWebView(windowId: String, navDelegate: IosNavDelegate, handler: IosBridgeMessageHandler?): WKWebView {
+    val config = WKWebViewConfiguration()
+    config.preferences.setValue(true, forKey = "allowFileAccessFromFileURLs")
+    config.userContentController.apply {
+        addUserScript(
+            WKUserScript(
+                source = "window.__activeLanguages__ = '[\"en\"]';",
+                injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
+                forMainFrameOnly = true,
+            ),
+        )
+        if (handler != null) addScriptMessageHandler(handler, "bridge")
+    }
+    val webView = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = config)
+    webView.navigationDelegate = navDelegate
+    // XCUITest sees several WebView-type elements per WKWebView (I0 CI: 3 per pane); the UI tests count
+    // panes by this identifier instead. Set through KVC: Kotlin does not see WKWebView as a
+    // UIAccessibilityIdentificationProtocol, so `as UIAccessibilityIdentificationProtocol` throws
+    // TypeCastException (I0 CI run 38032574023) and the property is not exposed on UIView.
+    webView.setValue("bible-webview-$windowId", forKey = "accessibilityIdentifier")
+    webView.inspectable = true   // iOS 16.4+: lets Safari Web Inspector attach to this WKWebView
+    return webView
+}
+
+/** Loads the bundled BibleView page (`index.html?lang=..&night=..`) into [webView]. */
+@OptIn(ExperimentalForeignApi::class)
+internal fun loadBibleBundle(webView: WKWebView, lang: String, dark: Boolean) {
+    val folder = NSBundle.mainBundle.resourceURL?.URLByAppendingPathComponent(BUNDLE_DIR, isDirectory = true)
+    val index = folder?.URLByAppendingPathComponent("index.html")
+    if (folder == null || index == null) {
+        nsLog("bridge: bibleview-js bundle folder missing")
+        return
+    }
+    val components = NSURLComponents(uRL = index, resolvingAgainstBaseURL = false)
+    components.queryItems = listOf(
+        NSURLQueryItem(name = "lang", value = lang),
+        NSURLQueryItem(name = "night", value = dark.toString()),
+    )
+    val url: NSURL = components.URL ?: index
+    webView.loadFileURL(url, allowingReadAccessToURL = folder)
 }
 
 /** One window's WebView plus the objects WebKit only holds weakly (spec §5 rule 2). */
@@ -81,44 +129,9 @@ private object IosWebViewHolder {
         val handler = IosBridgeMessageHandler(dispatcher)
         val navDelegate = IosNavDelegate(windowId)
 
-        val config = WKWebViewConfiguration()
-        config.preferences.setValue(true, forKey = "allowFileAccessFromFileURLs")
-        config.userContentController.apply {
-            addUserScript(
-                WKUserScript(
-                    source = "window.__activeLanguages__ = '[\"en\"]';",
-                    injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
-                    forMainFrameOnly = true,
-                ),
-            )
-            addScriptMessageHandler(handler, "bridge")
-        }
-        webView = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = config)
-        webView.navigationDelegate = navDelegate
-        // XCUITest sees several WebView-type elements per WKWebView (I0 CI: 3 per pane); the UI tests count
-        // panes by this identifier instead. Set through KVC: Kotlin does not see WKWebView as a
-        // UIAccessibilityIdentificationProtocol, so `as UIAccessibilityIdentificationProtocol` throws
-        // TypeCastException (I0 CI run 38032574023) and the property is not exposed on UIView.
-        webView.setValue("bible-webview-$windowId", forKey = "accessibilityIdentifier")
-        webView.inspectable = true   // iOS 16.4+: lets Safari Web Inspector attach to this WKWebView
-        load(webView, controller.darkTheme)
+        webView = createBibleWkWebView(windowId, navDelegate, handler)
+        loadBibleBundle(webView, "en", controller.darkTheme)
         return PaneEntry(webView, handler, navDelegate)
-    }
-
-    private fun load(webView: WKWebView, dark: Boolean) {
-        val folder = NSBundle.mainBundle.resourceURL?.URLByAppendingPathComponent(BUNDLE_DIR, isDirectory = true)
-        val index = folder?.URLByAppendingPathComponent("index.html")
-        if (folder == null || index == null) {
-            nsLog("bridge: bibleview-js bundle folder missing")
-            return
-        }
-        val components = NSURLComponents(uRL = index, resolvingAgainstBaseURL = false)
-        components.queryItems = listOf(
-            NSURLQueryItem(name = "lang", value = "en"),
-            NSURLQueryItem(name = "night", value = dark.toString()),
-        )
-        val url: NSURL = components.URL ?: index
-        webView.loadFileURL(url, allowingReadAccessToURL = folder)
     }
 }
 
