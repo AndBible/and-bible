@@ -19,7 +19,7 @@
 package net.bible.sharedui.ios
 
 import platform.Foundation.NSLock
-import platform.Foundation.NSLog
+import net.bible.sharedcore.log.nsLog
 
 /**
  * The I2 phase 2 pending convention: a host member that is not implemented on iOS yet calls [log] with
@@ -39,7 +39,7 @@ object IosPending {
             if (member in seen) false else { seen = seen + member; true }
         }
         if (first) {
-            NSLog("%@", "I2P2-pending: $member")
+            nsLog("I2P2-pending: $member")
             onFirstReport?.invoke(member)
         }
     }
