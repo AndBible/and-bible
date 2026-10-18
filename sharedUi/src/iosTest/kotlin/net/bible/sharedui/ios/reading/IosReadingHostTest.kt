@@ -62,8 +62,8 @@ class IosReadingHostTest {
             runBlocking { IosAppStartup.openDatabases() }
             val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {
+                ReadingAppInit.initialise(platform) // production order: initialise, then prepareData
                 ReadingAppInit.prepareData(platform)
-                ReadingAppInit.initialise(platform)
             }
             val koin = KoinPlatform.getKoin()
             ReadingAppInit.createWindowRepository(scope)

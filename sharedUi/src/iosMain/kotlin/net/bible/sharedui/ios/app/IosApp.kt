@@ -28,6 +28,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.testTag
 import net.bible.sharedui.ios.reading.IosNightModeObserver
 import net.bible.sharedui.ios.reading.IosReadingHost
@@ -121,7 +122,7 @@ internal fun leaveWelcomeFor(scope: CoroutineScope, shell: IosHostShell, table: 
 
 /**
  * The production iOS app root, shown once startup is Ready: resolves the start route behind a splash, then composes
- * the shared [AppRoot] with every feature graph; [readingGraph] is the reading destination slot.
+ * the shared [AppRoot] with every feature graph and the reading destination (the iOS reading host).
  */
 @Composable
 @kotlin.native.HiddenFromObjC
@@ -242,7 +243,7 @@ private fun IosReadingDestination(
     nightObserver: IosNightModeObserver,
     holder: ReadingHostHolder,
 ) {
-    val ready by produceState(false) {
+    val ready by produceState<Boolean?>(null) {
         value = try {
             IosReadingReady.ensure(table)
             true
@@ -253,13 +254,16 @@ private fun IosReadingDestination(
             false
         }
     }
-    if (!ready) {
+    if (ready == false) {
+        // Reading cannot start: leave to Welcome (honest and recoverable) instead of an endless spinner.
+        LaunchedEffect(Unit) { shell.showWelcome() }
+    }
+    if (ready != true) {
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
         return
     }
-    androidx.compose.runtime.LaunchedEffect(Unit) { net.bible.sharedui.assembly.IosDebugLaunchArgs.openRefOnce() }
     val host = remember { holder.get(shell, koin, nightObserver) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }

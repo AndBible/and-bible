@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
 package net.bible.service.startup
 
 import kotlinx.coroutines.CoroutineScope
@@ -142,6 +158,18 @@ class ReadingAppInitTest {
     }
 
     @Test
+    fun cipherKeysUnlockedIsSetOnlyAfterASuccessfulUnlock() = runTest(timeout = 10.minutes) {
+        stubSettingsAndBooks()
+        ReadingAppInit.unlockBook = { _, _ -> }
+        ReadingAppInit.hasInstalledBible = { false }
+        ReadingAppInit.unlockStoredCipherKeys()
+        assertEquals(false, ReadingAppInit.cipherKeysUnlocked, "no Bible installed: nothing unlocked, so callers must retry later")
+        ReadingAppInit.hasInstalledBible = { true }
+        ReadingAppInit.unlockStoredCipherKeys()
+        assertTrue(ReadingAppInit.cipherKeysUnlocked)
+    }
+
+    @Test
     fun prepareDataCreatesExampleLabelsOnlyOnce() = runTest(timeout = 10.minutes) {
         val bookmarkDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         // An existing bookmark skips the example bookmarks (they need an installed Bible); the labels are independent of it.
@@ -187,6 +215,30 @@ class ReadingAppInitTest {
             assertSame(second, KoinPlatform.getKoin().get<WindowControl>().windowRepository)
         } finally {
             scopeA.cancel(); scopeB.cancel()
+        }
+    }
+
+    /**
+     * `onConstructed` must run before the repository is taken and loaded: the load posts workspace events
+     * synchronously and their subscribers read the repository through the WindowControl.
+     */
+    @Test
+    fun onConstructedRunsBeforeTakeAndLoad() {
+        val order = mutableListOf<String>()
+        val windowControl = KoinPlatform.getKoin().get<WindowControl>()
+        val before = windowControl.windowRepository
+        val s = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        ReadingAppInit.loadRepository = { repository ->
+            order += if (windowControl.windowRepository === repository) "load(taken)" else "load(not taken)"
+        }
+        try {
+            ReadingAppInit.createWindowRepository(s) { repository ->
+                order += if (windowControl.windowRepository === repository) "constructed(taken)" else "constructed(not yet taken)"
+            }
+            assertEquals(listOf("constructed(not yet taken)", "load(taken)"), order)
+            assertNotSame(before, windowControl.windowRepository)
+        } finally {
+            s.cancel()
         }
     }
 }

@@ -60,6 +60,20 @@ final class AppUITests: XCTestCase {
         return condition()
     }
 
+    /// John 3 is shown in a web view: the chapter-opening 'Nicodemus' phrase label exists (WebKit splits the text
+    /// into phrase-level StaticTexts).
+    private func john3Shown(_ app: XCUIApplication, timeout: TimeInterval = 60) -> Bool {
+        app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).firstMatch
+            .waitForExistence(timeout: timeout)
+    }
+
+    /// The distinct pane identifiers (`bible-webview-<windowId>`) among the WebView elements.
+    private func paneIds(_ app: XCUIApplication) -> [String] {
+        let ids = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+            .allElementsBoundByIndex.map(\.identifier)
+        return Array(Set(ids)).sorted()
+    }
+
     func testFreshInstallEasyStartReadsJohn3() {
         let app = launch(["-resetData", "-openRef", "John.3.16"])
         let welcome = element(app, "welcome-screen")
@@ -79,7 +93,7 @@ final class AppUITests: XCTestCase {
         // ('For' 'God' 'so' 'loved' 'the world' ...), so no single label holds the verse. Assert John 3 renders
         // (chapter-opening 'Nicodemus') and that the phrase labels, joined in order, read John 3:16.
         let texts = app.webViews.staticTexts
-        let found = texts.matching(NSPredicate(format: "label == 'Nicodemus'")).firstMatch.waitForExistence(timeout: 60)
+        let found = john3Shown(app)
         var joined = ""
         if found {
             let labels = (0..<min(texts.count, 600)).map { texts.element(boundBy: $0).label }
@@ -90,6 +104,7 @@ final class AppUITests: XCTestCase {
         shot(app, "reading-john-3")
         XCTAssertTrue(found, "John 3 (Nicodemus) not rendered in the web view")
         XCTAssertTrue(hasVerse, "John 3:16 text not found in the web view's phrase labels: \(joined.prefix(300))")
+        XCTAssertEqual(paneIds(app).count, 1, "a fresh install shows exactly one window, got \(paneIds(app))")
     }
 
     func testIpadLaunchReachesWelcome() throws {
@@ -112,6 +127,9 @@ final class AppUITests: XCTestCase {
         }
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading host not shown on relaunch")
         XCTAssertFalse(element(app, "welcome-screen").exists, "Welcome shown on relaunch")
+        // The workspace and passage survive: John 3 again, in the single window.
+        XCTAssertTrue(john3Shown(app), "John 3 not shown after relaunch (workspace/passage lost)")
+        XCTAssertEqual(paneIds(app).count, 1, "relaunch shows exactly one window, got \(paneIds(app))")
         app.terminate()
         let again = launch([])
         XCTAssertTrue(element(again, "reading-host").waitForExistence(timeout: 60), "reading host not shown on second relaunch")

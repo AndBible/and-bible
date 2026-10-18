@@ -1134,7 +1134,7 @@ object CommonUtils : CommonUtilsBase() {
             ReadingAppInit.markInitialized()
         }
 
-        blockingAtEdge { ReadingAppInit.unlockStoredCipherKeys() } // L1-edge: synchronous app bootstrap (widget/media-button entry before any coroutine)
+        if (!ReadingAppInit.cipherKeysUnlocked) blockingAtEdge { ReadingAppInit.unlockStoredCipherKeys() } // L1-edge: synchronous app bootstrap (widget/media-button entry before any coroutine)
     }
 
     /**

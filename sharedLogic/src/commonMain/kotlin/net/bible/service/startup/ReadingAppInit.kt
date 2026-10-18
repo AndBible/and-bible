@@ -153,6 +153,9 @@ object ReadingAppInit {
         unlockStoredCipherKeys()
     }
 
+    /** True once [unlockStoredCipherKeys] has run to completion this process (callers may then skip it). */
+    val cipherKeysUnlocked: Boolean get() = booksInitialized
+
     /** Unlocks installed books that have a stored cipher key; once per process, and only when a Bible is installed. */
     suspend fun unlockStoredCipherKeys() {
         if (booksInitialized || !hasInstalledBible()) return

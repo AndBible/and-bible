@@ -48,8 +48,10 @@ import net.bible.sharedui.ios.ports.IosWelcomeHostPlatform
 import org.koin.core.Koin
 
 /**
- * Assembles the 22 [HostPorts] for iOS. Every port is pending except [HostPorts.backupHost], which is Stream D's
- * `IosBackupHost` taken from [koin]. [shell] is reserved for ports that grow real behaviour (Task 5 and the streams).
+ * Assembles the 22 [HostPorts] for iOS. Most ports are still pending ([IosPending] logs them); the real ones are
+ * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]) and the Welcome and Download ports, which
+ * are partly real (Easy start / Download via [leaveWelcomeFor], first-download `copyFile`; Import, Restore, links,
+ * unlock and About stay pending). [shell] is reserved for ports that grow real behaviour.
  */
 @kotlin.native.HiddenFromObjC
 @Suppress("UNUSED_PARAMETER")

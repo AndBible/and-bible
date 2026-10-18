@@ -48,19 +48,23 @@ internal object IosDebugLaunchArgs {
     private var openRefDone = false
 
     /**
-     * Deletes the app data (Application Support/AndBible with the databases, Documents/sword with the modules).
+     * Deletes the app data (Application Support/AndBible, databases and backup; Documents/sword with the modules).
      * Main thread, before [IosAppStartup.start]: two recursive deletes, no database or settings access.
      * UserDefaults are left alone.
      */
     fun resetAppData() {
         if (resetDone) return // the Swift host may build the view controller more than once; never wipe a live app
         resetDone = true
-        val support = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true).first().toString() + "/AndBible"
+        val support = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true).first().toString()
         val documents = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).first().toString()
-        val dirs = IosAppDirectories(support.toPath(), documents.toPath())
+        val dirs = IosAppDirectories("$support/AndBible".toPath(), documents.toPath())
         runCatching {
             FileSystem.SYSTEM.deleteRecursively(dirs.internalFilesDir)
             FileSystem.SYSTEM.deleteRecursively(dirs.modulesDir)
+            // The Room databases and their backups live beside AndBible/ (IosAppEnvironment.databasePath / dbBackupPath),
+            // not inside it: leaving them kept the previous run's workspace (extra split windows) across -resetData.
+            FileSystem.SYSTEM.deleteRecursively("$support/databases".toPath())
+            FileSystem.SYSTEM.deleteRecursively("$support/backup".toPath())
         }.onFailure { nsLog("-resetData failed: ${it.stackTraceToString()}") }
         nsLog("-resetData: app data deleted")
     }

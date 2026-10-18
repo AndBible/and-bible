@@ -48,6 +48,8 @@ import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSString
 import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.stringWithContentsOfFile
+import platform.UIKit.UIScreen
+import platform.UIKit.UIUserInterfaceStyle
 import platform.UIKit.UIViewController
 
 /** App-level scope of the cold start; a handler logs, because an uncaught exception in a coroutine aborts the process. */
@@ -59,8 +61,9 @@ private val startupScope = CoroutineScope(
 private val startupState = IosAppStartupState()
 
 /**
- * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). I0: shows the PoC app;
- * `SCREENSHOT_SCENARIO` and `POC_DARK` (environment, set by XCUITest) pick the scenario and theme.
+ * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). Shows the real app ([IosApp]) once
+ * startup is Ready; with `SCREENSHOT_SCENARIO` set (XCUITest) it shows the I0 PoC app instead, and `POC_DARK` picks
+ * that scenario's theme.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
 fun MainViewController(): UIViewController {
@@ -82,6 +85,12 @@ fun MainViewController(): UIViewController {
         val env = remember { NSProcessInfo.processInfo.environment }
         val scenario = remember { PocScenario.fromName(env["SCREENSHOT_SCENARIO"] as? String) }
         val dark = remember { (env["POC_DARK"] as? String) == "1" }
+        // Splash and failure screens of the production path follow the system appearance (no AppSettings read before
+        // Ready); the PoC scenarios keep POC_DARK.
+        val splashDark = remember {
+            if (env["SCREENSHOT_SCENARIO"] as? String != null) dark
+            else UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
+        }
         if (scenario.shouldShowPlatformProbe(Platform.isDebugBinary, env["PLATFORM_PROBE"] as? String)) {
             PlatformProbeScreen(darkTheme = dark)
             return@ComposeUIViewController
@@ -89,10 +98,10 @@ fun MainViewController(): UIViewController {
         val phase by startupState.phase.collectAsState()
         val strings = remember { iosStrings(language) }
         when (val p = phase) {
-            StartupPhase.Starting -> { StartupSplash(dark); return@ComposeUIViewController }
+            StartupPhase.Starting -> { StartupSplash(splashDark); return@ComposeUIViewController }
             is StartupPhase.Failed -> {
                 LaunchedEffect(p) { nsLog("startup failed: ${p.error.stackTraceToString()}") }
-                StartupFailed(dark, strings.errorOccurred)
+                StartupFailed(splashDark, strings.errorOccurred)
                 return@ComposeUIViewController
             }
             StartupPhase.Ready -> Unit

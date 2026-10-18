@@ -45,4 +45,20 @@ class IosDownloadHostPlatformTest {
         assertFalse(copyFileReplacing(root / "nope", dst))
         assertFalse(fs.exists(dst))
     }
+
+    @Test
+    fun leavesNoTempFileBehind() {
+        val src = write("src.tmp", "x")
+        val dst = root / "out" / "dst.zip"
+        assertTrue(copyFileReplacing(src, dst))
+        assertFalse(fs.exists(root / "out" / "dst.zip.tmp"))
+    }
+
+    @Test
+    fun failedCopyKeepsTheExistingTarget() {
+        val dst = write("dst.zip", "existing module")
+        val src = root / "missing-source"
+        assertFalse(copyFileReplacing(src, dst))
+        assertEquals("existing module", fs.read(dst) { readUtf8() })
+    }
 }

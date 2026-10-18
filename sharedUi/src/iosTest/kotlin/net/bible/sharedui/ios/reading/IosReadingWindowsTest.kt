@@ -116,6 +116,32 @@ class IosReadingWindowsTest {
         id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, night, IosReadingWindows::isOpen,
     )
 
+    /** A fresh (empty) database gives exactly one visible window, like Android. */
+    @Test
+    fun freshWorkspaceHasExactlyOneVisibleWindow() = withWindows { _ ->
+        val repository = KoinPlatform.getKoin().get<WindowControl>().windowRepository
+        assertEquals(1, repository.visibleWindows.size, "visible windows: ${repository.visibleWindows}")
+    }
+
+    /** Closing a window through WindowControl reaches the WindowsChanged subscription, which releases its assembly. */
+    @Test
+    fun closingAWindowThroughWindowControlReleasesItsAssembly() = withWindows { firstId ->
+        val windowControl = KoinPlatform.getKoin().get<WindowControl>()
+        val second = windowControl.addNewWindow(windowControl.windowRepository.activeWindow)
+        val secondId = second.id.toString()
+        IosReadingWindows.sessionFor(secondId)
+        assertTrue(IosReadingWindows.hasAssembly(secondId))
+        windowControl.closeWindow(second)
+        // The subscription posts the release to Main; keep the run loop spinning until it ran.
+        var spins = 0
+        while (IosReadingWindows.hasAssembly(secondId) && spins++ < 100) { // up to ~5 s
+            NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05))
+        }
+        assertFalse(IosReadingWindows.hasAssembly(secondId), "closing the window must release its assembly")
+        assertFalse(IosReadingWebViews.hasEntry(secondId))
+        assertTrue(firstId.isNotEmpty())
+    }
+
     @Test
     fun sessionForIsCachedPerWindow() = withWindows { id ->
         val a = IosReadingWindows.sessionFor(id)

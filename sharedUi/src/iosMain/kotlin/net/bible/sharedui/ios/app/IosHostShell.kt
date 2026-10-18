@@ -85,6 +85,14 @@ class IosHostShell(
         navigator.navigate(NavRoutes.READING)
     }
 
+    /**
+     * Leaves a reading destination that cannot start: pops back to Welcome when it is on the stack, else navigates to
+     * it (a start-route READING has Welcome nowhere beneath it).
+     */
+    fun showWelcome() {
+        if (!navigator.popBackStackTo(NavRoutes.WELCOME, inclusive = false)) navigator.navigate(NavRoutes.WELCOME)
+    }
+
     override fun setHistoryRoute(owner: Any, route: String) {
         historyRouteOwner = owner
         historyRoute = route

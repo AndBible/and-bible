@@ -25,6 +25,7 @@ import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.InMemorySecretStore
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -35,6 +36,11 @@ import kotlin.test.assertNotNull
  * the locked one is a delegating stand-in.
  */
 class IosStartRouteTest {
+    @AfterTest
+    fun resetStartup() {
+        runBlocking { IosAppStartup.resetForTest() }
+    }
+
     private fun fixtureBible(): Book {
         // Same process-wide sandbox as IosAssemblyTest (JSword's book list is global); start() is idempotent.
         IosAppStartup.start(

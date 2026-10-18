@@ -25,6 +25,7 @@ import net.bible.sharedui.ios.IosPending
 import net.bible.sharedcore.log.nsLog
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSFileSystemFreeSize
 import platform.Foundation.NSNumber
@@ -32,7 +33,7 @@ import org.crosswire.jsword.book.Book
 
 /**
  * Copies [from] to [to] like Android's `FileManager.copyFile`: false when the source is missing or the target
- * volume lacks room for it, an existing target is replaced, missing parent directories are created. Never throws.
+ * volume lacks room for it, an existing target is replaced atomically (copy to `<name>.tmp`, then rename), missing parent directories are created. Never throws.
  */
 @kotlin.native.HiddenFromObjC
 internal fun copyFileReplacing(from: Path, to: Path, files: FileSystem = FileSystem.SYSTEM): Boolean = try {
@@ -47,9 +48,18 @@ internal fun copyFileReplacing(from: Path, to: Path, files: FileSystem = FileSys
             nsLog("copyFile: not enough room ($size > $free) for $to")
             false
         } else {
-            files.delete(to, mustExist = false)
-            files.copy(from, to)
-            true
+            // Copy beside the target, then replace it in one atomic rename: a failure part-way leaves the existing
+            // file (an upgraded module) untouched.
+            val partial = to.parent?.let { it / (to.name + ".tmp") } ?: (to.name + ".tmp").toPath()
+            try {
+                files.delete(partial, mustExist = false)
+                files.copy(from, partial)
+                files.atomicMove(partial, to)
+                true
+            } catch (e: Throwable) {
+                runCatching { files.delete(partial, mustExist = false) }
+                throw e
+            }
         }
     }
 } catch (e: Throwable) {
