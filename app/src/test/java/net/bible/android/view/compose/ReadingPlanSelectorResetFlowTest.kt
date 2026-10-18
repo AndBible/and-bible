@@ -89,9 +89,18 @@ class ReadingPlanSelectorResetFlowTest {
         activity.onBackPressedDispatcher.onBackPressed()
         idle()
         assertEquals("Back onto the daily reading must not re-select the reset plan", "", readingPlanSetting())
-        activity.onBackPressedDispatcher.onBackPressed()
+        assertEquals(
+            "one Back leaves the selector and the plan-less day view for the reader",
+            NavRoutes.READING, activity.currentRouteForTest()?.substringBefore('?'),
+        )
+
+        // choosing the reset plan again is the set's only exit: the day view must load it
+        nav.navigate(NavRoutes.READING_PLAN_SELECTOR)
         idle()
-        assertEquals("a second Back must not either", "", readingPlanSetting())
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING_PLAN_SELECTOR) { compose.waitForIdle() }
+        compose.onNodeWithText(planName).performClick()
+        idle()
+        net.bible.test.awaitHostUntil("the re-chosen plan loads again") { readingPlanSetting() == PLAN }
     }
 
     private companion object {

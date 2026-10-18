@@ -3678,7 +3678,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                     },
                                     onReset = { planCode ->
                                         readingPlanControl.reset(planCode)
-                                        forgetResetReadingPlan(planCode)
+                                        // the selector is already on screen: the day view that Back reveals, now
+                                        // plan-less, goes to the reader instead of offering the selector again
+                                        if (forgetResetReadingPlan(planCode)) readingPlanSelectorOffered = true
                                     },
                                 )
                             },
@@ -6776,10 +6778,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private val resetReadingPlanCodes = mutableSetOf<String>()
 
-    /** After a reset of [code] (selector or day view): never reload it, and drop it if it is the loaded one. */
-    private fun forgetResetReadingPlan(code: String) {
+    /**
+     * After a reset of [code] (selector or day view): never reload it, and drop it if it is the loaded one.
+     * Returns whether it was the loaded one.
+     */
+    private fun forgetResetReadingPlan(code: String): Boolean {
         resetReadingPlanCodes += code
-        if (resetForgetsLoadedPlan(code, planCodeLoaded)) forgetLoadedReadingPlan()
+        val wasLoaded = resetForgetsLoadedPlan(code, planCodeLoaded)
+        if (wasLoaded) forgetLoadedReadingPlan()
+        return wasLoaded
     }
 
     /** SU-15g I1: drops the host-wide last-loaded (plan, day) and readings once their plan was reset/removed. */
