@@ -28,15 +28,20 @@ enum class AssemblyFailureKind {
 /**
  * Pure classification of a resolution failure from the text of its whole cause chain (every layer's message, joined).
  * A failure is a phase 2 dependent when the chain names a Stream D port type ([SYNC_PORT_TYPES]) or shows the
- * uninitialised workspace (an empty window or Bible list: `index: 0, size: 0`, or a window repository that is not
- * initialised yet). Nothing else is excused.
+ * uninitialised workspace: an empty window list (`index: 0, size: 0`) that only counts when the chain names
+ * [WORKSPACE_DEPENDENT_TYPES] (`TextToSpeechServiceManager` reads the first window while it is built). The same
+ * message under any other definition is a real bug. Nothing else is excused.
  */
 fun classifyAssemblyFailure(causeChainText: String): AssemblyFailureKind {
     val ports = SYNC_PORT_TYPES.mapNotNull { it.qualifiedName }
-    val workspace = listOf("index: 0, size: 0", "WindowRepository is not initial", "WindowRepository not initial")
-    return if (ports.any { causeChainText.contains(it) } || workspace.any { causeChainText.contains(it) }) {
+    val emptyWorkspace = causeChainText.contains("index: 0, size: 0") &&
+        WORKSPACE_DEPENDENT_TYPES.any { causeChainText.contains(it) }
+    return if (ports.any { causeChainText.contains(it) } || emptyWorkspace) {
         AssemblyFailureKind.PHASE_2_DEPENDENT
     } else {
         AssemblyFailureKind.UNEXPECTED
     }
 }
+
+/** Definitions verified to fail with an empty-list message while the workspace is not initialised (phase 2 join). */
+private val WORKSPACE_DEPENDENT_TYPES = listOf("TextToSpeechServiceManager")

@@ -39,7 +39,6 @@ import net.bible.sharedlogic.platform.ios.IosLocaleProvider
 import net.bible.sharedlogic.platform.ios.IosSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import net.bible.sharedlogic.startup.StartupHooks
-import net.bible.sharedui.strings.StringsData
 import net.bible.sharedui.strings.keyed.StringTable
 import okio.FileSystem
 import okio.Path
@@ -90,11 +89,7 @@ internal class IosPlatformParts(val config: IosAppConfig) {
 
     /** The UI language (C4); read once. */
     val uiLanguage: String by lazy {
-        config.uiLanguage ?: IosUiLanguage.resolve(
-            deviceSettings.getString("locale_pref"),
-            NSLocale.preferredLanguages.map { it.toString() },
-            StringsData.data.keys,
-        )
+        config.uiLanguage ?: resolveDeviceUiLanguage(deviceSettings)
     }
 
     val strings: StringTable by lazy { iosStringTable(uiLanguage, ::bundleRawResource) }

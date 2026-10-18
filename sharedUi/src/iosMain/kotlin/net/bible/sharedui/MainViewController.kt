@@ -22,13 +22,10 @@ import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAppStartupState
-import net.bible.sharedui.assembly.IosUiLanguage
 import net.bible.sharedui.assembly.StartupPhase
+import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedui.assembly.logAssemblyProbe
-import net.bible.sharedui.strings.StringsData
 import net.bible.sharedui.theme.AbTheme
-import platform.Foundation.NSLocale
-import platform.Foundation.preferredLanguages
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlin.experimental.ExperimentalNativeApi
@@ -68,11 +65,7 @@ fun MainViewController(): UIViewController {
     // keeps. Log it through NSLog first; the process still terminates afterwards.
     setUnhandledExceptionHook { nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}") }
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
-    val language = IosUiLanguage.resolve(
-        IosDeviceSettings().getString("locale_pref"),
-        NSLocale.preferredLanguages.map { it.toString() },
-        StringsData.data.keys,
-    )
+    val language = resolveDeviceUiLanguage(IosDeviceSettings())
     // Stage 1 (main thread, quick, no database); stage 2 (databases, workspace) runs off the main thread behind the splash.
     val startError = try {
         IosAppStartup.start(IosAppConfig(uiLanguage = language))
@@ -101,7 +94,11 @@ fun MainViewController(): UIViewController {
             StartupPhase.Ready -> Unit
         }
         if (Platform.isDebugBinary) {
-            LaunchedEffect(Unit) { withContext(Dispatchers.Default) { logAssemblyProbe() } }
+            LaunchedEffect(Unit) {
+                withContext(Dispatchers.Default) {
+                    runCatching { logAssemblyProbe() }.onFailure { nsLog("I2 assembly: probe crashed: ${it.stackTraceToString()}") }
+                }
+            }
         }
         val documentJson = remember {
             NSBundle.mainBundle.pathForResource("poc-document", "json", "bibleview-js")

@@ -34,6 +34,12 @@ class AssemblyFailureClassifierTest {
     }
 
     @Test
+    fun theEmptyListMessageUnderAnUnrelatedDefinitionIsUnexpected() {
+        assertEquals(AssemblyFailureKind.UNEXPECTED, classifyAssemblyFailure("Could not create instance for FooService | index: 0, size: 0"))
+        assertEquals(AssemblyFailureKind.UNEXPECTED, classifyAssemblyFailure("index: 0, size: 0"))
+    }
+
+    @Test
     fun anyOtherFailureIsUnexpected() {
         assertEquals(AssemblyFailureKind.UNEXPECTED, classifyAssemblyFailure("Could not create instance for Foo | NullPointerException: boom"))
         assertEquals(AssemblyFailureKind.UNEXPECTED, classifyAssemblyFailure(""))

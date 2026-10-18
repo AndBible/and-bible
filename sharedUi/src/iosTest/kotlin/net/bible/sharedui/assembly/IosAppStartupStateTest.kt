@@ -29,7 +29,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 class IosAppStartupStateTest {
     private fun scope() = CoroutineScope(Job())
@@ -100,9 +99,34 @@ class IosAppStartupStateTest {
         val state = IosAppStartupState(open = { opened = true })
         val error = IllegalStateException("start failed")
         state.fail(error)
-        state.launch(scope())
+        val scope = scope()
+        state.launch(scope)
+        // Real time on purpose: give a wrongly started open a chance to run on a Default thread.
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { delay(300) }
         assertEquals(StartupPhase.Failed(error), state.phase.value)
         assertFalse(opened)
-        assertTrue(state.phase.value is StartupPhase.Failed)
+        scope.coroutineContext[Job]!!.cancel()
+    }
+
+    @Test
+    fun aCancellationThrownByOpenWhileTheScopeIsActiveIsAFailure() = runBlocking<Unit> {
+        val state = IosAppStartupState(open = { withTimeout(50) { CompletableDeferred<Unit>().await() } })
+        val scope = scope()
+        state.launch(scope)
+        val phase = withTimeout(10_000) { state.phase.first { it != StartupPhase.Starting } }
+        assertIs<StartupPhase.Failed>(phase)
+        assertIs<kotlinx.coroutines.TimeoutCancellationException>(phase.error)
+        scope.coroutineContext[Job]!!.cancel()
+    }
+
+    @Test
+    fun failAfterASuccessfulLaunchKeepsReady() = runBlocking<Unit> {
+        val state = IosAppStartupState(open = { })
+        val scope = scope()
+        state.launch(scope)
+        withTimeout(10_000) { state.phase.first { it != StartupPhase.Starting } }
+        state.fail(IllegalStateException("late"))
+        assertEquals(StartupPhase.Ready, state.phase.value)
+        scope.coroutineContext[Job]!!.cancel()
     }
 }

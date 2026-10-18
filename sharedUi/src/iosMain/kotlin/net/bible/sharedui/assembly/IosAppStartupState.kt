@@ -21,7 +21,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 import net.bible.sharedcore.log.Log
 
 /** Where the iOS cold start is: the splash shows while [Starting], the app once [Ready], an error on [Failed]. */
@@ -54,9 +56,10 @@ class IosAppStartupState(
             try {
                 open()
                 _phase.value = StartupPhase.Ready
-            } catch (e: CancellationException) {
-                throw e
             } catch (e: Throwable) {
+                // A CancellationException thrown BY open() (a timeout, an awaited cancelled Deferred) while this scope is
+                // still active is a failure; only the scope's own cancellation is not.
+                if (e is CancellationException && !coroutineContext.isActive) throw e
                 Log.e(TAG, "startup failed", e)
                 _phase.value = StartupPhase.Failed(e)
             }
@@ -66,7 +69,8 @@ class IosAppStartupState(
     /** For a failure before [launch] (the main-thread stage of the startup): shows the error instead of starting. */
     fun fail(error: Throwable) {
         launched = true
-        _phase.value = StartupPhase.Failed(error)
+        // A late failure report must not turn a successful start into an error screen.
+        _phase.compareAndSet(StartupPhase.Starting, StartupPhase.Failed(error))
     }
 
     private companion object { const val TAG = "IosAppStartupState" }

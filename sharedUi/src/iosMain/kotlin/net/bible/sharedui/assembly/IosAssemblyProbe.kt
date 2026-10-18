@@ -28,6 +28,9 @@ data class AssemblyProbeResult(val resolved: Int, val phase2Dependents: List<Str
  * Debug-only proof that the real graph assembles (spec section 4): resolves every definition. A failure that
  * [classifyAssemblyFailure] calls a phase 2 dependent (Stream D ports unbound, workspace not initialised: the
  * workspace init is a phase 2 join) is counted separately; any other failure is a real assembly bug and is listed.
+ *
+ * Side effects: resolving instantiates EVERY singleton in the graph (and runs their initialisers), so this is for
+ * debug builds only. Screen-owned scopes created for parameterised factories are cancelled afterwards.
  */
 @OptIn(KoinInternalApi::class)
 internal fun Koin.probeAllDefinitions(): AssemblyProbeResult {
@@ -35,27 +38,34 @@ internal fun Koin.probeAllDefinitions(): AssemblyProbeResult {
     val sync = mutableListOf<String>()
     val failures = mutableListOf<String>()
     val seen = mutableSetOf<Any>()
-    for (factory in instanceRegistry.instances.values.toList()) {
+    val ownedScopes = mutableListOf<kotlinx.coroutines.CoroutineScope>()
+    try { for (factory in instanceRegistry.instances.values.toList()) {
         val definition = factory.beanDefinition
         if (!seen.add(definition)) continue
         val name = (definition.primaryType.qualifiedName ?: definition.primaryType.toString()) +
             (definition.qualifier?.let { "[$it]" } ?: "")
         try {
-            get<Any>(definition.primaryType, definition.qualifier, parameters(definition.primaryType))
+            get<Any>(definition.primaryType, definition.qualifier, parameters(definition.primaryType, ownedScopes))
             resolved++
         } catch (e: Throwable) {
             val chain = generateSequence(e) { it.cause }.joinToString(" | ") { it.message.orEmpty() }
             if (classifyAssemblyFailure(chain) == AssemblyFailureKind.PHASE_2_DEPENDENT) sync += name
             else failures += "$name: ${generateSequence(e) { it.cause }.last().message.orEmpty().take(400)}"
         }
-    }
+    } } finally { ownedScopes.forEach { it.coroutineContext[kotlinx.coroutines.Job]?.cancel() } }
     return AssemblyProbeResult(resolved, sync, failures)
 }
 
 /** The one parameterised factory: built per settings screen from a screen-owned scope. */
-private fun parameters(type: kotlin.reflect.KClass<*>): org.koin.core.parameter.ParametersDefinition? =
+private fun parameters(
+    type: kotlin.reflect.KClass<*>,
+    ownedScopes: MutableList<kotlinx.coroutines.CoroutineScope>,
+): org.koin.core.parameter.ParametersDefinition? =
     if (type == net.bible.android.view.activity.settings.SyncSettingsServiceImpl::class) {
-        { org.koin.core.parameter.parametersOf(kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Job())) }
+        {
+            val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Job()).also { ownedScopes += it }
+            org.koin.core.parameter.parametersOf(scope)
+        }
     } else null
 
 /** Logs the one probe line the Mac run greps for. Call off the main thread, after the startup is Ready. */

@@ -16,6 +16,11 @@
  */
 package net.bible.sharedui.assembly
 
+import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedui.strings.StringsData
+import platform.Foundation.NSLocale
+import platform.Foundation.preferredLanguages
+
 /** Picks the UI language on iOS (spec C4). Pure logic so it is testable without a device. */
 object IosUiLanguage {
     private const val FALLBACK = "en"
@@ -23,8 +28,8 @@ object IosUiLanguage {
     /**
      * The `locale_pref` setting if set (blank counts as unset) and supported, else the first of the iOS
      * [preferred] languages that [supported] has, else English. A tag may match through a shorter form: `pt-BR`
-     * matches `pt`, `sr-Latn-RS` matches `sr-Latn` and then `sr`; underscores are read as dashes and case is ignored. The answer is
-     * the supported tag that matched, so it is always one `iosStrings` can serve.
+     * matches `pt`, `sr-Latn-RS` matches `sr-Latn` and then `sr`; underscores are read as dashes and case
+     * is ignored. The answer is the supported tag that matched, so it is always one `iosStrings` can serve.
      */
     fun resolve(localePref: String?, preferred: List<String>, supported: Set<String>): String {
         val byLowercase = supported.associateBy { it.lowercase() }
@@ -41,3 +46,10 @@ object IosUiLanguage {
         return FALLBACK
     }
 }
+
+/** The one place the iOS UI language is read from the device: `locale_pref`, the device languages, the string table. */
+internal fun resolveDeviceUiLanguage(settings: IosDeviceSettings): String = IosUiLanguage.resolve(
+    settings.getString("locale_pref"),
+    NSLocale.preferredLanguages.map { it.toString() },
+    StringsData.data.keys,
+)
