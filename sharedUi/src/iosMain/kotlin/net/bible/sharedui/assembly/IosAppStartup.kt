@@ -194,6 +194,15 @@ object IosAppStartup {
         opened = true
     }
 
+    /**
+     * What Android's reading bootstrap does once the databases are open: load the workspace and windows
+     * (`WindowRepository.initializeAtEdge`), without which the speak manager and every active-window reader cannot
+     * work. Call after [openDatabases], OFF the main thread (the edge waits for the load).
+     */
+    fun loadWorkspace() {
+        KoinPlatform.getKoin().get<net.bible.android.control.page.window.WindowControl>().windowRepository.initializeAtEdge()
+    }
+
     /** Shows a JSword error once per five minutes per message, as Android's `reportJSwordError` does. */
     private fun reportJSwordError(p: IosPlatformParts, ev: ReporterEvent) {
         errorHookCalls++
