@@ -77,6 +77,8 @@ import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.progress.ProgressChange
 import net.bible.android.control.progress.ProgressControl
 import net.bible.service.common.ReadingProgressSettings
+import net.bible.sharedcore.reading.ShareVersesInput
+import net.bible.sharedui.reading.session.ReadingSheets
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
 import net.bible.android.control.download.DownloadControl
@@ -339,11 +341,36 @@ class BibleView(
 
             override fun crashAllBibleViews() = hostCallbacks.crashAllBibleViews()
         }
+        it.hostSheets = object : ReadingSheets {
+            override fun showReadHistory(bookId: String, chapter: Int) {
+                hostCallbacks.composeReadingViewHost()?.showReadHistorySheet(bookId, chapter)
+            }
+
+            override fun showCompare(range: VerseRange) {
+                linkControl.openCompare(range)
+            }
+
+            override fun showShare(input: ShareVersesInput) {
+                hostCallbacks.composeReadingViewHost()?.showShareSheet(input)
+            }
+
+            override fun showPromptSelector(selection: Selection, context: PromptContext, category: DocumentCategory?) {
+                hostCallbacks.showLlmPromptSelector(selection, context)
+            }
+
+            override fun showRegenerate(pageId: IdType) {
+                hostCallbacks.showRegenerate(pageId, this@BibleView)
+            }
+
+            override fun showHelp(title: String?, html: String) {
+                hostCallbacks.composeReadingViewHost()?.showHelp(title, html)
+            }
+        }
         it.verseChooser = { hostCallbacks.composeReadingViewHost()?.openVerseChooserSheetForResult()?.await() }
     }
 
     /** The platform-independent JS bridge; [BibleJavascriptInterface] delegates the moved families to it. */
-    val readingBridge = ReadingBridge(session)
+    val readingBridge = ReadingBridge(session, viewIsCurrent = { window.bibleView === this })
 
     internal val windowRef: WeakReference<Window> get() = WeakReference(session.windowOrNull)
 
@@ -509,18 +536,15 @@ class BibleView(
 
     internal fun compareSelection(selection: Selection? = currentSelection) {
         Log.i(TAG, "compareSelection")
-        val verseRange = selection?.verseRange ?: return
-        linkControl.openCompare(verseRange)
+        readingBridge.compareSelection(selection)
     }
 
     internal fun memorizeSelection(selection: Selection? = currentSelection) {
         Log.i(TAG, "memorizeSelection")
-        val verseRange = selection?.verseRange ?: return
-        linkControl.openMemorize(BookAndKey(verseRange, selection.book))
+        readingBridge.memorizeSelection(selection)
     }
 
     val scope get() = host.lifecycleScope
-    private val epubLinks by lazy { net.bible.sharedcore.platform.OrderedLauncher(scope) }
     private val bookmarkChanges by lazy { net.bible.sharedcore.platform.OrderedLauncher(scope) }
     private var documentLoadGeneration = 0L
 
@@ -1266,18 +1290,8 @@ class BibleView(
         .build()
 
 
-    internal fun openEpubLink(book: SwordGenBook, backend: EpubBackend, keyStr: String, idStr: String) {
-        val windowMode = linkControl.windowMode
-        val page = window.pageManager.currentPage
-        val sourceDocument = page.currentDocument
-        epubLinks.launch("epub-links") {
-            val key = withContext(Dispatchers.IO) { backend.getKey(keyStr, idStr) }
-            withContext(Dispatchers.Main) {
-                if (window.bibleView !== this@BibleView || window.pageManager.currentPage !== page || page.currentDocument != sourceDocument) return@withContext
-                key?.let { linkControl.showLink(book, BookAndKey(it, book, htmlId = idStr), windowMode = windowMode) }
-            }
-        }
-    }
+    internal fun openEpubLink(book: SwordGenBook, backend: EpubBackend, keyStr: String, idStr: String) =
+        readingBridge.openEpubLink(book, backend, keyStr, idStr)
 
     fun openLink(uri: Uri): Boolean = when(uri.scheme) {
         UriConstants.SCHEME_W -> {

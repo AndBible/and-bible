@@ -106,7 +106,6 @@ class BibleJavascriptInterface(
 ) : KoinComponent, BibleBridge by bibleView.readingBridge {
     private val swordContentFacade: SwordContentFacade by inject()
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
-    private val progressJsActions: ProgressJsActions by inject()
     private val bookmarkJsActions: BookmarkJsActions by inject()
     private val orderedLauncher: net.bible.sharedcore.platform.OrderedLauncher by inject()
     val linkControl get() = bibleView.linkControl
@@ -128,93 +127,9 @@ class BibleJavascriptInterface(
      */
     private val hostActivity: ActivityBase get() = bibleView.hostCallbacks.hostActivity
     private val hostCallbacks: BibleViewHostCallbacks get() = bibleView.hostCallbacks
-    private val speakControl: SpeakControl by inject()
     private val searchControl: SearchControl by inject()
     var notificationsEnabled = false
     val scope get() = hostActivity.lifecycleScope
-
-    override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
-        val book = Books.installed().getBook(bookInitials) as SwordGenBook
-        val backend = book.backend as EpubBackend
-        bibleView.openEpubLink(book, backend, toKeyStr, toId)
-    }
-
-    override fun openExternalLink(link: String) {
-        when {
-            link.startsWith("B:") -> {
-                // MyBible links
-                val (book, rest) = link.split(" ", limit=2)
-                val bookInt = book.split(":")[1].toInt()
-                val bibleBook = myBibleIntToBibleBook[bookInt]?: return
-                val lnk = "${bibleBook.osis} $rest"
-                val bibleLink = BibleLink("content", target=lnk)
-                scope.launch(Dispatchers.Main) {
-                    linkControl.loadApplicationUrl(bibleLink)
-                }
-            }
-            link.startsWith("S:") -> {
-                // MyBible strongs
-                val (prefix, rest) = link.split(":", limit=2)
-                val bibleLink = BibleLink("strong", target=rest)
-                scope.launch(Dispatchers.Main) {
-                    linkControl.loadApplicationUrl(bibleLink)
-                }
-            }
-            link.startsWith("#b") -> {
-                // MySword bible links
-                val rest = link.substring(2)
-                val (bookInt, chapInt, verInt) = rest.split(".").map { it.toInt() }
-                val bibleBook = mySwordIntToBibleBook[bookInt]?: return
-                val lnk = "${bibleBook.osis}.$chapInt.$verInt"
-                val bibleLink = BibleLink("content", target=lnk)
-                scope.launch(Dispatchers.Main) {
-                    linkControl.loadApplicationUrl(bibleLink)
-                }
-            }
-            link.startsWith("#s") || link.startsWith("#d") -> {
-                // MySword strongs links
-                val rest = link.substring(2)
-                val bibleLink = BibleLink("strong", target=rest)
-                scope.launch(Dispatchers.Main) {
-                    linkControl.loadApplicationUrl(bibleLink)
-                }
-            }
-            link.startsWith("sword://") || link.startsWith("osis:") -> {
-                // Internal app links (e.g. sword://CalvinCommentaries/Eph.1.11)
-                val bibleLink = BibleLink("sword", target=link)
-                scope.launch(Dispatchers.Main) {
-                    linkControl.loadApplicationUrl(bibleLink)
-                }
-            }
-            link.startsWith("strongs://") -> {
-                // Document-independent Strong's links (e.g. strongs://G2316, strongs://H430)
-                val ref = link.removePrefix("strongs://")
-                val bibleLink = BibleLink("strong", target=ref)
-                scope.launch(Dispatchers.Main) {
-                    linkControl.loadApplicationUrl(bibleLink)
-                }
-            }
-            link.startsWith("morphology://") -> {
-                // Document-independent morphology links (e.g. morphology://robinson/V-PAI-3S)
-                val rest = link.removePrefix("morphology://")
-                val slashIdx = rest.indexOf('/')
-                val morphType = if (slashIdx >= 0) rest.substring(0, slashIdx) else rest
-                val code = if (slashIdx >= 0) rest.substring(slashIdx + 1) else ""
-                val bibleLink = BibleLink(morphType, target=code)
-                scope.launch(Dispatchers.Main) {
-                    linkControl.loadApplicationUrl(bibleLink)
-                }
-            }
-            else -> {
-                CommonUtils.openLink(link, forceAsk=true)
-            }
-        }
-    }
-
-    override fun openDownloads() {
-        // DL-8: called on the JavaBridge thread; the navigator posts the launch to the main thread.
-        bibleView.navigator.openDownloads(addons = true)
-    }
 
     fun getActiveLanguages(): String {
         //Get the languages for each of the installed bibles and return the language codes as a json list.
@@ -247,70 +162,6 @@ class BibleJavascriptInterface(
         }
     }
 
-    override fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
-        scope.launch(Dispatchers.Main) {
-            bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
-        }
-    }
-
-    override fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
-        val verseRange = verseRangeFromOrdinals(bookInitials, verseOrdinal, endOrdinal)
-        progressJsActions.addTargetIfNeededThen(bibleView.window.id, verseRange, scope, Dispatchers.Main) {
-            bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
-        }
-    }
-
-    private fun verseRangeFromOrdinals(bookInitials: String, startOrdinal: Int, endOrdinal: Int): VerseRange? {
-        val book = Books.installed().getBook(bookInitials) ?: return null
-        val v11n = (book as? AbstractPassageBook)?.versification ?: return null
-        val effectiveEnd = if (endOrdinal > 0) endOrdinal else startOrdinal
-        return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, effectiveEnd))
-    }
-
-    override fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
-        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
-        progressJsActions.markMemorized(bibleView.window.id, verseRange)
-    }
-
-    override fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
-        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
-        progressJsActions.addTarget(bibleView.window.id, verseRange)
-    }
-
-    override fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
-        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
-        progressJsActions.unmarkMemorized(bibleView.window.id, verseRange)
-    }
-
-    override fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
-        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
-        progressJsActions.removeTargetByRange(bibleView.window.id, verseRange)
-    }
-
-    override fun setReadingProgressSettings(json: String) {
-        ReadingProgressSettings.setBundleFromJson(json)
-        ReadingProgressSettings.notifyChanged()
-    }
-
-    /**
-     * The ONLY caller that names a tab. `Screen.ReadingProgress` is MIGRATED and its MIGRATED route
-     * is the argument-FREE one, so a `ScreenLauncher.intentFor(...).putExtra(EXTRA_TAB, tab)` would
-     * silently drop the tab — the route is the only thing `NavHostComposeActivity` reads. The route
-     * is therefore built directly, as `NavHostRoutingGuardTest
-     * .migratedScreenArgumentIsNeverDroppedByAPutExtra` requires.
-     *
-     * `startActivityForResult(..., STD_REQUEST_CODE)` is unchanged and still matters: this screen
-     * returns `ActivityResultKind.ReadingProgress` to `MainBibleActivity.onActivityResult`.
-     */
-    override fun openReadingProgress(tab: Int) = bibleView.navigator.openReadingProgress(tab)
-
-    /**
-     * Still `startActivityForResult` although this screen never calls `setResult`, so it always
-     * returns `RESULT_CANCELED` into `MainBibleActivity.kt:2882-2890`'s early branch. That is
-     * pre-existing, harmless and deliberately NOT changed here.
-     */
-    override fun openReadingProgressSettings() = bibleView.navigator.openReadingProgressSettings()
-
     /**
      * Show a help dialog for a Vue-side view. The [scopeKey] string is
      * resolved server-side to a (title, message, helpUrl) triple so
@@ -329,114 +180,10 @@ class BibleJavascriptInterface(
         }
     }
 
-    /**
-     * Records a new read-history row for this chapter. Always inserts — JS-side state
-     * (autoTrackDone) prevents duplicate auto-track inserts. The `source` parameter is
-     * the string name of a [ReadingSource] value; unknown strings fall back to MANUAL.
-     */
-    override fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
-        val book = Books.installed().getBook(bookInitials) ?: return
-        val v11n = (book as? AbstractPassageBook)?.versification ?: return
-        val verse = Verse(v11n, startOrdinal)
-        val readingSource = try { ReadingSource.valueOf(source) } catch (_: Exception) { ReadingSource.MANUAL }
-        progressJsActions.recordChapterRead(bibleView.window.id, v11n, verse.book, chapter, bookInitials, readingSource)
-    }
-
-    override fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) {
-        val book = Books.installed().getBook(bookInitials) ?: return
-        val v11n = (book as? AbstractPassageBook)?.versification ?: return
-        val kjvBook = Verse(v11n, startOrdinal).toV11n(KJVA).book
-        scope.launch(Dispatchers.Main) {
-            hostCallbacks.composeReadingViewHost()?.showReadHistorySheet(kjvBook.name, chapter)
-        }
-    }
-
-    override fun openStudyPad(labelId: String, bookmarkId: String) {
-        // After this window's queued writes (e.g. the note save JS sent just before), so the opened
-        // document is loaded with them.
-        bookmarkJsActions.afterQueuedWrites(bibleView.window.id, scope, Dispatchers.Main) {
-            linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
-        }
-    }
-
-    override fun openMyNotes(v11n: String, ordinal: Int) {
-        bookmarkJsActions.afterQueuedWrites(bibleView.window.id, scope, Dispatchers.Main) {
-            linkControl.openMyNotes(v11n, ordinal)
-        }
-    }
-
-    override fun openAiDocPage(documentInitials: String, pageKey: String) {
-        scope.launch(Dispatchers.Main) {
-            val book = Books.installed().getBook(documentInitials) ?: return@launch
-            val key = try {
-                book.getKey(pageKey)
-            } catch (e: NoSuchKeyException) {
-                Log.w(TAG, "AI document page not found: $pageKey in $documentInitials", e)
-                return@launch
-            } ?: return@launch
-            linkControl.showLink(book, key)
-        }
-    }
-
     // Platform-dialog removal Task 10: `openAiDocPageChooser` (a native `AlertDialog` list picker
     // over multiple AI doc-marker pages) is deleted -- its TS caller was never wired up
     // (`app/bibleview-js/src/composables/android.ts:127` declared it with no call site; grep
     // confirmed), so this was dead on both sides of the JS bridge.
-
-    override fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
-        scope.launch(Dispatchers.Main) {
-            val book = Books.installed().getBook(bookInitials) as SwordBook
-            val v11n = Versifications.instance().getVersification(v11nName)
-            val verse = Verse(v11n, ordinal).toV11n(book.versification)
-            if(speakControl.isSpeaking) {
-                speakControl.pause(willContinueAfterThis = true, toast = false)
-            }
-            speakControl.speakBible(book, verse)
-        }
-    }
-
-    override fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
-        scope.launch(Dispatchers.Main) {
-            val book = Books.installed().getBook(bookInitials) as SwordBook
-            val v11n = Versifications.instance().getVersification(v11nName)
-            val startVerse = Verse(v11n, ordinal).toV11n(book.versification)
-            val endVerse = Verse(v11n, endOrdinal).toV11n(book.versification)
-            if (speakControl.isSpeaking) {
-                speakControl.pause(willContinueAfterThis = true, toast = false)
-            }
-            speakControl.speakMemorizationLoop(book, startVerse, endVerse)
-        }
-    }
-
-    override fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
-        scope.launch(Dispatchers.Main) {
-            val book = Books.installed().getBook(bookInitials)
-            val origKey = try {
-                book!!.getKey(osisRef)
-            } catch (e: NoSuchKeyException) {
-                val bookAndKey = linkControl.getStrongsKey(book!!, osisRef)
-                bookAndKey?.key ?: return@launch
-            }
-            val key = (origKey as? RangedPassage)?.toVerseRange ?:  try {KeyUtil.getVerse(origKey)} catch (e: ClassCastException) {origKey}
-            val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal))
-            val bookAndKey = BookAndKey(key, book, ordinalRange)
-            if(speakControl.isSpeaking) {
-                speakControl.pause(willContinueAfterThis = true, toast = false)
-            }
-            speakControl.speakGeneric(bookAndKey)
-        }
-    }
-
-    override fun toggleCompareDocument(documentId: String) {
-        Log.i(TAG, "toggleCompareDocument")
-        val hideDocs = bibleView.workspaceSettings.hideCompareDocuments
-        if(hideDocs.contains(documentId)) {
-            hideDocs.remove(documentId)
-        } else {
-            hideDocs.add(documentId)
-        }
-        WorkspaceChanges.notifySettingsEdited()
-    }
 
     /** [content] is now parsed as the app's small HTML subset (`AbHtmlText`/`parseHtmlRuns`) rather
      *  than shown as literal plain text -- harmless for the callers today (no `<`/`&` in their

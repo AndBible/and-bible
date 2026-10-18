@@ -30,10 +30,14 @@ import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.android.control.progress.ProgressJsActions
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.page.refChooserVerseName
+import net.bible.android.view.activity.page.Selection
+import net.bible.service.sword.epub.EpubBackend
 import net.bible.sharedcore.bibleview.BibleBridge
+import org.crosswire.jsword.book.sword.SwordGenBook
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -54,7 +58,10 @@ import org.koin.mp.KoinPlatform
  */
 class ReadingBridge(
     private val session: BibleWindowSession,
-    bookmarkJsActionsProvider: () -> BookmarkJsActions = { KoinPlatform.getKoin().get() },
+    viewIsCurrent: () -> Boolean = { true },
+    private val progressJsActionsProvider: () -> ProgressJsActions = { KoinPlatform.getKoin().get() },
+    private val speakerProvider: () -> ReadingSpeaker = { KoinPlatform.getKoin().get<SpeakControl>().asReadingSpeaker() },
+    private val bookmarkJsActionsProvider: () -> BookmarkJsActions = { KoinPlatform.getKoin().get() },
 ) : BibleBridge {
     private val orderedLauncher: OrderedLauncher by lazy { KoinPlatform.getKoin().get() }
     private val speakControl: SpeakControl by lazy { KoinPlatform.getKoin().get() }
@@ -63,6 +70,22 @@ class ReadingBridge(
     private val bookmarks by lazy {
         BookmarkBridgeFamily(session, bookmarkJsActionsProvider(), session.bookmarkControl)
     }
+
+    private val progressSpeak by lazy {
+        ProgressSpeakBridgeFamily(session, progressJsActionsProvider(), speakerProvider())
+    }
+
+    private val links by lazy { LinkBridgeFamily(session, bookmarkJsActionsProvider(), viewIsCurrent) }
+
+    /** Opens the compare document for [selection] (the platform view's selection menu action). */
+    fun compareSelection(selection: Selection?) = progressSpeak.compareSelection(selection)
+
+    /** Opens the memorize document for [selection] (the platform view's selection menu action). */
+    fun memorizeSelection(selection: Selection?) = progressSpeak.memorizeSelection(selection)
+
+    /** Opens an EPUB link for an already resolved [book] (the platform view's `epub-ref:` links). */
+    fun openEpubLink(book: SwordGenBook, backend: EpubBackend, keyStr: String, idStr: String) =
+        links.openEpubLink(book, backend, keyStr, idStr)
 
     /** Bookmark creation shared with the platform view (selection menu actions). */
     val bookmarkCreation: BookmarkCreation get() = bookmarks.creation
@@ -270,9 +293,9 @@ class ReadingBridge(
     override fun assignLabels(bookmarkId: String) = bookmarks.assignLabels(bookmarkId)
     override fun genericAssignLabels(bookmarkId: String) = bookmarks.genericAssignLabels(bookmarkId)
     override fun setBookmarkEditAction(bookmarkId: String, valueStr: String) = bookmarks.setBookmarkEditAction(bookmarkId, valueStr)
-    override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String): Unit = notYetMoved("openEpubLink")
-    override fun openExternalLink(link: String): Unit = notYetMoved("openExternalLink")
-    override fun openDownloads(): Unit = notYetMoved("openDownloads")
+    override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) = links.openEpubLink(bookInitials, toKeyStr, toId)
+    override fun openExternalLink(link: String) = links.openExternalLink(link)
+    override fun openDownloads() = links.openDownloads()
     override fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) = bookmarks.createNewStudyPadEntry(labelId, entryType, afterEntryId)
     override fun deleteStudyPadEntry(studyPadId: String) = bookmarks.deleteStudyPadEntry(studyPadId)
     override fun removeBookmarkLabel(bookmarkId: String, labelId: String) = bookmarks.removeBookmarkLabel(bookmarkId, labelId)
@@ -291,24 +314,24 @@ class ReadingBridge(
     override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = bookmarks.addParagraphBreakBookmark(bookInitials, startOrdinal, endOrdinal)
     override fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) = bookmarks.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal)
     override fun createWholePageBookmark(bookInitials: String, bookKey: String) = bookmarks.createWholePageBookmark(bookInitials, bookKey)
-    override fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("compare")
-    override fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("memorize")
-    override fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("markAsMemorized")
-    override fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("addMemorizationTarget")
-    override fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("unmarkMemorized")
-    override fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("removeMemorizationTarget")
-    override fun setReadingProgressSettings(json: String): Unit = notYetMoved("setReadingProgressSettings")
-    override fun openReadingProgress(tab: Int): Unit = notYetMoved("openReadingProgress")
-    override fun openReadingProgressSettings(): Unit = notYetMoved("openReadingProgressSettings")
+    override fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) = progressSpeak.compare(bookInitials, verseOrdinal, endOrdinal)
+    override fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) = progressSpeak.memorize(bookInitials, verseOrdinal, endOrdinal)
+    override fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = progressSpeak.markAsMemorized(bookInitials, startOrdinal, endOrdinal)
+    override fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = progressSpeak.addMemorizationTarget(bookInitials, startOrdinal, endOrdinal)
+    override fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = progressSpeak.unmarkMemorized(bookInitials, startOrdinal, endOrdinal)
+    override fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = progressSpeak.removeMemorizationTarget(bookInitials, startOrdinal, endOrdinal)
+    override fun setReadingProgressSettings(json: String) = progressSpeak.setReadingProgressSettings(json)
+    override fun openReadingProgress(tab: Int) = progressSpeak.openReadingProgress(tab)
+    override fun openReadingProgressSettings() = progressSpeak.openReadingProgressSettings()
     override fun showHelpDialog(scopeKey: String): Unit = notYetMoved("showHelpDialog")
-    override fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String): Unit = notYetMoved("recordChapterRead")
-    override fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int): Unit = notYetMoved("openChapterReadHistory")
-    override fun openStudyPad(labelId: String, bookmarkId: String): Unit = notYetMoved("openStudyPad")
-    override fun openMyNotes(v11n: String, ordinal: Int): Unit = notYetMoved("openMyNotes")
-    override fun openAiDocPage(documentInitials: String, pageKey: String): Unit = notYetMoved("openAiDocPage")
-    override fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int): Unit = notYetMoved("speak")
-    override fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int): Unit = notYetMoved("speakMemorizationLoop")
-    override fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int): Unit = notYetMoved("speakGeneric")
+    override fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) = progressSpeak.recordChapterRead(bookInitials, startOrdinal, chapter, source)
+    override fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) = progressSpeak.openChapterReadHistory(bookInitials, startOrdinal, chapter)
+    override fun openStudyPad(labelId: String, bookmarkId: String) = links.openStudyPad(labelId, bookmarkId)
+    override fun openMyNotes(v11n: String, ordinal: Int) = links.openMyNotes(v11n, ordinal)
+    override fun openAiDocPage(documentInitials: String, pageKey: String) = links.openAiDocPage(documentInitials, pageKey)
+    override fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) = progressSpeak.speak(bookInitials, v11nName, ordinal, endOrdinal)
+    override fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) = progressSpeak.speakMemorizationLoop(bookInitials, v11nName, ordinal, endOrdinal)
+    override fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) = progressSpeak.speakGeneric(bookInitials, osisRef, ordinal, endOrdinal)
     override fun setAsPrimaryLabel(bookmarkId: String, labelId: String) = bookmarks.setAsPrimaryLabel(bookmarkId, labelId)
     override fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String) = bookmarks.setAsPrimaryLabelGeneric(bookmarkId, labelId)
     override fun toggleBookmarkLabel(bookmarkId: String, labelId: String) = bookmarks.toggleBookmarkLabel(bookmarkId, labelId)
@@ -317,7 +340,7 @@ class ReadingBridge(
     override fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) = bookmarks.setGenericBookmarkCustomIcon(bookmarkId, value)
     override fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) = bookmarks.setBookmarkWholeVerse(bookmarkId, value)
     override fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) = bookmarks.setGenericBookmarkWholeVerse(bookmarkId, value)
-    override fun toggleCompareDocument(documentId: String): Unit = notYetMoved("toggleCompareDocument")
+    override fun toggleCompareDocument(documentId: String) = links.toggleCompareDocument(documentId)
     override fun helpDialog(content: String, title: String?): Unit = notYetMoved("helpDialog")
     override fun helpBookmarks(): Unit = notYetMoved("helpBookmarks")
     override fun shareHtml(html: String): Unit = notYetMoved("shareHtml")

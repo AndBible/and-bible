@@ -485,10 +485,11 @@ class BibleViewEpubLoadRaceTest {
                 val page = window.pageManager.currentPage
                 (page as CurrentPageBase).onlySetCurrentDocument(target)
                 // Changing source to another document before the deferred lookup must suppress navigation.
-                (field("epubLinks\$delegate") as Lazy<*>).value.let {
-                    val queue = it as net.bible.sharedcore.platform.OrderedLauncher
-                    queue.join("epub-links")
-                }
+                // The EPUB link queue moved with the link family into the shared ReadingBridge (I2 Stream B Task 6).
+                fun Any.lazyField(name: String): Any? = javaClass.getDeclaredField(name).run { isAccessible = true; (get(this@lazyField) as Lazy<*>).value }
+                val linkFamily = view.readingBridge.lazyField("links\$delegate")!!
+                val queue = linkFamily.lazyField("epubLinks\$delegate") as net.bible.sharedcore.platform.OrderedLauncher
+                queue.join("epub-links")
                 assertEquals(target, page.currentDocument)
                 assertNotEquals(state.keys.first().getOsisRef(), page.key?.getOsisRef())
             } else {
