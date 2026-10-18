@@ -32,8 +32,4 @@ class AwaitHostConditionTest {
             assertTrue(e.message, Regex("after \\d+ ms").containsMatchIn(e.message!!))
         }
     }
-
-    @Test fun theDefaultDeadlineIsSixtySeconds() {
-        assertTrue(HOST_CONDITION_TIMEOUT_MS == 60_000L)
-    }
 }

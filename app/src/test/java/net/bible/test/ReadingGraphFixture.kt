@@ -165,9 +165,11 @@ internal fun finishFixtureScopes(scopes: List<kotlinx.coroutines.CoroutineScope>
 }
 
 /**
- * Wall-clock bound for [awaitHostCondition]. Measured on ReadingPlanSelectorResetFlowTest's cold first test: 11 s
- * quiet (7 s in earlier measurements), 48 s with 24 busy loops on the machine (load average ~33); the former 10 s
- * bound was pure wall-clock and failed it under load. 60 s covers that with margin; a real hang still fails, only later.
+ * Wall-clock bound for [awaitHostCondition]. Evidence, stated honestly: the former 10 s bound was NOT reproduced red
+ * under a 24-busy-loop harness; the failure was observed once in a heavily loaded full run (load average ~43). The
+ * whole cold first test of ReadingPlanSelectorResetFlowTest (not just the wait) took 11.1 s quiet and 47.9 s loaded
+ * (load average ~33), about 4x. 60 s is a margin above that observed whole-test time. A passing path returns as soon
+ * as the condition is ready, so the larger bound costs nothing; a real hang still fails, only later.
  */
 const val HOST_CONDITION_TIMEOUT_MS = 60_000L
 
