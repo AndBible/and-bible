@@ -826,7 +826,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         thumbnailFor = backgroundThumbnailResolver::resolve,
     )
 
-
     // ------------------------------------------------------------------------------------------
     // F6 Task 8a — SWORD search inside the reading view (the toolbar's search mode + the sheet).
     // ------------------------------------------------------------------------------------------

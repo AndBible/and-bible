@@ -162,7 +162,7 @@ class ReadingTextSettingEditorTest {
 
         val scope = SettingsScope.Workspace("ws")
         host.showTextSettingEditor(scope, SettingsEditorPage.Row(TextSettingType.FONTSIZE.name)) { }
-        // What TextSettingsEditorSlot's `remember(scope) { textSettingsControllerFor(scope) }` would
+        // What `TextSettingsEditorState.Content`'s `remember(scope) { textSettingsControllerFor(scope) }` would
         // resolve for a Row page, driven directly since composition cannot run here.
         host.slots.textSettingsControllerFor(scope)
         host.textSettingsEditor.close()
@@ -181,7 +181,7 @@ class ReadingTextSettingEditorTest {
 
         val scope = SettingsScope.Workspace("ws")
         host.showTextSettingEditor(scope, SettingsEditorPage.Colors) { }
-        // What TextSettingsEditorSlot's `remember(scope) { colorControllerFor(scope) }` would
+        // What `TextSettingsEditorState.Content`'s `remember(scope) { colorControllerFor(scope) }` would
         // resolve for the Colors page family, driven directly since composition cannot run here.
         host.slots.colorControllerFor(scope)
         host.textSettingsEditor.close()

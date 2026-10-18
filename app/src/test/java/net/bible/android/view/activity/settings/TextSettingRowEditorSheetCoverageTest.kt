@@ -184,7 +184,7 @@ class TextSettingRowEditorSheetCoverageTest {
      * This test proves the two tables PARTITION the full eight-member Row-page set: their union is
      * every [TextSettingType] `textSettingEditorPageFor` resolves to a `Row` page, and they are
      * disjoint (a key claimed by both would non-deterministically pick a page body depending on which
-     * `when` branch in `TextSettingsEditorSlot` runs first).
+     * `when` branch in `TextSettingsEditorState.Content` runs first).
      */
     private val hostSource = java.io.File(
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/slots/TextSettingsSlot.kt"

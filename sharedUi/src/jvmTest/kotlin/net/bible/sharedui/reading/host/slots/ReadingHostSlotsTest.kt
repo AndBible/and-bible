@@ -18,14 +18,20 @@ package net.bible.sharedui.reading.host.slots
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
+import java.lang.reflect.Proxy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -57,11 +63,6 @@ import net.bible.sharedcore.settings.TextSettingRow
 import net.bible.sharedcore.settings.TextSettingRowValue
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.settings.TextSettingsSnapshot
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.assertCountEquals
-import java.lang.reflect.Proxy
 import net.bible.sharedcore.speak.AdvancedSpeakVd
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakPlaybackVd
@@ -148,9 +149,15 @@ class ReadingHostSlotsTest {
 
     private val strings: Strings = iosStrings("en")
 
-    private var pickedImage: String? = null
+    /** What the [ImagePicker] port answers, how often it was asked, and what the service's import received from it. */
+    private var pickerAnswer: String? = null
+    private var pickerCalls = 0
+    private var importReceived: String? = null
     private val imagePicker = object : ImagePicker {
-        override suspend fun pickImage(): String? = pickedImage
+        override suspend fun pickImage(): String? {
+            pickerCalls++
+            return pickerAnswer
+        }
     }
 
     /** The font size the fake text-settings service reports; a test changes it to model an edit made elsewhere. */
@@ -198,7 +205,7 @@ class ReadingHostSlotsTest {
         override fun loadColors(scope: SettingsScope) = colours
         override fun loadBackgroundOptions(): List<BackgroundImageOption> = emptyList()
         override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
-            pickedImage = picker()
+            importReceived = picker()
             return null
         }
     }
@@ -338,10 +345,11 @@ class ReadingHostSlotsTest {
     @Test
     fun colourControllerImportUsesTheImagePickerPort() {
         val (slots, _) = slots()
-        pickedImage = "img-token"
+        pickerAnswer = "img-token"
         val controller = slots.colorControllerFor(SettingsScope.Workspace("ws"))
         controller.onImportBackgroundImage()
-        assertEquals("img-token", pickedImage)
+        assertEquals(1, pickerCalls, "the import must ask the ImagePicker port exactly once")
+        assertEquals("img-token", importReceived, "the import must receive the port's answer")
     }
 
     @Test
@@ -362,15 +370,41 @@ class ReadingHostSlotsTest {
 
         assertEquals(1, slots.textSettingsEditor.depth)
         assertEquals(SettingsEditorPage.Colors, slots.textSettingsEditor.current)
+        // The sheet is still rendered (now on the colours page), not dismissed with the row.
+        onNodeWithContentDescription(strings.settingsEditorClose).assertExists()
+        onAllNodesWithContentDescription(strings.settingsEditorBack).assertCountEquals(0)
+    }
+
+    @Test
+    fun numericRowEditorBackClosesTheRowFirst() = runComposeUiTest {
+        val (slots, _) = slots()
+        val scope = SettingsScope.Workspace("ws")
+        slots.showTextSettingEditor(scope, SettingsEditorPage.Row(TextSettingType.FONTSIZE.name)) { }
+        slots.textSettingsEditor.push(SettingsEditorPage.Row(TextSettingType.TOPMARGIN.name))
+        setContent {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                MaterialTheme { slots.TextSettingsEditor() }
+            }
+        }
+        onNodeWithText(strings.prefsTopMarginTitle).assertExists()
+
+        onNodeWithContentDescription(strings.settingsEditorBack).performClick()
+
+        assertEquals(1, slots.textSettingsEditor.depth)
+        assertEquals(SettingsEditorPage.Row(TextSettingType.FONTSIZE.name), slots.textSettingsEditor.current)
+        // Still rendered, now showing the font size row editor.
+        onNodeWithText(strings.fontSizeTitle).assertExists()
+        onAllNodesWithText(strings.prefsTopMarginTitle).assertCountEquals(0)
     }
 
     /**
-     * `StateRestorationTester` is not implemented on the skiko (JVM/iOS) test target, so recreation is
-     * emulated by disposing the whole composition and composing the slot afresh: the editor must come
-     * back on the same page, because its stack lives in [ReadingHostSlots], not in composition.
+     * Proves only that the open editor reappears on the same page when its composition is disposed and
+     * composed afresh, because the page stack lives in [ReadingHostSlots], not in composition. It does
+     * NOT exercise saved-instance-state save/restore: `StateRestorationTester` is not implemented on
+     * the skiko (JVM/iOS) test target, and the editor keeps no `rememberSaveable` state anyway.
      */
     @Test
-    fun editorStateSurvivesRecreation() = runComposeUiTest {
+    fun editorReappearsOnTheSamePageWhenTheCompositionIsRecreated() = runComposeUiTest {
         val (slots, _) = slots()
         var composed by mutableStateOf(true)
         slots.showTextSettingEditor(
