@@ -43,7 +43,7 @@ import net.bible.sharedcore.nav.NavRoutes
  * put the destination that reads `hostWindowRepository` back on screen.
  *
  * **Why a missing route is a LOUD default rather than the `requireNotNull` it used to be.** That
- * check was right while every caller was in-app code holding [NavHostComposeActivity.EXTRA_ROUTE].
+ * check was right while every caller was in-app code holding `NavHostComposeActivity.EXTRA_ROUTE`.
  * T8b's step 3 makes this host the `android:parentActivityName` of seven Activities, and the
  * platform synthesises a bare `Intent(context, NavHostComposeActivity::class.java)` — no extras —
  * for Up navigation and for `TaskStackBuilder.addParentStack`. A `requireNotNull` there is a crash

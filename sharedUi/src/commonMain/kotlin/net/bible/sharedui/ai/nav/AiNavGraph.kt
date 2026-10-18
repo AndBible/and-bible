@@ -254,11 +254,9 @@ class AiProvidersDeps(
  *   single-instance controller here): the lambdas close over `navController` itself, which is
  *   stable across recompositions, so nothing about them ever changes between builds.
  * - [onImportCsv]/[onExportCsv] are the SAF seam. Classic `exportPrompts()`/`importPrompts()` (now
- *   ported verbatim onto the HOST, not reimplemented — see
- *   [net.bible.android.view.activity.nav.NavHostComposeActivity]'s kdoc) need `awaitIntent` (an
- *   [net.bible.android.view.activity.base.ActivityBase] suspend bridge to a system file picker),
- *   `Toast`, `contentResolver` and `SharedConstants.modulesDir` — none of which `commonMain` can
- *   reach. Platform-dialog removal Task 14 moved the editable-vs-add-on CHOICE (what used to be an
+ *   ported verbatim onto the app host, `AiHost` in `net.bible.sharedui.app.ai`) need a system file picker
+ *   (`DocumentPicker`, whose Android implementation wraps the activity's launchers), a toast, a
+ *   `ContentResolver` and `SharedConstants.modulesDir`, which `AiHost` reaches through its ports. Platform-dialog removal Task 14 moved the editable-vs-add-on CHOICE (what used to be an
  *   `AlertDialog.Builder#setItems` pick-list inside `importPrompts()`) onto
  *   [AiPromptsController.chooseImportMode] — the host's `importPrompts()` now `await`s that instead
  *   of building its own dialog, which is exactly why [onControllerLifecycle] exists: the host has no
@@ -271,9 +269,8 @@ class AiProvidersDeps(
  *   `lifecycleScope`, cancelled only at `onDestroy()`. `installCsvAsAddon`'s file copy +
  *   `addCsvPromptBook` + cache-clear + `refresh()` sequence must not be cut mid-way (a partial
  *   write that is already registered as an add-on, with stale caches, is strictly worse than
- *   before). So the HOST launches these on its own `lifecycleScope` (`NavHostComposeActivity`
- *   supplies `onImportCsv = { lifecycleScope.launch { importPrompts() } }` and the equivalent for
- *   export) and the graph's arm merely calls the lambda — no coroutine scope of its own needed.
+ *   before). So the HOST launches these on its own `shell.hostScope` (`AiHost` supplies
+ *   `onImportCsv = { shell.hostScope.launch { importPrompts() } }` and the equivalent for export) and the graph's arm merely calls the lambda — no coroutine scope of its own needed.
  * - [onResume] is classic `AiPromptsComposeActivity.onResume { service.refresh() }`: a child
  *   PromptEdit save does not emit `AiSettings.configChanged` (no prompt write calls `notifyConfigChanged`), and CSV imports and
  *   add-on installs performed here (or an add-on installed from somewhere else entirely) need an

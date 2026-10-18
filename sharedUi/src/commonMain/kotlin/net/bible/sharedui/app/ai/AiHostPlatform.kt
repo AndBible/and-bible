@@ -42,7 +42,11 @@ interface AiHostPlatform {
     /** The language picker's options: the app default, one per supported locale, and a trailing [AI_CUSTOM_LANGUAGE_TAG]. */
     fun languageChoices(): List<SettingsItem.Choice>
 
-    /** [epochMs] as `yyyy-MM-dd HH:mm` in the device locale (the raw log screen's title). */
+    /**
+     * [epochMs] as `yyyy-MM-dd HH:mm` in the device locale (the raw log screen's title). Deliberately
+     * `SimpleDateFormat(Locale.getDefault())` on Android, for exact parity with the old activity code, and not the
+     * `DateTimeFormats.pattern` port; do not simplify it.
+     */
     fun formatLogTimestamp(epochMs: Long): String
 
     /** The error dialog with the report and backup actions (`ErrorReportControl.showErrorDialog`). */

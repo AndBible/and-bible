@@ -76,7 +76,8 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
 
     override suspend fun createDocument(suggestedName: String, mimeType: String): DocumentRef? =
         CompletableDeferred<Uri?>().also { pendingCreate?.complete(null); pendingCreate = it }
-            .also { createLauncher.launch(suggestedName to mimeType) }.await()?.let { DocumentRef(it.toString()) }
+            .also { launchOrThrow({ pendingCreate = null }) { createLauncher.launch(suggestedName to mimeType) } }
+            .await()?.let { DocumentRef(it.toString()) }
 
     override suspend fun openDocumentTree(): DocumentRef? {
         orphanTree = null   // a new normal pick supersedes an unclaimed stale result

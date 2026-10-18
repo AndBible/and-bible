@@ -10,6 +10,8 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedui.app.HostShell
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.strings.iosStrings
 import java.lang.reflect.Proxy
@@ -46,19 +48,30 @@ class AiHostTest {
         override suspend fun execute(arguments: JsonObject, context: AgentContext): ToolResult = error("unused")
     }
 
+    private val written = mutableListOf<Pair<String, String>>()
+    private val infos = mutableListOf<String>()
+
     private fun host(tools: List<Tool> = emptyList()) = AiHost(
         shell = shell,
         strings = strings,
         textShare = object : TextShare {
             override fun shareText(text: String, chooserTitle: String) { shared += text to chooserTitle }
         },
-        clipboard = unused(),
+        clipboard = object : ClipboardText {
+            override fun read(): String? = error("unused")
+            override fun write(label: String, text: String) { written += label to text }
+        },
         helpDialogs = unused(),
         documentPicker = unused(),
         promptFiles = unused(),
         bugReport = unused(),
         platform = unused(),
-        userNotifierProvider = { error("unused") },
+        userNotifierProvider = {
+            object : UserNotifier {
+                override fun showInfo(message: String, long: Boolean) { infos += message }
+                override fun showError(message: String, cause: Throwable?) = error("unused")
+            }
+        },
         appScopeProvider = { error("unused") },
         aiSettingsProvider = { error("unused") },
         aiSettingsServiceProvider = { error("unused") },
@@ -76,6 +89,13 @@ class AiHostTest {
     fun rawLogShareUsesTextShare() {
         host().shareRawLlmLog(recordId = "r1", workspaceId = null, recordText = "LOG TEXT")
         assertEquals(listOf("LOG TEXT" to strings.shareLabel), shared)
+    }
+
+    @Test
+    fun rawLogCopyWritesClipboard() {
+        host().copyRawLlmLog(recordId = "r1", workspaceId = null, recordText = "LOG TEXT")
+        assertEquals(listOf("Raw LLM Log" to "LOG TEXT"), written)
+        assertEquals(listOf(strings.rawLlmLogCopied), infos)
     }
 
     @Test

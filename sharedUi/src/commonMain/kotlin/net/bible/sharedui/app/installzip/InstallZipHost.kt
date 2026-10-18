@@ -195,7 +195,7 @@ class InstallZipHost(
     @Composable
     fun Overlays() {
         // Ordering dependency: [results] is set by [navDeps], so the graph's deps must be built before this composes
-        // (the activity builds them in a `remember` ahead of AppRoot; Task 16's AppHosts.graphs must keep that order).
+        // (the activity calls [AppHosts.graphs] in a `remember` ahead of AppRoot).
         val channel = results ?: return
         val pending by channel.pending.collectAsState()
         LaunchedEffect(pending) {
