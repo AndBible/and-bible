@@ -82,7 +82,7 @@ class DocumentSync(
      */
     val runningChanged: Events<Boolean> get() = runningSource
 
-    internal fun notifyRunning(running: Boolean) = runningSource.emit(running)
+    fun notifyRunning(running: Boolean) = runningSource.emit(running)
 
     @VisibleForTesting
     fun resetSubscribersForTest() { runningSource = EventSource() }

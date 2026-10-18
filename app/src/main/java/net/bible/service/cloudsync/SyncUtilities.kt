@@ -215,7 +215,7 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, env: App
 }
 
 /** Records completion before notifying consumers. */
-internal fun recordSyncFinished(settings: AppSettings, cloudSync: CloudSync, now: Long = Clock.System.now().toEpochMilliseconds()) {
+fun recordSyncFinished(settings: AppSettings, cloudSync: CloudSync, now: Long = Clock.System.now().toEpochMilliseconds()) {
     settings.setLong("globalLastSynchronized", now)
     cloudSync.notifySyncRunning(false)
 }

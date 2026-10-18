@@ -99,7 +99,7 @@ class KeyHistoryItem(
 }
 
 /** Display name of a [Key]; a verse 0 loses its trailing " 0" (chapter introductions). */
-internal fun keyDescription(key: Key): String {
+fun keyDescription(key: Key): String {
     var name: String
     try {
         name = key.getName()

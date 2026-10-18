@@ -51,7 +51,7 @@ import org.koin.mp.KoinPlatform
 
 /** Mirrors classic `InstallZip.installStudyPads`'s unzip + stats step, operating on the
  *  already-acquired local file instead of re-opening the original uri. */
-internal suspend fun studyPadStatsFor(localFile: Path, backup: BackupControl, strings: CoreStrings): Pair<String, Path> {
+suspend fun studyPadStatsFor(localFile: Path, backup: BackupControl, strings: CoreStrings): Pair<String, Path> {
     val unzipFolder = backup.internalDbBackupDir / "unzip"
     unzip(localFile, unzipFolder)
     val dbFile = unzipFolder / "db/${BookmarkDatabase.dbFileName}"
@@ -61,7 +61,7 @@ internal suspend fun studyPadStatsFor(localFile: Path, backup: BackupControl, st
 
 
 /** Sniffs the same 16-byte header as the URI host, against the acquired local file. */
-internal suspend fun determineLocalFileType(file: Path): BackupFileType = withContext(Dispatchers.IO) {
+suspend fun determineLocalFileType(file: Path): BackupFileType = withContext(Dispatchers.IO) {
     try {
         FileSystem.SYSTEM.source(file).buffer().use { inputStream ->
             val header = ByteArray(16)
@@ -129,7 +129,7 @@ private fun currentEntryIsMyBible(zin: ZipReader): Boolean {
  * `File`, which resolves against the JVM's working directory rather than the download dir --
  * not reproduced here, as it only ever fed a display string).
  */
-internal fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
+fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
     val targetDirectory = SwordBookPath.getSwordDownloadDir()
     val existingFiles = mutableListOf<String>()
     val otherFiles = mutableListOf<String>()
@@ -201,7 +201,7 @@ internal fun scanSwordZip(localFile: Path): InstallInspector.SwordZipScan {
  * confirmation is needed only when the epub is already installed, has genuine bookmarks/notes
  * against it, AND its persisted optimizer version is behind the current one.
  */
-internal suspend fun checkEpubUpgrade(displayName: String): Boolean {
+suspend fun checkEpubUpgrade(displayName: String): Boolean {
     val dir = KoinPlatform.getKoin().get<AppDirectories>().modulesDir / "epub/$displayName"
     if (!FileSystem.SYSTEM.exists(dir)) return false
     val initials = epubInitials(displayName)

@@ -10,4 +10,4 @@ interface WebDavSignInUi {
     fun message(kind: WebDavMessage): String
 }
 
-internal fun formatFingerprint(sha256: String): String = sha256.chunked(2).joinToString(":")
+fun formatFingerprint(sha256: String): String = sha256.chunked(2).joinToString(":")

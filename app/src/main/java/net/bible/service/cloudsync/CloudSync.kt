@@ -85,7 +85,7 @@ class CloudSync(
     /** `true` when a cloud sync starts, `false` when it finishes (replaces `CloudSyncEvent`). */
     val runningChanged: Events<Boolean> get() = runningSource
 
-    internal fun notifySyncRunning(running: Boolean) = runningSource.emit(running)
+    fun notifySyncRunning(running: Boolean) = runningSource.emit(running)
 
     private var refreshSource = EventSource<Unit>()
 
@@ -404,7 +404,7 @@ class CloudSync(
     }
 
     /** Drops the adapter so the next foreground sync signs in again (and can prompt), keeping all sync state. */
-    internal fun dropAdapterForReconnect() { _adapter = null }
+    fun dropAdapterForReconnect() { _adapter = null }
 
     /**
      * Notifies once per sync. Only records [needsReconnect]; the adapter is dropped after every
@@ -419,7 +419,7 @@ class CloudSync(
         if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message ?: "", showReportButton = false)
     }
 
-    internal suspend fun synchronize() = withContext(Dispatchers.IO) {
+    suspend fun synchronize() = withContext(Dispatchers.IO) {
         documentSettings.ensureLoaded()
         if(!signedIn) {
             Log.i(TAG, "Not signed in")
