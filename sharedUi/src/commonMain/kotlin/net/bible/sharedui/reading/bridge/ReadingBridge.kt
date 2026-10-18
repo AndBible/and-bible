@@ -52,7 +52,8 @@ import org.koin.mp.KoinPlatform
  * Platform-independent implementation of the JS bridge ([BibleBridge]) for one reading window.
  *
  * Calls arrive on any thread (Android: the WebView JavaBridge thread). Every method drops the call
- * when the session is disposed (window closed or document replaced); deferred calls first answer the
+ * when the session is disposed (today only when the platform view is destroyed, e.g. a workspace
+ * switch or reload; disposing on window close is phase 2); deferred calls first answer the
  * JS promise with null so it never hangs. A failing deferred handler also answers null/empty.
  *
  * The platform adapter (`BibleJavascriptInterface`) only delegates to this class.

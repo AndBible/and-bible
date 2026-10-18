@@ -109,7 +109,7 @@ class ReadingBridgeBookmarkFamilyTest {
             session.dispose()
             appScope.cancel()
             hostScope.cancel()
-            DatabaseResetter.resetDatabase(repo.scope)
+            DatabaseResetter.resetDatabase(repo.scope, appScope, hostScope)
         } finally {
             CommonUtils.windowControl.windowRepository = originalRepo
         }
@@ -193,5 +193,46 @@ class ReadingBridgeBookmarkFamilyTest {
         navigator.stub { onBlocking { assignLabels(any(), any()) } doReturn listOf(l1.id, l2.id) }
         runBlocking { BookmarkCreation(session, control).assignLabels(b) }
         assertEquals(setOf(l1.id, l2.id), runBlocking { control.labelsForBookmark(b) }.map { it.id }.toSet())
+    }
+
+    @Test fun labelChoiceIsWrittenEvenWhenTheSessionIsDisposedWhileTheChooserIsOpen() {
+        val l1 = label("L1")
+        val l2 = label("L2")
+        val b = runBlocking { control.addOrUpdateBibleBookmark(bookmark("Ps 119:1"), setOf(l1.id)) }
+        val chooserOpen = CompletableDeferred<Unit>()
+        val choice = CompletableDeferred<List<net.bible.android.database.IdType>?>()
+        // A chooser that stays open until the test completes [choice] (the user still choosing).
+        val openChooser = object : ReadingNavigator by navigator {
+            override suspend fun assignLabels(
+                bookmark: BookmarkEntities.BaseBookmarkWithNotes,
+                labelIds: List<net.bible.android.database.IdType>,
+            ): List<net.bible.android.database.IdType>? {
+                chooserOpen.complete(Unit)
+                return choice.await()
+            }
+        }
+        session = BibleWindowSession(
+            repo.activeWindow, BibleViewJsChannel(mock<JsHost>()) {}, { hostScope },
+            mock<ReadingWindowSurface>(), openChooser,
+            windowControlProvider = { windowControl }, bookmarkControlProvider = { control },
+        )
+        bridge = ReadingBridge(session) { jsActions }
+        bridge.assignLabels(b.id.toString())
+        awaitOnMain { chooserOpen.isCompleted }
+        // The view is destroyed (workspace switch / reload) while the chooser is still open.
+        session.dispose()
+        choice.complete(listOf(l2.id))
+        awaitOnMain { runBlocking { control.labelsForBookmark(b) }.map { it.id } == listOf(l2.id) }
+        assertEquals(listOf(l2.id), runBlocking { control.labelsForBookmark(b) }.map { it.id })
+    }
+
+    /** Pumps the Robolectric main looper (the chooser runs on Main) until [condition] holds. */
+    private fun awaitOnMain(condition: () -> Boolean) {
+        val deadline = System.currentTimeMillis() + 10_000
+        while (!condition()) {
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            check(System.currentTimeMillis() < deadline) { "timed out waiting for condition" }
+            Thread.sleep(20)
+        }
     }
 }

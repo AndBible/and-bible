@@ -40,7 +40,8 @@ import org.koin.mp.KoinPlatform
  * [BookmarkJsActions] under the window's id (the per-window ordered queue), so a window's writes run
  * in call order. Data writes are not dropped after the session is disposed: they are keyed by
  * bookmark/label id (never by window state) and dropping a note save would lose user input;
- * only the label chooser UI is skipped for a disposed session.
+ * only the label chooser UI is skipped for a disposed session. A chooser already open when the session
+ * is disposed (view destroyed) still saves its result: it runs on the host-lifetime scope.
  */
 internal class BookmarkBridgeFamily(
     private val session: BibleWindowSession,
@@ -86,7 +87,9 @@ internal class BookmarkBridgeFamily(
     /** The chooser runs on the main thread beside the queue, so an open dialog does not block the window's writes. */
     private fun launchAssignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) {
         if (session.isDisposed) return
-        session.scope.launch(Dispatchers.Main) { creation.assignLabels(bookmark) }
+        // Host lifetime, as at base (BibleView.assignLabels ran on the activity scope): the chosen labels are
+        // user data, so the write must survive the session being disposed while the chooser is open.
+        session.hostLifetimeScope.launch(Dispatchers.Main) { creation.assignLabels(bookmark) }
     }
 
     fun setBookmarkEditAction(bookmarkId: String, valueStr: String) {

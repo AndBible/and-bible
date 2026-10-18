@@ -23,6 +23,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
@@ -92,5 +94,28 @@ class BibleWindowSessionTest {
         assertTrue(s.isDisposed)
         assertFalse(s.emit(BibleViewEvents.closeModals()))
         assertEquals(before, host.evaluated.size)
+    }
+
+    @Test
+    fun scopeFirstUsedAfterDisposeIsAlreadyCancelled() {
+        val s = session(FakeHost())
+        s.dispose() // before `scope` was ever touched
+        assertFalse(s.scope.isActive)
+        var ran = false
+        kotlinx.coroutines.runBlocking { s.scope.launch { ran = true }.join() }
+        assertFalse(ran)
+    }
+
+    @Test
+    fun hostLifetimeScopeSurvivesDispose() {
+        val host = TestScope()
+        val s = BibleWindowSession(
+            window = null, jsChannel = BibleViewJsChannel(FakeHost()) {}, hostScope = { host },
+            surface = surface, navigator = unusedNavigator(),
+        )
+        assertTrue(s.scope.isActive)
+        s.dispose()
+        assertFalse(s.scope.isActive)
+        assertTrue(s.hostLifetimeScope.isActive)
     }
 }

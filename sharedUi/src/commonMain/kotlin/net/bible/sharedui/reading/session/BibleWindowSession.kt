@@ -67,16 +67,29 @@ class BibleWindowSession(
     searchControlProvider: () -> SearchControl = { KoinPlatform.getKoin().get() },
     pageControlProvider: () -> PageControl = { KoinPlatform.getKoin().get() },
 ) {
+    private val hostScopeProvider = hostScope
+
     private val sessionScope = lazy {
-        val parent = hostScope()
+        val parent = hostScopeProvider()
         CoroutineScope(parent.coroutineContext + SupervisorJob(parent.coroutineContext[Job]))
     }
 
     /**
+     * The host's own scope (Android: the activity's lifecycle scope). It is NOT cancelled by [dispose], so
+     * use it only for a user-visible flow that must finish its data write even if the view is torn down
+     * meanwhile (e.g. the label chooser). Everything else belongs on [scope].
+     */
+    val hostLifetimeScope: CoroutineScope get() = hostScopeProvider()
+
+    /**
      * Session-owned scope: a child of the host scope that [dispose] cancels. Resolved on first use
      * because Android's lifecycle scope is not available while the view is still being constructed.
+     * After [dispose] this is a cancelled scope, so a late launch never runs.
      */
-    val scope: CoroutineScope get() = sessionScope.value
+    val scope: CoroutineScope
+        get() = if (isDisposed) cancelledScope else sessionScope.value
+
+    private val cancelledScope: CoroutineScope by lazy { CoroutineScope(Job().apply { cancel() }) }
 
     val windowControl: WindowControl by lazy(windowControlProvider)
     val bookmarkControl: BookmarkControl by lazy(bookmarkControlProvider)
@@ -140,7 +153,7 @@ class BibleWindowSession(
     /** Cancels session jobs; later [emit] calls are dropped. */
     fun dispose() {
         isDisposed = true
-        if (sessionScope.isInitialized()) scope.cancel()
+        if (sessionScope.isInitialized()) sessionScope.value.cancel()
     }
 }
 
