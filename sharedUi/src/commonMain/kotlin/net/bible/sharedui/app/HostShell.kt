@@ -22,6 +22,12 @@ interface HostShell {
      */
     val windowTitle: String get() = ""
 
+    /**
+     * False once the host is finishing or destroyed, so results that arrive later are not delivered into it.
+     * Android: `!isDestroyed && !isFinishing`.
+     */
+    val isHostAlive: Boolean get() = true
+
     /** Back to the reading destination, as `startActivity(intentFor(READING), CLEAR_TOP|SINGLE_TOP)` does today. */
     fun openReading()
 

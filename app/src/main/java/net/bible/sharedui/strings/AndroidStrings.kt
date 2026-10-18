@@ -290,6 +290,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun confirmDeleteOrphanedBookmarks(count: Int): String = context.getString(R.string.confirm_delete_orphaned_bookmarks, count)
     override val deleteLabelAndBookmarks: String get() = context.getString(R.string.delete_label_and_bookmarks)
     override val deleteLabelOnly: String get() = context.getString(R.string.delete_label_only)
+    override fun myDocumentPagesTitle(documentName: String): String = context.getString(R.string.my_document_pages_title, documentName)
+    override val myDocumentExportSuccess: String get() = context.getString(R.string.my_document_export_success)
+    override val myDocumentImportEmptySelection: String get() = context.getString(R.string.my_document_import_empty_selection)
     // --- end I2 Stream A (app root) ---
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val okay: String get() = context.getString(R.string.okay)

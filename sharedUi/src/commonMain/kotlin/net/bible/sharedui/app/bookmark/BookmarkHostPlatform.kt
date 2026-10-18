@@ -7,7 +7,7 @@ import net.bible.android.view.activity.bookmark.MyDocumentsSearchValue
 
 /**
  * The parts of [net.bible.android.view.activity.bookmark.BookmarkRecreationState] that belong to the My Documents
- * screens. Their sessions still live in the Android host (until the My Documents lift), so the platform reads them.
+ * screens. Their sessions live in `MyDocumentsHost`; the Android platform reads them from there.
  * A null part means "not currently on screen"; the host then keeps what the saved state carried.
  */
 class BookmarkDocumentsRecreation(

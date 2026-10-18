@@ -293,6 +293,9 @@ interface Strings {
     fun confirmDeleteOrphanedBookmarks(count: Int): String    // R.string.confirm_delete_orphaned_bookmarks
     val deleteLabelAndBookmarks: String       // R.string.delete_label_and_bookmarks
     val deleteLabelOnly: String               // R.string.delete_label_only
+    fun myDocumentPagesTitle(documentName: String): String    // R.string.my_document_pages_title
+    val myDocumentExportSuccess: String       // R.string.my_document_export_success
+    val myDocumentImportEmptySelection: String  // R.string.my_document_import_empty_selection
     // --- end I2 Stream A (app root) ---
     val errorOccurred: String
     val okay: String

@@ -39,6 +39,8 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.ports.TextDisplayPlatform
+import net.bible.sharedui.app.mydocuments.MyDocumentsHost
+import net.bible.sharedui.app.mydocuments.MyDocumentsRecreationState
 import net.bible.sharedui.app.readingplan.ReadingPlanHost
 import net.bible.sharedui.app.readingplan.ReadingPlanRecreationState
 import net.bible.sharedui.app.search.SearchHost
@@ -63,6 +65,8 @@ data class AppHostsState(
     val bookmarks: BookmarkRecreationState? = null,
     /** The plans reset since they were last chosen; null when there are none. */
     val readingPlan: ReadingPlanRecreationState? = null,
+    /** The My Documents export waiting for its folder picker; null when there is none. */
+    val myDocuments: MyDocumentsRecreationState? = null,
 )
 
 /**
@@ -212,6 +216,26 @@ class AppHosts(
      */
     val readingPlan: ReadingPlanHost by readingPlanLazy
 
+    private val myDocumentsLazy = lazy {
+        MyDocumentsHost(
+            shell = shell,
+            strings = strings,
+            documentPicker = ports.documentPicker,
+            files = ports.myDocumentFiles,
+            userNotifierProvider = { koin.get<UserNotifier>() },
+            restoredDocumentsSearch = { bookmark.restoredState?.documentsSearch },
+            restoredPages = { bookmark.restoredState?.pages },
+            consumeRestoredPages = { bookmark.updateRestored { it?.copy(pages = null) } },
+            restored = current.myDocuments,
+        )
+    }
+
+    /**
+     * The My Documents cluster's deps builder (document list, pages editor) with its import/export state. Built on
+     * first use; the database is read only when a screen loads or an export runs, so this touches no database.
+     */
+    val myDocuments: MyDocumentsHost by myDocumentsLazy
+
     /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
     fun onHostDestroy() {
         if (workspaceLazy.isInitialized()) workspace.onHostDestroy()
@@ -253,6 +277,13 @@ class AppHosts(
                 .getOrDefault(current.readingPlan)
             current = current.copy(readingPlan = plan)
         }
+        if (myDocumentsLazy.isInitialized()) {
+            val exports = runCatching {
+                myDocuments.recreationSnapshot().takeUnless { it == MyDocumentsRecreationState() }
+            }.onFailure { Log.e(TAG, "Saving the My Documents host state failed", it) }
+                .getOrDefault(current.myDocuments)
+            current = current.copy(myDocuments = exports)
+        }
         return current
     }
 
@@ -260,5 +291,6 @@ class AppHosts(
         current = state ?: AppHostsState()
         if (bookmarkLazy.isInitialized()) bookmark.updateRestored { current.bookmarks }
         if (readingPlanLazy.isInitialized()) readingPlan.restore(current.readingPlan)
+        if (myDocumentsLazy.isInitialized()) myDocuments.restore(current.myDocuments)
     }
 }

@@ -31,4 +31,6 @@ class HostPorts(
     val bookmarkPlatform: () -> BookmarkHostPlatform,
     /** The platform half of the reading plan cluster; a provider because the host builds it on first use. */
     val readingPlanPlatform: () -> ReadingPlanHostPlatform,
+    /** The file I/O of the My Documents screens, which needs the Activity on Android. */
+    val myDocumentFiles: MyDocumentFiles,
 )

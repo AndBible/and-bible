@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import net.bible.android.view.activity.bookmark.BookmarkRecreationState
 import net.bible.android.view.activity.bookmark.BookmarksValue
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.app.mydocuments.MyDocumentsRecreationState
 import net.bible.sharedui.app.readingplan.ReadingPlanRecreationState
 import net.bible.sharedui.strings.iosStrings
 import org.koin.dsl.koinApplication
@@ -76,5 +77,20 @@ class AppHostsStateRoundTripTest {
         // A fresh start carries nothing, so the empty snapshot is stored as absent.
         appHosts.restoreState(null)
         assertEquals(null, appHosts.saveState().readingPlan)
+    }
+
+    @Test
+    fun myDocumentsStateRoundTrips() {
+        val pending = MyDocumentsRecreationState(documentIds = listOf("11", "12"), documentsBatch = true)
+        val state = AppHostsState(myDocuments = pending)
+        val decoded = Json.decodeFromString<AppHostsState>(Json.encodeToString(state))
+        assertEquals(state, decoded)
+
+        val appHosts = hosts()
+        appHosts.restoreState(decoded)
+        assertEquals(pending, appHosts.saveState().myDocuments)
+        // A fresh start carries nothing, so the empty snapshot is stored as absent.
+        appHosts.restoreState(null)
+        assertEquals(null, appHosts.saveState().myDocuments)
     }
 }

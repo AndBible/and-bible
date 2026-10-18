@@ -211,7 +211,7 @@ class BookmarkRecreationStateTest {
         ).also { hosts += it }.create().start().resume().visible().get()
         awaitHostRoute(activity, NavRoutes.MY_DOCUMENTS_PATTERN, ::advance)
         fun documentsOrNull(host: NavHostComposeActivity): net.bible.sharedcore.mydocuments.MyDocumentsController? =
-            field(host, "myDocumentsSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentsController }
+            field(host.appHosts.myDocuments, "myDocumentsSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentsController }
         awaitHostCondition("MyDocuments real DAO initial load", ::advance) { documentsOrNull(activity)?.totalCount?.value == 2 }
         val old = requireNotNull(documentsOrNull(activity))
         // Reordering before selecting exercises the token-to-persistent-document identity boundary.
@@ -243,7 +243,7 @@ class BookmarkRecreationStateTest {
     }
 
     private fun pagesControllerOrNull(host: NavHostComposeActivity): net.bible.sharedcore.mydocuments.MyDocumentPagesController? =
-        field(host, "myDocumentPagesSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentPagesController }
+        field(host.appHosts.myDocuments, "myDocumentPagesSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentPagesController }
 
     @Test fun myDocumentPagesSearchAndSelectionSurviveRecreation() {
         val dao = net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao()
