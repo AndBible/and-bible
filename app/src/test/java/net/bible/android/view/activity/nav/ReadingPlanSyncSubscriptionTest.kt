@@ -3,6 +3,7 @@ package net.bible.android.view.activity.nav
 import android.os.Looper
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.sharedui.app.readingplan.subscribeToReadingPlanSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase

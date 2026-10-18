@@ -103,7 +103,7 @@ class ReadingPlanHost(
     var dayLoaded: Int = 0
         private set
     var planCodeLoaded: String? = null
-        internal set
+        internal set // test seam: ReadingPlanHostTest seeds the loaded plan
 
     /** Classic's "the selector was already offered once" memory, see [offerReadingPlanSelector]. */
     private var readingPlanSelectorOffered = false
@@ -494,12 +494,6 @@ class ReadingPlanHost(
     private fun subscribeReadingPlansUpdated(onReadingPlansChanged: () -> Unit): () -> Unit =
         subscribeToReadingPlanSync(onReadingPlansChanged)
 
-    /** Subscribes [onChanged] to reading-plan cloud syncs on main; each destination holds its own subscription. */
-    private fun subscribeToReadingPlanSync(onChanged: () -> Unit): () -> Unit {
-        val subscription = DatabaseContainer.readingPlansSynced.subscribeOnMain { onChanged() }
-        return { subscription.cancel() }
-    }
-
     /**
      * The plan import seam, ported from classic `:268-271`. The picked file goes straight to the InstallZip
      * destination as an ACTION_VIEW entry (confirm first), exactly the Intent classic built. Its result was ignored
@@ -511,4 +505,14 @@ class ReadingPlanHost(
             if (refs.isNotEmpty()) openInstallZip(INSTALL_ZIP_ACTION_VIEW, refs) {}
         }
     }
+}
+
+/**
+ * Subscribes [onChanged] to reading-plan cloud syncs, run on the main thread. Returns the unsubscribe function.
+ * Each destination holds its own subscription, so unsubscribing one never affects another. Shared by the host and
+ * covered by `ReadingPlanSyncSubscriptionTest` in `:app` (it needs the real `DatabaseContainer`).
+ */
+fun subscribeToReadingPlanSync(onChanged: () -> Unit): () -> Unit {
+    val subscription = DatabaseContainer.readingPlansSynced.subscribeOnMain { onChanged() }
+    return { subscription.cancel() }
 }

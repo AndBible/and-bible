@@ -54,6 +54,7 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
     override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean): List<DocumentRef> {
         val types = mimeTypes.ifEmpty { listOf("*/*") }
         return if (multiple) {
+            orphanOpenMultiple = null   // a new normal pick supersedes an unclaimed stale result
             CompletableDeferred<List<Uri>>().also { pendingOpenMultiple?.complete(emptyList()); pendingOpenMultiple = it }
                 .also { launchOrThrow({ pendingOpenMultiple = null }) { openMultipleLauncher.launch(types) } }.await().map { DocumentRef(it.toString()) }
         } else {
@@ -77,9 +78,11 @@ class AndroidDocumentPicker(activity: ComponentActivity) : DocumentPicker {
         CompletableDeferred<Uri?>().also { pendingCreate?.complete(null); pendingCreate = it }
             .also { createLauncher.launch(suggestedName to mimeType) }.await()?.let { DocumentRef(it.toString()) }
 
-    override suspend fun openDocumentTree(): DocumentRef? =
-        CompletableDeferred<Uri?>().also { pendingTree?.complete(null); pendingTree = it }
+    override suspend fun openDocumentTree(): DocumentRef? {
+        orphanTree = null   // a new normal pick supersedes an unclaimed stale result
+        return CompletableDeferred<Uri?>().also { pendingTree?.complete(null); pendingTree = it }
             .also { treeLauncher.launch(null) }.await()?.let { DocumentRef(it.toString()) }
+    }
 
     override suspend fun resumeOpenDocuments(): List<DocumentRef> {
         orphanOpenMultiple?.let { orphanOpenMultiple = null; return it.value.map { uri -> DocumentRef(uri.toString()) } }

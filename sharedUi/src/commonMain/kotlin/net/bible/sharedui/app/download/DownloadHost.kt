@@ -108,6 +108,7 @@ private const val REPO_REFRESH_DATE = "repoRefreshDate"
 private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
 private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
 
+// Twin of the :app SharedConstants JSON names (:sharedUi cannot depend on :app); keep in sync.
 private const val DATA_URL = "https://andbible.github.io/data/"
 private const val RECOMMENDED_JSON = "recommended_documents_v2.json"
 private const val BAD_DOCS_JSON = "bad_documents.json"
@@ -505,7 +506,7 @@ class DownloadHost(
         }
     }
 
-    private fun canRead(path: Path): Boolean = FileSystem.SYSTEM.exists(path)
+    private fun canRead(path: Path): Boolean = canReadFile(path)
 
     private suspend fun loadRecommendedDocuments(session: DownloadSession) {
         fetchConfig(session, RECOMMENDED_JSON, "Recommendations", "Could not load recommendations") {
@@ -994,3 +995,6 @@ class DownloadHost(
         DocumentInstallStatus.INSTALL_CANCELLED -> DocInstallStatus.INSTALL_CANCELLED
     }
 }
+
+/** True when [path] exists and can be opened for reading (the old `File.canRead()` semantics; false for an unreadable file). */
+internal fun canReadFile(path: Path): Boolean = runCatching { FileSystem.SYSTEM.source(path).close(); true }.getOrDefault(false)

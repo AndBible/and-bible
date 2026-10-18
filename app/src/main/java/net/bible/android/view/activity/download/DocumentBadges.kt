@@ -53,11 +53,11 @@ import org.crosswire.jsword.book.BookCategory
  * `nav/NavHostComposeActivity.kt`'s explicit imports. Moving the file to a "tidier" package is
  * still a needless churn, not a cleanup.
  *
- * [DocumentConfiguration], [net.bible.service.download.PseudoBook] and [Book.installedDocument] (now in `DocumentConfiguration.kt`, `:sharedUi`) were promoted here from
+ * [DocumentConfiguration], [net.bible.service.download.PseudoBook] and [Book.installedDocument] were promoted here from
  * `base/DocumentSelectionBase.kt` by nav-graph slice 8 F7, which deleted that abstract class (zero
  * subclasses): these three top-level declarations outlive it, consumed by
  * `nav/NavHostComposeActivity.kt`, `navigation/DocRowMapper.kt` and
- * `service/download/fakeBookFactory.kt`.
+ * `service/download/fakeBookFactory.kt`. `DocumentConfiguration.kt` has since moved to `:sharedUi`.
  */
 val BookCategory.imageResource: Int
     get() = when(this) {

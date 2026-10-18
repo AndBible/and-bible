@@ -85,9 +85,11 @@ class MyDocumentsHost(
     /**
      * Restores what the previous host instance was waiting for and resumes it. The platform redelivers a pick that
      * was open at recreation (see [DocumentPicker.resumeDocumentTree]); an export then runs as if the pick had
-     * happened in this instance, and a cancelled pick clears silently.
+     * happened in this instance, and a cancelled pick clears silently. A no-op while this instance already waits for
+     * a pick (a live one is open): resuming would complete that live pick with null.
      */
     fun restore(state: MyDocumentsRecreationState?) {
+        if (pendingExports.isPending || importPicking) return
         pendingExports.restoreFrom(state)
         importPicking = state?.importPicking ?: false
         if (pendingExports.isPending) {

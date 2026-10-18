@@ -36,12 +36,18 @@ class MyDocumentsHostTest {
     /** What the redelivered pick of the previous host instance answers; null = it was cancelled. */
     private var resumedTree: DocumentRef? = null
     private var resumedDocuments: List<DocumentRef> = emptyList()
+    private var resumeTreeCalls = 0
+    private var suspendResume = false
 
     private val picker = object : DocumentPicker {
         override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean) = emptyList<DocumentRef>()
         override suspend fun createDocument(suggestedName: String, mimeType: String): DocumentRef? = null
         override suspend fun openDocumentTree(): DocumentRef? { treePicks++; return null }
-        override suspend fun resumeDocumentTree(): DocumentRef? = resumedTree
+        override suspend fun resumeDocumentTree(): DocumentRef? {
+            resumeTreeCalls++
+            if (suspendResume) kotlinx.coroutines.awaitCancellation()
+            return resumedTree
+        }
         override suspend fun resumeOpenDocuments(): List<DocumentRef> = resumedDocuments
     }
 
@@ -122,6 +128,17 @@ class MyDocumentsHostTest {
         val host = host(MyDocumentsRecreationState(importPicking = true))
         assertEquals(null, host.myDocumentImportNamePrompt.value)
         assertEquals(MyDocumentsRecreationState(), host.recreationSnapshot())
+    }
+
+    @Test
+    fun restoreWhileAPickIsLiveIsANoOp() {
+        resumeTreeCalls = 0
+        suspendResume = true   // the redelivered pick has not arrived: the host stays pending
+        val host = host(MyDocumentsRecreationState(pageIds = listOf("p1")))
+        assertEquals(1, resumeTreeCalls)
+        host.restore(MyDocumentsRecreationState(pageIds = listOf("p1")))   // a live pick is open: must not resume it again
+        assertEquals(1, resumeTreeCalls)
+        assertEquals(listOf("p1"), host.recreationSnapshot().pageIds)
     }
 
     @Test

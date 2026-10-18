@@ -82,4 +82,30 @@ class AndroidDocumentPickerOrphanResultTest {
         second.activityResultRegistry.dispatchResult(rc, Activity.RESULT_OK, Intent().setData(treeUri))
         assertEquals(DocumentRef(treeUri.toString()), runBlocking { resumed.await() })
     }
+
+    @Test
+    fun aNewTreePickDiscardsAnUnclaimedStaleOrphan() {
+        val (second, rc) = recreatedWithPickOpen { it.openDocumentTree() }
+        second.activityResultRegistry.dispatchResult(rc, Activity.RESULT_OK, Intent().setData(treeUri))   // orphan, never claimed
+        val fresh = GlobalScope.async(Dispatchers.Unconfined) { second.picker.openDocumentTree() }
+        val newUri = Uri.parse("content://tree/new")
+        second.activityResultRegistry.dispatchResult(shadowOf(second).nextStartedActivityForResult.requestCode, Activity.RESULT_OK, Intent().setData(newUri))
+        assertEquals(DocumentRef(newUri.toString()), runBlocking { fresh.await() })
+        val resumed = GlobalScope.async(Dispatchers.Unconfined) { second.picker.resumeDocumentTree() }
+        assertFalse(resumed.isCompleted, "the stale orphan must not be returned")
+        resumed.cancel()
+    }
+
+    @Test
+    fun aNewDocumentsPickDiscardsAnUnclaimedStaleOrphan() {
+        val (second, rc) = recreatedWithPickOpen { it.openDocuments(listOf("text/*"), multiple = true) }
+        second.activityResultRegistry.dispatchResult(rc, Activity.RESULT_OK, Intent().setData(Uri.parse("content://docs/stale.md")))
+        val fresh = GlobalScope.async(Dispatchers.Unconfined) { second.picker.openDocuments(listOf("text/*"), multiple = true) }
+        val newUri = Uri.parse("content://docs/new.md")
+        second.activityResultRegistry.dispatchResult(shadowOf(second).nextStartedActivityForResult.requestCode, Activity.RESULT_OK, Intent().setData(newUri))
+        assertEquals(listOf(DocumentRef(newUri.toString())), runBlocking { fresh.await() })
+        val resumed = GlobalScope.async(Dispatchers.Unconfined) { second.picker.resumeOpenDocuments() }
+        assertFalse(resumed.isCompleted, "the stale orphan must not be returned")
+        resumed.cancel()
+    }
 }
