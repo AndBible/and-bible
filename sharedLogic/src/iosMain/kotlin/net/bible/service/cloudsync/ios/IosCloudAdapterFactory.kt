@@ -10,6 +10,7 @@ import net.bible.service.cloudsync.webdav.WebDavSignInUi
 import net.bible.service.cloudsync.webdav.WebDavStateStore
 import net.bible.service.cloudsync.webdav.nextcloudDavUrl
 import net.bible.sharedcore.platform.cloud.CloudFileStore
+import net.bible.sharedcore.webdav.WebDavClient
 import okio.Path
 import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
@@ -31,7 +32,7 @@ class IosCloudAdapterFactory(
     private val iCloudStore: () -> CloudFileStore,
     private val signInUi: WebDavSignInUi,
     private val tempDir: Path,
-    private val clientFactory: (WebDavConfig, WebDavStateStore) -> net.bible.sharedcore.webdav.WebDavClient =
+    private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient =
         { c, s -> createIosWebDavClient(c, s, ::nowMs) },
 ) : CloudAdapterFactory {
     override val available: List<String> = listOf("ICLOUD_DRIVE", "NEXT_CLOUD", "WEBDAV")
