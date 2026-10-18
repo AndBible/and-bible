@@ -43,6 +43,15 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedcore.platform.DateTimeFormats
+import net.bible.service.llm.AiSettings
+import net.bible.sharedcore.ai.AiSettingsService
+import net.bible.sharedcore.ai.DocumentFilterService
+import net.bible.sharedcore.ai.LlmModelService
+import net.bible.sharedcore.ai.LlmProviderService
+import net.bible.sharedcore.ai.PromptService
+import net.bible.sharedcore.ai.RawLogService
+import net.bible.sharedcore.ai.ToolPermissionService
+import net.bible.sharedui.app.ai.AiHost
 import net.bible.sharedui.app.backup.BackupFeatureHost
 import net.bible.sharedui.app.bookmark.BookmarkHost
 import net.bible.sharedui.app.chooser.ChooserHost
@@ -345,6 +354,34 @@ class AppHosts(
             // The bookmark host's saved state carries the screen's filters across a recreation.
             restoredFilters = { bookmark.restoredState?.cloudFilters },
             consumeRestoredFilters = { bookmark.updateRestored { state -> state?.copy(cloudFilters = null) } },
+        )
+    }
+
+    /**
+     * The AI cluster's deps builder. Built on first use; every service and controller behind it resolves lazily, so
+     * this touches no database.
+     */
+    val ai: AiHost by lazy {
+        AiHost(
+            shell = shell,
+            strings = strings,
+            textShare = ports.textShare,
+            clipboard = koin.get<ClipboardText>(),
+            helpDialogs = ports.helpDialogs,
+            documentPicker = ports.documentPicker,
+            promptFiles = ports.promptFiles,
+            bugReport = ports.bugReport,
+            platform = ports.aiPlatform,
+            userNotifierProvider = { koin.get<UserNotifier>() },
+            appScopeProvider = { koin.get<AppCoroutineScope>() },
+            aiSettingsProvider = { koin.get<AiSettings>() },
+            aiSettingsServiceProvider = { koin.get<AiSettingsService>() },
+            llmModelServiceProvider = { koin.get<LlmModelService>() },
+            llmProviderServiceProvider = { koin.get<LlmProviderService>() },
+            promptServiceProvider = { koin.get<PromptService>() },
+            rawLogServiceProvider = { koin.get<RawLogService>() },
+            documentFilterServiceProvider = { koin.get<DocumentFilterService>() },
+            toolPermissionServiceProvider = { koin.get<ToolPermissionService>() },
         )
     }
 

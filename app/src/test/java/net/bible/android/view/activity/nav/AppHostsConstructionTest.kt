@@ -81,6 +81,7 @@ class AppHostsConstructionTest {
                 beforeSwitchDocument = { },
             )
             standalone.readingPlan.navDeps(nav)
+            standalone.ai.navDeps(nav)
             standalone.backup.navDeps(nav)
             standalone.installZip.navDeps(nav, NavResultChannel<net.bible.sharedcore.nav.InstallZipResult> { })
             standalone.download.navDeps(

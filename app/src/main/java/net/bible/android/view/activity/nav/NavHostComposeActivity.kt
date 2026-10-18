@@ -16,14 +16,11 @@
  */
 package net.bible.android.view.activity.nav
 
-import okio.Path.Companion.toOkioPath
 import net.bible.android.view.activity.search.searchIntent
 import net.bible.android.platform.AndroidBackupHost
 
 import net.bible.android.control.document.DocumentChanges
 import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -32,7 +29,6 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.OpenableColumns
 import net.bible.sharedcore.log.Log
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -43,21 +39,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
@@ -71,11 +61,6 @@ import androidx.navigation.NavHostController
 import net.bible.sharedui.app.AppGraphs
 import net.bible.sharedui.app.AppRoot
 import androidx.navigation.compose.rememberNavController
-import java.io.File
-import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.reflect.KFunction1
 import net.bible.sharedcore.platform.AppCoroutineScope
@@ -84,8 +69,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.serialization.serializer
-import kotlinx.coroutines.withContext
-import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.control.event.UserMessages
@@ -100,15 +83,11 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.search.SearchControl
-import net.bible.android.control.report.AiBugReport
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.nav.ports.AndroidBookmarkHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidMyDocumentFiles
@@ -125,6 +104,9 @@ import net.bible.android.view.activity.nav.ports.AndroidImagePicker
 import net.bible.android.view.activity.nav.ports.AndroidNotificationPermission
 import net.bible.android.view.activity.nav.ports.AndroidSystemScreens
 import net.bible.android.view.activity.nav.ports.AndroidTextShare
+import net.bible.android.view.activity.nav.ports.AndroidAiHostPlatform
+import net.bible.android.view.activity.nav.ports.AndroidBugReportPlatform
+import net.bible.android.view.activity.nav.ports.AndroidPromptFiles
 import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppHostsState
 import net.bible.sharedui.app.HostShell
@@ -157,7 +139,6 @@ import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.syncScope
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.service.common.AndBibleAddons
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -166,47 +147,18 @@ import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.service.common.CommonUtils.pause
-import net.bible.service.common.displayName
 import net.bible.service.sword.hasUsableBible
 import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.llm.LlmCostTracker
-import net.bible.service.llm.PromptCsvUtils
 import okio.sink
 import okio.source
-import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.PendingAgentResult
-import net.bible.service.llm.tools.Tool
-import net.bible.service.llm.tools.ToolRegistry
-import net.bible.service.sword.csvprompt.addCsvPromptBook
-import okio.Path.Companion.toOkioPath
-import net.bible.sharedcore.ai.AgentPermissionModeIds
-import net.bible.sharedcore.docs.DocsLinks
 import android.Manifest
 import androidx.core.content.ContextCompat
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.android.view.activity.WelcomeFlow
-import net.bible.sharedcore.ai.AiConnectionLabels
-import net.bible.sharedcore.ai.AiConnectionSettingsController
-import net.bible.sharedcore.ai.AiDocumentFilterController
-import net.bible.sharedcore.ai.AiModelsController
-import net.bible.sharedcore.ai.AiProvidersController
-import net.bible.sharedcore.ai.AiPromptsController
-import net.bible.sharedcore.ai.AiSettingsService
-import net.bible.sharedcore.ai.DocumentFilterService
-import net.bible.sharedcore.ai.GlobalToolPermissionsController
-import net.bible.sharedcore.ai.ImportMode
-import net.bible.sharedcore.ai.LlmModelService
-import net.bible.sharedcore.ai.LlmProviderService
-import net.bible.sharedcore.ai.PromptEditController
-import net.bible.sharedcore.ai.PromptService
-import net.bible.sharedcore.ai.RawLlmLogController
-import net.bible.sharedcore.ai.RawLogHistoryController
-import net.bible.sharedcore.ai.RawLogService
-import net.bible.sharedcore.ai.ToolPermissionService
-import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.bookmark.LabelEditService
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.download.RepositoryResult
@@ -228,27 +180,14 @@ import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchResultsCache
-import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.HostSystemBars
 import net.bible.sharedui.components.LocalHostSystemBars
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
-import net.bible.sharedui.ai.nav.AiDocumentFilterDeps
-import net.bible.sharedui.ai.nav.AiModelsDeps
-import net.bible.sharedui.ai.nav.AiNavDeps
-import net.bible.sharedui.ai.nav.AiProvidersDeps
 import net.bible.sharedui.ai.nav.AiPromptsDeps
-import net.bible.sharedui.ai.nav.GlobalToolPermissionsDeps
-import net.bible.sharedui.ai.nav.PromptEditDeps
-import net.bible.sharedui.ai.nav.RawLlmLogDeps
-import net.bible.sharedui.ai.nav.RawLogHistoryDeps
-import net.bible.sharedui.ai.nav.ToolInfoDeps
-import net.bible.sharedui.ai.nav.aiNavGraph
 import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentPagesDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
-import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.nav.readingNavGraph
@@ -295,6 +234,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         installZipPlatform = { AndroidInstallZipHostPlatform(this) },
         downloadPlatform = { AndroidDownloadHostPlatform(this) },
         cloudDocumentsPlatform = { AndroidCloudDocumentsHostPlatform() },
+        promptFiles = AndroidPromptFiles(this),
+        bugReport = AndroidBugReportPlatform(this),
+        aiPlatform = AndroidAiHostPlatform(this),
     )
 
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
@@ -319,13 +261,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     override fun onBibleViewTouched() { composeReadingViewHost?.onBibleViewTouched() }
 
     private val backupControl: BackupControl by inject()
-    private val documentFilterService: DocumentFilterService by inject()
-    private val toolPermissionService: ToolPermissionService by inject()
-    private val llmModelService: LlmModelService by inject()
-    private val aiSettingsService: AiSettingsService by inject()
-    private val llmProviderService: LlmProviderService by inject()
-    private val promptService: PromptService by inject()
-    private val rawLogService: RawLogService by inject()
     private val speakControl: SpeakControl by inject()
     private val appScope: AppCoroutineScope by inject()
     private val orderedLauncher: net.bible.sharedcore.platform.OrderedLauncher by inject()
@@ -385,64 +320,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *  and `TextDisplaySettingsComposeActivity.kt:102`. The text-display one is the CONCRETE impl,
      *  not the `TextDisplaySettingsService` interface: the HIDELABELS bridge needs
      *  `currentHideLabelsIds`, which is not part of the portable interface. */
-
-    /**
-     * The AI cluster's three host-lifetime controllers and its two tool lists, LAZY for exactly the
-     * reason [appSettingsController] below is (whole-branch review I2).
-     *
-     * In slice 1 this host served ONLY the AI cluster, so assembling `AiNavDeps` eagerly inside
-     * `setContent` cost nothing that opening an AI screen would not have cost anyway. After slices
-     * 3/5/6 the same host also serves Search, Reading plan, Reading progress and Settings — the
-     * app's most common non-reading screens — and every one of those launches was paying the whole
-     * AI cluster's construction on the main thread before its first frame:
-     *
-     * - [AiModelsController]'s `init` starts a permanent `scope.launch { service.models.collect {…} }`
-     *   on `lifecycleScope`;
-     * - [AiConnectionSettingsController] needs [buildAiConnectionLabels] (~45 `getString` calls) and
-     *   its `init` starts a SECOND permanent collector that rebuilds the entire AI settings item tree
-     *   on every snapshot;
-     * - [AiProvidersController] is a third service-backed instance;
-     * - `ToolRegistry.getAllTools()` plus two full `map`/`filter` passes build the tool-info view data.
-     *
-     * Behind the deps' `() -> …` getters, none of it runs until an AI DESTINATION composes — which is
-     * what the arms' `remember { d.controller() }` / `remember { d.readTools() }` resolve to. Lazy
-     * FIELDS rather than per-entry factories, deliberately, for [appSettingsController]'s reason: the
-     * collectors and the snapshot should outlive one back-stack entry's composition.
-     */
-    private val aiModelsController by lazy {
-        AiModelsController(service = llmModelService, scope = lifecycleScope)
-    }
-
-    private val aiConnectionSettingsController by lazy {
-        AiConnectionSettingsController(
-            service = aiSettingsService,
-            scope = lifecycleScope,
-            labels = buildAiConnectionLabels(),
-            // The real navigation branching lives in aiNavGraph's AI_CONNECTION_SETTINGS arm (six of
-            // its seven edges are navController.navigate(...); RESET_USAGE requests the controller's
-            // own dialog state), not here — see AiConnectionSettingsDeps' kdoc. This constructor
-            // param is required but unused: the screen's onNavigate is wired directly in the graph,
-            // never through controller::onNavigate.
-            onNavigate = {},
-            // Task 14: the reset-usage question is now the controller's own dialog state;
-            // confirmDialog() runs this callback, which still needs DatabaseContainer/LlmCostTracker
-            // (no :sharedCore equivalent).
-            onResetUsageConfirm = { resetAiConnectionUsage() },
-        )
-    }
-
-    private val aiProvidersController by lazy {
-        AiProvidersController(service = llmProviderService, scope = lifecycleScope)
-    }
-
-    /**
-     * `ToolRegistry.getAllTools()` once, split the way `ToolInfoScreen` wants it. One `by lazy`
-     * behind the other two so a host that never opens Tool info never calls into the registry at
-     * all — and a host that does still walks it exactly once.
-     */
-    private val allAiTools by lazy { ToolRegistry.getAllTools() }
-    private val aiReadTools by lazy { allAiTools.filter { !it.requiresPermission }.map { it.toToolVd() } }
-    private val aiWriteTools by lazy { allAiTools.filter { it.requiresPermission }.map { it.toToolVd() } }
 
     /**
      * The route `HistoryManager` should re-launch for whatever this host currently shows, or null
@@ -3150,131 +3027,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         navigateToRoute(navController, route)
                     }
                 }
-                val deps = remember {
-                    AiNavDeps(
-                        exitHost = { finish() },
-                        setWindowTitle = { title -> setTitle(title) },
-                        toolInfo = ToolInfoDeps(
-                            readTools = { aiReadTools },
-                            writeTools = { aiWriteTools },
-                            helpBody = { getString(R.string.help_tool_info_text) },
-                            helpReadMoreUrl = DocsLinks.page("ai", "ai-tools"),
-                        ),
-                        aiDocumentFilter = AiDocumentFilterDeps(
-                            // A fresh instance per back-stack entry -- see AiDocumentFilterDeps'
-                            // kdoc (C1: this used to be a single remember{} at host scope, which is
-                            // why "Discard changes?" did not actually discard anything).
-                            controllerFor = { AiDocumentFilterController(service = documentFilterService, scope = lifecycleScope) },
-                            helpBody = { getString(R.string.help_ai_document_filter_text) },
-                            helpReadMoreUrl = DocsLinks.page("ai", "available-data-and-documents"),
-                        ),
-                        globalToolPermissions = GlobalToolPermissionsDeps(
-                            // Same fix, same reason -- see AiDocumentFilterDeps' kdoc (C1).
-                            controllerFor = { GlobalToolPermissionsController(service = toolPermissionService, scope = lifecycleScope) },
-                            helpBody = { getString(R.string.help_global_tool_permissions_text) },
-                            helpReadMoreUrl = DocsLinks.page("ai", "setting-permissions"),
-                        ),
-                        aiModels = AiModelsDeps(
-                            controller = { aiModelsController },
-                            providersForPicker = { llmModelService.providersForPicker() },
-                            helpBody = { getString(R.string.help_ai_models_text) },
-                            helpReadMoreUrl = DocsLinks.page("ai", "available-models"),
-                            onResume = { lifecycleScope.launch { llmModelService.refresh() } },
-                        ),
-                        aiConnectionSettings = AiConnectionSettingsDeps(
-                            controller = { aiConnectionSettingsController },
-                            languageChoices = { buildAiLanguageChoices() },
-                            customLanguageTag = CUSTOM_LANGUAGE_TAG,
-                            onCustomPromptSave = { key, value -> onAiConnectionCustomPromptSave(key, value) },
-                            customPromptTextFor = { key -> aiConnectionCustomPromptTextFor(key) },
-                            actions = { AiConnectionHelpAction() },
-                            onResume = { lifecycleScope.launch { aiSettingsService.refresh() } },
-                        ),
-                        aiProviders = AiProvidersDeps(
-                            controller = { aiProvidersController },
-                            helpBody = { getString(R.string.help_ai_providers_text) },
-                            helpReadMoreUrl = DocsLinks.page("ai", "choosing-a-provider"),
-                            unknownErrorMessage = { getString(R.string.unknown_error) },
-                            onResume = { lifecycleScope.launch { llmProviderService.refresh() } },
-                        ),
-                        aiPrompts = AiPromptsDeps(
-                            controllerFor = { onOpenPrompt, onNewPrompt, onOpenConnectionSettings ->
-                                AiPromptsController(
-                                    service = promptService,
-                                    scope = lifecycleScope,
-                                    onOpenPrompt = onOpenPrompt,
-                                    onNewPrompt = onNewPrompt,
-                                    onOpenConnectionSettings = onOpenConnectionSettings,
-                                )
-                            },
-                            helpBody = { getString(R.string.help_ai_settings_text) },
-                            helpReadMoreUrl = DocsLinks.page("ai"),
-                            // Launched on THIS host's lifecycleScope, not a scope owned by the
-                            // graph's composable arm -- see AiPromptsDeps' kdoc for why: a
-                            // rememberCoroutineScope() in that arm would be cancelled the instant
-                            // its back-stack entry stops being the top one (near-instant on
-                            // Up/navigate), unlike lifecycleScope (cancelled only at
-                            // onDestroy()), and interrupting installCsvAsAddon's file-copy+DB
-                            // sequence mid-way is strictly worse than classic's behaviour.
-                            onImportCsv = { lifecycleScope.launch { importPrompts() } },
-                            onExportCsv = { lifecycleScope.launch { exportPrompts() } },
-                            onResume = { lifecycleScope.launch { promptService.refresh() } },
-                            // Task 14: the live controller this arm builds, published for exactly as
-                            // long as the AI_PROMPTS destination's composition is alive -- see
-                            // AiPromptsDeps.onControllerLifecycle's kdoc. importPrompts() below reads
-                            // it to await chooseImportMode(), and AppDialogOverlay's onSheetOpening
-                            // reads it to dismiss a showing import-mode choice.
-                            onControllerLifecycle = { liveAiPromptsController = it },
-                            // M5 fix-round: the read half of the same field -- see
-                            // AiPromptsDeps.currentController's kdoc.
-                            currentController = { liveAiPromptsController },
-                        ),
-                        promptEdit = PromptEditDeps(
-                            controllerFor = { promptId, template, defaultContext ->
-                                PromptEditController(
-                                    service = promptService,
-                                    promptId = promptId,
-                                    template = template,
-                                    defaultContext = defaultContext,
-                                )
-                            },
-                            categories = { promptService.categories() },
-                            toolsByCategory = { promptService.toolsByCategory() },
-                            modelChoices = { promptService.modelChoices() },
-                            globalToolPermission = { toolId -> promptService.globalToolPermission(toolId) },
-                            globalMaxIterationsLabel = {
-                                val globalMaxIterations = CommonUtils.aiSettings.maxIterations
-                                if (globalMaxIterations <= 0) getString(R.string.prompt_max_iterations_unlimited)
-                                else globalMaxIterations.toString()
-                            },
-                            helpBody = { getString(R.string.help_prompt_edit_text) },
-                            helpReadMoreUrl = DocsLinks.page("ai", "custom-prompts"),
-                            onPromptCopied = {
-                                Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
-                            },
-                            onPromptCopyFailed = {
-                                Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copy_failed, Toast.LENGTH_SHORT).show()
-                            },
-                        ),
-                        rawLlmLog = RawLlmLogDeps(
-                            controllerFor = { RawLlmLogController(service = rawLogService, scope = lifecycleScope) },
-                            defaultTitle = { getString(R.string.raw_llm_log_title) },
-                            recordTitleFor = ::rawLlmLogRecordTitle,
-                            onCopy = ::copyRawLlmLog,
-                            onShare = ::shareRawLlmLog,
-                            onDelete = { recordId -> appScope.launch { rawLogService.deleteByIds(setOf(recordId)) } },
-                            onReportBug = ::reportRawLlmLogBug,
-                        ),
-                        rawLogHistory = RawLogHistoryDeps(
-                            controllerFor = { onOpenLog ->
-                                RawLogHistoryController(service = rawLogService, scope = lifecycleScope, onOpenLog = onOpenLog)
-                            },
-                            helpBody = { getString(R.string.help_ai_connection_text) },
-                            helpReadMoreUrl = DocsLinks.page("ai"),
-                            onResume = { lifecycleScope.launch { rawLogService.refresh() } },
-                        ),
-                    )
-                }
+                val deps = remember { appHosts.ai.navDeps(navController) }
                 val readingPlanDeps = remember { appHosts.readingPlan.navDeps(navController) }
                 val searchDeps = remember { appHosts.search.navDeps(navController) }
                 val settingsDeps = remember { appHosts.settings.navDeps(navController, readingProgressResults) }
@@ -3361,7 +3114,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // Plan correction 11: an app-wide sheet request pre-empts a showing
                             // import-mode choice (two modal sheets must never stack) -- see
                             // AiPromptsDeps.onControllerLifecycle's kdoc.
-                            liveAiPromptsController?.dismissImportModeChoice()
+                            appHosts.ai.dismissImportModeChoice()
                         },
                     )
                     },
@@ -3393,345 +3146,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun isOnRoute(pattern: String): Boolean =
         navController?.currentDestination?.route?.substringBefore('?') == pattern.substringBefore('?')
 
-    // --- AiConnectionSettings host baggage ----------------------------------------------------
-    // Ported from the classic AiConnectionSettingsComposeActivity (deleted in nav-graph Task 10):
-    // Android-resource labels/locale arrays, the reset-usage AlertDialog, and the help
-    // overflow. See AiConnectionSettingsDeps' kdoc for why each stays host-side rather than
-    // moving into :sharedCore/:sharedUi.
-
-    private fun buildAiConnectionLabels() = AiConnectionLabels(
-        screenTitle = getString(R.string.ai_connection_settings),
-        disclaimerWarningTitle = getString(R.string.ai_disclaimer_warning_title),
-        disclaimerWarningSummary = getString(R.string.ai_disclaimer_warning_summary),
-        gettingStartedTitle = getString(R.string.easy_setup_title),
-        gettingStartedSummary = getString(R.string.easy_setup_pref_summary),
-        providersModelsCategoryTitle = getString(R.string.ai_providers_models_category),
-        providersTitle = getString(R.string.ai_providers_category),
-        providersSummaryNone = getString(R.string.ai_providers_summary_none),
-        modelsTitle = getString(R.string.ai_models_category),
-        modelsSummaryNone = getString(R.string.ai_models_summary_none),
-        behaviorCategoryTitle = getString(R.string.ai_behavior_category),
-        agentPermissionModeTitle = getString(R.string.prompt_permission_mode),
-        toolPermissionsTitle = getString(R.string.manage_tool_permissions_title),
-        toolPermissionsSummary = getString(R.string.manage_tool_permissions_summary),
-        documentsTitle = getString(R.string.ai_document_filter_title),
-        documentsSummary = getString(R.string.ai_document_filter_summary),
-        aiLanguageTitle = getString(R.string.ai_language_title),
-        commentaryMaxResponseTitle = getString(R.string.commentary_max_response_title),
-        commentaryMaxResponseNoLimit = getString(R.string.commentary_max_response_no_limit),
-        commentaryMaxResponseValueFormat = getString(R.string.commentary_max_response_value),
-        maxIterationsTitle = getString(R.string.agent_max_iterations_title),
-        maxIterationsSummary = getString(R.string.agent_max_iterations_summary),
-        maxIterationsUnlimitedSuffix = getString(R.string.prompt_max_iterations_unlimited),
-        askModelBeforeRunTitle = getString(R.string.ask_model_before_run_title),
-        askModelBeforeRunSummary = getString(R.string.ask_model_before_run_summary),
-        autoHideAgentLogTitle = getString(R.string.auto_hide_agent_log_title),
-        autoHideAgentLogSummary = getString(R.string.auto_hide_agent_log_summary),
-        advancedCategoryTitle = getString(R.string.ai_advanced_category),
-        customAgentSystemPromptTitle = getString(R.string.custom_agent_system_prompt_title),
-        customTextTransformSystemPromptTitle = getString(R.string.custom_text_transform_system_prompt_title),
-        customSystemPromptDefault = getString(R.string.custom_system_prompt_default),
-        customSystemPromptCustom = getString(R.string.custom_system_prompt_custom),
-        usageCategoryTitle = getString(R.string.ai_usage_category),
-        usageSummaryTitle = getString(R.string.llm_usage_summary_title),
-        resetUsageTitle = getString(R.string.llm_reset_usage_title),
-        resetUsageSummary = getString(R.string.llm_reset_usage_summary),
-        rawLogHistoryTitle = getString(R.string.raw_log_history_title),
-        rawLogHistorySummary = getString(R.string.raw_log_history_summary),
-        rawLogRetentionTitle = getString(R.string.raw_log_retention_title),
-        rawLogRetentionSummaryDisabled = getString(R.string.raw_log_retention_summary_disabled),
-        rawLogRetentionSummaryDaysFormat = getString(R.string.raw_log_retention_summary_days),
-        permissionModeLabels = AgentPermissionModeIds.ordered.associateWith { id ->
-            when (id) {
-                "ALWAYS_ASK" -> getString(R.string.permission_always_ask)
-                "ASK_ONCE_PER_RUN" -> getString(R.string.permission_ask_once_per_run)
-                "ALLOW_ALL" -> getString(R.string.permission_allow_all)
-                "DENY_ALL" -> getString(R.string.permission_deny_all)
-                else -> id
-            }
-        },
-    )
-
-    /**
-     * Builds the language option list from the `prefs_interface_locale_*` string-arrays — mirrors
-     * classic `AiConnectionSettingsActivity.setupAiLanguage`'s option set (an "app default" entry,
-     * one per non-empty locale code, and a trailing [CUSTOM_LANGUAGE_TAG] sentinel).
-     */
-    private fun buildAiLanguageChoices(): List<SettingsItem.Choice> {
-        val descriptions = resources.getStringArray(R.array.prefs_interface_locale_descriptions)
-        val codes = resources.getStringArray(R.array.prefs_interface_locale_values)
-        val choices = mutableListOf<SettingsItem.Choice>()
-        choices.add(
-            SettingsItem.Choice(
-                value = "",
-                label = getString(R.string.ai_language_app_default, Locale.getDefault().displayLanguage),
-            ),
-        )
-        for (i in codes.indices) {
-            val code = codes[i]
-            if (code.isNotEmpty()) choices.add(SettingsItem.Choice(value = code, label = descriptions[i]))
-        }
-        choices.add(SettingsItem.Choice(value = CUSTOM_LANGUAGE_TAG, label = getString(R.string.ai_language_custom)))
-        return choices
-    }
-
-    /**
-     * Reset-vs-blank parity with classic `showCustomSystemPromptEditor`, see
-     * [resolvedCustomPromptValue]'s kdoc for why the comparison must be against the RAW built-in
-     * default, never [aiConnectionCustomPromptTextFor]'s result.
-     */
-    private fun onAiConnectionCustomPromptSave(key: String, value: String?) {
-        val builtInDefault = aiConnectionBuiltInPromptTextFor(key)
-        when (key) {
-            "custom_agent_prompt" ->
-                aiSettingsService.setCustomAgentSystemPrompt(resolvedCustomPromptValue(value, builtInDefault))
-            "custom_text_transform_prompt" ->
-                aiSettingsService.setCustomTextTransformationSystemPrompt(resolvedCustomPromptValue(value, builtInDefault))
-        }
-    }
-
-    /** Current custom text, or the built-in default (editor prefill only). */
-    private fun aiConnectionCustomPromptTextFor(key: String): String = when (key) {
-        "custom_agent_prompt" -> aiSettingsService.customAgentSystemPromptText()
-        "custom_text_transform_prompt" -> aiSettingsService.customTextTransformationSystemPromptText()
-        else -> ""
-    }
-
-    /** Raw built-in default text for [key] (ignores any custom override). */
-    private fun aiConnectionBuiltInPromptTextFor(key: String): String = when (key) {
-        "custom_agent_prompt" -> aiSettingsService.builtInAgentSystemPromptText()
-        "custom_text_transform_prompt" -> aiSettingsService.builtInTextTransformationSystemPromptText()
-        else -> ""
-    }
-
-    /**
-     * Per-model [LlmCostTracker.reset], ported from classic's `showResetUsageConfirm`. Platform-dialog
-     * removal Task 14: the confirmation question itself moved onto
-     * [net.bible.sharedcore.ai.AiConnectionSettingsController]'s own `dialog` state -- this function
-     * now IS the confirmed action, wired into that controller's `onResetUsageConfirm` constructor
-     * param below, and runs only from `confirmDialog()`.
-     */
-    private fun resetAiConnectionUsage() {
-        appScope.launch {
-            withContext(Dispatchers.IO) {
-                for (model in DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().all()) {
-                    LlmCostTracker.reset(model.id)
-                }
-            }
-            aiSettingsService.refresh()
-        }
-    }
-
-    /** Help overflow (parity with classic `ai_connection_options_menu`). */
-    @Composable
-    private fun RowScope.AiConnectionHelpAction() {
-        AbOverflowMenu { close ->
-            DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = {
-                close()
-                CommonUtils.showHelpDialog(
-                    activity = this@NavHostComposeActivity,
-                    titleResId = R.string.help,
-                    messageResId = R.string.help_ai_connection_text,
-                    helpUrl = DocsLinks.page("ai", "getting-started"),
-                )
-            })
-        }
-    }
-
-    // --- RawLlmLog host baggage ---------------------------------------------------------------
-    // Ported from classic RawLlmLogComposeActivity (deleted in nav-graph Task 10): none of
-    // this can move into commonMain (DatabaseContainer/SimpleDateFormat are Android-JVM-only; the
-    // clipboard/share/AiBugReport calls are platform APIs) — see RawLlmLogDeps' kdoc.
-
-    /** DB-mode title text, or `null` if the record is gone (mirrors classic `onCreate`'s title logic). */
-    private suspend fun rawLlmLogRecordTitle(recordId: String): String? {
-        val record = withContext(Dispatchers.IO) {
-            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().getById(IdType(recordId))
-        } ?: return null
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-        return "${record.modelName} — ${dateFormat.format(Date(record.timestamp))}"
-    }
-
-    /** Mirrors classic `getLogText()`: DB text (as displayed, header included) or the session `format()`. */
-    private fun rawLlmLogTextFor(recordId: String?, workspaceId: String?, recordText: String?): String {
-        recordId?.let { return recordText ?: "" }
-        val wid = workspaceId ?: return ""
-        return AgentSessionManager.getSession(IdType(wid))?.rawLlmLog?.format() ?: ""
-    }
-
-    private fun copyRawLlmLog(recordId: String?, workspaceId: String?, recordText: String?) {
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("Raw LLM Log", rawLlmLogTextFor(recordId, workspaceId, recordText)))
-        Toast.makeText(this, R.string.raw_llm_log_copied, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun shareRawLlmLog(recordId: String?, workspaceId: String?, recordText: String?) {
-        val sendIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_TEXT, rawLlmLogTextFor(recordId, workspaceId, recordText))
-            type = "text/plain"
-        }
-        startActivity(Intent.createChooser(sendIntent, getString(R.string.share)))
-    }
-
-    private fun reportRawLlmLogBug(recordId: String?, workspaceId: String?) {
-        lifecycleScope.launch {
-            if (recordId != null) {
-                AiBugReport.reportAiBug(this@NavHostComposeActivity, IdType(recordId))
-            } else {
-                val wid = workspaceId ?: return@launch
-                val log = AgentSessionManager.getSession(IdType(wid))?.rawLlmLog ?: return@launch
-                AiBugReport.reportAiBugFromRawLog(this@NavHostComposeActivity, log)
-            }
-        }
-    }
-
-    // --- AiPrompts host baggage — the SAF (Storage Access Framework) seam ---------------------
-    // Ported VERBATIM from classic AiPromptsComposeActivity (deleted in nav-graph Task 10),
-    // which itself mirrors classic AiSettingsActivity's exportPrompts/importPrompts exactly: the
-    // ACTION_CREATE_DOCUMENT/ACTION_OPEN_DOCUMENT intents and the result Toasts. None of
-    // `awaitIntent` (this Activity's ActivityBase suspend bridge to the system file picker), Toast,
-    // contentResolver or SharedConstants.modulesDir has a commonMain equivalent — see
-    // AiPromptsDeps' kdoc. Platform-dialog removal Task 14 moved the editable-vs-addon chooser and
-    // the post-import error summary onto AiPromptsController's own dialog state.
-
-    /**
-     * The live [AiPromptsController] the AI_PROMPTS destination's arm built, for exactly as long as
-     * that destination's composition is alive -- see `AiPromptsDeps.onControllerLifecycle`'s kdoc.
-     * [importPrompts] reads this to await [AiPromptsController.chooseImportMode]; the
-     * [AppDialogOverlay]'s `onSheetOpening` (below, in `setContent`) reads it to dismiss a showing
-     * import-mode choice when an app-wide sheet is about to open.
-     */
-    private var liveAiPromptsController: AiPromptsController? = null
-
-    private suspend fun exportPrompts() {
-        try {
-            val dao = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
-            val userPrompts = withContext(Dispatchers.IO) { dao.allPrompts() }
-
-            if (userPrompts.isEmpty()) {
-                Toast.makeText(this, getString(R.string.no_prompts_to_export), Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/csv"
-                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
-                putExtra(Intent.EXTRA_TITLE, "ai_prompts_$timestamp.csv")
-            }
-
-            val result = awaitIntent(intent)
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { uri ->
-                    withContext(Dispatchers.IO) {
-                        contentResolver.openOutputStream(uri)?.use { outputStream ->
-                            PromptCsvUtils.exportPromptsToCsv(outputStream.sink(), userPrompts)
-                        } ?: throw IllegalArgumentException("Could not open output stream")
-                    }
-                    Toast.makeText(
-                        this,
-                        getString(R.string.prompts_csv_export_success, userPrompts.size),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG_AI_PROMPTS, "Error exporting prompts to CSV", e)
-            ErrorReportControl.showErrorDialog(
-                this,
-                getString(R.string.csv_export_failed, e.message),
-                exception = e
-            )
-        }
-    }
-
-    /**
-     * Classic's `.setItems(editable, add-on)` chooser is now [AiPromptsController.chooseImportMode]
-     * (Task 14): `liveAiPromptsController` is null only if this somehow ran outside the AI_PROMPTS
-     * destination's lifetime (never in production -- the button that invokes [importPrompts] lives
-     * on that same screen), in which case there is nothing to ask and this just leaves.
-     */
-    private suspend fun importPrompts() {
-        val controller = liveAiPromptsController ?: return
-        val installAsAddon = controller.chooseImportMode() == ImportMode.ADDON
-
-        try {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/*"
-                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv", "text/plain", "text/comma-separated-values"))
-            }
-
-            val result = awaitIntent(intent)
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { uri ->
-                    if (installAsAddon) {
-                        withContext(appScope.coroutineContext + Dispatchers.Main.immediate) { installCsvAsAddon(uri) }
-                    } else {
-                        withContext(appScope.coroutineContext + Dispatchers.Main.immediate) { importCsvAsEditable(uri, controller) }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG_AI_PROMPTS, "Error importing prompts from CSV", e)
-            ErrorReportControl.showErrorDialog(
-                this,
-                getString(R.string.csv_import_failed, e.message),
-                exception = e
-            )
-        }
-    }
-
-    private suspend fun importCsvAsEditable(uri: Uri, controller: AiPromptsController) {
-        val importResult = withContext(Dispatchers.IO) {
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                PromptCsvUtils.importPromptsFromCsv(inputStream.source())
-            } ?: throw IllegalArgumentException("Could not open input stream")
-        }
-
-        if (importResult.errors > 0) {
-            val message =
-                getString(R.string.csv_import_errors, importResult.created, importResult.updated, importResult.errors) +
-                    "\n\n" + importResult.errorMessages.take(5).joinToString("\n") +
-                    if (importResult.errorMessages.size > 5) "\n..." else ""
-
-            // Task 14: was an AlertDialog.Builder; now AiPromptsController's own dialog state,
-            // rendered by AiPromptsScreen as an AbErrorDialog.
-            controller.showImportErrors(message)
-        } else {
-            Toast.makeText(
-                this,
-                getString(R.string.csv_import_success, importResult.created, importResult.updated),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        promptService.refresh()
-    }
-
-    private suspend fun installCsvAsAddon(uri: Uri) {
-        val displayName = contentResolver.query(uri, null, null, null, null)?.use {
-            if (it.moveToFirst()) {
-                val idx = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
-                if (idx >= 0) it.getString(idx) else null
-            } else null
-        } ?: "prompts.csv"
-
-        withContext(Dispatchers.IO) {
-            val outDir = File(SharedConstants.modulesDir, "prompts")
-            outDir.mkdirs()
-            val outFile = File(outDir, displayName)
-            contentResolver.openInputStream(uri)?.use { input ->
-                FileOutputStream(outFile).use { output -> input.copyTo(output) }
-            }
-            addCsvPromptBook(outFile.toOkioPath())
-            AndBibleAddons.clearCaches()
-        }
-
-        PromptRepository.clearAddonCache()
-        Toast.makeText(this, R.string.install_zip_successfull, Toast.LENGTH_SHORT).show()
-        promptService.refresh()
-    }
+    // --- AI cluster (AiHost) ---------------------------------------------------------------------
+    // The ten AI destinations' deps, controllers, tool lists and host baggage (connection settings labels, raw log
+    // share/copy/report, prompts CSV import/export) live in `appHosts.ai` (`:sharedUi`, `net.bible.sharedui.app.ai`).
 
     // The reading plan destinations' deps, state and controllers live in `appHosts.readingPlan` (`:sharedUi`,
     // `net.bible.sharedui.app.readingplan`).
@@ -3992,7 +3409,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     private val documentSyncSettings: DocumentSyncSettings get() = org.koin.java.KoinJavaComponent.get(DocumentSyncSettings::class.java)
     companion object {
-        private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
         private const val TAG_BOOKMARKS = "BookmarksNavHost"
 
@@ -4053,18 +3469,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         /** [onSaveInstanceState]'s key for [appHosts]' [AppHostsState] (a JSON string). */
         private const val STATE_APP_HOSTS = "nav_app_hosts"
 
-        /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
-        private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"
-
         fun intentFor(context: Context, route: String): Intent =
             Intent(context, NavHostComposeActivity::class.java).putExtra(EXTRA_ROUTE, route)
     }
 }
-
-private fun Tool.toToolVd() = ToolVd(
-    id = agentTool.name,
-    displayName = ToolRegistry.getDisplayName(this),
-    description = description,
-    requiresPermission = requiresPermission,
-    categoryId = category.name,
-)

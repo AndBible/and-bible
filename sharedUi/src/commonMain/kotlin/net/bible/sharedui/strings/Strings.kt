@@ -324,6 +324,60 @@ interface Strings {
     val cloudDocFilterDeviceOnly: String             // R.string.cloud_doc_filter_device_only
     val cloudDocFilterCloudOnly: String             // R.string.cloud_doc_filter_cloud_only
     val cloudDocFilterRemoved: String             // R.string.cloud_doc_filter_removed
+    // AI cluster (AiHost)
+    val agentMaxIterationsSummary: String             // R.string.agent_max_iterations_summary
+    val agentMaxIterationsTitle: String             // R.string.agent_max_iterations_title
+    val aiAdvancedCategory: String             // R.string.ai_advanced_category
+    val aiBehaviorCategory: String             // R.string.ai_behavior_category
+    val aiDisclaimerWarningTitle: String             // R.string.ai_disclaimer_warning_title
+    val aiDocumentFilterSummary: String             // R.string.ai_document_filter_summary
+    val aiDocumentFilterRowTitle: String             // R.string.ai_document_filter_title
+    val aiLanguageTitle: String             // R.string.ai_language_title
+    val aiModelsSummaryNone: String             // R.string.ai_models_summary_none
+    val aiProvidersModelsCategory: String             // R.string.ai_providers_models_category
+    val aiProvidersSummaryNone: String             // R.string.ai_providers_summary_none
+    val aiUsageCategory: String             // R.string.ai_usage_category
+    val askModelBeforeRunSummary: String             // R.string.ask_model_before_run_summary
+    val askModelBeforeRunTitle: String             // R.string.ask_model_before_run_title
+    val autoHideAgentLogSummary: String             // R.string.auto_hide_agent_log_summary
+    val autoHideAgentLogTitle: String             // R.string.auto_hide_agent_log_title
+    val commentaryMaxResponseNoLimit: String             // R.string.commentary_max_response_no_limit
+    val commentaryMaxResponseTitle: String             // R.string.commentary_max_response_title
+    val commentaryMaxResponseValue: String             // R.string.commentary_max_response_value
+    val customAgentSystemPromptTitle: String             // R.string.custom_agent_system_prompt_title
+    val customSystemPromptCustom: String             // R.string.custom_system_prompt_custom
+    val customSystemPromptDefault: String             // R.string.custom_system_prompt_default
+    val customTextTransformSystemPromptTitle: String             // R.string.custom_text_transform_system_prompt_title
+    val easySetupPrefSummary: String             // R.string.easy_setup_pref_summary
+    val helpAiConnectionText: String             // R.string.help_ai_connection_text
+    val helpAiDocumentFilterText: String             // R.string.help_ai_document_filter_text
+    val helpAiModelsText: String             // R.string.help_ai_models_text
+    val helpAiProvidersText: String             // R.string.help_ai_providers_text
+    val helpAiSettingsText: String             // R.string.help_ai_settings_text
+    val helpGlobalToolPermissionsText: String             // R.string.help_global_tool_permissions_text
+    val helpPromptEditText: String             // R.string.help_prompt_edit_text
+    val helpToolInfoText: String             // R.string.help_tool_info_text
+    val installZipSuccessfull: String             // R.string.install_zip_successfull
+    val llmResetUsageSummary: String             // R.string.llm_reset_usage_summary
+    val llmResetUsageTitle: String             // R.string.llm_reset_usage_title
+    val llmUsageSummaryTitle: String             // R.string.llm_usage_summary_title
+    val manageToolPermissionsSummary: String             // R.string.manage_tool_permissions_summary
+    val manageToolPermissionsTitle: String             // R.string.manage_tool_permissions_title
+    val noPromptsToExport: String             // R.string.no_prompts_to_export
+    val promptCopied: String             // R.string.prompt_copied
+    val promptCopyFailed: String             // R.string.prompt_copy_failed
+    val promptMaxIterationsUnlimited: String             // R.string.prompt_max_iterations_unlimited
+    val rawLlmLogCopied: String             // R.string.raw_llm_log_copied
+    val rawLlmLogTitle: String             // R.string.raw_llm_log_title
+    val rawLogHistorySummary: String             // R.string.raw_log_history_summary
+    val rawLogRetentionSummaryDays: String             // R.string.raw_log_retention_summary_days
+    val rawLogRetentionTitle: String             // R.string.raw_log_retention_title
+    val unknownError: String             // R.string.unknown_error
+    fun csvExportFailed(message: String): String             // R.string.csv_export_failed
+    fun csvImportErrors(created: Int, updated: Int, errors: Int): String             // R.string.csv_import_errors
+    fun csvImportFailed(message: String): String             // R.string.csv_import_failed
+    fun csvImportSuccess(created: Int, updated: Int): String             // R.string.csv_import_success
+    fun promptsCsvExportSuccess(count: Int): String             // R.string.prompts_csv_export_success
     // --- end I2 Stream A (app root) ---
     val errorOccurred: String
     val okay: String

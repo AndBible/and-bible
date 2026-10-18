@@ -14,4 +14,7 @@ enum class HelpTopic {
 
     /** The cloud documents screen's overflow help (`help_document_sync_text`). */
     DOCUMENT_SYNC,
+
+    /** The AI connection settings overflow help (`help_ai_connection_text`). */
+    AI_CONNECTION,
 }

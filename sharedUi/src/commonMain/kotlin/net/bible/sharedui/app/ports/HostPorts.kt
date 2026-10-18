@@ -1,5 +1,8 @@
 package net.bible.sharedui.app.ports
 
+import net.bible.sharedui.app.ai.AiHostPlatform
+import net.bible.sharedui.app.ai.BugReportPlatform
+import net.bible.sharedui.app.ai.PromptFiles
 import net.bible.sharedui.app.bookmark.BookmarkHostPlatform
 import net.bible.sharedui.app.bookmark.LabelIcons
 import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
@@ -46,4 +49,10 @@ class HostPorts(
     val downloadPlatform: () -> DownloadHostPlatform,
     /** The platform half of the cloud documents destination; a provider because the host builds it on first use. */
     val cloudDocumentsPlatform: () -> CloudDocumentsHostPlatform,
+    /** The AI prompts CSV export and import I/O. */
+    val promptFiles: PromptFiles,
+    /** The AI bug report sender. */
+    val bugReport: BugReportPlatform,
+    /** The remaining platform half of the AI cluster. */
+    val aiPlatform: AiHostPlatform,
 )

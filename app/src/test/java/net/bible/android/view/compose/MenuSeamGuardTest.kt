@@ -71,31 +71,21 @@ class MenuSeamGuardTest {
         // `CloudDocumentsOverflowMenu`) since I2 Stream A Task 13 lifted them out of the nav host.
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/download/DownloadHost.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/download/CloudDocumentsHost.kt",
+        // The AI host: carries the connection settings' help overflow (`AiConnectionHelpAction`) since I2 Stream A
+        // Task 14 lifted it out of the nav host (as an `AbMenuItem`, no longer a bare `DropdownMenuItem`).
+        "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/ai/AiHost.kt",
     )
 
     /**
-     * Direct `DropdownMenuItem(` call sites that PREDATE this guard's coverage of their file and are
-     * therefore not failed here, keyed by scanned path and matched on the offending line's exact
-     * trimmed text.
+     * Direct `DropdownMenuItem(` call sites that PREDATE this guard's coverage of their file and are therefore not
+     * failed here, keyed by scanned path and matched on the offending line's exact trimmed text.
      *
-     * Exactly one entry, and it names its one subject rather than excusing a file: the `⋮` help menu
-     * of `AiConnectionHelpAction` in the nav host. It was written before `AbMenuItem` existed (it is
-     * present unchanged at the batch base `cfddb559`, where the host had ZERO `AbMenuItem` calls) and
-     * belongs to the AI-settings cluster, not to the bookmark migration that brought this file into
-     * the scan. Converting it is a real change to a different cluster's menu and is left to whoever
-     * owns that work; leaving the whole file unscanned to avoid mentioning it would have hidden seven
-     * menu items that ARE this batch's.
-     *
-     * An exception is a liability, so it is bounded in both directions by
-     * [every_declared_exception_still_matches_exactly_one_line]: it must match exactly one line, so
-     * it can never quietly cover a second offender, and it must keep matching, so it cannot outlive
-     * the site it names.
+     * Empty since I2 Stream A Task 14: the one entry, the `AiConnectionHelpAction` help menu in the nav host, moved
+     * into `AiHost` as an `AbMenuItem`. The bound test below keeps any future entry honest in both directions: it must
+     * match exactly one line, so it can never quietly cover a second offender, and it must keep matching, so it
+     * cannot outlive the site it names.
      */
-    private val preExistingExceptions: Map<String, List<String>> = mapOf(
-        "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt" to listOf(
-            "DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = {",
-        ),
-    )
+    private val preExistingExceptions: Map<String, List<String>> = emptyMap()
 
     private val directCall = Regex("""\bDropdownMenuItem\s*\(""")
 
