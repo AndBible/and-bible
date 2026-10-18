@@ -35,3 +35,53 @@ class IosBridgeMessageHandler(private val dispatcher: BridgeDispatcher) : NSObje
         }
     }
 }
+
+/**
+ * Forwards the page's console output and uncaught errors to the app log (`js[level] text`), through the
+ * [CONSOLE_USER_SCRIPT] posting to the `"console"` handler. Stateless, so one instance serves every WebView; it is
+ * held here because WebKit holds script-message handlers weakly. Registered by `createBibleWkWebView` and removed
+ * with `"bridge"` when the WebView is released ([removeConsoleHandler]).
+ */
+@OptIn(ExperimentalForeignApi::class)
+internal class IosConsoleMessageHandler : NSObject(), WKScriptMessageHandlerProtocol {
+    override fun userContentController(userContentController: WKUserContentController, didReceiveScriptMessage: WKScriptMessage) {
+        try {
+            val text = didReceiveScriptMessage.body as? String ?: return
+            val level = text.substringBefore('|', "log")
+            nsLog("js[$level] ${text.substringAfter('|')}")
+        } catch (t: Throwable) {
+            nsLog("bridge: console handler failure $t")
+        }
+    }
+}
+
+/** The one shared console handler (top-level: an ObjC subclass cannot have a companion field). */
+internal val sharedConsoleHandler = IosConsoleMessageHandler()
+
+internal const val CONSOLE_HANDLER_NAME = "console"
+
+internal fun removeConsoleHandler(controller: WKUserContentController) {
+    controller.removeScriptMessageHandlerForName(CONSOLE_HANDLER_NAME)
+}
+
+/** Wraps console.* and reports window errors and unhandled rejections to the `"console"` handler as `level|text`. */
+internal const val CONSOLE_USER_SCRIPT = """
+(function () {
+  if (window.__abConsole) return; window.__abConsole = true;
+  function send(level, args) {
+    try {
+      var t = Array.prototype.map.call(args, function (x) {
+        try { return typeof x === 'string' ? x : (x instanceof Error ? (x.stack || x.message) : JSON.stringify(x)); }
+        catch (e) { return String(x); }
+      }).join(' ');
+      window.webkit.messageHandlers.console.postMessage(level + '|' + t.slice(0, 2000));
+    } catch (e) {}
+  }
+  ['log', 'info', 'debug', 'warn', 'error'].forEach(function (l) {
+    var o = console[l];
+    console[l] = function () { send(l, arguments); if (o) o.apply(console, arguments); };
+  });
+  window.addEventListener('error', function (e) { send('onerror', [e.message + ' @' + e.filename + ':' + e.lineno + ':' + e.colno]); });
+  window.addEventListener('unhandledrejection', function (e) { send('unhandledrejection', [(e.reason && e.reason.stack) || String(e.reason)]); });
+})();
+"""

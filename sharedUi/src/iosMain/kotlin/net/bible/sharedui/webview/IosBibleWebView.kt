@@ -65,6 +65,14 @@ internal fun createBibleWkWebView(
                 forMainFrameOnly = true,
             ),
         )
+        addUserScript(
+            WKUserScript(
+                source = CONSOLE_USER_SCRIPT,
+                injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
+                forMainFrameOnly = true,
+            ),
+        )
+        addScriptMessageHandler(sharedConsoleHandler, CONSOLE_HANDLER_NAME)
         if (handler != null) addScriptMessageHandler(handler, "bridge")
     }
     val webView = newWebView(config)
@@ -118,6 +126,7 @@ private object IosWebViewHolder {
     fun release(windowId: String) {
         val entry = entries.remove(windowId) ?: return
         entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
+        removeConsoleHandler(entry.webView.configuration.userContentController)
     }
 
     private fun create(controller: PocBibleViewController): PaneEntry {
@@ -126,7 +135,9 @@ private object IosWebViewHolder {
         val sink: (JsCall) -> Unit = { call ->
             dispatch_async(dispatch_get_main_queue()) {
                 try {
-                    webView.evaluateJavaScript(call.js, null)
+                    webView.evaluateJavaScript(call.js) { _, error ->
+                        if (error != null) nsLog("bridge[$windowId]: evaluateJavaScript error ${error.localizedDescription}")
+                    }
                 } catch (t: Throwable) {
                     nsLog("bridge[$windowId]: evaluateJavaScript failure $t")
                 }

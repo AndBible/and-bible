@@ -91,6 +91,7 @@ object IosReadingWebViews {
     fun release(windowId: String) {
         checkMain()
         val entry = entries.remove(windowId) ?: return
+        removeConsoleHandler(entry.webView.configuration.userContentController)
         if (entry.handlerCount > 0) {
             entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
             entry.handlerCount = 0

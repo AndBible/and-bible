@@ -66,8 +66,8 @@ internal object IosDebugLaunchArgs {
     }
 
     /**
-     * Opens `-openRef` once per process, off the main thread, through the call the Android `openLink` deep link
-     * ends in (`WindowControl.showLink`). Retries a few times while the window repository is still loading.
+     * Opens `-openRef` once per process, off the main thread, by setting the key on the active window's page manager (not
+     * `WindowControl.showLink`, which targets the links window and opens a new split window). Retries a few times while the window repository is still loading.
      */
     suspend fun openRefOnce() {
         val ref = openRef() ?: return
@@ -77,7 +77,8 @@ internal object IosDebugLaunchArgs {
             repeat(10) { attempt ->
                 try {
                     val key = PassageKeyFactory.instance().getKey(KJVA, ref)
-                    KoinPlatform.getKoin().get<WindowControl>().showLink(null, key)
+                    // The active window itself (showLink opens the links window, i.e. a NEW split window for a fresh workspace).
+                    KoinPlatform.getKoin().get<WindowControl>().activeWindowPageManager.setCurrentDocumentAndKey(null, key)
                     nsLog("-openRef $ref: shown")
                     return@withContext
                 } catch (e: CancellationException) {

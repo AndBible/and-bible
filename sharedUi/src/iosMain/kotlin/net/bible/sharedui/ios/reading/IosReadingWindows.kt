@@ -176,6 +176,10 @@ object IosReadingWindows {
             val relayPlatform = IosSessionEventRelayPlatform { loader.updateConfig() }
             val relay = SessionEventRelay(session, loader, relayPlatform)
             relay.start()
+            // Window.loadText delivers documents to window.bibleView; without one it times out after 5 s.
+            val view = IosWindowView(session, loader)
+            window.bibleView = view
+            if (window.takeLoadPending()) window.loadText()
             return Assembly(session, loader, relay, bridge, relayPlatform, linkHandler)
         } catch (t: Throwable) {
             // Nothing is in the map yet: dispose what was built so no scope or WebView entry outlives the failure.
@@ -189,6 +193,8 @@ object IosReadingWindows {
     fun release(windowId: String) {
         val a = assemblies.remove(windowId)
         if (a != null) {
+            val w = a.session.windowOrNull
+            if (w?.bibleView is IosWindowView) w.bibleView = null
             a.relay.stop()
             a.session.dispose()
         }
