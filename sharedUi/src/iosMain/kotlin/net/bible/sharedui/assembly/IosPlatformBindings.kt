@@ -122,12 +122,14 @@ import org.koin.dsl.module
  * `AppSupport/` (the app's private files) and `databases/` ([DOCUMENTS_DIR], [SUPPORT_DIR], [DATABASES_DIR]).
  * [uiLanguage] pins the language of the string tables. [repositories] is the download-site map; null reads
  * `repositories.txt` from the app bundle (the same file as Android's `R.raw.repositories`), tests pass an empty
- * `PropertyMap`.
+ * `PropertyMap`. [secretStore] is a test seam, null in the app.
  */
 class IosAppConfig(
     val root: Path? = null,
     val uiLanguage: String? = null,
     val repositories: org.crosswire.common.util.PropertyMap? = null,
+    /** TESTS ONLY: replaces the Keychain-backed store (an unsigned simulator test binary cannot reach the keychain). */
+    val secretStore: net.bible.sharedcore.platform.secrets.SecretStore? = null,
 ) {
     companion object {
         const val DOCUMENTS_DIR = "Documents"

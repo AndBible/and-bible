@@ -67,7 +67,7 @@ private const val TAG = "IosAppStartup"
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 internal class IosPlatformParts(val config: IosAppConfig) {
     val deviceSettings: IosDeviceSettings by lazy { IosDeviceSettings() }
-    val secrets: IosKeychainSecretStore by lazy { IosKeychainSecretStore() }
+    val secrets: net.bible.sharedcore.platform.secrets.SecretStore by lazy { config.secretStore ?: IosKeychainSecretStore() }
 
     /** Discrete mode is a device-local preference (`discrete_mode`), read before any database exists. */
     val environment: IosAppEnvironment by lazy {

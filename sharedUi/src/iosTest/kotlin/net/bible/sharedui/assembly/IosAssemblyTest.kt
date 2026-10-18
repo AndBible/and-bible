@@ -50,10 +50,23 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+/** Keychain stand-in: see the class comment of [IosAssemblyTest]. */
+private class InMemorySecretStore : net.bible.sharedcore.platform.secrets.SecretStore {
+    private val values = mutableMapOf<String, String>()
+    override fun get(key: String): String? = values[key]
+    override fun put(key: String, value: String) { values[key] = value }
+    override fun remove(key: String) { values.remove(key) }
+}
+
 /**
  * The I2 Stream C acceptance test: the real iOS bindings plus the shared bindings (and test doubles for the four
  * sync ports) start on an empty sandbox, every definition resolves, the databases open off the main thread, and a
  * real SWORD module is read through the real facade. Native only; runs on the Mac.
+ *
+ * SECRETS: the app stores its device identifier in the Keychain, and database opening reads it. The unsigned simulator
+ * test binary has no usable keychain (SecItemCopyMatching answers -25291), so these tests pass an in-memory
+ * `SecretStore` through `IosAppConfig.secretStore`. The Keychain-backed `IosKeychainSecretStore` is NOT exercised
+ * here; the signed app run (Task 10) verifies that path.
  *
  * All tests share ONE sandbox root (with the module fixture): JSword's home folder and book list are process-wide,
  * so a second root would leave the first test's books registered. Each test gets empty databases instead.
@@ -61,7 +74,7 @@ import kotlin.test.assertTrue
 class IosAssemblyTest {
     private val files = FileSystem.SYSTEM
 
-    private fun config(language: String? = "en") = IosAppConfig(root = sharedRoot, uiLanguage = language, repositories = org.crosswire.common.util.PropertyMap())
+    private fun config(language: String? = "en") = IosAppConfig(root = sharedRoot, uiLanguage = language, repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore())
     private val databaseDir: Path get() = sharedRoot / IosAppConfig.DATABASES_DIR
     private val moduleDir: Path get() = sharedRoot / IosAppConfig.DOCUMENTS_DIR / "sword"
 
@@ -213,7 +226,7 @@ class IosAssemblyTest {
         startWithDoubles(language = "en")
         val labels = KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.LabelNameStrings>()
         assertEquals("Speak", labels.speak)
-        assertEquals("Unlabelled", labels.unlabelled)
+        assertEquals("Unlabeled", labels.unlabelled) // generated English table (US spelling), checked in StringsData
     }
 
     @OptIn(org.koin.core.annotation.KoinInternalApi::class)
