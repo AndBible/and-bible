@@ -34,7 +34,7 @@ import net.bible.sharedcore.platform.speak.SpeakEngineListener
 import kotlin.time.Clock
 
 /**
- * iOS [SpeakPlatform]: focus calls go to [audioFocus] (the `IosAudioFocus`; typed as the port so tests can fake it) (phone calls and other interruptions arrive as audio-session
+ * iOS [SpeakPlatform]: focus calls go to [audioFocus] (the `IosAudioFocus`, typed as the port so tests can fake it; phone calls and other interruptions arrive as audio-session
  * interruptions there, so [startPhoneCallMonitoring] is a no-op), the engine is [IosSpeakEngine], and the lock screen
  * and headset controls are [IosMediaSession] through the shared `MediaButtonHandler`.
  *
@@ -66,7 +66,7 @@ class IosSpeakPlatform(
 
     /** C7 pending: phase 2 routes the reading screen to the front through the shared root. */
     override fun bringReadingToFront() {
-        Log.i(PENDING_TAG, "IosSpeakPlatform.bringReadingToFront: no-op (phase 2: route through the shared root)")
+        Log.w(PENDING_TAG, "IosSpeakPlatform.bringReadingToFront: no-op (phase 2: route through the shared root)")
     }
 
     override fun phrasesFor(languageCode: String): SpeakPhrases = phrases(languageCode)

@@ -18,6 +18,7 @@
 package net.bible.sharedcore.http
 
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.HttpTimeoutConfig
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.pluginOrNull
 import net.bible.sharedcore.llm.http.LlmTimeouts
@@ -54,5 +55,16 @@ class IosHttpClientsTest {
         assertNotNull(c.pluginOrNull(HttpTimeout))
         assertNull(c.pluginOrNull(UserAgent))
         assertEquals(c, http.clientFor(LlmTimeouts(120_000, 90_000, 120_000)))
+    }
+
+    @Test fun llmTimeoutsMapToConnectAndIdleReadOnlyWithNoWholeCallCap() {
+        val c = HttpTimeoutConfig().apply { applyLlmTimeouts(LlmTimeouts.CHAT) }   // CHAT = 120_000 / 90_000 / 120_000
+        assertEquals(120_000L, c.connectTimeoutMillis)
+        assertEquals(90_000L, c.socketTimeoutMillis)
+        assertNull(c.requestTimeoutMillis, "writeMs must not become a total-call cap")
+        val open = HttpTimeoutConfig().apply { applyLlmTimeouts(LlmTimeouts.CONNECTION_TEST) }   // write = null
+        assertEquals(10_000L, open.connectTimeoutMillis)
+        assertEquals(15_000L, open.socketTimeoutMillis)
+        assertNull(open.requestTimeoutMillis)
     }
 }

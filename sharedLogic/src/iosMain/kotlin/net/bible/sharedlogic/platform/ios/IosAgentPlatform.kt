@@ -31,6 +31,8 @@ import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationState
 import platform.darwin.NSObjectProtocol
+import platform.darwin.dispatch_get_main_queue
+import platform.darwin.dispatch_sync
 import kotlin.concurrent.Volatile
 
 /**
@@ -42,6 +44,10 @@ import kotlin.concurrent.Volatile
  * [askToolPermission] answers [ToolPermissionAnswer.DENY] and [askQuestion] answers `false`, each logged with tag
  * `C7-pending`, so an agent tool that needs approval fails closed instead of running unasked.
  *
+ * Lifetime: the notification observers are added at construction and never removed in the app (an app-wide singleton);
+ * only tests call [close]. [change] emits on the thread that posts the notification (Main for UIKit's own posts), so
+ * `subscribe` handlers run there.
+ *
  * [liveActive] and [center] exist so tests can drive the platform without a running UIApplication.
  */
 class IosAgentPlatform(
@@ -51,12 +57,20 @@ class IosAgentPlatform(
 ) : AgentPlatform {
     private val source = EventSource<Boolean>()
 
-    @Volatile private var active: Boolean = if (NSThread.isMainThread) liveActive() else false
+    @Volatile private var active: Boolean = readOnMain()
 
     private val observers: List<NSObjectProtocol> = listOf(
         center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, null) { change(true) },
         center.addObserverForName(UIApplicationDidEnterBackgroundNotification, null, null) { change(false) },
     )
+
+    /** The live state, read on Main: directly when already there, else by a synchronous hop (never from Main, no deadlock). */
+    private fun readOnMain(): Boolean {
+        if (NSThread.isMainThread) return liveActive()
+        var result = false
+        dispatch_sync(dispatch_get_main_queue()) { result = liveActive() }
+        return result
+    }
 
     private fun change(isActive: Boolean) {
         active = isActive

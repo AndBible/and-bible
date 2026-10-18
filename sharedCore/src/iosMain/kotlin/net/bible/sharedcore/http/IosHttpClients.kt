@@ -20,6 +20,7 @@ package net.bible.sharedcore.http
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.HttpTimeoutConfig
 import net.bible.sharedcore.llm.http.LlmTimeouts
 
 /**
@@ -31,8 +32,10 @@ import net.bible.sharedcore.llm.http.LlmTimeouts
  * redirect plugin (switched on by [downloadClientDefaults], as on Android) follows them so the https-only check in
  * `KtorDownloadHttp` sees every hop. Runtime behaviour is verified in the Mac round (the engine cannot run on Linux).
  *
- * LLM clients are cached per [LlmTimeouts]; the timeouts map as connect to connect, read to socket (idle read) and
- * write to the whole-request timeout (Darwin has no separate write timeout; the replies are not streamed).
+ * LLM clients are cached per [LlmTimeouts] and match okhttp's semantics on Android: `connectMs` is the connect timeout,
+ * `readMs` the idle socket timeout, and `writeMs` is not mapped. ktor's `requestTimeoutMillis` caps the whole call, which
+ * okhttp has no equivalent of (its write timeout is per write), so it stays unset: a long non-streamed completion is
+ * limited only by the idle read timeout, as on Android. See [applyLlmTimeouts].
  */
 class IosHttpClients {
     /** Downloads: ktor [downloadClientDefaults] with no user agent. */
@@ -47,12 +50,15 @@ class IosHttpClients {
     fun clientFor(t: LlmTimeouts): HttpClient = kotlinx.atomicfu.locks.synchronized(lock) {
         clients.getOrPut(t) {
             HttpClient(Darwin) {
-                install(HttpTimeout) {
-                    connectTimeoutMillis = t.connectMs
-                    socketTimeoutMillis = t.readMs
-                    requestTimeoutMillis = t.writeMs
-                }
+                install(HttpTimeout) { applyLlmTimeouts(t) }
             }
         }
     }
+}
+
+/** The one place [LlmTimeouts] become ktor timeouts: connect and idle read only, no whole-call cap (see [IosHttpClients]). */
+internal fun HttpTimeoutConfig.applyLlmTimeouts(t: LlmTimeouts) {
+    connectTimeoutMillis = t.connectMs
+    socketTimeoutMillis = t.readMs
+    requestTimeoutMillis = null
 }
