@@ -3099,6 +3099,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (readingReturnDebts.isNotEmpty()) {
             outState.putIntArray(STATE_RETURN_DEBTS, readingReturnDebts.toIntArray())
         }
+        // E6 RP-RESET: a recreated host restores the back stack (it may still hold dailyReading(reset plan, day))
+        // but not this memory, so Back would load and select the reset plan again.
+        if (resetReadingPlanCodes.isNotEmpty()) {
+            outState.putStringArray(STATE_RESET_PLAN_CODES, resetReadingPlanCodes.toTypedArray())
+        }
         // Slice 8 E2 fix round 1: a WELCOME/BACKUP-started host that initialised later (a flow left Welcome,
         // InstallZip from Backup) still has its uninitialised START route saved above, so without this a
         // recreate -- or a process-death restore -- would bring it back uninitialised: no FLAG_SECURE in
@@ -3430,6 +3435,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun finishHostCreation(savedInstanceState: Bundle?, startRoute: String) {
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
+        savedInstanceState?.getStringArray(STATE_RESET_PLAN_CODES)?.let { resetReadingPlanCodes += it }
         setContent {
             // Direct settings/download entry points can precede the startup coroutine.
             // Do not compose synchronous settings consumers until their snapshot is loaded.
@@ -6799,6 +6805,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private fun onReadingPlanDone() {
         val dto = readingsDto ?: return
+        val donePlanCode = planCodeLoaded
         lifecycleScope.launch {
             try {
                 val nextDayToShow = readingPlanWrites.done(dto.readingPlanInfo, dayLoaded)
@@ -6807,7 +6814,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // reader; here that closes the reader's host (SU-15g D1), so pop to it instead.
                 else {
                     // done() reset the plan on its last day: forget it, or the next open reloads it
-                    if (readingPlanControl.currentPlanCode.isEmpty()) forgetLoadedReadingPlan()
+                    if (readingPlanControl.currentPlanCode.isEmpty()) {
+                        if (donePlanCode != null) forgetResetReadingPlan(donePlanCode) else forgetLoadedReadingPlan()
+                    }
                     returnToReadingOrFinish()
                 }
             } catch (e: Exception) {
@@ -10255,6 +10264,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** [onSaveInstanceState]'s key for [readingReturnDebts]. */
         private const val STATE_RETURN_DEBTS = "nav_reading_return_debts"
+        private const val STATE_RESET_PLAN_CODES = "nav_reset_reading_plan_codes"
 
         /** [onSaveInstanceState]'s key for [initialisedAfterStart] (slice 8 E2 fix round 1). */
         private const val STATE_INITIALISED_AFTER_START = "nav_initialised_after_start"

@@ -9,6 +9,7 @@ import androidx.compose.ui.test.longClick
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
 import java.time.Duration
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -17,6 +18,7 @@ import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.readingplan.nav.LoadedReadingDay
 import net.bible.test.resetComposeUiDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -54,7 +56,19 @@ class ReadingPlanSelectorResetFlowTest {
 
     private fun readingPlanSetting() = CommonUtils.settings.getString("reading_plan", "") ?: ""
 
-    @Test fun selectorResetOfTheLoadedPlanDoesNotReSelectItOnBack() {
+    private class Fixture(val controller: ActivityController<NavHostComposeActivity>, val planName: String)
+
+    private fun nav(activity: NavHostComposeActivity) = NavHostComposeActivity::class.java.getDeclaredField("navController")
+        .apply { isAccessible = true }.get(activity) as NavHostController
+
+    private fun loadedDayPlan(activity: NavHostComposeActivity): String? {
+        val flow = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay")
+            .apply { isAccessible = true }.get(activity) as StateFlow<*>
+        return (flow.value as LoadedReadingDay?)?.planCode
+    }
+
+    /** Daily reading on PLAN, selector on top, PLAN reset there (long-press, Yes). */
+    private fun resetFromSelector(): Fixture {
         resetComposeUiDispatcher()
         firstTime = false
         CommonUtils.settings.setString("reading_plan", PLAN)
@@ -73,9 +87,7 @@ class ReadingPlanSelectorResetFlowTest {
         net.bible.test.awaitHostUntil("fixture: the plan day is loaded and selected") { readingPlanSetting() == PLAN }
         idle()
 
-        val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
-            .apply { isAccessible = true }.get(activity) as NavHostController
-        nav.navigate(NavRoutes.READING_PLAN_SELECTOR)
+        nav(activity).navigate(NavRoutes.READING_PLAN_SELECTOR)
         idle()
         val planName = runBlocking {
             GlobalContext.get().get<ReadingPlanControl>().readingPlanList().first { it.planCode == PLAN }.planName!!
@@ -85,6 +97,12 @@ class ReadingPlanSelectorResetFlowTest {
         compose.onNodeWithText("Yes").performClick()
         idle()
         assertEquals("fixture: the reset removed the selected plan", "", readingPlanSetting())
+        return Fixture(controller, planName)
+    }
+
+    @Test fun selectorResetOfTheLoadedPlanDoesNotReSelectItOnBack() {
+        val (controller, planName) = resetFromSelector().let { it.controller to it.planName }
+        val activity = controller.get()
 
         activity.onBackPressedDispatcher.onBackPressed()
         idle()
@@ -94,13 +112,38 @@ class ReadingPlanSelectorResetFlowTest {
             NavRoutes.READING, activity.currentRouteForTest()?.substringBefore('?'),
         )
 
-        // choosing the reset plan again is the set's only exit: the day view must load it
-        nav.navigate(NavRoutes.READING_PLAN_SELECTOR)
+        // choosing the reset plan again is the set's only exit: the day view must load it AND stay on it
+        // reopening Reading Plan: the plan-less day view offers the selector
+        nav(activity).navigate(NavRoutes.dailyReading())
         idle()
         net.bible.test.awaitHostRoute(activity, NavRoutes.READING_PLAN_SELECTOR) { compose.waitForIdle() }
         compose.onNodeWithText(planName).performClick()
         idle()
-        net.bible.test.awaitHostUntil("the re-chosen plan loads again") { readingPlanSetting() == PLAN }
+        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading()) { compose.waitForIdle() }
+        net.bible.test.awaitHostUntil("the re-chosen plan is loaded in the day view") { loadedDayPlan(activity) == PLAN }
+        idle()
+        idle()
+        assertEquals(
+            "the re-chosen plan must stay on the day view, not bounce to the selector",
+            NavRoutes.dailyReading().substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'),
+        )
+        assertEquals(PLAN, loadedDayPlan(activity))
+        assertEquals(PLAN, readingPlanSetting())
+    }
+
+    /** A recreated host (uiMode, font scale, multi-window, process death) restores the back stack but not memory. */
+    @Test fun aRecreatedHostStillDoesNotReSelectTheResetPlanOnBack() {
+        val fixture = resetFromSelector()
+        fixture.controller.recreate()
+        idle()
+        val activity = fixture.controller.get()
+        net.bible.test.awaitHostRoute(activity, NavRoutes.READING_PLAN_SELECTOR) { compose.waitForIdle() }
+
+        activity.onBackPressedDispatcher.onBackPressed()
+        idle()
+        idle()
+        idle()
+        assertEquals("a recreated host must not re-select the reset plan", "", readingPlanSetting())
     }
 
     private companion object {
