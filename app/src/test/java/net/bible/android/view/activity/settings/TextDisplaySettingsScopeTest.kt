@@ -178,7 +178,7 @@ class TextDisplaySettingsScopeTest {
     fun theHostsGlobalTextSettingsRowNavigatesToTheGlobalRoute() {
         // The row's lambda lives in `SettingsHost` (I2 Stream A Task 4); the activity must not grow it back.
         val activity = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
-        val host = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/settings/SettingsHost.kt")
+        val host = net.bible.test.ProductionSources.resolve("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/settings/SettingsHost.kt")
         assertTrue("cannot find ${activity.absolutePath}", activity.isFile)
         assertTrue("cannot find ${host.absolutePath}: this scan would watch nothing", host.isFile)
         val text = activity.readText() + "\n" + host.readText()

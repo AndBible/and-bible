@@ -62,6 +62,7 @@ class WelcomeHostTest {
         val deps = WelcomeHost(shell, platform).navDeps(navController())
         assertEquals("Label", deps.windowTitle)
         assertEquals("App", deps.appName)
+        assertSame(platform.logo, deps.logo)
         assertTrue(calls.isEmpty(), "construction must not touch the platform's lazy members: $calls")
 
         deps.setWindowTitle("T")

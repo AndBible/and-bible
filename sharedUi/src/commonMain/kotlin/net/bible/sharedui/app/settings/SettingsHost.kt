@@ -77,13 +77,14 @@ class SettingsHost(
     private val readingProgressSettingsServiceProvider: () -> ReadingProgressSettingsService,
     private val readingProgressServiceProvider: () -> ReadingProgressService,
 ) {
+    /** Preference reads, resolved on first use (Welcome starts uninitialised). */
+    private val appSettings: AppSettings by lazy(appSettingsProvider)
+
     /**
      * Classic `SettingsComposeActivity`'s own `by lazy` service, NOT a Koin singleton: it caches four JSword
      * dictionary scans for the screen's lifetime. Host-held because the settings destination's composition is
      * disposed and re-entered whenever another destination sits on top of it.
      */
-    /** Preference reads, resolved on first use (Welcome starts uninitialised). */
-    private val appSettings: AppSettings by lazy(appSettingsProvider)
     private val appSettingsService: AppSettingsService by lazy(appSettingsServiceProvider)
     private val syncSettingsService: SyncSettingsService by lazy(syncSettingsServiceProvider)
     private val readingProgressSettingsService: ReadingProgressSettingsService by lazy(readingProgressSettingsServiceProvider)

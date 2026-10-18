@@ -1,23 +1,26 @@
 package net.bible.android.view.activity.nav
 
 import android.os.Looper
+import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.test.resetComposeUiDispatcher
-import org.junit.After
+import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppHostsState
+import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.strings.AndroidStrings
-import org.koin.java.KoinJavaComponent.getKoin
+import net.bible.test.resetComposeUiDispatcher
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.java.KoinJavaComponent.getKoin
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -52,6 +55,10 @@ class AppHostsConstructionTest {
             DatabaseContainer.detachInstanceForTest()
             val standalone = AppHosts(getKoin(), activity, activity.hostPorts, AndroidStrings(activity))
             assertEquals(AppHostsState(), standalone.saveState())
+            // Assembling the deps (as every host launch does) must stay lazy too: no service, no database.
+            val nav = NavHostController(activity)
+            standalone.settings.navDeps(nav, NavResultChannel<ReadingProgressResult> { })
+            standalone.welcome.navDeps(nav)
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
             assertNull("constructing the app hosts built the database container", DatabaseContainer.detachInstanceForTest())
             shadowOf(Looper.getMainLooper()).idle()

@@ -163,7 +163,6 @@ import net.bible.android.view.activity.nav.ports.AndroidNotificationPermission
 import net.bible.android.view.activity.nav.ports.AndroidSystemScreens
 import net.bible.android.view.activity.nav.ports.AndroidTextShare
 import net.bible.sharedui.app.AppHosts
-import org.koin.java.KoinJavaComponent.getKoin
 import net.bible.sharedui.app.AppHostsState
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.HostPorts
@@ -504,6 +503,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import fi.sykero.kdom.Element
 import org.koin.android.ext.android.inject
+import org.koin.java.KoinJavaComponent.getKoin
 
 /**
  * The single Android host for the Compose navigation graph. Screens migrated off their own

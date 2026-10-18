@@ -12,10 +12,10 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.settings.SettingsHost
-import org.koin.core.parameter.parametersOf
 import net.bible.sharedui.app.welcome.WelcomeHost
 import net.bible.sharedui.strings.Strings
 import org.koin.core.Koin
+import org.koin.core.parameter.parametersOf
 
 /**
  * Serializable snapshot of the host-held state that must survive `recreate()` and process death.

@@ -64,10 +64,14 @@ class SettingsHostTest {
         override fun discreteModeLink(link: String) = "You can download it from $link."
     }
 
-    private fun host(discrete: Boolean = false, strings: Strings = this.strings) = SettingsHost(
+    private fun host(
+        discrete: Boolean = false,
+        strings: Strings = this.strings,
+        appSettingsProvider: () -> AppSettings = { prefs },
+    ) = SettingsHost(
         shell = shell,
         strings = strings,
-        appSettingsProvider = { prefs },
+        appSettingsProvider = appSettingsProvider,
         platform = object : SettingsPlatform {
             override fun resetAllSettings() { calls += "reset" }
             override val isDiscreteBuild = discrete
@@ -143,7 +147,8 @@ class SettingsHostTest {
 
     @Test
     fun navDepsIsLazyAndRoutesPlatformRows() {
-        val deps = host(discrete = true).navDeps(navController(), NavResultChannel<ReadingProgressResult> { })
+        val deps = host(discrete = true, appSettingsProvider = { error("the app settings must stay lazy") })
+            .navDeps(navController(), NavResultChannel<ReadingProgressResult> { })
         // Building the deps touched no service (the providers above throw) and no platform member.
         assertTrue(calls.isEmpty(), "$calls")
 

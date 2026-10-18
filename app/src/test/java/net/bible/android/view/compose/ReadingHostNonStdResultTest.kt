@@ -333,7 +333,7 @@ class ReadingHostNonStdResultTest {
 
     /**
      * **The privacy feature, and the reason the debt has to survive a `recreate()`.** Writing
-     * `discrete_mode` in Settings is one of `RECREATE_ON_CHANGE_KEYS`, so the host is recreated —
+     * `discrete_mode` in Settings is one of `SettingsHost`'s `RECREATE_ON_CHANGE_KEYS`, so the host is recreated —
      * and `recreate()` does not swap the launcher alias. `CommonUtils.changeAppIconAndName()`, whose
      * only production caller is this body, is what does; a debt lost across the recreate is the app
      * icon and name staying visible after the user asked for them to be hidden.

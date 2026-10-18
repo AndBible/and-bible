@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
@@ -47,7 +48,6 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.startup.StartupWelcomeController
 import net.bible.sharedcore.startup.StartupWelcomeInfo
 import net.bible.sharedui.components.AbMultiSelectDialog
-import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedui.app.welcome.WelcomeHostPlatform
 import net.bible.sharedui.strings.LocalStrings
 
