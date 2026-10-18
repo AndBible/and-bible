@@ -116,10 +116,6 @@ class AndroidChooserHostPlatform(private val activity: NavHostComposeActivity) :
 
     override fun showError(e: Exception) = Dialogs.showErrorMsg(R.string.error_occurred, e)
 
-    override fun openInstallZip(onResult: () -> Unit) {
-        activity.openInstallZip { onResult() }
-    }
-
     @Composable
     override fun OverflowIcon(item: ChooserOverflowItem) {
         val drawable = when (item) {

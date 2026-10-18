@@ -43,12 +43,6 @@ interface ChooserHostPlatform {
     /** Classic's `Dialogs.showErrorMsg(R.string.error_occurred, e)`: error dialog with a report button. */
     fun showError(e: Exception)
 
-    /**
-     * Opens InstallZip in-graph and runs [onResult] once with its answer. Temporary: it goes through the activity
-     * until Task 12 lifts the install-zip members.
-     */
-    fun openInstallZip(onResult: () -> Unit)
-
     /** The icon of an overflow row (Android: the `R.drawable` painters classic used). */
     @Composable
     fun OverflowIcon(item: ChooserOverflowItem)

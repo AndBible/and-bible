@@ -82,6 +82,7 @@ class AppHostsConstructionTest {
             )
             standalone.readingPlan.navDeps(nav)
             standalone.backup.navDeps(nav)
+            standalone.installZip.navDeps(nav, NavResultChannel<net.bible.sharedcore.nav.InstallZipResult> { })
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
             assertNull("constructing the app hosts built the database container", DatabaseContainer.detachInstanceForTest())
             shadowOf(Looper.getMainLooper()).idle()

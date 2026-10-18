@@ -17,8 +17,12 @@
 
 package net.bible.android.view.activity.installzip
 
+import net.bible.android.view.activity.installzip.classifyInstallZipRoute
+import net.bible.android.view.activity.installzip.InstallZipFlow
+import net.bible.android.view.activity.installzip.InstallZipRouteDecision
 import android.content.Intent
 import android.net.Uri
+import net.bible.sharedui.app.ports.DocumentRef
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,15 +53,15 @@ import org.robolectric.annotation.Config
 class InstallZipFlowTest {
 
     private val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
-    private val enqueued = mutableListOf<Pair<List<Uri>, String?>>()
+    private val enqueued = mutableListOf<Pair<List<DocumentRef>, String?>>()
     private val decisions = mutableListOf<Pair<String, Boolean>>()
     private val results = mutableListOf<InstallZipResult>()
-    private var pickerAnswer: Uri? = null
+    private var pickerAnswer: DocumentRef? = null
     private var studyPad = false
-    private val uri = Uri.parse("content://x/module.zip")
-    private val uri2 = Uri.parse("content://x/other.epub")
+    private val uri = DocumentRef("content://x/module.zip")
+    private val uri2 = DocumentRef("content://x/other.epub")
 
-    private fun flow(scope: CoroutineScope, action: String?, uris: List<Uri>) = InstallZipFlow(
+    private fun flow(scope: CoroutineScope, action: String?, uris: List<DocumentRef>) = InstallZipFlow(
         scope = scope,
         action = action,
         uris = uris,
@@ -129,7 +133,7 @@ class InstallZipFlowTest {
         f.start()
         f.dismiss()
         assertEquals(listOf(InstallZipResult.CANCELED), results)
-        assertEquals(emptyList<Pair<List<Uri>, String?>>(), enqueued)
+        assertEquals(emptyList<Pair<List<DocumentRef>, String?>>(), enqueued)
     }
 
     @Test
@@ -147,7 +151,7 @@ class InstallZipFlowTest {
         val f = flow(backgroundScope, Intent.ACTION_SEND, listOf(uri))
         f.close()
         f.start()
-        assertEquals(emptyList<Pair<List<Uri>, String?>>(), enqueued)
+        assertEquals(emptyList<Pair<List<DocumentRef>, String?>>(), enqueued)
         assertEquals(null, f.state.value)
     }
 
@@ -159,6 +163,8 @@ class InstallZipFlowTest {
      */
     @Test
     fun theRouteAndIntentClassificationsAgreeForEveryShape() = runTest {
+        val androidUri = Uri.parse(uri.uri)
+        val androidUri2 = Uri.parse(uri2.uri)
         fun view(data: Uri?) = Intent(Intent.ACTION_VIEW).apply { if (data != null) this.data = data }
         fun send(stream: Uri?) = Intent(Intent.ACTION_SEND).apply { if (stream != null) putExtra(Intent.EXTRA_STREAM, stream) }
         fun sendMultiple(streams: ArrayList<Uri>?) = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
@@ -172,8 +178,8 @@ class InstallZipFlowTest {
             else -> null to emptyList()
         }
         val shapes = listOf(
-            view(uri), view(null), send(uri), send(null),
-            sendMultiple(arrayListOf(uri, uri2)), sendMultiple(arrayListOf(uri)), sendMultiple(arrayListOf()), sendMultiple(null),
+            view(androidUri), view(null), send(androidUri), send(null),
+            sendMultiple(arrayListOf(androidUri, androidUri2)), sendMultiple(arrayListOf(androidUri)), sendMultiple(arrayListOf()), sendMultiple(null),
             Intent(),
         )
         for (studyPadExport in listOf(false, true)) {
@@ -181,11 +187,19 @@ class InstallZipFlowTest {
                 val (action, uris) = routeArgs(intent)
                 assertEquals(
                     "action=${intent.action} uris=$uris studyPad=$studyPadExport",
-                    classifyEntry(intent) { studyPadExport },
-                    classifyInstallZipRoute(action, uris) { studyPadExport },
+                    classifyEntry(intent) { studyPadExport }.toRoute(),
+                    classifyInstallZipRoute(action, uris.map { DocumentRef(it.toString()) }) { studyPadExport },
                 )
             }
         }
+    }
+
+    /** The Intent classification's answer in the route classification's `Uri`-free shape. */
+    private fun InstallZipEntryDecision.toRoute(): InstallZipRouteDecision = when (this) {
+        is InstallZipEntryDecision.ConfirmThenEnqueue -> InstallZipRouteDecision.ConfirmThenEnqueue(DocumentRef(uri.toString()), action)
+        is InstallZipEntryDecision.EnqueueNow -> InstallZipRouteDecision.EnqueueNow(uris.map { DocumentRef(it.toString()) }, action)
+        InstallZipEntryDecision.PickFile -> InstallZipRouteDecision.PickFile
+        InstallZipEntryDecision.Invalid -> InstallZipRouteDecision.Invalid
     }
 
     @Test
@@ -219,10 +233,10 @@ class InstallZipFlowTest {
 
     @Test
     fun theRouteClassificationMirrorsTheIntentOne() = runTest {
-        assertEquals(InstallZipEntryDecision.PickFile, classifyInstallZipRoute(null, emptyList()) { false })
-        assertEquals(InstallZipEntryDecision.ConfirmThenEnqueue(uri, Intent.ACTION_VIEW), classifyInstallZipRoute(Intent.ACTION_VIEW, listOf(uri)) { false })
-        assertEquals(InstallZipEntryDecision.EnqueueNow(listOf(uri), Intent.ACTION_VIEW), classifyInstallZipRoute(Intent.ACTION_VIEW, listOf(uri)) { true })
-        assertEquals(InstallZipEntryDecision.EnqueueNow(listOf(uri), Intent.ACTION_SEND), classifyInstallZipRoute(Intent.ACTION_SEND, listOf(uri)) { false })
-        assertEquals(InstallZipEntryDecision.Invalid, classifyInstallZipRoute(Intent.ACTION_SEND, emptyList()) { false })
+        assertEquals(InstallZipRouteDecision.PickFile, classifyInstallZipRoute(null, emptyList()) { false })
+        assertEquals(InstallZipRouteDecision.ConfirmThenEnqueue(uri, Intent.ACTION_VIEW), classifyInstallZipRoute(Intent.ACTION_VIEW, listOf(uri)) { false })
+        assertEquals(InstallZipRouteDecision.EnqueueNow(listOf(uri), Intent.ACTION_VIEW), classifyInstallZipRoute(Intent.ACTION_VIEW, listOf(uri)) { true })
+        assertEquals(InstallZipRouteDecision.EnqueueNow(listOf(uri), Intent.ACTION_SEND), classifyInstallZipRoute(Intent.ACTION_SEND, listOf(uri)) { false })
+        assertEquals(InstallZipRouteDecision.Invalid, classifyInstallZipRoute(Intent.ACTION_SEND, emptyList()) { false })
     }
 }

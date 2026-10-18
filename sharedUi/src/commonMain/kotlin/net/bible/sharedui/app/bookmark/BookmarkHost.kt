@@ -63,6 +63,7 @@ import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedui.app.HostShell
+import net.bible.sharedui.app.installzip.InstallZipOpener
 import net.bible.sharedui.bookmark.ManageLabelsHelpDialog
 import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.bookmark.nav.BookmarksDeps
@@ -154,6 +155,7 @@ class BookmarkHost(
     private val icons: LabelIcons,
     private val studyPadExport: StudyPadExportPlatform,
     private val platform: BookmarkHostPlatform,
+    private val openInstallZip: InstallZipOpener,
     private val appSettingsProvider: () -> AppSettings,
     private val bookmarksServiceProvider: () -> BookmarksServiceImpl,
     private val bookmarkControlProvider: () -> BookmarkControl,
@@ -929,10 +931,10 @@ class BookmarkHost(
 
     /**
      * Classic `importStudyPads` (`:308-313`): InstallZip, then a controller refresh. Slice 8 D2: InstallZip is a
-     * destination of this host, answered through the platform's `openInstallZip` -- never `awaitIntent` (M5).
+     * destination of this host, answered through [openInstallZip] -- never `awaitIntent` (M5).
      */
     private fun importStudyPads(controller: ManageLabelsController) {
-        platform.openInstallZip { shell.hostScope.launch(Dispatchers.Main) { controller.refresh() } }
+        openInstallZip(null, emptyList()) { shell.hostScope.launch(Dispatchers.Main) { controller.refresh() } }
     }
 
     /**

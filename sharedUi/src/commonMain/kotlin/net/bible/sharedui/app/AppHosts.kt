@@ -39,6 +39,9 @@ import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.sharedui.app.backup.BackupFeatureHost
 import net.bible.sharedui.app.bookmark.BookmarkHost
 import net.bible.sharedui.app.chooser.ChooserHost
+import net.bible.sharedui.app.installzip.InstallZipHost
+import net.bible.sharedui.app.installzip.InstallZipOpener
+import net.bible.sharedui.app.ports.DocumentInstallStarter
 import net.bible.sharedui.app.ports.DebugActions
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
@@ -166,6 +169,7 @@ class AppHosts(
             appSettingsProvider = { koin.get<AppSettings>() },
             documentDialogs = ports.documentDialogs,
             platform = ports.chooserPlatform(),
+            openInstallZip = installZipOpener,
             windowControlProvider = { koin.get<WindowControl>() },
             documentControlProvider = { koin.get<DocumentControl>() },
             downloadControlProvider = { koin.get<DownloadControl>() },
@@ -181,6 +185,7 @@ class AppHosts(
             icons = ports.labelIcons,
             studyPadExport = ports.studyPadExport,
             platform = ports.bookmarkPlatform(),
+            openInstallZip = installZipOpener,
             appSettingsProvider = { koin.get<AppSettings>() },
             bookmarksServiceProvider = { koin.get<BookmarksServiceImpl>() },
             bookmarkControlProvider = { koin.get<BookmarkControl>() },
@@ -207,6 +212,7 @@ class AppHosts(
             shell = shell,
             strings = strings,
             platform = ports.readingPlanPlatform(),
+            openInstallZip = installZipOpener,
             documentPicker = ports.documentPicker,
             readingPlanControlProvider = { koin.get<ReadingPlanControl>() },
             speakControlProvider = { koin.get<SpeakControl>() },
@@ -259,6 +265,26 @@ class AppHosts(
         )
     }
 
+    /**
+     * The InstallZip destination's deps builder, its opener and its host-level answer collector. Built on first use;
+     * InstallZip starts uninitialised from Backup, so this touches no database.
+     */
+    val installZip: InstallZipHost by lazy {
+        InstallZipHost(
+            shell = shell,
+            strings = strings,
+            settings = koin.get<SettingsPlatform>(),
+            platform = ports.installZipPlatform(),
+            starter = koin.get<DocumentInstallStarter>(),
+            notificationPermission = ports.notificationPermission,
+            documentPicker = ports.documentPicker,
+            orientation = ports.orientationLock,
+        )
+    }
+
+    /** The other hosts' way into InstallZip; resolves [installZip] only when one of them opens it. */
+    private val installZipOpener: InstallZipOpener = { action, uris, onResult -> installZip.open(action, uris, onResult) }
+
     /** The host instance is going away: lets hosts drop what only lives as long as it (no-op for hosts never built). */
     fun onHostDestroy() {
         if (workspaceLazy.isInitialized()) workspace.onHostDestroy()
@@ -275,6 +301,8 @@ class AppHosts(
     /** Host-level collectors and sheets, outside the NavHost; grows task by task. */
     @Composable
     fun Overlays() {
+        // The InstallZip answer collector comes first, as it did in the activity, ahead of the bookmark cluster's.
+        installZip.Overlays()
         bookmark.Overlays()
     }
 

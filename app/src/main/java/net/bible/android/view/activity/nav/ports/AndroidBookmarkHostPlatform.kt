@@ -28,10 +28,6 @@ class AndroidBookmarkHostPlatform(private val activity: NavHostComposeActivity) 
         BookmarkCsvFlow(bookmarkControl).importBookmarksFromCSV(activity)
     }
 
-    override fun openInstallZip(onResult: () -> Unit) {
-        activity.openInstallZip { onResult() }
-    }
-
     override fun helpReadMoreUrl(studyPad: Boolean): String =
         if (studyPad) studyPadsVideo else labelsAndBookmarksPlaylist
 

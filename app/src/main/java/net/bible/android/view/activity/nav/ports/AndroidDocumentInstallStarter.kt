@@ -8,7 +8,7 @@ import net.bible.sharedui.app.ports.DocumentInstallStarter
 import net.bible.sharedui.app.ports.DocumentRef
 
 class AndroidDocumentInstallStarter(private val context: Context) : DocumentInstallStarter {
-    override fun start(uris: List<DocumentRef>, action: String) {
+    override fun start(uris: List<DocumentRef>, action: String?) {
         ContextCompat.startForegroundService(
             context,
             DocumentInstallService.enqueueIntent(context, uris.map { Uri.parse(it.uri) }, action),

@@ -157,6 +157,9 @@ import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppHostsState
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.app.ports.DocumentRef
+import net.bible.android.view.activity.nav.ports.AndroidOrientationLock
+import net.bible.android.view.activity.nav.ports.AndroidInstallZipHostPlatform
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.android.view.activity.base.AppDialogOverlay
 import net.bible.android.view.activity.base.FailClosedLinkRouting
@@ -211,7 +214,6 @@ import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
 import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.AndBibleAddons
 import net.bible.android.view.util.UiUtils
-import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.cloudsync.CloudSync
@@ -254,23 +256,10 @@ import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.docs.DocsLinks
-import android.Manifest
-import android.content.pm.ActivityInfo
-import androidx.core.content.ContextCompat
-import net.bible.android.view.activity.installzip.INSTALL_ZIP_SAF_MIME_TYPES
-import net.bible.android.view.activity.installzip.InstallZipFlow
-import net.bible.android.view.activity.installzip.installZipDisplayName
-import net.bible.android.view.activity.installzip.installZipFormatsText
-import net.bible.android.view.activity.installzip.mapPhaseToUiState
-import net.bible.service.common.AndBibleBackupManifest
-import net.bible.service.common.BackupType
 import net.bible.service.common.fromUri
-import net.bible.service.installzip.DocumentInstallService
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
-import net.bible.sharedui.installzip.nav.InstallZipNavDeps
-import net.bible.sharedui.installzip.nav.InstallZipSession
 import net.bible.android.view.activity.WelcomeFlow
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
@@ -466,6 +455,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         readingPlanPlatform = { AndroidReadingPlanHostPlatform(this) },
         myDocumentFiles = AndroidMyDocumentFiles(this, { backupControl }, { appHosts.bookmark.askDestination() }),
         backupHost = AndroidBackupHost { this },
+        orientationLock = AndroidOrientationLock(this),
+        installZipPlatform = { AndroidInstallZipHostPlatform(this) },
     )
 
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
@@ -3559,22 +3550,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 }
                 val chooserDeps = remember { appHosts.chooser.navDeps(navController, keyChooserResults, passageResults, documentResults) }
                 val backupDeps = remember { appHosts.backup.navDeps(navController) }
-                val installZipDeps = remember {
-                    InstallZipNavDeps(
-                        setWindowTitle = { title -> setTitle(title) },
-                        // The manifest label classic's Activity had: install_zip_module, overridden to
-                        // install_zip_module_discrete by src/discrete/AndroidManifest.xml.
-                        windowTitle = getString(
-                            if (BuildVariant.Appearance.isDiscrete) R.string.install_zip_module_discrete
-                            else R.string.install_zip_module
-                        ),
-                        installZipResults = installZipResults,
-                        sessionFor = { action, uris, onFinished -> installZipSessionFor(action, uris, onFinished) },
-                        lockOrientation = { lockPortraitForInstallZip() },
-                        hostBound = { DocumentInstallService.hostBound() },
-                        hostUnbound = { DocumentInstallService.hostUnbound() },
-                    )
-                }
+                val installZipDeps = remember { appHosts.installZip.navDeps(navController, installZipResults) }
                 // Slice 8 E2: the first-run welcome, formerly StartupComposeActivity -- see [WelcomeFlow].
                 val welcomeDeps = remember { appHosts.welcome.navDeps(navController) }
                 val workspaceDeps = remember { appHosts.workspace.navDeps(navController, workspaceResults, textSettingsResults, manageLabelsResults) }
@@ -3634,8 +3610,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     ),
                     readingGraph = { readingNavGraph(navController, readingNavDeps) },
                     overlays = {
-                    InstallZipReturnCollector()
-                    // The bookmark cluster's host-level collector and sheets (BookmarkHost.Overlays), in the order they had here.
+                    // InstallZip's answer collector, then the bookmark cluster's host-level collector and sheets (see AppHosts.Overlays).
                     appHosts.Overlays()
 
                     AppDialogOverlay(
@@ -5496,7 +5471,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     // ——— slice 8 D1: InstallZip ———————————————————————————————————————————————————————————————————————
     // Spec §3.1 rule 1: INSTALL_ZIP can be this host's START destination (the external redirect), so its
-    // channel's exitWithResult is a REAL exit carrying classic's two result codes (no data, M6).
+    // channel's exitWithResult is a REAL exit carrying classic's two result codes (no data, M6). The deps, the opener,
+    // the session and the answer collector live in `appHosts.installZip` (`InstallZipHost`); the channel stays here
+    // because only the Activity can `setResult`/`finish`.
 
     private val installZipResults = NavResultChannel<InstallZipResult> { result ->
         setResult(if (result == InstallZipResult.OK) RESULT_OK else RESULT_CANCELED)
@@ -5504,117 +5481,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
-     * What the in-graph caller that opened InstallZip wants done with its answer -- see [openInstallZip].
-     * Handed from [openInstallZip] to the session [installZipSessionFor] builds next, and back here only
-     * when that session's answer is delivered (`InstallZipSession.onDelivering`), for [InstallZipReturnCollector].
-     */
-    private var installZipReturn: ((InstallZipResult) -> Unit)? = null
-
-    /** Registered at construction, i.e. before STARTED (the rule `ReadingCommands`' own launcher taught R8). */
-    private val installZipNotificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* no-op, as classic */ }
-
-    /**
-     * Open InstallZip in-graph; [onResult] runs once with its answer (slice 8 §3.2, M5). Never an
-     * `awaitIntent`: on this `singleTop` host that is answered by a synthetic cancel before the install
-     * runs (`InstallZipAwaitGuardTest`). [action]/[uris] are for an entry that already has files (the
-     * reading-plan import picks one first); the in-app default shows the picker.
-     *
-     * Slice 8 spec §3.1 rule 2: initialises the app first when this host started uninitialised (on BACKUP,
-     * whose "restore documents" opens InstallZip) -- see [initialiseIfStartedUninitialised].
+     * Open InstallZip in-graph; [onResult] runs once with its answer. A one-line delegate to `appHosts.installZip`
+     * (`InstallZipHost.open`): the reading view's JS bridge (`page` package) reaches it through the activity.
      */
     internal fun openInstallZip(
         action: String? = null,
         uris: List<Uri> = emptyList(),
         onResult: (InstallZipResult) -> Unit = {},
-    ) {
-        val controller = navController ?: run {
-            Log.w(TAG_NAV_HOST, "InstallZip requested before the graph composed; ignored.")
-            return
-        }
-        initialiseIfStartedUninitialised()
-        installZipReturn = onResult
-        navigateToRoute(controller, NavRoutes.installZip(action, uris.map { it.toString() }))
-    }
-
-    private fun installZipSessionFor(
-        action: String?,
-        uris: List<String>,
-        onFinished: (InstallZipResult) -> Unit,
-    ): InstallZipSession {
-        // Spec §3.1 rule 2, the arm-entry half: a destination restored onto an uninitialised host (process death on
-        // Backup -> InstallZip) never passed through [openInstallZip]. Before the session touches anything.
-        initialiseIfStartedUninitialised()
-        // Fix rounds 2-3 (review minor 2, re-review minor B): the opener's callback belongs to THIS session.
-        // Taken off the host field now, and put back only when the destination DELIVERS this session's
-        // answer (onDelivering). A session that closes unanswered, or whose answer is held while covered and
-        // then dropped because its entry left, therefore drops the callback. A later entry nobody opened (a
-        // restored one, the redirect's start) cannot answer into it.
-        val onReturn = installZipReturn
-        installZipReturn = null
-        val flow = InstallZipFlow(
-            scope = lifecycleScope,
-            action = action,
-            uris = uris.map(Uri::parse),
-            seams = InstallZipFlow.Seams(
-                jobs = DocumentInstallService.controller.jobs,
-                isStudyPadExport = { uri -> AndBibleBackupManifest.fromUri(uri)?.backupType == BackupType.STUDYPAD_EXPORT },
-                displayName = { uri -> installZipDisplayName(this, uri) },
-                formatsText = { installZipFormatsText(this) },
-                pickFile = {
-                    val result = awaitIntent(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                        type = "*/*"
-                        putExtra(Intent.EXTRA_MIME_TYPES, INSTALL_ZIP_SAF_MIME_TYPES)
-                    })
-                    result.data?.data?.takeIf { result.resultCode == RESULT_OK }
-                },
-                enqueue = { list, act ->
-                    ContextCompat.startForegroundService(this, DocumentInstallService.enqueueIntent(this, list, act))
-                },
-                resolveDecision = { id, proceed -> DocumentInstallService.resolveDecision(id, proceed) },
-                mapPhase = { job -> mapPhaseToUiState(this, job.phase, job.displayName) },
-                requestNotificationPermission = {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                        ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        installZipNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    }
-                },
-                noFileManager = { UserMessages.toast(getString(R.string.no_file_manager)) },
-            ),
-            onFinished = onFinished,
-        )
-        return object : InstallZipSession by flow {
-            override fun onDelivering() {
-                installZipReturn = onReturn
-            }
-        }
-    }
-
-    /** Classic's manifest `screenOrientation="portrait"`, destination-scoped (spec §3.2). */
-    private fun lockPortraitForInstallZip(): () -> Unit {
-        val previous = requestedOrientation
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        return { requestedOrientation = previous }
-    }
-
-    /**
-     * Host-level, outside the NavHost like the label-manager dialogs: InstallZip's answer goes back to
-     * whichever in-graph caller opened it ([installZipReturn]), not to a parent arm -- its callers are
-     * host functions (`onInstallZip`, `onChooseDocumentInstallZip`, `importStudyPads`, the welcome's
-     * Import). Its own composable so a result recomposes this scope and nothing else.
-     */
-    @Composable
-    private fun InstallZipReturnCollector() {
-        val pending by installZipResults.pending.collectAsState()
-        LaunchedEffect(pending) {
-            if (pending == null) return@LaunchedEffect
-            val result = installZipResults.consume() ?: return@LaunchedEffect
-            val onReturn = installZipReturn
-            installZipReturn = null
-            onReturn?.invoke(result)
-        }
-    }
+    ): Unit = appHosts.installZip.open(action, uris.map { DocumentRef(it.toString()) }, onResult)
 
     // --- Workspace cluster (WorkspaceHost) -------------------------------------------------------
     // The selector's and the text display settings' deps, sessions and controllers live in `appHosts.workspace`

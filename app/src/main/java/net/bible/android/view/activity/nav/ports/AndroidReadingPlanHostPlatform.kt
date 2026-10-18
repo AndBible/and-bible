@@ -1,10 +1,7 @@
 package net.bible.android.view.activity.nav.ports
 
-import android.content.Intent
-import android.net.Uri
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
-import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.readingplan.ReadingPlanHostPlatform
 import java.util.Calendar
 
@@ -24,9 +21,5 @@ class AndroidReadingPlanHostPlatform(private val activity: NavHostComposeActivit
         val calendar = Calendar.getInstance().apply { timeInMillis = epochMs }
         calendar.set(year, month1to12 - 1, day)
         return calendar.timeInMillis
-    }
-
-    override fun openInstallZip(refs: List<DocumentRef>) {
-        activity.openInstallZip(action = Intent.ACTION_VIEW, uris = refs.map { Uri.parse(it.uri) })
     }
 }

@@ -35,4 +35,8 @@ class HostPorts(
     val myDocumentFiles: MyDocumentFiles,
     /** The Backup screen's file pickers, share sheet and dialogs, which need the Activity on Android. */
     val backupHost: net.bible.android.control.backup.BackupHost,
+    /** Pins the screen to portrait while InstallZip is showing. */
+    val orientationLock: OrientationLock,
+    /** The platform half of InstallZip; a provider because the host builds it on first use. */
+    val installZipPlatform: () -> net.bible.sharedui.app.installzip.InstallZipHostPlatform,
 )

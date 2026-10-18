@@ -46,7 +46,6 @@ class BookmarkHostTest {
         override fun subscribeBookmarkSync(onChanged: () -> Unit): () -> Unit = {}
         override suspend fun exportBookmarksCsv(bookmarks: List<net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes>) = Unit
         override suspend fun importBookmarksCsv() = Unit
-        override fun openInstallZip(onResult: () -> Unit) = Unit
         override fun helpReadMoreUrl(studyPad: Boolean): String = "https://example.test/help"
         override fun documentsRecreation() = BookmarkDocumentsRecreation()
     }
@@ -86,6 +85,7 @@ class BookmarkHostTest {
             ) = Unit
         },
         platform = NoPlatform,
+        openInstallZip = { _, _, _ -> },
         appSettingsProvider = { error("settings must stay lazy") },
         bookmarksServiceProvider = { error("bookmarksService must stay lazy") },
         bookmarkControlProvider = { error("bookmarkControl must stay lazy") },

@@ -30,12 +30,6 @@ interface BookmarkHostPlatform {
     /** Classic `importBookmarksFromCSV`. */
     suspend fun importBookmarksCsv()
 
-    /**
-     * Opens InstallZip in-graph and runs [onResult] once with its answer. Temporary: it goes through the activity
-     * until Task 12 lifts the install-zip members.
-     */
-    fun openInstallZip(onResult: () -> Unit)
-
     /** The "read more" link of the label manager's help dialog: the StudyPad playlist or the labels one. */
     fun helpReadMoreUrl(studyPad: Boolean): String
 

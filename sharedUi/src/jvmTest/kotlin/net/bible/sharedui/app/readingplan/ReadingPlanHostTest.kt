@@ -28,7 +28,6 @@ class ReadingPlanHostTest {
         override val isPortrait = true
         override fun localYmd(epochMs: Long) = Triple(1970, 1, 1)
         override fun withLocalYmd(epochMs: Long, year: Int, month1to12: Int, day: Int) = epochMs
-        override fun openInstallZip(refs: List<DocumentRef>) = Unit
     }
 
     private val resets = mutableListOf<String>()
@@ -37,6 +36,7 @@ class ReadingPlanHostTest {
         shell = shell,
         strings = iosStrings("en"),
         platform = platform,
+        openInstallZip = { _, _, _ -> },
         documentPicker = object : DocumentPicker {
             override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean) = emptyList<DocumentRef>()
             override suspend fun createDocument(suggestedName: String, mimeType: String): DocumentRef? = null

@@ -39,6 +39,7 @@ import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedui.app.HostShell
+import net.bible.sharedui.app.installzip.InstallZipOpener
 import net.bible.sharedui.app.ports.DocumentDialogs
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
@@ -123,6 +124,7 @@ class ChooserHost(
     private val appSettingsProvider: () -> AppSettings,
     private val documentDialogs: DocumentDialogs,
     private val platform: ChooserHostPlatform,
+    private val openInstallZip: InstallZipOpener,
     private val windowControlProvider: () -> WindowControl,
     private val documentControlProvider: () -> DocumentControl,
     private val downloadControlProvider: () -> DownloadControl,
@@ -584,7 +586,7 @@ class ChooserHost(
 
     /** Classic `onInstallZip()` (`:414-421`). Slice 8 D2: in-graph, answered through the install-zip opener (M5). */
     private fun onChooseDocumentInstallZip() {
-        platform.openInstallZip {
+        openInstallZip(null, emptyList()) {
             DocumentChanges.notifyInstalledChanged()
             shell.hostScope.launch { loadChooseDocuments() }
         }

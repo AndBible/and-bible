@@ -29,6 +29,8 @@ import net.bible.sharedlogic.sync.bookNameMonitor
 import net.bible.sharedlogic.sync.withMonitor
 import net.bible.sharedlogic.util.currentTimeMillis
 import net.bible.sharedui.app.HostShell
+import net.bible.android.view.activity.installzip.INSTALL_ZIP_ACTION_VIEW
+import net.bible.sharedui.app.installzip.InstallZipOpener
 import net.bible.sharedui.app.ports.DocumentPicker
 import net.bible.sharedui.components.ymdToUtcMidnightMillis
 import net.bible.sharedui.readingplan.nav.DailyReadingDeps
@@ -62,6 +64,7 @@ class ReadingPlanHost(
     private val shell: HostShell,
     private val strings: Strings,
     private val platform: ReadingPlanHostPlatform,
+    private val openInstallZip: InstallZipOpener,
     private val documentPicker: DocumentPicker,
     private val readingPlanControlProvider: () -> ReadingPlanControl,
     private val speakControlProvider: () -> SpeakControl,
@@ -505,7 +508,7 @@ class ReadingPlanHost(
     private fun importPlan() {
         shell.hostScope.launch {
             val refs = documentPicker.openDocuments(listOf("application/zip"), multiple = false)
-            if (refs.isNotEmpty()) platform.openInstallZip(refs)
+            if (refs.isNotEmpty()) openInstallZip(INSTALL_ZIP_ACTION_VIEW, refs) {}
         }
     }
 }
