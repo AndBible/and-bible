@@ -24,7 +24,8 @@ import platform.Foundation.languageCode
 
 /**
  * [PlatformLocales] for iOS. [defaultLanguage] returns Android's legacy codes (`iw`, `in`, `ji`) so shared code sees
- * what it sees on Android; [languageProvider] is the seam tests use to inject the device language.
+ * what it sees on Android (the only place the legacy split applies: `IosLocaleSupport` and `IosLocaleProvider` keep
+ * the modern `he`/`id`/`yi`, as `KLocale` normalises them); [languageProvider] is the seam tests use to inject the device language.
  */
 class IosPlatformLocales(
     private val languageProvider: () -> String = { NSLocale.currentLocale.languageCode },

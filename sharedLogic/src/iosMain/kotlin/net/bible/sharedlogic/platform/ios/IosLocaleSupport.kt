@@ -22,6 +22,7 @@ import platform.Foundation.NSLocale
 import platform.Foundation.NSNumber
 import platform.Foundation.NSNumberFormatter
 import platform.Foundation.NSNumberFormatterDecimalStyle
+import platform.Foundation.NSNumberFormatterRoundHalfUp
 import platform.Foundation.countryCode
 import platform.Foundation.currentLocale
 import platform.Foundation.languageCode
@@ -30,7 +31,19 @@ import platform.Foundation.localizedStringForLanguageCode
 import platform.Foundation.scriptCode
 
 /** [LocaleSupport] on `NSLocale.currentLocale`, read on every access. `asString` is `language_COUNTRY` like `Locale.toString()`. */
-object IosLocaleSupport : LocaleSupport {
+object IosLocaleSupport : LocaleSupport by IosLocaleSupportImpl()
+
+/**
+ * The implementation behind [IosLocaleSupport]; [localeProvider] is the test seam (the object reads the current locale).
+ *
+ * Language codes: this class and `IosLocaleProvider` use the modern codes `NSLocale` reports (`he`, `id`, `yi`),
+ * and `IosPlatformLocales.defaultLanguage` alone maps them to Android's legacy `iw`, `in`, `ji`, because that is the
+ * one place shared code compares the default language against legacy JDK codes (`AndroidPlatformLocales`).
+ * `LocaleValue.language` is not used for such comparisons.
+ */
+internal class IosLocaleSupportImpl(
+    private val localeProvider: () -> NSLocale = { NSLocale.currentLocale },
+) : LocaleSupport {
     private fun value(language: String, country: String, script: String = ""): LocaleValue {
         val lang = language.lowercase()
         val region = country.uppercase()
@@ -42,7 +55,7 @@ object IosLocaleSupport : LocaleSupport {
     private fun from(locale: NSLocale) =
         value(locale.languageCode, locale.countryCode ?: "", locale.scriptCode ?: "")
 
-    override val default: LocaleValue get() = from(NSLocale.currentLocale)
+    override val default: LocaleValue get() = from(localeProvider())
 
     override fun of(language: String, country: String) = value(language, country)
 
@@ -57,7 +70,7 @@ object IosLocaleSupport : LocaleSupport {
         return locale.localizedStringForLanguageCode(locale.languageCode) ?: tag
     }
 
-    override fun defaultDisplayLanguage(): String = NSLocale.currentLocale.let {
+    override fun defaultDisplayLanguage(): String = localeProvider().let {
         it.localizedStringForLanguageCode(it.languageCode) ?: it.languageCode
     }
 
@@ -68,7 +81,9 @@ object IosLocaleSupport : LocaleSupport {
         .stringFromNumber(NSNumber(longLong = value)) ?: value.toString()
 
     private fun formatter(decimals: Int, grouping: Boolean) = NSNumberFormatter().apply {
-        locale = NSLocale.currentLocale
+        locale = localeProvider()
+        // Java's %.nf rounds half up; NSNumberFormatter defaults to half even.
+        roundingMode = NSNumberFormatterRoundHalfUp
         numberStyle = NSNumberFormatterDecimalStyle
         minimumFractionDigits = decimals.toULong()
         maximumFractionDigits = decimals.toULong()

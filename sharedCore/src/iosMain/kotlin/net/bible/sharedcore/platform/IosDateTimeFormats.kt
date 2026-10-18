@@ -16,6 +16,8 @@
  */
 package net.bible.sharedcore.platform
 
+import platform.Foundation.NSCalendar
+import platform.Foundation.NSCalendarIdentifierGregorian
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDateFormatterNoStyle
@@ -27,14 +29,27 @@ import platform.Foundation.NSTimeZone
 import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.defaultTimeZone
+import platform.Foundation.localeIdentifier
+import platform.Foundation.localeWithLocaleIdentifier
 
 /** [DateTimeFormats] on `NSDateFormatter` (short styles, fixed patterns) and `NSRelativeDateTimeFormatter` (abbreviated). */
-class IosDateTimeFormats : DateTimeFormats {
+class IosDateTimeFormats(
+    private val localeProvider: () -> NSLocale = { NSLocale.currentLocale },
+) : DateTimeFormats {
     private fun date(epochMs: Long) = NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0)
 
     private fun formatter() = NSDateFormatter().apply {
-        locale = NSLocale.currentLocale
+        locale = localeProvider()
         timeZone = NSTimeZone.defaultTimeZone
+    }
+
+    /**
+     * Fixed patterns feed file names, exports and logs, so they are Gregorian with Latin digits whatever the device
+     * calendar or locale (Thai Buddhist year 2569, Arabic-Indic digits), while names (`EEE`, `MMM`) stay localised.
+     */
+    private fun patternLocale(): NSLocale {
+        val base = localeProvider().localeIdentifier.substringBefore('@')
+        return NSLocale.localeWithLocaleIdentifier("$base@calendar=gregorian;numbers=latn")
     }
 
     override fun shortDate(epochMs: Long): String = formatter().apply {
@@ -48,11 +63,13 @@ class IosDateTimeFormats : DateTimeFormats {
     }.stringFromDate(date(epochMs))
 
     override fun relativeTimeSpan(epochMs: Long, nowMs: Long): String = NSRelativeDateTimeFormatter().apply {
-        locale = NSLocale.currentLocale
+        locale = localeProvider()
         unitsStyle = NSRelativeDateTimeFormatterUnitsStyleAbbreviated
     }.localizedStringForDate(date(epochMs), relativeToDate = date(nowMs))
 
     override fun pattern(pattern: String, epochMs: Long): String = formatter().apply {
+        locale = patternLocale()
+        calendar = NSCalendar(calendarIdentifier = NSCalendarIdentifierGregorian)
         dateFormat = pattern
     }.stringFromDate(date(epochMs))
 }

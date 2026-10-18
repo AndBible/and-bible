@@ -49,4 +49,20 @@ class CommonSearchHighlighterNativeParityTest {
             result,
         )
     }
+
+    /** Hebrew with niqqud: combining marks are inside the word, so the term is matched whole between spaces. */
+    @Test fun hebrewTermWithNiqqudIsHighlighted() {
+        val result = CommonSearchHighlighter.highlight(
+            osis("בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת"), listOf("בָּרָא"), emptyList(),
+        )
+
+        assertEquals(
+            StyledText(listOf(
+                StyledRun("בְּרֵאשִׁית "),
+                StyledRun("בָּרָא", highlight = true),
+                StyledRun(" אֱלֹהִים אֵת"),
+            )),
+            result,
+        )
+    }
 }

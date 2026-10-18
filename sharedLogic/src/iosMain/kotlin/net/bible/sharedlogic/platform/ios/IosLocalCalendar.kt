@@ -18,6 +18,7 @@ package net.bible.sharedlogic.platform.ios
 
 import net.bible.sharedlogic.platform.LocalCalendar
 import platform.Foundation.NSCalendar
+import platform.Foundation.NSCalendarIdentifierGregorian
 import platform.Foundation.NSCalendarUnitDay
 import platform.Foundation.NSCalendarUnitMonth
 import platform.Foundation.NSCalendarUnitWeekOfYear
@@ -28,17 +29,30 @@ import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDateFormatterMediumStyle
 import platform.Foundation.NSDateFormatterNoStyle
 import platform.Foundation.NSLocale
+import platform.Foundation.NSTimeZone
+import platform.Foundation.defaultTimeZone
 import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.localeWithLocaleIdentifier
 import platform.Foundation.timeIntervalSince1970
 
 /**
- * [LocalCalendar] on `NSCalendar.currentCalendar`: DST-aware (calendar-day arithmetic keeps the wall-clock time) and
+ * [LocalCalendar] on a Gregorian `NSCalendar` in the current time zone: DST-aware (calendar-day arithmetic keeps the wall-clock time) and
  * with the locale's first weekday. The calendar is read on every call so a changed time zone or locale is seen.
  */
-class IosLocalCalendar : LocalCalendar {
-    private val calendar: NSCalendar get() = NSCalendar.currentCalendar
+class IosLocalCalendar(
+    private val localeProvider: () -> NSLocale = { NSLocale.currentLocale },
+) : LocalCalendar {
+    /**
+     * A fresh Gregorian calendar in the current default time zone with the locale's first weekday. Pinned to
+     * Gregorian like Android's `Calendar.getInstance()`, so a Buddhist or Islamic device calendar never makes
+     * `currentYear()` 2569.
+     */
+    private val calendar: NSCalendar
+        get() = NSCalendar(calendarIdentifier = NSCalendarIdentifierGregorian).apply {
+            locale = localeProvider()
+            timeZone = NSTimeZone.defaultTimeZone
+        }
 
     private fun date(epochMs: Long) = NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0)
     private fun NSDate.toEpochMs(): Long = (timeIntervalSince1970 * 1000.0).toLong()
@@ -52,16 +66,17 @@ class IosLocalCalendar : LocalCalendar {
     override fun currentYear(): Int = calendar.component(NSCalendarUnitYear, fromDate = NSDate()).toInt()
 
     override fun formatDefaultDate(epochMs: Long): String = NSDateFormatter().apply {
-        locale = NSLocale.currentLocale
+        locale = localeProvider()
         dateStyle = NSDateFormatterMediumStyle
         timeStyle = NSDateFormatterNoStyle
     }.stringFromDate(date(epochMs))
 
     /** `MMM-d/yyyy` with US month names first, then the current locale's; neither parsing is an [IllegalArgumentException]. */
     override fun parseMonthDayYear(text: String): Long {
-        for (locale in listOf(NSLocale.localeWithLocaleIdentifier("en_US_POSIX"), NSLocale.currentLocale)) {
+        for (locale in listOf(NSLocale.localeWithLocaleIdentifier("en_US_POSIX"), localeProvider())) {
             val parsed = NSDateFormatter().apply {
                 this.locale = locale
+                calendar = this@IosLocalCalendar.calendar
                 dateFormat = "MMM-d/yyyy"
             }.dateFromString(text)
             if (parsed != null) return parsed.toEpochMs()
@@ -87,7 +102,8 @@ class IosLocalCalendar : LocalCalendar {
     override fun localMonth(epochMs: Long): Int = calendar.component(NSCalendarUnitMonth, fromDate = date(epochMs)).toInt() - 1
 
     override fun shortMonthName(epochMs: Long): String = NSDateFormatter().apply {
-        locale = NSLocale.currentLocale
+        locale = localeProvider()
+        calendar = this@IosLocalCalendar.calendar
         dateFormat = "LLL"
     }.stringFromDate(date(epochMs))
 

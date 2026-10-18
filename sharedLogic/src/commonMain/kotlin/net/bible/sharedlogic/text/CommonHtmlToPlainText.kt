@@ -5,8 +5,8 @@ import net.bible.service.sword.HtmlToPlainText
 /**
  * Common [HtmlToPlainText] for platforms without `android.text.Html` (iOS). Follows what
  * `htmlToSpan(html).toString()` gives for note and verse HTML under `Html.FROM_HTML_MODE_LEGACY`:
- * tags are dropped, `<br>` is a newline, `<p>` ends with a blank line and other blocks (`div`, `li`, headings,
- * `blockquote`, ...) with a newline (never doubled), runs of whitespace collapse to one space, a space after
+ * tags are dropped, `<br>` is a newline, and `<p>` and every other block (`div`, `li`, headings, `blockquote`, ...)
+ * is surrounded by a blank line (two newlines, never more, none at the start of the text), runs of whitespace collapse to one space, a space after
  * a space or newline (or at the start) is dropped, comments and `script`/`style` content are dropped, and entities
  * are decoded with [HtmlEntities] (`&nbsp;` stays U+00A0, as on Android).
  */
@@ -19,6 +19,7 @@ object CommonHtmlToPlainText : HtmlToPlainText {
     override fun convert(html: String): String {
         val out = StringBuilder()
         var text = StringBuilder()
+        var pOpen = false
 
         fun flushText() {
             if (text.isEmpty()) return
@@ -52,8 +53,10 @@ object CommonHtmlToPlainText : HtmlToPlainText {
                     i = if (endClose < 0) html.length else endClose + 1
                 }
                 name == "br" -> out.append('\n')
-                name == "p" -> ensureTrailingNewlines(out, 2)
-                name in BLOCKS -> ensureTrailingNewlines(out, 1)
+                // TagSoup auto-closes an open <p> at the next <p> and ignores an end tag that has no open <p>.
+                name == "p" && closing -> if (pOpen) { pOpen = false; ensureTrailingNewlines(out, 2) }
+                name == "p" -> { pOpen = true; ensureTrailingNewlines(out, 2) }
+                name in BLOCKS -> ensureTrailingNewlines(out, 2)
             }
         }
         flushText()
