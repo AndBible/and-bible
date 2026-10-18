@@ -249,7 +249,9 @@ import net.bible.sharedui.reading.host.ReadingHostHooks
 import net.bible.sharedui.reading.host.ReadingPaneFactory
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.reading.ShareVersesSheet
-import net.bible.sharedui.reading.SpeakTransportBar
+import net.bible.sharedui.reading.host.slots.ReadingHostSlots
+import net.bible.android.view.activity.nav.ports.AndroidExternalLinks
+import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.search.BibleResultsActions
 import net.bible.sharedui.search.BibleSearchSettings
@@ -802,6 +804,21 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         onConfig = { showSpeakSettings() },
     )
 
+    /**
+     * The reading view's host-built slots, in common code (`:sharedUi` `ReadingHostSlots`): the
+     * reading dialogs, the agent-log panel and the Speak bar. Declared after [agentLog] and
+     * [speakTransport], which it wraps; [fullScreen] is read lazily, in composition.
+     */
+    internal val slots = ReadingHostSlots(
+        hostState = hostState,
+        strings = { AndroidStrings(activity.hostContext) },
+        externalLinks = AndroidExternalLinks(),
+        agentLog = agentLog,
+        speakTransport = speakTransport,
+        disableAnimations = { CommonUtils.settings.disableAnimations },
+        fullScreen = { fullScreen.value },
+    )
+
     // ------------------------------------------------------------------------------------------
     // F6 Task 8a — SWORD search inside the reading view (the toolbar's search mode + the sheet).
     // ------------------------------------------------------------------------------------------
@@ -1270,36 +1287,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     onDismissRequest = { speakHelp.value = null },
                 )
             }
-        }
-    }
-
-    /**
-     * Platform-dialog removal Task 18 — the reading view's own dialogs ([ReadingDialog]), an EIGHTH
-     * sibling overlay. Unlike the seven above, both arms are plain `AlertDialog`-shaped (via
-     * `AbMessageDialog`/`AbConfirmDialog`), which stacks fine over any sheet that happens to be open
-     * (`ReadingOverlayExclusion`'s kdoc) — so this needs no exclusion wiring, unlike the sheets below.
-     */
-    @Composable
-    private fun ReadingDialogSlot() {
-        when (val dialog = readingDialog.value) {
-            null -> Unit
-            is ReadingDialog.Help -> AbLinkRouting(askFirst = CommonUtils.isDiscrete, onOpenExternal = { CommonUtils.openLinkNow(it) }) {
-                AbMessageDialog(
-                    title = dialog.title,
-                    html = dialog.html,
-                    confirmText = activity.getString(R.string.okay),
-                    onConfirm = ::dismissReadingDialog,
-                    onDismissRequest = ::dismissReadingDialog,
-                )
-            }
-            is ReadingDialog.ConfirmDeleteDocumentPage -> AbConfirmDialog(
-                title = null,
-                message = activity.getString(R.string.ai_document_delete_confirmation),
-                confirmText = activity.getString(R.string.yes),
-                dismissText = activity.getString(R.string.no),
-                onConfirm = ::confirmReadingDialog,
-                onDismiss = ::dismissReadingDialog,
-            )
         }
     }
 
@@ -3103,65 +3090,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // while still `expanded` never reports a collapsed height, so a local copy would stay 0
         // for that whole showing (fix round 1, Important 1 — see the slot's kdoc).
         agentLogSlot = { applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
-            val agentLogUiState by agentLog.state.collectAsState()
-            AgentLogPanel(
-                agentLogUiState,
-                animateStatus = !CommonUtils.settings.disableAnimations,
-                statusIcon = painterResource(R.drawable.icon_robot),
-                applyNavBarInset = applyNavBarInset,
-                panelHeightDp = if (agentLogUiState.expanded) {
-                    agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
-                } else null,   // collapsed lays out intrinsically, exactly as before round 12b
-                onHeightDragStarted = agentLog::onHeightDragStarted,
-                onHeightDrag = { dragUpDp ->
-                    agentLog.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp)
-                },
-                onCollapsedHeightMeasured = onCollapsedHeightMeasured,
-                onToggleExpanded = agentLog::toggleExpanded,
-                onStop = agentLog::stop,
-                onClose = agentLog::hide,
-                onModelSelectorClick = agentLog::onModelSelectorClick,
-                onModelChosen = agentLog::onModelChosen,
-                onModelPickerDismiss = agentLog::onModelPickerDismiss,
-                onRawLogClick = agentLog::onRawLogClick,
-            )
+            slots.AgentLog(applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured)
         },
         // Batch 12f Task 6: the Speak transport bar, pre-built here (closing over the live
         // `speakTransport` controller) exactly the same pass-through shape as `agentLogSlot`
         // above.
-        speakBarSlot = { applyNavBarInset ->
-            val speakState by speakTransport.state.collectAsState()
-            // Round 14b §6: the agent panel's visibility, narrowed to a boolean through
-            // `derivedStateOf` — the SAME idiom as `agentLogVisible` a few lines below, and
-            // for the same reason: collecting `agentLog.state` raw here would resubscribe this
-            // slot to every log line, status change and cost update of a running agent, when all
-            // it needs is the one flip. Reading `.value` inside this restartable lambda means
-            // the bar recomposes only when the panel appears or disappears.
-            val agentLogState = agentLog.state.collectAsState()
-            val agentLogVisible = remember { derivedStateOf { agentLogState.value.visible } }
-            // `fullScreen` is the host's own MutableState (fed by fullScreenChanged), read here
-            // so the bar recomposes away when fullscreen is entered — see [speakBarVisible].
-            if (speakBarVisible(fullScreen = fullScreen.value, transportVisible = speakState.visible)) {
-                SpeakTransportBar(
-                    speakState,
-                    onPlayPause = { speakTransport.togglePlayPause() },
-                    onStop = { speakTransport.stop() },
-                    onRewind = { speakTransport.rewind() },
-                    onForward = { speakTransport.forward() },
-                    onPrev = { speakTransport.prevVerse() },
-                    onNext = { speakTransport.nextVerse() },
-                    onBookmark = { speakTransport.onBookmarkButton() },
-                    onConfig = { speakTransport.onConfig() },
-                    applyNavBarInset = applyNavBarInset,
-                    // Fully qualified, and NOT imported, on purpose: the import block of this
-                    // file is the one region round 14a's sibling container also appends to (its
-                    // new sheet wrappers), and the 14a/14b fork's whole premise is that no two
-                    // hunks in this file meet. One qualified call site costs less than a merge
-                    // conflict in a 290-line import block.
-                    ownsTopEdge = net.bible.sharedcore.reading.speakBarOwnsTopEdge(agentLogVisible.value),
-                )
-            }
-        },
+        speakBarSlot = { applyNavBarInset -> slots.SpeakBar(applyNavBarInset) },
         // Round 12b §3: whether the agent-log panel / speak bar will actually render, read as
         // `@Composable` lambdas rather than plain booleans so the flow collection stays inside
         // the composition that needs it (see the whole-branch-review non-restartable-lambda
@@ -3197,7 +3131,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         speakSettingsSlot = { SpeakSettingsSlot() },
         quickSheetContent = { sheet -> QuickSheetContent(sheet) },
         // Platform-dialog removal Task 18: the reading view's own dialogs (BJI help/delete-confirm).
-        readingDialogSlot = { ReadingDialogSlot() },
+        readingDialogSlot = { slots.ReadingDialog() },
     )
 
     /**

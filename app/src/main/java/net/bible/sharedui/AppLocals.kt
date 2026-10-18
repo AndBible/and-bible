@@ -8,6 +8,7 @@ import androidx.compose.ui.res.painterResource
 import net.bible.android.activity.R
 import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.reading.LocalPinIcon
+import net.bible.sharedui.reading.host.slots.LocalAgentStatusIcon
 import net.bible.sharedui.settings.LocalSettingsIcon
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.strings.LocalStrings
@@ -44,6 +45,7 @@ fun ProvideAppLocals(content: @Composable () -> Unit) {
         LocalStrings provides AndroidStrings(context),
         LocalCategoryIcon provides { category -> painterResource(categoryDrawableRes(category)) },
         LocalPinIcon provides { painterResource(R.drawable.ic_pin) },
+        LocalAgentStatusIcon provides { painterResource(R.drawable.icon_robot) },
         LocalSettingsIcon provides { key -> settingsDrawableRes(key)?.let { painterResource(it) } },
         // A/B batch 3 F1. Resolves the Activity lazily on each call and no-ops only when there is
         // none (e.g. an isolated `@Preview`, or a plain-`Context` caller). The Roborazzi golden
