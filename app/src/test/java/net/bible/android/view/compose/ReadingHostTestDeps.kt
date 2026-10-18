@@ -38,7 +38,6 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
-import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowStateService
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
@@ -107,12 +106,6 @@ internal object ReadingHostTestDeps {
     /** A controller over [windowState]'s layout and [commands]. */
     fun controller(windowState: WindowStateService, commands: WindowCommands) =
         ReadingViewController(windowState, commands)
-
-    /** A controller over an empty layout, for tests that mount a wiring and never look at windows. */
-    fun emptyController(commands: WindowCommands) = controller(
-        object : WindowStateService { override val layout = MutableStateFlow(WindowLayoutState.EMPTY) },
-        commands,
-    )
 
     /**
      * Deps with every required member inert, and the optional members a host test wires passed through.

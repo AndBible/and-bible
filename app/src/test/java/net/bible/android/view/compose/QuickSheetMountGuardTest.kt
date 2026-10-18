@@ -12,7 +12,7 @@ import org.junit.Test
  * here.
  *
  * The mount point is split across two files since the composition glue moved to `:sharedUi`: the
- * common `ReadingHost` invokes `deps.quickSheetContent(sheet)` once, for the sheet that
+ * common `ReadingHost` hands `deps.quickSheetContent` to one `QuickSheetMount`, which invokes it once, for the sheet that
  * `ReadingHostState.quickSheet` holds, and the Android host binds that slot to its one
  * `QuickSheetContent` composable, which is where every `AbQuickSheet` lives.
  */
@@ -44,9 +44,14 @@ class QuickSheetMountGuardTest {
             1, Regex("""quickSheetContent\s*=\s*\{\s*sheet\s*->\s*QuickSheetContent\(sheet\)\s*\}""").findAll(src).count(),
         )
         assertEquals(
-            "the slot parameter is invoked exactly once in the common composition",
-            1, Regex("""(?<![\w])deps\.quickSheetContent\(""").findAll(common).count(),
+            "the slot is handed to the one QuickSheetMount, exactly once",
+            1, Regex("""QuickSheetMount\(state,\s*deps\.quickSheetContent\)""").findAll(common).count(),
         )
+        assertEquals(
+            "QuickSheetMount invokes the slot exactly once",
+            1, Regex("""(?<![\w.])content\(sheet\)""").findAll(common).count(),
+        )
+        assertEquals("no other read of the slot", 1, Regex("""deps\.quickSheetContent""").findAll(common).count())
     }
 
     @Test fun noQuickSheetIsMountedOutsideTheSlot() {

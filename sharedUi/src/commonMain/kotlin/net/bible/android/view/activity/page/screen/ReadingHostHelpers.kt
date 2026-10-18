@@ -156,7 +156,7 @@ fun menuWindowIdFor(surface: PaneMenuAnchor, openAnchor: PaneMenuAnchor, openWin
 /**
  * Task 27 (platform-dialog removal, run 3) fix round 1: [ReadHistoryEntry] → [ReadHistoryRow]
  * mapping for the reading view's per-chapter read-history sheet
- * (`QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->` branch), extracted as a pure function —
+ * (`QuickSheetContent`'s `is ReadingQuickSheet.ReadHistory ->` branch), extracted as a pure function —
  * mirroring [speakBarVisible]/[menuWindowIdFor] above — so it is unit-testable without
  * Robolectric/Compose; see `ChapterReadHistoryRowTest`. Classic `ReadHistoryDialog.showForChapter`
  * used `showChapterPerRow = false`: `"$date $time"` / version, no chapter reference (the chapter is
@@ -177,7 +177,7 @@ fun chapterReadHistoryRow(
 
 /**
  * Task 27 (platform-dialog removal, run 3) fix round 2: the `onApplyDeletes` callback
- * `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->` branch wires into `AbReadHistorySheet`,
+ * `QuickSheetContent`'s `is ReadingQuickSheet.ReadHistory ->` branch wires into `AbReadHistorySheet`,
  * extracted as its own function — mirroring [chapterReadHistoryRow] above — so it is unit-testable
  * with a fake [ReadingProgressService] instead of only being exercisable by re-implementing its
  * `ids.isNotEmpty()` guard inside a test harness (review round 1's gap, named again in round 2: the
@@ -248,7 +248,7 @@ enum class PaneMenuAnchor { Pane, Rail }
 /**
  * Platform-dialog removal Task 18: the reading view's own dialogs, held as ONE host-owned state
  * (`ComposeReadingViewHost.readingDialog`) and rendered through ONE host-private slot
- * (`ReadingDialogSlot`) -- the same "shape 2" pattern `quickSheet`/`QuickSheetSlot` already use
+ * (`ReadingDialogSlot`) -- the same "shape 2" pattern `quickSheet`/`QuickSheetContent` already use
  * (Appendix -- site owners, Q1), rather than the raw-`StateFlow`-plus-many-callbacks shape
  * `readingLlmDialogs` needs (nothing outside this host observes either of these).
  *

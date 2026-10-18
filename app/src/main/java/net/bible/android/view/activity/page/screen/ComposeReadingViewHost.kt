@@ -501,7 +501,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /**
      * Platform-dialog removal Task 18: the reading view's own dialogs (see [ReadingDialog]'s kdoc
      * for why this is not a [ReadingOverlay]). ONE state, rendered through the one host-private
-     * slot [ReadingDialogSlot] — the same shape as [quickSheet]/[QuickSheetSlot].
+     * slot [ReadingDialogSlot] — the same shape as [quickSheet]/[QuickSheetContent].
      */
     internal val readingDialog get() = hostState.readingDialog
 
@@ -596,7 +596,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * restore that. Without it the sheet stayed open after the share chooser returned, or after
      * Copy's toast, across all three entry points (selection menu, bookmark share, JS share).
      *
-     * `internal`, not private lambdas inlined at the `QuickSheetSlot` call site, purely so
+     * `internal`, not private lambdas inlined at the `QuickSheetContent` call site, purely so
      * `ComposeReadingViewHostTest` can pin the close-after-action behaviour directly -- an open
      * `ModalBottomSheet` must never be idled in a Robolectric test (this run's "Hang protection"
      * rule), so the wiring has to be reachable without rendering the sheet.
@@ -2919,8 +2919,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /**
-     * The reading view, with THIS host's collaborators bound into every one of
-     * [ReadingViewContent]'s parameters -- what used to be [install]'s `mountComposeView(...)`
+     * The reading view, with THIS host's collaborators bound into the common `ReadingHost`'s
+     * [ReadingHostDeps] (see [readingHostDeps]) -- what used to be [install]'s `mountComposeView(...)`
      * argument block, and nothing else.
      *
      * **Extracted by reading-host re-typing R8, which is the task that gave it a second caller.**
@@ -2930,11 +2930,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * through a function that takes a container. Copying them into the nav host instead would have
      * made two argument lists to keep true, of which only one would ever be edited; this is one.
      *
-     * [mountComposeView] is NOT this function's caller and is not meant to be: it keeps the inert
-     * per-parameter defaults its five host tests pass around explicit collaborators, and its 71
-     * explicit forwards to [ReadingViewContent] stay the compile-time check that the test seam and
-     * the content cannot drift apart. This function is the PRODUCTION binding of the same
-     * parameters, and both are checked by the same compiler for the same reason.
+     * [mountComposeView] is NOT this function's caller and is not meant to be: it is the test seam
+     * its host tests use to mount the same [ReadingHostContent] with a hand-built [ReadingHostDeps].
+     *
+     * **No compiler checks that [readingHostDeps] wires every member.** [ReadingHostDeps] defaults
+     * most members to inert (so tests wire only what they exercise), and a member added later but not
+     * wired here would silently render nothing on Android. `ReadingHostDepsWiringGuardTest` is the
+     * check: it fails when a constructor parameter is not passed by name in [readingHostDeps] and is
+     * not allow-listed with a reason.
      */
     @Composable
     fun ReadingView() {

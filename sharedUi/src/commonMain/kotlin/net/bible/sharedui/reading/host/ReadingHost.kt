@@ -49,22 +49,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -73,16 +73,16 @@ import net.bible.android.view.activity.page.screen.menuWindowIdFor
 import net.bible.android.view.activity.page.screen.searchSheetShadowElevation
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.reading.DrawerCloseLatch
+import net.bible.sharedcore.reading.DrawerMenuState
+import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
+import net.bible.sharedcore.reading.ReadingQuickSheet
+import net.bible.sharedcore.reading.ReadingSearchBarState
+import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.bibleReferenceOverlayVisible
 import net.bible.sharedcore.reading.paneButtonDragAction
 import net.bible.sharedcore.reading.paneButtonFadeMillis
 import net.bible.sharedcore.reading.paneButtonHiddenAlpha
-import net.bible.sharedcore.reading.DrawerMenuState
-import net.bible.sharedcore.reading.OptionsMenuItem
-import net.bible.sharedcore.reading.ReadingQuickSheet
-import net.bible.sharedcore.reading.ReadingSearchBarState
-import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.speak.SpeakTransportDialog
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowPaneMenuItem
@@ -543,10 +543,19 @@ fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
     deps.textSettingsEditorSlot()
     deps.speakSettingsSlot()
     // The quick sheets: [ReadingHostState.quickSheet] says WHEN one is open, the host says what is in it.
-    state.quickSheet.value?.let { sheet ->
-        Box(Modifier.testTag(ReadingQuickSheetTag)) { deps.quickSheetContent(sheet) }
-    }
+    QuickSheetMount(state, deps.quickSheetContent)
     deps.readingDialogSlot()
+}
+
+/**
+ * Reads [ReadingHostState.quickSheet] in its own scope, so opening or closing a quick sheet recomposes
+ * only this mount and not the whole reading host (the old host slot read it the same way).
+ */
+@Composable
+private fun QuickSheetMount(state: ReadingHostState, content: @Composable (ReadingQuickSheet) -> Unit) {
+    state.quickSheet.value?.let { sheet ->
+        Box(Modifier.testTag(ReadingQuickSheetTag)) { content(sheet) }
+    }
 }
 
 /**

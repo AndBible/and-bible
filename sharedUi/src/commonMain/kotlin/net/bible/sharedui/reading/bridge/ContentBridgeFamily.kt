@@ -285,6 +285,7 @@ internal class ContentBridgeFamily(
         if (session.isDisposed) return
         val id = IdType(pageId)
         // The asking window travels with the request: the host must not guess it (the active window can differ).
+        // `windowOrNull` is never null for a live Android BibleView (its session is built with the window).
         val windowId = session.windowOrNull?.id ?: return
         session.scope.launch(Dispatchers.Main) {
             if (session.isDisposed) return@launch

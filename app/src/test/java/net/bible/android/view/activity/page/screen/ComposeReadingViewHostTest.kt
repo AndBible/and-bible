@@ -1153,7 +1153,7 @@ class ReadingDialogHostTest {
      * dismissed the dialog on click; `ReadingQuickSheet.Share`'s equivalents must too, unlike the
      * port's regression where the sheet stayed open after either action. Exercises
      * `shareVersesTextAndCloseSheet`/`copyVersesTextAndCloseSheet` directly (the same functions
-     * `QuickSheetSlot`'s `is ReadingQuickSheet.Share ->` arm wires `onShare`/`onCopy` to) rather
+     * `QuickSheetContent`'s `is ReadingQuickSheet.Share ->` arm wires `onShare`/`onCopy` to) rather
      * than rendering the sheet -- an open `ModalBottomSheet` must never be idled in a Robolectric
      * test (this run's "Hang protection" rule).
      */
@@ -1277,7 +1277,7 @@ class MenuWindowIdForTest {
 
 /**
  * Task 27 (platform-dialog removal, run 3) fix round 1: [chapterReadHistoryRow] is the load/format
- * step the review named as untested — `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->`
+ * step the review named as untested — `QuickSheetContent`'s `is ReadingQuickSheet.ReadHistory ->`
  * branch's `LaunchedEffect` maps every loaded [ReadHistoryEntry] through it. Extracted the same way
  * [SpeakBarVisibilityTest]/[MenuWindowIdForTest] above extract their gates, so the mapping itself —
  * not just the pre-existing `ReadingProgressServiceImpl.readHistoryForChapter`/
@@ -1315,7 +1315,7 @@ class ChapterReadHistoryRowTest {
  * `onApplyDeletes` callback assembly review round 2 named as still untested after round 1 — round
  * 1's `AbReadHistorySheetContentTest` could only REPRODUCE the `ids.isNotEmpty()` guard in its own
  * test harness, not exercise the real one, and nothing verified the `cycle` `LaunchedEffect` loads
- * actually reaches `deleteReadHistoryEntries`. `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory
+ * actually reaches `deleteReadHistoryEntries`. `QuickSheetContent`'s `is ReadingQuickSheet.ReadHistory
  * ->` branch now calls this function VERBATIM (`onApplyDeletes = readHistoryApplyDeletes(activity
  * .lifecycleScope, readingProgressService, cycle)`) instead of inlining the lambda, so this test
  * exercises the actual production glue.
