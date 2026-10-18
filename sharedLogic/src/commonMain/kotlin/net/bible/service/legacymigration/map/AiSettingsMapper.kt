@@ -137,6 +137,9 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
      */
     private suspend fun preservedRows(staging: StagingDatabases, drops: Drops): Tables {
         val source = preservedAiDb ?: return Tables()
+        // Fail fast (outside the read's catch): buildAppDatabase resolves a relative path against the app's database
+        // directory and would move a corrupt copy aside instead of throwing.
+        require(staging.directory.isAbsolute) { "staging directory must be absolute: ${staging.directory}" }
         val local = Drops()
         val tables = try {
             readPreserved(source, staging, local)
@@ -153,7 +156,10 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
         val fs = FileSystem.SYSTEM
         if (!fs.exists(source)) { drops.add(MISSING_FILE_REASON); return tables }
         fs.createDirectories(staging.directory)
-        val copy = staging.directory / "ai_settings.preserved.sqlite3"
+        val copy = fs.canonicalize(staging.directory) / "ai_settings.preserved.sqlite3"
+        val allSuffixes = listOf("", "-wal", "-journal", "-shm", ".lck")
+        // A leftover of an earlier run must not leak into this copy.
+        for (suffix in allSuffixes) fs.delete((copy.toString() + suffix).toPath(), mustExist = false)
         try {
             for (suffix in listOf("", "-wal", "-journal")) {
                 val from = (source.toString() + suffix).toPath()
@@ -165,6 +171,8 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
             }
             val version = openSqlite(copy.toString()).use { scalar(it, "PRAGMA user_version") }
             if (version < 1 || version > AI_SETTINGS_DATABASE_VERSION) { drops.add(unsupportedVersionReason(version.toInt())); return tables }
+            // What the migration chain removes (rows of dropped tables, the prompts' model link) is counted before and after.
+            val before = if (version < AI_SETTINGS_DATABASE_VERSION) openSqlite(copy.toString()).use { survey(it) } else null
             if (version < AI_SETTINGS_DATABASE_VERSION) {
                 val db = buildAppDatabase<AiSettingsDatabase>(copy.toString(), *aiSettingsMigrations)
                 try {
@@ -176,6 +184,16 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
             val db = openSqlite(copy.toString(), readOnly = true)
             try {
                 val existing = names(db)
+                if (before != null) {
+                    val after = survey(db)
+                    for (def in ALL) {
+                        val lost = (before.rows[def.table] ?: 0L) - (after.rows[def.table] ?: 0L)
+                        if (lost > 0) drops.add(migrationDropReason(def.table, version.toInt()), lost.toInt())
+                    }
+                    if (before.promptModelLinks > after.promptModelLinks) {
+                        drops.add(migrationLinkDropReason(version.toInt()), (before.promptModelLinks - after.promptModelLinks).toInt())
+                    }
+                }
                 for (def in ALL) {
                     if (def.table !in existing) { drops.add("preserved ai_settings.sqlite3 has no ${def.table} table"); continue }
                     tables.rows.getValue(def) += readTable(db, def, drops)
@@ -188,9 +206,24 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
                 db.close()
             }
         } finally {
-            for (suffix in listOf("", "-wal", "-journal", "-shm", ".lck")) fs.delete((copy.toString() + suffix).toPath(), mustExist = false)
+            for (suffix in allSuffixes) fs.delete((copy.toString() + suffix).toPath(), mustExist = false)
         }
         return tables
+    }
+
+    /** Row counts of the seven tables (0 for a table the schema does not have yet) and how many prompts name a model. */
+    private class Survey(val rows: Map<String, Long>, val promptModelLinks: Long)
+
+    private fun survey(db: SQLiteConnection): Survey {
+        val existing = names(db)
+        val rows = ALL.associate { it.table to if (it.table in existing) scalar(db, "SELECT COUNT(*) FROM ${it.table}") else 0L }
+        // The link is `providerConfigId` before schema v9 and `configuredModelId` from then on.
+        val link = if ("AgentPrompt" !in existing) null else
+            db.prepare("SELECT name FROM pragma_table_info('AgentPrompt')").use { st ->
+                buildList { while (st.step()) add(st.getText(0)) }
+            }.firstOrNull { it == "configuredModelId" || it == "providerConfigId" }
+        val links = link?.let { scalar(db, "SELECT COUNT(*) FROM AgentPrompt WHERE $it IS NOT NULL") } ?: 0L
+        return Survey(rows, links)
     }
 
     private fun scalar(db: SQLiteConnection, sql: String): Long = db.prepare(sql).use { check(it.step()); it.getLong(0) }
@@ -372,6 +405,11 @@ class AiSettingsMapper(private val preservedAiDb: Path?) : CategoryMapper {
 
         /** Report line for [count] preserved rows of [table] that a Swift row with the same id replaced. */
         fun supersededReason(table: String) = "preserved $table row superseded by the Swift app's own row with the same id"
+
+        /** Report line for [table] rows that the Android migration chain from schema [version] removed from the preserved file. */
+        fun migrationDropReason(table: String, version: Int) = "preserved $table rows dropped by the Android schema migration from v$version"
+
+        fun migrationLinkDropReason(version: Int) = "preserved AgentPrompt model links dropped by the Android schema migration from v$version"
 
         fun unsupportedVersionReason(version: Int) = "preserved ai_settings.sqlite3 has unsupported schema version $version"
 

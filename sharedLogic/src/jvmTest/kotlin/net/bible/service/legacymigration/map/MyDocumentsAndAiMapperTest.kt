@@ -32,6 +32,7 @@ import net.bible.service.legacymigration.testsupport.fixture
 import net.bible.shareddata.fixtures.createFromExport
 import okio.Path
 import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
 
 class MyDocumentsAndAiMapperTest {
     private fun snapshot(fx: FixtureDir) = LegacySnapshot(
@@ -348,6 +349,7 @@ class MyDocumentsAndAiMapperTest {
             assertEquals(emptyList(), result.differences, label(fx))
             assertEquals(before, sha256(preserved.toFile()), "preserved file must stay untouched ${label(fx)}")
             assertEquals(1, skipped(report).single { it.reason == AiSettingsMapper.supersededReason("GlobalAiSettings") }.rows, label(fx))
+            assertTrue(skipped(report).none { it.reason.contains("dropped by the Android schema migration") }, label(fx))
             withStaging { staging ->
                 runBlocking { snapshot(fx).use { AiSettingsMapper(preserved).map(it, staging, MigrationReport()) } }
                 assertEquals(
@@ -583,6 +585,12 @@ class MyDocumentsAndAiMapperTest {
         val (_, report) = mapAi(fx, file.toOkioPath(), emptySet())
         assertEquals(before, sha256(file))
         assertTrue(skipped(report).none { it.reason.startsWith("preserved ai_settings.sqlite3") }, skipped(report).toString())
+        // What the v8->v9 migration removes is reported: the usage record and the prompt's link to its provider/model.
+        assertEquals(
+            listOf(AiSettingsMapper.migrationDropReason("LlmUsageRecord", 8) to 1, AiSettingsMapper.migrationLinkDropReason(8) to 1),
+            skipped(report).map { it.reason to it.rows },
+        )
+        assertEquals("preserved LlmUsageRecord rows dropped by the Android schema migration from v8", AiSettingsMapper.migrationDropReason("LlmUsageRecord", 8))
         withStaging { staging ->
             runBlocking { snapshot(fx).use { AiSettingsMapper(file.toOkioPath()).map(it, staging, MigrationReport()) } }
             assertEquals(
@@ -597,6 +605,49 @@ class MyDocumentsAndAiMapperTest {
             assertEquals(listOf(listOf("t:[\"KJV\"]", "i:7", "t:[\"MHCC\"]", "i:0")), rows(staging.aiSettings, "SELECT aiExcludedDocuments, maxIterations, commentaryDeselected, autoHideAgentLogOnCompletion FROM GlobalAiSettings", 4))
             assertEquals(0, rows(staging.aiSettings, "SELECT id FROM LlmConfiguredModel", 1).size)
             assertEquals(0, rows(staging.aiSettings, "SELECT id FROM LlmUsageRecord", 1).size)
+        }
+    }
+
+    /** A WAL-mode source whose recent rows live only in the -wal file: the sidecar is copied, the rows and the version are read. */
+    @Test
+    fun preservedWalModeSourceWithRowsOnlyInTheWalIsRead() {
+        val fx = fixture("1.0.2", "26", "fresh")
+        val file = exportedPreserved(22)
+        val c = openSqlite(file.path)
+        try {
+            c.prepare("PRAGMA journal_mode=WAL").use { it.step() }
+            c.execSQL("INSERT INTO LlmProviderConfig (id, providerType, displayName, endpoint, apiFormat, orderNumber) VALUES (${x(121)}, 'CUSTOM', 'Only in the WAL', NULL, NULL, 2)")
+            // The connection stays open, so the row has not been checkpointed into the main file.
+            val wal = File(file.path + "-wal")
+            assertTrue(wal.isFile && wal.length() > 0, "the row must be in the -wal file")
+            val listingBefore = directoryListing(file)
+            val mainBefore = sha256(file)
+            val (_, report) = mapAi(fx, file.toOkioPath())
+            assertEquals(emptyList(), skipped(report))
+            assertEquals(listingBefore, directoryListing(file))
+            assertEquals(mainBefore, sha256(file))
+            withStaging { staging ->
+                runBlocking { snapshot(fx).use { AiSettingsMapper(file.toOkioPath()).map(it, staging, MigrationReport()) } }
+                assertEquals(
+                    listOf(listOf(blob(uuid(121)), "t:Only in the WAL", "i:2")),
+                    rows(staging.aiSettings, "SELECT id, displayName, orderNumber FROM LlmProviderConfig", 3),
+                )
+            }
+        } finally {
+            c.close()
+        }
+    }
+
+    @Test
+    fun relativeStagingDirectoryFailsFast() {
+        val staging = StagingDatabases("relative-staging-dir".toPath(), JvmLegacyDatabaseFactory())
+        try {
+            val failure = kotlin.runCatching {
+                runBlocking { AiSettingsMapper(File("does-not-matter").toOkioPath()).map(aiData(), staging, MigrationReport()) }
+            }.exceptionOrNull()
+            assertTrue(failure is IllegalArgumentException, failure.toString())
+        } finally {
+            staging.close()
         }
     }
 
