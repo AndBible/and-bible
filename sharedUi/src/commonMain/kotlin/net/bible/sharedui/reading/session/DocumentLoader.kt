@@ -341,6 +341,23 @@ class DocumentLoader(
         emit(BibleViewEvents.scrollToVerse(null, false, true, range.first, range.last))
     }
 
+    /**
+     * Loads on IO and answers the JS promise [callId] with the JSON [load] returns. A failing load logs
+     * and answers null so the JS promise never hangs (cancellation is rethrown; the caller's cancel path
+     * resets the loading count). Public only so tests can drive a failing load.
+     */
+    fun launchAnswer(callId: Long, load: suspend () -> String): Job = session.scope.launch(Dispatchers.IO) {
+        val json = try {
+            load()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Chapter load failed for call $callId", e)
+            null
+        }
+        emit(BibleViewEvents.response(callId, json?.let { JsExpr(it) }))
+    }
+
     /** Cancel all in-flight chapter loads (stale after document replacement / navigation). */
     private fun cancelPendingChapterLoads() {
         requestMoreLock.withLock {
@@ -364,9 +381,9 @@ class DocumentLoader(
             addChapter(newChap)
 
             val currentPage = window.pageManager.currentBible
-            chapterLoadJobs += session.scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += launchAnswer(callId) {
                 val doc = currentPage.getDocumentForChapter(newChap)
-                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
+                doc.contentJson()
             }
         } else if (isCommentary) {
             val currentPage = window.pageManager.currentCommentary
@@ -379,9 +396,9 @@ class DocumentLoader(
                 return@withLock
             }
             session.firstKey = prevStart
-            chapterLoadJobs += session.scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += launchAnswer(callId) {
                 val doc = currentPage.getPageContent(prevStart)
-                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
+                doc.contentJson()
             }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
@@ -398,9 +415,9 @@ class DocumentLoader(
 
             session.firstKey = prevKey
 
-            chapterLoadJobs += session.scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += launchAnswer(callId) {
                 val doc = currentPage.getPageContent(prevKey)
-                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
+                doc.contentJson()
             }
         }
     }
@@ -418,9 +435,9 @@ class DocumentLoader(
             }
             addChapter(newChap)
 
-            chapterLoadJobs += session.scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += launchAnswer(callId) {
                 val doc = currentPage.getDocumentForChapter(newChap)
-                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
+                doc.contentJson()
             }
         } else if (isCommentary) {
             val currentPage = window.pageManager.currentCommentary
@@ -433,9 +450,9 @@ class DocumentLoader(
                 return@withLock
             }
             session.lastKey = nextStart
-            chapterLoadJobs += session.scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += launchAnswer(callId) {
                 val doc = currentPage.getPageContent(nextStart)
-                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
+                doc.contentJson()
             }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
@@ -450,9 +467,9 @@ class DocumentLoader(
                 return@withLock
             }
             session.lastKey = nextKey
-            chapterLoadJobs += session.scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += launchAnswer(callId) {
                 val doc = currentPage.getPageContent(nextKey)
-                emit(BibleViewEvents.response(callId, JsExpr(doc.contentJson())))
+                doc.contentJson()
             }
         }
     }

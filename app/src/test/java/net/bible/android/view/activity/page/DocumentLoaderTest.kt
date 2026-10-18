@@ -204,6 +204,20 @@ class DocumentLoaderTest {
     }
 
     @Test
+    fun failingChapterLoadStillAnswersTheJsPromiseWithNull() = runBlocking {
+        loader.launchAnswer(77) { throw IllegalStateException("module unreadable") }.join()
+
+        assertEquals(listOf(BibleViewEvents.response(77, null).js + ";"), host.evaluated.toList())
+    }
+
+    @Test
+    fun succeedingChapterLoadAnswersWithTheJson() = runBlocking {
+        loader.launchAnswer(78) { "{'ok': 1}" }.join()
+
+        assertEquals(listOf(BibleViewEvents.response(78, net.bible.sharedcore.bibleview.JsExpr("{'ok': 1}")).js + ";"), host.evaluated.toList())
+    }
+
+    @Test
     fun requestMoreToEndAtLastChapterAnswersNull() = runBlocking {
         val kjv = Books.installed().getBook("KJV")!!
         val v11n = (kjv as org.crosswire.jsword.book.sword.SwordBook).versification
