@@ -98,8 +98,10 @@ data class AppHostsState(
 )
 
 /**
- * Owns every feature host for one platform host instance (one Activity lifetime on Android).
- * Constructing it must not touch the database; hosts resolve their collaborators lazily.
+ * Owns every feature host for one platform host instance (one Activity lifetime on Android). [graphs] assembles the
+ * deps of every non-reading graph, [Overlays] composes the host-level collectors and sheets, and [saveState] /
+ * [restoreState] carry the host-held state across recreation. The reading graph and the Android-only overlay pieces
+ * stay with the platform host. Constructing it must not touch the database; hosts resolve their collaborators lazily.
  */
 class AppHosts(
     private val koin: Koin,
@@ -369,9 +371,9 @@ class AppHosts(
             clipboard = koin.get<ClipboardText>(),
             helpDialogs = ports.helpDialogs,
             documentPicker = ports.documentPicker,
-            promptFiles = ports.promptFiles,
-            bugReport = ports.bugReport,
-            platform = ports.aiPlatform,
+            promptFiles = ports.promptFiles(),
+            bugReport = ports.bugReport(),
+            platform = ports.aiPlatform(),
             userNotifierProvider = { koin.get<UserNotifier>() },
             appScopeProvider = { koin.get<AppCoroutineScope>() },
             aiSettingsProvider = { koin.get<AiSettings>() },
@@ -392,14 +394,36 @@ class AppHosts(
     }
 
     /**
-     * Until the activity's call site moves here (completed in Task 16), the activity builds `AppGraphs` itself
-     * from each host's `navDeps(...)`, so this throws.
+     * The deps of every non-reading feature graph, built from the 12 hosts. The platform host composes this once per
+     * composition (inside `remember`), so each host's `navDeps` runs once per navController. Everything behind the
+     * deps is lazy (see the hosts), so this touches no database. [channels] are the result channels the platform host
+     * still declares.
      */
-    @Suppress("UNUSED_PARAMETER")
-    fun graphs(navController: NavHostController): Nothing =
-        throw NotImplementedError("AppHosts.graphs is completed in I2 Stream A Task 16")
+    fun graphs(navController: NavHostController, channels: AppResultChannels): AppGraphs {
+        // Built in the order the activity always built them (a few hosts' navDeps record state the later ones read).
+        val ai = ai.navDeps(navController)
+        val readingPlan = readingPlan.navDeps(navController)
+        val search = search.navDeps(navController)
+        val settings = settings.navDeps(navController, channels.readingProgress)
+        val bookmark = bookmark.navDeps(navController, channels.bookmark, channels.manageLabels, channels.labelEdit)
+        val download = download.navDeps(navController, channels.repositoryEditor, cloudDocuments.deps())
+        val myDocuments = myDocuments.navDeps(
+            navController, channels.myDocumentPages, channels.myDocuments,
+            beforeSwitchDocument = channels.beforeSwitchMyDocument,
+        )
+        val chooser = chooser.navDeps(navController, channels.keyChooser, channels.passage, channels.document)
+        val backup = backup.navDeps(navController)
+        val installZip = installZip.navDeps(navController, channels.installZip)
+        val welcome = welcome.navDeps(navController)
+        val workspace = workspace.navDeps(navController, channels.workspace, channels.textSettings, channels.manageLabels)
+        return AppGraphs(
+            ai = ai, bookmark = bookmark, readingPlan = readingPlan, search = search, settings = settings,
+            download = download, myDocuments = myDocuments, chooser = chooser, workspace = workspace,
+            backup = backup, installZip = installZip, welcome = welcome,
+        )
+    }
 
-    /** Host-level collectors and sheets, outside the NavHost; grows task by task. */
+    /** Every feature host's collectors and sheets, outside the NavHost. The order below is load-bearing. */
     @Composable
     fun Overlays() {
         // The InstallZip answer collector comes first, as it did in the activity, ahead of the bookmark cluster's.

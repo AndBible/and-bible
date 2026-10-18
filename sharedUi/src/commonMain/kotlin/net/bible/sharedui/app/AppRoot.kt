@@ -33,7 +33,7 @@ import net.bible.sharedui.startup.nav.welcomeNavGraph
 import net.bible.sharedui.workspaces.nav.WorkspaceNavDeps
 import net.bible.sharedui.workspaces.nav.workspaceNavGraph
 
-/** The deps of every non-reading feature graph that [AppRoot] installs. */
+/** The deps of every non-reading feature graph that [AppRoot] installs; [AppHosts.graphs] builds it from the 12 feature hosts. */
 class AppGraphs(
     val ai: AiNavDeps,
     val bookmark: BookmarkNavDeps,

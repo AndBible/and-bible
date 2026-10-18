@@ -7,8 +7,8 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedui.app.AppHosts
+import net.bible.sharedui.app.AppResultChannels
 import net.bible.sharedui.app.AppHostsState
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.strings.AndroidStrings
@@ -57,42 +57,33 @@ class AppHostsConstructionTest {
             assertEquals(AppHostsState(), standalone.saveState())
             // Assembling the deps (as every host launch does) must stay lazy too: no service, no database.
             val nav = NavHostController(activity)
-            standalone.settings.navDeps(nav, NavResultChannel<ReadingProgressResult> { })
-            standalone.welcome.navDeps(nav)
-            standalone.search.navDeps(nav)
-            standalone.workspace.navDeps(
-                nav, NavResultChannel<net.bible.sharedcore.nav.WorkspaceResult> { },
-                NavResultChannel<net.bible.sharedcore.nav.TextSettingsResult> { },
-                NavResultChannel<net.bible.sharedcore.nav.ManageLabelsResult> { },
-            )
-            standalone.chooser.navDeps(
-                nav, NavResultChannel<net.bible.sharedcore.nav.KeyChooserResult> { },
-                NavResultChannel<net.bible.sharedcore.nav.PassageResult> { },
-                NavResultChannel<net.bible.sharedcore.nav.DocumentResult> { },
-            )
-            standalone.bookmark.navDeps(
-                nav, NavResultChannel<net.bible.sharedcore.nav.BookmarkResult> { },
-                NavResultChannel<net.bible.sharedcore.nav.ManageLabelsResult> { },
-                NavResultChannel<net.bible.sharedcore.nav.LabelEditResult> { },
-            )
-            standalone.myDocuments.navDeps(
-                nav, NavResultChannel<net.bible.sharedcore.nav.MyDocumentPagesResult> { },
-                NavResultChannel<net.bible.sharedcore.nav.MyDocumentsResult> { },
-                beforeSwitchDocument = { },
-            )
-            standalone.readingPlan.navDeps(nav)
-            standalone.ai.navDeps(nav)
-            standalone.backup.navDeps(nav)
-            standalone.installZip.navDeps(nav, NavResultChannel<net.bible.sharedcore.nav.InstallZipResult> { })
-            standalone.download.navDeps(
-                nav, NavResultChannel<net.bible.sharedcore.download.RepositoryResult> { },
-                standalone.cloudDocuments.deps(),
-            )
+            val graphs = standalone.graphs(nav, channels())
+            listOf(
+                graphs.ai, graphs.bookmark, graphs.readingPlan, graphs.search, graphs.settings, graphs.download,
+                graphs.myDocuments, graphs.chooser, graphs.workspace, graphs.backup, graphs.installZip, graphs.welcome,
+            ).forEach { assertNotNull(it) }
             assertFalse("constructing the app hosts opened the database", DatabaseContainer.ready)
             assertNull("constructing the app hosts built the database container", DatabaseContainer.detachInstanceForTest())
             shadowOf(Looper.getMainLooper()).idle()
         } finally { controller.close() }
     }
+
+    private fun channels() = AppResultChannels(
+        readingProgress = NavResultChannel { },
+        bookmark = NavResultChannel { },
+        manageLabels = NavResultChannel { },
+        labelEdit = NavResultChannel { },
+        repositoryEditor = NavResultChannel { },
+        myDocumentPages = NavResultChannel { },
+        myDocuments = NavResultChannel { },
+        keyChooser = NavResultChannel { },
+        passage = NavResultChannel { },
+        document = NavResultChannel { },
+        installZip = NavResultChannel { },
+        workspace = NavResultChannel { },
+        textSettings = NavResultChannel { },
+        beforeSwitchMyDocument = { },
+    )
 
     /** The `nav_app_hosts` bundle key: restored into [AppHosts] in onCreate, written back by onSaveInstanceState. */
     @Test

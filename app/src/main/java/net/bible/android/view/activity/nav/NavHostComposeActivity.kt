@@ -32,13 +32,11 @@ import android.os.Bundle
 import net.bible.sharedcore.log.Log
 import android.util.TypedValue
 import android.view.KeyEvent
-import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.background
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -48,8 +46,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -58,10 +54,9 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import net.bible.sharedui.app.AppGraphs
+import net.bible.sharedui.app.AppResultChannels
 import net.bible.sharedui.app.AppRoot
 import androidx.navigation.compose.rememberNavController
-import kotlin.coroutines.resume
 import kotlin.reflect.KFunction1
 import net.bible.sharedcore.platform.AppCoroutineScope
 import kotlinx.coroutines.CoroutineScope
@@ -86,8 +81,6 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.nav.ports.AndroidBookmarkHostPlatform
 import net.bible.android.view.activity.nav.ports.AndroidMyDocumentFiles
@@ -144,14 +137,10 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
-import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.event.Subscriptions
-import net.bible.service.common.CommonUtils.pause
 import net.bible.service.sword.hasUsableBible
 import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
-import okio.sink
-import okio.source
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.PendingAgentResult
 import android.Manifest
@@ -187,21 +176,16 @@ import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.HostSystemBars
 import net.bible.sharedui.components.LocalHostSystemBars
 import net.bible.sharedui.nav.NavResultChannel
-import net.bible.sharedui.ai.nav.AiPromptsDeps
-import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentPagesDeps
-import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.nav.readingNavGraph
 import net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps
-import org.crosswire.jsword.book.Books
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.sharedcore.nav.DocumentResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.PassageResult
-import net.bible.sharedui.navigation.nav.ChooserNavDeps
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.getKoin
 
@@ -237,9 +221,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         installZipPlatform = { AndroidInstallZipHostPlatform(this) },
         downloadPlatform = { AndroidDownloadHostPlatform(this) },
         cloudDocumentsPlatform = { AndroidCloudDocumentsHostPlatform() },
-        promptFiles = AndroidPromptFiles(this),
-        bugReport = AndroidBugReportPlatform(this),
-        aiPlatform = AndroidAiHostPlatform(this),
+        promptFiles = { AndroidPromptFiles(this) },
+        bugReport = { AndroidBugReportPlatform(this) },
+        aiPlatform = { AndroidAiHostPlatform(this) },
     )
 
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
@@ -3015,28 +2999,27 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         navigateToRoute(navController, route)
                     }
                 }
-                val deps = remember { appHosts.ai.navDeps(navController) }
-                val readingPlanDeps = remember { appHosts.readingPlan.navDeps(navController) }
-                val searchDeps = remember { appHosts.search.navDeps(navController) }
-                val settingsDeps = remember { appHosts.settings.navDeps(navController, readingProgressResults) }
-                val bookmarkDeps = remember {
-                    appHosts.bookmark.navDeps(navController, bookmarkResults, manageLabelsResults, labelEditResults)
-                }
-                val downloadDeps = remember {
-                    appHosts.download.navDeps(navController, repositoryEditorResults, appHosts.cloudDocuments.deps())
-                }
-                val myDocumentsDeps = remember {
-                    appHosts.myDocuments.navDeps(
-                        navController, myDocumentPagesResults, myDocumentsResults,
-                        beforeSwitchDocument = ::onSwitchMyDocumentFromPages,
+                val graphs = remember {
+                    appHosts.graphs(
+                        navController,
+                        AppResultChannels(
+                            readingProgress = readingProgressResults,
+                            bookmark = bookmarkResults,
+                            manageLabels = manageLabelsResults,
+                            labelEdit = labelEditResults,
+                            repositoryEditor = repositoryEditorResults,
+                            myDocumentPages = myDocumentPagesResults,
+                            myDocuments = myDocumentsResults,
+                            keyChooser = keyChooserResults,
+                            passage = passageResults,
+                            document = documentResults,
+                            installZip = installZipResults,
+                            workspace = workspaceResults,
+                            textSettings = textSettingsResults,
+                            beforeSwitchMyDocument = ::onSwitchMyDocumentFromPages,
+                        ),
                     )
                 }
-                val chooserDeps = remember { appHosts.chooser.navDeps(navController, keyChooserResults, passageResults, documentResults) }
-                val backupDeps = remember { appHosts.backup.navDeps(navController) }
-                val installZipDeps = remember { appHosts.installZip.navDeps(navController, installZipResults) }
-                // Slice 8 E2: the first-run welcome, formerly StartupComposeActivity -- see [WelcomeFlow].
-                val welcomeDeps = remember { appHosts.welcome.navDeps(navController) }
-                val workspaceDeps = remember { appHosts.workspace.navDeps(navController, workspaceResults, textSettingsResults, manageLabelsResults) }
                 /**
                  * The reading destination's deps (nav-graph slice 7 Task 6; the [ReadingNavDeps.content]
                  * slot made real by reading-host re-typing R8). All four slots are now real ports of
@@ -3077,23 +3060,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 AppRoot(
                     navController = navController,
                     startRoute = startRoute,
-                    graphs = AppGraphs(
-                        ai = deps,
-                        bookmark = bookmarkDeps,
-                        readingPlan = readingPlanDeps,
-                        search = searchDeps,
-                        settings = settingsDeps,
-                        download = downloadDeps,
-                        myDocuments = myDocumentsDeps,
-                        chooser = chooserDeps,
-                        workspace = workspaceDeps,
-                        backup = backupDeps,
-                        installZip = installZipDeps,
-                        welcome = welcomeDeps,
-                    ),
+                    graphs = graphs,
                     readingGraph = { readingNavGraph(navController, readingNavDeps) },
                     overlays = {
-                    // InstallZip's answer collector, then the bookmark cluster's host-level collector and sheets (see AppHosts.Overlays).
+                    // Every host's collectors and sheets (see AppHosts.Overlays), then the Android-only overlay pieces.
                     appHosts.Overlays()
 
                     AppDialogOverlay(

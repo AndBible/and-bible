@@ -50,9 +50,9 @@ class HostPorts(
     /** The platform half of the cloud documents destination; a provider because the host builds it on first use. */
     val cloudDocumentsPlatform: () -> CloudDocumentsHostPlatform,
     /** The AI prompts CSV export and import I/O. */
-    val promptFiles: PromptFiles,
+    val promptFiles: () -> PromptFiles,
     /** The AI bug report sender. */
-    val bugReport: BugReportPlatform,
+    val bugReport: () -> BugReportPlatform,
     /** The remaining platform half of the AI cluster. */
-    val aiPlatform: AiHostPlatform,
+    val aiPlatform: () -> AiHostPlatform,
 )

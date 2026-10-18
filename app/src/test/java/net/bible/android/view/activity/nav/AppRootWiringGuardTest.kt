@@ -31,4 +31,29 @@ class AppRootWiringGuardTest {
     fun activityCallsAppRoot() {
         assertTrue(Regex("""(?<![A-Za-z])AppRoot\s*\(""").containsMatchIn(code), "the activity must call AppRoot(")
     }
+
+    @Test
+    fun activityConstructsNoNonReadingNavDeps() {
+        // ReadingNavDeps( is allowed: the reading graph is Stream B's slot and stays wired from the activity.
+        val deps = listOf(
+            "AiNavDeps(", "BookmarkNavDeps(", "ReadingPlanNavDeps(", "SearchNavDeps(", "SettingsNavDeps(",
+            "DownloadNavDeps(", "MyDocumentsNavDeps(", "ChooserNavDeps(", "WorkspaceNavDeps(", "BackupNavDeps(",
+            "InstallZipNavDeps(", "WelcomeNavDeps(",
+        )
+        assertTrue(code.contains("ReadingNavDeps("), "scan reads the wrong text: the reading slot's deps are missing")
+        val found = deps.filter { Regex("""(?<![A-Za-z])${Regex.escape(it)}""").containsMatchIn(code) }
+        assertTrue(found.isEmpty(), "NavHostComposeActivity constructs $found; the feature hosts in :sharedUi own them")
+    }
+
+    @Test
+    fun activityHasNoSessionClasses() {
+        val sessions = listOf(
+            "class BookmarksSession", "class ManageLabelsSession", "class MyDocumentPagesSession",
+            "class MyDocumentsSession", "class DownloadSession", "class CloudDocumentsEntry",
+            "class ChooseDictionarySession", "class ChooseDocumentSession",
+        )
+        assertTrue(code.contains("class "), "scan reads the wrong text: no class declaration in the stripped source")
+        val found = sessions.filter { code.contains(it) }
+        assertTrue(found.isEmpty(), "NavHostComposeActivity declares $found; sessions live in the feature hosts")
+    }
 }
