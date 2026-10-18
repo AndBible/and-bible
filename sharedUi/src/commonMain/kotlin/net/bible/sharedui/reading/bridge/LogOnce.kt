@@ -14,9 +14,12 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.bridge
 
 /** Logs each distinct key at most once through [log]; used by pending (not yet implemented) platform seams. */
+@kotlin.native.HiddenFromObjC
 class LogOnce(private val log: (String) -> Unit) {
     // Copy-on-write; a rare race between threads can at worst log a name twice, which is harmless.
     @kotlin.concurrent.Volatile

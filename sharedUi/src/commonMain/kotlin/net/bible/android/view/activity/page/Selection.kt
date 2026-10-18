@@ -16,6 +16,8 @@
  */
 
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.page
 
 import kotlinx.serialization.Serializable
@@ -37,6 +39,7 @@ import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+@kotlin.native.HiddenFromObjC
 @Serializable
 class Selection(
     override val bookInitials: String?,
@@ -120,6 +123,7 @@ class Selection(
  *
  * Public only because `:app` tests call it; not API for other callers.
  */
+@kotlin.native.HiddenFromObjC
 fun refChooserVerseName(verseStr: String?): String {
     val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
 
@@ -135,6 +139,7 @@ fun refChooserVerseName(verseStr: String?): String {
 }
 
 /** JS passes a negative ordinal for "no end ordinal"; maps it to `null`. Public for `:app` tests only. */
+@kotlin.native.HiddenFromObjC
 fun positiveOrNull(value: Int): Int? {
     if(value < 0) return null
     return value

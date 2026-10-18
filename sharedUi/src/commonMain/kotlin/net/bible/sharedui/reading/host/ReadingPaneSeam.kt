@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.host
 
 import androidx.compose.foundation.layout.Box
@@ -30,12 +32,14 @@ import androidx.compose.ui.platform.testTag
 typealias ReadingPaneFactory = @Composable (windowId: String, modifier: Modifier) -> Unit
 
 /** Test tag prefix of [LocalReadingPane]'s default; the full tag is `reading-pane-placeholder-<windowId>`. */
+@kotlin.native.HiddenFromObjC
 const val ReadingPanePlaceholderTagPrefix = "reading-pane-placeholder-"
 
 /**
  * The pane factory for the current composition. The default is a tagged, empty placeholder so a host
  * that forgot to provide one shows an empty pane (findable in a test) rather than crashing.
  */
+@kotlin.native.HiddenFromObjC
 val LocalReadingPane = staticCompositionLocalOf<ReadingPaneFactory> {
     { windowId, modifier -> Box(modifier.testTag(ReadingPanePlaceholderTagPrefix + windowId)) }
 }

@@ -16,6 +16,8 @@
  */
 
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.session
 
 import kotlin.math.abs
@@ -63,6 +65,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.koin.mp.KoinPlatform
 
 /** The largest serialised document JS is sent; a bigger one is replaced by an "page too large" error document. */
+@kotlin.native.HiddenFromObjC
 const val MAX_DOC_STR_LENGTH = 4000000
 
 /**
@@ -70,6 +73,7 @@ const val MAX_DOC_STR_LENGTH = 4000000
  * offsets, the Android settings behind [configInputs], the "is this still the window's view" check)
  * stays behind this seam.
  */
+@kotlin.native.HiddenFromObjC
 interface DocumentLoaderPlatform {
     /** Zero until the view has been laid out and updated once. */
     val lastUpdated: Long
@@ -96,6 +100,7 @@ interface DocumentLoaderPlatform {
  * [loadDocument] takes a generation under [documentLoadingLock] and re-checks it, on the main
  * thread, before it publishes anything.
  */
+@kotlin.native.HiddenFromObjC
 class DocumentLoader(
     private val session: BibleWindowSession,
     private val platform: DocumentLoaderPlatform,

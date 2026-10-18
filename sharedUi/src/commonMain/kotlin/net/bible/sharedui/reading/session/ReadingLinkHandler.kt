@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.session
 
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,7 @@ import org.crosswire.jsword.passage.RangedPassage
 import net.bible.android.control.page.OrdinalRange
 
 /** The URL schemes of links the reading view's text can carry. */
+@kotlin.native.HiddenFromObjC
 object UriConstants {
     const val SCHEME_DOWNLOAD = "download"
     const val SCHEME_ERROR = "ab-error"
@@ -53,6 +56,7 @@ object UriConstants {
  *
  * @param openEpubLink opens an EPUB target in [session]'s window (the owner's `ReadingBridge`)
  */
+@kotlin.native.HiddenFromObjC
 class ReadingLinkHandler(
     private val session: BibleWindowSession,
     private val openEpubLink: (SwordGenBook, EpubBackend, String, String) -> Unit,

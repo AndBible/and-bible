@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.session
 
 import kotlinx.serialization.serializer
@@ -30,6 +32,7 @@ import net.bible.sharedcore.bibleview.JsExpr
  * `CommonUtils.settings` and window state; iOS will read its own). [themeColors] is the already
  * rendered colour-roles JSON (or the literal `null`), produced by the platform's palette code.
  */
+@kotlin.native.HiddenFromObjC
 data class ConfigInputs(
     val displaySettings: WorkspaceEntities.TextDisplaySettings,
     val isActive: Boolean,
@@ -60,6 +63,7 @@ data class ConfigInputs(
 )
 
 /** Builds the `set_config` JS call; pure, so equal inputs give the identical script. */
+@kotlin.native.HiddenFromObjC
 object ConfigCommand {
     fun build(initial: Boolean, inputs: ConfigInputs): JsCall = inputs.run {
         val favouriteLabelsJson = json.encodeToString(serializer(), favouriteLabels)

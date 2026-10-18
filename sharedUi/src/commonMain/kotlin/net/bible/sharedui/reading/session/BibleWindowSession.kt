@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.session
 
 import kotlin.concurrent.Volatile
@@ -51,6 +53,7 @@ import org.crosswire.jsword.passage.VerseRange
  *
  * [window] is rebound by the owner when window objects are re-created from the database.
  */
+@kotlin.native.HiddenFromObjC
 class BibleWindowSession(
     window: Window?,
     val jsChannel: BibleViewJsChannel,
@@ -142,6 +145,7 @@ class BibleWindowSession(
 }
 
 /** Paging requests coming from JS. */
+@kotlin.native.HiddenFromObjC
 interface SessionPaging {
     fun requestMoreToBeginning(callId: Long)
     fun requestMoreToEnd(callId: Long)
@@ -150,6 +154,7 @@ interface SessionPaging {
 }
 
 /** Sheets the reading host shows on behalf of the session. */
+@kotlin.native.HiddenFromObjC
 interface ReadingSheets {
     fun showReadHistory(bookId: String, chapter: Int)
     fun showCompare(range: VerseRange)

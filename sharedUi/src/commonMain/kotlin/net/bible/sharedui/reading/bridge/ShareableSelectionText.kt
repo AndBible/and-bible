@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.bridge
 
 import net.bible.service.sword.ShareSelection
@@ -25,6 +27,7 @@ import net.bible.sharedcore.platform.AppSettings
  * The plain text the app shares or copies for [selection], formatted by the user's share options
  * (the `share_*` preferences). The same options feed the share sheet and the clipboard copy.
  */
+@kotlin.native.HiddenFromObjC
 fun shareableSelectionText(selection: ShareSelection, facade: SwordContentFacade, settings: AppSettings): String =
     facade.getSelectionText(
         selection,

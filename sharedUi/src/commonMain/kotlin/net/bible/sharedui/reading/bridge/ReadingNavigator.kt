@@ -16,6 +16,8 @@
  */
 
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.bridge
 
 import net.bible.android.control.page.CurrentPage
@@ -27,6 +29,7 @@ import org.crosswire.jsword.book.Book
  * Platform seam for everything the reading bridge and reading host launch that leaves the reading
  * view (other screens, external apps, result-bearing choosers). Android: `AndroidReadingNavigator`.
  */
+@kotlin.native.HiddenFromObjC
 interface ReadingNavigator {
     /** Add-on downloads (route `download(addons = true)`); refreshes suggested documents on finish. */
     fun openDownloads(addons: Boolean)

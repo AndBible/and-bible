@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.webview
 
 import net.bible.android.control.page.CurrentPage
@@ -12,6 +14,7 @@ import org.crosswire.jsword.book.Book
  * Placeholder [ReadingNavigator] for iOS until phase 2 reconciles it with the iOS navigation ports:
  * every method logs "pending: <name>" once and does nothing; [assignLabels] answers "cancelled".
  */
+@kotlin.native.HiddenFromObjC
 object PendingIosReadingNavigator : ReadingNavigator {
     private val pending = LogOnce { nsLog(it) }
 

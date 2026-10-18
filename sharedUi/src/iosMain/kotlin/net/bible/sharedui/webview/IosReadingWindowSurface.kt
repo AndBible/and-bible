@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.webview
 
 import net.bible.sharedcore.bibleview.JsHost
@@ -10,6 +12,7 @@ import platform.UIKit.UIPasteboard
  * iOS per-window actions of a reading view. Copy and selection work; sharing, toasts as UI and web search
  * are pending (Stream D owns `IosPresenter`): they log "pending: <name>" once and do nothing else.
  */
+@kotlin.native.HiddenFromObjC
 class IosReadingWindowSurface(private val host: JsHost) : ReadingWindowSurface {
     private val pending = LogOnce { nsLog(it) }
 

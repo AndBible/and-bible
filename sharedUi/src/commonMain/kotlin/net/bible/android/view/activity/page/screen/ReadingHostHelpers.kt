@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.page.screen
 
 import androidx.compose.material3.BottomSheetDefaults
@@ -48,6 +50,7 @@ import net.bible.sharedui.progress.ReadHistoryRow
  * "`rebuild()` bumps the counter" behavior is unit-testable without booting a full
  * [MainBibleActivity] or Koin context — see `ComposeReadingViewGenerationTest`.
  */
+@kotlin.native.HiddenFromObjC
 class ComposeReadingViewGeneration {
     private val mutableState = mutableIntStateOf(0)
     val state: State<Int> get() = mutableState
@@ -72,6 +75,7 @@ class ComposeReadingViewGeneration {
  *
  * Framework-free like [ComposeReadingViewGeneration], so it is unit-testable without a composition.
  */
+@kotlin.native.HiddenFromObjC
 class WindowLabelFreshness {
     private val tick = mutableIntStateOf(0)
 
@@ -105,6 +109,7 @@ class WindowLabelFreshness {
  * Kept as its own framework-free holder (like [ComposeReadingViewGeneration] above) so the fan-out
  * is unit-testable without a [MainBibleActivity] or Koin context — see `HostedStateRefresherTest`.
  */
+@kotlin.native.HiddenFromObjC
 class HostedStateRefresher(
     private val toolbar: ToolbarStateService,
     private val generation: ComposeReadingViewGeneration,
@@ -128,6 +133,7 @@ class HostedStateRefresher(
  *
  * A pure function so it is unit-testable — see `SpeakBarVisibilityTest`.
  */
+@kotlin.native.HiddenFromObjC
 fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Boolean =
     !fullScreen && transportVisible
 
@@ -136,6 +142,7 @@ fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Boolean =
  * reader's bottom row on paper-white greyscale, so both greyscale-base modes (black-and-white e-ink
  * and pure monochrome) draw none; Normal and Color e-ink keep the Material default.
  */
+@kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalMaterial3Api::class)
 fun searchSheetShadowElevation(mode: DisplayColorMode): Dp =
     if (mode.isGreyBase) 0.dp else BottomSheetDefaults.Elevation
@@ -150,6 +157,7 @@ fun searchSheetShadowElevation(mode: DisplayColorMode): Dp =
  * it — is unit-testable without a `ComposeTestRule` (this repo's `:app` unit tests have none); see
  * `MenuWindowIdForTest`.
  */
+@kotlin.native.HiddenFromObjC
 fun menuWindowIdFor(surface: PaneMenuAnchor, openAnchor: PaneMenuAnchor, openWindowId: String?): String? =
     if (openAnchor == surface) openWindowId else null
 
@@ -165,6 +173,7 @@ fun menuWindowIdFor(surface: PaneMenuAnchor, openAnchor: PaneMenuAnchor, openWin
  * `ReadingProgressServiceImpl.formatEntryDate`/`formatEntryTime` are Android `DateFormat` calls and
  * so not themselves portable — this function only assembles the row from them.
  */
+@kotlin.native.HiddenFromObjC
 fun chapterReadHistoryRow(
     entry: ReadHistoryEntry,
     date: String,
@@ -192,6 +201,7 @@ fun chapterReadHistoryRow(
  * `ReadHistoryDialog.applyPendingDeletes`, which closed over the SAME `cycle` its `loadAndShow` had
  * already fetched, not a re-queried one.
  */
+@kotlin.native.HiddenFromObjC
 fun readHistoryApplyDeletes(
     coroutineScope: CoroutineScope,
     service: ReadingProgressService,
@@ -223,6 +233,7 @@ fun readHistoryApplyDeletes(
  * stale timer automatically — no manual `TimerTask.cancel()` bookkeeping is needed here, unlike
  * classic.
  */
+@kotlin.native.HiddenFromObjC
 class WindowButtonsVisibility {
     private val mutableVisible = mutableStateOf(true)
     private val mutableTouchTick = mutableIntStateOf(0)
@@ -243,6 +254,7 @@ class WindowButtonsVisibility {
  * overlay, so a rail long-press rendered it at the pane's floating button instead of at the rail
  * tab under the finger.
  */
+@kotlin.native.HiddenFromObjC
 enum class PaneMenuAnchor { Pane, Rail }
 
 /**
@@ -257,6 +269,7 @@ enum class PaneMenuAnchor { Pane, Rail }
  * (`ReadingOverlayExclusion`'s kdoc) -- so opening one never needs to close a sheet, and no
  * exclusion wiring/enum member is needed.
  */
+@kotlin.native.HiddenFromObjC
 sealed interface ReadingDialog {
     /** `BibleJavascriptInterface.helpDialog`/`.helpBookmarks`'s plain-text or HTML help body -- a
      *  single OK button, no negative action. */

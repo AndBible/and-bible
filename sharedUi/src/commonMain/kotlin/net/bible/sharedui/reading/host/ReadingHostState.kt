@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.host
 
 import androidx.compose.runtime.getValue
@@ -58,6 +60,7 @@ import org.crosswire.jsword.passage.VerseRange
  * actions behind the sheets the session asks for, and the few reads that need a platform API. Every
  * member has an inert default so a host (or a test) supplies only what it exercises.
  */
+@kotlin.native.HiddenFromObjC
 class ReadingHostHooks(
     /** Closes the Speak settings sheet ([ReadingOverlay.SpeakSheet]). */
     val closeSpeakSheet: () -> Unit = {},
@@ -94,6 +97,7 @@ class ReadingHostHooks(
  *
  * Also the [ReadingSheets] the session shows its sheets through.
  */
+@kotlin.native.HiddenFromObjC
 class ReadingHostState(
     val scope: CoroutineScope,
     val settings: AppSettings,

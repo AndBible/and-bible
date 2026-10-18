@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.host
 
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -109,6 +111,7 @@ import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
 
 /** Test tag of the node [ReadingHost] wraps around the open quick sheet. */
+@kotlin.native.HiddenFromObjC
 const val ReadingQuickSheetTag = "reading-quick-sheet"
 
 /**
@@ -122,6 +125,7 @@ const val ReadingQuickSheetTag = "reading-quick-sheet"
  * they reach platform services (search indexing listeners, the system TTS settings intent, Android
  * drawable thumbnails, `R` strings); phase 2 moves them behind ports.
  */
+@kotlin.native.HiddenFromObjC
 class ReadingHostDeps(
     val state: ReadingHostState,
     val controller: ReadingViewController,
@@ -223,6 +227,7 @@ class ReadingHostDeps(
  * Making any of those conditional, or moving one inside the pane subtree, would re-parent every pane
  * and destroy and recreate each window's WebView.
  */
+@kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReadingHost(deps: ReadingHostDeps, modifier: Modifier = Modifier) {
@@ -660,6 +665,7 @@ private fun DriveSearchUnavailableSnackbar(
  * name, and "there is no current document" is itself one of the unavailable cases, so a blank name
  * is reachable and the parameterised string would then read " cannot be searched".
  */
+@kotlin.native.HiddenFromObjC
 fun searchUnavailableMessage(docName: String, strings: Strings): String =
     if (docName.isBlank()) strings.searchNotAvailable
     else strings.searchNotAvailableForDocument(docName)

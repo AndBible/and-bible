@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.page
 
 import kotlin.concurrent.Volatile
@@ -33,6 +35,7 @@ import net.bible.sharedcore.bibleview.SessionLock
  *   emitted after its own database write, so the read may or may not include it, and
  *   [favouriteIdsAfter] is idempotent. Without the replay, the older read would overwrite it.
  */
+@kotlin.native.HiddenFromObjC
 class FavouriteLabelIdsCache {
     private val lock = SessionLock()
     @Volatile var ids: List<IdType> = emptyList()

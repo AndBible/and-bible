@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.bridge
 
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +57,7 @@ import org.koin.mp.KoinPlatform
  *
  * The platform adapter (`BibleJavascriptInterface`) only delegates to this class.
  */
+@kotlin.native.HiddenFromObjC
 class ReadingBridge(
     private val session: BibleWindowSession,
     viewIsCurrent: () -> Boolean = { true },
@@ -364,6 +367,7 @@ class ReadingBridge(
  * Host-owned reactions to reading-view keyboard shortcuts and a crash request; set on
  * [BibleWindowSession.keyActions] by the reading host. Calls arrive on the main thread.
  */
+@kotlin.native.HiddenFromObjC
 interface ReadingKeyActions {
     /** Alt+M: open the navigation drawer and focus it. */
     fun openDrawer()

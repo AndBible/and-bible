@@ -16,6 +16,8 @@
  */
 
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.session
 
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +38,7 @@ import org.koin.mp.KoinPlatform
  * runs the label chooser. Every write goes through [BookmarkJsActions] under the window's id, the
  * per-window ordered queue, and the click event that opens the new bookmark follows the write.
  */
+@kotlin.native.HiddenFromObjC
 class BookmarkCreation(
     private val session: BibleWindowSession,
     private val bookmarkControl: BookmarkControl,

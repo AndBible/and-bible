@@ -16,9 +16,12 @@
  */
 
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.bridge
 
 /** Platform seam for the per-window actions of a reading view surface (clipboard, share, selection, toasts). */
+@kotlin.native.HiddenFromObjC
 interface ReadingWindowSurface {
     fun copyText(label: String?, text: String)
 

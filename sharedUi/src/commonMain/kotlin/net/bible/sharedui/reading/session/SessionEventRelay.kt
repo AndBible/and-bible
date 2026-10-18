@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.session
 
 import kotlin.concurrent.Volatile
@@ -55,6 +57,7 @@ import org.crosswire.jsword.versification.Versification
 import org.koin.mp.KoinPlatform
 
 /** What [SessionEventRelay] needs from the platform view for window changes (WebView, tilt scroll, offsets). */
+@kotlin.native.HiddenFromObjC
 interface SessionEventRelayPlatform {
     /** This window became (or stopped being) the active one: notifications and tilt scrolling follow it. */
     fun onActiveWindowChanged(isThisWindowActive: Boolean)
@@ -76,6 +79,7 @@ interface SessionEventRelayPlatform {
  * handled in order on [BibleWindowSession.scope]. [stop] cancels the subscriptions only: bookmark-change
  * jobs already queued keep running until the session is disposed ([BibleWindowSession.dispose] cancels its scope).
  */
+@kotlin.native.HiddenFromObjC
 class SessionEventRelay(
     private val session: BibleWindowSession,
     private val documentLoader: DocumentLoader,

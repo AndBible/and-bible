@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.reading.bridge
 
 import net.bible.android.control.speak.SpeakControl
@@ -23,6 +25,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 
 /** The part of speech control the reading bridge uses; a seam so the speak calls are testable without TTS. */
+@kotlin.native.HiddenFromObjC
 interface ReadingSpeaker {
     val isSpeaking: Boolean
     fun pauseForNextSpeech()
@@ -32,6 +35,7 @@ interface ReadingSpeaker {
 }
 
 /** [ReadingSpeaker] backed by the app's [SpeakControl]. */
+@kotlin.native.HiddenFromObjC
 fun SpeakControl.asReadingSpeaker(): ReadingSpeaker = object : ReadingSpeaker {
     override val isSpeaking get() = this@asReadingSpeaker.isSpeaking
     override fun pauseForNextSpeech() = pause(willContinueAfterThis = true, toast = false)

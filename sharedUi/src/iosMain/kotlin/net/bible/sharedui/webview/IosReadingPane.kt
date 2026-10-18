@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.webview
 
 import androidx.compose.runtime.Composable
@@ -63,6 +65,7 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
  * The WKWebView exists before the session: build the session's `JsHost` from [webViewFor], then the
  * pane factory ([iosReadingPaneFactory]) wires the bridge handler once it can ask `sessionFor`.
  */
+@kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalForeignApi::class)
 object IosReadingWebViews {
     private val entries = mutableMapOf<String, ReadingEntry>()
@@ -117,6 +120,7 @@ object IosReadingWebViews {
  * iOS [ReadingPaneFactory]: hosts the window's cached WKWebView in a `UIKitView`, wired to the real
  * session returned by [sessionFor] (called once per window, at first composition).
  */
+@kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalForeignApi::class)
 fun iosReadingPaneFactory(sessionFor: (windowId: String) -> BibleWindowSession): ReadingPaneFactory = { windowId, modifier ->
     val entry = IosReadingWebViews.entry(windowId)

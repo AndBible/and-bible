@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.webview
 
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -18,6 +20,7 @@ import platform.darwin.dispatch_get_main_queue
  * hop to the main queue (the same rule as the PoC holder's sink). [isAttached] is false while the
  * cached WKWebView is not in a window (between panes), which makes the channel queue calls.
  */
+@kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalForeignApi::class)
 class WkWebViewJsHost(private val webView: WKWebView) : JsHost {
     override val isMainThread: Boolean get() = NSThread.isMainThread
