@@ -92,6 +92,7 @@ class SyncService: Service() {
     private fun synchronize() {
         scope.launch {
             var succeeded = false
+            var jobStarted = false
             var wakeLock: PowerManager.WakeLock? = null
             try {
                 Log.i(TAG, "Synchronize started")
@@ -100,18 +101,16 @@ class SyncService: Service() {
                 notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
                 startForeground(SYNC_NOTIFICATION_ID, notification)
                 wakeLock.acquire(5 * 60 * 1000)
-                cloudSync.notifySyncRunning(true)
-                cloudSync.synchronize()
-                cloudSync.waitUntilFinished(true)
-                succeeded = true
-                Log.i(TAG, "Synchronize finished")
+                jobStarted = true
+                succeeded = runDatabaseSyncJob(cloudSync, settings)
+                if (succeeded) Log.i(TAG, "Synchronize finished")
             } catch (e: Exception) {
                 Log.e(TAG, "Synchronization or foreground service entry failed", e)
             } finally {
                 // Release every owner even if a listener or cleanup operation throws.
                 try {
-                    if (succeeded) recordSyncFinished(settings, cloudSync)
-                    else cloudSync.notifySyncRunning(false)
+                    // The job clears the running flag itself; only a failure before it started needs it here.
+                    if (!jobStarted) cloudSync.notifySyncRunning(false)
                 } finally {
                     try {
                         wakeLock?.let { if (it.isHeld) it.release() }
