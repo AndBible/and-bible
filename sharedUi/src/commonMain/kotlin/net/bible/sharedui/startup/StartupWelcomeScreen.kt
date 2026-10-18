@@ -140,7 +140,11 @@ fun StartupWelcomeScreen(
 
             if (state.progressText != null) {
                 AbLoadingIndicator(modifier = Modifier.fillMaxWidth())
-                Text(state.progressText!!, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    state.progressText!!,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
 
             if (state.showTabs) {
@@ -162,7 +166,11 @@ fun StartupWelcomeScreen(
             }
         }
 
-        Text(state.versionText, style = MaterialTheme.typography.labelSmall)
+        Text(
+            state.versionText,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         // Batch 6 A6: both open AndBible URLs, so discrete mode hides them.
         if (state.homepageButtonsVisible) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
