@@ -115,4 +115,6 @@ interface CoreStrings {
     val exportDestinationTitle: String // R.string.export_destination_title
     val exportDestinationMessage: String // R.string.export_destination_message
     fun searchUnsupportedSyntax(syntax: String): String // R.string.search_unsupported_syntax
+    val cantChangeWholeVerse: String // R.string.cant_change_wholeverse
+    val wholeVerseTurnedOn: String // R.string.whole_verse_turned_on
 }

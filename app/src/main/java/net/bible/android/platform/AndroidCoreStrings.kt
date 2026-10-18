@@ -145,4 +145,6 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val exportDestinationTitle: String get() = context.getString(R.string.export_destination_title)
     override val exportDestinationMessage: String get() = context.getString(R.string.export_destination_message)
     override fun searchUnsupportedSyntax(syntax: String): String = context.getString(R.string.search_unsupported_syntax, syntax)
+    override val cantChangeWholeVerse: String get() = context.getString(R.string.cant_change_wholeverse)
+    override val wholeVerseTurnedOn: String get() = context.getString(R.string.whole_verse_turned_on)
 }

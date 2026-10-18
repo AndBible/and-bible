@@ -498,115 +498,14 @@ class BibleView(
         }
     }
 
-    fun makeBookmark(selection: Selection? = currentSelection, wholeVerse: Boolean = false, openNotes: Boolean = false) {
-        selection?: return
-        Log.i(TAG, "makeBookmark")
+    fun makeBookmark(selection: Selection? = currentSelection, wholeVerse: Boolean = false, openNotes: Boolean = false) =
+        readingBridge.bookmarkCreation.makeBookmark(selection, wholeVerse, openNotes)
 
-        val initialLabels = workspaceSettings.autoAssignLabels
-        val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
+    fun createWholePageBookmark(bookInitials: String, bookKey: String) =
+        readingBridge.bookmarkCreation.createWholePageBookmark(bookInitials, bookKey)
 
-        val textRange =
-            if (selection.startOffset != null && selection.endOffset != null)
-                BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
-            else null
-
-        val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
-            if(selection.book?.bookCategory == BookCategory.BIBLE) {
-                val verseRange = selection.verseRange
-                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, wholeVerse, selection.swordBook)
-            } else {
-                BookmarkEntities.GenericBookmarkWithNotes(
-                    key = selection.osisRef!!,
-                    book = selection.book!!,
-                    ordinalStart = selection.startOrdinal,
-                    ordinalEnd = selection.endOrdinal,
-                    textRange = textRange,
-                    wholeVerse = wholeVerse,
-                    new = true,
-                )
-            }
-        // Write in this window's order on the application scope; the click event follows the write.
-        bookmarkJsActions.launch(window.id) {
-            if(primaryLabelId != null) {
-                val label = bookmarkControl.labelById(primaryLabelId)
-                if(label != null) {
-                    bookmark.primaryLabelId = primaryLabelId
-                }
-            }
-
-            bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
-            if(initialLabels.isEmpty() || openNotes) {
-                emit(
-                    BibleViewEvents.bookmarkClicked(bookmark.id.toString(), openNotes)
-                )
-            }
-        }
-    }
-
-    fun createWholePageBookmark(bookInitials: String, bookKey: String) {
-        val book = Books.installed().getBook(bookInitials) ?: return
-
-        val initialLabels = workspaceSettings.autoAssignLabels
-        val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
-
-        val bookmark = BookmarkEntities.GenericBookmarkWithNotes(
-            key = bookKey,
-            book = book,
-            ordinalStart = null,
-            ordinalEnd = null,
-            textRange = null,
-            wholeVerse = true,
-            new = true,
-        )
-
-        bookmarkJsActions.launch(window.id) {
-            if (primaryLabelId != null) {
-                val label = bookmarkControl.labelById(primaryLabelId)
-                if (label != null) {
-                    bookmark.primaryLabelId = primaryLabelId
-                }
-            }
-
-            bookmarkControl.addOrUpdateGenericBookmark(bookmark, initialLabels)
-            if (initialLabels.isEmpty()) {
-                emit(
-                    BibleViewEvents.bookmarkClicked(bookmark.id.toString(), null)
-                )
-            }
-        }
-    }
-
-    fun addParagraphBreakBookmark(selection: Selection? = currentSelection) {
-        selection?: return
-        Log.i(TAG, "addParagraphBreakBookmark")
-
-        val textRange =
-            if (selection.startOffset != null && selection.endOffset != null)
-                BookmarkEntities.TextRange(selection.startOffset!!, selection.endOffset!!)
-            else null
-
-        val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
-            if(selection.book?.bookCategory == BookCategory.BIBLE) {
-                val verseRange = selection.verseRange
-                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, false, selection.swordBook)
-            } else {
-                BookmarkEntities.GenericBookmarkWithNotes(
-                    key = selection.osisRef!!,
-                    book = selection.book!!,
-                    ordinalStart = selection.startOrdinal,
-                    ordinalEnd = selection.endOrdinal,
-                    textRange = textRange,
-                    wholeVerse = false,
-                    new = true,
-                )
-            }
-
-        bookmarkJsActions.launch(window.id) {
-            val paragraphBreakLabelId = bookmarkControl.paragraphBreakLabel().id
-            bookmark.primaryLabelId = paragraphBreakLabelId
-            bookmarkControl.addOrUpdateBookmark(bookmark, setOf(paragraphBreakLabelId))
-        }
-    }
+    fun addParagraphBreakBookmark(selection: Selection? = currentSelection) =
+        readingBridge.bookmarkCreation.addParagraphBreakBookmark(selection)
 
     internal fun compareSelection(selection: Selection? = currentSelection) {
         Log.i(TAG, "compareSelection")
@@ -628,12 +527,6 @@ class BibleView(
     /** Platform seams (see [AndroidReadingNavigator], [BibleViewSurface]). */
     val navigator get() = session.navigator as AndroidReadingNavigator
     val surface get() = session.surface as BibleViewSurface
-
-    internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.Main) {
-        val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
-        val chosen = navigator.assignLabels(bookmark, labels) ?: return@launch
-        withContext(Dispatchers.IO) { bookmarkControl.addOrUpdateBookmark(bookmark, chosen.toSet()) }
-    }
 
     var menuPrepared = false
     var currentSelection: Selection? = null

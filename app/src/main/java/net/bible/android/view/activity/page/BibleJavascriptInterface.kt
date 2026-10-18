@@ -133,42 +133,6 @@ class BibleJavascriptInterface(
     var notificationsEnabled = false
     val scope get() = hostActivity.lifecycleScope
 
-    override fun saveBookmarkNote(bookmarkId: String, note: String?) {
-        bookmarkJsActions.saveBibleBookmarkNote(bibleView.window.id, IdType(bookmarkId), note)
-    }
-
-    override fun saveGenericBookmarkNote(bookmarkId: String, note: String?) {
-        bookmarkJsActions.saveGenericBookmarkNote(bibleView.window.id, IdType(bookmarkId), note)
-    }
-
-    override fun removeBookmark(bookmarkId: String) {
-        bookmarkJsActions.deleteBibleBookmarks(bibleView.window.id, listOf(IdType(bookmarkId)))
-    }
-
-    override fun removeGenericBookmark(bookmarkId: String) {
-        bookmarkJsActions.deleteGenericBookmarks(bibleView.window.id, listOf(IdType(bookmarkId)))
-    }
-
-    override fun assignLabels(bookmarkId: String) {
-        // Ordered after this window's earlier writes, so the label dialog sees them.
-        bookmarkJsActions.launch(bibleView.window.id) {
-            val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
-            bibleView.assignLabels(bookmark)
-        }
-    }
-
-    override fun genericAssignLabels(bookmarkId: String) {
-        bookmarkJsActions.launch(bibleView.window.id) {
-            val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId)) ?: return@launch
-            bibleView.assignLabels(bookmark)
-        }
-    }
-
-    override fun setBookmarkEditAction(bookmarkId: String, valueStr: String) {
-        val editAction = json.decodeFromString<EditAction>(serializer(), valueStr)
-        bookmarkJsActions.updateBookmarkEditAction(bibleView.window.id, IdType(bookmarkId), editAction)
-    }
-
     override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
         val book = Books.installed().getBook(bookInitials) as SwordGenBook
         val backend = book.backend as EpubBackend
@@ -252,56 +216,10 @@ class BibleJavascriptInterface(
         bibleView.navigator.openDownloads(addons = true)
     }
 
-    override fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
-        bookmarkJsActions.createStudyPadEntry(bibleView.window.id, IdType(labelId), entryType, if (entryType == "none") null else IdType(afterEntryId))
-    }
-
-    override fun deleteStudyPadEntry(studyPadId: String) { bookmarkJsActions.deleteStudyPadEntry(bibleView.window.id, IdType(studyPadId)) }
-
-    override fun removeBookmarkLabel(bookmarkId: String, labelId: String) { bookmarkJsActions.removeBibleBookmarkLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId)) }
-
-    override fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String) { bookmarkJsActions.removeGenericBookmarkLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId)) }
-
-    override fun updateOrderNumber(labelId: String, data: String) {
-        val deserialized: Map<String, List<Pair<String, Int>>> = json.decodeFromString(serializer(), data)
-        bookmarkJsActions.updateOrderNumbers(
-            bibleView.window.id, IdType(labelId),
-            studyPadItems = deserialized["studyPadTextItems"]!!,
-            bookmarkItems = deserialized["bookmarks"]!!,
-            genericBookmarkItems = deserialized["genericBookmarks"]!!,
-        )
-    }
-
-    override fun setStudyPadCursor(labelId: String, orderNumber: Int) {
-        val windowRepository = bookmarkControl.windowControl.windowRepository
-        val workspaceSettings = windowRepository.workspaceSettings
-        workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
-        WorkspaceChanges.notifySettingsEdited()
-    }
-
     fun getActiveLanguages(): String {
         //Get the languages for each of the installed bibles and return the language codes as a json list.
         val languages = SwordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
         return "[" + languages.distinct().joinToString(",") + "]"
-    }
-
-    override fun updateStudyPadTextEntry(data: String) {
-        val entry: BookmarkEntities.StudyPadTextEntryWithText = json.decodeFromString(serializer(), data)
-        bookmarkJsActions.updateStudyPadTextEntry(bibleView.window.id, entry)
-    }
-
-    override fun updateStudyPadTextEntryText(id: String, text: String) {
-        bookmarkJsActions.updateStudyPadTextEntryText(bibleView.window.id, IdType(id), text)
-    }
-
-    override fun updateBookmarkToLabel(data: String) {
-        val entry: BookmarkEntities.BibleBookmarkToLabel = json.decodeFromString(serializer(), data)
-        bookmarkJsActions.updateBibleBookmarkToLabel(bibleView.window.id, entry)
-    }
-
-    override fun updateGenericBookmarkToLabel(data: String) {
-        val entry: BookmarkEntities.GenericBookmarkToLabel = json.decodeFromString(serializer(), data)
-        bookmarkJsActions.updateGenericBookmarkToLabel(bibleView.window.id, entry)
     }
 
     override fun shareBookmarkVerse(bookmarkId: String) {
@@ -327,26 +245,6 @@ class BibleJavascriptInterface(
         scope.launch(Dispatchers.Main) {
             bibleView.copySelectionToClipboard(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
         }
-    }
-
-    override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
-        bibleView.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
-    }
-
-    override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
-        bibleView.makeBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
-    }
-
-    override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
-        bibleView.addParagraphBreakBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
-    }
-
-    override fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
-        bibleView.addParagraphBreakBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
-    }
-
-    override fun createWholePageBookmark(bookInitials: String, bookKey: String) {
-        bibleView.createWholePageBookmark(bookInitials, bookKey)
     }
 
     override fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
@@ -527,46 +425,6 @@ class BibleJavascriptInterface(
             }
             speakControl.speakGeneric(bookAndKey)
         }
-    }
-
-    override fun setAsPrimaryLabel(bookmarkId: String, labelId: String) {
-        bookmarkJsActions.setAsPrimaryLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId), generic = false) {
-            bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
-        }
-    }
-
-    override fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String) {
-        bookmarkJsActions.setAsPrimaryLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId), generic = true) {
-            bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
-        }
-    }
-
-    override fun toggleBookmarkLabel(bookmarkId: String, labelId: String) {
-        bookmarkJsActions.toggleBibleBookmarkLabel(bibleView.window.id, IdType(bookmarkId), labelId)
-    }
-
-    override fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) {
-        bookmarkJsActions.toggleGenericBookmarkLabel(bibleView.window.id, IdType(bookmarkId), labelId)
-    }
-
-    override fun setBookmarkCustomIcon(bookmarkId: String, value: String?) {
-        bookmarkJsActions.setBibleBookmarkCustomIcon(bibleView.window.id, IdType(bookmarkId), value)
-    }
-
-    override fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) {
-        bookmarkJsActions.setGenericBookmarkCustomIcon(bibleView.window.id, IdType(bookmarkId), value)
-    }
-
-    override fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
-        bookmarkJsActions.setBibleBookmarkWholeVerse(bibleView.window.id, IdType(bookmarkId), value,
-            onRefused = { UserMessages.toast(R.string.cant_change_wholeverse) },
-            onTurnedOn = { UserMessages.toast(R.string.whole_verse_turned_on) })
-    }
-
-    override fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
-        bookmarkJsActions.setGenericBookmarkWholeVerse(bibleView.window.id, IdType(bookmarkId), value,
-            onRefused = { UserMessages.toast(R.string.cant_change_wholeverse) },
-            onTurnedOn = { UserMessages.toast(R.string.whole_verse_turned_on) })
     }
 
     override fun toggleCompareDocument(documentId: String) {

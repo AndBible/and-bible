@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentGeneralBookPage
@@ -37,6 +38,7 @@ import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedui.reading.session.BibleWindowSession
+import net.bible.sharedui.reading.session.BookmarkCreation
 import org.crosswire.jsword.passage.Verse
 import org.koin.mp.KoinPlatform
 
@@ -50,10 +52,20 @@ import org.koin.mp.KoinPlatform
  * Families not yet moved from the platform adapter throw [NotImplementedError]; the adapter
  * overrides them.
  */
-class ReadingBridge(private val session: BibleWindowSession) : BibleBridge {
+class ReadingBridge(
+    private val session: BibleWindowSession,
+    bookmarkJsActionsProvider: () -> BookmarkJsActions = { KoinPlatform.getKoin().get() },
+) : BibleBridge {
     private val orderedLauncher: OrderedLauncher by lazy { KoinPlatform.getKoin().get() }
     private val speakControl: SpeakControl by lazy { KoinPlatform.getKoin().get() }
     private val currentPageManager get() = session.window.pageManager
+
+    private val bookmarks by lazy {
+        BookmarkBridgeFamily(session, bookmarkJsActionsProvider(), session.bookmarkControl)
+    }
+
+    /** Bookmark creation shared with the platform view (selection menu actions). */
+    val bookmarkCreation: BookmarkCreation get() = bookmarks.creation
 
     private fun notYetMoved(name: String): Nothing =
         throw NotImplementedError("BibleBridge.$name has not moved to ReadingBridge yet")
@@ -251,34 +263,34 @@ class ReadingBridge(private val session: BibleWindowSession) : BibleBridge {
     }
 
     // Not moved yet: the platform adapter overrides these.
-    override fun saveBookmarkNote(bookmarkId: String, note: String?): Unit = notYetMoved("saveBookmarkNote")
-    override fun saveGenericBookmarkNote(bookmarkId: String, note: String?): Unit = notYetMoved("saveGenericBookmarkNote")
-    override fun removeBookmark(bookmarkId: String): Unit = notYetMoved("removeBookmark")
-    override fun removeGenericBookmark(bookmarkId: String): Unit = notYetMoved("removeGenericBookmark")
-    override fun assignLabels(bookmarkId: String): Unit = notYetMoved("assignLabels")
-    override fun genericAssignLabels(bookmarkId: String): Unit = notYetMoved("genericAssignLabels")
-    override fun setBookmarkEditAction(bookmarkId: String, valueStr: String): Unit = notYetMoved("setBookmarkEditAction")
+    override fun saveBookmarkNote(bookmarkId: String, note: String?) = bookmarks.saveBookmarkNote(bookmarkId, note)
+    override fun saveGenericBookmarkNote(bookmarkId: String, note: String?) = bookmarks.saveGenericBookmarkNote(bookmarkId, note)
+    override fun removeBookmark(bookmarkId: String) = bookmarks.removeBookmark(bookmarkId)
+    override fun removeGenericBookmark(bookmarkId: String) = bookmarks.removeGenericBookmark(bookmarkId)
+    override fun assignLabels(bookmarkId: String) = bookmarks.assignLabels(bookmarkId)
+    override fun genericAssignLabels(bookmarkId: String) = bookmarks.genericAssignLabels(bookmarkId)
+    override fun setBookmarkEditAction(bookmarkId: String, valueStr: String) = bookmarks.setBookmarkEditAction(bookmarkId, valueStr)
     override fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String): Unit = notYetMoved("openEpubLink")
     override fun openExternalLink(link: String): Unit = notYetMoved("openExternalLink")
     override fun openDownloads(): Unit = notYetMoved("openDownloads")
-    override fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String): Unit = notYetMoved("createNewStudyPadEntry")
-    override fun deleteStudyPadEntry(studyPadId: String): Unit = notYetMoved("deleteStudyPadEntry")
-    override fun removeBookmarkLabel(bookmarkId: String, labelId: String): Unit = notYetMoved("removeBookmarkLabel")
-    override fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String): Unit = notYetMoved("removeGenericBookmarkLabel")
-    override fun updateOrderNumber(labelId: String, data: String): Unit = notYetMoved("updateOrderNumber")
-    override fun setStudyPadCursor(labelId: String, orderNumber: Int): Unit = notYetMoved("setStudyPadCursor")
-    override fun updateStudyPadTextEntry(data: String): Unit = notYetMoved("updateStudyPadTextEntry")
-    override fun updateStudyPadTextEntryText(id: String, text: String): Unit = notYetMoved("updateStudyPadTextEntryText")
-    override fun updateBookmarkToLabel(data: String): Unit = notYetMoved("updateBookmarkToLabel")
-    override fun updateGenericBookmarkToLabel(data: String): Unit = notYetMoved("updateGenericBookmarkToLabel")
+    override fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) = bookmarks.createNewStudyPadEntry(labelId, entryType, afterEntryId)
+    override fun deleteStudyPadEntry(studyPadId: String) = bookmarks.deleteStudyPadEntry(studyPadId)
+    override fun removeBookmarkLabel(bookmarkId: String, labelId: String) = bookmarks.removeBookmarkLabel(bookmarkId, labelId)
+    override fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String) = bookmarks.removeGenericBookmarkLabel(bookmarkId, labelId)
+    override fun updateOrderNumber(labelId: String, data: String) = bookmarks.updateOrderNumber(labelId, data)
+    override fun setStudyPadCursor(labelId: String, orderNumber: Int) = bookmarks.setStudyPadCursor(labelId, orderNumber)
+    override fun updateStudyPadTextEntry(data: String) = bookmarks.updateStudyPadTextEntry(data)
+    override fun updateStudyPadTextEntryText(id: String, text: String) = bookmarks.updateStudyPadTextEntryText(id, text)
+    override fun updateBookmarkToLabel(data: String) = bookmarks.updateBookmarkToLabel(data)
+    override fun updateGenericBookmarkToLabel(data: String) = bookmarks.updateGenericBookmarkToLabel(data)
     override fun shareBookmarkVerse(bookmarkId: String): Unit = notYetMoved("shareBookmarkVerse")
     override fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("shareVerse")
     override fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("copyVerse")
-    override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean): Unit = notYetMoved("addBookmark")
-    override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean): Unit = notYetMoved("addGenericBookmark")
-    override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("addParagraphBreakBookmark")
-    override fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("addGenericParagraphBreakBookmark")
-    override fun createWholePageBookmark(bookInitials: String, bookKey: String): Unit = notYetMoved("createWholePageBookmark")
+    override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = bookmarks.addBookmark(bookInitials, startOrdinal, endOrdinal, addNote)
+    override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = bookmarks.addGenericBookmark(bookInitials, osisRef, startOrdinal, endOrdinal, addNote)
+    override fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = bookmarks.addParagraphBreakBookmark(bookInitials, startOrdinal, endOrdinal)
+    override fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) = bookmarks.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal)
+    override fun createWholePageBookmark(bookInitials: String, bookKey: String) = bookmarks.createWholePageBookmark(bookInitials, bookKey)
     override fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("compare")
     override fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("memorize")
     override fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int): Unit = notYetMoved("markAsMemorized")
@@ -297,14 +309,14 @@ class ReadingBridge(private val session: BibleWindowSession) : BibleBridge {
     override fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int): Unit = notYetMoved("speak")
     override fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int): Unit = notYetMoved("speakMemorizationLoop")
     override fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int): Unit = notYetMoved("speakGeneric")
-    override fun setAsPrimaryLabel(bookmarkId: String, labelId: String): Unit = notYetMoved("setAsPrimaryLabel")
-    override fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String): Unit = notYetMoved("setAsPrimaryLabelGeneric")
-    override fun toggleBookmarkLabel(bookmarkId: String, labelId: String): Unit = notYetMoved("toggleBookmarkLabel")
-    override fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String): Unit = notYetMoved("toggleGenericBookmarkLabel")
-    override fun setBookmarkCustomIcon(bookmarkId: String, value: String?): Unit = notYetMoved("setBookmarkCustomIcon")
-    override fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?): Unit = notYetMoved("setGenericBookmarkCustomIcon")
-    override fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean): Unit = notYetMoved("setBookmarkWholeVerse")
-    override fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean): Unit = notYetMoved("setGenericBookmarkWholeVerse")
+    override fun setAsPrimaryLabel(bookmarkId: String, labelId: String) = bookmarks.setAsPrimaryLabel(bookmarkId, labelId)
+    override fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String) = bookmarks.setAsPrimaryLabelGeneric(bookmarkId, labelId)
+    override fun toggleBookmarkLabel(bookmarkId: String, labelId: String) = bookmarks.toggleBookmarkLabel(bookmarkId, labelId)
+    override fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) = bookmarks.toggleGenericBookmarkLabel(bookmarkId, labelId)
+    override fun setBookmarkCustomIcon(bookmarkId: String, value: String?) = bookmarks.setBookmarkCustomIcon(bookmarkId, value)
+    override fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) = bookmarks.setGenericBookmarkCustomIcon(bookmarkId, value)
+    override fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) = bookmarks.setBookmarkWholeVerse(bookmarkId, value)
+    override fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) = bookmarks.setGenericBookmarkWholeVerse(bookmarkId, value)
     override fun toggleCompareDocument(documentId: String): Unit = notYetMoved("toggleCompareDocument")
     override fun helpDialog(content: String, title: String?): Unit = notYetMoved("helpDialog")
     override fun helpBookmarks(): Unit = notYetMoved("helpBookmarks")

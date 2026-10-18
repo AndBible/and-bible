@@ -45,9 +45,11 @@ class Phase8SubscriberWiringGuardTest {
 
     @Test fun everyWorkspaceSettingsWriterNotifies() {
         mapOf(
-            "android/view/activity/page/BibleJavascriptInterface.kt" to 2,
+            "android/view/activity/page/BibleJavascriptInterface.kt" to 1,
             // I2 Stream B Task 4 moved one writer (`setLimitAmbiguousModalSize`) into the shared bridge.
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/bridge/ReadingBridge.kt" to 1,
+            // Task 5 moved the other one (`setStudyPadCursor`) into the bookmark family.
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/bridge/BookmarkBridgeFamily.kt" to 1,
             "android/view/activity/bookmark/ManageLabelsContract.kt" to 1,
             "android/control/page/window/WindowRepository.kt" to 1,
             "android/control/bookmark/BookmarkControl.kt" to 2,

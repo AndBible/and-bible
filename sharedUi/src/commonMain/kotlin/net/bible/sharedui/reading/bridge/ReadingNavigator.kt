@@ -52,7 +52,8 @@ interface ReadingNavigator {
 
     /**
      * Let the user choose labels for [bookmark] (preselected [labelIds]). Returns the chosen label
-     * ids, or null when cancelled.
+     * ids, or null when cancelled. Android also sets the primary label and updates the workspace's
+     * recent/auto-assign label settings as part of the chooser.
      */
     suspend fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes, labelIds: List<IdType>): List<IdType>?
 }
