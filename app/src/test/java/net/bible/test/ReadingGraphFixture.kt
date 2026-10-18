@@ -26,7 +26,7 @@ fun awaitHostRoute(activity: NavHostComposeActivity, route: String, advanceCompo
 }
 
 /** Wait (bounded, looper pumped, real time) for an arbitrary host condition that settles asynchronously. */
-fun awaitHostUntil(message: String, ready: () -> Boolean) = awaitHostCondition(message, {}, ready)
+fun awaitHostUntil(message: String, ready: () -> Boolean) = awaitHostCondition(message, ready = ready)
 
 /** Wait for real startup effects, not just Activity.resume(): settings loading suspends graph creation. */
 fun awaitReadingGraph(activity: NavHostComposeActivity, advanceComposition: () -> Unit = {}) {
@@ -165,16 +165,29 @@ internal fun finishFixtureScopes(scopes: List<kotlinx.coroutines.CoroutineScope>
 }
 
 /**
- * Pump the main looper (one task at a time) until [ready], failing with [message] after 10 s. For host effects
+ * Wall-clock bound for [awaitHostCondition]. Measured on ReadingPlanSelectorResetFlowTest's cold first test: 11 s
+ * quiet (7 s in earlier measurements), 48 s with 24 busy loops on the machine (load average ~33); the former 10 s
+ * bound was pure wall-clock and failed it under load. 60 s covers that with margin; a real hang still fails, only later.
+ */
+const val HOST_CONDITION_TIMEOUT_MS = 60_000L
+
+/**
+ * Pump the main looper (one task at a time) until [ready], failing after [timeoutMs]. For host effects
  * that finish asynchronously, e.g. a `lifecycleScope.launch` that suspends on IO before acting.
  */
-fun awaitHostCondition(message: String, advanceComposition: () -> Unit = {}, ready: () -> Boolean) {
-    val deadline = System.nanoTime() + 10_000_000_000L
+fun awaitHostCondition(
+    message: String,
+    advanceComposition: () -> Unit = {},
+    timeoutMs: Long = HOST_CONDITION_TIMEOUT_MS,
+    ready: () -> Boolean,
+) {
+    val start = System.nanoTime()
+    val deadline = start + timeoutMs * 1_000_000L
     while (!ready() && System.nanoTime() < deadline) {
         // One task rather than idle(): a Compose popup can keep the looper busy forever.
         shadowOf(Looper.getMainLooper()).runOneTask()
         advanceComposition()
         Thread.sleep(10)
     }
-    assertTrue(ready(), message)
+    assertTrue(ready(), "$message (not met after ${(System.nanoTime() - start) / 1_000_000} ms, limit $timeoutMs ms)")
 }
