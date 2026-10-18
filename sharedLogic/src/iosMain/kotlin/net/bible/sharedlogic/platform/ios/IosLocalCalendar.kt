@@ -25,6 +25,7 @@ import platform.Foundation.NSCalendarUnitWeekOfYear
 import platform.Foundation.NSCalendarUnitYear
 import platform.Foundation.NSCalendarUnitYearForWeekOfYear
 import platform.Foundation.NSDate
+import platform.Foundation.NSDateComponents
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDateFormatterMediumStyle
 import platform.Foundation.NSDateFormatterNoStyle
@@ -71,17 +72,42 @@ class IosLocalCalendar(
         timeStyle = NSDateFormatterNoStyle
     }.stringFromDate(date(epochMs))
 
-    /** `MMM-d/yyyy` with US month names first, then the current locale's; neither parsing is an [IllegalArgumentException]. */
+    /**
+     * `MMM-d/yyyy` with US month names first, then the current locale's; neither parsing is an [IllegalArgumentException].
+     * For the locale, the format-context (`MMM`) and standalone (`LLL`) patterns are tried strictly then leniently, and
+     * finally the month name is matched against the locale's own month symbols (`NSDateFormatter` does not always
+     * accept an abbreviation that ends in a dot, such as Finnish `helmik.`).
+     */
     override fun parseMonthDayYear(text: String): Long {
-        for (locale in listOf(NSLocale.localeWithLocaleIdentifier("en_US_POSIX"), localeProvider())) {
-            val parsed = NSDateFormatter().apply {
-                this.locale = locale
-                calendar = this@IosLocalCalendar.calendar
-                dateFormat = "MMM-d/yyyy"
-            }.dateFromString(text)
-            if (parsed != null) return parsed.toEpochMs()
+        val locale = localeProvider()
+        fun parse(loc: NSLocale, pattern: String, lenient: Boolean) = NSDateFormatter().apply {
+            this.locale = loc
+            calendar = this@IosLocalCalendar.calendar
+            dateFormat = pattern
+            setLenient(lenient)
+        }.dateFromString(text)?.toEpochMs()
+        parse(NSLocale.localeWithLocaleIdentifier("en_US_POSIX"), "MMM-d/yyyy", false)?.let { return it }
+        for (lenient in listOf(false, true)) {
+            for (pattern in listOf("MMM-d/yyyy", "LLL-d/yyyy")) parse(locale, pattern, lenient)?.let { return it }
         }
-        throw IllegalArgumentException("Unable to parse date ($text) as MMM-d/yyyy")
+        return parseByMonthSymbols(text, locale) ?: throw IllegalArgumentException("Unable to parse date ($text) as MMM-d/yyyy")
+    }
+
+    private fun parseByMonthSymbols(text: String, locale: NSLocale): Long? {
+        val match = Regex("""^\s*(.+?)-(\d{1,2})/(\d{4})\s*$""").matchEntire(text) ?: return null
+        val (name, day, year) = match.destructured
+        fun norm(s: String) = s.trim().trimEnd('.').lowercase()
+        val formatter = NSDateFormatter().apply { this.locale = locale }
+        val lists = listOf(formatter.shortMonthSymbols, formatter.shortStandaloneMonthSymbols, formatter.monthSymbols, formatter.standaloneMonthSymbols)
+        for (symbols in lists) {
+            val index = symbols.indexOfFirst { norm(it as String) == norm(name) }
+            if (index < 0) continue
+            val parts = NSDateComponents().apply {
+                this.year = year.toLong(); month = (index + 1).toLong(); this.day = day.toLong()
+            }
+            return calendar.dateFromComponents(parts)?.toEpochMs()
+        }
+        return null
     }
 
     override fun startOfLocalDay(epochMs: Long): Long = startOfDay(epochMs)

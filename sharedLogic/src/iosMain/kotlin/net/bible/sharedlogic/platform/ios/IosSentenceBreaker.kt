@@ -17,7 +17,6 @@
 package net.bible.sharedlogic.platform.ios
 
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.convert
 import kotlinx.cinterop.useContents
 import net.bible.sharedlogic.platform.SentenceBreaker
 import platform.Foundation.NSMakeRange
@@ -39,10 +38,11 @@ object IosSentenceBreaker : SentenceBreaker {
         result.add(text.length)
         @Suppress("CAST_NEVER_SUCCEEDS")
         (text as NSString).enumerateSubstringsInRange(
-            NSMakeRange(0u, text.length.convert()),
+            NSMakeRange(0uL, text.length.toULong()),
             NSStringEnumerationBySentences or NSStringEnumerationSubstringNotRequired,
         ) { _, _, enclosing, _ ->
-            val start = enclosing.useContents { location.toInt() }
+            // NSRange.location is NSUInteger = ULong in Kotlin/Native, never an Int.
+            val start = enclosing.useContents { location.toLong().toInt() }
             result.add(start)
         }
         return result.toList()

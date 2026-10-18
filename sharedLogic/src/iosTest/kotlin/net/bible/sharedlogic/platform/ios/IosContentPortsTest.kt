@@ -108,6 +108,21 @@ class IosContentPortsTest {
         assertNull(source.mimeType("weird.zzqqxx9"))
     }
 
+    @Test fun contentSourceMimeTypeFallbackTableCoversExchangedTypes() {
+        val source = IosContentSource()
+        val expected = mapOf(
+            "a.xml" to "xml", "a.html" to "html", "a.csv" to "csv", "a.zip" to "zip", "a.epub" to "epub",
+            "a.pdf" to "pdf", "a.png" to "image/png", "a.JPG" to "image/jpeg", "a.gif" to "image/gif", "a.mp3" to "audio",
+            "a.wav" to "audio", "a.m4a" to "audio", "a.mp4" to "video",
+        )
+        for ((name, fragment) in expected) {
+            val mime = source.mimeType(name)
+            assertTrue(mime != null && fragment in mime, "$name -> $mime")
+        }
+        for (name in listOf("a.md", "a.db", "a.sqlite", "a.conf", "a.properties")) assertTrue(source.mimeType(name) != null, name)
+        assertEquals("text/plain", source.mimeType("a.conf"))
+    }
+
     // --- IosMarkdownRenderer
 
     @Test fun markdownRendersStrongAndListItemsAsWellFormedXml() {

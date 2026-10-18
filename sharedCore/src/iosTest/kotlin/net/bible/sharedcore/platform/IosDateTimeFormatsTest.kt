@@ -37,7 +37,11 @@ class IosDateTimeFormatsTest {
     }
 
     @Test fun patternKeepsLocalisedNames() = inUtc {
-        assertEquals("sunnuntai", IosDateTimeFormats { NSLocale.localeWithLocaleIdentifier("fi_FI") }.pattern("EEEE", fixedInstant))
+        // Pattern letter EEEE is the format context (as in "sunnuntaina 1. helmikuuta", also Java's EEEE); only the
+        // standalone letter cccc gives the nominative "sunnuntai".
+        val fi = IosDateTimeFormats { NSLocale.localeWithLocaleIdentifier("fi_FI") }
+        assertEquals("sunnuntaina", fi.pattern("EEEE", fixedInstant))
+        assertEquals("sunnuntai", fi.pattern("cccc", fixedInstant))
         assertEquals("Sunday", IosDateTimeFormats { NSLocale.localeWithLocaleIdentifier("en_US") }.pattern("EEEE", fixedInstant))
     }
 
@@ -50,6 +54,8 @@ class IosDateTimeFormatsTest {
     @Test fun relativeSpanIsAbbreviatedEnglish() = inUtc {
         val us = IosDateTimeFormats { NSLocale.localeWithLocaleIdentifier("en_US") }
         val text = us.relativeTimeSpan(fixedInstant - 3_600_000L, fixedInstant)
-        assertTrue(text.contains("1") && text.contains("hr"), text)
+        // Abbreviated style: Apple's ICU gives "1h ago" on current OS versions, older ones "1 hr. ago" (Android: "1 hr. ago");
+        // punctuation and spacing are OS-data dependent, so assert the stable parts: one, hour unit, past direction.
+        assertTrue(Regex("""^1 ?(h|hr)\.? ago$""").matches(text), text)
     }
 }

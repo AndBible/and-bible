@@ -66,5 +66,21 @@ class IosContentSource(private val files: FileSystem = FileSystem.SYSTEM) : Cont
         val name = displayName(uri) ?: return null
         val extension = name.substringAfterLast('.', "").takeIf { it.isNotEmpty() } ?: return null
         return UTType.typeWithFilenameExtension(extension)?.preferredMIMEType
+            ?: FALLBACK_MIME_TYPES[extension.lowercase()]
+    }
+
+    private companion object {
+        /**
+         * The simulator's UTType database can lack a MIME type for common extensions (json came back null), so the
+         * types AndBible exchanges are listed explicitly; anything else stays null.
+         */
+        val FALLBACK_MIME_TYPES = mapOf(
+            "json" to "application/json", "xml" to "application/xml", "txt" to "text/plain", "html" to "text/html",
+            "htm" to "text/html", "csv" to "text/csv", "md" to "text/markdown", "zip" to "application/zip",
+            "epub" to "application/epub+zip", "pdf" to "application/pdf", "png" to "image/png",
+            "jpg" to "image/jpeg", "jpeg" to "image/jpeg", "gif" to "image/gif", "db" to "application/octet-stream",
+            "sqlite" to "application/vnd.sqlite3", "mp3" to "audio/mpeg", "wav" to "audio/wav", "m4a" to "audio/mp4",
+            "mp4" to "video/mp4", "conf" to "text/plain", "properties" to "text/plain",
+        )
     }
 }
