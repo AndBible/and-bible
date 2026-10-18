@@ -1,0 +1,194 @@
+[
+  {
+    "app": "1.0.1",
+    "fingerprint": "b9c461c2cd7305d0b4d38cdba469b2070429b6894a48c92a9ad2475cc205e9ef",
+    "ios": "17",
+    "path": "1.0.1/17/fresh.zip",
+    "scenario": "fresh",
+    "sha256": "b6ff217015e0f9478efba4544dd0dc83ebe45fcc69a844b065610582671376ad"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "b9c461c2cd7305d0b4d38cdba469b2070429b6894a48c92a9ad2475cc205e9ef",
+    "ios": "17",
+    "path": "1.0.1/17/preserved-ai.zip",
+    "scenario": "preserved-ai",
+    "sha256": "7a45b85c08b1bbab0bf985eb1d12337c6210bd096c5bef99bc829b4f06e3a3af"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "b9c461c2cd7305d0b4d38cdba469b2070429b6894a48c92a9ad2475cc205e9ef",
+    "ios": "17",
+    "path": "1.0.1/17/restored-android.zip",
+    "scenario": "restored-android",
+    "sha256": "f509048edb6be1474e5fb225bbaa33871723cca2b07895d976b39b194ec1bbcd"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "b9c461c2cd7305d0b4d38cdba469b2070429b6894a48c92a9ad2475cc205e9ef",
+    "ios": "17",
+    "path": "1.0.1/17/rich.zip",
+    "scenario": "rich",
+    "sha256": "4bf2c141de28c48f06da32efec1912ca5486659071925781e77c833653ed3591"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "18",
+    "path": "1.0.1/18/fresh.zip",
+    "scenario": "fresh",
+    "sha256": "04658375114979560421d2e399968a4c936fee938bef51f1802cc85aa811904f"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "18",
+    "path": "1.0.1/18/preserved-ai.zip",
+    "scenario": "preserved-ai",
+    "sha256": "1d31d9889311608ddc94113e7b295fdcabdd03026bcd84139d574ce47fc11250"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "18",
+    "path": "1.0.1/18/restored-android.zip",
+    "scenario": "restored-android",
+    "sha256": "c08235f2653d792f4a6a5c677a99e3f19322d3e22810d6976b5cb5fc904ffd15"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "18",
+    "path": "1.0.1/18/rich.zip",
+    "scenario": "rich",
+    "sha256": "95114fa6f26b98fa4ddb0f09f55ab79f89c8f25805992d8de05f088c8209deb1"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "26",
+    "path": "1.0.1/26/fresh.zip",
+    "scenario": "fresh",
+    "sha256": "c5a4b5d78c0c8b97fb5f7d6cbffd212421b360b1ad102df3ba4f8d4896a61ac9"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "26",
+    "path": "1.0.1/26/preserved-ai.zip",
+    "scenario": "preserved-ai",
+    "sha256": "bae0b38254dc598fa83f233920bc11413a21a1ef73ea400abf7c1e2856540434"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "26",
+    "path": "1.0.1/26/restored-android.zip",
+    "scenario": "restored-android",
+    "sha256": "b4acc6054cdc6b552acebaf64e9a2d6beede53d8f2cbb8ed81b065caecaa8d3e"
+  },
+  {
+    "app": "1.0.1",
+    "fingerprint": "f350194971fed58e41a4297e0a4897dd82e3efd871a54d83293b450ba72fc65e",
+    "ios": "26",
+    "path": "1.0.1/26/rich.zip",
+    "scenario": "rich",
+    "sha256": "6cb2f5c6f524000e8075ec67dfbd4f230a7326104ea3dcee52dade8bf5c852c8"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "e5fea2ccf6c5eafba258d3244b33e530dbf53cc54347c5ce5a1cc172f7906b6f",
+    "ios": "17",
+    "path": "1.0.2/17/fresh.zip",
+    "scenario": "fresh",
+    "sha256": "922e2a490aa255605488a172dca083b05b3df009693cdf22f0757aca65b28cf8"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "e5fea2ccf6c5eafba258d3244b33e530dbf53cc54347c5ce5a1cc172f7906b6f",
+    "ios": "17",
+    "path": "1.0.2/17/preserved-ai.zip",
+    "scenario": "preserved-ai",
+    "sha256": "5f5df57b08457ebeeee732fcd7b5c8f847aeb4561431b9a9046805d3ceae7d0d"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "e5fea2ccf6c5eafba258d3244b33e530dbf53cc54347c5ce5a1cc172f7906b6f",
+    "ios": "17",
+    "path": "1.0.2/17/restored-android.zip",
+    "scenario": "restored-android",
+    "sha256": "078fbbd02fee30f225746169c17419918bca01c4b0058e6c1ff005b9be3d8d57"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "e5fea2ccf6c5eafba258d3244b33e530dbf53cc54347c5ce5a1cc172f7906b6f",
+    "ios": "17",
+    "path": "1.0.2/17/rich.zip",
+    "scenario": "rich",
+    "sha256": "24b4556d2acb6f12f967a2ab51d128ef89bd68d1fb88a8490467148580233ee5"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "18",
+    "path": "1.0.2/18/fresh.zip",
+    "scenario": "fresh",
+    "sha256": "1bbff0de2374ab05ed6d5b5f5337228b054bbe43ff7e6ca1486e76c56c853a34"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "18",
+    "path": "1.0.2/18/preserved-ai.zip",
+    "scenario": "preserved-ai",
+    "sha256": "a4925607903ccc29505172fd4d9ff83e94f86fb54404d334471b0b01c411eb46"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "18",
+    "path": "1.0.2/18/restored-android.zip",
+    "scenario": "restored-android",
+    "sha256": "385ba8a42a4ce39112ee2b6af1879ffc2a231007fd3a4c880418cf561e433398"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "18",
+    "path": "1.0.2/18/rich.zip",
+    "scenario": "rich",
+    "sha256": "0ab6615c9161bd95336feb5e71b0dec58c3efd6c42d5243d95a02158c731cd04"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "26",
+    "path": "1.0.2/26/fresh.zip",
+    "scenario": "fresh",
+    "sha256": "99bf38763a57b5a06ef411cbfa66417ba921419fe9d184b83169c9a619284bce"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "26",
+    "path": "1.0.2/26/preserved-ai.zip",
+    "scenario": "preserved-ai",
+    "sha256": "feed6ef5dfc130d1b931410b881bee18b8c43433f7cd80d52f402d7695d87558"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "26",
+    "path": "1.0.2/26/restored-android.zip",
+    "scenario": "restored-android",
+    "sha256": "53b08ab935e79f58e740405389dd7beb0a0adb3ffcf6af2c7ac6e24306258148"
+  },
+  {
+    "app": "1.0.2",
+    "fingerprint": "8cdd5de71d3a62c591a56e5f716a9e1833c6661184188f253e0d0bc51a62dbeb",
+    "ios": "26",
+    "path": "1.0.2/26/rich.zip",
+    "scenario": "rich",
+    "sha256": "5ea2124cc89890ea679b10f4e2afdf7e678c0697b6871fd2efede38270bc3477"
+  }
+]
