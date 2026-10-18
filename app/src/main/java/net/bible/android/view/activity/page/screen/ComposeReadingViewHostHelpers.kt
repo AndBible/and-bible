@@ -139,8 +139,7 @@ abstract class ComposeReadingViewHostHelpers {
      * without a `ComposeTestRule` to render the snackbar.
      */
     internal fun searchUnavailableMessage(docName: String, strings: Strings): String =
-        if (docName.isBlank()) strings.searchNotAvailable
-        else strings.searchNotAvailableForDocument(docName)
+        net.bible.sharedui.reading.host.searchUnavailableMessage(docName, strings)
 
     /**
      * Whether a `JobManager` work event may resolve the index build the search sheet is waiting

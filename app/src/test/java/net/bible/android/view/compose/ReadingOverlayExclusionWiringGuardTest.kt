@@ -43,8 +43,12 @@ class ReadingOverlayExclusionWiringGuardTest {
     private val hostSource =
         net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")
 
+    /** The QuickSheet application site (`showQuickSheet`) moved to common code with `ReadingHostState` (Task 11). */
+    private val hostStateSource =
+        File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/host/ReadingHostState.kt")
+
     @Test fun bothScannedSourcesExist() {
-        listOf(enumSource, hostSource).forEach {
+        listOf(enumSource, hostSource, hostStateSource).forEach {
             assertTrue("${it.path} no longer exists — this guard would pass vacuously", it.isFile)
         }
     }
@@ -69,12 +73,12 @@ class ReadingOverlayExclusionWiringGuardTest {
     }
 
     /**
-     * Every overlay must have an application site in the host: opening it closes the others. A
+     * Every overlay must have an application site in the host (or its common `ReadingHostState`): opening it closes the others. A
      * missing one is the completeness gap the 14a status entry recorded, and it is invisible at
      * runtime today only because a modal scrim happens to cover every route to a second sheet.
      */
     @Test fun everyOverlayHasAnExclusionApplicationSiteInTheHost() {
-        val code = codeLinesOf(hostSource)
+        val code = codeLinesOf(hostSource) + "\n" + codeLinesOf(hostStateSource)
         val unwired = overlayNames()
             .filterNot { code.contains("ReadingOverlayExclusion.closedBy(ReadingOverlay.$it)") }
         assertEquals(

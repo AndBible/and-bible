@@ -269,17 +269,24 @@ class ReadingOptionsMenuTest {
         )
     }
 
+    /**
+     * Since I2 Stream B Task 4 the key shortcuts live in the shared `ReadingBridge.onKeyDown`
+     * (`:sharedUi`), which reaches the host through `ReadingKeyActions.openOverflowMenu()`.
+     * `BibleJavascriptInterface` no longer handles keys, but it is still scanned for a revived
+     * native popup call.
+     */
     @Test
     fun altKeyOGoesToTheComposeOverflowMenuNotTheNativePopup() {
-        val src = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt"))
-        val line = src.lineSequence().firstOrNull { it.contains("\"AltKeyO\"") }
-        assertTrue(line != null, "the AltKeyO shortcut must still exist")
+        val bridgeSrc = codeOf(File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/bridge/ReadingBridge.kt"))
+        val line = bridgeSrc.lineSequence().firstOrNull { it.contains("\"AltKeyO\"") }
+        assertTrue(line != null, "the AltKeyO shortcut must still exist in ReadingBridge.onKeyDown")
         assertTrue(
             line.contains("openOverflowMenu"),
             "AltKeyO must open the Compose overflow menu; got: $line",
         )
+        val jsiSrc = codeOf(net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt"))
         assertFalse(
-            src.contains("showOptionsMenu"),
+            bridgeSrc.contains("showOptionsMenu") || jsiSrc.contains("showOptionsMenu"),
             "no CALL of the deleted native options popup may remain",
         )
     }

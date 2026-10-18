@@ -120,4 +120,15 @@ internal class StubCoreStrings : CoreStrings {
     override val exportDestinationTitle = "exportDestinationTitle"
     override val exportDestinationMessage = "exportDestinationMessage"
     override fun searchUnsupportedSyntax(syntax: String): String = "searchUnsupportedSyntax ${syntax}"
+    override val memorizeWordVisibilityEntries = listOf("memorizeWordVisibilityEntries")
+    override val memorizeWordVisibilityValues = listOf("memorizeWordVisibilityValues")
+    override val cantChangeWholeVerse = "cantChangeWholeVerse"
+    override val wholeVerseTurnedOn = "wholeVerseTurnedOn"
+    override val help = "help"
+    override val helpMemorizeText = "helpMemorizeText"
+    override val helpReadMoreLink = "helpReadMoreLink"
+    override val verseTip = "verseTip"
+    override val helpBookmarksText = "helpBookmarksText"
+    override val watchTutorialVideo = "watchTutorialVideo"
+    override val bookmarksAndMyNotesTitle = "bookmarksAndMyNotesTitle"
 }

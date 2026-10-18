@@ -15,14 +15,18 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.page
 
+import kotlin.concurrent.Volatile
 import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.bookmark.favouriteIdsAfter
 import net.bible.android.database.IdType
+import net.bible.sharedcore.bibleview.SessionLock
 
 /**
- * [BibleView]'s favourite label ids, read synchronously by its `set_config` command. Kept current from
+ * The favourite label ids of a reading window, read synchronously by its `set_config` command (owned by `DocumentLoader`). Kept current from
  * [BookmarkChange]s ([apply]) and re-read from the database ([refresh]); both may run on different
  * threads at once.
  *
@@ -31,26 +35,27 @@ import net.bible.android.database.IdType
  *   emitted after its own database write, so the read may or may not include it, and
  *   [favouriteIdsAfter] is idempotent. Without the replay, the older read would overwrite it.
  */
+@kotlin.native.HiddenFromObjC
 class FavouriteLabelIdsCache {
-    private val lock = Any()
+    private val lock = SessionLock()
     @Volatile var ids: List<IdType> = emptyList()
         private set
     /** One log per refresh in flight; [apply] appends to each. Guarded by [lock]. */
     private val inFlight = mutableListOf<MutableList<BookmarkChange>>()
 
-    fun apply(change: BookmarkChange) = synchronized(lock) {
+    fun apply(change: BookmarkChange) = lock.withLock {
         ids = favouriteIdsAfter(ids, change)
         inFlight.forEach { it.add(change) }
     }
 
     suspend fun refresh(read: suspend () -> List<IdType>) {
         val log = mutableListOf<BookmarkChange>()
-        synchronized(lock) { inFlight.add(log) }
+        lock.withLock { inFlight.add(log) }
         try {
             val fresh = read()
-            synchronized(lock) { ids = log.fold(fresh, ::favouriteIdsAfter) }
+            lock.withLock { ids = log.fold(fresh, ::favouriteIdsAfter) }
         } finally {
-            synchronized(lock) { inFlight.removeAll { it === log } } // by identity: two empty logs are equal
+            lock.withLock { inFlight.removeAll { it === log } } // by identity: two empty logs are equal
         }
     }
 }

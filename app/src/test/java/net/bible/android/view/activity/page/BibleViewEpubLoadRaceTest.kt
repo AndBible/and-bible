@@ -196,9 +196,9 @@ class BibleViewEpubLoadRaceTest {
             serialRelease.countDown()
             while (old.isActive) { runCurrent(); withContext(Dispatchers.IO) { delay(10) } }
             assertEquals(newKey, view.initialKey)
-            assertEquals(9, (field("initialAnchorOrdinal") as OrdinalRange).start)
-            assertEquals("new", field("initialHtmlId"))
-            assertEquals("{'id': 'new'}", field("latestDocumentStr"))
+            assertEquals(9, view.documentLoader.initialAnchorOrdinal!!.start)
+            assertEquals("new", view.documentLoader.initialHtmlId)
+            assertEquals("{'id': 'new'}", view.documentLoader.latestDocumentStr)
         } finally {
             serialRelease.countDown(); old.cancel()
         }
@@ -217,7 +217,7 @@ class BibleViewEpubLoadRaceTest {
         val original = page.currentDocument
         try {
             withContext(Dispatchers.Default) { withTimeout(10_000) { while (entered.count != 0L) { runCurrent(); delay(10) } } }
-            assertEquals(count.toLong(), field("documentLoadGeneration"))
+            assertEquals(count.toLong(), view.documentLoader.loadGeneration)
             assertNull(view.initialKey)
             assertNull(view.firstDocument)
             page.onlySetCurrentDocument(Books.installed().getBooks().first { it != original })
@@ -225,8 +225,8 @@ class BibleViewEpubLoadRaceTest {
             loads.forEach { it.join() }
             assertNull(view.firstDocument)
             assertNull(view.initialKey)
-            assertNull(field("initialAnchorOrdinal"))
-            assertNull(field("initialHtmlId"))
+            assertNull(view.documentLoader.initialAnchorOrdinal)
+            assertNull(view.documentLoader.initialHtmlId)
         } finally {
             page.onlySetCurrentDocument(original)
             release.countDown()
@@ -461,6 +461,14 @@ class BibleViewEpubLoadRaceTest {
         assertEquals(listOf(joinFailure), joined.suppressed.toList())
     }
 
+    @Test fun openLinkNeverLetsTheWebViewNavigateKnownOrUnknownSchemes() {
+        // Handled-or-not, the WebView must not navigate: known schemes with missing parameters and unknown ones.
+        for (url in listOf("osis://?v11n=KJV", "journal://", "multi://", "ab-find-all://?type=g", "epub-ref://?book=x",
+            "mailto:a@b.c", "no-scheme")) {
+            assertTrue(url, view.openLink(Uri.parse(url)))
+        }
+    }
+
     @Test fun epubUriFromAnotherDocumentOpensTarget() = checkEpubUri(false)
 
     @Test fun epubUriRejectsChangedSourceDocument() = checkEpubUri(true)
@@ -485,10 +493,11 @@ class BibleViewEpubLoadRaceTest {
                 val page = window.pageManager.currentPage
                 (page as CurrentPageBase).onlySetCurrentDocument(target)
                 // Changing source to another document before the deferred lookup must suppress navigation.
-                (field("epubLinks\$delegate") as Lazy<*>).value.let {
-                    val queue = it as net.bible.sharedcore.platform.OrderedLauncher
-                    queue.join("epub-links")
-                }
+                // The EPUB link queue moved with the link family into the shared ReadingBridge (I2 Stream B Task 6).
+                fun Any.lazyField(name: String): Any? = javaClass.getDeclaredField(name).run { isAccessible = true; (get(this@lazyField) as Lazy<*>).value }
+                val linkFamily = view.readingBridge.lazyField("links\$delegate")!!
+                val queue = linkFamily.lazyField("epubLinks\$delegate") as net.bible.sharedcore.platform.OrderedLauncher
+                queue.join("epub-links")
                 assertEquals(target, page.currentDocument)
                 assertNotEquals(state.keys.first().getOsisRef(), page.key?.getOsisRef())
             } else {

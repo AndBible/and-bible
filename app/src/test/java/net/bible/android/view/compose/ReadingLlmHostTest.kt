@@ -17,7 +17,6 @@
 package net.bible.android.view.compose
 
 import android.widget.FrameLayout
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,13 +95,10 @@ class ReadingLlmHostTest {
         var regenerateConfirmedWith: Triple<String?, Boolean, Boolean>? = null
         var dismissed = false
 
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = mutableStateOf(false),
-            pane = { },
-            llmDialogState = llmDialogState,
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = ReadingHostTestDeps.state(),
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
+            llmDialog = llmDialogState,
             onLlmPromptChosen = { promptChosenWith = it },
             onLlmToggleFavorite = { favoriteToggledWith = it },
             onLlmCategoryExpandedChanged = { categoryId, expanded -> categoryChangedWith = categoryId to expanded },
@@ -112,7 +108,7 @@ class ReadingLlmHostTest {
                 regenerateConfirmedWith = Triple(instructions, keepPrevious, freshRun)
             },
             onLlmDismiss = { dismissed = true },
-        )
+        ))
 
         assertTrue(
             (0 until container.childCount).any { container.getChildAt(it) is ComposeView },

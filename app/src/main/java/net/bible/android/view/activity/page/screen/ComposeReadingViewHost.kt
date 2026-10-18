@@ -22,36 +22,16 @@ import android.text.format.DateFormat.format
 import android.util.Log
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.BottomSheetScaffoldState
-import androidx.compose.material3.DrawerDefaults
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -60,7 +40,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -68,18 +47,12 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -143,6 +116,7 @@ import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.activity.page.androidBibleView
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -155,8 +129,6 @@ import net.bible.android.view.activity.settings.buildColorSettingsLabels
 import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
 import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.DisplayColorMode
-import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.speakHelpVideo
@@ -179,27 +151,20 @@ import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.ai.reading.ReadingLlmDialog
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
-import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
 import net.bible.sharedcore.history.HistoryController
 import net.bible.sharedcore.history.HistoryEntry
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
 import net.bible.sharedcore.navigation.DocumentSheetScope
-import net.bible.sharedcore.navigation.buildDocumentQuickTabs
 import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.KeyRow
-import net.bible.sharedcore.progress.ReadHistoryEntry
-import net.bible.sharedcore.progress.ReadingProgressService
-import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.OptionsMenuItem
-import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingOverlayExclusion
 import net.bible.sharedcore.reading.ReadingQuickSheet
@@ -209,9 +174,6 @@ import net.bible.sharedcore.reading.ShareVersesOptions
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.reading.bibleReferenceOverlayVisible
-import net.bible.sharedcore.reading.paneButtonDragAction
-import net.bible.sharedcore.reading.paneButtonFadeMillis
-import net.bible.sharedcore.reading.paneButtonHiddenAlpha
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.EpubSearchResultsController
@@ -249,17 +211,14 @@ import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakSheetPage
 import net.bible.sharedcore.speak.SpeakSheetStack
 import net.bible.sharedcore.speak.SpeakTransportController
-import net.bible.sharedcore.speak.SpeakTransportDialog
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.sleepTimerSelectionFor
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowLayoutState
-import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
-import net.bible.sharedcore.window.shouldShowPinIndicator
 import net.bible.sharedcore.workspaces.WorkspaceQuickController
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
@@ -275,32 +234,29 @@ import net.bible.sharedui.components.AbQuickSheetTab
 import net.bible.sharedui.history.HistoryListContent
 import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.ReadHistoryRow
-import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.navigation.DocumentQuickContent
 import net.bible.sharedui.navigation.GridChoosePassageContent
 import net.bible.sharedui.navigation.GridOptionsOverflow
 import net.bible.sharedui.navigation.KeyListBody
-import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
-import net.bible.sharedui.reading.ReadingDrawerContent
-import net.bible.sharedui.reading.ReadingDrawerWidth
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
-import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.host.LocalReadingPane
+import net.bible.sharedui.reading.host.ReadingHost
+import net.bible.sharedui.reading.host.ReadingHostDeps
+import net.bible.sharedui.reading.host.ReadingHostHooks
+import net.bible.sharedui.reading.host.ReadingPaneFactory
+import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.reading.ShareVersesSheet
 import net.bible.sharedui.reading.SpeakTransportBar
-import net.bible.sharedui.reading.WindowButton
-import net.bible.sharedui.reading.WindowButtonMode
 import net.bible.sharedui.reading.WindowPaneMenu
-import net.bible.sharedui.reading.WindowTabBar
 import net.bible.sharedui.search.BibleResultsActions
 import net.bible.sharedui.search.BibleSearchSettings
 import net.bible.sharedui.search.EpubSearchSettings
 import net.bible.sharedui.search.SearchIndexPanel
 import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.search.SearchSheetContent
-import net.bible.sharedui.search.readingSheetInsetPadding
 import net.bible.sharedui.search.bibleResultRows
 import net.bible.sharedui.search.epubResultRows
 import net.bible.sharedui.settings.ColorSettingsEditorSheet
@@ -312,7 +268,6 @@ import net.bible.sharedui.speak.SpeakRangeContent
 import net.bible.sharedui.speak.SpeakSettingsContent
 import net.bible.sharedui.speak.SpeakSettingsSheet
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.textOptionDrawableRes
 import net.bible.sharedui.workspaces.WorkspaceQuickContent
 import org.crosswire.common.progress.JobManager
@@ -327,248 +282,6 @@ import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BibleBook
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-
-/** Vertical drag distance on the pane ☰ button that counts as swipe-to-maximise/minimise (Plan B
- * Task 5, §4/§0.1: iOS uses a 28pt threshold; classic's own fling-velocity gesture has no direct
- * dp equivalent, so this Compose port matches the iOS distance threshold instead of reproducing
- * classic's `ViewConfiguration`-based fling detector). */
-private val PaneButtonDragThresholdDp = 28.dp
-
-/**
- * Reload-generation counter for [ComposeReadingViewHost]: bumped by `rebuild()` to force a full
- * dispose+recreate of the pane subtree. Needed because each pane is
- * `key(window.id) { AndroidView(factory = { ... }) }` — the factory runs once per window id and
- * is never re-invoked by a plain recomposition. When [MainBibleActivity.currentWorkspaceId]'s
- * setter (or a database restore, `DatabaseContainer.databaseRestored`) reloads the SAME workspace, it does
- * `documentViewManager.removeView()` -> `bibleViewFactory.clear()` (destroys every cached
- * [net.bible.android.view.activity.page.BibleView]) -> `windowRepository.loadFromDb()` ->
- * `documentViewManager.buildView(forceUpdate = true)`; the window ids are unchanged, so without
- * this generation bump Compose would keep the existing `key(window.id)` nodes and never re-run
- * `AndroidView`'s factory, leaving the panes showing destroyed WebViews. Mirrors classic's
- * `SplitBibleArea.update(forceUpdate = true)` recreate.
- *
- * Kept as its own tiny, framework-free (no [KoinComponent]/activity coupling) holder so the
- * "`rebuild()` bumps the counter" behavior is unit-testable without booting a full
- * [MainBibleActivity] or Koin context — see `ComposeReadingViewGenerationTest`.
- */
-class ComposeReadingViewGeneration {
-    private val mutableState = mutableIntStateOf(0)
-    val state: State<Int> get() = mutableState
-    fun rebuild() { mutableState.intValue++ }
-}
-
-/**
- * Makes the rail's plain (non-observable) per-window labels recompose when they may have changed.
- *
- * `windowLabelFor`/`windowTopLabelFor` read `pageManager` directly, so Compose has nothing to
- * observe and skips the rail while its inputs (layout model + stable lambdas) are unchanged.
- * Routing each label read through [observed] subscribes the calling composition scope to one
- * shared tick; [invalidate] (driven by the host's passage/verse events) bumps it, so exactly the
- * label sites that read it recompose, for every window, synchronised ones included. The window
- * icon (`windowIconFor`) is not wrapped: it is read in the same rail composition scope as the
- * labels, so it is re-evaluated whenever they are.
- *
- * The bump relies on the host's `PageChange.VerseChanged` / `PageChange.BibleVerseChanged` handlers
- * being reached: a document or key change reaches the rail only because `CurrentPageManager` /
- * `PassageChangeMediator` emit one of them. A mutation that emits neither leaves the labels stale;
- * `railLabelsFollowARealDocumentChange` pins the document-swap path.
- *
- * Framework-free like [ComposeReadingViewGeneration], so it is unit-testable without a composition.
- */
-class WindowLabelFreshness {
-    private val tick = mutableIntStateOf(0)
-
-    /** Reads [read] after subscribing the current composition scope to [invalidate]. */
-    fun <T> observed(read: () -> T): T {
-        tick.intValue
-        return read()
-    }
-
-    fun invalidate() { tick.intValue++ }
-}
-
-/**
- * Fans a "classic said this may have changed" signal out to the Compose reading view's state
- * (pre-A/B state-freshness spec §1 P3).
- *
- * Every Compose state bridge subscribes to a *guessed set* of owner `Events`
- * streams and rebuilds its snapshot from the domain, so a mutation that posts none of them leaves
- * the UI stale — `ToolbarStateServiceImpl` subscribes to 5 events while classic calls
- * `MainBibleActivity.updateActions()` from 12 places, only 3 of which coincide with one. Rather
- * than guess more events, the classic imperative refresh points push here, mirroring what Batch
- * Z-early A6 already does one line earlier in `updateActions` for the drawer
- * (`composeReadingViewHost?.rebuildDrawer(...)`). The domain-notifier inversion that removes the
- * guessing altogether is Batch Z-late work (spec §5), after the classic files are deleted.
- *
- * [rebuildComposition] additionally bumps [ComposeReadingViewGeneration], which recreates the pane
- * subtree — needed only where the host re-reads values *inside* its composition (the three
- * settings read in `mountComposeView`), i.e. the return-from-Settings path. It is off by default
- * because recreating the subtree re-runs every pane's `AndroidView` factory.
- *
- * Kept as its own framework-free holder (like [ComposeReadingViewGeneration] above) so the fan-out
- * is unit-testable without a [MainBibleActivity] or Koin context — see `HostedStateRefresherTest`.
- */
-class HostedStateRefresher(
-    private val toolbar: ToolbarStateService,
-    private val generation: ComposeReadingViewGeneration,
-) {
-    fun refresh(rebuildComposition: Boolean = false) {
-        toolbar.refresh()
-        if (rebuildComposition) generation.rebuild()
-    }
-}
-
-/**
- * Whether the reading view's Speak transport bar should be shown — the Compose counterpart of
- * classic `MainBibleActivity.updateBottomBars()`'s `if (isFullScreen || !transportBarVisible)`
- * animate-out branch.
- *
- * [transportVisible] arrives through `SpeakTransportServiceImpl.setTransportVisible`, which the
- * `transportBarVisible` **setter** calls with the raw backing field — its getter's
- * `if (isFullScreen) false` mask is NOT applied before the call, and `toggleFullScreen()` emits
- * only `fullScreenChanged`. So without re-applying the fullscreen half here, the bar stayed on
- * screen in fullscreen on the Compose path while classic animated it away (pre-A/B spec §1 P3).
- *
- * A pure function so it is unit-testable — see `SpeakBarVisibilityTest`.
- */
-internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Boolean =
-    !fullScreen && transportVisible
-
-/**
- * Shadow elevation of the (mounted, hidden) search sheet. The hidden sheet's shadow spills onto the
- * reader's bottom row on paper-white greyscale, so both greyscale-base modes (black-and-white e-ink
- * and pure monochrome) draw none; Normal and Color e-ink keep the Material default.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-internal fun searchSheetShadowElevation(mode: DisplayColorMode): Dp =
-    if (mode.isGreyBase) 0.dp else BottomSheetDefaults.Elevation
-
-/**
- * The `menuWindowId`/`paneMenuWindowId` a surface should receive: the open window's id only when
- * the open menu is anchored ([openAnchor]) to THAT [surface], else `null` — the pane overlay and the
- * rail (A/B batch 3, F5b) each call this with their own [surface] so exactly one of the two
- * `WindowPaneMenu` instances ever reports itself expanded, keeping "both menus open at once"
- * structurally unrepresentable rather than merely avoided. A pure function, mirroring
- * [speakBarVisible] above, so the gate itself — not just the `openPaneMenu` bookkeeping that feeds
- * it — is unit-testable without a `ComposeTestRule` (this repo's `:app` unit tests have none); see
- * `MenuWindowIdForTest`.
- */
-internal fun menuWindowIdFor(surface: PaneMenuAnchor, openAnchor: PaneMenuAnchor, openWindowId: String?): String? =
-    if (openAnchor == surface) openWindowId else null
-
-/**
- * Task 27 (platform-dialog removal, run 3) fix round 1: [ReadHistoryEntry] → [ReadHistoryRow]
- * mapping for the reading view's per-chapter read-history sheet
- * (`QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->` branch), extracted as a pure function —
- * mirroring [speakBarVisible]/[menuWindowIdFor] above — so it is unit-testable without
- * Robolectric/Compose; see `ChapterReadHistoryRowTest`. Classic `ReadHistoryDialog.showForChapter`
- * used `showChapterPerRow = false`: `"$date $time"` / version, no chapter reference (the chapter is
- * already named in the sheet's title, unlike the book/day history screens' multi-chapter list,
- * which show a chapter reference per row instead). [date]/[time] arrive ALREADY formatted —
- * `ReadingProgressServiceImpl.formatEntryDate`/`formatEntryTime` are Android `DateFormat` calls and
- * so not themselves portable — this function only assembles the row from them.
- */
-internal fun chapterReadHistoryRow(
-    entry: ReadHistoryEntry,
-    date: String,
-    time: String,
-    versionUnknownText: String,
-): ReadHistoryRow {
-    val version = entry.bookInitials.ifEmpty { versionUnknownText }
-    return ReadHistoryRow(id = entry.id, primary = "$date $time", secondary = version)
-}
-
-/**
- * Task 27 (platform-dialog removal, run 3) fix round 2: the `onApplyDeletes` callback
- * `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->` branch wires into `AbReadHistorySheet`,
- * extracted as its own function — mirroring [chapterReadHistoryRow] above — so it is unit-testable
- * with a fake [ReadingProgressService] instead of only being exercisable by re-implementing its
- * `ids.isNotEmpty()` guard inside a test harness (review round 1's gap, named again in round 2: the
- * guard AND the `cycle` threading from the `LaunchedEffect`'s load were both unverified against the
- * real production lambda). `ComposeReadingViewHost` now calls this function VERBATIM — see
- * `ReadHistoryApplyDeletesTest`.
- *
- * [service] is typed to the portable [ReadingProgressService] interface, not
- * `ReadingProgressServiceImpl`, specifically so it is fakeable without Room/Robolectric — the same
- * reason `:sharedCore`'s own `ReadingProgressControllerTest.Fake` exists. [cycle] is captured once,
- * at assembly time (the `LaunchedEffect`'s `activeCycle`), not re-read per call — matching classic
- * `ReadHistoryDialog.applyPendingDeletes`, which closed over the SAME `cycle` its `loadAndShow` had
- * already fetched, not a re-queried one.
- */
-internal fun readHistoryApplyDeletes(
-    coroutineScope: CoroutineScope,
-    service: ReadingProgressService,
-    cycle: Int,
-): (List<String>) -> Unit = { ids ->
-    if (ids.isNotEmpty()) {
-        coroutineScope.launch { service.deleteReadHistoryEntries(ids, cycle) }
-    }
-}
-
-/**
- * Auto-hide state for the pane overlay's floating ☰ button (Batch 12b follow-on Plan B Task 5) —
- * the Compose port of classic `SplitBibleArea.resetTouchTimer`/`toggleWindowButtonVisibility`
- * (`screen/SplitBibleArea.kt:511-575`), hoisted to a host-owned field (design spec §9: "hoist it
- * ... not per-recomposition local state") rather than remembered inside the composable, so the 2s
- * hide countdown survives recomposition. Kept as its own tiny, framework-free holder — mirroring
- * [ComposeReadingViewGeneration] — so `ComposeReadingViewHostTest` can assert it without booting a
- * full [MainBibleActivity]/Koin context.
- *
- * [visible] starts `true` (buttons shown on first render, mirroring classic's initial
- * `buttonsVisible = true`, `SplitBibleArea.kt:149`). [onTouch] — wired to
- * [ComposeReadingViewHost.onBibleViewTouched], and also called by
- * [ComposeReadingViewHost.openPaneMenu] (mirroring classic `showPopupMenu`'s
- * `timerTask?.cancel(); toggleWindowButtonVisibility(true)`, `SplitBibleArea.kt:731-732`, so a menu
- * opened while auto-hidden still renders) — sets [visible] `true` and bumps [touchTick] so a
- * `LaunchedEffect(touchTick)` in the composable can restart its 2s hide countdown. [onHideTimeout]
- * (called by that effect after the delay elapses) sets [visible] `false`. Because Compose
- * cancels/reruns a `LaunchedEffect` whenever its key changes, a touch mid-countdown discards the
- * stale timer automatically — no manual `TimerTask.cancel()` bookkeeping is needed here, unlike
- * classic.
- */
-class WindowButtonsVisibility {
-    private val mutableVisible = mutableStateOf(true)
-    private val mutableTouchTick = mutableIntStateOf(0)
-    val visible: State<Boolean> get() = mutableVisible
-    val touchTick: State<Int> get() = mutableTouchTick
-
-    fun onTouch() {
-        mutableVisible.value = true
-        mutableTouchTick.intValue++
-    }
-
-    fun onHideTimeout() { mutableVisible.value = false }
-}
-
-/**
- * Which surface a per-window (☰) pane menu is anchored to (A/B batch 3, F5). Classic anchors its
- * popup to the view that was pressed; the port originally composed the menu only inside the pane
- * overlay, so a rail long-press rendered it at the pane's floating button instead of at the rail
- * tab under the finger.
- */
-enum class PaneMenuAnchor { Pane, Rail }
-
-/**
- * Platform-dialog removal Task 18: the reading view's own dialogs, held as ONE host-owned state
- * (`ComposeReadingViewHost.readingDialog`) and rendered through ONE host-private slot
- * (`ReadingDialogSlot`) -- the same "shape 2" pattern `quickSheet`/`QuickSheetSlot` already use
- * (Appendix -- site owners, Q1), rather than the raw-`StateFlow`-plus-many-callbacks shape
- * `readingLlmDialogs` needs (nothing outside this host observes either of these).
- *
- * **Not a [net.bible.sharedcore.reading.ReadingOverlay]**: both arms are plain `AlertDialog`-shaped
- * (via `AbMessageDialog`/`AbConfirmDialog`), and a dialog over a sheet is fine
- * (`ReadingOverlayExclusion`'s kdoc) -- so opening one never needs to close a sheet, and no
- * exclusion wiring/enum member is needed.
- */
-sealed interface ReadingDialog {
-    /** `BibleJavascriptInterface.helpDialog`/`.helpBookmarks`'s plain-text or HTML help body -- a
-     *  single OK button, no negative action. */
-    data class Help(val title: String?, val html: String) : ReadingDialog
-
-    /** `BibleJavascriptInterface.deleteMyDocumentPage`'s confirm; [onConfirm] is the caller's
-     *  deletion (+ window bookkeeping), captured at open time -- only the QUESTION lives here. */
-    data class ConfirmDeleteDocumentPage(val onConfirm: () -> Unit) : ReadingDialog
-}
 
 /**
  * Mounts the Compose reading view into its host Activity's content. It replaced the classic
@@ -627,6 +340,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val navigationControl: NavigationControl by inject()
     private val windowControl: WindowControl by inject()
     private val documentControl: DocumentControl by inject()
+    private val historyManager: HistoryManager by inject()
     private val speakControl: SpeakControl by inject()
     private val linkControl: LinkControl by inject()
 
@@ -634,6 +348,52 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      *  [dispose] — one host per activity (re-)creation, mirroring the [subscriptions]
      *  lifecycle right below. */
     private val hostScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    /**
+     * The overlay/sheet/dialog/history/share/pane-menu/drawer state, in common code (`:sharedUi`
+     * `ReadingHostState`); this class forwards to it and supplies what only the Android host can: the
+     * three overlays it still owns, the actions behind the sheets, date formatting and document rows.
+     * Declared BEFORE [readingLlmDialogs] and after the injected collaborators it reads; every hook is
+     * a lambda that runs on a user action, long after construction, so the properties it names below
+     * (`speakSheet`, `textSettingsEditor`, `paneMenuStateBuilder`) may be declared further down.
+     */
+    internal val hostState = ReadingHostState(
+        scope = hostScope,
+        settings = CommonUtils.settings,
+        windowControl = windowControl,
+        historyManager = historyManager,
+        documentControl = documentControl,
+        hooks = ReadingHostHooks(
+            closeSpeakSheet = { speakSheet.close() },
+            closeTextSettingsEditor = { textSettingsEditor.close() },
+            dismissLlmSheets = {
+                when (readingLlmDialogs.state.value.dialog) {
+                    is ReadingLlmDialog.PromptSelector, is ReadingLlmDialog.ModelSelection -> readingLlmDialogs.dismiss()
+                    is ReadingLlmDialog.None, is ReadingLlmDialog.SpecifyBeforeRun, is ReadingLlmDialog.Regenerate -> Unit
+                }
+            },
+            openPromptSelector = { selection, context, category -> showPromptSelector(selection, context, category) },
+            // The BibleView adapter still calls `showRegenerate(pageId, bibleView)` directly (it has the view);
+            // this arm serves a caller that holds the page id and the asking window's id, and uses THAT
+            // window's view (never the active window's, which can be a different pane).
+            openRegenerate = { pageId, windowId ->
+                activity.hostWindowRepository.getWindow(windowId)?.androidBibleView?.let { showRegenerate(pageId, it) }
+            },
+            openCompare = { range -> linkControl.openCompare(range) },
+            applyChosenVerse = { osisId -> activity.readingCommands.applyChosenVerse(osisId) },
+            formatHistoryTimestamp = { createdAt -> format("h:mm a, E d MMM ", createdAt).toString() },
+            paneMenuItemsFor = { windowId ->
+                activity.hostWindowRepository.getWindow(IdType(windowId))?.let { paneMenuStateBuilder.build(it) }
+            },
+            installedDocRows = {
+                val books = SwordDocumentFacade.documents +
+                    fakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
+                val mapper = DocRowMapper(downloadControl, books)
+                books.map { mapper.toDocRow(it) }
+            },
+            recentDocumentInitials = { recentDocumentsStore.read() },
+        ),
+    )
 
     /**
      * State machine driving the reading-view LLM surfaces (Batch 12e-A Task 6): prompt selector,
@@ -676,145 +436,60 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * LLM answer (e.g. free-text instructions the user had already typed) the moment ANY other
      * overlay/sheet opened, including an unrelated app-wide one via [closeModalOverlays].
      */
-    private fun closeOverlay(overlay: ReadingOverlay) {
-        when (overlay) {
-            ReadingOverlay.Llm -> when (readingLlmDialogs.state.value.dialog) {
-                is ReadingLlmDialog.PromptSelector, is ReadingLlmDialog.ModelSelection -> readingLlmDialogs.dismiss()
-                is ReadingLlmDialog.None, is ReadingLlmDialog.SpecifyBeforeRun, is ReadingLlmDialog.Regenerate -> Unit
-            }
-            ReadingOverlay.SpeakSheet -> speakSheet.close()
-            ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
-            ReadingOverlay.QuickSheet -> closeQuickSheet()
-        }
-    }
+    private fun closeOverlay(overlay: ReadingOverlay): Unit = hostState.closeOverlay(overlay)
 
     /**
      * Close every modal reading-view overlay (spec Task 5): called from `AppDialogOverlay`'s
      * `onSheetOpening` when an app-wide dialog/sheet is about to be shown, so it never stacks under
      * (or is stacked under by) one of these.
      */
-    internal fun closeModalOverlays() {
-        ReadingOverlay.entries.forEach(::closeOverlay)
-    }
+    internal fun closeModalOverlays() = hostState.closeModalOverlays()
 
     /**
      * Platform-dialog removal Task 18: the reading view's own dialogs (see [ReadingDialog]'s kdoc
      * for why this is not a [ReadingOverlay]). ONE state, rendered through the one host-private
-     * slot [ReadingDialogSlot] — the same shape as [quickSheet]/[QuickSheetSlot].
+     * slot [ReadingDialogSlot] — the same shape as [quickSheet]/[QuickSheetContent].
      */
-    internal val readingDialog = mutableStateOf<ReadingDialog?>(null)
+    internal val readingDialog get() = hostState.readingDialog
 
     /** `BibleJavascriptInterface.helpDialog`/`.helpBookmarks`'s entry point. */
-    internal fun showHelp(title: String?, html: String) {
-        readingDialog.value = ReadingDialog.Help(title, html)
-    }
+    internal fun showHelp(title: String?, html: String) = hostState.showHelp(title, html)
 
-    /** `BibleJavascriptInterface.deleteMyDocumentPage`'s entry point — see [ReadingDialog
-     *  .ConfirmDeleteDocumentPage]'s kdoc for why [onConfirm] is the caller's job. */
-    internal fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit) {
-        readingDialog.value = ReadingDialog.ConfirmDeleteDocumentPage(onConfirm)
-    }
+    /** `BibleJavascriptInterface.deleteMyDocumentPage`'s entry point. */
+    internal fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit) = hostState.showDeleteDocumentPageConfirm(onConfirm)
 
-    /**
-     * Runs the showing dialog's confirm action (if it has one) and clears it. A no-op when nothing
-     * is showing, so a second/duplicate confirm (e.g. a fast double-tap) never re-runs the deletion.
-     */
-    internal fun confirmReadingDialog() {
-        val dialog = readingDialog.value ?: return
-        readingDialog.value = null
-        if (dialog is ReadingDialog.ConfirmDeleteDocumentPage) dialog.onConfirm()
-    }
+    /** Runs the showing dialog's confirm action (if any) and clears it; see [ReadingHostState.confirmReadingDialog]. */
+    internal fun confirmReadingDialog() = hostState.confirmReadingDialog()
 
-    /** Dismisses whatever [ReadingDialog] is showing, running no action. A no-op when nothing is
-     *  showing. */
-    internal fun dismissReadingDialog() {
-        readingDialog.value = null
-    }
+    /** Dismisses whatever [ReadingDialog] is showing, running no action. */
+    internal fun dismissReadingDialog() = hostState.dismissReadingDialog()
 
-    /**
-     * Round 15b: which quick sheet is open over the reading view, if any. ONE state for all four
-     * (see [ReadingQuickSheet]) — which is why the exclusion rule needs one member and this file
-     * one slot.
-     */
-    internal val quickSheet = mutableStateOf<ReadingQuickSheet?>(null)
+    /** Which quick sheet is open over the reading view, if any (see [ReadingQuickSheet]). */
+    internal val quickSheet get() = hostState.quickSheet
 
-    /**
-     * The verse an out-of-process caller — today only `BibleJavascriptInterface.refChooserDialog`,
-     * via [openVerseChooserSheetForResult] — is waiting for, or `null` when the Grid sheet is
-     * simply navigating the reading view as usual.
-     *
-     * A plain `var`, not snapshot state, for the same reason as [keyChooserKeys]: it is written
-     * before the [quickSheet] state that triggers the composition, and nothing ever recomposes off
-     * it. Every exit from the sheet MUST resolve it — a request left pending leaks a JS promise for
-     * the life of the page — which is why both [closeQuickSheet] and [showQuickSheet] abandon it.
-     */
-    private var pendingChosenVerse: CompletableDeferred<String?>? = null
+    /** Opens the Grid sheet to pick ONE verse; see [ReadingHostState.openVerseChooserSheetForResult]. */
+    internal fun openVerseChooserSheetForResult(): CompletableDeferred<String?> = hostState.openVerseChooserSheetForResult()
 
-    /**
-     * Open the Grid quick sheet to pick ONE verse and hand it back, instead of navigating to it.
-     *
-     * nav-graph slice 7 §6.3: this is what `refChooserDialog` calls now, replacing a full-screen
-     * `Screen.GridChoosePassageBook` round-trip through `awaitIntent`. Two things the Intent forced
-     * are forced here instead — `navigateToVerse` (spec §6.1.1's trap: the ordinary sheet reads a
-     * preference that is off by default, and a reference chooser that stops at chapter level cannot
-     * answer the call) and scripture-only books, which the Grid arm already hard-codes because both
-     * of its other callers want it.
-     *
-     * The returned [CompletableDeferred] completes with the chosen verse's osisID, or with `null`
-     * if the sheet is dismissed or superseded.
-     */
-    internal fun openVerseChooserSheetForResult(): CompletableDeferred<String?> {
-        val pending = CompletableDeferred<String?>()
-        // Claim the slot AFTER opening: showQuickSheet abandons whatever request was outstanding.
-        showQuickSheet(ReadingQuickSheet.KeyChooser(KeyChooserKind.Grid, navigateToVerse = true))
-        pendingChosenVerse = pending
-        return pending
-    }
-
-    /**
-     * The Grid sheet's one exit with a verse in hand, shared by both of its openings: it answers an
-     * outstanding [openVerseChooserSheetForResult] request if there is one, and otherwise navigates
-     * the reading view through Task 7's single parse-and-apply path. Taking ownership of the pending
-     * request BEFORE closing is what stops [closeQuickSheet]'s abandon from resolving it with `null`.
-     */
-    internal fun onGridPassageChosen(osisId: String) {
-        val pending = pendingChosenVerse
-        pendingChosenVerse = null
-        closeQuickSheet()
-        if (pending != null) pending.complete(osisId) else activity.readingCommands.applyChosenVerse(osisId)
-    }
-
-    /** Answer an outstanding verse request with "no verse"; a no-op when there is none. */
-    private fun abandonPendingChosenVerse() {
-        val pending = pendingChosenVerse ?: return
-        pendingChosenVerse = null
-        pending.complete(null)
-    }
+    /** The Grid sheet's one exit with a verse in hand; see [ReadingHostState.onGridPassageChosen]. */
+    internal fun onGridPassageChosen(osisId: String) = hostState.onGridPassageChosen(osisId)
 
     /** Open a quick sheet, closing every other modal overlay first (spec §4.1). */
-    internal fun showQuickSheet(sheet: ReadingQuickSheet) {
-        abandonPendingChosenVerse()
-        ReadingOverlayExclusion.closedBy(ReadingOverlay.QuickSheet).forEach(::closeOverlay)
-        quickSheet.value = sheet
-    }
+    internal fun showQuickSheet(sheet: ReadingQuickSheet) = hostState.showQuickSheet(sheet)
 
-    internal fun closeQuickSheet() {
-        quickSheet.value = null
-        abandonPendingChosenVerse()
-    }
+    internal fun closeQuickSheet() = hostState.closeQuickSheet()
 
     /** Round 15b: the reading view's History list as a quick sheet (spec §4.3). */
-    internal fun showHistorySheet() = showQuickSheet(ReadingQuickSheet.History)
+    internal fun showHistorySheet() = hostState.showHistorySheet()
 
     private val workspaceService: WorkspaceService by inject()
 
     /** Round 15b: the workspace QUICK switch (spec §4.4). The full selector is the footer row. */
-    internal fun showWorkspaceSheet() = showQuickSheet(ReadingQuickSheet.Workspaces)
+    internal fun showWorkspaceSheet() = hostState.showWorkspaceSheet()
 
     private val downloadControl: DownloadControl by inject()
 
     /** Round 15b: the document QUICK switch (spec §4.5). ChooseDocument is the footer row. */
-    internal fun showDocumentSheet() = showQuickSheet(ReadingQuickSheet.Documents())
+    internal fun showDocumentSheet() = hostState.showDocumentSheet()
 
     /**
      * Task 26 (platform-dialog removal, run 3): the verse-share sheet's toggle state, loaded once
@@ -823,19 +498,16 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * preview redraws) and persists it (so it survives a reopen, exactly as the classic
      * `ShareWidget`'s per-click `CommonUtils.settings.setBoolean(...)` did).
      */
-    internal var shareVersesOptions by mutableStateOf(loadShareVersesOptions())
+    internal val shareVersesOptions get() = hostState.shareVersesOptions
 
     /**
      * `BibleView`'s "Share" selection action and `BibleJavascriptInterface`'s two share entry
      * points (bookmark share, JS selection share) all resolve a [ShareVersesInput] via
      * `SwordContentFacade.buildShareVersesInput` and call this.
      */
-    internal fun showShareSheet(input: ShareVersesInput) = showQuickSheet(ReadingQuickSheet.Share(input))
+    internal fun showShareSheet(input: ShareVersesInput) = hostState.showShareSheet(input)
 
-    internal fun updateShareVersesOptions(options: ShareVersesOptions) {
-        shareVersesOptions = options
-        persistShareVersesOptions(options)
-    }
+    internal fun updateShareVersesOptions(options: ShareVersesOptions) = hostState.updateShareVersesOptions(options)
 
     private val readingProgressService: ReadingProgressServiceImpl by inject()
 
@@ -845,8 +517,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `ReadHistoryDialog.showForChapter`, which it already resolves the tapped verse's KJV book/
      * chapter for.
      */
-    internal fun showReadHistorySheet(bookId: String, chapter: Int) =
-        showQuickSheet(ReadingQuickSheet.ReadHistory(bookId, chapter))
+    internal fun showReadHistorySheet(bookId: String, chapter: Int) = hostState.showReadHistorySheet(bookId, chapter)
 
     /** Fires the same `Intent.ACTION_SEND` chooser the classic `ShareWidget`'s Share button did. */
     internal fun shareVersesText(text: String) {
@@ -872,7 +543,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * restore that. Without it the sheet stayed open after the share chooser returned, or after
      * Copy's toast, across all three entry points (selection menu, bookmark share, JS share).
      *
-     * `internal`, not private lambdas inlined at the `QuickSheetSlot` call site, purely so
+     * `internal`, not private lambdas inlined at the `QuickSheetContent` call site, purely so
      * `ComposeReadingViewHostTest` can pin the close-after-action behaviour directly -- an open
      * `ModalBottomSheet` must never be idled in a Robolectric test (this run's "Hang protection"
      * rule), so the wiring has to be reachable without rendering the sheet.
@@ -899,48 +570,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * through the shared [DocRowMapper], so a document's language grouping and category are
      * identical in the sheet and in the full screen.
      */
-    internal fun buildDocumentQuickTabsForHost(scope: DocumentSheetScope): DocumentQuickTabs {
-        val books = SwordDocumentFacade.documents +
-            fakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
-        val mapper = DocRowMapper(downloadControl, books)
-        val rows = books.map { mapper.toDocRow(it) }
-        // `initials`, NOT `osisID`: DocRow.docId is the book's initials and so is the MRU's key —
-        // only the document SEARCH path keys on osisId. The two collapse to the same value for most
-        // real modules, so getting this wrong would show up only for the modules where they differ.
-        // The This-verse tab follows the sheet's scope: Bibles for the Bible sheet, commentaries for
-        // the Commentary sheet, both for the title sheet.
-        val forVerseBooks = when (scope) {
-            DocumentSheetScope.BIBLE -> documentControl.biblesForVerse
-            DocumentSheetScope.COMMENTARY -> documentControl.commentariesForVerse
-            DocumentSheetScope.ALL -> documentControl.biblesForVerse + documentControl.commentariesForVerse
-        }
-        val forVerseIds = forVerseBooks.map { it.initials }.toSet()
-        // The two keys ChooseDocument itself persists (its sticky-language seam and its type-filter
-        // spinner), read here so the "Last filter" tab reproduces what the user last looked at.
-        // KNOWN: `selected_document_filter_no` is written by the Download destination too
-        // (`NavHostComposeActivity.persistTypeFilter`), so "Last filter" can reflect a filter the
-        // user last set on the DOWNLOAD screen.
-        // That is the classic key's existing behaviour, shared by both document screens — not a bug
-        // to fix here, and not a second key to invent.
-        val lastLanguageCode = CommonUtils.settings.getString("selected_language_code", null)
-        val lastLanguage = lastLanguageCode?.let { code -> rows.firstOrNull { it.language.code == code }?.language }
-        val lastTypeFilter = DocTypeFilter.entries.getOrElse(
-            CommonUtils.settings.getInt("selected_document_filter_no", 0),
-        ) { DocTypeFilter.ALL }
-        return buildDocumentQuickTabs(
-            // Every mapped row, unfiltered: dropping the ones a sheet cannot action (locked modules,
-            // AND_BIBLE pseudo-documents) is [buildDocumentQuickTabs]' own job — see its kdoc, and
-            // `DocumentQuickTabsTest` for the guard. Note `lastLanguage` above is deliberately
-            // resolved against this FULL list, so a language whose only document is locked does not
-            // silently lose the user's saved filter.
-            installed = rows,
-            recentInitials = recentDocumentsStore.read(),
-            forVerseIds = forVerseIds,
-            lastLanguage = lastLanguage,
-            lastTypeFilter = lastTypeFilter,
-            scope = scope,
-        )
-    }
+    internal fun buildDocumentQuickTabsForHost(scope: DocumentSheetScope): DocumentQuickTabs =
+        hostState.buildDocumentQuickTabsForHost(scope)
 
     @Composable
     private fun quickDocTabLabel(tab: DocumentQuickTab): String = when (tab) {
@@ -957,51 +588,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * names no currently-visible tab simply falls back to the first visible one. Each [scope] keeps
      * its own saved tab ([DocumentSheetScope.tabSettingKey]).
      */
-    internal fun restoreQuickDocTab(scope: DocumentSheetScope, visible: List<DocumentQuickTab>): String? {
-        val saved = CommonUtils.settings.getString(scope.tabSettingKey, null)
-        return visible.firstOrNull { it.name == saved }?.name ?: visible.firstOrNull()?.name
-    }
+    internal fun restoreQuickDocTab(scope: DocumentSheetScope, visible: List<DocumentQuickTab>): String? =
+        hostState.restoreQuickDocTab(scope, visible)
 
     internal fun persistQuickDocTab(scope: DocumentSheetScope, tabId: String) =
-        CommonUtils.settings.setString(scope.tabSettingKey, tabId)
+        hostState.persistQuickDocTab(scope, tabId)
 
     /** The document shown in the active window — the row the sheet draws bold and inert. */
     private fun currentDocumentInitials(): String? = documentControl.currentDocument?.initials
-
-    /** Loads the verse-share sheet's toggle state from the same pref keys the classic
-     *  `ShareWidget` read, with the same defaults. */
-    private fun loadShareVersesOptions(): ShareVersesOptions = ShareVersesOptions(
-        showVerseNumbers = CommonUtils.settings.getBoolean(SHARE_VERSE_NUMBERS_KEY, true),
-        advertiseApp = CommonUtils.settings.getBoolean(SHARE_SHOW_ADD_KEY, true),
-        showReference = CommonUtils.settings.getBoolean(SHARE_SHOW_REFERENCE_KEY, true),
-        abbreviateReference = CommonUtils.settings.getBoolean(SHARE_ABBREVIATE_REFERENCE_KEY, true),
-        showVersion = CommonUtils.settings.getBoolean(SHARE_SHOW_VERSION_KEY, true),
-        showNotes = CommonUtils.settings.getBoolean(SHARE_SHOW_NOTES_KEY, true),
-        showSelectionOnly = CommonUtils.settings.getBoolean(SHARE_SHOW_SELECTION_ONLY_KEY, true),
-        showEllipsis = CommonUtils.settings.getBoolean(SHARE_SHOW_ELLIPSIS_KEY, true),
-        showReferenceAtFront = CommonUtils.settings.getBoolean(SHARE_SHOW_REFERENCE_AT_FRONT_KEY, true),
-        showQuotes = CommonUtils.settings.getBoolean(SHARE_SHOW_QUOTES_KEY, false),
-        separateVersesWithNewlines = CommonUtils.settings.getBoolean(SHARE_SEPARATE_VERSES_NEWLINES_KEY, false),
-    )
-
-    /** Persists every toggle back to the same keys [loadShareVersesOptions] reads — the classic
-     *  `ShareWidget` wrote all eleven on every single click (`updateSelectionOptions`); this does
-     *  the same on every [updateShareVersesOptions] call. */
-    private fun persistShareVersesOptions(options: ShareVersesOptions) {
-        CommonUtils.settings.apply {
-            setBoolean(SHARE_VERSE_NUMBERS_KEY, options.showVerseNumbers)
-            setBoolean(SHARE_SHOW_ADD_KEY, options.advertiseApp)
-            setBoolean(SHARE_SHOW_REFERENCE_KEY, options.showReference)
-            setBoolean(SHARE_ABBREVIATE_REFERENCE_KEY, options.abbreviateReference)
-            setBoolean(SHARE_SHOW_VERSION_KEY, options.showVersion)
-            setBoolean(SHARE_SHOW_NOTES_KEY, options.showNotes)
-            setBoolean(SHARE_SHOW_SELECTION_ONLY_KEY, options.showSelectionOnly)
-            setBoolean(SHARE_SHOW_ELLIPSIS_KEY, options.showEllipsis)
-            setBoolean(SHARE_SHOW_REFERENCE_AT_FRONT_KEY, options.showReferenceAtFront)
-            setBoolean(SHARE_SHOW_QUOTES_KEY, options.showQuotes)
-            setBoolean(SHARE_SEPARATE_VERSES_NEWLINES_KEY, options.separateVersesWithNewlines)
-        }
-    }
 
     /**
      * The full ChooseDocument screen — `MainBibleActivity.composeChooseDocument`'s classic body,
@@ -1023,7 +617,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * state that triggers the composition which reads it, so no recomposition ever has to observe
      * it changing.
      */
-    private var keyChooserKeys: List<Key> = emptyList()
+    private val keyChooserKeys: List<Key> get() = hostState.keyChooserKeys
 
     /**
      * Round 15b: the key chooser for the three page shapes simple enough for a sheet (spec §4.6).
@@ -1041,21 +635,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * transition. One resolution also means the emptiness decision and the rows on screen can never
      * disagree — the `keyId`-is-an-index contract depends on exactly that.
      */
-    internal fun showKeyChooserSheet(kind: KeyChooserKind, keys: List<Key>) {
-        keyChooserKeys = keys
-        showQuickSheet(
-            ReadingQuickSheet.KeyChooser(
-                kind,
-                // The same source the full-screen twin falls back to when nothing overrides it
-                // (`GridChoosePassageComposeActivity`) -- never a hard-coded true, which would force
-                // a verse step the user turned off. Read HERE rather than in the sheet's composable
-                // arm precisely so the other opening ([openVerseChooserSheetForResult]) can differ:
-                // spec §6.1.1. Meaningless for the two flat list kinds, which have no verse step.
-                navigateToVerse = kind == KeyChooserKind.Grid &&
-                    CommonUtils.settings.getBoolean("navigate_to_verse_pref", false),
-            ),
-        )
-    }
+    internal fun showKeyChooserSheet(kind: KeyChooserKind, keys: List<Key>) = hostState.showKeyChooserSheet(kind, keys)
 
     private val mapPage: CurrentMapPage get() = windowControl.activeWindowPageManager.currentMap
     private val generalBookPage: CurrentGeneralBookPage get() = windowControl.activeWindowPageManager.currentGeneralBook
@@ -1159,8 +739,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         KeyChooserKind.Grid -> Unit
     }
 
-    private val historyManager: HistoryManager by inject()
-
     /**
      * The [HistoryEntry] list, mirroring the `controller` of the since-deleted
      * `HistoryComposeActivity` verbatim
@@ -1169,22 +747,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * [revertToHistoryItem] can resolve an entry's `id` (its list index, not a stable key) back to
      * the [HistoryItem] to revert.
      */
-    private var historyItems: List<HistoryItem> = emptyList()
+    private fun historyEntriesForActiveWindow(): List<HistoryEntry> = hostState.historyEntriesForActiveWindow()
 
-    private fun historyEntriesForActiveWindow(): List<HistoryEntry> {
-        historyItems = historyManager.getHistory(windowControl.activeWindow.id)
-        return historyItems.mapIndexed { index, item ->
-            HistoryEntry(
-                id = index,
-                title = item.description.toString(),
-                timestamp = format("h:mm a, E d MMM ", item.createdAt).toString(),
-            )
-        }
-    }
-
-    private fun revertToHistoryItem(id: Int) {
-        historyItems[id].revertTo()
-    }
+    private fun revertToHistoryItem(id: Int) = hostState.revertToHistoryItem(id)
 
     // The REVERSE directions of the same rule live at the two other opening sites --
     // [showTextSettingEditor] and [showSpeakSettings] -- and were APPLIED AT THE 14a/14a-2 MERGE,
@@ -1744,11 +1309,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * one can never re-key the pane subtree and destroy the panes' BibleView WebViews.
      *
      * All four quick sheets mount HERE and nowhere else; `QuickSheetMountGuardTest` enforces it.
+     * The common `ReadingHost` decides WHEN one is open (from `hostState.quickSheet`) and calls this
+     * with the open [sheet].
      */
     @Composable
-    private fun QuickSheetSlot() {
-        when (val sheet = quickSheet.value) {
-            null -> Unit
+    private fun QuickSheetContent(sheet: ReadingQuickSheet) {
+        when (sheet) {
             ReadingQuickSheet.History -> {
                 // Built per opening, exactly as HistoryComposeActivity.kt:46-64 built it before
                 // the Z-late epilogue deleted that file: the
@@ -2870,7 +2436,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     val controller = ReadingViewController(windowState, commands)
 
     /** See [WindowButtonsVisibility]. */
-    private val windowButtonsVisibility = WindowButtonsVisibility()
+    private val windowButtonsVisibility get() = hostState.windowButtonsVisibility
 
     /**
      * Builds the per-window (☰) pane popup menu's item list (Task 4) — constructed from the host's
@@ -2885,8 +2451,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * [openPaneMenu] (the pane overlay's ☰-button tap, or the Plan-A restore rail's long-press);
      * closed by [closePaneMenu] (`onDismiss`, or after a non-toggle item acts).
      */
-    private val paneMenuWindowId = mutableStateOf<String?>(null)
-    private val paneMenuItems = mutableStateOf(emptyList<WindowPaneMenuItem>())
+    private val paneMenuWindowId get() = hostState.paneMenuWindowId
+    private val paneMenuItems get() = hostState.paneMenuItems
 
     /**
      * Which surface ([PaneMenuAnchor]) the currently-open [paneMenuWindowId] menu is anchored to —
@@ -2896,7 +2462,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * ever reports itself expanded — see the pane overlay's `paneOverlay` lambda and the rail's
      * `tabBar` lambda in [mountComposeView].
      */
-    private val paneMenuAnchor = mutableStateOf(PaneMenuAnchor.Pane)
+    private val paneMenuAnchor get() = hostState.paneMenuAnchor
 
     internal val paneMenuWindowIdForTest: String? get() = paneMenuWindowId.value
     internal val paneMenuAnchorForTest: PaneMenuAnchor get() = paneMenuAnchor.value
@@ -3005,7 +2571,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `DrawerState` (and back again, so a swipe/scrim close clears it) — see its `drawerOpenState`
      * parameter. Flipped by [toggleDrawer], cleared when a row is clicked.
      */
-    private val drawerOpen = mutableStateOf(false)
+    private val drawerOpen get() = hostState.drawerOpen
 
     /**
      * Last values pushed by [MainBibleActivity.updateActions]' `showSearch`/`showSpeak` locals (see
@@ -3040,7 +2606,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /** Toggles the Compose drawer — the target of [MainBibleActivity.toggleDrawer]. */
-    fun toggleDrawer() { drawerOpen.value = !drawerOpen.value }
+    fun toggleDrawer() = hostState.toggleDrawer()
 
     /**
      * Whether the Compose drawer is open. Reads the same request flag `mountComposeView` keeps in
@@ -3051,16 +2617,16 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `drawerLayout.isDrawerVisible(GravityCompat.START)` on the native `DrawerLayout` — always
      * `false` there, since `setupUi` locks it as soon as the host is installed.
      */
-    val isDrawerOpen: Boolean get() = drawerOpen.value
+    val isDrawerOpen: Boolean get() = hostState.isDrawerOpen
 
     /** Opens the Compose drawer (idempotent) — see [isDrawerOpen]. */
-    fun openDrawer() { drawerOpen.value = true }
+    fun openDrawer() = hostState.openDrawer()
 
     /** A tap on one of this host's BibleViews: re-show the window buttons (classic SplitBibleArea.kt:203-205). */
     fun onBibleViewTouched() = windowButtonsVisibility.onTouch()
 
     /** Closes the Compose drawer (idempotent) — see [isDrawerOpen]. */
-    fun closeDrawer() { drawerOpen.value = false }
+    fun closeDrawer() = hostState.closeDrawer()
 
     init {
         subscriptions.add(SharedActivityState.instance.fullScreenChanged.subscribeOnMain { fullScreen.value = it })
@@ -3168,16 +2734,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * surface matching [anchor] ever renders the menu expanded — a rail long-press no longer opens
      * it at the pane's floating ☰ button (the A/B batch 3 F5 bug this anchor fixes).
      */
-    fun openPaneMenu(windowId: String, anchor: PaneMenuAnchor) {
-        windowButtonsVisibility.onTouch()
-        val window = activity.hostWindowRepository.getWindow(IdType(windowId)) ?: return
-        paneMenuItems.value = paneMenuStateBuilder.build(window)
-        paneMenuAnchor.value = anchor
-        paneMenuWindowId.value = windowId
-    }
+    fun openPaneMenu(windowId: String, anchor: PaneMenuAnchor) = hostState.openPaneMenu(windowId, anchor)
 
     /** Closes whichever per-window ☰ menu is open (`onDismiss`, or after a non-toggle item acts). */
-    fun closePaneMenu() { paneMenuWindowId.value = null }
+    fun closePaneMenu() = hostState.closePaneMenu()
 
     /**
      * The reader background colour for ONE pane — classic `BibleFrame.kt:138`'s
@@ -3306,8 +2866,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /**
-     * The reading view, with THIS host's collaborators bound into every one of
-     * [ReadingViewContent]'s parameters -- what used to be [install]'s `mountComposeView(...)`
+     * The reading view, with THIS host's collaborators bound into the common `ReadingHost`'s
+     * [ReadingHostDeps] (see [readingHostDeps]) -- what used to be [install]'s `mountComposeView(...)`
      * argument block, and nothing else.
      *
      * **Extracted by reading-host re-typing R8, which is the task that gave it a second caller.**
@@ -3317,13 +2877,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * through a function that takes a container. Copying them into the nav host instead would have
      * made two argument lists to keep true, of which only one would ever be edited; this is one.
      *
-     * [mountComposeView] is NOT this function's caller and is not meant to be: it keeps the inert
-     * per-parameter defaults its five host tests pass around explicit collaborators, and its 71
-     * explicit forwards to [ReadingViewContent] stay the compile-time check that the test seam and
-     * the content cannot drift apart. This function is the PRODUCTION binding of the same
-     * parameters, and both are checked by the same compiler for the same reason.
+     * [mountComposeView] is NOT this function's caller and is not meant to be: it is the test seam
+     * its host tests use to mount the same [ReadingHostContent] with a hand-built [ReadingHostDeps].
+     *
+     * **No compiler checks that [readingHostDeps] wires every member.** [ReadingHostDeps] defaults
+     * most members to inert (so tests wire only what they exercise), and a member added later but not
+     * wired here would silently render nothing on Android. `ReadingHostDepsWiringGuardTest` is the
+     * check: it fails when a constructor parameter is not passed by name in [readingHostDeps] and is
+     * not allow-listed with a reason.
      */
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun ReadingView() {
         // Ensure the SSOT reflects the freshly-loaded workspace before first render (repo
@@ -3334,315 +2896,309 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // `remember` rather than a `LaunchedEffect`, because an effect runs after the first frame
         // and the first frame is precisely what this exists to populate.
         remember { windowState.refresh(activity.hostWindowRepository) }
-        ReadingViewContent(
-            windowState = windowState,
-            commands = commands,
-            nightModeState = nightMode,
-            generationState = generation.state,
-            toolbar = toolbarStateService.toolbar,
-            toolbarCallbacks = ReadingToolbarCallbacks(
-                onHome = { activity.toggleDrawer() },
-                onTitleTap = { activity.readingCommands.composeStartKeyChooser() },
-                onTitleLongPress = { activity.readingCommands.composeChooseDocument() },
-                onTitleFlingVertical = { showWorkspaceSheet() },
-                onTitleFlingHorizontal = { forward -> activity.readingCommands.composeCycleWorkspace(forward) },
-                // Short press: swap-* switches documents, otherwise the scoped document quick sheet;
-                // see `ReadingCommands.composeBibleClick`. (The overflow options menu is the real
-                // Compose `ReadingOverflowMenu` below, see `onOverflow`/`openOverflowMenu`.)
-                onBible = { activity.readingCommands.composeBibleClick() },
-                onBibleLong = { activity.readingCommands.composeBibleLongClick() },
-                onCommentary = { activity.readingCommands.composeCommentaryClick() },
-                onCommentaryLong = { activity.readingCommands.composeCommentaryLongClick() },
-                // The Strongs refresh now lives inside `composeCycleStrongs`/`composeStrongsLong`,
-                // next to their `updateStrongsButton()` call — `StrongsPreference.handle()` posts
-                // none of the 5 owner `Events` streams `toolbarStateService` subscribes to, and keeping
-                // the refresh at the mutation site also covers the long-press dialog's `onReset`
-                // path, which this call site never saw.
-                onStrongs = { activity.readingCommands.composeCycleStrongs() },
-                onStrongsLong = { activity.readingCommands.composeStrongsLong() },
-                onSearch = { activity.readingCommands.composeSearch() },
-                onSpeak = { activity.readingCommands.composeToggleSpeak() },
-                onSpeakLong = { activity.readingCommands.composeSpeakLong() },
-                onWorkspace = { showWorkspaceSheet() },
-                onOverflow = { openOverflowMenu() },
-            ),
-            fullScreenState = fullScreen,
-            overlayTextState = overlayText,
-            activeIsBibleShownState = activeIsBibleShown,
-            overflowItemsState = overflowItems,
-            overflowExpandedState = overflowExpanded,
-            onOverflowItemClick = { id ->
-                val stayOpen = activity.readingCommands.handleOptionsMenuItem(id)
-                if (stayOpen) {
-                    overflowItems.value = activity.readingCommands.buildOptionsMenuItems()
-                } else {
-                    overflowExpanded.value = false
+        val deps = remember { readingHostDeps() }
+        ReadingHostContent(deps, paneFactory)
+    }
+
+    /**
+     * Today's pane hosting: the window's cached `BibleView` in an `AndroidView`. Provided to the common
+     * `ReadingHost` as `LocalReadingPane`; a window that no longer exists renders nothing.
+     */
+    private val paneFactory: ReadingPaneFactory = { windowId, modifier ->
+        val window = activity.hostWindowRepository.getWindow(IdType(windowId))
+        if (window != null) {
+            // A/B batch 4a whole-batch review I1: classic `BibleFrame.build()` also calls
+            // `bibleView.updateBackgroundColor()` (BibleFrame.kt:137), which sets the WebView's
+            // OWN background (`BibleView.updateBackgroundColor` -> `setBackgroundColor`). Without
+            // this, even with C1 fixed (the pane Box now paints the right colour underneath), a
+            // freshly created WebView still draws its platform-default white over that pane
+            // background until its first document finishes loading -- same flash, one layer up.
+            AndroidView(modifier = modifier, factory = {
+                activity.readingCommands.bibleViewFactory.getOrCreateBibleView(window).apply {
+                    // Classic parity + safety net: `BibleFrame.build()/recreate()` detach the
+                    // BibleView from its old frame before adding it (`BibleFrame.kt:128,147`).
+                    // Compose has no equivalent — `AndroidViewHolder.onRelease()` only runs the
+                    // release block, and ONLY `onDeactivate()` (reusable nodes) calls
+                    // `removeAllViewsInLayout()` — so a cached BibleView stays a child of a
+                    // long-released holder forever. Handing it to a second holder then throws
+                    // `IllegalStateException: The specified child already has a parent`. The
+                    // duplicate-window-id load that produced that crash is fixed at its source
+                    // (`WindowRepository.loadingFromDb`); this keeps the pane host itself from
+                    // being the thing that turns any such state bug into a hard crash.
+                    (parent as? ViewGroup)?.removeView(this)
+                    // MATCH_PARENT is REQUIRED here, and not for Android layout reasons --
+                    // `Modifier.fillMaxSize()` already gives the WebView an EXACTLY
+                    // height MeasureSpec. It is Chromium that reads the layout params:
+                    // `AwLayoutSizer` turns on `force_zero_layout_height` for a WebView whose
+                    // layout-params HEIGHT is WRAP_CONTENT (the guard that stops a
+                    // wrap-content WebView from growing without bound), and that makes CSS
+                    // `vh` units inside the page resolve to **0** -- while `innerHeight` and
+                    // `documentElement.clientHeight` keep reporting the true size, so nothing
+                    // looks wrong from JS. Compose's `AndroidViewHolder` hands every hosted
+                    // view WRAP_CONTENT params by default (it drives sizing through measure
+                    // specs instead), whereas classic's `BibleFrame` adds the BibleView with
+                    // MATCH_PARENT -- which is exactly why `vh` worked in classic and broke
+                    // under the Compose host. Two page-wide symptoms came from it:
+                    //   - `ModalDialog`'s `--max-height: calc(100vh - ...)` went negative and
+                    //     clamped to 0, so EVERY modal's scrolling body (`AmbiguousSelection`,
+                    //     `BookmarkModal`, footnotes/xrefs via `Note.vue`, `BookmarkLabelActions`,
+                    //     `EditableText`) clipped its content away and rendered header-only.
+                    //   - `#bottom { padding-bottom: 200vh }` collapsed to 0, removing the
+                    //     end-of-document scroll headroom.
+                    // Verified on-device by measuring `100vh` in the page: 0 with
+                    // WRAP_CONTENT, 827.8 with MATCH_PARENT.
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+                    updateBackgroundColor()
                 }
+            })
+        }
+    }
+
+    /**
+     * THIS host's collaborators bound into the common `ReadingHost`'s deps -- what used to be
+     * [ReadingView]'s argument block for the 71-parameter content composable, and nothing else.
+     */
+    private fun readingHostDeps() = ReadingHostDeps(
+        state = hostState,
+        controller = controller,
+        toolbar = toolbarStateService.toolbar,
+        toolbarCallbacks = ReadingToolbarCallbacks(
+            onHome = { activity.toggleDrawer() },
+            onTitleTap = { activity.readingCommands.composeStartKeyChooser() },
+            onTitleLongPress = { activity.readingCommands.composeChooseDocument() },
+            onTitleFlingVertical = { showWorkspaceSheet() },
+            onTitleFlingHorizontal = { forward -> activity.readingCommands.composeCycleWorkspace(forward) },
+            // Short press: swap-* switches documents, otherwise the scoped document quick sheet;
+            // see `ReadingCommands.composeBibleClick`. (The overflow options menu is the real
+            // Compose `ReadingOverflowMenu` below, see `onOverflow`/`openOverflowMenu`.)
+            onBible = { activity.readingCommands.composeBibleClick() },
+            onBibleLong = { activity.readingCommands.composeBibleLongClick() },
+            onCommentary = { activity.readingCommands.composeCommentaryClick() },
+            onCommentaryLong = { activity.readingCommands.composeCommentaryLongClick() },
+            // The Strongs refresh now lives inside `composeCycleStrongs`/`composeStrongsLong`,
+            // next to their `updateStrongsButton()` call — `StrongsPreference.handle()` posts
+            // none of the 5 owner `Events` streams `toolbarStateService` subscribes to, and keeping
+            // the refresh at the mutation site also covers the long-press dialog's `onReset`
+            // path, which this call site never saw.
+            onStrongs = { activity.readingCommands.composeCycleStrongs() },
+            onStrongsLong = { activity.readingCommands.composeStrongsLong() },
+            onSearch = { activity.readingCommands.composeSearch() },
+            onSpeak = { activity.readingCommands.composeToggleSpeak() },
+            onSpeakLong = { activity.readingCommands.composeSpeakLong() },
+            onWorkspace = { showWorkspaceSheet() },
+            onOverflow = { openOverflowMenu() },
+        ),
+        toolbarIcons = { readingToolbarIcons() },
+        nightMode = nightMode,
+        monochrome = monochrome,
+        generation = generation.state,
+        fullScreen = fullScreen,
+        overlayText = overlayText,
+        activeIsBibleShown = activeIsBibleShown,
+        // F59: the live value, straight from the host -- see ReadingHostActivity
+        // .imeBottomPaddingPx's kdoc for why MainBibleActivity answers a permanent 0 and the
+        // nav host does not.
+        imeBottomPaddingPx = activity.imeBottomPaddingPx,
+        disableAnimations = { CommonUtils.settings.disableAnimations },
+        overflowItems = overflowItems,
+        overflowExpanded = overflowExpanded,
+        onOverflowItemClick = { id ->
+            val stayOpen = activity.readingCommands.handleOptionsMenuItem(id)
+            if (stayOpen) {
+                overflowItems.value = activity.readingCommands.buildOptionsMenuItems()
+            } else {
+                overflowExpanded.value = false
+            }
+        },
+        onOverflowDismiss = { overflowExpanded.value = false },
+        // Batch Z-early A6: the navigation drawer. Icons are resolved from the `iconKey` the
+        // `:sharedCore` model carries (mirroring the menu XML's `android:icon`) through
+        // [drawerIconResIdFor] — the same "host resolves, `:sharedUi` stays Android-free" shape
+        // as `windowIcon` below, except this one must be `@Composable` because
+        // `painterResource` is only callable inside composition. NOT the raw [drawerIconResIds]
+        // table: `"ic_logo"` needs the call-time discrete-mode branch (F58 fix round 2 / R13).
+        drawerMenu = drawerMenu,
+        drawerIcon = { key ->
+            val resId = drawerIconResIdFor(key)
+            if (resId == null) null else painterResource(resId)
+        },
+        // Dispatches through the SAME `MenuCommandHandler.handleMenuRequest(itemId)` the classic
+        // `NavigationView` listener calls (see `MainBibleActivity.handleDrawerItemClick`), so
+        // every row's command behaviour is classic's by construction.
+        onDrawerItemClick = { id -> activity.readingCommands.handleDrawerItemClick(DrawerMenuStateBuilder.resIdFor(id)) },
+        // Batch Z-early A7: classic `DrawerListener` parity — see the `LaunchedEffect`s in the
+        // common `ReadingHost` and the entry points' kdoc on [MainBibleActivity].
+        onDrawerInMotion = { activity.showSystemUiTransient() },
+        onDrawerIdleClosed = { activity.applyIdleSystemUi() },
+        // Round 12b §1: the guard against stealing focus from an open search bar lives INSIDE
+        // restorePaneFocus (see drawerShouldRestorePaneFocus), not here — the drawer's
+        // own Search row goes through this same callback.
+        onDrawerClosed = { activity.restorePaneFocus() },
+        paneBackground = { windowId -> paneBackgroundArgbFor(windowId)?.let { Color(it) } },
+        windowLabel = ::railWindowLabel,
+        windowIcon = { snapshot -> activity.readingCommands.windowIconFor(snapshot.id) },
+        // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`) — see
+        // `MainBibleActivity.windowTopLabelFor`'s kdoc.
+        windowTopLabel = ::railWindowTopLabel,
+        handlePaneMenuItem = { windowId, id -> activity.readingCommands.handleWindowPaneMenuItem(windowId, id) },
+        // A/B batch 1 F5b: resolves the pane popup menu's and the toolbar overflow menu's
+        // `iconKey`s to a `Painter` via the explicit [menuIconResIds] table — the same
+        // "host resolves, `:sharedCore`/`:sharedUi` stay Android-free" shape as `drawerIcon`
+        // just above.
+        menuIcon = { key ->
+            // A/B batch 3 F4: the "last used actions" rows carry a text-option drawable name,
+            // which lives in its own table (shared with the Text-options screen).
+            val resId = menuIconResIds[key] ?: textOptionDrawableRes(key)
+            if (resId != null) painterResource(resId) else null
+        },
+        llmDialog = readingLlmDialogs.state,
+        onLlmPromptChosen = readingLlmDialogs::onPromptChosen,
+        onLlmToggleFavorite = readingLlmDialogs::onToggleFavorite,
+        onLlmCategoryExpandedChanged = readingLlmDialogs::onCategoryExpandedChanged,
+        onLlmSpecifySubmitted = readingLlmDialogs::onSpecifySubmitted,
+        onLlmModelChosen = readingLlmDialogs::onModelChosen,
+        onLlmRegenerateConfirmed = readingLlmDialogs::onRegenerateConfirmed,
+        onLlmDismiss = readingLlmDialogs::dismiss,
+        speakDialog = speakTransport.dialog,
+        onSpeakBookmarkChosen = speakTransport::onSpeakBookmarkChosen,
+        onSpeakDialogDismiss = speakTransport::dismissDialog,
+        // F6 Task 8a: the toolbar's search mode. Every callback goes to [searchController] or to
+        // the host's own menu/settings flags — none of them touches the pane subtree, which is
+        // what `ReadingSearchHostTest.openingAndClosingSearchMustNotRebuildThePaneSubtree`
+        // guards.
+        searchBar = searchBar,
+        searchBarCallbacks = ReadingSearchBarCallbacks(
+            onQueryChange = { searchQueries.setQuery(it) },
+            onSubmit = { searchController.submit() },
+            onRecentTermsOpen = { searchRecentMenuOpen.value = true },
+            onRecentTermsDismiss = { searchRecentMenuOpen.value = false },
+            // Parity with `SearchComposeActivity` (`onRecentTermSelected = controller::setQuery`):
+            // picking a recent term fills the field, it does not search by itself.
+            onRecentTermSelected = { term ->
+                searchRecentMenuOpen.value = false
+                searchQueries.setQuery(term)
             },
-            onOverflowDismiss = { overflowExpanded.value = false },
-            // Batch Z-early A6: the navigation drawer. Icons are resolved from the `iconKey` the
-            // `:sharedCore` model carries (mirroring the menu XML's `android:icon`) through
-            // [drawerIconResIdFor] — the same "host resolves, `:sharedUi` stays Android-free" shape
-            // as `windowIcon` above, except this one must be `@Composable` because
-            // `painterResource` is only callable inside composition. NOT the raw [drawerIconResIds]
-            // table: `"ic_logo"` needs the call-time discrete-mode branch (F58 fix round 2 / R13).
-            drawerState = drawerMenu,
-            drawerOpenState = drawerOpen,
-            drawerIcon = { key ->
-                val resId = drawerIconResIdFor(key)
-                if (resId == null) null else painterResource(resId)
-            },
-            // Dispatches through the SAME `MenuCommandHandler.handleMenuRequest(itemId)` the classic
-            // `NavigationView` listener calls (see `MainBibleActivity.handleDrawerItemClick`), so
-            // every row's command behaviour is classic's by construction.
-            onDrawerItemClick = { id -> activity.readingCommands.handleDrawerItemClick(DrawerMenuStateBuilder.resIdFor(id)) },
-            // Batch Z-early A7: classic `DrawerListener` parity — see the three `LaunchedEffect`s
-            // in `mountComposeView` and the entry points' kdoc on [MainBibleActivity].
-            monochromeState = monochrome,
-            onDrawerInMotion = { activity.showSystemUiTransient() },
-            onDrawerIdleClosed = { activity.applyIdleSystemUi() },
-            // Round 12b §1: the guard against stealing focus from an open search bar lives INSIDE
-            // restorePaneFocus (see drawerShouldRestorePaneFocus), not here — the drawer's
-            // own Search row goes through this same callback.
-            onDrawerClosed = { activity.restorePaneFocus() },
-            pane = { windowId ->
-                val window = activity.hostWindowRepository.getWindow(IdType(windowId))
-                if (window != null) {
-                    // A/B batch 4a whole-batch review I1: classic `BibleFrame.build()` also calls
-                    // `bibleView.updateBackgroundColor()` (BibleFrame.kt:137), which sets the WebView's
-                    // OWN background (`BibleView.updateBackgroundColor` -> `setBackgroundColor`). Without
-                    // this, even with C1 fixed (the pane Box now paints the right colour underneath), a
-                    // freshly created WebView still draws its platform-default white over that pane
-                    // background until its first document finishes loading -- same flash, one layer up.
-                    AndroidView(modifier = Modifier.fillMaxSize(), factory = {
-                        activity.readingCommands.bibleViewFactory.getOrCreateBibleView(window).apply {
-                            // Classic parity + safety net: `BibleFrame.build()/recreate()` detach the
-                            // BibleView from its old frame before adding it (`BibleFrame.kt:128,147`).
-                            // Compose has no equivalent — `AndroidViewHolder.onRelease()` only runs the
-                            // release block, and ONLY `onDeactivate()` (reusable nodes) calls
-                            // `removeAllViewsInLayout()` — so a cached BibleView stays a child of a
-                            // long-released holder forever. Handing it to a second holder then throws
-                            // `IllegalStateException: The specified child already has a parent`. The
-                            // duplicate-window-id load that produced that crash is fixed at its source
-                            // (`WindowRepository.loadingFromDb`); this keeps the pane host itself from
-                            // being the thing that turns any such state bug into a hard crash.
-                            (parent as? ViewGroup)?.removeView(this)
-                            // MATCH_PARENT is REQUIRED here, and not for Android layout reasons --
-                            // `Modifier.fillMaxSize()` above already gives the WebView an EXACTLY
-                            // height MeasureSpec. It is Chromium that reads the layout params:
-                            // `AwLayoutSizer` turns on `force_zero_layout_height` for a WebView whose
-                            // layout-params HEIGHT is WRAP_CONTENT (the guard that stops a
-                            // wrap-content WebView from growing without bound), and that makes CSS
-                            // `vh` units inside the page resolve to **0** -- while `innerHeight` and
-                            // `documentElement.clientHeight` keep reporting the true size, so nothing
-                            // looks wrong from JS. Compose's `AndroidViewHolder` hands every hosted
-                            // view WRAP_CONTENT params by default (it drives sizing through measure
-                            // specs instead), whereas classic's `BibleFrame` adds the BibleView with
-                            // MATCH_PARENT -- which is exactly why `vh` worked in classic and broke
-                            // under the Compose host. Two page-wide symptoms came from it:
-                            //   - `ModalDialog`'s `--max-height: calc(100vh - ...)` went negative and
-                            //     clamped to 0, so EVERY modal's scrolling body (`AmbiguousSelection`,
-                            //     `BookmarkModal`, footnotes/xrefs via `Note.vue`, `BookmarkLabelActions`,
-                            //     `EditableText`) clipped its content away and rendered header-only.
-                            //   - `#bottom { padding-bottom: 200vh }` collapsed to 0, removing the
-                            //     end-of-document scroll headroom.
-                            // Verified on-device by measuring `100vh` in the page: 0 with
-                            // WRAP_CONTENT, 827.8 with MATCH_PARENT.
-                            layoutParams = ViewGroup.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                            )
-                            updateBackgroundColor()
-                        }
-                    })
-                }
-            },
-            paneBackground = { windowId -> paneBackgroundArgbFor(windowId)?.let { Color(it) } },
-            windowLabel = ::railWindowLabel,
-            windowIcon = { snapshot -> activity.readingCommands.windowIconFor(snapshot.id) },
-            // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`) — see
-            // `MainBibleActivity.windowTopLabelFor`'s kdoc.
-            windowTopLabel = ::railWindowTopLabel,
-            controller = controller,
-            windowButtonsVisibleState = windowButtonsVisibility.visible,
-            touchTickState = windowButtonsVisibility.touchTick,
-            onWindowButtonsHideTimeout = windowButtonsVisibility::onHideTimeout,
-            paneMenuWindowIdState = paneMenuWindowId,
-            paneMenuItemsState = paneMenuItems,
-            paneMenuAnchorState = paneMenuAnchor,
-            onOpenPaneMenu = ::openPaneMenu,
-            onPaneMenuItemClick = { windowId, id ->
-                val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(windowId, id)
-                if (stayOpen) {
-                    activity.hostWindowRepository.getWindow(IdType(windowId))?.let {
-                        paneMenuItems.value = paneMenuStateBuilder.build(it)
-                    }
-                } else {
-                    closePaneMenu()
-                }
-            },
-            onPaneMenuDismiss = ::closePaneMenu,
-            // A/B batch 1 F5b: resolves the pane popup menu's and the toolbar overflow menu's
-            // `iconKey`s to a `Painter` via the explicit [menuIconResIds] table — the same
-            // "host resolves, `:sharedCore`/`:sharedUi` stay Android-free" shape as `drawerIcon`
-            // just above.
-            menuIcon = { key ->
-                // A/B batch 3 F4: the "last used actions" rows carry a text-option drawable name,
-                // which lives in its own table (shared with the Text-options screen).
-                val resId = menuIconResIds[key] ?: textOptionDrawableRes(key)
-                if (resId != null) painterResource(resId) else null
-            },
-            // Batch 12e-B Task 6: the agent-log panel, pre-built here (closing over the live
-            // `agentLog` controller) since `install` already owns it — mirrors how `pane` above is
-            // threaded straight through `mountComposeView` rather than rebuilt from raw state.
-            // `collapsedDp` is `ReadingViewScreen`'s measurement, handed down rather than remembered
-            // here: this lambda leaves the composition on every hide, and a panel that auto-shows
-            // while still `expanded` never reports a collapsed height, so a local copy would stay 0
-            // for that whole showing (fix round 1, Important 1 — see the slot's kdoc).
-            agentLogSlot = { applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
-                val agentLogUiState by agentLog.state.collectAsState()
-                AgentLogPanel(
-                    agentLogUiState,
-                    animateStatus = !CommonUtils.settings.disableAnimations,
-                    statusIcon = painterResource(R.drawable.icon_robot),
+            onOpenSettings = { searchSettingsOpen.value = true },
+            onClose = { leaveSearch() },
+            onImeRequestHandled = { searchController.imeRequestHandled() },
+            onFieldFocusChanged = { searchFieldFocused.value = it },
+            onRebuildIndex = { searchController.requestRebuildIndex() },
+            onShowResults = { searchController.showResults() },
+        ),
+        searchSheetVisible = searchController.sheetVisible,
+        onSearchSheetDismissed = { searchController.closeSheet() },
+        // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
+        onSearchSheetOffsetsChanged = { visible, heightPx -> activity.readingInsets.updateSearchSheetOffsets(visible, heightPx) },
+        // Task 10: the "<document> cannot be searched" snackbar.
+        searchUnavailableDocName = searchUnavailableDocName,
+        onSearchUnavailableMessageShown = { searchUnavailableMessageShown() },
+        // Batch 12e-B Task 6: the agent-log panel, pre-built here (closing over the live
+        // `agentLog` controller) since `install` already owns it — mirrors how the pane factory is
+        // provided rather than rebuilt from raw state.
+        // `collapsedDp` is `ReadingViewScreen`'s measurement, handed down rather than remembered
+        // here: this lambda leaves the composition on every hide, and a panel that auto-shows
+        // while still `expanded` never reports a collapsed height, so a local copy would stay 0
+        // for that whole showing (fix round 1, Important 1 — see the slot's kdoc).
+        agentLogSlot = { applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
+            val agentLogUiState by agentLog.state.collectAsState()
+            AgentLogPanel(
+                agentLogUiState,
+                animateStatus = !CommonUtils.settings.disableAnimations,
+                statusIcon = painterResource(R.drawable.icon_robot),
+                applyNavBarInset = applyNavBarInset,
+                panelHeightDp = if (agentLogUiState.expanded) {
+                    agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
+                } else null,   // collapsed lays out intrinsically, exactly as before round 12b
+                onHeightDragStarted = agentLog::onHeightDragStarted,
+                onHeightDrag = { dragUpDp ->
+                    agentLog.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp)
+                },
+                onCollapsedHeightMeasured = onCollapsedHeightMeasured,
+                onToggleExpanded = agentLog::toggleExpanded,
+                onStop = agentLog::stop,
+                onClose = agentLog::hide,
+                onModelSelectorClick = agentLog::onModelSelectorClick,
+                onModelChosen = agentLog::onModelChosen,
+                onModelPickerDismiss = agentLog::onModelPickerDismiss,
+                onRawLogClick = agentLog::onRawLogClick,
+            )
+        },
+        // Batch 12f Task 6: the Speak transport bar, pre-built here (closing over the live
+        // `speakTransport` controller) exactly the same pass-through shape as `agentLogSlot`
+        // above.
+        speakBarSlot = { applyNavBarInset ->
+            val speakState by speakTransport.state.collectAsState()
+            // Round 14b §6: the agent panel's visibility, narrowed to a boolean through
+            // `derivedStateOf` — the SAME idiom as `agentLogVisible` a few lines below, and
+            // for the same reason: collecting `agentLog.state` raw here would resubscribe this
+            // slot to every log line, status change and cost update of a running agent, when all
+            // it needs is the one flip. Reading `.value` inside this restartable lambda means
+            // the bar recomposes only when the panel appears or disappears.
+            val agentLogState = agentLog.state.collectAsState()
+            val agentLogVisible = remember { derivedStateOf { agentLogState.value.visible } }
+            // `fullScreen` is the host's own MutableState (fed by fullScreenChanged), read here
+            // so the bar recomposes away when fullscreen is entered — see [speakBarVisible].
+            if (speakBarVisible(fullScreen = fullScreen.value, transportVisible = speakState.visible)) {
+                SpeakTransportBar(
+                    speakState,
+                    onPlayPause = { speakTransport.togglePlayPause() },
+                    onStop = { speakTransport.stop() },
+                    onRewind = { speakTransport.rewind() },
+                    onForward = { speakTransport.forward() },
+                    onPrev = { speakTransport.prevVerse() },
+                    onNext = { speakTransport.nextVerse() },
+                    onBookmark = { speakTransport.onBookmarkButton() },
+                    onConfig = { speakTransport.onConfig() },
                     applyNavBarInset = applyNavBarInset,
-                    panelHeightDp = if (agentLogUiState.expanded) {
-                        agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
-                    } else null,   // collapsed lays out intrinsically, exactly as before round 12b
-                    onHeightDragStarted = agentLog::onHeightDragStarted,
-                    onHeightDrag = { dragUpDp ->
-                        agentLog.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp)
-                    },
-                    onCollapsedHeightMeasured = onCollapsedHeightMeasured,
-                    onToggleExpanded = agentLog::toggleExpanded,
-                    onStop = agentLog::stop,
-                    onClose = agentLog::hide,
-                    onModelSelectorClick = agentLog::onModelSelectorClick,
-                    onModelChosen = agentLog::onModelChosen,
-                    onModelPickerDismiss = agentLog::onModelPickerDismiss,
-                    onRawLogClick = agentLog::onRawLogClick,
+                    // Fully qualified, and NOT imported, on purpose: the import block of this
+                    // file is the one region round 14a's sibling container also appends to (its
+                    // new sheet wrappers), and the 14a/14b fork's whole premise is that no two
+                    // hunks in this file meet. One qualified call site costs less than a merge
+                    // conflict in a 290-line import block.
+                    ownsTopEdge = net.bible.sharedcore.reading.speakBarOwnsTopEdge(agentLogVisible.value),
                 )
-            },
-            // Batch 12f Task 6: the Speak transport bar, pre-built here (closing over the live
-            // `speakTransport` controller) exactly the same pass-through shape as `agentLogSlot`
-            // above — `install` already owns it, so it's threaded straight through
-            // `mountComposeView` rather than rebuilt from raw state.
-            speakBarSlot = { applyNavBarInset ->
-                val speakState by speakTransport.state.collectAsState()
-                // Round 14b §6: the agent panel's visibility, narrowed to a boolean through
-                // `derivedStateOf` — the SAME idiom as `agentLogVisibleState` a few lines below, and
-                // for the same reason: collecting `agentLog.state` raw here would resubscribe this
-                // slot to every log line, status change and cost update of a running agent, when all
-                // it needs is the one flip. Reading `.value` inside this restartable lambda means
-                // the bar recomposes only when the panel appears or disappears.
-                val agentLogState = agentLog.state.collectAsState()
-                val agentLogVisible = remember { derivedStateOf { agentLogState.value.visible } }
-                // `fullScreen` is the host's own MutableState (fed by fullScreenChanged), read here
-                // so the bar recomposes away when fullscreen is entered — see [speakBarVisible].
-                if (speakBarVisible(fullScreen = fullScreen.value, transportVisible = speakState.visible)) {
-                    SpeakTransportBar(
-                        speakState,
-                        onPlayPause = { speakTransport.togglePlayPause() },
-                        onStop = { speakTransport.stop() },
-                        onRewind = { speakTransport.rewind() },
-                        onForward = { speakTransport.forward() },
-                        onPrev = { speakTransport.prevVerse() },
-                        onNext = { speakTransport.nextVerse() },
-                        onBookmark = { speakTransport.onBookmarkButton() },
-                        onConfig = { speakTransport.onConfig() },
-                        applyNavBarInset = applyNavBarInset,
-                        // Fully qualified, and NOT imported, on purpose: the import block of this
-                        // file is the one region round 14a's sibling container also appends to (its
-                        // new sheet wrappers), and the 14a/14b fork's whole premise is that no two
-                        // hunks in this file meet. One qualified call site costs less than a merge
-                        // conflict in a 290-line import block.
-                        ownsTopEdge = net.bible.sharedcore.reading.speakBarOwnsTopEdge(agentLogVisible.value),
+            }
+        },
+        // Round 12b §3: whether the agent-log panel / speak bar will actually render, read as
+        // `@Composable` lambdas rather than plain booleans so the flow collection stays inside
+        // the composition that needs it (see the whole-branch-review non-restartable-lambda
+        // note this replaced, still true here: collecting `agentLog.state`/
+        // `speakTransport.state` with `by` directly at a non-Unit-returning lambda's call site
+        // would subscribe the nearest enclosing restartable scope -- the `BottomSheetScaffold`
+        // content lambda wrapping `key(gen) { ReadingViewScreen(...) }` -- to every log-line/
+        // status/cost update during a run). Each collects its own flow as State (no `by`) and
+        // folds it into a `derivedStateOf` that only changes value when the resulting boolean
+        // actually flips, so only that flip recomposes the outer scope.
+        agentLogVisible = {
+            val agentLogState = agentLog.state.collectAsState()
+            val visible = remember { derivedStateOf { agentLogState.value.visible } }
+            visible.value
+        },
+        speakBarVisible = {
+            val speakState = speakTransport.state.collectAsState()
+            val visible = remember {
+                derivedStateOf {
+                    speakBarVisible(
+                        fullScreen = fullScreen.value,
+                        transportVisible = speakState.value.visible,
                     )
                 }
-            },
-            // Round 12b §3: whether the agent-log panel / speak bar will actually render, read as
-            // `@Composable` lambdas rather than plain booleans so the flow collection stays inside
-            // the composition that needs it (see the whole-branch-review non-restartable-lambda
-            // note this replaced, still true here: collecting `agentLog.state`/
-            // `speakTransport.state` with `by` directly at a non-Unit-returning lambda's call site
-            // would subscribe the nearest enclosing restartable scope -- the `BottomSheetScaffold`
-            // content lambda wrapping `key(gen) { ReadingViewScreen(...) }` -- to every log-line/
-            // status/cost update during a run). Each collects its own flow as State (no `by`) and
-            // folds it into a `derivedStateOf` that only changes value when the resulting boolean
-            // actually flips, so only that flip recomposes the outer scope.
-            agentLogVisibleState = {
-                val agentLogState = agentLog.state.collectAsState()
-                val visible = remember { derivedStateOf { agentLogState.value.visible } }
-                visible.value
-            },
-            speakBarVisibleState = {
-                val speakState = speakTransport.state.collectAsState()
-                val visible = remember {
-                    derivedStateOf {
-                        speakBarVisible(
-                            fullScreen = fullScreen.value,
-                            transportVisible = speakState.value.visible,
-                        )
-                    }
-                }
-                visible.value
-            },
-            speakDialogState = speakTransport.dialog,
-            onSpeakBookmarkChosen = speakTransport::onSpeakBookmarkChosen,
-            onSpeakDialogDismiss = speakTransport::dismissDialog,
-            llmDialogState = readingLlmDialogs.state,
-            onLlmPromptChosen = readingLlmDialogs::onPromptChosen,
-            onLlmToggleFavorite = readingLlmDialogs::onToggleFavorite,
-            onLlmCategoryExpandedChanged = readingLlmDialogs::onCategoryExpandedChanged,
-            onLlmSpecifySubmitted = readingLlmDialogs::onSpecifySubmitted,
-            onLlmModelChosen = readingLlmDialogs::onModelChosen,
-            onLlmRegenerateConfirmed = readingLlmDialogs::onRegenerateConfirmed,
-            onLlmDismiss = readingLlmDialogs::dismiss,
-            // F6 Task 8a: the toolbar's search mode. Every callback goes to [searchController] or to
-            // the host's own menu/settings flags — none of them touches the pane subtree, which is
-            // what `ReadingSearchHostTest.openingAndClosingSearchMustNotRebuildThePaneSubtree`
-            // guards.
-            searchBarState = searchBar,
-            searchBarCallbacks = ReadingSearchBarCallbacks(
-                onQueryChange = { searchQueries.setQuery(it) },
-                onSubmit = { searchController.submit() },
-                onRecentTermsOpen = { searchRecentMenuOpen.value = true },
-                onRecentTermsDismiss = { searchRecentMenuOpen.value = false },
-                // Parity with `SearchComposeActivity` (`onRecentTermSelected = controller::setQuery`):
-                // picking a recent term fills the field, it does not search by itself.
-                onRecentTermSelected = { term ->
-                    searchRecentMenuOpen.value = false
-                    searchQueries.setQuery(term)
-                },
-                onOpenSettings = { searchSettingsOpen.value = true },
-                onClose = { leaveSearch() },
-                onImeRequestHandled = { searchController.imeRequestHandled() },
-                onFieldFocusChanged = { searchFieldFocused.value = it },
-                onRebuildIndex = { searchController.requestRebuildIndex() },
-                onShowResults = { searchController.showResults() },
-            ),
-            searchSheetVisibleState = searchController.sheetVisible,
-            onSearchSheetDismissed = { searchController.closeSheet() },
-            searchSheetSlot = { SearchSheetSlot() },
-            searchSettingsSlot = { SearchSettingsSlot() },
-            // Settings editor sheets T10: the reading view's in-place text-settings editor.
-            textSettingsEditorSlot = { TextSettingsEditorSlot() },
-            // Round 13a: the Speak settings sheet.
-            speakSettingsSlot = { SpeakSettingsSlot() },
-            quickSheetSlot = { QuickSheetSlot() },
-            // Platform-dialog removal Task 18: the reading view's own dialogs (BJI help/delete-confirm).
-            readingDialogSlot = { ReadingDialogSlot() },
-            // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
-            onSearchSheetOffsetsChanged = { visible, heightPx -> activity.readingInsets.updateSearchSheetOffsets(visible, heightPx) },
-            // Task 10: the "<document> cannot be searched" snackbar.
-            searchUnavailableDocNameState = searchUnavailableDocName,
-            onSearchUnavailableMessageShown = { searchUnavailableMessageShown() },
-            // F59: the live value, straight from the host -- see ReadingHostActivity
-            // .imeBottomPaddingPx's kdoc for why MainBibleActivity answers a permanent 0 and the
-            // nav host does not.
-            imeBottomPaddingPxState = activity.imeBottomPaddingPx,
-        )
-    }
+            }
+            visible.value
+        },
+        searchSheetSlot = { SearchSheetSlot() },
+        searchSettingsSlot = { SearchSettingsSlot() },
+        // Settings editor sheets T10: the reading view's in-place text-settings editor.
+        textSettingsEditorSlot = { TextSettingsEditorSlot() },
+        // Round 13a: the Speak settings sheet.
+        speakSettingsSlot = { SpeakSettingsSlot() },
+        quickSheetContent = { sheet -> QuickSheetContent(sheet) },
+        // Platform-dialog removal Task 18: the reading view's own dialogs (BJI help/delete-confirm).
+        readingDialogSlot = { ReadingDialogSlot() },
+    )
 
     /**
      * What the search sheet holds, per phase: the index prompt/progress panel while the document
@@ -3922,17 +3478,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
         /** Task 26: the verse-share sheet's toggle pref keys — verbatim from the classic
          *  `ShareWidget`, so an existing user's saved choices carry over unchanged. */
-        private const val SHARE_VERSE_NUMBERS_KEY = "share_verse_numbers"
-        private const val SHARE_SHOW_ADD_KEY = "share_show_add"
-        private const val SHARE_SHOW_REFERENCE_KEY = "share_show_reference"
-        private const val SHARE_ABBREVIATE_REFERENCE_KEY = "share_abbreviate_reference"
-        private const val SHARE_SHOW_VERSION_KEY = "share_show_version"
-        private const val SHARE_SHOW_NOTES_KEY = "show_notes"
-        private const val SHARE_SHOW_SELECTION_ONLY_KEY = "show_selection_only"
-        private const val SHARE_SHOW_ELLIPSIS_KEY = "show_ellipsis"
-        private const val SHARE_SHOW_REFERENCE_AT_FRONT_KEY = "share_show_reference_at_front"
-        private const val SHARE_SHOW_QUOTES_KEY = "share_show_quotes"
-        private const val SHARE_SEPARATE_VERSES_NEWLINES_KEY = "share_separate_verses_newlines"
 
         /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
         private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
@@ -3944,918 +3489,52 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         private const val SEARCH_INDEX_POLL_INTERVAL_MS = 2_000L
 
         /**
-         * **TEST-ONLY since reading-host re-typing R8 -- this function has no production caller.**
-         * R8 moved [install]'s argument block into [ReadingView] so the `reading` nav destination
-         * could compose the same arguments with no [ViewGroup], and [install] now builds its
-         * [ComposeView] over [ReadingView] directly (byte-identical construction, same layout
-         * params, same container). Nothing else called this.
+         * The reading view as production composes it: the app theme (night mode tracked from the host's
+         * own `State`, see [AbAppTheme]'s `darkTheme` kdoc), fail-closed link routing, [paneFactory]
+         * provided as `LocalReadingPane`, and the common `ReadingHost` rendering [deps].
          *
-         * It is KEPT, deliberately, as the explicit-collaborator seam its five callers use
-         * (`ComposeReadingViewHostTest`, `ReadingSearchHostTest`, `AgentLogHostTest`,
-         * `ReadingLlmHostTest`, `SearchSheetStructureGuardTest`): they mount [ReadingViewContent] --
-         * the SAME composition production renders -- with inert defaults for the slots they do not
-         * exercise, which is the only way to drive it without booting a full reading host. Its 71
-         * forwards are all identity forwards and stay explicit, so this list and [ReadingViewContent]
-         * still cannot drift apart without a compile error here.
-         *
-         * Adds a [ComposeView] rendering [ReadingViewScreen] to [container].
+         * Shared by [ReadingView] (the nav destination and [install]) and [mountComposeView], so the
+         * wrapper cannot differ between production and the test seam.
          */
-        @OptIn(ExperimentalMaterial3Api::class)
-        fun mountComposeView(
-            container: ViewGroup,
-            windowState: WindowStateServiceImpl,
-            commands: WindowCommands,
-            // A `State` (not a plain `Boolean`) so the host's [ScreenSettings.nightModeChanges]
-            // subscription (or a test) can flip it and drive a real recomposition instead of a
-            // value frozen at mount time.
-            nightModeState: State<Boolean>,
-            // Defaults to a fresh, never-bumped state for the unit test (which mounts with
-            // `pane = {}` and never attaches the ComposeView, so composition never runs).
-            generationState: State<Int> = mutableIntStateOf(0),
-            toolbar: StateFlow<ToolbarState> = MutableStateFlow(ToolbarState.EMPTY).asStateFlow(),
-            toolbarCallbacks: ReadingToolbarCallbacks = noopToolbarCallbacks,
-            // A `State` for the same reactivity reason as [nightModeState]: [install] mirrors
-            // [MainBibleActivity.fullScreen] here via [SharedActivityState.fullScreenChanged] instead
-            // of passing a one-shot snapshot.
-            fullScreenState: State<Boolean> = mutableStateOf(false),
-            // Batch 12g Task 3 additions: the fullscreen bible-reference overlay's text + the
-            // active window's bible-shown flag, `State`s for the same reactivity reason as
-            // `fullScreenState` above — [ComposeReadingViewHost.install] mirrors both from
-            // `PageChange.VerseChanged`/`WindowChange.ActiveWindowChanged` (see its `init` block) rather
-            // than passing a one-shot snapshot. Defaulted (empty text / bible not shown) so
-            // `ComposeReadingViewHostTest` (which never renders the overlay) is unaffected.
-            overlayTextState: State<String> = mutableStateOf(""),
-            activeIsBibleShownState: State<Boolean> = mutableStateOf(false),
-            // The Compose overflow options menu's item list / expanded flag (Batch 12b-C Task 3),
-            // `State`s for the same reason as [nightModeState]/[fullScreenState]: [install] owns
-            // mutable backing state (`overflowItems`/`overflowExpanded`) that its
-            // `ReadingToolbarCallbacks.onOverflow`/`onOverflowItemClick`/`onOverflowDismiss` mutate
-            // in response to activity/menu events, not a one-shot snapshot. Defaulted (empty/
-            // collapsed/no-op) so `ComposeReadingViewHostTest` (which never opens the menu) is
-            // unaffected.
-            overflowItemsState: State<List<OptionsMenuItem>> = mutableStateOf(emptyList()),
-            overflowExpandedState: State<Boolean> = mutableStateOf(false),
-            onOverflowItemClick: (id: String) -> Unit = {},
-            onOverflowDismiss: () -> Unit = {},
-            // Batch Z-early A6: the navigation drawer. The host owns the item list and the
-            // open/closed request as `State`s (same reactivity reason as `overflowExpandedState`);
-            // `ModalNavigationDrawer`'s own `DrawerState` is created inside `setContent` and kept in
-            // sync with `drawerOpenState` both ways (a user swipe-close must clear the request, else
-            // the next `toggleDrawer()` would see a stale `true` and do nothing). `drawerIcon` is
-            // `@Composable` because the host resolves it with `painterResource` (see `install`).
-            // Defaulted (empty menu / closed / no icons / no-op click) so `ComposeReadingViewHostTest`
-            // and friends — which never open the drawer — are unaffected.
-            drawerState: State<DrawerMenuState> = mutableStateOf(DrawerMenuState.EMPTY),
-            drawerOpenState: MutableState<Boolean> = mutableStateOf(false),
-            drawerIcon: @Composable (iconKey: String) -> Painter? = { null },
-            onDrawerItemClick: (id: String) -> Unit = {},
-            // Batch Z-early A7: classic `DrawerLayout.DrawerListener` parity. `monochromeState` is a
-            // `State` for the same reactivity reason as `nightModeState` (the host mirrors
-            // `CommonUtils.settings.monochromeMode` into it) and only drives the scrim colour, which
-            // classic sets once in `setupUi`. The three callbacks are the derived listener edges:
-            //   in-motion    <- STATE_SETTLING / STATE_DRAGGING  -> showSystemUI(false)
-            //   idle-closed  <- STATE_IDLE at slide offset 0f    -> hide/showSystemUI()
-            //   closed       <- onDrawerClosed                   -> activeWindow.bibleView.requestFocus()
-            // `DrawerState` cannot tell a user drag from an animated settle — accepted, because
-            // classic does the very same thing in both of those branches. Defaulted to no-ops so
-            // `ComposeReadingViewHostTest` and friends are unaffected.
-            monochromeState: State<Boolean> = mutableStateOf(false),
-            onDrawerInMotion: () -> Unit = {},
-            onDrawerIdleClosed: () -> Unit = {},
-            onDrawerClosed: () -> Unit = {},
-            pane: @Composable (windowId: String) -> Unit,
-            // A/B batch 4a F5: per-pane reader background, forwarded to `SplitContent`. Defaulted to
-            // "no background" so `ComposeReadingViewHostTest` (which mounts with `pane = {}` and
-            // never composes) and every golden fixture render exactly as before.
-            paneBackground: (windowId: String) -> Color? = { null },
-            // Host-supplied per-window label/icon for the restore rail (Task 7) — plain,
-            // non-`@Composable` lambdas, matching `WindowTabBar`'s `windowLabel`/`windowIcon`
-            // parameter types (so composable calls like `painterResource` can't sneak into them;
-            // see `MainBibleActivity.windowIconFor`'s kdoc for how it builds a `Painter` without
-            // one). Defaulted (blank label, no icon) so `ComposeReadingViewHostTest` — which never
-            // renders the rail itself — is unaffected.
-            windowLabel: (WindowSnapshot) -> String = { "" },
-            windowIcon: (WindowSnapshot) -> Painter? = { null },
-            // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`,
-            // `pageManager.titleText`) — same non-`@Composable`, host-supplied shape as
-            // `windowLabel`/`windowIcon` above, `null` meaning "render no top row" (see
-            // `MainBibleActivity.windowTopLabelFor`'s kdoc). Defaulted to `{ null }` for the same
-            // reason as `windowLabel`/`windowIcon`.
-            windowTopLabel: (WindowSnapshot) -> String? = { null },
-            // Batch 12b follow-on Plan B Task 5 additions — all `State`s / no-op-defaulted for the
-            // same reason as the `overflow*`/`fullScreenState` params above: [ComposeReadingViewHost]
-            // owns the real backing state, a test (or an omitted call site) gets an inert default.
-            controller: ReadingViewController = ReadingViewController(windowState, commands),
-            windowButtonsVisibleState: State<Boolean> = mutableStateOf(true),
-            touchTickState: State<Int> = mutableIntStateOf(0),
-            onWindowButtonsHideTimeout: () -> Unit = {},
-            paneMenuWindowIdState: State<String?> = mutableStateOf(null),
-            paneMenuItemsState: State<List<WindowPaneMenuItem>> = mutableStateOf(emptyList()),
-            // A/B batch 3 F5b: which surface (pane overlay vs. rail) the currently-open pane menu
-            // is anchored to — see [PaneMenuAnchor]. Defaulted to a fixed `Pane` state for the same
-            // reason as `paneMenuWindowIdState`/`paneMenuItemsState` above.
-            paneMenuAnchorState: State<PaneMenuAnchor> = mutableStateOf(PaneMenuAnchor.Pane),
-            onOpenPaneMenu: (windowId: String, anchor: PaneMenuAnchor) -> Unit = { _, _ -> },
-            onPaneMenuItemClick: (windowId: String, id: String) -> Unit = { _, _ -> },
-            onPaneMenuDismiss: () -> Unit = {},
-            // A/B batch 1 F5b: resolves a [WindowPaneMenuItem.iconKey]/[OptionsMenuItem.iconKey] to
-            // a `Painter` for BOTH the pane popup menu and the toolbar's overflow menu — the same
-            // "host resolves, `:sharedCore`/`:sharedUi` stay Android-free" shape as `drawerIcon`
-            // above, `@Composable` because `painterResource` is only callable inside composition.
-            // Defaulted to always-`null` so `ComposeReadingViewHostTest` and friends (which never
-            // resolve a menu icon) are unaffected.
-            menuIcon: @Composable (iconKey: String) -> Painter? = { null },
-            // Batch 12e-A Task 6 additions: the reading-view LLM dialogs (prompt selector,
-            // specify-before-run, model selection, regenerate-confirm), rendered as a sibling of
-            // `ReadingViewScreen` below. A `StateFlow` (not a plain `State`), mirroring the
-            // `toolbar` param above — [ComposeReadingViewHost.install] passes
-            // `readingLlmDialogs.state` directly and this collects it via `collectAsState()`, same
-            // pattern as `toolbarState`. Defaulted to an always-`None` flow + no-op callbacks so
-            // `ComposeReadingViewHostTest` (which never opens an LLM dialog) is unaffected.
-            llmDialogState: StateFlow<ReadingLlmDialogState> = MutableStateFlow(ReadingLlmDialogState()).asStateFlow(),
-            onLlmPromptChosen: (promptId: String) -> Unit = {},
-            onLlmToggleFavorite: (promptId: String) -> Unit = {},
-            onLlmCategoryExpandedChanged: (categoryId: String?, expanded: Boolean) -> Unit = { _, _ -> },
-            onLlmSpecifySubmitted: (text: String) -> Unit = {},
-            onLlmModelChosen: (modelId: String, setAsDefault: Boolean) -> Unit = { _, _ -> },
-            onLlmRegenerateConfirmed: (instructions: String?, keepPrevious: Boolean, freshRun: Boolean) -> Unit = { _, _, _ -> },
-            onLlmDismiss: () -> Unit = {},
-            // Batch 12e-B Task 6 addition: the reading-view agent-log panel (`AgentLogPanel`),
-            // rendered as `ReadingViewScreen`'s `agentLog` slot (Task 5). Unlike the LLM-dialog
-            // params above (raw `StateFlow` + individual callbacks, assembled into a concrete
-            // composable INSIDE this function's body), this is a pre-built `@Composable` lambda —
-            // [ComposeReadingViewHost.install] already owns the live `agentLog` controller and
-            // closes over it directly when building this, the same pass-through shape as [pane].
-            // Defaulted to an inert no-op composable so `ComposeReadingViewHostTest`/
-            // `ReadingLlmHostTest` (which never render an agent-log panel) are unaffected.
-            agentLogSlot: (@Composable (
-                applyNavBarInset: Boolean,
-                maxHeightDp: Float,
-                collapsedHeightDp: Float,
-                onCollapsedHeightMeasured: (Float) -> Unit,
-            ) -> Unit)? = { _, _, _, _ -> },
-            // Batch 12f Task 6 additions: the reading-view Speak transport bar. `speakBarSlot` is a
-            // pre-built `@Composable` lambda (same pass-through shape as `agentLogSlot` right
-            // above — [ComposeReadingViewHost.install] already owns the live `speakTransport`
-            // controller and closes over it directly). The bookmark-chooser dialog instead mirrors
-            // the LLM-dialog shape (raw `StateFlow` + individual callbacks, assembled into a
-            // concrete composable inside this function's body) since — like `ReadingLlmDialogs` —
-            // it's rendered as a sibling overlay of `ReadingViewScreen`, not inside a slot. Defaulted
-            // to inert no-ops so `ComposeReadingViewHostTest` (which never renders the bar/dialog)
-            // is unaffected.
-            speakBarSlot: (@Composable (applyNavBarInset: Boolean) -> Unit)? = { },
-            speakDialogState: StateFlow<SpeakTransportDialog> = MutableStateFlow<SpeakTransportDialog>(SpeakTransportDialog.None).asStateFlow(),
-            onSpeakBookmarkChosen: (id: String) -> Unit = {},
-            onSpeakDialogDismiss: () -> Unit = {},
-            // F6 Task 8a additions — the reading-view search. Appended at the END with inert
-            // defaults, the convention every earlier slot followed, so `ComposeReadingViewHostTest`
-            // and `AgentLogHostTest` keep compiling unchanged.
-            //
-            // `searchBarState` is a `StateFlow` for the same reason as `toolbar` above:
-            // [ComposeReadingViewHost.searchBar] already combines the session's flows into it, and
-            // this only collects it. A `null` value means "not in search mode", which is what makes
-            // `ReadingToolbar` draw its normal row (Task 4).
-            searchBarState: StateFlow<ReadingSearchBarState?> = MutableStateFlow<ReadingSearchBarState?>(null).asStateFlow(),
-            searchBarCallbacks: ReadingSearchBarCallbacks? = null,
-            // Drives the (unconditional, see below) `BottomSheetScaffold`'s sheet open/closed.
-            searchSheetVisibleState: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow(),
-            // A user drag that puts the sheet away must reach the session, or `sheetVisible` would
-            // stay true and the next `open()` for the same query would change nothing at all.
-            onSearchSheetDismissed: () -> Unit = {},
-            // Pre-built `@Composable` lambdas, the same pass-through shape as `agentLogSlot`/
-            // `speakBarSlot`: [ComposeReadingViewHost.install] already owns the live controllers and
-            // closes over them. `searchSheetSlot` is what goes INSIDE the sheet (index prompt/
-            // progress, or results); `searchSettingsSlot` is the separate modal settings sheet,
-            // composed as a sibling overlay like the dialogs.
-            searchSheetSlot: @Composable () -> Unit = { },
-            searchSettingsSlot: @Composable () -> Unit = { },
-            // Settings editor sheets T10: the reading view's in-place text-settings editor, a fifth
-            // sibling overlay next to `searchSettingsSlot` above (see its mounting call site below
-            // for why). Defaulted to a no-op so every existing `mountComposeView` caller/test keeps
-            // compiling unchanged.
-            textSettingsEditorSlot: @Composable () -> Unit = { },
-            // Round 13a: the Speak settings sheet — a sixth sibling overlay, for the same reason as
-            // the five above: a `ModalBottomSheet` renders in its own window regardless of where it
-            // is composed, so opening it can never re-key the pane subtree and destroy the panes'
-            // BibleView WebViews. It self-hides when closed, so this stays unconditional too.
-            speakSettingsSlot: @Composable () -> Unit = { },
-            // Round 15b: the quick sheets — a seventh sibling overlay. Defaulted to a no-op so every
-            // existing `mountComposeView` caller/test keeps compiling unchanged.
-            quickSheetSlot: @Composable () -> Unit = { },
-            // Platform-dialog removal Task 18: the reading view's own dialogs ([ReadingDialog]) — an
-            // eighth sibling overlay, defaulted to a no-op for the same reason as the seven above.
-            readingDialogSlot: @Composable () -> Unit = { },
-            // Task 8b Step 3: reports the search sheet's live (visible, measured-height-in-px) pair
-            // so [ComposeReadingViewHost.install] can feed `MainBibleActivity.bottomOffsetForWebView`
-            // — see [MainBibleActivity.updateSearchSheetOffsets]'s kdoc for why the height must be
-            // MEASURED rather than a constant guess (the sheet is self-sizing under a 60% ceiling).
-            // Defaulted to a no-op so `ComposeReadingViewHostTest` (which never renders the sheet) is
-            // unaffected.
-            onSearchSheetOffsetsChanged: (visible: Boolean, heightPx: Int) -> Unit = { _, _ -> },
-            // Task 10: the "<document> cannot be searched" snackbar. `searchUnavailableDocNameState`
-            // mirrors [ComposeReadingViewHost.searchUnavailableDocName] (non-null while a message is
-            // waiting); `onSearchUnavailableMessageShown` mirrors [ComposeReadingViewHost
-            // .searchUnavailableMessageShown]. Defaulted to an always-null flow + no-op so
-            // `ComposeReadingViewHostTest` (which never triggers `onUnavailable`) is unaffected.
-            searchUnavailableDocNameState: StateFlow<String?> = MutableStateFlow<String?>(null).asStateFlow(),
-            onSearchUnavailableMessageShown: () -> Unit = {},
-            /**
-             * Whether the agent-log panel will render, and whether the speak bar will — read as
-             * `@Composable` lambdas rather than plain booleans so the flow collection stays inside
-             * the composition that needs it. `ReadingViewScreen` uses them for navigation-bar inset
-             * ownership (round 12b §3) and, from Task 6, for the overlay's in-flow reservation.
-             */
-            agentLogVisibleState: @Composable () -> Boolean = { false },
-            speakBarVisibleState: @Composable () -> Boolean = { false },
-            // F59: same reactivity reason as `fullScreenState` above -- [ComposeReadingViewHost
-            // .ReadingView] passes the live `activity.imeBottomPaddingPx`. Defaulted to a fixed 0 so
-            // `ComposeReadingViewHostTest` and friends (which never dispatch IME insets) are unaffected.
-            imeBottomPaddingPxState: State<Int> = mutableIntStateOf(0),
-        ) {
-            val composeView = ComposeView(container.context).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                // Nav-graph slice 7 Task 6: the content itself is [ReadingViewContent] now, so the
-                // reading DESTINATION can render it with no ViewGroup. Every parameter is forwarded
-                // EXPLICITLY and that function defaults none of them, so a parameter added to one
-                // list and not the other is a compile error here rather than a silently inert slot.
-                setContent {
-                    ReadingViewContent(
-                        windowState = windowState,
-                        commands = commands,
-                        nightModeState = nightModeState,
-                        generationState = generationState,
-                        toolbar = toolbar,
-                        toolbarCallbacks = toolbarCallbacks,
-                        fullScreenState = fullScreenState,
-                        overlayTextState = overlayTextState,
-                        activeIsBibleShownState = activeIsBibleShownState,
-                        overflowItemsState = overflowItemsState,
-                        overflowExpandedState = overflowExpandedState,
-                        onOverflowItemClick = onOverflowItemClick,
-                        onOverflowDismiss = onOverflowDismiss,
-                        drawerState = drawerState,
-                        drawerOpenState = drawerOpenState,
-                        drawerIcon = drawerIcon,
-                        onDrawerItemClick = onDrawerItemClick,
-                        monochromeState = monochromeState,
-                        onDrawerInMotion = onDrawerInMotion,
-                        onDrawerIdleClosed = onDrawerIdleClosed,
-                        onDrawerClosed = onDrawerClosed,
-                        pane = pane,
-                        paneBackground = paneBackground,
-                        windowLabel = windowLabel,
-                        windowIcon = windowIcon,
-                        windowTopLabel = windowTopLabel,
-                        controller = controller,
-                        windowButtonsVisibleState = windowButtonsVisibleState,
-                        touchTickState = touchTickState,
-                        onWindowButtonsHideTimeout = onWindowButtonsHideTimeout,
-                        paneMenuWindowIdState = paneMenuWindowIdState,
-                        paneMenuItemsState = paneMenuItemsState,
-                        paneMenuAnchorState = paneMenuAnchorState,
-                        onOpenPaneMenu = onOpenPaneMenu,
-                        onPaneMenuItemClick = onPaneMenuItemClick,
-                        onPaneMenuDismiss = onPaneMenuDismiss,
-                        menuIcon = menuIcon,
-                        llmDialogState = llmDialogState,
-                        onLlmPromptChosen = onLlmPromptChosen,
-                        onLlmToggleFavorite = onLlmToggleFavorite,
-                        onLlmCategoryExpandedChanged = onLlmCategoryExpandedChanged,
-                        onLlmSpecifySubmitted = onLlmSpecifySubmitted,
-                        onLlmModelChosen = onLlmModelChosen,
-                        onLlmRegenerateConfirmed = onLlmRegenerateConfirmed,
-                        onLlmDismiss = onLlmDismiss,
-                        agentLogSlot = agentLogSlot,
-                        speakBarSlot = speakBarSlot,
-                        speakDialogState = speakDialogState,
-                        onSpeakBookmarkChosen = onSpeakBookmarkChosen,
-                        onSpeakDialogDismiss = onSpeakDialogDismiss,
-                        searchBarState = searchBarState,
-                        searchBarCallbacks = searchBarCallbacks,
-                        searchSheetVisibleState = searchSheetVisibleState,
-                        onSearchSheetDismissed = onSearchSheetDismissed,
-                        searchSheetSlot = searchSheetSlot,
-                        searchSettingsSlot = searchSettingsSlot,
-                        textSettingsEditorSlot = textSettingsEditorSlot,
-                        speakSettingsSlot = speakSettingsSlot,
-                        quickSheetSlot = quickSheetSlot,
-                        readingDialogSlot = readingDialogSlot,
-                        onSearchSheetOffsetsChanged = onSearchSheetOffsetsChanged,
-                        searchUnavailableDocNameState = searchUnavailableDocNameState,
-                        onSearchUnavailableMessageShown = onSearchUnavailableMessageShown,
-                        agentLogVisibleState = agentLogVisibleState,
-                        speakBarVisibleState = speakBarVisibleState,
-                        imeBottomPaddingPxState = imeBottomPaddingPxState,
-                    )
-                }
-            }
-            container.addView(composeView)
-        }
-
-        /**
-         * The reading view itself, as a composable -- everything [mountComposeView] used to hold
-         * inside its `setContent { }`, and nothing else. Extracted by nav-graph slice 7 Task 6 so that
-         * the `reading` DESTINATION (`ReadingNavGraph.kt` in `:sharedUi`) can render the reading view
-         * with no [ViewGroup] anywhere in sight: a destination has a composition, not a container, and
-         * [mountComposeView]'s only uses of its `container` were `ComposeView(container.context)` and
-         * `container.addView(...)`.
-         *
-         * **A move, not a restructure** -- the plan's Global Constraints and design §10 keep
-         * `install`/`mountComposeView` out of scope for this batch. The body below is
-         * [mountComposeView]'s former `setContent` body verbatim, `AbAppTheme` wrapper included, and
-         * [mountComposeView] still creates the same [ComposeView], gives it the same layout params and
-         * adds it to the same container. What changed is who calls the content.
-         *
-         * **No parameter here has a default, deliberately.** [mountComposeView] keeps the inert
-         * defaults its test callers rely on and forwards all 71 explicitly, so the two lists cannot
-         * drift apart without a compile error at that call. That call site also stays the
-         * authoritative documentation of what each slot is for: the per-parameter comments live on
-         * [mountComposeView] and are deliberately NOT copied here, since a copy is a second place to
-         * keep true.
-         */
-        @OptIn(ExperimentalMaterial3Api::class)
         @Composable
-        fun ReadingViewContent(
-            windowState: WindowStateServiceImpl,
-            commands: WindowCommands,
-            nightModeState: State<Boolean>,
-            generationState: State<Int>,
-            toolbar: StateFlow<ToolbarState>,
-            toolbarCallbacks: ReadingToolbarCallbacks,
-            fullScreenState: State<Boolean>,
-            overlayTextState: State<String>,
-            activeIsBibleShownState: State<Boolean>,
-            overflowItemsState: State<List<OptionsMenuItem>>,
-            overflowExpandedState: State<Boolean>,
-            onOverflowItemClick: (id: String) -> Unit,
-            onOverflowDismiss: () -> Unit,
-            drawerState: State<DrawerMenuState>,
-            drawerOpenState: MutableState<Boolean>,
-            drawerIcon: @Composable (iconKey: String) -> Painter?,
-            onDrawerItemClick: (id: String) -> Unit,
-            monochromeState: State<Boolean>,
-            onDrawerInMotion: () -> Unit,
-            onDrawerIdleClosed: () -> Unit,
-            onDrawerClosed: () -> Unit,
-            pane: @Composable (windowId: String) -> Unit,
-            paneBackground: (windowId: String) -> Color?,
-            windowLabel: (WindowSnapshot) -> String,
-            windowIcon: (WindowSnapshot) -> Painter?,
-            windowTopLabel: (WindowSnapshot) -> String?,
-            controller: ReadingViewController,
-            windowButtonsVisibleState: State<Boolean>,
-            touchTickState: State<Int>,
-            onWindowButtonsHideTimeout: () -> Unit,
-            paneMenuWindowIdState: State<String?>,
-            paneMenuItemsState: State<List<WindowPaneMenuItem>>,
-            paneMenuAnchorState: State<PaneMenuAnchor>,
-            onOpenPaneMenu: (windowId: String, anchor: PaneMenuAnchor) -> Unit,
-            onPaneMenuItemClick: (windowId: String, id: String) -> Unit,
-            onPaneMenuDismiss: () -> Unit,
-            menuIcon: @Composable (iconKey: String) -> Painter?,
-            llmDialogState: StateFlow<ReadingLlmDialogState>,
-            onLlmPromptChosen: (promptId: String) -> Unit,
-            onLlmToggleFavorite: (promptId: String) -> Unit,
-            onLlmCategoryExpandedChanged: (categoryId: String?, expanded: Boolean) -> Unit,
-            onLlmSpecifySubmitted: (text: String) -> Unit,
-            onLlmModelChosen: (modelId: String, setAsDefault: Boolean) -> Unit,
-            onLlmRegenerateConfirmed: (instructions: String?, keepPrevious: Boolean, freshRun: Boolean) -> Unit,
-            onLlmDismiss: () -> Unit,
-            agentLogSlot: (@Composable (applyNavBarInset: Boolean, maxHeightDp: Float, collapsedHeightDp: Float, onCollapsedHeightMeasured: (Float) -> Unit) -> Unit)?,
-            speakBarSlot: (@Composable (applyNavBarInset: Boolean) -> Unit)?,
-            speakDialogState: StateFlow<SpeakTransportDialog>,
-            onSpeakBookmarkChosen: (id: String) -> Unit,
-            onSpeakDialogDismiss: () -> Unit,
-            searchBarState: StateFlow<ReadingSearchBarState?>,
-            searchBarCallbacks: ReadingSearchBarCallbacks?,
-            searchSheetVisibleState: StateFlow<Boolean>,
-            onSearchSheetDismissed: () -> Unit,
-            searchSheetSlot: @Composable () -> Unit,
-            searchSettingsSlot: @Composable () -> Unit,
-            textSettingsEditorSlot: @Composable () -> Unit,
-            speakSettingsSlot: @Composable () -> Unit,
-            quickSheetSlot: @Composable () -> Unit,
-            readingDialogSlot: @Composable () -> Unit,
-            onSearchSheetOffsetsChanged: (visible: Boolean, heightPx: Int) -> Unit,
-            searchUnavailableDocNameState: StateFlow<String?>,
-            onSearchUnavailableMessageShown: () -> Unit,
-            agentLogVisibleState: @Composable () -> Boolean,
-            speakBarVisibleState: @Composable () -> Boolean,
-            // F59: the keyboard shrink the host's inset ledger computes
-            // (`ReadingHostActivity.imeBottomPaddingPx`), a `State<Int>` for the same reactivity
-            // reason as `fullScreenState` above. No default -- see this function's kdoc on why no
-            // parameter here has one; [mountComposeView] carries the inert default.
-            imeBottomPaddingPxState: State<Int>,
-        ) {
+        fun ReadingHostContent(deps: ReadingHostDeps, paneFactory: ReadingPaneFactory) {
             // AbAppTheme's darkTheme override (A/B batch 4b Task 3 fix round 1): this host
             // is long-lived inside MainBibleActivity and is never recreate()d on
             // ScreenSettings.nightModeChanges (including the ambient-light-sensor
             // auto-night-mode flip, which fires with no recreate at all), so it tracks night
-            // mode itself in nightModeState and passes it through verbatim instead of
+            // mode itself in nightMode and passes it through verbatim instead of
             // letting AbAppTheme re-read the static ScreenSettings.nightMode getter (which
             // would only catch up on some unrelated recomposition). See AbAppTheme's KDoc.
-            AbAppTheme(darkTheme = nightModeState.value) {
-              FailClosedLinkRouting {
-                    val layout by controller.layout.collectAsState()
-                    val toolbarState by toolbar.collectAsState()
-                    val gen by generationState
-                    val fullScreen by fullScreenState
-                    val imeBottomPaddingPx by imeBottomPaddingPxState
-                    val overflowItems by overflowItemsState
-                    val overflowExpanded by overflowExpandedState
-                    val tabBarModel = buildTabBarModel(layout)
-                    val touchTick by touchTickState
-                    val paneMenuWindowId by paneMenuWindowIdState
-                    val paneMenuItems by paneMenuItemsState
-                    val paneMenuAnchor by paneMenuAnchorState
-                    // F6 Task 8a: `null` outside search mode, which is what makes
-                    // `ReadingToolbar` draw its normal row.
-                    val searchBar by searchBarState.collectAsState()
-                    // Classic `resetTouchTimer`'s 2s hide countdown (`SplitBibleArea.kt:511-524`),
-                    // restarted on every `touchTick` bump (a real touch, or `openPaneMenu`).
-                    // Suppressed entirely while a pane menu is open (mirrors classic
-                    // `showPopupMenu`/`menuHelper.setOnDismissListener` cancelling the timer
-                    // for the popup's lifetime, `SplitBibleArea.kt:731-732, 854-855`) — Compose
-                    // cancels/reruns this effect whenever either key changes, so closing the
-                    // menu starts a fresh 2s countdown with no manual bookkeeping.
-                    LaunchedEffect(touchTick, paneMenuWindowId) {
-                        if (paneMenuWindowId == null) {
-                            delay(2000)
-                            onWindowButtonsHideTimeout()
-                        }
+            AbAppTheme(darkTheme = deps.nightMode.value) {
+                FailClosedLinkRouting {
+                    CompositionLocalProvider(LocalReadingPane provides paneFactory) {
+                        ReadingHost(deps)
                     }
-                    val windowButtonsVisible by windowButtonsVisibleState
-                    val overlayText by overlayTextState
-                    val activeIsBibleShown by activeIsBibleShownState
-                    // Batch 12g Task 3: pure gate (`:sharedCore`) mirroring classic
-                    // `SplitBibleArea.updateBibleReferenceOverlay` — visible only fullscreen,
-                    // with the active window showing a Bible, while the (auto-hiding) window
-                    // buttons are shown, and the user hasn't disabled the overlay.
-                    val overlayVisible = bibleReferenceOverlayVisible(
-                        fullScreen = fullScreen,
-                        activeIsBibleShown = activeIsBibleShown,
-                        buttonsShown = windowButtonsVisible,
-                        hideSetting = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false),
-                    )
-                    // Hard gates (classic `BibleFrame.addWindowButton`'s early-outs, screen/BibleFrame.kt:157-158):
-                    // these genuinely remove the button. `windowButtonsVisible` is the 2s IDLE TIMER, which classic
-                    // expresses as an ALPHA fade, not a removal (SplitBibleArea.kt:528-575) — so it is passed
-                    // separately as `autoHidden` and must NOT be folded back in here.
-                    //
-                    // (never shown while `hide_window_buttons` is set, or while a window is maximised — the
-                    // floating button, specifically; the per-window MENU can still open via the rail's
-                    // unmaximise-button long-press; see `PaneWindowButtonOverlay`, which composes
-                    // `WindowPaneMenu` unconditionally).
-                    val showPaneButtons = layout.maximizedWindowId == null &&
-                        !CommonUtils.settings.getBoolean("hide_window_buttons", false)
-                    val paneButtonsAutoHidden = !windowButtonsVisible
-                    // Classic `SplitBibleArea`'s fullscreen auto-hide
-                    // (`autoHideWindowButtonBarInFullScreen`, `full_screen_hide_buttons_pref`,
-                    // default ON, `SplitBibleArea.kt:166-171`/365-366) — in fullscreen with the
-                    // pref on, drop the rail entirely (not merely collapsed, which is what
-                    // `tabBarModel.showButtons` already handles for the non-fullscreen
-                    // collapse toggle).
-                    val hideTabBarInFullScreen = fullScreen &&
-                        CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
-                    // Batch Z-early A6: the Compose navigation drawer. The wrap sits OUTSIDE
-                    // `key(gen)`/`ReadingViewScreen` — never inside either — so (a) a
-                    // `rebuild()` generation bump disposes only the pane subtree and not the
-                    // drawer's own `DrawerState`, and (b) opening/closing the drawer cannot
-                    // re-key or re-parent any pane's `AndroidView`, which would destroy and
-                    // recreate every `BibleView` WebView. Same "add as an outer/sibling slot,
-                    // never inside the pane subtree" rule the 12e agent-log and 12f speak-bar
-                    // slots follow.
-                    val md3DrawerState = rememberDrawerState(DrawerValue.Closed)
-
-                    // Host request -> drawer.
-                    LaunchedEffect(drawerOpenState.value) {
-                        if (drawerOpenState.value) md3DrawerState.open() else md3DrawerState.close()
-                    }
-                    // Drawer -> host request, BOTH ways (Batch Z-early A7 fix D): a
-                    // swipe/scrim/back close must clear the request, else the next
-                    // `toggleDrawer()` would see a stale `true` and do nothing — and an open
-                    // that did NOT come from the request (predictive-back cancel, any future
-                    // gesture) must set it, else the next ☰ tap would re-request `true`, see
-                    // no change, and look dead until pressed twice. `snapshotFlow` only emits
-                    // on a CHANGE, so mirroring the settled value here cannot undo the
-                    // `open()` above while the open animation is still running.
-                    LaunchedEffect(md3DrawerState) {
-                        snapshotFlow { md3DrawerState.isClosed }
-                            .collect { closed -> drawerOpenState.value = !closed }
-                    }
-                    // Classic DrawerListener parity (Batch Z-early A7): in-motion vs
-                    // idle-closed drive the system UI, and the transition TO closed restores
-                    // focus into the active pane's BibleView.
-                    LaunchedEffect(md3DrawerState) {
-                        snapshotFlow { md3DrawerState.currentValue != md3DrawerState.targetValue }
-                            .collect { inMotion -> if (inMotion) onDrawerInMotion() }
-                    }
-                    LaunchedEffect(md3DrawerState) {
-                        snapshotFlow {
-                            md3DrawerState.currentValue == md3DrawerState.targetValue &&
-                                md3DrawerState.currentValue == DrawerValue.Closed
-                        }.collect { idleClosed -> if (idleClosed) onDrawerIdleClosed() }
-                    }
-                    // Edge-detect the close: `DrawerCloseLatch` seeds from the initial
-                    // snapshot and latches, so a (re)subscription replay cannot re-fire
-                    // `requestFocus`. This is the banked one-shot-side-effect lesson from the
-                    // earlier batches (a raw `collect {}` re-fires on every resubscribe).
-                    LaunchedEffect(md3DrawerState) {
-                        val latch = DrawerCloseLatch(
-                            initiallyOpen = md3DrawerState.currentValue == DrawerValue.Open)
-                        snapshotFlow { md3DrawerState.currentValue }.collect { value ->
-                            if (latch.observe(value == DrawerValue.Open)) onDrawerClosed()
-                        }
-                    }
-
-                    ModalNavigationDrawer(
-                        drawerState = md3DrawerState,
-                        // Batch Z-early A7 fix E: no drag-to-OPEN. Classic opens on a
-                        // ~20dp EDGE drag; M3's `gesturesEnabled` drags anywhere over the
-                        // content, which is a NEW gesture rather than parity — and the panes'
-                        // WebViews swallow horizontal drags, so it would only ever work over
-                        // the Compose chrome (toolbar, tab rail, inter-pane gaps), i.e.
-                        // unpredictably. Gate on the open state rather than hardcoding
-                        // `false`: in M3 1.4.0 `gesturesEnabled` ALSO gates the scrim's
-                        // dismiss handler (its `onClose` lambda short-circuits on this flag),
-                        // so disabling it outright silently kills tap-outside-to-dismiss too
-                        // (classic's `DrawerLayout` always dismisses on a scrim tap). With
-                        // `md3DrawerState.isOpen`, gestures stay off while closed (no
-                        // drag-to-open) but turn on once open, restoring scrim-tap-to-dismiss
-                        // and swipe-to-close parity with classic.
-                        gesturesEnabled = md3DrawerState.isOpen,
-                        // Classic `setupUi`: `if (monochromeMode) drawerLayout.setScrimColor(TRANSPARENT)`
-                        // — no dimming on e-ink.
-                        scrimColor = if (monochromeState.value) Color.Transparent
-                                     else DrawerDefaults.scrimColor,
-                        drawerContent = {
-                            // A/B batch 1 F6: classic's `NavigationView` is `wrap_content`
-                            // (~300dp in practice), while M3's `ModalDrawerSheet` defaults to
-                            // a fixed 360dp — see `ReadingDrawerWidth`'s kdoc for why a fixed
-                            // classic-scale width is used instead of reproducing wrap_content.
-                            ModalDrawerSheet(modifier = Modifier.width(ReadingDrawerWidth)) {
-                                ReadingDrawerContent(
-                                    state = drawerState.value,
-                                    icon = drawerIcon,
-                                    onItemClick = { id ->
-                                        drawerOpenState.value = false
-                                        onDrawerItemClick(id)
-                                    },
-                                )
-                            }
-                        },
-                    ) {
-                        // F6 Task 0: the search sheet's scaffold. UNCONDITIONALLY present
-                        // and ENCLOSING `key(gen)` — the same "outer wrap, never inside the
-                        // pane subtree" rule the drawer above follows. Conditionality, not
-                        // the wrapper, is what would re-parent every pane's `AndroidView`
-                        // and so destroy and recreate every `BibleView` WebView on each
-                        // search open/close. `skipHiddenState = false` is what makes
-                        // "always present" and "fully closable" compatible: the sheet
-                        // reaches `SheetValue.Hidden` while the scaffold never goes away.
-                        // Task 8a fills `sheetContent` (the index prompt/progress panel, or
-                        // the results) and drives the sheet from the session's
-                        // `sheetVisible` — see [DriveSearchSheet], which also carries why
-                        // `expand()` and not `partialExpand()` is what shows it.
-                        val searchSheetState = rememberBottomSheetScaffoldState(
-                            bottomSheetState = rememberStandardBottomSheetState(
-                                initialValue = SheetValue.Hidden,
-                                skipHiddenState = false,
-                            ),
-                        )
-                        val searchSheetVisible by searchSheetVisibleState.collectAsState()
-                        DriveSearchSheet(searchSheetState, searchSheetVisible, onSearchSheetDismissed)
-                        // Task 10: the "<document> cannot be searched" snackbar. Uses the
-                        // reading view's own scaffold's `snackbarHost` slot below — the one
-                        // `BottomSheetScaffold` this host mounts — rather than a second one
-                        // built just for this. `LocalStrings.current` is available here
-                        // because this whole tree sits inside `AbAppTheme`'s
-                        // `ProvideAppLocals`; `onUnavailable` itself fires outside
-                        // composition, which is why it only records the document name and
-                        // leaves formatting to this composable.
-                        val searchSnackbarHostState = remember { SnackbarHostState() }
-                        val searchUnavailableDocName by searchUnavailableDocNameState.collectAsState()
-                        DriveSearchUnavailableSnackbar(
-                            snackbarHostState = searchSnackbarHostState,
-                            docName = searchUnavailableDocName,
-                            strings = LocalStrings.current,
-                            onShown = onSearchUnavailableMessageShown,
-                        )
-                        // Task 8b Step 3: the sheet is self-sizing (see the 1.dp-floor/60%-
-                        // ceiling comment below), so its height for `bottomOffsetForWebView`
-                        // must be MEASURED off the real content, not guessed as a constant —
-                        // `onSizeChanged` reports each piece in px. Review Important 3: the
-                        // on-screen sheet is the CONTENT plus M3's own drag-handle band, which
-                        // `BottomSheetScaffold` renders as a SEPARATE composable above
-                        // `sheetContent` — measuring only the content under-counted the sheet
-                        // by the handle's height, leaving that much of the reading text hidden
-                        // behind it. Rather than hardcode the default handle's height (a
-                        // constant M3 could change under us), `sheetDragHandle` below is
-                        // supplied explicitly so its own real height is measured the same way.
-                        var searchSheetContentHeightPx by remember { mutableIntStateOf(0) }
-                        var searchSheetHandleHeightPx by remember { mutableIntStateOf(0) }
-                        LaunchedEffect(searchSheetVisible, searchSheetContentHeightPx, searchSheetHandleHeightPx) {
-                            onSearchSheetOffsetsChanged(
-                                searchSheetVisible,
-                                searchSheetContentHeightPx + searchSheetHandleHeightPx,
-                            )
-                        }
-                        BottomSheetScaffold(
-                            scaffoldState = searchSheetState,
-                            sheetPeekHeight = 0.dp,
-                            // The mounted hidden sheet's shadow otherwise spills onto grey-base (MONO and B&W) paper.
-                            sheetShadowElevation = searchSheetShadowElevation(LocalDisplayColorMode.current),
-                            // BottomSheetScaffold applies no window insets (material3 1.4.0) and this tree is
-                            // edge-to-edge: clear the nav bar / cutout ourselves.
-                            snackbarHost = { SnackbarHost(searchSnackbarHostState, Modifier.readingSheetInsetPadding()) },
-                            sheetDragHandle = {
-                                Box(Modifier.onSizeChanged { size -> searchSheetHandleHeightPx = size.height }) {
-                                    BottomSheetDefaults.DragHandle()
-                                }
-                            },
-                            sheetContent = {
-                                // The sheet is exactly as tall as its content — a short
-                                // index prompt stays short — but never taller than
-                                // [SearchSheetMaxHeightFraction] of the window, so the
-                                // reading text it was opened from stays visible above it.
-                                // `BoxWithConstraints` supplies that ceiling in Dp without
-                                // reaching for the (Android-only) configuration.
-                                //
-                                // The 1.dp FLOOR is load-bearing: an empty sheet measures to
-                                // zero, and M3 publishes no `Expanded` anchor for a
-                                // zero-height sheet at all — so an `expand()` that lands
-                                // before the content's first layout pass would be a silent
-                                // no-op. Keeping a hairline sheet keeps the anchor alive at
-                                // all times (invisible: at 1.dp the sheet sits a pixel off
-                                // the bottom edge, and `Hidden` is where it rests anyway).
-                                //
-                                // The nav-bar/cutout padding is OUTSIDE the measured Box on purpose:
-                                // `searchSheetContentHeightPx` feeds `bottomOffsetForWebView`, which
-                                // already adds the nav bar (ReadingInsets), so measuring it here would
-                                // reserve it twice.
-                                BoxWithConstraints(Modifier.fillMaxWidth().readingSheetInsetPadding()) {
-                                    Box(
-                                        Modifier
-                                            .heightIn(
-                                                min = 1.dp,
-                                                max = maxHeight * SearchSheetMaxHeightFraction,
-                                            )
-                                            .onSizeChanged { size -> searchSheetContentHeightPx = size.height }
-                                    ) { searchSheetSlot() }
-                                }
-                            },
-                        ) { _ ->
-                            // Keying the whole screen on `gen` forces every pane's `AndroidView`
-                            // factory to re-run on `rebuild()` — see the `generation` kdoc above.
-                            key(gen) {
-                                ReadingViewScreen(
-                                    layout = layout,
-                                    toolbar = toolbarState,
-                                    toolbarIcons = readingToolbarIcons(),
-                                    toolbarCallbacks = toolbarCallbacks,
-                                    fullScreen = fullScreen,
-                                    // F59: the keyboard shrink the host's inset ledger computed,
-                                    // applied as a plain bottom padding on the reading column (spec
-                                    // §3.3) -- see ReadingHostActivity.imeBottomPaddingPx's kdoc.
-                                    // Threaded in as a State parameter (imeBottomPaddingPxState),
-                                    // same shape as fullScreenState above: this composable is the
-                                    // companion object's, with no `activity` of its own to read.
-                                    imeBottomPadding = with(LocalDensity.current) {
-                                        imeBottomPaddingPx.toDp()
-                                    },
-                                    onWindowActivated = controller::onWindowActivated,
-                                    onSeparatorCommitted = controller::onSeparatorCommitted,
-                                    pane = pane,
-                                    paneBackground = paneBackground,
-                                    // F107: read in composition, so it follows the active window
-                                    // and night/monochrome as the panes do.
-                                    edgeBackground = paneBackground(layout.activeWindowId),
-                                    // F6 Task 8a: a non-null pair replaces the toolbar's
-                                    // normal row with the search field (Task 4).
-                                    searchBar = searchBar,
-                                    searchBarCallbacks = searchBarCallbacks,
-                                    overflowItems = overflowItems,
-                                    overflowExpanded = overflowExpanded,
-                                    onOverflowItemClick = onOverflowItemClick,
-                                    onOverflowDismiss = onOverflowDismiss,
-                                    overflowIcon = menuIcon,
-                                    paneOverlay = { windowId ->
-                                        val window = layout.windows.firstOrNull { it.id == windowId }
-                                        PaneWindowButtonOverlay(
-                                            windowId = windowId,
-                                            window = window,
-                                            isActive = windowId == layout.activeWindowId,
-                                            showButton = showPaneButtons,
-                                            autoHidden = paneButtonsAutoHidden,
-                                            autoPin = layout.autoPin,
-                                            // Currently unreachable as true: `showPaneButtons` (passed as
-                                            // `showButton` below) is a SINGLE value shared by every window
-                                            // and is false whenever ANY window is maximised, so
-                                            // `PaneWindowButtonOverlay` never composes `WindowButton` (and
-                                            // therefore never evaluates `shouldShowPinIndicator` with this
-                                            // argument) while `layout.maximizedWindowId == windowId` could
-                                            // hold. Harmless, and kept per-window (not hard-coded false)
-                                            // because it is the correct value if a future change ever composes
-                                            // pane buttons during maximise.
-                                            isMaximised = layout.maximizedWindowId == windowId,
-                                            nightMode = nightModeState.value,
-                                            disableAnimations = CommonUtils.settings.disableAnimations,
-                                            monochrome = monochromeState.value,
-                                            // A/B batch 3 F5b: this surface only reports a menu open
-                                            // when it (not the rail) is the anchor — see [menuWindowIdFor].
-                                            paneMenuWindowId = menuWindowIdFor(PaneMenuAnchor.Pane, paneMenuAnchor, paneMenuWindowId),
-                                            paneMenuItems = paneMenuItems,
-                                            controller = controller,
-                                            onOpenPaneMenu = onOpenPaneMenu,
-                                            onPaneMenuItemClick = onPaneMenuItemClick,
-                                            onPaneMenuDismiss = onPaneMenuDismiss,
-                                            icon = menuIcon,
-                                        )
-                                    },
-                                    agentLog = agentLogSlot,
-                                    speakBar = speakBarSlot,
-                                    agentLogVisible = agentLogVisibleState(),
-                                    speakBarVisible = speakBarVisibleState(),
-                                    bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
-                                    tabBar = if (hideTabBarInFullScreen) null else {
-                                        { applyNavBarInset ->
-                                            WindowTabBar(
-                                                // Fix batch 2 (F66/F67): ReadingViewScreen passes true only when the
-                                                // strip is the bottom-most surface and the column has no IME padding.
-                                                modifier = Modifier.readingRailInsetPadding(applyNavBarInset),
-                                                model = tabBarModel,
-                                                onRestore = controller::onRestore,
-                                                // Plan B Task 5: a rail long-press now opens the SAME
-                                                // per-window ☰ menu as tapping the floating pane button.
-                                                // Final-review fix: activate the window first, mirroring
-                                                // classic `SplitBibleArea.showPopupMenu`'s
-                                                // `if (window.isVisible) windowControl.activeWindow = window`
-                                                // and the floating ☰ button's own gestures (both of which
-                                                // activate before opening the menu).
-                                                onWindowLongPress = { id ->
-                                                    controller.onWindowActivated(id)
-                                                    onOpenPaneMenu(id, PaneMenuAnchor.Rail)
-                                                },
-                                                // A/B batch 3 F5b: the rail renders its OWN anchored
-                                                // `WindowPaneMenu` (Task 11) — only when the rail (not
-                                                // the pane overlay) is the anchor. See [menuWindowIdFor].
-                                                menuWindowId = menuWindowIdFor(PaneMenuAnchor.Rail, paneMenuAnchor, paneMenuWindowId),
-                                                menuItems = paneMenuItems,
-                                                onMenuItemClick = onPaneMenuItemClick,
-                                                onMenuDismiss = onPaneMenuDismiss,
-                                                menuIcon = menuIcon,
-                                                onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
-                                                onUnMaximise = controller::onUnMaximise,
-                                                onToggleCollapse = {
-                                                    controller.onSetRestoreButtonsVisible(!layout.restoreButtonsVisible)
-                                                },
-                                                windowLabel = windowLabel,
-                                                windowIcon = windowIcon,
-                                                windowTopLabel = windowTopLabel,
-                                            )
-                                        }
-                                    },
-                                )
-                            }
-                        }
-                    }
-                    // Sibling of `ReadingViewScreen` (not nested inside `key(gen)`, which
-                    // only needs to scope the panes' `AndroidView` factories) — an
-                    // `AlertDialog` AND a `ModalBottomSheet` each overlay regardless of
-                    // where in the tree they are composed, and there is at most one
-                    // non-`None` arm at a time. Round 14a made two of the four arms sheets,
-                    // so this is now one of the reading view's modal-sheet overlays and is
-                    // subject to `ReadingOverlayExclusion` — applied where
-                    // `readingLlmDialogs` is constructed, not here.
-                    val llmDialog by llmDialogState.collectAsState()
-                    ReadingLlmDialogs(
-                        dialog = llmDialog.dialog,
-                        onPromptChosen = onLlmPromptChosen,
-                        onToggleFavorite = onLlmToggleFavorite,
-                        onCategoryExpandedChanged = onLlmCategoryExpandedChanged,
-                        onSpecifySubmitted = onLlmSpecifySubmitted,
-                        onModelChosen = onLlmModelChosen,
-                        onRegenerateConfirmed = onLlmRegenerateConfirmed,
-                        onDismiss = onLlmDismiss,
-                    )
-                    // Sibling overlay next to `ReadingLlmDialogs` above (same reasoning:
-                    // not nested inside `key(gen)`, at most one non-`None` dialog at a
-                    // time) — the Batch 12f speak-from-bookmark chooser.
-                    val speakDialog by speakDialogState.collectAsState()
-                    (speakDialog as? SpeakTransportDialog.ChooseSpeakBookmark)?.let { d ->
-                        ChooseSpeakBookmarkDialog(
-                            rows = d.rows,
-                            onChoose = onSpeakBookmarkChosen,
-                            onDismiss = onSpeakDialogDismiss,
-                        )
-                    }
-                    // F6 Task 8a: the modal search-settings sheet — a fourth sibling
-                    // overlay, for the same reason as the three above: a `ModalBottomSheet`
-                    // renders in its own window regardless of where it is composed, so
-                    // opening it can never re-key the pane subtree. It self-hides when
-                    // closed (`SearchSettingsSheet` returns early), so this stays
-                    // unconditional here.
-                    searchSettingsSlot()
-                    // Settings editor sheets T10: the in-place text-settings editor sheet —
-                    // a fifth sibling overlay, for the same reason as the four above: a
-                    // `ModalBottomSheet` renders in its own window regardless of where it is
-                    // composed, so opening it can never re-key the pane subtree and destroy
-                    // the panes' BibleView WebViews. It self-hides when closed, so this
-                    // stays unconditional here too.
-                    textSettingsEditorSlot()
-                    // Round 13a: the Speak settings sheet — a sixth sibling overlay, same
-                    // reason as the five above, and self-hiding when closed.
-                    speakSettingsSlot()
-                    // Round 15b: the quick sheets — a seventh sibling overlay, same reason
-                    // as the six above, and self-hiding when closed.
-                    quickSheetSlot()
-                    // Platform-dialog removal Task 18: the reading view's own dialogs — an
-                    // eighth sibling overlay, self-hiding when closed like the seven above.
-                    readingDialogSlot()
-              }
+                }
             }
         }
-    }
-}
 
-/**
- * How much of the window the reading-view search sheet may take at most (F6 Task 8a). Its content
- * is otherwise self-sizing, so a short index prompt does not become a half-screen panel.
- */
-private const val SearchSheetMaxHeightFraction = 0.6f
-
-/** Bound for [DriveSearchSheet]'s expand retry — ~10 × 50ms, i.e. well under a second. */
-private const val SearchSheetExpandAttempts = 10
-private const val SearchSheetExpandRetryMillis = 50L
-
-/**
- * Keeps the (always-present) search sheet in step with the session's `sheetVisible`, both ways
- * (F6 Task 8a Step 3).
- *
- * Its own function rather than two `LaunchedEffect`s inline in `mountComposeView` for two reasons:
- * the conditional inside it would otherwise sit directly above the `BottomSheetScaffold` call,
- * which `SearchSheetStructureGuardTest` reads as the scaffold becoming conditional; and the two
- * non-obvious mechanics below deserve one place to be explained.
- *
- * **`expand()`, not `partialExpand()`.** With `sheetPeekHeight = 0.dp` the `PartiallyExpanded`
- * anchor sits at `layoutHeight - peekHeight`, i.e. exactly where `Hidden` sits — so a partial
- * expand animates to an invisible sheet, and `show()` (which prefers `PartiallyExpanded` whenever
- * that anchor exists) would do the same. `Expanded` puts the sheet at its own content height, which
- * with the cap in `sheetContent` is what makes both the short index panel and the tall result list
- * look right. (The plan's snippet said `partialExpand()`; it would have shown nothing.)
- *
- * **The expand is retried.** The `Expanded` anchor is published while the sheet is MEASURED, and
- * this effect can run before that layout pass, in which case the animation is a no-op and the sheet
- * stays hidden with the session believing otherwise. Bounded retries close that window; the 1.dp
- * floor on the sheet content (see `sheetContent`) makes it a narrow one.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DriveSearchSheet(
-    scaffoldState: BottomSheetScaffoldState,
-    visible: Boolean,
-    onDismissedByUser: () -> Unit,
-) {
-    val sheet = scaffoldState.bottomSheetState
-    LaunchedEffect(visible) {
-        if (visible) {
-            repeat(SearchSheetExpandAttempts) {
-                if (sheet.currentValue == SheetValue.Expanded) return@LaunchedEffect
-                sheet.expand()
-                if (sheet.currentValue != SheetValue.Expanded) delay(SearchSheetExpandRetryMillis)
+        /**
+         * **TEST-ONLY -- this function has no production caller.** It is the seam the host tests
+         * (`ComposeReadingViewHostTest`, `ReadingSearchHostTest`, `AgentLogHostTest`,
+         * `ReadingLlmHostTest`, `SearchSheetStructureGuardTest`) use to mount the SAME composition
+         * production renders ([ReadingHostContent]) with a [deps] that wires only the slots they
+         * exercise, without booting a full reading host.
+         *
+         * Adds a [ComposeView] rendering the reading view to [container].
+         */
+        fun mountComposeView(
+            container: ViewGroup,
+            deps: ReadingHostDeps,
+            paneFactory: ReadingPaneFactory = { _, _ -> },
+        ) {
+            val composeView = ComposeView(container.context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                setContent { ReadingHostContent(deps, paneFactory) }
             }
-        } else if (sheet.currentValue != SheetValue.Hidden) {
-            sheet.hide()
+            container.addView(composeView)
         }
-    }
-    // A sheet dragged away must reach the session too: otherwise `sheetVisible` stays true, the
-    // effect above never re-fires, and the next `open()` for the same query looks dead. Anything
-    // other than `Expanded` is invisible here (see above), so it all counts as dismissed — and the
-    // initial `Hidden` emission is harmless (`closeSheet()` returns false when nothing is open).
-    LaunchedEffect(sheet) {
-        snapshotFlow { sheet.currentValue }.collect { if (it != SheetValue.Expanded) onDismissedByUser() }
-    }
-}
-
-/**
- * Task 10: turns [ComposeReadingViewHost.searchUnavailableDocName] into a real `Snackbar`. [docName]
- * transitions null -> name -> null (host clears it via [onShown] the moment this effect starts, not
- * when the snackbar is dismissed) so a second `open()` on the same kind of document — even with the
- * identical name — still restarts the effect and shows again, the same way [SnackbarHostState] itself
- * replaces a currently-shown snackbar with a newly requested one.
- */
-@Composable
-private fun DriveSearchUnavailableSnackbar(
-    snackbarHostState: SnackbarHostState,
-    docName: String?,
-    strings: Strings,
-    onShown: () -> Unit,
-) {
-    LaunchedEffect(docName) {
-        if (docName == null) return@LaunchedEffect
-        onShown()
-        snackbarHostState.showSnackbar(ComposeReadingViewHost.searchUnavailableMessage(docName, strings))
     }
 }
 
@@ -4869,7 +3548,7 @@ internal fun bibleToolbarIconRes(): Int =
     if (CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else R.drawable.ic_bible_24dp
 
 /**
- * [ReadingToolbarIcons] for [ComposeReadingViewHost.mountComposeView] — the same
+ * [ReadingToolbarIcons] for the reading view ([ComposeReadingViewHost.ReadingView]) — the same
  * `main_bible_view.xml` toolbar drawables `ReadingToolbarGoldenTest` uses (a single static icon
  * per action; the classic Strongs button's OT/NT + link-variant icon swap in
  * `MainBibleActivity.updateStrongsButton` is not reproduced here — [net.bible.sharedui.reading.ReadingToolbar]
@@ -4887,136 +3566,3 @@ private fun readingToolbarIcons() = ReadingToolbarIcons(
     overflow = painterResource(R.drawable.ic_more_vert_black_24dp),
     sync = painterResource(R.drawable.ic_syncdb_24dp),
 )
-
-/**
- * No-op [ReadingToolbarCallbacks] used only as the default parameter value for
- * [ComposeReadingViewHost.mountComposeView] — keeps host-agnostic tests (e.g.
- * `ComposeReadingViewHostTest`, which never exercises button/gesture interaction) compiling
- * without having to build a full [ReadingToolbarCallbacks]. [ComposeReadingViewHost.install]
- * always supplies the real, activity-wired callbacks instead.
- */
-private val noopToolbarCallbacks = ReadingToolbarCallbacks(
-    onHome = {}, onTitleTap = {}, onTitleLongPress = {}, onTitleFlingVertical = {},
-    onTitleFlingHorizontal = {}, onBible = {}, onBibleLong = {}, onCommentary = {},
-    onCommentaryLong = {}, onStrongs = {}, onStrongsLong = {}, onSearch = {}, onSpeak = {},
-    onSpeakLong = {}, onWorkspace = {}, onOverflow = {},
-)
-
-/**
- * One pane's floating ☰ button + its [WindowPaneMenu] popup — the `paneOverlay` content
- * [ComposeReadingViewHost.mountComposeView] passes to [ReadingViewScreen] (invoked inside each
- * visible pane's `Box`, see `SplitContent`'s kdoc). Compose port of classic `BibleFrame`'s
- * per-pane window button (`screen/BibleFrame.kt:156-194`) + `WindowButtonGestureListener`
- * (`:43-83`).
- *
- * The button itself is gated by [showButton] (`hide_window_buttons` / maximised — see
- * `showPaneButtons` at the call site) — those are classic's two HARD removals
- * (`screen/BibleFrame.kt:157-158`) — but [WindowPaneMenu] is ALWAYS composed as its sibling: a menu
- * opened via the always-visible restore rail's long-press must still be able to render anchored to
- * this pane even when the floating button itself is hidden (see
- * [ComposeReadingViewHost.openPaneMenu]'s kdoc).
- *
- * The 2s idle timer ([autoHidden]) is NOT a third hard gate: classic fades the button to
- * [net.bible.sharedcore.reading.paneButtonHiddenAlpha] rather than removing it
- * (`SplitBibleArea.toggleWindowButtonVisibility`, `SplitBibleArea.kt:528-575`), so it stays
- * present and tappable while faded — [Modifier.alpha] only, never a size/visibility change.
- *
- * Gestures (classic `WindowButtonGestureListener` dispatch, `screen/BibleFrame.kt:185-191`): tap →
- * [onOpenPaneMenu]; long-press → minimise; swipe-up → maximise; swipe-down → minimise. Every
- * gesture activates the pane first (classic + iOS `performPaneWindowButtonAction`).
- */
-@Composable
-private fun BoxScope.PaneWindowButtonOverlay(
-    windowId: String,
-    window: WindowSnapshot?,
-    isActive: Boolean,
-    showButton: Boolean,
-    autoHidden: Boolean,
-    autoPin: Boolean,
-    isMaximised: Boolean,
-    nightMode: Boolean,
-    disableAnimations: Boolean,
-    monochrome: Boolean,
-    paneMenuWindowId: String?,
-    paneMenuItems: List<WindowPaneMenuItem>,
-    controller: ReadingViewController,
-    onOpenPaneMenu: (windowId: String, anchor: PaneMenuAnchor) -> Unit,
-    onPaneMenuItemClick: (windowId: String, id: String) -> Unit,
-    onPaneMenuDismiss: () -> Unit,
-    // A/B batch 1 F5b: resolves each row's `WindowPaneMenuItem.iconKey` to a `Painter` — same
-    // host-lambda seam as `drawerIcon` (see [mountComposeView]'s `menuIcon` param).
-    icon: @Composable (iconKey: String) -> Painter? = { null },
-) {
-    Box(Modifier.align(Alignment.TopEnd)) {
-        if (showButton && window != null) {
-            var accumDy by remember(windowId) { mutableFloatStateOf(0f) }
-            val density = LocalDensity.current
-            val thresholdPx = remember(density) { with(density) { PaneButtonDragThresholdDp.toPx() } }
-            // Classic's idle-timer fade (`SplitBibleArea.kt:528-575`), NOT a removal from
-            // composition — see this function's kdoc. `targetAlpha` picks the button's resting
-            // state; `animateFloatAsState` supplies the tween classic drives via `ViewPropertyAnimator`.
-            val targetAlpha = if (autoHidden) {
-                paneButtonHiddenAlpha(nightMode, disableAnimations, monochrome)
-            } else 1f
-            val alpha by animateFloatAsState(
-                targetValue = targetAlpha,
-                animationSpec = tween(
-                    durationMillis = paneButtonFadeMillis(disableAnimations),
-                    // Classic uses DecelerateInterpolator on show and AccelerateInterpolator on
-                    // hide (SplitBibleArea.kt:552,557); these are their M3 equivalents.
-                    easing = if (autoHidden) FastOutLinearInEasing else LinearOutSlowInEasing,
-                ),
-                label = "paneButtonAlpha",
-            )
-            WindowButton(
-                label = "☰",
-                isActive = isActive,
-                isMinimised = false,
-                isPinned = shouldShowPinIndicator(
-                    isPinMode = window.isPinMode,
-                    autoPin = autoPin,
-                    isMaximised = isMaximised,
-                ),
-                isLinks = window.isLinksWindow,
-                syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
-                mode = WindowButtonMode.Pane,
-                onClick = {
-                    controller.onWindowActivated(windowId)
-                    onOpenPaneMenu(windowId, PaneMenuAnchor.Pane)
-                },
-                onLongPress = {
-                    controller.onWindowActivated(windowId)
-                    controller.onMinimise(windowId)
-                },
-                modifier = Modifier
-                    .alpha(alpha)
-                    .pointerInput(windowId) {
-                        detectVerticalDragGestures(
-                            onDragEnd = {
-                                when (paneButtonDragAction(accumDy, thresholdPx)) {
-                                    PaneButtonAction.Maximise -> {
-                                        controller.onWindowActivated(windowId)
-                                        controller.onMaximise(windowId)
-                                    }
-                                    PaneButtonAction.Minimise -> {
-                                        controller.onWindowActivated(windowId)
-                                        controller.onMinimise(windowId)
-                                    }
-                                    PaneButtonAction.None -> {}
-                                }
-                                accumDy = 0f
-                            },
-                            onDragCancel = { accumDy = 0f },
-                        ) { change, dragAmount -> change.consume(); accumDy += dragAmount }
-                    },
-            )
-        }
-        WindowPaneMenu(
-            items = if (paneMenuWindowId == windowId) paneMenuItems else emptyList(),
-            expanded = paneMenuWindowId == windowId,
-            onItemClick = { id -> onPaneMenuItemClick(windowId, id) },
-            onDismiss = onPaneMenuDismiss,
-            icon = icon,
-        )
-    }
-}

@@ -212,7 +212,6 @@ const val promoAndNewFeaturesPlaylistAutostart = "https://www.youtube.com/watch?
 
 const val windowsAndWorkspacesPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mmiq_X6G-vDhoAIq9sDnrIQ" // 4.0 (Window's and workspaces playlist)
 const val labelsAndBookmarksPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Mnv8aYRK3QbZBjE3ZMmrJZ7" // 4.0 (Labels and Bookmarks playlist)
-const val bookmarksMyNotesPlaylist = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlzNt0Zpna-QoTBpEpWSden" // 4.0 (playlist for bookmarking & my notes tutorials)
 const val notesAndStudyPadsPlayList= "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
 const val speakPlayList = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Ml4arSb_fDBYqgiYtVPmjFo" // playlist for speak related tutorials
 
@@ -523,21 +522,6 @@ object CommonUtils : CommonUtilsBase() {
 
         println("isAndroid:$isAndroid")
     }
-
-    fun getShareableDocumentText(selection: net.bible.service.sword.ShareSelection, facade: SwordContentFacade): String = facade.getSelectionText(
-        selection,
-        showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
-        advertiseApp = settings.getBoolean("share_show_add", true),
-        abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
-        showNotes = settings.getBoolean("show_notes", true),
-        showVersion = settings.getBoolean("share_show_version", true),
-        showReference = settings.getBoolean("share_show_reference", true),
-        showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
-        showSelectionOnly = settings.getBoolean("show_selection_only", true),
-        showEllipsis = settings.getBoolean("show_ellipsis", true),
-        showQuotes = settings.getBoolean("share_show_quotes", false),
-        separateVersesWithNewlines = settings.getBoolean("share_separate_verses_newlines", false)
-    )
 
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)

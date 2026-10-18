@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.android.kotlinMultiplatformLibrary)
     alias(libs.plugins.compose)          // org.jetbrains.compose (CMP runtime/resources)
     alias(libs.plugins.kotlin.compose)   // org.jetbrains.kotlin.plugin.compose (compiler)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.serialization)  // Selection (page package) is @Serializable
 }
 
 // Build-time generator output: the pure-Kotlin iOS Strings holder emitted from the Android

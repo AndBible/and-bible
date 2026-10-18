@@ -17,7 +17,6 @@
 package net.bible.android.view.compose
 
 import android.widget.FrameLayout
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CompletableDeferred
@@ -26,8 +25,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.CancellationException
 import androidx.lifecycle.lifecycleScope
 import android.os.Looper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
@@ -588,13 +585,10 @@ class ReadingSearchHostTest {
     fun mountAcceptsTheSearchParamsWithoutCrashing() {
         val container = FrameLayout(ApplicationProvider.getApplicationContext())
 
-        ComposeReadingViewHost.mountComposeView(
-            container = container,
-            windowState = WindowStateServiceImpl(),
-            commands = noopCommands,
-            nightModeState = mutableStateOf(false),
-            pane = { },
-            searchBarState = MutableStateFlow(ReadingSearchBarState(query = "light")),
+        ComposeReadingViewHost.mountComposeView(container, ReadingHostTestDeps.deps(
+            state = ReadingHostTestDeps.state(),
+            controller = ReadingHostTestDeps.controller(WindowStateServiceImpl(), noopCommands),
+            searchBar = MutableStateFlow(ReadingSearchBarState(query = "light")),
             searchBarCallbacks = ReadingSearchBarCallbacks(
                 onQueryChange = {},
                 onSubmit = {},
@@ -608,11 +602,11 @@ class ReadingSearchHostTest {
                 onRebuildIndex = {},
                 onShowResults = {},
             ),
-            searchSheetVisibleState = MutableStateFlow(true),
+            searchSheetVisible = MutableStateFlow(true),
             onSearchSheetDismissed = {},
             searchSheetSlot = { },
             searchSettingsSlot = { },
-        )
+        ))
 
         assertTrue(
             (0 until container.childCount).any { container.getChildAt(it) is ComposeView },
