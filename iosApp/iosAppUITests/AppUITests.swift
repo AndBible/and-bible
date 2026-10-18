@@ -75,12 +75,21 @@ final class AppUITests: XCTestCase {
         XCTAssertTrue(okTapped, "Download Documents OK button not enabled within 180 s (no Bible installed?)")
 
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading host not shown after OK")
-        let verse = app.webViews.staticTexts
-            .containing(NSPredicate(format: "label CONTAINS 'For God so loved the world'")).firstMatch
-        let found = verse.waitForExistence(timeout: 60)
-        if !found { attachTree(app, "no-john-3-16") }
+        // WebKit's accessibility tree splits the KJV text (Strong's markup) into phrase-level StaticTexts
+        // ('For' 'God' 'so' 'loved' 'the world' ...), so no single label holds the verse. Assert John 3 renders
+        // (chapter-opening 'Nicodemus') and that the phrase labels, joined in order, read John 3:16.
+        let texts = app.webViews.staticTexts
+        let found = texts.matching(NSPredicate(format: "label == 'Nicodemus'")).firstMatch.waitForExistence(timeout: 60)
+        var joined = ""
+        if found {
+            let labels = (0..<min(texts.count, 600)).map { texts.element(boundBy: $0).label }
+            joined = labels.joined(separator: " ").split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+        }
+        let hasVerse = joined.contains("For God so loved the world")
+        if !hasVerse { attachTree(app, "no-john-3-16") }
         shot(app, "reading-john-3")
-        XCTAssertTrue(found, "John 3:16 text not visible in the web view")
+        XCTAssertTrue(found, "John 3 (Nicodemus) not rendered in the web view")
+        XCTAssertTrue(hasVerse, "John 3:16 text not found in the web view's phrase labels: \(joined.prefix(300))")
     }
 
     func testIpadLaunchReachesWelcome() throws {
