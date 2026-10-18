@@ -156,6 +156,18 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.nav.ports.AndroidDocumentDialogs
+import net.bible.android.view.activity.nav.ports.AndroidDocumentPicker
+import net.bible.android.view.activity.nav.ports.AndroidHelpDialogs
+import net.bible.android.view.activity.nav.ports.AndroidImagePicker
+import net.bible.android.view.activity.nav.ports.AndroidNotificationPermission
+import net.bible.android.view.activity.nav.ports.AndroidSystemScreens
+import net.bible.android.view.activity.nav.ports.AndroidTextShare
+import net.bible.sharedui.app.AppHosts
+import net.bible.sharedui.app.AppHostsState
+import net.bible.sharedui.app.HostShell
+import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.strings.AndroidStrings
 import net.bible.android.view.activity.base.AppDialogOverlay
 import net.bible.android.view.activity.base.FailClosedLinkRouting
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
@@ -527,7 +539,37 @@ import org.koin.android.ext.android.inject
  * theming, locale attachment, edge-to-edge setup, `CurrentActivityHolder` registration and — the
  * one that matters for this cluster — `awaitIntent`, which the SAF flows need.
  */
-class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPolicyHost {
+class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPolicyHost, HostShell {
+    // --- Shared app root (I2 Stream A) ----------------------------------------------------------
+    // Field initializer on purpose: the port implementations call `registerForActivityResult`, which must run
+    // before STARTED, exactly as the launcher fields below do.
+    internal val hostPorts: HostPorts = HostPorts(
+        documentPicker = AndroidDocumentPicker(this),
+        imagePicker = AndroidImagePicker(this),
+        textShare = AndroidTextShare(this),
+        notificationPermission = AndroidNotificationPermission(this),
+        systemScreens = AndroidSystemScreens(this),
+        documentDialogs = AndroidDocumentDialogs(this),
+        helpDialogs = AndroidHelpDialogs(this),
+    )
+
+    /** Created in [onCreate] after the start route is resolved and before `setContent`. */
+    internal lateinit var appHosts: AppHosts
+        private set
+
+    override val hostScope: CoroutineScope get() = lifecycleScope
+    override fun exitHost() = finish()
+    override fun setWindowTitle(title: String) { setTitle(title) }
+    override fun recreateHost() = recreate()
+    override fun openReading() {
+        startActivity(
+            intentFor(this, NavRoutes.READING).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+        )
+    }
+    override fun navigate(route: String) = navigateInGraph(route)
+
     private val fakeBookFactory: FakeBookFactory get() = org.koin.java.KoinJavaComponent.get(FakeBookFactory::class.java)
 
     override fun onBibleViewTouched() { composeReadingViewHost?.onBibleViewTouched() }
@@ -802,7 +844,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *
      * [owner] is the publishing back-stack entry's token — see [historyRouteOwner].
      */
-    private fun setHistoryRoute(owner: Any, route: String) {
+    override fun setHistoryRoute(owner: Any, route: String) {
         historyRouteOwner = owner
         historyRoute = route
         isIntegrateWithHistoryManager = true
@@ -815,7 +857,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * wipe the route its successor had just published. The comparison is on the OWNER's identity
      * rather than the route's value, which is strictly stronger — see [historyRouteOwner].
      */
-    private fun clearHistoryRoute(owner: Any) {
+    override fun clearHistoryRoute(owner: Any) {
         if (historyRouteOwner !== owner) return
         historyRouteOwner = null
         historyRoute = null
@@ -3091,6 +3133,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }.onSuccess { outState.putString(STATE_BOOKMARK_RECREATION, it) }
             .onFailure { Log.w(TAG_BOOKMARKS, "Not saving bookmark recreation state", it) }
         pendingMyDocumentExports.saveTo(outState)
+        if (::appHosts.isInitialized) {
+            runCatching { CommonUtils.json.encodeToString(AppHostsState.serializer(), appHosts.saveState()) }
+                .onSuccess { outState.putString(STATE_APP_HOSTS, it) }
+                .onFailure { Log.w("AppHosts", "Not saving app hosts state", it) }
+        }
         val route = if (readingAppBootstrapped) NavRoutes.READING else startRoute
         if (route != null) outState.putString(STATE_START_ROUTE, route)
         // T8d: what the reading view is owed on its way back has to survive a recreate(), because
@@ -3401,6 +3448,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // mode rather than leaving a non-reading start to the manifest by omission.
         applyWindowModeFor(startRoute)
         refreshSystemBars(startRoute)
+        appHosts = AppHosts(org.koin.java.KoinJavaComponent.getKoin(), this, hostPorts, AndroidStrings(this)).also { hosts ->
+            hosts.restoreState(savedInstanceState?.getString(STATE_APP_HOSTS)?.let {
+                runCatching { CommonUtils.json.decodeFromString(AppHostsState.serializer(), it) }
+                    .onFailure { e -> Log.w("AppHosts", "Ignoring unreadable app hosts state", e) }
+                    .getOrNull()
+            })
+        }
         // R8: build [readingCommands] NOW, while this Activity is still CREATED.
         //
         // Its constructor calls `registerForActivityResult` (the reading view's background-image
@@ -10271,6 +10325,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** [onSaveInstanceState]'s key for the bookmark/label/MyDocuments value snapshot ([BookmarkRecreationState]). */
         private const val STATE_BOOKMARK_RECREATION = "bookmark-recreation"
+
+        /** [onSaveInstanceState]'s key for [appHosts]' [AppHostsState] (a JSON string). */
+        private const val STATE_APP_HOSTS = "nav_app_hosts"
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
         private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"
