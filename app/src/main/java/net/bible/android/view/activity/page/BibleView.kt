@@ -727,14 +727,12 @@ class BibleView(
         return@withContext false
     }
 
-    fun copySelectionToClipboard(selection: Selection? = null) {
+    /** Copies the current native text selection (Ctrl+C) through the surface's clipboard. */
+    fun copySelectionToClipboard() {
         scope.launch {
-            // use currentSelection for partial selected text, otherwise
-            // JS has to send Selection by book and ordinals which is passed in selection parameter
             currentSelection = null
-            if (selection == null)
-                setCurrentSelection()
-            (currentSelection ?: selection)?.let {
+            setCurrentSelection()
+            currentSelection?.let {
                 surface.copyText(it.verseRange?.getName(), shareableSelectionText(it, swordContentFacade, CommonUtils.settings))
             }
         }
