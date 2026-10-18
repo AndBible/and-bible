@@ -1,5 +1,7 @@
 package net.bible.sharedui.app.ports
 
+import net.bible.sharedui.app.welcome.WelcomeHostPlatform
+
 /**
  * Ports whose Android implementation needs the Activity (launchers registered before STARTED).
  * Feature-specific ports are added by the owning task.
@@ -12,4 +14,6 @@ class HostPorts(
     val systemScreens: SystemScreens,
     val documentDialogs: DocumentDialogs,
     val helpDialogs: HelpDialogs,
+    /** The platform half of the welcome flow; a provider because the host builds it on first use. */
+    val welcomePlatform: () -> WelcomeHostPlatform,
 )

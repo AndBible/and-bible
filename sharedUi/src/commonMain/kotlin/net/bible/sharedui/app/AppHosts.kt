@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.app.welcome.WelcomeHost
 import net.bible.sharedui.strings.Strings
 import org.koin.core.Koin
 
@@ -21,14 +22,20 @@ data class AppHostsState(val version: Int = 1)
  */
 class AppHosts(
     @Suppress("unused") private val koin: Koin,
-    @Suppress("unused") private val shell: HostShell,
-    @Suppress("unused") private val ports: HostPorts,
+    private val shell: HostShell,
+    private val ports: HostPorts,
     @Suppress("unused") private val strings: Strings,
 ) {
-    /** Grows task by task; throws until the first feature host is lifted (I2 Stream A Task 2). */
+    /** The first-run welcome's deps builder; built on first use, no database access. */
+    val welcome: WelcomeHost by lazy { WelcomeHost(shell, ports.welcomePlatform()) }
+
+    /**
+     * Until the activity's call site moves here (completed in Task 16), the activity builds `AppGraphs` itself
+     * from each host's `navDeps(...)`, so this throws.
+     */
     @Suppress("UNUSED_PARAMETER")
     fun graphs(navController: NavHostController): Nothing =
-        throw NotImplementedError("AppHosts.graphs is wired in I2 Stream A Task 2")
+        throw NotImplementedError("AppHosts.graphs is completed in I2 Stream A Task 16")
 
     /** Host-level collectors and sheets, outside the NavHost; grows task by task. */
     @Composable

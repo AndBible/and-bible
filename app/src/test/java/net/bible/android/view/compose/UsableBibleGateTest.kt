@@ -184,7 +184,7 @@ class UsableBibleGateTest {
             single<net.bible.service.cloudsync.documents.DocumentSyncSettings> { settings }
         })
         try {
-            activity.welcomeFlow.navDeps().onImport()
+            activity.welcomeFlow.onImport()
             idle()
             assertTrue("actual Import DAO load boundary reached", reachedLoad.isCompleted)
             assertEquals("virtual idle cannot complete held real load", NavRoutes.WELCOME, route(activity))

@@ -543,6 +543,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         systemScreens = AndroidSystemScreens(this),
         documentDialogs = AndroidDocumentDialogs(this),
         helpDialogs = AndroidHelpDialogs(this),
+        welcomePlatform = { welcomeFlow },
     )
 
     /** Created in [onCreate] after the start route is resolved and before `setContent`. */
@@ -4203,7 +4204,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     )
                 }
                 // Slice 8 E2: the first-run welcome, formerly StartupComposeActivity -- see [WelcomeFlow].
-                val welcomeDeps = remember { welcomeFlow.navDeps() }
+                val welcomeDeps = remember { appHosts.welcome.navDeps(navController) }
                 val workspaceDeps = remember {
                     WorkspaceNavDeps(
                         exitHost = { finish() },
