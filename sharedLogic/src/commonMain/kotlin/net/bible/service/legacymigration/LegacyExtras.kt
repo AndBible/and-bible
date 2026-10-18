@@ -73,7 +73,7 @@ private val SYNC_CATEGORIES = listOf("bookmarks", "workspaces", "readingplans", 
  * `gdrive_password`; the connection counts only when the adapter is `NEXT_CLOUD` and both the server URL and the
  * username are non-empty, as `loadWebDAVConfiguration`) and `UserDefaults.bool(forKey: "icloud_sync_enabled")`.
  *
- * Where the old app kept things: the unsent sync patches are files below `Application Support/AndBible/RemoteSyncOutbox/<one
+ * Where the old app kept things: the unsent sync patches (and pending initial uploads in `RemoteSyncInitialUploads`) are files below `Application Support/AndBible/RemoteSyncOutbox/<one
  * directory per category>` (the directory names differ per category in the Swift sources: `bookmarks`, `Workspaces`,
  * `ReadingPlans`, `mydocuments`, `Progress`, `ai-settings`), so any regular file under that directory counts. User plan
  * files are the files directly in `Documents/jsword/readingplan`.
@@ -138,17 +138,29 @@ private fun boolValue(value: Any?): Boolean = when (value) {
     else -> false
 }
 
-/** An outbox that exists but cannot be listed is reported and counted as unsent (the notice errs on the safe side). */
+/**
+ * Unsent sync work of the old app: any regular file in the per-category outbox directories below
+ * `Application Support/AndBible/RemoteSyncOutbox`, or in `Application Support/RemoteSyncInitialUploads` (prepared
+ * initial uploads, `<category>-pending.sqlite3.gz` plus metadata, `RemoteSyncInitialBackupUploadService.defaultRetryDirectory`).
+ * A directory that exists but cannot be listed is reported and counted as unsent (the notice errs on the safe side).
+ */
 private fun hasUnsentPatches(platform: LegacyPlatform, report: MigrationReport): Boolean {
     val fs = platform.fileSystem
-    val outbox = platform.applicationSupport / "AndBible" / "RemoteSyncOutbox"
-    if (!fs.exists(outbox)) return false
-    return try {
-        fs.listRecursively(outbox).any { fs.metadataOrNull(it)?.isRegularFile == true }
-    } catch (e: Exception) {
-        report.skipped(LegacyCategory.SETTINGS, "sync outbox could not be listed, treated as holding unsent patches", 1)
-        true
+    val directories = listOf(
+        platform.applicationSupport / "AndBible" / "RemoteSyncOutbox",
+        platform.applicationSupport / "RemoteSyncInitialUploads",
+    )
+    for (directory in directories) {
+        if (!fs.exists(directory)) continue
+        val unsent = try {
+            fs.listRecursively(directory).any { fs.metadataOrNull(it)?.isRegularFile == true }
+        } catch (e: Exception) {
+            report.skipped(LegacyCategory.SETTINGS, "sync outbox could not be listed, treated as holding unsent patches", 1)
+            true
+        }
+        if (unsent) return true
     }
+    return false
 }
 
 /**

@@ -576,6 +576,28 @@ class SettingsAndLedgerTest {
     }
 
     @Test
+    fun pendingInitialUploadsCountAsUnsentSyncWork() {
+        val fx = fixture("1.0.2", "18", "rich")
+        val platform = FakeLegacyPlatform.from(fx)
+        val uploads = File(platform.applicationSupport.toString(), "RemoteSyncInitialUploads")
+        fun unsent() = snapshot(fx).use { buildExtras(it, platform, MigrationReport()) }.unsentSyncPatches
+
+        assertFalse(unsent()) // directory absent
+        uploads.mkdirs()
+        assertFalse(unsent()) // directory empty
+        File(uploads, "bookmarks-pending.sqlite3.gz").writeText("x")
+        assertTrue(unsent())
+    }
+
+    @Test
+    fun aiKeysAreMappedByTheAdopterNotDeferred() {
+        val entry = KeyLedger.classify("llm_api_key_a2000000-0000-0000-0000-000000000001")
+        assertEquals(Disposition.MAPPED, entry?.disposition)
+        assertEquals(LedgerSource.KEYCHAIN, entry?.source)
+        assertTrue(entry!!.target.contains("apiKeyName"))
+    }
+
+    @Test
     fun extrasWithoutNextcloudAreEmptyAndDefaultsAreSafe() {
         val fx = fixture("1.0.2", "18", "fresh")
         val extras = snapshot(fx).use { buildExtras(it, FakeLegacyPlatform.from(fx), MigrationReport()) }

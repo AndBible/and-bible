@@ -90,7 +90,7 @@ object KeyLedger {
         add(i3b("sync_enable_", "LegacySyncSettings.enabledCategories", prefix = true))
         add(i3b("gdrive_llmprocessing", "LegacySyncSettings.enabledCategories (legacy AI toggle)"))
         add(i3b("gdrive_password", "LegacySyncSettings.password", source = LedgerSource.KEYCHAIN))
-        add(i3b("llm_api_key_", "LegacyExtras.aiKeys", prefix = true, source = LedgerSource.KEYCHAIN).copy(reason = "API key, written to the new secret store by the adopter"))
+        add(LedgerEntry("llm_api_key_", true, LedgerSource.KEYCHAIN, Disposition.MAPPED, "new SecretStore apiKeyName(id) (adopter)", "API key, written to the new secret store by the adopter"))
         add(defaults("icloud_sync_enabled", "LegacyExtras.icloudSyncWasEnabled (only for the one-time iCloud notice)"))
         // Legacy per-category toggles `gdrive_<category>` (read-only fallback of the Swift app).
         add(i3b("gdrive_", "LegacySyncSettings.enabledCategories (legacy category toggles)", prefix = true))

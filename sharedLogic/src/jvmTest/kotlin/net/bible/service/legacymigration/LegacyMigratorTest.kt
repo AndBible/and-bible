@@ -29,7 +29,9 @@ import net.bible.service.legacymigration.testsupport.CrashingFileSystem
 import net.bible.service.legacymigration.testsupport.FailingCleanupFileSystem
 import net.bible.service.legacymigration.testsupport.FailingDeleteFileSystem
 import net.bible.service.legacymigration.testsupport.ThrowAfterDoneMoveFileSystem
+import net.bible.service.legacymigration.testsupport.ThrowingKeychainPlatform
 import net.bible.service.legacymigration.testsupport.execSql
+import net.bible.service.legacymigration.testsupport.makeModelUnknown
 import net.bible.service.legacymigration.testsupport.readText
 import net.bible.service.legacymigration.testsupport.FakeLegacyPlatform
 import net.bible.service.legacymigration.testsupport.FixtureDir
@@ -391,13 +393,64 @@ class LegacyMigratorTest {
     }
 
     @Test
-    fun theSearchIndexDeletionIsRetriedOnAlreadyDone() {
+    fun theSearchIndexDeletionIsRetriedOnceThenStops() {
         val e = env()
-        assertIs<LegacyMigrationOutcome.Migrated>(run(e.platform))
         val index = File(e.platform.documents.toString(), "search_indexes.sqlite")
-        index.writeText("left behind by a crash after the marker")
+        index.writeText("index")
+        // The first deletion fails (best-effort after the commit point): the marker records no deletion.
+        val fs = FailingDeleteFileSystem(FileSystem.SYSTEM, e.platform.documents)
+        assertIs<LegacyMigrationOutcome.Migrated>(run(PlatformWithFileSystem(e.platform, fs)))
+        assertTrue(index.exists())
+        val marker = File(e.migrationDir.toString(), "done.json")
+        assertTrue(marker.readText().contains("\"searchIndexDeleted\":false"))
+        // The next launch retries and succeeds, and the marker says so.
+        fs.enabled = false
         assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
         assertFalse(index.exists())
+        assertTrue(marker.readText().contains("\"searchIndexDeleted\":true"))
+        // From then on nothing is deleted any more.
+        index.writeText("a file that is not the old index any more")
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(e.platform))
+        assertTrue(index.exists())
+    }
+
+    @Test
+    fun aNothingToMigrateMarkerNeverDeletesTheSearchIndex() {
+        val platform = FakeLegacyPlatform.from(fixture("1.0.1", "17", "fresh"))
+        assertEquals(LegacyMigrationOutcome.NothingToMigrate, run(platform))
+        val index = File(platform.documents.toString(), "search_indexes.sqlite").also { it.writeText("x") }
+        assertEquals(LegacyMigrationOutcome.AlreadyDone, run(platform))
+        assertTrue(index.exists())
+    }
+
+    @Test
+    fun unknownFingerprintFailsAndLeavesDatabasesUntouched() {
+        val e = env()
+        makeModelUnknown(File(e.platform.applicationSupport.toString(), "AndBible.store"))
+        val before = e.sourceHashes()
+        val first = assertIs<LegacyMigrationOutcome.Failed>(run(e.platform))
+        assertEquals(Kind.UNKNOWN_MODEL, first.kind)
+        assertEquals(1, first.attempt)
+        assertTrue(first.rolledBack)
+        assertEquals(emptyList(), e.databaseFiles())
+        assertEquals(2, assertIs<LegacyMigrationOutcome.Failed>(run(e.platform)).attempt)
+        assertEquals(LegacyMigrationOutcome.GaveUp(2, Kind.UNKNOWN_MODEL), run(e.platform))
+        assertEquals(emptyList(), e.databaseFiles())
+        assertEquals(before, e.sourceHashes(), "the source is never modified")
+    }
+
+    @Test
+    fun anUnreadableKeychainFailsTheAttemptInsteadOfMigratingWithoutKeys() {
+        val e = env()
+        val failed = assertIs<LegacyMigrationOutcome.Failed>(run(ThrowingKeychainPlatform(e.platform)))
+        assertTrue(failed.rolledBack)
+        assertEquals(Kind.CORRUPT_STORE, failed.kind)
+        assertEquals(emptyList(), e.databaseFiles(), "nothing adopted")
+        assertFalse(File(e.migrationDir.toString(), "done.json").exists())
+        val report = File(e.migrationDir.toString(), "report.json").readText()
+        assertTrue(report.contains("Keychain unavailable"), report)
+        assertFalse(report.contains("secret-leak-check-4711"), "the platform's message is not echoed")
+        assertFalse(report.contains("test-ai-key-not-a-secret"))
     }
 
     // ---- rows the mappers drop or synthesize by design must not fail validation ----------------------------------

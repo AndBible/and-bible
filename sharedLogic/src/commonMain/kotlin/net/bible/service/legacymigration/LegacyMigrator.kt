@@ -129,7 +129,7 @@ fun defaultMappers(platform: LegacyPlatform): List<CategoryMapper> {
  *
  * Any [Exception] in step 5 before the commit point becomes [LegacyMigrationOutcome.Failed] after the adoption (if started) was rolled back; after `done.json` was written nothing is ever rolled back and a cleanup error is swallowed. I/O errors in the start of a launch (directory, state file, rollback of an earlier attempt) also become `Failed`, and a failing rollback counts as an attempt. The
  * source files (stores, sidecars, preserved files) are only read; the single exception is the search index, deleted
- * best-effort after the commit point (spec 6.5; a leftover index is harmless and is not retried, because the new app may use the same file name). Sync settings, device-local preferences and the other extras are not applied here; they are
+ * best-effort after the commit point (spec 6.5). A failed deletion is retried on later `AlreadyDone` launches until `done.json` records `searchIndexDeleted: true` (written best-effort, atomically, after a successful delete); a `nothingToMigrate` marker never deletes anything, and the new app keeps its own per-book indexes under `search/`. Sync settings, device-local preferences and the other extras are not applied here; they are
  * returned in [LegacyMigrationOutcome.Migrated.extras].
  *
  * @param mappers run in list order; `SETTINGS` after `WORKSPACES` and `READING_PLANS` is enforced (IllegalArgumentException).
@@ -180,8 +180,8 @@ class LegacyMigrator(
         try {
             fs.createDirectories(dir)
             if (fs.exists(doneFile)) {
-                // Idempotent leftovers of the commit: the search index (a crash or error between done.json and its deletion).
-                bestEffort { deleteSearchIndex() }
+                // Idempotent leftover of the commit: the search index, until done.json records that it was deleted.
+                bestEffort { finishSearchIndexDeletion() }
                 bestEffortCleanUp()
                 return LegacyMigrationOutcome.AlreadyDone
             }
@@ -251,7 +251,7 @@ class LegacyMigrator(
                 stage = Stage.MAP
                 val extras = StagingDatabases(stagingDir, databases).use { staging ->
                     for (mapper in mappers) mapper.map(snapshot, staging, report)
-                    buildExtras(snapshot, platform, report)
+                    buildExtras(snapshot, KeychainGuard(platform), report)
                 }
                 removeStrayStagingFiles()
                 hook(Step.MAP)
@@ -278,7 +278,7 @@ class LegacyMigrator(
             writeDone(discoverSources(), nothingToMigrate = false, attempt = attempt, adopted = staged)
             committed = true
             // COMMITTED: from here on nothing may undo the adoption. Everything below is best-effort and idempotent.
-            bestEffort { deleteSearchIndex() }
+            bestEffort { finishSearchIndexDeletion() }
             bestEffortCleanUp()
             return LegacyMigrationOutcome.Migrated(report, extras)
         } catch (e: CancellationException) {
@@ -286,7 +286,7 @@ class LegacyMigrator(
         } catch (e: Exception) {
             // done.json may exist although writeDone threw (the rename can succeed before the call fails): that is committed.
             if (committed || (finished != null && runCatching { fs.exists(doneFile) }.getOrDefault(false))) {
-                bestEffort { deleteSearchIndex() }
+                bestEffort { finishSearchIndexDeletion() }
                 bestEffortCleanUp()
                 return LegacyMigrationOutcome.Migrated(report, finished!!)
             }
@@ -320,6 +320,23 @@ class LegacyMigrator(
     }
 
     private fun bestEffortCleanUp() = bestEffort { cleanUp() }
+
+    /**
+     * A platform whose Keychain failures surface as an explicit [LegacyMigrationException] ("Keychain unavailable"), so the
+     * attempt fails instead of silently migrating without the API keys and password. The platform's own message is not
+     * repeated (only its class name), because it could echo item data.
+     */
+    private class KeychainGuard(private val platform: LegacyPlatform) : LegacyPlatform by platform {
+        override fun legacyKeychain(service: String, account: String): String? = try {
+            platform.legacyKeychain(service, account)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: LegacyMigrationException) {
+            throw e
+        } catch (e: Exception) {
+            throw LegacyMigrationException(Kind.CORRUPT_STORE, "Keychain unavailable: the legacy secrets could not be read (${e::class.simpleName})", e)
+        }
+    }
 
     /** Opens both copies; the first reader is closed if the second one cannot be opened. */
     private fun openSnapshot(): LegacySnapshot {
@@ -409,6 +426,18 @@ class LegacyMigrator(
         }
     }
 
+    /**
+     * Deletes the old search index once and records that in `done.json` (`searchIndexDeleted`), so the retry stops. Does
+     * nothing for a `nothingToMigrate` marker, an already flagged one or one that cannot be read.
+     */
+    private fun finishSearchIndexDeletion() {
+        val marker = Json.parseToJsonElement(fs.read(doneFile) { readUtf8() }).jsonObject
+        if ((marker["nothingToMigrate"] as? JsonPrimitive)?.content == "true") return
+        if ((marker["searchIndexDeleted"] as? JsonPrimitive)?.content == "true") return
+        deleteSearchIndex()
+        atomicWrite(doneFile, JsonObject(marker + ("searchIndexDeleted" to JsonPrimitive(true))).toString())
+    }
+
     private fun deleteSearchIndex() {
         val index = platform.documents / "search_indexes.sqlite"
         for (suffix in listOf("", "-wal", "-shm", "-journal")) fs.delete(platform.documents / ("search_indexes.sqlite$suffix"), mustExist = false)
@@ -430,6 +459,7 @@ class LegacyMigrator(
             put("attempt", attempt)
             put("sources", JsonArray(sources.map { buildJsonObject { put("path", it.toString()); put("size", fs.metadata(it).size ?: 0L) } }))
             put("adopted", JsonArray(adopted.map { JsonPrimitive(it) }))
+            put("searchIndexDeleted", false)
         }.toString()
         atomicWrite(doneFile, json)
     }

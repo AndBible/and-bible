@@ -156,3 +156,26 @@ fun readText(file: File, sql: String): String {
         c.close()
     }
 }
+
+/** A platform whose Keychain cannot be read (locked device, missing entitlement); its message carries a fake secret that must never be echoed. */
+class ThrowingKeychainPlatform(platform: LegacyPlatform) : LegacyPlatform by platform {
+    override fun legacyKeychain(service: String, account: String): String? =
+        throw IllegalStateException("Legacy Keychain read failed: status -25308 secret-leak-check-4711")
+}
+
+/**
+ * Makes the Core Data model fingerprint of [store] unknown by flipping one byte of a version hash inside `Z_METADATA`'s plist
+ * bytes (the same mutation the reader's own unknown-model test uses).
+ */
+fun makeModelUnknown(store: File) {
+    val c = openSqlite(store.path)
+    try {
+        val plist = c.prepare("SELECT Z_PLIST FROM Z_METADATA").let { try { it.step(); it.getBlob(0) } finally { it.close() } }
+        val hash = c.versionHashes().values.first()
+        val offset = (0..plist.size - hash.size).first { i -> hash.indices.all { plist[i + it] == hash[it] } }
+        val mutated = plist.copyOf().also { it[offset] = (it[offset].toInt() xor 0x01).toByte() }
+        c.prepare("UPDATE Z_METADATA SET Z_PLIST = ?").let { try { it.bindBlob(1, mutated); it.step() } finally { it.close() } }
+    } finally {
+        c.close()
+    }
+}
