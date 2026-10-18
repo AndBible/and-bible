@@ -1,3 +1,4 @@
+import java.util.Base64 as JBase64
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -14,6 +15,41 @@ val sharedDataFixtures by tasks.registering(Sync::class) {
     from(project(":sharedData").layout.projectDirectory.file("src/commonTest/kotlin/net/bible/shareddata/fixtures/ExportFixtures.kt"))
     from(project(":sharedData").layout.buildDirectory.dir("generated/schemaFixtures/commonTest/kotlin/net/bible/shareddata/fixtures"))
     into(layout.buildDirectory.dir("generated/sharedDataFixtures/commonTest/kotlin/net/bible/shareddata/fixtures"))
+}
+
+// The Native test runner has no resource files, and the startup acceptance tests of :sharedLogic and :sharedUi need a
+// real SWORD module. Embed the small K4RawText module of jsword's frozen test corpus as bytes in a generated
+// `StartupFixture`; the tests write it into a temp directory (modelled on jsword's K4FixtureResources generator).
+val startupFixtureDir = layout.buildDirectory.dir("generated/startupFixture/kotlin")
+val generateStartupFixture by tasks.registering {
+    val root = rootProject.layout.projectDirectory.dir("jsword/src/commonTest/resources/k4-modules/space dir/\u00e4")
+    val wanted = listOf("mods.d/K4RawText.conf", "modules/K4RawText/nt", "modules/K4RawText/nt.vss", "modules/K4RawText/ot", "modules/K4RawText/ot.vss")
+    inputs.files(wanted.map { root.file(it) }).withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.dir(startupFixtureDir)
+    doLast {
+        val out = startupFixtureDir.get().file("net/bible/sharedlogic/fixtures/StartupFixture.kt").asFile
+        out.parentFile.mkdirs()
+        out.bufferedWriter().use { w ->
+            w.appendLine("// GENERATED test-only fixture bytes. Do not edit.")
+            w.appendLine("package net.bible.sharedlogic.fixtures")
+            w.appendLine("import kotlin.io.encoding.Base64")
+            w.appendLine("import kotlin.io.encoding.ExperimentalEncodingApi")
+            w.appendLine("/** The K4RawText module (relative to a SWORD root: mods.d/, modules/). */")
+            w.appendLine("@OptIn(ExperimentalEncodingApi::class)")
+            w.appendLine("object StartupFixture {")
+            w.appendLine("    val files: Map<String, ByteArray> by lazy { mapOf(")
+            for (name in wanted) {
+                val file = root.file(name).asFile
+                check(file.isFile) { "Missing startup fixture file: $file" }
+                val chunks = JBase64.getEncoder().encodeToString(file.readBytes()).chunked(60_000)
+                w.appendLine("        \"$name\" to Base64.decode(arrayOf<String>(")
+                chunks.forEach { w.appendLine("            \"$it\",") }
+                w.appendLine("        ).joinToString(\"\")),")
+            }
+            w.appendLine("    ) }")
+            w.appendLine("}")
+        }
+    }
 }
 
 kotlin {
@@ -44,6 +80,7 @@ kotlin {
         // I2 step 0: Darwin engine for iOS HTTP (spec C5; streams C and D)
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.jetbrains.markdown)
         }
         commonTest {
             kotlin.srcDir(sharedDataFixtures.map { layout.buildDirectory.dir("generated/sharedDataFixtures/commonTest/kotlin").get().asFile })
@@ -59,4 +96,9 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled.jvm)
         }
     }
+}
+
+// The default hierarchy creates iosTest after this script is evaluated.
+kotlin.sourceSets.configureEach {
+    if (name == "iosTest" || name == "jvmTest") kotlin.srcDir(generateStartupFixture)
 }

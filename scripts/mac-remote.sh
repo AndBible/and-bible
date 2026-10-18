@@ -208,7 +208,7 @@ tmo $TIMEOUT ./gradlew -Dorg.gradle.native=false $(q "$@"); rc=\$?
 exit \$rc"
     ;;
 native-tests)
-    mods=("$@"); [ ${#mods[@]} -gt 0 ] || mods=(jsword kdom sharedCore sharedData sharedLogic)
+    mods=("$@"); [ ${#mods[@]} -gt 0 ] || mods=(jsword kdom sharedCore sharedData sharedLogic sharedUi)
     sync_tree
     rc=0
     remote "$(prologue)
