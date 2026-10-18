@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.bookmark
 
 import androidx.compose.foundation.layout.RowScope
@@ -97,6 +99,7 @@ private const val MANAGE_LABELS_SEARCH_MODE_KEY = "labels_list_search_mode"
  * ENTITIES are held rather than their ids because that is what classic held across its own
  * `awaitIntent`; re-resolving ids afterwards would depend on the list not having reloaded meanwhile.
  */
+@kotlin.native.HiddenFromObjC
 class BookmarksSession {
     lateinit var controller: BookmarksController
     var restoredAssignIds: List<String>? = null
@@ -129,6 +132,7 @@ class BookmarksSession {
  * child destination, not a second window. It is part of the saved-state snapshot ([BookmarkRecreationState]),
  * so a recreation (or process death) restores it with the manager's working set.
  */
+@kotlin.native.HiddenFromObjC
 class ManageLabelsSession(
     val data: ManageLabelsContract.ManageLabelsData,
     val labelsById: MutableMap<String, BookmarkEntities.Label>,
@@ -139,6 +143,7 @@ class ManageLabelsSession(
 }
 
 /** The label whose editor is currently open, and whether it was created by this visit. */
+@kotlin.native.HiddenFromObjC
 class PendingLabelEdit(val label: BookmarkEntities.Label, val isNew: Boolean)
 
 /**
@@ -149,6 +154,7 @@ class PendingLabelEdit(val label: BookmarkEntities.Label, val isNew: Boolean)
  * destination's collectors read them, and the channel guards read those declarations); [navDeps] receives them.
  * Every service sits behind a provider, so constructing the host touches no database.
  */
+@kotlin.native.HiddenFromObjC
 class BookmarkHost(
     private val shell: HostShell,
     private val strings: Strings,

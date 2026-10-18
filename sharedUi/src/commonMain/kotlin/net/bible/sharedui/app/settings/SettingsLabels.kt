@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.settings
 
 import net.bible.sharedcore.settings.AppSettingsLabels
@@ -9,6 +11,7 @@ import net.bible.sharedui.strings.Strings
 // `NavHostComposeActivity`). Each is built once, when its controller is first built.
 
 /** The app settings screen's labels (~90 strings). */
+@kotlin.native.HiddenFromObjC
 fun Strings.appSettingsLabels() = AppSettingsLabels(
     screenTitle = settings,
     fontSizePercentFormat = prefFontSizeMultiplierPercentFormat,
@@ -120,6 +123,7 @@ fun Strings.appSettingsLabels() = AppSettingsLabels(
 )
 
 /** The sync settings screen's labels. */
+@kotlin.native.HiddenFromObjC
 fun Strings.syncSettingsLabels() = SyncSettingsLabels(
     screenTitle = cloudSyncTitle,
     generalCat = syncGeneralSettings,
@@ -160,6 +164,7 @@ fun Strings.syncSettingsLabels() = SyncSettingsLabels(
 )
 
 /** The reading-progress settings screen's labels. */
+@kotlin.native.HiddenFromObjC
 fun Strings.readingProgressSettingsLabels() = ReadingProgressSettingsLabels(
     screenTitle = readingProgressSettings,
     autoMarkMemorizedTitle = memorizeAutoMark,

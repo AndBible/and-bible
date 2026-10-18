@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.installzip
 
 import kotlinx.coroutines.CancellationException
@@ -37,9 +39,11 @@ import net.bible.sharedui.installzip.nav.InstallZipSession
 private const val TAG = "InstallZip"
 
 /** Android's `Intent.ACTION_VIEW`, the string the route carries and the install service understands. */
+@kotlin.native.HiddenFromObjC
 const val INSTALL_ZIP_ACTION_VIEW = "android.intent.action.VIEW"
 
 /** What the destination does on entry, from the ROUTE arguments (the `Uri`-free twin of `InstallZipEntryDecision`). */
+@kotlin.native.HiddenFromObjC
 sealed interface InstallZipRouteDecision {
     data class ConfirmThenEnqueue(val uri: DocumentRef, val action: String) : InstallZipRouteDecision
     data class EnqueueNow(val uris: List<DocumentRef>, val action: String?) : InstallZipRouteDecision
@@ -54,6 +58,7 @@ sealed interface InstallZipRouteDecision {
  * The redirect Activity has already dropped every malformed Intent, so [InstallZipRouteDecision.Invalid]
  * here means an action with no URIs.
  */
+@kotlin.native.HiddenFromObjC
 suspend fun classifyInstallZipRoute(
     action: String?,
     uris: List<DocumentRef>,
@@ -74,6 +79,7 @@ suspend fun classifyInstallZipRoute(
  * `DocumentInstallService.onJobsChanged`'s own notification-picking logic -- a pending ask-back
  * must never be starved by a later-queued job's progress), otherwise the first job in the queue.
  */
+@kotlin.native.HiddenFromObjC
 fun pickActiveJob(jobs: List<InstallJobState>): InstallJobState? =
     jobs.firstOrNull { it.phase is InstallPhase.AwaitingDecision } ?: jobs.firstOrNull()
 
@@ -89,6 +95,7 @@ fun pickActiveJob(jobs: List<InstallJobState>): InstallJobState? =
  * enqueued nothing. Extracted as a pure predicate so this precise "RESULT_OK iff >=1 source
  * enqueued by THIS prelude" contract is directly unit-testable (see Task B3 finding I1).
  */
+@kotlin.native.HiddenFromObjC
 fun shouldFinishOnDrain(enqueuedHere: Boolean, jobsEmpty: Boolean): Boolean = enqueuedHere && jobsEmpty
 
 /**
@@ -98,6 +105,7 @@ fun shouldFinishOnDrain(enqueuedHere: Boolean, jobsEmpty: Boolean): Boolean = en
  *
  * [scope] is the host's scope; every coroutine this starts is cancelled when it answers.
  */
+@kotlin.native.HiddenFromObjC
 class InstallZipFlow(
     private val scope: CoroutineScope,
     private val action: String?,
@@ -227,6 +235,7 @@ class InstallZipFlow(
 }
 
 /** Classic `InstallZip.getFileFromUserAndInstall`'s SAF allow-list, verbatim. */
+@kotlin.native.HiddenFromObjC
 val INSTALL_ZIP_SAF_MIME_TYPES: List<String> = listOf(
     "application/zip",
     "application/x-zip-compressed",

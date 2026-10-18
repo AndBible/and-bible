@@ -1,15 +1,20 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.ports
 
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPageWithContent
 
 /** One page read from a picked file: [title] is the file name without extension. */
+@kotlin.native.HiddenFromObjC
 data class ImportedPage(val title: String, val contentType: MyDocumentContentType, val content: String)
 
 /** One picked text file, as [MyDocumentFiles.readDocumentFiles] returns it. */
+@kotlin.native.HiddenFromObjC
 data class ImportedFile(val fileName: String, val content: String)
 
 /** One document's pages and the (already sanitised) sub-folder they are written into. */
+@kotlin.native.HiddenFromObjC
 data class DocumentFolderExport(val folderName: String, val pages: List<MyDocumentPageWithContent>)
 
 /**
@@ -19,6 +24,7 @@ data class DocumentFolderExport(val folderName: String, val pages: List<MyDocume
  *
  * Methods throw on an I/O failure; the host reports it to the user.
  */
+@kotlin.native.HiddenFromObjC
 interface MyDocumentFiles {
     /** Reads one picked text file as a page; null when the file cannot be opened. The title falls back to a localized name. */
     suspend fun importPageFile(ref: DocumentRef): ImportedPage?

@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.chooser
 
 import androidx.compose.runtime.Composable
@@ -118,6 +120,7 @@ internal fun chooseDocumentInitialTypeFilter(type: String?, settings: AppSetting
  * activity (the reading destination's collectors read them) and are passed to [navDeps]. Every service sits behind a
  * provider, so constructing the host touches no database.
  */
+@kotlin.native.HiddenFromObjC
 class ChooserHost(
     private val shell: HostShell,
     private val strings: Strings,

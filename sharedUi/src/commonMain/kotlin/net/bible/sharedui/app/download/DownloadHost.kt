@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.download
 
 import androidx.compose.runtime.Composable
@@ -124,6 +126,7 @@ private const val PSEUDO_BOOKS_JSON = "pseudo_books.json"
  * The cloud documents deps are built by [CloudDocumentsHost] and passed to [navDeps]. Every service sits behind a
  * provider, so constructing the host touches no database.
  */
+@kotlin.native.HiddenFromObjC
 class DownloadHost(
     private val shell: HostShell,
     private val strings: Strings,

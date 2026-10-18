@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.ports
 
 import androidx.compose.ui.graphics.ImageBitmap
@@ -13,6 +15,7 @@ import net.bible.sharedcore.settings.TextDisplaySettingsService
  * shared one, or a detached copy for a selector-originated edit), the scope the route asks for, the Hide-labels
  * payload for that service and the result to deliver on leaving.
  */
+@kotlin.native.HiddenFromObjC
 class TextDisplayEntry(
     val service: TextDisplaySettingsService,
     val scope: SettingsScope,
@@ -22,6 +25,7 @@ class TextDisplayEntry(
 )
 
 /** What the workspace cluster (text display settings) needs from the platform beyond the generic ports. */
+@kotlin.native.HiddenFromObjC
 interface TextDisplayPlatform {
     /** Resolves the route's [args] into the service and scope this visit edits (Android: `TextDisplaySettingsRouteEntry`). */
     fun entryFor(args: TextDisplaySettingsArgs): TextDisplayEntry

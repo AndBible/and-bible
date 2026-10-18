@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.installzip
 
 import androidx.compose.runtime.Composable
@@ -31,6 +33,7 @@ private const val TAG = "InstallZipHost"
 typealias InstallZipOpener = (String?, List<DocumentRef>, (InstallZipResult) -> Unit) -> Unit
 
 /** What the InstallZip destination needs from the platform beyond the generic ports. */
+@kotlin.native.HiddenFromObjC
 interface InstallZipHostPlatform {
     /** The app-wide install queue (Android: `DocumentInstallService.controller.jobs`). */
     val jobs: StateFlow<List<InstallJobState>>
@@ -70,6 +73,7 @@ interface InstallZipHostPlatform {
  * and the host-level collector that applies the destination's answer ([Overlays]). Construction is cheap and must
  * not touch the database (`InstallZipBeforeDbInitTest`): InstallZip starts uninitialised from Backup.
  */
+@kotlin.native.HiddenFromObjC
 class InstallZipHost(
     private val shell: HostShell,
     private val strings: Strings,

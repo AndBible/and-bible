@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.search
 
 import androidx.navigation.NavHostController
@@ -86,6 +88,7 @@ internal const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
  * [bookByInitials] and [showInReadingOverride] are seams for tests: they default to the JSword facade and the active
  * window's page manager.
  */
+@kotlin.native.HiddenFromObjC
 class SearchHost(
     private val shell: HostShell,
     private val strings: Strings,

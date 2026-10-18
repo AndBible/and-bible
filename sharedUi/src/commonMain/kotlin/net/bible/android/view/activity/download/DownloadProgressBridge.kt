@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.download
 
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,7 @@ import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.navigation.DocInstallStatus
 
 /** Live per-row download status for one document, as consumed by the Compose Download screen. */
+@kotlin.native.HiddenFromObjC
 data class RowDownloadStatus(val status: DocInstallStatus, val percentDone: Int)
 
 /**
@@ -35,6 +38,7 @@ data class RowDownloadStatus(val status: DocInstallStatus, val percentDone: Int)
  * The statuses carry the Book's `repoIdentity` (not its initials), so [setRepoIdentityMap] must be
  * supplied a repoIdentity -> docId (initials) mapping; statuses for unknown repoIdentities are dropped.
  */
+@kotlin.native.HiddenFromObjC
 class DownloadProgressBridge {
     private val _statuses = MutableStateFlow<Map<String, RowDownloadStatus>>(emptyMap())
     /** Keyed by docId (Book initials). */

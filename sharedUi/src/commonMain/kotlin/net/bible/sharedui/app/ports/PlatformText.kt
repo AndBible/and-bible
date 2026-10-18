@@ -1,11 +1,15 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.ports
 
 /** Plurals and locale file-size formatting, which [net.bible.sharedui.strings.Strings] does not support. */
+@kotlin.native.HiddenFromObjC
 interface PlatformText {
     fun formatFileSize(bytes: Long): String
     fun plural(key: PluralKey, count: Int, vararg args: Any): String
 }
 
+@kotlin.native.HiddenFromObjC
 enum class PluralKey {
     CLOUD_DOC_SYNC_NOW_COUNT,
     CLOUD_DOC_SYNC_NOW_COUNT_SIZE,

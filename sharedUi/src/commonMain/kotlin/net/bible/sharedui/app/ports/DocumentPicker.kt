@@ -1,9 +1,13 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.ports
 
 /** No app on the device can handle the document picker intent (Android: `ActivityNotFoundException`). */
+@kotlin.native.HiddenFromObjC
 class NoDocumentPickerException(cause: Throwable? = null) : Exception("No app found to pick documents", cause)
 
 /** System document pickers. Host-scoped: the Android implementation registers launchers on the Activity. */
+@kotlin.native.HiddenFromObjC
 interface DocumentPicker {
     /** @throws NoDocumentPickerException when nothing on the device can show a picker. */
     suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean): List<DocumentRef>

@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.download
 
 import androidx.compose.runtime.Composable
@@ -44,6 +46,7 @@ private const val CLOUD_ARRANGEMENT_REMEMBER_KEY = "cloudDocs.arrangement.rememb
  * `asFlow()` is loss-free: a drain that emits `true` then `false` before the collector resumes still
  * delivers both (a `StateFlow` would conflate them to nothing and skip the rescan).
  */
+@kotlin.native.HiddenFromObjC
 fun subscribeToDocumentSyncRunning(
     scope: CoroutineScope,
     runningChanged: Events<Boolean>,
@@ -60,6 +63,7 @@ fun subscribeToDocumentSyncRunning(
  *
  * Every collaborator sits behind a provider, so constructing the host touches no database.
  */
+@kotlin.native.HiddenFromObjC
 class CloudDocumentsHost(
     private val shell: HostShell,
     private val strings: Strings,

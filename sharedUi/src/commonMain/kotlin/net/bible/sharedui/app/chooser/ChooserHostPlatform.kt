@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.chooser
 
 import androidx.compose.runtime.Composable
@@ -11,12 +13,14 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
 /** The three rows of the document chooser's overflow menu; the platform supplies each row's icon. */
+@kotlin.native.HiddenFromObjC
 enum class ChooserOverflowItem { DOWNLOAD, BACKUP, INSTALL_ZIP }
 
 /**
  * The platform half of the chooser cluster: what [ChooserHost] cannot do in common code because it needs the
  * Activity or `:app`-only types. A host-scoped port, built on first use (see `HostPorts.chooserPlatform`).
  */
+@kotlin.native.HiddenFromObjC
 interface ChooserHostPlatform {
     /** Classic `onBackup()`: the backup-modules intent flow (`BackupControl.backupModulesViaIntent`). */
     fun backupModules()

@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui
 
 import net.bible.sharedcore.navigation.DocCategory
@@ -32,6 +34,7 @@ import org.crosswire.jsword.book.BookCategory
  * (`category?.let { docCategoryOf(it) }`) instead of this function silently collapsing both into
  * one value.
  */
+@kotlin.native.HiddenFromObjC
 fun docCategoryOf(category: BookCategory): DocCategory = when (category) {
     BookCategory.BIBLE -> DocCategory.BIBLE
     BookCategory.COMMENTARY -> DocCategory.COMMENTARY

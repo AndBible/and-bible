@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.ports
 
 import net.bible.sharedui.app.ai.AiHostPlatform
@@ -17,6 +19,7 @@ import net.bible.sharedui.app.welcome.WelcomeHostPlatform
  * Ports whose Android implementation needs the Activity (launchers registered before STARTED).
  * Feature-specific ports are added by the owning task.
  */
+@kotlin.native.HiddenFromObjC
 class HostPorts(
     val documentPicker: DocumentPicker,
     val imagePicker: ImagePicker,

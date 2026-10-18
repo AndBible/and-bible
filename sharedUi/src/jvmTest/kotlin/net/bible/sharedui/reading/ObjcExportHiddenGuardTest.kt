@@ -50,7 +50,17 @@ class ObjcExportHiddenGuardTest {
         val reading = File(common, "sharedui/reading")
         val page = File(common, "android/view/activity/page")
         val ios = File(src, "iosMain/kotlin/net/bible/sharedui/webview")
-        return listOf("bridge", "session", "host").flatMap { File(reading, it).listFiles().orEmpty().toList() } +
+        // Stream A's shared app root: hosts, sessions and ports Swift never calls (I2 merge, same link failure).
+        val appRoot = File(common, "sharedui/app").walkTopDown().filter { it.isFile }.toList() +
+            listOf(
+                "android/view/activity/download/DocumentConfiguration.kt",
+                "android/view/activity/download/DownloadProgressBridge.kt",
+                "android/view/activity/installzip/InstallZipFlow.kt",
+                "android/view/activity/search/EpubSearchModeWire.kt",
+                "android/view/activity/search/EpubSearchResultKey.kt",
+                "sharedui/DocCategoryMapping.kt",
+            ).map { File(common, it) }
+        return listOf("bridge", "session", "host").flatMap { File(reading, it).listFiles().orEmpty().toList() } + appRoot +
             listOf(File(page, "Selection.kt"), File(page, "FavouriteLabelIdsCache.kt"), File(page, "screen/ReadingHostHelpers.kt")) +
             ios.listFiles().orEmpty().filter { it.name.contains("Reading") || it.name == "WkWebViewJsHost.kt" }
     }

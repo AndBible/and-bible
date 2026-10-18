@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.download
 
 import androidx.compose.runtime.Composable
@@ -5,12 +7,14 @@ import okio.Path
 import org.crosswire.jsword.book.Book
 
 /** The rows of the Download screen's overflow menu that carry a platform icon. */
+@kotlin.native.HiddenFromObjC
 enum class DownloadOverflowItem { ERRORS, INSTALL_ZIP, CUSTOM_REPOSITORIES, CLOUD_DOCUMENTS }
 
 /**
  * The platform half of the download destination: what [DownloadHost] cannot do in common code because it needs the
  * Activity or `:app`-only code. A host-scoped port, built on first use (see `HostPorts.downloadPlatform`).
  */
+@kotlin.native.HiddenFromObjC
 interface DownloadHostPlatform {
     /**
      * Copies a finished download over its target, keeping the free-space check (Android: `FileManager.copyFile`).

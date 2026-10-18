@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.backup
 
 import androidx.navigation.NavHostController
@@ -22,6 +24,7 @@ import net.bible.sharedui.strings.Strings
  * Construction is cheap and must not touch the database: Backup starts uninitialised
  * (`BackupBeforeDbInitTest`), so every collaborator is a provider that runs only when a screen opens.
  */
+@kotlin.native.HiddenFromObjC
 class BackupFeatureHost(
     private val shell: HostShell,
     private val strings: Strings,

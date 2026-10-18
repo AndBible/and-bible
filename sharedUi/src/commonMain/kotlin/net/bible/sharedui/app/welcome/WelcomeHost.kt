@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.welcome
 
 import androidx.compose.runtime.Composable
@@ -12,6 +14,7 @@ import net.bible.sharedui.startup.nav.WelcomeNavDeps
  * app initialisation, document pickers). Members are named after the Android `WelcomeFlow` methods that
  * implement them. Reading [windowTitle] and [appName] must not touch the database.
  */
+@kotlin.native.HiddenFromObjC
 interface WelcomeHostPlatform {
     /** Window title shown while WELCOME is current. */
     val windowTitle: String
@@ -42,6 +45,7 @@ interface WelcomeHostPlatform {
  * Builds the welcome destination's deps. Construction is cheap and must not touch the database:
  * Welcome starts uninitialised.
  */
+@kotlin.native.HiddenFromObjC
 class WelcomeHost(
     private val shell: HostShell,
     private val platform: WelcomeHostPlatform,

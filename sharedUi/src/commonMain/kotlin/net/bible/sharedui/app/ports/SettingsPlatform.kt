@@ -1,6 +1,9 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.ports
 
 /** What the settings cluster needs from the platform beyond the generic ports. */
+@kotlin.native.HiddenFromObjC
 interface SettingsPlatform {
     /** Clears the app's preferences to their defaults (Android: `SettingsReset.performReset()`). */
     fun resetAllSettings()

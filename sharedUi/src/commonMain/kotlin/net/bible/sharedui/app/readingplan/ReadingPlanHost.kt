@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.readingplan
 
 import androidx.navigation.NavHostController
@@ -51,6 +53,7 @@ private const val TAG_READING_PLAN = "DailyReadingNavHost"
  * chosen. The loaded day is not saved; it is rebuilt from the destination's route arguments.
  */
 @Serializable
+@kotlin.native.HiddenFromObjC
 data class ReadingPlanRecreationState(val resetPlanCodes: Set<String> = emptySet())
 
 /**
@@ -60,6 +63,7 @@ data class ReadingPlanRecreationState(val resetPlanCodes: Set<String> = emptySet
  *
  * Every controller sits behind a provider, so constructing the host touches no database.
  */
+@kotlin.native.HiddenFromObjC
 class ReadingPlanHost(
     private val shell: HostShell,
     private val strings: Strings,
@@ -512,6 +516,7 @@ class ReadingPlanHost(
  * Each destination holds its own subscription, so unsubscribing one never affects another. Shared by the host and
  * covered by `ReadingPlanSyncSubscriptionTest` in `:app` (it needs the real `DatabaseContainer`).
  */
+@kotlin.native.HiddenFromObjC
 fun subscribeToReadingPlanSync(onChanged: () -> Unit): () -> Unit {
     val subscription = DatabaseContainer.readingPlansSynced.subscribeOnMain { onChanged() }
     return { subscription.cancel() }

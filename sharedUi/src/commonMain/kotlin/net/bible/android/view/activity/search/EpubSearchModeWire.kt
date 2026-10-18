@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.search
 
 import net.bible.sharedcore.search.EpubSearchMode
@@ -29,6 +31,7 @@ import org.crosswire.jsword.index.search.SearchType
  * Classic `EpubSearch.kt` deliberately still spells the same key literally: it is on the deletion
  * path, and importing an `:app` Compose-era const into it would only make that deletion noisier.
  */
+@kotlin.native.HiddenFromObjC
 const val EPUB_SEARCH_TYPE_KEY = "epubSearch-SearchType"
 
 /**
@@ -44,6 +47,7 @@ const val EPUB_SEARCH_TYPE_KEY = "epubSearch-SearchType"
  *
  * Kept in `:app`, not `:sharedCore`: `:sharedCore` has no JSword ([SearchType]) on its classpath.
  */
+@kotlin.native.HiddenFromObjC
 fun EpubSearchMode.toClassicSearchTypeName(): String? = when (this) {
     EpubSearchMode.ALL_WORDS -> SearchType.ALL_WORDS.name
     EpubSearchMode.ANY_WORD -> SearchType.ANY_WORDS.name
@@ -57,6 +61,7 @@ fun EpubSearchMode.toClassicSearchTypeName(): String? = when (this) {
  * the unrelated 3-constant SWORD word-mode enum some callers already have in scope, which happens to
  * share three names with this one and would silently parse the wrong thing.
  */
+@kotlin.native.HiddenFromObjC
 fun epubSearchModeFromClassicName(name: String?): EpubSearchMode {
     if (name == null) return EpubSearchMode.FTS
     val jsword = try {
@@ -87,6 +92,7 @@ fun epubSearchModeFromClassicName(name: String?): EpubSearchMode {
  * double quotes if both are present. A selection that itself contains quotes keeps them, and an
  * undecorated string is returned unchanged — so this can never corrupt a query it was not meant for.
  */
+@kotlin.native.HiddenFromObjC
 fun stripSearchDecoration(query: String): String {
     val trimmed = query.trim()
     val quoted = trimmed.length >= 2 && trimmed.first() == '"' && trimmed.last() == '"'
@@ -94,6 +100,7 @@ fun stripSearchDecoration(query: String): String {
 }
 
 /** The query text and word-mode one EPUB search run should use — see [epubSearchRunFor]. */
+@kotlin.native.HiddenFromObjC
 data class EpubSearchRunParams(val query: String, val mode: EpubSearchMode)
 
 /**
@@ -108,6 +115,7 @@ data class EpubSearchRunParams(val query: String, val mode: EpubSearchMode)
  * The forcing is ONE-SHOT by construction — it is returned, never stored — so a selection search does
  * not overwrite the mode the user picked and will see again next time the settings sheet opens.
  */
+@kotlin.native.HiddenFromObjC
 fun epubSearchRunFor(query: String, preDecorated: Boolean, storedMode: EpubSearchMode): EpubSearchRunParams =
     if (preDecorated) EpubSearchRunParams(stripSearchDecoration(query), EpubSearchMode.PHRASE)
     else EpubSearchRunParams(query, storedMode)

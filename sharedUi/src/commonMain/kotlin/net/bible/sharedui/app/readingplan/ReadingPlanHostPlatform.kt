@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.readingplan
 
 
@@ -6,6 +8,7 @@ package net.bible.sharedui.app.readingplan
  * the Activity or JVM-only calendar and configuration types. A host-scoped port, built on first use (see
  * `HostPorts.readingPlanPlatform`).
  */
+@kotlin.native.HiddenFromObjC
 interface ReadingPlanHostPlatform {
     /** Whether the screen is in portrait; the day's passage names are the full book names only in landscape. */
     val isPortrait: Boolean

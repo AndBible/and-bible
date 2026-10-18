@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.mydocuments
 
 import kotlinx.serialization.Serializable
@@ -7,6 +9,7 @@ import kotlinx.serialization.Serializable
  * folder picker. See [PendingMyDocumentExports] for why the ids are persistent ones.
  */
 @Serializable
+@kotlin.native.HiddenFromObjC
 data class MyDocumentsRecreationState(
     val documentIds: List<String> = emptyList(),
     val pageIds: List<String> = emptyList(),
@@ -25,6 +28,7 @@ data class MyDocumentsRecreationState(
  * token-based pending target silently resolved to nothing and the export was dropped.
  * Survives recreation through [snapshot]/[restoreFrom].
  */
+@kotlin.native.HiddenFromObjC
 class PendingMyDocumentExports {
     var documentIds: List<String> = emptyList()
     var pageIds: List<String> = emptyList()

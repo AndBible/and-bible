@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app
 
 import androidx.compose.foundation.background
@@ -34,6 +36,7 @@ import net.bible.sharedui.workspaces.nav.WorkspaceNavDeps
 import net.bible.sharedui.workspaces.nav.workspaceNavGraph
 
 /** The deps of every non-reading feature graph that [AppRoot] installs; [AppHosts.graphs] builds it from the 13 feature hosts (incl. cloudDocuments). */
+@kotlin.native.HiddenFromObjC
 class AppGraphs(
     val ai: AiNavDeps,
     val bookmark: BookmarkNavDeps,
@@ -57,6 +60,7 @@ class AppGraphs(
  * Theme, composition locals and the destination listener stay with the platform host.
  */
 @Composable
+@kotlin.native.HiddenFromObjC
 fun AppRoot(
     navController: NavHostController,
     startRoute: String,

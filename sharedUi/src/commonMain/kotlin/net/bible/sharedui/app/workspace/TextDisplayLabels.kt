@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.workspace
 
 import net.bible.sharedcore.settings.TextDisplaySettingsLabels
@@ -13,6 +15,7 @@ import net.bible.sharedui.strings.Strings
  * `TextDisplaySettingsLabelBuilders.kt` (which `ComposeReadingViewHost` still calls), each member mapped to the
  * same `R.string` resource in `AndroidStrings`. ~90 strings between them, so a host builds each one lazily.
  */
+@kotlin.native.HiddenFromObjC
 fun Strings.buildTextDisplayControllerLabels() = TextDisplaySettingsLabels(
     categoryParent = parentSettingsCategoryTitle,
     categoryFontColors = prefsFontAndColorsTitle,
@@ -106,6 +109,7 @@ fun Strings.buildTextDisplayControllerLabels() = TextDisplaySettingsLabels(
     ),
 )
 
+@kotlin.native.HiddenFromObjC
 fun Strings.buildTextDisplayScreenLabels() = TextDisplaySettingsScreenLabels(
     resetContentDescription = resetSettings,
     resetConfirmMessage = resetAreYouSure,
@@ -130,6 +134,7 @@ fun Strings.buildTextDisplayScreenLabels() = TextDisplaySettingsScreenLabels(
     cancelLabel = cancel,
 )
 
+@kotlin.native.HiddenFromObjC
 fun Strings.buildColorSettingsLabels() = ColorSettingsLabels(
     dayMode = colorsDayModeTitle,
     nightMode = colorsNightModeTitle,
@@ -147,6 +152,7 @@ fun Strings.buildColorSettingsLabels() = ColorSettingsLabels(
     reset = resetGeneric,
 )
 
+@kotlin.native.HiddenFromObjC
 fun Strings.buildBackgroundImageChooserLabels() = BackgroundImageChooserLabels(
     title = backgroundImageTitle,
     none = backgroundImageNone,

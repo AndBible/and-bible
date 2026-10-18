@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app
 
 import net.bible.sharedcore.download.RepositoryResult
@@ -24,6 +26,7 @@ import net.bible.sharedui.nav.NavResultChannel
  * [beforeSwitchMyDocument] runs when the My Documents pages editor switches document; it needs the platform host's
  * reading request bookkeeping.
  */
+@kotlin.native.HiddenFromObjC
 class AppResultChannels(
     val readingProgress: NavResultChannel<ReadingProgressResult>,
     val bookmark: NavResultChannel<BookmarkResult>,

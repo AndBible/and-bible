@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.ai
 
 import androidx.compose.foundation.layout.RowScope
@@ -79,6 +81,7 @@ private const val TAG_AI_PROMPTS = "AiPromptsCompose"
  * `by lazy`. The controllers are fields rather than per-entry factories so that their collectors and snapshots
  * outlive one back-stack entry's composition.
  */
+@kotlin.native.HiddenFromObjC
 class AiHost(
     private val shell: HostShell,
     private val strings: Strings,

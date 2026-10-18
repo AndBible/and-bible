@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.settings
 
 import androidx.navigation.NavHostController
@@ -63,6 +65,7 @@ private const val PREF_READING_PROGRESS_MEM_OVERVIEW = "reading_progress_mem_ove
  * collector, the snapshot) should outlive one back-stack entry's composition. The reading-progress SCREEN's
  * controller is cached too, see [readingProgressControllerFor].
  */
+@kotlin.native.HiddenFromObjC
 class SettingsHost(
     private val shell: HostShell,
     private val strings: Strings,

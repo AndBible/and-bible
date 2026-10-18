@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app
 
 import androidx.compose.runtime.Composable
@@ -87,6 +89,7 @@ private const val TAG = "AppHosts"
  * schema version of the snapshot (a data class needs at least one property).
  */
 @Serializable
+@kotlin.native.HiddenFromObjC
 data class AppHostsState(
     val version: Int = 1,
     /** The bookmark list, label manager and label editor state; null when nothing is worth restoring. */
@@ -103,6 +106,7 @@ data class AppHostsState(
  * [restoreState] carry the host-held state across recreation. The reading graph and the Android-only overlay pieces
  * stay with the platform host. Constructing it must not touch the database; hosts resolve their collaborators lazily.
  */
+@kotlin.native.HiddenFromObjC
 class AppHosts(
     private val koin: Koin,
     private val shell: HostShell,

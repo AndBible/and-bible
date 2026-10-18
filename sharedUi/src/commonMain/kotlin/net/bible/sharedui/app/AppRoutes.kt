@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app
 
 import net.bible.sharedcore.nav.NavRoutes
@@ -54,6 +56,7 @@ import net.bible.sharedcore.nav.NavRoutes
  * @param onMissing called exactly when neither source supplies a route, i.e. when the default is
  *   being taken. Never called when one does.
  */
+@kotlin.native.HiddenFromObjC
 fun navHostStartRoute(
     savedStartRoute: String?,
     intentRoute: String?,
@@ -71,6 +74,7 @@ fun navHostStartRoute(
  * opened by `ErrorReportControl.checkCrash` BEFORE the database is initialised, so that a possibly broken
  * database can be backed up or restored. Everything else, `INSTALL_ZIP` included, initialises as before.
  */
+@kotlin.native.HiddenFromObjC
 fun routeStartsUninitialised(route: String?): Boolean =
     when (route?.substringBefore('?')) {
         NavRoutes.WELCOME, NavRoutes.BACKUP -> true
@@ -84,6 +88,7 @@ fun routeStartsUninitialised(route: String?): Boolean =
  * @param usableBible whether a usable Bible is installed (only asked for a READING route).
  * @param log receives the one-line warning when the route is diverted.
  */
+@kotlin.native.HiddenFromObjC
 fun gatedReadingRoute(route: String, usableBible: () -> Boolean, log: (String) -> Unit): String =
     if (route.substringBefore('?') == NavRoutes.READING && !usableBible()) {
         log("READING requested with no usable Bible -- opening ${NavRoutes.WELCOME} instead (gate c).")
@@ -97,6 +102,7 @@ fun gatedReadingRoute(route: String, usableBible: () -> Boolean, log: (String) -
  * [NavRoutes.READING_PLAN_DAY_LIST] (`readingPlan/dayList`) shares the argument-free
  * daily-reading route's prefix (`readingPlan/day`), so a bare `startsWith` would match it too.
  */
+@kotlin.native.HiddenFromObjC
 fun isDailyReadingRoute(route: String): Boolean {
     val base = NavRoutes.dailyReading()
     return route == base || route.startsWith("$base?")

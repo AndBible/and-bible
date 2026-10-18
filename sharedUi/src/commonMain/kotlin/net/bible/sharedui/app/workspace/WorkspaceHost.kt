@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.workspace
 
 import androidx.navigation.NavHostController
@@ -35,6 +37,7 @@ import net.bible.sharedui.workspaces.nav.WorkspaceSelectorDeps
  * the watchdog for an entry with no parent. Every service sits behind a provider, so constructing the host touches
  * no database.
  */
+@kotlin.native.HiddenFromObjC
 class WorkspaceHost(
     private val shell: HostShell,
     private val strings: Strings,

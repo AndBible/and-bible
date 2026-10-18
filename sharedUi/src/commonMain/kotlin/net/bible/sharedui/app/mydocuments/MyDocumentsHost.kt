@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.mydocuments
 
 import androidx.navigation.NavHostController
@@ -51,6 +53,7 @@ private val FILE_NAME_CHARS = Regex("[^a-zA-Z0-9._\\- ]")
  *
  * Constructing the host touches no database; the DAO is read only when a screen loads or an export runs.
  */
+@kotlin.native.HiddenFromObjC
 class MyDocumentsHost(
     private val shell: HostShell,
     private val strings: Strings,

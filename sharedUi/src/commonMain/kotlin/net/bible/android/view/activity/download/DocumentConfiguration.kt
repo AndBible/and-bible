@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.download
 
 import kotlinx.serialization.Serializable
@@ -29,6 +31,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
  * `:sharedUi`; the package is unchanged, so every existing import still resolves.
  */
 @Serializable
+@kotlin.native.HiddenFromObjC
 data class DocumentConfiguration(
     val bibles: Map<String, List<String>>,
     val commentaries: Map<String, List<String>>,
@@ -50,8 +53,10 @@ data class DocumentConfiguration(
     }
 }
 
+@kotlin.native.HiddenFromObjC
 val Book.installedDocument get() = Books.installed().getBook(initials)
 
+@kotlin.native.HiddenFromObjC
 fun Book.isRecommended(recommendedDocuments: DocumentConfiguration?): Boolean =
     recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
         if(it.contains("::")) {
@@ -62,6 +67,7 @@ fun Book.isRecommended(recommendedDocuments: DocumentConfiguration?): Boolean =
         }
     } != null
 
+@kotlin.native.HiddenFromObjC
 enum class BadDocumentAction {
     WARN, HIDE, NONE;
     companion object {
@@ -73,6 +79,7 @@ enum class BadDocumentAction {
             }
     }
 }
+@kotlin.native.HiddenFromObjC
 fun Book.isBadDocument(badDocuments: DocumentConfiguration?, actionForDocument: BadDocumentAction): Boolean =
     badDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
         val (initials, repository, version, actionStr) = it.split("::")
@@ -83,4 +90,5 @@ fun Book.isBadDocument(badDocuments: DocumentConfiguration?, actionForDocument: 
             && action == actionForDocument
     } != null
 
+@kotlin.native.HiddenFromObjC
 val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != null

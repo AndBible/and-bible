@@ -1,8 +1,11 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app
 
 import kotlinx.coroutines.CoroutineScope
 
 /** What feature hosts need from the platform host (`NavHostComposeActivity` on Android). */
+@kotlin.native.HiddenFromObjC
 interface HostShell {
     /** Android: `lifecycleScope`. */
     val hostScope: CoroutineScope

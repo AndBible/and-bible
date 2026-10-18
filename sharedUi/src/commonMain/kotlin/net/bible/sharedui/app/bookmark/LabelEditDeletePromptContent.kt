@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.app.bookmark
 
 import androidx.compose.material3.Text
@@ -18,6 +20,7 @@ import net.bible.sharedui.components.AbOptionsDialog
  * label?") keeps a plain `AbAlertDialog`.
  */
 @Composable
+@kotlin.native.HiddenFromObjC
 fun LabelEditDeletePromptContent(
     prompt: DeletePrompt,
     title: String,

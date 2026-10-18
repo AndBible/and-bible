@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.search
 
 import net.bible.android.control.page.OrdinalRange
@@ -37,6 +39,7 @@ import org.crosswire.jsword.book.Book
  * reattachment is proved once, not copied — a copy is exactly the kind of drift this port has shipped
  * before (see the message-key positional drift note in `CLAUDE.md`).
  */
+@kotlin.native.HiddenFromObjC
 fun epubKeyFor(book: Book, docId: String, keyId: String, ordinal: Int): BookAndKey {
     val innerOsisRef = keyId.removePrefix("$docId:")
     return BookAndKey(book.getKey(innerOsisRef), book, OrdinalRange(ordinal, null))
