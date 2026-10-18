@@ -39,7 +39,9 @@ import net.bible.android.view.activity.ai.ToolPermissionServiceImpl
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditServiceImpl
 import net.bible.android.view.activity.bookmark.ManageLabelsServiceImpl
+import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
+import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncProvider
@@ -175,6 +177,7 @@ fun buildSharedBindings() = module {
     single { ProgressJsActions(get()) }
     single { BookmarkJsActions(get(), get()) }
     single { SyncSettingsCategories(get()) }
+    singleOf(::ReadingProgressSettingsServiceImpl) { bind<ReadingProgressSettingsService>() }
     factory { (scope: kotlinx.coroutines.CoroutineScope) ->
         SyncSettingsServiceImpl(
             scope, get<AppCoroutineScope>(), get(), get(), get(), get(), get(), get(), get(), get(), get(),

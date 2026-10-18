@@ -145,4 +145,6 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val exportDestinationTitle: String get() = context.getString(R.string.export_destination_title)
     override val exportDestinationMessage: String get() = context.getString(R.string.export_destination_message)
     override fun searchUnsupportedSyntax(syntax: String): String = context.getString(R.string.search_unsupported_syntax, syntax)
+    override val memorizeWordVisibilityEntries: List<String> get() = context.resources.getStringArray(R.array.memorize_word_visibility_entries).toList()
+    override val memorizeWordVisibilityValues: List<String> get() = context.resources.getStringArray(R.array.memorize_word_visibility_values).toList()
 }

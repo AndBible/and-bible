@@ -115,4 +115,6 @@ interface CoreStrings {
     val exportDestinationTitle: String // R.string.export_destination_title
     val exportDestinationMessage: String // R.string.export_destination_message
     fun searchUnsupportedSyntax(syntax: String): String // R.string.search_unsupported_syntax
+    val memorizeWordVisibilityEntries: List<String> // R.array.memorize_word_visibility_entries
+    val memorizeWordVisibilityValues: List<String> // R.array.memorize_word_visibility_values
 }

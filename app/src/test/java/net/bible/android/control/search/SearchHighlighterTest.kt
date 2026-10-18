@@ -102,4 +102,23 @@ class SearchHighlighterTest {
 
         assertTrue(result.runs.any { it.text == "พระเจ้า" && it.highlight })
     }
+
+    @Test
+    fun commonHighlighterMatchesAndroidOutput() {
+        val word = Element("w").apply {
+            setAttribute("lemma", "strong:H0430")
+            addContent(Text("God"))
+        }
+        val lemmaOsis = osisWith(Text("In the beginning "), word, Text(" created"))
+        val termOsis = osisWith(Text("In the beginning God created the heaven"))
+
+        org.junit.Assert.assertEquals(
+            SearchHighlighter.highlight(lemmaOsis, emptyList(), listOf("strong:h0*430")),
+            net.bible.sharedlogic.search.CommonSearchHighlighter.highlight(lemmaOsis, emptyList(), listOf("strong:h0*430")),
+        )
+        org.junit.Assert.assertEquals(
+            SearchHighlighter.highlight(termOsis, listOf("God"), emptyList()),
+            net.bible.sharedlogic.search.CommonSearchHighlighter.highlight(termOsis, listOf("God"), emptyList()),
+        )
+    }
 }
