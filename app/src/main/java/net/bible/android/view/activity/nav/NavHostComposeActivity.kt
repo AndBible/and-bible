@@ -170,6 +170,9 @@ import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.app.isDailyReadingRoute
+import net.bible.sharedui.app.navHostStartRoute
+import net.bible.sharedui.app.routeStartsUninitialised
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.nav.ReadingProgressResult
@@ -515,16 +518,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         } catch (e: IllegalArgumentException) {
             Log.w(TAG_NAV_HOST, "Ignoring an unroutable EXTRA_ROUTE: $route", e)
         }
-    }
-
-    /**
-     * Whether [route] addresses the daily-reading destination. The `?` boundary is load-bearing:
-     * [NavRoutes.READING_PLAN_DAY_LIST] (`readingPlan/dayList`) shares the argument-free
-     * daily-reading route's prefix (`readingPlan/day`), so a bare `startsWith` would match it too.
-     */
-    private fun isDailyReadingRoute(route: String): Boolean {
-        val base = NavRoutes.dailyReading()
-        return route == base || route.startsWith("$base?")
     }
 
     // ————————————————————————————————————————————————————————————————————————————————————————
@@ -2662,12 +2655,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * tolerates zero Bibles, and `FLAG_SECURE` ends up applied, the safer side.
      */
     private fun gatedReadingRoute(route: String): String =
-        if (route.substringBefore('?') == NavRoutes.READING && !usableBibleGate()) {
-            Log.w(TAG_START_ROUTE, "READING requested with no usable Bible -- opening ${NavRoutes.WELCOME} instead (gate c).")
-            NavRoutes.WELCOME
-        } else {
-            route
-        }
+        net.bible.sharedui.app.gatedReadingRoute(route, { usableBibleGate() }) { Log.w(TAG_START_ROUTE, it) }
 
     private fun resolveStartRoute(savedInstanceState: Bundle?): String = gatedReadingRoute(navHostStartRoute(
         savedStartRoute = savedInstanceState?.getString(STATE_START_ROUTE),
