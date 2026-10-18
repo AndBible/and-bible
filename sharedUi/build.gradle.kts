@@ -46,6 +46,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":sharedCore"))
+            // I2 step 0: the shared app root and reading host (I2 streams A/B) call controllers in :sharedLogic.
+            implementation(project(":sharedLogic"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
