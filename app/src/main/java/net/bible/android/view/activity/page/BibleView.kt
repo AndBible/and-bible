@@ -1134,12 +1134,13 @@ class BibleView(
         readingBridge.openEpubLink(book, backend, keyStr, idStr)
 
     /**
-     * Opens [uri] through [linkHandler]. A link with an unknown scheme is still swallowed (as before) so the
-     * WebView does not navigate to it; a known scheme with unusable parameters is not handled.
+     * Opens [uri] through [linkHandler]. Always true: the WebView must never navigate to one of the text's
+     * own schemes (a navigation to `osis://` or `journal://` can blank the reading pane), so a link the
+     * handler cannot use (unknown scheme, missing parameters) is swallowed, as the old `else -> true` did.
      */
     fun openLink(uri: Uri): Boolean {
-        val url = uri.toString()
-        return linkHandler.handle(url) || !linkHandler.isKnownScheme(url)
+        linkHandler.handle(uri.toString())
+        return true
     }
 
     private inner class BibleViewClient: WebViewClient() {

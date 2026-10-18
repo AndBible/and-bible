@@ -48,6 +48,8 @@ internal data class ParsedLink(
 /**
  * Parses [url] without any platform URI class. Returns null when [url] has no valid scheme.
  * Percent sequences are decoded as UTF-8 (a malformed one stays literal) and in query values `+` is a space.
+ * That also applies to repeated-value parameters (`osis=a+b&osis=c`), which the old
+ * `Uri.getQueryParameters` left as a literal `+`.
  * A link whose scheme-specific part does not start with `/` is opaque: it has no authority, path or query.
  */
 internal fun parseLink(url: String): ParsedLink? {

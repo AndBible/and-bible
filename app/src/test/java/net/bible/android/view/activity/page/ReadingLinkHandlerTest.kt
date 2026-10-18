@@ -158,8 +158,6 @@ class ReadingLinkHandlerTest {
     @Test fun unknownSchemeIsNotHandled() {
         assertFalse(handler.handle("mailto:someone@example.org"))
         assertFalse(handler.handle("no scheme at all"))
-        assertFalse(handler.isKnownScheme("mailto:someone@example.org"))
-        assertTrue(handler.isKnownScheme("osis://?osis=Gen.1.1"))
     }
 
     @Test fun epubLinkForNonEpubBookIsNotHandled() {
@@ -197,5 +195,16 @@ class ReadingLinkHandlerTest {
     @Test fun errorLinkReportsTheError() {
         assertTrue(handler.handle("ab-error://error"))
         verify(linkPlatform).reportJsError()
+    }
+
+    @Test fun multiWithoutOsisIsNotHandled() {
+        // The old code called openMulti(emptyList()) here.
+        assertFalse(handler.handle("multi://?v11n=KJV"))
+    }
+
+    @Test fun findAllWithEmptyTypeIsHandledWhenTheNameIsAStrongsNumber() {
+        // The old code only needed `type` to be present; an empty one is fine for g/h names.
+        assertTrue(handler.handle("ab-find-all://?type=&name=G1"))
+        assertFalse(handler.handle("ab-find-all://?type=&name=word"))
     }
 }

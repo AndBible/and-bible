@@ -59,16 +59,6 @@ class ReadingLinkHandler(
 ) {
     private val linkControl get() = session.linkControl
 
-    /** True when [url] has a scheme that [handle] knows (it may still be unhandled for bad parameters). */
-    fun isKnownScheme(url: String): Boolean = when (parseLink(url)?.scheme) {
-        UriConstants.SCHEME_W, UriConstants.SCHEME_MYNOTES, UriConstants.SCHEME_EPUB_REF,
-        UriConstants.MULTI_REFERENCE, UriConstants.SCHEME_STUDYPAD, UriConstants.SCHEME_REFERENCE,
-        UriConstants.SCHEME_FIND_ALL_OCCURRENCES, UriConstants.SCHEME_ERROR, UriConstants.SCHEME_DOWNLOAD,
-        UriConstants.SCHEME_SWORD, UriConstants.SCHEME_STRONGS, UriConstants.SCHEME_MORPHOLOGY,
-        "http", "https" -> true
-        else -> false
-    }
-
     /** Opens [url]; true when it was handled, false for an unknown scheme or unusable parameters. */
     fun handle(url: String): Boolean {
         val link = parseLink(url)
@@ -142,10 +132,10 @@ class ReadingLinkHandler(
                 true
             }
             UriConstants.SCHEME_FIND_ALL_OCCURRENCES -> {
-                val type = link.param("type")?.takeIf { it.isNotEmpty() } ?: return false
+                val type = link.param("type") ?: return false
                 var name = link.param("name")?.lowercase() ?: return false
                 if (!(name.startsWith("g") || name.startsWith("h"))) {
-                    name = type[0] + name
+                    name = (type.firstOrNull() ?: return false) + name
                 }
                 linkControl.showAllOccurrences(name, SearchControl.SearchBibleSection.ALL)
                 true

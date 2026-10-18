@@ -461,6 +461,14 @@ class BibleViewEpubLoadRaceTest {
         assertEquals(listOf(joinFailure), joined.suppressed.toList())
     }
 
+    @Test fun openLinkNeverLetsTheWebViewNavigateKnownOrUnknownSchemes() {
+        // Handled-or-not, the WebView must not navigate: known schemes with missing parameters and unknown ones.
+        for (url in listOf("osis://?v11n=KJV", "journal://", "multi://", "ab-find-all://?type=g", "epub-ref://?book=x",
+            "mailto:a@b.c", "no-scheme")) {
+            assertTrue(url, view.openLink(Uri.parse(url)))
+        }
+    }
+
     @Test fun epubUriFromAnotherDocumentOpensTarget() = checkEpubUri(false)
 
     @Test fun epubUriRejectsChangedSourceDocument() = checkEpubUri(true)
