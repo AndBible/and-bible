@@ -18,6 +18,9 @@
 
 package net.bible.sharedui.reading.host.slots
 
+import net.bible.sharedcore.search.ProgressJob
+import net.bible.sharedcore.search.SearchDocumentInfo
+import net.bible.service.sword.BookAndKeyList
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -53,4 +56,59 @@ interface ReadingQuickActions {
      * window. [book] is explicit because an EPUB table-of-contents key carries its own document.
      */
     fun applyChosenGenBookKey(book: Book?, key: Key)
+}
+
+/**
+ * What the reading view's search needs from the platform: the document being read, the JSword
+ * documents behind result rows, and the two ways a result is shown. Android backs it with the
+ * window/link controllers; another platform supplies its own.
+ */
+@kotlin.native.HiddenFromObjC
+interface ReadingSearchPlatform {
+    /** The document the active window shows, or null (an error page). Read fresh on every call. */
+    fun currentDocument(): Book?
+
+    /** The active window's book name for the search request (`SearchControl.currentBookName`). */
+    fun currentBookName(): String
+
+    /** The JSword `Book` to portable [SearchDocumentInfo] mapping (category, EPUB flag, index state). */
+    fun documentInfo(book: Book?): SearchDocumentInfo?
+
+    /** The installed document with [initials] (any kind), or null. */
+    fun documentByInitials(initials: String): Book?
+
+    /** The installed SWORD document with [initials] a Bible result row points into, or null. */
+    fun swordBookByInitials(initials: String): Book?
+
+    /** The installed Bibles as (initials, abbreviation), sorted by abbreviation. */
+    fun installedBibles(): List<Pair<String, String>>
+
+    /**
+     * Typing a Bible reference ("1 joh 3 16") jumps there in the active window; returns whether
+     * [query] was a reference and the navigation happened.
+     */
+    fun tryOpenReference(query: String): Boolean
+
+    /** Makes [book] at [key] the active window's page (no new window, no history pop). */
+    fun showInActiveWindow(book: Book, key: Key)
+
+    /** Shows [list] (the "open results in a window" multi-document) in the links window. */
+    fun showInLinksWindow(list: BookAndKeyList)
+}
+
+/**
+ * The index-build job feed: JSword's global `JobManager` on Android. [subscribe] registers ONE
+ * listener and returns the call that removes it; the callback gets an identity key for the job and a
+ * lazy "is it finished" read (evaluated on the host's own thread, not the listener's).
+ */
+@kotlin.native.HiddenFromObjC
+interface SearchIndexJobs {
+    /** Starts delivering work events to [onEvent]; the returned function stops it. */
+    fun subscribe(onEvent: (job: Any, isFinished: () -> Boolean) -> Unit): () -> Unit
+
+    /** A snapshot of every running job as progress rows. */
+    fun snapshot(): List<ProgressJob>
+
+    /** Whether no job is running anywhere. */
+    fun isEveryJobFinished(): Boolean
 }

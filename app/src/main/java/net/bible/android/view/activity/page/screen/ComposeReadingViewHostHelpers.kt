@@ -20,8 +20,6 @@ import net.bible.android.activity.R
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
-import net.bible.sharedcore.search.IndexPollDecision
-import net.bible.sharedcore.search.PollOutcome
 import net.bible.sharedcore.search.SearchDocumentCategory
 import net.bible.sharedcore.search.SearchDocumentInfo
 import net.bible.sharedui.strings.Strings
@@ -106,29 +104,6 @@ abstract class ComposeReadingViewHostHelpers {
         if (book.isEpub) epubIndexed(book) else book.indexStatus == IndexStatus.DONE
 
     /**
-     * Waits out JSword's "the job says finished before `indexStatus` says DONE" gap and reports
-     * whether the index actually appeared. The bookkeeping (and the ~12s cap) is [poll]'s; the
-     * waiting is [pause]'s, so this is testable with no clock at all.
-     *
-     * `internal` so `ReadingSearchHostTest` drives the REAL loop rather than a replica of it —
-     * the `GaveUp` outcome (an index that finishes but never reaches DONE) is exactly what the
-     * cap exists for, and what must land back in `NeedsIndex` instead of empty `Results`.
-     */
-    internal suspend fun awaitIndexDone(
-        poll: IndexPollDecision,
-        indexDone: () -> Boolean,
-        pause: suspend () -> Unit,
-    ): Boolean {
-        while (true) {
-            when (poll.onPoll(indexDone())) {
-                PollOutcome.Done -> return true
-                PollOutcome.GaveUp -> return false
-                PollOutcome.KeepPolling -> pause()
-            }
-        }
-    }
-
-    /**
      * The "cannot be searched" snackbar's text (review item 2).
      *
      * [ComposeReadingViewHost.searchUnavailableDocName] is composed from
@@ -140,60 +115,6 @@ abstract class ComposeReadingViewHostHelpers {
      */
     internal fun searchUnavailableMessage(docName: String, strings: Strings): String =
         net.bible.sharedui.reading.host.searchUnavailableMessage(docName, strings)
-
-    /**
-     * Whether a `JobManager` work event may resolve the index build the search sheet is waiting
-     * on — i.e. poll `indexStatus`, possibly report failure, tear the feed down and hand the
-     * session back to [ReadingSearchController.onIndexingFinished].
-     *
-     * Review I1 (a regression against classic, not a port of one). `JobManager`'s listener is
-     * global: a `WorkEvent` fires for EVERY JSword job, so [jobFinished] says nothing about the
-     * index build. Resolving on it meant an unrelated finished job (a module download, an
-     * install) tore the feed down mid-build — after which the real completion had nobody
-     * listening, the phase had already fallen back to `NeedsIndex`, and that prompt's Create ran
-     * `deleteDocumentIndex` under the build that was about to succeed. Classic's
-     * `SearchIndexProgressComposeActivity` has the same "any finished job" shape but keeps its
-     * listener registered until `onPause` (`:92-96`), so the real completion is still handled
-     * there; the early teardown is the port's own doing.
-     *
-     * So the gate is [everyJobFinished] — no JSword job is still running anywhere — and NOT the
-     * identity of the build's own `Progress`, for two reasons: the host never sees that object
-     * (JSword creates it inside `IndexManager.scheduleIndexCreation`, layers below
-     * `SearchIndexServiceImpl.createIndex`, and nothing on that path returns it), and matching by
-     * `jobName` would key behaviour on a localised progress label. The cost is deferral, not
-     * correctness: while a foreign job is still running nothing resolves, and that job's own
-     * finish event then opens this gate, whereupon the poll finds the index `DONE`.
-     *
-     * It also has to sit BEFORE the poll rather than after it: the ≤12 s budget lives in one
-     * [IndexPollDecision] per build (its own kdoc: "the counter is not reset"), so polling on a
-     * foreign job would spend the real completion's budget and report a false failure.
-     */
-    internal fun shouldResolveIndexBuild(jobFinished: Boolean, everyJobFinished: Boolean): Boolean =
-        jobFinished && everyJobFinished
-
-    /**
-     * F6 Task 11's chaining decision for [ComposeReadingViewHost.onSearchIndexWorkEvent]: once a build resolves, decides
-     * whether to prompt again for a DIFFERENT translation from the results selector's chosen set,
-     * or let [ReadingSearchController.onIndexingFinished] behave exactly as it did before this
-     * task. Returns the next unindexed translation id to prompt for, or `null` when there is
-     * nothing left to chain — the build failed, [pendingIds] is `null` (this is not a
-     * selector-driven run at all — the plain "document being read has no index" flow), or
-     * [unindexedAmong] reports every id in [pendingIds] as indexed now.
-     *
-     * `internal` on the companion for the same reason as [awaitIndexDone]/[searchDocumentInfo]
-     * just above: `ReadingSearchHostTest` drives the decision directly, with no real JSword
-     * `Progress`/`WorkEvent`/`JobManager` round trip (the only production caller,
-     * [ComposeReadingViewHost.onSearchIndexWorkEvent], is itself untested end-to-end for the same reason `awaitIndexDone`
-     * already is not).
-     */
-    internal fun nextSelectorIndexPrompt(
-        pendingIds: List<String>?,
-        indexDone: Boolean,
-        unindexedAmong: (List<String>) -> List<String>,
-    ): String? {
-        if (pendingIds == null || !indexDone) return null
-        return unindexedAmong(pendingIds).firstOrNull()
-    }
 
     /**
      * Drawable-name -> `R.drawable.*` for every icon the Compose drawer can ask for: the 22

@@ -1090,10 +1090,14 @@ class ReadingSearchEntryPointsTest {
                 host.searchController.submit()
                 assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value, "sanity")
 
+                val listenersBefore = listeners.toList()
                 host.searchController.acceptIndexing()
-                indexListener = assertNotNull(ComposeReadingViewHost::class.java
-                    .getDeclaredField("searchIndexWorkListener").apply { isAccessible = true }.get(host))
-                assertTrue(listeners.any { it === indexListener }, "sanity: this host registered its actual global listener")
+                // The feed's subscription is private to the search state now; its one new entry in
+                // the process-wide JobManager list is this host's actual global listener.
+                indexListener = assertNotNull(
+                    listeners.singleOrNull { added -> listenersBefore.none { it === added } },
+                    "sanity: accepting the index registers exactly one new global listener",
+                )
                 host.searchController.onIndexingFinished(true)
 
                 var dispatched: SearchRequest? = null

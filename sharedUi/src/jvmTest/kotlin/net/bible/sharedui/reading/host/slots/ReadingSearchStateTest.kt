@@ -44,8 +44,7 @@ class ReadingSearchStateTest {
         override fun setFloat(key: String, value: Float?) = Unit
     }
 
-    private fun state(settings: AppSettings) =
-        ReadingSearchState(settings, CoroutineScope(SupervisorJob() + Dispatchers.Unconfined))
+    private fun state(settings: MapSettings) = SearchFixture(settings = MapSearchSettings(settings.strings)).state
 
     @Test
     fun persistsTranslationsUnderTheSameKey() {

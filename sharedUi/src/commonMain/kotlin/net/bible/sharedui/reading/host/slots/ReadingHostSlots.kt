@@ -72,6 +72,8 @@ import net.bible.sharedui.strings.Strings
  * [activeWindowPosition] and [currentDocumentInitials] for the History title and the current-document
  * mark. The key-chooser sheets stay in the platform host for now.
  *
+ * The search sheet and the search settings read [searchState].
+ *
  * The agent log's glyph comes from [LocalAgentStatusIcon]; `AgentLogController` is built by the
  * host (its raw-log action starts a platform activity).
  */
@@ -85,9 +87,6 @@ class ReadingHostSlots(
     val disableAnimations: () -> Boolean,
     val fullScreen: () -> Boolean,
     val searchState: ReadingSearchState,
-    val searchSettingsForEpub: () -> Boolean,
-    val currentBookName: () -> String,
-    val onSearchSettingsClosed: () -> Unit,
     val textDisplaySettingsService: () -> TextDisplaySettingsService,
     val scope: CoroutineScope,
     val imagePicker: ImagePicker,
@@ -173,13 +172,18 @@ class ReadingHostSlots(
     )
 
     /**
-     * The modal search-settings sheet. [searchSettingsForEpub] decides the EPUB word-mode row vs the
-     * Bible form from the live target document; [onSearchSettingsClosed] re-runs a search in flight.
+     * The modal search-settings sheet. The live target document decides the EPUB word-mode row vs
+     * the Bible form; closing re-runs a search in flight.
      */
     @Composable
     fun SearchSettings() = SearchSettingsSlotContent(
-        searchState, searchSettingsForEpub, currentBookName, onSearchSettingsClosed,
+        searchState, searchState::searchSettingsForEpub, searchState::currentBookName,
+        searchState.controller::settingsClosed,
     )
+
+    /** The search sheet: the index prompt/progress panel or the results, per search phase. */
+    @Composable
+    fun SearchSheet() = SearchSheetSlotContent(searchState, strings())
 
     /**
      * The quick sheet [sheet] (History, Workspaces, Documents, Share or ReadHistory); renders nothing
