@@ -5,4 +5,7 @@ interface HelpDialogs {
 }
 
 /** The help topics lifted call sites use; each lifting task adds its constants. */
-enum class HelpTopic
+enum class HelpTopic {
+    /** The reading-progress screen's overflow help. */
+    READING_PROGRESS,
+}

@@ -3,7 +3,16 @@ package net.bible.sharedui.app
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
+import net.bible.android.control.progress.ReadingProgressServiceImpl
+import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.settings.AppSettingsService
+import net.bible.sharedui.app.ports.DebugActions
+import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.HostPorts
+import net.bible.sharedui.app.ports.SettingsPlatform
+import net.bible.sharedui.app.settings.SettingsHost
+import org.koin.core.parameter.parametersOf
 import net.bible.sharedui.app.welcome.WelcomeHost
 import net.bible.sharedui.strings.Strings
 import org.koin.core.Koin
@@ -21,13 +30,35 @@ data class AppHostsState(val version: Int = 1)
  * Constructing it must not touch the database; hosts resolve their collaborators lazily.
  */
 class AppHosts(
-    @Suppress("unused") private val koin: Koin,
+    private val koin: Koin,
     private val shell: HostShell,
     private val ports: HostPorts,
-    @Suppress("unused") private val strings: Strings,
+    private val strings: Strings,
 ) {
     /** The first-run welcome's deps builder; built on first use, no database access. */
     val welcome: WelcomeHost by lazy { WelcomeHost(shell, ports.welcomePlatform()) }
+
+    /**
+     * The settings cluster's deps builder. Built on first use; every service and controller behind it resolves
+     * lazily, so this touches no database.
+     */
+    val settings: SettingsHost by lazy {
+        SettingsHost(
+            shell = shell,
+            strings = strings,
+            appSettingsProvider = { koin.get<AppSettings>() },
+            platform = koin.get<SettingsPlatform>(),
+            links = koin.get<ExternalLinks>(),
+            debug = koin.get<DebugActions>(),
+            systemScreens = ports.systemScreens,
+            helpDialogs = ports.helpDialogs,
+            appSettingsServiceProvider = { koin.get<AppSettingsService>() },
+            // Observe snapshots in the host scope; durable sync writes use the injected app scope.
+            syncSettingsServiceProvider = { koin.get<SyncSettingsServiceImpl> { parametersOf(shell.hostScope) } },
+            readingProgressSettingsServiceProvider = { koin.get() },
+            readingProgressServiceProvider = { koin.get<ReadingProgressServiceImpl>() },
+        )
+    }
 
     /**
      * Until the activity's call site moves here (completed in Task 16), the activity builds `AppGraphs` itself

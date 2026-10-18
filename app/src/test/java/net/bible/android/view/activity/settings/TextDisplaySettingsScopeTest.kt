@@ -176,12 +176,15 @@ class TextDisplaySettingsScopeTest {
      */
     @Test
     fun theHostsGlobalTextSettingsRowNavigatesToTheGlobalRoute() {
-        val source = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
-        assertTrue("cannot find ${source.absolutePath}", source.isFile)
-        val text = source.readText()
+        // The row's lambda lives in `SettingsHost` (I2 Stream A Task 4); the activity must not grow it back.
+        val activity = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        val host = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/settings/SettingsHost.kt")
+        assertTrue("cannot find ${activity.absolutePath}", activity.isFile)
+        assertTrue("cannot find ${host.absolutePath}: this scan would watch nothing", host.isFile)
+        val text = activity.readText() + "\n" + host.readText()
         assertTrue(
             "the global text-settings row must navigate to the global route",
-            text.contains("""NavRoutes.textDisplaySettings(scopeLevel = "global")"""),
+            host.readText().contains("""NavRoutes.textDisplaySettings(scopeLevel = "global")"""),
         )
         assertFalse(
             "the host still launches the classic text-settings Screen — that launch is what hung " +

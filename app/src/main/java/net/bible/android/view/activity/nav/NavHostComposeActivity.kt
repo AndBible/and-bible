@@ -35,7 +35,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
-import android.provider.Settings
 import android.text.format.Formatter
 import net.bible.sharedcore.log.Log
 import android.util.TypedValue
@@ -128,7 +127,6 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.LanguageGrouping
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.readingplan.ReadingPlanDayWrites
 import net.bible.android.control.page.PageControl
@@ -217,10 +215,7 @@ import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
 import net.bible.android.view.activity.search.toClassicSearchTypeName
-import net.bible.android.view.activity.settings.AppSettingsServiceImpl
 import net.bible.android.view.activity.settings.BackgroundThumbnailResolver
-import net.bible.android.view.activity.settings.SettingsReset
-import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.android.view.activity.settings.TextDisplaySettingsRouteEntry
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.android.view.activity.settings.buildBackgroundImageChooserLabels
@@ -228,10 +223,9 @@ import net.bible.android.view.activity.settings.buildColorSettingsLabels
 import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
 import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.AndBibleAddons
-import net.bible.service.common.BuildVariant
 import net.bible.android.view.util.UiUtils
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.THEME_PALETTE_STYLE_KEY
 import net.bible.service.device.ScreenSettings
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
@@ -359,9 +353,6 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.nav.ReadingProgressResult
-import net.bible.sharedcore.progress.ReadHistoryEntry
-import net.bible.sharedcore.progress.ReadingProgressController
-import net.bible.sharedcore.progress.ReadingTab
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewKey
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
@@ -385,16 +376,9 @@ import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.SwordResultRow
-import net.bible.sharedcore.settings.AppSettingsController
-import net.bible.sharedcore.settings.AppSettingsLabels
 import net.bible.sharedcore.settings.ColorSettingsController
-import net.bible.sharedcore.settings.ReadingProgressSettingsController
-import net.bible.sharedcore.settings.ReadingProgressSettingsLabels
-import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScope
-import net.bible.sharedcore.settings.SyncSettingsController
-import net.bible.sharedcore.settings.SyncSettingsLabels
 import net.bible.sharedcore.settings.TextDisplaySettingsController
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.workspaces.WorkspaceSelectorController
@@ -439,7 +423,6 @@ import net.bible.sharedui.components.ymdToUtcMidnightMillis
 import net.bible.sharedui.components.AbMultiSelectSheet
 import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.components.AbOverflowMenu
-import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.nav.readingNavGraph
@@ -465,7 +448,6 @@ import net.bible.sharedui.search.nav.SearchResultsDeps
 import net.bible.sharedui.search.nav.SearchSubmission
 import net.bible.sharedui.search.nav.TranslationSelection
 import net.bible.sharedui.settings.nav.AppSettingsDeps
-import net.bible.sharedui.settings.nav.ReadHistoryRequest
 import net.bible.sharedui.settings.nav.ReadingProgressDeps
 import net.bible.sharedui.settings.nav.ReadingProgressSettingsDeps
 import net.bible.sharedui.settings.nav.SettingsNavDeps
@@ -611,15 +593,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     internal val readingAppBootstrap = ReadingAppBootstrap(this)
 
-    /**
-     * Classic `ReadingProgressComposeActivity.kt:74` injects the CONCRETE impl, not the portable
-     * `ReadingProgressService` seam, and this host must too: `osisIdForChapter` (the chapter result
-     * intent) and the read-history/date-formatting helpers live only on the impl.
-     */
-    private val readingProgressService: ReadingProgressServiceImpl by inject()
-
-    private val readingProgressSettingsService: ReadingProgressSettingsService by inject()
-
     /** The label editor's orphaned-bookmark counter and save/delete writes — classic
      *  `LabelEditComposeActivity`'s own injected service, unchanged. */
     private val labelEditService: LabelEditService by inject()
@@ -652,19 +625,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *  `currentHideLabelsIds`, which is not part of the portable interface. */
     private val workspaceService: WorkspaceService by inject()
     private val sharedTextDisplaySettingsService: TextDisplaySettingsServiceImpl by inject()
-
-    /**
-     * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
-     * classic: it caches four JSword `Books.installed()` dictionary scans for the screen's lifetime.
-     * Host-held because the settings destination's composition is disposed and re-entered whenever
-     * another destination sits on top of it, and a service rebuilt then would re-run those scans.
-     */
-    private val appSettingsService by lazy { AppSettingsServiceImpl() }
-
-    /** Observe snapshots in the host scope; durable sync writes use the injected app scope. */
-    private val syncSettingsService: SyncSettingsServiceImpl by inject {
-        org.koin.core.parameter.parametersOf(lifecycleScope)
-    }
 
     /**
      * The AI cluster's three host-lifetime controllers and its two tool lists, LAZY for exactly the
@@ -723,70 +683,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val allAiTools by lazy { ToolRegistry.getAllTools() }
     private val aiReadTools by lazy { allAiTools.filter { !it.requiresPermission }.map { it.toToolVd() } }
     private val aiWriteTools by lazy { allAiTools.filter { it.requiresPermission }.map { it.toToolVd() } }
-
-    /**
-     * The settings cluster's two controllers, LAZY on purpose. `SettingsNavDeps` is assembled on
-     * every launch of this host — which now serves four clusters — but constructing either of these
-     * is expensive and settings-specific: [AppSettingsController] forces [appSettingsService]
-     * (four JSword `Books.installed()` dictionary scans and ~51 `CommonUtils.settings` reads, each
-     * a Room query on the main thread), builds the whole `SettingsScreenState` item tree, needs
-     * ~90 `getString` calls for its labels and launches a permanent snapshot collector;
-     * [SyncSettingsController] starts [syncSettingsService]'s asynchronous snapshot load
-     * (cloud sign-in, category timestamps and adapter summaries) plus ~35 more `getString`s. Classic paid that only when Settings
-     * itself opened, and a `by lazy` behind the deps' `() -> Controller` getter keeps it that way:
-     * nothing is built until a settings DESTINATION composes.
-     *
-     * Lazy rather than the reading-plan/search clusters' per-entry `controllerFor` factories,
-     * deliberately: the state here (the collector, the snapshot) should outlive one back-stack
-     * entry's composition, so a destination re-entered after a child pops keeps what it had.
-     */
-    private val appSettingsController by lazy {
-        AppSettingsController(
-            service = appSettingsService,
-            scope = lifecycleScope,
-            labels = buildAppSettingsLabels(),
-            // Unused by design: the screen's onNavigate is wired directly in settingsNavGraph's
-            // SETTINGS arm, because two of its seven rows are routes in this host's graph. See
-            // AppSettingsDeps' kdoc.
-            onNavigate = {},
-            // Task 15: the reset question is now the controller's own dialog state; confirmDialog()
-            // runs this callback, which still needs SettingsReset/appSettingsService/recreate() (no
-            // :sharedCore equivalent).
-            onConfirmReset = { resetSettings() },
-        )
-    }
-
-    private val syncSettingsController by lazy {
-        SyncSettingsController(
-            service = syncSettingsService,
-            scope = lifecycleScope,
-            labels = buildSyncSettingsLabels(),
-            // nav-graph slice 4 Task 8: CloudDocuments is now a destination in THIS graph, so an
-            // in-graph hop keeps a settings->cloud hop inside the host rather than starting a
-            // second one. `navController` is only null in the sliver before the graph's first
-            // composition; this callback cannot fire before then (nothing has rendered yet to call
-            // it from), so the `?.let` is a defensive no-op, never a live path.
-            onOpenCloudDocuments = { navController?.let { navigateToRoute(it, NavRoutes.cloudDocuments()) } },
-        )
-    }
-
-    /**
-     * The reading-progress SETTINGS controller, `by lazy` for [appSettingsController]'s reason —
-     * cheaper to build (one service snapshot, ~13 `getString`s) but still settings-specific work
-     * that no other cluster's destination should pay for when the deps literal is assembled.
-     *
-     * There is deliberately NO lazy field for the reading-progress SCREEN's controller: that one is
-     * a per-back-stack-entry factory ([ReadingProgressDeps.controllerFor], built in
-     * [readingProgressControllerFor] below), because its model belongs to one entry and is reloaded
-     * on entry anyway.
-     */
-    private val readingProgressSettingsController by lazy {
-        ReadingProgressSettingsController(
-            service = readingProgressSettingsService,
-            scope = lifecycleScope,
-            labels = buildReadingProgressSettingsLabels(),
-        )
-    }
 
     /**
      * The route `HistoryManager` should re-launch for whatever this host currently shows, or null
@@ -3812,91 +3708,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         ),
                     )
                 }
-                val settingsDeps = remember {
-                    SettingsNavDeps(
-                        exitHost = { finish() },
-                        setWindowTitle = { title -> setTitle(title) },
-                        appSettings = AppSettingsDeps(
-                            // A getter over the host's `by lazy`, never an instance built here:
-                            // assembling these deps runs on EVERY host launch, for every cluster,
-                            // and building this controller costs four Books.installed() scans plus
-                            // ~51 Room-backed settings reads on the main thread. See
-                            // [appSettingsController] and AppSettingsDeps.controller's kdoc.
-                            controller = { appSettingsController },
-                            maybeRecreate = { key -> maybeRecreateForSettingsKey(key) },
-                            discreteHelpHtml = { buildDiscreteHelpHtml() },
-                            // Classic's `global_text_display_settings` row
-                            // (`SettingsComposeActivity.kt:179-187`), now a graph navigation.
-                            //
-                            // THE FIX for design §3.2 item 2. What stood here built a classic
-                            // text-settings Activity Intent (through `ScreenLauncher`, named
-                            // without quoting the arm so the guard scan that hunts that launch can
-                            // see the real thing is gone) and hung a detached settings bundle on
-                            // it -- under the very extra key that screen uses to mean "a
-                            // selector-originated edit of THIS workspace", which its scope
-                            // resolution tested FIRST. So this row, which means GLOBAL, opened a
-                            // detached edit of the empty workspace (a `SettingsLevel.GLOBAL`
-                            // bundle's workspace id is `IdType.empty()`), and the edit's echo went
-                            // nowhere because the launch was `startActivity` and read no result.
-                            // The kdoc that stood above it asserted the opposite.
-                            //
-                            // A route argument is named, so the row now simply says which scope it
-                            // means and carries no bundle at all. `TextDisplaySettingsScopeTest`
-                            // pins both halves.
-                            onOpenTextDisplaySettings = {
-                                navController.navigate(NavRoutes.textDisplaySettings(scopeLevel = "global"))
-                            },
-                            onOpenLinksSettings = { openLinksSettings() },
-                            onCrashApp = { crashApp() },
-                            onTestErrorDialog = {
-                                Dialogs.showErrorMsg("Test error (debug build)", RuntimeException("E4 test exception"))
-                            },
-                            onTestErrorDialogQueue = {
-                                Dialogs.showErrorMsg("Test error 1 of 2", RuntimeException("E4 test exception"))
-                                Dialogs.showErrorMsg("Test error 2 of 2", RuntimeException("E4 test exception"))
-                            },
-                            // One getString, unlike the ~90 the label bundle needs — cheap enough
-                            // to stay eager.
-                            resetContentDescription = getString(R.string.reset_settings),
-                            onResume = { appSettingsService.refresh() },
-                            askBeforeOpeningLink = { CommonUtils.isDiscrete },
-                            onOpenExternal = { CommonUtils.openLinkNow(it) },
-                        ),
-                        syncSettings = SyncSettingsDeps(
-                            controller = { syncSettingsController },
-                            onResume = { syncSettingsService.refresh() },
-                        ),
-                        readingProgress = ReadingProgressDeps(
-                            // A factory, so nothing here constructs a controller or touches the
-                            // read-history DAO until the destination actually composes — the same
-                            // rule the two getters above follow. See readingProgressControllerFor.
-                            controllerFor = { tabArg, onShowHistory, onResult ->
-                                readingProgressControllerFor(tabArg, onShowHistory, onResult)
-                            },
-                            persistTab = { tab -> persistReadingProgressTab(tab) },
-                            onApplyHistoryDeletes = { ids, cycle, onDeleted ->
-                                lifecycleScope.launch {
-                                    readingProgressService.deleteReadHistoryEntries(ids, cycle)
-                                    onDeleted()
-                                }
-                            },
-                            onShowHelp = { showReadingProgressHelp() },
-                            unmarkConfirmMessage = { rangeName ->
-                                getString(R.string.memorize_confirm_unmark, rangeName)
-                            },
-                            removeTargetConfirmMessage = { rangeName ->
-                                getString(R.string.memorize_confirm_remove_target, rangeName)
-                            },
-                            // classic's android.R.string.ok / cancel — the SYSTEM strings, kept.
-                            confirmText = getString(android.R.string.ok),
-                            dismissText = getString(android.R.string.cancel),
-                        ),
-                        readingProgressResults = readingProgressResults,
-                        readingProgressSettings = ReadingProgressSettingsDeps(
-                            controller = { readingProgressSettingsController },
-                        ),
-                    )
-                }
+                val settingsDeps = remember { appHosts.settings.navDeps(navController, readingProgressResults) }
                 val bookmarkDeps = remember {
                     BookmarkNavDeps(
                         exitHost = { finish() },
@@ -7418,507 +7230,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         openInstallZip(action = Intent.ACTION_VIEW, uris = listOf(uri))
     }
 
-    // --- Settings cluster host baggage (slice 6) ------------------------------------------------
-    // Ported from classic SettingsComposeActivity / SyncSettingsComposeActivity (both deleted in
-    // nav-graph Task 9): Android-resource label bundles, the two platform AlertDialogs, the
-    // recreate() parity rule, and the three navigation rows that have no destination in the graph.
-    // See SettingsNavGraph's AppSettingsDeps kdoc for why each stays host-side.
-
-    /**
-     * Classic's `maybeRecreate` (`SettingsComposeActivity.kt:148-150`). These keys' effects are
-     * read only at Activity-creation time — the locale through `attachBaseContext`, the theme
-     * values once per composition — so nothing observes them reactively and a recreate is what makes
-     * the change visible at once.
-     *
-     * **Plan D5, a recorded behaviour change:** on this host `recreate()` recreates EVERY
-     * destination and rebuilds the whole back stack, not just the settings screen that asked for
-     * it. The behaviour is kept deliberately (it is what makes a locale or theme change take
-     * effect); Task 10 records it.
-     */
-    private fun maybeRecreateForSettingsKey(key: String) {
-        if (key in RECREATE_ON_CHANGE_KEYS) recreate()
-    }
-
-    /** Classic `:264-268` verbatim, recreate() included — see [maybeRecreateForSettingsKey]. Platform-
-     *  dialog removal Task 15: the question that used to guard this call is now
-     *  [AppSettingsController]'s own `dialog` state; this is wired into the controller's
-     *  `onConfirmReset` constructor param and runs only from `confirmDialog()`. */
-    private fun resetSettings() {
-        SettingsReset.performReset()
-        appSettingsService.refresh()
-        recreate()
-    }
-
-    /**
-     * Classic's persecution-help HTML body (`SettingsComposeActivity.kt:189-216`), built exactly as
-     * before. Platform-dialog removal Task 15: this used to feed a platform `AlertDialog` with a
-     * `LinkMovementMethod`-enabled message view; it now feeds
-     * [net.bible.sharedcore.settings.AppSettingsController.showDiscreteHelp], rendered by
-     * [net.bible.sharedui.settings.AppSettingsScreen] as an `AbMessageDialog` whose inline wiki link
-     * this host's `askBeforeOpeningLink`/`onOpenExternal` (`CommonUtils.isDiscrete`/`openLinkNow`)
-     * still routes.
-     */
-    private fun buildDiscreteHelpHtml(): String {
-        val linkUrl = "https://github.com/AndBible/and-bible/wiki/Discrete-build"
-        val linkText = "<a href=\"$linkUrl\">$linkUrl</a>"
-
-        val dPar1 = getString(R.string.discrete_mode_info_par1)
-        val dPar2 = getString(R.string.discrete_mode_info_par2)
-        val dLink = getString(R.string.discrete_mode_link, linkText)
-
-        val calcPar1 = getString(R.string.calculator_par1)
-        val calcPar2 = getString(R.string.calculator_par2)
-        val calcPar3 = getString(R.string.calculator_par3)
-
-        val dText = "$dPar1<br><br>$dPar2<br><br>$dLink<br><br>"
-        val calcText = "$calcPar1$calcPar2<br><br>$calcPar3<br><br>$dLink"
-        return if (!BuildVariant.Appearance.isDiscrete) dText else calcText
-    }
-
-    /** Classic's `open_links` row (`:218-227`) — the Android app-links system screen, gated to S+. */
-    private fun openLinksSettings() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val intent = Intent(
-                Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
-                Uri.parse("package:$packageName"),
-            )
-            startActivity(intent)
-        }
-    }
-
-    /**
-     * Classic's `crash_app` row (`:229-241`), beta-gated, including its fresh
-     * lifecycle-INDEPENDENT [CoroutineScope]: the delayed crash must still fire if the user leaves
-     * the settings screen within the ten seconds. That is now a destination change rather than an
-     * Activity finish, which if anything makes the point stronger.
-     */
-    private fun crashApp() {
-        CoroutineScope(Dispatchers.Main).launch {
-            UserMessages.errorNotification("Crashing app in 10 seconds!")
-            delay(10000)
-            throw RuntimeException("Crash app!")
-        }
-    }
-
-    private fun buildAppSettingsLabels() = AppSettingsLabels(
-        screenTitle = getString(R.string.settings),
-        fontSizePercentFormat = getString(R.string.pref_font_size_multiplier_percent_format),
-
-        resetConfirmMessage = getString(R.string.reset_app_prefs),
-
-        dictionariesCat = getString(R.string.prefs_dictionaries_cat),
-        behaviorCat = getString(R.string.prefs_behavior_customization_cat),
-        displayCat = getString(R.string.prefs_display_customization_cat),
-        einkCat = getString(R.string.prefs_eink_settings_cat),
-        persecutionCat = getString(R.string.prefs_persecution_cat),
-        featuresCat = getString(R.string.prefs_features_cat),
-        advancedCat = getString(R.string.prefs_advanced_settings_cat),
-
-        strongsGreekDictionaryTitle = getString(R.string.choose_strongs_greek_dictionary_title),
-        strongsGreekDictionarySummary = getString(R.string.choose_strongs_greek_dictionary_summary),
-        strongsHebrewDictionaryTitle = getString(R.string.choose_strongs_hebrew_dictionary_title),
-        strongsHebrewDictionarySummary = getString(R.string.choose_strongs_hebrew_dictionary_summary),
-        robinsonGreekMorphologyTitle = getString(R.string.choose_strongs_greek_morphology_title),
-        robinsonGreekMorphologySummary = getString(R.string.choose_strongs_greek_morphology_summary),
-        disabledWordLookupDictionariesTitle = getString(R.string.choose_word_lookup_dictionary_title),
-        disabledWordLookupDictionariesSummary = getString(R.string.choose_word_lookup_dictionary_summary),
-
-        navigateToVerseTitle = getString(R.string.prefs_navigate_to_verse_title),
-        navigateToVerseSummary = getString(R.string.prefs_navigate_to_verse_summary),
-        openLinksInSpecialWindowTitle = getString(R.string.prefs_open_links_in_special_window_title),
-        openLinksInSpecialWindowSummary = getString(R.string.prefs_open_links_in_special_window_summary),
-        screenKeepOnTitle = getString(R.string.prefs_screen_keep_on_title),
-        screenKeepOnSummary = getString(R.string.prefs_screen_keep_on_summary),
-        doubleTapToFullscreenTitle = getString(R.string.prefs_double_tap_to_fullscreen_title),
-        doubleTapToFullscreenSummary = getString(R.string.prefs_double_tap_to_fullscreen_summary),
-        autoFullscreenTitle = getString(R.string.auto_fullscreen),
-        autoFullscreenSummary = getString(R.string.auto_fullscreen_summary),
-        toolbarButtonActionsTitle = getString(R.string.prefs_toolbar_button_action_title),
-        toolbarButtonActionsSummary = getString(R.string.prefs_toolbar_button_action_summary),
-        bibleViewSwipeModeTitle = getString(R.string.prefs_bible_view_swipe_mode_title),
-        bibleViewSwipeModeSummary = getString(R.string.prefs_bible_view_swipe_mode_summary),
-        disableTwoStepBookmarkingTitle = getString(R.string.prefs_disable_two_step_bookmarking_title),
-        disableTwoStepBookmarkingSummary = getString(R.string.prefs_disable_two_step_bookmarking_summary),
-        volumeKeysScrollTitle = getString(R.string.prefs_volume_keys_scroll_title),
-        volumeKeysScrollSummary = getString(R.string.prefs_volume_keys_scroll_summary),
-        nightModeTitle = getString(R.string.prefs_night_mode_title),
-        nightModeSummary = getString(R.string.prefs_night_mode_summary),
-        themePaletteStyleTitle = getString(R.string.prefs_theme_palette_style_title),
-        themePaletteStyleSummary = getString(R.string.prefs_theme_palette_style_summary),
-
-        localeTitle = getString(R.string.prefs_interface_locale_title),
-        localeSummary = getString(R.string.prefs_interface_locale_summary),
-        disableClickToEditTitle = getString(R.string.prefs_disable_click_to_edit_title),
-        disableClickToEditSummary = getString(R.string.prefs_disable_click_to_edit_summary),
-        notesContentTypeTitle = getString(R.string.prefs_notes_content_type_title),
-        notesContentTypeSummary = getString(R.string.prefs_notes_content_type_summary),
-        fontSizeMultiplierTitle = getString(R.string.pref_font_size_multiplier_title),
-        hideStatusBarTitle = getString(R.string.prefs_hide_status_bar_title),
-        hideStatusBarSummary = getString(R.string.prefs_hide_status_bar_summary),
-        fullScreenHideButtonsTitle = getString(R.string.full_screen_hide_buttons_pref_title),
-        fullScreenHideButtonsSummary = getString(R.string.full_screen_hide_buttons_pref_summary),
-        hideWindowButtonsTitle = getString(R.string.hide_window_buttons_title),
-        hideWindowButtonsSummary = getString(R.string.hide_window_buttons_summary),
-        hideBibleReferenceOverlayTitle = getString(R.string.hide_bible_reference_overlay_title),
-        hideBibleReferenceOverlaySummary = getString(R.string.hide_bible_reference_overlay_summary),
-        showActiveWindowIndicatorTitle = getString(R.string.active_window_indicator_title),
-        showActiveWindowIndicatorSummary = getString(R.string.active_window_indicator_summary),
-        disableBibleBookmarkModalButtonsTitle = getString(R.string.prefs_in_window_bible_bookmark_modal_buttons_title),
-        disableBibleBookmarkModalButtonsSummary = getString(R.string.prefs_in_window_bookmark_modal_buttons_description),
-        disableGenBookmarkModalButtonsTitle = getString(R.string.prefs_in_window_gen_bookmark_modal_buttons_title),
-        disableGenBookmarkModalButtonsSummary = getString(R.string.prefs_in_window_bookmark_modal_buttons_description),
-
-        displayColorModeTitle = getString(R.string.prefs_display_color_mode_title),
-        displayColorModeSummary = getString(R.string.prefs_display_color_mode_summary),
-        einkModeTitle = getString(R.string.prefs_eink_display_title),
-        einkModeSummary = getString(R.string.prefs_eink_display_summary),
-        disableAnimationsTitle = getString(R.string.prefs_disable_animations_title),
-        disableAnimationsSummary = getString(R.string.prefs_disable_animations_summary),
-
-        discreteHelpTitle = getString(R.string.prefs_persecuted_help),
-        discreteHelpSummary = getString(R.string.prefs_persecuted_summary),
-        discreteModeTitle = getString(R.string.prefs_discrete_mode),
-        discreteModeSummary = getString(R.string.prefs_discrete_mode_desc),
-        showCalculatorTitle = getString(R.string.prefs_show_calculator),
-        calculatorPinTitle = getString(R.string.prefs_calculator_pin),
-        calculatorPinSummary = getString(R.string.prefs_calculator_pin_desc),
-
-        experimentalFeaturesTitle = getString(R.string.prefs_experimental_features_title),
-        experimentalFeaturesSummary = getString(R.string.prefs_experimental_features_summary),
-        enableBluetoothTitle = getString(R.string.prefs_enable_bluetooth_title),
-        enableBluetoothSummary = getString(R.string.prefs_enable_bluetooth_summary),
-        requestSdcardPermissionTitle = getString(R.string.prefs_request_sdcard_permission_title),
-        requestSdcardPermissionSummary = getString(R.string.prefs_request_sdcard_permission_summary),
-        showErrorboxTitle = getString(R.string.prefs_show_error_box_title),
-        showErrorboxSummary = getString(R.string.prefs_show_error_box_summary),
-        openLinksTitle = getString(R.string.open_bible_links_title),
-        openLinksSummary = getString(R.string.open_bible_links_summary),
-        crashAppTitle = getString(R.string.crash_app),
-        crashAppSummary = getString(R.string.crash_app_summary),
-        testErrorDialogTitle = getString(R.string.test_error_dialog),
-        testErrorDialogSummary = getString(R.string.test_error_dialog_summary),
-        testErrorDialogQueueTitle = getString(R.string.test_error_dialog_queue),
-        testErrorDialogQueueSummary = getString(R.string.test_error_dialog_queue_summary),
-
-        syncShortcutTitle = getString(R.string.cloud_sync_title),
-        syncShortcutSummary = getString(R.string.sync_settings_shortcut_summary),
-        aiShortcutTitle = getString(R.string.ai_settings),
-        aiShortcutSummary = getString(R.string.ai_settings_shortcut_summary),
-        readingProgressShortcutTitle = getString(R.string.reading_progress_settings),
-        readingProgressShortcutSummary = getString(R.string.reading_progress_settings_summary),
-        textDisplayShortcutTitle = getString(R.string.global_text_display_settings_title),
-        textDisplayShortcutSummary = getString(R.string.global_text_display_settings_summary),
-    )
-
-    private fun buildSyncSettingsLabels() = SyncSettingsLabels(
-        screenTitle = getString(R.string.cloud_sync_title),
-        generalCat = getString(R.string.sync_general_settings),
-        syncCat = getString(R.string.synchronization_categories),
-        documentSyncCat = getString(R.string.document_sync_category_title),
-        adapterTitle = getString(R.string.sync_adapter),
-        resetTitle = getString(R.string.reset_sync),
-        resetSummary = getString(R.string.prefs_reset_sync_summary),
-        cloudInfoTitle = getString(R.string.cloud_info),
-        serverUrlTitle = getString(R.string.auth_server_uri),
-        usernameTitle = getString(R.string.auth_username),
-        passwordTitle = getString(R.string.auth_password),
-        folderPathTitle = getString(R.string.auth_folder_path),
-        folderPathSummary = getString(R.string.auth_folder_path_summary),
-        bookmarksTitle = getString(R.string.bookmarks),
-        workspacesTitle = getString(R.string.help_workspaces_title),
-        myDocumentsTitle = getString(R.string.my_documents_title),
-        aiSettingsTitle = getString(R.string.ai_settings_sync_title),
-        progressTitle = getString(R.string.progress_sync_title),
-        documentsTitle = getString(R.string.document_sync_title),
-        documentsSummary = getString(R.string.document_sync_contents),
-        autoDownloadTitle = getString(R.string.document_sync_auto_download_title),
-        autoDownloadSummary = getString(R.string.document_sync_auto_download_summary),
-        autoUploadTitle = getString(R.string.document_sync_auto_upload_title),
-        autoUploadSummary = getString(R.string.document_sync_auto_upload_summary),
-        autoDeleteTitle = getString(R.string.document_sync_auto_delete_title),
-        autoDeleteSummary = getString(R.string.document_sync_auto_delete_summary),
-        wifiOnlyTitle = getString(R.string.document_sync_wifi_only_title),
-        wifiOnlySummary = getString(R.string.document_sync_wifi_only_summary),
-        manageTitle = getString(R.string.document_sync_manage_title),
-        manageSummary = getString(R.string.document_sync_manage_summary),
-        resetConfirmMessage = getString(R.string.sync_confirmation),
-        invalidUrlMessage = getString(R.string.invalid_url_message),
-        documentsEnableDialogTitle = getString(R.string.document_sync_enable_dialog_title),
-        certificateTitle = getString(R.string.webdav_certificate_title),
-        forgetCertificateMessage = getString(R.string.webdav_forget_certificate_message),
-        httpsRequiredMessage = getString(R.string.webdav_https_required),
-    )
-
-    // --- Reading-progress host baggage (slice 6, Task 8) ---------------------------------------
-    // Ported from classic ReadingProgressComposeActivity / ReadingProgressSettingsComposeActivity
-    // (both deleted in nav-graph Task 9): the two RESULT intents that leave this batch, the
-    // Android-settings-backed tab persistence, the suspending read-history loaders and their
-    // resource-formatted rows, and the help dialog. See ReadingProgressDeps' kdoc.
-
-    /**
-     * The reading-progress screen's controller, built AT MOST ONCE per host instance and kept alive
-     * across the destination's composition being disposed — see [readingProgressControllerFor].
-     * Null until a reading-progress destination first composes, which is what keeps it lazy: the
-     * deps literal (assembled on every launch of a host serving four clusters) holds only a lambda
-     * and constructs nothing.
-     */
-    private var readingProgressController: ReadingProgressController? = null
-
-    /**
-     * Where the three read-history loaders deliver their answer: the read-history dialog state of
-     * whichever COMPOSITION of the reading-progress arm is currently live. Re-pointed on every
-     * [readingProgressControllerFor] call, because a surviving controller outlives the composition
-     * that first supplied one — the previous arm's `historyDialog` setter writes into a disposed
-     * composition's state, where nothing would ever render it.
-     */
-    private var readingProgressHistorySink: ((ReadHistoryRequest) -> Unit)? = null
-
-    /**
-     * The raw [NavRoutes.ARG_TAB] value that was last APPLIED to [readingProgressController], so a
-     * re-entry can tell "the route names a tab I have not acted on yet" from "the same route
-     * argument the surviving controller was already built with". Set on construction and on every
-     * subsequent application; stays null for a route that named no tab.
-     *
-     * See [readingProgressControllerFor]'s re-entry paragraph — this field IS the fix for the
-     * whole-branch review's I1.
-     */
-    private var readingProgressAppliedTabArg: Int? = null
-
-    /**
-     * [ReadingProgressDeps.controllerFor] — classic `ReadingProgressComposeActivity.kt:86-99`,
-     * lambda for lambda.
-     *
-     * **Why the instance is CACHED on the host rather than rebuilt per back-stack entry (Task 8 fix
-     * round 1).** The arm calls this from a `remember`, and navigation-compose DISPOSES a covered
-     * entry's composition — the very fact Task 7's [appSettingsService] kdoc records. This screen
-     * covers itself: its overflow opens reading-progress settings, now a destination in the same
-     * graph. With a per-entry controller, coming back from that child rebuilt the controller and
-     * lost every piece of state the model holds but nothing persists — the open book's
-     * chapter-detail panel (`model.chapterDetail`), the memorize tab's chapter detail, and the
-     * "show more" paging counts (`passagesShown`/`targetsShown`). Classic lost none of it: its
-     * Activity merely PAUSED behind the settings Activity and its `by lazy` controller field lived
-     * until `finish()`.
-     *
-     * Caching restores exactly that lifetime rather than approximating it. Reading progress is only
-     * ever a START destination (nothing in any graph navigates TO
-     * [NavRoutes.READING_PROGRESS_PATTERN]; `MenuCommandHandler` and `BibleJavascriptInterface`
-     * both launch the host fresh with `startActivityForResult`, and `singleTop` cannot collapse
-     * onto a host that is not already on top), so "one per host instance" and "one per back-stack
-     * entry" are the SAME object here — while a host recreate or process death rebuilds it, which
-     * is what classic's Activity did too.
-     *
-     * **The re-entry tab policy: an explicit tab is applied ONCE, when it is NEW** (whole-branch
-     * review I1). The arm calls this from a `remember`, and that `remember` re-runs on every
-     * re-composition of the entry — including the one caused by the reading-progress-SETTINGS child
-     * popping, which is the very disposal this caching exists to survive. The route argument is
-     * unchanged across that pop, so a re-entry that re-applied `tabArg` unconditionally overwrote
-     * whatever tab the USER had since selected: open on Memorize via
-     * `BibleJavascriptInterface.openReadingProgress(1)`, switch to Reading, open the settings child,
-     * press Back, and the screen snapped back to Memorize — with `onSelectTab` having already
-     * persisted "Reading", so the shown and persisted tabs then disagreed. [readingProgressAppliedTabArg]
-     * gates it: an explicit tab wins only when it DIFFERS from the one last applied, which is exactly
-     * the `onNewIntent` case the line was written for (a fresh delivery naming a different tab) and
-     * never the pop case. The neighbouring cluster reaches the same conclusion from the other end —
-     * `ReadingPlanNavGraph`'s daily-reading `LaunchedEffect` deliberately reloads the LAST LOADED day
-     * rather than the entry's own arguments, for this same reason.
-     *
-     * Residual, stated rather than hidden: a re-delivery naming the SAME tab the controller was
-     * built with is not re-applied either. That is currently unreachable — the only caller naming a
-     * tab is `BibleJavascriptInterface.openReadingProgress`, which launches from `MainBibleActivity`
-     * via `startActivityForResult`, so the host is never already on top and always gets a fresh
-     * instance (and hence a fresh controller) — and if it ever becomes reachable, "keep the tab the
-     * user is on" is the better of the two answers anyway.
-     *
-     * This is deliberately NOT the reading-plan/search per-entry `controllerFor` shape despite the
-     * name: those clusters' destinations genuinely want fresh state per entry. It is also not a
-     * `by lazy` field, because the initial tab is a ROUTE argument a `by lazy` cannot receive; a
-     * nullable var built on first call is the same "construct at most once, and only on demand".
-     */
-    private fun readingProgressControllerFor(
-        tabArg: Int?,
-        onShowHistory: (ReadHistoryRequest) -> Unit,
-        onResult: (ReadingProgressResult) -> Unit,
-    ): ReadingProgressController {
-        readingProgressHistorySink = onShowHistory
-
-        readingProgressController?.let { existing ->
-            // Re-entry. Keep the controller — that is the whole point — and apply an explicit tab
-            // ONLY when it is one this controller has not already been given, i.e. a genuinely NEW
-            // route argument. See the kdoc above for why an unconditional re-apply was a bug.
-            if (tabArg != null && tabArg != readingProgressAppliedTabArg) {
-                readingProgressAppliedTabArg = tabArg
-                existing.selectTab(readingProgressInitialTab(tabArg))
-            }
-            return existing
-        }
-
-        // The three history loaders need the cycle the user is CURRENTLY VIEWING, not
-        // service.currentCycle(): the screen's prev/next-cycle arrows move the model to an older
-        // cycle and classic read `controller.model.value.cycle` off its own `by lazy` field. The
-        // callbacks only ever run after construction returns, so a lateinit self-reference is the
-        // faithful equivalent of that field.
-        // Unlike `onShowHistory` (repointed every call, through `readingProgressHistorySink`),
-        // `onResult` is captured into the controller ONLY HERE, on first construction, and lives
-        // for the controller's whole host-cached lifetime with no re-pointing. That is safe only
-        // because today's `onResult` closes over STABLE references — the arm's `NavHostController`
-        // and the host's `readingProgressResults` channel field, both of which outlive any single
-        // composition. It must stay that way: a future `onResult` that closed over per-composition
-        // LOCAL state (a `remember`ed value, say) would keep reading a stale snapshot from the
-        // FIRST composition across every re-entry, exactly the bug the history sink exists to avoid.
-        lateinit var controller: ReadingProgressController
-        controller = ReadingProgressController(
-            service = readingProgressService,
-            scope = lifecycleScope,
-            initialTab = readingProgressInitialTab(tabArg),
-            onNavigateToChapter = { bookId, chapter -> onResult(ReadingProgressResult.Chapter(bookId, chapter)) },
-            // Through the sink, never through this call's `onShowHistory`: the controller outlives
-            // the composition that supplied that lambda.
-            onShowDayHistory = { day ->
-                showDayHistory(day, controller.model.value.cycle, ::emitReadingProgressHistory)
-            },
-            onShowBookHistory = { bookId ->
-                showBookHistory(bookId, controller.model.value.cycle, ::emitReadingProgressHistory)
-            },
-            onShowChapterHistory = { bookId, chapter ->
-                showChapterHistory(bookId, chapter, controller.model.value.cycle, ::emitReadingProgressHistory)
-            },
-            initialOverviewActive = CommonUtils.settings.getBoolean("reading_progress_mem_overview", true),
-            onNavigateToMemorize = { startOrdinal, endOrdinal -> onResult(ReadingProgressResult.Memorize(startOrdinal, endOrdinal)) },
-            persistOverview = { CommonUtils.settings.setBoolean("reading_progress_mem_overview", it) },
-        )
-        readingProgressController = controller
-        readingProgressAppliedTabArg = tabArg
-        return controller
-    }
-
-    private fun emitReadingProgressHistory(request: ReadHistoryRequest) {
-        readingProgressHistorySink?.invoke(request)
-    }
-
-    /**
-     * Classic `ReadingProgressComposeActivity.kt:76-82`, expressed against a nullable route
-     * argument instead of an Intent extra. `intent.getIntExtra(EXTRA_TAB, settings.getInt(PREF, 0))`
-     * returns the PERSISTED tab when the extra is absent — it is the extra's default value, not a
-     * fallback to 0 — so an absent [NavRoutes.ARG_TAB] must resolve the same way. The elvis below is
-     * that same expression: the persisted read happens only when [tabArg] is null, and 0 is merely
-     * the persisted setting's own default.
-     */
-    private fun readingProgressInitialTab(tabArg: Int?): ReadingTab {
-        val tab = tabArg ?: CommonUtils.settings.getInt(PREF_READING_PROGRESS_LAST_TAB, 0)
-        return if (tab == 1) ReadingTab.MEMORIZE else ReadingTab.READING
-    }
-
-    /** Classic's `persistTab` (`:264-266`). */
-    private fun persistReadingProgressTab(tab: ReadingTab) {
-        CommonUtils.settings.setInt(PREF_READING_PROGRESS_LAST_TAB, if (tab == ReadingTab.MEMORIZE) 1 else 0)
-    }
-
-    // finishWithChapterResult / finishWithMemorizeResult used to live here — classic
-    // `ReadingProgressComposeActivity.navigateToChapter`/`navigateToMemorize` (`:190-196`,
-    // `:200-208`), byte for byte. Both exits now go through [readingProgressResults]
-    // ([NavResultChannel]), whose `exitWithResult` lambda calls
-    // [NavResultIntents.forReadingProgress] to build the same `Intent` these two functions built by
-    // hand; `MainBibleActivity.kt:2930-2958` still dispatches on
-    // `extras.getString(ActivityResultKind.EXTRA)`, unchanged.
-
-    // The three read-history loaders, classic `:212-239`, unchanged except that each now hands its
-    // answer to the ARM's dialog state through `emit` instead of writing an Activity field. They
-    // stay host-side because every line of formatting is an Android resource or a
-    // ReadingProgressServiceImpl helper.
-
-    private fun showDayHistory(dayTimestamp: Long, cycle: Int, emit: (ReadHistoryRequest) -> Unit) {
-        lifecycleScope.launch {
-            val entries = readingProgressService.readHistoryForDay(dayTimestamp, cycle)
-            emit(
-                ReadHistoryRequest(
-                    title = getString(
-                        R.string.reading_progress_history_for,
-                        readingProgressService.dayTitle(dayTimestamp),
-                    ),
-                    rows = entries.map {
-                        val date = readingProgressService.formatEntryDate(it.readAt)
-                        val time = readingProgressService.formatEntryTime(it.readAt)
-                        val version = it.bookInitials.ifEmpty {
-                            getString(R.string.reading_progress_history_version_unknown)
-                        }
-                        ReadHistoryRow(id = it.id, primary = "$date $time", secondary = version)
-                    },
-                ),
-            )
-        }
-    }
-
-    private fun showBookHistory(bookId: String, cycle: Int, emit: (ReadHistoryRequest) -> Unit) {
-        lifecycleScope.launch {
-            val entries = readingProgressService.readHistoryForBook(bookId, cycle)
-            emit(
-                ReadHistoryRequest(
-                    title = getString(
-                        R.string.reading_progress_history_for,
-                        readingProgressService.bookLongName(bookId),
-                    ),
-                    rows = entries.map { it.toReadHistoryRow() },
-                ),
-            )
-        }
-    }
-
-    private fun showChapterHistory(
-        bookId: String,
-        chapter: Int,
-        cycle: Int,
-        emit: (ReadHistoryRequest) -> Unit,
-    ) {
-        lifecycleScope.launch {
-            val entries = readingProgressService.readHistoryForChapter(bookId, chapter, cycle)
-            emit(
-                ReadHistoryRequest(
-                    title = getString(
-                        R.string.reading_progress_history_for,
-                        "${readingProgressService.bookShortName(bookId)} $chapter",
-                    ),
-                    rows = entries.map { it.toReadHistoryRow() },
-                ),
-            )
-        }
-    }
-
-    /** Classic's `ReadHistoryEntry.toRow()` (`:241-247`). */
-    private fun ReadHistoryEntry.toReadHistoryRow(): ReadHistoryRow {
-        val chapterRef = "${readingProgressService.bookShortName(bookId)} $chapter"
-        val time = readingProgressService.formatEntryTime(readAt)
-        val date = readingProgressService.formatEntryDate(readAt)
-        val version = bookInitials.ifEmpty { getString(R.string.reading_progress_history_version_unknown) }
-        return ReadHistoryRow(id = id, primary = "$chapterRef · $time", secondary = "$date · $version")
-    }
-
-    /** Classic's overflow help item (`:255-262`), a platform dialog left platform. */
-    private fun showReadingProgressHelp() {
-        CommonUtils.showHelpDialog(
-            activity = this,
-            titleResId = R.string.help,
-            messageResId = R.string.help_reading_progress_text,
-            helpUrl = DocsLinks.page("reading_progress"),
-        )
-    }
-
-    /** Classic `ReadingProgressSettingsComposeActivity.buildLabels()` (`:71-85`), verbatim. */
-    private fun buildReadingProgressSettingsLabels() = ReadingProgressSettingsLabels(
-        screenTitle = getString(R.string.reading_progress_settings),
-        autoMarkMemorizedTitle = getString(R.string.memorize_auto_mark),
-        autoMarkMemorizedSummary = getString(R.string.memorize_auto_mark_summary),
-        memorizeTypeFullWordsTitle = getString(R.string.memorize_type_full_words),
-        memorizeTypeFullWordsSummary = getString(R.string.memorize_type_full_words_summary),
-        memorizeWordVisibilityTitle = getString(R.string.memorize_word_visibility),
-        memorizeWordVisibilitySummary = getString(R.string.memorize_word_visibility_summary),
-        memorizeErrorHeatmapTitle = getString(R.string.memorize_error_heatmap),
-        memorizeErrorHeatmapSummary = getString(R.string.memorize_error_heatmap_summary),
-        memorizeScrambleHideUsedTitle = getString(R.string.memorize_scramble_hide_used),
-        memorizeScrambleHideUsedSummary = getString(R.string.memorize_scramble_hide_used_summary),
-        memorizeIncludeReferenceTitle = getString(R.string.memorize_include_reference),
-        memorizeIncludeReferenceSummary = getString(R.string.memorize_include_reference_summary),
-    )
-
     // --- Download host baggage ------------------------------------------------------------------
     // Ported from classic DownloadComposeActivity (deleted by nav-graph slice 4 Task 9): the
     // download screen's network JSON fetches, its JSword load/delete/unlock seams, its six
@@ -10196,9 +9507,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     companion object {
-        /** Classic `ReadingProgressComposeActivity.kt:54`'s file-private constant. */
-        private const val PREF_READING_PROGRESS_LAST_TAB = "reading_progress_last_tab"
-
         private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
         private const val TAG_SEARCH = "SearchCompose"
@@ -10320,18 +9628,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
         private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"
-
-        /**
-         * Classic `SettingsComposeActivity.kt:67-72`'s key set, moved here with the screen: a write
-         * to any of these forces a recreate — see [maybeRecreateForSettingsKey].
-         */
-        private val RECREATE_ON_CHANGE_KEYS = setOf(
-            "locale_pref",
-            "night_mode_pref3",
-            "display_color_mode",
-            THEME_PALETTE_STYLE_KEY,
-            "discrete_mode",
-        )
 
         fun intentFor(context: Context, route: String): Intent =
             Intent(context, NavHostComposeActivity::class.java).putExtra(EXTRA_ROUTE, route)
