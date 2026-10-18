@@ -118,6 +118,7 @@ net.bible.sharedcore.search.BibleSearchService::_root_
 net.bible.sharedcore.search.EpubSearchService::_root_
 net.bible.sharedcore.search.SearchIndexService::_root_
 net.bible.sharedcore.search.SearchResultsCache::_root_
+net.bible.sharedcore.settings.AppSettingsService::_root_
 net.bible.sharedcore.settings.ReadingProgressSettingsService::_root_
 net.bible.sharedcore.settings.TextDisplaySettingsService::_root_
 net.bible.sharedcore.speak.SpeakSettingsService::_root_
@@ -142,3 +143,10 @@ net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener::_root_
 net.bible.sharedlogic.platform.SearchIndexScheduler::_root_
 net.bible.sharedlogic.platform.SentenceBreaker::_root_
 net.bible.sharedlogic.settings.TextDisplayPrefItems::_root_
+net.bible.sharedui.app.ports.ClipboardText::_root_
+net.bible.sharedui.app.ports.DebugActions::_root_
+net.bible.sharedui.app.ports.DocumentInstallStarter::_root_
+net.bible.sharedui.app.ports.ExternalLinks::_root_
+net.bible.sharedui.app.ports.PlatformText::_root_
+net.bible.sharedui.app.ports.SettingsPlatform::_root_
+net.bible.sharedui.app.ports.TextDisplayPlatform::_root_

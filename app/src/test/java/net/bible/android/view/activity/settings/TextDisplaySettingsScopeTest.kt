@@ -176,12 +176,22 @@ class TextDisplaySettingsScopeTest {
      */
     @Test
     fun theHostsGlobalTextSettingsRowNavigatesToTheGlobalRoute() {
-        val source = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
-        assertTrue("cannot find ${source.absolutePath}", source.isFile)
-        val text = source.readText()
+        // The row's lambda lives in `SettingsHost` (I2 Stream A Task 4); the activity must not grow it back.
+        val activity = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        val host = net.bible.test.ProductionSources.resolve("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/settings/SettingsHost.kt")
+        assertTrue("cannot find ${activity.absolutePath}", activity.isFile)
+        assertTrue("cannot find ${host.absolutePath}: this scan would watch nothing", host.isFile)
+        // The workspace cluster's host and its Android platform port (I2 Stream A Task 6) belong to the scan set too:
+        // a classic Screen launch grown back there would hang the detached bundle just the same.
+        val workspaceFiles = listOf(
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/workspace/WorkspaceHost.kt",
+            "src/main/java/net/bible/android/view/activity/nav/ports/AndroidTextDisplayPlatform.kt",
+        ).map { net.bible.test.ProductionSources.resolve(it) }
+        workspaceFiles.forEach { assertTrue("cannot find ${it.absolutePath}: this scan would watch nothing", it.isFile) }
+        val text = activity.readText() + "\n" + host.readText() + "\n" + workspaceFiles.joinToString("\n") { it.readText() }
         assertTrue(
             "the global text-settings row must navigate to the global route",
-            text.contains("""NavRoutes.textDisplaySettings(scopeLevel = "global")"""),
+            host.readText().contains("""NavRoutes.textDisplaySettings(scopeLevel = "global")"""),
         )
         assertFalse(
             "the host still launches the classic text-settings Screen — that launch is what hung " +

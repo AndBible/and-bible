@@ -42,6 +42,9 @@ import org.koin.core.context.GlobalContext
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import net.bible.sharedui.app.bookmark.BookmarkHost
+import net.bible.sharedui.app.AppHosts
+import net.bible.sharedui.strings.AndroidStrings
 
 /**
  * SU-14 D5: pressing OK in "Edit label" must write an existing label to Room right then, not only
@@ -52,12 +55,22 @@ import org.robolectric.annotation.Config
 class LabelEditPersistenceTest {
     @After fun tearDown() = DatabaseResetter.resetDatabase()
 
+    private val bookmarkHosts = java.util.WeakHashMap<NavHostComposeActivity, BookmarkHost>()
+
+    /**
+     * The bookmark host of an Activity that was only constructed (never `create()`d, so it has no `appHosts`):
+     * built from the same Koin, ports and strings the Activity would give it, once per Activity.
+     */
+    private fun bookmarkOf(host: NavHostComposeActivity): BookmarkHost = bookmarkHosts.getOrPut(host) {
+        AppHosts(GlobalContext.get(), host, host.hostPorts, AndroidStrings(host)).bookmark
+    }
+
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
     /** Opens the manager's session (WORKSPACE mode) on [host] and returns it, seeded with [label]. */
     private fun openSession(host: NavHostComposeActivity, label: Label, isNew: Boolean) {
         val koin = GlobalContext.get()
-        val sessionClass = Class.forName("net.bible.android.view.activity.nav.NavHostComposeActivity\$ManageLabelsSession")
+        val sessionClass = Class.forName("net.bible.sharedui.app.bookmark.ManageLabelsSession")
         val session = sessionClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(
             ManageLabelsContract.ManageLabelsData(ManageLabelsContract.Mode.WORKSPACE),
             mutableMapOf(label.id.toString() to label),
@@ -68,17 +81,17 @@ class LabelEditPersistenceTest {
             emptySet(), emptySet(), null, null, null, {}, { _, _ -> }, {}, {},
         )
         sessionClass.getDeclaredField("controller").apply { isAccessible = true }.set(session, controller)
-        val pendingClass = Class.forName("net.bible.android.view.activity.nav.NavHostComposeActivity\$PendingLabelEdit")
+        val pendingClass = Class.forName("net.bible.sharedui.app.bookmark.PendingLabelEdit")
         val pending = pendingClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(label, isNew)
         sessionClass.getDeclaredField("pendingEdit").apply { isAccessible = true }.set(session, pending)
-        NavHostComposeActivity::class.java.getDeclaredField("manageLabelsSession")
-            .apply { isAccessible = true }.set(host, "key" to session)
+        BookmarkHost::class.java.getDeclaredField("manageLabelsSession")
+            .apply { isAccessible = true }.set(bookmarkOf(host), "key" to session)
     }
 
     private fun pressOk(host: NavHostComposeActivity, edited: Label) {
         val data = LabelEditContract.LabelData(false, edited, false, false, false, false)
-        NavHostComposeActivity::class.java.getDeclaredMethod("applyLabelEditResult", LabelEditResult::class.java)
-            .apply { isAccessible = true }.invoke(host, LabelEditResult.Saved(data.toJSON()))
+        BookmarkHost::class.java.getDeclaredMethod("applyLabelEditResult", LabelEditResult::class.java)
+            .apply { isAccessible = true }.invoke(bookmarkOf(host), LabelEditResult.Saved(data.toJSON()))
     }
 
     /** Deterministic barrier: the early writes run FIFO on the "workspace" key, so this returns after them. */
@@ -119,9 +132,9 @@ class LabelEditPersistenceTest {
             assertNull("first OK must not write a new label", runBlocking { dao.labelById(fresh.id) })
 
             // Re-edit the same still-new label (the manager's list now shows it as a normal row).
-            val pendingClass = Class.forName("net.bible.android.view.activity.nav.NavHostComposeActivity\$PendingLabelEdit")
-            val sessionField = NavHostComposeActivity::class.java.getDeclaredField("manageLabelsSession").apply { isAccessible = true }
-            @Suppress("UNCHECKED_CAST") val session = (sessionField.get(host) as Pair<String, Any>).second
+            val pendingClass = Class.forName("net.bible.sharedui.app.bookmark.PendingLabelEdit")
+            val sessionField = BookmarkHost::class.java.getDeclaredField("manageLabelsSession").apply { isAccessible = true }
+            @Suppress("UNCHECKED_CAST") val session = (sessionField.get(bookmarkOf(host)) as Pair<String, Any>).second
             val staged = (session.javaClass.getDeclaredField("labelsById").apply { isAccessible = true }
                 .get(session) as Map<String, Label>)[fresh.id.toString()]!!
             session.javaClass.getDeclaredField("pendingEdit").apply { isAccessible = true }
@@ -131,9 +144,9 @@ class LabelEditPersistenceTest {
             assertNull("second OK must not write a still-new label", runBlocking { dao.labelById(fresh.id) })
 
             // The exit save inserts it exactly once.
-            NavHostComposeActivity::class.java.getDeclaredMethod(
+            BookmarkHost::class.java.getDeclaredMethod(
                 "saveManageLabelsAndExit", session.javaClass, kotlin.jvm.functions.Function1::class.java,
-            ).apply { isAccessible = true }.invoke(host, session, { _: Any -> })
+            ).apply { isAccessible = true }.invoke(bookmarkOf(host), session, { _: Any -> })
             runBlocking {
                 withTimeout(10_000) { while (dao.labelById(fresh.id) == null) delay(20) }
             }

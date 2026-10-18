@@ -9,7 +9,6 @@ import androidx.compose.ui.test.longClick
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
 import java.time.Duration
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -18,7 +17,6 @@ import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedui.readingplan.nav.LoadedReadingDay
 import net.bible.test.resetComposeUiDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -62,9 +60,7 @@ class ReadingPlanSelectorResetFlowTest {
         .apply { isAccessible = true }.get(activity) as NavHostController
 
     private fun loadedDayPlan(activity: NavHostComposeActivity): String? {
-        val flow = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay")
-            .apply { isAccessible = true }.get(activity) as StateFlow<*>
-        return (flow.value as LoadedReadingDay?)?.planCode
+        return activity.appHosts.readingPlan.loadedReadingDay.value?.planCode
     }
 
     /** Daily reading on PLAN, selector on top, PLAN reset there (long-press, Yes). */
@@ -83,7 +79,7 @@ class ReadingPlanSelectorResetFlowTest {
                 ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading(plan = PLAN, day = 5),
             ),
         )
-        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5))
+        net.bible.test.awaitHostRoute(activity, NavRoutes.dailyReading(plan = PLAN, day = 5)) { compose.waitForIdle() }
         net.bible.test.awaitHostUntil("fixture: the plan day is loaded and selected") { readingPlanSetting() == PLAN }
         idle()
 

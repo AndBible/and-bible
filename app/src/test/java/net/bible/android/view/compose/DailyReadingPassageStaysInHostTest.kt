@@ -81,7 +81,7 @@ class DailyReadingPassageStaysInHostTest {
 
     /**
      * The host's own `onNewIntent` for a daily-reading route: navigates onto the day AND loads it
-     * host-side (`loadReadingPlanDay`). Await its suspend read and actual navigation, not merely
+     * host-side (`ReadingPlanHost.loadReadingPlanDay`). Await its suspend read and actual navigation, not merely
      * the main looper: the DAO resumes from IO before the destination can be composed.
      */
     private fun openDay(controller: ActivityController<NavHostComposeActivity>, day: Int = 5) {
@@ -94,8 +94,7 @@ class DailyReadingPassageStaysInHostTest {
         net.bible.test.awaitHostRoute(controller.get(), NavRoutes.dailyReading(plan = PLAN, day = day))
         // The route alone is not enough on a host that STARTED on this day (it is already there): read() is a no-op
         // until the day's readings are loaded, and they load on IO after the route.
-        val loaded = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay")
-            .run { isAccessible = true; get(controller.get()) as kotlinx.coroutines.flow.StateFlow<*> }
+        val loaded = controller.get().appHosts.readingPlan.loadedReadingDay
         net.bible.test.awaitHostCondition("day $day's readings must load") { loaded.value.toString().contains("day=$day") }
         // Reaching the route is not the day being loaded: the host's `readingsDto` (which `read()` silently
         // requires) is set only after the async DAO/status reads finish, and an early read(1) is a no-op.
@@ -178,7 +177,7 @@ class DailyReadingPassageStaysInHostTest {
     fun doneWithANextDayShowsThatDay() {
         val activity = doneFrom(day = 5, daysAgo = 9)
         assertFalse(activity.isFinishing)
-        val dayLoaded = { NavHostComposeActivity::class.java.getDeclaredField("dayLoaded").run { isAccessible = true; getInt(activity) } }
+        val dayLoaded = { activity.appHosts.readingPlan.dayLoaded }
         net.bible.test.awaitHostCondition("day 6 must load") { dayLoaded() == 6 }
         assertEquals("readingPlan/day", activity.currentRouteForTest()?.substringBefore('?'))
     }
@@ -325,9 +324,9 @@ class DailyReadingPassageStaysInHostTest {
                 shadowOf(Looper.getMainLooper()).runOneTask(); Thread.sleep(10)
             }
             assertTrue(oldJobs.all { it.isCompleted }, "held intent must finish before checking publication")
-            val day = NavHostComposeActivity::class.java.getDeclaredField("dayLoaded").run { isAccessible = true; getInt(activity) }
+            val day = activity.appHosts.readingPlan.dayLoaded
             assertEquals(6, day, "old suspended intent replaced the current day")
-            val loaded = NavHostComposeActivity::class.java.getDeclaredField("loadedReadingDay").run { isAccessible = true; get(activity) as kotlinx.coroutines.flow.StateFlow<*> }
+            val loaded = activity.appHosts.readingPlan.loadedReadingDay
             assertTrue(loaded.value.toString().contains("day=6"), "loaded publication is stale: ${loaded.value}")
         } finally {
             held.complete(Unit)

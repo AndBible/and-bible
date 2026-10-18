@@ -15,6 +15,370 @@ interface Strings {
     // Intentionally retained to exercise the :strings-gen formatted-string generator path for iOS;
     // no composable consumes it yet (History's title is host-built).
     fun historyFor(workspace: String, window: Int): String
+    // --- I2 Stream A (app root) ---
+    val activeWindowIndicatorSummary: String
+    val activeWindowIndicatorTitle: String
+    val aiSettings: String
+    val aiSettingsShortcutSummary: String
+    val aiSettingsSyncTitle: String
+    val authFolderPath: String
+    val authFolderPathSummary: String
+    val authPassword: String
+    val authServerUri: String
+    val authUsername: String
+    val autoFullscreen: String
+    val autoFullscreenSummary: String
+    val calculatorPar1: String
+    val calculatorPar2: String
+    val calculatorPar3: String
+    val chooseStrongsGreekDictionarySummary: String
+    val chooseStrongsGreekDictionaryTitle: String
+    val chooseStrongsGreekMorphologySummary: String
+    val chooseStrongsGreekMorphologyTitle: String
+    val chooseStrongsHebrewDictionarySummary: String
+    val chooseStrongsHebrewDictionaryTitle: String
+    val chooseWordLookupDictionarySummary: String
+    val chooseWordLookupDictionaryTitle: String
+    val cloudInfo: String
+    val cloudSyncTitle: String
+    val crashApp: String
+    val crashAppSummary: String
+    val discreteModeInfoPar1: String
+    val discreteModeInfoPar2: String
+    fun discreteModeLink(link: String): String
+    val documentSyncCategoryTitle: String
+    val fullScreenHideButtonsPrefSummary: String
+    val fullScreenHideButtonsPrefTitle: String
+    val globalTextDisplaySettingsSummary: String
+    val globalTextDisplaySettingsTitle: String
+    val helpWorkspacesTitle: String
+    val hideBibleReferenceOverlaySummary: String
+    val hideBibleReferenceOverlayTitle: String
+    val hideWindowButtonsSummary: String
+    val hideWindowButtonsTitle: String
+    val memorizeAutoMark: String
+    val memorizeAutoMarkSummary: String
+    val memorizeErrorHeatmap: String
+    val memorizeErrorHeatmapSummary: String
+    val memorizeIncludeReference: String
+    val memorizeIncludeReferenceSummary: String
+    val memorizeScrambleHideUsed: String
+    val memorizeScrambleHideUsedSummary: String
+    val memorizeTypeFullWords: String
+    val memorizeTypeFullWordsSummary: String
+    val memorizeWordVisibility: String
+    val memorizeWordVisibilitySummary: String
+    val myDocumentsTitle: String
+    val openBibleLinksSummary: String
+    val openBibleLinksTitle: String
+    val prefFontSizeMultiplierPercentFormat: String
+    val prefFontSizeMultiplierTitle: String
+    val prefsAdvancedSettingsCat: String
+    val prefsBehaviorCustomizationCat: String
+    val prefsBibleViewSwipeModeSummary: String
+    val prefsBibleViewSwipeModeTitle: String
+    val prefsCalculatorPin: String
+    val prefsCalculatorPinDesc: String
+    val prefsDictionariesCat: String
+    val prefsDisableAnimationsSummary: String
+    val prefsDisableAnimationsTitle: String
+    val prefsDisableClickToEditSummary: String
+    val prefsDisableClickToEditTitle: String
+    val prefsDisableTwoStepBookmarkingSummary: String
+    val prefsDisableTwoStepBookmarkingTitle: String
+    val prefsDiscreteMode: String
+    val prefsDiscreteModeDesc: String
+    val prefsDisplayColorModeSummary: String
+    val prefsDisplayColorModeTitle: String
+    val prefsDisplayCustomizationCat: String
+    val prefsDoubleTapToFullscreenSummary: String
+    val prefsDoubleTapToFullscreenTitle: String
+    val prefsEinkDisplaySummary: String
+    val prefsEinkDisplayTitle: String
+    val prefsEinkSettingsCat: String
+    val prefsEnableBluetoothSummary: String
+    val prefsEnableBluetoothTitle: String
+    val prefsExperimentalFeaturesSummary: String
+    val prefsExperimentalFeaturesTitle: String
+    val prefsFeaturesCat: String
+    val prefsHideStatusBarSummary: String
+    val prefsHideStatusBarTitle: String
+    val prefsInWindowBibleBookmarkModalButtonsTitle: String
+    val prefsInWindowBookmarkModalButtonsDescription: String
+    val prefsInWindowGenBookmarkModalButtonsTitle: String
+    val prefsInterfaceLocaleSummary: String
+    val prefsInterfaceLocaleTitle: String
+    val prefsNavigateToVerseSummary: String
+    val prefsNavigateToVerseTitle: String
+    val prefsNightModeSummary: String
+    val prefsNightModeTitle: String
+    val prefsNotesContentTypeSummary: String
+    val prefsNotesContentTypeTitle: String
+    val prefsOpenLinksInSpecialWindowSummary: String
+    val prefsOpenLinksInSpecialWindowTitle: String
+    val prefsPersecutedHelp: String
+    val prefsPersecutedSummary: String
+    val prefsPersecutionCat: String
+    val prefsRequestSdcardPermissionSummary: String
+    val prefsRequestSdcardPermissionTitle: String
+    val prefsResetSyncSummary: String
+    val prefsScreenKeepOnSummary: String
+    val prefsScreenKeepOnTitle: String
+    val prefsShowCalculator: String
+    val prefsShowErrorBoxSummary: String
+    val prefsShowErrorBoxTitle: String
+    val prefsThemePaletteStyleSummary: String
+    val prefsThemePaletteStyleTitle: String
+    val prefsToolbarButtonActionSummary: String
+    val prefsToolbarButtonActionTitle: String
+    val prefsVolumeKeysScrollSummary: String
+    val prefsVolumeKeysScrollTitle: String
+    val readingProgressSettingsSummary: String
+    val resetAppPrefs: String
+    val resetSettings: String
+    val resetSync: String
+    val settings: String
+    val syncAdapter: String
+    val syncGeneralSettings: String
+    val syncSettingsShortcutSummary: String
+    val synchronizationCategories: String
+    val testErrorDialog: String
+    val testErrorDialogQueue: String
+    val testErrorDialogQueueSummary: String
+    val testErrorDialogSummary: String
+    val progressSyncTitle: String
+    val documentSyncAutoDownloadTitle: String
+    val documentSyncAutoDownloadSummary: String
+    val documentSyncContents: String
+    val documentSyncAutoDeleteSummary: String
+    val documentSyncAutoUploadSummary: String
+    val documentSyncEnableDialogTitle: String
+    val documentSyncWifiOnlySummary: String
+    val webdavCertificateTitle: String
+    val invalidUrlMessage: String
+    val documentSyncManageSummary: String
+    val webdavForgetCertificateMessage: String
+    val syncConfirmation: String
+    val documentSyncManageTitle: String
+    val documentSyncTitle: String
+    val documentSyncAutoUploadTitle: String
+    val documentSyncWifiOnlyTitle: String
+    val documentSyncAutoDeleteTitle: String
+    val webdavHttpsRequired: String
+    // Search cluster
+    fun multiSearchResults(total: Int, selectedCount: Int): String   // R.string.multi_search_results
+    val errorExecutingSearch: String                                  // R.string.error_executing_search
+    val backgroundImageChange: String
+    val backgroundImageDay: String
+    val backgroundImageDeleteConfirm: String
+    val backgroundImageDeleteTitle: String
+    val backgroundImageEmpty: String
+    val backgroundImageImport: String
+    val backgroundImageImporting: String
+    val backgroundImageNight: String
+    val backgroundImageNone: String
+    val backgroundImageOpacityDay: String
+    val backgroundImageOpacityNight: String
+    val backgroundImageTitle: String
+    val bookmarkSettingsHideLabelsTitle: String
+    val colorBackground: String
+    val colorText: String
+    val colorWorkspace: String
+    val colorsDayModeTitle: String
+    val colorsNightModeTitle: String
+    val fontSizeTitle: String
+    val globalTextOptionsLink: String
+    val globalTextOptionsLinkSummary: String
+    val lineSpacingSummary: String
+    val lineSpacingTitle: String
+    val pageNumberSummary: String
+    val pageNumberTitle: String
+    val parentSettingsCategoryTitle: String
+    val prefFontFamilyLabel: String
+    val prefLeftMarginLabelMm: String
+    val prefMaximumWidthOfTextLabelMm: String
+    val prefRightMarginLabelMm: String
+    val prefsAutoTrackReadingSummary: String
+    val prefsAutoTrackReadingTitle: String
+    val prefsExpandFootnotesSummary: String
+    val prefsExpandFootnotesTitle: String
+    val prefsFontAndColorsTitle: String
+    val prefsFontFamilySummary: String
+    val prefsFontTextSizeSummary: String
+    val prefsFootnotesAndXrefsTitle: String
+    val prefsHyphenationSummary: String
+    val prefsHyphenationTitle: String
+    val prefsInfiniteScrollSummary: String
+    val prefsInfiniteScrollTitle: String
+    val prefsJustifySummary: String
+    val prefsJustifyTitle: String
+    val prefsMarginSizeSummary: String
+    val prefsMarginSizeTitle: String
+    val prefsMarkAsReadButtonSummary: String
+    val prefsMarkAsReadButtonTitle: String
+    val prefsNoiseTitle: String
+    val prefsNonStrongsWordItalicSummary: String
+    val prefsNonStrongsWordItalicTitle: String
+    val prefsPageButtonsSummary: String
+    val prefsPageButtonsTitle: String
+    val prefsPageScrollAmountSummary: String
+    val prefsPageScrollAmountTitle: String
+    val prefsPageScrollingTitle: String
+    val prefsReadingAndMemorizationTitle: String
+    val prefsRedLetterSummary: String
+    val prefsRedLetterTitle: String
+    val prefsScrollHelperLineStyleSummary: String
+    val prefsScrollHelperLineStyleTitle: String
+    val prefsScrollHelperLinesSummary: String
+    val prefsScrollHelperLinesTitle: String
+    val prefsSectionTitleSummary: String
+    val prefsSectionTitleTitle: String
+    val prefsShowAiDocMarkersSummary: String
+    val prefsShowAiDocMarkersTitle: String
+    val prefsShowBookmarksSummary: String
+    val prefsShowBookmarksTitle: String
+    val prefsShowFootnotesInlineSummary: String
+    val prefsShowFootnotesInlineTitle: String
+    val prefsShowFootnotesSummary: String
+    val prefsShowFootnotesTitle: String
+    val prefsShowMemorizationIndicatorsSummary: String
+    val prefsShowMemorizationIndicatorsTitle: String
+    val prefsShowMorphologySummary: String
+    val prefsShowMorphologyTitle: String
+    val prefsShowMynotesSummary: String
+    val prefsShowMynotesTitle: String
+    val prefsShowOrdinalsSummary: String
+    val prefsShowOrdinalsTitle: String
+    val prefsShowReadingProgressSummary: String
+    val prefsShowReadingProgressTitle: String
+    val prefsShowStrongsSummary: String
+    val prefsShowVersenoSummary: String
+    val prefsShowVersenoTitle: String
+    val prefsShowXrefsSummary: String
+    val prefsShowXrefsTitle: String
+    val prefsStrongsAndMorphologyTitle: String
+    val prefsTextBookmarksTitle: String
+    val prefsTextColorsMenutitle: String
+    val prefsTextColorsSummary: String
+    val prefsTextLayoutTitle: String
+    val prefsTitleScrollButtonSummary: String
+    val prefsTitleScrollButtonTitle: String
+    val prefsTopMarginSummary: String
+    val prefsTopMarginTitle: String
+    val prefsVersePerLineSummary: String
+    val prefsVersePerLineTitle: String
+    val prefsVersesAndHeadingsTitle: String
+    val resetAreYouSure: String
+    val textOptionsInheritedGlobal: String
+    val textOptionsInheritedWorkspace: String
+    val workspaceTextOptionsLink: String
+    val workspaceTextOptionsLinkSummary: String
+    val textDisplaySettingsActivityTitle: String
+    val appName: String                       // the application label (manifest android:label)
+    val chooseDocumentTitle: String           // R.string.chooseBook
+    val chooseDocumentDownload: String        // R.string.download
+    val chooseDocumentBackup: String          // R.string.backup_modules2
+    val bookmarksAndMynotesTitle: String      // R.string.bookmarks_and_mynotes_title
+    val labelsTitle: String                   // R.string.labels
+    val newLabelDefaultName: String           // R.string.new_label_default_name (a format with %d, for defaultLabelName)
+    fun settingScope(scope: String): String   // R.string.setting_scope
+    val settingScopeWindow: String            // R.string.setting_scope_window
+    val settingScopeWorkspace: String         // R.string.setting_scope_workspace
+    val exportDestinationTitle: String        // R.string.export_destination_title
+    val exportDestinationMessage: String      // R.string.export_destination_message
+    val backupPhoneStorage: String            // R.string.backup_phone_storage
+    val reorder: String                       // R.string.reorder
+    val clearAutoAssignLabels: String         // R.string.clear_auto_assign_labels
+    fun deleteLabelConfirmation(name: String): String         // R.string.delete_label_confirmation
+    fun confirmDeleteOrphanedBookmarks(count: Int): String    // R.string.confirm_delete_orphaned_bookmarks
+    val deleteLabelAndBookmarks: String       // R.string.delete_label_and_bookmarks
+    val deleteLabelOnly: String               // R.string.delete_label_only
+    fun myDocumentPagesTitle(documentName: String): String    // R.string.my_document_pages_title
+    val myDocumentExportSuccess: String       // R.string.my_document_export_success
+    val myDocumentImportEmptySelection: String  // R.string.my_document_import_empty_selection
+    val installZipModule: String              // R.string.install_zip_module
+    val installZipModuleDiscrete: String      // R.string.install_zip_module_discrete
+    val downloadTitle: String             // R.string.download
+    val progressStatus: String             // R.string.progress_status
+    val errorDownloading: String             // R.string.error_downloading
+    val downloadDocumentConfirmPrefix: String             // R.string.download_document_confirm_prefix
+    val downloadDialogMessage: String             // R.string.download_dialog_message
+    val downloadErrors: String             // R.string.download_errors
+    fun failedRepositoriesMessage(repositories: String): String             // R.string.failed_repositories_message
+    fun failedDownloadsMessage(files: String): String             // R.string.failed_downloads_message
+    val documentSyncSigninRequired: String             // R.string.document_sync_signin_required
+    val syncError: String             // R.string.sync_error
+    val cloudDocSyncNowDownload: String             // R.string.cloud_doc_sync_now_download
+    val cloudDocSyncNowUpload: String             // R.string.cloud_doc_sync_now_upload
+    val cloudDocSyncNowDelete: String             // R.string.cloud_doc_sync_now_delete
+    val cloudDocSyncNowCountNone: String             // R.string.cloud_doc_sync_now_count_none
+    val cloudDocRescan: String             // R.string.cloud_doc_rescan
+    fun cloudDocRemoveAllConfirm(name: String): String             // R.string.cloud_doc_remove_all_confirm
+    fun cloudDocRemoveCloudConfirm(name: String): String             // R.string.cloud_doc_remove_cloud_confirm
+    fun cloudDocPurgeConfirm(name: String): String             // R.string.cloud_doc_purge_confirm
+    val cloudDocFilterAll: String             // R.string.cloud_doc_filter_all
+    val cloudDocFilterInstalled: String             // R.string.cloud_doc_filter_installed
+    val cloudDocFilterCloud: String             // R.string.cloud_doc_filter_cloud
+    val cloudDocFilterUpdates: String             // R.string.cloud_doc_filter_updates
+    val cloudDocFilterBlocked: String             // R.string.cloud_doc_filter_blocked
+    val cloudDocFilterDeviceOnly: String             // R.string.cloud_doc_filter_device_only
+    val cloudDocFilterCloudOnly: String             // R.string.cloud_doc_filter_cloud_only
+    val cloudDocFilterRemoved: String             // R.string.cloud_doc_filter_removed
+    // AI cluster (AiHost)
+    val agentMaxIterationsSummary: String             // R.string.agent_max_iterations_summary
+    val agentMaxIterationsTitle: String             // R.string.agent_max_iterations_title
+    val aiAdvancedCategory: String             // R.string.ai_advanced_category
+    val aiBehaviorCategory: String             // R.string.ai_behavior_category
+    val aiDisclaimerWarningTitle: String             // R.string.ai_disclaimer_warning_title
+    val aiDocumentFilterSummary: String             // R.string.ai_document_filter_summary
+    val aiDocumentFilterRowTitle: String             // R.string.ai_document_filter_title
+    val aiLanguageTitle: String             // R.string.ai_language_title
+    val aiModelsSummaryNone: String             // R.string.ai_models_summary_none
+    val aiProvidersModelsCategory: String             // R.string.ai_providers_models_category
+    val aiProvidersSummaryNone: String             // R.string.ai_providers_summary_none
+    val aiUsageCategory: String             // R.string.ai_usage_category
+    val askModelBeforeRunSummary: String             // R.string.ask_model_before_run_summary
+    val askModelBeforeRunTitle: String             // R.string.ask_model_before_run_title
+    val autoHideAgentLogSummary: String             // R.string.auto_hide_agent_log_summary
+    val autoHideAgentLogTitle: String             // R.string.auto_hide_agent_log_title
+    val commentaryMaxResponseNoLimit: String             // R.string.commentary_max_response_no_limit
+    val commentaryMaxResponseTitle: String             // R.string.commentary_max_response_title
+    val commentaryMaxResponseValue: String             // R.string.commentary_max_response_value
+    val customAgentSystemPromptTitle: String             // R.string.custom_agent_system_prompt_title
+    val customSystemPromptCustom: String             // R.string.custom_system_prompt_custom
+    val customSystemPromptDefault: String             // R.string.custom_system_prompt_default
+    val customTextTransformSystemPromptTitle: String             // R.string.custom_text_transform_system_prompt_title
+    val easySetupPrefSummary: String             // R.string.easy_setup_pref_summary
+    val helpAiConnectionText: String             // R.string.help_ai_connection_text
+    val helpAiDocumentFilterText: String             // R.string.help_ai_document_filter_text
+    val helpAiModelsText: String             // R.string.help_ai_models_text
+    val helpAiProvidersText: String             // R.string.help_ai_providers_text
+    val helpAiSettingsText: String             // R.string.help_ai_settings_text
+    val helpGlobalToolPermissionsText: String             // R.string.help_global_tool_permissions_text
+    val helpPromptEditText: String             // R.string.help_prompt_edit_text
+    val helpToolInfoText: String             // R.string.help_tool_info_text
+    val installZipSuccessfull: String             // R.string.install_zip_successfull
+    val llmResetUsageSummary: String             // R.string.llm_reset_usage_summary
+    val llmResetUsageTitle: String             // R.string.llm_reset_usage_title
+    val llmUsageSummaryTitle: String             // R.string.llm_usage_summary_title
+    val manageToolPermissionsSummary: String             // R.string.manage_tool_permissions_summary
+    val manageToolPermissionsTitle: String             // R.string.manage_tool_permissions_title
+    val noPromptsToExport: String             // R.string.no_prompts_to_export
+    val promptCopied: String             // R.string.prompt_copied
+    val promptCopyFailed: String             // R.string.prompt_copy_failed
+    val promptMaxIterationsUnlimited: String             // R.string.prompt_max_iterations_unlimited
+    val rawLlmLogCopied: String             // R.string.raw_llm_log_copied
+    val rawLlmLogTitle: String             // R.string.raw_llm_log_title
+    val rawLogHistorySummary: String             // R.string.raw_log_history_summary
+    val rawLogRetentionSummaryDays: String             // R.string.raw_log_retention_summary_days
+    val rawLogRetentionTitle: String             // R.string.raw_log_retention_title
+    val unknownError: String             // R.string.unknown_error
+    fun csvExportFailed(message: String): String             // R.string.csv_export_failed
+    fun csvImportErrors(created: Int, updated: Int, errors: Int): String             // R.string.csv_import_errors
+    fun csvImportFailed(message: String): String             // R.string.csv_import_failed
+    fun csvImportSuccess(created: Int, updated: Int): String             // R.string.csv_import_success
+    fun promptsCsvExportSuccess(count: Int): String             // R.string.prompts_csv_export_success
+    // --- end I2 Stream A (app root) ---
     val errorOccurred: String
     val okay: String
     // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing

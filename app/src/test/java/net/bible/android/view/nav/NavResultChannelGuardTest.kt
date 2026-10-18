@@ -278,12 +278,18 @@ class NavResultChannelGuardTest {
             "the shared collector consumes the channel but hands the result to nobody -- an " +
                 "assign/manage round trip is read, cleared and DROPPED",
         )
-        val host = hostSource()
+        // The host-level claim moved to the bookmark host (I2 Stream A Task 8); the channel is still the
+        // activity's, handed to it through `navDeps`.
+        val host = bookmarkHostSource()
         assertTrue(
-            Regex("BookmarksManageLabelsCollector\\(\\s*results = manageLabelsResults,[^)]*applyBookmarksManageLabelsResult\\(")
+            Regex("val results = manageLabelsResults\\b").containsMatchIn(host),
+            "BookmarkHost.kt does not read the activity's manageLabelsResults channel for its collector",
+        )
+        assertTrue(
+            Regex("BookmarksManageLabelsCollector\\(\\s*results = results,[^)]*applyBookmarksManageLabelsResult\\(")
                 .containsMatchIn(host),
-            "NavHostComposeActivity.kt does not call the shared BookmarksManageLabelsCollector with " +
-                "manageLabelsResults and applyBookmarksManageLabelsResult",
+            "BookmarkHost.kt does not call the shared BookmarksManageLabelsCollector with " +
+                "the manageLabelsResults channel and applyBookmarksManageLabelsResult",
         )
         assertTrue(
             !bookmarkNavGraphSource().contains("manageLabelsResults.consume()"),
@@ -293,10 +299,10 @@ class NavResultChannelGuardTest {
         )
     }
 
-    /** The host, which is where the bookmark list's label-manager answer is claimed (CR-5). */
-    private fun hostSource(): String {
-        val file = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
-        assertTrue(file.isFile, "cannot find NavHostComposeActivity.kt at ${file.absolutePath}")
+    /** The bookmark host, which is where the bookmark list's label-manager answer is claimed (CR-5). */
+    private fun bookmarkHostSource(): String {
+        val file = net.bible.test.ProductionSources.resolve("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app/bookmark/BookmarkHost.kt")
+        assertTrue(file.isFile, "cannot find BookmarkHost.kt at ${file.absolutePath}")
         return withoutComments(file.readText())
     }
 

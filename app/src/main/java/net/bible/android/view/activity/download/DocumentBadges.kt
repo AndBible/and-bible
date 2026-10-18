@@ -16,16 +16,10 @@
  */
 package net.bible.android.view.activity.download
 
-import net.bible.service.download.PseudoBook
-
-import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
-import net.bible.android.control.download.repo
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 /**
  * Document badge/icon predicates and the per-document icon mapping, extracted from
@@ -59,36 +53,12 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
  * `nav/NavHostComposeActivity.kt`'s explicit imports. Moving the file to a "tidier" package is
  * still a needless churn, not a cleanup.
  *
- * [DocumentConfiguration], [PseudoBook] and [Book.installedDocument] were promoted here from
+ * [DocumentConfiguration], [net.bible.service.download.PseudoBook] and [Book.installedDocument] were promoted here from
  * `base/DocumentSelectionBase.kt` by nav-graph slice 8 F7, which deleted that abstract class (zero
  * subclasses): these three top-level declarations outlive it, consumed by
  * `nav/NavHostComposeActivity.kt`, `navigation/DocRowMapper.kt` and
- * `service/download/fakeBookFactory.kt`.
+ * `service/download/fakeBookFactory.kt`. `DocumentConfiguration.kt` has since moved to `:sharedUi`.
  */
-@Serializable
-data class DocumentConfiguration(
-    val bibles: Map<String, List<String>>,
-    val commentaries: Map<String, List<String>>,
-    val dictionaries: Map<String, List<String>>,
-    val books: Map<String, List<String>>,
-    val maps: Map<String, List<String>>,
-    val addons: Map<String, List<String>> = emptyMap(),
-) {
-    fun getForBookCategory(c: BookCategory): Map<String, List<String>> {
-        return when(c) {
-            BookCategory.BIBLE -> bibles
-            BookCategory.COMMENTARY -> commentaries
-            BookCategory.GENERAL_BOOK -> books
-            BookCategory.MAPS -> maps
-            BookCategory.DICTIONARY -> dictionaries
-            BookCategory.AND_BIBLE -> addons
-            else -> emptyMap()
-        }
-    }
-}
-
-val Book.installedDocument get() = Books.installed().getBook(initials)
-
 val BookCategory.imageResource: Int
     get() = when(this) {
         BookCategory.BIBLE -> if(CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else  R.drawable.ic_bible_24dp
@@ -103,35 +73,3 @@ val BookCategory.imageResource: Int
 val Book.imageResource: Int
     get() = bookCategory.imageResource
 
-fun Book.isRecommended(recommendedDocuments: DocumentConfiguration?): Boolean =
-    recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
-        if(it.contains("::")) {
-            val (initials, repository) = it.split("::")
-            initials == this.initials && repository == this.repo
-        } else {
-            it == initials
-        }
-    } != null
-
-enum class BadDocumentAction {
-    WARN, HIDE, NONE;
-    companion object {
-        fun getByLetter(actionLetter: String) =
-            when (actionLetter) {
-                "W" -> WARN
-                "H" -> HIDE
-                else -> NONE
-            }
-    }
-}
-fun Book.isBadDocument(badDocuments: DocumentConfiguration?, actionForDocument: BadDocumentAction): Boolean =
-    badDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
-        val (initials, repository, version, actionStr) = it.split("::")
-        val action = BadDocumentAction.getByLetter(actionStr)
-        initials == this.initials
-            && repository == this.repo
-            && version == bookMetaData.getProperty(SwordBookMetaData.KEY_VERSION)
-            && action == actionForDocument
-    } != null
-
-val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != null

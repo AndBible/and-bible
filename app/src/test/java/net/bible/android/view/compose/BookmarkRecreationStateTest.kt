@@ -46,6 +46,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import net.bible.sharedui.app.bookmark.BookmarkHost
 
 /** Real host regressions: retaining the route must not reset its draft or orphan its parent request. */
 @RunWith(RobolectricTestRunner::class)
@@ -89,13 +90,13 @@ class BookmarkRecreationStateTest {
     private fun nav(activity: NavHostComposeActivity) = field(activity, "navController") as NavHostController
 
     private fun bookmarks(activity: NavHostComposeActivity): BookmarksController {
-        val pair = NavHostComposeActivity::class.java.declaredMethods.single { it.name == "getBookmarksSession" }
-            .apply { isAccessible = true }.invoke(activity) as Pair<*, *>
+        val pair = BookmarkHost::class.java.declaredMethods.single { it.name == "getBookmarksSession" }
+            .apply { isAccessible = true }.invoke(activity.appHosts.bookmark) as Pair<*, *>
         return field(requireNotNull(pair.second), "controller") as BookmarksController
     }
 
     private fun managerOrNull(activity: NavHostComposeActivity): ManageLabelsController? =
-        (field(activity, "manageLabelsSession") as Pair<*, *>?)?.second?.let {
+        (field(activity.appHosts.bookmark, "manageLabelsSession") as Pair<*, *>?)?.second?.let {
             field(it, "controller") as ManageLabelsController
         }
 
@@ -171,8 +172,8 @@ class BookmarkRecreationStateTest {
 
         val recreated = recreate(activity, NavRoutes.BOOKMARKS_PATTERN)
         awaitHostCondition("new bookmark controller finishes DAO load", ::advance) {
-            val pair = NavHostComposeActivity::class.java.declaredMethods.single { it.name == "getBookmarksSession" }
-                .apply { isAccessible = true }.invoke(recreated) as Pair<*, *>?
+            val pair = BookmarkHost::class.java.declaredMethods.single { it.name == "getBookmarksSession" }
+                .apply { isAccessible = true }.invoke(recreated.appHosts.bookmark) as Pair<*, *>?
             pair != null && !bookmarks(recreated).loading.value
         }
         val restored = bookmarks(recreated)
@@ -210,7 +211,7 @@ class BookmarkRecreationStateTest {
         ).also { hosts += it }.create().start().resume().visible().get()
         awaitHostRoute(activity, NavRoutes.MY_DOCUMENTS_PATTERN, ::advance)
         fun documentsOrNull(host: NavHostComposeActivity): net.bible.sharedcore.mydocuments.MyDocumentsController? =
-            field(host, "myDocumentsSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentsController }
+            field(host.appHosts.myDocuments, "myDocumentsSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentsController }
         awaitHostCondition("MyDocuments real DAO initial load", ::advance) { documentsOrNull(activity)?.totalCount?.value == 2 }
         val old = requireNotNull(documentsOrNull(activity))
         // Reordering before selecting exercises the token-to-persistent-document identity boundary.
@@ -242,7 +243,7 @@ class BookmarkRecreationStateTest {
     }
 
     private fun pagesControllerOrNull(host: NavHostComposeActivity): net.bible.sharedcore.mydocuments.MyDocumentPagesController? =
-        field(host, "myDocumentPagesSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentPagesController }
+        field(host.appHosts.myDocuments, "myDocumentPagesSession")?.let { field(it, "controller") as net.bible.sharedcore.mydocuments.MyDocumentPagesController }
 
     @Test fun myDocumentPagesSearchAndSelectionSurviveRecreation() {
         val dao = net.bible.service.db.DatabaseContainer.instance.myDocumentDb.myDocumentDao()
@@ -320,7 +321,7 @@ class BookmarkRecreationStateTest {
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.cloudDocuments()),
         ).also { hosts += it }.create().start().resume().visible().get()
         fun cloudOrNull(host: NavHostComposeActivity): net.bible.sharedcore.cloud.CloudDocumentsController? =
-            field(host, "cloudDocumentsEntryRef")?.let { field(it, "controller") as net.bible.sharedcore.cloud.CloudDocumentsController }
+            field(host.appHosts.cloudDocuments, "cloudDocumentsEntryRef")?.let { field(it, "controller") as net.bible.sharedcore.cloud.CloudDocumentsController }
         awaitHostCondition("cloud controller built", ::advance) { cloudOrNull(activity) != null }
         val old = requireNotNull(cloudOrNull(activity))
         old.setCategoryFilter(net.bible.sharedcore.navigation.DocCategory.COMMENTARY)
@@ -337,7 +338,8 @@ class BookmarkRecreationStateTest {
     private fun savedPayload(): String {
         val saved = Bundle()
         hosts.last().saveInstanceState(saved)
-        return saved.getString("bookmark-recreation").orEmpty()
+        // The bookmark snapshot rides inside the app hosts' state (`nav_app_hosts`, I2 Stream A Task 8).
+        return saved.getString("nav_app_hosts").orEmpty()
     }
 
     @Test fun savedStateDoesNotGrowWithUnchangedLabels() {
@@ -380,7 +382,7 @@ class BookmarkRecreationStateTest {
         assertTrue("positive control: the staged new label is in the working set", before.contains("\"new\":true"))
 
         // Mark this visit's save as started without releasing it: the real in-flight Save window.
-        val sessionPair = field(activity, "manageLabelsSession") as Pair<*, *>
+        val sessionPair = field(activity.appHosts.bookmark, "manageLabelsSession") as Pair<*, *>
         val writes = requireNotNull(field(requireNotNull(sessionPair.second), "writes"))
         writes.javaClass.getMethod("start", List::class.java, List::class.java, List::class.java)
             .invoke(writes, emptyList<Any>(), emptyList<Any>(), emptyList<Any>())
@@ -391,7 +393,7 @@ class BookmarkRecreationStateTest {
     }
 
     @Test fun malformedBookmarkRecreationBundleFallsBackToAFreshHost() {
-        val saved = Bundle().apply { putString("bookmark-recreation", "{not-json") }
+        val saved = Bundle().apply { putString("nav_app_hosts", "{not-json") }
         resetComposeUiDispatcher()
         val restored = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,

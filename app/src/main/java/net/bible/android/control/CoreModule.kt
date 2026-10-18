@@ -12,5 +12,5 @@ val coreModule = buildCoreModule()
  * instance from here, never [coreModule]. Both parts are built anew on every call.
  */
 fun buildCoreModule() = module {
-    includes(buildPlatformBindings(), buildSharedBindings())
+    includes(buildPlatformBindings(), buildSharedBindings(), buildHostBindings())
 }

@@ -20,6 +20,13 @@ import org.junit.Test
  */
 class InstallZipAwaitGuardTest {
 
+    /**
+     * The production roots plus the shared app-root hosts (`InstallZipHost` and its neighbours live in `:sharedUi`
+     * since I2 Stream A Task 12), so a wait planted there is seen too.
+     */
+    private val scannedRoots: List<File> = net.bible.test.ProductionSources.roots +
+        File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/app")
+
     private val marker = Regex("""Screen\.InstallZip\b|NavRoutes\.installZip\(|NavRoutes\.INSTALL_ZIP_PATTERN\b""")
 
     private fun code(file: File): String = file.readLines()
@@ -40,7 +47,7 @@ class InstallZipAwaitGuardTest {
     /** Every offending file name, one entry per offence. */
     private fun offences(): List<String> {
         val found = mutableListOf<String>()
-        net.bible.test.ProductionSources.roots.asSequence().flatMap { it.walkTopDown() }.filter { it.isFile && it.extension == "kt" }.forEach { file ->
+        scannedRoots.asSequence().flatMap { it.walkTopDown() }.filter { it.isFile && it.extension == "kt" }.forEach { file ->
             if (file.name == "ScreenLauncher.kt") return@forEach
             val text = code(file)
             for (call in listOf("awaitIntent(", ".launch(")) {
@@ -68,7 +75,7 @@ class InstallZipAwaitGuardTest {
 
     @Test
     fun theScanSeesTheTree() {
-        assertTrue(net.bible.test.ProductionSources.roots.all { it.isDirectory })
+        assertTrue(scannedRoots.all { it.isDirectory })
     }
 
     @Test

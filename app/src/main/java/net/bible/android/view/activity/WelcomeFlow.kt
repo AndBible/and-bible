@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
@@ -47,7 +48,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.startup.StartupWelcomeController
 import net.bible.sharedcore.startup.StartupWelcomeInfo
 import net.bible.sharedui.components.AbMultiSelectDialog
-import net.bible.sharedui.startup.nav.WelcomeNavDeps
+import net.bible.sharedui.app.welcome.WelcomeHostPlatform
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -58,7 +59,7 @@ import net.bible.sharedui.strings.LocalStrings
  * ([NavHostComposeActivity.recheckOnReturnToWelcome], which owns [awaitingReturn]). Restore returns through an external picker, so it
  * re-checks directly. The re-check itself is the host's gate (b), [NavHostComposeActivity.welcomeAfterFlow].
  */
-internal class WelcomeFlow(private val host: NavHostComposeActivity) {
+internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHostPlatform {
 
     // A host restored on WELCOME after process death never ran StartupActivity's DB open (fix batch 1 §2.6).
     private val docsDao get() = DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao()
@@ -87,7 +88,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
         controller.refresh()
     }
 
-    val controller: StartupWelcomeController get() = controllerLazy.value
+    override val controller: StartupWelcomeController get() = controllerLazy.value
 
     /**
      * The controller only if a WELCOME entry has built it -- for the host's `InstallZipProgress` subscription, which runs on
@@ -120,23 +121,19 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
         )
     }
 
-    /** The destination's deps. Built once per host (`remember` in `setContent`). */
-    fun navDeps(): WelcomeNavDeps = WelcomeNavDeps(
-        setWindowTitle = { title -> host.setTitle(title) },
-        // StartupComposeActivity had no android:label, so its window title was the application label.
-        windowTitle = host.applicationInfo.loadLabel(host.packageManager).toString(),
-        controller = { controller },
-        appName = host.getString(startupWelcomeAppNameRes()),
-        logo = { painterResource(startupWelcomeLogoRes()) },
-        onDownload = ::onDownload,
-        onImport = ::onImport,
-        onRestore = ::onRestore,
-        onRedownload = ::onRedownload,
-        onEasyStart = ::onEasyStart,
-        onOpenHomepage = { openUrl(R.string.homepage) },
-        onOpenGithub = { openUrl(R.string.github_page) },
-        dialogs = { RedownloadDialog() },
-    )
+    // StartupComposeActivity had no android:label, so its window title was the application label.
+    override val windowTitle: String get() = host.applicationInfo.loadLabel(host.packageManager).toString()
+
+    override val appName: String get() = host.getString(startupWelcomeAppNameRes())
+
+    override val logo: @Composable () -> Painter? = { painterResource(startupWelcomeLogoRes()) }
+
+    override fun onOpenHomepage() = openUrl(R.string.homepage)
+
+    override fun onOpenGithub() = openUrl(R.string.github_page)
+
+    @Composable
+    override fun Dialogs() = RedownloadDialog()
 
     /**
      * Leave WELCOME for [route]. The app is initialised first: these screens used to be separate Activities
@@ -153,7 +150,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
         }
     }
 
-    private fun onDownload() {
+    override fun onDownload() {
         if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             Dialogs.showErrorMsg(host.getString(R.string.storage_space_warning)) { host.finish() }
             return
@@ -161,9 +158,9 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
         leaveFor(NavRoutes.download(firstDownload = true))
     }
 
-    private fun onEasyStart() = leaveFor(NavRoutes.download(firstDownload = true, downloadRecommended = true))
+    override fun onEasyStart() = leaveFor(NavRoutes.download(firstDownload = true, downloadRecommended = true))
 
-    private fun onImport() {
+    override fun onImport() {
         host.lifecycleScope.launch {
             host.initialiseLeavingWelcome()
             org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
@@ -173,7 +170,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
         }
     }
 
-    private fun onRestore() {
+    override fun onRestore() {
         host.lifecycleScope.launch {
             val result = host.awaitIntent(Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/*" })
             CurrentActivityHolder.activate(host)
@@ -184,7 +181,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
         }
     }
 
-    private fun onRedownload() {
+    override fun onRedownload() {
         host.lifecycleScope.launch { redownloadBooks = docsDao.getKnownInstalled().sortedBy { it.language } }
     }
 

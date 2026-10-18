@@ -157,29 +157,7 @@ internal fun installZipRedirectIntent(original: Intent?, context: Context, decis
         .putExtra(NavHostComposeActivity.EXTRA_ROUTE, NavRoutes.installZip(routeArgs.first, routeArgs.second.map(Uri::toString)))
 }
 
-/**
- * Picks the job the host should currently render out of [jobs]: a job paused on
- * [InstallPhase.AwaitingDecision] takes priority over any other (mirrors
- * `DocumentInstallService.onJobsChanged`'s own notification-picking logic -- a pending ask-back
- * must never be starved by a later-queued job's progress), otherwise the first job in the queue.
- */
-internal fun pickActiveJob(jobs: List<InstallJobState>): InstallJobState? =
-    jobs.firstOrNull { it.phase is InstallPhase.AwaitingDecision } ?: jobs.firstOrNull()
-
-/**
- * Whether the jobs-drained-to-empty watcher in [InstallZipComposeActivity.Content] should finish
- * the host with `RESULT_OK`. Gated on [enqueuedHere] -- whether THIS host instance actually
- * enqueued a job itself (see [InstallZipComposeActivity.enqueue]) -- rather than merely on having
- * observed the shared, app-scoped `DocumentInstallService.controller.jobs` queue become non-empty
- * at some point: the design allows backing out of a running install (the service keeps running in
- * the background), so a SECOND host can open while a PRIOR host's install still runs. That
- * foreign job draining to empty must NOT finish *this* host with `RESULT_OK` if it never enqueued
- * anything itself -- e.g. it is still sitting at its `ConfirmInstall`/`FormatInfo` prelude, having
- * enqueued nothing. Extracted as a pure predicate so this precise "RESULT_OK iff >=1 source
- * enqueued by THIS prelude" contract is directly unit-testable (see Task B3 finding I1).
- */
-internal fun shouldFinishOnDrain(enqueuedHere: Boolean, jobsEmpty: Boolean): Boolean =
-    enqueuedHere && jobsEmpty
+// pickActiveJob / shouldFinishOnDrain moved to :sharedUi (InstallZipFlow.kt, same FQN, I2-A Task 12).
 
 /**
  * Maps a job's [InstallPhase] (+ its [displayName]) to the commonMain-local [InstallUiState] that

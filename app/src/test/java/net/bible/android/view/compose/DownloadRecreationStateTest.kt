@@ -103,7 +103,7 @@ class DownloadRecreationStateTest {
     }
 
     private fun controller(host: NavHostComposeActivity): DocumentSelectionController? =
-        field(host, "downloadSession")?.let { field(it, "controller") as DocumentSelectionController }
+        host.appHosts.download.currentController
 
     private fun awaitController(host: NavHostComposeActivity): DocumentSelectionController {
         awaitHostCondition("download controller built and seeded", ::advance) { controller(host) != null }

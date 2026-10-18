@@ -185,7 +185,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
     }
 
     /**
-     * A debt has to survive `recreate()`. `discrete_mode` is one of `RECREATE_ON_CHANGE_KEYS`, and
+     * A debt has to survive `recreate()`. `discrete_mode` is one of `RECREATE_ON_CHANGE_KEYS` (in `SettingsHost`), and
      * the launcher-alias swap that recreate does NOT perform is precisely what the debt is owed for.
      */
     @Test fun aDebtIsCarriedAcrossARecreate() {
@@ -236,7 +236,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
      * it actually moves a component's enabled state, so a unit test that let it do its job would
      * take the test JVM with it. What can be checked is that it is still IN the shared body and
      * still has exactly one production caller: `discrete_mode` is in
-     * `NavHostComposeActivity.RECREATE_ON_CHANGE_KEYS`, and `recreate()` does NOT swap the launcher
+     * `RECREATE_ON_CHANGE_KEYS` in `SettingsHost`, and `recreate()` does NOT swap the launcher
      * alias — so if this call ever leaves `preferenceSettingsChanged`, turning on discrete mode
      * stops hiding the app's icon and name and nothing else in the tree notices.
      */

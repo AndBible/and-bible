@@ -19,7 +19,6 @@ package net.bible.android.view.compose
 
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
-import android.net.Uri
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
@@ -37,6 +36,7 @@ import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
 import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.installzip.InstallUiState
 import net.bible.sharedui.installzip.nav.InstallZipNavDeps
@@ -87,7 +87,7 @@ class InstallZipInGraphTest {
 
     // ——— the real InstallZipFlow, for the entry-lifetime tests (D1's first review concern) ———
     private val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
-    private val enqueued = mutableListOf<List<Uri>>()
+    private val enqueued = mutableListOf<List<DocumentRef>>()
     private var realSessions = 0
     private var realCloses = 0
 
@@ -96,7 +96,7 @@ class InstallZipInGraphTest {
         val flow = InstallZipFlow(
             scope = compose.activity.lifecycleScope,
             action = action,
-            uris = uris.map(Uri::parse),
+            uris = uris.map(::DocumentRef),
             seams = InstallZipFlow.Seams(
                 jobs = jobs,
                 isStudyPadExport = { false },
@@ -197,7 +197,7 @@ class InstallZipInGraphTest {
         compose.waitForIdle()
 
         assertEquals(NavRoutes.INSTALL_ZIP_PATTERN, navController.currentBackStackEntry?.destination?.route)
-        assertEquals(listOf(listOf(Uri.parse("content://x/module.zip"))), enqueued, "enqueued exactly once")
+        assertEquals(listOf(listOf(DocumentRef("content://x/module.zip"))), enqueued, "enqueued exactly once")
         assertEquals(1, realSessions, "one session per back-stack entry")
     }
 
@@ -252,7 +252,7 @@ class InstallZipInGraphTest {
         // InstallZipEntrySessions closes its session on replacement rather than waiting for its ON_DESTROY.
         assertEquals(1, navController.currentBackStack.value.count { it.destination.route == NavRoutes.INSTALL_ZIP_PATTERN })
 
-        assertEquals(listOf(listOf(Uri.parse("content://x/a.zip")), listOf(Uri.parse("content://x/b.zip"))), enqueued)
+        assertEquals(listOf(listOf(DocumentRef("content://x/a.zip")), listOf(DocumentRef("content://x/b.zip"))), enqueued)
         assertEquals(2, realSessions)
         assertEquals(1, realCloses, "the replaced object's session is closed on the re-share")
 
