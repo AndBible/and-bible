@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import java.io.File
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -82,10 +83,11 @@ class ClassicRemovalScanAssertionsTest {
         )
     }
 
-    /** Rooted inside `src/` (not the OS temp dir) so [ClassicRemovalScan.appResourceXml]'s literal
-     *  `File("src").listFiles { ... }` walk actually finds what this rule creates — cleaned up by
-     *  JUnit after every test, pass or fail, so nothing this test writes is ever left in the repo. */
-    @get:Rule val srcTempFolder = TemporaryFolder(File("src"))
+    /** Rooted in the JUnit temp dir, NOT under `src/`: a folder under the real `src/` is walked by every
+     *  other scan guard running in the same JVM and vanishes under them mid-walk (flaky
+     *  `FileNotFoundException`). The fixture is handed to the scanner as an extra source root
+     *  instead (`extraResourceSrcRoots`), and JUnit removes it after every test, pass or fail. */
+    @get:Rule val fixtureSrcRoot = TemporaryFolder()
 
     /**
      * The resource arm, added in this batch. Batch S4+S5+S7+S8's final review found the sweep
@@ -103,13 +105,13 @@ class ClassicRemovalScanAssertionsTest {
         // `androidx.constraintlayout.widget.ConstraintLayout` is the only other FQN any resource
         // XML names, and it fails the OTHER premise (it is a real, load-bearing import in
         // ComposeReadingViewHost.kt). So this test now builds its OWN one-file resource "source
-        // set" under `src/` via [srcTempFolder] — the same shape the launcher-arm test below takes
+        // set" OUTSIDE `src/` via [fixtureSrcRoot] — the same shape the launcher-arm test below takes
         // with a synthetic `.kt` fixture, adapted here because [ClassicRemovalScan.appResourceXml]
-        // walks a real directory rather than taking a path.
+        // walks real directories rather than taking a path (so the fixture is passed as an extra root).
         val fq = "com.example.classicremovalscanfixture.ClassicRemovalScanFixtureWidget"
         val ref = ClassicRemovalScan.refsFor(listOf(fq)).single()
 
-        val fixtureResDir = srcTempFolder.newFolder("res", "xml")
+        val fixtureResDir = fixtureSrcRoot.newFolder("fixtureSourceSet", "res", "xml")
         File(fixtureResDir, "classic_removal_scan_fixture.xml").writeText(
             """<?xml version="1.0" encoding="utf-8"?>
             |<$fq xmlns:android="http://schemas.android.com/apk/res/android" />
@@ -126,17 +128,25 @@ class ClassicRemovalScanAssertionsTest {
         assertTrue(
             "the fixture resource file this test just wrote was not found by appResourceXml() — " +
                 "either the walk or this test's own temp-folder placement is broken",
-            ClassicRemovalScan.appResourceXml().any { f -> f.readLines().any { ref.containsMatchIn(it) } },
+            ClassicRemovalScan.appResourceXml(listOf(File("src"), fixtureSrcRoot.root)).any { f -> f.readLines().any { ref.containsMatchIn(it) } },
         )
+        assertFalse(
+            "the fixture must live outside the scanned src/ tree, or it races concurrent scans",
+            fixtureSrcRoot.root.canonicalFile.startsWith(File("src").canonicalFile),
+        )
+        // Without the extra root the real tree is clean, so the failure below comes from the fixture alone.
+        ClassicRemovalScan.assertNoSourceNames(listOf(fq), "the real tree must not name the fixture class")
         assertThrows(AssertionError::class.java) {
             ClassicRemovalScan.assertNoSourceNames(
                 listOf(fq),
                 "one layout still inflates this class by name, so the helper must fail",
+                extraResourceSrcRoots = listOf(fixtureSrcRoot.root),
             )
         }
         ClassicRemovalScan.assertNoSourceNames(
             listOf("net.bible.android.view.util.widget.NoSuchWidgetEver"),
             "neither a source file nor a layout names this class, so the helper must pass",
+            extraResourceSrcRoots = listOf(fixtureSrcRoot.root),
         )
     }
 

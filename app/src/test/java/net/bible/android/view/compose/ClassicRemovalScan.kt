@@ -142,12 +142,14 @@ object ClassicRemovalScan {
      * continuation lines in this repo): a commented-out `<net.bible.…>` tag is still a dangling
      * reference to a deleted class, and flagging it is the safe direction.
      */
-    fun appResourceXml(): List<File> =
-        File("src").listFiles { f -> f.isDirectory && f.name != "test" && f.name != "androidTest" }
-            .orEmpty()
-            .map { File(it, "res") }
-            .filter { it.isDirectory }
-            .flatMap { res -> res.walkTopDown().filter { it.isFile && it.extension == "xml" } }
+    fun appResourceXml(srcRoots: List<File> = listOf(File("src"))): List<File> =
+        srcRoots.flatMap { srcRoot ->
+            srcRoot.listFiles { f -> f.isDirectory && f.name != "test" && f.name != "androidTest" }
+                .orEmpty()
+                .map { File(it, "res") }
+                .filter { it.isDirectory }
+                .flatMap { res -> res.walkTopDown().filter { it.isFile && it.extension == "xml" } }
+        }
 
     /**
      * The five assertions every slice removal guard now makes, extracted in batch S4+S5+S7+S8 for
@@ -228,15 +230,21 @@ object ClassicRemovalScan {
      * carries its own vacuity precondition: a single combined count would let a broken source walk
      * hide behind ~470 resource files.
      *
+     * `extraResourceSrcRoots` is for a test that must drive the resource arm with a synthetic
+     * fixture: each root is laid out like `src/` (`<sourceSet>/res/...`) and scanned IN ADDITION to
+     * the real `src`. The fixture must live OUTSIDE `src/` (a JUnit temp dir): a folder created
+     * under the real `src/` is visible to every concurrent scan in the same JVM and vanishes
+     * mid-walk (`FileNotFoundException` in the guards). The scan of `src` itself is unchanged.
+     *
      * Callers MUST pass fully-qualified names. A bare class name against resource XML is not merely
      * loose, it is unusable: `Search` matches ~140 lines of `strings.xml` under `values` locale
      * directories in this repo alone. See [refsFor] for why the boundary is trailing-only.
      */
-    fun assertNoSourceNames(fqNames: List<String>, hint: String) {
+    fun assertNoSourceNames(fqNames: List<String>, hint: String, extraResourceSrcRoots: List<File> = emptyList()) {
         val refs = refsFor(fqNames)
         val sources = appSources()
         assertTrue("the source-set walk found no Kotlin/Java source at all", sources.size > 100)
-        val resources = appResourceXml()
+        val resources = appResourceXml(listOf(File("src")) + extraResourceSrcRoots)
         assertTrue("the res/ walk found no resource XML at all", resources.size > 100)
         val sourceOffenders = sources
             .filter { file ->
