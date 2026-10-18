@@ -202,7 +202,7 @@ class AndroidPlatformSeamsTest {
 
     @Test fun startupGuardRejectsLlmAccessHiddenInSwordHelper() {
         val sources = startupSources().toMutableMap()
-        val path = "service/sword/SwordEnvironmentInitialisation.kt"
+        val path = SWORD_INIT
         listOf("LlmProcessingService", "DynamicModelService", "AgentSessionManager", "ToolRegistry").forEach { singleton ->
             sources[path] = startupSources().getValue(path).replace("fun enableDefaultAndManualInstallFolder() {",
                 "fun enableDefaultAndManualInstallFolder() {\n $singleton.toString()")
@@ -212,15 +212,34 @@ class AndroidPlatformSeamsTest {
         }
     }
 
-    private fun startupSources(): Map<String, String> = listOf(
-        "android/BibleApplication.kt", "service/sword/SwordEnvironmentInitialisation.kt",
-    ).associateWith { path ->
-        val file = net.bible.test.ProductionSources.resolve("src/main/java/net/bible/$path")
+    /** The shared startup sequence (`SharedAppStartup.start`, before `startKoin`) is part of the checked chain. */
+    @Test fun startupGuardRejectsLlmAccessBeforeKoinInSharedStartup() {
+        val sources = startupSources().toMutableMap()
+        listOf("LlmProcessingService", "DynamicModelService", "AgentSessionManager", "ToolRegistry").forEach { singleton ->
+            sources[SHARED_STARTUP] = startupSources().getValue(SHARED_STARTUP).replace(
+                "if (KoinPlatform.getKoinOrNull() == null) {", "$singleton.toString()\n        if (KoinPlatform.getKoinOrNull() == null) {")
+            val failure = runCatching { assertNoPreKoinLlmAccess(sources) }.exceptionOrNull()
+            assertTrue("SharedAppStartup.start prefix must be inspected for $singleton", failure is AssertionError)
+            assertTrue(failure!!.message.orEmpty().contains(singleton))
+        }
+    }
+
+    private val BIBLE_APP = "net/bible/android/BibleApplication.kt"
+    private val SWORD_INIT = "net/bible/service/sword/SwordEnvironmentInitialisation.kt"
+    private val SHARED_STARTUP = "net/bible/sharedlogic/startup/SharedAppStartup.kt"
+
+    private fun startupSources(): Map<String, String> = listOf(BIBLE_APP, SWORD_INIT, SHARED_STARTUP).associateWith { path ->
+        val file = net.bible.test.ProductionSources.resolve(path)
         assertTrue("source guard cannot see $file", file.isFile)
         file.readText().replace(Regex("/\\*.*?\\*/", RegexOption.DOT_MATCHES_ALL), "")
             .lineSequence().map { it.substringBefore("//") }.joinToString("\n")
     }
 
+    /**
+     * Everything that runs before Koin is up: BibleApplication.onCreate up to `SharedAppStartup.start(`, the
+     * Koin-free `SharedAppStartup.installEnvironment`, `SharedAppStartup.start` up to `startKoin {`, and the Sword
+     * folder init that start() invokes through its `initialiseJSwordFolders` hook. None may touch an LLM singleton.
+     */
     private fun assertNoPreKoinLlmAccess(sources: Map<String, String>) {
         fun body(source: String, name: String): String {
             val declaration = Regex("fun\\s+$name\\s*\\([^)]*\\)[^{]*\\{").find(source)
@@ -233,13 +252,20 @@ class AndroidPlatformSeamsTest {
             }
             error("unbounded bootstrap function $name")
         }
-        val app = sources.getValue("android/BibleApplication.kt")
+        val app = sources.getValue(BIBLE_APP)
         val onCreate = body(app, "onCreate")
-        val start = onCreate.indexOf("startKoin {")
-        assertTrue("startKoin anchor must survive", start >= 0)
-        val prefix = onCreate.substring(0, start)
-        assertTrue("Sword startup call must remain in the checked prefix",
-            prefix.contains("SwordEnvironmentInitialisation.initialiseJSwordFolders()"))
+        val startCall = onCreate.indexOf("SharedAppStartup.start(")
+        assertTrue("SharedAppStartup.start anchor must survive in BibleApplication.onCreate", startCall >= 0)
+        val appPrefix = onCreate.substring(0, startCall)
+        assertTrue("Sword folder init must stay wired as the startup hook",
+            onCreate.contains("initialiseJSwordFolders = SwordEnvironmentInitialisation::initialiseJSwordFolders"))
+        val shared = sources.getValue(SHARED_STARTUP)
+        val startBody = body(shared, "start")
+        val koinStart = startBody.indexOf("startKoin {")
+        assertTrue("startKoin anchor must survive", koinStart >= 0)
+        val startPrefix = startBody.substring(0, koinStart)
+        assertTrue("Sword startup hook must remain in the checked prefix",
+            startPrefix.contains("hooks.initialiseJSwordFolders()"))
         val seen = mutableSetOf<String>()
         val forbidden = Regex("\\b(LlmProcessingService|DynamicModelService|AgentSessionManager|ToolRegistry)\\b")
         fun visit(path: String, name: String, code: String) {
@@ -248,18 +274,18 @@ class AndroidPlatformSeamsTest {
             assertTrue("pre-Koin $path:$name touches ${forbidden.find(code)?.value}", !forbidden.containsMatchIn(code))
             val source = sources.getValue(path)
             Regex("fun\\s+(\\w+)\\s*\\(").findAll(source).map { it.groupValues[1] }.forEach { helper ->
-                if (helper != "onCreate" && Regex("\\b$helper\\s*\\(").containsMatchIn(code)) {
+                if (helper != "onCreate" && helper != "start" && Regex("\\b$helper\\s*\\(").containsMatchIn(code)) {
                     visit(path, helper, body(source, helper))
                 }
             }
-            if (path == "android/BibleApplication.kt") {
-                Regex("SwordEnvironmentInitialisation\\.(\\w+)\\s*\\(").findAll(code).forEach { call ->
-                    val swordPath = "service/sword/SwordEnvironmentInitialisation.kt"
-                    visit(swordPath, call.groupValues[1], body(sources.getValue(swordPath), call.groupValues[1]))
-                }
+            Regex("SwordEnvironmentInitialisation\\.(\\w+)\\s*\\(").findAll(code).forEach { call ->
+                visit(SWORD_INIT, call.groupValues[1], body(sources.getValue(SWORD_INIT), call.groupValues[1]))
             }
         }
-        visit("android/BibleApplication.kt", "onCreate", prefix)
+        visit(BIBLE_APP, "onCreate", appPrefix)
+        visit(SHARED_STARTUP, "installEnvironment", body(shared, "installEnvironment"))
+        visit(SHARED_STARTUP, "start", startPrefix)
+        visit(SWORD_INIT, "initialiseJSwordFolders", body(sources.getValue(SWORD_INIT), "initialiseJSwordFolders"))
     }
 
     @Test fun koinResolvesEverySeam() {

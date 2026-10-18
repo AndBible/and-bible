@@ -28,7 +28,7 @@
 #       sim boot [iphone|ipad]                    create the device if missing, boot it, print its UDID
 #       sim shot <name>                           screenshot -> .local/mac/<container>/shots/<name>.png
 #       sim log [minutes] [predicate]             app unified log of the last N minutes (default 5)
-#       sim launch [bundle-id]                    (re)launch the app (default org.andbible.ios.poc)
+#       sim launch [bundle-id]                    (re)launch the app (default org.andbible.ios.dev)
 #       sim sample [process]                      5 s stack sample of the app (hangs, busy loops)
 #       sim crashes                               fetch the app's crash reports (~/Library/Logs/DiagnosticReports)
 #       sim shutdown                              shut down all simulators
@@ -57,8 +57,8 @@ SIM_IPHONE="${MAC_SIM_IPHONE:-iPhone 16}"
 SIM_IPAD="${MAC_SIM_IPAD:-iPad Air 11-inch (M4)}"
 TIMEOUT="${MAC_TIMEOUT:-3000}"
 LOCK_WAIT="${MAC_LOCK_WAIT:-5400}"
-APP_ID=org.andbible.ios.poc
-APP_PROCESS=AndBiblePoC
+APP_ID=org.andbible.ios.dev
+APP_PROCESS=AndBibleDev
 
 die() { echo "mac-remote: $*" >&2; exit 1; }
 
@@ -208,7 +208,7 @@ tmo $TIMEOUT ./gradlew -Dorg.gradle.native=false $(q "$@"); rc=\$?
 exit \$rc"
     ;;
 native-tests)
-    mods=("$@"); [ ${#mods[@]} -gt 0 ] || mods=(jsword kdom sharedCore sharedData sharedLogic)
+    mods=("$@"); [ ${#mods[@]} -gt 0 ] || mods=(jsword kdom sharedCore sharedData sharedLogic sharedUi)
     sync_tree
     rc=0
     remote "$(prologue)

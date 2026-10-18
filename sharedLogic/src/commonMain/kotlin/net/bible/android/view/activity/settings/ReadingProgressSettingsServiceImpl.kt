@@ -19,15 +19,15 @@ package net.bible.android.view.activity.settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
 import net.bible.service.common.ReadingProgressSettings
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.settings.Choice2
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.sharedcore.settings.ReadingProgressSettingsSnapshot
+import org.koin.mp.KoinPlatform
 
 /**
- * Android impl of [ReadingProgressSettingsService]. Reproduces the classic
+ * Platform-neutral impl of [ReadingProgressSettingsService]. Reproduces the classic
  * `ReadingProgressSettingsDataStore` (its file was deleted in the "Z-late S12: delete the classic
  * settings cluster" commit; see that commit and its history for the source of truth this was
  * written against) key-for-key: reads/writes go through the [ReadingProgressSettings] singleton
@@ -40,12 +40,15 @@ import net.bible.sharedcore.settings.ReadingProgressSettingsSnapshot
  */
 class ReadingProgressSettingsServiceImpl : ReadingProgressSettingsService {
 
+    // Must stay declared before _snapshot: build() runs during construction and reads it.
+    private val strings: CoreStrings by lazy { KoinPlatform.getKoin().get<CoreStrings>() }
+
     private val _snapshot = MutableStateFlow(build())
     override val snapshot: StateFlow<ReadingProgressSettingsSnapshot> = _snapshot.asStateFlow()
 
     private fun memorizeWordVisibilityChoices(): List<Choice2> {
-        val labels = application.resources.getStringArray(R.array.memorize_word_visibility_entries)
-        val values = application.resources.getStringArray(R.array.memorize_word_visibility_values)
+        val labels = strings.memorizeWordVisibilityEntries
+        val values = strings.memorizeWordVisibilityValues
         return values.indices.map { Choice2(values[it], labels.getOrElse(it) { values[it] }) }
     }
 

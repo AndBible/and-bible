@@ -16,11 +16,10 @@
  */
 package net.bible.android.view.activity.settings
 
-import android.net.Uri
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
@@ -28,10 +27,7 @@ import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.defaultWorkspaceColor
-import net.bible.android.view.activity.page.OptionsMenuItemInterface
-import net.bible.android.view.util.widget.availableFonts
-import net.bible.service.common.AndBibleAddons
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.GlobalTextDisplaySettingsStore
 import net.bible.service.sword.backgroundimage.BackgroundImageImporter
 import net.bible.service.sword.backgroundimage.backgroundImageFile
 import net.bible.service.sword.backgroundimage.isBackgroundImageModule
@@ -47,7 +43,13 @@ import net.bible.sharedcore.settings.TextSettingRowValue
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.settings.TextSettingValue
 import net.bible.sharedcore.settings.TextSettingsSnapshot
+import net.bible.sharedlogic.platform.AddonCatalog
+import net.bible.sharedlogic.settings.PrefItemHandle
+import net.bible.sharedlogic.settings.TextDisplayArray
+import net.bible.sharedlogic.settings.TextDisplayPrefItems
+import net.bible.sharedlogic.settings.TextDisplayString
 import org.crosswire.jsword.book.Books
+import org.koin.mp.KoinPlatform
 
 /**
  * A workspace-scoped settings edit that is NOT written through to the active workspace or the DB.
@@ -87,8 +89,8 @@ class DetachedWorkspaceEdit(val bundle: SettingsBundle) {
 /**
  * Android impl of [TextDisplaySettingsService] — the ONLY place classic
  * `WorkspaceEntities`/`SettingsBundle`/`getPrefItem` are read or written from the Compose side
- * (approach B). Drives the EXISTING classic machinery (`getPrefItem`, `OptionsMenuItemInterface`,
- * `WindowRepository`, `CommonUtils.globalTextDisplaySettings`) instead of duplicating the
+ * (approach B). Drives the EXISTING classic machinery (`getPrefItem`, `PrefItemHandle`,
+ * `WindowRepository`, `globalTextDisplaySettings`) instead of duplicating the
  * sparse-override/inheritance math, which lives in `Preference.value` / `SettingsBundle.actual()`
  * (`TextDisplaySettingsPrefItems.kt`, `OptionsMenuItems.kt`, `WorkspaceEntities.kt`).
  *
@@ -101,8 +103,14 @@ class DetachedWorkspaceEdit(val bundle: SettingsBundle) {
 class TextDisplaySettingsServiceImpl(
     private val detached: DetachedWorkspaceEdit? = null,
 ) : TextDisplaySettingsService {
-    private val app get() = BibleApplication.application
-    private val windowControl get() = CommonUtils.windowControl
+    private val koin get() = KoinPlatform.getKoin()
+    private val prefItems get() = koin.get<TextDisplayPrefItems>()
+    private val windowControl get() = koin.get<WindowControl>()
+    private val addonCatalog get() = koin.get<AddonCatalog>()
+    private val globalStore get() = koin.get<GlobalTextDisplaySettingsStore>()
+    private var globalTextDisplaySettings: TextDisplaySettings
+        get() = globalStore.current
+        set(value) = globalStore.set(value)
     private val repo get() = windowControl.windowRepository
 
     private fun TextSettingType.toClassic() = TextDisplaySettings.Types.valueOf(name)
@@ -149,7 +157,7 @@ class TextDisplaySettingsServiceImpl(
         return when (scope) {
             is SettingsScope.Global -> SettingsBundle(
                 level = SettingsLevel.GLOBAL,
-                globalSettings = CommonUtils.globalTextDisplaySettings,
+                globalSettings = globalTextDisplaySettings,
             )
             is SettingsScope.Workspace -> SettingsBundle(
                 level = SettingsLevel.WORKSPACE,
@@ -157,7 +165,7 @@ class TextDisplaySettingsServiceImpl(
                 workspaceSettings = repo.textDisplaySettings.apply {  // LIVE object; carry workspaceColor like getItemOptions
                     colors?.workspaceColor = repo.workspaceSettings.workspaceColor
                 },
-                globalSettings = CommonUtils.globalTextDisplaySettings,
+                globalSettings = globalTextDisplaySettings,
             )
             is SettingsScope.Window -> {
                 val window = repo.getWindow(IdType(scope.windowId))!!
@@ -167,7 +175,7 @@ class TextDisplaySettingsServiceImpl(
                     pageManagerSettings = window.pageManager.textDisplaySettings,  // LIVE object
                     workspaceId = repo.id, workspaceName = repo.name,
                     workspaceSettings = repo.textDisplaySettings,
-                    globalSettings = CommonUtils.globalTextDisplaySettings,
+                    globalSettings = globalTextDisplaySettings,
                 )
             }
         }
@@ -177,7 +185,7 @@ class TextDisplaySettingsServiceImpl(
         val bundle = bundleFor(scope)
         val rows = TextSettingType.entries.associateWith { t ->
             val classic = t.toClassic()
-            val item = getPrefItem(bundle, classic)
+            val item = prefItems.item(bundle, classic)
             TextSettingRow(
                 t, valueFor(t, item), InheritedFrom(bundle.inheritedFrom(classic)), item.enabled, item.visible,
                 iconKey = iconKeyFor(item),
@@ -194,56 +202,56 @@ class TextDisplaySettingsServiceImpl(
     /**
      * Classic's per-setting icon (`ItemPreference.icon`, `OptionsMenuItems.kt:259-289`) as a
      * drawable entry name, which `LocalSettingsIcon` resolves back to a `Painter`. Reuses the
-     * [item] already read via `getPrefItem(bundle, classic)` for this row rather than reading a
+     * [item] already read via `prefItems.item(bundle, classic)` for this row rather than reading a
      * second one. The classic inheritance overlay (`CommonUtils.iconWithInheritance`) is
      * deliberately NOT reproduced — the Compose screen already shows inheritance as a separate
      * text badge (A/B batch 3, F4).
      */
-    private fun iconKeyFor(item: OptionsMenuItemInterface): String? =
-        item.icon?.let { app.resources.getResourceEntryName(it) }
+    private fun iconKeyFor(item: PrefItemHandle): String? =
+        item.iconKey
 
-    private fun valueFor(t: TextSettingType, item: OptionsMenuItemInterface): TextSettingRowValue = when (t) {
+    private fun valueFor(t: TextSettingType, item: PrefItemHandle): TextSettingRowValue = when (t) {
         TextSettingType.STRONGS -> choice((item.value as Int).toString(), strongsEntries())
         TextSettingType.PAGE_SCROLL_AMOUNT -> choice((item.value as Int).toString(), pageScrollEntries())
         TextSettingType.SCROLL_HELPER_LINE_STYLE -> choice((item.value as Int).toString(), scrollHelperStyleEntries())
         TextSettingType.FONTFAMILY -> choice(item.value as String, fontFamilyEntries())
-        TextSettingType.FONTSIZE -> TextSettingRowValue.Numeric(item.value as Int, 1, 60, app.getString(R.string.font_size_pt, item.value as Int))
-        TextSettingType.TOPMARGIN -> TextSettingRowValue.Numeric(item.value as Int, 0, 60, app.getString(R.string.value_mm, item.value as Int))
-        TextSettingType.LINE_SPACING -> TextSettingRowValue.Numeric(item.value as Int, 10, 30, app.getString(R.string.prefs_line_spacing_pt, (item.value as Int).toFloat() / 10))
+        TextSettingType.FONTSIZE -> TextSettingRowValue.Numeric(item.value as Int, 1, 60, prefItems.string(TextDisplayString.FONT_SIZE_PT, item.value as Int))
+        TextSettingType.TOPMARGIN -> TextSettingRowValue.Numeric(item.value as Int, 0, 60, prefItems.string(TextDisplayString.VALUE_MM, item.value as Int))
+        TextSettingType.LINE_SPACING -> TextSettingRowValue.Numeric(item.value as Int, 10, 30, prefItems.string(TextDisplayString.LINE_SPACING_PT, (item.value as Int).toFloat() / 10))
         TextSettingType.MARGINSIZE -> {
             val m = item.value as WorkspaceEntities.MarginSize
             val def = TextDisplaySettings.default.marginSize!!
             val l = m.marginLeft ?: def.marginLeft!!; val r = m.marginRight ?: def.marginRight!!; val mw = m.maxWidth ?: def.maxWidth!!
-            TextSettingRowValue.Margins(l, r, mw, 30, 30, 500, app.getString(R.string.prefs_margin_size_mm_title, l, r, mw))
+            TextSettingRowValue.Margins(l, r, mw, 30, 30, 500, prefItems.string(TextDisplayString.MARGIN_SIZE_MM_TITLE, l, r, mw))
         }
-        TextSettingType.COLORS -> TextSettingRowValue.ColorsNav(app.getString(R.string.prefs_text_colors_summary))
+        TextSettingType.COLORS -> TextSettingRowValue.ColorsNav(prefItems.string(TextDisplayString.TEXT_COLORS_SUMMARY))
         TextSettingType.BOOKMARKS_HIDELABELS ->
-            TextSettingRowValue.HideLabels(app.getString(R.string.bookmark_settings_hide_labels_summary))  // count-free summary; parity with static XML summary
+            TextSettingRowValue.HideLabels(prefItems.string(TextDisplayString.HIDE_LABELS_SUMMARY))  // count-free summary; parity with static XML summary
         else -> TextSettingRowValue.Bool(item.value as Boolean)
     }
 
     private fun choice(sel: String, entries: List<SettingsItem.Choice>) = TextSettingRowValue.Choice(sel, entries)
-    private fun strongsEntries() = app.resources.getStringArray(R.array.strongsModeEntries)
+    private fun strongsEntries() = prefItems.array(TextDisplayArray.STRONGS_MODE_ENTRIES)
         .mapIndexed { i, l -> SettingsItem.Choice(i.toString(), l) }
     private fun pageScrollEntries(): List<SettingsItem.Choice> {
-        val labels = app.resources.getStringArray(R.array.pageScrollAmountEntries)
+        val labels = prefItems.array(TextDisplayArray.PAGE_SCROLL_AMOUNT_ENTRIES)
         val values = intArrayOf(25, 33, 50, 66, 75, 100)   // verbatim from PageScrollAmountPreference.scrollValues
         return values.mapIndexed { i, v -> SettingsItem.Choice(v.toString(), labels.getOrElse(i) { v.toString() }) }
     }
-    private fun scrollHelperStyleEntries() = app.resources.getStringArray(R.array.scrollHelperLineStyleEntries)
+    private fun scrollHelperStyleEntries() = prefItems.array(TextDisplayArray.SCROLL_HELPER_LINE_STYLE_ENTRIES)
         .mapIndexed { i, l -> SettingsItem.Choice(i.toString(), l) }
-    private fun fontFamilyEntries() = availableFonts.map { SettingsItem.Choice(it.realFontFamily, it.name) }
+    private fun fontFamilyEntries() = prefItems.fonts
 
     private fun titleFor(scope: SettingsScope) = when (scope) {
-        is SettingsScope.Global -> app.getString(R.string.global_text_display_settings_title)
-        is SettingsScope.Workspace -> app.getString(R.string.workspace_text_display_settings_title, workspaceName(scope))
-        is SettingsScope.Window -> app.getString(R.string.window_text_display_settings_title, windowControl.windowPosition(IdType(scope.windowId)) + 1)
+        is SettingsScope.Global -> prefItems.string(TextDisplayString.GLOBAL_TITLE)
+        is SettingsScope.Workspace -> prefItems.string(TextDisplayString.WORKSPACE_TITLE, workspaceName(scope))
+        is SettingsScope.Window -> prefItems.string(TextDisplayString.WINDOW_TITLE, windowControl.windowPosition(IdType(scope.windowId)) + 1)
     }
 
     override fun setValue(scope: SettingsScope, type: TextSettingType, value: TextSettingValue) {
         val bundle = bundleFor(scope)
         val classic = type.toClassic()
-        getPrefItem(bundle, classic).value = value.toClassic()   // classic sparse-override + MRU (CommonUtils.displaySettingChanged)
+        prefItems.item(bundle, classic).value = value.toClassic()   // sparse-override + MRU tracking live behind the platform handle's setter
         applyAndPersist(scope, bundle, setOf(classic))
     }
 
@@ -258,7 +266,7 @@ class TextDisplaySettingsServiceImpl(
     override fun revert(scope: SettingsScope, type: TextSettingType) {
         val bundle = bundleFor(scope)
         val classic = type.toClassic()
-        getPrefItem(bundle, classic).setNonSpecific()
+        prefItems.item(bundle, classic).setNonSpecific()
         applyAndPersist(scope, bundle, setOf(classic))
     }
 
@@ -279,8 +287,8 @@ class TextDisplaySettingsServiceImpl(
         val all = TextDisplaySettings.Types.values().toSet()
         when (scope) {
             is SettingsScope.Global -> {
-                CommonUtils.globalTextDisplaySettings = TextDisplaySettings()
-                repo.propagateGlobalTextDisplaySettingsChange(all, CommonUtils.globalTextDisplaySettings)
+                globalTextDisplaySettings = TextDisplaySettings()
+                repo.propagateGlobalTextDisplaySettingsChange(all, globalTextDisplaySettings)
                 repo.updateAllWindowsTextDisplaySettings()
             }
             is SettingsScope.Workspace -> {
@@ -306,7 +314,7 @@ class TextDisplaySettingsServiceImpl(
         detachedFor(scope)?.let { it.markDirty(); return }
         when (scope) {
             is SettingsScope.Global -> {
-                CommonUtils.globalTextDisplaySettings = bundle.globalSettings
+                globalTextDisplaySettings = bundle.globalSettings
                 repo.propagateGlobalTextDisplaySettingsChange(dirty, bundle.globalSettings)
                 repo.updateAllWindowsTextDisplaySettings()
             }
@@ -328,13 +336,13 @@ class TextDisplaySettingsServiceImpl(
     // ---- Colours (Batch 12d-B T5) — reproduces MainBibleActivity.onActivityResult COLORS_CHANGED ----
 
     private fun colorTitleFor(scope: SettingsScope) = when (scope) {
-        is SettingsScope.Window -> app.getString(R.string.window_color_settings_title)
-        is SettingsScope.Workspace, is SettingsScope.Global -> app.getString(R.string.workspace_color_settings_title)
+        is SettingsScope.Window -> prefItems.string(TextDisplayString.WINDOW_COLOR_TITLE)
+        is SettingsScope.Workspace, is SettingsScope.Global -> prefItems.string(TextDisplayString.WORKSPACE_COLOR_TITLE)
     }
 
     private fun bgName(initials: String?): String =
-        initials?.let { AndBibleAddons.providedBackgroundImages[it]?.name ?: it }
-            ?: app.getString(R.string.background_image_none)
+        initials?.let { prefItems.backgroundImageNames()[it] ?: it }
+            ?: prefItems.string(TextDisplayString.BACKGROUND_IMAGE_NONE)
 
     override fun loadColors(scope: SettingsScope): ColorsSnapshot {
         val bundle = bundleFor(scope)
@@ -380,9 +388,9 @@ class TextDisplaySettingsServiceImpl(
         // COLORS is the one TextSettingType that is a navigation row rather than a value row
         // (TextSettingRowValue.ColorsNav), so it never goes through setValue() -> Preference.value,
         // which is the single site that records a setting as recently used
-        // (CommonUtils.displaySettingChanged, called from OptionsMenuItems.kt:183). Without this the
+        // (Android: CommonUtils.displaySettingChanged, called from OptionsMenuItems.kt). Without this the
         // colour editor never appears as a shortcut in the overflow menu, however often it is used.
-        CommonUtils.displaySettingChanged(TextDisplaySettings.Types.COLORS)
+        prefItems.displaySettingChanged(TextDisplaySettings.Types.COLORS)
         // Shared sink for setColor/setNoise/setWorkspaceColor/setBackgroundImage/setBackgroundOpacity
         // (all five route here via editColors), so one short-circuit here covers all five: [colors]
         // is already the mutated bundle value (computed from currentColors, which already resolves
@@ -412,9 +420,9 @@ class TextDisplaySettingsServiceImpl(
                 repo.saveIntoDb(false)
             }
             is SettingsScope.Global -> {
-                val g = CommonUtils.globalTextDisplaySettings
+                val g = globalTextDisplaySettings
                 g.colors = colors
-                CommonUtils.globalTextDisplaySettings = g
+                globalTextDisplaySettings = g
                 repo.propagateGlobalTextDisplaySettingsChange(setOf(TextDisplaySettings.Types.COLORS), g)
                 repo.updateAllWindowsTextDisplaySettings()
             }
@@ -456,7 +464,7 @@ class TextDisplaySettingsServiceImpl(
     // WORKSPACE/GLOBAL -> default.colors.
     override fun resetColors(scope: SettingsScope) {
         // See applyColors.
-        CommonUtils.displaySettingChanged(TextDisplaySettings.Types.COLORS)
+        prefItems.displaySettingChanged(TextDisplaySettings.Types.COLORS)
         detachedFor(scope)?.let {
             it.bundle.workspaceSettings.colors = TextDisplaySettings.default.colors
             it.markDirty()
@@ -480,9 +488,9 @@ class TextDisplaySettingsServiceImpl(
                 repo.saveIntoDb(false)
             }
             is SettingsScope.Global -> {
-                val g = CommonUtils.globalTextDisplaySettings
+                val g = globalTextDisplaySettings
                 g.colors = TextDisplaySettings.default.colors
-                CommonUtils.globalTextDisplaySettings = g
+                globalTextDisplaySettings = g
                 repo.propagateGlobalTextDisplaySettingsChange(setOf(TextDisplaySettings.Types.COLORS), g)
                 repo.updateAllWindowsTextDisplaySettings()
             }
@@ -492,24 +500,24 @@ class TextDisplaySettingsServiceImpl(
     // ---- Background image (Batch 12d-B T6) — register/import/delete ---------------------------
 
     override fun loadBackgroundOptions(): List<BackgroundImageOption> =
-        AndBibleAddons.providedBackgroundImages.map { (initials, p) ->
-            BackgroundImageOption(initials = initials, name = p.name, thumbnailToken = initials)
+        prefItems.backgroundImageNames().map { (initials, name) ->
+            BackgroundImageOption(initials = initials, name = name, thumbnailToken = initials)
         }.sortedBy { it.name.lowercase() }
 
     override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
         val uriStr = picker() ?: return null
-        val file = withContext(Dispatchers.IO) { BackgroundImageImporter.copyAndRegister(net.bible.android.platform.AndroidContentSource(app.contentResolver), uriStr) } ?: return null
-        AndBibleAddons.clearCaches()
+        val file = withContext(Dispatchers.IO) { BackgroundImageImporter.copyAndRegister(prefItems.contentSource(), uriStr) } ?: return null
+        addonCatalog.clearCaches()
         // find the freshly-registered module whose file == the written file
         val initials = Books.installed().getBooks().firstOrNull { it.isBackgroundImageModule && it.backgroundImageFile == file }?.initials ?: return null
-        val p = AndBibleAddons.providedBackgroundImages[initials] ?: return null
-        return BackgroundImageOption(initials, p.name, initials)
+        val name = prefItems.backgroundImageNames()[initials] ?: return null
+        return BackgroundImageOption(initials, name, initials)
     }
 
     override fun deleteBackgroundImage(initials: String) {
         val book = Books.installed().getBook(initials) ?: return
         book.driver!!.delete(book)          // BackgroundImageSwordDriver: deletes file + removeBook
-        AndBibleAddons.clearCaches()
+        addonCatalog.clearCaches()
     }
 
     // ---- Plan A BOOKMARKS_HIDELABELS bridge (host-only) ----
@@ -520,6 +528,6 @@ class TextDisplaySettingsServiceImpl(
     fun currentHideLabelsIds(scope: SettingsScope): List<IdType> {
         val bundle = bundleFor(scope)
         @Suppress("UNCHECKED_CAST")
-        return getPrefItem(bundle, TextDisplaySettings.Types.BOOKMARKS_HIDELABELS).value as? List<IdType> ?: emptyList()
+        return prefItems.item(bundle, TextDisplaySettings.Types.BOOKMARKS_HIDELABELS).value as? List<IdType> ?: emptyList()
     }
 }

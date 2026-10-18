@@ -25,8 +25,8 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.versification.BookInstallWatcher
-import net.bible.android.platform.SuspendHttpTransport
-import net.bible.sharedcore.http.DownloadHttp
+import net.bible.sharedlogic.startup.SharedAppStartup
+import org.koin.mp.KoinPlatform
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.ensureDirExists
 import net.bible.service.common.CommonUtils.getResourceString
@@ -34,9 +34,7 @@ import net.bible.service.common.CommonUtils.isAndroid
 import org.apache.commons.lang3.StringUtils
 import org.koin.java.KoinJavaComponent.get
 import org.crosswire.common.util.CWProject
-import org.crosswire.common.util.Reporter
 import org.crosswire.common.util.ReporterEvent
-import org.crosswire.common.util.ReporterListener
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
@@ -58,6 +56,8 @@ private const val FIVE_MINUTES_MS: Long = 1000 * 60 * 5
  */
 object SwordEnvironmentInitialisation {
     private var isSwordLoaded = false
+    /** True once [initialiseJSwordFolders] has set JSword up. */
+    val isLoaded: Boolean get() = isSwordLoaded
     private val sweepStarted = java.util.concurrent.atomic.AtomicBoolean(false)
     private val tag = SwordEnvironmentInitialisation::class.java.name
     fun initialiseJSwordFolders() {
@@ -128,24 +128,13 @@ object SwordEnvironmentInitialisation {
         }
     }
 
-    /** Installs the shared download transport after Koin starts, before any download consumer is resolved. */
-    fun installDownloadTransport() {
-        WebResource.transport = SuspendHttpTransport(get<DownloadHttp>(DownloadHttp::class.java))
-    }
-
     /**
-     * Registers the book install/uninstall listener (backup db + sync). Must run AFTER Koin has started
-     * (the watcher is Koin-resolved) and after [initialiseJSwordFolders]; a no-op if JSword was never
-     * initialised. Idempotent: [BookInstallWatcher.startListening] never registers twice.
+     * Registers the book install/uninstall listener (backup db + sync) through [SharedAppStartup]. Must run AFTER
+     * Koin has started and after [initialiseJSwordFolders]; a no-op if JSword was never initialised.
      */
     fun startBookInstallWatcher() {
         if (!isSwordLoaded) return
-        try {
-            get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
-        } catch (e: Exception) {
-            // Not rethrown (must not stop app startup), but never silent: without it no installed book is backed up.
-            Log.e(tag, "BookInstallWatcher failed to start; book installs will not be tracked", e)
-        }
+        SharedAppStartup.startBookInstallWatcher(KoinPlatform.getKoin())
     }
 
     @Throws(BookException::class)
@@ -159,42 +148,31 @@ object SwordEnvironmentInitialisation {
 
     private val messageShownLast = LruCache<String, Long>(100);
 
-    /** JSword calls back to this listener in the event of some types of error
-     *
+    /**
+     * Shows a JSword error to the user. JSword calls back here (through the listener that
+     * `SharedAppStartup` registers) in the event of some types of error. The same message is shown at most
+     * once per five minutes.
      */
-    fun installJSwordErrorReportListener() {
-        Reporter.addReporterListener(object : ReporterListener {
-            override fun reportException(ev: ReporterEvent) {
-                showMsg(ev)
-            }
-
-            override fun reportMessage(ev: ReporterEvent) {
-                showMsg(ev)
-            }
-
-
-            private fun showMsg(ev: ReporterEvent?) {
-                val msg = when {
-                    ev == null -> getResourceString(R.string.error_occurred)
-                    !StringUtils.isEmpty(ev.message) -> ev.message
-                    !StringUtils.isEmpty(ev.exception?.message) ->
-                        getResourceString(R.string.error_occurred_with_link, ev.exception?.message!!)
-                    else -> getResourceString(R.string.error_occurred)
-                }
-                val lastShown = messageShownLast.get(msg)
-                messageShownLast.put(msg, System.currentTimeMillis())
-                if (lastShown != null && System.currentTimeMillis() - lastShown < FIVE_MINUTES_MS) {
-                    return // Error message has been shown recently, let's not spam user!
-                }
-                // convert Throwable to Exception for Dialogs
-                val e: Exception = if (ev != null) {
-                    val th = ev.exception
-                    if (th is Exception) th else Exception("Jsword Exception", th)
-                } else {
-                    Exception("JSword Exception")
-                }
-                Dialogs.showErrorMsg(msg, e)
-            }
-        })
+    fun reportJSwordError(ev: ReporterEvent?) {
+        val msg = when {
+            ev == null -> getResourceString(R.string.error_occurred)
+            !StringUtils.isEmpty(ev.message) -> ev.message
+            !StringUtils.isEmpty(ev.exception?.message) ->
+                getResourceString(R.string.error_occurred_with_link, ev.exception?.message!!)
+            else -> getResourceString(R.string.error_occurred)
+        }
+        val lastShown = messageShownLast.get(msg)
+        messageShownLast.put(msg, System.currentTimeMillis())
+        if (lastShown != null && System.currentTimeMillis() - lastShown < FIVE_MINUTES_MS) {
+            return // Error message has been shown recently, let's not spam user!
+        }
+        // convert Throwable to Exception for Dialogs
+        val e: Exception = if (ev != null) {
+            val th = ev.exception
+            if (th is Exception) th else Exception("Jsword Exception", th)
+        } else {
+            Exception("JSword Exception")
+        }
+        Dialogs.showErrorMsg(msg, e)
     }
 }

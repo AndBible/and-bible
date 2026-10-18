@@ -1,7 +1,7 @@
 service/history/IntentHistoryItem.kt	Android Activity-stack history item (holds an Intent); iOS gets its own HistoryPlatform
 android/control/report/ErrorReportControl.kt	Android bug/crash report host: screenshots, logcat, FileProvider, Intent, WebViewCompat; iOS gets its own reporting
 android/control/report/AiBugReport.kt	Android bug/crash report host: screenshots, logcat, FileProvider, Intent, WebViewCompat; iOS gets its own reporting
-service/device/speak/MediaButtonHandler.kt	Android media session and headset buttons
+service/device/speak/AndBibleMediaButtonReceiver.kt	Android manifest-registered headset button BroadcastReceiver (MediaButtonHandler itself moved to sharedLogic)
 service/device/speak/TextToSpeechNotificationManager.kt	Android speech notification host
 service/installzip/DocumentInstallService.kt	Android foreground Service: Intents, ClipData URI grants, ContentResolver, notifications; iOS gets its own install host
 service/cloudsync/SyncService.kt	Android foreground Service, wakelock and notification host

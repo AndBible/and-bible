@@ -18,7 +18,6 @@
 package net.bible.service.db
 
 import android.util.Log
-import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.android.BibleApplication
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
@@ -53,41 +52,16 @@ class AndroidDatabaseHost(private val application: BibleApplication) : DatabaseH
     override val databaseBackupSuffix: String get() = DATABASE_BACKUP_SUFFIX
     override val legacyMonolithicMigrations get() = oldMigrations
 
-    override suspend fun awaitWorkspacePersisted() {
-        val persistence = runCatching {
-            org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.android.control.page.window.WorkspacePersistence>()
-        }.getOrNull()
-        persistence?.awaitPersisted()
-    }
+    override suspend fun awaitWorkspacePersisted() = DatabaseHostSupport.awaitWorkspacePersisted()
 
     override fun flushSettingsBeforeExit(store: SettingsStore?, timeoutMs: Long?) {
         try {
             blockingAtEdge { // L1-edge: DatabaseContainer synchronous lifecycle (close: flush before exit, also the crash handler)
-                if (store != null) {
-                    if (timeoutMs == null) store.flush()
-                    else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
-                }
-                // The ordered write-through keys (workspace, global text display, reading progress) queue their
-                // writes off the caller's thread; a few ms before exit they would otherwise die with the process.
-                val launcher = runCatching {
-                    org.koin.java.KoinJavaComponent.getKoin().getOrNull<net.bible.sharedcore.platform.OrderedLauncher>()
-                }.getOrNull() ?: return@blockingAtEdge
-                val keys = listOf(
-                    net.bible.android.control.page.window.WorkspacePersistence.KEY,
-                    net.bible.service.common.GlobalTextDisplaySettingsStore.KEY,
-                    net.bible.service.common.ReadingProgressSettingsStore.KEY,
-                )
-                if (withTimeoutOrNull(timeoutMs ?: ORDERED_WRITES_EXIT_WAIT_MS) { keys.forEach { launcher.join(it) } } == null)
-                    Log.w(TAG, "Ordered write queues did not drain before exit")
+                DatabaseHostSupport.flushOrderedWrites(store, timeoutMs)
             }
         } catch (e: Throwable) { Log.e(TAG, "Settings flush failed", e) }
     }
 
     override fun openContainer(): DatabaseContainer =
         blockingAtEdge { DatabaseContainer.create() } // L1-edge: synchronous DatabaseContainer.instance getter (cold open)
-
-    private companion object {
-        /** Bound for the ordered store write queues when the caller gave no timeout. */
-        const val ORDERED_WRITES_EXIT_WAIT_MS = 5_000L
-    }
 }

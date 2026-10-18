@@ -4,6 +4,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
@@ -13,6 +14,7 @@ import net.bible.sharedcore.http.DownloadHttp
 import net.bible.sharedcore.http.DownloadTimeoutException
 import net.bible.sharedcore.http.HttpHeaders
 import net.bible.sharedcore.http.HttpStatusException
+import net.bible.sharedlogic.util.isThreadInterrupt
 import org.crosswire.common.util.HttpBody
 import org.crosswire.common.util.HttpHead
 import org.crosswire.common.util.HttpTransport
@@ -45,7 +47,7 @@ class SuspendHttpTransport(
         private val headers = CompletableDeferred<HttpHeaders>()
         private val readRequested = CompletableDeferred<Unit>()
         private val chunks = Channel<ByteArray>(capacity = 16)
-        @Volatile private var closed = false
+        @kotlin.concurrent.Volatile private var closed = false
         private var pending: ByteArray? = null
         private var pendingOffset = 0
         private val producer = scope.launch(start = CoroutineStart.LAZY) {
@@ -151,11 +153,12 @@ class SuspendHttpTransport(
      */
     private suspend fun <T> mapped(block: suspend () -> T): T = try {
         block()
-    } catch (error: InterruptedException) {
-        throw TransportCancelledException(error)
     } catch (error: CancellationException) {
         currentCoroutineContext().ensureActive()
         throw TransportCancelledException(error)
+    } catch (error: Throwable) {
+        if (error.isThreadInterrupt()) throw TransportCancelledException(error)
+        throw error
     }
 }
 

@@ -17,33 +17,20 @@
 
 package net.bible.service.device.speak
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import androidx.media.session.MediaButtonReceiver
-import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.platform.AndroidMediaSession
-import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.speak.MediaCommands
 import net.bible.sharedcore.platform.speak.MediaPlaybackState
 import net.bible.sharedcore.platform.speak.MediaSession
-
-class AndBibleMediaButtonReceiver: BroadcastReceiver() {
-    override fun onReceive(context: Context?, intent: Intent?) {
-        CommonUtils.initializeApp()
-        Log.i("MediaButtons", "MediaButtonReceiver onReceive")
-        AndroidMediaSession.current?.let { MediaButtonReceiver.handleIntent(it.ms, intent) }
-    }
-}
+import org.koin.mp.KoinPlatform
 
 /** Today's media-button to speech mapping, separated from the platform media session. */
-internal class SpeakMediaCommands(
+class SpeakMediaCommands(
     private val pause: () -> Unit,
     private val continueLastPosition: () -> Unit,
     private val stop: () -> Unit,
@@ -61,7 +48,7 @@ internal class SpeakMediaCommands(
 }
 
 /** Null means this change must leave the media session's current state intact. */
-internal fun mediaStateFor(change: SpeakChange.State): MediaPlaybackState? = when {
+fun mediaStateFor(change: SpeakChange.State): MediaPlaybackState? = when {
     change.isPaused -> MediaPlaybackState.PAUSED
     change.isStopped -> MediaPlaybackState.STOPPED
     change.isSpeaking -> MediaPlaybackState.PLAYING
@@ -71,9 +58,12 @@ internal fun mediaStateFor(change: SpeakChange.State): MediaPlaybackState? = whe
 class MediaButtonHandler(speakControl: SpeakControl, private val session: MediaSession) {
     companion object {
         const val TAG = "MediaButtons"
+        private const val ENABLE_PREF = "enable_bluetooth_pref"
+        /** Looked up in Koin, not passed in, to keep the constructor of the moved class unchanged (C8). */
+        private fun buttonsEnabled() = KoinPlatform.getKoin().get<AppSettings>().getBoolean(ENABLE_PREF, true)
         var handler: MediaButtonHandler? = null
         fun initialize(speakControl: SpeakControl, session: MediaSession) {
-            if (!application.isRunningTests && CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)) {
+            if (buttonsEnabled()) {
                 handler = MediaButtonHandler(speakControl, session)
             }
         }
@@ -89,7 +79,7 @@ class MediaButtonHandler(speakControl: SpeakControl, private val session: MediaS
         session.activate(SpeakMediaCommands(
             speakControl::pause, speakControl::continueLastPosition, speakControl::stop,
             speakControl::forward, speakControl::rewind,
-        ) { CommonUtils.settings.getBoolean("enable_bluetooth_pref", true) })
+        ) { buttonsEnabled() })
         subscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
             when (change) {
                 SpeakChange.Status -> Unit

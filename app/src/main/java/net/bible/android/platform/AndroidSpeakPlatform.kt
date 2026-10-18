@@ -77,8 +77,11 @@ class AndroidSpeakPlatform(private val context: Context) : SpeakPlatform {
         CommonUtils.settings.setLong("speak-last-used", System.currentTimeMillis())
         CurrentActivityHolder.currentActivity?.volumeControlStream = AudioManager.STREAM_MUSIC
     }
-    override fun attachMediaControls(control: SpeakControl) =
-        MediaButtonHandler.initialize(control, AndroidMediaSession(context) { control.isSpeaking })
+    override fun attachMediaControls(control: SpeakControl) {
+        val session = AndroidMediaSession(context) { control.isSpeaking }
+        // The test guard lives here (not in the common MediaButtonHandler): only the app knows it is under test.
+        if (!BibleApplication.application.isRunningTests) MediaButtonHandler.initialize(control, session)
+    }
     override fun detachMediaControls() = MediaButtonHandler.release()
     override fun bringReadingToFront() {
         context.startActivity(NavHostComposeActivity.intentFor(context, NavRoutes.READING).apply {

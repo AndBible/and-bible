@@ -1,20 +1,9 @@
 package net.bible.android.control
 
-import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.document.DocumentFileDeleter
-import net.bible.service.db.DatabaseContainer
-import net.bible.service.sword.SwordDocumentFacade
-import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.search.SearchHighlighter
 import net.bible.android.control.search.SearchTextHighlighter
-import net.bible.android.view.activity.search.AndroidEpubSearchService
-import net.bible.sharedcore.search.EpubSearchService
-import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
-import net.bible.sharedcore.settings.ReadingProgressSettingsService
-import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
-import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.android.platform.AndroidDocumentSyncStarter
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
@@ -23,13 +12,8 @@ import net.bible.android.platform.AndroidReadingPlanSource
 import net.bible.android.platform.AndroidHistoryPlatform
 import net.bible.android.platform.AndroidLinkPlatform
 import net.bible.android.control.link.LinkPlatform
-import net.bible.android.view.activity.readingplan.ReadingPlanCatalog
-import net.bible.service.readingplan.DistributedPlanDetails
-import net.bible.service.readingplan.ReadingPlanTextFileDao
 import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.service.common.CommonUtils
-import okio.Path.Companion.toOkioPath
-import net.bible.android.SharedConstants
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.service.sword.mydocument.MarkdownToXhtml
@@ -99,7 +83,6 @@ fun buildPlatformBindings() = module {
         net.bible.service.sword.HtmlToPlainText { net.bible.service.common.htmlToSpan(it).toString() }
     }
     single<net.bible.service.sword.ContentSource> { net.bible.android.platform.AndroidContentSource(androidContext().contentResolver) }
-    single { net.bible.service.sword.SwordContentFacade(get(), get(), get(), get(), get(), net.bible.android.platform.androidSaxTextPolicy()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
     single<net.bible.android.control.page.KeyChooserLauncher> {
         net.bible.android.platform.AndroidKeyChooserLauncher { net.bible.android.view.activity.base.CurrentActivityHolder.currentActivity }
@@ -108,39 +91,17 @@ fun buildPlatformBindings() = module {
     single<LinkPlatform> { AndroidLinkPlatform() }
     single { net.bible.android.platform.androidSaxTextPolicy() }
     single<ReadingPlanSource> { AndroidReadingPlanSource() }
-    single {
-        ReadingPlanTextFileDao(
-            source = get(), repository = get(), coreStrings = get(), calendar = get(),
-            userPlanFolder = { SharedConstants.manualReadingPlanDir.toOkioPath() },
-            providedPlans = { get<net.bible.sharedlogic.platform.AddonCatalog>().readingPlans },
-            // evaluated per lookup: ReadingPlanCatalog resolves its localized strings when first touched
-            distributedPlans = { ReadingPlanCatalog.ABDistributedPlanDetailArray.map { DistributedPlanDetails(it.planCode, it.planName, it.planDescription) } },
-        )
-    }
     single<SearchTextHighlighter> { SearchHighlighter }
-    singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() }
     single { net.bible.android.platform.AndroidHttpClients() }
     single<net.bible.sharedcore.llm.http.LlmHttpTransport> {
         net.bible.sharedcore.llm.http.KtorLlmHttpTransport(get<net.bible.android.platform.AndroidHttpClients>()::clientFor)
     }
-    singleOf(::ReadingProgressSettingsServiceImpl) { bind<ReadingProgressSettingsService>() }
-    // Explicit (not singleOf): TextDisplaySettingsServiceImpl now takes an optional
-    // DetachedWorkspaceEdit? constructor param, which singleOf would try (and fail) to resolve as
-    // a Koin dependency. The shared singleton always gets the plain, non-detached instance; a
-    // detached instance (workspace-selector settings edit) is constructed separately, never via Koin.
-    // `single { ... } bind ...::class` (not `single<TextDisplaySettingsService> { ... }`) keeps the
-    // CONCRETE class as the definition's primary type, with the interface as a secondary one --
-    // TextDisplaySettingsComposeActivity injects the concrete TextDisplaySettingsServiceImpl (for
-    // the HIDELABELS bridge helper, outside the portable interface), same reason as the
-    // singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() } pattern (that binding lives in SharedBindings.kt).
-    single { TextDisplaySettingsServiceImpl() } bind TextDisplaySettingsService::class
+    single<net.bible.sharedlogic.settings.TextDisplayPrefItems> { net.bible.android.platform.AndroidTextDisplayPrefItems() }
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
     single<net.bible.android.control.speak.SpeakPlatform> { net.bible.android.platform.AndroidSpeakPlatform(androidContext()) }
-    single {
-        DocumentControl(get(), get(), get(), get(), get(), get<AppCoroutineScope>(),
-            deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
-            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() },
-            enableManualInstallFolder = net.bible.service.sword.SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder)
+    single<net.bible.sharedlogic.platform.ManualInstallFolderEnabler> {
+        net.bible.sharedlogic.platform.ManualInstallFolderEnabler(net.bible.service.sword.SwordEnvironmentInitialisation::enableDefaultAndManualInstallFolder)
     }
+    single<net.bible.sharedlogic.platform.DistributedPlanCatalog> { net.bible.android.platform.AndroidDistributedPlanCatalog() }
 }

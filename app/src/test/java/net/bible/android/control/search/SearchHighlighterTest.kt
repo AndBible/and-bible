@@ -16,9 +16,14 @@
  */
 package net.bible.android.control.search
 
-import net.bible.android.TEST_SDK
+import fi.sykero.kdom.Content
 import fi.sykero.kdom.Element
 import fi.sykero.kdom.Text
+import net.bible.android.TEST_SDK
+import net.bible.sharedcore.search.StyledRun
+import net.bible.sharedcore.search.StyledText
+import net.bible.sharedlogic.search.CommonSearchHighlighter
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -31,7 +36,7 @@ import org.robolectric.annotation.Config
 class SearchHighlighterTest {
 
     /** Build the `<div><verse>…</verse></div>` OSIS shape the highlighter walks. */
-    private fun osisWith(vararg verseContent: fi.sykero.kdom.Content): Element {
+    private fun osisWith(vararg verseContent: Content): Element {
         val verse = Element("verse")
         verseContent.forEach { verse.addContent(it) }
         return Element("div").addContent(verse)
@@ -101,5 +106,72 @@ class SearchHighlighterTest {
         val result = SearchHighlighter.highlight(osis, terms = listOf("พระเจ้า"), lemmaTerms = emptyList())
 
         assertTrue(result.runs.any { it.text == "พระเจ้า" && it.highlight })
+    }
+
+    private fun assertParity(osis: Element, terms: List<String>, lemmaTerms: List<String>) {
+        assertEquals(
+            SearchHighlighter.highlight(osis, terms, lemmaTerms),
+            CommonSearchHighlighter.highlight(osis, terms, lemmaTerms),
+        )
+    }
+
+    private fun lemmaWord(lemma: String, vararg content: Content) = Element("w").apply {
+        setAttribute("lemma", lemma)
+        content.forEach { addContent(it) }
+    }
+
+    @Test
+    fun commonParity_lemmaAndSingleTerm() {
+        val lemmaOsis = osisWith(Text("In the beginning "), lemmaWord("strong:H0430", Text("God")), Text(" created"))
+        assertParity(lemmaOsis, emptyList(), listOf("strong:h0*430"))
+        assertParity(osisWith(Text("In the beginning God created the heaven")), listOf("God"), emptyList())
+    }
+
+    @Test
+    fun commonParity_multipleSpacesAndNewlines() {
+        assertParity(osisWith(Text("In  the\n\nbeginning   God\tcreated")), listOf("God", "the"), emptyList())
+        assertParity(
+            osisWith(Text("a  b\n"), lemmaWord("strong:H0430", Text("God  is")), Text("\n c")),
+            emptyList(), listOf("strong:h0*430"),
+        )
+    }
+
+    @Test
+    fun commonParity_leadingWhitespaceAndLiteralExpectation() {
+        val osis = osisWith(Text("  \n In  the\n\nbeginning   God"))
+        assertParity(osis, listOf("God"), emptyList())
+        assertEquals(
+            StyledText(listOf(
+                StyledRun("In the beginning "),
+                StyledRun("God", highlight = true),
+            )),
+            SearchHighlighter.highlight(osis, listOf("God"), emptyList()),
+        )
+    }
+
+    @Test
+    fun commonParity_nestedLemmaElement() {
+        val inner = Element("seg").addContent(Text("inner")).addContent(Element("hi").addContent(Text(" deep")))
+        val osis = osisWith(Text("start "), lemmaWord("strong:H0430", inner, Text(" tail")), Text(" end"))
+        assertParity(osis, emptyList(), listOf("strong:h0*430"))
+    }
+
+    @Test
+    fun commonParity_multipleTermMatches() {
+        assertParity(osisWith(Text("God said, and god saw that God was good")), listOf("god", "said"), emptyList())
+        assertParity(osisWith(Text("light and lighter lights")), listOf("light"), emptyList())
+    }
+
+    @Test
+    fun commonParity_noMatch() {
+        assertParity(osisWith(Text("In the beginning")), listOf("Moses"), emptyList())
+    }
+
+    /** Intentional divergence: Android runs the verse through Html.fromHtml, Common treats kdom text as already decoded. */
+    @Test
+    fun commonKeepsEntitiesVerbatimWhereAndroidDecodesThem() {
+        val osis = osisWith(Text("Tom &amp; Jerry"))
+        assertEquals("Tom & Jerry", SearchHighlighter.highlight(osis, emptyList(), emptyList()).plainText())
+        assertEquals("Tom &amp; Jerry", CommonSearchHighlighter.highlight(osis, emptyList(), emptyList()).plainText())
     }
 }

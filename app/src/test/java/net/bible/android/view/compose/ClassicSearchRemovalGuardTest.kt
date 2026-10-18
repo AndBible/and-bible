@@ -138,7 +138,8 @@ class ClassicSearchRemovalGuardTest {
             "src/main/java/net/bible/android/view/activity/search/AndroidEpubSearchService.kt",
             "src/main/java/net/bible/android/view/activity/search/EpubSearchModeWire.kt",
         )
-        val missing = expected.filterNot { File(it).isFile }
+        // AndroidEpubSearchService moved to :sharedLogic (same package); resolve across both roots.
+        val missing = expected.filterNot { net.bible.test.ProductionSources.resolve(it).isFile }
         assertEquals("S1 deleted a file it was supposed to keep", emptyList<String>(), missing)
     }
 
