@@ -8,13 +8,17 @@ import java.nio.file.Files
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import net.bible.android.database.IdType
+import net.bible.service.legacymigration.DeviceLocalPref
 import net.bible.service.legacymigration.LegacyExtras
+import net.bible.service.legacymigration.LegacySyncSettings
+import net.bible.service.legacymigration.PrefType
 import net.bible.service.legacymigration.buildExtras
 import net.bible.service.legacymigration.read.LegacySnapshot
 import net.bible.service.legacymigration.read.LegacyStoreReader
@@ -29,6 +33,7 @@ import net.bible.service.legacymigration.testsupport.compareWithOracleDetailed
 import net.bible.service.legacymigration.testsupport.fixture
 import net.bible.service.legacymigration.testsupport.openStore
 import net.bible.service.llm.apiKeyName
+import okio.FileSystem
 import okio.Path.Companion.toOkioPath
 import org.junit.Assume
 
@@ -74,12 +79,13 @@ class SettingsAndLedgerTest {
     private class Mapped(val staging: StagingDatabases, val report: MigrationReport)
 
     /** Runs WORKSPACES (unless [withWorkspaces] is false) and then SETTINGS over [fx]. */
-    private fun mapSettings(fx: FixtureDir, withWorkspaces: Boolean = true, userDefaults: Map<String, Any?> = emptyMap()): Mapped {
+    private fun mapSettings(fx: FixtureDir, withWorkspaces: Boolean = true, userDefaults: Map<String, Any?> = emptyMap(), withReadingPlans: Boolean = false): Mapped {
         val staging = newStaging()
         val report = MigrationReport()
         runBlocking {
             snapshot(fx).use { snap ->
                 if (withWorkspaces) WorkspacesMapper().map(snap, staging, MigrationReport())
+                if (withReadingPlans) ReadingPlansMapper().map(snap, staging, MigrationReport())
                 SettingsMapper { userDefaults }.map(snap, staging, report)
             }
         }
@@ -103,6 +109,8 @@ class SettingsAndLedgerTest {
         ApprovedRow("BooleanSetting", "key=t:show_calculator", RowSide.ONLY_IN_ORACLE, "section 6.3: stays in NSUserDefaults"),
         ApprovedRow("StringSetting", "key=t:locale_pref", RowSide.ONLY_IN_ORACLE, "section 6.3: stays in NSUserDefaults"),
         ApprovedRow("StringSetting", "key=t:calculator_pin", RowSide.ONLY_IN_ORACLE, "section 6.3: stays in NSUserDefaults"),
+        // Android keeps night_mode_pref3 in SharedPreferences: carried by LegacyExtras.deviceLocalPrefs instead.
+        ApprovedRow("StringSetting", "key=t:night_mode_pref3", RowSide.ONLY_IN_ORACLE, "device-local on Android, see LegacyExtras.deviceLocalPrefs"),
     )
 
     /** The Swift mapper never writes `current_workspace_id`; its exact value is asserted by [activeWorkspaceBecomesCurrentWorkspaceId]. */
@@ -150,7 +158,7 @@ class SettingsAndLedgerTest {
         for (fx in allFixtures()) {
             val staging = newStaging()
             val report = MigrationReport()
-            runBlocking { snapshot(fx).use { RepositoriesMapper(null).map(it, staging, report) } }
+            runBlocking { snapshot(fx).use { RepositoriesMapper(null, FileSystem.SYSTEM).map(it, staging, report) } }
             val result = runBlocking { compareWithOracleDetailed(fx, LegacyCategory.REPOSITORIES, staging) }
             assertEquals(emptyList(), result.differences, fx.scenario)
             // The fixtures carry no custom repositories (the Swift files are outside the stores): the oracle tables are empty.
@@ -178,12 +186,7 @@ class SettingsAndLedgerTest {
     @Test
     fun activeWorkspaceThatWasNotMigratedIsSkippedAndReported() {
         val fx = fixture("1.0.2", "18", "rich")
-        // No WORKSPACES run at all: the staged workspace database was never opened.
-        val none = mapSettings(fx, withWorkspaces = false)
-        assertFalse("current_workspace_id" in stringSettings(none.staging))
         val reason = "active_workspace_id does not name a migrated workspace, current workspace left to the app default"
-        assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.SETTINGS, reason, 1)), skipped(none.report))
-
         // Workspaces were migrated but the active id is another one.
         val other = fixture("1.0.2", "18", "rich")
         putSettings(other, mapOf("active_workspace_id" to "99999999-9999-9999-9999-999999999999"))
@@ -197,6 +200,132 @@ class SettingsAndLedgerTest {
         val garbageMapped = mapSettings(garbage)
         assertFalse("current_workspace_id" in stringSettings(garbageMapped.staging))
         assertEquals(listOf(ReportEntry.Skipped(LegacyCategory.SETTINGS, reason, 1)), skipped(garbageMapped.report))
+    }
+
+    @Test
+    fun settingsBeforeWorkspacesIsAnOrderingFailure() {
+        // Not an ordinary skipped entry: WorkspacesMapper always opens the workspace database, so this is a wiring error.
+        val e = assertFailsWith<IllegalStateException> { mapSettings(fixture("1.0.2", "18", "rich"), withWorkspaces = false) }
+        assertTrue("after WorkspacesMapper" in e.message.orEmpty(), e.message)
+    }
+
+    // ---- Rows Android reads under the same keys, device-local preferences -------------------------------------------
+
+    @Test
+    fun bibleBookSortOrderDefaultDocumentsAndSelectedPlanAreMappedOnlyWhenSwiftStoredThem() {
+        // Nothing stored: nothing invented.
+        val none = mapSettings(fixture("1.0.2", "18", "rich"), withReadingPlans = true)
+        val noneStrings = stringSettings(none.staging)
+        for (key in listOf("BibleBookSortOrder", "default-BIBLE", "default-GENERAL_BOOK", "reading_plan")) assertFalse(key in noneStrings, key)
+
+        val fx = fixture("1.0.2", "18", "rich")
+        val planCode = migratedPlanCodes(mapSettings(fx, withReadingPlans = true).staging).first()
+        putSettings(
+            fx,
+            mapOf(
+                "BibleBookSortOrder" to "ALPHABETICAL", "default-BIBLE" to "KJV", "default-COMMENTARY" to "MHC", "default-DICTIONARY" to "StrongsGreek",
+                "default-GENERAL_BOOK" to "", "default-MAPS" to "MapsX", "reading_plan" to planCode,
+            ),
+        )
+        val mapped = mapSettings(fx, withReadingPlans = true)
+        val strings = stringSettings(mapped.staging)
+        assertEquals("ALPHABETICAL", strings["BibleBookSortOrder"])
+        assertEquals("KJV", strings["default-BIBLE"])
+        assertEquals("MHC", strings["default-COMMENTARY"])
+        assertEquals("StrongsGreek", strings["default-DICTIONARY"])
+        assertEquals("MapsX", strings["default-MAPS"])
+        assertFalse("default-GENERAL_BOOK" in strings) // an empty value is no default
+        assertEquals(planCode, strings["reading_plan"])
+        assertEquals(emptyList(), skipped(mapped.report))
+        assertEquals(emptyList(), unknownKeys(mapped.report))
+    }
+
+    private fun migratedPlanCodes(staging: StagingDatabases): List<String> = runBlocking {
+        staging.readingPlans.useReaderConnection { c ->
+            c.usePrepared("SELECT planCode FROM ReadingPlan ORDER BY planCode") { st -> buildList { while (st.step()) add(st.getText(0)) } }
+        }
+    }
+
+    @Test
+    fun invalidSortOrderUnknownDefaultKeyAndUnmigratedPlanAreReported() {
+        val fx = fixture("1.0.2", "18", "rich")
+        putSettings(fx, mapOf("BibleBookSortOrder" to "alphabetical", "default-NEWS" to "X", "reading_plan" to "no-such-plan"))
+        val mapped = mapSettings(fx, withReadingPlans = true)
+        val strings = stringSettings(mapped.staging)
+        for (key in listOf("BibleBookSortOrder", "default-NEWS", "reading_plan")) assertFalse(key in strings, key)
+        assertEquals(
+            setOf(
+                ReportEntry.Skipped(LegacyCategory.SETTINGS, "BibleBookSortOrder that is neither ALPHABETICAL nor BIBLE_BOOK", 1),
+                ReportEntry.Skipped(LegacyCategory.SETTINGS, "default document of an unknown category", 1),
+                ReportEntry.Skipped(LegacyCategory.SETTINGS, "selected reading plan that was not migrated, no plan selected", 1),
+            ),
+            skipped(mapped.report).toSet(),
+        )
+        // Without a ReadingPlansMapper run no plan is staged either.
+        val noPlans = fixture("1.0.2", "18", "rich")
+        putSettings(noPlans, mapOf("reading_plan" to "anything"))
+        assertFalse("reading_plan" in stringSettings(mapSettings(noPlans).staging))
+    }
+
+    @Test
+    fun deviceLocalPreferencesStaySharedPreferencesAndTravelInTheExtras() {
+        val fx = fixture("1.0.2", "18", "rich")
+        val speak = """{"numPagesToSpeakId":3,"queue":true}"""
+        putSettings(fx, mapOf("night_mode_pref3" to "manual", "night_mode" to "true", "SpeakSettings" to speak))
+        // Not in the SettingsDatabase (Android reads them from realSharedPreferences) ...
+        val mapped = mapSettings(fx)
+        assertFalse("night_mode_pref3" in stringSettings(mapped.staging))
+        assertFalse("night_mode" in boolSettings(mapped.staging) || "night_mode_pref" in boolSettings(mapped.staging))
+        assertFalse("SpeakSettings" in stringSettings(mapped.staging))
+        // ... but in the extras, with Android's keys and types.
+        val extras = snapshot(fx).use { buildExtras(it, FakeLegacyPlatform.from(fx), MigrationReport()) }
+        assertEquals(
+            listOf(
+                DeviceLocalPref("night_mode_pref3", PrefType.STRING, "manual"),
+                DeviceLocalPref("night_mode_pref", PrefType.BOOLEAN, "true"),
+                DeviceLocalPref("SpeakSettings", PrefType.STRING, speak),
+            ),
+            extras.deviceLocalPrefs,
+        )
+        // night_mode is true only for the literal "true"; absent values are not invented.
+        val other = fixture("1.0.2", "18", "fresh")
+        putSettings(other, mapOf("night_mode" to "1"))
+        assertEquals(
+            listOf(DeviceLocalPref("night_mode_pref", PrefType.BOOLEAN, "false")),
+            snapshot(other).use { buildExtras(it, FakeLegacyPlatform.from(other), MigrationReport()) }.deviceLocalPrefs,
+        )
+        assertEquals(emptyList(), snapshot(fixture("1.0.2", "18", "fresh")).use { buildExtras(it, FakeLegacyPlatform.from(fixture("1.0.2", "18", "fresh")), MigrationReport()) }.deviceLocalPrefs)
+    }
+
+    @Test
+    fun unknownUserDefaultsKeysAreReportedExceptAppleSystemKeys() {
+        val mapped = mapSettings(
+            fixture("1.0.2", "18", "rich"),
+            userDefaults = mapOf(
+                "discrete_mode" to true, "AppleLanguages" to listOf("fi"), "NSInterfaceStyle" to "x", "AppleLocale" to "fi_FI",
+                "com.apple.keyboard" to 1, "AKLastIDMSEnvironment" to 0, "zz_new_default" to 1,
+            ),
+        )
+        assertEquals(listOf("zz_new_default"), unknownKeys(mapped.report))
+    }
+
+    @Test
+    fun secretsNeverAppearInToStringOrTheReport() {
+        val fx = fixture("1.0.2", "18", "rich")
+        val report = MigrationReport()
+        val extras = snapshot(fx).use { buildExtras(it, FakeLegacyPlatform.from(fx), report) }
+        val secrets = listOf("test-ai-key-not-a-secret", "test-gdrive-password-not-a-secret")
+        val sync = assertNotNull(extras.sync)
+        // The data is there ...
+        assertEquals(secrets[1], sync.password)
+        assertEquals(secrets[0], extras.aiKeys.values.single())
+        // ... but not in any printed form.
+        for (text in listOf(extras.toString(), sync.toString(), report.toJson(), LegacyExtras(extras.aiKeys, sync, false, false, emptyList()).toString())) {
+            for (secret in secrets) assertFalse(secret in text, "secret printed in: $text")
+        }
+        assertTrue("<redacted>" in sync.toString())
+        assertTrue("a2000000-0000-0000-0000-000000000001" in extras.toString()) // ids are fine
+        assertEquals("none", LegacySyncSettings("NEXT_CLOUD", "u", "n", "", null, emptySet(), null).toString().substringAfter("password=").trimEnd(')'))
     }
 
     // ---- Unknown keys and value decoding ------------------------------------------------------------------------
@@ -270,7 +399,7 @@ class SettingsAndLedgerTest {
     @Test
     fun insertStatementsMatchTheStagedTableColumns() {
         val staging = newStaging()
-        runBlocking { snapshot(fixture("1.0.2", "18", "rich")).use { SettingsMapper().map(it, staging, MigrationReport()) } }
+        runBlocking { snapshot(fixture("1.0.2", "18", "rich")).use { run { WorkspacesMapper().map(it, staging, MigrationReport()); SettingsMapper { emptyMap() }.map(it, staging, MigrationReport()) } } }
         for (sql in SettingsMapper.INSERT_STATEMENTS) {
             val table = sql.substringAfter("INSERT INTO ").substringBefore(" ")
             val listed = sql.substringAfter("(").substringBefore(")").split(", ")
@@ -378,13 +507,21 @@ class SettingsAndLedgerTest {
             text.lines().filter { "efaults" in it }.forEach { line ->
                 defaultsKey.findAll(line).forEach { found[it.groupValues[1]] = "${file.name} UserDefaults" }
             }
+            // `private enum Keys { static let backend = "sync_adapter" ... }` of the *Store files.
+            if (file.name.endsWith("Store.swift") && "enum Keys" in text) {
+                val block = text.substringAfter("enum Keys").substringBefore("\n    }")
+                // A block with a `scopePrefix` holds suffixes of keys under that prefix (RemoteSyncStateStore): only the prefix is a key.
+                Regex("""static let (\w+)\s*=\s*$literal""").findAll(block)
+                    .filter { "scopePrefix" !in block || it.groupValues[1] == "scopePrefix" }
+                    .forEach { found[it.groupValues[2]] = "${file.name} Keys" }
+            }
             keyConstant.findAll(text).forEach {
                 val (name, value) = it.destructured
                 if (name !in notStored && !name.endsWith("EnvironmentKey") && !value.startsWith("UITEST_")) found[value] = "${file.name} $name"
             }
         }
         // Not vacuous: the scan sees the registry, a literal Setting call, a UserDefaults key and a constant.
-        for (key in listOf("night_mode_pref3", "speak_autoBookmark", "lastSpeakRef", "AppleLanguages", "icloud_sync_enabled", "active_workspace_id", "reading_progress_state_v1")) {
+        for (key in listOf("gdrive_sync_interval", "remote_sync_device_identifier", "night_mode_pref3", "speak_autoBookmark", "lastSpeakRef", "AppleLanguages", "icloud_sync_enabled", "active_workspace_id", "reading_progress_state_v1")) {
             assertTrue(key in found, "scan did not find $key (found ${found.size} keys)")
         }
         assertTrue(found.size >= 70, "only ${found.size} keys found")
@@ -536,7 +673,7 @@ class SettingsAndLedgerTest {
             HTTPSource=Legacy Only|other.example.org|/x
         """.trimIndent()
         val report = MigrationReport()
-        val rows = rowsOf(RepositoriesMapper(sworddir(json, conf).json), report)
+        val rows = rowsOf(RepositoriesMapper(sworddir(json, conf).json, FileSystem.SYSTEM), report)
         assertEquals(
             listOf(
                 // A config row enriched by its record: host and catalog from the config, the rest from the record.
@@ -564,7 +701,7 @@ class SettingsAndLedgerTest {
         val conf = "HTTPSource=B Repo|example.org|/sword\nHTTPSource=A Repo|a.example.org|/sword\n"
         val staging = newStaging()
         val report = MigrationReport()
-        runBlocking { snapshot(fixture("1.0.2", "18", "fresh")).use { RepositoriesMapper(sworddir(json, conf).json).map(it, staging, report) } }
+        runBlocking { snapshot(fixture("1.0.2", "18", "fresh")).use { RepositoriesMapper(sworddir(json, conf).json, FileSystem.SYSTEM).map(it, staging, report) } }
         val all = runBlocking { staging.repositories.customRepositoryDao().all() }
         assertEquals(listOf(1L to "B Repo", 2L to "A Repo"), all.map { it.id to it.name }) // config order, not alphabetical
         assertEquals(listOf(ReportEntry.Written(LegacyCategory.REPOSITORIES, "CustomRepository", 2)), report.entries)
@@ -572,25 +709,37 @@ class SettingsAndLedgerTest {
 
     @Test
     fun repositoriesWithoutSidecarOrConfigYieldNothing() {
-        assertEquals(emptyList(), rowsOf(RepositoriesMapper(null), MigrationReport()))
+        assertEquals(emptyList(), rowsOf(RepositoriesMapper(null, FileSystem.SYSTEM), MigrationReport()))
         val missing = MigrationReport()
-        assertEquals(emptyList(), rowsOf(RepositoriesMapper(sworddir(null, null).json), missing))
+        assertEquals(emptyList(), rowsOf(RepositoriesMapper(sworddir(null, null).json, FileSystem.SYSTEM), missing))
         assertEquals(emptyList(), missing.entries)
         // A SWORD record whose name is not in the (absent) config is not a source; a MyBible record is.
         val json = """{"version":1,"repositories":[${record("My SWORD")},${record("MB", type = "mybible-https", pkg = "")}]}"""
-        assertEquals(listOf("MB"), rowsOf(RepositoriesMapper(sworddir(json, null).json), MigrationReport()).map { it[0] })
+        assertEquals(listOf("MB"), rowsOf(RepositoriesMapper(sworddir(json, null).json, FileSystem.SYSTEM), MigrationReport()).map { it[0] })
     }
 
     @Test
     fun undecodableSidecarIsReportedAndConfigRowsAreStillBackfilled() {
         for (bad in listOf("{not json", """{"version":1}""", """{"version":1,"repositories":[{"name":"x"}]}""")) {
             val report = MigrationReport()
-            val rows = rowsOf(RepositoriesMapper(sworddir(bad, "HTTPSource=Legacy Only|legacy.example.org|/cat\n").json), report)
+            val rows = rowsOf(RepositoriesMapper(sworddir(bad, "HTTPSource=Legacy Only|legacy.example.org|/cat\n").json, FileSystem.SYSTEM), report)
             assertEquals(listOf("Legacy Only"), rows.map { it[0] }, bad)
             assertEquals(
                 listOf(ReportEntry.Skipped(LegacyCategory.REPOSITORIES, "CustomRepositories.json could not be decoded, custom repositories not migrated", 1)),
                 skipped(report), bad,
             )
         }
+    }
+
+    @Test
+    fun unreadableInstallMgrConfIsReported() {
+        val sword = sworddir("""{"version":1,"repositories":[${record("MB", type = "mybible-https", pkg = "")}]}""", null)
+        File(sword.json.parent!!.toString(), "InstallMgr.conf").mkdirs() // exists, but cannot be read as a file
+        val report = MigrationReport()
+        assertEquals(listOf("MB"), rowsOf(RepositoriesMapper(sword.json, FileSystem.SYSTEM), report).map { it[0] })
+        assertEquals(
+            listOf(ReportEntry.Skipped(LegacyCategory.REPOSITORIES, "InstallMgr.conf could not be read, SWORD custom repositories not migrated", 1)),
+            skipped(report),
+        )
     }
 }

@@ -22,13 +22,29 @@ data class LegacySyncSettings(
     val interval: String?,
     val enabledCategories: Set<String>,
     val password: String?,
-)
+) {
+    /** The generated `toString` would print the password; this one only says whether there is one. */
+    override fun toString(): String =
+        "LegacySyncSettings(adapter=$adapter, serverUrl=$serverUrl, username=$username, folderPath=$folderPath, interval=$interval, " +
+            "enabledCategories=$enabledCategories, password=${if (password == null) "none" else "<redacted>"})"
+}
+
+/** The value type of an Android `SharedPreferences` entry. */
+enum class PrefType { STRING, BOOLEAN, INT, LONG, FLOAT }
+
+/**
+ * A device-local Android preference (it lives in `CommonUtils.realSharedPreferences`, not in the `SettingsDatabase`) that
+ * the Swift app kept in SwiftData. [value] is the text form of the value of [type] (`true`/`false` for a boolean). The
+ * adopter applies these to the SharedPreferences.
+ */
+data class DeviceLocalPref(val key: String, val type: PrefType, val value: String)
 
 /**
  * Everything the migration carries outside the staged databases: the AI API keys by provider id (the adopter stores
  * them in the new secret store under `apiKeyName(id)`), the Nextcloud settings, whether CloudKit sync was on (for the
  * one-time iCloud notice), whether the old sync outbox held unsent patches (for the Nextcloud notice) and the user's
- * own reading plan files.
+ * own reading plan files, and the device-local preferences ([deviceLocalPrefs]) that Android keeps in SharedPreferences.
+ * The secrets in it never appear in `toString`.
  */
 data class LegacyExtras(
     val aiKeys: Map<IdType, String>,
@@ -36,7 +52,13 @@ data class LegacyExtras(
     val icloudSyncWasEnabled: Boolean,
     val unsentSyncPatches: Boolean,
     val userPlanFiles: List<Path>,
-)
+    val deviceLocalPrefs: List<DeviceLocalPref> = emptyList(),
+) {
+    /** The generated `toString` would print the API keys; this one prints the provider ids and counts only. */
+    override fun toString(): String =
+        "LegacyExtras(aiKeys=${aiKeys.keys} (values redacted), sync=$sync, icloudSyncWasEnabled=$icloudSyncWasEnabled, " +
+            "unsentSyncPatches=$unsentSyncPatches, userPlanFiles=${userPlanFiles.size} files, deviceLocalPrefs=$deviceLocalPrefs)"
+}
 
 private const val AI_SERVICE = "org.andbible.BibleCore.AICredentials"
 private const val SYNC_SERVICE = "org.andbible.remote-sync"
@@ -59,7 +81,11 @@ private val SYNC_CATEGORIES = listOf("bookmarks", "workspaces", "readingplans", 
 fun buildExtras(snapshot: LegacySnapshot, platform: LegacyPlatform, report: MigrationReport): LegacyExtras {
     val aiKeys = LinkedHashMap<IdType, String>()
     for (row in snapshot.cloud.rows("LLMProviderConfig")) {
-        val raw = (row.values["id"] as? LegacyValue.UuidV)?.value ?: continue
+        val raw = (row.values["id"] as? LegacyValue.UuidV)?.value
+        if (raw == null) {
+            report.skipped(LegacyCategory.SETTINGS, "AI provider without a UUID id, its API key was not read", 1)
+            continue
+        }
         val id = IdType.fromString(raw.lowercase())
         val account = apiKeyName(id)
         val key = platform.legacyKeychain(AI_SERVICE, account)
@@ -91,8 +117,9 @@ fun buildExtras(snapshot: LegacySnapshot, platform: LegacyPlatform, report: Migr
         aiKeys = aiKeys,
         sync = sync,
         icloudSyncWasEnabled = boolValue(platform.userDefaults()["icloud_sync_enabled"]),
-        unsentSyncPatches = hasUnsentPatches(platform),
+        unsentSyncPatches = hasUnsentPatches(platform, report),
         userPlanFiles = userPlanFiles(platform),
+        deviceLocalPrefs = deviceLocalPrefs(settings),
     )
 }
 
@@ -111,14 +138,31 @@ private fun boolValue(value: Any?): Boolean = when (value) {
     else -> false
 }
 
-private fun hasUnsentPatches(platform: LegacyPlatform): Boolean {
+/** An outbox that exists but cannot be listed is reported and counted as unsent (the notice errs on the safe side). */
+private fun hasUnsentPatches(platform: LegacyPlatform, report: MigrationReport): Boolean {
     val fs = platform.fileSystem
     val outbox = platform.applicationSupport / "AndBible" / "RemoteSyncOutbox"
+    if (!fs.exists(outbox)) return false
     return try {
         fs.listRecursively(outbox).any { fs.metadataOrNull(it)?.isRegularFile == true }
     } catch (e: Exception) {
-        false
+        report.skipped(LegacyCategory.SETTINGS, "sync outbox could not be listed, treated as holding unsent patches", 1)
+        true
     }
+}
+
+/**
+ * The Swift `Setting` rows that Android keeps in `realSharedPreferences` (`AppSettingsServiceImpl.useRealShared`,
+ * `ScreenSettings`, `AndroidSpeakSettingsStore`), taken only when the Swift app stored them:
+ * `night_mode_pref3` (string `system`/`automatic`/`manual`, same key and values), the manual night mode toggle `night_mode`
+ * to Android's boolean `night_mode_pref`, and `SpeakSettings` (the Android-shaped JSON `SpeakSettings.androidJSON()` writes,
+ * a string under the same key, carried verbatim). The other SharedPreferences keys of Android (`discrete_mode`,
+ * `show_calculator`, `calculator_pin`, `locale_pref`) stay in NSUserDefaults (section 6.3).
+ */
+private fun deviceLocalPrefs(settings: Map<String, String>): List<DeviceLocalPref> = buildList {
+    settings["night_mode_pref3"]?.let { add(DeviceLocalPref("night_mode_pref3", PrefType.STRING, it)) }
+    settings["night_mode"]?.let { add(DeviceLocalPref("night_mode_pref", PrefType.BOOLEAN, if (it == "true") "true" else "false")) }
+    settings["SpeakSettings"]?.takeIf { it.isNotEmpty() }?.let { add(DeviceLocalPref("SpeakSettings", PrefType.STRING, it)) }
 }
 
 private fun userPlanFiles(platform: LegacyPlatform): List<Path> {

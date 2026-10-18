@@ -31,7 +31,7 @@ import okio.Path
  */
 class RepositoriesMapper(
     private val customRepositoriesJson: Path?,
-    private val fileSystem: FileSystem = FileSystem.SYSTEM,
+    private val fileSystem: FileSystem,
 ) : CategoryMapper {
     override val category = LegacyCategory.REPOSITORIES
 
@@ -53,7 +53,7 @@ class RepositoriesMapper(
         val json = customRepositoriesJson ?: return emptyList()
         val drops = Drops()
         val records = loadRecords(json, drops)
-        val persisted = loadConfig(json.parent?.div(CONFIG_FILE))
+        val persisted = loadConfig(json.parent?.div(CONFIG_FILE), drops)
 
         val recordNames = records.map { it.name }.toSet()
         val seen = recordNames.toMutableSet()
@@ -132,9 +132,11 @@ class RepositoriesMapper(
     }
 
     /** `parseSourceLine` over `InstallMgr.conf`: `HTTPSource=`/`FTPSource=` rows with at least three `|`-separated fields. */
-    private fun loadConfig(path: Path?): List<Source> {
+    private fun loadConfig(path: Path?, drops: Drops): List<Source> {
         if (path == null || !fileSystem.exists(path)) return emptyList()
-        val text = try { fileSystem.read(path) { readUtf8() } } catch (e: Exception) { return emptyList() }
+        val text = try { fileSystem.read(path) { readUtf8() } } catch (e: Exception) {
+            drops.add("InstallMgr.conf could not be read, SWORD custom repositories not migrated"); return emptyList()
+        }
         return text.split(Regex("\r\n|\r|\n")).mapNotNull { line ->
             val trimmed = line.trim { it == ' ' || it == '\t' }
             val type = when {

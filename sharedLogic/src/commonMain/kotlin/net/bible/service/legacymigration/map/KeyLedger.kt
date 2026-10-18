@@ -102,17 +102,25 @@ object KeyLedger {
 
         // Playback state and per-device UI state: not part of the Swift Android export.
         val notExported = "not exported by the Swift backup (device-local playback state)"
-        for (key in listOf("SpeakSettings", "lastSpeakBook", "lastSpeakRef", "SpeakLastProviderCheckpoint", "SpeakProviderCheckpoint",
+        for (key in listOf("lastSpeakBook", "lastSpeakRef", "SpeakLastProviderCheckpoint", "SpeakProviderCheckpoint",
             "SpeakBibleBook", "SpeakBibleProvider", "SpeakBibleVerse", "SpeakGenBook", "SpeakGenKey", "SpeakLocale", "speak_speed")) {
             add(dropped(key, notExported))
         }
         val uiState = "per-device UI state, not exported by the Swift backup"
-        for (key in listOf("night_mode", "recent_labels", "lastDisplaySettings")) add(dropped(key, uiState))
-        // Android reads the selected plan from the same key; carrying it needs the migrated plan codes, so it is left for a follow-up.
-        add(dropped("reading_plan", "selected reading plan code, not exported by the Swift backup (Android uses the same key; follow-up)"))
-        add(dropped("default-", uiState, prefix = true))
+        add(dropped("recent_labels", uiState))
+        // Android reads the same key, but the format of the Swift payload was not verified against Android's LastTypesSerializer.
+        add(dropped("lastDisplaySettings", "Android reads the same key; Swift payload format not verified (follow-up)"))
+        // Rows Android reads under the same key, mapped only when Swift stored them (SettingsMapper).
+        add(setting("reading_plan", "SettingsDatabase.StringSetting reading_plan (only when that plan was migrated)"))
+        add(setting("default-", "SettingsDatabase.StringSetting, same key (the five default-<category> keys)", prefix = true))
+        add(setting("BibleBookSortOrder", "SettingsDatabase.StringSetting (ALPHABETICAL or BIBLE_BOOK)"))
+        // Device-local Android preferences (SharedPreferences) that Swift kept in SwiftData: carried by LegacyExtras.
+        val deviceLocal = "extras.deviceLocalPrefs (applied by I3b/adopter to SharedPreferences)"
+        add(setting("night_mode_pref3", deviceLocal))
+        add(setting("night_mode", "$deviceLocal as night_mode_pref (boolean)"))
+        add(setting("SpeakSettings", deviceLocal))
         for (key in listOf(
-            "BibleBookSortOrder", "search-last-used", "speak-last-used", "reading_progress_last_tab", "reading_progress_mem_overview",
+            "search-last-used", "speak-last-used", "reading_progress_last_tab", "reading_progress_mem_overview",
             "labels_list_filter_searchInsideTextButtonActive", "labels_list_search_mode", "backup_workflow_backup_target",
             "backup_workflow_restore_target", "downloads.selectedDocumentFilterIndex", "_uitest_consumed_preference_seed_session",
         )) {
