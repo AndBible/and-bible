@@ -177,6 +177,41 @@ class IosReadingWindowsTest {
     }
 
     @Test
+    fun saveNowSkipsWhenReadingIsNotReady() = withWindows { id ->
+        val koin = KoinPlatform.getKoin()
+        val pageManager = koin.get<WindowControl>().activeWindowPageManager
+        val key = org.crosswire.jsword.passage.PassageKeyFactory.instance()
+            .getKey(net.bible.android.database.bookmarks.KJVA, "John.3.16")
+        pageManager.setCurrentDocumentAndKey(null, key)
+        val dao = net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao()
+        val before = runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse
+        runBlocking { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, ready = { false }) }
+        assertEquals(before, runBlocking { dao.pageManager(IdType(id)) }?.biblePage?.verse, "not ready: nothing is saved")
+    }
+
+    /** WillResignActive and DidEnterBackground fire back to back: the two saves must never overlap. */
+    @Test
+    fun concurrentSaveNowCallsDoNotOverlap() = withWindows { _ ->
+        val koin = KoinPlatform.getKoin()
+        var active = 0
+        var maxActive = 0
+        var calls = 0
+        val save: (net.bible.android.control.page.window.WindowRepository) -> Unit = {
+            active++; calls++
+            if (active > maxActive) maxActive = active
+            platform.posix.usleep(100_000u) // long enough that an unserialised second call would overlap
+            active--
+        }
+        runBlocking {
+            val a = async(Dispatchers.Default) { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, { true }, save) }
+            val b = async(Dispatchers.Default) { net.bible.sharedui.ios.app.IosWorkspaceSaver.saveNow(koin, { true }, save) }
+            a.await(); b.await()
+        }
+        assertEquals(2, calls)
+        assertEquals(1, maxActive, "saveIntoDb must not run concurrently")
+    }
+
+    @Test
     fun sessionForIsCachedPerWindow() = withWindows { id ->
         val a = IosReadingWindows.sessionFor(id)
         assertSame(a, IosReadingWindows.sessionFor(id))

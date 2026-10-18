@@ -1,8 +1,11 @@
 package net.bible.sharedui.ios.app
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import org.koin.core.Koin
 
 /**
@@ -13,12 +16,25 @@ import org.koin.core.Koin
  * guards the lookup so that asking before reading is ready does not create a fallback repository).
  */
 internal object IosWorkspaceSaver {
-    suspend fun saveNow(koin: Koin, ready: () -> Boolean = { IosReadingReady.isReady }) {
+    /**
+     * Process-wide: WillResignActive and DidEnterBackground fire back to back, and `saveIntoDb` is unsynchronised
+     * (it mutates the saved-entity snapshots and iterates the window list), so saves never overlap; the second one
+     * finds nothing modified.
+     */
+    private val mutex = Mutex()
+
+    suspend fun saveNow(
+        koin: Koin,
+        ready: () -> Boolean = { IosReadingReady.isReady },
+        save: (WindowRepository) -> Unit = { it.saveIntoDb(false) },
+    ) {
         if (!ready()) return
-        withContext(Dispatchers.Default) {
-            val repository = koin.get<WindowControl>().windowRepository
-            repository.saveIntoDb(false)
-            repository.persistence.awaitPersisted()
+        mutex.withLock {
+            withContext(Dispatchers.Default) {
+                val repository = koin.get<WindowControl>().windowRepository
+                save(repository)
+                repository.persistence.awaitPersisted()
+            }
         }
     }
 }

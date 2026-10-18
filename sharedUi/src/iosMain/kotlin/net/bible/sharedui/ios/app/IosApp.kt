@@ -66,6 +66,7 @@ import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppRoot
 import net.bible.sharedui.app.gatedReadingRoute
 import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.reading.LocalPinIcon
 import net.bible.sharedui.strings.LocalStrings
@@ -181,6 +182,8 @@ private fun IosAppContent(
     val koin = remember { KoinPlatform.getKoin() }
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
+    // App-wide, not per destination: Android saves on every destination (the repository belongs to the host).
+    SaveWorkspaceOnBackground(koin)
     val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }) }
     val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
@@ -273,8 +276,7 @@ private fun IosReadingDestination(
     }
     // Debug-only `-openRef <osisRef>` (no-op in release / without the argument). Do not remove: AppUITests'
     // testFreshInstallEasyStartReadsJohn3 launches with it and asserts John 3, and the relaunch test relies on that run.
-    LaunchedEffect(Unit) { net.bible.sharedui.assembly.IosDebugLaunchArgs.openRefOnce() }
-    SaveWorkspaceOnBackground(koin)
+    LaunchedEffect(Unit) { IosDebugLaunchArgs.openRefOnce() }
     val host = remember { holder.get(shell, koin, nightObserver) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }
@@ -296,7 +298,14 @@ private fun SaveWorkspaceOnBackground(koin: Koin) {
         val save: (NSNotification?) -> Unit = {
             val app = UIApplication.sharedApplication
             var task = UIBackgroundTaskInvalid
-            task = app.beginBackgroundTaskWithExpirationHandler { app.endBackgroundTask(task) }
+            fun endTask() {
+                if (task != UIBackgroundTaskInvalid) {
+                    val id = task
+                    task = UIBackgroundTaskInvalid
+                    app.endBackgroundTask(id)
+                }
+            }
+            task = app.beginBackgroundTaskWithExpirationHandler { endTask() }
             scope.launch {
                 try {
                     IosWorkspaceSaver.saveNow(koin)
@@ -305,7 +314,7 @@ private fun SaveWorkspaceOnBackground(koin: Koin) {
                 } catch (e: Throwable) {
                     nsLog("IosApp: saving the workspace failed: ${e.stackTraceToString()}")
                 } finally {
-                    app.endBackgroundTask(task)
+                    endTask()
                 }
             }
         }
