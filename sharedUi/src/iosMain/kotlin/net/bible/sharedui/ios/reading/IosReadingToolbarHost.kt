@@ -20,8 +20,17 @@ package net.bible.sharedui.ios.reading
 
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.page.CurrentBiblePage
+import net.bible.android.control.page.CurrentCommentaryPage
+import net.bible.android.control.page.CurrentDictionaryPage
+import net.bible.android.control.page.CurrentGeneralBookPage
+import net.bible.android.control.page.CurrentMapPage
+import net.bible.android.control.page.CurrentMyNotePage
+import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
@@ -31,11 +40,17 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.epub.epubBackend
+import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.navigation.DocumentSheetScope
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedcore.reading.KeyChooserKind
+import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.QuickDocRow
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.settings.SettingsEditorPage
@@ -47,10 +62,13 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.reading.host.ReadingHostState
 import net.bible.sharedui.reading.host.slots.ReadingHostSlots
+import net.bible.sharedui.reading.toolbar.KeyChooserOpening
 import net.bible.sharedui.reading.toolbar.ReadingDrawerHost
 import net.bible.sharedui.reading.toolbar.ReadingOverflowHost
 import net.bible.sharedui.reading.toolbar.ReadingToolbarHost
 import net.bible.sharedui.reading.toolbar.WorkspaceCycler
+import net.bible.sharedui.reading.toolbar.resolveKeyChooserOpening
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import platform.Foundation.NSBundle
@@ -58,7 +76,7 @@ import platform.Foundation.NSBundle
 /**
  * The iOS side of the reading toolbar, overflow menu and drawer: implements the common [ReadingToolbarHost],
  * [ReadingOverflowHost] and [ReadingDrawerHost] over the window and document controls, [ReadingHostState]'s sheets,
- * the navigator and the speak transport. The decisions live in `ReadingToolbarCommands`, `ReadingOverflowMenu` and
+ * the navigator and the speak transport. The decisions live in `ReadingToolbarCommands`, `ReadingOverflowController` and
  * `ReadingDrawerMenu` (common, unit tested); this class only reads and writes what they ask for.
  *
  * What is NOT here, by name:
@@ -94,11 +112,12 @@ internal class IosReadingToolbarHost(
     private val chooserRequests: ChooserRequests,
     private val externalLinks: ExternalLinks,
     private val windowStateService: () -> WindowStateServiceImpl,
+    private val fakeBooks: () -> FakeBookFactory,
     private val deviceSettings: IosDeviceSettings = IosDeviceSettings(),
-    private val tiltAvailable: () -> Boolean = { IosTiltSensor().isAvailable },
+    private val tiltAvailable: () -> Boolean = { iosMotionManager.deviceMotionAvailable },
 ) : ReadingToolbarHost, ReadingOverflowHost, ReadingDrawerHost {
 
-    /** The overflow menu's rows and open flag; `ReadingOverflowMenu` fills the rows when the menu opens. */
+    /** The overflow menu's rows and open flag; `ReadingOverflowController` fills the rows when the menu opens. */
     val overflowItems = mutableStateOf(emptyList<net.bible.sharedcore.reading.OptionsMenuItem>())
     val overflowExpanded = mutableStateOf(false)
 
@@ -120,18 +139,72 @@ internal class IosReadingToolbarHost(
     override fun showTextSettingEditor(scope: SettingsScope, page: SettingsEditorPage, onReady: () -> Unit) =
         slots().showTextSettingEditor(scope, page, onReady)
 
+    /** Android's `composeSearch`: the reading view's own search (the navigator opens it in place, see its `openReadingSearch`). */
     override fun openSearch() = navigator.openSearch(null)
     override fun openChooseDocument(type: String?) = navigator.openChooseDocument(type)
     override fun openChooseDocument() = navigator.openChooseDocument(null)
 
-    /** A tap before the repository holds a window must not throw. */
+    /**
+     * Android's `composeStartKeyChooser` (title tap): the quick sheet `KeyChooserRoute` names for the active page (the
+     * Grid for a Bible or commentary page), the full-screen chooser only as the fallback ([resolveKeyChooserOpening]).
+     * A tap before the repository holds a window must not throw.
+     */
     override fun startKeyChooser() {
         val page = try {
             activePageManager.currentPage
         } catch (e: Exception) {
             null
         }
-        if (page == null) nsLog("ReadingToolbar: title tap before a window exists") else navigator.startKeyChooser(page)
+        if (page == null) {
+            nsLog("ReadingToolbar: title tap before a window exists")
+            return
+        }
+        val document = page.currentDocument
+        scope.launch {
+            val opening = resolveKeyChooserOpening(
+                page = keyChooserPageOf(page),
+                resolveKeys = { kind -> withContext(Dispatchers.Default) { keyChooserKeys(kind) } },
+                stillCurrent = { activePageManager.currentPage === page && page.currentDocument == document },
+            )
+            when (opening) {
+                null -> Unit
+                KeyChooserOpening.FullScreen -> navigator.startKeyChooser(page)
+                is KeyChooserOpening.Sheet -> hostState.showKeyChooserSheet(opening.kind, opening.keys)
+            }
+        }
+    }
+
+    /** Android's `currentKeyChooserPage`, in its order: my-note BEFORE commentary (it extends it), then the general-book four-way test. */
+    private fun keyChooserPageOf(page: CurrentPage): KeyChooserPage? = when (page) {
+        is CurrentBiblePage -> KeyChooserPage.BIBLE
+        is CurrentMyNotePage -> KeyChooserPage.MY_NOTE
+        is CurrentCommentaryPage -> KeyChooserPage.COMMENTARY
+        is CurrentDictionaryPage -> KeyChooserPage.DICTIONARY
+        is CurrentMapPage -> KeyChooserPage.MAP
+        is CurrentGeneralBookPage -> {
+            val factory = fakeBooks()
+            when (val doc = page.currentDocument) {
+                factory.journalDocument -> KeyChooserPage.GENERAL_BOOK_STUDY_PAD
+                factory.multiDocument -> KeyChooserPage.GENERAL_BOOK_MULTI_DOCUMENT
+                else -> if (doc?.isMyDocument == true) KeyChooserPage.GENERAL_BOOK_MY_DOCUMENT else KeyChooserPage.GENERAL_BOOK
+            }
+        }
+        else -> null
+    }
+
+    /** The keys behind a key-chooser sheet (Android's `KeyChooserKeys.kt`): a map's global list, an EPUB's table of contents or a general book's list. */
+    private suspend fun keyChooserKeys(kind: KeyChooserKind): List<Key> = when (kind) {
+        KeyChooserKind.Map -> activePageManager.currentMap.cachedGlobalKeyList ?: emptyList()
+        KeyChooserKind.GeneralBook -> {
+            val page = activePageManager.currentGeneralBook
+            val doc = page.currentDocument
+            when {
+                doc == null -> emptyList()
+                doc.isEpub -> doc.epubBackend?.tocKeys() ?: emptyList()
+                else -> page.cachedGlobalKeyList ?: emptyList()
+            }
+        }
+        KeyChooserKind.Grid -> emptyList()
     }
 
     /** Opens the menu; not while the toolbar shows the search field (it has no overflow button then). */

@@ -28,20 +28,22 @@ import net.bible.sharedui.reading.host.ReadingHostState
  * the counterpart of Android's anonymous object in `BibleView`. Window workspace sheet, search and copy go through
  * the same paths as the toolbar and the selection menu.
  *
- * [openDrawer] opens the common drawer (its rows are `ReadingDrawerMenu`). Answered by a log line instead of a silent
- * drop: [openOverflowMenu] (the toolbar's overflow menu exists now; routing the Alt+O shortcut to it is not done yet)
- * and [crashAllBibleViews] (a debug-only Android aid that loads `chrome://crash`; WKWebView offers no public crash trigger).
+ * [openDrawer] opens the common drawer (its rows are `ReadingDrawerMenu`) and [openOverflowMenu] the toolbar's overflow
+ * menu. Answered by a log line instead of a silent drop: [crashAllBibleViews] (a debug-only Android aid that loads
+ * `chrome://crash`; WKWebView offers no public crash trigger).
  */
 @kotlin.native.HiddenFromObjC
 class IosReadingKeyActions(
     private val hostState: ReadingHostState,
     private val openSearch: () -> Unit,
+    private val openOverflow: () -> Unit,
     private val copyCurrentSelection: () -> Unit,
     private val log: (String) -> Unit = { nsLog("IosReadingKeyActions: $it") },
 ) : ReadingKeyActions {
     override fun openDrawer() = hostState.openDrawer()
 
-    override fun openOverflowMenu() = log("Alt+O: no overflow menu on iOS")
+    /** Alt+O: the toolbar's overflow menu (not while the search field is showing, as on Android). */
+    override fun openOverflowMenu() = openOverflow()
 
     override fun showWorkspaceSheetIfHosted(): Boolean {
         hostState.showWorkspaceSheet()

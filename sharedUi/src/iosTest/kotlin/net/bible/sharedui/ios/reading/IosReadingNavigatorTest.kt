@@ -73,6 +73,7 @@ class IosReadingNavigatorTest {
         val shell: IosHostShell,
         val links: RecordingLinks,
         val labels: NavResultChannel<ManageLabelsResult>,
+        val hostState: net.bible.sharedui.reading.host.ReadingHostState,
     ) {
         /** What the app does: the destination listener reports the route; the manager publishes its answer then pops. */
         fun open(route: String) = shell.routeChanged(route)
@@ -120,7 +121,7 @@ class IosReadingNavigatorTest {
                 mainContext = Dispatchers.Unconfined,
             )
             try {
-                runBlocking { Fixture(navigator, nav, shell, links, labels).block() }
+                runBlocking { Fixture(navigator, nav, shell, links, labels, host.hostState).block() }
             } finally {
                 host.dispose()
                 testScope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
@@ -146,6 +147,41 @@ class IosReadingNavigatorTest {
         assertNull(searchRoute(indexDone = false, isEpub = false, isGeneralBook = true, initials = "G"))
         assertEquals(NavRoutes.searchIndex(searchDocument = "KJV"), searchRoute(false, false, false, "KJV"))
         assertEquals(NavRoutes.searchIndex(searchDocument = null), searchRoute(false, false, false, null))
+    }
+
+    /** Android's `composeSearch` opens the reading view's own search: no screen is navigated to. */
+    @Test
+    fun openSearchRunsTheInPlaceSearchInsteadOfARoute() = withNavigator {
+        var opened = 0
+        val inPlace = IosReadingNavigator(
+            shell = shell, hostState = hostState, links = links, labelResults = labels,
+            downloadControl = { KoinPlatform.getKoin().get<DownloadControl>() },
+            fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
+            mainContext = Dispatchers.Unconfined,
+            openReadingSearch = { opened++ },
+        )
+        inPlace.openSearch(null)
+        assertEquals(1, opened)
+        assertEquals(emptyList(), nav.routes)
+    }
+
+    @Test
+    fun theWorkspaceSelectorRecordsAWorkspaceRequest() = withNavigator {
+        val kinds = mutableListOf<ChooserKind>()
+        val recording = object : ChooserRequests {
+            override fun asked(kind: ChooserKind, asker: Any?) { kinds += kind }
+            override fun activeAsker(): Any? = null
+        }
+        val withRequests = IosReadingNavigator(
+            shell = shell, hostState = hostState, links = links, labelResults = labels,
+            downloadControl = { KoinPlatform.getKoin().get<DownloadControl>() },
+            fakeBooks = { KoinPlatform.getKoin().get<FakeBookFactory>() },
+            mainContext = Dispatchers.Unconfined,
+            chooserRequests = recording,
+        )
+        withRequests.openWorkspaceSelector()
+        assertEquals(listOf(ChooserKind.Workspace), kinds)
+        assertEquals(listOf(NavRoutes.WORKSPACE_SELECTOR), nav.routes)
     }
 
     @Test

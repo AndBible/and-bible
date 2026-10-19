@@ -78,6 +78,7 @@ internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boo
  * window asked.
  *
  * @param hostState the reading host's sheets (kept for the sheets the navigator will open instead of routing)
+ * @param openReadingSearch where [openSearch] goes first (in-place search); see the constructor
  * @param links where [openExternalUrl] and [openWebLink] go
  * @param labelResults the app's `manageLabels` result channel
  * @param workspaceSettings seeds and receives the label chooser's workspace-wide settings
@@ -94,6 +95,12 @@ class IosReadingNavigator(
     private val mainContext: CoroutineContext = Dispatchers.Main,
     /** Told which window opened a chooser, so its answer is applied to that window ([IosReadingResults]). */
     private val chooserRequests: ChooserRequests = ChooserRequests.None,
+    /**
+     * Opens the reading view's own search (the toolbar's search field and results sheet), as Android's `composeSearch`
+     * does through the hosted `ComposeReadingViewHost.openSearch`. Null (a navigator without a reading host) falls back
+     * to the search routes of [searchRoute].
+     */
+    private val openReadingSearch: (() -> Unit)? = null,
 ) : ReadingNavigator {
     private val labelRequests = Mutex()
 
@@ -119,7 +126,13 @@ class IosReadingNavigator(
 
     override fun openReadingProgressSettings() = onMain { shell.navigate(NavRoutes.READING_PROGRESS_SETTINGS) }
 
-    override fun openWorkspaceSelector() = onMain { shell.navigate(NavRoutes.WORKSPACE_SELECTOR) }
+    override fun openWorkspaceSelector() {
+        // Its save / pick answer applies to the reading view as a whole (Android's Workspace collector).
+        onMain {
+            chooserRequests.asked(ChooserKind.Workspace, null)
+            shell.navigate(NavRoutes.WORKSPACE_SELECTOR)
+        }
+    }
 
     override fun openChooseDocument(type: String?) {
         // The asker is the window that is active NOW, read before the screen is posted: the chooser outlives that.
@@ -131,6 +144,10 @@ class IosReadingNavigator(
     }
 
     override fun openSearch(document: Book?) = onMain {
+        openReadingSearch?.let { inPlace ->
+            inPlace()
+            return@onMain
+        }
         val route = searchRoute(
             indexDone = document?.indexStatus == IndexStatus.DONE,
             isEpub = document?.isEpub == true,
