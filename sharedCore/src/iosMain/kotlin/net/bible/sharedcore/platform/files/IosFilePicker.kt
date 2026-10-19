@@ -2,15 +2,21 @@
 
 package net.bible.sharedcore.platform.files
 
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.useContents
+import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import okio.FileSystem
-import okio.Path.Companion.toPath
+import okio.Buffer
+import okio.IOException
 import okio.Source
+import okio.Timeout
+import platform.Foundation.NSInputStream
 import platform.Foundation.NSURL
+import platform.Foundation.inputStreamWithURL
 import platform.UIKit.UIDocumentPickerViewController
 import platform.UIKit.UIViewController
 import platform.UIKit.popoverPresentationController
@@ -100,5 +106,38 @@ class IosFilePicker(private val presenter: () -> UIViewController? = IosPresente
         }
     }
 
-    override suspend fun openInput(source: PickedSource): Source = FileSystem.SYSTEM.source(source.token.toPath())
+    /** Stream the picked path exactly, without normalizing valid POSIX backslashes. */
+    override suspend fun openInput(source: PickedSource): Source {
+        if (!source.token.startsWith("/") || '\u0000' in source.token) throw IOException("Invalid picked file path")
+        val url = NSURL.fileURLWithPath(source.token)
+        val scoped = url.startAccessingSecurityScopedResource()
+        try {
+            val stream = NSInputStream.inputStreamWithURL(url) ?: throw IOException("Cannot open backup file")
+            stream.open()
+            return object : Source {
+                private var closed = false
+                override fun read(sink: Buffer, byteCount: Long): Long {
+                    check(!closed) { "Source is closed" }
+                    require(byteCount >= 0) { "byteCount must not be negative" }
+                    if (byteCount == 0L) return 0L
+                    val bytes = ByteArray(minOf(byteCount, 8192L).toInt())
+                    val count = bytes.usePinned { stream.read(it.addressOf(0).reinterpret(), bytes.size.toULong()) }
+                    if (count < 0) throw IOException("Cannot read backup file")
+                    if (count == 0L) return -1L
+                    sink.write(bytes, 0, count.toInt())
+                    return count
+                }
+                override fun timeout(): Timeout = Timeout.NONE
+                override fun close() {
+                    if (!closed) {
+                        closed = true
+                        try { stream.close() } finally { if (scoped) url.stopAccessingSecurityScopedResource() }
+                    }
+                }
+            }
+        } catch (failure: Throwable) {
+            if (scoped) url.stopAccessingSecurityScopedResource()
+            throw failure
+        }
+    }
 }

@@ -193,6 +193,48 @@ class IosSmallPortsTest {
         }
     }
 
+    @Test fun imageCopiesExactProviderBackslashFileNotNormalizedDecoy() = onMain {
+        val root = NSTemporaryDirectory().toPath() / "image-exact-url-${NSUUID().UUIDString}"
+        val rootUrl = NSURL.fileURLWithPath(root.toString(), isDirectory = true)
+        assertTrue(NSFileManager.defaultManager.createDirectoryAtURL(rootUrl, true, null, null))
+        var primary: Throwable? = null
+        try {
+            val selected = NSURL.fileURLWithPath("$root/provider\\image.jpg")
+            assertTrue(NSString.create(string = "picked image bytes").writeToURL(selected, true, NSUTF8StringEncoding, null))
+            FileSystem.SYSTEM.createDirectory(root / "provider")
+            FileSystem.SYSTEM.write(root / "provider" / "image.jpg") { writeUtf8("wrong normalized image bytes") }
+            withHost { host ->
+                val provider = Provider()
+                val request = async(start = CoroutineStart.UNDISPATCHED) {
+                    IosImagePicker(presenter = { host }, tempDirectory = { root.toString() },
+                        imageProvider = { provider }).pickImage()
+                }
+                try {
+                    val sheet = assertIs<PHPickerViewController>(host.presentations.single())
+                    assertNotNull(sheet.delegate).picker(sheet, didFinishPicking = listOf(Unit))
+                    assertEquals("public.image", provider.requestedType)
+                    assertNotNull(provider.callback).invoke(selected, null)
+                    // The provider's exact URL expires as soon as this callback returns.
+                    assertTrue(NSFileManager.defaultManager.removeItemAtURL(selected, null))
+                    val copied = assertNotNull(NSURL.URLWithString(assertNotNull(request.await())))
+                    assertTrue(copied.isFileURL())
+                    assertNull(sheet.delegate)
+                    assertEquals("picked image bytes", NSString.stringWithContentsOfURL(copied, NSUTF8StringEncoding, null))
+                    assertEquals("wrong normalized image bytes", FileSystem.SYSTEM.read(root / "provider" / "image.jpg") { readUtf8() })
+                } finally { request.cancelAndJoin() }
+            }
+        } catch (failure: Throwable) {
+            primary = failure
+            throw failure
+        } finally {
+            // Recursively remove by Foundation URL, including any literal backslash children.
+            if (!NSFileManager.defaultManager.removeItemAtURL(rootUrl, null)) {
+                val cleanup = AssertionError("Failed to remove exact image URL fixture")
+                primary?.addSuppressed(cleanup) ?: throw cleanup
+            }
+        }
+    }
+
     @Test fun imageProviderErrorReturnsNullWithoutStaging() = onMain {
         withImageFiles { root, _ ->
             withHost { host ->

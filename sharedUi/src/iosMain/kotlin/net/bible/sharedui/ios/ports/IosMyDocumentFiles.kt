@@ -2,10 +2,11 @@
  * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
 
 package net.bible.sharedui.ios.ports
 
+import kotlinx.cinterop.readBytes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
@@ -26,9 +27,8 @@ import net.bible.sharedui.strings.keyed.StringTable
 import okio.FileSystem
 import okio.IOException
 import okio.Path
-import okio.Path.Companion.toPath
 import org.koin.mp.KoinPlatform
-import platform.Foundation.NSURL
+import platform.Foundation.*
 
 /** File URL I/O matching Android's My Documents naming and export rules. Dependencies resolve only when used. */
 @kotlin.native.HiddenFromObjC
@@ -48,18 +48,18 @@ class IosMyDocumentFiles(
     override fun displayName(ref: DocumentRef): String? = fileUrl(ref)?.lastPathComponent?.takeIf { it.isNotEmpty() }
 
     override suspend fun importPageFile(ref: DocumentRef): ImportedPage? = withContext(Dispatchers.IO) {
-        access(ref) { url, path ->
+        access(ref) { url ->
             val name = url.lastPathComponent?.takeIf { it.isNotEmpty() }
                 ?: strings().text("my_document_imported_page_name")
-            ImportedPage(name.substringBeforeLast("."), contentType(name), FileSystem.SYSTEM.read(path) { readUtf8() })
+            ImportedPage(name.substringBeforeLast("."), contentType(name), readText(url))
         }
     }
 
     override suspend fun readDocumentFiles(refs: List<DocumentRef>): List<ImportedFile> = withContext(Dispatchers.IO) {
         refs.mapNotNull { ref ->
-            access(ref) { url, path ->
+            access(ref) { url ->
                 val name = url.lastPathComponent?.takeIf { it.isNotEmpty() } ?: return@access null
-                ImportedFile(name, FileSystem.SYSTEM.read(path) { readUtf8() })
+                ImportedFile(name, readText(url))
             }
         }.sortedBy { it.fileName }
     }
@@ -81,19 +81,19 @@ class IosMyDocumentFiles(
 
     override suspend fun exportPagesToFolder(pages: List<MyDocumentPageWithContent>, tree: DocumentRef): Boolean =
         withContext(Dispatchers.IO) {
-            access(tree) { _, path ->
-                if (!FileSystem.SYSTEM.metadata(path).isDirectory) return@access false
-                writePages(path, pages)
+            access(tree) { url ->
+                if (!isDirectory(url)) return@access false
+                writePages(url, pages)
                 true
             } ?: false
         }
 
     override suspend fun exportDocumentsToFolder(documents: List<DocumentFolderExport>, tree: DocumentRef): Boolean =
         withContext(Dispatchers.IO) {
-            access(tree) { _, path ->
-                if (!FileSystem.SYSTEM.metadata(path).isDirectory) return@access false
+            access(tree) { url ->
+                if (!isDirectory(url)) return@access false
                 for (document in documents) {
-                    val dir = createDocumentDirectory(path, document.folderName) ?: continue
+                    val dir = createDocumentDirectory(url, document.folderName) ?: continue
                     writePages(dir, document.pages)
                 }
                 true
@@ -101,33 +101,37 @@ class IosMyDocumentFiles(
         }
 
     /** Reserve a fresh subfolder atomically, never merge two documents or interpret names as paths. */
-    private fun createDocumentDirectory(root: Path, name: String): Path? {
+    private fun createDocumentDirectory(root: NSURL, name: String): NSURL? {
         if (name.isEmpty() || name == "." || name == ".." || '/' in name || '\\' in name || '\u0000' in name) return null
         var suffix = 1
         while (true) {
-            val candidate = root / if (suffix == 1) name else "$name ($suffix)"
-            try {
-                FileSystem.SYSTEM.createDirectory(candidate, mustCreate = true)
-                return candidate
-            } catch (_: IOException) {
-                // Only an existing directory is a naming collision; real creation failures skip this document.
-                val existingDirectory = try {
-                    FileSystem.SYSTEM.metadataOrNull(candidate)?.isDirectory == true
-                } catch (_: IOException) { false }
-                if (!existingDirectory) return null
-                suffix++
-            }
+            val candidate = root.URLByAppendingPathComponent(if (suffix == 1) name else "$name ($suffix)") ?: return null
+            if (NSFileManager.defaultManager.createDirectoryAtURL(candidate, false, null, null)) return candidate
+            // Only an existing directory is a naming collision; real creation failures skip this document.
+            if (!isDirectory(candidate)) return null
+            suffix++
         }
     }
 
-    private fun writePages(dir: Path, pages: List<MyDocumentPageWithContent>) {
+    private fun writePages(dir: NSURL, pages: List<MyDocumentPageWithContent>) {
         for ((index, page) in pages.withIndex()) {
             val prefix = (index + 1).toString().padStart(2, '0')
             val name = "$prefix-${exportTitle(page.title)}.${extension(page)}"
-            try {
-                FileSystem.SYSTEM.write(dir / name) { writeUtf8(page.content ?: "") }
-            } catch (_: IOException) { continue }
+            val target = dir.URLByAppendingPathComponent(name) ?: continue
+            NSString.create(string = page.content ?: "").writeToURL(target, true, NSUTF8StringEncoding, null)
         }
+    }
+
+    private fun isDirectory(url: NSURL): Boolean = url.path?.let { path ->
+        NSFileManager.defaultManager.attributesOfItemAtPath(path, null)?.get(NSFileType) == NSFileTypeDirectory
+    } ?: false
+
+    /** Keep external URL identity intact; Okio treats a valid POSIX backslash as a separator. */
+    private fun readText(url: NSURL): String {
+        val data = NSData.dataWithContentsOfURL(url) ?: throw IOException("Cannot read document")
+        if (data.length > Int.MAX_VALUE.toULong()) throw IOException("Document is too large")
+        if (data.length == 0uL) return ""
+        return (data.bytes?.readBytes(data.length.toInt()) ?: throw IOException("Cannot read document")).decodeToString()
     }
 
     private fun exportTitle(title: String): String = title.replace(Regex("[^a-zA-Z0-9._\\- ]"), "").take(50)
@@ -143,11 +147,11 @@ class IosMyDocumentFiles(
         ?.takeIf { it.isFileURL() && it.path?.startsWith("/") == true }
 
     /** A denied scope is normal for sandbox-local URLs; release only scopes that were acquired. */
-    private inline fun <T> access(ref: DocumentRef, block: (NSURL, Path) -> T): T? {
+    private inline fun <T> access(ref: DocumentRef, block: (NSURL) -> T): T? {
         val url = fileUrl(ref) ?: return null
         val scoped = startAccess(url)
         return try {
-            block(url, url.path!!.toPath())
+            block(url)
         } catch (_: IOException) {
             null
         } finally {

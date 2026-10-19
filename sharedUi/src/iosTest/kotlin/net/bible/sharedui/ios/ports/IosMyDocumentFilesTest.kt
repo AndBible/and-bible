@@ -13,9 +13,7 @@ import net.bible.sharedui.assembly.iosStringTable
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
-import platform.Foundation.NSTemporaryDirectory
-import platform.Foundation.NSURL
-import platform.Foundation.NSUUID
+import platform.Foundation.*
 import kotlin.test.*
 
 class IosMyDocumentFilesTest {
@@ -29,6 +27,63 @@ class IosMyDocumentFilesTest {
         assertEquals("A UTF-8 page: ä Ω", page.content)
         assertEquals("Notes.part.md", port.displayName(ref))
         scopes.assertBalanced(1)
+    }
+
+    @Test fun importPageReadsExactPickedBackslashFileNotNormalizedDecoy() = withExactUrlFixture { root ->
+        val selected = NSURL.fileURLWithPath("$root/picked\\page.md")
+        writeExact(selected, "picked page")
+        val decoy = "$root/picked".toPath()
+        FileSystem.SYSTEM.createDirectory(decoy)
+        write(decoy / "page.md", "wrong normalized page")
+        val scopes = Scopes()
+        val imported = assertNotNull(scopes.port().importPageFile(DocumentRef(selected.absoluteString!!)))
+        scopes.assertBalanced(1)
+        assertEquals(listOf(selected.absoluteString), scopes.starts)
+        assertEquals("picked\\page", imported.title)
+        assertEquals("picked page", imported.content)
+    }
+
+    @Test fun readDocumentsReadsExactPickedBackslashFileNotNormalizedDecoy() = withExactUrlFixture { root ->
+        val selected = NSURL.fileURLWithPath("$root/picked\\page.md")
+        writeExact(selected, "picked document")
+        val decoy = "$root/picked".toPath()
+        FileSystem.SYSTEM.createDirectory(decoy)
+        write(decoy / "page.md", "wrong normalized document")
+        val scopes = Scopes()
+        val imported = scopes.port().readDocumentFiles(listOf(DocumentRef(selected.absoluteString!!)))
+        scopes.assertBalanced(1)
+        assertEquals(listOf(selected.absoluteString), scopes.starts)
+        assertEquals(listOf("picked\\page.md"), imported.map { it.fileName })
+        assertEquals(listOf("picked document"), imported.map { it.content })
+    }
+
+    @Test fun pagesExportStaysInExactPickedBackslashDirectory() = withExactUrlFixture { root ->
+        val selected = NSURL.fileURLWithPath("$root/picked\\folder", isDirectory = true)
+        assertTrue(NSFileManager.defaultManager.createDirectoryAtURL(selected, true, null, null))
+        val decoy = "$root/picked/folder".toPath()
+        FileSystem.SYSTEM.createDirectories(decoy)
+        val scopes = Scopes()
+        assertTrue(scopes.port().exportPagesToFolder(listOf(page("Page", content = "picked export")),
+            DocumentRef(selected.absoluteString!!)))
+        scopes.assertBalanced(1)
+        assertEquals(listOf(selected.absoluteString), scopes.starts)
+        assertEquals(emptyList(), FileSystem.SYSTEM.list(decoy), "Normalized decoy must remain untouched")
+        assertEquals("picked export", readExact(NSURL.fileURLWithPath("${selected.path}/01-Page.md")))
+    }
+
+    @Test fun documentsExportStaysInExactPickedBackslashDirectory() = withExactUrlFixture { root ->
+        val selected = NSURL.fileURLWithPath("$root/picked\\folder", isDirectory = true)
+        assertTrue(NSFileManager.defaultManager.createDirectoryAtURL(selected, true, null, null))
+        val decoy = "$root/picked/folder".toPath()
+        FileSystem.SYSTEM.createDirectories(decoy)
+        val scopes = Scopes()
+        assertTrue(scopes.port().exportDocumentsToFolder(listOf(
+            DocumentFolderExport("Document", listOf(page("Page", content = "picked document export"))),
+        ), DocumentRef(selected.absoluteString!!)))
+        scopes.assertBalanced(1)
+        assertEquals(listOf(selected.absoluteString), scopes.starts)
+        assertEquals(emptyList(), FileSystem.SYSTEM.list(decoy), "Normalized decoy must remain untouched")
+        assertEquals("picked document export", readExact(NSURL.fileURLWithPath("${selected.path}/Document/01-Page.md")))
     }
 
     @Test fun htmlExtensionsImportAsHtml() = withTempFolder { dir ->
@@ -237,6 +292,30 @@ class IosMyDocumentFilesTest {
     }
 
     private fun read(path: Path) = FileSystem.SYSTEM.read(path) { readUtf8() }
+
+    private fun writeExact(url: NSURL, content: String) {
+        assertTrue(NSString.create(string = content).writeToURL(url, true, NSUTF8StringEncoding, null))
+    }
+
+    private fun readExact(url: NSURL) = NSString.stringWithContentsOfURL(url, NSUTF8StringEncoding, null)
+
+    private fun withExactUrlFixture(block: suspend (String) -> Unit) = runBlocking {
+        val root = "${NSTemporaryDirectory()}/my-documents-exact-url-${NSUUID().UUIDString}"
+        val url = NSURL.fileURLWithPath(root, isDirectory = true)
+        assertTrue(NSFileManager.defaultManager.createDirectoryAtURL(url, true, null, null))
+        var primary: Throwable? = null
+        try { block(root) } catch (failure: Throwable) {
+            primary = failure
+            throw failure
+        } finally {
+            // Foundation must remove literal backslash children; Okio would normalize their names.
+            val removed = NSFileManager.defaultManager.removeItemAtURL(url, null)
+            if (!removed) {
+                val cleanup = AssertionError("Failed to remove exact URL fixture: $root")
+                primary?.addSuppressed(cleanup) ?: throw cleanup
+            }
+        }
+    }
 
     private fun withTempFolder(block: suspend (Path) -> Unit) = runBlocking {
         val dir = NSTemporaryDirectory().toPath() / "andbible-my-documents-${NSUUID().UUIDString}"

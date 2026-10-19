@@ -76,14 +76,17 @@ class IosImagePicker(
                             var destination: String? = null
                             try {
                                 if (error == null && url != null && url.isFileURL()) {
-                                    val source = url.path?.toPath()
-                                    if (source != null) {
+                                    val name = url.lastPathComponent
+                                        ?.map { if (it == '/' || it == '\\' || it < ' ' || it == '\u007f') '_' else it }
+                                        ?.joinToString("")
+                                        ?.takeUnless { it.isBlank() || it == "." || it == ".." }
+                                    if (name != null) {
                                         FileSystem.SYSTEM.createDirectories(directory)
-                                        val target = directory / source.name
+                                        val target = NSURL.fileURLWithPath((directory / name).toString())
                                         val scoped = url.startAccessingSecurityScopedResource()
-                                        try { FileSystem.SYSTEM.copy(source, target) }
+                                        val copiedFile = try { NSFileManager.defaultManager.copyItemAtURL(url, target, null) }
                                         finally { if (scoped) url.stopAccessingSecurityScopedResource() }
-                                        destination = NSURL.fileURLWithPath(target.toString()).absoluteString
+                                        if (copiedFile) destination = target.absoluteString
                                     }
                                 }
                             } catch (_: Exception) {
