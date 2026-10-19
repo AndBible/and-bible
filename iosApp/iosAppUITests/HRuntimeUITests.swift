@@ -150,7 +150,9 @@ final class HRuntimeUITests: RealAppUITestCase {
         tapButton(app, "Add provider")
         let accept = button(app, "I accept and take full responsibility")
         if accept.waitForExistence(timeout: 3) { accept.tap() }
-        // The provider-type sheet row is the actual "Custom (OpenAI compatible)" Button; no scrolling is needed.
+        // The sheet is lazily laid out and "Custom (OpenAI compatible)" starts below the fold: settle it first.
+        let customText = app.staticTexts.matching(NSPredicate(format: "label == %@", "Custom (OpenAI compatible)")).firstMatch
+        require(bringIntoBand(app, customText, band: 0.5...0.9, maxSteps: 30), app, "custom-provider-type-row-not-settled")
         let customRows = app.buttons.containing(.staticText, identifier: "Custom (OpenAI compatible)")
         let customRow = customRows.firstMatch
         require(customRow.waitForExistence(timeout: 10) && customRows.count == 1 && customRow.isHittable, app, "custom-provider-type-row-missing")

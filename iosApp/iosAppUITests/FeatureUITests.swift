@@ -53,13 +53,16 @@ final class FeatureUITests: RealAppUITestCase {
         }
         XCTAssertTrue(editorOpened, "Actual language editor must open before searching its choices")
         let finnish = app.staticTexts["fi: Suomi"].firstMatch
-        for _ in 0..<12 where !finnish.isHittable { app.swipeUp() }
-        if !finnish.exists || !finnish.isHittable {
+        // The sheet list is long and lazily laid out; settle the real row inside the sheet (y 0.36..1.0) before tapping.
+        let finnishReady = bringIntoBand(app, finnish, band: 0.5...0.9, maxSteps: 40)
+        let finnishRows = app.buttons.containing(.staticText, identifier: "fi: Suomi")
+        let finnishRow = finnishRows.firstMatch
+        if !finnishReady || finnishRows.count != 1 || !finnishRow.isHittable {
             shot(app, "settings-language-no-finnish-choice")
             attachTree(app, "settings-language-no-finnish-choice")
         }
-        XCTAssertTrue(finnish.exists && finnish.isHittable)
-        finnish.tap()
+        XCTAssertTrue(finnishReady && finnishRows.count == 1 && finnishRow.isHittable, "Unique settled hittable fi: Suomi row required")
+        finnishRow.tap()
         XCTAssertTrue(app.staticTexts["Sovelluksen asetukset"].firstMatch.waitForExistence(timeout: 15), "Settings must refresh in the same process")
         let retainedSwitch = app.switches.matching(NSPredicate(format: "label CONTAINS 'Pidä näyttö päällä'")).firstMatch
         for _ in 0..<12 where !retainedSwitch.isHittable { app.swipeDown() }
@@ -164,13 +167,17 @@ final class FeatureUITests: RealAppUITestCase {
         XCTAssertTrue(modalOpened, "Actual About modal must open before checking metadata; background rows are not proof")
         let metadata = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'King James'")).firstMatch
         XCTAssertTrue(metadata.waitForExistence(timeout: 15), "About must show metadata for the selected real module")
-        let osis = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'OSIS ID: KJV'")).firstMatch
+        // The iOS catalogue serves the eBible KJV, whose module id (engKJV2006eb) differs from Android's CrossWire KJV.
+        // One About node carries title, versification and id, so the match cannot come from a background catalogue row.
+        let osis = app.staticTexts.matching(NSPredicate(
+            format: "label CONTAINS 'King James (Authorized) Version' AND label CONTAINS 'Versification: KJV' AND label CONTAINS 'OSIS ID: engKJV2006eb'"
+        )).firstMatch
         let identifiesModule = osis.waitForExistence(timeout: 10)
         if !identifiesModule {
             shot(app, "download-about-no-osis")
             attachTree(app, "download-about-no-osis")
         }
-        XCTAssertTrue(identifiesModule, "About must identify the actual KJV module, not just a background row")
+        XCTAssertTrue(identifiesModule, "About must identify the selected eBible KJV module (OSIS ID: engKJV2006eb, Versification: KJV), not a background row")
         shot(app, "download-real-kjv-about")
         ok.tap()
     }
