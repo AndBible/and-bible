@@ -48,6 +48,21 @@ import kotlin.coroutines.cancellation.CancellationException
 
 private const val TAG_READING_PLAN = "DailyReadingNavHost"
 
+/** A locale refresh is best effort: keep loaded UI on failure, but never swallow structured cancellation. */
+internal suspend fun refreshReadingPlanMetadata(
+    log: (Throwable) -> Unit = { Log.e(TAG_READING_PLAN, "Error refreshing reading-plan metadata", it) },
+    refresh: suspend () -> Unit,
+) {
+    try {
+        refresh()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        log(e)
+    }
+}
+
+
 /**
  * What of the reading plan host survives `recreate()` and process death: the plans reset since they were last
  * chosen. The loaded day is not saved; it is rebuilt from the destination's route arguments.
@@ -151,7 +166,7 @@ class ReadingPlanHost(
                 onImportPlan = { importPlan() },
                 onPlanMissing = { offerReadingPlanSelector() },
                 title = strings.readingPlanTitle,
-                refreshMetadata = { controller ->
+                refreshMetadata = { controller -> refreshReadingPlanMetadata {
                     val dto = readingsDto
                     val code = planCodeLoaded
                     if (dto != null && code != null) {
@@ -161,7 +176,7 @@ class ReadingPlanHost(
                             controller.updateMetadata(dto.readingPlanInfo.planName.orEmpty(), dto.dayDesc, dto.readingDateString)
                         }
                     }
-                },
+                } },
             ),
             dayList = DayListDeps(
                 controllerFor = { scope, onSelect ->
@@ -179,12 +194,12 @@ class ReadingPlanHost(
                 title = strings.readingPlanTitle,
             ),
             selector = SelectorDeps(
-                refreshMetadata = { controller ->
+                refreshMetadata = { controller -> refreshReadingPlanMetadata {
                     val metadata = readingPlanControl.readingPlanList().associateBy { it.planCode }
                     controller.updateMetadata { entry ->
                         metadata[entry.planCode]?.let { entry.copy(name = it.planName.orEmpty(), description = it.planDescription.orEmpty()) } ?: entry
                     }
-                },
+                } },
                 controllerFor = { scope, onSelect ->
                     ReadingPlanSelectorController(
                         scope = scope,
