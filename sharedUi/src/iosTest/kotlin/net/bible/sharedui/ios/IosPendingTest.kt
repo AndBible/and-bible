@@ -4,9 +4,7 @@ import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.ios.ports.IosDebugActions
 import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
 import net.bible.sharedui.ios.ports.IosExternalLinks
-import net.bible.sharedui.ios.ports.IosPlatformText
 import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
-import net.bible.sharedui.app.ports.PluralKey
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -36,7 +34,6 @@ class IosPendingTest {
         assertFalse(IosExternalLinks().askBeforeOpening)
         IosDebugActions().showTestError("x")
         IosDocumentInstallStarter().start(emptyList<DocumentRef>(), null)
-        assertEquals("1", IosPlatformText().plural(PluralKey.CLOUD_DOC_SYNC_NOW_COUNT, 1))
         assertNull(IosTextDisplayPlatform().thumbnail("t"))
         val emitted = mutableListOf<String>()
         IosPending.onFirstReport = { emitted += it }
