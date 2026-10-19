@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -55,13 +56,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WorkspaceChanges
-import net.bible.service.download.FakeBookFactory
-import net.bible.service.history.HistoryManager
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.hasUsableBible
@@ -70,8 +68,6 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedcore.reading.ToolbarStateService
-import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
@@ -89,7 +85,7 @@ import net.bible.sharedui.ios.reading.IosReadingHost
 import net.bible.sharedui.ios.reading.IosReadingResults
 import net.bible.sharedui.ios.reading.IosReadingWindows
 import net.bible.sharedui.ios.reading.IosTiltScroll
-import net.bible.sharedui.ios.reading.PageManagerChooserTarget
+import net.bible.sharedui.ios.reading.iosChooserTarget
 import net.bible.sharedui.ios.reading.iosReadingNavDeps
 import net.bible.sharedui.ios.reading.rememberIosPaneIcons
 import net.bible.sharedui.ios.reading.rememberIosReadingIcons
@@ -291,6 +287,7 @@ private fun IosAppContent(
             myDocuments = channels.myDocuments,
             bookmark = channels.bookmark,
             readingProgress = channels.readingProgress,
+            workspace = channels.workspace,
             // A window closed while its chooser was open is gone: the answer is dropped, never applied to its page manager.
             targetFor = guardedChooserTarget(
                 isOpen = { asker ->
@@ -342,21 +339,6 @@ private fun IosAppContent(
     )
 }
 
-/** The [PageManagerChooserTarget] of the window whose page manager is [pageManager], over the app's Koin graph. */
-private fun iosChooserTarget(koin: Koin, table: StringTable, pageManager: CurrentPageManager, scope: CoroutineScope): ChooserTarget =
-    PageManagerChooserTarget(
-        pageManager = pageManager,
-        fakeBooks = { koin.get<FakeBookFactory>() },
-        versification = { koin.get<NavigationControl>().versification },
-        notifier = { koin.get<UserNotifier>() },
-        verseNotFoundText = { table.text("verse_not_found") },
-        history = { koin.get<HistoryManager>() },
-        scope = scope,
-        defaultBible = { koin.get<WindowControl>().defaultBibleDoc(false) },
-        linkControl = { koin.get<net.bible.android.control.link.LinkControl>() },
-        onToolbarMayHaveChanged = { koin.get<ToolbarStateService>().refresh() },
-    )
-
 /** Draws [AppDialogController]'s queue and the agent permission prompt (Android: `AppDialogOverlay`). */
 @Composable
 private fun IosAppDialogs(koin: Koin) {
@@ -386,9 +368,17 @@ private class ReadingHostHolder(
 ) {
     private var host: IosReadingHost? = null
 
+    /** The app's current strings: the host reads them per use, so a language change shows without rebuilding the host. */
+    private var currentStrings: Strings? = null
+
+    fun updateStrings(strings: Strings) {
+        currentStrings = strings
+    }
+
     fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver, strings: Strings): IosReadingHost =
         host ?: IosReadingHost(
-            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, nightObserver.monochrome, { strings },
+            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, nightObserver.monochrome,
+            { currentStrings ?: strings },
             labelResults = labelResults,
             readingResults = readingResults,
         ).also {
@@ -436,6 +426,7 @@ private fun IosReadingDestination(
     // Debug-only `-openRef <osisRef>` (no-op in release / without the argument). Do not remove: AppUITests'
     // testFreshInstallEasyStartReadsJohn3 launches with it and asserts John 3, and the relaunch test relies on that run.
     LaunchedEffect(Unit) { IosDebugLaunchArgs.openRefOnce() }
+    holder.updateStrings(strings)
     val host = remember { holder.get(shell, koin, nightObserver, strings) }
     val icons = rememberIosReadingIcons()
     val paneIcons = rememberIosPaneIcons()
@@ -455,13 +446,18 @@ private fun IosReadingDestination(
 /**
  * Feeds the real layout into the document offsets: the bottom safe-area inset (home indicator) in dp = CSS px, read from
  * the same `WindowInsets.navigationBars` the reading rail pads itself with. The other terms (search sheet, agent log,
- * speak bar) are reported by the host's own slots; the host pushes `set_offsets` to every window when the sum changes.
+ * speak bar) are reported by the host's own slots; the host pushes `set_offsets` to every window when the sum changes,
+ * and when the container size changes (rotation: the bottom window can change while the inset stays the same).
  */
 @Composable
 private fun MeasureReadingOffsets(host: IosReadingHost) {
     val density = LocalDensity.current
     val bottomPx = WindowInsets.navigationBars.getBottom(density)
-    SideEffect { host.offsets.setSystemBottomInset(bottomPx / density.density) }
+    val containerSize = LocalWindowInfo.current.containerSize
+    SideEffect {
+        host.offsets.setSystemBottomInset(bottomPx / density.density)
+        host.offsets.setContainerSize(containerSize.width, containerSize.height)
+    }
 }
 
 /**

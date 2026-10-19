@@ -19,6 +19,11 @@
 package net.bible.sharedui.ios.reading
 
 import kotlinx.coroutines.CoroutineScope
+import org.koin.core.Koin
+import net.bible.sharedui.strings.keyed.StringTable
+import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.navigation.NavigationControl
 import kotlinx.coroutines.launch
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.CurrentPageManager
@@ -28,6 +33,7 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.sword.BookAndKey
 import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.ReadingProgressResult
+import net.bible.sharedcore.nav.WorkspaceResult
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import net.bible.service.download.FakeBookFactory
@@ -59,6 +65,9 @@ enum class ChooserKind {
 
     /** The reading progress screen's chapter or memorize answer (`ReadingResultKind.ReadingProgress`). */
     ReadingProgress,
+
+    /** The full workspace selector's save or pick (Android's `ReadingResultKind.Workspace`); not tied to one window. */
+    Workspace,
 }
 
 /** Where the navigator tells the results which window opened a chooser. */
@@ -124,10 +133,17 @@ class IosReadingResults(
     private val myDocuments: NavResultChannel<MyDocumentsResult>,
     private val bookmark: NavResultChannel<BookmarkResult>,
     private val readingProgress: NavResultChannel<ReadingProgressResult>,
+    private val workspace: NavResultChannel<WorkspaceResult>,
     private val targetFor: (asker: Any?) -> ChooserTarget?,
     private val activeAskerProvider: () -> Any?,
     private val log: (String) -> Unit = { Log.w(TAG, it) },
 ) : ChooserRequests {
+    /**
+     * What a workspace answer does (Android's `applyInGraphWorkspaceResult`); the reading host installs it. A workspace
+     * answer belongs to the whole reading view, not to one window, so it is not a [ChooserTarget] call.
+     */
+    var applyWorkspace: (WorkspaceResult) -> Unit = { log("A workspace answer arrived but no reading host applies it.") }
+
     // Keyed by kind: a second request of the same kind replaces the first asker (as on Android).
     private val open = mutableMapOf<ChooserKind, Any?>()
 
@@ -164,6 +180,10 @@ class IosReadingResults(
 
     internal fun onReadingProgress(result: ReadingProgressResult) =
         deliver(ChooserKind.ReadingProgress, result) { t, r -> t.applyProgress(r) }
+
+    internal fun onWorkspace(result: WorkspaceResult) {
+        if (claim(ChooserKind.Workspace).first) applyWorkspace(result) else dropped(ChooserKind.Workspace)
+    }
 
     internal fun onDocument(result: DocumentResult) = deliver(ChooserKind.Document, result) { t, r -> t.applyDocument(r.book) }
 
@@ -204,12 +224,16 @@ class IosReadingResults(
             ChooserKind.MyDocuments to (myDocuments.pending.value != null),
             ChooserKind.Bookmarks to (bookmark.pending.value != null),
             ChooserKind.ReadingProgress to (readingProgress.pending.value != null),
+            ChooserKind.Workspace to (workspace.pending.value != null),
         )
         val abandoned = open.keys.filter { pending[it] != true }
         abandoned.forEach { kind ->
             val asker = open.remove(kind)
-            // Android has no cancel arm for the bookmark list and the progress screen: leaving them applies nothing.
-            if (kind != ChooserKind.Bookmarks && kind != ChooserKind.ReadingProgress) targetFor(asker)?.cancelled()
+            // Android has no cancel arm for the bookmark list, the progress screen and the workspace selector: leaving them
+            // applies nothing.
+            if (kind != ChooserKind.Bookmarks && kind != ChooserKind.ReadingProgress && kind != ChooserKind.Workspace) {
+                targetFor(asker)?.cancelled()
+            }
         }
     }
 
@@ -223,6 +247,7 @@ class IosReadingResults(
         ReadingResultCollector(
             readingProgress, { isAwaiting(ChooserKind.ReadingProgress) }, ::onReadingProgress,
         ) { dropped(ChooserKind.ReadingProgress) },
+        ReadingResultCollector(workspace, { isAwaiting(ChooserKind.Workspace) }, ::onWorkspace) { dropped(ChooserKind.Workspace) },
         ReadingResultCollector(
             myDocuments,
             { isAwaiting(ChooserKind.MyDocuments) || isAwaiting(ChooserKind.MyDocumentPages) },
@@ -354,3 +379,18 @@ class PageManagerChooserTarget(
         if (pageManager.currentPage.key == null) history().goBack()
     }
 }
+
+/** The [PageManagerChooserTarget] of the window whose page manager is [pageManager], over the app's Koin graph. */
+internal fun iosChooserTarget(koin: Koin, table: StringTable, pageManager: CurrentPageManager, scope: CoroutineScope): ChooserTarget =
+    PageManagerChooserTarget(
+        pageManager = pageManager,
+        fakeBooks = { koin.get<FakeBookFactory>() },
+        versification = { koin.get<NavigationControl>().versification },
+        notifier = { koin.get<UserNotifier>() },
+        verseNotFoundText = { table.text("verse_not_found") },
+        history = { koin.get<HistoryManager>() },
+        scope = scope,
+        defaultBible = { koin.get<WindowControl>().defaultBibleDoc(false) },
+        linkControl = { koin.get<net.bible.android.control.link.LinkControl>() },
+        onToolbarMayHaveChanged = { koin.get<ToolbarStateService>().refresh() },
+    )

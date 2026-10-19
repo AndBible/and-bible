@@ -24,17 +24,23 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import net.bible.android.control.PageChange
+import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.sharedcore.log.nsLog
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.reading.DrawerMenuState
+import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedui.reading.toolbar.ReadingDrawerMenu
-import net.bible.sharedui.reading.toolbar.ReadingOverflowMenu
+import net.bible.sharedui.reading.toolbar.ReadingOverflowController
 import net.bible.sharedui.reading.toolbar.ReadingToolbarCommands
 import net.bible.sharedui.strings.keyed.KeyedReadingMenuStrings
 import net.bible.android.control.document.DocumentControl
@@ -49,6 +55,7 @@ import net.bible.android.view.activity.navigation.DocRowMapper
 import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.view.activity.page.WindowPaneMenuDispatcher
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.activity.page.screen.paneBackgroundArgb
 import net.bible.android.view.activity.page.screen.paneWindowLabel
 import net.bible.android.view.activity.page.screen.paneWindowTopLabel
 import net.bible.android.view.activity.page.screen.speakBarVisible
@@ -61,6 +68,7 @@ import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.nav.WorkspaceResult
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
@@ -101,11 +109,10 @@ import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.reading.session.ReadingOffsets
+import net.bible.sharedui.reading.workspaceToLoad
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.strings.keyed.KeyedPaneMenuStrings
-import org.crosswire.jsword.passage.NoSuchVerseException
-import org.crosswire.jsword.passage.VerseFactory
 import org.koin.core.Koin
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
@@ -166,6 +173,8 @@ class IosReadingHost(
             fakeBooks = { koin.get<FakeBookFactory>() },
             workspaceSettings = { windowControl.windowRepository.workspaceSettings },
             chooserRequests = readingResults ?: ChooserRequests.None,
+            // Android's composeSearch: the toolbar field and results sheet of THIS view, not the search screens.
+            openReadingSearch = { searchState.openSearch() },
         )
     }
 
@@ -239,16 +248,12 @@ class IosReadingHost(
     /** Runs a chosen ☰ row (see [WindowPaneMenuDispatcher.handle]); true keeps the menu open. */
     internal fun handlePaneMenuItem(windowId: String, id: String): Boolean = paneMenuDispatcher.handle(windowId, id)
 
+    /** The shared [ChooserTarget] of the active window (one implementation of every chooser answer). */
+    private fun activeChooserTarget(): ChooserTarget =
+        iosChooserTarget(koin, IosAppStartup.stringTable, windowControl.activeWindowPageManager, scope)
+
     /** Android's `ReadingCommands.applyChosenVerse` (non-bookmark arm): a malformed OSIS id only toasts. */
-    private fun applyChosenVerse(osisId: String) {
-        val verse = try {
-            VerseFactory.fromString(koin.get<net.bible.android.control.navigation.NavigationControl>().versification, osisId)!!
-        } catch (e: NoSuchVerseException) {
-            koin.get<UserNotifier>().showInfo(IosAppStartup.stringTable.text("verse_not_found"), false)
-            return
-        }
-        windowControl.activeWindowPageManager.currentPage.setKey(verse, true)
-    }
+    private fun applyChosenVerse(osisId: String) = activeChooserTarget().applyVerse(osisId)
 
     private fun formatHistoryTimestamp(epochMillis: Long): String =
         NSDateFormatter().apply { dateFormat = "h:mm a, E d MMM " }
@@ -279,7 +284,7 @@ class IosReadingHost(
         onOpenRawLog = { shell.navigate(NavRoutes.rawLlmLog(workspaceId = agentSessionService.currentWorkspaceId())) },
     )
 
-    private val speakTransport = SpeakTransportController(
+    internal val speakTransport = SpeakTransportController(
         koin.get<SpeakTransportService>(),
         koin.get<SpeakSettingsService>(),
         scope,
@@ -305,6 +310,23 @@ class IosReadingHost(
         onLeaveFullScreen = {},
     )
 
+    /**
+     * Android's `searchController.activeDocumentChanged()` call sites: search mode outlives a window switch and a document
+     * swap, so the panel's target document follows them.
+     */
+    private val searchSubscriptions = Subscriptions().also { subscriptions ->
+        subscriptions.add(
+            PassageChangeMediator.changes.subscribeOnMain { change ->
+                if (change is PageChange.VerseChanged) searchState.controller.activeDocumentChanged()
+            },
+        )
+        subscriptions.add(
+            koin.get<WindowStateServiceImpl>().windowChanges.subscribeOnMain { change ->
+                if (change is WindowChange.ActiveWindowChanged) searchState.controller.activeDocumentChanged()
+            },
+        )
+    }
+
     private val gridFactory = GridPassageControllerFactory(
         navigationControl = koin.get(),
         windowControl = windowControl,
@@ -316,7 +338,26 @@ class IosReadingHost(
     private val quickActions: IosReadingQuickActions = IosReadingQuickActions(
         { windowControl }, { koin.get<FakeBookFactory>() }, settings, scope, ::toast,
         onToolbarMayHaveChanged = { toolbarHost.refreshToolbar() },
+        chooserTarget = ::activeChooserTarget,
     )
+
+    /**
+     * Android's `applyWorkspaceChangedResult`: another workspace is loaded, or the current one reloaded when it changed. The
+     * outgoing workspace is not saved ([IosReadingQuickActions.switchToWorkspace]): the selector already saved it, and
+     * saving after a rename would restore the old name.
+     */
+    private fun applyWorkspaceResult(result: WorkspaceResult) {
+        val target = workspaceToLoad(result.workspaceId, result.changed, windowControl.windowRepository.id.toString())
+        if (target == null) {
+            nsLog("IosReadingHost: a workspace answer named no change; nothing applied.")
+            return
+        }
+        scope.launch { quickActions.switchToWorkspace(target, saveOutgoing = false) }
+    }
+
+    init {
+        readingResults?.applyWorkspace = ::applyWorkspaceResult
+    }
 
     /**
      * Every host-built slot of the reading view, in common code. Declared after the collaborators it wraps;
@@ -375,13 +416,14 @@ class IosReadingHost(
         chooserRequests = readingResults ?: ChooserRequests.None,
         externalLinks = koin.get<ExternalLinks>(),
         windowStateService = { koin.get<WindowStateServiceImpl>() },
+        fakeBooks = { koin.get<FakeBookFactory>() },
     )
 
     private val menuStrings = { KeyedReadingMenuStrings(IosAppStartup.stringTable) }
 
     private val toolbarCommands = ReadingToolbarCommands(toolbarHost)
 
-    private val overflowMenu = ReadingOverflowMenu(toolbarHost, menuStrings).also { menu ->
+    private val overflowMenu = ReadingOverflowController(toolbarHost, menuStrings).also { menu ->
         toolbarHost.rebuildOverflow = menu::build
     }
 
@@ -391,7 +433,7 @@ class IosReadingHost(
      * The drawer's rows. Rebuilt whenever the toolbar state changes (that is when the Search and Speak rows' enabled
      * flags can change), which is Android's `rebuildDrawer` from `updateActions`.
      */
-    private val drawerMenuState = mutableStateOf(DrawerMenuState.EMPTY)
+    internal val drawerMenuState = mutableStateOf(DrawerMenuState.EMPTY)
 
     private fun rebuildDrawer() {
         try {
@@ -411,6 +453,7 @@ class IosReadingHost(
     /** Ends the slots' own background work (the search index feed); call before cancelling [scope]. */
     fun dispose() {
         drawerWatch.cancel()
+        searchSubscriptions.cancelAll()
         slots.dispose()
     }
 
@@ -439,16 +482,34 @@ class IosReadingHost(
         return buildDeps(icons, paneIcons)
     }
 
+    /** The live night-mode and monochrome states (a snapshot of the settings when no live source was given). */
+    internal val nightState: State<Boolean> by lazy { nightModeSource ?: mutableStateOf(nightModeState.nightMode) }
+    internal val monochromeState: State<Boolean> by lazy {
+        monochromeSource ?: mutableStateOf(
+            (DisplayColorMode.fromValue(settings.getString("display_color_mode", null)) ?: DisplayColorMode.NORMAL) != DisplayColorMode.NORMAL,
+        )
+    }
+
+    /** Android's `paneBackgroundArgbFor`: the window's page background, read in composition so a mode switch repaints it. */
+    private fun paneBackgroundFor(windowId: String): Color? {
+        val colors = windowControl.windowRepository.getWindow(IdType(windowId))?.pageManager?.actualTextDisplaySettings?.colors
+        return paneBackgroundArgb(colors, nightState.value, monochromeState.value)?.let { Color(it) }
+    }
+
+    /** Android's `restorePaneFocus`: not while the search field is open (it keeps the focus). */
+    private fun restorePaneFocus() {
+        if (!shouldRestorePaneFocusOnDrawerClose(searchBarOpen = searchState.searchBar.value != null)) return
+        windowControl.windowRepository.activeWindow.bibleView?.requestFocus()
+    }
+
     private fun buildDeps(icons: ReadingToolbarIcons, paneIcons: IosPaneIcons?): ReadingHostDeps = ReadingHostDeps(
         state = hostState,
         controller = readingViewController,
         toolbar = koin.get<ToolbarStateService>().toolbar,
         toolbarCallbacks = callbacks(),
         toolbarIcons = { icons },
-        nightMode = nightModeSource ?: mutableStateOf(nightModeState.nightMode),
-        monochrome = monochromeSource ?: mutableStateOf(
-            (DisplayColorMode.fromValue(settings.getString("display_color_mode", null)) ?: DisplayColorMode.NORMAL) != DisplayColorMode.NORMAL,
-        ),
+        nightMode = nightState,
+        monochrome = monochromeState,
         disableAnimations = { settings.resolveDisableAnimations(false) },
         overflowItems = toolbarHost.overflowItems,
         overflowExpanded = toolbarHost.overflowExpanded,
@@ -457,6 +518,8 @@ class IosReadingHost(
         drawerMenu = drawerMenuState,
         drawerIcon = { key -> rememberIosDrawerIcon(key) },
         onDrawerItemClick = ::onDrawerItemClick,
+        onDrawerClosed = ::restorePaneFocus,
+        paneBackground = ::paneBackgroundFor,
         agentLogSlot = { applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
             slots.AgentLog(applyNavBarInset, maxHeightDp, collapsedDp) { height ->
                 agentLogHeightDp = height
@@ -479,6 +542,15 @@ class IosReadingHost(
             SideEffect { offsets.setSpeakBarVisible(visible.value) }
             visible.value
         },
+        speakDialog = speakTransport.dialog,
+        onSpeakBookmarkChosen = speakTransport::onSpeakBookmarkChosen,
+        onSpeakDialogDismiss = speakTransport::dismissDialog,
+        searchBar = searchState.searchBar,
+        searchBarCallbacks = searchState.searchBarCallbacks,
+        searchSheetVisible = searchState.controller.sheetVisible,
+        onSearchSheetDismissed = { searchState.controller.closeSheet() },
+        searchUnavailableDocName = searchState.searchUnavailableDocName,
+        onSearchUnavailableMessageShown = searchState::searchUnavailableMessageShown,
         onSearchSheetOffsetsChanged = { visible, heightPx -> offsets.setSearchSheet(visible, heightPx, iosScreenScale()) },
         searchSheetSlot = { slots.SearchSheet() },
         searchSettingsSlot = { slots.SearchSettings() },

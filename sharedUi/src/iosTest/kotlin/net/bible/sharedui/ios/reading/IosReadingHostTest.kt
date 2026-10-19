@@ -141,39 +141,106 @@ class IosReadingHostTest {
     }
 
     /**
-     * No slot of the built deps is left at the inert default `ReadingHostDeps` ships. Default lambdas are shared
-     * singletons (non-capturing, hoisted by the compiler), so identity with a default-built instance means "not
-     * supplied"; the first assertion pins that premise so the comparison cannot pass vacuously.
+     * EVERY `ReadingHostDeps` field is accounted for: supplied (not the inert default `ReadingHostDeps` ships) or on the named
+     * inert allow-list below, whose entries are each asserted to still be inert so lifting one fails here on purpose. The set of
+     * names must equal `ReadingHostDepsFields.ALL`, which a jvm test pins against the class itself, so a new slot cannot slip in.
+     *
+     * Default lambdas are shared singletons (non-capturing, hoisted by the compiler), so identity with a default-built instance
+     * means "not supplied"; the first assertion pins that premise. State-typed fields (a default is a fresh object) are checked
+     * against the very object the host wires them to.
      */
     @Test
-    fun everySlotIsSupplied() = withReadingHost { host, deps ->
+    fun everyReadingHostDepsFieldIsSuppliedOrNamedInert() = withReadingHost { host, deps ->
         val p = ColorPainter(Color.Black)
         val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
         val d1 = net.bible.sharedui.reading.host.ReadingHostDeps(deps.state, deps.controller, deps.toolbarCallbacks, { icons })
         val d2 = net.bible.sharedui.reading.host.ReadingHostDeps(deps.state, deps.controller, deps.toolbarCallbacks, { icons })
         assertTrue(d1.searchSheetSlot === d2.searchSheetSlot, "premise: default slot lambdas are shared instances")
+        val search = host.slots.searchState
 
-        assertTrue(deps.agentLogSlot != null && d1.agentLogSlot == null, "agentLogSlot")
-        assertTrue(deps.speakBarSlot != null && d1.speakBarSlot == null, "speakBarSlot")
-        assertTrue(deps.agentLogVisible !== d1.agentLogVisible, "agentLogVisible")
-        assertTrue(deps.speakBarVisible !== d1.speakBarVisible, "speakBarVisible")
-        assertTrue(deps.searchSheetSlot !== d1.searchSheetSlot, "searchSheetSlot")
-        assertTrue(deps.searchSettingsSlot !== d1.searchSettingsSlot, "searchSettingsSlot")
-        assertTrue(deps.textSettingsEditorSlot !== d1.textSettingsEditorSlot, "textSettingsEditorSlot")
-        assertTrue(deps.speakSettingsSlot !== d1.speakSettingsSlot, "speakSettingsSlot")
-        assertTrue(deps.quickSheetContent !== d1.quickSheetContent, "quickSheetContent")
-        assertTrue(deps.readingDialogSlot !== d1.readingDialogSlot, "readingDialogSlot")
-        assertTrue(deps.disableAnimations !== d1.disableAnimations, "disableAnimations")
-        assertTrue(deps.windowLabel !== d1.windowLabel, "windowLabel")
-        assertTrue(deps.windowTopLabel !== d1.windowTopLabel, "windowTopLabel")
-        assertTrue(deps.handlePaneMenuItem !== d1.handlePaneMenuItem, "handlePaneMenuItem")
-        assertTrue(deps.menuIcon !== d1.menuIcon, "menuIcon")
-        assertTrue(deps.onOverflowItemClick !== d1.onOverflowItemClick, "onOverflowItemClick")
-        assertTrue(deps.onOverflowDismiss !== d1.onOverflowDismiss, "onOverflowDismiss")
-        assertTrue(deps.onDrawerItemClick !== d1.onDrawerItemClick, "onDrawerItemClick")
-        assertTrue(deps.drawerIcon !== d1.drawerIcon, "drawerIcon")
-        assertTrue(deps.overflowItems !== d1.overflowItems, "overflowItems")
-        assertTrue(deps.toolbar !== d1.toolbar, "toolbar")
+        val supplied: Map<String, Boolean> = mapOf(
+            // required parameters
+            "state" to (deps.state === host.hostState),
+            "controller" to (deps.controller.layout.value.activeWindowId.isNotEmpty()),
+            // (required parameters cannot be left at a default; toolbarCallbacksAreWiredAndNoneIsPending covers the callbacks)
+            "toolbarCallbacks" to true,
+            "toolbarIcons" to (deps.toolbarIcons !== d1.toolbarIcons),
+            // toolbar, display state, overflow, drawer, panes
+            "toolbar" to (deps.toolbar === KoinPlatform.getKoin().get<net.bible.sharedcore.reading.ToolbarStateService>().toolbar),
+            "nightMode" to (deps.nightMode === host.nightState),
+            "monochrome" to (deps.monochrome === host.monochromeState),
+            "disableAnimations" to (deps.disableAnimations !== d1.disableAnimations),
+            "overflowItems" to (deps.overflowItems === host.toolbarHost.overflowItems),
+            "overflowExpanded" to (deps.overflowExpanded === host.toolbarHost.overflowExpanded),
+            "onOverflowItemClick" to (deps.onOverflowItemClick !== d1.onOverflowItemClick),
+            "onOverflowDismiss" to (deps.onOverflowDismiss !== d1.onOverflowDismiss),
+            "drawerMenu" to (deps.drawerMenu === host.drawerMenuState),
+            "drawerIcon" to (deps.drawerIcon !== d1.drawerIcon),
+            "onDrawerItemClick" to (deps.onDrawerItemClick !== d1.onDrawerItemClick),
+            "onDrawerClosed" to (deps.onDrawerClosed !== d1.onDrawerClosed),
+            "paneBackground" to (deps.paneBackground !== d1.paneBackground),
+            "windowLabel" to (deps.windowLabel !== d1.windowLabel),
+            "windowIcon" to (deps.windowIcon !== d1.windowIcon),
+            "windowTopLabel" to (deps.windowTopLabel !== d1.windowTopLabel),
+            "handlePaneMenuItem" to (deps.handlePaneMenuItem !== d1.handlePaneMenuItem),
+            "menuIcon" to (deps.menuIcon !== d1.menuIcon),
+            // the speak bar's choose-bookmark dialog
+            "speakDialog" to (deps.speakDialog === host.speakTransport.dialog),
+            "onSpeakBookmarkChosen" to (deps.onSpeakBookmarkChosen !== d1.onSpeakBookmarkChosen),
+            "onSpeakDialogDismiss" to (deps.onSpeakDialogDismiss !== d1.onSpeakDialogDismiss),
+            // search: the field, the results sheet, the unavailable snackbar
+            "searchBar" to (deps.searchBar === search.searchBar),
+            "searchBarCallbacks" to (deps.searchBarCallbacks === search.searchBarCallbacks),
+            "searchSheetVisible" to (deps.searchSheetVisible === search.controller.sheetVisible),
+            "onSearchSheetDismissed" to (deps.onSearchSheetDismissed !== d1.onSearchSheetDismissed),
+            "onSearchSheetOffsetsChanged" to (deps.onSearchSheetOffsetsChanged !== d1.onSearchSheetOffsetsChanged),
+            "searchUnavailableDocName" to (deps.searchUnavailableDocName === search.searchUnavailableDocName),
+            "onSearchUnavailableMessageShown" to (deps.onSearchUnavailableMessageShown !== d1.onSearchUnavailableMessageShown),
+            // platform-built slots
+            "agentLogSlot" to (deps.agentLogSlot != null && d1.agentLogSlot == null),
+            "speakBarSlot" to (deps.speakBarSlot != null && d1.speakBarSlot == null),
+            "agentLogVisible" to (deps.agentLogVisible !== d1.agentLogVisible),
+            "speakBarVisible" to (deps.speakBarVisible !== d1.speakBarVisible),
+            "searchSheetSlot" to (deps.searchSheetSlot !== d1.searchSheetSlot),
+            "searchSettingsSlot" to (deps.searchSettingsSlot !== d1.searchSettingsSlot),
+            "textSettingsEditorSlot" to (deps.textSettingsEditorSlot !== d1.textSettingsEditorSlot),
+            "speakSettingsSlot" to (deps.speakSettingsSlot !== d1.speakSettingsSlot),
+            "quickSheetContent" to (deps.quickSheetContent !== d1.quickSheetContent),
+            "readingDialogSlot" to (deps.readingDialogSlot !== d1.readingDialogSlot),
+        )
+        assertEquals(emptyList(), supplied.filterValues { !it }.keys.toList(), "fields left at the inert default")
+
+        // INERT ALLOW-LIST, each with its reason, each asserted to be still inert:
+        // - generation, imeBottomPaddingPx: Android bumps/feeds them from activity events; iOS never rebuilds the pane subtree
+        //   and Compose handles the keyboard inset itself.
+        // - fullScreen: iOS has no full-screen reading mode yet (named on IosReadingToolbarHost).
+        // - overlayText, activeIsBibleShown: the Bible reference overlay is not wired on iOS (a parity gap, see the R2 final-fix report).
+        // - onDrawerInMotion, onDrawerIdleClosed: Android shows/hides the system bars around the drawer; iOS has no such chrome.
+        // - the seven LLM fields: no agent start on iOS (the LLM dialog host is not mounted; see hooksAndSlot...).
+        val inert: Map<String, Boolean> = mapOf(
+            "generation" to (deps.generation.value == 0),
+            "imeBottomPaddingPx" to (deps.imeBottomPaddingPx.value == 0),
+            "fullScreen" to !deps.fullScreen.value,
+            "overlayText" to (deps.overlayText.value == ""),
+            "activeIsBibleShown" to !deps.activeIsBibleShown.value,
+            "onDrawerInMotion" to (deps.onDrawerInMotion === d1.onDrawerInMotion),
+            "onDrawerIdleClosed" to (deps.onDrawerIdleClosed === d1.onDrawerIdleClosed),
+            "llmDialog" to (deps.llmDialog.value == net.bible.sharedcore.ai.reading.ReadingLlmDialogState()),
+            "onLlmPromptChosen" to (deps.onLlmPromptChosen === d1.onLlmPromptChosen),
+            "onLlmToggleFavorite" to (deps.onLlmToggleFavorite === d1.onLlmToggleFavorite),
+            "onLlmCategoryExpandedChanged" to (deps.onLlmCategoryExpandedChanged === d1.onLlmCategoryExpandedChanged),
+            "onLlmSpecifySubmitted" to (deps.onLlmSpecifySubmitted === d1.onLlmSpecifySubmitted),
+            "onLlmModelChosen" to (deps.onLlmModelChosen === d1.onLlmModelChosen),
+            "onLlmRegenerateConfirmed" to (deps.onLlmRegenerateConfirmed === d1.onLlmRegenerateConfirmed),
+            "onLlmDismiss" to (deps.onLlmDismiss === d1.onLlmDismiss),
+        )
+        assertEquals(emptyList(), inert.filterValues { !it }.keys.toList(), "allow-listed fields that are no longer inert")
+
+        assertEquals(emptySet(), supplied.keys.intersect(inert.keys), "a field is both supplied and inert")
+        assertEquals(
+            net.bible.sharedui.reading.host.ReadingHostDepsFields.ALL, supplied.keys + inert.keys,
+            "every ReadingHostDeps field must be supplied or named inert",
+        )
     }
 
     /**

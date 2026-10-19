@@ -182,6 +182,7 @@ object IosReadingWindows {
             session.keyActions = IosReadingKeyActions(
                 hostState = b.host.hostState,
                 openSearch = { b.host.navigator.openSearch(null) },
+                openOverflow = { b.host.toolbarHost.openOverflowMenu() },
                 copyCurrentSelection = { bridgeRef[0]?.copyCurrentSelection() },
             )
             session.verseChooser = readingVerseChooser(b.host.hostState)
@@ -287,7 +288,12 @@ class IosNightModeObserver(
         return now
     }
 
+    /**
+     * Starts the notification observers and, when [settingsChanges] was given, the settings watch on [scope]. A settings
+     * source without a scope would silently never fire, so that combination is refused.
+     */
     fun start(scope: kotlinx.coroutines.CoroutineScope? = null) {
+        require(scope != null || settingsChanges == null) { "IosNightModeObserver.start needs a scope when settingsChanges is given" }
         if (observers.isNotEmpty()) return
         val center = platform.Foundation.NSNotificationCenter.defaultCenter
         for (name in listOf(platform.Foundation.NSUserDefaultsDidChangeNotification, platform.UIKit.UIApplicationDidBecomeActiveNotification)) {

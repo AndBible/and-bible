@@ -53,9 +53,10 @@ class IosReadingResultsTest {
     private val myDocuments = NavResultChannel<MyDocumentsResult> { }
     private val bookmark = NavResultChannel<BookmarkResult> { }
     private val progress = NavResultChannel<ReadingProgressResult> { }
+    private val workspace = NavResultChannel<net.bible.sharedcore.nav.WorkspaceResult> { }
 
     private val results = IosReadingResults(
-        keyChooser, passage, document, pages, myDocuments, bookmark, progress,
+        keyChooser, passage, document, pages, myDocuments, bookmark, progress, workspace,
         targetFor = { targets[it] },
         activeAskerProvider = { active },
         log = { logs += it },
@@ -193,5 +194,24 @@ class IosReadingResultsTest {
         bookmark.publishForTest(bookmarkOf("Gen.1.1"))
         results.readingReached()
         assertTrue(results.isAwaiting(ChooserKind.Bookmarks))
+    }
+
+    // --- the full workspace selector (Android's Workspace collector)
+
+    @Test fun aWorkspaceAnswerIsAppliedOnceThroughTheHostAndNeedsNoWindow() {
+        val applied = mutableListOf<net.bible.sharedcore.nav.WorkspaceResult>()
+        results.applyWorkspace = { applied += it }
+        results.asked(ChooserKind.Workspace, null)
+        results.onWorkspace(net.bible.sharedcore.nav.WorkspaceResult("ws2", changed = false))
+        results.onWorkspace(net.bible.sharedcore.nav.WorkspaceResult("ws3", changed = false))
+        assertEquals(listOf(net.bible.sharedcore.nav.WorkspaceResult("ws2", changed = false)), applied, "spent once")
+        assertEquals(1, logs.size, "the second answer was dropped and logged")
+    }
+
+    @Test fun leavingTheWorkspaceSelectorAppliesNothingAndClosesTheRequest() {
+        results.asked(ChooserKind.Workspace, null)
+        results.readingReached()
+        assertEquals(emptyList(), calls)
+        assertEquals(false, results.isAwaiting(ChooserKind.Workspace))
     }
 }

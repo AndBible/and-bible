@@ -88,8 +88,10 @@ internal class IosReadingQuickActions(
     private val settings: AppSettings,
     private val scope: CoroutineScope,
     private val toast: (String) -> Unit,
-    /** Android's `onToolbarStateMayHaveChanged()`, called after a document is applied. */
+    /** Android's `onToolbarStateMayHaveChanged()`, called after a workspace switch. */
     private val onToolbarMayHaveChanged: () -> Unit = {},
+    /** The [ChooserTarget] of the active window: a chosen document is applied by the same code every chooser answer uses. */
+    private val chooserTarget: () -> ChooserTarget,
 ) : ReadingQuickActions {
     /** Android's `switchMutex`: two quick switches never interleave their load/reload steps. */
     private val switchMutex = Mutex()
@@ -108,11 +110,13 @@ internal class IosReadingQuickActions(
     }
 
     /** The switch itself, suspending until it has finished (the toolbar's workspace cycling waits on it). */
-    suspend fun switchToWorkspace(id: String) {
+    suspend fun switchToWorkspace(id: String, saveOutgoing: Boolean = true) {
         switchMutex.withLock {
             val control = windowControl()
             val repository = control.windowRepository
-            repository.saveIntoDb()
+            // The full selector pauses the host first (the outgoing workspace is already saved), and saving AFTER a
+            // rename there would write the old name back: Android's `switchWorkspace` never saves.
+            if (saveOutgoing) repository.saveIntoDb()
             repository.loadFromDb(IdType(id))
             settings.setString("current_workspace_id", repository.id.toString())
             control.windowSync.reloadAllWindows()
@@ -122,16 +126,8 @@ internal class IosReadingQuickActions(
         }
     }
 
-    /**
-     * `KeyChooserResults.applyChosenDocument`: the installed book, else the matching pseudo-document; then Android's
-     * `onToolbarStateMayHaveChanged()` ([onToolbarMayHaveChanged]).
-     */
-    override fun applyChosenDocument(bookStr: String?) {
-        val book = Books.installed().getBook(bookStr)
-            ?: fakeBookFactory().pseudoDocuments.first { it.initials == bookStr }
-        windowControl().activeWindowPageManager.setCurrentDocument(book)
-        onToolbarMayHaveChanged()
-    }
+    /** `KeyChooserResults.applyChosenDocument` on the active window, through the one shared [ChooserTarget.applyDocument]. */
+    override fun applyChosenDocument(bookStr: String?) = chooserTarget().applyDocument(bookStr)
 
     override fun applyChosenGenBookKey(book: Book?, key: Key) {
         windowControl().activeWindowPageManager.setCurrentDocumentAndKey(book, key)
