@@ -301,11 +301,11 @@ class IosAssemblyTest {
         val commands = listOf(center.playCommand, center.pauseCommand, center.stopCommand,
             center.nextTrackCommand, center.previousTrackCommand, center.skipForwardCommand,
             center.skipBackwardCommand, center.togglePlayPauseCommand)
-        // Do not remove another owner's targets to make this test pass.
+        // Check the known app owner and metadata; enabled flags do not identify ownership.
+        // The public command-center API cannot enumerate foreign targets, so never remove them.
         assertNull(net.bible.service.device.speak.MediaButtonHandler.handler, "media handler already owned")
         assertNull(info.nowPlayingInfo, "command center already publishing another session")
         val enabledBefore = commands.map { it.enabled }
-        assertFalse(enabledBefore.any { it }, "command center must be idle before this test")
         startApp()
         openDatabasesDiagnosing()
         val koin = KoinPlatform.getKoin()
@@ -315,12 +315,15 @@ class IosAssemblyTest {
             settings.setBoolean("enable_bluetooth_pref", false)
             val control = koin.get<net.bible.android.control.speak.SpeakControl>()
             assertNull(net.bible.service.device.speak.MediaButtonHandler.handler)
-            assertFalse(commands.any { it.enabled }, "off preference must skip real command activation")
+            assertEquals(enabledBefore, commands.map { it.enabled }, "off preference must leave native commands unchanged")
+            assertNull(info.nowPlayingInfo)
 
             settings.setBoolean("enable_bluetooth_pref", true)
             val speak = koin.get<SpeakPlatform>()
             // A preference change alone does not attach; only an explicit attach does.
-            assertFalse(commands.any { it.enabled })
+            assertEquals(enabledBefore, commands.map { it.enabled })
+            assertNull(net.bible.service.device.speak.MediaButtonHandler.handler)
+            assertNull(info.nowPlayingInfo)
             speak.attachMediaControls(control)
             assertNotNull(net.bible.service.device.speak.MediaButtonHandler.handler)
             assertTrue(commands.all { it.enabled }, "on preference must activate all eight native commands")
@@ -331,8 +334,8 @@ class IosAssemblyTest {
             assertFalse(commands.any { it.enabled })
             assertNull(info.nowPlayingInfo)
         } finally {
-            // The idle-owner precondition means any handler created here belongs to this test,
-            // including an unexpected activation on the off branch.
+            // The known app handler was absent before this test. Release only targets owned
+            // by that handler (including an unexpected activation on the off branch).
             try {
                 net.bible.service.device.speak.MediaButtonHandler.release()
             } finally {
