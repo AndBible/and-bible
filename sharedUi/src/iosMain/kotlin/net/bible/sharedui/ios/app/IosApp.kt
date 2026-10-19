@@ -87,6 +87,7 @@ import net.bible.sharedui.ios.reading.IosNightModeObserver
 import net.bible.sharedui.ios.reading.IosReadingHost
 import net.bible.sharedui.ios.reading.IosReadingResults
 import net.bible.sharedui.ios.reading.IosReadingWindows
+import net.bible.sharedui.ios.reading.IosTiltScroll
 import net.bible.sharedui.ios.reading.PageManagerChooserTarget
 import net.bible.sharedui.ios.reading.iosReadingNavDeps
 import net.bible.sharedui.ios.reading.rememberIosPaneIcons
@@ -437,6 +438,7 @@ private fun IosReadingDestination(
     // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
     MeasureReadingOffsets(host)
     KeepScreenOnWhileReading(koin, remember { iosSettingsChanges() })
+    TiltScrollWhileReading(koin)
     FailClosedLinkRouting(koin.get<ExternalLinks>()) {
         CompositionLocalProvider(LocalReadingPane provides paneFactory) {
             ReadingHost(deps, Modifier.testTag("reading-host"))
@@ -481,6 +483,29 @@ private fun KeepScreenOnWhileReading(koin: Koin, settingsChanges: kotlinx.corout
             observers.forEach { center.removeObserver(it) }
             watch.cancel()
             keepOn.setReading(false)
+        }
+    }
+}
+
+/**
+ * Tilt scroll (`enableTiltToScroll`) only while the reading route is composed and the app is active: the motion
+ * updates stop when the app resigns active / backgrounds and restart (with a fresh neutral pose) on becoming active.
+ */
+@Composable
+private fun TiltScrollWhileReading(koin: Koin) {
+    val scope = rememberCoroutineScope()
+    DisposableEffect(Unit) {
+        val tilt = IosTiltScroll(koin)
+        val center = NSNotificationCenter.defaultCenter
+        val observers = listOf(
+            center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(true) },
+            center.addObserverForName(UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(false) },
+            center.addObserverForName(UIApplicationDidEnterBackgroundNotification, null, NSOperationQueue.mainQueue) { tilt.setAppActive(false) },
+        )
+        tilt.start(scope)
+        onDispose {
+            observers.forEach { center.removeObserver(it) }
+            tilt.stop()
         }
     }
 }
