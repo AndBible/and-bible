@@ -14,6 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import net.bible.sharedui.app.debugSettingsLauncherVisible
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -68,7 +70,8 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
             Text(strings.appName, Modifier.testTag("debug-feature-ready"))
             if (scenario == DebugFeatureScenario.PLAN_SETTINGS) {
                 val loaded by hosts.readingPlan.loadedReadingDay.collectAsState()
-                if (loaded != null) {
+                val entry by nav.currentBackStackEntryAsState()
+                if (debugSettingsLauncherVisible(entry?.destination?.route, loaded != null)) {
                     TextButton(onClick = { nav.navigate(NavRoutes.SETTINGS) }, modifier = Modifier.testTag("debug-open-settings")) { Text(strings.settings) }
                 }
                 TextButton(onClick = { nav.popBackStack() }, modifier = Modifier.testTag("debug-feature-back")) { Text(strings.settingsEditorBack) }

@@ -20,6 +20,9 @@ internal enum class DebugFeatureScenario {
     }
 }
 
+internal fun debugSettingsLauncherVisible(route: String?, loaded: Boolean): Boolean =
+    loaded && route == net.bible.sharedcore.nav.NavRoutes.DAILY_READING_PATTERN
+
 internal fun debugStandardFixture(debug: Boolean, arguments: List<String>): Boolean =
     debug && "-standardTestFixture" in arguments
 

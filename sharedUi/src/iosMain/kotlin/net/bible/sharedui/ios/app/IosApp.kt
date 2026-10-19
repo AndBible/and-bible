@@ -65,6 +65,11 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppRoot
+import net.bible.sharedui.app.QueuedAppDialogs
+import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedcore.ai.AgentPermissionController
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedui.app.gatedReadingRoute
 import net.bible.sharedui.assembly.IosStringTableHolder
 import net.bible.sharedui.assembly.resolveDeviceUiLanguage
@@ -267,6 +272,14 @@ private fun IosAppContent(
         overlays = {
             appHosts.Overlays()
             IosDebugFeatureRoutes(debugReadingReady.value, navController, channels, koin, appHosts)
+            QueuedAppDialogs(
+                dialogs = remember { koin.get<AppDialogController>() },
+                permissions = remember { koin.get<AgentPermissionController>() },
+                onOpenExternal = { koin.get<ExternalLinks>().open(it) },
+                askBeforeOpeningLink = koin.get<AppEnvironment>().isDiscrete,
+                // Alert dialogs may cover sheets; sheet-shaped global requests must exclude reading sheets.
+                onSheetOpening = { readingHostHolder.closeSheetsIfCreated() },
+            )
         },
     )
 }
@@ -274,6 +287,8 @@ private fun IosAppContent(
 /** Holds the one [IosReadingHost] for the app's lifetime so leaving and re-entering reading keeps the sessions. */
 private class ReadingHostHolder {
     private var host: IosReadingHost? = null
+
+    fun closeSheetsIfCreated() { host?.hostState?.closeModalOverlays() }
 
     fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver): IosReadingHost =
         host ?: IosReadingHost(

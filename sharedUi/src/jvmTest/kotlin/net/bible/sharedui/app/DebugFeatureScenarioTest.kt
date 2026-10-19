@@ -54,6 +54,15 @@ class DebugFeatureScenarioTest {
         assertEquals("ic_baseline_menu_book_24", net.bible.sharedui.icons.readingBibleIconKey(true))
     }
 
+    @Test fun settingsLauncherCannotCoverSettingsOrOtherDestinations() {
+        val routes = net.bible.sharedcore.nav.NavRoutes
+        assertTrue(debugSettingsLauncherVisible(routes.DAILY_READING_PATTERN, true))
+        assertFalse(debugSettingsLauncherVisible(routes.DAILY_READING_PATTERN, false))
+        assertFalse(debugSettingsLauncherVisible(routes.SETTINGS, true))
+        assertFalse(debugSettingsLauncherVisible(routes.READING, true))
+        assertFalse(debugSettingsLauncherVisible(null, true))
+    }
+
     @Test fun navigationWaitsForReadingAndReferenceAndRunsOnce() {
         val gate = DebugFeatureOnce()
         assertFalse(gate.take(ready = false, referenceApplied = true))

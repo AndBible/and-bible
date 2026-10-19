@@ -161,12 +161,21 @@ final class FeatureUITests: RealAppUITestCase {
         }
         XCTAssertTrue(aboutReady)
         about.tap()
+        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
+        let modalOpened = ok.waitForExistence(timeout: 15) && ok.isHittable
+        shot(app, "download-post-about")
+        attachTree(app, "download-post-about")
+        XCTAssertTrue(modalOpened, "Actual About modal must open before checking metadata; background rows are not proof")
         let metadata = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'King James'")).firstMatch
         XCTAssertTrue(metadata.waitForExistence(timeout: 15), "About must show metadata for the selected real module")
-        XCTAssertTrue(app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'OSIS ID: KJV'")).firstMatch.waitForExistence(timeout: 10), "About must identify the actual KJV module, not just a background row")
+        let osis = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'OSIS ID: KJV'")).firstMatch
+        let identifiesModule = osis.waitForExistence(timeout: 10)
+        if !identifiesModule {
+            shot(app, "download-about-no-osis")
+            attachTree(app, "download-about-no-osis")
+        }
+        XCTAssertTrue(identifiesModule, "About must identify the actual KJV module, not just a background row")
         shot(app, "download-real-kjv-about")
-        let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
-        XCTAssertTrue(ok.exists)
         ok.tap()
     }
 }

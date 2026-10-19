@@ -77,18 +77,21 @@ final class WelcomeRuntimeUITests: RealAppUITestCase {
         let app = advancedWelcome()
         requireRow(app, "Load Documents From Files").tap()
         let prelude = app.staticTexts.matching(NSPredicate(
-            format: "label == 'Please wait. Loading modules from a file.'"
+            format: "label == 'Load Documents From Files'"
         )).firstMatch
-        require(prelude.waitForExistence(timeout: 30), app,
-                "import-prelude", "Welcome import must open the real InstallZip prelude")
         let proceed = button(app, "Proceed")
+        let preludeOpened = waitUntil(timeout: 30) {
+            prelude.exists && proceed.isHittable && self.button(app, "Cancel").isHittable
+        }
+        require(preludeOpened, app,
+                "import-prelude", "Actual import modal must expose title plus Proceed/Cancel, not just underlying Welcome row")
         require(proceed.exists && proceed.isHittable, app,
                 "import-proceed", "Real import prelude must expose Proceed")
         shot(app, "welcome-import-prelude")
         attachTree(app, "welcome-import-prelude")
         proceed.tap()
         // IosDocumentPicker currently returns empty: this observes route cancellation, NOT installation.
-        require(waitUntil(timeout: 30) { !prelude.exists && self.row(app, "Restore Database File").isHittable },
+        require(waitUntil(timeout: 30) { !proceed.exists && !self.button(app, "Cancel").exists && self.row(app, "Restore Database File").isHittable },
                 app, "import-cancelled", "Pending F picker must return from import without claiming success")
         require(element(app, "welcome-screen").exists, app,
                 "import-return", "Cancelled import must retain Welcome")

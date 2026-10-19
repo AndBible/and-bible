@@ -23,6 +23,31 @@ final class HRuntimeUITests: RealAppUITestCase {
         row.tap()
     }
 
+    /// A hittable edge fragment can still be moving after a swipe; require the entire actionable row inside.
+    private func stableInterior(_ app: XCUIApplication, _ target: XCUIElement, _ step: String) {
+        let viewport = app.frame
+        let interior = CGRect(x: viewport.minX, y: viewport.minY + viewport.height * 0.2,
+                              width: viewport.width, height: viewport.height * 0.5)
+        for _ in 0..<20 {
+            if target.exists && target.isHittable && interior.contains(target.frame) { break }
+            if target.exists && target.frame.midY < interior.minY { app.swipeDown() }
+            else { app.swipeUp() }
+        }
+        var previous = CGRect.null
+        var stableSamples = 0
+        let ready = waitUntil(timeout: 10) {
+            guard target.exists && target.isHittable else { stableSamples = 0; return false }
+            let frame = target.frame
+            guard interior.contains(frame) else { stableSamples = 0; return false }
+            stableSamples = frame == previous ? stableSamples + 1 : 0
+            previous = frame
+            return stableSamples >= 2
+        }
+        require(ready, app, "stable-interior-\(step)")
+        shot(app, "before-\(step)")
+        attachTree(app, "before-\(step)")
+    }
+
     private func button(_ app: XCUIApplication, _ label: String) -> XCUIElement {
         app.buttons.matching(NSPredicate(format: "label == %@", label)).firstMatch
     }
@@ -110,7 +135,14 @@ final class HRuntimeUITests: RealAppUITestCase {
         let app = freshReading(scenario: "plan-settings")
         loadPlan(app)
         openSettings(app)
-        tapText(app, "AI Settings")
+        let aiRows = app.buttons.containing(.staticText, identifier: "AI Settings")
+        let aiRow = aiRows.firstMatch
+        stableInterior(app, aiRow, "ai-settings-entry")
+        require(aiRows.count == 1, app, "ai-settings-parent-not-unique")
+        aiRow.tap()
+        require(waitUntil(timeout: 15) {
+            !self.text(app, "Application preferences").exists && self.button(app, "Configure Connection").isHittable
+        }, app, "ai-settings-route-not-entered")
         tapButton(app, "Configure Connection")
         require(text(app, "No providers configured").waitForExistence(timeout: 15), app, "expected-empty-provider-fixture")
         require(!text(app, "AI response language").exists, app, "language-row-must-be-provider-gated")
@@ -153,6 +185,10 @@ final class HRuntimeUITests: RealAppUITestCase {
         require(text(app, "Delete provider \"\(fixtureProvider)\"? Prompts using this provider will revert to the default.")
             .waitForExistence(timeout: 10), app, "named-provider-delete-confirmation-missing")
         tapButton(app, "Yes")
+        // Delete closes its confirmation, not the still-open editor (same real common flow on Android).
+        require(waitUntil(timeout: 10) { !self.text(app, "Delete provider \"\(self.fixtureProvider)\"? Prompts using this provider will revert to the default.").exists },
+                app, "provider-delete-confirmation-not-dismissed")
+        tapButton(app, "Cancel")
         require(waitUntil(timeout: 10) { !text(app, fixtureProvider).exists }, app, "fixture-provider-not-deleted")
         tapButton(app, "Back")
         require(text(app, "No providers configured").waitForExistence(timeout: 10), app, "provider-cleanup-not-reflected")
@@ -162,7 +198,7 @@ final class HRuntimeUITests: RealAppUITestCase {
 
     private func bluetoothSwitch(_ app: XCUIApplication) -> XCUIElement {
         let toggle = app.switches.matching(NSPredicate(format: "label CONTAINS 'Enable Bluetooth media buttons'")).firstMatch
-        for _ in 0..<20 where !toggle.isHittable { app.swipeUp() }
+        stableInterior(app, toggle, "bluetooth-setting")
         require(toggle.exists && toggle.isHittable, app, "bluetooth-setting-not-hittable")
         return toggle
     }
