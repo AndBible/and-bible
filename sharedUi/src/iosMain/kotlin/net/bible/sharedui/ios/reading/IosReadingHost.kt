@@ -42,6 +42,7 @@ import net.bible.service.download.hideFromSelector
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
+import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
@@ -67,6 +68,7 @@ import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.ios.ports.IosImagePicker
 import net.bible.sharedui.ios.ports.IosTextShare
+import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.host.ReadingHostDeps
@@ -78,8 +80,6 @@ import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
-import net.bible.sharedcore.nav.ManageLabelsResult
-import net.bible.sharedui.nav.NavResultChannel
 import org.koin.core.Koin
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDate

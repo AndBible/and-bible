@@ -41,6 +41,7 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
+import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.app.ports.ExternalLinks
@@ -52,6 +53,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.index.IndexStatus
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * The route Android's `searchIntent` starts for [document], or null when there is nothing to open (a general book
@@ -123,6 +125,7 @@ class IosReadingNavigator(
 
     override fun openPromptEditor(promptId: String) = onMain { shell.navigate(NavRoutes.promptEdit(promptId = promptId)) }
 
+    // TODO(Stream F): Android passes forceAsk = true here; ExternalLinks has no force-ask yet, add it with the real IosExternalLinks.
     override fun openExternalUrl(url: String) = links.open(url)
 
     override fun openWebLink(url: String) = links.open(url)
@@ -161,20 +164,29 @@ class IosReadingNavigator(
 
     /**
      * Opens the label manager with [data] and waits for its answer: the delivered [ManageLabelsResult], or null when
-     * the manager was left without delivering one (the route is back at reading after the manager was shown).
-     * A result is published before the manager pops, so a delivered answer always wins over the pop.
+     * the manager was left without delivering one, or could not be opened. A result is published before the manager
+     * pops, so a delivered answer always wins over the pop.
+     *
+     * The wait ends on: a pending result; or any route change after the navigation was issued that leaves the app
+     * back at reading (this also covers a manager that opened and closed between two collector emissions, which is
+     * why it counts route changes instead of waiting to observe the manager's own route). A `navigate` that throws
+     * returns null. The request lock is released on every exit ([withLock]), also when the caller is cancelled. A
+     * navigation that is silently dropped gives no signal at all and waits for the caller's cancellation.
      */
     private suspend fun awaitManageLabels(data: String): ManageLabelsResult? = labelRequests.withLock {
         labelResults.consume() // a stale answer must not satisfy this request
-        withContext(mainContext) { shell.navigate(NavRoutes.manageLabels(data)) }
-        var shown = false
-        shell.currentRoute.let { routes ->
-            combine(labelResults.pending, routes) { pending, route -> pending to route?.substringBefore('?') }
-                .first { (pending, route) ->
-                    if (route == MANAGE_LABELS_ROUTE) shown = true
-                    pending != null || (shown && route == NavRoutes.READING)
-                }
+        val versionAtNavigate = shell.routeVersion.value
+        try {
+            withContext(mainContext) { shell.navigate(NavRoutes.manageLabels(data)) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            nsLog("IosReadingNavigator: opening the label manager failed: ${e.stackTraceToString()}")
+            return@withLock null
         }
+        combine(labelResults.pending, shell.currentRoute, shell.routeVersion) { pending, route, version ->
+            pending != null || (version > versionAtNavigate && route?.substringBefore('?') == NavRoutes.READING)
+        }.first { it }
         labelResults.consume()
     }
 
@@ -192,9 +204,5 @@ class IosReadingNavigator(
         bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
         workspaceSettings()?.updateFrom(resultData)
         return resultData.selectedLabels.toList()
-    }
-
-    private companion object {
-        val MANAGE_LABELS_ROUTE: String = NavRoutes.MANAGE_LABELS_PATTERN.substringBefore('?')
     }
 }

@@ -33,8 +33,6 @@ import androidx.compose.ui.platform.testTag
 import net.bible.sharedui.ios.reading.IosNightModeObserver
 import net.bible.sharedui.ios.reading.IosReadingHost
 import net.bible.sharedui.ios.reading.IosReadingWindows
-import net.bible.sharedcore.nav.ManageLabelsResult
-import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.ios.reading.iosReadingNavDeps
 import net.bible.sharedui.ios.reading.rememberIosReadingIcons
 import net.bible.sharedui.reading.host.LocalReadingPane
@@ -62,6 +60,7 @@ import net.bible.service.startup.ReadingAppInit
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.hasUsableBible
 import net.bible.sharedcore.log.nsLog
+import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
@@ -69,6 +68,7 @@ import net.bible.sharedui.app.AppRoot
 import net.bible.sharedui.app.gatedReadingRoute
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
+import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.reading.LocalPinIcon
 import net.bible.sharedui.strings.LocalStrings

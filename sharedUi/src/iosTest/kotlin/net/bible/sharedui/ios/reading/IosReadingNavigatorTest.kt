@@ -52,7 +52,11 @@ import kotlin.test.assertTrue
 class IosReadingNavigatorTest {
     private class RecordingNavigator : IosNavigator {
         val routes = mutableListOf<String>()
-        override fun navigate(route: String) { routes += route }
+        var failNavigate = false
+        override fun navigate(route: String) {
+            if (failNavigate) throw IllegalStateException("navigate failed")
+            routes += route
+        }
         override fun popBackStack(): Boolean = false
         override fun popBackStackTo(route: String, inclusive: Boolean): Boolean = false
     }
@@ -119,6 +123,7 @@ class IosReadingNavigatorTest {
                 runBlocking { Fixture(navigator, nav, shell, links, labels).block() }
             } finally {
                 host.dispose()
+                testScope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
             }
         } finally {
             scope.cancel()
@@ -127,7 +132,7 @@ class IosReadingNavigatorTest {
         }
     }
 
-    private val testScope = CoroutineScope(Dispatchers.Unconfined)
+    private val testScope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.Unconfined)
 
     private fun bookmark(primary: IdType? = null) = BookmarkEntities.GenericBookmarkWithNotes(
         key = "k", bookInitials = "X", ordinalStart = null, ordinalEnd = null, startOffset = null, endOffset = null,
@@ -214,6 +219,41 @@ class IosReadingNavigatorTest {
         assertEquals(before, asked.primaryLabelId, "a cancel changes nothing")
     }
 
+    @Test
+    fun aFailingNavigateReturnsNullAndReleasesTheLock() = withNavigator {
+        nav.failNavigate = true
+        assertNull(navigator.assignLabels(bookmark(), emptyList()))
+        nav.failNavigate = false
+        val x = IdType()
+        val answer = testScope.async { navigator.assignLabels(bookmark(), emptyList()) }
+        yield()
+        open(NavRoutes.MANAGE_LABELS_PATTERN)
+        deliver(setOf(x))
+        open(NavRoutes.READING)
+        assertEquals(listOf(x), answer.await())
+    }
+
+    @Test
+    fun aManagerThatWasNeverObservedStillEndsTheWaitAndReleasesTheLock() = withNavigator {
+        // The manager opened and closed between two emissions: only a route change back to reading is seen.
+        val first = testScope.async { navigator.assignLabels(bookmark(), emptyList()) }
+        yield()
+        open(NavRoutes.READING)
+        assertNull(first.await())
+        val x = IdType()
+        val second = testScope.async { navigator.assignLabels(bookmark(), emptyList()) }
+        yield()
+        open(NavRoutes.MANAGE_LABELS_PATTERN)
+        deliver(setOf(x))
+        open(NavRoutes.READING)
+        assertEquals(listOf(x), second.await())
+    }
+
+    /**
+     * The navigator has no notion of the active window: the answer is returned to the coroutine that asked, which
+     * belongs to the asking window's session, so a change of the active window while the manager is open cannot
+     * redirect it. What is tested is that two overlapping asks from two windows each get their own answer, in order.
+     */
     @Test
     fun resultGoesToTheAskingWindow() = withNavigator {
         val first = bookmark()

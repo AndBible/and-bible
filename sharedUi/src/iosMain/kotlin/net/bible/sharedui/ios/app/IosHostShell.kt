@@ -71,7 +71,15 @@ class IosHostShell(
      */
     val currentRoute: StateFlow<String?> get() = route
 
-    fun routeChanged(newRoute: String?) { route.value = newRoute }
+    private val version = MutableStateFlow(0)
+
+    /** Counts [routeChanged] calls, so a caller sees that SOME navigation happened even when the route ends where it began. */
+    val routeVersion: StateFlow<Int> get() = version
+
+    fun routeChanged(newRoute: String?) {
+        route.value = newRoute
+        version.value += 1
+    }
 
     override var windowTitle: String = ""
         private set
