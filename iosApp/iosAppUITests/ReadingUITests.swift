@@ -221,4 +221,292 @@ final class ReadingUITests: XCTestCase {
             throw XCTSkip("performAccessibilityAudit needs iOS 17")
         }
     }
+    // MARK: Task 9 helpers (labels from the Kotlin sources: see the notes on each test)
+
+    /// Any element type with exactly this label. Compose icon buttons are merged `Row`s whose label is the icon's
+    /// contentDescription; which XCUIElement type they surface as is not known, so the type is not restricted.
+    private func byLabel(_ app: XCUIApplication, _ label: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
+    }
+
+    private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+
+    /// A fresh process on the reading view (the previous one is terminated first), for steps that leave the toolbar in
+    /// a state with no way back (the search row, the speak bar).
+    private func relaunchReading(_ app: XCUIApplication) throws -> XCUIApplication {
+        app.terminate()
+        return try launchReading()
+    }
+
+    /// The quick sheet container (`ReadingQuickSheetTag`, a `testTag` on the box inside the sheet).
+    private func quickSheet(_ app: XCUIApplication) -> XCUIElement { element(app, "reading-quick-sheet") }
+
+    /// Closes the open quick sheet with the sheet header's close button (`settingsEditorClose` = "Close") and waits
+    /// for the sheet to leave the tree. Returns false (tree attached) when it stays.
+    @discardableResult
+    private func closeQuickSheet(_ app: XCUIApplication, _ step: String) -> Bool {
+        let close = byLabel(app, "Close")
+        guard close.waitForExistence(timeout: 10) else {
+            attachTree(app, "\(step)-no-close-button")
+            XCTFail("\(step): the sheet has no Close button")
+            return false
+        }
+        close.tap()
+        let gone = waitUntil(timeout: 10) { !quickSheet(app).exists }
+        if !gone { attachTree(app, "\(step)-sheet-stuck") }
+        XCTAssertTrue(gone, "\(step): the sheet is still shown after Close")
+        return gone
+    }
+
+    /// The pane identifiers whose web view is actually on screen (hittable), as opposed to merely in the tree.
+    private func visiblePaneIds(_ app: XCUIApplication) -> [String] {
+        let ids = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
+            .allElementsBoundByIndex.filter { $0.isHittable }.map(\.identifier)
+        return Array(Set(ids)).sorted()
+    }
+
+    /// The toolbar's page title ("John 3:16" style): a static text starting with the book name in the top strip of
+    /// the screen, so the chapter heading inside a web view is not hit.
+    private func toolbarTitle(_ app: XCUIApplication) -> XCUIElement? {
+        app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'John'")).allElementsBoundByIndex
+            .first { $0.frame.minY < 160 && $0.frame.height > 0 }
+    }
+
+    // MARK: Task 9 tests
+
+    /// Toolbar actions and where they lead. Labels are the toolbar's contentDescriptions (strings.xml): search is
+    /// "Find" (NOT "Search"), speak "Speak", the workspace button "Workspaces", the overflow "More options".
+    /// Each action runs in a fresh process and records its own failure (`continueAfterFailure` on), so one dead
+    /// toolbar button does not hide the others.
+    ///
+    /// At the time of writing `IosReadingHost.callbacks()` still routes onSpeak, onWorkspace, onOverflow (and
+    /// onBible/onCommentary/onHome) to `IosPending.log`, so those steps are EXPECTED red until that wiring lands:
+    /// that is the defect they name (a toolbar button that does nothing).
+    func testToolbarActionsOpenTheirDestinations() throws {
+        continueAfterFailure = true
+        var app = try launchReading()
+
+        XCTContext.runActivity(named: "search opens the search field") { _ in
+            let find = byLabel(app, "Find")
+            guard find.waitForExistence(timeout: 10) else {
+                attachTree(app, "toolbar-no-find"); XCTFail("no 'Find' toolbar button"); return
+            }
+            find.tap()
+            let field = element(app, "reading-search-field")   // SEARCH_FIELD_TAG
+            let shown = field.waitForExistence(timeout: 15)
+            if !shown { attachTree(app, "search-not-shown") }
+            XCTAssertTrue(shown, "tapping Find did not open the search field")
+            shot(app, "toolbar-search")
+        }
+
+        XCTContext.runActivity(named: "speak shows the transport bar") { _ in
+            app = (try? relaunchReading(app)) ?? app
+            let speak = byLabel(app, "Speak")
+            guard speak.waitForExistence(timeout: 10) else {
+                attachTree(app, "toolbar-no-speak"); XCTFail("no 'Speak' toolbar button"); return
+            }
+            speak.tap()
+            // The transport bar has Previous / Next (speak_previous, speak_next) next to play-pause.
+            let next = byLabel(app, "Next")
+            let shown = next.waitForExistence(timeout: 15)
+            if !shown { attachTree(app, "speak-bar-not-shown") }
+            XCTAssertTrue(shown, "tapping Speak did not show the speak transport bar (no 'Next' control)")
+            shot(app, "toolbar-speak")
+        }
+
+        XCTContext.runActivity(named: "workspace opens the workspaces sheet") { _ in
+            app = (try? relaunchReading(app)) ?? app
+            let ws = byLabel(app, "Workspaces")
+            guard ws.waitForExistence(timeout: 10) else {
+                attachTree(app, "toolbar-no-workspaces"); XCTFail("no 'Workspaces' toolbar button"); return
+            }
+            ws.tap()
+            let shown = quickSheet(app).waitForExistence(timeout: 15)
+            if !shown { attachTree(app, "workspace-sheet-not-shown") }
+            XCTAssertTrue(shown, "tapping Workspaces did not open the workspaces quick sheet")
+            if shown { closeQuickSheet(app, "workspaces") }
+        }
+
+        XCTContext.runActivity(named: "overflow opens a menu") { _ in
+            app = (try? relaunchReading(app)) ?? app
+            let more = byLabel(app, "More options")
+            guard more.waitForExistence(timeout: 10) else {
+                attachTree(app, "toolbar-no-overflow"); XCTFail("no 'More options' toolbar button"); return
+            }
+            let before = app.descendants(matching: .any).count
+            more.tap()
+            // The menu's item labels are built by the host and not known here: a menu is shown when the tree grows.
+            let shown = waitUntil(timeout: 10) { app.descendants(matching: .any).count > before + 1 }
+            if !shown { attachTree(app, "overflow-not-shown") }
+            XCTAssertTrue(shown, "tapping More options did not show a menu (element count stayed at \(before))")
+            shot(app, "toolbar-overflow")
+        }
+    }
+
+    /// Every quick sheet that has an opener on the reading chrome opens, shows the sheet container and closes again,
+    /// leaving the reading host and the pane untouched (the sheet is its own window, so no pane may be recreated).
+    /// Openers: title tap (key chooser, wired at HEAD), Workspaces / Bible / Commentary toolbar buttons (pending at HEAD,
+    /// like the toolbar test). History and the document sheet have no reading-chrome opener on iOS yet (drawer and title
+    /// long-press are pending): they are not covered here, see the report.
+    func testEachQuickSheetOpensAndCloses() throws {
+        continueAfterFailure = true
+        var app = try launchReading()
+
+        let openers: [(name: String, open: (XCUIApplication) -> Bool)] = [
+            ("key chooser (title tap)", { app in
+                guard let title = self.toolbarTitle(app) else { return false }
+                title.tap(); return true
+            }),
+            ("workspaces", { app in
+                let b = self.byLabel(app, "Workspaces"); guard b.waitForExistence(timeout: 10) else { return false }
+                b.tap(); return true
+            }),
+            ("bible documents", { app in
+                let b = self.byLabel(app, "Bible"); guard b.waitForExistence(timeout: 10) else { return false }
+                b.tap(); return true
+            }),
+            ("commentary documents", { app in
+                let b = self.byLabel(app, "Commentary"); guard b.waitForExistence(timeout: 10) else { return false }
+                b.tap(); return true
+            }),
+        ]
+        for opener in openers {
+            XCTContext.runActivity(named: opener.name) { _ in
+                app = (try? relaunchReading(app)) ?? app
+                let panesBefore = paneIds(app)
+                guard opener.open(app) else {
+                    attachTree(app, "sheet-\(opener.name)-no-opener")
+                    XCTFail("\(opener.name): the opener control does not exist")
+                    return
+                }
+                let shown = quickSheet(app).waitForExistence(timeout: 15)
+                shot(app, "sheet-\(opener.name)")
+                if !shown {
+                    attachTree(app, "sheet-\(opener.name)-not-shown")
+                    XCTFail("\(opener.name): no quick sheet after tapping the opener")
+                    return
+                }
+                guard closeQuickSheet(app, opener.name) else { return }
+                XCTAssertTrue(element(app, "reading-host").exists, "\(opener.name): reading host gone after the sheet")
+                XCTAssertEqual(paneIds(app), panesBefore, "\(opener.name): a pane was recreated by opening the sheet")
+                XCTAssertTrue(john3Shown(app, timeout: 15), "\(opener.name): chapter text missing after the sheet")
+            }
+        }
+    }
+
+    /// Split, maximise, minimise: the window pane menu rows are "Maximise" and "Minimise" (strings windowMaximise /
+    /// windowMinimise; "Minimise" is disabled when the window is not minimisable) and the rail's leading control while a
+    /// window is maximised is "Restore all windows" (window_unmaximise). Pane visibility is measured with isHittable
+    /// on the `bible-webview-<id>` elements, not tree presence.
+    func testSplitMaximiseMinimiseWindows() throws {
+        let app = try launchReading()
+        addWindow(app, from: 1)
+        XCTAssertEqual(visiblePaneIds(app).count, 2, "two panes must both be visible after the split: \(visiblePaneIds(app))")
+
+        // Maximise the first window.
+        guard let tab = windowTabs(app).first else {
+            attachTree(app, "maximise-no-tab"); XCTFail("no window tab to open the pane menu from"); return
+        }
+        tab.press(forDuration: 1.0)
+        tapMenuItem(app, ["Maximise"], "maximise")
+        let restore = byLabel(app, "Restore all windows")
+        let maximised = restore.waitForExistence(timeout: 15)
+        if !maximised { attachTree(app, "maximise-no-restore-control") }
+        XCTAssertTrue(maximised, "maximising did not show the 'Restore all windows' rail control")
+        XCTAssertTrue(waitUntil(timeout: 15) { visiblePaneIds(app).count == 1 },
+                      "exactly one pane must be visible while maximised, got \(visiblePaneIds(app))")
+        shot(app, "maximised")
+
+        // Restore: both panes back, and the text still appears once per pane.
+        if maximised { restore.tap() }
+        XCTAssertTrue(waitUntil(timeout: 15) { visiblePaneIds(app).count == 2 },
+                      "restoring did not bring both panes back, got \(visiblePaneIds(app))")
+        assertTextOncePerPane(app, panes: 2, "after restore")
+
+        // Minimise one window: its pane leaves the screen, the other stays.
+        guard let tab2 = windowTabs(app).last else {
+            attachTree(app, "minimise-no-tab"); XCTFail("no window tab for the minimise step"); return
+        }
+        tab2.press(forDuration: 1.0)
+        tapMenuItem(app, ["Minimise"], "minimise")
+        XCTAssertTrue(waitUntil(timeout: 15) { visiblePaneIds(app).count == 1 },
+                      "minimising one of two windows must leave one visible pane, got \(visiblePaneIds(app))")
+        shot(app, "minimised")
+
+        // Bring it back through its rail tab (a minimised window's tab restores it).
+        if let minimisedTab = windowTabs(app).last {
+            minimisedTab.tap()
+            if !waitUntil(timeout: 15, { visiblePaneIds(app).count == 2 }) { attachTree(app, "minimise-restore-failed") }
+            XCTAssertEqual(visiblePaneIds(app).count, 2, "tapping the minimised window's tab did not restore its pane")
+        }
+    }
+
+    /// iPad only: rotate with a quick sheet open and back. The sheet must reflow (stay inside the window, keep its
+    /// close control reachable) and must not stay stuck at a half-height or stale size: after rotating back to portrait
+    /// its frame and the close button's frame equal those from before the rotation (same content, same orientation).
+    /// The reading host and panes must survive, and the sheet must still close.
+    func testIPadRotationWithSheetOpenReflows() throws {
+        guard isPad else { throw XCTSkip("iPad rotation test (sheets are full-width on iPhone)") }
+        continueAfterFailure = true
+        let app = try launchReading()
+        let device = XCUIDevice.shared
+        addTeardownBlock { device.orientation = .portrait }
+        device.orientation = .portrait
+        XCTAssertTrue(waitUntil(timeout: 10) { app.windows.firstMatch.frame.height > app.windows.firstMatch.frame.width },
+                      "could not start in portrait")
+
+        // Open a sheet that is wired at HEAD (title tap), else the workspaces one.
+        var opened = false
+        if let title = toolbarTitle(app) { title.tap(); opened = quickSheet(app).waitForExistence(timeout: 15) }
+        if !opened {
+            let ws = byLabel(app, "Workspaces")
+            if ws.waitForExistence(timeout: 5) { ws.tap(); opened = quickSheet(app).waitForExistence(timeout: 15) }
+        }
+        guard opened else {
+            attachTree(app, "rotation-no-sheet"); XCTFail("no quick sheet could be opened for the rotation test"); return
+        }
+        let close = byLabel(app, "Close")
+        XCTAssertTrue(close.waitForExistence(timeout: 10), "sheet has no Close button")
+        let portraitSheet = quickSheet(app).frame
+        let portraitClose = close.frame
+        shot(app, "rotation-portrait-before")
+
+        // Landscape.
+        device.orientation = .landscapeLeft
+        XCTAssertTrue(waitUntil(timeout: 15) { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height },
+                      "window did not become landscape")
+        usleep(1_500_000)   // let the sheet re-measure
+        let win = app.windows.firstMatch.frame
+        let landscapeSheet = quickSheet(app).frame
+        shot(app, "rotation-landscape")
+        XCTAssertTrue(quickSheet(app).exists, "the sheet vanished on rotation (it must reflow, not close)")
+        XCTAssertTrue(win.insetBy(dx: -1, dy: -1).contains(landscapeSheet),
+                      "sheet \(landscapeSheet) is not inside the landscape window \(win)")
+        XCTAssertGreaterThan(landscapeSheet.height, 100, "sheet collapsed in landscape: \(landscapeSheet)")
+        XCTAssertTrue(close.exists && close.isHittable, "Close not reachable in landscape")
+        XCTAssertTrue(win.insetBy(dx: -1, dy: -1).contains(close.frame), "Close \(close.frame) outside window \(win)")
+
+        // Back to portrait: not stuck at the landscape (or a half) height.
+        device.orientation = .portrait
+        XCTAssertTrue(waitUntil(timeout: 15) { app.windows.firstMatch.frame.height > app.windows.firstMatch.frame.width },
+                      "window did not return to portrait")
+        usleep(1_500_000)
+        let backSheet = quickSheet(app).frame
+        let backClose = close.frame
+        shot(app, "rotation-portrait-after")
+        XCTAssertEqual(backSheet.height, portraitSheet.height, accuracy: 4,
+                       "sheet height after rotating back (\(backSheet)) differs from before (\(portraitSheet)): stuck sheet size")
+        XCTAssertEqual(backSheet.width, portraitSheet.width, accuracy: 4, "sheet width after rotating back differs")
+        XCTAssertEqual(backClose.minY, portraitClose.minY, accuracy: 4, "Close moved: sheet did not return to its place")
+        XCTAssertTrue(app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1).contains(backSheet), "sheet outside window in portrait")
+
+        // The sheet still closes, and the pane is intact and inside the window.
+        if closeQuickSheet(app, "rotation") {
+            XCTAssertTrue(element(app, "reading-host").exists, "reading host missing after rotation")
+            XCTAssertTrue(john3Shown(app, timeout: 15), "chapter text missing after rotation")
+            let pane = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'")).firstMatch
+            XCTAssertTrue(app.windows.firstMatch.frame.insetBy(dx: -1, dy: -1).contains(pane.frame),
+                          "pane \(pane.frame) outside the window after rotation")
+        }
+    }
 }
