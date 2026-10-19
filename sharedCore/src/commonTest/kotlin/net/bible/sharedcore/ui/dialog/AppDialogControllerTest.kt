@@ -148,6 +148,54 @@ class AppDialogControllerTest {
         title = "t", message = null, initial = "", confirmText = "ok", dismissText = "no", draftKey = key,
     )
 
+    @Test fun throwingLocalizedResolverCannotInterruptResponse() = runTest {
+        val c = AppDialogController()
+        var broken = false
+        val request = AppDialogRequest.Localized {
+            if (broken) error("Locale resource unavailable")
+            unlock()
+        }
+        val answer = async { c.await(request) }
+        yield()
+        val shown = c.pending.value!!
+        c.saveDraft(shown.id, "halfpass")
+        c.post(msg("next"))
+        broken = true
+        c.respond(shown.id, AppDialogResult.Ok)
+        assertEquals(AppDialogResult.Ok, answer.await())
+        assertEquals("next", (c.pending.value!!.request as AppDialogRequest.Message).message)
+        val nextInput = c.post(unlock())
+        assertNull(c.draft(nextInput))
+    }
+
+    @Test fun throwingLocalizedResolverCannotInterruptWithdrawal() = runTest {
+        val c = AppDialogController()
+        var broken = false
+        val request = AppDialogRequest.Localized {
+            if (broken) error("Locale resource unavailable")
+            unlock()
+        }
+        val id = c.post(request)
+        c.saveDraft(id, "halfpass")
+        val next = c.post(msg("next"))
+        broken = true
+        c.dismiss(id)
+        assertEquals(next, c.pending.value!!.id)
+        assertEquals("halfpass", c.draft(c.post(unlock())))
+    }
+
+    @Test fun localizedDraftIdentityDoesNotChangeWithLanguage() {
+        val c = AppDialogController()
+        var language = "en"
+        val id = c.post(AppDialogRequest.Localized { unlock("unlock:$language") })
+        c.saveDraft(id, "halfpass")
+        language = "fi"
+        assertEquals("halfpass", c.draft(id))
+        c.dismiss(id)
+        assertEquals("halfpass", c.draft(c.post(unlock("unlock:en"))))
+        assertNull(c.draft(c.post(unlock("unlock:fi"))))
+    }
+
     @Test fun aDraftIsReadBackForTheSameRequest() {
         val c = AppDialogController()
         val id = c.post(unlock())
