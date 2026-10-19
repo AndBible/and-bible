@@ -20,6 +20,8 @@ class IosAppEnvironment(
     isDiscrete: () -> Boolean,
     override val isBeta: Boolean = false,
     override val isDebugMode: Boolean = false,
+    private val initialized: () -> Boolean = { true },
+    private val deviceSettings: IosDeviceSettings = IosDeviceSettings(),
 ) : AppEnvironment {
     private val discreteProvider = isDiscrete
     private val files = NSFileManager.defaultManager
@@ -46,7 +48,7 @@ class IosAppEnvironment(
         }
     }
 
-    override val isInitialized: Boolean get() = true
+    override val isInitialized: Boolean get() = initialized()
     override val isDiscrete: Boolean get() = discreteProvider()
     override val deviceIdentifier: String
         get() = secrets.get("device_identifier")
@@ -57,7 +59,7 @@ class IosAppEnvironment(
     override val versionNumber: Long
         get() = (NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleVersion") as? String)?.toLongOrNull() ?: 0L
     override val isMeteredNetwork: Boolean get() = metered.value
-    override val lastCrashTime: Long get() = 0L
+    override val lastCrashTime: Long get() = deviceSettings.getLong(CrashPreferences.TIME, 0L)
     override val apkPath: String? get() = null
 
     private val documents: String get() = directory(NSDocumentDirectory)

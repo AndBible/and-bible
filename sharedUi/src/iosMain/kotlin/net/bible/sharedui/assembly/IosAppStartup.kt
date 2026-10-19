@@ -75,7 +75,11 @@ internal class IosPlatformParts(val config: IosAppConfig) {
 
     /** Discrete mode is a device-local preference (`discrete_mode`), read before any database exists. */
     val environment: IosAppEnvironment by lazy {
-        IosAppEnvironment(secrets, isDiscrete = { deviceSettings.getBoolean("discrete_mode", false) })
+        IosAppEnvironment(
+            secrets, isDiscrete = { deviceSettings.getBoolean("discrete_mode", false) },
+            initialized = { net.bible.service.startup.ReadingAppInit.initialized },
+            deviceSettings = deviceSettings,
+        )
     }
 
     private val documents: Path

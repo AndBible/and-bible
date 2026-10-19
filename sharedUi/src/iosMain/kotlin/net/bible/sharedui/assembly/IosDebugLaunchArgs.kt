@@ -30,6 +30,14 @@ import kotlin.native.Platform
 internal object IosDebugLaunchArgs {
     private val arguments: List<String> get() = NSProcessInfo.processInfo.arguments.map { it.toString() }
 
+    /** Seeds the persistent domain (not the read-only argument domain), before crash counting. Debug only. */
+    fun seedCrashRecovery(settings: net.bible.sharedcore.platform.IosDeviceSettings) {
+        if (!Platform.isDebugBinary || "-seedCrashRecovery" !in arguments) return
+        settings.putBoolean(net.bible.sharedcore.platform.CrashPreferences.RUNNING, false)
+        settings.putInt(net.bible.sharedcore.platform.CrashPreferences.COUNT, 2)
+        settings.putLong(net.bible.sharedcore.platform.CrashPreferences.TIME, kotlin.time.Clock.System.now().toEpochMilliseconds())
+    }
+
     /** True when `-resetData` was passed. */
     fun resetData(): Boolean = Platform.isDebugBinary && "-resetData" in arguments
 

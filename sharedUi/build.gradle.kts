@@ -84,6 +84,8 @@ kotlin {
             implementation(libs.koin.test)
         }
         jvmTest {
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/startup/logic")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/startup/logic")
             kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/discrete/systemsurfaces")
             kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/discrete/systemsurfaces")
             // The generated iOS strings holder is pure Kotlin; reusing it gives JVM tests real English text.

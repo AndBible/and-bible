@@ -843,6 +843,7 @@
     <string name="verse_not_found">Verse not found</string>
 
     <!-- Errors -->
+    <string name="crash_recovery_continue">Continue</string>
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>
     <string name="error_occurred_crash_last_time">Last time when you used the application, it crashed. To help us with fixing the bug, we would appreciate if you send us a bug report. </string>

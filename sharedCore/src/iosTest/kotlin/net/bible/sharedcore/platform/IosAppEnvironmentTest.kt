@@ -38,6 +38,21 @@ class IosAppEnvironmentTest {
         assertFalse(FileSystem.SYSTEM.exists(probe))
     }
 
+    @Test fun crashTimestampAndInitialisationFollowDeviceAndHostState() {
+        val suite = "org.andbible.environment.crash.${NSUUID().UUIDString}"
+        val defaults = platform.Foundation.NSUserDefaults(suiteName = suite)
+        val settings = IosDeviceSettings(defaults)
+        var ready = false
+        val environment = IosAppEnvironment(MemorySecrets(), { false }, initialized = { ready }, deviceSettings = settings)
+        try {
+            assertFalse(environment.isInitialized)
+            settings.putLong(CrashPreferences.TIME, 1_800_000_000_123L)
+            assertEquals(1_800_000_000_123L, environment.lastCrashTime)
+            ready = true
+            assertTrue(environment.isInitialized)
+        } finally { environment.close(); defaults.removePersistentDomainForName(suite) }
+    }
+
     @Test fun databasePathCreatesWritableDatabasesDirectory() = withEnvironment { environment ->
         val path = environment.databasePath("x.sqlite3")
         assertTrue(path.endsWith("/databases/x.sqlite3"))

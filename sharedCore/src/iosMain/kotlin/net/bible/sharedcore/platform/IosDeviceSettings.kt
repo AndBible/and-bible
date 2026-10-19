@@ -58,6 +58,10 @@ class IosDeviceSettings(private val defaults: NSUserDefaults = NSUserDefaults.st
         return { center.removeObserver(token) }
     }
 
+    fun getLong(key: String, default: Long): Long = (defaults.objectForKey(key) as? NSNumber)?.longLongValue ?: default
+
+    fun putLong(key: String, value: Long) = defaults.setObject(NSNumber(longLong = value), forKey = key)
+
     fun getInt(key: String, default: Int): Int = (defaults.objectForKey(key) as? NSNumber)?.intValue ?: default
 
     fun putInt(key: String, value: Int) = defaults.setInteger(value.toLong(), forKey = key)

@@ -112,6 +112,34 @@ class IosAssemblyTest {
     private fun startApp(language: String? = "en") = IosAppStartup.start(config(language))
 
     @Test
+    fun recoveryBackupBuildsRealAppGraphsAndLoadsBeforeDatabases() {
+        startApp()
+        val koin = KoinPlatform.getKoin()
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
+        try {
+            val nav = androidx.navigation.NavHostController()
+            val shell = net.bible.sharedui.ios.app.IosHostShell(scope, net.bible.sharedui.ios.app.NavControllerNavigator { nav })
+            val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin, IosAppStartup.stringTable)
+            val hosts = net.bible.sharedui.app.AppHosts(koin, shell, ports, net.bible.sharedui.strings.iosStrings("en"))
+            val graphs = hosts.graphs(nav, net.bible.sharedui.ios.app.iosResultChannels { nav })
+            assertTrue(net.bible.sharedui.app.routeStartsUninitialised(net.bible.sharedcore.nav.NavRoutes.BACKUP))
+            assertFalse(koin.get<net.bible.sharedcore.platform.AppEnvironment>().isInitialized)
+            val controller = graphs.backup.controllerFor()
+            controller.setToggle(net.bible.sharedcore.backup.ToggleKind.BackupDatabase, false)
+            // Exercise the real service, not a fake controller: this reads backup files, crash info and defaults.
+            val state = kotlinx.coroutines.runBlocking {
+                net.bible.service.backup.BackupServiceImpl(
+                    ports.backupHost, koin.get(), koin.get(), koin.get(), koin.get(), koin.get(), koin.get(),
+                ).load()
+            }
+            assertTrue(state.resettableDbs.isNotEmpty())
+            assertFalse(IosAppStartup.databasesOpen)
+            assertFalse(net.bible.service.db.DatabaseContainer.ready)
+            assertFalse(files.exists(databaseDir), "Backup graph/service must not open even an empty database")
+        } finally { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
+    }
+
+    @Test
     fun startupResolvesTheGraphOpensDatabasesAndReadsAVerse() {
         assertFalse(files.exists(databaseDir), "the sandbox starts without a database directory")
         startApp()

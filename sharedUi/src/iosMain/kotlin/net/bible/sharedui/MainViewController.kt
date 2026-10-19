@@ -15,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import net.bible.sharedui.ios.startup.*
 import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +65,7 @@ private val startupScope = CoroutineScope(
 
 /** One per process: the Swift host may build the view controller more than once. */
 private val startupState = IosAppStartupState()
+private val crashTracker = IosCrashTracker(IosDeviceSettings())
 
 /**
  * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). Shows the real app ([IosApp]) once
@@ -75,7 +77,14 @@ private val startupState = IosAppStartupState()
 fun MainViewController(): UIViewController {
     // Kotlin/Native prints an uncaught exception to stderr, which neither the unified log nor the .ips crash report
     // keeps. Log it through NSLog first; the process still terminates afterwards.
-    setUnhandledExceptionHook { nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}") }
+    setUnhandledExceptionHook {
+        crashTracker.recordUncaught(it)
+        nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}")
+        platform.posix.abort()
+    }
+    IosDebugLaunchArgs.seedCrashRecovery(IosDeviceSettings())
+    crashTracker.onLaunch()
+    IosPlatformBootstrap.registerCrashLifecycle(crashTracker)
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
     val settings = IosDeviceSettings()
     val language = resolveDeviceUiLanguage(settings)
@@ -93,15 +102,43 @@ fun MainViewController(): UIViewController {
         val strings = remember { iosStrings(language) }
         // Do not start either startup stage (or show a splash) behind the disguise.
         // Not saveable: a recreated host must pass the gate again.
-        var unlocked by remember { mutableStateOf(!requiresCalculator) }
-        if (!unlocked) {
-            CompositionLocalProvider(LocalStrings provides strings) {
-                AbTheme(darkTheme = splashDark) {
-                    IosCalculatorGate(settings) { unlocked = true }
-                }
-            }
-            return@ComposeUIViewController
+        val gates = remember {
+            IosStartupGates(listOf(
+                StartupGate.Calculator { requiresCalculator },
+                StartupGate.CrashRecovery { crashTracker.shouldOfferRecovery() },
+            )).apply { advance() }
         }
+        var gateRevision by remember { mutableStateOf(0) }
+        gateRevision // changes when a gate resolves
+        val resolve: (StartupGateResult) -> Unit = { result ->
+            if (gates.current is StartupGate.CrashRecovery && result == StartupGateResult.Continue) crashTracker.continueStartup()
+            gates.advance(result)
+            gateRevision++
+        }
+        when (gates.current) {
+            is StartupGate.Calculator -> {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    AbTheme(darkTheme = splashDark) { IosCalculatorGate(settings) { resolve(StartupGateResult.Continue) } }
+                }
+                return@ComposeUIViewController
+            }
+            is StartupGate.CrashRecovery -> {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    AbTheme(darkTheme = splashDark) {
+                        CrashRecoveryScreen(
+                            // Task 5 replaces this seam with the general report presenter and crash attachment.
+                            onReport = { nsLog("Crash report requested: ${IosCrashTracker.crashFile}") },
+                            onResolve = resolve,
+                        )
+                    }
+                }
+                return@ComposeUIViewController
+            }
+            null -> Unit
+        }
+        if (gates.result == StartupGateResult.Exit) return@ComposeUIViewController
+        val recoveryBackup = gates.result == StartupGateResult.OpenBackup
+        var recoveryBindingsReady by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
             val startError = try {
@@ -110,7 +147,21 @@ fun MainViewController(): UIViewController {
             } catch (e: Throwable) {
                 e
             }
-            if (startError != null) startupState.fail(startError) else startupState.launch(startupScope)
+            if (startError != null) startupState.fail(startError)
+            else if (recoveryBackup) recoveryBindingsReady = true
+            else startupState.launch(startupScope)
+        }
+        if (recoveryBackup) {
+            val recoveryPhase by startupState.phase.collectAsState()
+            if (recoveryPhase is StartupPhase.Failed) StartupFailed(splashDark, strings.errorOccurred)
+            else if (!recoveryBindingsReady) StartupSplash(splashDark)
+            else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
+                IosApp(strings, net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
+                    gates.returnFromBackup()
+                    gateRevision++
+                }
+            }
+            return@ComposeUIViewController
         }
         if (scenario.shouldShowPlatformProbe(Platform.isDebugBinary, env["PLATFORM_PROBE"] as? String)) {
             PlatformProbeScreen(darkTheme = dark)

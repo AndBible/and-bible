@@ -134,7 +134,25 @@ internal fun leaveWelcomeFor(scope: CoroutineScope, shell: IosHostShell, table: 
  */
 @Composable
 @kotlin.native.HiddenFromObjC
-fun IosApp(strings: Strings) {
+fun IosApp(strings: Strings, recoveryStartRoute: String? = null, recoveryDark: Boolean = false, onRecoveryBack: () -> Unit = {}) {
+    // Recovery deliberately stops after Koin-only startup. No night observer, usable-Bible query,
+    // reading initialisation, workspace saver or return-to-reading listener is allowed on this path.
+    if (recoveryStartRoute != null) {
+        check(recoveryStartRoute == NavRoutes.BACKUP && net.bible.sharedui.app.routeStartsUninitialised(recoveryStartRoute))
+        CompositionLocalProvider(
+            LocalStrings provides strings,
+            LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
+            LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
+        ) {
+            AbTheme(darkTheme = recoveryDark) {
+                check(!IosAppStartup.databasesOpen && !net.bible.service.db.DatabaseContainer.ready)
+                Box(Modifier.fillMaxSize().testTag("recovery-backup-uninitialised")) {
+                    IosAppContent(strings, IosAppStartup.stringTable, recoveryStartRoute, null, onRecoveryBack)
+                }
+            }
+        }
+        return
+    }
     val koin = remember { KoinPlatform.getKoin() }
     val table = remember { IosAppStartup.stringTable }
     val nightObserver = remember { IosNightModeObserver(koin.get<NightModeState>()) { IosReadingWindows.nightModeChanged() } }
@@ -177,21 +195,22 @@ private fun IosAppContent(
     strings: Strings,
     table: StringTable,
     route: String,
-    nightObserver: IosNightModeObserver,
+    nightObserver: IosNightModeObserver?,
+    onRecoveryBack: (() -> Unit)? = null,
 ) {
     val koin = remember { KoinPlatform.getKoin() }
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     // App-wide, not per destination: Android saves on every destination (the repository belongs to the host).
-    SaveWorkspaceOnBackground(koin)
-    val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }) }
+    if (nightObserver != null) SaveWorkspaceOnBackground(koin)
+    val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }, onRecoveryBack) }
     val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }
     val graphs = remember(navController) { appHosts.graphs(navController, channels) }
-    DisposableEffect(navController) {
+    if (nightObserver != null) DisposableEffect(navController) {
         val gate = IosWelcomeReturnGate(
             scope = scope,
             usableBible = { withContext(Dispatchers.Default) { hasUsableBible(SwordDocumentFacade.bibles) } },
@@ -220,7 +239,7 @@ private fun IosAppContent(
         graphs = graphs,
         readingGraph = {
             readingNavGraph(navController, iosReadingNavDeps(readingToken, shell, table) {
-                IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
+                if (nightObserver != null) IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
             })
         },
         overlays = { appHosts.Overlays() },

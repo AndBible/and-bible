@@ -53,6 +53,7 @@ class NavControllerNavigator(private val navController: () -> NavHostController)
 class IosHostShell(
     override val hostScope: CoroutineScope,
     private val navigator: IosNavigator,
+    private val onExit: (() -> Unit)? = null,
 ) : HostShell {
     // The history-route fields are main-thread only (composition effects), so they take no lock.
     private var historyRouteOwner: Any? = null
@@ -64,7 +65,9 @@ class IosHostShell(
     override var windowTitle: String = ""
         private set
 
-    override fun exitHost() = IosPending.log("HostShell.exitHost")
+    override fun exitHost() {
+        onExit?.invoke() ?: IosPending.log("HostShell.exitHost")
+    }
 
     override fun recreateHost() = IosPending.log("HostShell.recreateHost")
 
