@@ -88,8 +88,15 @@ optional_mounts:
 # An emulator INSIDE the container must use its own adb server on port 5038
 # (the proxy device occupies 5037 in the container); scripts/with-container-adb.sh
 # does that. See docs/emulator-and-webview-debugging.md.
+#
+# mac-ssh: optional route to the iOS build Mac through a host-side tunnel instead of a direct
+# egress entry (container 127.0.0.1:2224 -> host 127.0.0.1:2224). Use it when the Mac is reached
+# through a relay (host `LocalForward 2224 localhost:2224`, Mac `RemoteForward 2224 localhost:22`);
+# then the ssh config in the mac-ssh mount uses `HostName 127.0.0.1` / `Port 2224` and no
+# `jailbee net egress add <mac-ip>:22` is needed. See docs/ios-remote-mac.md.
 host_ports:
   - { name: adb, port: 5037 }
+  - { name: mac-ssh, port: 2224 }
 
 # Host KVM for a hardware-accelerated in-container emulator, so instrumented
 # tests and debugging do not depend on a host-side emulator.

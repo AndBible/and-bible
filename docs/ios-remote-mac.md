@@ -194,6 +194,12 @@ so it is a host-local override, not an `egress_allow` entry in the committed con
 jailbee net egress add 192.168.1.50:22 --repo    # every and-bible container on this host
 ```
 
+When the Mac is only reachable through a relay on the host (host `LocalForward 2224 localhost:2224`,
+Mac `RemoteForward 2224 localhost:22`), no egress entry is needed: the committed `host_ports` entry
+`mac-ssh` forwards container `127.0.0.1:2224` to host `127.0.0.1:2224`, and the ssh config in the
+mount points at `HostName 127.0.0.1`, `Port 2224`. Apply it to an existing container with
+`jailbee apply`.
+
 The `mac-ssh` optional mount is declared in `.jailbee/config.yaml`. Attach it for a session and detach
 it afterwards:
 
