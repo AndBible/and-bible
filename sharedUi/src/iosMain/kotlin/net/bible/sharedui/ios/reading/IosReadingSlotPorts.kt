@@ -104,18 +104,21 @@ internal class IosReadingQuickActions(
      * at the end ([onToolbarMayHaveChanged]).
      */
     override fun quickSwitchToWorkspace(id: String) {
-        scope.launch {
-            switchMutex.withLock {
-                val control = windowControl()
-                val repository = control.windowRepository
-                repository.saveIntoDb()
-                repository.loadFromDb(IdType(id))
-                settings.setString("current_workspace_id", repository.id.toString())
-                control.windowSync.reloadAllWindows()
-                repository.updateAllWindowsTextDisplaySettings()
-                toast(repository.name)
-                onToolbarMayHaveChanged()
-            }
+        scope.launch { switchToWorkspace(id) }
+    }
+
+    /** The switch itself, suspending until it has finished (the toolbar's workspace cycling waits on it). */
+    suspend fun switchToWorkspace(id: String) {
+        switchMutex.withLock {
+            val control = windowControl()
+            val repository = control.windowRepository
+            repository.saveIntoDb()
+            repository.loadFromDb(IdType(id))
+            settings.setString("current_workspace_id", repository.id.toString())
+            control.windowSync.reloadAllWindows()
+            repository.updateAllWindowsTextDisplaySettings()
+            toast(repository.name)
+            onToolbarMayHaveChanged()
         }
     }
 

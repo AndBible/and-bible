@@ -17,7 +17,9 @@
 
 package net.bible.sharedui.ios.reading
 
+import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.DocumentResult
+import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
@@ -34,6 +36,8 @@ class IosReadingResultsTest {
         override fun applyVerse(osisId: String) { calls += "$name:verse:$osisId" }
         override fun applyKey(result: KeyChooserResult) { calls += "$name:key:${result.key}/${result.book}" }
         override fun openMyDocumentPage(documentInitials: String, pageKey: String?) { calls += "$name:page:$documentInitials/$pageKey" }
+        override fun applyBookmark(result: BookmarkResult) { calls += "$name:bookmark:${result.verse ?: result.key}" }
+        override fun applyProgress(result: ReadingProgressResult) { calls += "$name:progress:$result" }
         override fun cancelled() { calls += "$name:cancelled" }
     }
 
@@ -47,9 +51,11 @@ class IosReadingResultsTest {
     private val document = NavResultChannel<DocumentResult> { }
     private val pages = NavResultChannel<MyDocumentPagesResult> { }
     private val myDocuments = NavResultChannel<MyDocumentsResult> { }
+    private val bookmark = NavResultChannel<BookmarkResult> { }
+    private val progress = NavResultChannel<ReadingProgressResult> { }
 
     private val results = IosReadingResults(
-        keyChooser, passage, document, pages, myDocuments,
+        keyChooser, passage, document, pages, myDocuments, bookmark, progress,
         targetFor = { targets[it] },
         activeAskerProvider = { active },
         log = { logs += it },
@@ -141,6 +147,51 @@ class IosReadingResultsTest {
     }
 
     @Test fun oneCollectorPerChannel() {
-        assertEquals(5, results.collectors().size)
+        assertEquals(7, results.collectors().size)
+    }
+
+    private fun bookmarkOf(verse: String) = BookmarkResult(verse = verse, description = "d", labelNo = 0, listPosition = 0)
+
+    @Test fun aBookmarkAnswerGoesToTheAskingWindowAlsoWhenAnotherBecameActive() {
+        results.asked(ChooserKind.Bookmarks, "w2")
+        active = "w1"
+        results.onBookmark(bookmarkOf("Gen.1.1"))
+        assertEquals(listOf("w2:bookmark:Gen.1.1"), calls)
+    }
+
+    @Test fun aProgressAnswerGoesToTheAskingWindowAndMemorizeToo() {
+        results.asked(ChooserKind.ReadingProgress, "w2")
+        active = "w1"
+        results.onReadingProgress(ReadingProgressResult.Chapter("Gen", 3))
+        results.asked(ChooserKind.ReadingProgress, null)
+        results.onReadingProgress(ReadingProgressResult.Memorize(1, 2))
+        assertEquals(
+            listOf("w2:progress:${ReadingProgressResult.Chapter("Gen", 3)}", "w1:progress:${ReadingProgressResult.Memorize(1, 2)}"),
+            calls,
+        )
+    }
+
+    @Test fun bookmarkAndProgressAnswersNobodyAskedForAreDroppedAndLogged() {
+        results.onBookmark(bookmarkOf("Gen.1.1"))
+        results.onReadingProgress(ReadingProgressResult.Chapter("Gen", 1))
+        assertEquals(emptyList(), calls)
+        assertEquals(2, logs.size)
+    }
+
+    /** Android has no cancel arm for these two screens: leaving them closes the request and applies nothing. */
+    @Test fun leavingTheBookmarkListOrProgressScreenWithoutAnAnswerApplysNothingAndClosesTheRequest() {
+        results.asked(ChooserKind.Bookmarks, "w1")
+        results.asked(ChooserKind.ReadingProgress, "w2")
+        results.readingReached()
+        assertEquals(emptyList(), calls)
+        assertEquals(false, results.isAwaiting(ChooserKind.Bookmarks))
+        assertEquals(false, results.isAwaiting(ChooserKind.ReadingProgress))
+    }
+
+    @Test fun aBookmarkAnswerPublishedBeforeThePopIsNotAbandonment() {
+        results.asked(ChooserKind.Bookmarks, "w1")
+        bookmark.publishForTest(bookmarkOf("Gen.1.1"))
+        results.readingReached()
+        assertTrue(results.isAwaiting(ChooserKind.Bookmarks))
     }
 }

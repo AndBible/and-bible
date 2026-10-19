@@ -21,6 +21,8 @@ package net.bible.sharedui.ios.reading
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddBox
+import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Workspaces
 import androidx.compose.material.icons.outlined.ScreenRotation
@@ -219,6 +221,9 @@ fun iosDrawerIcon(iconKey: String): ImageVector? = when (iconKey) {
     "ic_settings_white_24dp" -> Icons.Outlined.Settings
     "ic_need_help_24dp" -> Icons.Outlined.HelpOutline
     "ic_baseline_emoji_people_24" -> Icons.Outlined.EmojiPeople
+    "ic_baseline_bookmark_24" -> Icons.Outlined.Bookmark
+    "ic_reading_plan_24dp" -> Icons.Outlined.EventNote
+    "ic_bar_chart_24dp" -> Icons.Outlined.BarChart
     else -> null
 }
 

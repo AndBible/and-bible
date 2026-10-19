@@ -108,7 +108,14 @@ class IosReadingNavigator(
 
     override fun openDownloadSearch(initials: String?) = onMain { shell.navigate(NavRoutes.download(search = initials)) }
 
-    override fun openReadingProgress(tab: Int) = onMain { shell.navigate(NavRoutes.readingProgress(tab)) }
+    override fun openReadingProgress(tab: Int) {
+        // Its chapter / memorize answer opens in the window that is active now.
+        val asker = chooserRequests.activeAsker()
+        onMain {
+            chooserRequests.asked(ChooserKind.ReadingProgress, asker)
+            shell.navigate(NavRoutes.readingProgress(tab))
+        }
+    }
 
     override fun openReadingProgressSettings() = onMain { shell.navigate(NavRoutes.READING_PROGRESS_SETTINGS) }
 

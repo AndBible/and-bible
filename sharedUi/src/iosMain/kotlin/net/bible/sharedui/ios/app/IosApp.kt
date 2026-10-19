@@ -289,6 +289,8 @@ private fun IosAppContent(
             document = channels.document,
             myDocumentPages = channels.myDocumentPages,
             myDocuments = channels.myDocuments,
+            bookmark = channels.bookmark,
+            readingProgress = channels.readingProgress,
             // A window closed while its chooser was open is gone: the answer is dropped, never applied to its page manager.
             targetFor = guardedChooserTarget(
                 isOpen = { asker ->
@@ -350,6 +352,8 @@ private fun iosChooserTarget(koin: Koin, table: StringTable, pageManager: Curren
         verseNotFoundText = { table.text("verse_not_found") },
         history = { koin.get<HistoryManager>() },
         scope = scope,
+        defaultBible = { koin.get<WindowControl>().defaultBibleDoc(false) },
+        linkControl = { koin.get<net.bible.android.control.link.LinkControl>() },
         onToolbarMayHaveChanged = { koin.get<ToolbarStateService>().refresh() },
     )
 

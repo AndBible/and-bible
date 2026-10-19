@@ -42,7 +42,7 @@ class ReadingToolbarCommandsTest {
         var stopped = true
         var editorOnReady: (() -> Unit)? = null
 
-        override fun openDrawer() { calls += "drawer" }
+        override fun toggleDrawer() { calls += "drawer" }
         override fun showDocumentSheet() { calls += "documentSheet" }
         override fun showWorkspaceSheet() { calls += "workspaceSheet" }
         override fun showScopedDocumentSheet(scope: DocumentSheetScope) { calls += "scopedSheet:$scope" }

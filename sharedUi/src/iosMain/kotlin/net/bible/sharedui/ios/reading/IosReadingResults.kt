@@ -20,7 +20,16 @@ package net.bible.sharedui.ios.reading
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import net.bible.android.common.toV11n
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.OrdinalRange
+import net.bible.android.control.progress.ReadingProgressServiceImpl
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.service.sword.BookAndKey
+import net.bible.sharedcore.nav.BookmarkResult
+import net.bible.sharedcore.nav.ReadingProgressResult
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.BookAndKeySerialized
@@ -42,7 +51,15 @@ import org.crosswire.jsword.passage.VerseFactory
 
 /** The chooser screens whose answers the reading view applies. */
 @kotlin.native.HiddenFromObjC
-enum class ChooserKind { KeyChooser, Passage, Document, MyDocumentPages, MyDocuments }
+enum class ChooserKind {
+    KeyChooser, Passage, Document, MyDocumentPages, MyDocuments,
+
+    /** The bookmark list's picked row (Android's `ReadingResultKind.Bookmarks`). */
+    Bookmarks,
+
+    /** The reading progress screen's chapter or memorize answer (`ReadingResultKind.ReadingProgress`). */
+    ReadingProgress,
+}
 
 /** Where the navigator tells the results which window opened a chooser. */
 @kotlin.native.HiddenFromObjC
@@ -77,6 +94,12 @@ interface ChooserTarget {
     /** Android's `KeyChooserResults.openMyDocumentPage` / the My Documents arm; a null [pageKey] opens the document alone. */
     fun openMyDocumentPage(documentInitials: String, pageKey: String?)
 
+    /** Android's `applyChosenPassageResult` for the bookmark list (`isFromBookmark = true`). */
+    fun applyBookmark(result: BookmarkResult)
+
+    /** Android's `applyChosenPassageResult` for the reading progress screen: a chapter opens, memorize opens the memorize view. */
+    fun applyProgress(result: ReadingProgressResult)
+
     /** The chooser was left without an answer: a page left without a key goes back in history (Android's cancel guard). */
     fun cancelled()
 }
@@ -99,6 +122,8 @@ class IosReadingResults(
     private val document: NavResultChannel<DocumentResult>,
     private val myDocumentPages: NavResultChannel<MyDocumentPagesResult>,
     private val myDocuments: NavResultChannel<MyDocumentsResult>,
+    private val bookmark: NavResultChannel<BookmarkResult>,
+    private val readingProgress: NavResultChannel<ReadingProgressResult>,
     private val targetFor: (asker: Any?) -> ChooserTarget?,
     private val activeAskerProvider: () -> Any?,
     private val log: (String) -> Unit = { Log.w(TAG, it) },
@@ -134,6 +159,11 @@ class IosReadingResults(
     internal fun onKeyChooser(result: KeyChooserResult) = deliver(ChooserKind.KeyChooser, result) { t, r -> t.applyKey(r) }
 
     internal fun onPassage(result: PassageResult) = deliver(ChooserKind.Passage, result) { t, r -> t.applyVerse(r.verse) }
+
+    internal fun onBookmark(result: BookmarkResult) = deliver(ChooserKind.Bookmarks, result) { t, r -> t.applyBookmark(r) }
+
+    internal fun onReadingProgress(result: ReadingProgressResult) =
+        deliver(ChooserKind.ReadingProgress, result) { t, r -> t.applyProgress(r) }
 
     internal fun onDocument(result: DocumentResult) = deliver(ChooserKind.Document, result) { t, r -> t.applyDocument(r.book) }
 
@@ -172,11 +202,14 @@ class IosReadingResults(
             ChooserKind.Document to (document.pending.value != null),
             ChooserKind.MyDocumentPages to (myDocumentPages.pending.value != null || myDocuments.pending.value != null),
             ChooserKind.MyDocuments to (myDocuments.pending.value != null),
+            ChooserKind.Bookmarks to (bookmark.pending.value != null),
+            ChooserKind.ReadingProgress to (readingProgress.pending.value != null),
         )
         val abandoned = open.keys.filter { pending[it] != true }
         abandoned.forEach { kind ->
             val asker = open.remove(kind)
-            targetFor(asker)?.cancelled()
+            // Android has no cancel arm for the bookmark list and the progress screen: leaving them applies nothing.
+            if (kind != ChooserKind.Bookmarks && kind != ChooserKind.ReadingProgress) targetFor(asker)?.cancelled()
         }
     }
 
@@ -186,6 +219,10 @@ class IosReadingResults(
         ReadingResultCollector(passage, { isAwaiting(ChooserKind.Passage) }, ::onPassage) { dropped(ChooserKind.Passage) },
         ReadingResultCollector(document, { isAwaiting(ChooserKind.Document) }, ::onDocument) { dropped(ChooserKind.Document) },
         ReadingResultCollector(myDocumentPages, { isAwaiting(ChooserKind.MyDocumentPages) }, ::onMyDocumentPages) { dropped(ChooserKind.MyDocumentPages) },
+        ReadingResultCollector(bookmark, { isAwaiting(ChooserKind.Bookmarks) }, ::onBookmark) { dropped(ChooserKind.Bookmarks) },
+        ReadingResultCollector(
+            readingProgress, { isAwaiting(ChooserKind.ReadingProgress) }, ::onReadingProgress,
+        ) { dropped(ChooserKind.ReadingProgress) },
         ReadingResultCollector(
             myDocuments,
             { isAwaiting(ChooserKind.MyDocuments) || isAwaiting(ChooserKind.MyDocumentPages) },
@@ -211,6 +248,8 @@ class PageManagerChooserTarget(
     private val verseNotFoundText: () -> String,
     private val history: () -> HistoryManager,
     private val scope: CoroutineScope,
+    private val defaultBible: () -> org.crosswire.jsword.book.sword.SwordBook,
+    private val linkControl: () -> net.bible.android.control.link.LinkControl,
     /** Android's `onToolbarStateMayHaveChanged()`: called after a document answer (document chooser, My Documents). */
     private val onToolbarMayHaveChanged: () -> Unit = {},
 ) : ChooserTarget {
@@ -273,6 +312,42 @@ class PageManagerChooserTarget(
             return
         }
         pageManager.setCurrentDocumentAndKey(book, key)
+    }
+
+    override fun applyBookmark(result: BookmarkResult) {
+        val verseStr = result.verse
+        if (verseStr != null) {
+            val verse = parseVerse(verseStr) ?: return
+            if (!pageManager.isBibleShown) pageManager.setCurrentDocumentAndKey(defaultBible(), verse)
+            else pageManager.currentPage.setKey(verse, false)
+            return
+        }
+        val keyStr = result.key
+        val bookStr = result.book
+        if (keyStr != null && bookStr != null) {
+            val book = Books.installed().getBook(bookStr) ?: fakeBooks().giveDoesNotExist(bookStr)
+            val key = book.getKey(keyStr)
+            pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, OrdinalRange(result.ordinal ?: 0)))
+        }
+    }
+
+    override fun applyProgress(result: ReadingProgressResult) {
+        when (result) {
+            is ReadingProgressResult.Chapter -> applyVerse(ReadingProgressServiceImpl.osisIdForChapter(result.bookId, result.chapter))
+            is ReadingProgressResult.Memorize -> {
+                val bible = defaultBible()
+                val v11n = bible.versification
+                val range = VerseRange(KJVA, Verse(KJVA, result.startOrdinal), Verse(KJVA, result.endOrdinal)).toV11n(v11n)
+                linkControl().openMemorize(BookAndKey(range, bible))
+            }
+        }
+    }
+
+    private fun parseVerse(osisId: String): Verse? = try {
+        VerseFactory.fromString(versification(), osisId)
+    } catch (e: NoSuchVerseException) {
+        notifier().showInfo(verseNotFoundText(), false)
+        null
     }
 
     override fun cancelled() {

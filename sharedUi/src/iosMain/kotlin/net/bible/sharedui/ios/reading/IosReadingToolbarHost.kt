@@ -50,6 +50,7 @@ import net.bible.sharedui.reading.host.slots.ReadingHostSlots
 import net.bible.sharedui.reading.toolbar.ReadingDrawerHost
 import net.bible.sharedui.reading.toolbar.ReadingOverflowHost
 import net.bible.sharedui.reading.toolbar.ReadingToolbarHost
+import net.bible.sharedui.reading.toolbar.WorkspaceCycler
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import platform.Foundation.NSBundle
@@ -66,6 +67,8 @@ import platform.Foundation.NSBundle
  * - Overflow "Auto assign labels": the workspace label manager's result (applied to the workspace settings) is not
  *   exposed by [IosReadingNavigator]; needs a navigator member that awaits the manager.
  * - Overflow "LLM actions": no LLM configuration on iOS yet (the pane menu omits it for the same reason).
+ * - Stand-in: a recent text option that is neither a toggle nor sheet-editable opens the full text options screen
+ *   (Android calls the option's own dialog).
  * - Drawer rows listed in `ReadingDrawerMenu.OMITTED_ROWS`.
  *
  * [overflowItems] and [overflowExpanded] are the menu's state, handed to `ReadingHostDeps`.
@@ -86,7 +89,7 @@ internal class IosReadingToolbarHost(
     private val speakControl: () -> SpeakControl,
     private val transport: () -> SpeakTransportServiceImpl,
     private val slots: () -> ReadingHostSlots,
-    private val quickSwitchToWorkspace: (String) -> Unit,
+    private val switchToWorkspace: suspend (String) -> Unit,
     private val searchModeActive: () -> Boolean,
     private val chooserRequests: ChooserRequests,
     private val externalLinks: ExternalLinks,
@@ -108,7 +111,7 @@ internal class IosReadingToolbarHost(
 
     // ----- ReadingToolbarHost: sheets and screens -----
 
-    override fun openDrawer() = hostState.openDrawer()
+    override fun toggleDrawer() = hostState.toggleDrawer()
     override fun showDocumentSheet() = hostState.showDocumentSheet()
     override fun showWorkspaceSheet() = hostState.showWorkspaceSheet()
     override fun showScopedDocumentSheet(scope: DocumentSheetScope) =
@@ -156,7 +159,11 @@ internal class IosReadingToolbarHost(
 
     /** Android's `setCurrentDocument`: shows the book in the active window and remembers it as the category default. */
     override fun switchDocument(initials: String) {
-        val book = SwordDocumentFacade.getDocumentByInitials(initials) ?: return
+        val book = SwordDocumentFacade.getDocumentByInitials(initials)
+        if (book == null) {
+            nsLog("ReadingToolbar: cannot switch to $initials, the document is not installed")
+            return
+        }
         windows.activeWindow.pageManager.setCurrentDocument(book)
         settings.setString("default-${book.bookCategory.name}", book.initials)
     }
@@ -196,16 +203,15 @@ internal class IosReadingToolbarHost(
 
     // ----- ReadingToolbarHost: workspaces and toolbar -----
 
-    /** Android's `cycleWorkspace`: the next or previous workspace in list order, wrapping; nothing with fewer than two. */
+    private val cycler = WorkspaceCycler(
+        workspaceIds = { DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces().map { it.id.toString() } },
+        currentId = { repository.id.toString() },
+        switchTo = { switchToWorkspace(it) },
+    )
+
+    /** Android's `cycleWorkspace`: next or previous workspace in list order, wrapping; serialised so a double fling advances twice. */
     override fun cycleWorkspace(forward: Boolean) {
-        scope.launch {
-            val workspaces = DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces()
-            if (workspaces.size < 2) return@launch
-            val current = workspaces.indexOfFirst { it.id == repository.id }
-            val next = if (forward) (if (current < workspaces.size - 1) current + 1 else 0)
-            else (if (current > 0) current - 1 else workspaces.size - 1)
-            quickSwitchToWorkspace(workspaces[next].id.toString())
-        }
+        scope.launch { cycler.cycle(forward) }
     }
 
     override fun refreshToolbar() {
@@ -281,6 +287,15 @@ internal class IosReadingToolbarHost(
         chooserRequests.asked(ChooserKind.MyDocuments, chooserRequests.activeAsker())
         shell.navigate(NavRoutes.myDocuments())
     }
+
+    override fun openBookmarks() {
+        chooserRequests.asked(ChooserKind.Bookmarks, chooserRequests.activeAsker())
+        shell.navigate(NavRoutes.bookmarks())
+    }
+
+    override fun openReadingProgress() = navigator.openReadingProgress(0)
+
+    override fun openReadingPlan() = shell.navigate(NavRoutes.dailyReading())
 
     override fun navigate(route: String) = shell.navigate(route)
     override fun openUrl(url: String) = externalLinks.open(url)

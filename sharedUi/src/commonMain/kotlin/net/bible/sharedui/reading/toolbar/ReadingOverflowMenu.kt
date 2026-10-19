@@ -71,6 +71,9 @@ interface ReadingOverflowHost {
  * Rows Android has that iOS does not (each named, with its missing dependency, in `IosReadingToolbarHost`):
  * Toggle full screen (iOS has no full-screen reading mode yet), Auto assign labels (the label manager's workspace
  * mode needs a result path the navigator does not expose), LLM actions (no LLM configuration on iOS yet).
+ *
+ * A stand-in, not an omission: a recent text option that is neither a toggle nor sheet-editable (Android calls its
+ * `openDialog`) opens the full text options screen instead.
  */
 @kotlin.native.HiddenFromObjC
 class ReadingOverflowMenu(private val host: ReadingOverflowHost, private val strings: () -> KeyedReadingMenuStrings) {

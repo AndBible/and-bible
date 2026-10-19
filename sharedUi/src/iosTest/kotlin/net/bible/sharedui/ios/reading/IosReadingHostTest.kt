@@ -204,9 +204,11 @@ class IosReadingHostTest {
         }
 
         // Observable effects of the ones that open something.
+        host.hostState.closeDrawer()
         c.onHome()
         assertTrue(host.hostState.isDrawerOpen, "home opens the drawer")
-        host.hostState.closeDrawer()
+        c.onHome()
+        assertFalse(host.hostState.isDrawerOpen, "home with the drawer open closes it (Android's toggleDrawer)")
         c.onTitleLongPress()
         assertTrue(host.hostState.quickSheet.value is net.bible.sharedcore.reading.ReadingQuickSheet.Documents, "title long press: document sheet")
         host.hostState.closeQuickSheet()

@@ -36,7 +36,8 @@ import net.bible.sharedui.reading.ReadingToolbarCallbacks
 @kotlin.native.HiddenFromObjC
 interface ReadingToolbarHost {
     // --- sheets and screens ---
-    fun openDrawer()
+    /** Android's `toggleDrawer`: the home button closes an open drawer. */
+    fun toggleDrawer()
     fun showDocumentSheet()
     fun showWorkspaceSheet()
     fun showScopedDocumentSheet(scope: DocumentSheetScope)
@@ -90,7 +91,7 @@ class ReadingToolbarCommands(private val host: ReadingToolbarHost) {
     private val swapMenu get() = host.toolbarButtonSetting == "swap-menu"
 
     fun callbacks() = ReadingToolbarCallbacks(
-        onHome = host::openDrawer,
+        onHome = host::toggleDrawer,
         onTitleTap = host::startKeyChooser,
         onTitleLongPress = host::showDocumentSheet,
         onTitleFlingVertical = host::showWorkspaceSheet,

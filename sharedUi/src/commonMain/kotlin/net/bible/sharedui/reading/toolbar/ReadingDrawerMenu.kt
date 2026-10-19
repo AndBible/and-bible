@@ -39,6 +39,15 @@ interface ReadingDrawerHost {
     /** Opens My Documents, recording the asking window so a document it opens lands there. */
     fun openMyDocuments()
 
+    /** Opens the bookmark list; a picked bookmark opens in the asking window. */
+    fun openBookmarks()
+
+    /** Opens the reading progress screen; a chapter or memorize answer opens in the asking window. */
+    fun openReadingProgress()
+
+    /** Opens the daily reading plan (it opens passages itself; Android has no result collector for it either). */
+    fun openReadingPlan()
+
     /** Opens a screen of the navigation graph. */
     fun navigate(route: String)
     fun openUrl(url: String)
@@ -71,7 +80,10 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
                         item(ID_CHOOSE_DOCUMENT, s.chooseDocument, "ic_library_books_white_24dp"),
                         item(ID_SEARCH, s.search, "ic_search_24dp", host.searchable()),
                         item(ID_SPEAK, s.speak, "ic_baseline_headphones_24", host.speakable()),
+                        item(ID_BOOKMARKS, s.bookmarks, "ic_baseline_bookmark_24"),
                         item(ID_MY_DOCUMENTS, s.myDocuments, "ic_baseline_description_24"),
+                        item(ID_READING_PLAN, s.readingPlan, "ic_reading_plan_24dp"),
+                        item(ID_READING_PROGRESS, s.readingProgress, "ic_bar_chart_24dp"),
                         item(ID_HISTORY, s.history, "ic_history_clock_24dp"),
                     ),
                 ),
@@ -100,7 +112,10 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
             ID_CHOOSE_DOCUMENT -> host.openChooseDocument()
             ID_SEARCH -> if (host.searchable()) host.openSearch()
             ID_SPEAK -> if (host.speakable()) host.showSpeakTransport()
+            ID_BOOKMARKS -> host.openBookmarks()
             ID_MY_DOCUMENTS -> host.openMyDocuments()
+            ID_READING_PLAN -> host.openReadingPlan()
+            ID_READING_PROGRESS -> host.openReadingProgress()
             ID_HISTORY -> host.showHistorySheet()
             ID_DOWNLOAD -> host.openDownloads()
             ID_AI_SETTINGS -> host.navigate(NavRoutes.AI_PROMPTS)
@@ -114,7 +129,10 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
         const val ID_CHOOSE_DOCUMENT = "chooseDocumentButton"
         const val ID_SEARCH = "searchButton"
         const val ID_SPEAK = "speakButton"
+        const val ID_BOOKMARKS = "bookmarksButton"
         const val ID_MY_DOCUMENTS = "myDocumentsButton"
+        const val ID_READING_PLAN = "dailyReadingPlanButton"
+        const val ID_READING_PROGRESS = "readingProgressButton"
         const val ID_HISTORY = "historyButton"
         const val ID_DOWNLOAD = "downloadButton"
         const val ID_AI_SETTINGS = "managePrompts"
@@ -127,7 +145,7 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
 
         /** The ids of the rows in the order [build] emits them. */
         val ROW_IDS = listOf(
-            ID_CHOOSE_DOCUMENT, ID_SEARCH, ID_SPEAK, ID_MY_DOCUMENTS, ID_HISTORY,
+            ID_CHOOSE_DOCUMENT, ID_SEARCH, ID_SPEAK, ID_BOOKMARKS, ID_MY_DOCUMENTS, ID_READING_PLAN, ID_READING_PROGRESS, ID_HISTORY,
             ID_DOWNLOAD, ID_AI_SETTINGS, ID_SETTINGS, ID_NEED_HELP, ID_HOW_TO_CONTRIBUTE,
         )
 
@@ -136,10 +154,7 @@ class ReadingDrawerMenu(private val host: ReadingDrawerHost, private val strings
          * the drawer test so a row cannot be dropped silently.
          */
         val OMITTED_ROWS: Map<String, String> = mapOf(
-            "bookmarksButton" to "result collector for the bookmark list's picked verse (IosReadingResults has none)",
-            "studyPadsButton" to "label manager STUDYPAD flow with its result applied to the workspace settings",
-            "dailyReadingPlanButton" to "result collector for the reading plan's opened passage",
-            "readingProgressButton" to "result collector for the reading progress screen's verse and memorize answers",
+            "studyPadsButton" to "the label manager's STUDYPAD mode with its result applied to the workspace settings (needs a navigator member that awaits the manager, like assignLabels)",
             "backupMainMenu" to "backup and restore popup (Stream F backup port)",
             "googleDriveSync" to "cloud sync is not offered on iOS (Android's isCloudSyncAvailable is false)",
             "helpButton" to "help and tips dialog (the help HTML is an Android raw resource)",

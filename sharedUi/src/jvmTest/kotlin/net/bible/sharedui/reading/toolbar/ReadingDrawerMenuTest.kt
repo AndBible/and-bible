@@ -39,6 +39,9 @@ class ReadingDrawerMenuTest {
         override fun showHistorySheet() { calls += "history" }
         override fun openDownloads() { calls += "downloads" }
         override fun openMyDocuments() { calls += "myDocuments" }
+        override fun openBookmarks() { calls += "bookmarks" }
+        override fun openReadingProgress() { calls += "progress" }
+        override fun openReadingPlan() { calls += "plan" }
         override fun navigate(route: String) { calls += "navigate:$route" }
         override fun openUrl(url: String) { calls += "url:$url" }
         override fun searchable() = searchOk
@@ -72,7 +75,7 @@ class ReadingDrawerMenuTest {
         ReadingDrawerMenu.ROW_IDS.forEach(menu::handle)
         assertEquals(
             listOf(
-                "chooser", "search", "speak", "myDocuments", "history", "downloads",
+                "chooser", "search", "speak", "bookmarks", "myDocuments", "plan", "progress", "history", "downloads",
                 "navigate:ai/prompts", "navigate:settings/app",
                 "url:${ReadingDrawerMenu.NEED_HELP_LINK}", "url:${ReadingDrawerMenu.CONTRIBUTE_LINK}",
             ),

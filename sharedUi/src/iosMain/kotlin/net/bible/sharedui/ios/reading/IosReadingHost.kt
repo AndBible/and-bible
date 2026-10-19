@@ -370,7 +370,7 @@ class IosReadingHost(
         speakControl = { speakControl },
         transport = { koin.get<SpeakTransportServiceImpl>() },
         slots = { slots },
-        quickSwitchToWorkspace = quickActions::quickSwitchToWorkspace,
+        switchToWorkspace = quickActions::switchToWorkspace,
         searchModeActive = { searchState.searchBar.value != null },
         chooserRequests = readingResults ?: ChooserRequests.None,
         externalLinks = koin.get<ExternalLinks>(),
