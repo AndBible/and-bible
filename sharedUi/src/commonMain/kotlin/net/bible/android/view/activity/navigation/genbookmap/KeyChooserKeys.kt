@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.navigation.genbookmap
 
 import net.bible.android.control.page.CurrentGeneralBookPage
@@ -39,7 +41,8 @@ import org.crosswire.jsword.passage.Key
  */
 
 /** The map chooser's keys. */
-internal fun CurrentMapPage.keyChooserKeys(): List<Key> = cachedGlobalKeyList ?: emptyList()
+@kotlin.native.HiddenFromObjC
+fun CurrentMapPage.keyChooserKeys(): List<Key> = cachedGlobalKeyList ?: emptyList()
 
 /**
  * The general-book chooser's keys: an EPUB offers its table of contents, everything else the cached
@@ -52,7 +55,8 @@ internal fun CurrentMapPage.keyChooserKeys(): List<Key> = cachedGlobalKeyList ?:
  * which is the one case the activity's `!!` would have crashed on and which now simply means "no
  * rows" — and, for the sheet, "do not open" (spec §4.6 / Task 9 amendment E3).
  */
-internal suspend fun CurrentGeneralBookPage.keyChooserKeys(): List<Key> {
+@kotlin.native.HiddenFromObjC
+suspend fun CurrentGeneralBookPage.keyChooserKeys(): List<Key> {
     val doc = currentDocument ?: return emptyList()
     return if (doc.isEpub) {
         ((doc as SwordGenBook).backend as EpubBackend).tocKeys()

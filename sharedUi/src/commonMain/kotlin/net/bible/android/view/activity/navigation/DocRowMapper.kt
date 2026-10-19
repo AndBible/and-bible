@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.navigation
 
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
@@ -46,7 +48,8 @@ import org.crosswire.jsword.book.Book
  * ChooseDocument-only (it feeds that screen's search field) and has no business running whenever a
  * quick sheet opens.
  */
-internal class DocRowMapper(private val downloadControl: DownloadControl, books: List<Book>) {
+@kotlin.native.HiddenFromObjC
+class DocRowMapper(private val downloadControl: DownloadControl, books: List<Book>) {
     /** Reuse the classic language grouping so dedup + representative displayName match classic. */
     private val grouping = LanguageGrouping(books.mapNotNull { it.language })
 
