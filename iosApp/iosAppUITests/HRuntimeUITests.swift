@@ -150,9 +150,12 @@ final class HRuntimeUITests: RealAppUITestCase {
         tapButton(app, "Add provider")
         let accept = button(app, "I accept and take full responsibility")
         if accept.waitForExistence(timeout: 3) { accept.tap() }
-        // The sheet is lazily laid out and "Custom (OpenAI compatible)" starts below the fold: settle it first.
+        // The sheet is lazily laid out and "Custom (OpenAI compatible)" is its LAST row, below the fold: scroll
+        // (bounded) until the real row exists, then require full on-screen geometry that is stable. A band cannot
+        // contain a last row, so none is used.
         let customText = app.staticTexts.matching(NSPredicate(format: "label == %@", "Custom (OpenAI compatible)")).firstMatch
-        require(bringIntoBand(app, customText, band: 0.5...0.9, maxSteps: 30), app, "custom-provider-type-row-not-settled")
+        for _ in 0..<15 where !customText.exists { nudgeList(app, up: true) }
+        require(customText.exists && waitForStableOnScreen(app, customText), app, "custom-provider-type-row-not-settled")
         let customRows = app.buttons.containing(.staticText, identifier: "Custom (OpenAI compatible)")
         let customRow = customRows.firstMatch
         require(customRow.waitForExistence(timeout: 10) && customRows.count == 1 && customRow.isHittable, app, "custom-provider-type-row-missing")
