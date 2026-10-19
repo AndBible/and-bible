@@ -60,22 +60,29 @@ final class ReadingUITests: XCTestCase {
         return Array(Set(ids)).sorted()
     }
 
-    /// How many 'Nicodemus' labels the pane `id` exposes (the first-verse marker: exactly 1 when the pane is in the
-    /// accessibility tree once; 0 = dropped out; 2+ = duplicated by a re-parent).
-    private func nicodemusCount(_ app: XCUIApplication, pane id: String) -> Int {
-        app.webViews.matching(identifier: id).firstMatch.staticTexts
-            .matching(NSPredicate(format: "label == 'Nicodemus'")).count
+    /// All 'Nicodemus' labels in the whole app tree (every pane's web view together). The query returns each element
+    /// once, so nested WebView-type elements of one WKWebView do not inflate it. Assumption (owed Mac run): a pane that
+    /// is in the accessibility tree twice after a re-parent shows its label twice here.
+    private func nicodemusInWebViews(_ app: XCUIApplication) -> Int {
+        app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).count
     }
 
-    /// Every one of the first `count` panes shows the marker exactly once (polls: WebKit rebuilds its tree lazily).
+    /// Same count over `app.staticTexts` (not restricted to web view ancestors), recorded as a cross-check.
+    private func nicodemusInApp(_ app: XCUIApplication) -> Int {
+        app.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).count
+    }
+
+    /// There are `count` distinct panes and exactly `count` 'Nicodemus' labels in the whole tree: one per pane. Fails on
+    /// 0 for a pane (count too low), and on a duplicated pane (count too high), unlike a per-pane `firstMatch` lookup.
+    /// Both counts are attached; the assertion uses the web view one (robust to the app tree holding other texts).
     private func assertTextOncePerPane(_ app: XCUIApplication, panes count: Int, _ step: String) {
         let ok = waitUntil(timeout: 30) {
-            let ids = paneIds(app)
-            return ids.count == count && ids.allSatisfy { nicodemusCount(app, pane: $0) == 1 }
+            paneIds(app).count == count && nicodemusInWebViews(app) == count
         }
+        let summary = "panes=\(paneIds(app)) webViewLabels=\(nicodemusInWebViews(app)) appLabels=\(nicodemusInApp(app))"
+        let a = XCTAttachment(string: summary); a.name = "text-once-\(step)"; a.lifetime = .keepAlways; add(a)
         if !ok { attachTree(app, step) }
-        let counts = paneIds(app).map { "\($0)=\(nicodemusCount(app, pane: $0))" }
-        XCTAssertTrue(ok, "\(step): expected \(count) panes with the text exactly once each, got \(counts)")
+        XCTAssertTrue(ok, "\(step): expected \(count) panes and \(count) 'Nicodemus' labels (once per pane), got \(summary)")
     }
 
     /// The tab-rail buttons that stand for windows (labelled with the module, 'KJV' here).
@@ -83,9 +90,10 @@ final class ReadingUITests: XCTestCase {
         app.buttons.matching(NSPredicate(format: "label CONTAINS 'KJV'")).allElementsBoundByIndex
     }
 
+    /// Exact label match only (items that open a dialog carry a trailing " …"), so a "Close" elsewhere is not hit.
     private func tapMenuItem(_ app: XCUIApplication, _ labels: [String], _ step: String) {
         for label in labels {
-            let item = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", label)).firstMatch
+            let item = app.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", label, label + " …")).firstMatch
             if item.waitForExistence(timeout: 5) { item.tap(); return }
         }
         attachTree(app, "\(step)-no-menu-item")
@@ -155,20 +163,28 @@ final class ReadingUITests: XCTestCase {
         let before = paneIds(app)
         XCTAssertEqual(before.count, 2)
 
-        // A sheet reachable from the reading chrome: the first of these labels that exists.
-        let opener = ["Search", "Bookmarks", "History"]
-            .map { app.buttons[$0] }.first { $0.waitForExistence(timeout: 5) }
+        // A sheet reachable from the reading chrome: check every label with a short wait, then once with a longer one.
+        let candidates = ["Search", "Bookmarks", "History"].map { app.buttons[$0] }
+        var opener = candidates.first { $0.waitForExistence(timeout: 1) }
+        if opener == nil { opener = candidates.first { $0.waitForExistence(timeout: 10) } }
         guard let opener else {
             attachTree(app, "no-sheet-opener")
             XCTFail("no reading control that opens a sheet (Search/Bookmarks/History)")
             return
         }
         opener.tap()
-        sleep(2)
+        // The sheet is up when the reading chrome's opener is covered or a dismiss control appears.
+        let sheetDismiss = app.buttons.matching(NSPredicate(format: "label IN {'Close', 'Cancel', 'Back'}")).firstMatch
+        let sheetUp = sheetDismiss.waitForExistence(timeout: 10)
         shot(app, "sheet-open")
-        // Dismiss: a Close/Cancel/Back button when the sheet has one, else a swipe down on the sheet area.
-        let dismiss = ["Close", "Cancel", "Back"].map { app.buttons[$0] }.first { $0.exists }
-        if let dismiss { dismiss.tap() } else { app.swipeDown(velocity: .fast) }
+        if sheetUp {
+            sheetDismiss.tap()
+        } else {
+            // No dismiss button: drag the sheet's grabber region (upper part of the sheet), never a swipe inside the web view.
+            attachTree(app, "sheet-no-dismiss-button")
+            let handle = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+            handle.press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.98)))
+        }
 
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 15), "reading host not back after the sheet")
         XCTAssertEqual(paneIds(app), before, "panes changed across the sheet (a pane was recreated)")
