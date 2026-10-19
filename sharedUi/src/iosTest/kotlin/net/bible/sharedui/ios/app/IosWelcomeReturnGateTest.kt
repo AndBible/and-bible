@@ -30,6 +30,26 @@ class IosWelcomeReturnGateTest {
     }
 
     @Test
+    fun lockedBibleIsUnlockedBeforeReadingAndCancelStaysOnWelcome() {
+        for (accept in listOf(true, false)) {
+            var usable = false
+            var prompts = 0
+            var opened = 0
+            var refreshed = 0
+            val gate = IosWelcomeReturnGate(
+                scope = CoroutineScope(Dispatchers.Unconfined), usableBible = { usable },
+                unlockIfNeeded = { prompts++; usable = accept },
+                ensureReading = { assertTrue(usable) }, currentRoute = { NavRoutes.WELCOME },
+                openReading = { opened++ }, refreshWelcome = { refreshed++ },
+            )
+            gate.afterExternalFlow()
+            assertEquals(1, prompts)
+            assertEquals(if (accept) 1 else 0, opened)
+            assertEquals(if (accept) 0 else 1, refreshed)
+        }
+    }
+
+    @Test
     fun externalRestoreWithUsableBibleInitialisesBeforeOpeningReading() {
         val f = Fixture(ensureGate = CompletableDeferred())
         f.gate.afterExternalFlow()

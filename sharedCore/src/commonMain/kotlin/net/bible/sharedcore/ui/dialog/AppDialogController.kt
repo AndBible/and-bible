@@ -70,8 +70,11 @@ class AppDialogController {
      */
     private val drafts = HashMap<String, String>()
 
+    private fun resolved(entry: Entry): AppDialogRequest =
+        (entry.request as? AppDialogRequest.Localized)?.resolve() ?: entry.request
+
     private fun draftKeyOf(entry: Entry): String? =
-        (entry.request as? AppDialogRequest.TextInput)?.let { it.draftKey ?: "id:${entry.id}" }
+        (resolved(entry) as? AppDialogRequest.TextInput)?.let { it.draftKey ?: "id:${entry.id}" }
 
     /** The half-typed text saved for the queued request [id], or null. */
     fun draft(id: Long): String? = synchronized(lock) {
@@ -144,7 +147,7 @@ class AppDialogController {
         synchronized(lock) {
             // A withdrawal keeps a keyed draft for the re-raised request; a key-less one is unreachable.
             queue.firstOrNull { it.id == id }?.let { e ->
-                if ((e.request as? AppDialogRequest.TextInput)?.draftKey == null) drafts.remove("id:$id")
+                if ((resolved(e) as? AppDialogRequest.TextInput)?.draftKey == null) drafts.remove("id:$id")
             }
             if (queue.removeAll { it.id == id }) publish()
         }

@@ -21,7 +21,8 @@ package net.bible.sharedui.ios.ports
 import androidx.compose.runtime.Composable
 import net.bible.sharedui.app.download.DownloadHostPlatform
 import net.bible.sharedui.app.download.DownloadOverflowItem
-import net.bible.sharedui.ios.IosPending
+import androidx.compose.material.icons.filled.Dns
+import kotlin.coroutines.cancellation.CancellationException
 import net.bible.sharedcore.log.nsLog
 import okio.FileSystem
 import okio.Path
@@ -36,14 +37,19 @@ import org.crosswire.jsword.book.Book
  * volume lacks room for it, an existing target is replaced atomically (copy to `<name>.tmp`, then rename), missing parent directories are created. Never throws.
  */
 @kotlin.native.HiddenFromObjC
-internal fun copyFileReplacing(from: Path, to: Path, files: FileSystem = FileSystem.SYSTEM): Boolean = try {
+internal fun copyFileReplacing(
+    from: Path,
+    to: Path,
+    files: FileSystem = FileSystem.SYSTEM,
+    freeBytes: (String) -> Long? = ::freeSpaceBytes,
+): Boolean = try {
     val size = files.metadataOrNull(from)?.takeIf { it.isRegularFile }?.size
     if (size == null) {
         nsLog("copyFile: source missing: $from")
         false
     } else {
         to.parent?.let { files.createDirectories(it) }
-        val free = freeSpaceBytes((to.parent ?: to).toString())
+        val free = freeBytes((to.parent ?: to).toString())
         if (free != null && size > free) {
             nsLog("copyFile: not enough room ($size > $free) for $to")
             false
@@ -62,6 +68,8 @@ internal fun copyFileReplacing(from: Path, to: Path, files: FileSystem = FileSys
             }
         }
     }
+} catch (e: CancellationException) {
+    throw e
 } catch (e: Throwable) {
     nsLog("copyFile $from -> $to failed: ${e.message}")
     false
@@ -71,27 +79,27 @@ internal fun copyFileReplacing(from: Path, to: Path, files: FileSystem = FileSys
 private fun freeSpaceBytes(path: String): Long? =
     (NSFileManager.defaultManager.attributesOfFileSystemForPath(path, null)?.get(NSFileSystemFreeSize) as? NSNumber)?.longLongValue
 
-/** Download on iOS: the overflow icon renders nothing; the rest is pending (stream H). */
+/** Device file operations and shared document dialogs for iOS downloads. */
 @kotlin.native.HiddenFromObjC
-class IosDownloadHostPlatform : DownloadHostPlatform {
+class IosDownloadHostPlatform(private val documents: IosDocumentDialogs) : DownloadHostPlatform {
     override fun copyFile(from: Path, to: Path): Boolean = copyFileReplacing(from, to)
 
-    override suspend fun showAbout(book: Book) {
-        IosPending.log("DownloadHostPlatform.showAbout")
-    }
-
-    override suspend fun unlock(book: Book): Boolean {
-        IosPending.log("DownloadHostPlatform.unlock")
-        return false
-    }
-
-    override suspend fun confirmUpgradeWithBookmarks(): Boolean {
-        IosPending.log("DownloadHostPlatform.confirmUpgradeWithBookmarks")
-        return false
-    }
+    override suspend fun showAbout(book: Book) = documents.showAboutBook(book)
+    override suspend fun unlock(book: Book): Boolean = documents.unlockBook(book)
+    override suspend fun confirmUpgradeWithBookmarks(): Boolean = documents.confirmUpgrade()
 
     @Composable
     override fun OverflowIcon(item: DownloadOverflowItem) {
-        // Nothing to draw: the overflow items carry no platform-specific icon on iOS.
+        if (item == DownloadOverflowItem.CUSTOM_REPOSITORIES) {
+            androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Filled.Dns, contentDescription = null)
+            return
+        }
+        val key = when (item) {
+            DownloadOverflowItem.ERRORS -> "ic_error_outline_black_24dp"
+            DownloadOverflowItem.INSTALL_ZIP -> "ic_unarchive_white_24dp"
+            DownloadOverflowItem.CUSTOM_REPOSITORIES -> "ic_baseline_cloud_download_24"
+            DownloadOverflowItem.CLOUD_DOCUMENTS -> "ic_syncdb_24dp"
+        }
+        androidx.compose.material3.Icon(org.jetbrains.compose.resources.painterResource(net.bible.sharedui.icons.AbIcons.all.getValue(key)), contentDescription = null)
     }
 }

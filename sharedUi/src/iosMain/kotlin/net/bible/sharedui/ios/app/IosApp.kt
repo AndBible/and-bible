@@ -221,6 +221,13 @@ private fun IosAppContent(
         val gate = IosWelcomeReturnGate(
             scope = scope,
             usableBible = { withContext(Dispatchers.Default) { hasUsableBible(SwordDocumentFacade.bibles) } },
+            unlockIfNeeded = {
+                net.bible.service.sword.unlockLockedBiblesIfNoneUsable(
+                    object : net.bible.service.sword.BookUnlocker {
+                        override suspend fun unlock(book: Book): Boolean = ports.documentDialogs.awaitUnlock(book.initials)
+                    },
+                )
+            },
             ensureReading = { IosReadingReady.ensure(table) },
             currentRoute = { navController.currentDestination?.route },
             openReading = { shell.openReading() },

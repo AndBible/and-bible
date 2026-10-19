@@ -26,6 +26,7 @@ class IosWelcomeReturnGate(
     private val openReading: () -> Unit,
     private val refreshWelcome: () -> Unit,
     private val log: (String) -> Unit = {},
+    private val unlockIfNeeded: suspend () -> Unit = {},
 ) {
     /** True while a flow is out of Welcome (main thread only). */
     var awaitingReturn = false
@@ -47,7 +48,7 @@ class IosWelcomeReturnGate(
         awaitingReturn = false
         scope.launch {
             try {
-                // pending: unlock-if-needed (Android gate (b) unlocks locked Bibles with stored keys first; no iOS port yet)
+                unlockIfNeeded()
                 if (!usableBible()) {
                     refreshWelcome()
                     return@launch

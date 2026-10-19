@@ -48,8 +48,8 @@ import org.koin.core.Koin
 
 /**
  * Assembles the 22 [HostPorts] for iOS. Most ports are still pending ([IosPending] logs them); the real ones are
- * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]), Welcome (all paths) and the Download
- * port's first-download `copyFile`. Download unlock and About stay pending.
+ * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]), Welcome, document/help dialogs,
+ * and the Download/cloud document ports.
  */
 @kotlin.native.HiddenFromObjC
 @Suppress("UNUSED_PARAMETER")
@@ -64,7 +64,9 @@ fun buildIosHostPorts(
     val bookmark = IosBookmarkHostPlatform()
     val readingPlan = IosReadingPlanHostPlatform()
     val installZip = IosInstallZipHostPlatform()
-    val download = IosDownloadHostPlatform()
+    val currentTable = { koin.getOrNull<net.bible.sharedui.assembly.IosStringTableHolder>()?.current ?: table }
+    val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get())
+    val download = IosDownloadHostPlatform(documents)
     val cloud = IosCloudDocumentsHostPlatform()
     val promptFiles = IosPromptFiles()
     val bugReport = IosBugReportPlatform()
@@ -75,8 +77,8 @@ fun buildIosHostPorts(
         textShare = IosTextShare(),
         notificationPermission = IosNotificationPermission(),
         systemScreens = IosSystemScreens(),
-        documentDialogs = IosDocumentDialogs(),
-        helpDialogs = IosHelpDialogs(),
+        documentDialogs = documents,
+        helpDialogs = IosHelpDialogs(koin.get(), currentTable),
         welcomePlatform = { welcome },
         chooserPlatform = { chooser },
         labelIcons = IosLabelIcons(),

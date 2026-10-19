@@ -74,7 +74,7 @@ fun AppDialogHost(
         }
         if (shown != null) {
             val id = shown.id
-            val request = shown.request
+            val request = (shown.request as? AppDialogRequest.Localized)?.resolve() ?: shown.request
             val isSheet = request is AppDialogRequest.SingleChoice || request is AppDialogRequest.MultiChoice ||
                 (request is AppDialogRequest.Options && request.asActionSheet)
             if (isSheet) LaunchedEffect(id) { onSheetOpening() }
@@ -177,6 +177,7 @@ fun AppDialogHost(
                 // ShownDialog directly around a Progress (as some tests still do) still shows something
                 // sane rather than silently nothing.
                 is AppDialogRequest.Progress -> AbProgressDialog(message = request.message, title = request.title)
+                is AppDialogRequest.Localized -> error("Nested localized dialog")
             }
         }
     }

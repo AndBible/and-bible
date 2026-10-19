@@ -1,39 +1,48 @@
-/*
- * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
- *
- * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
- *
- * AndBible is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- *
- * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with AndBible.
- * If not, see http://www.gnu.org/licenses/.
- */
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-
 package net.bible.sharedui.ios.ports
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedui.app.ports.DocumentDialogs
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.app.ports.DocumentDialogsCore
+import net.bible.sharedui.strings.keyed.StringTable
+import org.crosswire.jsword.book.Book
 
-/** Pending (stream H): unlocking is declined. */
+/** iOS uses the same unlock loop and persisted cipherKey as Android. */
 @kotlin.native.HiddenFromObjC
-class IosDocumentDialogs : DocumentDialogs {
-    override fun showAbout(documentId: String) {
-        IosPending.log("DocumentDialogs.showAbout")
+class IosDocumentDialogs(
+    private val scope: CoroutineScope,
+    dialogs: AppDialogController,
+    private val table: () -> StringTable,
+    private val notifier: UserNotifier,
+) : DocumentDialogs {
+    val core = DocumentDialogsCore(dialogs, table, live = true)
+    private fun launch(action: suspend () -> Unit) { scope.launch { safely { action(); true } } }
+    private suspend fun safely(action: suspend () -> Boolean): Boolean = try { action() }
+    catch (e: CancellationException) { throw e }
+    catch (e: Throwable) {
+        net.bible.sharedcore.log.Log.e("IosDocumentDialogs", "Document dialog failed", e)
+        notifier.showError(table().text("error_occurred"), e)
+        false
     }
-
-    override fun unlock(documentId: String, onUnlocked: () -> Unit) {
-        IosPending.log("DocumentDialogs.unlock")
+    override fun showAbout(documentId: String) = launch {
+        SwordDocumentFacade.getDocumentByInitials(documentId)?.let { core.showAbout(it) }
     }
-
-    override suspend fun awaitUnlock(documentId: String): Boolean {
-        IosPending.log("DocumentDialogs.awaitUnlock")
-        return false
+    override fun unlock(documentId: String, onUnlocked: () -> Unit) = launch { if (awaitUnlock(documentId)) onUnlocked() }
+    override suspend fun awaitUnlock(documentId: String): Boolean = safely {
+        SwordDocumentFacade.getDocumentByInitials(documentId)?.let { unlockBook(it) } ?: false
+    }
+    suspend fun showAboutBook(book: Book) { safely { core.showAbout(book); true } }
+    suspend fun confirmUpgrade(): Boolean = safely { core.confirmUpgrade() }
+    suspend fun unlockBook(book: Book): Boolean = safely {
+        core.unlockDocument(book) { key ->
+            val dao = DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao()
+            dao.getBook(book.initials)?.apply { cipherKey = key; dao.update(this) }
+        }
     }
 }
