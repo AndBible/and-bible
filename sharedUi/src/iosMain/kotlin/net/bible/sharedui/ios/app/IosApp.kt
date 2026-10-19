@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -96,6 +97,7 @@ import net.bible.sharedui.reading.LocalPinIcon
 import net.bible.sharedui.reading.host.LocalReadingPane
 import net.bible.sharedui.reading.host.ReadingHost
 import net.bible.sharedui.reading.nav.readingNavGraph
+import net.bible.sharedui.reading.session.ReadingKeepScreenOn
 import net.bible.sharedui.reading.session.guardedChooserTarget
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
@@ -108,7 +110,9 @@ import org.koin.mp.KoinPlatform
 import platform.Foundation.NSNotification
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
+import platform.Foundation.NSUserDefaultsDidChangeNotification
 import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationWillResignActiveNotification
 import platform.UIKit.UIBackgroundTaskInvalid
@@ -167,7 +171,19 @@ internal fun leaveWelcomeFor(scope: CoroutineScope, shell: IosHostShell, table: 
 fun IosApp(strings: Strings) {
     val koin = remember { KoinPlatform.getKoin() }
     val table = remember { IosAppStartup.stringTable }
-    val nightObserver = remember { IosNightModeObserver(koin.get<NightModeState>()) { IosReadingWindows.nightModeChanged() } }
+    // Colour mode and the animation setting reach the Compose theme through [modesTick] and every WebView through
+    // set_config; a night switch does the same (no reload of the page).
+    var modesTick by remember { mutableIntStateOf(0) }
+    val nightObserver = remember {
+        val settings = koin.get<AppSettings>()
+        IosNightModeObserver(
+            koin.get<NightModeState>(),
+            otherModes = { listOf(settings.getString("display_color_mode", null), settings.getBoolean("disable_animations", false)) },
+        ) {
+            modesTick++
+            IosReadingWindows.nightModeChanged()
+        }
+    }
     DisposableEffect(nightObserver) {
         nightObserver.start()
         nightObserver.refresh()
@@ -189,7 +205,7 @@ fun IosApp(strings: Strings) {
         LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
         LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
     ) {
-        IosHostTheme(dark, koin) {
+        IosHostTheme(dark, koin, modesTick) {
             val route = startRoute
             if (route == null) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
@@ -225,7 +241,7 @@ private fun iosWorkspaceSeed(koin: Koin): Int? {
  * this subscription could have seen).
  */
 @Composable
-private fun IosHostTheme(dark: Boolean, koin: Koin, content: @Composable () -> Unit) {
+private fun IosHostTheme(dark: Boolean, koin: Koin, modesTick: Int, content: @Composable () -> Unit) {
     var seed by remember { mutableStateOf(iosWorkspaceSeed(koin)) }
     DisposableEffect(Unit) {
         val subscription = WorkspaceChanges.changes.subscribeOnMain { seed = iosWorkspaceSeed(koin) }
@@ -236,7 +252,7 @@ private fun IosHostTheme(dark: Boolean, koin: Koin, content: @Composable () -> U
         seed = iosWorkspaceSeed(koin)
     }
     val settings = remember { koin.get<AppSettings>() }
-    AbHostTheme(darkTheme = dark, settings = settings, isOnyx = false, workspaceSeed = { seed }, content = content)
+    AbHostTheme(darkTheme = dark, settings = settings, isOnyx = false, workspaceSeed = { modesTick.let { seed } }, content = content)
 }
 
 @Composable
@@ -412,6 +428,7 @@ private fun IosReadingDestination(
     val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
     // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
     MeasureReadingOffsets(host)
+    KeepScreenOnWhileReading(koin)
     FailClosedLinkRouting(koin.get<ExternalLinks>()) {
         CompositionLocalProvider(LocalReadingPane provides paneFactory) {
             ReadingHost(deps, Modifier.testTag("reading-host"))
@@ -429,6 +446,32 @@ private fun MeasureReadingOffsets(host: IosReadingHost) {
     val density = LocalDensity.current
     val bottomPx = WindowInsets.navigationBars.getBottom(density)
     SideEffect { host.offsets.setSystemBottomInset(bottomPx / density.density) }
+}
+
+/**
+ * Keep-screen-on (`screen_keep_on_pref`) only while the reading route is composed and the app is active:
+ * `idleTimerDisabled` is set from [ReadingKeepScreenOn] and reset on leaving reading and when backgrounding.
+ */
+@Composable
+private fun KeepScreenOnWhileReading(koin: Koin) {
+    DisposableEffect(Unit) {
+        val settings = koin.get<AppSettings>()
+        val keepOn = ReadingKeepScreenOn(
+            read = { settings.getBoolean("screen_keep_on_pref", false) },
+            apply = { UIApplication.sharedApplication.idleTimerDisabled = it },
+        )
+        val center = NSNotificationCenter.defaultCenter
+        val observers = listOf(
+            center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue) { keepOn.setActive(true) },
+            center.addObserverForName(UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue) { keepOn.setActive(false) },
+            center.addObserverForName(NSUserDefaultsDidChangeNotification, null, NSOperationQueue.mainQueue) { keepOn.refresh() },
+        )
+        keepOn.setReading(true)
+        onDispose {
+            observers.forEach { center.removeObserver(it) }
+            keepOn.setReading(false)
+        }
+    }
 }
 
 /**

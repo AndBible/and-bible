@@ -147,9 +147,13 @@ object IosReadingWindows {
         return w != null && w.windowState != WindowLayout.WindowState.CLOSED
     }
 
-    /** Night mode changed: re-send `set_config` to every window. */
+    /**
+     * Night mode, colour mode or the animation setting changed: re-send `set_config` to every window through its
+     * relay platform. The page is not reloaded (no flash, scroll position kept) and nothing is loaded again; the
+     * offsets are untouched (they travel in their own `set_offsets`).
+     */
     fun nightModeChanged() {
-        for (a in assemblies.values) a.loader.updateConfig()
+        for (a in assemblies.values) a.relayPlatform.updateConfig()
     }
 
     private fun assembly(windowId: String): Assembly = assemblies.getOrPut(windowId) { assemble(windowId) }
@@ -244,18 +248,25 @@ object IosReadingWindows {
  * refreshed on `NSUserDefaultsDidChange` and when the app becomes active, and [onChange] fires on a real change.
  */
 @kotlin.native.HiddenFromObjC
-class IosNightModeObserver(private val state: NightModeState, private val onChange: (Boolean) -> Unit = {}) {
+class IosNightModeObserver(
+    private val state: NightModeState,
+    /** Other display modes that also need a `set_config` (colour mode, animations); compared by equality. */
+    private val otherModes: () -> List<Any?> = { emptyList() },
+    private val onChange: (Boolean) -> Unit = {},
+) {
     private val darkState = androidx.compose.runtime.mutableStateOf(state.nightMode)
+    private var lastModes: List<Any?> = otherModes()
     val dark: androidx.compose.runtime.State<Boolean> get() = darkState
     private val observers = mutableListOf<Any>()
 
     /** Re-reads the state; returns the current value. */
     fun refresh(): Boolean {
         val now = state.nightMode
-        if (now != darkState.value) {
-            darkState.value = now
-            onChange(now)
-        }
+        val modes = otherModes()
+        val changed = now != darkState.value || modes != lastModes
+        lastModes = modes
+        darkState.value = now
+        if (changed) onChange(now)
         return now
     }
 

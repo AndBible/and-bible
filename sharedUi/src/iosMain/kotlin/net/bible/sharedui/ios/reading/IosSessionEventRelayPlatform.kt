@@ -41,5 +41,12 @@ class IosSessionEventRelayPlatform(private val updateConfigNow: () -> Unit) : Se
 
     override fun markWindowsCheckNeeded() { windowsCheckMarks++ }
 
-    override fun updateConfig() = updateConfigNow()
+    /** How many times a `set_config` was requested through the relay (night/colour-mode switches, window changes). */
+    var configUpdates: Int = 0
+        private set
+
+    override fun updateConfig() {
+        configUpdates++
+        updateConfigNow()
+    }
 }
