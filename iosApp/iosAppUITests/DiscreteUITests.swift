@@ -33,6 +33,58 @@ final class DiscreteUITests: XCTestCase {
         XCTAssertFalse(element(app, "welcome-screen").exists, "Welcome visible before PIN unlock")
     }
 
+    /// Controller-only fixture preparation; inspect the Home attachment before the strict icon scenario.
+    func testPreparePrimaryIconForController() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let disclosureText = NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+                                         "You have changed the icon for", "AndBible Dev")
+        let appAlert = app.alerts.containing(disclosureText).firstMatch
+        let systemAlert = springboard.alerts.containing(disclosureText).firstMatch
+        let deadline = Date().addingTimeInterval(90)
+        var readyAt: Date?
+        var disclosureCount = 0
+        // Ready can precede the asynchronous icon request and its bounded retries; keep observing both owners.
+        while Date() < deadline {
+            if appAlert.exists || systemAlert.exists {
+                let owner = appAlert.exists ? app : springboard
+                let alert = appAlert.exists ? appAlert : systemAlert
+                disclosureCount += 1
+                shot(owner, "primary-preparation-disclosure-\(disclosureCount)")
+                XCTAssertTrue(alert.buttons["OK"].waitForExistence(timeout: 5))
+                alert.buttons["OK"].tap()
+                let dismissed = NSPredicate { _, _ in !appAlert.exists && !systemAlert.exists }
+                XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: dismissed, object: app)], timeout: 10),
+                               .completed, "Preparation disclosure did not dismiss")
+                readyAt = nil
+            }
+            let ready = element(app, "reading-host").exists || element(app, "welcome-screen").exists
+            if ready && readyAt == nil { readyAt = Date() }
+            if let readyAt, ready && Date().timeIntervalSince(readyAt) >= 20 { break }
+            usleep(200_000)
+        }
+        XCTAssertNotNil(readyAt, "Preparation never reached Welcome or reading")
+        if let readyAt {
+            XCTAssertGreaterThanOrEqual(Date().timeIntervalSince(readyAt), 20, "Preparation exhausted its settling deadline")
+        }
+        XCTAssertTrue(element(app, "reading-host").exists || element(app, "welcome-screen").exists)
+        XCTAssertFalse(appAlert.exists || systemAlert.exists, "Preparation disclosure still visible")
+        shot(app, "primary-preparation-ready")
+        XCUIDevice.shared.press(.home)
+        XCTAssertTrue(app.wait(for: .runningBackground, timeout: 10))
+        XCTAssertTrue(springboard.wait(for: .runningForeground, timeout: 10))
+        let homeSettled = NSPredicate { _, _ in
+            springboard.icons["AndBible Dev"].firstMatch.isHittable && !appAlert.exists && !systemAlert.exists
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: homeSettled, object: springboard)], timeout: 10),
+                       .completed, "Preparation Home screen did not settle")
+        shot(springboard, "primary-preparation-home-inspect-icon")
+        app.terminate()
+    }
+
     /// Controller starts from the primary icon and persists discrete_mode=true before this scenario.
     /// Accept the OS-owned disclosure (C6), then retain a SpringBoard image for visual icon inspection.
     func testDiscreteIconAfterUnlock() {
