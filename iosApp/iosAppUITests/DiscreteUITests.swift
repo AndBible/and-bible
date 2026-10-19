@@ -44,9 +44,9 @@ final class DiscreteUITests: XCTestCase {
         enter(app, ["1", "2", "3", "4", "="])
 
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        let alert = springboard.alerts.firstMatch
+        let alert = app.alerts.firstMatch
         XCTAssertTrue(alert.waitForExistence(timeout: 60), "Expected the system alternate-icon disclosure")
-        shot(springboard, "calculator-icon-system-disclosure")
+        shot(app, "calculator-icon-system-disclosure")
         alert.buttons.firstMatch.tap()
         let ready = NSPredicate { _, _ in
             self.element(app, "reading-host").exists || self.element(app, "welcome-screen").exists
