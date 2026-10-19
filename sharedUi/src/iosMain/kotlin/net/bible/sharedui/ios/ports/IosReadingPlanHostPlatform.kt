@@ -18,28 +18,17 @@
 
 package net.bible.sharedui.ios.ports
 
+import net.bible.sharedlogic.platform.LocalCalendar
 import net.bible.sharedui.app.readingplan.ReadingPlanHostPlatform
-import net.bible.sharedui.ios.IosPending
 
-/**
- * Pending stand-in (stream H), not a real implementation: always portrait, [localYmd] always answers 1970-01-01 and
- * [withLocalYmd] echoes its input, until the real platform half lands.
- */
+/** Local dates share the reading-plan calendar; geometry is read from the retained host's live window. */
 @kotlin.native.HiddenFromObjC
-class IosReadingPlanHostPlatform : ReadingPlanHostPlatform {
-    override val isPortrait: Boolean
-        get() {
-            IosPending.log("ReadingPlanHostPlatform.isPortrait")
-            return true
-        }
-
-    override fun localYmd(epochMs: Long): Triple<Int, Int, Int> {
-        IosPending.log("ReadingPlanHostPlatform.localYmd")
-        return Triple(1970, 1, 1)
-    }
-
-    override fun withLocalYmd(epochMs: Long, year: Int, month1to12: Int, day: Int): Long {
-        IosPending.log("ReadingPlanHostPlatform.withLocalYmd")
-        return epochMs
-    }
+class IosReadingPlanHostPlatform(
+    private val calendar: LocalCalendar,
+    private val portrait: () -> Boolean,
+) : ReadingPlanHostPlatform {
+    override val isPortrait: Boolean get() = portrait()
+    override fun localYmd(epochMs: Long) = calendar.localYmd(epochMs)
+    override fun withLocalYmd(epochMs: Long, year: Int, month1to12: Int, day: Int) =
+        calendar.withLocalYmd(epochMs, year, month1to12, day)
 }

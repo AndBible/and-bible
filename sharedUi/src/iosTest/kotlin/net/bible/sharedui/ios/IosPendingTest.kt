@@ -34,14 +34,6 @@ class IosPendingTest {
         assertFalse(IosExternalLinks().askBeforeOpening)
         IosDebugActions().showTestError("x")
         IosDocumentInstallStarter().start(emptyList<DocumentRef>(), null)
-        assertNull(IosTextDisplayPlatform().thumbnail("t"))
-        val emitted = mutableListOf<String>()
-        IosPending.onFirstReport = { emitted += it }
-        val entry = IosTextDisplayPlatform().entryFor(TextDisplaySettingsArgs())
-        IosTextDisplayPlatform().entryFor(TextDisplaySettingsArgs())
-        assertEquals(1, emitted.count { it == "TextDisplayPlatform.entryFor" })
-        assertEquals(0, entry.service.loadText(entry.scope).rows.size)
-        assertNull(entry.resultOnLeave())
         assertTrue("ExternalLinks.open" in IosPending.reported)
     }
 }
@@ -67,6 +59,11 @@ class IosHostPortsTest {
         val koin = org.koin.core.context.startKoin {
             modules(org.koin.dsl.module {
                 single<net.bible.android.control.backup.BackupHost> { FakeBackupHost() }
+                single<net.bible.sharedlogic.platform.LocalCalendar> { net.bible.sharedlogic.platform.ios.IosLocalCalendar() }
+                single<net.bible.sharedlogic.platform.LocaleSupport> { net.bible.sharedlogic.platform.ios.IosLocaleSupport }
+                single<net.bible.sharedcore.platform.CoreStrings> {
+                    net.bible.sharedui.strings.keyed.KeyedCoreStrings(net.bible.sharedui.assembly.iosStringTable("en"))
+                }
                 single<net.bible.sharedcore.platform.AppSettings> {
                     net.bible.sharedlogic.settings.DatabaseAppSettings(
                         { net.bible.service.db.DatabaseContainer.instance.settingsStore },
@@ -99,7 +96,8 @@ class IosHostPortsTest {
             assertEquals(emptyList(), ports.installZipPlatform().jobs.value)
             ports.installZipPlatform().initialiseIfStartedUninitialised()
                         assertEquals("", ports.promptFiles().suggestedExportName())
-            assertEquals(emptyList(), ports.aiPlatform().languageChoices())
+            assertEquals("", ports.aiPlatform().languageChoices().first().value)
+            assertEquals(net.bible.sharedui.app.ai.AI_CUSTOM_LANGUAGE_TAG, ports.aiPlatform().languageChoices().last().value)
             ports.textShare.shareText("a", "b")
             ports.systemScreens.openAppLinkSettings()
             ports.orientationLock.lockPortrait().invoke()

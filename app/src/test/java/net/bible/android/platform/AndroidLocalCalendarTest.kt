@@ -126,6 +126,14 @@ class AndroidLocalCalendarTest {
         assertEquals(oldTruncate(justAfterGap), calendar.startOfDay(justAfterGap))
     }
 
+    @Test fun ymdRoundTripKeepsTimeOfDay() = inZone("Europe/Helsinki") {
+        val start = at("Europe/Helsinki", 2026, 3, 28, 9, 17) + 12345
+        val changed = calendar.withLocalYmd(start, 2026, 3, 30)
+        assertEquals(Triple(2026, 3, 30), calendar.localYmd(changed))
+        assertEquals(at("Europe/Helsinki", 2026, 3, 30, 9, 17) + 12345, changed)
+        assertEquals(start, calendar.withLocalYmd(changed, 2026, 3, 28))
+    }
+
     @Test fun currentYearMatchesCalendar() {
         assertEquals(Calendar.getInstance().get(Calendar.YEAR), calendar.currentYear())
     }

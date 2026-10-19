@@ -201,10 +201,15 @@ private fun IosAppContent(
             holder.switchTo(resolveDeviceUiLanguage(koin.get<IosDeviceSettings>()))
         }
     }
+    val windowSize = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
+    val liveWindowSize = androidx.compose.runtime.rememberUpdatedState(windowSize)
     val ports = remember {
-        buildIosHostPorts(shell, koin, table) {
-            withContext(Dispatchers.Default) { ReadingAppInit.initialise(IosReadingAppInitPlatform(table)) }
-        }
+        buildIosHostPorts(shell, koin, table,
+            initialiseWelcome = {
+                withContext(Dispatchers.Default) { ReadingAppInit.initialise(IosReadingAppInitPlatform(table)) }
+            },
+            isPortrait = { liveWindowSize.value.let { it.width <= it.height } },
+        )
     }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
     val welcome = remember { ports.welcomePlatform() as net.bible.sharedui.ios.ports.IosWelcomeHostPlatform }

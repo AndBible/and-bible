@@ -47,6 +47,18 @@ class IosLocalePortsTest {
 
     private fun locale(id: String) = NSLocale.localeWithLocaleIdentifier(id)
 
+    @Test fun ymdRoundTripKeepsTimeOfDay() = inZone("Europe/Helsinki") {
+        // 2026-03-28 09:17:12.345 EET -> March 30, after DST begins.
+        val start = 1774682232345L
+        val changed = calendar.withLocalYmd(start, 2026, 3, 30)
+        assertEquals(Triple(2026, 3, 30), calendar.localYmd(changed))
+        assertEquals(47 * 3600000L, changed - start)
+        assertEquals(9L, comps(changed).hour)
+        assertEquals(17L, comps(changed).minute)
+        assertEquals(345L, changed % 1000)
+        assertEquals(start, calendar.withLocalYmd(changed, 2026, 3, 28))
+    }
+
     @Test fun parseMonthDayYearIsLocalMidnight() {
         val c = comps(calendar.parseMonthDayYear("Feb-1/2026"))
         assertEquals(2026L, c.year); assertEquals(2L, c.month); assertEquals(1L, c.day)

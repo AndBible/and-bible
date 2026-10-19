@@ -58,9 +58,10 @@ fun buildIosHostPorts(
     koin: Koin,
     table: StringTable = iosStringTable("en"),
     initialiseWelcome: suspend () -> Unit = {},
+    isPortrait: () -> Boolean = { true },
 ): HostPorts {
     val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate)
-    val readingPlan = IosReadingPlanHostPlatform()
+    val readingPlan = IosReadingPlanHostPlatform(koin.get(), isPortrait)
     val installZip = IosInstallZipHostPlatform()
     val currentTable = { koin.getOrNull<net.bible.sharedui.assembly.IosStringTableHolder>()?.current ?: table }
     val picker = IosDocumentPicker()
@@ -73,7 +74,9 @@ fun buildIosHostPorts(
     val cloud = IosCloudDocumentsHostPlatform()
     val promptFiles = IosPromptFiles()
     val bugReport = IosBugReportPlatform()
-    val ai = IosAiHostPlatform()
+    val ai = IosAiHostPlatform(koin.get(), koin.get(), currentTable) { message, cause ->
+        koin.get<BackupHost>().showErrorReport(message, cause)
+    }
     return HostPorts(
         documentPicker = picker,
         imagePicker = IosImagePicker(),

@@ -641,7 +641,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onTextInputInt = controller::onTextInputInt,
             onCustomPromptSave = d.onCustomPromptSave,
             customPromptTextFor = d.customPromptTextFor,
-            languageChoices = remember { d.languageChoices() },
+            languageChoices = d.languageChoices(),
             customLanguageValue = d.customLanguageTag,
             // The hub's six nav edges: MODELS/TOOL_PERMISSIONS/DOCUMENTS/PROVIDERS/EASY_SETUP/
             // RAW_LOG_HISTORY all have destinations in THIS graph now (RawLogHistory joined as of

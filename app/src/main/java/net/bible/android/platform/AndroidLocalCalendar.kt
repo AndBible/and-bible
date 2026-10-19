@@ -49,6 +49,13 @@ class AndroidLocalCalendar : LocalCalendar {
         add(Calendar.DATE, days)
     }.time.time
 
+    override fun localYmd(epochMs: Long): Triple<Int, Int, Int> = at(epochMs).let {
+        Triple(it.get(Calendar.YEAR), it.get(Calendar.MONTH) + 1, it.get(Calendar.DAY_OF_MONTH))
+    }
+
+    override fun withLocalYmd(epochMs: Long, year: Int, month1to12: Int, day: Int): Long =
+        at(epochMs).apply { set(year, month1to12 - 1, day) }.timeInMillis
+
     override fun currentYear(): Int = Calendar.getInstance().get(Calendar.YEAR)
 
     override fun formatDefaultDate(epochMs: Long): String = SimpleDateFormat.getDateInstance().format(Date(epochMs))
