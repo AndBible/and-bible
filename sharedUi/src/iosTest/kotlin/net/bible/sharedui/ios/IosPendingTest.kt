@@ -1,7 +1,6 @@
 package net.bible.sharedui.ios
 
 import net.bible.sharedui.app.ports.DocumentRef
-import net.bible.sharedui.ios.ports.IosAppSettingsService
 import net.bible.sharedui.ios.ports.IosDebugActions
 import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
 import net.bible.sharedui.ios.ports.IosExternalLinks
@@ -46,12 +45,7 @@ class IosPendingTest {
         assertEquals(1, emitted.count { it == "TextDisplayPlatform.entryFor" })
         assertEquals(0, entry.service.loadText(entry.scope).rows.size)
         assertNull(entry.resultOnLeave())
-        val settings = IosAppSettingsService()
-        settings.setBool("k", true)
-        assertFalse(settings.snapshot.value.navigateToVerse)
-        assertTrue(settings.snapshot.value.openLinksInSpecialWindow)
         assertTrue("ExternalLinks.open" in IosPending.reported)
-        assertTrue("AppSettingsService.setBool" in IosPending.reported)
     }
 }
 

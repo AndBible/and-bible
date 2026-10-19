@@ -128,4 +128,27 @@ interface CoreStrings {
     val helpBookmarksText: String // R.string.help_bookmarks_text
     val watchTutorialVideo: String // R.string.watch_tutorial_video
     val bookmarksAndMyNotesTitle: String // R.string.bookmarks_and_mynotes_title
+
+    val prefsNightModeDescriptionsSystemAutoManual: List<String> // R.array.prefs_night_mode_descriptions_system_auto_manual
+    val prefsNightModeValuesSystemAutoManual: List<String> // R.array.prefs_night_mode_values_system_auto_manual
+    val prefsNightModeDescriptionsSystemManual: List<String> // R.array.prefs_night_mode_descriptions_system_manual
+    val prefsNightModeValuesSystemManual: List<String> // R.array.prefs_night_mode_values_system_manual
+    val prefsBibleBookmarkModalActionNames: List<String> // R.array.prefs_bible_bookmark_modal_action_names
+    val prefsBibleBookmarkModalActionIds: List<String> // R.array.prefs_bible_bookmark_modal_action_ids
+    val prefsGenBookmarkModalActionNames: List<String> // R.array.prefs_gen_bookmark_modal_action_names
+    val prefsGenBookmarkModalActionIds: List<String> // R.array.prefs_gen_bookmark_modal_action_ids
+    val experimentalFeaturesNames: List<String> // R.array.experimental_features_names
+    val experimentalFeaturesValues: List<String> // R.array.experimental_features_values
+    val prefsToolbarButtonActionDescriptions: List<String> // R.array.prefs_toolbar_button_action_descriptions
+    val prefsToolbarButtonActionValues: List<String> // R.array.prefs_toolbar_button_action_values
+    val prefsBibleViewSwipeModeDescriptions: List<String> // R.array.prefs_bible_view_swipe_mode_descriptions
+    val prefsBibleViewSwipeModeValues: List<String> // R.array.prefs_bible_view_swipe_mode_values
+    val prefsThemePaletteStyleNames: List<String> // R.array.prefs_theme_palette_style_names
+    val prefsThemePaletteStyleValues: List<String> // R.array.prefs_theme_palette_style_values
+    val prefsInterfaceLocaleDescriptions: List<String> // R.array.prefs_interface_locale_descriptions
+    val prefsInterfaceLocaleValues: List<String> // R.array.prefs_interface_locale_values
+    val prefsNotesContentTypeEntries: List<String> // R.array.prefs_notes_content_type_entries
+    val prefsNotesContentTypeValues: List<String> // R.array.prefs_notes_content_type_values
+    val prefsDisplayColorModeNames: List<String> // R.array.prefs_display_color_mode_names
+    val prefsDisplayColorModeValues: List<String> // R.array.prefs_display_color_mode_values
 }

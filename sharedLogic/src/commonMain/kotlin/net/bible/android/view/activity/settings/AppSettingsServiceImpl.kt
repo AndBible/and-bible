@@ -16,20 +16,17 @@
  */
 package net.bible.android.view.activity.settings
 
-import net.bible.android.view.activity.nav.SystemBarSettingChanges
-import android.os.Build
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.settings.DeviceLocalPrefs
+import net.bible.sharedcore.settings.SettingsPlatformFlags
+import org.koin.mp.KoinPlatform
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.BuildConfig
-import net.bible.android.activity.R
-import net.bible.service.common.BuildVariant
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.DisplayColorMode
 import net.bible.service.common.THEME_PALETTE_STYLE_KEY
 import net.bible.service.common.ThemePaletteStyle
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.settings.AppSettingsSnapshot
 import net.bible.sharedcore.settings.Choice2
@@ -72,10 +69,10 @@ object RealDictionaryOptionsProvider : DictionaryOptionsProvider {
 }
 
 /**
- * Android impl of [AppSettingsService]. Reproduces the classic `PreferenceStore` routing
+ * Platform-neutral impl of [AppSettingsService]. Reproduces the classic `PreferenceStore` routing
  * (`SettingsActivity.kt`) key-for-key: `locale_pref`/`calculator_pin`/`show_calculator`/
- * `discrete_mode` and any `night_mode*` key persist to [CommonUtils.realSharedPreferences];
- * everything else persists to [CommonUtils.settings] (the Room-backed `SettingsDatabase`).
+ * `discrete_mode` and any `night_mode*` key persist to [devicePrefs];
+ * everything else persists to [settings] (the Room-backed `SettingsDatabase`).
  * Inverse multi-selects (`disabled_word_lookup_dictionaries`, `disable_bible_bookmark_modal_buttons`,
  * `disable_gen_bookmark_modal_buttons`) store the DISABLED set but present/accept the POSITIVE
  * (enabled) set, per `InverseMultiSelectListPreference` semantics.
@@ -101,6 +98,10 @@ object RealDictionaryOptionsProvider : DictionaryOptionsProvider {
  */
 class AppSettingsServiceImpl(
     private val dictionaryOptionsProvider: DictionaryOptionsProvider = RealDictionaryOptionsProvider,
+    private val settings: AppSettings = KoinPlatform.getKoin().get(),
+    private val devicePrefs: DeviceLocalPrefs = KoinPlatform.getKoin().get(),
+    private val strings: CoreStrings = KoinPlatform.getKoin().get(),
+    private val platform: SettingsPlatformFlags = KoinPlatform.getKoin().get(),
 ) : AppSettingsService {
 
     // The four dictionary/morphology option lists each do a live Books.installed() scan; a routine
@@ -123,16 +124,16 @@ class AppSettingsServiceImpl(
             key == "discrete_mode" || key.startsWith("night_mode")
 
     private fun readBool(key: String, default: Boolean): Boolean =
-        if (useRealShared(key)) CommonUtils.realSharedPreferences.getBoolean(key, default)
-        else CommonUtils.settings.getBoolean(key, default)
+        if (useRealShared(key)) devicePrefs.getBoolean(key, default)
+        else settings.getBoolean(key, default)
 
     private fun readString(key: String, default: String): String =
-        if (useRealShared(key)) (CommonUtils.realSharedPreferences.getString(key, default) ?: default)
-        else (CommonUtils.settings.getString(key, default) ?: default)
+        if (useRealShared(key)) (devicePrefs.getString(key, default) ?: default)
+        else (settings.getString(key, default) ?: default)
 
     private fun readStringSet(key: String, default: Set<String>): Set<String> =
         // classic's preference datastore (deleted S12) never routed StringSet through realShared
-        CommonUtils.settings.getStringSet(key, default)
+        settings.getStringSet(key, default)
 
     // ---- Inverse multi-select helpers ----
 
@@ -143,37 +144,33 @@ class AppSettingsServiceImpl(
     }
 
     private fun writeInverseSet(key: String, positive: Set<String>, allInitials: Set<String>) {
-        CommonUtils.settings.setStringSet(key, allInitials - positive)
+        settings.setStringSet(key, allInitials - positive)
     }
 
     // ---- Choice/array helpers ----
 
-    private fun choicesFrom(labelsRes: Int, valuesRes: Int): List<Choice2> {
-        val labels = application.resources.getStringArray(labelsRes)
-        val values = application.resources.getStringArray(valuesRes)
+    private fun choicesFrom(labels: List<String>, values: List<String>): List<Choice2> {
         return values.indices.map { Choice2(values[it], labels.getOrElse(it) { values[it] }) }
     }
 
-    private fun dictOptionsFrom(namesRes: Int, idsRes: Int): List<DictOption> {
-        val names = application.resources.getStringArray(namesRes)
-        val ids = application.resources.getStringArray(idsRes)
+    private fun dictOptionsFrom(names: List<String>, ids: List<String>): List<DictOption> {
         return ids.indices.map { DictOption(ids[it], names.getOrElse(it) { ids[it] }) }
     }
 
     private fun nightModeChoices(): List<Choice2> =
-        if (ScreenSettings.autoModeAvailable)
-            choicesFrom(R.array.prefs_night_mode_descriptions_system_auto_manual, R.array.prefs_night_mode_values_system_auto_manual)
+        if (platform.autoNightModeAvailable)
+            choicesFrom(strings.prefsNightModeDescriptionsSystemAutoManual, strings.prefsNightModeValuesSystemAutoManual)
         else
-            choicesFrom(R.array.prefs_night_mode_descriptions_system_manual, R.array.prefs_night_mode_values_system_manual)
+            choicesFrom(strings.prefsNightModeDescriptionsSystemManual, strings.prefsNightModeValuesSystemManual)
 
     private fun bibleBookmarkModalOptions(): List<DictOption> =
-        dictOptionsFrom(R.array.prefs_bible_bookmark_modal_action_names, R.array.prefs_bible_bookmark_modal_action_ids)
+        dictOptionsFrom(strings.prefsBibleBookmarkModalActionNames, strings.prefsBibleBookmarkModalActionIds)
 
     private fun genBookmarkModalOptions(): List<DictOption> =
-        dictOptionsFrom(R.array.prefs_gen_bookmark_modal_action_names, R.array.prefs_gen_bookmark_modal_action_ids)
+        dictOptionsFrom(strings.prefsGenBookmarkModalActionNames, strings.prefsGenBookmarkModalActionIds)
 
     private fun experimentalFeatureOptions(): List<DictOption> =
-        dictOptionsFrom(R.array.experimental_features_names, R.array.experimental_features_values)
+        dictOptionsFrom(strings.experimentalFeaturesNames, strings.experimentalFeaturesValues)
 
     // ---- Snapshot construction ----
 
@@ -212,7 +209,7 @@ class AppSettingsServiceImpl(
             locale = readString("locale_pref", ""),
             disableClickToEdit = readBool("disable_click_to_edit", false),
             notesContentType = readString("notes_content_type", "HTML"),
-            fontSizeMultiplier = CommonUtils.settings.getInt("font_size_multiplier", 100),
+            fontSizeMultiplier = settings.getInt("font_size_multiplier", 100),
             hideStatusBar = readBool("hide_status_bar", false),
             // See kdoc: settings.xml's defaultValue="true" for this key is inert stray text.
             fullScreenHideButtons = readBool("full_screen_hide_buttons_pref", false),
@@ -228,7 +225,7 @@ class AppSettingsServiceImpl(
             bibleBookmarkModalOptions = bibleBookmarkModalOptions,
             genBookmarkModalOptions = genBookmarkModalOptions,
             // E-ink
-            displayColorMode = readString("display_color_mode", DisplayColorMode.defaultFor(CommonUtils.isOnyxDevice).value),
+            displayColorMode = readString("display_color_mode", DisplayColorMode.defaultFor(platform.isOnyx).value),
             einkMode = readBool("eink_mode", false),
             disableAnimations = readBool("disable_animations", false),
             // Persecution
@@ -243,46 +240,46 @@ class AppSettingsServiceImpl(
             showErrorbox = readBool("show_errorbox", false),
             // Choice entries
             toolbarButtonActionChoices = choicesFrom(
-                R.array.prefs_toolbar_button_action_descriptions, R.array.prefs_toolbar_button_action_values
+                strings.prefsToolbarButtonActionDescriptions, strings.prefsToolbarButtonActionValues
             ),
             bibleViewSwipeModeChoices = choicesFrom(
-                R.array.prefs_bible_view_swipe_mode_descriptions, R.array.prefs_bible_view_swipe_mode_values
+                strings.prefsBibleViewSwipeModeDescriptions, strings.prefsBibleViewSwipeModeValues
             ),
             nightModeChoices = nightModeChoices(),
-            themePaletteStyleChoices = choicesFrom(R.array.prefs_theme_palette_style_names, R.array.prefs_theme_palette_style_values),
-            localeChoices = choicesFrom(R.array.prefs_interface_locale_descriptions, R.array.prefs_interface_locale_values),
-            notesContentTypeChoices = choicesFrom(R.array.prefs_notes_content_type_entries, R.array.prefs_notes_content_type_values),
-            displayColorModeChoices = choicesFrom(R.array.prefs_display_color_mode_names, R.array.prefs_display_color_mode_values),
+            themePaletteStyleChoices = choicesFrom(strings.prefsThemePaletteStyleNames, strings.prefsThemePaletteStyleValues),
+            localeChoices = choicesFrom(strings.prefsInterfaceLocaleDescriptions, strings.prefsInterfaceLocaleValues),
+            notesContentTypeChoices = choicesFrom(strings.prefsNotesContentTypeEntries, strings.prefsNotesContentTypeValues),
+            displayColorModeChoices = choicesFrom(strings.prefsDisplayColorModeNames, strings.prefsDisplayColorModeValues),
             // Visibility flags (mirror SettingsFragment.onCreatePreferences gating exactly).
             // Classic only hides discrete_mode + show_calculator when isDiscrete
             // (SettingsActivity.kt: `if (BuildVariant.Appearance.isDiscrete) isVisible = false`);
             // the category header, discrete_help and calculator_pin are never gated.
-            discreteTogglesVisible = !BuildVariant.Appearance.isDiscrete,
-            betaFeaturesVisible = CommonUtils.isBeta,
-            sdcardPermissionVisible = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q,
-            openLinksVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-            debugToolsVisible = BuildConfig.DEBUG,
+            discreteTogglesVisible = !platform.isDiscreteBuild,
+            betaFeaturesVisible = platform.isBeta,
+            sdcardPermissionVisible = platform.sdcardPermissionVisible,
+            openLinksVisible = platform.openLinksVisible,
+            debugToolsVisible = platform.debugToolsVisible,
         )
     }
 
     // ---- Writes ----
 
     override fun setBool(key: String, value: Boolean) {
-        if (useRealShared(key)) CommonUtils.realSharedPreferences.edit().putBoolean(key, value).apply()
-        else CommonUtils.settings.setBoolean(key, value)
+        if (useRealShared(key)) devicePrefs.setBoolean(key, value)
+        else settings.setBoolean(key, value)
         refresh()
-        if (key == "hide_status_bar") SystemBarSettingChanges.notifyChanged()
+        if (key == "hide_status_bar") platform.onSystemBarSettingChanged()
     }
 
     override fun setString(key: String, value: String) {
-        if (useRealShared(key)) CommonUtils.realSharedPreferences.edit().putString(key, value).apply()
-        else CommonUtils.settings.setString(key, value)
+        if (useRealShared(key)) devicePrefs.setString(key, value)
+        else settings.setString(key, value)
         refresh()
     }
 
     override fun setInt(key: String, value: Int) {
-        // PreferenceStore.putInt never checks useRealShared - always CommonUtils.settings.
-        CommonUtils.settings.setInt(key, value)
+        // PreferenceStore.putInt never checks useRealShared - always settings.
+        settings.setInt(key, value)
         refresh()
     }
 
@@ -294,7 +291,7 @@ class AppSettingsServiceImpl(
                 writeInverseSet(key, value, bibleBookmarkModalOptions().map { it.initials }.toSet())
             "disable_gen_bookmark_modal_buttons" ->
                 writeInverseSet(key, value, genBookmarkModalOptions().map { it.initials }.toSet())
-            else -> CommonUtils.settings.setStringSet(key, value)
+            else -> settings.setStringSet(key, value)
         }
         refresh()
     }

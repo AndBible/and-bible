@@ -16,24 +16,14 @@
  */
 package net.bible.android.view.activity.settings
 
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.settings.DeviceLocalPrefs
+import org.koin.mp.KoinPlatform
 
-/**
- * The settings-reset contract, lifted out of `SettingsActivity`'s companion object when the
- * classic settings screen was deleted (Batch Z-late phase 1, slice S12). Classic's own reset path
- * is gone with it; [SettingsComposeActivity.resetSettings] is now the SOLE caller of
- * [performReset], and `SettingsResetTest` is the only other reader of [RESET_KEYS]. Kept as its
- * own object rather than folded back into `SettingsComposeActivity` because a standalone list is
- * simpler to test than a companion-object one.
- */
+/** Shared Android/iOS reset contract. Device-local night mode is intentionally retained. */
 object SettingsReset {
-    /**
-     * The hardcoded key list cleared by [SettingsComposeActivity.resetSettings] — the classic
-     * `SettingsActivity.reset` this list used to also serve is deleted (Z-late slice S12). Does
-     * not include the `realSharedPreferences`-routed keys (`locale_pref`/`calculator_pin`/
-     * `show_calculator`/`discrete_mode`), which [performReset] clears separately, matching the
-     * classic split.
-     */
+    val DEVICE_LOCAL_RESET_KEYS = listOf("locale_pref", "calculator_pin", "show_calculator", "discrete_mode")
+
     val RESET_KEYS = listOf(
         "strongs_greek_dictionary",
         "strongs_hebrew_dictionary",
@@ -68,18 +58,17 @@ object SettingsReset {
         "notes_content_type"
     )
 
-    /** Clears [RESET_KEYS] from [CommonUtils.settings] plus the realShared-routed keys. Does NOT recreate — callers do that themselves. */
-    fun performReset() {
-        val editor = CommonUtils.settings
+    /** Clears the original typed DB keys and device-local keys; callers own UI refresh. */
+    fun performReset(
+        editor: AppSettings = KoinPlatform.getKoin().get(),
+        devicePrefs: DeviceLocalPrefs = KoinPlatform.getKoin().get(),
+    ) {
         for(key in RESET_KEYS) {
             editor.removeString(key)
             editor.removeBoolean(key)
             editor.removeLong(key)
             editor.removeDouble(key)
         }
-        CommonUtils.realSharedPreferences.edit().remove("locale_pref").apply()
-        CommonUtils.realSharedPreferences.edit().remove("calculator_pin").apply()
-        CommonUtils.realSharedPreferences.edit().remove("show_calculator").apply()
-        CommonUtils.realSharedPreferences.edit().remove("discrete_mode").apply()
+        for (key in DEVICE_LOCAL_RESET_KEYS) devicePrefs.remove(key)
     }
 }
