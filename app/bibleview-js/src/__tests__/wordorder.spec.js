@@ -91,6 +91,24 @@ describe("WordOrder.vue", () => {
       expect(displayedWords.sort()).toEqual(["Hello", "How", "are", "world", "you"].sort());
     });
 
+    it.each(["“For God”", "¶For God", "¶“For ¶God”"])("excludes OSIS markers from tiles in %s", async (text) => {
+      const wrapper = await createWrapper({
+        textItems: [{key: "verse1", text}],
+        modeConfig: {orderConfig: {currentOrder: [0, 1]}},
+      });
+
+      expect(wrapper.findAll(".order-tile").map(tile => tile.text())).toEqual(["For", "God"]);
+      expect(wrapper.find(".order-area").classes()).toContain("completed");
+      expect(wrapper.emitted("memorize-completed")).toHaveLength(1);
+      wrapper.unmount();
+    });
+
+    it.each(["“”", "¶", "¶“”"])("does not create tiles for marker-only text %s", async (text) => {
+      const wrapper = await createWrapper({textItems: [{key: "verse1", text}]});
+      expect(wrapper.findAll(".order-tile")).toHaveLength(0);
+      wrapper.unmount();
+    });
+
     it("handles multiple text items", async () => {
       const wrapper = await createWrapper({
         textItems: [

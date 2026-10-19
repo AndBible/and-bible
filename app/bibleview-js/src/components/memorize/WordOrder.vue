@@ -112,7 +112,7 @@ watch(isCompleted, (completed) => {
 });
 
 // Character class shared by getWordsFromText and isPunctuation
-const PUNCT = String.raw`"".,;:!?…"'«»„‚–—\-()\[\]{}`;
+const PUNCT = String.raw`“”¶.,;:!?…"'«»„‚–—\-()\[\]{}`;
 const WORD_TOKENIZER = new RegExp(`([${PUNCT}]+)|([^\\s${PUNCT}]+)`, 'g');
 const PUNCTUATION_ONLY = new RegExp(`^[${PUNCT}]+$`);
 
