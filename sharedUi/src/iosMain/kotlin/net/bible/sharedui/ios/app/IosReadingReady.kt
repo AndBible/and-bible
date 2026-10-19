@@ -23,6 +23,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -48,10 +50,16 @@ internal object IosReadingReady {
     val scope: CoroutineScope get() = checkNotNull(currentScope) { "IosReadingReady.ensure has not completed" }
 
     /** True once [ensure] has completed: the window repository exists and is loaded. */
-    val isReady: Boolean get() = ready
+    val isReady: Boolean get() = readyFlow.value
+
+    /** [isReady] as a flow, so a UI can react when reading becomes ready instead of polling. */
+    val readyFlow: StateFlow<Boolean> get() = readyState
 
     private val mutex = Mutex()
-    @kotlin.concurrent.Volatile private var ready = false
+    private val readyState = MutableStateFlow(false)
+    private var ready: Boolean
+        get() = readyState.value
+        set(value) { readyState.value = value }
 
     // Test seams: the three steps, so a test can see their order and count.
     internal var initialise: suspend (ReadingAppInitPlatform) -> Unit = { ReadingAppInit.initialise(it) }

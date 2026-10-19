@@ -21,6 +21,8 @@ package net.bible.sharedui.ios.reading
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
@@ -82,26 +84,40 @@ internal class IosReadingQuickActions(
     private val fakeBookFactory: () -> FakeBookFactory,
     private val settings: AppSettings,
     private val scope: CoroutineScope,
+    private val toast: (String) -> Unit,
 ) : ReadingQuickActions {
+    /** Android's `switchMutex`: two quick switches never interleave their load/reload steps. */
+    private val switchMutex = Mutex()
+
     /**
      * Android's quick switch: the quick sheet never pauses the host, so the outgoing workspace is saved first, then
      * the target is loaded, remembered as the current one, and every window is reloaded with its text settings.
-     * (Android also clears its `BibleViewFactory`; here `IosReadingWindows` releases the sessions of windows that
-     * disappear on the repository's next window change.)
+     * Switches are serialised and finish with the workspace-name toast, like Android's `switchWorkspace`. Android also
+     * clears its `BibleViewFactory`; here `loadFromDb` clears the window list and calls `notifyWindowsChanged`, and
+     * `IosReadingWindows` releases the session of every window that is gone or closed on that change.
+     * Android's `buildView(forceUpdate)` / title / bottom-bar refreshes have no iOS counterpart (the toolbar state is
+     * not wired on iOS yet).
      */
     override fun quickSwitchToWorkspace(id: String) {
         scope.launch {
-            val control = windowControl()
-            val repository = control.windowRepository
-            repository.saveIntoDb()
-            repository.loadFromDb(IdType(id))
-            settings.setString("current_workspace_id", repository.id.toString())
-            control.windowSync.reloadAllWindows()
-            repository.updateAllWindowsTextDisplaySettings()
+            switchMutex.withLock {
+                val control = windowControl()
+                val repository = control.windowRepository
+                repository.saveIntoDb()
+                repository.loadFromDb(IdType(id))
+                settings.setString("current_workspace_id", repository.id.toString())
+                control.windowSync.reloadAllWindows()
+                repository.updateAllWindowsTextDisplaySettings()
+                toast(repository.name)
+            }
         }
     }
 
-    /** `KeyChooserResults.applyChosenDocument`: the installed book, else the matching pseudo-document. */
+    /**
+     * `KeyChooserResults.applyChosenDocument`: the installed book, else the matching pseudo-document. Android then
+     * calls `onToolbarStateMayHaveChanged()`; the iOS host has no toolbar-state refresh to call yet (its
+     * `ReadingHostDeps.toolbar` is still the empty state).
+     */
     override fun applyChosenDocument(bookStr: String?) {
         val book = Books.installed().getBook(bookStr)
             ?: fakeBookFactory().pseudoDocuments.first { it.initials == bookStr }

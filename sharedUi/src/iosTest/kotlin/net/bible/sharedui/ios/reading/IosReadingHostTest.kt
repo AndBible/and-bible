@@ -169,6 +169,56 @@ class IosReadingHostTest {
         assertTrue(deps.disableAnimations !== d1.disableAnimations, "disableAnimations")
     }
 
+    /**
+     * The `ReadingHostHooks` and `ReadingHostSlots` parameters. What iOS supplies must not be the inert default; what
+     * it deliberately leaves inert is the named allow-list below, each entry asserted to still hold, so lifting one
+     * (or breaking a supplied one) fails here and the list has to be updated on purpose.
+     */
+    @Test
+    fun hooksAndSlotParametersAreSuppliedExceptTheNamedInertOnes() = withReadingHost { host, _ ->
+        val defaults = net.bible.sharedui.reading.host.ReadingHostHooks()
+        val h = host.hooks
+        // Premise: default hook lambdas are shared instances (else every comparison below is vacuous).
+        assertTrue(defaults.closeSpeakSheet === net.bible.sharedui.reading.host.ReadingHostHooks().closeSpeakSheet, "premise")
+        val supplied = mapOf(
+            "closeSpeakSheet" to (h.closeSpeakSheet !== defaults.closeSpeakSheet),
+            "closeTextSettingsEditor" to (h.closeTextSettingsEditor !== defaults.closeTextSettingsEditor),
+            "openCompare" to (h.openCompare !== defaults.openCompare),
+            "applyChosenVerse" to (h.applyChosenVerse !== defaults.applyChosenVerse),
+            "formatHistoryTimestamp" to (h.formatHistoryTimestamp !== defaults.formatHistoryTimestamp),
+            "installedDocRows" to (h.installedDocRows !== defaults.installedDocRows),
+            "recentDocumentInitials" to (h.recentDocumentInitials !== defaults.recentDocumentInitials),
+        )
+        assertEquals(emptyList(), supplied.filterValues { !it }.keys.toList(), "hooks left at the default")
+        // INERT ALLOW-LIST (hooks): LLM sheets/regenerate (need the iOS agent start, not built), pane menu (window
+        // surface task), and the three optional overrides that default to the repository's own behaviour.
+        val inertHooks = mapOf(
+            "dismissLlmSheets" to (h.dismissLlmSheets === defaults.dismissLlmSheets),
+            "openPromptSelector" to (h.openPromptSelector === defaults.openPromptSelector),
+            "openRegenerate" to (h.openRegenerate === defaults.openRegenerate),
+            "paneMenuItemsFor" to (h.paneMenuItemsFor === defaults.paneMenuItemsFor),
+            "activeWindowId" to (h.activeWindowId == null),
+            "historyItemsFor" to (h.historyItemsFor == null),
+            "forVerseInitials" to (h.forVerseInitials == null),
+        )
+        assertEquals(emptyList(), inertHooks.filterValues { !it }.keys.toList(), "allow-listed hooks that are no longer inert")
+
+        val s = host.slots
+        assertTrue(s.speakPlatform is IosSpeakSettingsPlatform, "speakPlatform")
+        assertTrue(s.quickActions is IosReadingQuickActions, "quickActions")
+        assertTrue(s.keyChooserPage is IosReadingKeyChooserPage, "keyChooserPage")
+        assertTrue(s.searchState.platform is IosReadingSearchPlatform, "search platform")
+        // INERT ALLOW-LIST (slot parameters): navigator pending until Task 2, fullScreen and thumbnailFor constant,
+        // toast only logs until the toast host (Task 3), image picker / text share / external links are Stream F's
+        // pending ports.
+        assertTrue(s.navigator === net.bible.sharedui.webview.PendingIosReadingNavigator, "navigator")
+        assertFalse(s.fullScreen(), "fullScreen")
+        assertEquals(null, s.thumbnailFor("any"), "thumbnailFor")
+        assertTrue(s.imagePicker is net.bible.sharedui.ios.ports.IosImagePicker, "imagePicker")
+        assertTrue(s.textShare is net.bible.sharedui.ios.ports.IosTextShare, "textShare")
+        assertTrue(s.externalLinks is net.bible.sharedui.ios.ports.IosExternalLinks, "externalLinks")
+    }
+
     /** The overlay-exclusion hooks reach the slots' own stacks: opening a quick sheet closes the Speak sheet. */
     @Test
     fun overlayExclusionClosesTheSpeakSheetThroughTheSlots() = withReadingHost { host, _ ->

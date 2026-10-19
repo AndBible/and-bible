@@ -80,7 +80,7 @@ import net.bible.sharedui.components.FailClosedLinkRouting
 import net.bible.sharedui.app.ports.ExternalLinks
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import org.crosswire.jsword.book.Book
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSNotification
@@ -204,10 +204,11 @@ private fun IosHostTheme(dark: Boolean, koin: Koin, content: @Composable () -> U
         onDispose { subscription.cancel() }
     }
     LaunchedEffect(Unit) {
-        while (!IosReadingReady.isReady) delay(250)
+        IosReadingReady.readyFlow.first { it }
         seed = iosWorkspaceSeed(koin)
     }
-    AbHostTheme(darkTheme = dark, settings = koin.get<AppSettings>(), isOnyx = false, workspaceSeed = { seed }, content = content)
+    val settings = remember { koin.get<AppSettings>() }
+    AbHostTheme(darkTheme = dark, settings = settings, isOnyx = false, workspaceSeed = { seed }, content = content)
 }
 
 @Composable

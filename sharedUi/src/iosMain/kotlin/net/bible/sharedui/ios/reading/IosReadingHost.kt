@@ -29,11 +29,16 @@ import net.bible.android.view.activity.page.screen.speakBarVisible
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
+import net.bible.android.view.activity.navigation.DocRowMapper
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.navigation.DocRow
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.hideFromSelector
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
@@ -108,20 +113,24 @@ class IosReadingHost(
     private val settings: AppSettings = koin.get()
     private val documentControl: DocumentControl = koin.get()
 
+    /** The hooks [hostState] runs on user actions (test-visible: `everySlotIsSupplied` pins which ones are supplied). */
+    internal val hooks: ReadingHostHooks = ReadingHostHooks(
+            closeSpeakSheet = { slots.speakSheet.close() },
+            closeTextSettingsEditor = { slots.textSettingsEditor.close() },
+            openCompare = { range -> koin.get<LinkControl>().openCompare(range) },
+            applyChosenVerse = ::applyChosenVerse,
+            formatHistoryTimestamp = { createdAt -> formatHistoryTimestamp(createdAt.getTime()) },
+            installedDocRows = ::installedDocRows,
+            recentDocumentInitials = { koin.get<RecentDocumentsStore>().read() },
+    )
+
     val hostState: ReadingHostState = ReadingHostState(
         scope = scope,
         settings = settings,
         windowControl = windowControl,
         historyManager = koin.get<HistoryManager>(),
         documentControl = documentControl,
-        hooks = ReadingHostHooks(
-            closeSpeakSheet = { slots.speakSheet.close() },
-            closeTextSettingsEditor = { slots.textSettingsEditor.close() },
-            openCompare = { range -> koin.get<LinkControl>().openCompare(range) },
-            applyChosenVerse = ::applyChosenVerse,
-            formatHistoryTimestamp = { createdAt -> formatHistoryTimestamp(createdAt.getTime()) },
-            recentDocumentInitials = { koin.get<RecentDocumentsStore>().read() },
-        ),
+        hooks = hooks,
     )
 
     /** Android's `ReadingCommands.applyChosenVerse` (non-bookmark arm): a malformed OSIS id only toasts. */
@@ -138,6 +147,17 @@ class IosReadingHost(
     private fun formatHistoryTimestamp(epochMillis: Long): String =
         NSDateFormatter().apply { dateFormat = "h:mm a, E d MMM " }
             .stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMillis / 1000.0))
+
+    /** Pending until the toast host (Task 3): `UserNotifier.showInfo` only logs on iOS today. */
+    private fun toast(message: String) = koin.get<UserNotifier>().showInfo(message, false)
+
+    /** Android's `installedDocRows` hook: installed and pseudo documents through the one shared [DocRowMapper]. */
+    private fun installedDocRows(): List<DocRow> {
+        val books = SwordDocumentFacade.documents +
+            koin.get<FakeBookFactory>().pseudoDocuments.filterNot { it.hideFromSelector }
+        val mapper = DocRowMapper(koin.get<DownloadControl>(), books)
+        return books.map { mapper.toDocRow(it) }
+    }
 
     private val agentSessionService: AgentSessionService = koin.get()
 
@@ -204,12 +224,12 @@ class IosReadingHost(
         gridPassages = gridFactory,
         workspaceService = { koin.get<WorkspaceService>() },
         readingProgressService = { koin.get<ReadingProgressService>() },
-        quickActions = IosReadingQuickActions({ windowControl }, { koin.get<FakeBookFactory>() }, settings, scope),
+        quickActions = IosReadingQuickActions({ windowControl }, { koin.get<FakeBookFactory>() }, settings, scope, ::toast),
         keyChooserPage = IosReadingKeyChooserPage { windowControl },
         navigator = PendingIosReadingNavigator,
         textShare = IosTextShare(),
         clipboard = koin.get<ClipboardText>(),
-        toast = { koin.get<UserNotifier>().showInfo(it, false) },
+        toast = ::toast,
         workspaceName = { windowControl.windowRepository.name },
         activeWindowPosition = { windowControl.activeWindowPosition },
         currentDocumentInitials = { documentControl.currentDocument?.initials },
