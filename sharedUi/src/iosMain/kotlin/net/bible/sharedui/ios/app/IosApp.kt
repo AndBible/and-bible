@@ -72,7 +72,15 @@ import net.bible.sharedui.reading.LocalPinIcon
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.keyed.StringTable
-import net.bible.sharedui.theme.AbTheme
+import net.bible.sharedui.theme.AbHostTheme
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedui.components.FailClosedLinkRouting
+import net.bible.sharedui.app.ports.ExternalLinks
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import org.crosswire.jsword.book.Book
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSNotification
@@ -159,7 +167,7 @@ fun IosApp(strings: Strings) {
         LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
         LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
     ) {
-        AbTheme(darkTheme = dark) {
+        IosHostTheme(dark, koin) {
             val route = startRoute
             if (route == null) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
@@ -170,6 +178,36 @@ fun IosApp(strings: Strings) {
             }
         }
     }
+}
+
+/** The workspace colour that seeds the theme, or null before the window repository exists (Welcome) or on a read failure. */
+private fun iosWorkspaceSeed(koin: Koin): Int? {
+    if (!IosReadingReady.isReady) return null
+    return try {
+        koin.get<WindowControl>().windowRepository.workspaceSettings.workspaceColor
+    } catch (e: Exception) {
+        null
+    }
+}
+
+/**
+ * The common host theme ([AbHostTheme]: colour mode, animations, palette style from the app settings, the workspace
+ * colour as seed) around the whole app, as Android's `AbAppTheme` does. The seed follows workspace switches and colour
+ * edits ([WorkspaceChanges]) and is read once more when reading becomes ready (the first load emits no change that
+ * this subscription could have seen).
+ */
+@Composable
+private fun IosHostTheme(dark: Boolean, koin: Koin, content: @Composable () -> Unit) {
+    var seed by remember { mutableStateOf(iosWorkspaceSeed(koin)) }
+    DisposableEffect(Unit) {
+        val subscription = WorkspaceChanges.changes.subscribeOnMain { seed = iosWorkspaceSeed(koin) }
+        onDispose { subscription.cancel() }
+    }
+    LaunchedEffect(Unit) {
+        while (!IosReadingReady.isReady) delay(250)
+        seed = iosWorkspaceSeed(koin)
+    }
+    AbHostTheme(darkTheme = dark, settings = koin.get<AppSettings>(), isOnyx = false, workspaceSeed = { seed }, content = content)
 }
 
 @Composable
@@ -220,7 +258,7 @@ private fun IosAppContent(
         graphs = graphs,
         readingGraph = {
             readingNavGraph(navController, iosReadingNavDeps(readingToken, shell, table) {
-                IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
+                IosReadingDestination(shell, table, strings, koin, nightObserver, readingHostHolder)
             })
         },
         overlays = { appHosts.Overlays() },
@@ -231,9 +269,9 @@ private fun IosAppContent(
 private class ReadingHostHolder {
     private var host: IosReadingHost? = null
 
-    fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver): IosReadingHost =
+    fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver, strings: Strings): IosReadingHost =
         host ?: IosReadingHost(
-            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark,
+            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, { strings },
         ).also {
             host = it
             IosReadingWindows.bind(it, IosReadingReady.scope, koin, koin.get<NightModeState>())
@@ -249,6 +287,7 @@ private class ReadingHostHolder {
 private fun IosReadingDestination(
     shell: IosHostShell,
     table: StringTable,
+    strings: Strings,
     koin: Koin,
     nightObserver: IosNightModeObserver,
     holder: ReadingHostHolder,
@@ -277,12 +316,15 @@ private fun IosReadingDestination(
     // Debug-only `-openRef <osisRef>` (no-op in release / without the argument). Do not remove: AppUITests'
     // testFreshInstallEasyStartReadsJohn3 launches with it and asserts John 3, and the relaunch test relies on that run.
     LaunchedEffect(Unit) { IosDebugLaunchArgs.openRefOnce() }
-    val host = remember { holder.get(shell, koin, nightObserver) }
+    val host = remember { holder.get(shell, koin, nightObserver, strings) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }
     val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
-    CompositionLocalProvider(LocalReadingPane provides paneFactory) {
-        ReadingHost(deps, Modifier.testTag("reading-host"))
+    // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
+    FailClosedLinkRouting(koin.get<ExternalLinks>()) {
+        CompositionLocalProvider(LocalReadingPane provides paneFactory) {
+            ReadingHost(deps, Modifier.testTag("reading-host"))
+        }
     }
 }
 

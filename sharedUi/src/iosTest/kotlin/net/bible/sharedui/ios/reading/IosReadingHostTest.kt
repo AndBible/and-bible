@@ -34,6 +34,7 @@ import net.bible.sharedui.ios.app.IosNavigator
 import net.bible.sharedui.ios.app.IosReadingAppInitPlatform
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import org.koin.mp.KoinPlatform
+import platform.UIKit.UIApplicationOpenSettingsURLString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -102,5 +103,96 @@ class IosReadingHostTest {
             ReadingAppInit.resetForTest()
             runBlocking { IosAppStartup.resetForTest() }
         }
+    }
+
+    /** Boots the app parts the host reads (as the first test does) and runs [block]; tears everything down after. */
+    private fun withReadingHost(
+        openUrl: (String) -> Unit = {},
+        block: (host: IosReadingHost, deps: net.bible.sharedui.reading.host.ReadingHostDeps) -> Unit,
+    ) {
+        val scope = MainScope()
+        try {
+            IosAppStartup.start(
+                IosAppConfig(
+                    root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
+                    repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
+                ),
+            )
+            runBlocking { IosAppStartup.openDatabases() }
+            val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
+            runBlocking {
+                ReadingAppInit.initialise(platform)
+                ReadingAppInit.prepareData(platform)
+            }
+            val koin = KoinPlatform.getKoin()
+            ReadingAppInit.createWindowRepository(scope)
+            val p = ColorPainter(Color.Black)
+            val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
+            val host = IosReadingHost(
+                scope, IosHostShell(scope, NoNavigator), koin, FakeNight(false), openUrl = openUrl,
+            )
+            try {
+                block(host, host.deps(icons))
+            } finally {
+                host.dispose()
+            }
+        } finally {
+            scope.cancel()
+            ReadingAppInit.resetForTest()
+            runBlocking { IosAppStartup.resetForTest() }
+        }
+    }
+
+    /**
+     * No slot of the built deps is left at the inert default `ReadingHostDeps` ships. Default lambdas are shared
+     * singletons (non-capturing, hoisted by the compiler), so identity with a default-built instance means "not
+     * supplied"; the first assertion pins that premise so the comparison cannot pass vacuously.
+     */
+    @Test
+    fun everySlotIsSupplied() = withReadingHost { host, deps ->
+        val p = ColorPainter(Color.Black)
+        val icons = ReadingToolbarIcons(p, p, p, p, p, p, p, p, p)
+        val d1 = net.bible.sharedui.reading.host.ReadingHostDeps(deps.state, deps.controller, deps.toolbarCallbacks, { icons })
+        val d2 = net.bible.sharedui.reading.host.ReadingHostDeps(deps.state, deps.controller, deps.toolbarCallbacks, { icons })
+        assertTrue(d1.searchSheetSlot === d2.searchSheetSlot, "premise: default slot lambdas are shared instances")
+
+        assertTrue(deps.agentLogSlot != null && d1.agentLogSlot == null, "agentLogSlot")
+        assertTrue(deps.speakBarSlot != null && d1.speakBarSlot == null, "speakBarSlot")
+        assertTrue(deps.agentLogVisible !== d1.agentLogVisible, "agentLogVisible")
+        assertTrue(deps.speakBarVisible !== d1.speakBarVisible, "speakBarVisible")
+        assertTrue(deps.searchSheetSlot !== d1.searchSheetSlot, "searchSheetSlot")
+        assertTrue(deps.searchSettingsSlot !== d1.searchSettingsSlot, "searchSettingsSlot")
+        assertTrue(deps.textSettingsEditorSlot !== d1.textSettingsEditorSlot, "textSettingsEditorSlot")
+        assertTrue(deps.speakSettingsSlot !== d1.speakSettingsSlot, "speakSettingsSlot")
+        assertTrue(deps.quickSheetContent !== d1.quickSheetContent, "quickSheetContent")
+        assertTrue(deps.readingDialogSlot !== d1.readingDialogSlot, "readingDialogSlot")
+        assertTrue(deps.disableAnimations !== d1.disableAnimations, "disableAnimations")
+    }
+
+    /** The overlay-exclusion hooks reach the slots' own stacks: opening a quick sheet closes the Speak sheet. */
+    @Test
+    fun overlayExclusionClosesTheSpeakSheetThroughTheSlots() = withReadingHost { host, _ ->
+        host.slots.showSpeakSettings()
+        assertTrue(host.slots.speakSheet.depth > 0, "speak sheet opened")
+        host.hostState.showHistorySheet()
+        assertEquals(0, host.slots.speakSheet.depth, "speak sheet closed by the quick sheet")
+    }
+
+    /** The Speak sheet's system-TTS row opens the app's page in Settings through the host's URL port. */
+    @Test
+    fun speakSettingsOpensSystemSettingsThroughThePort() {
+        val opened = mutableListOf<String>()
+        withReadingHost(openUrl = { opened += it }) { host, _ ->
+            host.slots.speakPlatform.openSystemTtsSettings()
+        }
+        assertEquals(listOf(UIApplicationOpenSettingsURLString), opened)
+    }
+
+    /** The port on its own: one call, one URL, the Settings-app URL. */
+    @Test
+    fun speakSettingsPlatformOpensTheSettingsUrl() {
+        val opened = mutableListOf<String>()
+        IosSpeakSettingsPlatform { opened += it }.openSystemTtsSettings()
+        assertEquals(listOf(UIApplicationOpenSettingsURLString), opened)
     }
 }
