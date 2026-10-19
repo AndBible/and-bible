@@ -61,10 +61,10 @@ class WorkspaceHost(
 
     // Classic's four label bundles: ~90 strings between them, so they stay lazy, and are handed to the graph as
     // `() -> Labels` slots (a plain value would be read where the deps are constructed, on every host launch).
-    private val controllerLabels by lazy { strings.buildTextDisplayControllerLabels() }
-    private val screenLabels by lazy { strings.buildTextDisplayScreenLabels() }
-    private val colorSettingsLabels by lazy { strings.buildColorSettingsLabels() }
-    private val backgroundImageChooserLabels by lazy { strings.buildBackgroundImageChooserLabels() }
+    private val controllerLabels get() = strings.buildTextDisplayControllerLabels()
+    private val screenLabels get() = strings.buildTextDisplayScreenLabels()
+    private val colorSettingsLabels get() = strings.buildColorSettingsLabels()
+    private val backgroundImageChooserLabels get() = strings.buildBackgroundImageChooserLabels()
 
     /**
      * The selector's memoised controller: host-held rather than built per back-stack entry, because it

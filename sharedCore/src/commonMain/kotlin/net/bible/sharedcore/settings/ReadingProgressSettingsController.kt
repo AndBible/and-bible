@@ -15,13 +15,20 @@ import kotlinx.coroutines.launch
 class ReadingProgressSettingsController(
     private val service: ReadingProgressSettingsService,
     private val scope: CoroutineScope,
-    private val labels: ReadingProgressSettingsLabels,
+    private var labels: ReadingProgressSettingsLabels,
 ) {
     private val _state = MutableStateFlow(build(service.snapshot.value))
     val state: StateFlow<SettingsScreenState> = _state.asStateFlow()
 
     init {
         scope.launch { service.snapshot.collect { _state.value = build(it) } }
+    }
+
+    /** Relocalizes this retained controller without replacing its editing session. */
+    fun updateLabels(labels: ReadingProgressSettingsLabels) {
+        this.labels = labels
+        service.refresh()
+        _state.value = build(service.snapshot.value)
     }
 
     private fun build(s: ReadingProgressSettingsSnapshot): SettingsScreenState {

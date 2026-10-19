@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class SyncSettingsController(
     private val service: SyncSettingsService,
     private val scope: CoroutineScope,
-    private val labels: SyncSettingsLabels,
+    private var labels: SyncSettingsLabels,
     private val onOpenCloudDocuments: () -> Unit,
 ) {
     private val _state = MutableStateFlow(SyncSettingsUiState(screen = build(service.snapshot.value)))
@@ -24,6 +24,20 @@ class SyncSettingsController(
 
     init {
         scope.launch { service.snapshot.collect { s -> _state.value = _state.value.copy(screen = build(s)) } }
+    }
+
+    /** Rebuild translated state while retaining the pending action and scan result. */
+    fun updateLabels(labels: SyncSettingsLabels) {
+        this.labels = labels
+        service.refresh()
+        val dialog = when (val d = _state.value.dialog) {
+            SyncDialog.None -> d
+            is SyncDialog.ResetConfirm -> d.copy(message = labels.resetConfirmMessage)
+            is SyncDialog.ForgetCertificate -> d.copy(message = labels.forgetCertificateMessage)
+            is SyncDialog.UrlError -> d.copy(message = if (service.snapshot.value.httpsOnly) labels.httpsRequiredMessage else labels.invalidUrlMessage)
+            is SyncDialog.EnableDocuments -> d.copy(title = labels.documentsEnableDialogTitle, message = service.formatEnableDocumentsMessage(d.summary))
+        }
+        _state.value = _state.value.copy(screen = build(service.snapshot.value), dialog = dialog)
     }
 
     private fun categoryTitle(key: String): String = when (key) {

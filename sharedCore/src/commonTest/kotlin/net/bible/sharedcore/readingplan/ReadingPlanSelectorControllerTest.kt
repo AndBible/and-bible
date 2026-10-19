@@ -12,6 +12,15 @@ import kotlin.test.assertFalse
 class ReadingPlanSelectorControllerTest {
     private val sample = listOf(PlanEntry("y1", "Plan 1", "Desc 1"), PlanEntry("y2", "Plan 2", "Desc 2"))
 
+    @Test fun metadataRefreshPreservesDismissedWarningAndCodes() = runTest {
+        val c = ReadingPlanSelectorController(this, { sample }, { true }, {}, {})
+        c.dismissDuplicateWarning()
+        c.updateMetadata { it.copy(name = "Suunnitelma", description = "Kuvaus") }
+        assertEquals(sample.map { it.planCode }, c.plans.value.map { it.planCode })
+        assertTrue(c.plans.value.all { it.name == "Suunnitelma" })
+        assertFalse(c.duplicateWarning.value)
+    }
+
     @Test fun load_populates_plans_and_duplicate_flag() = runTest {
         val c = ReadingPlanSelectorController(this, { sample }, { true }, {}, {})
         assertEquals(sample, c.plans.value)

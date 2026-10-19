@@ -74,6 +74,14 @@ class SyncSettingsControllerTest {
     private fun controller(svc: SyncSettingsService, onOpen: () -> Unit = {}) =
         SyncSettingsController(svc, CoroutineScope(Dispatchers.Unconfined), SyncSettingsLabels.forTest(), onOpen)
 
+    @Test fun retainedResetDialogRelocalizesWithoutClosing() {
+        val c = controller(FakeSyncSettingsService(syncSnap()))
+        c.onNavigate("cloud_sync_reset")
+        c.updateLabels(SyncSettingsLabels.forTest().copy(screenTitle = "Synkronointi", resetConfirmMessage = "Palautetaanko?"))
+        assertEquals("Synkronointi", c.state.value.screen.title)
+        assertEquals(SyncDialog.ResetConfirm("Palautetaanko?"), c.state.value.dialog)
+    }
+
     @Test fun buildsGeneralRowsInOrder_credsVisible() {
         val keys = controller(FakeSyncSettingsService(syncSnap())).state.value.screen.visibleItems.map { it.key }
         // general category + adapter, then creds (reset/info hidden), then sync category + 5 + documents.

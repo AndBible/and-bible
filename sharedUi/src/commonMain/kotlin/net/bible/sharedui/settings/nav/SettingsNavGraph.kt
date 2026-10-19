@@ -57,6 +57,8 @@ import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.MemorizeTabBody
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.progress.ReadingProgressScreen
+import net.bible.sharedui.app.settings.syncSettingsLabels
+import net.bible.sharedui.app.settings.readingProgressSettingsLabels
 import net.bible.sharedui.app.settings.appSettingsLabels
 import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.settings.AppSettingsScreen
@@ -472,6 +474,10 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
     composable(NavRoutes.SYNC_SETTINGS) {
         val d = deps.syncSettings
         val controller = remember { d.controller() }
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings) { controller.updateLabels(languageStrings.syncSettingsLabels()) }
+        }
         val uiState by controller.state.collectAsState()
 
         // As above: the screen draws uiState.screen.title, and the classic host's manifest label
@@ -643,6 +649,10 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
     composable(NavRoutes.READING_PROGRESS_SETTINGS) {
         val d = deps.readingProgressSettings
         val controller = remember { d.controller() }
+        val languageStrings = LocalStrings.current
+        if (LocalLiveSettingsLanguage.current) {
+            LaunchedEffect(languageStrings) { controller.updateLabels(languageStrings.readingProgressSettingsLabels()) }
+        }
         val state by controller.state.collectAsState()
 
         // Same convention as the two Task 7 arms: the screen draws state.title, and that string

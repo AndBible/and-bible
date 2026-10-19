@@ -151,6 +151,17 @@ class ReadingPlanHost(
                 onImportPlan = { importPlan() },
                 onPlanMissing = { offerReadingPlanSelector() },
                 title = strings.readingPlanTitle,
+                refreshMetadata = { controller ->
+                    val dto = readingsDto
+                    val code = planCodeLoaded
+                    if (dto != null && code != null) {
+                        val name = readingPlanControl.readingPlanList().firstOrNull { it.planCode == code }?.planName
+                        if (readingsDto === dto && planCodeLoaded == code) {
+                            dto.readingPlanInfo.planName = name ?: dto.readingPlanInfo.planName
+                            controller.updateMetadata(dto.readingPlanInfo.planName.orEmpty(), dto.dayDesc, dto.readingDateString)
+                        }
+                    }
+                },
             ),
             dayList = DayListDeps(
                 controllerFor = { scope, onSelect ->
@@ -168,6 +179,12 @@ class ReadingPlanHost(
                 title = strings.readingPlanTitle,
             ),
             selector = SelectorDeps(
+                refreshMetadata = { controller ->
+                    val metadata = readingPlanControl.readingPlanList().associateBy { it.planCode }
+                    controller.updateMetadata { entry ->
+                        metadata[entry.planCode]?.let { entry.copy(name = it.planName.orEmpty(), description = it.planDescription.orEmpty()) } ?: entry
+                    }
+                },
                 controllerFor = { scope, onSelect ->
                     ReadingPlanSelectorController(
                         scope = scope,
