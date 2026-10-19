@@ -18,17 +18,24 @@ final class FeatureUITests: RealAppUITestCase {
         settings.tap()
         let keepScreen = app.switches.matching(NSPredicate(format: "label CONTAINS 'Keep screen on'")).firstMatch
         for _ in 0..<8 where !keepScreen.isHittable { app.swipeUp() }
-        XCTAssertTrue(keepScreen.exists)
-        let originalValue = keepScreen.value as? String
-        XCTAssertNotNil(originalValue)
+        if !keepScreen.exists || !keepScreen.isHittable {
+            shot(app, "settings-switch-not-hittable")
+            attachTree(app, "settings-switch-not-hittable")
+        }
+        XCTAssertTrue(keepScreen.exists && keepScreen.isHittable)
+        // Compose exports checked state through the selected AX trait, not a value string.
+        let originalSelected = keepScreen.isSelected
+        let expectedSelected = !originalSelected
         keepScreen.tap()
-        XCTAssertTrue(waitUntil(timeout: 10) {
-            guard let value = keepScreen.value as? String else { return false }
-            return value != originalValue
-        }, "The setting must actually change before testing retention")
-        let retainedValue = keepScreen.value as? String
-        XCTAssertNotNil(retainedValue)
-        XCTAssertNotEqual(retainedValue, originalValue)
+        let changed = waitUntil(timeout: 10) { keepScreen.isSelected == expectedSelected }
+        if !changed {
+            shot(app, "settings-switch-not-changed")
+            attachTree(app, "settings-switch-not-changed")
+        }
+        XCTAssertTrue(changed, "The setting must change to its explicit opposite before testing retention")
+        let retainedSelected = keepScreen.isSelected
+        XCTAssertEqual(retainedSelected, expectedSelected)
+        XCTAssertNotEqual(retainedSelected, originalSelected)
         let language = app.staticTexts["Application language"].firstMatch
         for _ in 0..<8 where !language.isHittable { app.swipeUp() }
         XCTAssertTrue(language.waitForExistence(timeout: 10))
@@ -40,8 +47,12 @@ final class FeatureUITests: RealAppUITestCase {
         XCTAssertTrue(app.staticTexts["Sovelluksen asetukset"].firstMatch.waitForExistence(timeout: 15), "Settings must refresh in the same process")
         let retainedSwitch = app.switches.matching(NSPredicate(format: "label CONTAINS 'Pidä näyttö päällä'")).firstMatch
         for _ in 0..<12 where !retainedSwitch.isHittable { app.swipeDown() }
+        if !retainedSwitch.exists || retainedSwitch.isSelected != retainedSelected {
+            shot(app, "settings-fi-switch-not-retained")
+            attachTree(app, "settings-fi-switch-not-retained")
+        }
         XCTAssertTrue(retainedSwitch.exists)
-        XCTAssertEqual(retainedSwitch.value as? String, retainedValue, "Language refresh must retain the edited setting")
+        XCTAssertEqual(retainedSwitch.isSelected, retainedSelected, "Language refresh must retain the edited setting")
         shot(app, "language-fi-settings")
         element(app, "debug-feature-back").tap()
         XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label == 'Vuodessa läpi Raamatun'")).firstMatch.waitForExistence(timeout: 20), "The actual loaded-plan title button must refresh without restarting")
@@ -65,14 +76,36 @@ final class FeatureUITests: RealAppUITestCase {
         let allLanguages = app.staticTexts.matching(NSPredicate(format: "label == 'All'")).firstMatch
         XCTAssertTrue(allLanguages.waitForExistence(timeout: 30))
         allLanguages.tap()
-        let languageSearch = app.textFields.firstMatch
-        XCTAssertTrue(languageSearch.waitForExistence(timeout: 10), "Language picker must expose its real search field")
+        // The real iOS OutlinedTextField is exported as a TextView in the picker AX tree.
+        let languageSearch = app.textViews.firstMatch
+        let searchReady = languageSearch.waitForExistence(timeout: 10) && languageSearch.isHittable
+        if !searchReady {
+            shot(app, "download-language-search-not-hittable")
+            attachTree(app, "download-language-search-not-hittable")
+        }
+        XCTAssertTrue(searchReady, "Language picker must expose its actual hittable editable TextView")
         languageSearch.tap()
         languageSearch.typeText("English")
+        let typedEnglish = waitUntil(timeout: 10) { (languageSearch.value as? String) == "English" }
+        if !typedEnglish {
+            shot(app, "download-language-search-input-mismatch")
+            attachTree(app, "download-language-search-input-mismatch")
+        }
+        XCTAssertTrue(typedEnglish, "Read back the actual typed language query before selecting an option")
         let englishLanguage = app.staticTexts.matching(NSPredicate(format: "label == 'English'")).firstMatch
-        XCTAssertTrue(englishLanguage.waitForExistence(timeout: 10))
+        let englishReady = englishLanguage.waitForExistence(timeout: 10) && englishLanguage.isHittable
+        if !englishReady {
+            shot(app, "download-language-no-english-option")
+            attachTree(app, "download-language-no-english-option")
+        }
+        XCTAssertTrue(englishReady)
         englishLanguage.tap()
-        XCTAssertTrue(waitUntil(timeout: 10) { !allLanguages.exists }, "Language selection must dismiss the picker and filter the catalogue")
+        let dismissed = waitUntil(timeout: 10) { !languageSearch.exists && !allLanguages.exists }
+        if !dismissed {
+            shot(app, "download-language-picker-not-dismissed")
+            attachTree(app, "download-language-picker-not-dismissed")
+        }
+        XCTAssertTrue(dismissed, "Language selection must dismiss the picker and filter the catalogue")
         let kjv = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'KJV '")).firstMatch
         for _ in 0..<40 where !kjv.isHittable { app.swipeUp() }
         if !kjv.exists || !kjv.isHittable {
