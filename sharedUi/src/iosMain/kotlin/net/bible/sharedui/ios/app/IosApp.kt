@@ -220,6 +220,7 @@ private fun IosAppContent(
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }
+    val debugReadingReady = remember { androidx.compose.runtime.mutableStateOf(false) }
     val language = holder.current.tag
     val graphs = remember(navController, language) { appHosts.graphs(navController, channels) }
     DisposableEffect(navController) {
@@ -259,10 +260,13 @@ private fun IosAppContent(
         graphs = graphs,
         readingGraph = {
             readingNavGraph(navController, iosReadingNavDeps(readingToken, shell, table) {
-                IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
+                IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder) { debugReadingReady.value = true }
             })
         },
-        overlays = { appHosts.Overlays() },
+        overlays = {
+            appHosts.Overlays()
+            IosDebugFeatureRoutes(debugReadingReady.value, navController, channels, koin, appHosts)
+        },
     )
 }
 
@@ -291,6 +295,7 @@ private fun IosReadingDestination(
     koin: Koin,
     nightObserver: IosNightModeObserver,
     holder: ReadingHostHolder,
+    onDebugReady: () -> Unit,
 ) {
     val ready by produceState<Boolean?>(null) {
         value = try {
@@ -314,8 +319,11 @@ private fun IosReadingDestination(
         return
     }
     // Debug-only `-openRef <osisRef>` (no-op in release / without the argument). Do not remove: AppUITests'
-    // testFreshInstallEasyStartReadsJohn3 launches with it and asserts John 3, and the relaunch test relies on that run.
-    LaunchedEffect(Unit) { IosDebugLaunchArgs.openRefOnce() }
+    // lifecycle tests launch with it and assert John 3 before saving and relaunching their own workspace.
+    LaunchedEffect(Unit) {
+        IosDebugLaunchArgs.openRefOnce()
+        onDebugReady()
+    }
     val host = remember { holder.get(shell, koin, nightObserver) }
     val icons = rememberIosReadingIcons()
     val deps = remember(host) { host.deps(icons) }

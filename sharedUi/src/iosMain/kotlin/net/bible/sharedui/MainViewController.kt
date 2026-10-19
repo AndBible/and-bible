@@ -71,6 +71,7 @@ fun MainViewController(): UIViewController {
     // keeps. Log it through NSLog first; the process still terminates afterwards.
     setUnhandledExceptionHook { nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}") }
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
+    IosDebugLaunchArgs.normalizeStandardFixture()
     val language = resolveDeviceUiLanguage(IosDeviceSettings())
     // Stage 1 (main thread, quick, no database); stage 2 (databases, workspace) runs off the main thread behind the splash.
     if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
