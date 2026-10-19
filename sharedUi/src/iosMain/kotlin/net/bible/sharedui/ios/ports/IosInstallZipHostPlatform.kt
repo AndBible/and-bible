@@ -1,74 +1,88 @@
-/*
- * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
- *
- * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
- *
- * AndBible is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- *
- * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with AndBible.
- * If not, see http://www.gnu.org/licenses/.
- */
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package net.bible.sharedui.ios.ports
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import net.bible.service.installzip.InstallJobState
-import net.bible.service.installzip.JobId
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.bible.service.installzip.*
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedui.app.installzip.InstallZipHostPlatform
 import net.bible.sharedui.app.ports.DocumentRef
+import net.bible.sharedui.app.ports.NotificationPermission
+import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.installzip.InstallUiState
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.strings.keyed.StringTable
+import org.koin.mp.KoinPlatform
 
-/**
- * Pending (stream F): no jobs, nothing to install. [mapPhase] answers an empty [InstallUiState.Error] because
- * [InstallUiState] has no neutral state; it is unreachable while [jobs] stays empty.
- */
+/** iOS UI adapter over the same process-wide queue used by [IosDocumentInstallStarter]. */
 @kotlin.native.HiddenFromObjC
-class IosInstallZipHostPlatform : InstallZipHostPlatform {
-    override val jobs: StateFlow<List<InstallJobState>> = MutableStateFlow<List<InstallJobState>>(emptyList()).asStateFlow()
+class IosInstallZipHostPlatform(
+    private val controller: () -> InstallServiceController = { IosInstallPipeline.controller },
+    private val scope: CoroutineScope = IosInstallPipeline.scope,
+    private val table: StringTable = iosStringTable("en"),
+    private val notificationPermission: NotificationPermission = IosNotificationPermission(),
+    private val initialise: suspend () -> Unit = { IosInstallPipeline.ensureInitialized() },
+) : InstallZipHostPlatform {
+    override val jobs get() = controller().jobs
 
-    override suspend fun isStudyPadExport(uri: DocumentRef): Boolean {
-        IosPending.log("InstallZipHostPlatform.isStudyPadExport")
-        return false
+    override suspend fun isStudyPadExport(uri: DocumentRef): Boolean = withContext(Dispatchers.Default) {
+        try { IosInstallPipeline.isStudyPad(uri.uri) }
+        catch (e: CancellationException) { throw e }
+        catch (_: Exception) { false }
     }
 
-    override fun displayName(uri: DocumentRef): String? {
-        IosPending.log("InstallZipHostPlatform.displayName")
-        return null
-    }
+    override fun displayName(uri: DocumentRef): String? = IosInstallPipeline.url(uri.uri).lastPathComponent
 
     override fun formatsText(): String {
-        IosPending.log("InstallZipHostPlatform.formatsText")
-        return ""
+        val zip = table.fmt("format_zip", table.text("app_name_andbible"))
+        val formats = listOf(zip, table.text("format_mybible"), table.text("format_mysword"),
+            table.text("format_esword"), table.text("format_epub"), table.text("format_ttf"),
+            table.text("format_csv_prompts"), table.text("format_studypads")).joinToString(", ")
+        return table.fmt("choose_file", table.text("app_name_andbible")) + " \n\n" + table.fmt("supported_formats", formats)
     }
 
-    override fun resolveDecision(jobId: JobId, proceed: Boolean) {
-        IosPending.log("InstallZipHostPlatform.resolveDecision")
-    }
+    override fun resolveDecision(jobId: JobId, proceed: Boolean) = controller().resolveDecision(jobId, proceed)
 
-    override fun mapPhase(job: InstallJobState): InstallUiState {
-        IosPending.log("InstallZipHostPlatform.mapPhase")
-        return InstallUiState.Error("")
+    override fun mapPhase(job: InstallJobState): InstallUiState = when (val phase = job.phase) {
+        InstallPhase.Queued, InstallPhase.Inspecting ->
+            InstallUiState.Progress(job.displayName, table.text("checking_zip_file"), null, true)
+        is InstallPhase.Acquiring ->
+            InstallUiState.Progress(job.displayName, table.text("checking_zip_file"), phase.percent, false)
+        is InstallPhase.Committing ->
+            InstallUiState.Progress(job.displayName, table.text("extracting_zip_file"), phase.percent, false)
+        InstallPhase.Done -> InstallUiState.Progress(job.displayName, table.text("extracting_zip_file"), 100, false)
+        is InstallPhase.AwaitingDecision -> when (val request = phase.request) {
+            is DecisionRequest.Overwrite -> InstallUiState.Overwrite(request.files)
+            is DecisionRequest.StudyPadImport -> InstallUiState.StudyPadImport(request.statsText)
+            DecisionRequest.EpubUpgrade -> InstallUiState.EpubUpgrade
+        }
+        is InstallPhase.Error -> {
+            val key = when (phase.kind) {
+                InstallError.GENERIC -> "error_occurred"
+                InstallError.INVALID_FILE -> "sqlite_invalid_file"
+            }
+            InstallUiState.Error(if (phase.arg == null) table.text(key) else table.fmt(key, phase.arg))
+        }
+        InstallPhase.Cancelled -> InstallUiState.Error(table.text("install_zip_canceled"))
     }
 
     override fun requestNotificationPermission() {
-        IosPending.log("InstallZipHostPlatform.requestNotificationPermission")
+        scope.launch { notificationPermission.request() }
     }
 
     override fun noFileManager() {
-        IosPending.log("InstallZipHostPlatform.noFileManager")
+        scope.launch {
+            KoinPlatform.getKoin().get<AppDialogController>().await(AppDialogRequest.Message(
+                title = null, message = table.text("no_file_manager"), confirmText = table.text("okay"),
+            ))
+        }
     }
 
     override fun initialiseIfStartedUninitialised() {
-        IosPending.log("InstallZipHostPlatform.initialiseIfStartedUninitialised")
+        scope.launch(Dispatchers.Default) { initialise() }
     }
 }

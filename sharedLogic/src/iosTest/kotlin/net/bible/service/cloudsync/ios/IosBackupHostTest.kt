@@ -66,8 +66,11 @@ class IosBackupHostTest {
         assertNull(controller.pending.value)
     }
 
-    @Test fun restoreModulesIsPendingNoOp() = runTest {
+    @Test fun restoreModulesInvokesTheRegisteredInstallZipHook() = runTest {
+        var opened = false
+        host.onRestoreModules = { opened = true }
         host.restoreModules()
+        assertTrue(opened)
         assertNull(controller.pending.value)
     }
 }

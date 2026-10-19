@@ -187,6 +187,14 @@ private fun IosAppContent(
     val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }) }
     val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
+    DisposableEffect(appHosts) {
+        val backup = ports.backupHost as net.bible.service.cloudsync.ios.IosBackupHost
+        val restore: () -> Unit = { appHosts.installZip.open() }
+        backup.onRestoreModules = restore
+        onDispose {
+            if (backup.onRestoreModules === restore) backup.onRestoreModules = {}
+        }
+    }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }
