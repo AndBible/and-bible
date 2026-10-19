@@ -48,6 +48,7 @@ class ReadingOffsets(
     private var searchSheet = 0f
     private var agentLog = 0f
     private var speakBarVisible = false
+    private var containerSize: Pair<Int, Int>? = null
 
     val top: Float get() = 0f
 
@@ -66,6 +67,18 @@ class ReadingOffsets(
     }
 
     fun setSpeakBarVisible(visible: Boolean) = change { if (speakBarVisible != visible) { speakBarVisible = visible; true } else false }
+
+    /**
+     * The container's size in px. A change after the first report (rotation, an iPad split-view resize) re-sends the offsets
+     * even when no term changed: which window sits at the bottom, and so which one pads the bottom inset, depends on the
+     * layout the size decides, while the inset itself can stay the same (an iPad has the same home-indicator inset in both
+     * orientations). The first report only records the size.
+     */
+    fun setContainerSize(widthPx: Int, heightPx: Int) {
+        val previous = containerSize
+        containerSize = widthPx to heightPx
+        if (previous != null && previous != containerSize) onChanged()
+    }
 
     /** Re-sends the offsets without a value change (the live [restoreButtonsVisible] answer may have changed). */
     fun refresh() = onChanged()

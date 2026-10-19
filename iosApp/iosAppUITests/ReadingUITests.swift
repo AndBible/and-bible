@@ -307,9 +307,10 @@ final class ReadingUITests: XCTestCase {
     /// Each action runs in a fresh process and records its own failure (`continueAfterFailure` on), so one dead
     /// toolbar button does not hide the others.
     ///
-    /// At the time of writing `IosReadingHost.callbacks()` still routes onSpeak, onWorkspace, onOverflow (and
-    /// onBible/onCommentary/onHome) to `IosPending.log`, so those steps are EXPECTED red until that wiring lands:
-    /// that is the defect they name (a toolbar button that does nothing).
+    /// All sixteen toolbar callbacks are wired (`IosReadingHost.callbacks()` -> `ReadingToolbarCommands`; none is a logged
+    /// pending), so every step here is expected GREEN on a Mac run. This file has NOT been compiled or run on Linux: the
+    /// element labels and identifiers are taken from strings.xml and the Compose test tags and are unverified until the
+    /// first run on a simulator; a red step is then either a wrong label or a real dead button.
     func testToolbarActionsOpenTheirDestinations() throws {
         continueAfterFailure = true
         var app = try launchReading()
@@ -373,9 +374,9 @@ final class ReadingUITests: XCTestCase {
 
     /// Every quick sheet that has an opener on the reading chrome opens, shows the sheet container and closes again,
     /// leaving the reading host and the pane untouched (the sheet is its own window, so no pane may be recreated).
-    /// Openers: title tap (key chooser, wired at HEAD), Workspaces / Bible / Commentary toolbar buttons (pending at HEAD,
-    /// like the toolbar test). History and the document sheet have no reading-chrome opener on iOS yet (drawer and title
-    /// long-press are pending): they are not covered here, see the report.
+    /// Openers: title tap (the Grid quick sheet for a Bible page, as Android's `composeStartKeyChooser`), and the Workspaces /
+    /// Bible / Commentary toolbar buttons. History and the document sheet are opened from the drawer and the title long press;
+    /// they are not covered here. Not compiled or run on Linux (no Mac): the labels are unverified.
     func testEachQuickSheetOpensAndCloses() throws {
         continueAfterFailure = true
         var app = try launchReading()

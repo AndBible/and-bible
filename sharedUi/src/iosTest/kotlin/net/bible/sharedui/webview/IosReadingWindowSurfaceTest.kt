@@ -68,7 +68,7 @@ class IosReadingWindowSurfaceTest {
     fun shareHtmlWritesAFile() {
         val tmp = freshTempDir()
         val shared = mutableListOf<String>()
-        IosReadingWindowSurface(Host(), shareFile = { shared += it }, tempDir = { tmp }).shareHtml("<p>Grüße</p>", "My Doc")
+        IosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { true }, tempDir = { tmp }).shareHtml("<p>Grüße</p>", "My Doc")
         val path = shared.single()
         assertTrue(path.startsWith(tmp) && path.endsWith("/My Doc.html"), path)
         assertEquals("<p>Grüße</p>", NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null))
@@ -79,12 +79,28 @@ class IosReadingWindowSurfaceTest {
     fun aSecondShareRemovesTheFirstFile() {
         val tmp = freshTempDir()
         val shared = mutableListOf<String>()
-        val surface = IosReadingWindowSurface(Host(), shareFile = { shared += it }, tempDir = { tmp })
+        val surface = IosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { true }, tempDir = { tmp })
         surface.shareHtml("one", "First")
         surface.shareHtml("two", "Second")
         assertEquals(2, shared.size)
         assertFalse(NSFileManager.defaultManager.fileExistsAtPath(shared[0]), "stale file must be gone")
         assertTrue(NSFileManager.defaultManager.fileExistsAtPath(shared[1]))
+        NSFileManager.defaultManager.removeItemAtPath(tmp, null)
+    }
+
+    /** A share while a sheet is up must not delete the directory (and so the file) that sheet shares. */
+    @Test
+    fun aShareWhileASheetIsUpTouchesNoFile() {
+        val tmp = freshTempDir()
+        val shared = mutableListOf<String>()
+        var sheetUp = false
+        val surface = IosReadingWindowSurface(Host(), shareFile = { shared += it }, canShare = { !sheetUp }, tempDir = { tmp })
+        surface.shareHtml("one", "First")
+        sheetUp = true
+        surface.shareHtml("two", "Second")
+        assertEquals(1, shared.size, "the second share is skipped")
+        assertTrue(NSFileManager.defaultManager.fileExistsAtPath(shared[0]), "the file of the open sheet is still there")
+        assertFalse(NSFileManager.defaultManager.fileExistsAtPath("$tmp/shared-html/Second.html"))
         NSFileManager.defaultManager.removeItemAtPath(tmp, null)
     }
 

@@ -75,4 +75,20 @@ class ReadingSessionSupportTest {
         assertNull(targetFor(null))
         assertEquals(listOf<Any?>("w1"), built) // never built a target over a dead page manager
     }
+
+    /** iPad rotation: the inset is the same in both orientations, but the bottom window can change. */
+    @Test
+    fun aContainerSizeChangeResendsTheOffsetsEvenWhenNoTermChanged() {
+        var changes = 0
+        val offsets = ReadingOffsets { changes++ }
+        offsets.setSystemBottomInset(20f)
+        changes = 0
+        offsets.setContainerSize(820, 1180) // the first report only records
+        assertEquals(0, changes)
+        offsets.setContainerSize(820, 1180) // unchanged
+        assertEquals(0, changes)
+        offsets.setContainerSize(1180, 820) // rotated
+        assertEquals(1, changes)
+        assertEquals(20f, offsets.bottom, "no term changed")
+    }
 }

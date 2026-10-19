@@ -31,7 +31,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /** The overflow menu's rows and click handling, over a recording [ReadingOverflowHost]. */
-class ReadingOverflowMenuTest {
+class ReadingOverflowControllerTest {
     private class FakeItem(
         override var value: Any,
         override val enabled: Boolean = true,
@@ -79,7 +79,7 @@ class ReadingOverflowMenuTest {
 
     private val host = FakeHost()
     private val table = StringTable.of("en", { lookup("en", it) }, { n, c -> lookupPlural("en", n, c) }, { lookupArray("en", it) })
-    private val menu = ReadingOverflowMenu(host) { KeyedReadingMenuStrings(table) }
+    private val menu = ReadingOverflowController(host) { KeyedReadingMenuStrings(table) }
 
     private fun ids() = menu.build().map { it.id }
 

@@ -36,6 +36,12 @@ private fun topViewController(): UIViewController? {
     while (true) top = top.presentedViewController ?: return top
 }
 
+/** Whether a share sheet can be presented now: a window exists and no share sheet is already up. */
+internal fun iosCanPresentShare(): Boolean {
+    val top = topViewController() ?: return false
+    return top !is UIActivityViewController
+}
+
 /**
  * Presents the system share sheet for [items] (strings or file [NSURL]s). On iPad the sheet needs an anchor; it points at the bottom centre of the screen.
  */

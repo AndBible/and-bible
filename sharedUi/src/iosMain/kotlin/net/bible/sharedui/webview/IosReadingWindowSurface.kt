@@ -25,6 +25,7 @@ import net.bible.sharedui.app.ports.TextShare
 import net.bible.sharedui.components.AppToasts
 import net.bible.sharedui.ios.ports.IosExternalLinks
 import net.bible.sharedui.ios.ports.IosTextShare
+import net.bible.sharedui.ios.ports.iosCanPresentShare
 import net.bible.sharedui.ios.ports.iosShareFile
 import net.bible.sharedui.reading.bridge.ReadingWindowSurface
 import net.bible.sharedui.reading.bridge.webSearchUrl
@@ -48,6 +49,8 @@ class IosReadingWindowSurface(
     private val textShare: TextShare = IosTextShare(),
     private val toast: (String) -> Unit = { AppToasts.show(it) },
     private val shareFile: (path: String) -> Unit = ::iosShareFile,
+    /** False while a share sheet is already up: [shareHtml] then does nothing, and above all leaves the open sheet's file alone. */
+    private val canShare: () -> Boolean = ::iosCanPresentShare,
     /** The temporary directory shared HTML files go under; a parameter for tests. */
     private val tempDir: () -> String = { NSTemporaryDirectory() },
 ) : ReadingWindowSurface {
@@ -63,9 +66,11 @@ class IosReadingWindowSurface(
      * Writes [html] to `<temp>/shared-html/<title>.html` and hands it to [shareFile]. The file is named after the
      * sanitised [title] ("shared" when nothing is left) so the recipient sees a meaningful name. The share sheet has
      * no title or subject on iOS, so the title only names the file. Files of earlier shares are deleted first, so at
-     * most one shared file lives in the temp directory.
+     * most one shared file lives in the temp directory. Nothing is touched while a share sheet is already up ([canShare]):
+     * deleting the directory then would remove the file that sheet is sharing.
      */
     override fun shareHtml(html: String, title: String) {
+        if (!canShare()) return
         val dir = tempDir().trimEnd('/') + "/shared-html"
         val fm = NSFileManager.defaultManager
         fm.removeItemAtPath(dir, null)

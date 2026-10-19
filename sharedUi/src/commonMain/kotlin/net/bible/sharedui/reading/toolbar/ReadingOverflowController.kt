@@ -76,7 +76,7 @@ interface ReadingOverflowHost {
  * `openDialog`) opens the full text options screen instead.
  */
 @kotlin.native.HiddenFromObjC
-class ReadingOverflowMenu(private val host: ReadingOverflowHost, private val strings: () -> KeyedReadingMenuStrings) {
+class ReadingOverflowController(private val host: ReadingOverflowHost, private val strings: () -> KeyedReadingMenuStrings) {
 
     fun build(): List<OptionsMenuItem> {
         val s = strings()
