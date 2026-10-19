@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.nav
 
 import net.bible.service.db.DatabaseContainer
@@ -23,7 +25,8 @@ import net.bible.service.db.DatabaseContainer
  * The bookmarks list's reaction to a cloud sync that changed bookmarks: [onChanged] runs on main.
  * Returns the per-destination unsubscribe function.
  */
-internal fun subscribeToBookmarkSync(onChanged: () -> Unit): () -> Unit {
+@kotlin.native.HiddenFromObjC
+fun subscribeToBookmarkSync(onChanged: () -> Unit): () -> Unit {
     val subscription = DatabaseContainer.bookmarksSynced.subscribeOnMain { onChanged() }
     return { subscription.cancel() }
 }

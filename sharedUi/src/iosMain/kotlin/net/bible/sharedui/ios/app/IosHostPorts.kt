@@ -60,10 +60,13 @@ fun buildIosHostPorts(
     initialiseWelcome: suspend () -> Unit = {},
 ): HostPorts {
     val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate)
-    val bookmark = IosBookmarkHostPlatform()
     val readingPlan = IosReadingPlanHostPlatform()
     val installZip = IosInstallZipHostPlatform()
     val currentTable = { koin.getOrNull<net.bible.sharedui.assembly.IosStringTableHolder>()?.current ?: table }
+    val picker = IosDocumentPicker()
+    val bookmark by lazy {
+        IosBookmarkHostPlatform({ koin.get() }, picker, koin.get(), koin.get(), currentTable, koin.get(), koin.get())
+    }
     val chooser = IosChooserHostPlatform(koin, shell.hostScope, currentTable)
     val documents = IosDocumentDialogs(shell.hostScope, koin.get(), currentTable, koin.get())
     val download = IosDownloadHostPlatform(documents)
@@ -72,7 +75,7 @@ fun buildIosHostPorts(
     val bugReport = IosBugReportPlatform()
     val ai = IosAiHostPlatform()
     return HostPorts(
-        documentPicker = IosDocumentPicker(),
+        documentPicker = picker,
         imagePicker = IosImagePicker(),
         textShare = IosTextShare(),
         notificationPermission = IosNotificationPermission(),
