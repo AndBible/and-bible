@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.testTag
@@ -232,11 +233,29 @@ private fun IosAppContent(
                 IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
             })
         },
-        overlays = { appHosts.Overlays() },
+        overlays = {
+            appHosts.Overlays()
+            net.bible.sharedui.ios.files.IosFilesRuntimeHarness.Overlay(strings) {
+                navController.currentBackStackEntryFlow.first()
+            }
+            val incomingEntry by navController.currentBackStackEntryFlow.collectAsState(initial = null)
+            net.bible.sharedui.ios.files.IosIncomingRuntimeHarness.Overlay(
+                strings,
+                backupRoute = incomingEntry?.destination?.route == NavRoutes.BACKUP,
+                openBackup = { shell.navigate(NavRoutes.BACKUP) },
+            )
+            net.bible.sharedui.ios.files.IosFilesFeatureHarness.Overlay(
+                strings, incomingEntry?.destination?.route,
+                awaitGraph = { navController.currentBackStackEntryFlow.first() },
+                navigate = { shell.navigate(it) },
+            )
+            IosAppDialogOverlay()
+        },
     )
     LaunchedEffect(appHosts, navController) {
         // A real back-stack entry proves NavHost attached its graph, not merely that graphs() built deps.
         navController.currentBackStackEntryFlow.first()
+        if (!net.bible.sharedui.ios.files.IosIncomingRuntimeHarness.preflightBeforeBind()) return@LaunchedEffect
         val owner = net.bible.sharedui.ios.files.IosIncomingFiles.bind(
             open = { refs, complete ->
                 appHosts.installZip.open(

@@ -14,10 +14,24 @@ import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 
 object IosPlatformBootstrap {
+    /** Debug-only app-hosted port diagnostics; release builds ignore launch arguments. */
+    fun prepareFilesPortTestLaunch() {
+        net.bible.sharedui.ios.files.IosFilesRuntimeHarness.prepareLaunch()
+        net.bible.sharedui.ios.files.IosIncomingRuntimeHarness.prepareLaunch()
+        net.bible.sharedui.ios.files.IosFilesFeatureHarness.prepareLaunch()
+    }
+
+    /** Null on success; an explicit diagnostic otherwise, including unsupported release builds. */
+    fun runFilesClipboardSelfTest(): String? = net.bible.sharedui.ios.files.IosFilesRuntimeHarness.clipboardSelfTest()
+
     /** Swift's Files/Mail entry; buffers until the real navigation graph has composed. */
     fun openIncomingFile(url: String) {
-        if (NSThread.isMainThread) IosIncomingFiles.offer(url)
-        else dispatch_async(dispatch_get_main_queue()) { IosIncomingFiles.offer(url) }
+        val receive = {
+            net.bible.sharedui.ios.files.IosOsRoutingReceipt.observe(url)
+            IosIncomingFiles.offer(url)
+        }
+        if (NSThread.isMainThread) receive()
+        else dispatch_async(dispatch_get_main_queue()) { receive() }
     }
 
     val backgroundRefresh: BackgroundRefresh by lazy { IosBackgroundRefresh(MainScope()) }
