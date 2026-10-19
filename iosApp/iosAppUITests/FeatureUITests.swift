@@ -39,10 +39,31 @@ final class FeatureUITests: RealAppUITestCase {
         let language = app.staticTexts["Application language"].firstMatch
         for _ in 0..<8 where !language.isHittable { app.swipeUp() }
         XCTAssertTrue(language.waitForExistence(timeout: 10))
-        language.tap()
+        // The actual actionable AX node is the Button containing this exact child label.
+        let languageRows = app.buttons.containing(.staticText, identifier: "Application language")
+        let languageRow = languageRows.firstMatch
+        let languageRowReady = languageRows.count == 1 && languageRow.isHittable
+        if !languageRowReady {
+            shot(app, "settings-language-parent-not-hittable")
+            attachTree(app, "settings-language-parent-not-hittable")
+        }
+        XCTAssertTrue(languageRowReady)
+        languageRow.tap()
+        // Do not scroll the underlying Settings list when the editor failed to open.
+        let editorClose = app.buttons.matching(NSPredicate(format: "label == 'Close'")).firstMatch
+        let editorOpened = editorClose.waitForExistence(timeout: 10) && editorClose.isHittable
+        if !editorOpened {
+            shot(app, "settings-language-editor-not-opened")
+            attachTree(app, "settings-language-editor-not-opened")
+        }
+        XCTAssertTrue(editorOpened, "Actual language editor must open before searching its choices")
         let finnish = app.staticTexts["fi: Suomi"].firstMatch
         for _ in 0..<12 where !finnish.isHittable { app.swipeUp() }
-        XCTAssertTrue(finnish.exists)
+        if !finnish.exists || !finnish.isHittable {
+            shot(app, "settings-language-no-finnish-choice")
+            attachTree(app, "settings-language-no-finnish-choice")
+        }
+        XCTAssertTrue(finnish.exists && finnish.isHittable)
         finnish.tap()
         XCTAssertTrue(app.staticTexts["Sovelluksen asetukset"].firstMatch.waitForExistence(timeout: 15), "Settings must refresh in the same process")
         let retainedSwitch = app.switches.matching(NSPredicate(format: "label CONTAINS 'Pidä näyttö päällä'")).firstMatch
@@ -113,9 +134,32 @@ final class FeatureUITests: RealAppUITestCase {
             attachTree(app, "download-english-no-kjv")
         }
         XCTAssertTrue(kjv.exists && kjv.isHittable, "Real repository KJV module required in the English catalogue")
-        kjv.press(forDuration: 1)
+        let kjvRows = app.buttons.containing(.staticText, identifier: kjv.label)
+        let kjvRow = kjvRows.firstMatch
+        let kjvRowReady = kjvRows.count == 1 && kjvRow.isHittable
+        if !kjvRowReady {
+            shot(app, "download-kjv-parent-not-hittable")
+            attachTree(app, "download-kjv-parent-not-hittable")
+        }
+        XCTAssertTrue(kjvRowReady, "Long press must target the unique actual KJV row Button")
+        kjvRow.press(forDuration: 1)
+        // Long press opens the real selection toolbar, not a context menu.
+        let selectionCancel = app.buttons.matching(NSPredicate(format: "label == 'Cancel'")).firstMatch
+        let selectionOpened = waitUntil(timeout: 10) {
+            selectionCancel.exists && selectionCancel.isHittable && app.staticTexts["1"].exists
+        }
+        if !selectionOpened {
+            shot(app, "download-kjv-selection-not-opened")
+            attachTree(app, "download-kjv-selection-not-opened")
+        }
+        XCTAssertTrue(selectionOpened, "One KJV document must be selected before About is available")
         let about = app.buttons["About"].firstMatch
-        XCTAssertTrue(about.waitForExistence(timeout: 10))
+        let aboutReady = about.waitForExistence(timeout: 10) && about.isHittable
+        if !aboutReady {
+            shot(app, "download-selection-about-not-hittable")
+            attachTree(app, "download-selection-about-not-hittable")
+        }
+        XCTAssertTrue(aboutReady)
         about.tap()
         let metadata = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'King James'")).firstMatch
         XCTAssertTrue(metadata.waitForExistence(timeout: 15), "About must show metadata for the selected real module")
