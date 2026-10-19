@@ -52,7 +52,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** Keychain stand-in: see the class comment of [IosAssemblyTest]. */
-private class InMemorySecretStore : net.bible.sharedcore.platform.secrets.SecretStore {
+internal class InMemorySecretStore : net.bible.sharedcore.platform.secrets.SecretStore {
     private val values = mutableMapOf<String, String>()
     override fun get(key: String): String? = values[key]
     override fun put(key: String, value: String) { values[key] = value }
@@ -60,8 +60,8 @@ private class InMemorySecretStore : net.bible.sharedcore.platform.secrets.Secret
 }
 
 /**
- * The I2 Stream C acceptance test: the real iOS bindings plus the shared bindings (and test doubles for the four
- * sync ports) start on an empty sandbox, every definition resolves, the databases open off the main thread, and a
+ * The I2 Stream C acceptance test: the real iOS bindings plus the shared bindings and the real
+ * sync bindings start on an empty sandbox, every definition resolves, the databases open off the main thread, and a
  * real SWORD module is read through the real facade. Native only; runs on the Mac.
  *
  * SECRETS: the app stores its device identifier in the Keychain, and database opening reads it. The unsigned simulator
@@ -109,13 +109,12 @@ class IosAssemblyTest {
         files.deleteRecursively(databaseDir)
     }
 
-    private fun startWithDoubles(language: String? = "en") =
-        IosAppStartup.start(config(language), extraModules = listOf(syncPortTestDoubles()))
+    private fun startApp(language: String? = "en") = IosAppStartup.start(config(language))
 
     @Test
     fun startupResolvesTheGraphOpensDatabasesAndReadsAVerse() {
         assertFalse(files.exists(databaseDir), "the sandbox starts without a database directory")
-        startWithDoubles()
+        startApp()
         val koin = KoinPlatform.getKoin()
 
         // The graph is resolved AFTER the databases are open, as on Android: TextToSpeechServiceManager (and other
@@ -142,8 +141,18 @@ class IosAssemblyTest {
     }
 
     @Test
+    fun startWithRealSyncBindingsResolvesEveryDefinition() {
+        startApp() // no extra modules: the sync ports come from buildIosSyncBindings
+        openDatabasesDiagnosing()
+        val result = KoinPlatform.getKoin().probeAllDefinitions()
+        assertEquals(emptyList(), result.failures, "unresolvable definitions")
+        val syncNames = listOf("CloudAdapterFactory", "SyncSettingsPlatform", "DocumentSyncStarter", "SyncScheduler", "CloudSync", "DocumentSync", "IosBackgroundSync")
+        assertTrue(result.phase2Dependents.none { d -> syncNames.any { d.contains(it) } }, "sync definitions still excused: ${result.phase2Dependents}")
+    }
+
+    @Test
     fun startOnAnEmptySandboxCreatesTheFoldersAndNeverTouchesTheDatabases() {
-        startWithDoubles()
+        startApp()
         // The fixture ships only mods.d and the module data, so the search folder exists only if startup created it.
         // (JSword's loaded flag is process-wide, so the folder creation itself runs once; the folders persist in the
         // shared root. Creation from a fully empty directory is covered by IosSwordEnvironmentTest in :sharedLogic.)
@@ -160,7 +169,7 @@ class IosAssemblyTest {
 
     @Test
     fun openDatabasesAloneCreatesEveryDatabaseOnAnEmptySandbox() {
-        startWithDoubles()
+        startApp()
         openDatabasesDiagnosing()
         assertTrue(IosAppStartup.databasesOpen)
         assertTrue(DatabaseContainer.ready)
@@ -169,10 +178,10 @@ class IosAssemblyTest {
 
     @Test
     fun startIsIdempotent() {
-        startWithDoubles()
+        startApp()
         val koin = KoinPlatform.getKoin()
         val environment = koin.get<AppEnvironment>()
-        startWithDoubles()
+        startApp()
         assertTrue(koin === KoinPlatform.getKoin(), "a second start must not start a second Koin")
         assertTrue(environment === KoinPlatform.getKoin().get<AppEnvironment>())
 
@@ -188,7 +197,7 @@ class IosAssemblyTest {
 
     @Test
     fun openDatabasesTwiceKeepsTheSameOpenContainer() {
-        startWithDoubles()
+        startApp()
         openDatabasesDiagnosing()
         val container = DatabaseContainer.instance
         openDatabasesDiagnosing() // a repeated call is a no-op
@@ -198,7 +207,7 @@ class IosAssemblyTest {
 
     @Test
     fun aFailedOpenLeavesTheDatabasesClosedAndCanBeRetried() {
-        startWithDoubles()
+        startApp()
         // An unusable database location: a regular file where the databases directory must be.
         files.createDirectories(databaseDir.parent!!)
         files.write(databaseDir) { writeUtf8("not a directory") }
@@ -215,7 +224,7 @@ class IosAssemblyTest {
 
     @Test
     fun aCorruptDatabaseFileIsMovedAsideAndRecreatedEmpty() {
-        startWithDoubles()
+        startApp()
         // Garbage in one database file: buildAppDatabase (recoverIfCorrupt) moves it to `<name>.corrupt-<ts>` and the
         // container recreates the database, so the open SUCCEEDS (it does not report Failed).
         val victim = ALL_DB_FILENAMES.first()
@@ -238,7 +247,7 @@ class IosAssemblyTest {
 
     @Test
     fun theBookInstallWatcherStartedAndWritesToTheBackupDatabase() {
-        startWithDoubles()
+        startApp()
         assertTrue(IosSwordEnvironment.isLoaded, "StartupHooks.isSwordLoaded must be true after folder initialisation")
         openDatabasesDiagnosing()
         val koin = KoinPlatform.getKoin()
@@ -275,7 +284,7 @@ class IosAssemblyTest {
 
     @Test
     fun speakPhrasesForFinnishComeOutFinnish() {
-        startWithDoubles()
+        startApp()
         val speak = KoinPlatform.getKoin().get<SpeakPlatform>()
         // Expected values are the literal `speak_first` of values/strings.xml and values-fi/strings.xml.
         assertEquals("First", speak.phrasesFor("en").first)
@@ -286,7 +295,7 @@ class IosAssemblyTest {
 
     @Test
     fun theConfiguredUiLanguageDrivesTheBoundStringTables() {
-        startWithDoubles(language = "fi")
+        startApp(language = "fi")
         val labels = KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.LabelNameStrings>()
         // Literal values of values-fi/strings.xml (speak, label_unlabelled).
         assertEquals("Puhe", labels.speak)
@@ -295,7 +304,7 @@ class IosAssemblyTest {
 
     @Test
     fun theEnglishConfigGivesEnglishStrings() {
-        startWithDoubles(language = "en")
+        startApp(language = "en")
         val labels = KoinPlatform.getKoin().get<net.bible.sharedlogic.platform.LabelNameStrings>()
         assertEquals("Speak", labels.speak)
         assertEquals("Unlabeled", labels.unlabelled) // generated English table (US spelling), checked in StringsData
@@ -304,7 +313,7 @@ class IosAssemblyTest {
     @OptIn(org.koin.core.annotation.KoinInternalApi::class)
     @Test
     fun boundPortListMatchesTheModule() {
-        startWithDoubles()
+        startApp()
         val koin = KoinPlatform.getKoin()
         // Every declared port resolves from the running graph ...
         val unresolved = IOS_BOUND_PORT_TYPES.filter { type -> runCatching { koin.get<Any>(type) }.isFailure }
@@ -314,6 +323,14 @@ class IosAssemblyTest {
         val bound = module.mappings.values.flatMap { f -> listOf(f.beanDefinition.primaryType) + f.beanDefinition.secondaryTypes }.toSet()
         val undeclared = bound - IOS_BOUND_PORT_TYPES.toSet() - IOS_CONCRETE_BINDINGS
         assertEquals(emptyList(), undeclared.map { it.qualifiedName }, "bound by IosPlatformBindings but missing from IOS_BOUND_PORT_TYPES")
+    }
+
+    @Test
+    fun theEightHostPortsResolve() {
+        startApp()
+        val koin = KoinPlatform.getKoin()
+        val unresolved = IOS_HOST_BINDING_TYPES.filter { type -> runCatching { koin.get<Any>(type) }.isFailure }
+        assertEquals(emptyList(), unresolved.map { it.qualifiedName }, "host ports that do not resolve")
     }
 
     @Test
@@ -336,7 +353,7 @@ class IosAssemblyTest {
             "the message must carry the root cause")
     }
 
-    private companion object {
+    internal companion object {
         private var hookInstalled = false
 
         /**

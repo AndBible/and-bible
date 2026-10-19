@@ -25,7 +25,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
+import net.bible.service.cloudsync.ios.buildIosSyncBindings
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedui.ios.app.buildIosHostBindings
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.AppDirectories
 import net.bible.sharedcore.platform.CoreStrings
@@ -39,6 +41,7 @@ import net.bible.sharedlogic.platform.ios.IosLocaleProvider
 import net.bible.sharedlogic.platform.ios.IosSwordEnvironment
 import net.bible.sharedlogic.startup.SharedAppStartup
 import net.bible.sharedlogic.startup.StartupHooks
+import net.bible.sharedui.platform.IosPlatformBootstrap
 import net.bible.sharedui.strings.keyed.StringTable
 import okio.FileSystem
 import okio.Path
@@ -147,6 +150,9 @@ object IosAppStartup {
     /** True once [openDatabases] finished; `DatabaseAppSettings` answers defaults before that. */
     val databasesOpen: Boolean get() = opened
 
+    /** The UI-language string table of the started app (the resource-keyed lookups the hosts read). */
+    internal val stringTable: StringTable get() = checkNotNull(parts) { "IosAppStartup.start has not run" }.strings
+
     /**
      * Environment + Koin; never touches the databases. MAIN THREAD ONLY (it is not thread-safe). Idempotent: a repeated
      * call reuses the first call's [config] and [extraModules]; different arguments are IGNORED. `SharedAppStartup.start`
@@ -162,7 +168,10 @@ object IosAppStartup {
         SharedAppStartup.start(
             StartupHooks(
                 initialiseJSwordFolders = { IosSwordEnvironment.initialiseJSwordFolders(p.directories.modulesDir) },
-                koinModules = { listOf(buildIosCoreModule(p.config, extraModules, p)) },
+                koinModules = {
+                    val sync = buildIosSyncBindings(iosSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)
+                    listOf(buildIosCoreModule(p.config, listOf(sync, buildIosHostBindings()) + extraModules, p))
+                },
                 reportJSwordError = { ev -> reportJSwordError(p, ev) },
                 isSwordLoaded = { IosSwordEnvironment.isLoaded },
             ),

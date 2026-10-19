@@ -19,9 +19,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedui.ios.app.IosApp
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAppStartupState
+import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.assembly.StartupPhase
 import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedui.assembly.logAssemblyProbe
@@ -32,6 +34,7 @@ import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.setUnhandledExceptionHook
 import kotlinx.cinterop.ExperimentalForeignApi
 import net.bible.sharedcore.log.nsLog
+import net.bible.sharedui.platform.IosPlatformBootstrap
 import net.bible.sharedui.poc.IosPocApp
 import net.bible.sharedui.poc.PocScenario
 import net.bible.sharedui.probe.PlatformProbeScreen
@@ -45,6 +48,8 @@ import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSString
 import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.stringWithContentsOfFile
+import platform.UIKit.UIScreen
+import platform.UIKit.UIUserInterfaceStyle
 import platform.UIKit.UIViewController
 
 /** App-level scope of the cold start; a handler logs, because an uncaught exception in a coroutine aborts the process. */
@@ -56,8 +61,9 @@ private val startupScope = CoroutineScope(
 private val startupState = IosAppStartupState()
 
 /**
- * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). I0: shows the PoC app;
- * `SCREENSHOT_SCENARIO` and `POC_DARK` (environment, set by XCUITest) pick the scenario and theme.
+ * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). Shows the real app ([IosApp]) once
+ * startup is Ready; with `SCREENSHOT_SCENARIO` set (XCUITest) it shows the I0 PoC app instead, and `POC_DARK` picks
+ * that scenario's theme.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
 fun MainViewController(): UIViewController {
@@ -67,6 +73,7 @@ fun MainViewController(): UIViewController {
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
     val language = resolveDeviceUiLanguage(IosDeviceSettings())
     // Stage 1 (main thread, quick, no database); stage 2 (databases, workspace) runs off the main thread behind the splash.
+    if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
     val startError = try {
         IosAppStartup.start(IosAppConfig(uiLanguage = language))
         null
@@ -78,6 +85,12 @@ fun MainViewController(): UIViewController {
         val env = remember { NSProcessInfo.processInfo.environment }
         val scenario = remember { PocScenario.fromName(env["SCREENSHOT_SCENARIO"] as? String) }
         val dark = remember { (env["POC_DARK"] as? String) == "1" }
+        // Splash and failure screens of the production path follow the system appearance (no AppSettings read before
+        // Ready); the PoC scenarios keep POC_DARK.
+        val splashDark = remember {
+            if (env["SCREENSHOT_SCENARIO"] as? String != null) dark
+            else UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
+        }
         if (scenario.shouldShowPlatformProbe(Platform.isDebugBinary, env["PLATFORM_PROBE"] as? String)) {
             PlatformProbeScreen(darkTheme = dark)
             return@ComposeUIViewController
@@ -85,13 +98,20 @@ fun MainViewController(): UIViewController {
         val phase by startupState.phase.collectAsState()
         val strings = remember { iosStrings(language) }
         when (val p = phase) {
-            StartupPhase.Starting -> { StartupSplash(dark); return@ComposeUIViewController }
+            StartupPhase.Starting -> { StartupSplash(splashDark); return@ComposeUIViewController }
             is StartupPhase.Failed -> {
                 LaunchedEffect(p) { nsLog("startup failed: ${p.error.stackTraceToString()}") }
-                StartupFailed(dark, strings.errorOccurred)
+                StartupFailed(splashDark, strings.errorOccurred)
                 return@ComposeUIViewController
             }
             StartupPhase.Ready -> Unit
+        }
+        LaunchedEffect(Unit) {
+            // Off main: schedule() reads AppSettings (database-backed) and resolves Koin definitions.
+            withContext(Dispatchers.Default) {
+                runCatching { IosPlatformBootstrap.scheduleBackgroundSync() }
+                    .onFailure { nsLog("background sync scheduling failed: ${it.stackTraceToString()}") }
+            }
         }
         if (Platform.isDebugBinary) {
             LaunchedEffect(Unit) {
@@ -99,6 +119,13 @@ fun MainViewController(): UIViewController {
                     runCatching { logAssemblyProbe() }.onFailure { nsLog("I2 assembly: probe crashed: ${it.stackTraceToString()}") }
                 }
             }
+        }
+        // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
+        if (env["SCREENSHOT_SCENARIO"] as? String == null) {
+            CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
+                IosApp(strings)
+            }
+            return@ComposeUIViewController
         }
         val documentJson = remember {
             NSBundle.mainBundle.pathForResource("poc-document", "json", "bibleview-js")

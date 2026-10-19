@@ -55,6 +55,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -98,7 +99,7 @@ fun StartupWelcomeScreen(
     val strings = LocalStrings.current
     // The footer (version + links) is pinned to the bottom edge; only the content above it scrolls.
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp).testTag("welcome-screen"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -189,7 +190,7 @@ private fun EasyContent(state: StartupWelcomeState, onEasyStart: () -> Unit, onR
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(strings.welcomeQuickStartTitle, style = MaterialTheme.typography.titleMedium)
             Text(strings.welcomeQuickStartMessage, style = MaterialTheme.typography.bodyMedium)
-            Button(onClick = onEasyStart, modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+            Button(onClick = onEasyStart, modifier = Modifier.fillMaxWidth().padding(top = 4.dp).testTag("welcome-easy-start")) {
                 Icon(Icons.Outlined.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.size(8.dp))
                 Text(strings.welcomeQuickStartButton)

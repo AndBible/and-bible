@@ -127,7 +127,8 @@ class ReadingAppBootstrapTest {
     /** The only two places production code may construct a [net.bible.android.control.page.window.WindowRepository]. */
     private val allowedConstructionSites = setOf(
         "net/bible/android/control/page/window/WindowControl.kt",
-        "net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
+        // ReadingAppBootstrap.createWindowRepository delegates to the shared ReadingAppInit (the one construction).
+        "net/bible/service/startup/ReadingAppInit.kt",
     )
 
     private val navHostActivity =

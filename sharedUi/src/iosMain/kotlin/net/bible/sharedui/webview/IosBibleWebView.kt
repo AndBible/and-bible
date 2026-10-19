@@ -25,6 +25,8 @@ import platform.WebKit.WKUserScript
 import platform.WebKit.WKUserScriptInjectionTime
 import platform.WebKit.WKWebView
 import platform.WebKit.WKWebViewConfiguration
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.Platform
 import platform.darwin.NSObject
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
@@ -48,7 +50,7 @@ internal class IosNavDelegate(private val windowId: String) : NSObject(), WKNavi
  * as the "bridge" message handler when given; the real reading pane passes null and adds it once its
  * session exists (see [IosReadingWebViews]). The caller must hold [handler] and [navDelegate] strongly.
  */
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
 internal fun createBibleWkWebView(
     windowId: String,
     navDelegate: IosNavDelegate,
@@ -65,6 +67,18 @@ internal fun createBibleWkWebView(
                 forMainFrameOnly = true,
             ),
         )
+        // Debug binaries only: console output and page errors carry Bible text and notes, so release builds neither
+        // inject the forwarder nor register its handler.
+        if (Platform.isDebugBinary) {
+            addUserScript(
+                WKUserScript(
+                    source = CONSOLE_USER_SCRIPT,
+                    injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
+                    forMainFrameOnly = true,
+                ),
+            )
+            addScriptMessageHandler(sharedConsoleHandler, CONSOLE_HANDLER_NAME)
+        }
         if (handler != null) addScriptMessageHandler(handler, "bridge")
     }
     val webView = newWebView(config)
@@ -78,6 +92,16 @@ internal fun createBibleWkWebView(
     return webView
 }
 
+/** The BibleView page URL for [index]: `index.html?lang=..&night=..`. */
+internal fun bibleBundleUrl(index: NSURL, lang: String, dark: Boolean): NSURL {
+    val components = NSURLComponents(uRL = index, resolvingAgainstBaseURL = false)
+    components.queryItems = listOf(
+        NSURLQueryItem(name = "lang", value = lang),
+        NSURLQueryItem(name = "night", value = dark.toString()),
+    )
+    return components.URL ?: index
+}
+
 /** Loads the bundled BibleView page (`index.html?lang=..&night=..`) into [webView]. */
 @OptIn(ExperimentalForeignApi::class)
 internal fun loadBibleBundle(webView: WKWebView, lang: String, dark: Boolean) {
@@ -87,13 +111,7 @@ internal fun loadBibleBundle(webView: WKWebView, lang: String, dark: Boolean) {
         nsLog("bridge: bibleview-js bundle folder missing")
         return
     }
-    val components = NSURLComponents(uRL = index, resolvingAgainstBaseURL = false)
-    components.queryItems = listOf(
-        NSURLQueryItem(name = "lang", value = lang),
-        NSURLQueryItem(name = "night", value = dark.toString()),
-    )
-    val url: NSURL = components.URL ?: index
-    webView.loadFileURL(url, allowingReadAccessToURL = folder)
+    webView.loadFileURL(bibleBundleUrl(index, lang, dark), allowingReadAccessToURL = folder)
 }
 
 /** One window's WebView plus the objects WebKit only holds weakly (spec §5 rule 2). */
@@ -114,6 +132,7 @@ private object IosWebViewHolder {
     fun release(windowId: String) {
         val entry = entries.remove(windowId) ?: return
         entry.webView.configuration.userContentController.removeScriptMessageHandlerForName("bridge")
+        removeConsoleHandler(entry.webView.configuration.userContentController)
     }
 
     private fun create(controller: PocBibleViewController): PaneEntry {
@@ -122,7 +141,9 @@ private object IosWebViewHolder {
         val sink: (JsCall) -> Unit = { call ->
             dispatch_async(dispatch_get_main_queue()) {
                 try {
-                    webView.evaluateJavaScript(call.js, null)
+                    webView.evaluateJavaScript(call.js) { _, error ->
+                        if (error != null) nsLog("bridge[$windowId]: evaluateJavaScript error ${error.localizedDescription}")
+                    }
                 } catch (t: Throwable) {
                     nsLog("bridge[$windowId]: evaluateJavaScript failure $t")
                 }
