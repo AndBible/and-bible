@@ -75,15 +75,21 @@ class RealAppUITestCase: XCTestCase {
         let maxY = view.minY + view.height * band.upperBound
         var up = true
         var seen = false
+        var everSeen = false
+        var unseenSteps = 0
         var previous = CGRect.null
         var stable = 0
         for _ in 0..<maxSteps {
             guard target.exists else {
                 stable = 0; previous = .null
+                unseenSteps += 1
                 if seen { up.toggle(); seen = false }
+                // Never found while scrolling one way: half the budget the other way before giving up.
+                else if !everSeen && unseenSteps == maxSteps / 2 { up.toggle() }
                 nudgeList(app, up: up)
                 continue
             }
+            everSeen = true
             seen = true
             let frame = target.frame
             let inside = frame.minY >= minY && frame.maxY <= maxY && frame.minX >= view.minX && frame.maxX <= view.maxX
@@ -95,7 +101,11 @@ class RealAppUITestCase: XCTestCase {
                 continue
             }
             stable = 0; previous = .null
-            nudgeList(app, up: frame.midY > maxY || (inside && frame.midY >= minY))
+            // Deterministic: past the band bottom reveal lower content, above the band top reveal upper content.
+            // Vertically inside but not hittable/horizontally off: wait for the list to settle instead of moving it.
+            if frame.maxY > maxY { nudgeList(app, up: true) }
+            else if frame.minY < minY { nudgeList(app, up: false) }
+            else { usleep(500_000) }
         }
         return false
     }
