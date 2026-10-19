@@ -24,6 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
@@ -126,6 +127,8 @@ class InstallZipFlow(
         val mapPhase: (InstallJobState) -> InstallUiState,
         val requestNotificationPermission: () -> Unit,
         val noFileManager: () -> Unit,
+        /** Optional reliable own-submission completion; absent keeps the legacy service-drain behavior. */
+        val enqueueAndAwait: (suspend (List<DocumentRef>, String?) -> Unit)? = null,
     )
 
     private val prelude = MutableStateFlow<InstallUiState?>(null)
@@ -148,9 +151,11 @@ class InstallZipFlow(
                 .collect { _state.value = it }
         }
         // The drain watch reads ONLY the jobs flow: a prelude change must never be mistaken for "the queue drained".
-        work += scope.launch {
-            seams.jobs.collect { jobs ->
-                if (shouldFinishOnDrain(enqueuedHere, jobs.isEmpty())) finish(InstallZipResult.OK)
+        if (seams.enqueueAndAwait == null) {
+            work += scope.launch {
+                seams.jobs.collect { jobs ->
+                    if (shouldFinishOnDrain(enqueuedHere, jobs.isEmpty())) finish(InstallZipResult.OK)
+                }
             }
         }
         work += scope.launch { dispatch() }
@@ -223,7 +228,18 @@ class InstallZipFlow(
 
     private fun enqueue(list: List<DocumentRef>, act: String?) {
         enqueuedHere = true
-        seams.enqueue(list, act)
+        val awaitSubmission = seams.enqueueAndAwait
+        if (awaitSubmission == null) {
+            seams.enqueue(list, act)
+        } else {
+            work += scope.launch {
+                // Registration may be dispatched asynchronously, so initial empty jobs is not completion.
+                awaitSubmission(list, act)
+                // Preserve the existing global-drain behavior after our own terminal outcome is certain.
+                seams.jobs.first { it.isEmpty() }
+                finish(InstallZipResult.OK)
+            }
+        }
     }
 
     private fun finish(result: InstallZipResult) {

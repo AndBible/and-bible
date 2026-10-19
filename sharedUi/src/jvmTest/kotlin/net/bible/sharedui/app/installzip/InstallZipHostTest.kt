@@ -9,7 +9,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import net.bible.android.view.activity.installzip.InstallZipFlow
+import net.bible.service.installzip.InstallPhase
 import kotlinx.coroutines.test.runTest
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.JobId
@@ -117,6 +121,183 @@ class InstallZipHostTest {
         assertEquals(1, notificationRequests, "the session asks for the notification permission through the platform")
         assertTrue(initialised > 0, "the session initialises an uninitialised host before touching anything")
     }
+
+    @Test
+    fun legacyDrainWatcherLosesConflatedJobTransitions() = runTest(StandardTestDispatcher()) {
+        val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
+        val answers = mutableListOf<InstallZipResult>()
+        val running = InstallJobState("fast-invalid", "invalid.zip", InstallPhase.Queued)
+        val flow = drainFlow(backgroundScope, jobs, answers) {
+            // A fast worker can publish both transitions before the Main collector resumes.
+            jobs.value = listOf(running)
+            jobs.value = emptyList()
+        }
+        try {
+            flow.start()
+            runCurrent() // Drain watcher has observed the initial empty list before confirmation.
+            assertEquals(InstallUiState.ConfirmInstall("invalid.zip"), flow.state.value)
+            assertEquals(emptyList(), answers)
+            flow.confirm()
+            runCurrent()
+            // Characterization of the unchanged legacy Android drain path, not the required iOS behavior.
+            assertEquals(emptyList(), answers, "Legacy emission-only completion cannot observe a conflated round trip")
+        } finally {
+            flow.close()
+        }
+    }
+
+    @Test
+    fun separatelyObservedJobDrainFinishesTheConfirmedFlowOnce() = runTest(StandardTestDispatcher()) {
+        val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
+        val answers = mutableListOf<InstallZipResult>()
+        val running = InstallJobState("observed-invalid", "invalid.zip", InstallPhase.Queued)
+        val flow = drainFlow(backgroundScope, jobs, answers) { jobs.value = listOf(running) }
+        try {
+            flow.start()
+            runCurrent()
+            assertEquals(InstallUiState.ConfirmInstall("invalid.zip"), flow.state.value)
+            flow.confirm()
+            runCurrent()
+            assertEquals(emptyList(), answers, "A running job must not finish its entry")
+            jobs.value = emptyList()
+            runCurrent()
+            assertEquals(listOf(InstallZipResult.OK), answers)
+            flow.back()
+            runCurrent()
+            assertEquals(listOf(InstallZipResult.OK), answers, "A finished flow answers only once")
+        } finally {
+            flow.close()
+        }
+    }
+
+    @Test
+    fun ownedCompletionFinishesEvenWhenJobTransitionsConflate() = runTest(StandardTestDispatcher()) {
+        val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
+        val answers = mutableListOf<InstallZipResult>()
+        var submissions = 0
+        val flow = drainFlow(backgroundScope, jobs, answers, enqueueAndAwait = { refs, action ->
+            submissions++
+            assertEquals(listOf(DocumentRef("file:///tmp/invalid.zip")), refs)
+            assertEquals("android.intent.action.VIEW", action)
+            jobs.value = listOf(InstallJobState("fast-own", "invalid.zip", InstallPhase.Queued))
+            jobs.value = emptyList()
+        }) { error("An opted-in entry must not also use legacy start") }
+        try {
+            flow.start()
+            runCurrent()
+            flow.confirm()
+            runCurrent()
+            assertEquals(1, submissions)
+            assertEquals(listOf(InstallZipResult.OK), answers)
+            flow.back()
+            runCurrent()
+            assertEquals(listOf(InstallZipResult.OK), answers)
+        } finally { flow.close() }
+    }
+
+    @Test
+    fun ownedCompletionWaitsForActualRegistrationAndThenGlobalDrain() = runTest(StandardTestDispatcher()) {
+        val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
+        val answers = mutableListOf<InstallZipResult>()
+        val registered = CompletableDeferred<Unit>()
+        val ownTerminal = CompletableDeferred<Unit>()
+        val foreign = InstallJobState("foreign", "other.zip", InstallPhase.Queued)
+        val flow = drainFlow(backgroundScope, jobs, answers, enqueueAndAwait = { _, _ ->
+            registered.await() // Mirrors Default dispatch before the actual enqueue registers jobs.
+            jobs.value = listOf(foreign)
+            ownTerminal.await()
+        }) { error("Legacy start is not the opted-in completion path") }
+        try {
+            flow.start()
+            runCurrent()
+            flow.confirm()
+            runCurrent()
+            assertTrue(jobs.value.isEmpty())
+            assertEquals(emptyList(), answers, "Initial empty jobs must not answer before actual submission")
+            registered.complete(Unit)
+            runCurrent()
+            assertEquals(emptyList(), answers)
+            ownTerminal.complete(Unit)
+            runCurrent()
+            assertEquals(emptyList(), answers, "Own aggregate completion must still wait for global drain parity")
+            jobs.value = emptyList()
+            runCurrent()
+            assertEquals(listOf(InstallZipResult.OK), answers)
+            jobs.value = listOf(foreign)
+            jobs.value = emptyList()
+            runCurrent()
+            assertEquals(listOf(InstallZipResult.OK), answers)
+        } finally { flow.close() }
+    }
+
+    @Test
+    fun backWhileOwnedCompletionWaitsAnswersCanceledOnlyOnce() = runTest(StandardTestDispatcher()) {
+        val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
+        val answers = mutableListOf<InstallZipResult>()
+        val terminal = CompletableDeferred<Unit>()
+        val flow = drainFlow(backgroundScope, jobs, answers, enqueueAndAwait = { _, _ -> terminal.await() }) {
+            error("Legacy start is not the opted-in completion path")
+        }
+        try {
+            flow.start()
+            runCurrent()
+            flow.confirm()
+            runCurrent()
+            flow.back()
+            runCurrent()
+            assertEquals(listOf(InstallZipResult.CANCELED), answers)
+            terminal.complete(Unit)
+            runCurrent()
+            assertEquals(listOf(InstallZipResult.CANCELED), answers)
+        } finally { flow.close() }
+    }
+
+    @Test
+    fun closeWhileOwnedCompletionWaitsNeverAnswers() = runTest(StandardTestDispatcher()) {
+        val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
+        val answers = mutableListOf<InstallZipResult>()
+        val terminal = CompletableDeferred<Unit>()
+        val flow = drainFlow(backgroundScope, jobs, answers, enqueueAndAwait = { _, _ -> terminal.await() }) {
+            error("Legacy start is not the opted-in completion path")
+        }
+        try {
+            flow.start()
+            runCurrent()
+            flow.confirm()
+            runCurrent()
+            flow.close()
+            terminal.complete(Unit)
+            runCurrent()
+            flow.back()
+            assertEquals(emptyList(), answers, "A removed entry must not answer into a later opener")
+        } finally { flow.close() }
+    }
+
+    private fun drainFlow(
+        scope: CoroutineScope,
+        jobs: StateFlow<List<InstallJobState>>,
+        answers: MutableList<InstallZipResult>,
+        enqueueAndAwait: (suspend (List<DocumentRef>, String?) -> Unit)? = null,
+        enqueue: () -> Unit,
+    ) = InstallZipFlow(
+        scope = scope,
+        action = "android.intent.action.VIEW",
+        uris = listOf(DocumentRef("file:///tmp/invalid.zip")),
+        seams = InstallZipFlow.Seams(
+            jobs = jobs,
+            isStudyPadExport = { false },
+            displayName = { "invalid.zip" },
+            formatsText = { error("External VIEW must not show the picker prelude") },
+            pickFile = { error("External VIEW must not invoke a picker") },
+            enqueue = { _, _ -> enqueue() },
+            enqueueAndAwait = enqueueAndAwait,
+            resolveDecision = { _, _ -> error("No decision was requested") },
+            mapPhase = { InstallUiState.Progress(it.displayName, "status", percent = null, indeterminate = true) },
+            requestNotificationPermission = {},
+            noFileManager = { error("No picker was invoked") },
+        ),
+        onFinished = { answers += it },
+    )
 
     @Test
     fun openBeforeTheGraphComposedIsIgnored() = runTest(UnconfinedTestDispatcher()) {

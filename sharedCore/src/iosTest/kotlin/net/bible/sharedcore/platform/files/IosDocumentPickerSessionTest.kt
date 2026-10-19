@@ -46,6 +46,49 @@ class IosDocumentPickerSessionTest {
         }
     }
 
+    @Test fun staleReplacementCannotAcquireOrCancelTheLatestSheetAfterDismissal() = runOnMainRunLoop {
+        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
+        val host = Host()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        val session = IosDocumentPickerSession()
+        val a = Sheet()
+        val b = Sheet()
+        val c = Sheet()
+        var latest = 1
+        val first = async(start = CoroutineStart.UNDISPATCHED) { session.pick(a) { host } }
+        val second = async(start = CoroutineStart.UNDISPATCHED) {
+            session.pick(b, isCurrent = { latest == 1 }) { host }
+        }
+        latest = 2
+        val third = async(start = CoroutineStart.UNDISPATCHED) {
+            session.pick(c, isCurrent = { latest == 2 }) { host }
+        }
+        try {
+            assertEquals(listOf(a), host.presentations)
+            a.completeDismissal()
+            repeat(4) { yield() }
+            assertEquals(emptyList(), first.await())
+            assertEquals(emptyList(), second.await())
+            assertEquals(listOf(a, c), host.presentations, "Stale request must never acquire the slot")
+            assertSame(c, host.attached)
+            assertNull(c.completion, "Stale dismissal waiter must not cancel the latest sheet")
+            assertFalse(third.isCompleted)
+            c.delegate!!.documentPickerWasCancelled(c)
+            c.completeDismissal()
+            assertEquals(emptyList(), third.await())
+        } finally {
+            first.cancel(); second.cancel(); third.cancel()
+            repeat(8) {
+                yield()
+                host.attached?.takeIf { it.completion != null }?.completeDismissal()
+            }
+            first.cancelAndJoin(); second.cancelAndJoin(); third.cancelAndJoin()
+            window.hidden = true
+            window.rootViewController = null
+        }
+    }
+
     @Test fun competingReplacementsRecheckTheActiveSheetAfterDelayedDismissal() = runOnMainRunLoop {
         val window = UIWindow(frame = UIScreen.mainScreen.bounds)
         val host = Host()

@@ -41,19 +41,23 @@ class IosDocumentPickerSession {
     private var active: FilePresentation<List<NSURL>>? = null
     private var dismissal: kotlinx.coroutines.CompletableDeferred<Unit>? = null
 
-    suspend fun cancelPrevious() = withContext(Dispatchers.Main) {
+    suspend fun cancelPrevious(isCurrent: () -> Boolean = { true }): Boolean = withContext(Dispatchers.Main) {
         do {
+            if (!isCurrent()) return@withContext false
             active?.finish(emptyList())
             dismissal?.await()
-            // Another replacement may have acquired the slot while this dismissal was suspended.
+            // A stale replacement must not sweep a newer sheet after this suspension.
+            if (!isCurrent()) return@withContext false
         } while (active != null)
+        true
     }
 
     suspend fun pick(
         picker: UIDocumentPickerViewController,
+        isCurrent: () -> Boolean = { true },
         presenter: () -> UIViewController?,
     ): List<NSURL> = withContext(Dispatchers.Main) {
-        cancelPrevious()
+        if (!cancelPrevious(isCurrent)) return@withContext emptyList()
         val host = presenter() ?: return@withContext emptyList()
         picker.popoverPresentationController?.apply {
             sourceView = host.view

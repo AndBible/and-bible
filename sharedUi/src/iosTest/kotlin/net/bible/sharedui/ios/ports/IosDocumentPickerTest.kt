@@ -78,6 +78,40 @@ class IosDocumentPickerTest {
         }
     }
 
+    @Test fun olderCreateStagingCannotReplaceANewerOpenRequest() = onMain {
+        withHost { host ->
+            val staged = CompletableDeferred<okio.Path>()
+            val release = CompletableDeferred<Unit>()
+            val picker = IosDocumentPicker(presenter = { host }, stageDocument = { file ->
+                FileSystem.SYSTEM.createDirectories(file.parent!!)
+                FileSystem.SYSTEM.write(file) { }
+                staged.complete(file)
+                release.await()
+            })
+            val older = async { picker.createDocument("older.csv", "text/csv") }
+            val file = withTimeout(5_000) { staged.await() }
+            val newer = async { picker.openDocuments(listOf("application/epub+zip"), false) }
+            try {
+                while (host.picker == null) delay(1)
+                val newerSheet = assertNotNull(host.picker)
+                release.complete(Unit)
+                assertNull(withTimeout(5_000) { older.await() }, "Stale staging must abandon presentation")
+                assertFalse(newer.isCompleted, "Older create must not cancel the newer request")
+                assertTrue(newerSheet.isEqual(host.picker), "The newer native picker must retain presentation ownership")
+                assertNotNull(newerSheet.delegate)
+                assertFalse(FileSystem.SYSTEM.exists(file.parent!!), "Stale staging must be cleaned without touching the active picker")
+                val selected = NSURL.fileURLWithPath("/tmp/newer.epub")
+                newerSheet.delegate!!.documentPicker(newerSheet, didPickDocumentsAtURLs = listOf(selected))
+                assertEquals(listOf(DocumentRef(selected.absoluteString!!)), withTimeout(5_000) { newer.await() })
+            } finally {
+                release.complete(Unit)
+                older.cancelAndJoin()
+                newer.cancelAndJoin()
+                FileSystem.SYSTEM.deleteRecursively(file.parent!!, mustExist = false)
+            }
+        }
+    }
+
     @Test fun folderPickReturnsAFolderUrl() = onMain {
         withHost { host ->
             val result = async { IosDocumentPicker { host }.openDocumentTree() }

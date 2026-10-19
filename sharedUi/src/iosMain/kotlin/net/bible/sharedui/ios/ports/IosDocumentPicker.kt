@@ -42,9 +42,16 @@ import platform.UniformTypeIdentifiers.UTTypeFolder
 /** Returns absolute file URLs; callers own security-scoped access while reading/writing them. */
 @kotlin.native.HiddenFromObjC
 class IosDocumentPicker(
+    private val stageDocument: suspend (Path) -> Unit = { file ->
+        withContext(Dispatchers.IO) {
+            FileSystem.SYSTEM.createDirectory(file.parent!!)
+            FileSystem.SYSTEM.write(file) { }
+        }
+    },
     private val presenter: () -> UIViewController? = IosPresenter::topViewController,
 ) : DocumentPicker {
     private val session = IosDocumentPickerSession()
+    private var latestRequest = 0L
 
     override suspend fun openDocuments(mimeTypes: List<String>, multiple: Boolean): List<DocumentRef> =
         pick {
@@ -55,7 +62,8 @@ class IosDocumentPicker(
 
     override suspend fun createDocument(suggestedName: String, mimeType: String): DocumentRef? =
         withContext(Dispatchers.Main) {
-            session.cancelPrevious()
+            val request = ++latestRequest
+            if (!session.cancelPrevious { request == latestRequest }) return@withContext null
             var staging: Path? = null
             try {
                 require(suggestedName.isNotBlank() && suggestedName != "." && suggestedName != ".." &&
@@ -65,11 +73,9 @@ class IosDocumentPicker(
                 val directory = NSTemporaryDirectory().toPath() / "andbible-document-${NSUUID().UUIDString}"
                 staging = directory
                 val file = directory / suggestedName
-                withContext(Dispatchers.IO) {
-                    FileSystem.SYSTEM.createDirectory(directory)
-                    FileSystem.SYSTEM.write(file) { }
-                }
-                pick {
+                stageDocument(file)
+                if (request != latestRequest) return@withContext null
+                pick(request) {
                     UIDocumentPickerViewController(
                         forExportingURLs = listOf(NSURL.fileURLWithPath(file.toString())), asCopy = false,
                     )
@@ -94,10 +100,14 @@ class IosDocumentPicker(
         UIDocumentPickerViewController(forOpeningContentTypes = listOf(UTTypeFolder), asCopy = false)
     }.firstOrNull()
 
-    private suspend fun pick(controller: () -> UIDocumentPickerViewController): List<DocumentRef> =
-        withContext(Dispatchers.Main) {
+    private suspend fun pick(
+        request: Long? = null,
+        controller: () -> UIDocumentPickerViewController,
+    ): List<DocumentRef> = withContext(Dispatchers.Main) {
+            val ownedRequest = request ?: ++latestRequest
             try {
-                session.pick(controller(), presenter).map { DocumentRef(it.absoluteString!!) }
+                session.pick(controller(), isCurrent = { ownedRequest == latestRequest }, presenter = presenter)
+                    .map { DocumentRef(it.absoluteString!!) }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {

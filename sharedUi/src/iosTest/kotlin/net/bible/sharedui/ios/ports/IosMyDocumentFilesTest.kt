@@ -171,6 +171,24 @@ class IosMyDocumentFilesTest {
         scopes.assertBalanced(3)
     }
 
+    @Test fun existingPageFilesAndOccupiedSuffixSurviveRepeatedExports() = withTempFolder { dir ->
+        write(dir / "01-Page.md", "unrelated sentinel")
+        write(dir / "01-Page (2).md", "occupied suffix sentinel")
+        val scopes = Scopes()
+        val port = scopes.port()
+        assertTrue(port.exportPagesToFolder(listOf(page("Page", content = "first export")), ref(dir)))
+        assertEquals("unrelated sentinel", read(dir / "01-Page.md"))
+        assertEquals("occupied suffix sentinel", read(dir / "01-Page (2).md"))
+        assertTrue(port.exportPagesToFolder(listOf(page("Page", content = "second export")), ref(dir)))
+        assertEquals("unrelated sentinel", read(dir / "01-Page.md"))
+        assertEquals("occupied suffix sentinel", read(dir / "01-Page (2).md"))
+        val outputs = FileSystem.SYSTEM.list(dir)
+        assertEquals(4, outputs.size, "Each export must retain a separate file without clobbering existing bytes")
+        assertEquals(listOf("first export", "occupied suffix sentinel", "second export", "unrelated sentinel"),
+            outputs.map { read(it) }.sorted())
+        scopes.assertBalanced(2)
+    }
+
     @Test fun failedPageWriteDoesNotPreventLaterPages() = withTempFolder { dir ->
         // An existing directory at the target filename forces a real output-open failure.
         val blocked = dir / "01-Blocked.md"

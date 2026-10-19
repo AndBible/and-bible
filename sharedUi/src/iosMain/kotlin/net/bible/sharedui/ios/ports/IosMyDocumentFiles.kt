@@ -7,6 +7,11 @@
 package net.bible.sharedui.ios.ports
 
 import kotlinx.cinterop.readBytes
+import kotlinx.cinterop.ObjCObjectVar
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
@@ -116,9 +121,21 @@ class IosMyDocumentFiles(
     private fun writePages(dir: NSURL, pages: List<MyDocumentPageWithContent>) {
         for ((index, page) in pages.withIndex()) {
             val prefix = (index + 1).toString().padStart(2, '0')
-            val name = "$prefix-${exportTitle(page.title)}.${extension(page)}"
-            val target = dir.URLByAppendingPathComponent(name) ?: continue
-            NSString.create(string = page.content ?: "").writeToURL(target, true, NSUTF8StringEncoding, null)
+            val stem = "$prefix-${exportTitle(page.title)}"
+            val data = NSString.create(string = page.content ?: "").dataUsingEncoding(NSUTF8StringEncoding) ?: continue
+            var suffix = 1
+            while (true) {
+                val name = if (suffix == 1) "$stem.${extension(page)}" else "$stem ($suffix).${extension(page)}"
+                val target = dir.URLByAppendingPathComponent(name) ?: break
+                val collision = memScoped {
+                    val error = alloc<ObjCObjectVar<NSError?>>().apply { value = null }
+                    // Exclusive creation is the collision arbiter; an existence preflight would race.
+                    if (data.writeToURL(target, NSDataWritingWithoutOverwriting, error.ptr)) return@memScoped false
+                    error.value?.let { it.domain == NSCocoaErrorDomain && it.code == NSFileWriteFileExistsError } == true
+                }
+                if (!collision) break // A real write failure skips this page, not the remaining pages.
+                suffix++
+            }
         }
     }
 

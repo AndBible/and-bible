@@ -177,6 +177,8 @@ class InstallZipHost(
                 formatsText = platform::formatsText,
                 pickFile = { documentPicker.openDocuments(INSTALL_ZIP_SAF_MIME_TYPES, multiple = false).firstOrNull() },
                 enqueue = { list, act -> starter.start(list, act) },
+                enqueueAndAwait = (starter as? net.bible.sharedui.app.ports.CompletingDocumentInstallStarter)
+                    ?.let { completing -> completing::startAndAwait },
                 resolveDecision = platform::resolveDecision,
                 mapPhase = platform::mapPhase,
                 requestNotificationPermission = platform::requestNotificationPermission,

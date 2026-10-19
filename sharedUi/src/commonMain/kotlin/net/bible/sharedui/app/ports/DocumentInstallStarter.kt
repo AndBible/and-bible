@@ -9,3 +9,10 @@ interface DocumentInstallStarter {
     fun hostBound()
     fun hostUnbound()
 }
+
+/** Optional session capability: returns after this submission's actual aggregate terminal outcome, not just enqueue. */
+@kotlin.native.HiddenFromObjC
+interface CompletingDocumentInstallStarter : DocumentInstallStarter {
+    /** Cancelling the waiter must not cancel the process-owned install workers. */
+    suspend fun startAndAwait(uris: List<DocumentRef>, action: String?)
+}

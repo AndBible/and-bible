@@ -18,11 +18,12 @@
 
 package net.bible.sharedui.ios.ports
 
-import net.bible.sharedui.app.ports.DocumentInstallStarter
+import net.bible.sharedui.app.ports.CompletingDocumentInstallStarter
 import net.bible.sharedui.app.ports.DocumentRef
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.service.installzip.InstallServiceController
 import net.bible.service.installzip.InstallSource
 
@@ -32,20 +33,30 @@ class IosDocumentInstallStarter(
     private val controller: () -> InstallServiceController = { IosInstallPipeline.controller },
     private val deps: () -> InstallServiceController.JobDeps = { IosInstallPipeline.deps() },
     private val scope: CoroutineScope = IosInstallPipeline.scope,
-) : DocumentInstallStarter {
+) : CompletingDocumentInstallStarter {
     override fun start(uris: List<DocumentRef>, action: String?) {
-        val sources = uris.map { ref ->
-            val name = IosInstallPipeline.url(ref.uri).lastPathComponent
-            val mime = when (name?.substringAfterLast('.', "")?.lowercase()) {
-                "epub" -> "application/epub+zip"
-                "zip" -> "application/zip"
-                "ttf" -> "font/ttf"
-                "csv" -> "text/csv"
-                else -> null
-            }
-            InstallSource(ref.uri, action, name, mime, name)
-        }
+        val sources = sources(uris, action)
         scope.launch(Dispatchers.Default) { controller().enqueue(sources, deps()) }
+    }
+
+    override suspend fun startAndAwait(uris: List<DocumentRef>, action: String?) {
+        val sources = sources(uris, action)
+        withContext(Dispatchers.Default) { controller().enqueue(sources, deps()) }
+    }
+
+    private fun sources(uris: List<DocumentRef>, action: String?) = uris.map { ref ->
+        // Both metadata fields become Okio destination components; the source URL stays exact.
+        val name = IosInstallPipeline.url(ref.uri).lastPathComponent
+            ?.replace('/', '_')?.replace('\\', '_')?.replace(':', '_')?.replace('\u0000', '_')
+            ?.takeUnless { it.isBlank() || it == "." || it == ".." } ?: "document"
+        val mime = when (name?.substringAfterLast('.', "")?.lowercase()) {
+            "epub" -> "application/epub+zip"
+            "zip" -> "application/zip"
+            "ttf" -> "font/ttf"
+            "csv" -> "text/csv"
+            else -> null
+        }
+        InstallSource(ref.uri, action, name, mime, name)
     }
 
     // There is no foreground service to bind: the process-scoped controller owns every worker.
