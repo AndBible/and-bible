@@ -69,6 +69,7 @@ import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowStateService
 import net.bible.sharedcore.workspaces.WorkspaceService
+import net.bible.service.common.DisplayColorMode
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedlogic.settings.RecentDisplaySettings
 import net.bible.sharedlogic.settings.TextDisplayPrefItems
@@ -121,6 +122,8 @@ class IosReadingHost(
     private val nightModeState: NightModeState = koin.get(),
     /** A live night-mode source (see [IosNightModeObserver]); null keeps a snapshot of [nightModeState]. */
     private val nightModeSource: State<Boolean>? = null,
+    /** A live monochrome source (colour mode other than NORMAL, see [IosNightModeObserver]); null keeps a snapshot. */
+    private val monochromeSource: State<Boolean>? = null,
     private val strings: () -> Strings = { englishStrings },
     private val openUrl: (String) -> Unit = ::iosOpenUrl,
     /** The app's `manageLabels` result channel (the label chooser's answer); a private one when the host stands alone. */
@@ -375,6 +378,9 @@ class IosReadingHost(
         toolbarCallbacks = callbacks(),
         toolbarIcons = { icons },
         nightMode = nightModeSource ?: mutableStateOf(nightModeState.nightMode),
+        monochrome = monochromeSource ?: mutableStateOf(
+            (DisplayColorMode.fromValue(settings.getString("display_color_mode", null)) ?: DisplayColorMode.NORMAL) != DisplayColorMode.NORMAL,
+        ),
         disableAnimations = { settings.resolveDisableAnimations(false) },
         agentLogSlot = { applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
             slots.AgentLog(applyNavBarInset, maxHeightDp, collapsedDp) { height ->

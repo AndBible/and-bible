@@ -330,8 +330,8 @@ class IosReadingWindowsTest {
     @Test
     fun nightObserverFollowsStateAndReportsChanges() {
         val night = FakeNight(false)
-        val changes = mutableListOf<Boolean>()
-        val observer = IosNightModeObserver(night) { changes += it }
+        var changes = 0
+        val observer = IosNightModeObserver(night) { changes++ }
         assertFalse(observer.dark.value)
         night.dark = true
         assertTrue(observer.refresh())
@@ -339,7 +339,7 @@ class IosReadingWindowsTest {
         observer.refresh() // unchanged: no second report
         night.dark = false
         observer.refresh()
-        assertEquals(listOf(true, false), changes)
+        assertEquals(2, changes)
     }
 
     /** A missing or closed window is never (re)assembled by the pane path: no session, no WebView entry. */

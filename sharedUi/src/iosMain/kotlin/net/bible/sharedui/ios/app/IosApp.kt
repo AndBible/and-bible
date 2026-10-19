@@ -99,6 +99,7 @@ import net.bible.sharedui.reading.host.ReadingHost
 import net.bible.sharedui.reading.nav.readingNavGraph
 import net.bible.sharedui.reading.session.ReadingKeepScreenOn
 import net.bible.sharedui.reading.session.guardedChooserTarget
+import net.bible.sharedui.reading.session.watchSettingKeys
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.keyed.StringTable
@@ -110,7 +111,6 @@ import org.koin.mp.KoinPlatform
 import platform.Foundation.NSNotification
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
-import platform.Foundation.NSUserDefaultsDidChangeNotification
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
@@ -171,21 +171,20 @@ internal fun leaveWelcomeFor(scope: CoroutineScope, shell: IosHostShell, table: 
 fun IosApp(strings: Strings) {
     val koin = remember { KoinPlatform.getKoin() }
     val table = remember { IosAppStartup.stringTable }
-    // Colour mode and the animation setting reach the Compose theme through [modesTick] and every WebView through
-    // set_config; a night switch does the same (no reload of the page).
-    var modesTick by remember { mutableIntStateOf(0) }
+    // Colour mode and the animation setting reach the Compose theme through [modesVersion] and every WebView through
+    // set_config; a night switch does the same (no reload of the page). Colour mode and animations live in the
+    // database-backed settings, whose SettingsStore.changes flow announces writes (no UserDefaults notification).
+    val modesVersion = remember { mutableIntStateOf(0) }
+    val settingsChanges = remember { iosSettingsChanges() }
     val nightObserver = remember {
-        val settings = koin.get<AppSettings>()
-        IosNightModeObserver(
-            koin.get<NightModeState>(),
-            otherModes = { listOf(settings.getString("display_color_mode", null), settings.getBoolean("disable_animations", false)) },
-        ) {
-            modesTick++
+        IosNightModeObserver(koin.get<NightModeState>(), koin.get<AppSettings>(), settingsChanges) {
+            modesVersion.intValue++
             IosReadingWindows.nightModeChanged()
         }
     }
+    val appScope = rememberCoroutineScope()
     DisposableEffect(nightObserver) {
-        nightObserver.start()
+        nightObserver.start(appScope)
         nightObserver.refresh()
         onDispose { nightObserver.stop() }
     }
@@ -205,7 +204,7 @@ fun IosApp(strings: Strings) {
         LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
         LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
     ) {
-        IosHostTheme(dark, koin, modesTick) {
+        IosHostTheme(dark, koin, modesVersion) {
             val route = startRoute
             if (route == null) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
@@ -224,6 +223,14 @@ fun IosApp(strings: Strings) {
     }
 }
 
+/** `SettingsStore.changes` of the open settings database (the key of every `AppSettings` write); empty before it exists. */
+private fun iosSettingsChanges(): kotlinx.coroutines.flow.Flow<String> =
+    try {
+        net.bible.service.db.DatabaseContainer.instance.settingsStore.changes
+    } catch (e: Exception) {
+        kotlinx.coroutines.flow.emptyFlow()
+    }
+
 /** The workspace colour that seeds the theme, or null before the window repository exists (Welcome) or on a read failure. */
 private fun iosWorkspaceSeed(koin: Koin): Int? {
     if (!IosReadingReady.isReady) return null
@@ -241,7 +248,7 @@ private fun iosWorkspaceSeed(koin: Koin): Int? {
  * this subscription could have seen).
  */
 @Composable
-private fun IosHostTheme(dark: Boolean, koin: Koin, modesTick: Int, content: @Composable () -> Unit) {
+private fun IosHostTheme(dark: Boolean, koin: Koin, modesVersion: androidx.compose.runtime.IntState, content: @Composable () -> Unit) {
     var seed by remember { mutableStateOf(iosWorkspaceSeed(koin)) }
     DisposableEffect(Unit) {
         val subscription = WorkspaceChanges.changes.subscribeOnMain { seed = iosWorkspaceSeed(koin) }
@@ -252,7 +259,8 @@ private fun IosHostTheme(dark: Boolean, koin: Koin, modesTick: Int, content: @Co
         seed = iosWorkspaceSeed(koin)
     }
     val settings = remember { koin.get<AppSettings>() }
-    AbHostTheme(darkTheme = dark, settings = settings, isOnyx = false, workspaceSeed = { modesTick.let { seed } }, content = content)
+    AbHostTheme(darkTheme = dark, settings = settings, isOnyx = false, // workspaceSeed runs in composition: reading modesVersion there makes a mode change recompose the theme, which re-reads the settings.
+    workspaceSeed = { modesVersion.intValue; seed }, content = content)
 }
 
 @Composable
@@ -373,7 +381,7 @@ private class ReadingHostHolder(
 
     fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver, strings: Strings): IosReadingHost =
         host ?: IosReadingHost(
-            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, { strings },
+            IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, nightObserver.monochrome, { strings },
             labelResults = labelResults,
             readingResults = readingResults,
         ).also {
@@ -428,7 +436,7 @@ private fun IosReadingDestination(
     val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
     // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
     MeasureReadingOffsets(host)
-    KeepScreenOnWhileReading(koin)
+    KeepScreenOnWhileReading(koin, remember { iosSettingsChanges() })
     FailClosedLinkRouting(koin.get<ExternalLinks>()) {
         CompositionLocalProvider(LocalReadingPane provides paneFactory) {
             ReadingHost(deps, Modifier.testTag("reading-host"))
@@ -453,7 +461,8 @@ private fun MeasureReadingOffsets(host: IosReadingHost) {
  * `idleTimerDisabled` is set from [ReadingKeepScreenOn] and reset on leaving reading and when backgrounding.
  */
 @Composable
-private fun KeepScreenOnWhileReading(koin: Koin) {
+private fun KeepScreenOnWhileReading(koin: Koin, settingsChanges: kotlinx.coroutines.flow.Flow<String>) {
+    val scope = rememberCoroutineScope()
     DisposableEffect(Unit) {
         val settings = koin.get<AppSettings>()
         val keepOn = ReadingKeepScreenOn(
@@ -464,11 +473,13 @@ private fun KeepScreenOnWhileReading(koin: Koin) {
         val observers = listOf(
             center.addObserverForName(UIApplicationDidBecomeActiveNotification, null, NSOperationQueue.mainQueue) { keepOn.setActive(true) },
             center.addObserverForName(UIApplicationWillResignActiveNotification, null, NSOperationQueue.mainQueue) { keepOn.setActive(false) },
-            center.addObserverForName(NSUserDefaultsDidChangeNotification, null, NSOperationQueue.mainQueue) { keepOn.refresh() },
         )
+        // screen_keep_on_pref lives in the database-backed settings: its writes arrive through SettingsStore.changes.
+        val watch = watchSettingKeys(settingsChanges, setOf("screen_keep_on_pref"), scope) { keepOn.refresh() }
         keepOn.setReading(true)
         onDispose {
             observers.forEach { center.removeObserver(it) }
+            watch.cancel()
             keepOn.setReading(false)
         }
     }

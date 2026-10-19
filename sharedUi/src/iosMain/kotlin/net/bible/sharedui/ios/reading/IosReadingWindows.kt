@@ -27,6 +27,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
+import net.bible.service.common.DisplayColorMode
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.bibleview.BibleBridge
@@ -44,6 +45,7 @@ import net.bible.sharedui.reading.session.ReadingLinkHandler
 import net.bible.sharedui.reading.session.SessionEventRelay
 import net.bible.sharedui.reading.session.activeLanguagesJson
 import net.bible.sharedui.reading.session.readingVerseChooser
+import net.bible.sharedui.reading.session.watchSettingKeys
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.IosReadingWindowSurface
 import net.bible.sharedui.webview.WkWebViewJsHost
@@ -244,37 +246,55 @@ object IosReadingWindows {
 }
 
 /**
- * Follows [NightModeState] (a plain Boolean read from `UserDefaults`, no observable of its own): [dark] is
- * refreshed on `NSUserDefaultsDidChange` and when the app becomes active, and [onChange] fires on a real change.
+ * Follows the display modes that need a `set_config` and a theme refresh: night mode, colour mode and the animation
+ * setting. Two signals, because the sources differ: night mode is a `UserDefaults` key (`NSUserDefaultsDidChange`, plus
+ * app-active), while colour mode and animations live in the database-backed [AppSettings], whose writes post no
+ * platform notification; those arrive through [settingsChanges] (`SettingsStore.changes`). [dark] and [monochrome]
+ * are Compose state for the theme and the reading host; [onChange] fires once per real change of any of the modes.
  */
 @kotlin.native.HiddenFromObjC
 class IosNightModeObserver(
     private val state: NightModeState,
-    /** Other display modes that also need a `set_config` (colour mode, animations); compared by equality. */
-    private val otherModes: () -> List<Any?> = { emptyList() },
-    private val onChange: (Boolean) -> Unit = {},
+    private val settings: AppSettings? = null,
+    private val settingsChanges: kotlinx.coroutines.flow.Flow<String>? = null,
+    private val onChange: () -> Unit = {},
 ) {
     private val darkState = androidx.compose.runtime.mutableStateOf(state.nightMode)
-    private var lastModes: List<Any?> = otherModes()
+    private val monochromeState = androidx.compose.runtime.mutableStateOf(readMonochrome())
+    private var lastModes: List<Any?> = readModes()
     val dark: androidx.compose.runtime.State<Boolean> get() = darkState
-    private val observers = mutableListOf<Any>()
 
-    /** Re-reads the state; returns the current value. */
+    /** Colour mode other than NORMAL: the predicate `IosDocumentLoaderPlatform` sends as `monochromeMode`. */
+    val monochrome: androidx.compose.runtime.State<Boolean> get() = monochromeState
+    private val observers = mutableListOf<Any>()
+    private var settingsWatch: kotlinx.coroutines.Job? = null
+
+    private fun readMonochrome(): Boolean =
+        settings != null && (DisplayColorMode.fromValue(settings.getString("display_color_mode", null)) ?: DisplayColorMode.NORMAL) != DisplayColorMode.NORMAL
+
+    private fun readModes(): List<Any?> =
+        listOf(settings?.getString("display_color_mode", null), settings?.getBoolean("disable_animations", false))
+
+    /** Re-reads the modes; returns the current night value. */
     fun refresh(): Boolean {
         val now = state.nightMode
-        val modes = otherModes()
+        val modes = readModes()
         val changed = now != darkState.value || modes != lastModes
         lastModes = modes
         darkState.value = now
-        if (changed) onChange(now)
+        monochromeState.value = readMonochrome()
+        if (changed) onChange()
         return now
     }
 
-    fun start() {
+    fun start(scope: kotlinx.coroutines.CoroutineScope? = null) {
         if (observers.isNotEmpty()) return
         val center = platform.Foundation.NSNotificationCenter.defaultCenter
         for (name in listOf(platform.Foundation.NSUserDefaultsDidChangeNotification, platform.UIKit.UIApplicationDidBecomeActiveNotification)) {
             observers += center.addObserverForName(name, null, platform.Foundation.NSOperationQueue.mainQueue) { refresh() }
+        }
+        if (scope != null && settingsChanges != null) {
+            settingsWatch = watchSettingKeys(settingsChanges, DISPLAY_MODE_KEYS, scope) { refresh() }
         }
     }
 
@@ -282,5 +302,12 @@ class IosNightModeObserver(
         val center = platform.Foundation.NSNotificationCenter.defaultCenter
         observers.forEach { center.removeObserver(it) }
         observers.clear()
+        settingsWatch?.cancel()
+        settingsWatch = null
+    }
+
+    private companion object {
+        /** The [AppSettings] keys whose writes change a display mode. */
+        val DISPLAY_MODE_KEYS = setOf("display_color_mode", "disable_animations")
     }
 }

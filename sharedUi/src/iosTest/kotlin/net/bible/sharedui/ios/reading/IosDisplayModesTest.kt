@@ -18,15 +18,24 @@ package net.bible.sharedui.ios.reading
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.startup.ReadingAppInit
+import net.bible.sharedcore.settings.store.SettingWrite
+import net.bible.sharedcore.settings.store.SettingsBackend
+import net.bible.sharedcore.settings.store.SettingsSnapshot
+import net.bible.sharedcore.settings.store.SettingsStore
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.sharedlogic.settings.DatabaseAppSettings
 import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
@@ -89,7 +98,11 @@ class IosDisplayModesTest {
         }
     }
 
-    /** The WebView config is updated through the relay: the bundle is loaded once, the WebView stays the same object. */
+    /**
+     * The WebView config is updated through the relay: the bundle is loaded once, the WebView stays the same object.
+     * Limit: the test WebView has no page, so this asserts the relay request (`configUpdates`) and the absence of a
+     * reload, not the evaluated `set_config` JavaScript.
+     */
     @Test
     fun nightSwitchUpdatesWebViewConfigWithoutReload() {
         val night = FakeNight(false)
@@ -111,21 +124,40 @@ class IosDisplayModesTest {
         }
     }
 
-    /** Colour mode and the animation setting count as display modes: a change fires the observer, no change does not. */
+    private class MemoryBackend : SettingsBackend {
+        override suspend fun loadAll() = SettingsSnapshot(emptyMap(), emptyMap(), emptyMap(), emptyMap())
+        override suspend fun write(write: SettingWrite) = Unit
+    }
+
+    /**
+     * Colour mode and animations are database-backed settings: a write through the real [DatabaseAppSettings] over a
+     * [SettingsStore] reaches the observer through the store's change flow, with no app-active or UserDefaults event,
+     * and updates [IosNightModeObserver.monochrome] (the predicate the reading host and the loader share).
+     */
     @Test
-    fun observerReportsMonochromeAndAnimationChanges() {
-        val night = FakeNight(false)
-        var color: String? = "NORMAL"
-        var noAnimations = false
-        val changes = mutableListOf<Boolean>()
-        val observer = IosNightModeObserver(night, otherModes = { listOf(color, noAnimations) }) { changes += it }
-        observer.refresh()
-        assertEquals(emptyList(), changes)
-        color = "MONOCHROME"
-        observer.refresh()
-        noAnimations = true
-        observer.refresh()
-        observer.refresh()
-        assertEquals(listOf(false, false), changes)
+    fun databaseSettingWritesReachTheObserverWithoutAnAppActiveEvent() {
+        val store = SettingsStore(MemoryBackend(), CoroutineScope(SupervisorJob() + Dispatchers.Default))
+        val settings = DatabaseAppSettings({ store }) { true }
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        var changes = 0
+        val observer = IosNightModeObserver(FakeNight(false), settings, store.changes) { changes++ }
+        try {
+            observer.start(scope)
+            assertFalse(observer.monochrome.value)
+            settings.setString("display_color_mode", "MONOCHROME")
+            assertTrue(observer.monochrome.value)
+            assertEquals(1, changes)
+            settings.setBoolean("disable_animations", true)
+            assertEquals(2, changes)
+            settings.setBoolean("disable_animations", true) // same value: no report
+            settings.setBoolean("unrelated", true)
+            assertEquals(2, changes)
+            settings.setString("display_color_mode", "NORMAL")
+            assertFalse(observer.monochrome.value)
+            assertEquals(3, changes)
+        } finally {
+            observer.stop()
+            scope.cancel()
+        }
     }
 }
