@@ -152,7 +152,7 @@ final class HRuntimeUITests: RealAppUITestCase {
         tapButton(app, "Delete")
         require(text(app, "Delete provider \"\(fixtureProvider)\"? Prompts using this provider will revert to the default.")
             .waitForExistence(timeout: 10), app, "named-provider-delete-confirmation-missing")
-        tapButton(app, "Delete")
+        tapButton(app, "Yes")
         require(waitUntil(timeout: 10) { !text(app, fixtureProvider).exists }, app, "fixture-provider-not-deleted")
         tapButton(app, "Back")
         require(text(app, "No providers configured").waitForExistence(timeout: 10), app, "provider-cleanup-not-reflected")
