@@ -28,16 +28,15 @@ final class BugReportUITests: XCTestCase {
         XCTAssertTrue(container.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "app_log.txt")).firstMatch.exists)
         shot(app, screenshot)
         if UIDevice.current.userInterfaceIdiom == .pad {
-            let dismiss = app.descendants(matching: .any).matching(identifier: "PopoverDismissRegion").firstMatch
-            if dismiss.exists {
-                dismiss.tap()
-            } else {
+            // A dismissal region's center can hit an underlying settings row.
+            // Always use the verified inert point outside the popover instead.
+            do {
                 // The observed iPad popover has no Close button. Tap its outside-dismiss region,
                 // not Copy/Save or an underlying control. ActivityListView itself is full-screen.
                 let copy = container.cells.matching(NSPredicate(format: "label == %@", "Copy")).firstMatch
                 let attachment = container.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "app_log.txt")).firstMatch
                 let point = CGPoint(x: app.frame.minX + app.frame.width * 0.02,
-                                    y: app.frame.minY + app.frame.height * 0.25)
+                                    y: app.frame.minY + app.frame.height * 0.10)
                 let popover = app.popovers.firstMatch
                 if popover.exists {
                     XCTAssertFalse(popover.frame.contains(point))
@@ -49,7 +48,7 @@ final class BugReportUITests: XCTestCase {
                     XCTAssertLessThan(point.x, contentBounds.minX)
                     XCTAssertLessThan(point.y, contentBounds.minY)
                 }
-                app.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.25)).tap()
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.10)).tap()
             }
         } else {
             let close = container.buttons["header.closeButton"].firstMatch
