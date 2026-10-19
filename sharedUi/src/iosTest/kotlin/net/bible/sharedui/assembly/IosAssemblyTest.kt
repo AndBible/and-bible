@@ -283,6 +283,26 @@ class IosAssemblyTest {
     }
 
     @Test
+    fun resetDetachesBookWatcherBeforeClosingItsKoinScope() = runBlocking {
+        startApp()
+        openDatabasesDiagnosing()
+        val dir = sharedRoot / "watcher-reset-${NSUUID().UUIDString}"
+        val source = dir / "after-reset.csv"
+        files.createDirectories(dir)
+        files.write(source) { writeUtf8("name,prompt\nStudy,Explain this passage\n") }
+        try {
+            IosAppStartup.resetForTest()
+            // Real registration after shutdown must not call DocumentSyncProvider on the closed app root.
+            net.bible.service.sword.csvprompt.addCsvPromptBook(source)
+            assertNotNull(Books.installed().getBook("Prompts_after-reset"))
+            Unit
+        } finally {
+            Books.installed().getBook("Prompts_after-reset")?.let { Books.installed().removeBook(it) }
+            files.deleteRecursively(dir)
+        }
+    }
+
+    @Test
     fun speakPhrasesForFinnishComeOutFinnish() {
         startApp()
         val speak = KoinPlatform.getKoin().get<SpeakPlatform>()

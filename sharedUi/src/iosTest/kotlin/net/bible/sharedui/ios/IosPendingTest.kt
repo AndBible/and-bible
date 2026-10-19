@@ -94,7 +94,7 @@ class IosHostPortsTest {
             assertEquals(true, ports.readingPlanPlatform().isPortrait)
             assertEquals(emptyList(), ports.installZipPlatform().jobs.value)
             ports.installZipPlatform().initialiseIfStartedUninitialised()
-                        assertEquals("", ports.promptFiles().suggestedExportName())
+            assertTrue(Regex("ai_prompts_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}\\.csv").matches(ports.promptFiles().suggestedExportName()))
             assertEquals(emptyList(), ports.aiPlatform().languageChoices())
             ports.orientationLock.lockPortrait().invoke()
             assertEquals(null, ports.myDocumentFiles.displayName(DocumentRef("x")))
