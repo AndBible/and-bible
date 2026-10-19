@@ -23,8 +23,10 @@ Mac's configuration: `docs/ios-remote-mac.md`.
 
 `scripts/mac-remote.sh check`. If it says "no ssh config", the key is not mounted: ask the user
 (AskUserQuestion) to run `jailbee mount mac-ssh <container>` on the host, and wait. A connection
-timeout means the Mac's address is missing from egress: ask for
-`jailbee net egress add <mac-ip>:22 --repo`. Never look for the key elsewhere.
+`Connection closed by 127.0.0.1 port 2224` means the host's relay to the Mac is down or the
+`mac-ssh` host port is not forwarded (`jailbee apply` on the host); check `ss -ltnp | grep 2224` here
+and ask the user to check the relay service. A timeout on a direct address means the Mac's address
+is missing from egress: ask for `jailbee net egress add <mac-ip>:22 --repo`. Never look for the key elsewhere.
 
 ## Quick reference
 

@@ -66,7 +66,7 @@ optional_mounts:
 
   # SSH access to a real Mac for iOS builds (Xcode, simulator tests): the private key, an
   # ssh config (Host andbible-mac) and the pinned known_hosts. The Mac's address is allowed
-  # host-locally with `jailbee net egress add <mac-ip>:22 --repo`. See docs/ios-remote-mac.md.
+  # through the host_ports forward `mac-ssh` (127.0.0.1:2224, see below). See docs/ios-remote-mac.md.
   #   jailbee mount mac-ssh <container>     # before an iOS build session
   #   jailbee unmount mac-ssh <container>   # after it
   mac-ssh:
@@ -88,8 +88,15 @@ optional_mounts:
 # An emulator INSIDE the container must use its own adb server on port 5038
 # (the proxy device occupies 5037 in the container); scripts/with-container-adb.sh
 # does that. See docs/emulator-and-webview-debugging.md.
+#
+# mac-ssh: route to the iOS build Mac (container 127.0.0.1:2224 -> host 127.0.0.1:2224). The host
+# and the Mac may be on different networks, so the Mac is reached through a relay the host keeps
+# up (host `LocalForward 2224 localhost:2224`, Mac `RemoteForward 2224 localhost:22`); the ssh
+# config in the mac-ssh mount uses `HostName 127.0.0.1` / `Port 2224`. No egress entry is needed
+# (egress only filters outbound network traffic, not this loopback forward). See docs/ios-remote-mac.md.
 host_ports:
   - { name: adb, port: 5037 }
+  - { name: mac-ssh, port: 2224 }
 
 # Host KVM for a hardware-accelerated in-container emulator, so instrumented
 # tests and debugging do not depend on a host-side emulator.

@@ -10,7 +10,7 @@ one SSH key, which jailbee attaches as an optional mount (`mac-ssh`, see `.jailb
 the key is absent from containers until a session asks for it.
 
 ```
-jailbee container ──ssh/rsync (TCP 22)──▶ Mac, user `andbible`
+jailbee container ──ssh/rsync (127.0.0.1:2224, host_ports mac-ssh, via the host's relay)──▶ Mac, user `andbible`
   ~/.ssh-mac/ (optional mount, ro)          ~/work/<branch>/and-bible   (synced tree)
                                             Xcode, JDK 17, Node 24, xcodegen (shared, admin-installed)
 ```
@@ -185,14 +185,18 @@ reason is only in the Mac's log. Watch it while retrying:
 Usual causes: the user is missing from the Remote Login list, `authorized_keys` lacks the key, or
 `~`, `~/.ssh` or `authorized_keys` is group/world writable.
 
-## 4. Jailbee: egress and the mount
+## 4. Jailbee: the port forward and the mount
 
-Strict containers reach only allowlisted destinations. The Mac's address is specific to your network,
-so it is a host-local override, not an `egress_allow` entry in the committed config:
+The host and the Mac can be on different networks, so containers do not connect to the Mac's
+address. The host keeps a relay up (a systemd user service running `ssh <relay>` with
+`LocalForward 2224 localhost:2224` on the host, and `RemoteForward 2224 localhost:22` on the Mac's
+own tunnel to the same relay). The committed `host_ports` entry `mac-ssh` forwards container
+`127.0.0.1:2224` to host `127.0.0.1:2224`, and the ssh config in the mount points at
+`HostName 127.0.0.1`, `Port 2224`. Apply it to an existing container with `jailbee apply`.
 
-```bash
-jailbee net egress add 192.168.1.50:22 --repo    # every and-bible container on this host
-```
+If the Mac and the host share a network, a direct connection also works: put the Mac's address in
+the ssh config and allow it host-locally (it is specific to your network, so not an `egress_allow`
+entry in the committed config): `jailbee net egress add 192.168.1.50:22 --repo`.
 
 The `mac-ssh` optional mount is declared in `.jailbee/config.yaml`. Attach it for a session and detach
 it afterwards:
