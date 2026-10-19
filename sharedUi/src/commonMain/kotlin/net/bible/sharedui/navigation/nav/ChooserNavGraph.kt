@@ -54,7 +54,17 @@ import net.bible.sharedui.navigation.ChooseMapKeyScreen
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.navigation.GridChoosePassageScreen
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
 import net.bible.sharedui.strings.Strings
+
+/** iOS can change language in-place; Android retains its Activity recreation lifecycle. */
+@Composable
+internal fun RefreshGridLanguage(controller: GridChoosePassageController) {
+    val strings = LocalStrings.current
+    if (LocalLiveSettingsLanguage.current) {
+        LaunchedEffect(controller, strings) { controller.refresh() }
+    }
+}
 
 /**
  * [ChooseGeneralBookKeyScreen]'s platform-supplied slots, ported from
@@ -475,6 +485,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             d.controllerFor(scope, isScripture) { result -> deps.passageResults.deliver(navController, result) }
         }
 
+        RefreshGridLanguage(controller)
         LaunchedEffect(d.windowTitle) { deps.setWindowTitle(d.windowTitle) }
 
         val ui by controller.ui.collectAsState()

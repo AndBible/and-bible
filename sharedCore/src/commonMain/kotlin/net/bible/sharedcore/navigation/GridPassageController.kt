@@ -152,6 +152,9 @@ class GridChoosePassageController(
         }
     }
 
+    /** Rebuilds localized/current metadata without resetting the phase, draft or persisted options. */
+    fun refresh() = rebuild()
+
     /** A retained UI callback may belong to a replaced step or build. */
     fun pick(id: Int, rendered: GridUi) {
         if (rendered !== _ui.value || rendered.step != _step.value) return

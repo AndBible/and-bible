@@ -31,6 +31,7 @@ class IosChooserHostPlatformTest {
             val books = listOf(book)
             val platform = IosChooserHostPlatform(koin, CoroutineScope(Dispatchers.Unconfined), { IosAppStartup.stringTable })
             assertEquals(listOf(DocRowMapper(koin.get<DownloadControl>(), books).toDocRow(book)), platform.docRows(books))
+            assertEquals(emptyList(), platform.docRows(emptyList()))
         } finally { runBlocking { IosAppStartup.resetForTest() } }
     }
 
