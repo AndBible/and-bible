@@ -8,9 +8,12 @@ final class FeatureUITests: RealAppUITestCase {
         let english = app.staticTexts["1-Year through Bible"].firstMatch
         XCTAssertTrue(english.waitForExistence(timeout: 30))
         english.tap()
-        XCTAssertTrue(english.waitForExistence(timeout: 30), "Selected daily plan must load before switching language")
         let settings = element(app, "debug-open-settings")
-        XCTAssertTrue(settings.waitForExistence(timeout: 10))
+        XCTAssertTrue(settings.waitForExistence(timeout: 30), "Selected daily plan must load before switching language")
+        shot(app, "loaded-plan-before-language")
+        let englishLoaded = english.waitForExistence(timeout: 10)
+        if !englishLoaded { attachTree(app, "loaded-plan-no-english-title") }
+        XCTAssertTrue(englishLoaded, "The loaded plan must expose its exact English title before switching language")
         settings.tap()
         let keepScreen = app.switches.matching(NSPredicate(format: "label CONTAINS 'Keep screen on'")).firstMatch
         for _ in 0..<8 where !keepScreen.isHittable { app.swipeUp() }

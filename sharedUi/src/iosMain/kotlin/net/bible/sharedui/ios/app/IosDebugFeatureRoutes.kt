@@ -42,7 +42,10 @@ internal fun IosDebugFeatureRoutes(ready: Boolean, nav: NavHostController, chann
                 val bookmarks = koin.get<BookmarkControl>()
                 for ((name, icon) in listOf("Feature star" to "star", "Feature default" to null)) {
                     if (bookmarks.allLabels().none { it.name == name }) {
-                        bookmarks.insertOrUpdateLabel(Label(name = name, customIcon = icon))
+                        bookmarks.insertOrUpdateLabel(Label(name = name, customIcon = icon, new = true))
+                    }
+                    check(bookmarks.allLabels().any { it.name == name && it.customIcon == icon }) {
+                        "DEBUG label fixture was not persisted: $name"
                     }
                 }
                 NavRoutes.manageLabels(ManageLabelsContract.ManageLabelsData(ManageLabelsContract.Mode.STUDYPAD).toJSON())

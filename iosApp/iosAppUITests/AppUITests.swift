@@ -95,6 +95,8 @@ class RealAppUITestCase: XCTestCase {
         if !okTapped { attachTree(app, "no-enabled-ok") }
         XCTAssertTrue(okTapped, "Download Documents OK button not enabled within 180 s (no Bible installed?)")
 
+        // Opening Download again follows the real nonpersistent consent policy. Its modal hides the ready marker.
+        if scenario == "download" { confirmDownloadIfAsked(app) }
         let ready = scenario == "chooser" ? "debug-open-chooser" : "debug-feature-ready"
         XCTAssertTrue(element(app, ready).waitForExistence(timeout: 60), "Normal reading initialization must finish before feature navigation")
         return app
