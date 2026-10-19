@@ -42,6 +42,8 @@ class StartupHooks(
     val reportJSwordError: (ReporterEvent) -> Unit,
     /** True once [initialiseJSwordFolders] actually set JSword up. */
     val isSwordLoaded: () -> Boolean,
+    /** iOS cold-start retries must not observe a partially published dependency graph. Android keeps its legacy path. */
+    val isolateKoinPublication: Boolean = false,
 )
 
 /** The startup steps shared by Android and iOS, in the order Android has always run them. */
@@ -73,9 +75,26 @@ object SharedAppStartup {
         hooks.initialiseJSwordFolders()
 
         if (KoinPlatform.getKoinOrNull() == null) {
-            startKoin {
-                hooks.koinAppDeclaration(this)
-                modules(hooks.koinModules())
+            if (hooks.isolateKoinPublication) {
+                val candidate = org.koin.core.KoinApplication.init()
+                try {
+                    hooks.koinAppDeclaration(candidate)
+                    candidate.modules(hooks.koinModules())
+                    candidate.createEagerInstances()
+                    startKoin(candidate)
+                } catch (failure: Throwable) {
+                    // Never close a graph another caller owns, nor a graph already published successfully.
+                    if (KoinPlatform.getKoinOrNull() !== candidate.koin) {
+                        try { candidate.close() }
+                        catch (cleanup: Throwable) { failure.addSuppressed(cleanup) }
+                    }
+                    throw failure
+                }
+            } else {
+                startKoin {
+                    hooks.koinAppDeclaration(this)
+                    modules(hooks.koinModules())
+                }
             }
         }
         val koin = KoinPlatform.getKoin()

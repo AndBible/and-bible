@@ -13,6 +13,39 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class IosBackgroundSyncTest {
+    @Test fun productionEntryReschedulesWhenAdmissionIsCancelled() = runTest {
+        val refresh = FakeRefresh()
+        val app = koinApplication { modules(module {
+            single<IosBackgroundSync> { error("must not resolve dependencies during cancelled admission") }
+        }) }
+        try {
+            assertFailsWith<kotlinx.coroutines.CancellationException> {
+                iosBackgroundRefreshEntry(app.koin,
+                    { throw kotlinx.coroutines.CancellationException("expired during Main admission") },
+                    { error("must not start") }, { error("must not open") }, refresh)
+            }
+            assertEquals(listOf(900L), refresh.scheduled)
+        } finally { app.close() }
+    }
+
+    @Test fun productionEntrySkipsColdStartupUntilProtectedDataAndSchedulesOnce() = runTest {
+        val refresh = FakeRefresh()
+        val app = koinApplication { modules(module {
+            single<IosBackgroundSync> { error("must not resolve Koin settings before first unlock") }
+        }) }
+        assertTrue(iosBackgroundRefreshEntry(app.koin, { false },
+            { error("must not start before first unlock") }, { error("must not open") }, refresh))
+        assertEquals(listOf(900L), refresh.scheduled)
+    }
+
+    @Test fun productionEntryUsesHostColdStartAndOpenCallbacks() = runTest {
+        val refresh = FakeRefresh()
+        val events = mutableListOf<String>()
+        assertTrue(iosBackgroundRefreshEntry(null, { true }, { events += "start" }, { events += "open" }, refresh))
+        assertEquals(listOf("start", "open"), events)
+        assertEquals(listOf(900L), refresh.scheduled)
+    }
+
     private class FakeRefresh(private val failSchedule: Boolean = false) : BackgroundRefresh {
         val scheduled = mutableListOf<Long>()
         override fun register(handler: suspend () -> Boolean) {}
@@ -31,13 +64,14 @@ class IosBackgroundSyncTest {
 
     @Test
     fun entryWithoutKoinCompletes() = runTest {
-        assertTrue(iosBackgroundRefreshEntry(null))
+        assertTrue(iosBackgroundRefreshEntry(null, { true }, refresh = FakeRefresh()))
     }
 
     @Test
     fun entryWithKoinWithoutBindingCompletes() = runTest {
+        val refresh = FakeRefresh()
         val app = koinApplication { modules(module { }) }
-        assertTrue(iosBackgroundRefreshEntry(app.koin))
+        assertTrue(iosBackgroundRefreshEntry(app.koin, { true }, refresh = refresh))
     }
 
     @Test
@@ -62,7 +96,7 @@ class IosBackgroundSyncTest {
         var started = 0
         val sync = IosBackgroundSync(policy({ started++; CompletableDeferred(false) }), refresh)
         val app = koinApplication { modules(module { single { sync } }) }
-        assertFalse(iosBackgroundRefreshEntry(app.koin))
+        assertFalse(iosBackgroundRefreshEntry(app.koin, { true }, refresh = refresh))
         assertEquals(1, started)
         assertEquals(1, refresh.scheduled.size)
     }
@@ -103,7 +137,7 @@ class IosBackgroundSyncTest {
                 }
             })
         }
-        assertFalse(iosBackgroundRefreshEntry(app.koin))
+        assertFalse(iosBackgroundRefreshEntry(app.koin, { true }, refresh = refresh))
         assertEquals(listOf(900L), refresh.scheduled)
     }
 
@@ -112,7 +146,7 @@ class IosBackgroundSyncTest {
         val refresh = FakeRefresh()
         val sync = IosBackgroundSync(policy({ throw IllegalStateException("boom") }), refresh)
         val app = koinApplication { modules(module { single { sync } }) }
-        assertFalse(iosBackgroundRefreshEntry(app.koin))
+        assertFalse(iosBackgroundRefreshEntry(app.koin, { true }, refresh = refresh))
         assertEquals(1, refresh.scheduled.size)
     }
 }

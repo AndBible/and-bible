@@ -18,6 +18,7 @@ package net.bible.sharedui.assembly
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
 import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.format.SaxTextPolicy
@@ -87,7 +88,7 @@ class IosAssemblyTest {
     /** Opens the databases; a failure prints its whole cause chain (it lands in the test process output). */
     private fun openDatabasesDiagnosing() {
         try {
-            runBlocking { IosAppStartup.openDatabases() }
+            awaitStartupOnMain { IosAppStartup.openDatabases() }
         } catch (e: Throwable) {
             println("openDatabases failed:\n${e.stackTraceToString()}")
             throw e
@@ -105,11 +106,45 @@ class IosAssemblyTest {
     fun tearDown() = resetEverything()
 
     private fun resetEverything() {
-        runBlocking { IosAppStartup.resetForTest() }
+        awaitStartupOnMain { IosAppStartup.resetForTest() }
         files.deleteRecursively(databaseDir)
     }
 
-    private fun startApp(language: String? = "en") = IosAppStartup.start(config(language))
+    private fun startApp(language: String? = "en") = awaitStartupOnMain { IosAppStartup.ensureStarted(config(language)) }
+
+    @Test fun concurrentForegroundAndBackgroundJoinRealStartupOffMain() {
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val constructions = kotlinx.atomicfu.atomic(0)
+        val onMain = kotlinx.atomicfu.atomic(false)
+        val extra = org.koin.dsl.module {
+            single<String>(createdAtStart = true) {
+                constructions.incrementAndGet()
+                onMain.value = platform.Foundation.NSThread.isMainThread
+                entered.complete(Unit)
+                kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(10_000) { release.await() } }
+                "started"
+            }
+        }
+        awaitStartupOnMain {
+            kotlinx.coroutines.coroutineScope {
+                val background = async { IosAppStartup.ensureStarted(config(), listOf(extra)) }
+                val foreground = async { IosAppStartup.ensureStarted(config()) }
+                try {
+                    entered.await()
+                    assertFalse(onMain.value, "eager initialization must run off Main")
+                    // This continuation is a Main heartbeat while the IO initializer is still held.
+                    assertFalse(background.isCompleted)
+                    background.cancel()
+                    release.complete(Unit)
+                    foreground.await()
+                    assertEquals(1, constructions.value)
+                    assertEquals("started", KoinPlatform.getKoin().get<String>())
+                    assertFalse(IosAppStartup.databasesOpen)
+                } finally { release.complete(Unit); background.cancel(); foreground.cancel() }
+            }
+        }
+    }
 
     @Test
     fun recoveryBackupBuildsRealAppGraphsAndLoadsBeforeDatabases() {
@@ -254,7 +289,7 @@ class IosAssemblyTest {
         // An unusable database location: a regular file where the databases directory must be.
         files.createDirectories(databaseDir.parent!!)
         files.write(databaseDir) { writeUtf8("not a directory") }
-        val failure = runCatching { runBlocking { IosAppStartup.openDatabases() } }.exceptionOrNull()
+        val failure = runCatching { awaitStartupOnMain { IosAppStartup.openDatabases() } }.exceptionOrNull()
         assertNotNull(failure, "opening with an unusable database location must fail")
         assertFalse(IosAppStartup.databasesOpen)
         assertFalse(DatabaseContainer.ready, "a failed open must not leave the databases marked ready")

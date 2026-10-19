@@ -7,7 +7,12 @@ interface CloudAdapterFactory {
     val available: List<String>
     fun displayName(id: String): String
     fun create(id: String): CloudAdapter
+    /** Restores existing credentials only. Hosts with interactive sign-in override this path. */
+    fun createForBackground(id: String): CloudAdapter = create(id)
 }
+
+/** Optional isolated host/test namespace; ordinary installations remain package-derived. */
+data class CloudSyncNamespace(val value: String)
 
 /** Deferred engine references break the reciprocal database/document-sync construction cycle. */
 fun interface CloudSyncProvider { fun get(): CloudSync }

@@ -49,6 +49,27 @@ class IosCrashTrackerTest {
         }
     }
 
+    @Test fun backgroundAdmissionPreservesHeldRecoveryAcrossBackupUntilContinue() {
+        settings.putBoolean(CrashPreferences.RUNNING, true)
+        settings.putInt(CrashPreferences.COUNT, 1)
+        settings.putLong(CrashPreferences.TIME, now)
+        val tracker = tracker()
+        assertTrue(tracker.wouldOfferRecoveryAfterLaunch()) // Background first, no counter mutation.
+        assertEquals(1, settings.getInt(CrashPreferences.COUNT, -1))
+        tracker.onLaunch()
+        assertTrue(tracker.shouldOfferRecovery())
+        assertEquals(0, settings.getInt(CrashPreferences.COUNT, -1))
+        assertTrue(tracker.wouldOfferRecoveryAfterLaunch(), "held recovery survives preference reset")
+        val gates = IosStartupGates(listOf(StartupGate.CrashRecovery { tracker.shouldOfferRecovery() }))
+        gates.advance()
+        gates.advance(StartupGateResult.OpenBackup)
+        assertTrue(tracker.wouldOfferRecoveryAfterLaunch())
+        gates.returnFromBackup()
+        assertTrue(tracker.wouldOfferRecoveryAfterLaunch())
+        tracker.continueStartup()
+        assertFalse(tracker.wouldOfferRecoveryAfterLaunch())
+    }
+
     @Test fun dirtyStartCountsACrash() {
         settings.putBoolean(CrashPreferences.RUNNING, true)
         tracker().onLaunch()

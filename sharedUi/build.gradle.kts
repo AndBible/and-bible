@@ -82,6 +82,7 @@ kotlin {
         iosTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.koin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
         jvmTest {
             kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/report/logic")

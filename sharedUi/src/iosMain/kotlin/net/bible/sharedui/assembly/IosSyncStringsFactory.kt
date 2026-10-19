@@ -22,12 +22,12 @@ import net.bible.sharedui.strings.keyed.StringTable
 
 /**
  * The texts of the iOS sync stack, from existing string keys (the same ones Android's adapter factory and WebDAV
- * sign-in UI read). `ICLOUD_DRIVE` has no key yet: its name stays a pending English string (Stream X's row).
+ * sign-in UI read), including the localized iCloud Drive display name.
  */
 internal fun iosSyncStrings(strings: StringTable): IosSyncStrings = IosSyncStrings(
     adapterDisplayName = { id ->
         when (id) {
-            "ICLOUD_DRIVE" -> "iCloud Drive" // pending: no string key yet
+            "ICLOUD_DRIVE" -> strings.text("adapters_icloud_drive")
             "NEXT_CLOUD" -> strings.text("adapters_next_cloud")
             "WEBDAV" -> strings.text("adapters_webdav")
             else -> error("Unknown cloud adapter: $id")

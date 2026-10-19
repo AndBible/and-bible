@@ -103,6 +103,23 @@ only if they match.
     The first syncs with some servers can take a little longer, until *AndBible*
     has learned how the server reports folder changes.
 
+### iOS background refresh
+
+On iOS, background refresh uses saved credentials and previously trusted
+certificates only. A new certificate must be confirmed in the foreground; the
+confirmation shows its host, subject, issuer, validity dates, and SHA-256
+fingerprint. Trusting it does not disable certificate checks for other servers.
+Complete the first synchronization in the foreground, including any question
+about restoring cloud data or creating a new synchronization folder.
+
+After a device restart, background refresh waits until protected data becomes
+available after the first unlock. A skipped or failed refresh requests another
+opportunity, but iOS decides when background work can actually run.
+
+Ordinary Android and iOS installations currently use different remote sync
+folder namespaces. Signing both into the same server alone does not make them
+share their bookmarks or other databases.
+
 ## What Gets Synced
 
 Each category has its own toggle in Sync settings and can be turned on or off

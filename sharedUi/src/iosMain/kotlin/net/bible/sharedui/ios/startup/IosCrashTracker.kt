@@ -40,6 +40,8 @@ internal class IosCrashTracker(
     fun onForeground() { if (launched && !recovery) settings.putBoolean(CrashPreferences.RUNNING, true) }
     fun continueStartup() { recovery = false; settings.putBoolean(CrashPreferences.RUNNING, true) }
     fun shouldOfferRecovery(): Boolean = recovery || state.shouldOfferRecovery().also { recovery = it }
+    /** Background admission never consumes the recovery latch or changes persistent crash counters. */
+    fun wouldOfferRecoveryAfterLaunch(): Boolean = recovery || state.wouldOfferRecoveryAfterLaunch(launched)
 
     fun recordUncaught(t: Throwable) {
         runCatching {

@@ -26,9 +26,20 @@ class CrashLoopState(private val store: CrashPreferencesStore, private val clock
 
     fun onCleanExit() { store.running = false }
 
+    /** Non-mutating admission check before the UI's launch accounting. */
+    fun wouldOfferRecoveryAfterLaunch(launchRecorded: Boolean): Boolean {
+        val dirtyLaunch = !launchRecorded && store.running
+        val count = store.count + if (dirtyLaunch) 1 else 0
+        val time = if (dirtyLaunch && store.count == 0) clock() else store.time
+        return needsRecovery(count, time)
+    }
+
+    private fun needsRecovery(count: Int, time: Long): Boolean =
+        count > 1 && time != 0L && clock() - time < ONE_HOUR
+
     fun shouldOfferRecovery(): Boolean {
         val age = clock() - store.time
-        val offer = store.count > 1 && store.time != 0L && age < ONE_HOUR
+        val offer = needsRecovery(store.count, store.time)
         if (store.time != 0L && (age > ONE_HOUR || offer)) {
             store.count = 0
             store.time = 0L

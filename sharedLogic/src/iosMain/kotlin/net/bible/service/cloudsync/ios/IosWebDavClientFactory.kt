@@ -9,8 +9,6 @@ import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.usePinned
 import net.bible.service.cloudsync.webdav.PinDecision
 import net.bible.service.cloudsync.webdav.WebDavConfig
-import net.bible.service.cloudsync.webdav.WebDavMessage
-import net.bible.service.cloudsync.webdav.WebDavSignInUi
 import net.bible.service.cloudsync.webdav.WebDavStateStore
 import net.bible.service.cloudsync.webdav.pinDecision
 import net.bible.service.cloudsync.webdav.sha256HexUpper
@@ -99,8 +97,7 @@ private fun Throwable.nsError(): NSError? {
  * be read the challenge is cancelled without recording a rejection: it surfaces as a plain error.
  * Basic/Digest challenges get default handling; [WebDavClient] answers them.
  *
- * Phase-1 limitation: the reported issuer is empty and notBefore/notAfter are 0 because reading them
- * needs DER parsing (no public Security API); the trust prompt is a pending UI anyway.
+ * Issuer and validity come from the leaf's DER bytes; an unreadable certificate fails closed.
  */
 @OptIn(ExperimentalForeignApi::class)
 fun createIosWebDavClient(config: WebDavConfig, state: WebDavStateStore, nowMs: () -> Long): WebDavClient {
@@ -131,7 +128,8 @@ fun createIosWebDavClient(config: WebDavConfig, state: WebDavStateStore, nowMs: 
                     completion(NSURLSessionAuthChallengeUseCredential, NSURLCredential.credentialForTrust(trust))
                 }
                 ChallengeAction.CANCEL -> {
-                    lastRejected.value = DavCertificateInfo(space.host, leaf.sha256, leaf.subject, "", 0, 0)
+                    lastRejected.value = DavCertificateInfo(space.host, leaf.sha256, leaf.subject,
+                        leaf.details.issuer, leaf.details.notBefore, leaf.details.notAfter)
                     Log.w(TAG, "Rejected untrusted certificate for ${space.host}")
                     completion(NSURLSessionAuthChallengeCancelAuthenticationChallenge, null)
                 }
@@ -149,7 +147,7 @@ fun createIosWebDavClient(config: WebDavConfig, state: WebDavStateStore, nowMs: 
     )
 }
 
-private class LeafInfo(val sha256: String, val subject: String)
+private class LeafInfo(val sha256: String, val subject: String, val details: CertificateDetails)
 
 /** SHA-256 and subject of the leaf, read while the chain is still alive. */
 @OptIn(ExperimentalForeignApi::class)
@@ -160,7 +158,8 @@ private fun leafInfo(trust: SecTrustRef): LeafInfo? {
         val leaf: SecCertificateRef = CFArrayGetValueAtIndex(chain, 0)?.reinterpret() ?: return null
         val der = derBytes(leaf) ?: return null
         val subject = SecCertificateCopySubjectSummary(leaf)?.let { CFBridgingRelease(it) as? String } ?: ""
-        return LeafInfo(sha256HexUpper(der), subject)
+        val details = certificateDetails(der) ?: return null
+        return LeafInfo(sha256HexUpper(der), subject, details)
     } finally {
         CFRelease(chain)
     }
@@ -174,15 +173,8 @@ private fun derBytes(cert: SecCertificateRef): ByteArray? {
     return out
 }
 
-/**
- * Phase-1 sign-in UI: iOS has no certificate-trust prompt yet (spec C7), so an untrusted certificate
- * is declined. [messages] supplies the localized texts.
- */
-class PendingWebDavSignInUi(private val messages: (WebDavMessage) -> String) : WebDavSignInUi {
-    override suspend fun confirmCertificate(info: DavCertificateInfo): Boolean {
-        Log.w("PendingWebDavSignInUi", "I2-pending: WebDAV certificate prompt")
-        return false
-    }
-
-    override fun message(kind: WebDavMessage): String = messages(kind)
-}
+/** Native date formatting around the platform-free certificate confirmation policy. */
+class IosWebDavSignInUi(
+    dialogs: () -> net.bible.sharedcore.ui.dialog.AppDialogController,
+    strings: net.bible.sharedcore.platform.CoreStrings,
+) : net.bible.service.cloudsync.webdav.WebDavSignInUi by IosWebDavCertificatePrompt(dialogs, strings, ::certificateDate)

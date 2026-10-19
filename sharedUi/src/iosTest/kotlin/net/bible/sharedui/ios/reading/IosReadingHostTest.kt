@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import net.bible.sharedui.assembly.awaitStartupOnMain
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.startup.ReadingAppInit
@@ -53,13 +54,13 @@ class IosReadingHostTest {
     fun depsBuildAfterWindowRepository() {
         val scope = MainScope()
         try {
-            IosAppStartup.start(
+            awaitStartupOnMain { IosAppStartup.ensureStarted(
                 IosAppConfig(
                     root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
                 ),
-            )
-            runBlocking { IosAppStartup.openDatabases() }
+            ) }
+            awaitStartupOnMain { IosAppStartup.openDatabases() }
             val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {
                 ReadingAppInit.initialise(platform) // production order: initialise, then prepareData
@@ -100,7 +101,7 @@ class IosReadingHostTest {
         } finally {
             scope.cancel()
             ReadingAppInit.resetForTest()
-            runBlocking { IosAppStartup.resetForTest() }
+            awaitStartupOnMain { IosAppStartup.resetForTest() }
         }
     }
 }

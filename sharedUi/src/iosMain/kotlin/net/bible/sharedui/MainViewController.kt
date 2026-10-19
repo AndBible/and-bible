@@ -69,7 +69,7 @@ private val startupScope = CoroutineScope(
 
 /** One per process: the Swift host may build the view controller more than once. */
 private val startupState = IosAppStartupState()
-private val crashTracker = IosCrashTracker(IosDeviceSettings())
+private val crashTracker get() = IosPlatformBootstrap.crashTracker
 
 /**
  * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). Shows the real app ([IosApp]) once
@@ -155,9 +155,8 @@ fun MainViewController(): UIViewController {
         val recoveryBackup = gates.result == StartupGateResult.OpenBackup
         var recoveryBindingsReady by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
-            if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
             val startError = try {
-                IosAppStartup.start(IosAppConfig(uiLanguage = language))
+                IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language))
                 null
             } catch (e: Throwable) {
                 e

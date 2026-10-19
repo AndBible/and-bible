@@ -48,6 +48,11 @@
     <string>1</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <!-- Required by Compose Multiplatform on high-refresh (ProMotion) iPhones. -->

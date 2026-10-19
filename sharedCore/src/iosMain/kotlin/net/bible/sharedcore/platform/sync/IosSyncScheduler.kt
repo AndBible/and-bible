@@ -1,119 +1,27 @@
 package net.bible.sharedcore.platform.sync
 
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.launch
-import net.bible.sharedcore.log.Log
-import platform.Foundation.NSRecursiveLock
 import platform.UIKit.UIApplication
 import platform.UIKit.UIBackgroundTaskInvalid
+import platform.Foundation.NSRecursiveLock
 
-/** Adapts UIKit's execution allowance; the injected action owns all sync policy. */
+/** UIKit execution allowance around the shared, application-owned pass. */
 class IosSyncScheduler(
-    private val scope: CoroutineScope,
-    private val sync: suspend () -> Boolean,
-    private val begin: (() -> Unit) -> ULong = { expire ->
+    scope: CoroutineScope,
+    sync: suspend () -> Boolean,
+    begin: (() -> Unit) -> ULong = { expire ->
         UIApplication.sharedApplication.beginBackgroundTaskWithName("sync", expire)
     },
-    private val end: (ULong) -> Unit = { UIApplication.sharedApplication.endBackgroundTask(it) },
+    end: (ULong) -> Unit = { UIApplication.sharedApplication.endBackgroundTask(it) },
 ) : SyncScheduler {
-    private val lock = NSRecursiveLock()
-    private var pending: IosBackgroundWork? = null
-
-    override fun startDatabaseSync(): Deferred<Boolean> = lock.withLock {
-        pending?.takeUnless { it.isStopped }?.let { return@withLock it.result }
-        var identifier: ULong? = null
-        var ended = false
-        fun endOnce() {
-            val id = identifier ?: return
-            if (ended) return
-            ended = true
-            if (id != UIBackgroundTaskInvalid) end(id)
-        }
-        val work = IosBackgroundWork(scope, sync, lock) { endOnce() }
-        pending = work
-        work.start { expire ->
-            identifier = begin(expire)
-            // Expiry can arrive inside begin, before UIKit returns its identifier.
-            if (work.result.isCompleted) endOnce()
-        }
-        work.result
-    }
+    private val runner = IosSyncRunner(scope, sync, begin) { if (it != UIBackgroundTaskInvalid) end(it) }
+    override fun startDatabaseSync() = runner.startDatabaseSync()
+    /** The creator fixes interaction policy for the pass; a coalescing caller cannot change it. */
+    fun startBackgroundDatabaseSync(sync: suspend () -> Boolean) = runner.startDatabaseSync(sync)
+    fun stop() = runner.stop()
 }
 
-/** Serializes completion against expiration, including cancellation before the coroutine starts. */
-internal class IosBackgroundWork(
-    private val scope: CoroutineScope,
-    private val action: suspend () -> Boolean,
-    private val lock: NSRecursiveLock = NSRecursiveLock(),
-    private val complete: (Boolean) -> Unit,
-) {
-    val result = CompletableDeferred<Boolean>()
-    private var finished = false
-    private var stopped = false
-    /** Completion waits for this: BGTask's expiration handler must be installed before the task completes. */
-    private var expirationInstalled = false
-    val isStopped: Boolean get() = lock.withLock { stopped }
-
-    fun start(installExpiration: (() -> Unit) -> Unit) = lock.withLock {
-        val worker = scope.launch(start = CoroutineStart.LAZY) {
-            val ok = try {
-                action()
-            } catch (_: CancellationException) {
-                false
-            } catch (error: Throwable) {
-                Log.w(TAG, "Background work failed", error)
-                false
-            }
-            finish(ok)
-        }
-        result.invokeOnCompletion { error ->
-            if (error is CancellationException) worker.cancel()
-        }
-        // Install before setup too: a throwing begin must still release worker ownership.
-        worker.invokeOnCompletion { error ->
-            if (error != null && error !is CancellationException) {
-                Log.w(TAG, "Background work failed", error)
-            }
-            // A worker launched into an already-cancelled scope completes during registration, before
-            // installExpiration has run; start() then publishes the result itself.
-            lock.withLock { stopped = true; if (expirationInstalled) finish(false) }
-        }
-        try {
-            installExpiration {
-                // Publish false before cancellation can race the coroutine's completion.
-                finish(false)
-                worker.cancel()
-            }
-            expirationInstalled = true
-            if (worker.isCompleted) finish(false)
-            else if (!finished) worker.start() else worker.cancel()
-        } catch (error: Throwable) {
-            Log.w(TAG, "Background work setup failed", error)
-            expirationInstalled = true
-            finish(false)
-            worker.cancel()
-        }
-    }
-
-    private fun finish(ok: Boolean) = lock.withLock {
-        if (!finished) {
-            finished = true
-            try {
-                complete(ok)
-            } catch (error: Throwable) {
-                Log.w(TAG, "Background work completion failed", error)
-            }
-            result.complete(ok)
-        }
-    }
-
-    private companion object { const val TAG = "IosBackgroundWork" }
-}
-
+// Kept for existing Foundation-lock consumers (including the search indexing runner).
 internal inline fun <T> NSRecursiveLock.withLock(block: () -> T): T {
     lock()
     try { return block() } finally { unlock() }

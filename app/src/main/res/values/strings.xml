@@ -1387,6 +1387,7 @@
     <string name="webdav_https_required">WebDAV sync requires a secure https:// address.</string>
     <string name="webdav_certificate_title">Server certificate</string>
     <string name="webdav_forget_certificate_message">Forget the trusted server certificate? You will be asked to confirm the certificate again on the next connection.</string>
+    <string name="adapters_icloud_drive">iCloud Drive</string>
     <string name="webdav_untrusted_certificate_title">Untrusted server certificate</string>
     <string name="webdav_untrusted_certificate_message">The certificate of %1$s is not trusted by Android. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: %2$s\nIssuer: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
     <string name="webdav_trust_certificate">Trust this certificate</string>

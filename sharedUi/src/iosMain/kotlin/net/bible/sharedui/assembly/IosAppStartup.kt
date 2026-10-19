@@ -21,8 +21,6 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import net.bible.service.cloudsync.ios.buildIosSyncBindings
@@ -132,8 +130,8 @@ internal class IosPlatformParts(val config: IosAppConfig) {
 
 /**
  * iOS app startup, in two stages (C2, C6):
- * 1. [start] is main-thread safe and quick: environment, database host, Koin, JSword folders, error listener,
- *    book-install watcher. It never touches a database.
+ * 1. [ensureStarted] joins IO-owned environment, database host, Koin, JSword folders, error listener and
+ *    book-install watcher initialization. It never opens an application database.
  * 2. [openDatabases] opens every database off the main thread, behind the splash/progress state.
  */
 object IosAppStartup {
@@ -141,7 +139,10 @@ object IosAppStartup {
     private val shownErrors = HashMap<String, Long>()
     private val errorLock = NSRecursiveLock()
 
-    private val openLock = Mutex()
+    private val processScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
+    // Selected on Main, used only by the process-owned initialization operation on IO.
+    private var selectedParts: IosPlatformParts? = null
+    private var owner: net.bible.sharedui.ios.startup.IosStartupOwner<IosPlatformParts>? = null
 
     @kotlin.concurrent.Volatile
     private var opened = false
@@ -155,31 +156,49 @@ object IosAppStartup {
     val databasesOpen: Boolean get() = opened
 
     /** The UI-language string table of the started app (the resource-keyed lookups the hosts read). */
-    internal val stringTable: StringTable get() = checkNotNull(parts) { "IosAppStartup.start has not run" }.strings
+    internal val stringTable: StringTable get() = checkNotNull(parts) { "IosAppStartup.ensureStarted has not completed" }.strings
 
     /**
-     * Environment + Koin; never touches the databases. MAIN THREAD ONLY (it is not thread-safe). Idempotent: a repeated
-     * call reuses the first call's [config] and [extraModules]; different arguments are IGNORED. `SharedAppStartup.start`
-     * itself starts Koin and the JSword error listener once.
+     * Joins process-owned initialization. Main only selects the first configuration and publishes ready
+     * parts; filesystem, Keychain, JSword and Koin initialization run on IO, independent of either waiter.
+     * Repeated/concurrent callers retain the first configuration, including retries after failure.
      */
-    fun start(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
-        val existing = parts
-        val p = existing ?: IosPlatformParts(config).also { parts = it }
-        if (existing == null) DatabaseContainer.installHost(IosDatabaseHost(p.environment, p.databaseRoot))
-
-        val localeProvider = IosLocaleProvider(localeTag = p::jswordLocaleTag)
-        SharedAppStartup.installEnvironment(p.repositories(), localeProvider)
-        SharedAppStartup.start(
-            StartupHooks(
-                initialiseJSwordFolders = { IosSwordEnvironment.initialiseJSwordFolders(p.directories.modulesDir) },
-                koinModules = {
-                    val sync = buildIosSyncBindings(iosSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)
-                    listOf(buildIosCoreModule(p.config, listOf(sync, buildIosHostBindings()) + extraModules, p))
+    suspend fun ensureStarted(config: IosAppConfig = IosAppConfig(), extraModules: List<Module> = emptyList()) {
+        val selected = withContext(Dispatchers.Main.immediate) {
+            owner ?: net.bible.sharedui.ios.startup.IosStartupOwner(processScope,
+                initialize = {
+                    val p = selectedParts ?: IosPlatformParts(config).also { selectedParts = it }
+                    if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
+                    DatabaseContainer.installHost(IosDatabaseHost(p.environment, p.databaseRoot))
+                    val localeProvider = IosLocaleProvider(localeTag = p::jswordLocaleTag)
+                    SharedAppStartup.installEnvironment(p.repositories(), localeProvider)
+                    SharedAppStartup.start(StartupHooks(
+                        initialiseJSwordFolders = { IosSwordEnvironment.initialiseJSwordFolders(p.directories.modulesDir) },
+                        koinModules = {
+                            val sync = buildIosSyncBindings(iosSyncStrings(p.strings), IosPlatformBootstrap.backgroundRefresh)
+                            val namespace = org.koin.dsl.module {
+                                IosDebugLaunchArgs.syncNamespace()?.let { value ->
+                                    single { net.bible.service.cloudsync.CloudSyncNamespace(value) }
+                                }
+                            }
+                            listOf(buildIosCoreModule(p.config, listOf(sync, namespace, buildIosHostBindings()) + extraModules, p))
+                        },
+                        reportJSwordError = { ev -> reportJSwordError(p, ev) },
+                        isSwordLoaded = { IosSwordEnvironment.isLoaded },
+                        isolateKoinPublication = true,
+                    ))
+                    withContext(Dispatchers.Main.immediate) { parts = p }
+                    p
                 },
-                reportJSwordError = { ev -> reportJSwordError(p, ev) },
-                isSwordLoaded = { IosSwordEnvironment.isLoaded },
-            ),
-        )
+                open = {
+                    DatabaseContainer.ready = true
+                    try { DatabaseContainer.instance.sync() }
+                    catch (e: Throwable) { DatabaseContainer.ready = false; throw e }
+                    withContext(Dispatchers.Main.immediate) { opened = true }
+                },
+            ).also { owner = it }
+        }
+        selected.ensureStarted()
     }
 
     /**
@@ -188,18 +207,10 @@ object IosAppStartup {
      * first screen. On failure the databases stay closed (`databasesOpen` false, `ready` off) and the error
      * propagates for the startup state to show.
      */
-    suspend fun openDatabases() = openLock.withLock {
-        if (opened) return@withLock // a repeated or concurrent call after success must not touch `ready` again
-        withContext(Dispatchers.IO) {
-            DatabaseContainer.ready = true
-            try {
-                DatabaseContainer.instance.sync()
-            } catch (e: Throwable) {
-                DatabaseContainer.ready = false
-                throw e
-            }
-        }
-        opened = true
+    suspend fun openDatabases() {
+        ensureStarted()
+        val selected = withContext(Dispatchers.Main.immediate) { checkNotNull(owner) }
+        selected.openDatabases()
     }
 
     /** Shows a JSword error once per five minutes per message, as Android's `reportJSwordError` does. */
@@ -224,10 +235,12 @@ object IosAppStartup {
     }
 
     /**
-     * Test only: forgets everything [start] and [openDatabases] set up (Koin, error listener, open databases,
+     * Test only: forgets everything [ensureStarted] and [openDatabases] set up (Koin, error listener, open databases,
      * environment monitor) so the next test starts clean. JSword's folders and book list are process-wide and stay.
      */
     internal suspend fun resetForTest() {
+        val previousOwner = withContext(Dispatchers.Main.immediate) { owner }
+        previousOwner?.joinInFlight()
         // Stop the app scope first: coroutines of a finished test (store collectors, ordered launches) must not run
         // into the next test's databases.
         runCatching { KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()?.cancel() }
@@ -240,7 +253,8 @@ object IosAppStartup {
         DatabaseContainer.forgetReplacesForTest()
         DatabaseContainer.detachInstanceForTest()
         runCatching { parts?.environment?.close() }.onFailure { Log.w(TAG, "environment close failed", it) }
-        parts = null
+        withContext(Dispatchers.Main.immediate) { owner = null; parts = null }
+        selectedParts = null
         opened = false
         errorHookCalls = 0
         errorLock.lock()

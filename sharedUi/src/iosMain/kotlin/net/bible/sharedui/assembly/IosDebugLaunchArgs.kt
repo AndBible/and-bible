@@ -49,6 +49,9 @@ internal object IosDebugLaunchArgs {
         settings.putLong(net.bible.sharedcore.platform.CrashPreferences.TIME, 0L)
     }
 
+    /** Disposable cross-platform acceptance only; no persisted override or production namespace change. */
+    fun syncNamespace(): String? = net.bible.service.cloudsync.ios.task7SyncNamespace(Platform.isDebugBinary, arguments)
+
     /** True when `-resetData` was passed. */
     fun resetData(): Boolean = Platform.isDebugBinary && "-resetData" in arguments
 
@@ -68,7 +71,7 @@ internal object IosDebugLaunchArgs {
 
     /**
      * Deletes the app data (Application Support/AndBible, databases and backup; Documents/sword with the modules).
-     * Main thread, before [IosAppStartup.start]: two recursive deletes, no database or settings access.
+     * Process-owned IO startup, before [IosAppStartup.ensureStarted] side effects: two recursive deletes, no database or settings access.
      * UserDefaults are left alone.
      */
     fun resetAppData() {

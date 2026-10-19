@@ -8,6 +8,8 @@ import net.bible.sharedcore.platform.sync.IosBackgroundRefresh
 import org.koin.mp.KoinPlatform
 
 object IosPlatformBootstrap {
+    /** Shared with the UI, confined to Main; background checks never mutate its launch accounting. */
+    internal val crashTracker by lazy { net.bible.sharedui.ios.startup.IosCrashTracker(net.bible.sharedcore.platform.IosDeviceSettings()) }
     val backgroundRefresh: BackgroundRefresh by lazy { IosBackgroundRefresh(MainScope()) }
 
     private var crashObservers: List<platform.darwin.NSObjectProtocol> = emptyList()
@@ -26,8 +28,19 @@ object IosPlatformBootstrap {
         ) { tracker.onForeground() }
     }
 
-    /** Called before the Swift host finishes launching; the handler is a no-op until Koin has an [IosBackgroundSync]. */
-    fun registerBackgroundTasks() = backgroundRefresh.register { iosBackgroundRefreshEntry() }
+    /** Registered before launch ends. Admission is pre-Koin/pre-database and never mutates crash accounting. */
+    fun registerBackgroundTasks() = backgroundRefresh.register {
+        iosBackgroundRefreshEntry(
+            protectedDataAvailable = {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    platform.UIKit.UIApplication.sharedApplication.protectedDataAvailable && !crashTracker.wouldOfferRecoveryAfterLaunch()
+                }
+            },
+            start = { net.bible.sharedui.assembly.IosAppStartup.ensureStarted() },
+            openDatabases = { net.bible.sharedui.assembly.IosAppStartup.openDatabases() },
+            refresh = backgroundRefresh,
+        )
+    }
 
     /** Requests the first background refresh; `MainViewController` calls it (off the main thread) once startup is Ready. No-op before Koin starts. */
     fun scheduleBackgroundSync() {

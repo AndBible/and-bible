@@ -64,6 +64,14 @@ interface CoreStrings {
     val stop: String // R.string.stop
     val speakStatusStopped: String // R.string.speak_status_stopped
     fun sleepTimerStarted(minutes: Int): String // R.string.sleep_timer_started
+    val webDavUntrustedCertificateTitle: String
+    val webDavTrustCertificate: String
+    val webDavWrongCredentials: String
+    val webDavNotAFolder: String
+    val webDavCertificateChanged: String
+    val webDavStorageFull: String
+    val iCloudDrive: String
+    fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String
     val signInFailed: String
     val cloudSyncTitle: String
     val cloudFetchAndRestoreInitial: String
