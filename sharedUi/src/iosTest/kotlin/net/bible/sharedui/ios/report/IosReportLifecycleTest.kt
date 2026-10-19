@@ -88,7 +88,10 @@ class IosReportLifecycleTest {
         window.rootViewController = host
         window.makeKeyAndVisible()
         try {
-            val job = launch { IosMailOrShare { host }.send("test@example.invalid", "test", "body", listOf(Attachment("log.gz", "application/gzip", byteArrayOf(1)))) }
+            // Standalone test.kexe has no UIApplication scene for ShareSheet's remote service.
+            // Only that system controller is substituted; staging and FilePresentation remain real.
+            val job = launch { IosMailOrShare(shareController = { _, _, _ -> UIViewController() }, presenter = { host })
+                .send("test@example.invalid", "test", "body", listOf(Attachment("log.gz", "application/gzip", byteArrayOf(1)))) }
             withTimeout(5000) { while (host.presentedViewController == null) delay(20) }
             while (host.presentedViewController?.transitionCoordinator != null) delay(20)
             assertEquals(1, (staged() - before).size)
@@ -107,19 +110,29 @@ class IosReportLifecycleTest {
         window.rootViewController = host
         window.makeKeyAndVisible()
         try {
+            var terminal: (() -> Unit)? = null
+            val controller = UIViewController()
             val job = launch {
-                IosMailOrShare { host }.send("not-sent@example.invalid", "test", "body",
+                IosMailOrShare(shareController = { items, subject, finish ->
+                    assertEquals("body", items.first())
+                    assertEquals("test", subject)
+                    val file = assertIs<NSURL>(items.last()).path!!.toPath()
+                    assertEquals("payload", FileSystem.SYSTEM.read(file) { readUtf8() })
+                    terminal = finish
+                    controller
+                }, presenter = { host }).send("not-sent@example.invalid", "test", "body",
                     listOf(Attachment("log.gz", "application/gzip", "payload".encodeToByteArray())))
             }
             withTimeout(5000) { while (host.presentedViewController == null) delay(20) }
-            val sheet = assertIs<UIActivityViewController>(host.presentedViewController)
+            val sheet = assertNotNull(host.presentedViewController)
+            assertSame(controller, sheet)
             while (sheet.transitionCoordinator != null) delay(20)
             val path = (staged() - before).single()
             assertTrue(FileSystem.SYSTEM.exists(path / "log.gz"))
             sheet.popoverPresentationController?.let { assertSame(host.view, it.sourceView) }
-            val completion = assertNotNull(sheet.completionWithItemsHandler)
-            completion(null, false, null, null)
-            completion(null, false, null, null)
+            val completion = assertNotNull(terminal)
+            completion()
+            completion()
             job.join()
             assertNull(host.presentedViewController)
             assertFalse(FileSystem.SYSTEM.exists(path))

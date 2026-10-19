@@ -17,7 +17,15 @@ import platform.UIKit.*
 import platform.darwin.NSObject
 
 /** Owns staging files and UIKit's weak mail delegate until the shared terminal-event owner dismisses. */
-internal class IosMailOrShare(private val presenter: () -> UIViewController? = IosPresenter::topViewController) {
+internal class IosMailOrShare(
+    private val shareController: (List<Any>, String, () -> Unit) -> UIViewController = { items, subject, finish ->
+        UIActivityViewController(activityItems = items, applicationActivities = null).apply {
+            setValue(subject, forKey = "subject")
+            completionWithItemsHandler = { _, _, _, _ -> finish() }
+        }
+    },
+    private val presenter: () -> UIViewController? = IosPresenter::topViewController,
+) {
     suspend fun send(to: String, subject: String, body: String, attachments: List<Attachment>) = withContext(Dispatchers.Main) {
         val directory = (NSTemporaryDirectory() + "andbible-report-" + NSUUID().UUIDString).toPath()
         var dismissed: CompletableDeferred<Unit>? = null
@@ -35,6 +43,7 @@ internal class IosMailOrShare(private val presenter: () -> UIViewController? = I
             val host = presenter() ?: return@withContext
             suspendCancellableCoroutine<Unit> { continuation ->
                 val mail = reportTransport(MFMailComposeViewController.canSendMail()) == ReportTransport.MAIL
+                lateinit var presentation: FilePresentation<Unit>
                 val sheet: UIViewController = if (mail) MFMailComposeViewController().apply {
                     setToRecipients(listOf(to))
                     setSubject(subject)
@@ -45,13 +54,12 @@ internal class IosMailOrShare(private val presenter: () -> UIViewController? = I
                         }
                         addAttachmentData(data, mimeType = attachment.mime, fileName = attachment.name)
                     }
-                } else UIActivityViewController(
-                    activityItems = listOf(body) + files.map { NSURL.fileURLWithPath(it.second.toString()) },
-                    applicationActivities = null,
-                ).apply { setValue(subject, forKey = "subject") }
+                } else shareController(listOf(body) + files.map { NSURL.fileURLWithPath(it.second.toString()) }, subject) {
+                    presentation.finish(Unit)
+                }
                 val completion = CompletableDeferred<Unit>()
                 var delegate: MailDelegate? = null
-                val presentation = FilePresentation(sheet, continuation, Unit, release = {
+                presentation = FilePresentation(sheet, continuation, Unit, release = {
                     (sheet as? MFMailComposeViewController)?.mailComposeDelegate = null
                     delegate = null
                     completion.complete(Unit)
@@ -59,7 +67,7 @@ internal class IosMailOrShare(private val presenter: () -> UIViewController? = I
                 if (sheet is MFMailComposeViewController) {
                     delegate = MailDelegate { presentation.finish(Unit) }
                     sheet.mailComposeDelegate = delegate
-                } else (sheet as UIActivityViewController).completionWithItemsHandler = { _, _, _, _ -> presentation.finish(Unit) }
+                }
                 sheet.popoverPresentationController?.apply {
                     sourceView = host.view
                     sourceRect = host.view.bounds.useContents { CGRectMake(origin.x + size.width / 2, origin.y + size.height / 2, 0.0, 0.0) }
