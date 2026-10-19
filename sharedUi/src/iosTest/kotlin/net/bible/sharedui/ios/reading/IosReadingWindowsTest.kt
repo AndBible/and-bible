@@ -16,6 +16,13 @@
  */
 package net.bible.sharedui.ios.reading
 
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFails
+import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -30,15 +37,15 @@ import net.bible.android.database.IdType
 import net.bible.service.startup.ReadingAppInit
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.ios.app.IosNavigator
 import net.bible.sharedui.ios.app.IosReadingReady
-import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.reading.session.ReadingOffsets
+import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.activeLanguagesScript
 import net.bible.sharedui.webview.attachReadingPane
 import net.bible.sharedui.webview.bibleBundleUrl
@@ -52,13 +59,6 @@ import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
 import platform.darwin.NSObject
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
-import kotlin.test.assertFalse
-import kotlin.test.assertNotSame
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 /** Per-window session assembly: caching, release (relay stop, dispose, handler removal), closed windows, night. */
 class IosReadingWindowsTest {
@@ -88,6 +88,8 @@ class IosReadingWindowsTest {
         }
     }
 
+    private var currentHost: IosReadingHost? = null
+
     private fun withWindows(night: FakeNight = FakeNight(false), body: (windowId: String) -> Unit) {
         try {
             IosAppStartup.start(
@@ -102,6 +104,7 @@ class IosReadingWindowsTest {
             val scope: CoroutineScope = IosReadingReady.scope
             val koin = KoinPlatform.getKoin()
             val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night)
+            currentHost = host
             IosReadingWindows.bind(host, scope, koin, night)
             IosReadingWebViews.bundleLoader = { _, _, _ -> }
             body(koin.get<WindowControl>().activeWindow.id.toString())
@@ -138,20 +141,30 @@ class IosReadingWindowsTest {
     /** The WebViews get the installed Bibles' languages (the test modules hold English and Finnish ones), not a constant. */
     @Test
     fun activeLanguagesFromInstalledBooks() = withWindows { _ ->
-        val languages = IosReadingWebViews.activeLanguages()
-        assertTrue("\"en\"" in languages && "\"fi\"" in languages, "languages: $languages")
+        val languages = kotlinx.serialization.json.Json.decodeFromString<List<String>>(IosReadingWebViews.activeLanguages())
+        assertEquals(setOf("en", "fi"), languages.toSet(), "languages: $languages")
+        assertEquals(languages.size, languages.toSet().size, "no duplicates: $languages")
         assertEquals("window.__activeLanguages__ = '[\"en\",\"fi\"]';", activeLanguagesScript("[\"en\",\"fi\"]"))
     }
 
-    /** The session's key actions and verse chooser are the real ones: Ctrl+W opens the workspace sheet, the chooser opens the Grid sheet. */
+    /** The session's key actions and verse chooser are the real ones: Alt+M opens the drawer, Ctrl+W the workspace sheet, and the chooser answers through the Grid sheet. */
     @Test
     fun sessionKeyActionsAndVerseChooserAreWired() = withWindows { id ->
         val session = IosReadingWindows.sessionFor(id)
+        val hostState = currentHost!!.hostState
         val keys = session.keyActions
         assertTrue(keys is IosReadingKeyActions, "key actions: $keys")
         assertTrue(keys.showWorkspaceSheetIfHosted())
-        val chooser = session.verseChooser
-        assertTrue(chooser != null, "verse chooser installed")
+        keys.openDrawer()
+        assertTrue(hostState.drawerOpen.value, "Alt+M opens the drawer")
+        val answer = awaitOnMain {
+            kotlinx.coroutines.coroutineScope {
+            val pending = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { session.verseChooser!!.invoke() }
+            hostState.onGridPassageChosen("Gen.1.1")
+            pending.await()
+            }
+        }
+        assertEquals("Gen.1.1", answer)
     }
 
     /** A fresh (empty) database gives exactly one visible window, like Android. */

@@ -28,9 +28,9 @@ import net.bible.sharedui.reading.host.ReadingHostState
  * the counterpart of Android's anonymous object in `BibleView`. Window workspace sheet, search and copy go through
  * the same paths as the toolbar and the selection menu.
  *
- * Not available on iOS, answered by a log line instead of a silent drop: [openDrawer] and [openOverflowMenu] (iOS has no
- * navigation drawer or overflow menu content yet: the toolbar's own home and overflow buttons are equally unwired) and
- * [crashAllBibleViews] (a debug-only Android aid that loads `chrome://crash`; WKWebView offers no public crash trigger).
+ * [openDrawer] opens the common drawer; its menu content (`drawerMenu`) is still empty on iOS, like the toolbar's own
+ * home and overflow buttons (pending). Not available on iOS, answered by a log line instead of a silent drop:
+ * [openOverflowMenu] (no overflow items yet) and [crashAllBibleViews] (a debug-only Android aid that loads `chrome://crash`; WKWebView offers no public crash trigger).
  */
 @kotlin.native.HiddenFromObjC
 class IosReadingKeyActions(
@@ -39,7 +39,7 @@ class IosReadingKeyActions(
     private val copyCurrentSelection: () -> Unit,
     private val log: (String) -> Unit = { nsLog("IosReadingKeyActions: $it") },
 ) : ReadingKeyActions {
-    override fun openDrawer() = log("Alt+M: no navigation drawer on iOS")
+    override fun openDrawer() = hostState.openDrawer()
 
     override fun openOverflowMenu() = log("Alt+O: no overflow menu on iOS")
 

@@ -33,12 +33,17 @@ import net.bible.sharedui.reading.host.ReadingHostState
  * [top] is 0: the toolbar is an in-flow row above the panes and pads the status bar itself, so no pane extends under it
  * (Android's `topOffset2` is a constant 0 for the same reason). [bottom] is what overlays the panes' lower edge: the
  * system bottom inset (home indicator) unless the speak bar is up (it sits below the panes and pads that inset
- * itself, `bottomOffsetForWebView`'s F111 rule), the agent log's collapsed height and the search sheet's height.
+ * itself, `bottomOffsetForWebView`'s F111 rule), the minimised-window restore row (40dp, Android's theme
+ * `windowButtonHeight`, when the workspace setting [restoreButtonsVisible] is on; read live), the agent log's collapsed
+ * height and the search sheet's height.
  *
  * Every setter fires [onChanged] only when its value really changed, so a benign recomposition does not spam `set_offsets`.
  */
 @kotlin.native.HiddenFromObjC
-class ReadingOffsets(private val onChanged: () -> Unit = {}) {
+class ReadingOffsets(
+    private val restoreButtonsVisible: () -> Boolean = { false },
+    private val onChanged: () -> Unit = {},
+) {
     private var systemBottomInset = 0f
     private var searchSheet = 0f
     private var agentLog = 0f
@@ -46,7 +51,7 @@ class ReadingOffsets(private val onChanged: () -> Unit = {}) {
 
     val top: Float get() = 0f
 
-    val bottom: Float get() = (if (speakBarVisible) 0f else systemBottomInset) + agentLog + searchSheet
+    val bottom: Float get() = (if (speakBarVisible) 0f else systemBottomInset) + (if (restoreButtonsVisible()) WINDOW_BUTTON_HEIGHT_DP else 0f) + agentLog + searchSheet
 
     fun setSystemBottomInset(dp: Float) = change { if (systemBottomInset != dp) { systemBottomInset = dp; true } else false }
 
@@ -62,10 +67,15 @@ class ReadingOffsets(private val onChanged: () -> Unit = {}) {
 
     fun setSpeakBarVisible(visible: Boolean) = change { if (speakBarVisible != visible) { speakBarVisible = visible; true } else false }
 
+    /** Re-sends the offsets without a value change (the live [restoreButtonsVisible] answer may have changed). */
+    fun refresh() = onChanged()
+
     private inline fun change(apply: () -> Boolean) {
         if (apply()) onChanged()
     }
 }
+
+private const val WINDOW_BUTTON_HEIGHT_DP = 40f
 
 /** Android's `BibleJavascriptInterface.getActiveLanguages`: the distinct language [codes] as a JSON list. */
 @kotlin.native.HiddenFromObjC

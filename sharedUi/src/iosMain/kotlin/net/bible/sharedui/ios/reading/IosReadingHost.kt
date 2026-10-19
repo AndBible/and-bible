@@ -26,39 +26,36 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import net.bible.android.view.activity.page.screen.speakBarVisible
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.GlobalTextDisplaySettingsSource
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.navigation.DocRowMapper
+import net.bible.android.view.activity.navigation.GridPassageControllerFactory
 import net.bible.android.view.activity.page.WindowPaneMenuDispatcher
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.screen.paneWindowLabel
 import net.bible.android.view.activity.page.screen.paneWindowTopLabel
-import net.bible.sharedcore.window.WindowPaneMenuItem
-import net.bible.sharedlogic.settings.RecentDisplaySettings
-import net.bible.sharedlogic.settings.TextDisplayPrefItems
-import net.bible.sharedui.strings.keyed.KeyedPaneMenuStrings
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.link.LinkControl
-import net.bible.android.view.activity.navigation.DocRowMapper
-import net.bible.service.sword.SwordDocumentFacade
-import net.bible.sharedcore.navigation.DocRow
-import net.bible.android.control.search.SearchControl
-import net.bible.android.view.activity.navigation.GridPassageControllerFactory
+import net.bible.android.view.activity.page.screen.speakBarVisible
 import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.history.HistoryManager
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.resolveDisableAnimations
+import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
@@ -67,16 +64,18 @@ import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportService
-import net.bible.sharedcore.progress.ReadingProgressService
-import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
+import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowStateService
+import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedlogic.platform.NightModeState
-import net.bible.sharedui.assembly.IosAppStartup
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedlogic.settings.RecentDisplaySettings
+import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.ios.IosPending
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.ios.ports.IosImagePicker
 import net.bible.sharedui.ios.ports.IosTextShare
@@ -90,16 +89,17 @@ import net.bible.sharedui.reading.host.slots.ReadingHostSlots
 import net.bible.sharedui.reading.host.slots.ReadingSearchServices
 import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.sharedui.reading.nav.ReadingNavDeps
-import net.bible.sharedui.reading.session.ReadingOffsets
 import net.bible.sharedui.reading.nav.ReadingResultCollector
+import net.bible.sharedui.reading.session.ReadingOffsets
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
-import org.koin.core.Koin
-import platform.Foundation.NSDateFormatter
-import platform.Foundation.NSDate
-import platform.Foundation.dateWithTimeIntervalSince1970
+import net.bible.sharedui.strings.keyed.KeyedPaneMenuStrings
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.VerseFactory
+import org.koin.core.Koin
+import platform.Foundation.NSDate
+import platform.Foundation.NSDateFormatter
+import platform.Foundation.dateWithTimeIntervalSince1970
 
 /** The English strings, built once, for a host that was not given the app's. */
 private val englishStrings: Strings by lazy { iosStrings("en") }
@@ -136,7 +136,9 @@ class IosReadingHost(
      * The document offsets of every window ([ReadingOffsets]): the destination reports the safe-area inset, the slots below
      * report the search sheet, agent log and speak bar; a change is pushed to each window as `set_offsets`.
      */
-    internal val offsets = ReadingOffsets { IosReadingWindows.offsetsChanged() }
+    internal val offsets = ReadingOffsets(
+        restoreButtonsVisible = { windowControl.windowRepository.workspaceSettings.restoreButtonsVisible },
+    ) { IosReadingWindows.offsetsChanged() }
 
     /** The agent log's last measured collapsed height in dp (the offsets need it while the panel is visible). */
     private var agentLogHeightDp = 0f

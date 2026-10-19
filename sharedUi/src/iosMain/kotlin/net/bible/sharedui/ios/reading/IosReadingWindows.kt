@@ -27,15 +27,15 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.bibleview.BibleBridge
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedlogic.platform.NightModeState
-import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.session.BibleWindowSession
@@ -96,7 +96,8 @@ object IosReadingWindows {
         IosReadingWebViews.activeLanguages = ::installedLanguagesJson
         b.subscriptions.add(koin.get<WindowStateServiceImpl>().windowChanges.subscribe { change ->
             if (change == WindowChange.WindowsChanged) {
-                scope.launch(Dispatchers.Main) { releaseClosedWindows() }
+                // Minimising or restoring a window shows or hides the restore row, which is an offsets term.
+                scope.launch(Dispatchers.Main) { releaseClosedWindows(); b.host.offsets.refresh() }
             }
         })
         // The INITIAL CONTENT LOAD of the restored windows, exactly as Android runs it once when the reading host is

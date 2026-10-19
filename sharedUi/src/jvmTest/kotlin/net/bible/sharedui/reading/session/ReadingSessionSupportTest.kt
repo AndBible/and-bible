@@ -26,7 +26,8 @@ class ReadingSessionSupportTest {
     @Test
     fun offsetsFollowTheToolbarAndSafeArea() {
         var changes = 0
-        val offsets = ReadingOffsets { changes++ }
+        var restore = false
+        val offsets = ReadingOffsets({ restore }) { changes++ }
         // The toolbar is in-flow above the panes (and pads the status bar itself): nothing to reserve at the top.
         assertEquals(0f, offsets.top)
         assertEquals(0f, offsets.bottom)
@@ -48,6 +49,9 @@ class ReadingSessionSupportTest {
         assertEquals(200f + 48f, offsets.bottom)
         offsets.setSearchSheet(visible = false, heightPx = 600, density = 3f)
         offsets.setAgentLog(visible = false, heightDp = 48f)
+        restore = true // minimised-window restore row (Android's windowButtonHeight, 40dp)
+        assertEquals(40f, offsets.bottom)
+        restore = false
         assertEquals(0f, offsets.bottom)
         offsets.setSpeakBarVisible(false)
         assertEquals(34f, offsets.bottom)

@@ -34,6 +34,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.DbDate
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.page.screen.ReadingDialog
 import net.bible.service.history.HistoryItem
 import net.bible.service.history.HistoryManager
 import net.bible.service.history.HistoryPlatform
@@ -41,9 +42,8 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingQuickSheet
-import net.bible.sharedui.reading.session.readingVerseChooser
 import net.bible.sharedcore.reading.ShareVersesOptions
-import net.bible.android.view.activity.page.screen.ReadingDialog
+import net.bible.sharedui.reading.session.readingVerseChooser
 
 class ReadingHostStateTest {
     private class MapSettings : AppSettings {
@@ -126,6 +126,10 @@ class ReadingHostStateTest {
         assertEquals("Gen.1.1", second.getCompleted())
     }
 
+    /**
+     * The chooser answers the asker (the JS reference chooser, which navigates itself with the verse name); the host
+     * must NOT also navigate, so the assertion is on the answer and on `applyChosenVerse` staying unused.
+     */
     @Test
     fun verseChooserResultNavigates() = runBlocking {
         val applied = mutableListOf<String>()
