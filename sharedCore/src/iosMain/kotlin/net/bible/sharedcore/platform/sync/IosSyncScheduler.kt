@@ -19,6 +19,8 @@ class IosSyncScheduler(
     /** The creator fixes interaction policy for the pass; a coalescing caller cannot change it. */
     fun startBackgroundDatabaseSync(sync: suspend () -> Boolean) = runner.startDatabaseSync(sync)
     fun stop() = runner.stop()
+    /** Stops only the pass this caller joined; a completed pass cannot cancel its replacement. */
+    fun stop(result: kotlinx.coroutines.Deferred<Boolean>) = runner.stop(result)
 }
 
 // Kept for existing Foundation-lock consumers (including the search indexing runner).

@@ -116,7 +116,7 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
                         runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>(), allowInteraction = false)
                     }
                 },
-                stopSync = { (get<SyncScheduler>() as IosSyncScheduler).stop() },
+                stopSync = { result -> (get<SyncScheduler>() as IosSyncScheduler).stop(result) },
             ),
             backgroundRefresh,
         )

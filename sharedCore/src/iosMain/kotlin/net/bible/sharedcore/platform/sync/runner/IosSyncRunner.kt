@@ -22,6 +22,11 @@ internal class IosSyncRunner(
 
     fun stop() = lock.withLock { pending?.stop() }
 
+    /** An expired join owns only its pass, never a newer replacement selected in the meantime. */
+    fun stop(result: Deferred<Boolean>) = lock.withLock {
+        pending?.takeIf { it.result === result }?.stop()
+    }
+
     override fun startDatabaseSync(): Deferred<Boolean> = startDatabaseSync(sync)
 
     fun startDatabaseSync(action: suspend () -> Boolean): Deferred<Boolean> = lock.withLock {

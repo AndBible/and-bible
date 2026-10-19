@@ -6,6 +6,67 @@ import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IosStartupOwnerTest {
+    @Test fun orphanedStartupFailureRetriesOnFirstForegroundJoin() = orphanedFailureRetries(false, true)
+    @Test fun orphanedDatabaseFailureRetriesWithoutRepeatingStartup() = orphanedFailureRetries(true, true)
+    @Test fun startupRetryCannotSelectFailureBeforeQueuedCompletionCleanup() = orphanedFailureRetries(false, false)
+    @Test fun databaseRetryCannotSelectFailureBeforeQueuedCompletionCleanup() = orphanedFailureRetries(true, false)
+
+    private fun orphanedFailureRetries(database: Boolean, drainCompletion: Boolean) = runTest {
+        val dispatcher = OwnedQueueDispatcher()
+        val scope = CoroutineScope(SupervisorJob() + dispatcher)
+        val gate = CompletableDeferred<Unit>()
+        var starts = 0
+        var opens = 0
+        val owner = IosStartupOwner(scope, {
+            starts++
+            if (!database && starts == 1) { withTimeout(5_000) { gate.await() }; error("orphan startup failed") }
+            "ready"
+        }, {
+            opens++
+            if (database && opens == 1) { withTimeout(5_000) { gate.await() }; error("orphan database failed") }
+        })
+        suspend fun joinOwner() { if (database) owner.openDatabases() else assertEquals("ready", owner.ensureStarted()) }
+        val soleWaiter = backgroundScope.async { joinOwner() }
+        var foreground: Deferred<Unit>? = null
+        try {
+            runCurrent()
+            dispatcher.drain()
+            runCurrent()
+            dispatcher.drain()
+            assertEquals(1, starts)
+            assertEquals(if (database) 1 else 0, opens)
+            soleWaiter.cancelAndJoin()
+            gate.complete(Unit)
+            // Run only the failed operation, leaving any dispatched completion cleanup queued.
+            dispatcher.runNext()
+            if (drainCompletion) dispatcher.drain()
+            foreground = backgroundScope.async(start = CoroutineStart.UNDISPATCHED) { joinOwner() }
+            assertFalse(foreground.isCompleted, "First foreground join must start retry, not consume cached failure")
+            dispatcher.drain()
+            runCurrent()
+            dispatcher.drain()
+            foreground.await()
+            assertEquals(if (database) 1 else 2, starts)
+            assertEquals(if (database) 2 else 0, opens)
+        } finally {
+            gate.complete(Unit)
+            soleWaiter.cancel()
+            foreground?.cancel()
+            scope.cancel()
+            dispatcher.drain()
+        }
+    }
+
+    private class OwnedQueueDispatcher : CoroutineDispatcher() {
+        private val queued = ArrayDeque<Runnable>()
+        override fun dispatch(context: kotlin.coroutines.CoroutineContext, block: Runnable) { queued.addLast(block) }
+        fun runNext() { check(queued.isNotEmpty()) { "Expected owned continuation" }; queued.removeFirst().run() }
+        fun drain() {
+            var steps = 0
+            while (queued.isNotEmpty()) { check(++steps < 100) { "Unbounded owned cleanup" }; runNext() }
+        }
+    }
+
     @Test fun concurrentWaitersOwnOneStartupAndOneDatabaseOpen() = runTest {
         val gate = CompletableDeferred<Unit>()
         var starts = 0

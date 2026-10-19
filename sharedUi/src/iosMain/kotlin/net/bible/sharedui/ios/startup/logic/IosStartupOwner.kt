@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -25,23 +26,35 @@ internal class IosStartupOwner<T>(
 
     suspend fun ensureStarted(): T {
         val attempt = lock.withLock {
-            startup ?: scope.async(start = CoroutineStart.LAZY) { initialize() }.also { startup = it; it.start() }
+            // Completion cleanup may still be queued: never select an already failed attempt.
+            startup?.takeUnless { it.isCompleted && it.isCancelled }
+                ?: scope.async(start = CoroutineStart.LAZY) { initialize() }.also { created ->
+                    startup = created
+                    created.invokeOnCompletion { failure ->
+                        if (failure != null) scope.launch {
+                            lock.withLock { if (startup === created) startup = null }
+                        }
+                    }
+                    created.start()
+                }
         }
-        return try { attempt.await() } catch (error: Throwable) {
-            // Cancelling a waiter must not evict an application-owned operation still in progress.
-            if (attempt.isCompleted && attempt.isCancelled) lock.withLock { if (startup === attempt) startup = null }
-            throw error
-        }
+        return attempt.await()
     }
 
     suspend fun openDatabases() {
         val parts = ensureStarted()
         val attempt = lock.withLock {
-            opening ?: scope.async(start = CoroutineStart.LAZY) { open(parts) }.also { opening = it; it.start() }
+            opening?.takeUnless { it.isCompleted && it.isCancelled }
+                ?: scope.async(start = CoroutineStart.LAZY) { open(parts) }.also { created ->
+                    opening = created
+                    created.invokeOnCompletion { failure ->
+                        if (failure != null) scope.launch {
+                            lock.withLock { if (opening === created) opening = null }
+                        }
+                    }
+                    created.start()
+                }
         }
-        try { attempt.await() } catch (error: Throwable) {
-            if (attempt.isCompleted && attempt.isCancelled) lock.withLock { if (opening === attempt) opening = null }
-            throw error
-        }
+        attempt.await()
     }
 }
