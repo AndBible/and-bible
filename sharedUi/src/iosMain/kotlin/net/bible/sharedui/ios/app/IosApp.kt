@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.testTag
+import net.bible.sharedui.components.AppToastHost
 import net.bible.sharedui.ios.reading.IosNightModeObserver
 import net.bible.sharedui.ios.reading.IosReadingHost
 import net.bible.sharedui.ios.reading.IosReadingWindows
@@ -176,7 +177,10 @@ fun IosApp(strings: Strings) {
                     CircularProgressIndicator()
                 }
             } else {
-                IosAppContent(strings, table, route, nightObserver)
+                Box(Modifier.fillMaxSize()) {
+                    IosAppContent(strings, table, route, nightObserver)
+                    AppToastHost(Modifier.align(Alignment.BottomCenter))
+                }
             }
         }
     }

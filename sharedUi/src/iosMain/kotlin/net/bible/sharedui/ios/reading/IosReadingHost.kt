@@ -164,7 +164,7 @@ class IosReadingHost(
         NSDateFormatter().apply { dateFormat = "h:mm a, E d MMM " }
             .stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMillis / 1000.0))
 
-    /** Pending until the toast host (Task 3): `UserNotifier.showInfo` only logs on iOS today. */
+    /** Shown as an in-app toast: the iOS `UserNotifier.showInfo` feeds `AppToasts`. */
     private fun toast(message: String) = koin.get<UserNotifier>().showInfo(message, false)
 
     /** Android's `installedDocRows` hook: installed and pseudo documents through the one shared [DocRowMapper]. */

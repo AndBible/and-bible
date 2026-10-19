@@ -159,7 +159,7 @@ object IosReadingWindows {
             window = window,
             jsChannel = BibleViewJsChannel(host) { nsLog("bridge[$windowId]: $it") },
             hostScope = { b.scope },
-            surface = IosReadingWindowSurface(host),
+            surface = IosReadingWindowSurface(host, links = koin.get<net.bible.sharedui.app.ports.ExternalLinks>()),
             navigator = b.host.navigator,
         )
         try {

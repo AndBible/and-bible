@@ -100,6 +100,14 @@ class IosPendingUiPortsTest {
         assertTrue(logs.any { it.second == "UserNotifier" && it.third.contains("hello") })
     }
 
+    @Test fun infoReachesTheInfoSinkWithItsDuration() {
+        val shown = mutableListOf<Pair<String, Boolean>>()
+        val n: UserNotifier = IosUserNotifier(AppDialogController(), onInfo = { m, l -> shown += m to l })
+        n.showInfo("short", false)
+        n.showInfo("long", true)
+        assertEquals(listOf("short" to false, "long" to true), shown)
+    }
+
     @Test fun agentFailsClosedOnPermissionAndQuestionAndShortMessagesGoToTheNotifier() = runTest {
         val infos = mutableListOf<String>()
         val notifier = object : UserNotifier {

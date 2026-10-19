@@ -92,6 +92,7 @@ import net.bible.sharedlogic.platform.ios.IosSentenceBreaker
 import net.bible.sharedlogic.platform.ios.IosSpeakPlatform
 import net.bible.sharedlogic.platform.ios.IosSpeakSettingsStore
 import net.bible.sharedlogic.platform.ios.IosUserNotifier
+import net.bible.sharedui.components.AppToasts
 import net.bible.sharedlogic.platform.ios.PendingKeyChooserLauncher
 import net.bible.sharedlogic.platform.ios.PendingLinkPlatform
 import net.bible.sharedlogic.platform.ios.PendingWindowSettingsPicker
@@ -225,7 +226,7 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 earconFiles = IosSpeakPlatform.earconFiles(parts.bundleResourcePath),
             )
         }
-        single<UserNotifier> { IosUserNotifier(get<AppDialogController>(), okText = { parts.strings.text("okay") }) }
+        single<UserNotifier> { IosUserNotifier(get<AppDialogController>(), okText = { parts.strings.text("okay") }, onInfo = { message, long -> AppToasts.show(message, long) }) }
         single<AgentPlatform> { IosAgentPlatform(get()) }
         single<NightModeState> { IosNightModeState(parts.deviceSettings) }
 

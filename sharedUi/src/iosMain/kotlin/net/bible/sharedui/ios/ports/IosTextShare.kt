@@ -19,12 +19,11 @@
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.TextShare
-import net.bible.sharedui.ios.IosPending
 
-/** Pending (stream F). */
+/** Shares text through the system share sheet ([iosPresentShare]); the chooser title is not used by the iOS sheet. */
 @kotlin.native.HiddenFromObjC
 class IosTextShare : TextShare {
     override fun shareText(text: String, chooserTitle: String) {
-        IosPending.log("TextShare.shareText")
+        iosPresentShare(listOf(text))
     }
 }

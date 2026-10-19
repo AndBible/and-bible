@@ -27,14 +27,17 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
  * shared dialog host draws it, there is no activity to own it). [okText] is the confirm button label, read per call
  * so a language change is picked up; the iOS binding passes the localized "OK".
  *
- * C7 pending (phase 2: snackbar through the shared root): [showInfo] only logs with tag `C7-pending`.
+ * [showInfo] logs and, when [onInfo] is set (the iOS binding passes the in-app toast), shows the message.
  */
 class IosUserNotifier(
     private val dialogs: AppDialogController,
+    /** Where an info message is shown to the user (the in-app toast); null only logs. */
+    private val onInfo: ((message: String, long: Boolean) -> Unit)? = null,
     private val okText: () -> String = { "OK" },
 ) : UserNotifier {
     override fun showInfo(message: String, long: Boolean) {
-        Log.i(TAG, "info (C7-pending: snackbar in phase 2): $message")
+        Log.i(TAG, "info: $message")
+        onInfo?.invoke(message, long)
     }
 
     override fun showError(message: String, cause: Throwable?) {

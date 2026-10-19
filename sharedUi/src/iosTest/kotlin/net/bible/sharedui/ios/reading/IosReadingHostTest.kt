@@ -190,8 +190,8 @@ class IosReadingHostTest {
             "recentDocumentInitials" to (h.recentDocumentInitials !== defaults.recentDocumentInitials),
         )
         assertEquals(emptyList(), supplied.filterValues { !it }.keys.toList(), "hooks left at the default")
-        // INERT ALLOW-LIST (hooks): LLM sheets/regenerate (need the iOS agent start, not built), pane menu (window
-        // surface task), and the three optional overrides that default to the repository's own behaviour.
+        // INERT ALLOW-LIST (hooks): LLM sheets/regenerate (need the iOS agent start, not built), pane menu (not built: needs
+        // SpeakControl and :app-only state, see the Task 3 report), and the three optional overrides that default to the repository's own behaviour.
         val inertHooks = mapOf(
             "dismissLlmSheets" to (h.dismissLlmSheets === defaults.dismissLlmSheets),
             "openPromptSelector" to (h.openPromptSelector === defaults.openPromptSelector),
@@ -209,13 +209,13 @@ class IosReadingHostTest {
         assertTrue(s.keyChooserPage is IosReadingKeyChooserPage, "keyChooserPage")
         assertTrue(s.searchState.platform is IosReadingSearchPlatform, "search platform")
         // INERT ALLOW-LIST (slot parameters): fullScreen and thumbnailFor constant,
-        // toast only logs until the toast host (Task 3), image picker / text share / external links are Stream F's
-        // pending ports.
+        // toast goes through UserNotifier to AppToasts (real since Task 3), image picker / external links are Stream F's
+        // pending ports; the pane menu is not built (see the Task 3 report).
         assertTrue(s.navigator is IosReadingNavigator && s.navigator === host.navigator, "navigator")
         assertFalse(s.fullScreen(), "fullScreen")
         assertEquals(null, s.thumbnailFor("any"), "thumbnailFor")
         assertTrue(s.imagePicker is net.bible.sharedui.ios.ports.IosImagePicker, "imagePicker")
-        assertTrue(s.textShare is net.bible.sharedui.ios.ports.IosTextShare, "textShare")
+        assertTrue(s.textShare is net.bible.sharedui.ios.ports.IosTextShare, "textShare (real share sheet since Task 3)")
         assertTrue(s.externalLinks is net.bible.sharedui.ios.ports.IosExternalLinks, "externalLinks")
     }
 
