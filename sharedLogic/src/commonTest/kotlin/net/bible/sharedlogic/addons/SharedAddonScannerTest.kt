@@ -86,6 +86,18 @@ class SharedAddonScannerTest {
         assertEquals(1, fired)
     }
 
+    @Test fun backgroundInventoryResolvesModuleTokensAndRejectsMissingFiles() {
+        touch("/mods/photo/images/leaf.jpg")
+        val photo = FakeAddonBook(FakeAddonMetaData("Photo", "/mods/photo",
+            mapOf("AndBibleProvidesBackgroundImage" to listOf("Leaf;images/leaf.jpg", "Ignored;other.jpg")), emptyMap()))
+        val missing = FakeAddonBook(FakeAddonMetaData("Missing", "/mods/missing",
+            mapOf("AndBibleProvidesBackgroundImage" to listOf("Absent;none.jpg")), emptyMap()))
+        val inventory = SharedAddonScanner({ listOf(photo, missing) }, fs).backgroundImages()
+        assertEquals(setOf("Photo"), inventory.keys)
+        assertEquals("Leaf", inventory.getValue("Photo").name)
+        assertEquals("/mods/photo/images/leaf.jpg".toPath(), inventory.getValue("Photo").path)
+    }
+
     @Test fun promptPackSourceReadsTheScannerLive() {
         touch("/m/p.csv")
         val source = SharedPromptPackSource(SharedAddonScanner({ listOf(fakeAddonBook("M", "/m", prompts = "p.csv")) }, fs))

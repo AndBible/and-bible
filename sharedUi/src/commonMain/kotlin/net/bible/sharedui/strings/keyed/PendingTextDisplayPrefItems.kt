@@ -28,43 +28,49 @@ import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedlogic.settings.TextDisplayString
 
 /**
- * C7 pending [TextDisplayPrefItems] for iOS: the text display settings screen works against values held in memory
- * instead of the (Android `OptionsMenuItems`) preference items. Phase 2: route through the shared root.
- *
- * A handle starts at [TextDisplaySettings.default]'s concrete value for its type and keeps what is written to it; the
- * values are per setting type, not per bundle (one scope-less store), and are not persisted. [setNonSpecific] returns
- * the handle to the default. Strings and arrays come from [strings] by the same keys as `AndroidTextDisplayPrefItems`
- * ([textDisplayStringKey], [textDisplayArrayName]); a handle has no title (the row titles are `KeyedSettingLabels`'
- * business). The picker's content source and the provided background images are passed in, as the iOS ones live below
- * this module.
- *
- * Every write and each call that has no real implementation yet logs with tag `C7-pending`.
+ * Bundle-backed [TextDisplayPrefItems] for iOS. The historical FQN remains for existing consumers.
+ * Sparse overrides follow Android's Preference: assigning the inherited value clears the override, and reverting
+ * clears the current level (or restores defaults at global level). The service owns persistence and propagation.
+ * Strings and arrays use the same resource keys as Android; background names come from the installed module catalog.
  */
 class PendingTextDisplayPrefItems(
     private val strings: () -> StringTable,
     private val contentSource: () -> ContentSource,
     private val backgroundImages: () -> Map<String, String> = { emptyMap() },
 ) : TextDisplayPrefItems {
-    private val store = mutableMapOf<TextDisplaySettings.Types, Any>()
+    // Kept under the original FQN for existing consumers; values now belong to their route bundle.
 
     /** Types passed to [displaySettingChanged], oldest first. */
     val changedTypes: List<TextDisplaySettings.Types> get() = changed
     private val changed = mutableListOf<TextDisplaySettings.Types>()
 
-    private inner class Handle(private val type: TextDisplaySettings.Types) : PrefItemHandle {
+    private inner class Handle(private val bundle: SettingsBundle, private val type: TextDisplaySettings.Types) : PrefItemHandle {
+        private val target: TextDisplaySettings get() = when (bundle.level) {
+            net.bible.android.database.SettingsLevel.WINDOW -> requireNotNull(bundle.pageManagerSettings)
+            net.bible.android.database.SettingsLevel.WORKSPACE -> bundle.workspaceSettings
+            net.bible.android.database.SettingsLevel.GLOBAL -> bundle.globalSettings
+        }
         override var value: Any
-            get() = store[type] ?: defaultFor(type)
+            get() = bundle.actualSettings.getValue(type) ?: defaultFor(type)
             set(v) {
-                Log.w(TAG, "PendingTextDisplayPrefItems: $type kept in memory only (phase 2: route through the shared root)")
-                store[type] = v
+                displaySettingChanged(type)
+                val parent = when (bundle.level) {
+                    net.bible.android.database.SettingsLevel.WINDOW -> bundle.workspaceSettings.getValue(type) ?: bundle.globalSettings.getValue(type) ?: defaultFor(type)
+                    net.bible.android.database.SettingsLevel.WORKSPACE -> bundle.globalSettings.getValue(type) ?: defaultFor(type)
+                    net.bible.android.database.SettingsLevel.GLOBAL -> null
+                }
+                if (parent == v) target.setNonSpecific(type) else target.setValue(type, v)
             }
         override val enabled: Boolean get() = true
         override val visible: Boolean get() = true
         override val iconKey: String? get() = null
-        override fun setNonSpecific() { store.remove(type) }
+        override fun setNonSpecific() {
+            if (bundle.level == net.bible.android.database.SettingsLevel.GLOBAL) target.setValue(type, defaultFor(type))
+            else target.setNonSpecific(type)
+        }
     }
 
-    override fun item(bundle: SettingsBundle, type: TextDisplaySettings.Types): PrefItemHandle = Handle(type)
+    override fun item(bundle: SettingsBundle, type: TextDisplaySettings.Types): PrefItemHandle = Handle(bundle, type)
 
     override fun string(key: TextDisplayString, vararg args: Any): String =
         strings().format(textDisplayStringKey(key), args)

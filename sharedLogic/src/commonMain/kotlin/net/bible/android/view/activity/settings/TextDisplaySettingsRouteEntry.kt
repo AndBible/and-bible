@@ -41,8 +41,7 @@ import net.bible.sharedcore.settings.SettingsScope
  * `TextDisplaySettingsRouteEntryTest` is the successor. Same motive, and the same file-of-its-own
  * shape, as `scopeFromRoute` next door: Task 13's deletion takes the classic copy and leaves this.
  *
- * Lives in `:app` for `scopeFromRoute`'s reason -- [SettingsBundle] embeds Room-backed
- * `WorkspaceEntities` types that cannot cross into `commonMain`.
+ * Shared by Android and iOS now that [SettingsBundle] and its workspace entities are common models.
  */
 class TextDisplaySettingsRouteEntry(
     args: TextDisplaySettingsArgs,

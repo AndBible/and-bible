@@ -84,6 +84,21 @@ class PendingTextDisplayPrefItemsTest {
         assertEquals(16, items.item(bundle, Types.FONTSIZE).value)
     }
 
+    @Test fun workspaceEditsChangeOnlyTheirOwnBundleAndRevertToParent() {
+        val items = items()
+        val first = SettingsBundle(globalSettings = net.bible.android.database.WorkspaceEntities.TextDisplaySettings(fontSize = 19))
+        val second = SettingsBundle()
+        items.item(first, Types.FONTSIZE).value = 24
+        assertEquals(24, first.workspaceSettings.fontSize)
+        assertEquals(16, items.item(second, Types.FONTSIZE).value)
+        items.item(first, Types.FONTSIZE).value = 19
+        assertEquals(null, first.workspaceSettings.fontSize, "matching the parent removes the sparse override")
+        items.item(first, Types.FONTSIZE).value = 26
+        items.item(first, Types.FONTSIZE).setNonSpecific()
+        assertEquals(null, first.workspaceSettings.fontSize)
+        assertEquals(19, items.item(first, Types.FONTSIZE).value)
+    }
+
     @Test fun handlesAreEnabledVisibleAndHaveNoIcon() {
         val h = items().item(bundle, Types.JUSTIFY)
         assertTrue(h.enabled && h.visible)

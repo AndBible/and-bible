@@ -47,10 +47,8 @@ import net.bible.sharedcore.settings.SettingsScope
  * it then covers every route this function is ever handed, including one assembled by hand or
  * restored from a saved state, not only the ones that went through the builder.
  *
- * Lives in `:app` rather than in the graph because resolving the detached branch means parsing
- * [SettingsBundle] JSON, and [SettingsBundle] embeds Room-backed `WorkspaceEntities` types that
- * cannot cross into `commonMain`. Lives in a file of its own rather than on the Activity so that
- * Task 13's deletion takes the classic copy and leaves this one.
+ * Shared with iOS in `:sharedLogic`: [SettingsBundle] and its workspace entities are common models.
+ * Keeping route resolution beside the entry preserves the same validation on both hosts.
  *
  * The `IdType` behind a bundle's `workspaceId` stringifies to `""` when empty
  * (`IdType.toString()`), so a GLOBAL-level bundle resolves to `SettingsScope.Workspace("")` — the

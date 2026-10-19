@@ -176,7 +176,13 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<LabelNameStrings> { KeyedLabelNameStrings { get<IosStringTableHolder>().current } }
         single<SettingLabels> { KeyedSettingLabels { get<IosStringTableHolder>().current } }
         single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<IosStringTableHolder>().current } }
-        single<TextDisplayPrefItems> { PendingTextDisplayPrefItems(strings = { parts.strings }, contentSource = { get() }) }
+        single<TextDisplayPrefItems> {
+            PendingTextDisplayPrefItems(
+                strings = { parts.strings }, contentSource = { get() },
+                backgroundImages = { scanner.backgroundImages().mapValues { it.value.name } },
+            )
+        }
+        single<net.bible.sharedlogic.platform.BackgroundImageCatalog> { get<AddonCatalog>() as SharedAddonCatalog }
 
         // --- locale, calendar, text
         single<DateTimeFormats> { IosDateTimeFormats() }
