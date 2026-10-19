@@ -134,12 +134,19 @@ class IosBookmarkHostPlatformTest {
     }
 
     @Test fun partialImportEscapesErrorsAndOpenSummaryTracksLanguage() = runBlocking {
-        files.write(path) { writeUtf8("osisRef;id;notes\nGen.1.1;;valid\nGen.1.2;<bad>;invalid\n") }
+        val ownedId = net.bible.android.database.IdType("bdf9d884-61d3-4d11-8d3b-32e20d452ae9")
+        val beforeIds = control.allBibleBookmarks().map { it.id }.toSet()
+        assertFalse(ownedId in beforeIds)
+        // Invalid UUIDs intentionally fall back to a fresh ID; only an invalid reference makes this row fail.
+        files.write(path) { writeUtf8("osisRef;id;notes\nGen.1.1;$ownedId;valid\n<bad-reference>;;invalid\n") }
         importRef = ref
         platform.importBookmarksCsv()
-        assertEquals("valid", control.allBibleBookmarks().single().notes)
+        assertEquals("valid", assertNotNull(control.bibleBookmarkById(ownedId)).notes)
+        assertEquals(beforeIds + ownedId, control.allBibleBookmarks().map { it.id }.toSet())
         val request = dialogs.pending.value!!.request as AppDialogRequest.Localized
         val english = request.resolve() as AppDialogRequest.Message
+        assertTrue(english.message.startsWith(net.bible.sharedcore.ui.dialog.plainTextToHtml(
+            table.fmt("csv_import_errors", 1, 0, 1))))
         assertTrue(english.message.contains("<br>"))
         assertTrue(english.message.contains("Record 3: Invalid bookmark data"), english.message)
         assertFalse(english.message.contains("<bad>"))

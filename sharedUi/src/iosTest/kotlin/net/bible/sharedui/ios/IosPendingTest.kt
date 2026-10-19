@@ -67,6 +67,13 @@ class IosHostPortsTest {
         val koin = org.koin.core.context.startKoin {
             modules(org.koin.dsl.module {
                 single<net.bible.android.control.backup.BackupHost> { FakeBackupHost() }
+                single<net.bible.sharedcore.platform.AppSettings> {
+                    net.bible.sharedlogic.settings.DatabaseAppSettings(
+                        { net.bible.service.db.DatabaseContainer.instance.settingsStore },
+                        { net.bible.sharedui.assembly.IosAppStartup.databasesOpen },
+                    )
+                }
+                single<net.bible.service.sword.ContentSource> { net.bible.sharedlogic.platform.ios.IosContentSource() }
                 // Document ports now use the real app-wide dialog queue and error notifier.
                 single { net.bible.sharedcore.ui.dialog.AppDialogController() }
                 single<net.bible.sharedcore.platform.UserNotifier> {
@@ -97,7 +104,8 @@ class IosHostPortsTest {
             ports.systemScreens.openAppLinkSettings()
             ports.orientationLock.lockPortrait().invoke()
             assertEquals(null, ports.myDocumentFiles.displayName(DocumentRef("x")))
-            assertTrue(ports.labelIcons.iconKeys.isEmpty())
+            assertEquals(net.bible.sharedui.icons.AbIcons.labelIconResources.keys.toList() + null,
+                ports.labelIcons.iconKeys)
             ports.cloudDocumentsPlatform()
             ports.bugReport()
             assertTrue("TextShare.shareText" in IosPending.reported)
