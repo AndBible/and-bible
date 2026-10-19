@@ -8,7 +8,10 @@ import platform.MediaPlayer.*
 class IosMediaSession(
     private val commandCenter: MPRemoteCommandCenter = MPRemoteCommandCenter.sharedCommandCenter(),
     private val infoCenter: MPNowPlayingInfoCenter = MPNowPlayingInfoCenter.defaultCenter(),
+    isDiscrete: () -> Boolean = { false },
+    neutralTitle: () -> String = { "" },
 ) : MediaSession {
+    private val metadata = IosSystemMediaMetadata(isDiscrete, neutralTitle)
     private var state = MediaPlaybackState.STOPPED
     private val targets = mutableListOf<Pair<MPRemoteCommand, Any>>()
 
@@ -47,10 +50,13 @@ class IosMediaSession(
         }
     }
 
+    /** U7 hides content, not the installed app name (ADR 0007); reevaluate mode on every publication. */
     override fun setNowPlaying(title: String, album: String) {
+        val visible = metadata.forContent(title, album)
+        // Replace the whole payload: no artwork or other content from an earlier publication survives.
         infoCenter.nowPlayingInfo = mapOf(
-            MPMediaItemPropertyTitle to title,
-            MPMediaItemPropertyAlbumTitle to album,
+            MPMediaItemPropertyTitle to visible.title,
+            MPMediaItemPropertyAlbumTitle to visible.album,
             MPNowPlayingInfoPropertyPlaybackRate to rate,
         )
     }

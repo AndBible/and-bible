@@ -22,6 +22,13 @@ discrete mode off restores the primary icon. The app name remains AndBible: the
 calculator gate hides content before PIN unlock, but does not hide the app's
 identity from iOS or from someone inspecting the device.
 
+While discrete mode is on, new spoken-passage updates show the localized
+calculator title on system media controls, without the book, passage or artwork.
+Changing the mode during speech takes effect on the next passage update.
+Notification permission requests are skipped in discrete mode because the system
+prompt names the app. In-app error dialogs still show their messages; they are
+not system notifications.
+
 ## Download
 
 The discrete build is available from the

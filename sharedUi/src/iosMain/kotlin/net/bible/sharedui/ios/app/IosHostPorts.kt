@@ -37,7 +37,7 @@ import net.bible.sharedui.ios.ports.IosImagePicker
 import net.bible.sharedui.ios.ports.IosInstallZipHostPlatform
 import net.bible.sharedui.ios.ports.IosLabelIcons
 import net.bible.sharedui.ios.ports.IosMyDocumentFiles
-import net.bible.sharedui.ios.ports.IosNotificationPermission
+import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.ios.ports.IosOrientationLock
 import net.bible.sharedui.ios.ports.IosPromptFiles
 import net.bible.sharedui.ios.ports.IosReadingPlanHostPlatform
@@ -75,7 +75,7 @@ fun buildIosHostPorts(
         documentPicker = IosDocumentPicker(),
         imagePicker = IosImagePicker(),
         textShare = IosTextShare(),
-        notificationPermission = IosNotificationPermission(),
+        notificationPermission = koin.get<NotificationPermission>(),
         systemScreens = IosSystemScreens(),
         documentDialogs = IosDocumentDialogs(),
         helpDialogs = IosHelpDialogs(),

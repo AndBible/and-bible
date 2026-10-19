@@ -94,4 +94,5 @@ val IOS_HOST_BINDING_TYPES: List<KClass<*>> = listOf(
     net.bible.sharedui.app.ports.PlatformText::class, net.bible.sharedui.app.ports.DebugActions::class,
     net.bible.sharedui.app.ports.SettingsPlatform::class, net.bible.sharedui.app.ports.TextDisplayPlatform::class,
     net.bible.sharedui.app.ports.DocumentInstallStarter::class, net.bible.sharedcore.settings.AppSettingsService::class,
+    net.bible.sharedui.app.ports.NotificationPermission::class,
 )

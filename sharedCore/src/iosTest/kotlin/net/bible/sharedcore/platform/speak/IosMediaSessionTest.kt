@@ -21,6 +21,33 @@ class IosMediaSessionTest {
         override fun rewind() { events += "rewind" }
     }
 
+    @Test fun nowPlayingIsNeutralInDiscrete() {
+        verifyNeutralMetadata(initiallyDiscrete = true)
+    }
+
+    @Test fun nowPlayingTurnsNeutralWhenDiscreteSwitchesOnMidSession() {
+        verifyNeutralMetadata(initiallyDiscrete = false)
+    }
+
+    private fun verifyNeutralMetadata(initiallyDiscrete: Boolean) {
+        val info = MPNowPlayingInfoCenter.defaultCenter()
+        var discrete = initiallyDiscrete
+        val session = IosMediaSession(infoCenter = info, isDiscrete = { discrete }, neutralTitle = { "Calculator" })
+        try {
+            session.setPlaybackState(MediaPlaybackState.PLAYING)
+            session.setNowPlaying("John 3:16", "John")
+            assertEquals(if (discrete) "Calculator" else "John 3:16", info.nowPlayingInfo?.get(MPMediaItemPropertyTitle))
+            // A previous owner may have supplied artwork; publication must discard it, not merge it.
+            info.nowPlayingInfo = info.nowPlayingInfo.orEmpty() + (MPMediaItemPropertyArtwork to "stale artwork")
+            discrete = true
+            session.setNowPlaying("John 3:17", "John")
+            assertEquals("Calculator", info.nowPlayingInfo?.get(MPMediaItemPropertyTitle))
+            assertEquals("", info.nowPlayingInfo?.get(MPMediaItemPropertyAlbumTitle))
+            assertNull(info.nowPlayingInfo?.get(MPMediaItemPropertyArtwork))
+            assertEquals(1.0, info.nowPlayingInfo?.get(MPNowPlayingInfoPropertyPlaybackRate))
+        } finally { session.release() }
+    }
+
     @Test fun activationMetadataStatesAndRelease() {
         val commands = MPRemoteCommandCenter.sharedCommandCenter()
         val info = MPNowPlayingInfoCenter.defaultCenter()

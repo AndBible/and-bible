@@ -50,6 +50,8 @@ class IosSpeakPlatform(
     private val settings: AppSettings,
     private val earconFiles: Map<String, String>,
     private val now: () -> Long = { Clock.System.now().toEpochMilliseconds() },
+    private val isDiscrete: () -> Boolean = { false },
+    private val neutralTitle: () -> String = { "" },
 ) : SpeakPlatform, AudioFocus by audioFocus {
     override val maxSpeechInputLength: Int get() = MAX_SPEECH_INPUT_LENGTH
     override val preferredEnginePackage: String? get() = null
@@ -60,7 +62,9 @@ class IosSpeakPlatform(
         settings.setLong("speak-last-used", now())
     }
 
-    override fun attachMediaControls(control: SpeakControl) = MediaButtonHandler.initialize(control, IosMediaSession())
+    override fun attachMediaControls(control: SpeakControl) = MediaButtonHandler.initialize(
+        control, IosMediaSession(isDiscrete = isDiscrete, neutralTitle = neutralTitle),
+    )
 
     override fun detachMediaControls() = MediaButtonHandler.release()
 
