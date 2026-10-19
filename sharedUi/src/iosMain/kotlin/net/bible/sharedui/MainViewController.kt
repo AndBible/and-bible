@@ -66,7 +66,8 @@ private val startupState = IosAppStartupState()
 /**
  * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). Shows the real app ([IosApp]) once
  * startup is Ready; with `SCREENSHOT_SCENARIO` set (XCUITest) it shows the I0 PoC app instead, and `POC_DARK` picks
- * that scenario's theme.
+ * that scenario's theme. The discrete check implements U7: hide content before PIN unlock;
+ * ADR 0007 does not fake the app name.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
 fun MainViewController(): UIViewController {

@@ -11,7 +11,10 @@ import net.bible.sharedcore.calculator.CalculatorUnlock
 import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedui.calculator.CalculatorScreen
 
-/** Device-local PIN access deliberately does not resolve Koin or the database-backed AppSettings. */
+/**
+ * U7 hides app content before PIN unlock; ADR 0007 does not fake the app name.
+ * Device-local PIN access deliberately does not resolve Koin or database-backed AppSettings.
+ */
 @OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 @kotlin.native.HiddenFromObjC
 @Composable
