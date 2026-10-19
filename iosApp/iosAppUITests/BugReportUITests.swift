@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 
 /// Uses only Cancel on system UI; never sends a real report.
 final class BugReportUITests: XCTestCase {
@@ -26,9 +27,35 @@ final class BugReportUITests: XCTestCase {
         XCTAssertTrue(container.cells.matching(NSPredicate(format: "label == %@", "Copy")).firstMatch.waitForExistence(timeout: 10))
         XCTAssertTrue(container.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "app_log.txt")).firstMatch.exists)
         shot(app, screenshot)
-        let close = container.buttons["header.closeButton"].firstMatch
-        XCTAssertTrue(close.exists)
-        close.tap()
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let dismiss = app.descendants(matching: .any).matching(identifier: "PopoverDismissRegion").firstMatch
+            if dismiss.exists {
+                dismiss.tap()
+            } else {
+                // The observed iPad popover has no Close button. Tap its outside-dismiss region,
+                // not Copy/Save or an underlying control. ActivityListView itself is full-screen.
+                let copy = container.cells.matching(NSPredicate(format: "label == %@", "Copy")).firstMatch
+                let attachment = container.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "app_log.txt")).firstMatch
+                let point = CGPoint(x: app.frame.minX + app.frame.width * 0.02,
+                                    y: app.frame.minY + app.frame.height * 0.25)
+                let popover = app.popovers.firstMatch
+                if popover.exists {
+                    XCTAssertFalse(popover.frame.contains(point))
+                } else {
+                    // Header and action frames identify the observed right-center content, with
+                    // a generous margin for its rounded container when UIKit omits AX popover bounds.
+                    let contentBounds = copy.frame.union(attachment.frame).insetBy(dx: -64, dy: -64)
+                    XCTAssertFalse(contentBounds.contains(point))
+                    XCTAssertLessThan(point.x, contentBounds.minX)
+                    XCTAssertLessThan(point.y, contentBounds.minY)
+                }
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.25)).tap()
+            }
+        } else {
+            let close = container.buttons["header.closeButton"].firstMatch
+            XCTAssertTrue(close.exists)
+            close.tap()
+        }
         XCTAssertTrue(activity.waitForNonExistence(timeout: 10))
     }
 
