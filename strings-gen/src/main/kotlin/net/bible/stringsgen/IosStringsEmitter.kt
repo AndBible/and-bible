@@ -37,6 +37,7 @@ fun selectQuantity(count: Int): String = if (count == 1) "one" else "other"
  *   - unpositional `%s` / `%d` / `%f` (optional width, `.precision`; no flags) → the next argument in order
  *   - `%n$[0]?<width>?[Xx]` → arg `n` formatted as hex (`X`=upper, `x`=lower), zero-padded to
  *     `width` (e.g. `0x%1${'$'}02X` with `0xF8` → `0xF8`, with `0x09` → `0x09`)
+ * The decimal separator is always '.' (no locale); flags, `%n`, `%b`, `%x`, `%e` and `%,d` stay verbatim.
  * NO `String.format` (JVM-only) — a hand-rolled scan, so the emitted copy is iOS-safe.
  *
  * The body between the FMT-BODY-START/END markers is the SINGLE source of truth: [FMT_FUNCTION_SOURCE]

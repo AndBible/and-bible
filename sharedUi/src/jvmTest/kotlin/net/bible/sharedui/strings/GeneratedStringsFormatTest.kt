@@ -19,8 +19,15 @@ class GeneratedStringsFormatTest {
         assertEquals("1.5 MB", strings.moduleSizeMb(1.5))
     }
 
-    @Test fun positionalSpecsStillWorkAndUnpositionalOnesFollowThem() {
+    @Test fun positionalAndUnpositionalResourcesBothSubstitute() {
         assertEquals("7 verses in 2 translations", strings.multiSearchResults(7, 2))
         assertEquals("Find in X", strings.searchIn("X"))
+    }
+
+    @Test fun mixedTemplatesKeepIndependentCountersInTheEmittedFunction() {
+        // The shipped top-level fmt, with resource-style text mixing both spec kinds.
+        assertEquals("5 a 5", fmt("%2\$s %s %d", "a", 5))
+        assertEquals("Found 7 of 2 in 2: 7", fmt("Found %d of %2\$d in %s: %1\$d", 7, 2, "KJV"))
+        assertEquals("%n %b %x %e %,d", fmt("%n %b %x %e %,d", 1, 2, 3, 4, 5))
     }
 }
