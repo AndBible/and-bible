@@ -33,15 +33,15 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-/** The C7 pending text display prefs: in-memory handles with real defaults, strings through the generated tables. */
-class PendingTextDisplayPrefItemsTest {
+/** Bundle-isolated sparse overrides and strings through the generated tables. */
+class BundleTextDisplayPrefItemsTest {
     private val source = object : ContentSource {
         override fun openSource(uri: String): Source? = null
         override fun displayName(uri: String): String? = null
         override fun mimeType(uri: String): String? = null
     }
     private val bundle = SettingsBundle()
-    private fun items(images: Map<String, String> = emptyMap()) = PendingTextDisplayPrefItems(
+    private fun items(images: Map<String, String> = emptyMap()) = BundleTextDisplayPrefItems(
         strings = { StringTable.of("en", { lookup("en", it) }, { n, c -> lookupPlural("en", n, c) }, { lookupArray("en", it) }) },
         contentSource = { source },
         backgroundImages = { images },

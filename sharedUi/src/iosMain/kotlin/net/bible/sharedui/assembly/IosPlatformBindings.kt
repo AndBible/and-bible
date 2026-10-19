@@ -104,7 +104,7 @@ import net.bible.sharedui.strings.keyed.KeyedDistributedPlanCatalog
 import net.bible.sharedui.strings.keyed.KeyedLabelNameStrings
 import net.bible.sharedui.strings.keyed.KeyedLlmStrings
 import net.bible.sharedui.strings.keyed.KeyedSettingLabels
-import net.bible.sharedui.strings.keyed.PendingTextDisplayPrefItems
+import net.bible.sharedui.strings.keyed.BundleTextDisplayPrefItems
 import net.bible.sharedui.strings.keyed.keyedSpeakPhrases
 import okio.Path
 import org.crosswire.common.util.WebResource
@@ -177,7 +177,7 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<SettingLabels> { KeyedSettingLabels { get<IosStringTableHolder>().current } }
         single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<IosStringTableHolder>().current } }
         single<TextDisplayPrefItems> {
-            PendingTextDisplayPrefItems(
+            BundleTextDisplayPrefItems(
                 strings = { parts.strings }, contentSource = { get() },
                 backgroundImages = { scanner.backgroundImages().mapValues { it.value.name } },
             )

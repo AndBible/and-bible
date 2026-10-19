@@ -28,18 +28,16 @@ import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedlogic.settings.TextDisplayString
 
 /**
- * Bundle-backed [TextDisplayPrefItems] for iOS. The historical FQN remains for existing consumers.
+ * Bundle-backed [TextDisplayPrefItems] for iOS.
  * Sparse overrides follow Android's Preference: assigning the inherited value clears the override, and reverting
  * clears the current level (or restores defaults at global level). The service owns persistence and propagation.
  * Strings and arrays use the same resource keys as Android; background names come from the installed module catalog.
  */
-class PendingTextDisplayPrefItems(
+class BundleTextDisplayPrefItems(
     private val strings: () -> StringTable,
     private val contentSource: () -> ContentSource,
     private val backgroundImages: () -> Map<String, String> = { emptyMap() },
 ) : TextDisplayPrefItems {
-    // Kept under the original FQN for existing consumers; values now belong to their route bundle.
-
     /** Types passed to [displaySettingChanged], oldest first. */
     val changedTypes: List<TextDisplaySettings.Types> get() = changed
     private val changed = mutableListOf<TextDisplaySettings.Types>()
@@ -91,8 +89,6 @@ class PendingTextDisplayPrefItems(
     override fun backgroundImageNames(): Map<String, String> = backgroundImages()
 
     companion object {
-        private const val TAG = "C7-pending"
-
         /** The non-null default of [type]: every [TextDisplaySettings.default] member is set. */
         fun defaultFor(type: TextDisplaySettings.Types): Any =
             checkNotNull(TextDisplaySettings.default.getValue(type)) { "No default for $type" }

@@ -28,7 +28,7 @@ class IosTextDisplayPlatformTest {
         }
         org.koin.core.context.startKoin { modules(org.koin.dsl.module {
             single<net.bible.sharedlogic.settings.TextDisplayPrefItems> {
-                net.bible.sharedui.strings.keyed.PendingTextDisplayPrefItems({ table }, { source })
+                net.bible.sharedui.strings.keyed.BundleTextDisplayPrefItems({ table }, { source })
             }
         }) }
         try {
