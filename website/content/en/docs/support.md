@@ -22,6 +22,18 @@ Please report bugs via the *Feedback / bug report* option in the top left main m
 Reporting bugs through the app provides us with more information to fix the issue. You can also report
 bugs directly via [GitHub Issues](https://github.com/AndBible/and-bible/issues/new/choose).
 
+On iOS, Settings has a *Feedback / bug report* action. The crash recovery screen also
+has a report action that works before the app's databases open. Confirm before opening
+the Mail composer or, if Mail is not configured, the system share sheet. Nothing is
+sent automatically: review the report and attachments before sending, or cancel.
+Reports include device/app details, a compressed recent log from the current process,
+and the last captured Kotlin crash stack when available. The recent log is kept in
+memory, so it does not contain logs from a previous app launch. AI bug reports attach
+the selected conversation log instead; these logs may contain private information.
+
+An iOS error dialog offers *Send Report*, *Backup & Restore*, and *Skip*. Choosing
+Backup & Restore opens the backup screen without sending a report.
+
 ## Feature Requests
 
 If you would like to request a specific feature, please request the feature via

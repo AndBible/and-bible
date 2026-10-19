@@ -803,6 +803,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val rawLlmLogEmpty: String get() = context.getString(R.string.raw_llm_log_empty)
     override val copyLabel: String get() = context.getString(R.string.copy)
     override val shareLabel: String get() = context.getString(R.string.share)
+    override val reportGeneralBugLabel: String get() = context.getString(R.string.send_bug_report_title)
     override val reportBugLabel: String get() = context.getString(R.string.ai_bug_report_menu)
     override val areYouSure: String get() = context.getString(R.string.are_you_sure)
 

@@ -90,7 +90,10 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
         )
     }
     single<BackupHost> {
-        IosBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok)
+        IosBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok,
+            { get<net.bible.sharedcore.platform.CoreStrings>().errorReport },
+            { get<net.bible.sharedcore.platform.CoreStrings>().errorBackup },
+            { get<net.bible.sharedcore.platform.CoreStrings>().errorSkip })
     }
     single {
         IosBackgroundSync(

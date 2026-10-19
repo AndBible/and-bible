@@ -26,8 +26,10 @@ object IosPresenter {
     }
 }
 
-/** Owns UIKit's weak delegates until one terminal event; all state transitions run on Main. */
-internal class FilePresentation<T>(
+/** Owns UIKit's weak delegates until one terminal event; all state transitions run on Main.
+ * Public so the iOS report composer can reuse the same cancellation/dismissal owner across modules.
+ */
+class FilePresentation<T>(
     private var controller: UIViewController?,
     private var continuation: CancellableContinuation<T>?,
     private val cancelled: T,

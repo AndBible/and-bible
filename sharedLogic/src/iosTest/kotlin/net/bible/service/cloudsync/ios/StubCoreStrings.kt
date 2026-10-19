@@ -9,6 +9,9 @@ import net.bible.sharedcore.platform.CoreStrings
  * member of [CoreStrings] needs a line here.
  */
 internal class StubCoreStrings : CoreStrings {
+    override val errorReport = "errorReport"
+    override val errorBackup = "errorBackup"
+    override val errorSkip = "errorSkip"
     override val namelessTitle = "namelessTitle"
     override fun processingEpub(title: String): String = "processingEpub ${title}"
     override fun creatingIndexFor(name: String): String = "creatingIndexFor ${name}"

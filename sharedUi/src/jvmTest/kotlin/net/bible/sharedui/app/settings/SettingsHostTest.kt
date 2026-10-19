@@ -68,6 +68,7 @@ class SettingsHostTest {
         discrete: Boolean = false,
         strings: Strings = this.strings,
         appSettingsProvider: () -> AppSettings = { prefs },
+        onReportBug: (() -> Unit)? = null,
     ) = SettingsHost(
         shell = shell,
         strings = strings,
@@ -96,6 +97,7 @@ class SettingsHostTest {
         syncSettingsServiceProvider = { error("the sync settings service must stay lazy") },
         readingProgressSettingsServiceProvider = { error("the reading-progress settings service must stay lazy") },
         readingProgressServiceProvider = { error("the reading-progress service must stay lazy") },
+        onReportBug = onReportBug,
     )
 
     private fun navController(): NavHostController {
@@ -143,6 +145,15 @@ class SettingsHostTest {
         assertEquals(ReadingTab.READING, host.readingProgressInitialTab(0), "an explicit argument beats the persisted tab")
         prefs.ints[PREF_READING_PROGRESS_LAST_TAB] = 0
         assertEquals(ReadingTab.READING, host.readingProgressInitialTab(null))
+    }
+
+    @Test fun optionalReportCallbackReachesSettingsGraphWithoutResolvingServices() {
+        val without = host().navDeps(navController(), NavResultChannel<ReadingProgressResult> { })
+        assertEquals(null, without.appSettings.onReportBug)
+        var reports = 0
+        val with = host(onReportBug = { reports++ }).navDeps(navController(), NavResultChannel<ReadingProgressResult> { })
+        with.appSettings.onReportBug!!.invoke()
+        assertEquals(1, reports)
     }
 
     @Test

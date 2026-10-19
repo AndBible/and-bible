@@ -49,21 +49,27 @@ class IosBackupHostTest {
         assertEquals(listOf<Any?>("/f", "n.zip", SaveOrShare.SHARE), delivery.args)
     }
 
-    @Test fun showErrorReportRaisesOneMessageDialogAndReturnsWhenAnswered() = runTest {
+    @Test fun showErrorReportRaisesActionDialogAndBackupInvokesHostHook() = runTest {
         var returned = false
         val job = launch { host.showErrorReport("boom <x>", null); returned = true }
         runCurrent()
         val shown = assertNotNull(controller.pending.value)
-        val req = assertIs<AppDialogRequest.Message>(shown.request)
-        assertTrue("boom" in req.message)
-        assertTrue("<x>" !in req.message)
-        assertEquals("OK", req.confirmText)
+        val req = assertIs<AppDialogRequest.Options>(shown.request)
+        assertTrue("boom" in req.message.orEmpty())
+        assertTrue("<x>" !in req.message.orEmpty())
+        assertEquals(listOf("report", "backup"), req.options.map { it.value })
         assertTrue(!returned)
-        controller.respond(shown.id, AppDialogResult.Ok)
-        runCurrent()
-        job.join()
-        assertTrue(returned)
-        assertNull(controller.pending.value)
+        var navigated = false
+        val old = IosErrorReportHooks.backup
+        try {
+            IosErrorReportHooks.backup = { navigated = true }
+            controller.respond(shown.id, AppDialogResult.Selected("backup"))
+            runCurrent()
+            job.join()
+            assertTrue(navigated)
+            assertTrue(returned)
+            assertNull(controller.pending.value)
+        } finally { IosErrorReportHooks.backup = old }
     }
 
     @Test fun restoreModulesIsPendingNoOp() = runTest {

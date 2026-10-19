@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlin.experimental.ExperimentalNativeApi::class)
 
 package net.bible.sharedui.ios.app
 
@@ -98,7 +98,8 @@ internal suspend fun resolveIosStartRoute(bibles: () -> List<Book> = { SwordDocu
 
 /** The start route, with reading made ready first when it is READING (the Welcome flow does it on entering reading). */
 private suspend fun prepareIosStart(table: StringTable): String {
-    val route = resolveIosStartRoute()
+    val route = if (kotlin.native.Platform.isDebugBinary && "-task5Settings" in platform.Foundation.NSProcessInfo.processInfo.arguments)
+        NavRoutes.SETTINGS else resolveIosStartRoute()
     if (route == NavRoutes.READING) IosReadingReady.ensure(table)
     return route
 }
@@ -204,8 +205,23 @@ private fun IosAppContent(
     // App-wide, not per destination: Android saves on every destination (the repository belongs to the host).
     if (nightObserver != null) SaveWorkspaceOnBackground(koin)
     val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }, onRecoveryBack) }
+    DisposableEffect(shell) {
+        net.bible.service.cloudsync.ios.IosErrorReportHooks.backup = { shell.navigate(NavRoutes.BACKUP) }
+        net.bible.service.cloudsync.ios.IosErrorReportHooks.report = { cause -> net.bible.sharedui.ios.report.IosBugReport(table).report(cause) }
+        onDispose {
+            net.bible.service.cloudsync.ios.IosErrorReportHooks.backup = null
+            net.bible.service.cloudsync.ios.IosErrorReportHooks.report = null
+        }
+    }
     val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
-    val appHosts = remember { AppHosts(koin, shell, ports, strings) }
+    val appHosts = remember { AppHosts(koin, shell, ports, strings, onReportBug = {
+        scope.launch { net.bible.sharedui.ios.report.IosBugReport(table).report() }
+    }) }
+    LaunchedEffect(shell) {
+        if (kotlin.native.Platform.isDebugBinary && "-task5Error" in platform.Foundation.NSProcessInfo.processInfo.arguments) {
+            koin.get<net.bible.android.control.backup.BackupHost>().showErrorReport(strings.errorOccurred, IllegalStateException("Task 5 simulator error"))
+        }
+    }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }

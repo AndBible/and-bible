@@ -864,6 +864,7 @@ interface Strings {
     val rawLlmLogEmpty: String                    // R.string.raw_llm_log_empty
     val copyLabel: String                         // R.string.copy
     val shareLabel: String                        // R.string.share
+    val reportGeneralBugLabel: String             // R.string.send_bug_report_title
     val reportBugLabel: String                    // R.string.ai_bug_report_menu
     val areYouSure: String                        // R.string.are_you_sure
 

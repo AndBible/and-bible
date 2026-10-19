@@ -35,6 +35,10 @@ import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedui.assembly.logAssemblyProbe
 import net.bible.sharedui.theme.AbTheme
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import net.bible.sharedui.ios.report.IosBugReport
+import net.bible.sharedui.assembly.iosStringTable
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.setUnhandledExceptionHook
@@ -100,6 +104,9 @@ fun MainViewController(): UIViewController {
             else UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
         }
         val strings = remember { iosStrings(language) }
+        val reportScope = rememberCoroutineScope()
+        val reporter = remember { IosBugReport(iosStringTable(language)) }
+        var reporting by remember { mutableStateOf(false) }
         // Do not start either startup stage (or show a splash) behind the disguise.
         // Not saveable: a recreated host must pass the gate again.
         val gates = remember {
@@ -126,8 +133,15 @@ fun MainViewController(): UIViewController {
                 CompositionLocalProvider(LocalStrings provides strings) {
                     AbTheme(darkTheme = splashDark) {
                         CrashRecoveryScreen(
-                            // Task 5 replaces this seam with the general report presenter and crash attachment.
-                            onReport = { nsLog("Crash report requested: ${IosCrashTracker.crashFile}") },
+                            onReport = {
+                                if (!reporting) {
+                                    reporting = true
+                                    reportScope.launch {
+                                        try { reporter.report() }
+                                        finally { reporting = false }
+                                    }
+                                }
+                            },
                             onResolve = resolve,
                         )
                     }
