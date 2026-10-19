@@ -175,6 +175,9 @@ object AbIcons {
     }
 }
 
+internal fun readingBibleIconKey(discrete: Boolean): String =
+    if (discrete) "ic_baseline_menu_book_24" else "ic_bible_24dp"
+
 /** The custom label glyph resources, keyed exactly like Android's `customIconMap`. */
 @kotlin.native.HiddenFromObjC
 val labelIconResources: Map<String, DrawableResource> get() = AbIcons.labelIconResources
