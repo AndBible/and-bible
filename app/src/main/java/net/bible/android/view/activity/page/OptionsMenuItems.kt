@@ -27,7 +27,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowStateServiceImpl
-import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.control.page.AndroidTiltSensor
 import net.bible.android.database.IdType
 import net.bible.android.database.InheritedFrom
 import net.bible.android.database.SettingsBundle
@@ -302,7 +302,7 @@ class TiltToScrollPreference(val mainBibleActivity: Activity):
         set(value) {
             wsBehaviorSettings.enableTiltToScroll = value == true
         }
-    override val visible: Boolean get() = super.visible && PageTiltScrollControl.isTiltSensingPossible
+    override val visible: Boolean get() = super.visible && AndroidTiltSensor.isTiltSensingPossible
     override val isBoolean = true
 }
 
