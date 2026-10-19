@@ -116,7 +116,7 @@ class PageTiltScrollControl(
             return tiltScrollInfo
         }
 
-    /** True when the sensor exists and the workspace setting allows tilt scroll. */
+    /** True when the device has the tilt sensor; the workspace setting is checked separately (see the `enabled` check in [start]/[step]). */
     val isTiltSensingPossible: Boolean get() = sensor.isAvailable
 
     /** start or stop tilt to scroll functionality; returns true when the state changed
