@@ -17,6 +17,7 @@ import platform.Foundation.defaultTimeZone
 import platform.Foundation.localeWithLocaleIdentifier
 import platform.Foundation.setDefaultTimeZone
 import platform.Foundation.timeZoneWithName
+import platform.Foundation.timeIntervalSince1970
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -57,6 +58,34 @@ class IosLocalePortsTest {
         assertEquals(17L, comps(changed).minute)
         assertEquals(345L, changed % 1000)
         assertEquals(start, calendar.withLocalYmd(changed, 2026, 3, 28))
+    }
+
+    @Test fun withLocalYmdNormalizesTargetDstGapLikeGregorianCalendar() = inZone("America/New_York") {
+        // March 8 has no 02:30: NSCalendar normalizes it forward to 03:30, retaining minutes/seconds.
+        assertTargetDstDate(1772868612345L, 2026, 3, 8, 2, 3)
+    }
+
+    @Test fun withLocalYmdKeepsWallTimeInTargetDstFold() = inZone("America/New_York") {
+        // November 1 has two 01:30 instants; NSCalendar selects the occurrence, not UTC arithmetic.
+        assertTargetDstDate(1793601012345L, 2026, 11, 1, 1, 1)
+    }
+
+    private fun assertTargetDstDate(start: Long, year: Int, month: Int, day: Int, requestedHour: Int, expectedHour: Int) {
+        val oracle = gregorian().dateFromComponents(platform.Foundation.NSDateComponents().apply {
+            this.year = year.toLong(); this.month = month.toLong(); this.day = day.toLong()
+            hour = requestedHour.toLong(); minute = 30; second = 12
+        })!!
+        val changed = calendar.withLocalYmd(start, year, month, day)
+        assertEquals((oracle.timeIntervalSince1970 * 1000).toLong() + 345, changed)
+        assertEquals(Triple(year, month, day), calendar.localYmd(changed))
+        val parts = gregorian().components(
+            NSCalendarUnitHour or NSCalendarUnitMinute or platform.Foundation.NSCalendarUnitSecond,
+            fromDate = NSDate.dateWithTimeIntervalSince1970(changed / 1000.0),
+        )
+        assertEquals(expectedHour.toLong(), parts.hour)
+        assertEquals(30L, parts.minute)
+        assertEquals(12L, parts.second)
+        assertEquals(345L, changed % 1000)
     }
 
     @Test fun parseMonthDayYearIsLocalMidnight() {
