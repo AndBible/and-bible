@@ -91,6 +91,7 @@ import {MemorizeTextItem, WordVisibility} from "@/types/documents";
 import {readingProgressSettingsKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faGear, faUndo} from "@fortawesome/free-solid-svg-icons";
+import {isPunctuation, tokenizeTypedText as getWordsFromText} from "./punctuation";
 
 interface WordTypeConfig {
     typeConfig?: {
@@ -184,21 +185,6 @@ function onClickOutsideSettings(e: Event) {
 
 function setWordRef(globalIndex: number, el: any) {
     wordRefs.value[globalIndex] = el;
-}
-
-// An apostrophe (straight or curly) sitting between two word characters is part of a
-// contraction/possessive (e.g. "Lord's", "don't") and must not split the word into
-// separate tokens - otherwise typing the word normally is reported as an error. A bare
-// trailing apostrophe is also kept attached when the word ends in "s" (e.g. "Jesus'",
-// "years'") since that is the standard classical/plural possessive form; a trailing
-// apostrophe after any other letter is treated as a closing quote instead.
-function getWordsFromText(text: string) {
-    const tokens = text.match(/([“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+(?:['’‘][^\s“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+)*(?:(?<=[sS])['’‘])?)/g) || [];
-    return tokens.filter(token => token.length > 0);
-}
-
-function isPunctuation(word: string): boolean {
-    return /^[“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+$/.test(word);
 }
 
 // Module text may use a curly apostrophe (') while the keyboard produces a straight one -
