@@ -60,8 +60,9 @@ fun <T> AbMultiSelectContent(
     // sites are untouched.
     listState: LazyListState = rememberLazyListState(),
 ) {
-    // Local working copy of the checked set; reported to the host on every mutation.
-    val checked = remember(options, selectedIds) {
+    // Labels may relocalize while open; only option identities or initial selection reset the draft.
+    // AppDialogHost keys each request separately so a new request never inherits this working set.
+    val checked = remember(options.map(idOf), selectedIds) {
         mutableStateListOf<String>().apply { addAll(selectedIds) }
     }
     LazyColumn(state = listState, modifier = Modifier.heightIn(max = 400.dp).then(modifier)) {
@@ -122,7 +123,7 @@ fun <T> AbMultiSelectDialog(
     selectNoneText: String? = null,
 ) {
     // Local working copy of the checked set; committed to the host only on Confirm.
-    var current by remember(options, selectedIds) { mutableStateOf(selectedIds) }
+    var current by remember(options.map(idOf), selectedIds) { mutableStateOf(selectedIds) }
     AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },

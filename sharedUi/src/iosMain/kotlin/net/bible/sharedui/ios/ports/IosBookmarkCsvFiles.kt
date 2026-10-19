@@ -3,7 +3,6 @@ package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.DocumentRef
 import okio.FileSystem
-import okio.ForwardingSink
 import okio.Path.Companion.toPath
 import okio.Sink
 import platform.Foundation.NSURL
@@ -20,12 +19,13 @@ class IosBookmarkCsvFiles(private val files: FileSystem = FileSystem.SYSTEM) {
         val path = requireNotNull(url.path) { "Invalid document URL: $uri" }.toPath()
         val scoped = url.startAccessingSecurityScopedResource()
         try {
-            return object : ForwardingSink(files.sink(path)) {
+            val sink = files.sink(path)
+            return object : Sink by sink {
                 private var closed = false
                 override fun close() {
                     if (closed) return
                     closed = true
-                    try { super.close() }
+                    try { sink.close() }
                     finally { if (scoped) url.stopAccessingSecurityScopedResource() }
                 }
             }

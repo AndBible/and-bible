@@ -113,7 +113,7 @@ fun <T> AbMultiSelectSheetContent(
     onSelectionChange: ((List<String>) -> Unit)? = null,
     listState: LazyListState = rememberLazyListState(),
 ) {
-    var current by remember(options, selectedIds) { mutableStateOf(selectedIds) }
+    var current by remember(options.map(idOf), selectedIds) { mutableStateOf(selectedIds) }
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         AbSheetHeader(title = title, onClose = onClose)
         AbSheetScrollBound(canScrollForward = { listState.canScrollForward }) {

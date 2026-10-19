@@ -23,6 +23,7 @@ import net.bible.sharedui.assembly.IosAssemblyTest
 import net.bible.sharedui.assembly.iosStringTable
 import okio.FileSystem
 import okio.buffer
+import okio.use
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.VerseRangeFactory
