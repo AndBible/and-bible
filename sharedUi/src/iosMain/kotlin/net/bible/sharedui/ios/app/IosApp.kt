@@ -33,6 +33,8 @@ import androidx.compose.ui.platform.testTag
 import net.bible.sharedui.ios.reading.IosNightModeObserver
 import net.bible.sharedui.ios.reading.IosReadingHost
 import net.bible.sharedui.ios.reading.IosReadingWindows
+import net.bible.sharedcore.nav.ManageLabelsResult
+import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.ios.reading.iosReadingNavDeps
 import net.bible.sharedui.ios.reading.rememberIosReadingIcons
 import net.bible.sharedui.reading.host.LocalReadingPane
@@ -228,7 +230,7 @@ private fun IosAppContent(
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
-    val readingHostHolder = remember { ReadingHostHolder() }
+    val readingHostHolder = remember { ReadingHostHolder(channels.manageLabels) }
     val graphs = remember(navController) { appHosts.graphs(navController, channels) }
     DisposableEffect(navController) {
         val gate = IosWelcomeReturnGate(
@@ -245,6 +247,7 @@ private fun IosAppContent(
             log = { nsLog("IosApp: $it") },
         )
         val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->
+            shell.routeChanged(destination.route)
             gate.onDestination(
                 destination.route,
                 controller.currentBackStack.value.any { it.destination.route?.substringBefore('?') == NavRoutes.WELCOME },
@@ -267,12 +270,13 @@ private fun IosAppContent(
 }
 
 /** Holds the one [IosReadingHost] for the app's lifetime so leaving and re-entering reading keeps the sessions. */
-private class ReadingHostHolder {
+private class ReadingHostHolder(private val labelResults: NavResultChannel<ManageLabelsResult>) {
     private var host: IosReadingHost? = null
 
     fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver, strings: Strings): IosReadingHost =
         host ?: IosReadingHost(
             IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, { strings },
+            labelResults = labelResults,
         ).also {
             host = it
             IosReadingWindows.bind(it, IosReadingReady.scope, koin, koin.get<NightModeState>())

@@ -78,7 +78,8 @@ import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
-import net.bible.sharedui.webview.PendingIosReadingNavigator
+import net.bible.sharedcore.nav.ManageLabelsResult
+import net.bible.sharedui.nav.NavResultChannel
 import org.koin.core.Koin
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDate
@@ -108,10 +109,25 @@ class IosReadingHost(
     private val nightModeSource: State<Boolean>? = null,
     private val strings: () -> Strings = { englishStrings },
     private val openUrl: (String) -> Unit = ::iosOpenUrl,
+    /** The app's `manageLabels` result channel (the label chooser's answer); a private one when the host stands alone. */
+    labelResults: NavResultChannel<ManageLabelsResult> = NavResultChannel { },
 ) {
     private val windowControl: WindowControl = koin.get()
     private val settings: AppSettings = koin.get()
     private val documentControl: DocumentControl = koin.get()
+
+    /** The navigator every window session and the toolbar use; shares [hostState] and the label result channel. */
+    internal val navigator: IosReadingNavigator by lazy {
+        IosReadingNavigator(
+            shell = shell,
+            hostState = hostState,
+            links = koin.get<ExternalLinks>(),
+            labelResults = labelResults,
+            downloadControl = { koin.get<DownloadControl>() },
+            fakeBooks = { koin.get<FakeBookFactory>() },
+            workspaceSettings = { windowControl.windowRepository.workspaceSettings },
+        )
+    }
 
     /** The hooks [hostState] runs on user actions (test-visible: `everySlotIsSupplied` pins which ones are supplied). */
     internal val hooks: ReadingHostHooks = ReadingHostHooks(
@@ -226,7 +242,7 @@ class IosReadingHost(
         readingProgressService = { koin.get<ReadingProgressService>() },
         quickActions = IosReadingQuickActions({ windowControl }, { koin.get<FakeBookFactory>() }, settings, scope, ::toast),
         keyChooserPage = IosReadingKeyChooserPage { windowControl },
-        navigator = PendingIosReadingNavigator,
+        navigator = navigator,
         textShare = IosTextShare(),
         clipboard = koin.get<ClipboardText>(),
         toast = ::toast,
@@ -239,7 +255,6 @@ class IosReadingHost(
     fun dispose() = slots.dispose()
 
     private fun callbacks(): ReadingToolbarCallbacks {
-        val navigator = PendingIosReadingNavigator
         return ReadingToolbarCallbacks(
             onHome = { IosPending.log("ReadingToolbar.onHome") },
             onTitleTap = {

@@ -208,10 +208,10 @@ class IosReadingHostTest {
         assertTrue(s.quickActions is IosReadingQuickActions, "quickActions")
         assertTrue(s.keyChooserPage is IosReadingKeyChooserPage, "keyChooserPage")
         assertTrue(s.searchState.platform is IosReadingSearchPlatform, "search platform")
-        // INERT ALLOW-LIST (slot parameters): navigator pending until Task 2, fullScreen and thumbnailFor constant,
+        // INERT ALLOW-LIST (slot parameters): fullScreen and thumbnailFor constant,
         // toast only logs until the toast host (Task 3), image picker / text share / external links are Stream F's
         // pending ports.
-        assertTrue(s.navigator === net.bible.sharedui.webview.PendingIosReadingNavigator, "navigator")
+        assertTrue(s.navigator is IosReadingNavigator && s.navigator === host.navigator, "navigator")
         assertFalse(s.fullScreen(), "fullScreen")
         assertEquals(null, s.thumbnailFor("any"), "thumbnailFor")
         assertTrue(s.imagePicker is net.bible.sharedui.ios.ports.IosImagePicker, "imagePicker")

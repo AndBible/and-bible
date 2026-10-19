@@ -1,0 +1,200 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
+package net.bible.sharedui.ios.reading
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.page.CurrentBiblePage
+import net.bible.android.control.page.CurrentCommentaryPage
+import net.bible.android.control.page.CurrentDictionaryPage
+import net.bible.android.control.page.CurrentGeneralBookPage
+import net.bible.android.control.page.CurrentMapPage
+import net.bible.android.control.page.CurrentPage
+import net.bible.android.database.IdType
+import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
+import net.bible.android.view.activity.bookmark.updateFrom
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.isMyDocument
+import net.bible.service.sword.mydocument.myDocumentId
+import net.bible.sharedcore.nav.ManageLabelsResult
+import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.app.ports.ExternalLinks
+import net.bible.sharedui.ios.app.IosHostShell
+import net.bible.sharedui.nav.NavResultChannel
+import net.bible.sharedui.reading.bridge.ReadingNavigator
+import net.bible.sharedui.reading.host.ReadingHostState
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.index.IndexStatus
+import kotlin.coroutines.CoroutineContext
+
+/**
+ * The route Android's `searchIntent` starts for [document], or null when there is nothing to open (a general book
+ * without an index). A pure function of the document's facts so it is testable without a Sword module.
+ */
+internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boolean, initials: String?): String? = when {
+    indexDone -> if (isEpub) NavRoutes.EPUB_SEARCH else NavRoutes.searchForm()
+    isGeneralBook -> null
+    else -> NavRoutes.searchIndex(searchDocument = initials)
+}
+
+/**
+ * iOS [ReadingNavigator]: each member navigates the single NavHost to the route Android's `AndroidReadingNavigator`
+ * starts (same `NavRoutes` builders and arguments), through [shell]. Launches are posted to [mainContext] because
+ * bridge calls arrive on a background thread and navigation must run on the main thread.
+ *
+ * Result-bearing choosers: [assignLabels] suspends until the label manager delivers its answer to [labelResults]
+ * (or is left without one, which is a cancel). The suspension belongs to the asking caller, so a result is always
+ * returned to the window that asked, whichever window is active when the manager closes; requests are serialised
+ * because they share the one channel. The document, key and passage choosers' answers are applied by the reading
+ * destination's result collectors, not here.
+ *
+ * @param hostState the reading host's sheets (kept for the sheets the navigator will open instead of routing)
+ * @param links where [openExternalUrl] and [openWebLink] go
+ * @param labelResults the app's `manageLabels` result channel
+ * @param workspaceSettings seeds and receives the label chooser's workspace-wide settings
+ */
+@kotlin.native.HiddenFromObjC
+class IosReadingNavigator(
+    private val shell: IosHostShell,
+    @Suppress("unused") private val hostState: ReadingHostState,
+    private val links: ExternalLinks,
+    private val labelResults: NavResultChannel<ManageLabelsResult>,
+    private val downloadControl: () -> DownloadControl,
+    private val fakeBooks: () -> FakeBookFactory,
+    private val workspaceSettings: () -> WorkspaceEntities.WorkspaceSettings? = { null },
+    private val mainContext: CoroutineContext = Dispatchers.Main,
+) : ReadingNavigator {
+    private val labelRequests = Mutex()
+
+    private fun onMain(block: () -> Unit) {
+        shell.hostScope.launch(mainContext) { block() }
+    }
+
+    override fun openDownloads(addons: Boolean) = onMain {
+        if (!downloadControl().checkDownloadOkay()) return@onMain
+        shell.navigate(NavRoutes.download(addons = addons))
+    }
+
+    override fun openDownloadSearch(initials: String?) = onMain { shell.navigate(NavRoutes.download(search = initials)) }
+
+    override fun openReadingProgress(tab: Int) = onMain { shell.navigate(NavRoutes.readingProgress(tab)) }
+
+    override fun openReadingProgressSettings() = onMain { shell.navigate(NavRoutes.READING_PROGRESS_SETTINGS) }
+
+    override fun openWorkspaceSelector() = onMain { shell.navigate(NavRoutes.WORKSPACE_SELECTOR) }
+
+    override fun openChooseDocument(type: String?) = onMain { shell.navigate(NavRoutes.chooseDocument(type)) }
+
+    override fun openSearch(document: Book?) = onMain {
+        val route = searchRoute(
+            indexDone = document?.indexStatus == IndexStatus.DONE,
+            isEpub = document?.isEpub == true,
+            isGeneralBook = document?.bookCategory == BookCategory.GENERAL_BOOK,
+            initials = document?.initials,
+        )
+        if (route != null) shell.navigate(route)
+    }
+
+    override fun openPromptEditor(promptId: String) = onMain { shell.navigate(NavRoutes.promptEdit(promptId = promptId)) }
+
+    override fun openExternalUrl(url: String) = links.open(url)
+
+    override fun openWebLink(url: String) = links.open(url)
+
+    override fun startKeyChooser(page: CurrentPage) {
+        when (page) {
+            is CurrentBiblePage, is CurrentCommentaryPage -> onMain { shell.navigate(NavRoutes.gridChoosePassage(isScripture = true)) }
+            is CurrentDictionaryPage -> onMain { shell.navigate(NavRoutes.CHOOSE_DICTIONARY_WORD) }
+            is CurrentMapPage -> onMain { shell.navigate(NavRoutes.CHOOSE_MAP_KEY) }
+            is CurrentGeneralBookPage -> startGeneralBookChooser(page)
+        }
+    }
+
+    /** Android's `startGeneralBookChooser`: the StudyPad journal opens the label manager, the rest a key chooser. */
+    private fun startGeneralBookChooser(page: CurrentGeneralBookPage) {
+        shell.hostScope.launch(mainContext) {
+            val doc = page.currentDocument
+            val factory = fakeBooks()
+            when {
+                doc == factory.journalDocument -> {
+                    val settings = page.pageManager.window.windowRepository.workspaceSettings
+                    val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
+                        .applyFrom(settings)
+                        .toJSON()
+                    val result = awaitManageLabels(data) ?: return@launch
+                    settings.updateFrom(ManageLabelsContract.ManageLabelsData.fromJSON(result.data))
+                }
+                doc == factory.multiDocument -> shell.navigate(NavRoutes.chooseDocument())
+                doc?.isMyDocument == true -> doc.myDocumentId?.let { docId ->
+                    shell.navigate(NavRoutes.myDocumentPages(docId.toString(), doc.initials, doc.name))
+                }
+                else -> shell.navigate(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
+            }
+        }
+    }
+
+    /**
+     * Opens the label manager with [data] and waits for its answer: the delivered [ManageLabelsResult], or null when
+     * the manager was left without delivering one (the route is back at reading after the manager was shown).
+     * A result is published before the manager pops, so a delivered answer always wins over the pop.
+     */
+    private suspend fun awaitManageLabels(data: String): ManageLabelsResult? = labelRequests.withLock {
+        labelResults.consume() // a stale answer must not satisfy this request
+        withContext(mainContext) { shell.navigate(NavRoutes.manageLabels(data)) }
+        var shown = false
+        shell.currentRoute.let { routes ->
+            combine(labelResults.pending, routes) { pending, route -> pending to route?.substringBefore('?') }
+                .first { (pending, route) ->
+                    if (route == MANAGE_LABELS_ROUTE) shown = true
+                    pending != null || (shown && route == NavRoutes.READING)
+                }
+        }
+        labelResults.consume()
+    }
+
+    override suspend fun assignLabels(
+        bookmark: BookmarkEntities.BaseBookmarkWithNotes,
+        labelIds: List<IdType>,
+    ): List<IdType>? {
+        val data = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.ASSIGN,
+            selectedLabels = labelIds.toMutableSet(),
+            bookmarkPrimaryLabel = bookmark.primaryLabelId,
+        ).applyFrom(workspaceSettings()).toJSON()
+        val result = awaitManageLabels(data) ?: return null
+        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
+        bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
+        workspaceSettings()?.updateFrom(resultData)
+        return resultData.selectedLabels.toList()
+    }
+
+    private companion object {
+        val MANAGE_LABELS_ROUTE: String = NavRoutes.MANAGE_LABELS_PATTERN.substringBefore('?')
+    }
+}

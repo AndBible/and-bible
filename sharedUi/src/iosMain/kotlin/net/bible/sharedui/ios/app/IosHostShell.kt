@@ -20,6 +20,8 @@ package net.bible.sharedui.ios.app
 
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.app.HostShell
 import net.bible.sharedui.ios.IosPending
@@ -60,6 +62,16 @@ class IosHostShell(
     /** The route the current owner published, or null. */
     var historyRoute: String? = null
         private set
+
+    private val route = MutableStateFlow<String?>(null)
+
+    /**
+     * The current destination's route pattern, as the app's destination listener reports it ([routeChanged]); lets a
+     * caller that opened a result-bearing screen see that it was left.
+     */
+    val currentRoute: StateFlow<String?> get() = route
+
+    fun routeChanged(newRoute: String?) { route.value = newRoute }
 
     override var windowTitle: String = ""
         private set
