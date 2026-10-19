@@ -14,17 +14,27 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
 
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.SystemScreens
-import net.bible.sharedui.ios.IosPending
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import platform.Foundation.NSURL
+import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationOpenSettingsURLString
 
-/** Pending (stream F). */
 @kotlin.native.HiddenFromObjC
-class IosSystemScreens : SystemScreens {
+class IosSystemScreens(
+    private val openUrl: (NSURL) -> Unit = {
+        UIApplication.sharedApplication.openURL(it, options = emptyMap<Any?, Any>(), completionHandler = null)
+    },
+) : SystemScreens {
     override fun openAppLinkSettings() {
-        IosPending.log("SystemScreens.openAppLinkSettings")
+        CoroutineScope(Dispatchers.Main).launch {
+            NSURL.URLWithString(UIApplicationOpenSettingsURLString)?.let(openUrl)
+        }
     }
 }

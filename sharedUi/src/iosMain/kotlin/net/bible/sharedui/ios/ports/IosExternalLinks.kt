@@ -14,16 +14,41 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
 
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.ExternalLinks
-import net.bible.sharedui.ios.IosPending
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
+import org.koin.mp.KoinPlatform
+import platform.Foundation.NSURL
+import platform.UIKit.UIApplication
 
-/** Pending on iOS (stream F): opening a link does nothing yet. */
+/** Resolves live discrete-mode state rather than retaining the startup environment. */
 @kotlin.native.HiddenFromObjC
-class IosExternalLinks : ExternalLinks {
-    override val askBeforeOpening: Boolean = false
-    override fun open(url: String) = IosPending.log("ExternalLinks.open")
+class IosExternalLinks(
+    private val isDiscrete: () -> Boolean = { KoinPlatform.getKoin().get<AppEnvironment>().isDiscrete },
+    private val openUrl: (NSURL, (Boolean) -> Unit) -> Unit = { url, completion ->
+        UIApplication.sharedApplication.openURL(url, options = emptyMap<Any?, Any>(), completionHandler = completion)
+    },
+    private val openingFailed: () -> Unit = {
+        val koin = KoinPlatform.getKoin()
+        koin.get<UserNotifier>().showError(koin.get<CoreStrings>().errorOccurred)
+    },
+) : ExternalLinks {
+    override val askBeforeOpening: Boolean get() = isDiscrete()
+    override fun open(url: String) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val target = NSURL.URLWithString(url)
+            if (target == null) openingFailed()
+            else openUrl(target) { ok ->
+                if (!ok) CoroutineScope(Dispatchers.Main).launch { openingFailed() }
+            }
+        }
+    }
 }

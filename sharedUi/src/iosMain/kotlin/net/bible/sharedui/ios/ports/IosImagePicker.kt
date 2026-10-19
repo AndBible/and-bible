@@ -14,18 +14,106 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
 
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.ImagePicker
-import net.bible.sharedui.ios.IosPending
+import kotlinx.coroutines.*
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.files.IosPresenter
+import net.bible.sharedcore.platform.files.IosSheetPresentation
+import okio.FileSystem
+import okio.Path.Companion.toPath
+import org.koin.mp.KoinPlatform
+import platform.Foundation.*
+import platform.PhotosUI.*
+import platform.UIKit.UIViewController
+import platform.UniformTypeIdentifiers.UTTypeImage
+import platform.darwin.NSObject
 
-/** Pending (stream F). */
 @kotlin.native.HiddenFromObjC
-class IosImagePicker : ImagePicker {
-    override suspend fun pickImage(): String? {
-        IosPending.log("ImagePicker.pickImage")
-        return null
+class IosImagePicker(
+    private val presenter: () -> UIViewController? = IosPresenter::topViewController,
+    private val makePicker: (PHPickerConfiguration) -> PHPickerViewController = { PHPickerViewController(it) },
+    private val tempDirectory: () -> String = { KoinPlatform.getKoin().get<AppEnvironment>().tmpDir },
+    private val imageProvider: (List<*>) -> NSItemProvider? = {
+        (it.firstOrNull() as? PHPickerResult)?.itemProvider
+    },
+) : ImagePicker {
+    override suspend fun pickImage(): String? = withContext(Dispatchers.Main) {
+        val host = presenter() ?: return@withContext null
+        val sheet = makePicker(PHPickerConfiguration().apply {
+            filter = PHPickerFilter.imagesFilter
+            selectionLimit = 1
+        })
+        val dismissed = CompletableDeferred<Unit>()
+        var copied: String? = null
+        var handedOff = false
+        try {
+            val result = suspendCancellableCoroutine<String?> { continuation ->
+                var retainedDelegate: PHPickerViewControllerDelegateProtocol? = null
+                val presentation = IosSheetPresentation(sheet, continuation, null) {
+                    // Read and clear the strong reference held by this terminal cleanup closure.
+                    if (sheet.delegate === retainedDelegate) sheet.delegate = null
+                    retainedDelegate = null
+                    dismissed.complete(Unit)
+                }
+                val delegate = object : NSObject(), PHPickerViewControllerDelegateProtocol {
+                    private var selected = false
+                    override fun picker(picker: PHPickerViewController, didFinishPicking: List<*>) {
+                        if (!presentation.isPending || selected) return
+                        selected = true
+                        val provider = imageProvider(didFinishPicking)
+                        if (provider == null) {
+                            presentation.finish(null)
+                            return
+                        }
+                        val directory = tempDirectory().toPath() / "andbible-image-${NSUUID().UUIDString}"
+                        provider.loadFileRepresentationForTypeIdentifier(UTTypeImage.identifier) { url, error ->
+                            // This URL belongs to NSItemProvider and expires when this callback returns.
+                            // Copy synchronously here, before dispatching any result to the main queue.
+                            var destination: String? = null
+                            try {
+                                if (error == null && url != null && url.isFileURL()) {
+                                    val source = url.path?.toPath()
+                                    if (source != null) {
+                                        FileSystem.SYSTEM.createDirectories(directory)
+                                        val target = directory / source.name
+                                        val scoped = url.startAccessingSecurityScopedResource()
+                                        try { FileSystem.SYSTEM.copy(source, target) }
+                                        finally { if (scoped) url.stopAccessingSecurityScopedResource() }
+                                        destination = NSURL.fileURLWithPath(target.toString()).absoluteString
+                                    }
+                                }
+                            } catch (_: Exception) {
+                                destination = null
+                            }
+                            val result = destination
+                            CoroutineScope(Dispatchers.Main).launch {
+                                if (result != null && presentation.isPending) {
+                                    copied = directory.toString()
+                                    presentation.finish(result)
+                                } else {
+                                    FileSystem.SYSTEM.deleteRecursively(directory, mustExist = false)
+                                    if (presentation.isPending) presentation.finish(null)
+                                }
+                            }
+                        }
+                    }
+                }
+                sheet.delegate = delegate
+                // UIKit's delegate is weak. The release closure must retain it until terminal cleanup.
+                retainedDelegate = delegate
+                presentation.present(host)
+            }
+            handedOff = result != null
+            result
+        } finally {
+            withContext(NonCancellable) {
+                dismissed.await()
+                if (!handedOff) copied?.let { FileSystem.SYSTEM.deleteRecursively(it.toPath(), mustExist = false) }
+            }
+        }
     }
 }

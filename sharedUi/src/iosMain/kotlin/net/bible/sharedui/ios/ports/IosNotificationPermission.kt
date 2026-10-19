@@ -14,17 +14,55 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class, kotlinx.cinterop.ExperimentalForeignApi::class)
 
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.NotificationPermission
-import net.bible.sharedui.ios.IosPending
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import platform.UserNotifications.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-/** Pending (stream F). */
 @kotlin.native.HiddenFromObjC
-class IosNotificationPermission : NotificationPermission {
-    override suspend fun request() {
-        IosPending.log("NotificationPermission.request")
+interface IosNotificationCenter {
+    fun authorizationDecided(completion: (Boolean) -> Unit)
+    fun requestAlertAndSound(completion: () -> Unit)
+}
+
+private object SystemNotificationCenter : IosNotificationCenter {
+    override fun authorizationDecided(completion: (Boolean) -> Unit) {
+        UNUserNotificationCenter.currentNotificationCenter().getNotificationSettingsWithCompletionHandler {
+            completion(it?.authorizationStatus != UNAuthorizationStatusNotDetermined)
+        }
+    }
+    override fun requestAlertAndSound(completion: () -> Unit) {
+        UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(
+            UNAuthorizationOptionAlert or UNAuthorizationOptionSound,
+        ) { _, _ -> completion() }
+    }
+}
+
+/** Serializes concurrent callers through both the status query and the system prompt. */
+@kotlin.native.HiddenFromObjC
+class IosNotificationPermission(
+    private val center: IosNotificationCenter = SystemNotificationCenter,
+) : NotificationPermission {
+    private val mutex = Mutex()
+    private var completed = false
+    override suspend fun request() = withContext(Dispatchers.Main) {
+        mutex.withLock {
+            if (!completed) {
+                // The OS prompt cannot be cancelled: retain the lock until its callback arrives.
+                val decided = suspendCoroutine { continuation -> center.authorizationDecided { continuation.resume(it) } }
+                if (!decided) suspendCoroutine { continuation ->
+                    center.requestAlertAndSound { continuation.resume(Unit) }
+                }
+                completed = true
+            }
+        }
     }
 }
