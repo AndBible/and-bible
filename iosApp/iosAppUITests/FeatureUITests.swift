@@ -59,9 +59,26 @@ final class FeatureUITests: RealAppUITestCase {
 
     func testDownloadAboutDialog() {
         let app = freshReading(scenario: "download")
+        // The unfiltered multi-language catalogue is enormous: 15 swipes only reached ARP/ASV.
+        // Narrow it through the real language picker before looking for the actual module row.
+        let allLanguages = app.staticTexts.matching(NSPredicate(format: "label == 'All'")).firstMatch
+        XCTAssertTrue(allLanguages.waitForExistence(timeout: 30))
+        allLanguages.tap()
+        let languageSearch = app.textFields.firstMatch
+        XCTAssertTrue(languageSearch.waitForExistence(timeout: 10), "Language picker must expose its real search field")
+        languageSearch.tap()
+        languageSearch.typeText("English")
+        let englishLanguage = app.staticTexts.matching(NSPredicate(format: "label == 'English'")).firstMatch
+        XCTAssertTrue(englishLanguage.waitForExistence(timeout: 10))
+        englishLanguage.tap()
+        XCTAssertTrue(waitUntil(timeout: 10) { !allLanguages.exists }, "Language selection must dismiss the picker and filter the catalogue")
         let kjv = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'KJV '")).firstMatch
-        for _ in 0..<15 where !kjv.isHittable { app.swipeUp() }
-        XCTAssertTrue(kjv.waitForExistence(timeout: 30), "Real repository KJV module required")
+        for _ in 0..<40 where !kjv.isHittable { app.swipeUp() }
+        if !kjv.exists || !kjv.isHittable {
+            shot(app, "download-english-no-kjv")
+            attachTree(app, "download-english-no-kjv")
+        }
+        XCTAssertTrue(kjv.exists && kjv.isHittable, "Real repository KJV module required in the English catalogue")
         kjv.press(forDuration: 1)
         let about = app.buttons["About"].firstMatch
         XCTAssertTrue(about.waitForExistence(timeout: 10))
