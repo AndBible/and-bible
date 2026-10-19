@@ -8,7 +8,7 @@ class RealAppUITestCase: XCTestCase {
 
     var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
-    funclaunch(_ arguments: [String]) -> XCUIApplication {
+    func launch(_ arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments += arguments
         app.launch()
@@ -17,21 +17,21 @@ class RealAppUITestCase: XCTestCase {
 
     /// Any element type with this accessibility identifier (a Compose test tag surfaces on whichever element
     /// type the node maps to).
-    funcelement(_ app: XCUIApplication, _ id: String) -> XCUIElement {
+    func element(_ app: XCUIApplication, _ id: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: id).firstMatch
     }
 
-    funcshot(_ app: XCUIApplication, _ name: String) {
+    func shot(_ app: XCUIApplication, _ name: String) {
         let a = XCTAttachment(screenshot: app.screenshot()); a.name = name; a.lifetime = .keepAlways; add(a)
     }
 
-    funcattachTree(_ app: XCUIApplication, _ step: String) {
+    func attachTree(_ app: XCUIApplication, _ step: String) {
         let a = XCTAttachment(string: app.debugDescription); a.name = "tree-\(step)"; a.lifetime = .keepAlways; add(a)
     }
 
     /// The first download asks 'Do you want to proceed to download documents?' (the persecuted-country warning, same
     /// as Android). Taps the exact 'Yes' button (not 'Yes, do not ask again'); tolerates the dialog not appearing.
-    funcconfirmDownloadIfAsked(_ app: XCUIApplication) {
+    func confirmDownloadIfAsked(_ app: XCUIApplication) {
         let yes = app.buttons.matching(NSPredicate(format: "label == 'Yes'")).firstMatch
         if yes.waitForExistence(timeout: 15) {
             shot(app, "download-confirmation")
@@ -41,7 +41,7 @@ class RealAppUITestCase: XCTestCase {
 
     /// In first-download mode the Download Documents screen is gated by an 'OK' button that enables once a Bible
     /// install has finished (same as Android: the user presses OK). Waits for it to exist AND be enabled, then taps.
-    funcwaitForEnabledOkAndTap(_ app: XCUIApplication, timeout: TimeInterval = 180) -> Bool {
+    func waitForEnabledOkAndTap(_ app: XCUIApplication, timeout: TimeInterval = 180) -> Bool {
         let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
         let enabled = waitUntil(timeout: timeout) { ok.exists && ok.isEnabled }
         if enabled { ok.tap() }
@@ -49,7 +49,7 @@ class RealAppUITestCase: XCTestCase {
     }
 
     /// Polls until `condition` holds or `timeout` elapses; returns the final result.
-    funcwaitUntil(timeout: TimeInterval, _ condition: () -> Bool) -> Bool {
+    func waitUntil(timeout: TimeInterval, _ condition: () -> Bool) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if condition() { return true }
@@ -60,13 +60,13 @@ class RealAppUITestCase: XCTestCase {
 
     /// John 3 is shown in a web view: the chapter-opening 'Nicodemus' phrase label exists (WebKit splits the text
     /// into phrase-level StaticTexts).
-    funcjohn3Shown(_ app: XCUIApplication, timeout: TimeInterval = 60) -> Bool {
+    func john3Shown(_ app: XCUIApplication, timeout: TimeInterval = 60) -> Bool {
         app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).firstMatch
             .waitForExistence(timeout: timeout)
     }
 
     /// The distinct pane identifiers (`bible-webview-<windowId>`) among the WebView elements.
-    funcpaneIds(_ app: XCUIApplication) -> [String] {
+    func paneIds(_ app: XCUIApplication) -> [String] {
         let ids = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
             .allElementsBoundByIndex.map(\.identifier)
         return Array(Set(ids)).sorted()
@@ -75,7 +75,7 @@ class RealAppUITestCase: XCTestCase {
     /// What a real user does before the app goes away: press Home so the app saves the workspace (it persists the
     /// passage when it resigns active / enters the background, like Android's onPause), then wait for the background
     /// state and give the asynchronous save a moment. XCTest terminates the app abruptly at the end of a test.
-    funcsendToBackground(_ app: XCUIApplication) {
+    func sendToBackground(_ app: XCUIApplication) {
         XCUIDevice.shared.press(.home)
         _ = waitUntil(timeout: 15) { app.state != .runningForeground }
         sleep(3)

@@ -15,9 +15,16 @@ final class FeatureUITests: RealAppUITestCase {
         let keepScreen = app.switches.matching(NSPredicate(format: "label CONTAINS 'Keep screen on'")).firstMatch
         for _ in 0..<8 where !keepScreen.isHittable { app.swipeUp() }
         XCTAssertTrue(keepScreen.exists)
+        let originalValue = keepScreen.value as? String
+        XCTAssertNotNil(originalValue)
         keepScreen.tap()
+        XCTAssertTrue(waitUntil(timeout: 10) {
+            guard let value = keepScreen.value as? String else { return false }
+            return value != originalValue
+        }, "The setting must actually change before testing retention")
         let retainedValue = keepScreen.value as? String
         XCTAssertNotNil(retainedValue)
+        XCTAssertNotEqual(retainedValue, originalValue)
         let language = app.staticTexts["Application language"].firstMatch
         for _ in 0..<8 where !language.isHittable { app.swipeUp() }
         XCTAssertTrue(language.waitForExistence(timeout: 10))
