@@ -21,6 +21,19 @@ package net.bible.sharedui.ios.reading
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddBox
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Workspaces
+import androidx.compose.material.icons.outlined.ScreenRotation
+import androidx.compose.material.icons.outlined.SwapVert
+import androidx.compose.material.icons.outlined.LibraryBooks
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.SmartToy
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.EmojiPeople
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.Bookmarks
 import androidx.compose.material.icons.outlined.Book
@@ -184,8 +197,35 @@ fun iosPaneMenuIcon(iconKey: String): ImageVector? = when (iconKey) {
     "ic_format_italic_24dp" -> Icons.Outlined.FormatItalic
     "ic_baseline_check_circle_24" -> Icons.Outlined.CheckCircle
     "ic_baseline_star_24" -> Icons.Outlined.Star
+    // overflow menu rows
+    "ic_night_mode_24" -> Icons.Outlined.DarkMode
+    "ic_baseline_workspace_24" -> Icons.Outlined.Workspaces
+    "ic_tilt_to_scroll_24dp" -> Icons.Outlined.ScreenRotation
+    "ic_reverse_split_mode_24dp" -> Icons.Outlined.SwapVert
+    "ic_window_pinning_24" -> Icons.Outlined.PushPin
     else -> null
 }
+
+/** Material stand-in for the drawer row icon named [iconKey]; null when unmapped. */
+@kotlin.native.HiddenFromObjC
+fun iosDrawerIcon(iconKey: String): ImageVector? = when (iconKey) {
+    "ic_library_books_white_24dp" -> Icons.Outlined.LibraryBooks
+    "ic_search_24dp" -> Icons.Outlined.Search
+    "ic_baseline_headphones_24" -> Icons.Outlined.Headphones
+    "ic_baseline_description_24" -> Icons.Outlined.Description
+    "ic_history_clock_24dp" -> Icons.Outlined.History
+    "ic_file_download_24dp" -> Icons.Outlined.Download
+    "icon_robot" -> Icons.Outlined.SmartToy
+    "ic_settings_white_24dp" -> Icons.Outlined.Settings
+    "ic_need_help_24dp" -> Icons.Outlined.HelpOutline
+    "ic_baseline_emoji_people_24" -> Icons.Outlined.EmojiPeople
+    else -> null
+}
+
+/** The painter of the drawer row icon [iconKey] for the drawer's `drawerIcon` slot. */
+@Composable
+@kotlin.native.HiddenFromObjC
+fun rememberIosDrawerIcon(iconKey: String): Painter? = iosDrawerIcon(iconKey)?.let { rememberVectorPainter(it) }
 
 /** The painter of [iconKey] for the pane menu's `menuIcon` slot (composable: the painter is remembered). */
 @Composable

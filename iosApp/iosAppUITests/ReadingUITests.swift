@@ -163,13 +163,16 @@ final class ReadingUITests: XCTestCase {
         let before = paneIds(app)
         XCTAssertEqual(before.count, 2)
 
-        // A sheet reachable from the reading chrome: check every label with a short wait, then once with a longer one.
-        let candidates = ["Search", "Bookmarks", "History"].map { app.buttons[$0] }
+        // A sheet reachable from the reading chrome. The labels are the toolbar's real ones (strings.xml): the search
+        // button is "Find" (it opens the search field, not a sheet), "Workspaces" opens the workspaces quick sheet,
+        // which has a "Close" button. Task 10 wired the toolbar, so "Workspaces" is expected to work now. Not compiled
+        // on Linux (no Mac): check every label with a short wait, then once with a longer one.
+        let candidates = ["Workspaces", "Find"].map { app.buttons[$0] }
         var opener = candidates.first { $0.waitForExistence(timeout: 1) }
         if opener == nil { opener = candidates.first { $0.waitForExistence(timeout: 10) } }
         guard let opener else {
             attachTree(app, "no-sheet-opener")
-            XCTFail("no reading control that opens a sheet (Search/Bookmarks/History)")
+            XCTFail("no reading control that opens a sheet (Workspaces/Find)")
             return
         }
         opener.tap()
@@ -200,6 +203,31 @@ final class ReadingUITests: XCTestCase {
             if !inOrder { attachTree(app, "voiceover-order") }
             XCTAssertTrue(inOrder, "VoiceOver order differs from the visual order: \(a.id) \(a.frame) before \(b.id) \(b.frame)")
         }
+    }
+
+    /// The toolbar's home button ("Menu") opens the drawer; its History row opens the history quick sheet, whose "Close"
+    /// button returns to the reading view with the panes unchanged. Labels from strings.xml ("history"); the drawer rows
+    /// are Compose navigation items, found as any element type. Written without a Mac: not compiled, not run; the
+    /// element type of a drawer row is a guess (the tree is attached on failure).
+    func testDrawerOpensAndItsHistoryRowOpensTheHistorySheet() throws {
+        let app = try launchReading()
+        let before = paneIds(app)
+        let menu = app.buttons["Menu"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 15), "home (Menu) button not found")
+        menu.tap()
+        let history = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'History'")).firstMatch
+        guard history.waitForExistence(timeout: 10) else {
+            attachTree(app, "drawer-no-history-row")
+            XCTFail("the drawer did not show a History row")
+            return
+        }
+        history.tap()
+        let close = app.buttons["Close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 10), "the history sheet did not open (no Close button)")
+        shot(app, "drawer-history-sheet")
+        close.tap()
+        XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 15), "reading host not back after the history sheet")
+        XCTAssertEqual(paneIds(app), before, "panes changed across the drawer and the sheet")
     }
 
     /// iOS 17+ accessibility audit of the reading view. Findings are recorded, not failed (like the PoC test); an audit

@@ -70,6 +70,7 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedlogic.platform.NightModeState
@@ -349,6 +350,7 @@ private fun iosChooserTarget(koin: Koin, table: StringTable, pageManager: Curren
         verseNotFoundText = { table.text("verse_not_found") },
         history = { koin.get<HistoryManager>() },
         scope = scope,
+        onToolbarMayHaveChanged = { koin.get<ToolbarStateService>().refresh() },
     )
 
 /** Draws [AppDialogController]'s queue and the agent permission prompt (Android: `AppDialogOverlay`). */

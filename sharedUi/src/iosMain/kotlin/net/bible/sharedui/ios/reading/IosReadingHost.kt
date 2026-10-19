@@ -27,6 +27,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.control.speak.SpeakTransportServiceImpl
+import net.bible.sharedcore.log.nsLog
+import net.bible.sharedcore.reading.DrawerMenuState
+import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.sharedui.reading.toolbar.ReadingDrawerMenu
+import net.bible.sharedui.reading.toolbar.ReadingOverflowMenu
+import net.bible.sharedui.reading.toolbar.ReadingToolbarCommands
+import net.bible.sharedui.strings.keyed.KeyedReadingMenuStrings
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
@@ -76,7 +86,6 @@ import net.bible.sharedlogic.settings.TextDisplayPrefItems
 import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.IosAppStartup
-import net.bible.sharedui.ios.IosPending
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.ios.ports.IosImagePicker
 import net.bible.sharedui.ios.ports.IosTextShare
@@ -304,6 +313,11 @@ class IosReadingHost(
         isPortrait = ::iosIsPortrait,
     )
 
+    private val quickActions: IosReadingQuickActions = IosReadingQuickActions(
+        { windowControl }, { koin.get<FakeBookFactory>() }, settings, scope, ::toast,
+        onToolbarMayHaveChanged = { toolbarHost.refreshToolbar() },
+    )
+
     /**
      * Every host-built slot of the reading view, in common code. Declared after the collaborators it wraps;
      * [hostState]'s hooks reach it lazily (they run on user actions).
@@ -326,7 +340,7 @@ class IosReadingHost(
         gridPassages = gridFactory,
         workspaceService = { koin.get<WorkspaceService>() },
         readingProgressService = { koin.get<ReadingProgressService>() },
-        quickActions = IosReadingQuickActions({ windowControl }, { koin.get<FakeBookFactory>() }, settings, scope, ::toast),
+        quickActions = quickActions,
         keyChooserPage = IosReadingKeyChooserPage { windowControl },
         navigator = navigator,
         textShare = IosTextShare(),
@@ -337,44 +351,98 @@ class IosReadingHost(
         currentDocumentInitials = { documentControl.currentDocument?.initials },
     )
 
+    /**
+     * The toolbar, overflow menu and drawer over the iOS controls ([IosReadingToolbarHost]); the common decision logic
+     * and the menus built from it follow.
+     */
+    internal val toolbarHost: IosReadingToolbarHost = IosReadingToolbarHost(
+        scope = scope,
+        shell = shell,
+        hostState = hostState,
+        navigator = navigator,
+        windowControl = { windowControl },
+        documentControl = { documentControl },
+        settings = settings,
+        prefItems = { koin.get<TextDisplayPrefItems>() },
+        recentSettings = { RecentDisplaySettings(settings).sorted },
+        globalSettings = { koin.get<GlobalTextDisplaySettingsSource>().current },
+        toolbarState = { koin.get<ToolbarStateService>() },
+        speakControl = { speakControl },
+        transport = { koin.get<SpeakTransportServiceImpl>() },
+        slots = { slots },
+        quickSwitchToWorkspace = quickActions::quickSwitchToWorkspace,
+        searchModeActive = { searchState.searchBar.value != null },
+        chooserRequests = readingResults ?: ChooserRequests.None,
+        externalLinks = koin.get<ExternalLinks>(),
+        windowStateService = { koin.get<WindowStateServiceImpl>() },
+    )
+
+    private val menuStrings = { KeyedReadingMenuStrings(IosAppStartup.stringTable) }
+
+    private val toolbarCommands = ReadingToolbarCommands(toolbarHost)
+
+    private val overflowMenu = ReadingOverflowMenu(toolbarHost, menuStrings).also { menu ->
+        toolbarHost.rebuildOverflow = menu::build
+    }
+
+    private val drawerMenu = ReadingDrawerMenu(toolbarHost, menuStrings)
+
+    /**
+     * The drawer's rows. Rebuilt whenever the toolbar state changes (that is when the Search and Speak rows' enabled
+     * flags can change), which is Android's `rebuildDrawer` from `updateActions`.
+     */
+    private val drawerMenuState = mutableStateOf(DrawerMenuState.EMPTY)
+
+    private fun rebuildDrawer() {
+        try {
+            drawerMenuState.value = drawerMenu.build()
+        } catch (e: Exception) {
+            nsLog("ReadingDrawer: could not build the drawer menu: ${e.stackTraceToString()}")
+        }
+    }
+
+    private val drawerWatch = scope.launch {
+        koin.get<ToolbarStateService>().toolbar.collect { rebuildDrawer() }
+    }
+
     /** Strong's find-all in the reading view's search; false: not handled, the caller falls back to its own route. */
     fun openSearchStrongs(ref: String, documentInitials: List<String>): Boolean = searchState.openSearchStrongs(ref, documentInitials)
 
     /** Ends the slots' own background work (the search index feed); call before cancelling [scope]. */
-    fun dispose() = slots.dispose()
-
-    private fun callbacks(): ReadingToolbarCallbacks {
-        return ReadingToolbarCallbacks(
-            onHome = { IosPending.log("ReadingToolbar.onHome") },
-            onTitleTap = {
-                // A tap before the repository holds a window must not throw.
-                val page = try {
-                    windowControl.activeWindowPageManager.currentPage
-                } catch (e: Exception) {
-                    null
-                }
-                if (page == null) IosPending.log("ReadingToolbar.onTitleTap") else navigator.startKeyChooser(page)
-            },
-            onTitleLongPress = { IosPending.log("ReadingToolbar.onTitleLongPress") },
-            onTitleFlingVertical = { IosPending.log("ReadingToolbar.onTitleFlingVertical") },
-            onTitleFlingHorizontal = { IosPending.log("ReadingToolbar.onTitleFlingHorizontal") },
-            onBible = { IosPending.log("ReadingToolbar.onBible") },
-            onBibleLong = { IosPending.log("ReadingToolbar.onBibleLong") },
-            onCommentary = { IosPending.log("ReadingToolbar.onCommentary") },
-            onCommentaryLong = { IosPending.log("ReadingToolbar.onCommentaryLong") },
-            onStrongs = { IosPending.log("ReadingToolbar.onStrongs") },
-            onStrongsLong = { IosPending.log("ReadingToolbar.onStrongsLong") },
-            onSearch = { navigator.openSearch(null) },
-            onSpeak = { IosPending.log("ReadingToolbar.onSpeak") },
-            onSpeakLong = { IosPending.log("ReadingToolbar.onSpeakLong") },
-            onWorkspace = { IosPending.log("ReadingToolbar.onWorkspace") },
-            onOverflow = { IosPending.log("ReadingToolbar.onOverflow") },
-        )
+    fun dispose() {
+        drawerWatch.cancel()
+        slots.dispose()
     }
 
-    fun deps(icons: ReadingToolbarIcons, paneIcons: IosPaneIcons? = null): ReadingHostDeps = ReadingHostDeps(
+    /**
+     * The toolbar callbacks: all sixteen do what Android's `ReadingCommands`/`ComposeReadingViewHost` toolbar callbacks
+     * do ([ReadingToolbarCommands]); none is a logged pending. The gaps inside them (full screen, auto assign labels,
+     * LLM actions, some drawer rows) are named on [IosReadingToolbarHost] and `ReadingDrawerMenu.OMITTED_ROWS`.
+     */
+    internal fun callbacks(): ReadingToolbarCallbacks = toolbarCommands.callbacks()
+
+    /** Every drawer row that [ReadingDrawerMenu] shows; the ReadingHost closes the drawer before calling back. */
+    private fun onDrawerItemClick(id: String) = drawerMenu.handle(id)
+
+    /** Runs an overflow row; true keeps the menu open and rebuilds it to show a flipped check. */
+    private fun onOverflowItemClick(id: String) {
+        if (overflowMenu.handle(id)) {
+            toolbarHost.overflowItems.value = overflowMenu.build()
+        } else {
+            toolbarHost.overflowExpanded.value = false
+        }
+    }
+
+    fun deps(icons: ReadingToolbarIcons, paneIcons: IosPaneIcons? = null): ReadingHostDeps {
+        // The state service only refreshes on events; the first snapshot is taken here, once the repository exists.
+        toolbarHost.refreshToolbar()
+        return buildDeps(icons, paneIcons)
+    }
+
+    private fun buildDeps(icons: ReadingToolbarIcons, paneIcons: IosPaneIcons?): ReadingHostDeps = ReadingHostDeps(
         state = hostState,
         controller = readingViewController,
+        toolbar = koin.get<ToolbarStateService>().toolbar,
         toolbarCallbacks = callbacks(),
         toolbarIcons = { icons },
         nightMode = nightModeSource ?: mutableStateOf(nightModeState.nightMode),
@@ -382,6 +450,13 @@ class IosReadingHost(
             (DisplayColorMode.fromValue(settings.getString("display_color_mode", null)) ?: DisplayColorMode.NORMAL) != DisplayColorMode.NORMAL,
         ),
         disableAnimations = { settings.resolveDisableAnimations(false) },
+        overflowItems = toolbarHost.overflowItems,
+        overflowExpanded = toolbarHost.overflowExpanded,
+        onOverflowItemClick = ::onOverflowItemClick,
+        onOverflowDismiss = { toolbarHost.overflowExpanded.value = false },
+        drawerMenu = drawerMenuState,
+        drawerIcon = { key -> rememberIosDrawerIcon(key) },
+        onDrawerItemClick = ::onDrawerItemClick,
         agentLogSlot = { applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
             slots.AgentLog(applyNavBarInset, maxHeightDp, collapsedDp) { height ->
                 agentLogHeightDp = height

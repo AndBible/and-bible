@@ -211,10 +211,13 @@ class PageManagerChooserTarget(
     private val verseNotFoundText: () -> String,
     private val history: () -> HistoryManager,
     private val scope: CoroutineScope,
+    /** Android's `onToolbarStateMayHaveChanged()`: called after a document answer (document chooser, My Documents). */
+    private val onToolbarMayHaveChanged: () -> Unit = {},
 ) : ChooserTarget {
     override fun applyDocument(bookInitials: String?) {
         val book = Books.installed().getBook(bookInitials) ?: fakeBooks().pseudoDocuments.first { it.initials == bookInitials }
         pageManager.setCurrentDocument(book)
+        onToolbarMayHaveChanged()
     }
 
     override fun applyVerse(osisId: String) {
@@ -243,9 +246,10 @@ class PageManagerChooserTarget(
         val book = Books.installed().getBook(documentInitials) ?: return
         if (pageKey == null) {
             pageManager.setCurrentDocument(book)
-            return
+        } else {
+            openPage(book, pageKey)
         }
-        openPage(book, pageKey)
+        onToolbarMayHaveChanged()
     }
 
     /**

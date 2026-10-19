@@ -82,19 +82,15 @@ class IosReadingHostTest {
             assertTrue(deps.state === host.hostState)
             assertEquals("Bible Study", host.navDeps {}.windowTitle)
 
-            // Every toolbar callback is safe to invoke; the pending ones log under their member name.
+            // Every toolbar callback is safe to invoke before a window exists on screen, and none is a logged pending
+            // (see toolbarCallbacksAreWiredAndNoneIsPending for what each one does).
             IosPending.resetForTest()
             deps.toolbarCallbacks.apply {
                 onHome(); onTitleTap(); onTitleLongPress(); onTitleFlingVertical(); onTitleFlingHorizontal(true)
                 onBible(); onBibleLong(); onCommentary(); onCommentaryLong(); onStrongs(); onStrongsLong()
                 onSearch(); onSpeak(); onSpeakLong(); onWorkspace(); onOverflow()
             }
-            for (name in listOf(
-                "onHome", "onTitleLongPress", "onTitleFlingHorizontal", "onBible", "onBibleLong", "onCommentary",
-                "onCommentaryLong", "onStrongs", "onStrongsLong", "onSpeak", "onSpeakLong", "onOverflow",
-            )) {
-                assertTrue("ReadingToolbar.$name" in IosPending.reported, "missing pending log for $name")
-            }
+            assertEquals(emptyList(), IosPending.reported.filter { it.startsWith("ReadingToolbar.") }, "toolbar pendings")
 
             // Night mode follows NightModeState, both ways.
             assertTrue(IosReadingHost(scope, shell, koin, FakeNight(true)).deps(icons).nightMode.value)
@@ -172,6 +168,71 @@ class IosReadingHostTest {
         assertTrue(deps.windowTopLabel !== d1.windowTopLabel, "windowTopLabel")
         assertTrue(deps.handlePaneMenuItem !== d1.handlePaneMenuItem, "handlePaneMenuItem")
         assertTrue(deps.menuIcon !== d1.menuIcon, "menuIcon")
+        assertTrue(deps.onOverflowItemClick !== d1.onOverflowItemClick, "onOverflowItemClick")
+        assertTrue(deps.onOverflowDismiss !== d1.onOverflowDismiss, "onOverflowDismiss")
+        assertTrue(deps.onDrawerItemClick !== d1.onDrawerItemClick, "onDrawerItemClick")
+        assertTrue(deps.drawerIcon !== d1.drawerIcon, "drawerIcon")
+        assertTrue(deps.overflowItems !== d1.overflowItems, "overflowItems")
+        assertTrue(deps.toolbar !== d1.toolbar, "toolbar")
+    }
+
+    /**
+     * Every `ReadingToolbarCallbacks` member is invoked by name; none may log a pending. The allow-list of callbacks
+     * that may stay pending is EMPTY: every gap is inside a wired callback and named on `IosReadingToolbarHost` (full
+     * screen, auto assign labels and LLM actions in the overflow menu) and `ReadingDrawerMenu.OMITTED_ROWS`.
+     * Not compiled or run on Linux (no Mac): owed to the Mac run.
+     */
+    @Test
+    fun toolbarCallbacksAreWiredAndNoneIsPending() = withReadingHost { host, deps ->
+        val c = deps.toolbarCallbacks
+        val calls: Map<String, () -> Unit> = mapOf(
+            "onHome" to c.onHome, "onTitleTap" to c.onTitleTap, "onTitleLongPress" to c.onTitleLongPress,
+            "onTitleFlingVertical" to c.onTitleFlingVertical, "onTitleFlingHorizontal" to { c.onTitleFlingHorizontal(true) },
+            "onBible" to c.onBible, "onBibleLong" to c.onBibleLong, "onCommentary" to c.onCommentary,
+            "onCommentaryLong" to c.onCommentaryLong, "onStrongs" to c.onStrongs, "onStrongsLong" to c.onStrongsLong,
+            "onSearch" to c.onSearch, "onSpeak" to c.onSpeak, "onSpeakLong" to c.onSpeakLong,
+            "onWorkspace" to c.onWorkspace, "onOverflow" to c.onOverflow,
+        )
+        // Premise: the map names every member (the data class has 16).
+        assertEquals(16, calls.size)
+        val allowedPending = emptySet<String>()
+        for ((name, call) in calls) {
+            IosPending.resetForTest()
+            call()
+            val pending = IosPending.reported.filter { it.startsWith("ReadingToolbar.") }
+            if (name !in allowedPending) assertEquals(emptyList(), pending, "$name is still a logged pending")
+        }
+
+        // Observable effects of the ones that open something.
+        c.onHome()
+        assertTrue(host.hostState.isDrawerOpen, "home opens the drawer")
+        host.hostState.closeDrawer()
+        c.onTitleLongPress()
+        assertTrue(host.hostState.quickSheet.value is net.bible.sharedcore.reading.ReadingQuickSheet.Documents, "title long press: document sheet")
+        host.hostState.closeQuickSheet()
+        c.onWorkspace()
+        assertEquals(net.bible.sharedcore.reading.ReadingQuickSheet.Workspaces, host.hostState.quickSheet.value)
+        host.hostState.closeQuickSheet()
+        c.onTitleFlingVertical()
+        assertEquals(net.bible.sharedcore.reading.ReadingQuickSheet.Workspaces, host.hostState.quickSheet.value)
+        host.hostState.closeQuickSheet()
+        c.onSpeakLong()
+        assertTrue(host.slots.speakSheet.depth > 0, "speak long press opens the speak settings")
+
+        // The overflow menu opens with Android's rows (minus the named gaps) and a row closes it.
+        c.onOverflow()
+        assertTrue(deps.overflowExpanded.value)
+        val ids = deps.overflowItems.value.map { it.id }
+        assertTrue("nightMode" in ids && "switchToWorkspace" in ids && "allTextOptions" in ids, "overflow rows: $ids")
+        deps.onOverflowItemClick("switchToWorkspace")
+        assertFalse(deps.overflowExpanded.value, "a non-toggle row closes the menu")
+        assertEquals(net.bible.sharedcore.reading.ReadingQuickSheet.Workspaces, host.hostState.quickSheet.value)
+
+        // A drawer row acts, and the toolbar state is the service's flow (not the empty default).
+        host.hostState.closeQuickSheet()
+        deps.onDrawerItemClick("historyButton")
+        assertEquals(net.bible.sharedcore.reading.ReadingQuickSheet.History, host.hostState.quickSheet.value)
+        assertTrue(deps.toolbar === KoinPlatform.getKoin().get<net.bible.sharedcore.reading.ToolbarStateService>().toolbar)
     }
 
     /**

@@ -88,6 +88,8 @@ internal class IosReadingQuickActions(
     private val settings: AppSettings,
     private val scope: CoroutineScope,
     private val toast: (String) -> Unit,
+    /** Android's `onToolbarStateMayHaveChanged()`, called after a document is applied. */
+    private val onToolbarMayHaveChanged: () -> Unit = {},
 ) : ReadingQuickActions {
     /** Android's `switchMutex`: two quick switches never interleave their load/reload steps. */
     private val switchMutex = Mutex()
@@ -98,8 +100,8 @@ internal class IosReadingQuickActions(
      * Switches are serialised and finish with the workspace-name toast, like Android's `switchWorkspace`. Android also
      * clears its `BibleViewFactory`; here `loadFromDb` clears the window list and calls `notifyWindowsChanged`, and
      * `IosReadingWindows` releases the session of every window that is gone or closed on that change.
-     * Android's `buildView(forceUpdate)` / title / bottom-bar refreshes have no iOS counterpart (the toolbar state is
-     * not wired on iOS yet).
+     * Android's `buildView(forceUpdate)` / title / bottom-bar refreshes have no iOS counterpart; the toolbar state is refreshed
+     * at the end ([onToolbarMayHaveChanged]).
      */
     override fun quickSwitchToWorkspace(id: String) {
         scope.launch {
@@ -112,19 +114,20 @@ internal class IosReadingQuickActions(
                 control.windowSync.reloadAllWindows()
                 repository.updateAllWindowsTextDisplaySettings()
                 toast(repository.name)
+                onToolbarMayHaveChanged()
             }
         }
     }
 
     /**
-     * `KeyChooserResults.applyChosenDocument`: the installed book, else the matching pseudo-document. Android then
-     * calls `onToolbarStateMayHaveChanged()`; the iOS host has no toolbar-state refresh to call yet (its
-     * `ReadingHostDeps.toolbar` is still the empty state).
+     * `KeyChooserResults.applyChosenDocument`: the installed book, else the matching pseudo-document; then Android's
+     * `onToolbarStateMayHaveChanged()` ([onToolbarMayHaveChanged]).
      */
     override fun applyChosenDocument(bookStr: String?) {
         val book = Books.installed().getBook(bookStr)
             ?: fakeBookFactory().pseudoDocuments.first { it.initials == bookStr }
         windowControl().activeWindowPageManager.setCurrentDocument(book)
+        onToolbarMayHaveChanged()
     }
 
     override fun applyChosenGenBookKey(book: Book?, key: Key) {
