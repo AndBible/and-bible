@@ -6,6 +6,7 @@ final class PocUITests: XCTestCase {
 
     private func launch(_ scenario: String, dark: Bool = false, xxxl: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchArguments += ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO"]
         app.launchEnvironment["SCREENSHOT_SCENARIO"] = scenario
         app.launchEnvironment["POC_DARK"] = dark ? "1" : "0"
         if xxxl { app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"] }

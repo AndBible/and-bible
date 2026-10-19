@@ -12,6 +12,7 @@ final class AppUITests: XCTestCase {
 
     private func launch(_ arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchArguments += ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO"]
         app.launchArguments += arguments
         app.launch()
         return app
