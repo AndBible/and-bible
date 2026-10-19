@@ -61,7 +61,19 @@ class ObjcExportHiddenGuardTest {
                 "sharedui/DocCategoryMapping.kt",
                 "android/view/activity/navigation/GridPassageHostSupport.kt",
             ).map { File(common, it) }
-        return listOf("bridge", "session", "host").flatMap {
+        // The later reading additions (R2): the toolbar logic, the pane menu builder/dispatcher, the helpers moved from
+        // :app and the keyed string holders. They take or expose controller and jsword types, so each is hidden.
+        val keyed = File(common, "sharedui/strings/keyed")
+        val r2 = File(reading, "toolbar").walkTopDown().filter { it.isFile && it.extension == "kt" }.toList() +
+            listOf(
+                File(page, "WindowPaneMenuDispatcher.kt"), File(page, "WindowPaneMenuStateBuilder.kt"),
+                File(page, "screen/ClipboardKey.kt"), File(page, "screen/PaneLabels.kt"),
+                File(common, "android/view/activity/navigation/DocRowMapper.kt"),
+                File(keyed, "KeyedPaneMenuStrings.kt"), File(keyed, "KeyedReadingMenuStrings.kt"),
+                File(keyed, "SharedTextDisplayPrefItems.kt"),
+                File(common, "sharedui/components/AppToastHost.kt"), File(common, "sharedui/strings/PaneMenuStrings.kt"),
+            )
+        return r2 + listOf("bridge", "session", "host").flatMap {
             // Recursive: reading/host/slots/** is a subdirectory of host.
             File(reading, it).walkTopDown().filter { f -> f.isFile && f.extension == "kt" }.toList()
         } + appRoot +

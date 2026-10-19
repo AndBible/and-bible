@@ -247,5 +247,7 @@ class SharedTextDisplayPrefItemsTest {
         assertSame(source, items.contentSource())
         assertEquals(mapOf("a" to "Image A"), items.backgroundImageNames())
         assertEquals(listOf("sans-serif", "serif", "monospace"), items.fonts.map { it.value })
+        // The labels are Android's picker labels (FontDefinition.name), not hardcoded English words of their own.
+        assertEquals(listOf("Sans serif", "Serif", "Monospace"), items.fonts.map { it.label })
     }
 }

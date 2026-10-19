@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.strings.keyed
 
 import net.bible.android.control.document.DocumentControl
@@ -60,6 +62,15 @@ import org.crosswire.jsword.book.FeatureType
  * The picker's content source, the provided background images and the installed fonts are passed in, as those live
  * below this module.
  */
+/**
+ * A font choice for a CSS generic family, labelled as Android's font picker labels it (`FontDefinition.name`: dashes
+ * become spaces, first letter capitalised), so both platforms show "Sans serif".
+ */
+@kotlin.native.HiddenFromObjC
+fun genericFontChoice(family: String): SettingsItem.Choice =
+    SettingsItem.Choice(family, family.replace("-", " ").replaceFirstChar { it.uppercase() })
+
+@kotlin.native.HiddenFromObjC
 class SharedTextDisplayPrefItems(
     private val strings: () -> StringTable,
     private val contentSource: () -> ContentSource,
@@ -69,9 +80,9 @@ class SharedTextDisplayPrefItems(
     private val backgroundImages: () -> Map<String, String> = { emptyMap() },
     override val fonts: List<SettingsItem.Choice> = listOf(
         // The CSS generic families every WebView resolves; a platform with a font scan passes its own.
-        SettingsItem.Choice("sans-serif", "Sans-serif"),
-        SettingsItem.Choice("serif", "Serif"),
-        SettingsItem.Choice("monospace", "Monospace"),
+        genericFontChoice("sans-serif"),
+        genericFontChoice("serif"),
+        genericFontChoice("monospace"),
     ),
 ) : TextDisplayPrefItems {
     /** The recently used types, shared with the menus that offer them as shortcuts. */

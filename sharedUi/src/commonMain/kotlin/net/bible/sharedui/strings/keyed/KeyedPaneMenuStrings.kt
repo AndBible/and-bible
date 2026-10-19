@@ -15,11 +15,14 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.strings.keyed
 
 import net.bible.sharedui.strings.PaneMenuStrings
 
 /** [PaneMenuStrings] over a [StringTable]: the resource keys [KEYS] (all in `strings.xml`) that `AndroidPaneMenuStrings` reads. */
+@kotlin.native.HiddenFromObjC
 class KeyedPaneMenuStrings(private val t: StringTable) : PaneMenuStrings {
     override val newWindow get() = t.text("new_window")
     override val windowMaximise get() = t.text("windowMaximise")

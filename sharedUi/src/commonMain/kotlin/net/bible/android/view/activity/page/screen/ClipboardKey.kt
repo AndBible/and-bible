@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.page.screen
 
 import net.bible.service.sword.BookAndKey
@@ -41,4 +43,5 @@ import net.bible.service.sword.BookAndKey
  * samples it at menu-build time, so nothing observes it reactively and making it observable would
  * be a behaviour change, not a port.
  */
+@kotlin.native.HiddenFromObjC
 var clipboardKey: BookAndKey? = null

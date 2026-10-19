@@ -89,6 +89,7 @@ object AppToasts {
  * region. Colours come from the theme's inverse pair, so monochrome mode stays grayscale. With animations disabled
  * ([LocalDisableAnimations]) it appears and disappears without a fade.
  */
+@kotlin.native.HiddenFromObjC
 @Composable
 fun AppToastHost(modifier: Modifier = Modifier) {
     val toast by AppToasts.state.collectAsState()

@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.sharedui.strings
 
 /**
@@ -23,6 +25,7 @@ package net.bible.sharedui.strings
  * (`AndroidPaneMenuStrings`); iOS over the generated tables ([net.bible.sharedui.strings.keyed.KeyedPaneMenuStrings]),
  * both by the same resource key, which the strings test pins against `strings.xml`.
  */
+@kotlin.native.HiddenFromObjC
 interface PaneMenuStrings {
     val newWindow: String
     val windowMaximise: String
