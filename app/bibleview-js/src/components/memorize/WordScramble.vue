@@ -187,7 +187,7 @@ function getWordsFromText(text: string) {
     // This regex matches:
     // 1. Punctuation: one or more punctuation characters (including quotation marks and Unicode variants)
     // 2. Words: one or more non-whitespace, non-punctuation characters
-    const tokens = text.match(/([“”.,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s“”.,;:!?…"'«»„‚–—\-()[\]{}]+)/g) || [];
+    const tokens = text.match(/([“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+)/g) || [];
     return tokens.filter(token => token.length > 0);
 }
 
@@ -196,14 +196,24 @@ function isWordRevealed(globalWordIndex: number) {
 }
 
 function isPunctuation(word: string): boolean {
-    return /^[“”.,;:!?…"'«»„‚–—\-()[\]{}]+$/.test(word);
+    return /^[“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+$/.test(word);
 }
 
 onMounted(() => {
     hideUsedButtons.value = globalSettings.memorizeScrambleHideUsed;
     const config = props.modeConfig?.scrambleConfig;
-    if (config) {
-        scrambledWords.value = config.scrambledWords ?? [];
+    const allWords = props.textItems.flatMap(item => getWordsFromText(item.text));
+    const savedWords = config?.scrambledWords ?? [];
+    const savedIndices = savedWords.flatMap(word => word.originalIndices);
+    const wordCount = allWords.filter(word => !isPunctuation(word)).length;
+    // Tokenization changes can leave saved buttons pointing at different tokens.
+    const canRestore = savedIndices.length === wordCount
+        && new Set(savedIndices).size === wordCount
+        && savedWords.every(({word, originalIndices}) =>
+            !isPunctuation(word) && originalIndices.length > 0
+            && originalIndices.every(index => allWords[index]?.toLowerCase() === word.toLowerCase()));
+    if (config && canRestore) {
+        scrambledWords.value = savedWords;
         currentWordIndex.value = config.currentWordIndex ?? 0;
     } else {
         resetWords();
@@ -320,6 +330,7 @@ function resetWords() {
     isPeeking.value = false;
 
     // Save the initial state
+    skipPunctuationTokens();
     saveState();
 }
 

@@ -227,43 +227,126 @@ describe("WordScramble.vue", () => {
     expect(emittedEvents[0][0].scrambleConfig).toHaveProperty('scrambledWords');
   });
 
-  it("loads existing configuration from props", () => {
-    // Create mock scrambled words
+  it("restores valid saved order and progress without resetting", async () => {
     const mockScrambledWords = [
-      { word: "beginning", originalIndices: [2], remainingUses: 1, used: false, incorrect: false },
-      { word: "the", originalIndices: [1, 8], remainingUses: 2, used: false, incorrect: false }
+      { word: "God", originalIndices: [2], remainingUses: 0, used: true, incorrect: false },
+      { word: "all", originalIndices: [5], remainingUses: 1, used: false, incorrect: false },
+      { word: "For", originalIndices: [1, 4], remainingUses: 1, used: false, incorrect: false }
     ];
-    
-    // Create wrapper with existing configuration
-    const existingConfig = {
-      scrambleConfig: {
-        currentWordIndex: 3,
-        scrambledWords: mockScrambledWords
+    const wrapper = createWrapper({
+      textItems: [
+        { key: "verse1", text: "¶For God," },
+        { key: "verse2", text: "for all." }
+      ],
+      modeConfig: {
+        scrambleConfig: {
+          currentWordIndex: 4,
+          scrambledWords: mockScrambledWords
+        }
       }
-    };
-    
-    const wrapper = createWrapper({ modeConfig: existingConfig });
-    
-    // Should have loaded the configuration
-    expect(wrapper.vm.currentWordIndex).toBe(3);
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.currentWordIndex).toBe(4);
     expect(wrapper.vm.scrambledWords).toEqual(mockScrambledWords);
+    expect(wrapper.emitted("save-mode-config")).toBeUndefined();
+    expect(wrapper.findAll(".word-buttons .button").map(button => button.text())).toEqual(["God", "all", "For"]);
+    expect(findButtonForWord(wrapper, "God").classes()).toContain("disabled");
+    expect(findButtonForWord(wrapper, "For").classes()).not.toContain("disabled");
+    expect(wrapper.findAll(".memorize-word:not(.punctuation)").map(word => word.text()))
+      .toEqual(["For", "God", "___", "___"]);
+
+    for (const word of ["for", "all"]) {
+      const button = findButtonForWord(wrapper, word);
+      expect(button).not.toBeNull();
+      await button.trigger("click");
+      expect(button.classes()).not.toContain("incorrect");
+    }
+    expect(wrapper.find(".memorize-text").classes()).toContain("completed");
+    expect(wrapper.emitted("memorize-completed")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it.each([
+    ["¶For God", "¶For", "God", 1, [1, 2]],
+    ["For ¶God", "For", "¶God", 0, [0, 2]],
+  ])("resets incompatible pre-fix paragraph cache for %s", async (text, firstWord, secondWord, startIndex, indices) => {
+    const wrapper = createWrapper({
+      textItems: [{ key: "verse1", text }],
+      modeConfig: {
+        scrambleConfig: {
+          currentWordIndex: 1,
+          scrambledWords: [
+            { word: secondWord, originalIndices: [1], remainingUses: 1, used: false, incorrect: false },
+            { word: firstWord, originalIndices: [0], remainingUses: 0, used: true, incorrect: false }
+          ]
+        }
+      }
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.findAll(".word-buttons .button").map(button => button.text()).sort()).toEqual(["For", "God"]);
+    expect(wrapper.vm.currentWordIndex).toBe(startIndex);
+    expect(wrapper.vm.scrambledWords.flatMap(word => word.originalIndices).sort()).toEqual(indices);
+    expect(wrapper.findAll(".memorize-word:not(.punctuation)").map(word => word.text())).toEqual(["___", "___"]);
+    expect(wrapper.emitted("save-mode-config")).toHaveLength(1);
+    expect(wrapper.emitted("save-mode-config")[0][0].scrambleConfig.currentWordIndex).toBe(startIndex);
+
+    for (const word of ["For", "God"]) {
+      const button = findButtonForWord(wrapper, word);
+      expect(button).not.toBeNull();
+      expect(button.classes()).not.toContain("disabled");
+      await button.trigger("click");
+      expect(button.classes()).not.toContain("incorrect");
+    }
+    expect(wrapper.find(".memorize-text").classes()).toContain("completed");
+    expect(wrapper.emitted("memorize-completed")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it.each([
+    ["missing", [0]],
+    ["duplicate", [0, 0]],
+    ["punctuation", [0, 1]],
+  ])("resets cached mappings with %s word indices", async (_reason, originalIndices) => {
+    const wrapper = createWrapper({
+      textItems: [{ key: "verse1", text: "For, for God" }],
+      modeConfig: {
+        scrambleConfig: {
+          currentWordIndex: 2,
+          scrambledWords: [
+            { word: "For", originalIndices, remainingUses: 1, used: false, incorrect: false },
+            { word: "God", originalIndices: [3], remainingUses: 1, used: false, incorrect: false }
+          ]
+        }
+      }
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.currentWordIndex).toBe(0);
+    expect(wrapper.vm.scrambledWords.find(word => word.word === "For").originalIndices).toEqual([0, 2]);
+    expect(wrapper.emitted("save-mode-config")).toHaveLength(1);
+    wrapper.unmount();
   });
 
   it("shows completed state when all words are used", async () => {
     // Create some mock scrambled words that are all used
     const mockScrambledWords = [
-      { word: "beginning", originalIndices: [2], remainingUses: 0, used: true, incorrect: false },
-      { word: "the", originalIndices: [1, 8], remainingUses: 0, used: true, incorrect: false }
+      { word: "beginning", originalIndices: [1], remainingUses: 0, used: true, incorrect: false },
+      { word: "the", originalIndices: [0, 2], remainingUses: 0, used: true, incorrect: false }
     ];
     
     const existingConfig = {
       scrambleConfig: {
-        currentWordIndex: 10, // Past all words
+        currentWordIndex: 3, // Past all words
         scrambledWords: mockScrambledWords
       }
     };
     
-    const wrapper = createWrapper({ modeConfig: existingConfig });
+    const wrapper = createWrapper({
+      textItems: [{ key: "verse1", text: "the beginning the" }],
+      modeConfig: existingConfig
+    });
     
     // Force a re-render to ensure the computed property is evaluated
     await wrapper.vm.$nextTick();
@@ -334,6 +417,65 @@ describe("WordScramble.vue", () => {
     punctuation.forEach(p => {
       expect([',', '!', '?'].includes(p.text().trim())).toBe(true);
     });
+  });
+
+  it.each([
+    ["“For God”", "“”"],
+    ["¶For God", "¶"],
+    ["¶“For ¶God”", "¶“¶”"],
+  ])("auto-reveals OSIS markers and accepts words in %s", async (text, markers) => {
+    const wrapper = createWrapper({textItems: [{key: "verse1", text}]});
+    await wrapper.vm.$nextTick();
+
+    const buttonTexts = wrapper.findAll(".word-buttons .button").map(button => button.text().trim());
+    expect(buttonTexts.sort()).toEqual(["For", "God"]);
+    expect(wrapper.findAll(".punctuation").map(token => token.text()).join("")).toBe(markers);
+
+    for (const word of ["For", "God"]) {
+      const button = wrapper.findAll(".word-buttons .button").find(candidate => candidate.text().trim() === word);
+      expect(button).toBeDefined();
+      await button.trigger("click");
+      expect(button.classes()).not.toContain("incorrect");
+    }
+
+    expect(wrapper.find(".memorize-text").classes()).toContain("completed");
+    expect(wrapper.emitted("memorize-completed")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it.each(["¶For God", "¶“For ¶God”", "“For God”"])("can replay %s after reset", async (text) => {
+    const wrapper = createWrapper({textItems: [{key: "verse1", text}]});
+    await wrapper.vm.$nextTick();
+
+    for (let completion = 1; completion <= 2; completion++) {
+      for (const word of ["For", "God"]) {
+        const button = wrapper.findAll(".word-buttons .button").find(candidate => candidate.text().trim() === word);
+        expect(button).toBeDefined();
+        expect(button.classes()).not.toContain("disabled");
+        await button.trigger("click");
+        expect(button.classes()).not.toContain("incorrect");
+        expect(button.classes()).toContain("disabled");
+      }
+
+      expect(wrapper.find(".memorize-text").classes()).toContain("completed");
+      expect(wrapper.emitted("memorize-completed")).toHaveLength(completion);
+
+      if (completion === 1) {
+        await wrapper.findAll(".memorize-controls .icon-button")[1].trigger("click");
+        expect(wrapper.find(".memorize-text").classes()).not.toContain("completed");
+        expect(wrapper.findAll(".memorize-word:not(.punctuation)").map(word => word.text())).toEqual(["___", "___"]);
+      }
+    }
+
+    wrapper.unmount();
+  });
+
+  it.each(["“”", "¶", "¶“”"])("does not create buttons for marker-only text %s", async (text) => {
+    const wrapper = createWrapper({textItems: [{key: "verse1", text}]});
+    await wrapper.vm.$nextTick();
+    expect(wrapper.findAll(".word-buttons .button")).toHaveLength(0);
+    expect(wrapper.findAll(".punctuation").map(token => token.text()).join("")).toBe(text);
+    wrapper.unmount();
   });
 
   it("completes the exercise in sequence and transitions to completed state", async () => {

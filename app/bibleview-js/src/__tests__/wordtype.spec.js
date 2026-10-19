@@ -126,6 +126,48 @@ describe("WordType.vue", () => {
         }
     });
 
+    describe.each([false, true])("OSIS markers with typeEverything=%s", (typeEverything) => {
+        it.each(["“For God”", "¶For God", "¶“For ¶God”"])("auto-skips markers in %s", async (text) => {
+            const wrapper = createWrapper({
+                textItems: [{key: "verse1", text}],
+                modeConfig: {typeConfig: {currentWordIndex: 0, typeEverything}},
+            });
+            await nextTick();
+
+            const words = wrapper.findAll(".type-word:not(.punctuation)");
+            expect(words.map(word => word.text())).toEqual(["For", "God"]);
+            expect(wrapper.find(".type-current").text()).toBe("For");
+            const markers = wrapper.findAll(".punctuation").map(token => token.text()).join("");
+
+            const input = wrapper.find(".type-hidden-input");
+            for (const word of ["For", "God"]) {
+                for (const character of typeEverything ? word : word[0]) {
+                    await input.setValue(character);
+                }
+            }
+
+            expect(wrapper.find(".type-incorrect").exists()).toBe(false);
+            expect(wrapper.find(".type-current").exists()).toBe(false);
+            expect(wrapper.findAll(".type-word:not(.punctuation)").every(word =>
+                word.classes().includes("type-correct"))).toBe(true);
+            expect(wrapper.emitted("memorize-completed")).toHaveLength(1);
+            expect(wrapper.findAll(".punctuation").map(token => token.text()).join("")).toBe(markers);
+            wrapper.unmount();
+        });
+    });
+
+    it.each(["“”", "¶", "¶“”"])("does not require input for marker-only text %s", async (text) => {
+        const wrapper = createWrapper({textItems: [{key: "verse1", text}]});
+        await nextTick();
+
+        expect(wrapper.findAll(".type-word:not(.punctuation)")).toHaveLength(0);
+        expect(wrapper.find(".type-current").exists()).toBe(false);
+        expect(wrapper.findAll(".punctuation").map(token => token.text()).join("")).toBe(text);
+        await wrapper.find(".type-hidden-input").setValue("F");
+        expect(wrapper.find(".type-incorrect").exists()).toBe(false);
+        wrapper.unmount();
+    });
+
     it("emits memorize-completed when all words are typed", async () => {
         const wrapper = createWrapper();
         const input = wrapper.find(".type-hidden-input");

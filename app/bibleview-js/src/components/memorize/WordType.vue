@@ -193,12 +193,12 @@ function setWordRef(globalIndex: number, el: any) {
 // "years'") since that is the standard classical/plural possessive form; a trailing
 // apostrophe after any other letter is treated as a closing quote instead.
 function getWordsFromText(text: string) {
-    const tokens = text.match(/(["".,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+(?:['’‘][^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+)*(?:(?<=[sS])['’‘])?)/g) || [];
+    const tokens = text.match(/([“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+(?:['’‘][^\s“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+)*(?:(?<=[sS])['’‘])?)/g) || [];
     return tokens.filter(token => token.length > 0);
 }
 
 function isPunctuation(word: string): boolean {
-    return /^["".,;:!?…"'«»„‚–—\-()[\]{}]+$/.test(word);
+    return /^[“”¶.,;:!?…"'«»„‚–—\-()[\]{}]+$/.test(word);
 }
 
 // Module text may use a curly apostrophe (') while the keyboard produces a straight one -
