@@ -41,6 +41,17 @@ class AbIconsRenderTest {
     }
 
     @Test
+    fun darkerGrayAndroidColorIsConvertedToItsOriginalArgbValue() {
+        val resourcePath = File("src/commonMain/composeResources/drawable")
+        val darkestGrayResources = setOf("ic_save_24dp.xml", "ic_syncdb_24dp.xml", "icon_circle_question.xml", "icon_robot.xml")
+        for (name in darkestGrayResources) {
+            val color = Regex("android:fillColor=\"(#[0-9a-fA-F]{6})\"")
+                .find(File(resourcePath, name).readText())?.groupValues?.get(1)
+            assertEquals("#aaaaaa", color, "$name must preserve @android:color/darker_gray")
+        }
+    }
+
+    @Test
     fun labelKeysMatchAndroid() {
         val source = sequenceOf(
             File("../app/src/main/java/net/bible/android/view/activity/bookmark/LabelIconMap.kt"),
