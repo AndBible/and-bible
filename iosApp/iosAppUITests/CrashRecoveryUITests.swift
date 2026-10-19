@@ -18,7 +18,8 @@ final class CrashRecoveryUITests: XCTestCase {
     /// No terminate() or seeded recovery: both exits must come from the uncaught Kotlin dispatch callback.
     func testTwoFatalForegroundCrashesRecoverAfterBackgroundRearm() {
         let app = XCUIApplication()
-        let base = ["-task6DebugActions", "-discrete_mode", "NO", "-show_calculator", "NO",
+        // Keep the real debug action above Compose Settings, not the native WKWebView touch surface.
+        let base = ["-task6DebugActions", "-task5Settings", "-discrete_mode", "NO", "-show_calculator", "NO",
                     "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launchArguments = base + ["-task6ResetCrashState"]
         app.launch()
