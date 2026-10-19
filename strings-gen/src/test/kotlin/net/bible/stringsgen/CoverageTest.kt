@@ -9,12 +9,11 @@ class CoverageTest {
     private val repoRoot = File(System.getProperty("repoRoot"))
     private val baseXml = File(repoRoot, "app/src/main/res/values/strings.xml")
 
-    @Test fun base_strings_parse_and_have_expected_volume() {
+    @Test fun base_strings_include_platform_and_settings_resources() {
         val kv = parseStringsXml(baseXml.readText())
-        // Verified 2026-07-09: 1507 <string> entries in the base file.
-        assertTrue(kv.size in 1400..1600, "expected ~1507 base strings, got ${kv.size}")
-        // Spot-check a known pilot string exists.
-        assertTrue("calc_division_by_zero" in kv, "calc_division_by_zero missing")
+        setOf("calc_division_by_zero", "settings", "reset_settings", "plan_name_y1ntpspr").forEach {
+            assertTrue(kv[it]?.isNotBlank() == true, "Missing or empty base resource: $it")
+        }
     }
 
     @Test fun known_qualifier_mapping() {
@@ -42,10 +41,12 @@ class CoverageTest {
         assertEquals(mapOf("A" to "base-A"), mergeLocale(null, base))
     }
 
-    @Test fun real_base_has_the_five_plurals() {
+    @Test fun real_base_has_all_cloud_document_plurals() {
         val p = parsePluralsXml(baseXml.readText())
-        assertEquals(5, p.size, "expected 5 plurals, got ${p.keys}")
-        assertTrue("cloud_doc_sync_now_count" in p)
+        assertEquals(setOf(
+            "cloud_doc_sync_now_count", "cloud_doc_sync_now_count_size", "cloud_doc_bulk_remove_all_confirm",
+            "cloud_doc_bulk_remove_cloud_confirm", "cloud_doc_bulk_purge_confirm", "cloud_doc_bulk_block_confirm",
+        ), p.keys)
         assertTrue(p.values.all { "one" in it && "other" in it }, "each plural must have one+other")
     }
 

@@ -45,6 +45,20 @@ class IosHostShellTest {
     private val popWelcome = "popTo(${NavRoutes.WELCOME},true)"
 
     @Test
+    fun recreationRefreshesLanguageWithoutReplacingNavigationOrHistory() {
+        var refreshes = 0
+        val liveShell = IosHostShell(CoroutineScope(EmptyCoroutineContext), nav) { refreshes++ }
+        val owner = Any()
+        liveShell.setHistoryRoute(owner, "history")
+        nav.stack += NavRoutes.READING
+        liveShell.recreateHost()
+        assertEquals(1, refreshes)
+        assertEquals("history", liveShell.historyRoute)
+        assertEquals(setOf(NavRoutes.READING), nav.stack)
+        assertEquals(emptyList(), nav.calls)
+    }
+
+    @Test
     fun openReadingFromWelcomePopsWelcome() {
         nav.stack += NavRoutes.WELCOME
         shell.openReading()

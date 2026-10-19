@@ -77,6 +77,45 @@ class KeyedStringsTest {
     }
 
     @Test
+    fun pluralFormattingRetainsAdditionalArguments() {
+        assertEquals("2 documents (5 MB)", tableFor("en").pluralFormat("cloud_doc_sync_now_count_size", 2, 2, "5 MB"))
+    }
+
+    @Test
+    fun retainedUiStringsFollowLanguageProvider() {
+        var language = "en"
+        val strings = net.bible.sharedui.strings.iosStrings { language }
+        val english = strings.settings
+        language = "fi"
+        assertNotEquals(english, strings.settings)
+        assertEquals(lookup("fi", "settings"), strings.settings)
+    }
+
+    @Test
+    fun resolvedWrappersReadTheCurrentTableOnEveryAccess() {
+        var current = tableFor("en")
+        val core = KeyedCoreStrings { current }
+        val llm = KeyedLlmStrings { current }
+        val labels = KeyedLabelNameStrings { current }
+        val settings = KeyedSettingLabels { current }
+        val plans = KeyedDistributedPlanCatalog { current }
+        val english = core.studypads
+        val englishLlm = llm.actionActiveWindow
+        val englishLabel = labels.speak
+        val englishPlan = plans.plans().first().planName
+        val type = TextDisplaySettings.Types.entries.first()
+        settings.label(SettingsBundle(), type)
+        current = tableFor("fi")
+        assertEquals(lookup("fi", "studypads"), core.studypads)
+        assertNotEquals(english, core.studypads)
+        assertNotEquals(englishLlm, llm.actionActiveWindow)
+        assertNotEquals(englishLabel, labels.speak)
+        assertNotEquals(englishPlan, plans.plans().first().planName)
+        assertEquals(KeyedSettingLabels(current).label(SettingsBundle(), type), settings.label(SettingsBundle(), type))
+        assertEquals(current.array("prefs_night_mode_descriptions_system_auto_manual"), core.prefsNightModeDescriptionsSystemAutoManual)
+    }
+
+    @Test
     fun coreStringsAnswerRealText() {
         val core = KeyedCoreStrings(table)
         assertText("namelessTitle", core.namelessTitle, filled = false)

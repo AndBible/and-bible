@@ -36,9 +36,14 @@ class StringTable(
     val plural: (name: String, count: Int) -> String,
     val array: (name: String) -> List<String>,
     val raw: (name: String) -> String = { error("Raw text resource '$it' is not available on this platform yet") },
+    internal val pluralTemplate: (name: String, count: Int) -> String = plural,
 ) {
     /** [text] of [key] with its `%` placeholders filled from [args]. */
     fun fmt(key: String, vararg args: Any?): String = format(key, args)
+
+    /** Selects the plural before formatting all arguments (including arguments beyond the count). */
+    fun pluralFormat(name: String, count: Int, vararg args: Any): String =
+        formatTemplate(pluralTemplate(name, count), args)
 
     companion object {
         private const val STRING_REF = "@string/"
@@ -55,7 +60,7 @@ class StringTable(
             array: (name: String) -> List<String>,
             raw: (name: String) -> String = { error("Raw text resource '$it' is not available on this platform yet") },
         ): StringTable = StringTable(tag, lookup, { key, args -> formatTemplate(lookup(key), args) }, { n, c -> formatTemplate(plural(n, c), arrayOf(c)) },
-            { name -> array(name).map { if (it.startsWith(STRING_REF)) lookup(it.removePrefix(STRING_REF)) else it } }, raw)
+            { name -> array(name).map { if (it.startsWith(STRING_REF)) lookup(it.removePrefix(STRING_REF)) else it } }, raw, plural)
     }
 }
 

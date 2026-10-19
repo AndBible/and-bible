@@ -20,18 +20,25 @@ package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.PlatformText
 import net.bible.sharedui.app.ports.PluralKey
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.strings.keyed.StringTable
 import platform.Foundation.NSByteCountFormatter
 import platform.Foundation.NSByteCountFormatterCountStyleFile
 
-/** File sizes are real (locale formatted); plurals are pending (stream H) and fall back to the bare count. */
+/** Native file sizes and plural resources in the current UI language. */
 @kotlin.native.HiddenFromObjC
-class IosPlatformText : PlatformText {
+class IosPlatformText(private val table: () -> StringTable) : PlatformText {
     override fun formatFileSize(bytes: Long): String =
         NSByteCountFormatter.stringFromByteCount(bytes, NSByteCountFormatterCountStyleFile)
 
     override fun plural(key: PluralKey, count: Int, vararg args: Any): String {
-        IosPending.log("PlatformText.plural")
-        return count.toString()
+        val name = when (key) {
+            PluralKey.CLOUD_DOC_SYNC_NOW_COUNT -> "cloud_doc_sync_now_count"
+            PluralKey.CLOUD_DOC_SYNC_NOW_COUNT_SIZE -> "cloud_doc_sync_now_count_size"
+            PluralKey.CLOUD_DOC_BULK_BLOCK_CONFIRM -> "cloud_doc_bulk_block_confirm"
+            PluralKey.CLOUD_DOC_BULK_REMOVE_CONFIRM -> "cloud_doc_bulk_remove_all_confirm"
+            PluralKey.CLOUD_DOC_BULK_REMOVE_CLOUD_CONFIRM -> "cloud_doc_bulk_remove_cloud_confirm"
+            PluralKey.CLOUD_DOC_BULK_PURGE_CONFIRM -> "cloud_doc_bulk_purge_confirm"
+        }
+        return table().pluralFormat(name, count, *args)
     }
 }

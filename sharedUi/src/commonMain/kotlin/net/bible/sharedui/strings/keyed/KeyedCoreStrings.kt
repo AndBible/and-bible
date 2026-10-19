@@ -23,7 +23,11 @@ import net.bible.sharedcore.platform.CoreStrings
  * [CoreStrings] over a [StringTable]: the same resource keys as `AndroidCoreStrings`, so the two cannot drift apart.
  * Misspelt keys are caught by `KeyedStringsTest` (a missing key answers itself).
  */
-class KeyedCoreStrings(private val t: StringTable) : CoreStrings {
+class KeyedCoreStrings(private val table: () -> StringTable) : CoreStrings {
+    constructor(table: StringTable) : this({ table })
+
+    private val t: StringTable get() = table()
+
     override val namelessTitle: String get() = t.text("nameless")
     override fun processingEpub(title: String): String = t.fmt("processing_epub", title)
     override fun creatingIndexFor(name: String): String = t.fmt("creating_index_for", name)

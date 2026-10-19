@@ -21,7 +21,11 @@ import net.bible.service.readingplan.DistributedPlanDetails
 import net.bible.sharedlogic.platform.DistributedPlanCatalog
 
 /** The seven distributed reading plans (`ReadingPlanCatalog.ABDistributedPlanDetailArray`) named from a [StringTable]. */
-class KeyedDistributedPlanCatalog(private val t: StringTable) : DistributedPlanCatalog {
+class KeyedDistributedPlanCatalog(private val table: () -> StringTable) : DistributedPlanCatalog {
+    constructor(table: StringTable) : this({ table })
+
+    private val t: StringTable get() = table()
+
     override fun plans(): List<DistributedPlanDetails> = PLAN_CODES.map {
         DistributedPlanDetails(it, t.text("plan_name_$it"), t.text("plan_description_$it"))
     }

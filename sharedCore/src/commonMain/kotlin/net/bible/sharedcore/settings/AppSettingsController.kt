@@ -48,7 +48,7 @@ sealed interface AppSettingsDialog {
 class AppSettingsController(
     private val service: AppSettingsService,
     private val scope: CoroutineScope,
-    private val labels: AppSettingsLabels,
+    private var labels: AppSettingsLabels,
     private val onNavigate: (String) -> Unit,
     /** Classic's `resetSettings()` (Task 15): still a host callback (`SettingsReset.performReset()`,
      *  `service.refresh()`, `recreate()` all need Android), only the confirmation QUESTION moved
@@ -63,6 +63,20 @@ class AppSettingsController(
 
     init {
         scope.launch { service.snapshot.collect { _state.value = build(it) } }
+    }
+
+    /** Refreshes translated state without replacing the controller or dismissing its open dialog. */
+    fun updateLabels(labels: AppSettingsLabels, discreteHelpHtml: (() -> String)? = null) {
+        this.labels = labels
+        _state.value = build(service.snapshot.value)
+        _dialog.value = when (val dialog = _dialog.value) {
+            is AppSettingsDialog.ConfirmReset -> AppSettingsDialog.ConfirmReset(labels.resetConfirmMessage)
+            is AppSettingsDialog.DiscreteHelp -> dialog.copy(
+                title = labels.persecutionCat,
+                html = discreteHelpHtml?.invoke() ?: dialog.html,
+            )
+            AppSettingsDialog.None -> dialog
+        }
     }
 
     /** Classic's reset confirmation (`SettingsComposeActivity.kt:245-254`). */

@@ -16,6 +16,9 @@
  */
 package net.bible.sharedui.assembly
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.strings.lookup
 import net.bible.sharedui.strings.lookupArray
@@ -32,3 +35,24 @@ fun iosStringTable(
     raw: (name: String) -> String = { error("Raw text resource '$it' is not available") },
 ): StringTable =
     StringTable.of(tag, { lookup(tag, it) }, { name, count -> lookupPlural(tag, name, count) }, { lookupArray(tag, it) }, raw)
+
+/** A shared observable language; providers must dereference [current] on every string access. */
+class IosStringTableHolder(initial: StringTable) {
+    var current: StringTable by mutableStateOf(initial)
+        private set
+
+    fun switchTo(language: String) {
+        if (current.tag != language) current = iosStringTable(language, current.raw)
+    }
+
+    /** A stable facade for platform ports retained by hosts, including their deferred callbacks. */
+    internal val live: StringTable = StringTable(
+        initial.tag,
+        { current.text(it) },
+        { key, args -> current.format(key, args) },
+        { key, count -> current.plural(key, count) },
+        { current.array(it) },
+        { current.raw(it) },
+        { key, count -> current.pluralTemplate(key, count) },
+    )
+}

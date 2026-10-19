@@ -169,12 +169,13 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<AppDirectories> { parts.directories }
         single<AppSettings> { DatabaseAppSettings({ DatabaseContainer.instance.settingsStore }, { IosAppStartup.databasesOpen }) }
 
-        // --- strings (one table for the chosen UI language)
-        single<CoreStrings> { KeyedCoreStrings(parts.strings) }
-        single<LlmStrings> { KeyedLlmStrings(parts.strings) }
-        single<LabelNameStrings> { KeyedLabelNameStrings(parts.strings) }
-        single<SettingLabels> { KeyedSettingLabels(parts.strings) }
-        single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog(parts.strings) }
+        // --- strings (retained wrappers read the current language per access)
+        single { parts.stringTableHolder }
+        single<CoreStrings> { KeyedCoreStrings { get<IosStringTableHolder>().current } }
+        single<LlmStrings> { KeyedLlmStrings { get<IosStringTableHolder>().current } }
+        single<LabelNameStrings> { KeyedLabelNameStrings { get<IosStringTableHolder>().current } }
+        single<SettingLabels> { KeyedSettingLabels { get<IosStringTableHolder>().current } }
+        single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog { get<IosStringTableHolder>().current } }
         single<TextDisplayPrefItems> { PendingTextDisplayPrefItems(strings = { parts.strings }, contentSource = { get() }) }
 
         // --- locale, calendar, text

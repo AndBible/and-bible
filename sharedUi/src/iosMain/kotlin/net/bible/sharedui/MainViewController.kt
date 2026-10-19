@@ -123,7 +123,7 @@ fun MainViewController(): UIViewController {
         // Production path: the real app root. The PoC below stays only for SCREENSHOT_SCENARIO runs (spec C4).
         if (env["SCREENSHOT_SCENARIO"] as? String == null) {
             CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
-                IosApp(strings)
+                IosApp()
             }
             return@ComposeUIViewController
         }

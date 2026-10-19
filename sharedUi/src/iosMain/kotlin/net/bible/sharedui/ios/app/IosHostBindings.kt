@@ -46,7 +46,7 @@ import org.koin.dsl.module
 fun buildIosHostBindings(): Module = module {
     single<ExternalLinks> { IosExternalLinks() }
     single<ClipboardText> { IosClipboardText() }
-    single<PlatformText> { IosPlatformText() }
+    single<PlatformText> { IosPlatformText { get<net.bible.sharedui.assembly.IosStringTableHolder>().current } }
     single<DebugActions> { IosDebugActions() }
     single<DeviceLocalPrefs> { get<IosDeviceSettings>() }
     single { IosSettingsPlatform(get<CoreStrings>(), get(), get()) }

@@ -65,10 +65,15 @@ import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppRoot
 import net.bible.sharedui.app.gatedReadingRoute
+import net.bible.sharedui.assembly.IosStringTableHolder
+import net.bible.sharedui.assembly.resolveDeviceUiLanguage
+import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedui.strings.iosStrings
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
 import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.reading.LocalPinIcon
+import net.bible.sharedui.settings.nav.LocalLiveSettingsLanguage
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.keyed.StringTable
@@ -134,8 +139,12 @@ internal fun leaveWelcomeFor(scope: CoroutineScope, shell: IosHostShell, table: 
  */
 @Composable
 @kotlin.native.HiddenFromObjC
-fun IosApp(strings: Strings) {
+fun IosApp() {
     val koin = remember { KoinPlatform.getKoin() }
+    val holder = remember { koin.get<IosStringTableHolder>() }
+    val language = holder.current.tag
+    val strings = remember(language) { iosStrings(language) }
+    val liveStrings = remember { iosStrings { holder.current.tag } }
     val table = remember { IosAppStartup.stringTable }
     val nightObserver = remember { IosNightModeObserver(koin.get<NightModeState>()) { IosReadingWindows.nightModeChanged() } }
     DisposableEffect(nightObserver) {
@@ -156,6 +165,7 @@ fun IosApp(strings: Strings) {
     }
     CompositionLocalProvider(
         LocalStrings provides strings,
+        LocalLiveSettingsLanguage provides true,
         LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
         LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
     ) {
@@ -166,7 +176,7 @@ fun IosApp(strings: Strings) {
                     CircularProgressIndicator()
                 }
             } else {
-                IosAppContent(strings, table, route, nightObserver)
+                IosAppContent(liveStrings, table, route, nightObserver, holder)
             }
         }
     }
@@ -178,19 +188,25 @@ private fun IosAppContent(
     table: StringTable,
     route: String,
     nightObserver: IosNightModeObserver,
+    holder: IosStringTableHolder,
 ) {
     val koin = remember { KoinPlatform.getKoin() }
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     // App-wide, not per destination: Android saves on every destination (the repository belongs to the host).
     SaveWorkspaceOnBackground(koin)
-    val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }) }
+    val shell = remember {
+        IosHostShell(scope, NavControllerNavigator { navController }) {
+            holder.switchTo(resolveDeviceUiLanguage(koin.get<IosDeviceSettings>()))
+        }
+    }
     val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }
-    val graphs = remember(navController) { appHosts.graphs(navController, channels) }
+    val language = holder.current.tag
+    val graphs = remember(navController, language) { appHosts.graphs(navController, channels) }
     DisposableEffect(navController) {
         val gate = IosWelcomeReturnGate(
             scope = scope,
