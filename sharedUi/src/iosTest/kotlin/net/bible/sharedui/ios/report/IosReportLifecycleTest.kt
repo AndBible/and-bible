@@ -24,6 +24,19 @@ class IosReportLifecycleTest {
 
     private fun staged() = FileSystem.SYSTEM.list(NSTemporaryDirectory().toPath()).filter { it.name.startsWith("andbible-report-") }.toSet()
 
+    @Test fun throwingSenderLeavesReporterUsableWithoutUncaughtFailure() = awaitOnMain {
+        val problem = IllegalStateException("staging unavailable")
+        val errors = mutableListOf<Exception>()
+        var attempts = 0
+        val report = IosBugReport(iosStringTable("en"), confirm = { true }, send = { _, _, _, _ ->
+            if (attempts++ == 0) throw problem
+        }, failure = { errors += it })
+        report.report()
+        report.report()
+        assertEquals(2, attempts)
+        assertEquals(listOf<Exception>(problem), errors)
+    }
+
     @Test fun declinedConfirmationDoesNotStageOrSend() = awaitOnMain {
         val before = staged()
         var sends = 0

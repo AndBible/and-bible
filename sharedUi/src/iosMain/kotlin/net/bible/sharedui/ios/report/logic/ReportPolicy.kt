@@ -1,5 +1,12 @@
 package net.bible.sharedui.ios.report
 
+/** Keep a recoverable report failure out of the app's uncaught-exception hook. Cancellation is not a failure. */
+internal suspend fun reportSafely(failure: suspend (Exception) -> Unit, action: suspend () -> Unit) {
+    try { action() }
+    catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+    catch (error: Exception) { failure(error) }
+}
+
 internal data class ReportDevice(val appId: String, val version: String, val os: String, val model: String)
 internal data class Attachment(val name: String, val mime: String, val bytes: ByteArray)
 internal enum class ReportTransport { MAIL, SHARE }

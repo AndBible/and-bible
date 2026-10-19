@@ -25,9 +25,10 @@ internal class IosBugReport(
     private val table: StringTable,
     private val confirm: suspend (Boolean) -> Boolean = { ai -> confirmReport(table, ai) },
     private val send: suspend (String, String, String, List<Attachment>) -> Unit = IosMailOrShare()::send,
+    private val failure: suspend (Exception) -> Unit = { showReportFailure(table, it) },
 ) {
-    suspend fun report(cause: Throwable? = null) {
-        if (!confirm(false)) return
+    suspend fun report(cause: Throwable? = null) = reportSafely(failure) {
+        if (!confirm(false)) return@reportSafely
         val (body, attachments) = withContext(Dispatchers.Default) {
             val details = details(cause)
             val log = iosRecentLogSnapshot()
@@ -38,8 +39,8 @@ internal class IosBugReport(
         send(RECIPIENT, "Bug Report v${device().version}", body, attachments)
     }
 
-    suspend fun ai(model: String, summary: String, log: ByteArray, supported: Boolean) {
-        if (!aiReportEligible(supported, log) || !confirm(true)) return
+    suspend fun ai(model: String, summary: String, log: ByteArray, supported: Boolean) = reportSafely(failure) {
+        if (!aiReportEligible(supported, log) || !confirm(true)) return@reportSafely
         val body = withContext(Dispatchers.Default) {
             table.text("report_bug_line_1") + "\n\n" + summary + "\n\n" + details(null)
         }
@@ -66,6 +67,21 @@ internal fun device(): ReportDevice {
     val bundle = NSBundle.mainBundle
     val version = bundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: ""
     return ReportDevice(bundle.bundleIdentifier ?: "", version, "${UIDevice.currentDevice.systemName} ${UIDevice.currentDevice.systemVersion}", UIDevice.currentDevice.model)
+}
+
+/** Reporting must remain usable even when its staging directory or outward presenter fails. No databases needed. */
+private suspend fun showReportFailure(table: StringTable, error: Exception) {
+    net.bible.sharedcore.log.Log.w("IosBugReport", "Report preparation/presentation failed", error)
+    withContext(Dispatchers.Main) {
+        val host = IosPresenter.topViewController() ?: return@withContext
+        suspendCancellableCoroutine<Unit> { continuation ->
+            val alert = UIAlertController.alertControllerWithTitle(table.text("error"),
+                table.text("bug_report_prepare_failed"), UIAlertControllerStyleAlert)
+            val presentation = FilePresentation(alert, continuation, Unit)
+            alert.addAction(UIAlertAction.actionWithTitle(table.text("okay"), UIAlertActionStyleDefault) { presentation.finish(Unit) })
+            presentation.present(host)
+        }
+    }
 }
 
 /** UIKit confirmation also works before Koin, AppSettings and every database have been opened. */
