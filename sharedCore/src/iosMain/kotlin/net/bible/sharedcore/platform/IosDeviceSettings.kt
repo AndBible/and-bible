@@ -17,7 +17,9 @@
 package net.bible.sharedcore.platform
 
 import platform.Foundation.NSNumber
+import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSUserDefaults
+import platform.Foundation.NSUserDefaultsDidChangeNotification
 
 /**
  * Device-local preferences (Android's `SharedPreferences`, spec C3): the standard `NSUserDefaults` domain under
@@ -35,7 +37,26 @@ class IosDeviceSettings(private val defaults: NSUserDefaults = NSUserDefaults.st
     fun getBoolean(key: String, default: Boolean): Boolean =
         if (defaults.objectForKey(key) == null) default else defaults.boolForKey(key)
 
-    fun putBoolean(key: String, value: Boolean) = defaults.setBool(value, forKey = key)
+    fun putBoolean(key: String, value: Boolean) {
+        defaults.setBool(value, forKey = key)
+        NSNotificationCenter.defaultCenter.postNotificationName(NSUserDefaultsDidChangeNotification, defaults)
+    }
+
+    /** Observes this preference domain across IosDeviceSettings writers; cancel when the host is disposed. */
+    fun observeBoolean(key: String, default: Boolean, onChange: (Boolean) -> Unit): () -> Unit {
+        var previous = getBoolean(key, default)
+        val observer = {
+            val value = getBoolean(key, default)
+            if (value != previous) {
+                previous = value
+                onChange(value)
+            }
+        }
+        val center = NSNotificationCenter.defaultCenter
+        val token = center.addObserverForName(NSUserDefaultsDidChangeNotification, null, null) { observer() }
+        onChange(previous)
+        return { center.removeObserver(token) }
+    }
 
     fun getInt(key: String, default: Int): Int = (defaults.objectForKey(key) as? NSNumber)?.intValue ?: default
 

@@ -33,6 +33,30 @@ final class DiscreteUITests: XCTestCase {
         XCTAssertFalse(element(app, "welcome-screen").exists, "Welcome visible before PIN unlock")
     }
 
+    /// Controller starts from the primary icon and persists discrete_mode=true before this scenario.
+    /// Accept the OS-owned disclosure (C6), then retain a SpringBoard image for visual icon inspection.
+    func testDiscreteIconAfterUnlock() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-calculator_pin", "1234"]
+        app.launch()
+        XCTAssertTrue(key(app, "=").waitForExistence(timeout: 30))
+        assertContentHidden(app)
+        enter(app, ["1", "2", "3", "4", "="])
+
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let alert = springboard.alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 60), "Expected the system alternate-icon disclosure")
+        shot(springboard, "calculator-icon-system-disclosure")
+        alert.buttons.firstMatch.tap()
+        let ready = NSPredicate { _, _ in
+            self.element(app, "reading-host").exists || self.element(app, "welcome-screen").exists
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: app)], timeout: 60), .completed)
+        XCUIDevice.shared.press(.home)
+        XCTAssertTrue(springboard.wait(for: .runningForeground, timeout: 10))
+        shot(springboard, "home-calculator-icon")
+    }
+
     func testCalculatorGateUnlocksWithPin() {
         let app = XCUIApplication()
         // NSUserDefaults argument-domain override keeps the PIN deterministic without mutating stored preferences.

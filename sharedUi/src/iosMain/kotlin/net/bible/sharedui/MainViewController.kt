@@ -8,7 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import net.bible.sharedui.ios.discrete.IosAppIcon
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -123,6 +125,10 @@ fun MainViewController(): UIViewController {
                 return@ComposeUIViewController
             }
             StartupPhase.Ready -> Unit
+        }
+        DisposableEffect(Unit) {
+            val cancel = settings.observeBoolean("discrete_mode", false, IosAppIcon::apply)
+            onDispose { cancel() }
         }
         LaunchedEffect(Unit) {
             // Off main: schedule() reads AppSettings (database-backed) and resolves Koin definitions.
