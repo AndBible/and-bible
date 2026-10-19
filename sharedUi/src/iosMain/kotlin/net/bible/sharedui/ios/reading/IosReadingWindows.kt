@@ -34,6 +34,7 @@ import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.ios.IosPending
 import net.bible.sharedui.reading.bridge.ReadingBridge
 import net.bible.sharedui.reading.bridge.ReadingKeyActions
@@ -159,7 +160,7 @@ object IosReadingWindows {
             window = window,
             jsChannel = BibleViewJsChannel(host) { nsLog("bridge[$windowId]: $it") },
             hostScope = { b.scope },
-            surface = IosReadingWindowSurface(host, links = koin.get<net.bible.sharedui.app.ports.ExternalLinks>()),
+            surface = IosReadingWindowSurface(host, links = koin.get<ExternalLinks>()),
             navigator = b.host.navigator,
         )
         try {

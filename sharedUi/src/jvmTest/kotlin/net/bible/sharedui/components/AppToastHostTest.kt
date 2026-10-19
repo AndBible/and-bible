@@ -71,4 +71,24 @@ class AppToastHostTest {
         waitForIdle()
         onNodeWithText("Long one").assertDoesNotExist()
     }
+
+    /** Blank text is not a toast. */
+    @Test
+    fun blankTextIsIgnored() {
+        AppToasts.show("   ")
+        AppToasts.show("")
+        kotlin.test.assertEquals(null, AppToasts.state.value)
+    }
+
+    /** With animations on, the toast still appears and is gone after its duration plus the fade. */
+    @Test
+    fun animatedToastShowsAndHides() = runComposeUiTest {
+        setContent { CompositionLocalProvider(LocalDisableAnimations provides false) { AppToastHost() } }
+        AppToasts.show("Fading")
+        waitForIdle()
+        onNodeWithText("Fading").assertExists()
+        mainClock.advanceTimeBy(AppToasts.SHORT_MILLIS + 1500)
+        waitForIdle()
+        onNodeWithText("Fading").assertDoesNotExist()
+    }
 }

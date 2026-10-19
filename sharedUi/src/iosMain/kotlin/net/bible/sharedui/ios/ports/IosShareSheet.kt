@@ -42,6 +42,7 @@ private fun topViewController(): UIViewController? {
 @OptIn(ExperimentalForeignApi::class)
 internal fun iosPresentShare(items: List<Any>) {
     val top = topViewController() ?: return
+    if (top is UIActivityViewController) return // a share sheet is already up
     val sheet = UIActivityViewController(activityItems = items, applicationActivities = null)
     sheet.popoverPresentationController?.let { popover ->
         popover.sourceView = top.view
@@ -51,6 +52,5 @@ internal fun iosPresentShare(items: List<Any>) {
     top.presentViewController(sheet, animated = true, completion = null)
 }
 
-/** Shares the file at [path]; the file name is what the targets show, [title] is not used by the system sheet. */
-@Suppress("UNUSED_PARAMETER")
-internal fun iosShareFile(path: String, title: String) = iosPresentShare(listOf(NSURL.fileURLWithPath(path)))
+/** Shares the file at [path]; the recipient sees the file's name. */
+internal fun iosShareFile(path: String) = iosPresentShare(listOf(NSURL.fileURLWithPath(path)))

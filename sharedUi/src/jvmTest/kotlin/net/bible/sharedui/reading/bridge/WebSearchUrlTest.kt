@@ -4,7 +4,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class WebSearchUrlTest {
-    /** Android sends ACTION_WEB_SEARCH with the raw query; the browser's default engine (Google) turns it into this URL. */
+    /**
+     * Android sends ACTION_WEB_SEARCH with the raw query and has no URL of its own; the Google search URL is the
+     * iOS equivalent of what the default browser does with that intent.
+     */
     @Test
     fun webSearchUrlMatchesAndroid() {
         assertEquals("https://www.google.com/search?q=grace", webSearchUrl("grace"))

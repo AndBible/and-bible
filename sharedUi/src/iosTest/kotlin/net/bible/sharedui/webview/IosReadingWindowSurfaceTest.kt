@@ -4,6 +4,7 @@ import net.bible.sharedcore.bibleview.JsHost
 import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.app.ports.TextShare
 import platform.Foundation.NSFileManager
+import platform.Foundation.NSUUID
 import platform.Foundation.NSString
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSUTF8StringEncoding
@@ -12,6 +13,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalForeignApi::class)
@@ -56,17 +58,41 @@ class IosReadingWindowSurfaceTest {
         assertEquals(listOf("Copied"), toasts)
     }
 
+    private fun freshTempDir(): String {
+        val dir = NSTemporaryDirectory().trimEnd('/') + "/surface-test-" + NSUUID().UUIDString
+        NSFileManager.defaultManager.createDirectoryAtPath(dir, true, null, null)
+        return dir
+    }
+
     @Test
     fun shareHtmlWritesAFile() {
-        val shared = mutableListOf<Pair<String, String>>()
-        IosReadingWindowSurface(Host(), shareFile = { path, title -> shared += path to title })
-            .shareHtml("<p>Grüße</p>", "My Doc")
-        assertEquals(1, shared.size)
-        val (path, title) = shared.single()
-        assertEquals("My Doc", title)
-        assertTrue(path.startsWith(NSTemporaryDirectory()) && path.endsWith(".html"), path)
-        val text = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null)
-        assertEquals("<p>Grüße</p>", text)
-        NSFileManager.defaultManager.removeItemAtPath(path, null)
+        val tmp = freshTempDir()
+        val shared = mutableListOf<String>()
+        IosReadingWindowSurface(Host(), shareFile = { shared += it }, tempDir = { tmp }).shareHtml("<p>Grüße</p>", "My Doc")
+        val path = shared.single()
+        assertTrue(path.startsWith(tmp) && path.endsWith("/My Doc.html"), path)
+        assertEquals("<p>Grüße</p>", NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null))
+        NSFileManager.defaultManager.removeItemAtPath(tmp, null)
+    }
+
+    @Test
+    fun aSecondShareRemovesTheFirstFile() {
+        val tmp = freshTempDir()
+        val shared = mutableListOf<String>()
+        val surface = IosReadingWindowSurface(Host(), shareFile = { shared += it }, tempDir = { tmp })
+        surface.shareHtml("one", "First")
+        surface.shareHtml("two", "Second")
+        assertEquals(2, shared.size)
+        assertFalse(NSFileManager.defaultManager.fileExistsAtPath(shared[0]), "stale file must be gone")
+        assertTrue(NSFileManager.defaultManager.fileExistsAtPath(shared[1]))
+        NSFileManager.defaultManager.removeItemAtPath(tmp, null)
+    }
+
+    @Test
+    fun fileNameIsSanitisedWithAFallback() {
+        assertEquals("a b c", sharedFileName("a/b:c"))
+        assertEquals("shared", sharedFileName("  /// "))
+        assertEquals("shared", sharedFileName(""))
+        assertEquals(60, sharedFileName("x".repeat(100)).length)
     }
 }

@@ -20,7 +20,7 @@ package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.TextShare
 
-/** Shares text through the system share sheet ([iosPresentShare]); the chooser title is not used by the iOS sheet. */
+/** Shares text through the system share sheet ([iosPresentShare]); the chooser title is accepted for the port's sake but the iOS sheet has no title or subject. */
 @kotlin.native.HiddenFromObjC
 class IosTextShare : TextShare {
     override fun shareText(text: String, chooserTitle: String) {

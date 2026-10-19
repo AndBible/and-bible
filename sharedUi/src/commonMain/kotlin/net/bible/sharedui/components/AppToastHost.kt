@@ -96,7 +96,7 @@ fun AppToastHost(modifier: Modifier = Modifier) {
     // Kept while fading out so the text does not vanish before the fade ends.
     var shown by remember { mutableStateOf<AppToasts.Toast?>(null) }
     val visible = toast != null
-    if (toast != null) shown = toast
+    LaunchedEffect(toast) { toast?.let { shown = it } }
 
     LaunchedEffect(toast?.id) {
         val t = toast ?: return@LaunchedEffect
@@ -105,7 +105,7 @@ fun AppToastHost(modifier: Modifier = Modifier) {
     }
 
     Box(modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 72.dp), contentAlignment = Alignment.BottomCenter) {
-        val content = shown
+        val content = toast ?: shown
         if (content != null) {
             if (disableAnimations) {
                 if (visible) ToastPill(content.text)
