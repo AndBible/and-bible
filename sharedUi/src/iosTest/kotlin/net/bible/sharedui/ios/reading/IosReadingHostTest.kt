@@ -22,6 +22,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.service.startup.ReadingAppInit
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.assembly.IosAppConfig
@@ -167,6 +168,10 @@ class IosReadingHostTest {
         assertTrue(deps.quickSheetContent !== d1.quickSheetContent, "quickSheetContent")
         assertTrue(deps.readingDialogSlot !== d1.readingDialogSlot, "readingDialogSlot")
         assertTrue(deps.disableAnimations !== d1.disableAnimations, "disableAnimations")
+        assertTrue(deps.windowLabel !== d1.windowLabel, "windowLabel")
+        assertTrue(deps.windowTopLabel !== d1.windowTopLabel, "windowTopLabel")
+        assertTrue(deps.handlePaneMenuItem !== d1.handlePaneMenuItem, "handlePaneMenuItem")
+        assertTrue(deps.menuIcon !== d1.menuIcon, "menuIcon")
     }
 
     /**
@@ -188,18 +193,17 @@ class IosReadingHostTest {
             "formatHistoryTimestamp" to (h.formatHistoryTimestamp !== defaults.formatHistoryTimestamp),
             "installedDocRows" to (h.installedDocRows !== defaults.installedDocRows),
             "recentDocumentInitials" to (h.recentDocumentInitials !== defaults.recentDocumentInitials),
+            "paneMenuItemsFor" to (h.paneMenuItemsFor !== defaults.paneMenuItemsFor),
         )
         assertEquals(emptyList(), supplied.filterValues { !it }.keys.toList(), "hooks left at the default")
         // INERT ALLOW-LIST (hooks): LLM sheets/regenerate (Task 4 left them: the agent run is started by Android's
         // AgentForegroundService.startAgent/startRegenerate, which has no common or iOS counterpart, and the LLM dialog host is
-        // not mounted on iOS; the agent's permission prompt and question dialogs ARE real now, in IosAgentPlatform), pane menu
-        // (not built: needs SpeakControl and :app-only state, see the Task 3b report), and the three optional overrides that
+        // not mounted on iOS; the agent's permission prompt and question dialogs ARE real now, in IosAgentPlatform), and the three optional overrides that
         // default to the repository's own behaviour.
         val inertHooks = mapOf(
             "dismissLlmSheets" to (h.dismissLlmSheets === defaults.dismissLlmSheets),
             "openPromptSelector" to (h.openPromptSelector === defaults.openPromptSelector),
             "openRegenerate" to (h.openRegenerate === defaults.openRegenerate),
-            "paneMenuItemsFor" to (h.paneMenuItemsFor === defaults.paneMenuItemsFor),
             "activeWindowId" to (h.activeWindowId == null),
             "historyItemsFor" to (h.historyItemsFor == null),
             "forVerseInitials" to (h.forVerseInitials == null),
@@ -213,13 +217,36 @@ class IosReadingHostTest {
         assertTrue(s.searchState.platform is IosReadingSearchPlatform, "search platform")
         // INERT ALLOW-LIST (slot parameters): fullScreen and thumbnailFor constant,
         // toast goes through UserNotifier to AppToasts (real since Task 3), image picker / external links are Stream F's
-        // pending ports; the pane menu is not built (see the Task 3 report).
+        // pending ports.
         assertTrue(s.navigator is IosReadingNavigator && s.navigator === host.navigator, "navigator")
         assertFalse(s.fullScreen(), "fullScreen")
         assertEquals(null, s.thumbnailFor("any"), "thumbnailFor")
         assertTrue(s.imagePicker is net.bible.sharedui.ios.ports.IosImagePicker, "imagePicker")
         assertTrue(s.textShare is net.bible.sharedui.ios.ports.IosTextShare, "textShare (real share sheet since Task 3)")
         assertTrue(s.externalLinks is net.bible.sharedui.ios.ports.IosExternalLinks, "externalLinks")
+    }
+
+    /**
+     * The ☰ pane menu: the hook builds the common menu (rows iOS cannot run left out) and a chosen row acts through the
+     * common dispatcher on the real window model, with the pin toggle keeping the menu open as on Android.
+     */
+    @Test
+    fun paneMenuIsBuiltAndAChosenRowActs() = withReadingHost { host, deps ->
+        val control = KoinPlatform.getKoin().get<WindowControl>()
+        val active = control.activeWindow.id.toString()
+        val items = host.hooks.paneMenuItemsFor(active)
+        assertTrue(items != null, "the hook builds items for a known window")
+        val ids = items.map { it.id }
+        assertTrue(WindowPaneMenuStateBuilder.ID_TEXT_OPTIONS_SUBMENU in ids, "text options row: $ids")
+        assertTrue(WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE in ids, "maximise row: $ids")
+        for (omitted in IOS_OMITTED_PANE_MENU_ROWS) assertFalse(omitted in ids, "omitted row $omitted is absent")
+        assertEquals(null, host.hooks.paneMenuItemsFor("no-such-window"), "an unknown window has no menu")
+
+        assertFalse(control.windowRepository.isMaximized)
+        assertFalse(deps.handlePaneMenuItem(active, WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE), "maximise closes the menu")
+        assertTrue(control.windowRepository.isMaximized, "the row acted on the window model")
+        // A stale or unknown window id is ignored, not thrown.
+        assertFalse(deps.handlePaneMenuItem("no-such-window", WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE))
     }
 
     /** The overlay-exclusion hooks reach the slots' own stacks: opening a quick sheet closes the Speak sheet. */

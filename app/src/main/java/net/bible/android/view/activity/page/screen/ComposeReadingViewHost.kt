@@ -87,6 +87,7 @@ import net.bible.android.view.activity.page.ReadingCommands
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.activity.page.androidWindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.androidBibleView
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.view.activity.settings.BackgroundThumbnailResolver
@@ -864,7 +865,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * own `windowControl`/`speakControl` fields, mirroring how classic `SplitBibleArea.getItemOptions`
      * closes over its own `mainBibleActivity`'s collaborators.
      */
-    private val paneMenuStateBuilder = WindowPaneMenuStateBuilder(windowControl, speakControl)
+    private val paneMenuStateBuilder = androidWindowPaneMenuStateBuilder(windowControl, speakControl)
 
     /**
      * The windowId whose ☰ menu is currently open, or `null` when closed — host-owned so the

@@ -47,6 +47,7 @@ import net.bible.sharedui.ios.reading.IosReadingResults
 import net.bible.sharedui.ios.reading.PageManagerChooserTarget
 import net.bible.sharedui.ios.reading.IosReadingWindows
 import net.bible.sharedui.ios.reading.iosReadingNavDeps
+import net.bible.sharedui.ios.reading.rememberIosPaneIcons
 import net.bible.sharedui.ios.reading.rememberIosReadingIcons
 import net.bible.sharedui.reading.host.LocalReadingPane
 import net.bible.sharedui.reading.host.ReadingHost
@@ -394,7 +395,8 @@ private fun IosReadingDestination(
     LaunchedEffect(Unit) { IosDebugLaunchArgs.openRefOnce() }
     val host = remember { holder.get(shell, koin, nightObserver, strings) }
     val icons = rememberIosReadingIcons()
-    val deps = remember(host) { host.deps(icons) }
+    val paneIcons = rememberIosPaneIcons()
+    val deps = remember(host) { host.deps(icons, paneIcons) }
     val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
     // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
     FailClosedLinkRouting(koin.get<ExternalLinks>()) {

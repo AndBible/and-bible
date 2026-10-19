@@ -15,9 +15,10 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package net.bible.android.view.activity.page
 
-import net.bible.android.activity.R
 import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
@@ -28,8 +29,11 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.page.screen.clipboardKey
-import net.bible.android.view.activity.settings.getPrefItem
-import net.bible.service.common.CommonUtils
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.sharedlogic.sync.bookNameMonitor
+import net.bible.sharedlogic.sync.withMonitor
+import net.bible.sharedlogic.settings.TextDisplayPrefItems
+import net.bible.sharedui.strings.PaneMenuStrings
 import net.bible.service.common.shortName
 import net.bible.service.download.isSpecial
 import net.bible.sharedcore.window.WindowPaneMenuItem
@@ -86,15 +90,36 @@ import org.crosswire.jsword.versification.BookName
  * whole submenu when empty, but this builder just omits the dynamic children). `id` addressing does
  * not care about nesting depth, so `allTextOptions` is always reachable at the same id.
  */
+@kotlin.native.HiddenFromObjC
 class WindowPaneMenuStateBuilder(
     private val windowControl: WindowControl,
     private val speakControl: SpeakControl,
+    /** The row labels, by Android's resource keys. */
+    private val strings: PaneMenuStrings,
+    /** The platform's text display preference items (the dynamic "last used" rows read title, value and flags from them). */
+    private val prefItems: TextDisplayPrefItems,
+    /** The recently used text display settings in menu order (Android: `recentDisplaySettings()`). */
+    private val recentDisplaySettings: () -> List<TextDisplaySettings.Types>,
+    /** The global text display settings row (Android: `globalTextDisplaySettings()`). */
+    private val globalTextDisplaySettings: () -> TextDisplaySettings,
+    /** Whether an LLM is configured, which shows the LLM actions row; iOS has no agent start and answers false. */
+    private val llmConfigured: () -> Boolean = { false },
+    /**
+     * Row ids the platform cannot run (its [WindowPaneMenuPlatform] leaves them unimplemented); they are left out of the
+     * list, at any depth, so no row is shown that does nothing. Android omits none.
+     */
+    private val omit: Set<String> = emptySet(),
 ) {
     private val windowRepository: WindowRepository get() = windowControl.windowRepository
-    private val app get() = application
 
     /** The full ordered item set for `window_popup_menu`, mirroring classic `showPopupMenu`. */
-    fun build(window: Window): List<WindowPaneMenuItem> {
+    fun build(window: Window): List<WindowPaneMenuItem> = buildAll(window).withoutOmitted()
+
+    private fun List<WindowPaneMenuItem>.withoutOmitted(): List<WindowPaneMenuItem> =
+        if (omit.isEmpty()) this
+        else filterNot { it.id in omit }.map { if (it.submenu.isEmpty()) it else it.copy(submenu = it.submenu.withoutOmitted()) }
+
+    private fun buildAll(window: Window): List<WindowPaneMenuItem> {
         val isMaximised = windowRepository.isMaximized
         val items = mutableListOf<WindowPaneMenuItem>()
 
@@ -106,7 +131,7 @@ class WindowPaneMenuStateBuilder(
         if (!isMaximised && !window.isLinksWindow) {
             items += WindowPaneMenuItem(
                 id = ID_WINDOW_NEW,
-                label = app.getString(R.string.new_window),
+                label = strings.newWindow,
                 iconKey = "ic_window_add_outline_black_24dp",
             )
         }
@@ -117,7 +142,7 @@ class WindowPaneMenuStateBuilder(
         if (!isMaximised) {
             items += WindowPaneMenuItem(
                 id = ID_WINDOW_MAXIMISE,
-                label = app.getString(R.string.windowMaximise),
+                label = strings.windowMaximise,
                 iconKey = "ic_window_maximise_24dp",
             )
         }
@@ -127,7 +152,7 @@ class WindowPaneMenuStateBuilder(
         if (!isMaximised) {
             items += WindowPaneMenuItem(
                 id = ID_WINDOW_MINIMISE,
-                label = app.getString(R.string.windowMinimise),
+                label = strings.windowMinimise,
                 enabled = windowControl.isWindowMinimizable(window),
                 iconKey = "ic_baseline_minimise_24",
             )
@@ -137,7 +162,7 @@ class WindowPaneMenuStateBuilder(
         if (window.isLinksWindow) {
             items += WindowPaneMenuItem(
                 id = ID_CHANGE_TO_NORMAL,
-                label = app.getString(R.string.change_to_normal),
+                label = strings.changeToNormal,
                 iconKey = "ic_link_black_24dp",
             )
         }
@@ -145,7 +170,7 @@ class WindowPaneMenuStateBuilder(
         if (!window.isLinksWindow && !isMaximised && windowControl.hasMoveItems(window)) {
             items += WindowPaneMenuItem(
                 id = ID_MOVE_WINDOW_SUBMENU,
-                label = app.getString(R.string.move_window),
+                label = strings.moveWindow,
                 submenu = buildMoveItems(window),
                 iconKey = "ic_window_move_to_24dp",
             )
@@ -154,7 +179,7 @@ class WindowPaneMenuStateBuilder(
         if (!window.isLinksWindow && !isMaximised && !windowRepository.workspaceSettings.autoPin) {
             items += WindowPaneMenuItem(
                 id = ID_PIN_MODE,
-                label = app.getString(R.string.window_pin_mode),
+                label = strings.windowPinMode,
                 checkable = true,
                 checked = window.isPinMode,
                 iconKey = "ic_pin",
@@ -164,7 +189,7 @@ class WindowPaneMenuStateBuilder(
         if (window.isSyncable) {
             items += WindowPaneMenuItem(
                 id = ID_SYNC_GROUP_SUBMENU,
-                label = app.getString(R.string.windowSynchronise),
+                label = strings.windowSynchronise,
                 submenu = buildSyncGroupItems(window),
                 iconKey = "ic_window_sync_24dp",
             )
@@ -176,7 +201,7 @@ class WindowPaneMenuStateBuilder(
         ) {
             items += WindowPaneMenuItem(
                 id = ID_ADD_WHOLE_PAGE_BOOKMARK,
-                label = app.getString(R.string.add_whole_page_bookmark),
+                label = strings.addWholePageBookmark,
                 iconKey = "ic_baseline_bookmark_24",
             )
         }
@@ -188,7 +213,7 @@ class WindowPaneMenuStateBuilder(
         ) {
             items += WindowPaneMenuItem(
                 id = ID_EXPORT_HTML,
-                label = app.getString(R.string.export_fileformat, "HTML"),
+                label = strings.exportFileFormat("HTML"),
                 opensDialog = true,
                 iconKey = "file_export",
             )
@@ -197,13 +222,13 @@ class WindowPaneMenuStateBuilder(
         if (window.isVisible && firstDoc is StudyPadDocument) {
             items += WindowPaneMenuItem(
                 id = ID_EXPORT_STUDYPAD,
-                label = app.getString(R.string.export_something, app.getString(R.string.studypad)),
+                label = strings.exportSomething(strings.studypad),
                 opensDialog = true,
                 iconKey = "file_export",
             )
             items += WindowPaneMenuItem(
                 id = ID_EXPORT_STUDYPAD_CSV,
-                label = app.getString(R.string.export_bookmarks_csv, "CSV"),
+                label = strings.exportBookmarksCsv("CSV"),
                 opensDialog = true,
                 iconKey = "file_export",
             )
@@ -213,17 +238,17 @@ class WindowPaneMenuStateBuilder(
         if (window.isVisible) {
             items += WindowPaneMenuItem(
                 id = ID_TEXT_OPTIONS_SUBMENU,
-                label = app.getString(R.string.text_options_window_menutitle),
+                label = strings.textOptionsWindowMenuTitle,
                 submenu = buildTextOptionItems(window),
                 iconKey = "ic_text_options_24dp",
             )
         }
 
         // SplitBibleArea.kt:1049-1063
-        if (CommonUtils.settings.llmConfigured && window.isVisible) {
+        if (llmConfigured() && window.isVisible) {
             items += WindowPaneMenuItem(
                 id = ID_LLM_ACTIONS_SUBMENU,
-                label = app.getString(R.string.llm_actions),
+                label = strings.llmActions,
                 opensDialog = true,
                 iconKey = "icon_robot",
             )
@@ -233,7 +258,7 @@ class WindowPaneMenuStateBuilder(
         if (window.pageManager.currentPage.currentDocument?.isSpecial != true) {
             items += WindowPaneMenuItem(
                 id = ID_COPY_REFERENCE,
-                label = app.getString(R.string.copyReference),
+                label = strings.copyReference,
                 opensDialog = true,
                 iconKey = "ic_content_copy_black_24dp",
             )
@@ -244,8 +269,7 @@ class WindowPaneMenuStateBuilder(
         run {
             val clipboard = clipboardKey
             if (clipboard != null && clipboard.document?.isSpecial != true) {
-                val label = app.getString(
-                    R.string.go_to_ref,
+                val label = strings.goToRef(
                     if (clipboard.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
                         clipboard.key.shortName
                     } else {
@@ -259,8 +283,7 @@ class WindowPaneMenuStateBuilder(
         // SplitBibleArea.kt:910-928
         if (!speakControl.isStopped) {
             val bookAndKey = speakControl.speakPageManager.currentPage.bookAndKey
-            val label = app.getString(
-                R.string.go_to_ref,
+            val label = strings.goToRef(
                 bookAndKey?.let {
                     if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
                         it.key.shortName
@@ -274,7 +297,7 @@ class WindowPaneMenuStateBuilder(
 
         // SplitBibleArea.kt:906-909
         if (windowControl.isWindowRemovable(window) && !isMaximised) {
-            items += WindowPaneMenuItem(id = ID_WINDOW_CLOSE, label = app.getString(R.string.close), iconKey = "ic_close_white_24dp")
+            items += WindowPaneMenuItem(id = ID_WINDOW_CLOSE, label = strings.close, iconKey = "ic_close_white_24dp")
         }
 
         return items
@@ -289,8 +312,8 @@ class WindowPaneMenuStateBuilder(
                 val page = other.pageManager.currentPage
                 WindowPaneMenuItem(
                     id = idForMoveItem(order),
-                    label = app.getString(
-                        R.string.move_window_to_position2, order + 1, page.currentDocument?.abbreviation, page.key?.getName(),
+                    label = strings.moveWindowToPosition(
+                        order + 1, page.currentDocument?.abbreviation, page.key?.getName(),
                     ),
                 )
             }
@@ -299,11 +322,11 @@ class WindowPaneMenuStateBuilder(
     private fun buildSyncGroupItems(window: Window): List<WindowPaneMenuItem> {
         val items = mutableListOf<WindowPaneMenuItem>()
         if (window.isSynchronised) {
-            items += WindowPaneMenuItem(id = ID_DISABLE_SYNC, label = app.getString(R.string.disable_sync))
+            items += WindowPaneMenuItem(id = ID_DISABLE_SYNC, label = strings.disableSync)
         }
         for (i in 0..5) {
             if (window.isSynchronised && i == window.syncGroup) continue
-            items += WindowPaneMenuItem(id = idForSyncGroupItem(i), label = app.getString(R.string.sync_group_n, i + 1))
+            items += WindowPaneMenuItem(id = idForSyncGroupItem(i), label = strings.syncGroupN(i + 1))
         }
         return items
     }
@@ -315,19 +338,19 @@ class WindowPaneMenuStateBuilder(
      * builder which reproduces `getItemOptions`'s branches inline.
      */
     private fun buildTextOptionItems(window: Window): List<WindowPaneMenuItem> {
-        val lastSettings = CommonUtils.lastDisplaySettingsSorted
+        val lastSettings = recentDisplaySettings()
         if (lastSettings.isEmpty()) {
             // SplitBibleArea.kt:816-820
             return listOf(
                 WindowPaneMenuItem(
                     id = ID_ALL_TEXT_OPTIONS,
-                    label = app.getString(R.string.all_text_options_window_menutitle),
+                    label = strings.allTextOptionsWindowMenuTitle,
                     opensDialog = true,
                     iconKey = "ic_text_options_24dp",
                 ),
                 WindowPaneMenuItem(
                     id = ID_COPY_SETTINGS_TO_SUBMENU,
-                    label = app.getString(R.string.copy_settings),
+                    label = strings.copySettings,
                     submenu = buildCopySettingsItems(window),
                     iconKey = "ic_content_copy_black_24dp",
                 ),
@@ -341,11 +364,11 @@ class WindowPaneMenuStateBuilder(
             workspaceId = windowRepository.id,
             workspaceName = windowRepository.name,
             workspaceSettings = windowRepository.textDisplaySettings,
-            globalSettings = CommonUtils.globalTextDisplaySettings,
+            globalSettings = globalTextDisplaySettings(),
         )
         // SplitBibleArea.kt:809-815 (only rows passing enabled&&visible are added)
         val dynamic = lastSettings.mapIndexedNotNull { order, type ->
-            val itm = getPrefItem(settingsBundle, type)
+            val itm = prefItems.item(settingsBundle, type)
             if (itm.enabled && itm.visible) {
                 WindowPaneMenuItem(
                     id = idForTextOptionItem(order),
@@ -355,7 +378,7 @@ class WindowPaneMenuStateBuilder(
                     enabled = itm.enabled,
                     opensDialog = itm.opensDialog,
                     // A/B batch 3 F4: as above — `itm` is already the classic ItemPreference.
-                    iconKey = itm.icon?.let { app.resources.getResourceEntryName(it) },
+                    iconKey = itm.iconKey,
                 )
             } else null
         }
@@ -365,12 +388,12 @@ class WindowPaneMenuStateBuilder(
         // above, so a user with any display-setting history lost the row entirely.
         return dynamic + WindowPaneMenuItem(
             id = ID_ALL_TEXT_OPTIONS,
-            label = app.getString(R.string.all_text_options_window_menutitle),
+            label = strings.allTextOptionsWindowMenuTitle,
             opensDialog = true,
             iconKey = "ic_text_options_24dp",
         ) + WindowPaneMenuItem(
             id = ID_COPY_SETTINGS_TO_SUBMENU,
-            label = app.getString(R.string.copy_settings),
+            label = strings.copySettings,
             submenu = buildCopySettingsItems(window),
             iconKey = "ic_content_copy_black_24dp",
         )
@@ -394,7 +417,7 @@ class WindowPaneMenuStateBuilder(
         // SplitBibleArea.kt:793-802: `order` counts over visibleWindows INCLUDING this window, and
         // is what WindowControl.copySettingsToWindow(window, order) expects -- so index with
         // forEachIndexed over the whole list and skip self, never over a pre-filtered list.
-        synchronized(BookName::class.java) {
+        withMonitor(bookNameMonitor) {
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             try {
@@ -403,8 +426,8 @@ class WindowPaneMenuStateBuilder(
                     val page = other.pageManager.currentPage
                     items += WindowPaneMenuItem(
                         id = idForCopySettingsToWindow(order),
-                        label = app.getString(
-                            R.string.copy_settings_to_window, order + 1, page.currentDocument?.abbreviation, page.key?.getName(),
+                        label = strings.copySettingsToWindow(
+                            order + 1, page.currentDocument?.abbreviation, page.key?.getName(),
                         ),
                     )
                 }
@@ -424,11 +447,11 @@ class WindowPaneMenuStateBuilder(
         // by this builder's ID_ALL_TEXT_OPTIONS row.
         items += WindowPaneMenuItem(
             id = ID_COPY_SETTINGS_TO_WORKSPACE,
-            label = app.getString(R.string.copy_settings_to_workspace),
+            label = strings.copySettingsToWorkspace,
         )
         items += WindowPaneMenuItem(
             id = ID_COPY_SETTINGS_TO_GLOBAL,
-            label = app.getString(R.string.copy_settings_to_global),
+            label = strings.copySettingsToGlobal,
         )
         return items
     }

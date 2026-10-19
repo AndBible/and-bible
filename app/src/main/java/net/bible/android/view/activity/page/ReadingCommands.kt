@@ -999,272 +999,122 @@ class ReadingCommands(
      * Dispatches a click on one of [WindowPaneMenuStateBuilder.build]'s rows for the pane whose ☰
      * menu produced it. Called by [ComposeReadingViewHost]'s `onPaneMenuItemClick`.
      *
-     * ATOMIC items (native-in-Compose, per [WindowPaneMenuStateBuilder]'s kdoc) act through
-     * [composeReadingViewHost]'s [ReadingViewController] command seam — the SAME seam the pane
-     * overlay's own gestures and the restore rail already drive, so every window mutation from
-     * the Compose reading view refreshes the SSOT through one path. Falls back to [windowControl]
-     * directly only if the host is somehow absent (defensive — this dispatcher is only reachable
-     * from the Compose path, where [composeReadingViewHost] is always installed; this fallback is
-     * what lets this function be unit-tested without booting the full Compose host) or for
-     * `changeToNormal`'s compound add+flag+close (the seam has no such compound command, so it
-     * always goes straight through [windowControl], same as classic).
+     * The window operations, go-to-reference/speak, copy-settings and the boolean text option rows
+     * are the common [WindowPaneMenuDispatcher] (shared with iOS), acting through
+     * [composeReadingViewHost]'s [ReadingViewController] seam when installed and straight through
+     * [windowControl] otherwise (what lets this be unit-tested without the full Compose host); the
+     * rows only Android can do are [androidPaneMenuPlatform].
      *
-     * Returns whether the menu should stay open (mirrors [OptionsMenuStateBuilder.dispatch]'s
-     * contract): `true` for [WindowPaneMenuStateBuilder.ID_PIN_MODE] and a boolean
+     * Returns whether the menu should stay open: `true` for the pin toggle and a boolean
      * `textOptionItem` row (so the host can rebuild the list and show the flipped check), `false`
      * for every other item.
      */
-    fun handleWindowPaneMenuItem(windowId: String, id: String): Boolean {
-        val window = windowRepository().getWindow(IdType(windowId)) ?: return false
-        val controller = composeReadingViewHost?.controller
-        return when (val parsed = WindowPaneMenuStateBuilder.parseId(id)) {
-            is WindowPaneMenuStateBuilder.ParsedId.MoveItem -> {
-                // SplitBibleArea.kt:896-898, :987-992
-                controller?.onMove(windowId, parsed.order) ?: windowControl.moveWindow(window, parsed.order)
-                false
-            }
-            is WindowPaneMenuStateBuilder.ParsedId.SyncGroupItem -> {
-                // SplitBibleArea.kt:899-901, :993-996
-                controller?.onChangeSyncGroup(windowId, parsed.order) ?: windowControl.changeSyncGroup(window, parsed.order)
-                false
-            }
-            is WindowPaneMenuStateBuilder.ParsedId.TextOptionItem -> handleWindowTextOptionItem(window, parsed.order)
-            // SplitBibleArea.kt:1005-1007. A/B batch 4a F4: the target window comes from the menu
-            // row's own order now (classic's shape), not from a picker dialog.
-            is WindowPaneMenuStateBuilder.ParsedId.CopySettingsToWindow -> {
-                windowControl.copySettingsToWindow(window, parsed.order)
-                false
-            }
-            is WindowPaneMenuStateBuilder.ParsedId.StaticItem -> handleWindowPaneStaticItem(window, parsed.id, controller)
-        }
-    }
+    fun handleWindowPaneMenuItem(windowId: String, id: String): Boolean = windowPaneMenuDispatcher.handle(windowId, id)
 
-    /** The `moveWindowSubMenu`/`syncGroupSubMenu`/`textOptionsSubMenu` container ids never reach
-     * here — [net.bible.sharedui.reading.WindowPaneMenuRows] treats a non-empty `submenu` row as
-     * "enter submenu" (`onEnterSubmenu`), not a leaf click (`onItemClick`). */
-    private fun handleWindowPaneStaticItem(window: Window, id: String, controller: ReadingViewController?): Boolean {
-        val windowId = window.id.toString()
-        return when (id) {
-            // SplitBibleArea.kt:880-883
-            WindowPaneMenuStateBuilder.ID_WINDOW_NEW -> {
-                controller?.onAddWindow(windowId) ?: windowControl.addNewWindow(window)
-                false
-            }
-            // SplitBibleArea.kt:974-977
-            WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE -> {
-                controller?.onMaximise(windowId) ?: windowControl.maximiseWindow(window)
-                false
-            }
-            // SplitBibleArea.kt:970-973
-            WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE -> {
-                controller?.onMinimise(windowId) ?: windowControl.minimiseWindow(window)
-                false
-            }
-            // SplitBibleArea.kt:884-890 -- compound (add a new non-links window, close this one);
-            // no single seam command for this, so it always goes directly through windowControl,
-            // same as classic (the "or directly windowControl" case named in the Task-5 brief).
-            WindowPaneMenuStateBuilder.ID_CHANGE_TO_NORMAL -> {
-                windowControl.addNewWindow(window).also { it.isLinksWindow = false }
-                windowControl.closeWindow(window)
-                false
-            }
-            // SplitBibleArea.kt:891-895 -- checkable toggle; stays open so the host can rebuild
-            // and show the flipped check, exactly like `OptionsMenuStateBuilder.dispatch`'s
-            // boolean branch.
-            WindowPaneMenuStateBuilder.ID_PIN_MODE -> {
-                val newValue = !window.isPinMode
-                controller?.onSetPin(windowId, newValue) ?: windowControl.setPinMode(window, newValue)
-                true
-            }
-            // SplitBibleArea.kt:997-999
-            WindowPaneMenuStateBuilder.ID_DISABLE_SYNC -> {
-                controller?.onSetSynchronised(windowId, false) ?: windowControl.setSynchronised(window, false)
-                false
-            }
-            // SplitBibleArea.kt:906-909
-            WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE -> {
-                controller?.onClose(windowId) ?: windowControl.closeWindow(window)
-                false
-            }
-
-            // ---- Bridge rows: reproduce the classic action body verbatim (private in SplitBibleArea) ----
-
-            // SplitBibleArea.kt:865-874 (settingsBundle), :978-986 (window-level allTextOptions --
-            // distinct from this activity's OWN workspace-level `getItemOptions(R.id.allTextOptions)`
-            // used by the overflow menu).
-            WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS -> {
-                hostActivity.startActivity(NavHostComposeActivity.intentFor(
-                    readingHost.hostContext,
-                    textDisplaySettingsRoute(SettingsScope.Window(window.id.toString(), windowRepository().id.toString())),
-                ))
-                false
-            }
-            // SplitBibleArea.kt:1002-1004
-            WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE -> {
-                windowControl.copySettingsToWorkspace(window)
-                false
-            }
-            // SplitBibleArea.kt:1008-1010
-            WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL -> {
-                windowControl.copySettingsToGlobal(window)
-                false
-            }
-            // SplitBibleArea.kt:1011-1019
-            WindowPaneMenuStateBuilder.ID_EXPORT_HTML -> {
-                window.androidBibleView?.exportHtml()
-                false
-            }
-            // SplitBibleArea.kt:1020-1026
-            WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD -> {
-                (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
-                    readingHost.lifecycleScope.launch { exportStudyPads(hostActivity, label) }
-                }
-                false
-            }
-            // SplitBibleArea.kt:1027-1035
-            WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV -> {
-                (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
-                    readingHost.lifecycleScope.launch {
-                        val bookmarks = bookmarkControl.getBibleBookmarksWithLabel(label)
-                        BookmarkCsvFlow(bookmarkControl).exportBookmarksToCSV(hostActivity, bookmarks)
-                    }
-                }
-                false
-            }
-            // SplitBibleArea.kt:1036-1048
-            WindowPaneMenuStateBuilder.ID_ADD_WHOLE_PAGE_BOOKMARK -> {
-                val currentPage = window.pageManager.currentPage
-                val book = currentPage.currentDocument
-                val key = currentPage.key
-                if (book != null && key != null) {
-                    window.androidBibleView?.createWholePageBookmark(book.initials, key.getOsisRef())
-                }
-                false
-            }
-            // SplitBibleArea.kt:1049-1063
-            WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU -> {
-                val currentPage = window.pageManager.currentPage
-                val book = currentPage.currentDocument
-                val key = currentPage.key
-                if (book != null && key != null) {
-                    val selection = Selection(book.initials, key.getOsisRef(), -1, -1)
-                    // This ☰ pane menu only exists on the Compose path (composeReadingViewHost
-                    // installed), and slice 8 made NavHost the only reading host, so the classic
-                    // `LlmDialogHelper` fallback this used to carry `?:` for "safety" is unreachable
-                    // in production. Platform-dialog removal Task 10 deletes `LlmDialogHelper`
-                    // outright; logged rather than silently dropped in case that invariant ever
-                    // breaks.
-                    val host = composeReadingViewHost
-                    if (host == null) {
-                        Log.e(TAG, "ID_LLM_ACTIONS_SUBMENU: no reading-view host mounted")
-                    } else {
-                        host.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
-                    }
-                }
-                false
-            }
-            // SplitBibleArea.kt:950-967
-            WindowPaneMenuStateBuilder.ID_COPY_REFERENCE -> {
-                val doc = window.pageManager.currentPage.currentDocument
-                val key = window.pageManager.currentPage.singleKey
-                if (doc != null && key != null) {
-                    val ordinalRange = window.pageManager.currentPage.anchorOrdinal
-                    val ordinal = ordinalRange?.start
-                    clipboardKey = BookAndKey(key, doc, ordinalRange)
-                    val url = CommonUtils.makeAndBibleUrl(keyStr = key.getOsisRef(), docInitials = doc.initials, ordinal = ordinal)
-                    CommonUtils.copyToClipboard(ClipData.newPlainText(key.getName(), url), R.string.reference_copied_to_clipboard)
-                }
-                false
-            }
-            // SplitBibleArea.kt:929-949
-            WindowPaneMenuStateBuilder.ID_GO_TO_REFERENCE -> {
-                clipboardKey?.let {
-                    if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
-                        window.pageManager.setCurrentDocumentAndKey(null, it.key)
-                    } else if (it.document == null) {
-                        window.pageManager.setCurrentDocumentAndKey(null, it.key)
-                    } else {
-                        window.pageManager.setCurrentDocumentAndKey(it.document, it)
-                    }
-                }
-                false
-            }
-            // SplitBibleArea.kt:910-928
-            WindowPaneMenuStateBuilder.ID_GO_TO_SPEAK -> {
-                speakControl.speakBookAndKey?.let {
-                    if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
-                        window.pageManager.setCurrentDocumentAndKey(null, it.key)
-                    } else {
-                        window.pageManager.setCurrentDocumentAndKey(it.document, it)
-                    }
-                }
-                false
-            }
-            // moveWindowSubMenu/syncGroupSubMenu/textOptionsSubMenu container ids never reach a
-            // leaf onItemClick (see this function's kdoc); llmActionsSubMenu is handled above (it
-            // has no `submenu` children despite the name -- see WindowPaneMenuStateBuilder).
-            else -> false
-        }
-    }
-
-    /**
-     * SplitBibleArea.kt:1000: the dynamic `textOptionItem` row -- classic `handlePrefItem`'s
-     * generic isBoolean/openDialog dispatch, reproduced at WINDOW level. Minus the `MenuItem`-only
-     * bits (`item.isChecked`, `invalidateOptionsMenu()`): there is no `MenuItem` on this path, and
-     * the host rebuilds the whole item list instead (mirrors
-     * [OptionsMenuStateBuilder.dispatch]'s identical carve-out).
-     *
-     * Settings editor sheets T11: the non-boolean branch carries the SAME sheet-vs-dialog
-     * interception as [OptionsMenuStateBuilder.dispatch] -- a sheet-editable
-     * [Preference.type] opens IN PLACE over the reading view via
-     * `composeReadingViewHost.showTextSettingEditor` when the host is installed, reusing the same
-     * `onReady` closure `openDialog` would otherwise have received; everything else still calls
-     * `openDialog` unchanged. The scope passed is
-     * `settingsBundle.toScope()` at WINDOW level, so the sheet edits THIS pane's own setting,
-     * matching what the ☰ pane menu means (as opposed to the workspace-level scope
-     * [OptionsMenuStateBuilder.dispatch] passes for the 3-dot overflow menu).
-     */
-    private fun handleWindowTextOptionItem(window: Window, order: Int): Boolean {
-        val settingsBundle = SettingsBundle(
-            level = SettingsLevel.WINDOW,
-            windowId = window.id,
-            pageManagerSettings = window.pageManager.textDisplaySettings,
-            workspaceId = windowRepository().id,
-            workspaceName = windowRepository().name,
-            workspaceSettings = windowRepository().textDisplaySettings,
-            globalSettings = CommonUtils.globalTextDisplaySettings,
+    private val windowPaneMenuDispatcher: WindowPaneMenuDispatcher by lazy {
+        WindowPaneMenuDispatcher(
+            windowControl = windowControl,
+            speakControl = speakControl,
+            windowRepository = { windowRepository() },
+            controller = { composeReadingViewHost?.controller },
+            prefItems = net.bible.android.platform.AndroidTextDisplayPrefItems(),
+            recentDisplaySettings = { CommonUtils.lastDisplaySettingsSorted },
+            globalTextDisplaySettings = { CommonUtils.globalTextDisplaySettings },
+            platform = androidPaneMenuPlatform,
         )
-        val itemOptions = getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
-        return if (itemOptions.isBoolean) {
-            itemOptions.value = !(itemOptions.value == true)
-            itemOptions.handle()
-            true
-        } else {
+    }
+
+    /** The pane menu rows that open Android UI: text option editors, exports, the LLM prompt selector, clipboard. */
+    private val androidPaneMenuPlatform = object : WindowPaneMenuPlatform {
+        // SplitBibleArea.kt:865-874 (settingsBundle), :978-986 (window-level allTextOptions --
+        // distinct from this activity's OWN workspace-level `getItemOptions(R.id.allTextOptions)`
+        // used by the overflow menu).
+        override fun openAllTextOptions(window: Window) {
+            hostActivity.startActivity(NavHostComposeActivity.intentFor(
+                readingHost.hostContext,
+                textDisplaySettingsRoute(SettingsScope.Window(window.id.toString(), windowRepository().id.toString())),
+            ))
+        }
+
+        // SplitBibleArea.kt:1011-1019
+        override fun exportHtml(window: Window) {
+            window.androidBibleView?.exportHtml()
+        }
+
+        // SplitBibleArea.kt:1020-1026
+        override fun exportStudyPad(window: Window) {
+            (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
+                readingHost.lifecycleScope.launch { exportStudyPads(hostActivity, label) }
+            }
+        }
+
+        // SplitBibleArea.kt:1027-1035
+        override fun exportStudyPadCsv(window: Window) {
+            (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
+                readingHost.lifecycleScope.launch {
+                    val bookmarks = bookmarkControl.getBibleBookmarksWithLabel(label)
+                    BookmarkCsvFlow(bookmarkControl).exportBookmarksToCSV(hostActivity, bookmarks)
+                }
+            }
+        }
+
+        // SplitBibleArea.kt:1036-1048
+        override fun addWholePageBookmark(window: Window, bookInitials: String, osisRef: String) {
+            window.androidBibleView?.createWholePageBookmark(bookInitials, osisRef)
+        }
+
+        // SplitBibleArea.kt:1049-1063
+        override fun llmActions(window: Window) {
+            val currentPage = window.pageManager.currentPage
+            val book = currentPage.currentDocument
+            val key = currentPage.key
+            if (book != null && key != null) {
+                val selection = Selection(book.initials, key.getOsisRef(), -1, -1)
+                // This ☰ pane menu only exists on the Compose path (composeReadingViewHost
+                // installed), and slice 8 made NavHost the only reading host; logged rather than
+                // silently dropped in case that invariant ever breaks.
+                val host = composeReadingViewHost
+                if (host == null) {
+                    Log.e(TAG, "ID_LLM_ACTIONS_SUBMENU: no reading-view host mounted")
+                } else {
+                    host.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+                }
+            }
+        }
+
+        // SplitBibleArea.kt:950-967 (the clipboard slot itself is set by the common dispatcher)
+        override fun copyReference(label: String, url: String) {
+            CommonUtils.copyToClipboard(ClipData.newPlainText(label, url), R.string.reference_copied_to_clipboard)
+        }
+
+        /**
+         * SplitBibleArea.kt:1000: the non-boolean text option row. A sheet-editable
+         * [Preference.type] opens IN PLACE over the reading view via
+         * `composeReadingViewHost.showTextSettingEditor` (WINDOW-scoped: the sheet edits this pane's own
+         * setting, which is what the ☰ pane menu means); everything else still calls `openDialog`.
+         * A sheet-editable type with no host mounted is unreachable in production (slice 8 made NavHost
+         * the only reading host), so it is logged instead of falling back to a dialog.
+         */
+        override fun openTextOption(
+            window: Window, type: net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types,
+            item: net.bible.sharedlogic.settings.PrefItemHandle, bundle: SettingsBundle,
+        ): Boolean {
+            val itemOptions = getPrefItem(bundle, type)
             val onReady: () -> Unit = { window.bibleView?.updateTextDisplaySettings() }
             val host = composeReadingViewHost
             val page = (itemOptions as? Preference)?.let { textSettingEditorPageFor(it.type.name) }
             if (page != null) {
-                // WINDOW-scoped: settingsBundle.toScope() carries level=WINDOW, so the sheet edits
-                // this pane's own setting — which is what the pane menu means.
-                //
-                // Platform-dialog removal Task 10: `host == null` used to fall through to the
-                // classic `openDialog` here. This ☰ pane menu only exists on the Compose reading
-                // toolbar the host itself renders, and slice 8 made NavHost the only reading host,
-                // so a sheet-editable type with no host mounted is unreachable in production --
-                // logged rather than silently dropped in case that invariant ever breaks, instead of
-                // reaching for `openDialog` (whose bodies this task deletes for the sheet-editable
-                // types anyway).
                 if (host == null) {
                     Log.e(TAG, "handleWindowTextOptionItem: sheet page $page but no host mounted")
                     return false
                 }
-                host.showTextSettingEditor(settingsBundle.toScope(), page, onReady)
+                host.showTextSettingEditor(bundle.toScope(), page, onReady)
                 return false
             }
-            // Not sheet-editable (CommandPreference/AutoAssignPreference/HIDELABELS/…): the classic
+            // Not sheet-editable (CommandPreference/AutoAssignPreference/HIDELABELS/...): the classic
             // dialog/activity launch still runs, host or no host.
             itemOptions.openDialog(hostActivity, { onReady() }, onReady)
-            false
+            return false
         }
     }
 

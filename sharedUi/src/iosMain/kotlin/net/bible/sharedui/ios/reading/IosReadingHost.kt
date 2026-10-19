@@ -28,6 +28,17 @@ import androidx.compose.runtime.remember
 import net.bible.android.view.activity.page.screen.speakBarVisible
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.page.GlobalTextDisplaySettingsSource
+import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.IdType
+import net.bible.android.view.activity.page.WindowPaneMenuDispatcher
+import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.activity.page.screen.paneWindowLabel
+import net.bible.android.view.activity.page.screen.paneWindowTopLabel
+import net.bible.sharedcore.window.WindowPaneMenuItem
+import net.bible.sharedlogic.settings.RecentDisplaySettings
+import net.bible.sharedlogic.settings.TextDisplayPrefItems
+import net.bible.sharedui.strings.keyed.KeyedPaneMenuStrings
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
@@ -142,6 +153,7 @@ class IosReadingHost(
             formatHistoryTimestamp = { createdAt -> formatHistoryTimestamp(createdAt.getTime()) },
             installedDocRows = ::installedDocRows,
             recentDocumentInitials = { koin.get<RecentDocumentsStore>().read() },
+            paneMenuItemsFor = ::paneMenuItemsFor,
     )
 
     val hostState: ReadingHostState = ReadingHostState(
@@ -152,6 +164,55 @@ class IosReadingHost(
         documentControl = documentControl,
         hooks = hooks,
     )
+
+    private val speakControl: SpeakControl by lazy { koin.get() }
+
+    private val paneMenuPlatform by lazy {
+        IosWindowPaneMenuPlatform(
+            shell = shell,
+            windowControl = { windowControl },
+            slots = { slots },
+            clipboard = koin.get<ClipboardText>(),
+            toast = ::toast,
+            copiedMessage = { KeyedPaneMenuStrings(IosAppStartup.stringTable).referenceCopiedToClipboard },
+            bridgeFor = { id -> if (IosReadingWindows.hasAssembly(id)) IosReadingWindows.bridgeFor(id) else null },
+        )
+    }
+
+    /**
+     * The window (☰) pane menu's rows for [windowId], built by the common [WindowPaneMenuStateBuilder] with the iOS strings,
+     * text display prefs and recent settings. Rebuilt per call so the labels follow the app language. Rows iOS cannot run
+     * are left out ([IOS_OMITTED_PANE_MENU_ROWS]).
+     */
+    internal fun paneMenuItemsFor(windowId: String): List<WindowPaneMenuItem>? {
+        val window = windowControl.windowRepository.getWindow(IdType(windowId)) ?: return null
+        return WindowPaneMenuStateBuilder(
+            windowControl = windowControl,
+            speakControl = speakControl,
+            strings = KeyedPaneMenuStrings(IosAppStartup.stringTable),
+            prefItems = koin.get<TextDisplayPrefItems>(),
+            recentDisplaySettings = { RecentDisplaySettings(settings).sorted },
+            globalTextDisplaySettings = { koin.get<GlobalTextDisplaySettingsSource>().current },
+            llmConfigured = { false },
+            omit = IOS_OMITTED_PANE_MENU_ROWS,
+        ).build(window)
+    }
+
+    private val paneMenuDispatcher by lazy {
+        WindowPaneMenuDispatcher(
+            windowControl = windowControl,
+            speakControl = speakControl,
+            windowRepository = { windowControl.windowRepository },
+            controller = { readingViewController },
+            prefItems = koin.get<TextDisplayPrefItems>(),
+            recentDisplaySettings = { RecentDisplaySettings(settings).sorted },
+            globalTextDisplaySettings = { koin.get<GlobalTextDisplaySettingsSource>().current },
+            platform = paneMenuPlatform,
+        )
+    }
+
+    /** Runs a chosen ☰ row (see [WindowPaneMenuDispatcher.handle]); true keeps the menu open. */
+    internal fun handlePaneMenuItem(windowId: String, id: String): Boolean = paneMenuDispatcher.handle(windowId, id)
 
     /** Android's `ReadingCommands.applyChosenVerse` (non-bookmark arm): a malformed OSIS id only toasts. */
     private fun applyChosenVerse(osisId: String) {
@@ -177,6 +238,10 @@ class IosReadingHost(
             koin.get<FakeBookFactory>().pseudoDocuments.filterNot { it.hideFromSelector }
         val mapper = DocRowMapper(koin.get<DownloadControl>(), books)
         return books.map { mapper.toDocRow(it) }
+    }
+
+    private val readingViewController: ReadingViewController by lazy {
+        ReadingViewController(koin.get<WindowStateService>(), koin.get<WindowCommands>())
     }
 
     private val agentSessionService: AgentSessionService = koin.get()
@@ -290,9 +355,9 @@ class IosReadingHost(
         )
     }
 
-    fun deps(icons: ReadingToolbarIcons): ReadingHostDeps = ReadingHostDeps(
+    fun deps(icons: ReadingToolbarIcons, paneIcons: IosPaneIcons? = null): ReadingHostDeps = ReadingHostDeps(
         state = hostState,
-        controller = ReadingViewController(koin.get<WindowStateService>(), koin.get<WindowCommands>()),
+        controller = readingViewController,
         toolbarCallbacks = callbacks(),
         toolbarIcons = { icons },
         nightMode = nightModeSource ?: mutableStateOf(nightModeState.nightMode),
@@ -319,6 +384,15 @@ class IosReadingHost(
         speakSettingsSlot = { slots.SpeakSettings() },
         quickSheetContent = { sheet -> slots.QuickSheet(sheet) },
         readingDialogSlot = { slots.ReadingDialog() },
+        windowLabel = { snapshot -> paneWindowLabel(windowControl.windowRepository.getWindow(IdType(snapshot.id))) },
+        windowTopLabel = { snapshot -> paneWindowTopLabel(windowControl.windowRepository.getWindow(IdType(snapshot.id))) },
+        windowIcon = { snapshot ->
+            val category = windowControl.windowRepository.getWindow(IdType(snapshot.id))
+                ?.pageManager?.currentPage?.currentDocument?.bookCategory
+            paneIcons?.forCategory(category)
+        },
+        handlePaneMenuItem = ::handlePaneMenuItem,
+        menuIcon = { key -> rememberIosPaneMenuIcon(key) },
     )
 
     fun navDeps(content: @Composable () -> Unit): ReadingNavDeps =
