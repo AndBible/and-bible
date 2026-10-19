@@ -9,7 +9,7 @@ import SharedUi
 final class ReportLifecycleTests: XCTestCase {
     private var window: UIWindow!
     private var previousKeyWindow: UIWindow?
-    private var host: UIViewController!
+    private var host: LifecycleHost!
     private var probe: IosReportLifecycleProbe!
     private var requestFinished: XCTestExpectation?
 
@@ -17,7 +17,7 @@ final class ReportLifecycleTests: XCTestCase {
         try await super.setUp()
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
-        host = UIViewController()
+        host = LifecycleHost()
         window = UIWindow(windowScene: scene)
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -26,24 +26,26 @@ final class ReportLifecycleTests: XCTestCase {
     }
 
     override func tearDown() async throws {
+        defer {
+            window?.isHidden = true
+            window?.rootViewController = nil
+            previousKeyWindow?.makeKeyAndVisible()
+            requestFinished = nil
+            probe = nil
+            host = nil
+            window = nil
+        }
         // On assertion failure, still cancel the real request and let UIKit dismiss naturally.
         // Never delete its files here: a broken lifetime must remain a test failure.
         if let probe, probe.started, !probe.completed {
             probe.cancel()
             if let requestFinished { await fulfillment(of: [requestFinished], timeout: 10) }
         }
-        requestFinished = nil
         if let host, host.presentedViewController != nil {
-            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-                host.dismiss(animated: true) { continuation.resume() }
-            }
+            let dismissed = XCTestExpectation(description: "Failure-path UIKit dismissal")
+            host.dismiss(animated: true) { dismissed.fulfill() }
+            await fulfillment(of: [dismissed], timeout: 10)
         }
-        window?.isHidden = true
-        window?.rootViewController = nil
-        previousKeyWindow?.makeKeyAndVisible()
-        probe = nil
-        host = nil
-        window = nil
         try await super.tearDown()
     }
 
@@ -62,6 +64,7 @@ final class ReportLifecycleTests: XCTestCase {
         let completed = expectation(description: "Actual send coroutine completed")
         requestFinished = XCTestExpectation(description: "Failure-path request cleanup")
         let sheet = LifecycleSheet()
+        sheet.modalPresentationStyle = .popover
         var attachment: URL?
         var observedDismissal = false
         // An unrelated request sentinel detects over-broad cleanup, without relying on a global temp snapshot.
@@ -85,6 +88,11 @@ final class ReportLifecycleTests: XCTestCase {
         await fulfillment(of: [appeared], timeout: 10)
         XCTAssertTrue(host.presentedViewController === sheet)
         XCTAssertNil(sheet.transitionCoordinator)
+        XCTAssertEqual(probe.reportSubject, "test")
+        XCTAssertEqual(probe.reportBody, "body")
+        XCTAssertEqual(probe.reportItemCount, 2)
+        let popover = try XCTUnwrap(sheet.popoverPresentationController)
+        XCTAssertTrue(popover.sourceView === host.view)
         let file = try XCTUnwrap(attachment)
         XCTAssertEqual(try String(contentsOf: file, encoding: .utf8), "payload")
         let requestDirectory = file.deletingLastPathComponent()
@@ -120,6 +128,9 @@ final class ReportLifecycleTests: XCTestCase {
         XCTAssertTrue(host.presentedViewController === sheet)
         probe.finishTwice()
         await fulfillment(of: [completed], timeout: 10)
+        XCTAssertTrue(probe.normalReturnObserved)
+        XCTAssertEqual(probe.releasesAtReturn, 1)
+        XCTAssertTrue(probe.dismissedAtReturn)
         XCTAssertEqual(probe.releases, 1)
         XCTAssertNil(host.presentedViewController)
         probe.finishTwice()
@@ -129,32 +140,34 @@ final class ReportLifecycleTests: XCTestCase {
     func testAlertCancellationPreservesUIKitOwnedDelegate() async throws {
         let alert = UIAlertController(title: "Test", message: "No report sent", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        let originalDelegate = alert.presentationController?.delegate
+        // UIKit may rebuild its presentation controller/delegate during presentation and dismissal.
+        // Enforce identity while presented, not after UIKit tears it down.
+        var presentedDelegate: UIAdaptivePresentationControllerDelegate?
         let completed = expectation(description: "Cancelled alert released")
         requestFinished = XCTestExpectation(description: "Failure-path request cleanup")
+        let presented = expectation(description: "Alert presentation completed")
+        host.presented = { controller in
+            XCTAssertTrue(controller === alert)
+            presentedDelegate = alert.presentationController?.delegate
+            XCTAssertNotNil(presentedDelegate, "UIKit owns the live alert delegate")
+            presented.fulfill()
+        }
         probe.startPresentation(host: host, sheet: alert) { failure in
             XCTAssertNil(failure)
             completed.fulfill()
             self.requestFinished?.fulfill()
         }
-        // UIKit's transition completion is the boundary before the real Job.cancel(), never a delay.
-        let presented = expectation(description: "Alert presentation transition completed")
-        if let transition = alert.transitionCoordinator {
-            XCTAssertTrue(transition.animate(alongsideTransition: nil) { _ in presented.fulfill() })
-        } else {
-            XCTFail("Expected a real animated alert transition")
-            return
-        }
+        // The actual UIKit presentation completion is the boundary before Job.cancel().
         await fulfillment(of: [presented], timeout: 10)
         XCTAssertTrue(host.presentedViewController === alert)
-        XCTAssertTrue(alert.presentationController?.delegate === originalDelegate)
+        XCTAssertTrue(alert.presentationController?.delegate === presentedDelegate)
         XCTAssertFalse(probe.completed)
         probe.cancel()
         await fulfillment(of: [completed], timeout: 10)
         XCTAssertTrue(probe.cancelled)
         XCTAssertEqual(probe.releases, 1)
         XCTAssertNil(host.presentedViewController)
-        XCTAssertTrue(alert.presentationController?.delegate === originalDelegate)
+        XCTAssertFalse(probe.normalReturnObserved, "Cancelled continuation must not return a normal result")
     }
 
     func testConsecutiveDocumentPresentationsResumeAfterDismissal() async throws {
@@ -163,25 +176,38 @@ final class ReportLifecycleTests: XCTestCase {
             let sheet = UIDocumentPickerViewController(forOpeningContentTypes: [.data], asCopy: true)
             let completed = expectation(description: "Document picker released")
             requestFinished = XCTestExpectation(description: "Failure-path request cleanup")
+            let presented = expectation(description: "Document picker presentation completed")
+            host.presented = { controller in
+                XCTAssertTrue(controller === sheet)
+                presented.fulfill()
+            }
             probe.startPresentation(host: host, sheet: sheet) { failure in
                 XCTAssertNil(failure)
                 completed.fulfill()
                 self.requestFinished?.fulfill()
             }
-            let presented = expectation(description: "Document picker presentation completed")
-            if let transition = sheet.transitionCoordinator {
-                XCTAssertTrue(transition.animate(alongsideTransition: nil) { _ in presented.fulfill() })
-            } else {
-                XCTFail("Expected a real animated document picker transition")
-                return
-            }
             await fulfillment(of: [presented], timeout: 10)
             XCTAssertTrue(host.presentedViewController === sheet)
             probe.finishTwice()
             await fulfillment(of: [completed], timeout: 10)
+            XCTAssertTrue(probe.normalReturnObserved)
+            XCTAssertEqual(probe.releasesAtReturn, 1)
+            XCTAssertTrue(probe.dismissedAtReturn)
             XCTAssertEqual(probe.releases, 1)
             XCTAssertNil(host.presentedViewController)
             XCTAssertNil(sheet.presentingViewController)
+        }
+    }
+}
+
+/// Observes UIKit's real completion even when the system defers creating its transition coordinator.
+@MainActor
+private final class LifecycleHost: UIViewController {
+    var presented: ((UIViewController) -> Void)?
+    override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+        super.present(viewControllerToPresent, animated: flag) { [weak self] in
+            completion?()
+            self?.presented?(viewControllerToPresent)
         }
     }
 }

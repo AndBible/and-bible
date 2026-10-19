@@ -30,13 +30,29 @@ class IosReportLifecycleProbe {
     var releases: Int = 0
         private set
 
+    var normalReturnObserved: Boolean = false
+        private set
+    var releasesAtReturn: Int = -1
+        private set
+    var dismissedAtReturn: Boolean = false
+        private set
+    var reportSubject: String? = null
+        private set
+    var reportBody: String? = null
+        private set
+    var reportItemCount: Int = 0
+        private set
+
     fun startReport(
         host: UIViewController,
         sheet: UIViewController,
         staged: (String) -> Unit,
         completion: (String?) -> Unit,
     ) = start(completion) {
-        IosMailOrShare(shareController = { items, _, finish ->
+        IosMailOrShare(shareController = { items, subject, finish ->
+            reportSubject = subject
+            reportBody = items.firstOrNull() as? String
+            reportItemCount = items.size
             terminal = finish
             staged((items.last() as NSURL).path!!)
             sheet
@@ -57,6 +73,10 @@ class IosReportLifecycleProbe {
                 terminal = { presentation.finish(Unit) }
                 presentation.present(host)
             }
+            // Observe the actual suspension boundary BEFORE the independent teardown wait.
+            normalReturnObserved = true
+            releasesAtReturn = releases
+            dismissedAtReturn = host.presentedViewController == null && sheet.presentingViewController == null
         } finally {
             withContext(NonCancellable) { released.await() }
         }
