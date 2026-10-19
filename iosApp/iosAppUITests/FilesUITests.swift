@@ -355,9 +355,9 @@ final class FilesUITests: XCTestCase {
     /// - Provisioning must preflight the real backend as absent, never offer/install the fixture.
     /// - Future genuine Swift -> IosPlatformBootstrap receipt witness must identify this exact filename;
     ///   it must survive a cold OS launch without replaying resetData or synthesizing an incoming offer.
-    /// Cold ZIP uses observed real Files Share -> AndBible Dev, exact production confirmation/OK,
-    /// then requires genuine receipt and registered backend witnesses. Warm EPUB remains hierarchy-only
-    /// until its Files controls are observed; successful export/Files launch alone proves no routing.
+    /// Cold ZIP and warm EPUB both use observed real Files Share -> AndBible Dev, exact production
+    /// confirmation/OK, then require genuine receipt and registered backend witnesses. Cold needs a new
+    /// app process; warm needs the same live process. Export/Files launch alone proves no routing.
     private func probeOsFilesHandoff(mode: String, fileExtension: String, cold: Bool) {
         let token = UUID().uuidString
         let filename = "F-OS-\(token).\(fileExtension)"
@@ -385,7 +385,7 @@ final class FilesUITests: XCTestCase {
             XCTAssertTrue(app.state == .runningBackground || app.state == .runningBackgroundSuspended,
                           "Warm handoff requires the provisioned app process to remain alive")
         }
-        if cold && fileExtension == "zip" {
+        do {
             let recents = files.otherElements.matching(identifier:
                 "DOC.browsingRoot Source: com.apple.DocumentManager.RecentDocuments, Title: Recents").firstMatch
             if !recents.exists {
@@ -408,8 +408,8 @@ final class FilesUITests: XCTestCase {
             guard collections.count == 1 && collection.isHittable else { return }
             let candidates = collection.cells.containing(.staticText, identifier: filename)
             waitForSystemControl(candidates.firstMatch, app: files, name: "os-files-exact-nonce",
-                                 message: "Exact exported nonce ZIP is absent from Files Recents")
-            XCTAssertEqual(candidates.count, 1, "Cannot uniquely identify the exported nonce ZIP")
+                                 message: "Exact exported nonce file is absent from Files Recents")
+            XCTAssertEqual(candidates.count, 1, "Cannot uniquely identify the exported nonce file")
             guard candidates.count == 1 else { return }
             let exactFile = candidates.firstMatch
             let labels = exactFile.staticTexts.matching(NSPredicate(format: "label == %@", filename))
@@ -420,7 +420,12 @@ final class FilesUITests: XCTestCase {
             evidence(files, "os-files-exact-nonce-context-menu-probe")
             let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
             evidence(springboard, "os-files-context-menu-springboard-probe")
-            XCTAssertEqual(app.state, .notRunning, "Context-menu probe must not open AndBible")
+            if cold {
+                XCTAssertEqual(app.state, .notRunning, "Context-menu probe must not open AndBible")
+            } else {
+                XCTAssertTrue(app.state == .runningBackground || app.state == .runningBackgroundSuspended,
+                              "Context-menu probe must not foreground the warm AndBible process")
+            }
             let shares = files.buttons.matching(NSPredicate(format: "label == 'Share'"))
             waitForSystemControl(shares.firstMatch, app: files, name: "os-files-context-share",
                                  message: "Observed exact Files Share action is unavailable")
@@ -446,7 +451,12 @@ final class FilesUITests: XCTestCase {
                 targets.firstMatch.isHittable && targets.firstMatch.isEnabled else { return }
             evidence(files, "os-files-share-target-before-tap")
             evidence(springboard, "os-files-share-target-springboard-before-tap")
-            XCTAssertEqual(app.state, .notRunning, "AndBible must remain cold until the real target tap")
+            if cold {
+                XCTAssertEqual(app.state, .notRunning, "AndBible must remain cold until the real target tap")
+            } else {
+                XCTAssertTrue(app.state == .runningBackground || app.state == .runningBackgroundSuspended,
+                              "Warm AndBible must remain alive in background until the real target tap")
+            }
             targets.firstMatch.tap()
             XCTAssertTrue(app.wait(for: .runningForeground, timeout: 30),
                           "Actual Files target did not bring AndBible to foreground")
@@ -468,7 +478,8 @@ final class FilesUITests: XCTestCase {
             okay.tap()
             // Required debug witness values (not labels): export-process is the UUID of the process
             // that completed real Save; receipt is filename|count=1|process=UUID. Cold OS launch must
-            // retain the export expectation, but receive a new process UUID. Neither tag may forge ingress.
+            // retain the export expectation but receive a new process UUID; warm keeps the same process.
+            // Neither tag may forge ingress.
             let receipt = element(app, "os-routing-receipt")
             waitForSystemControl(receipt, app: app, name: "os-files-genuine-bootstrap-receipt",
                                  message: "Missing genuine bootstrap receipt witness after real Files target and production OK")
@@ -482,7 +493,11 @@ final class FilesUITests: XCTestCase {
             let exportProcess = exportedProcess.value as? String ?? ""
             XCTAssertNotNil(UUID(uuidString: process), "Receipt process token must be an actual UUID")
             XCTAssertNotNil(UUID(uuidString: exportProcess), "Export process token must be an actual UUID")
-            XCTAssertNotEqual(process, exportProcess, "Cold Files handoff must create a different app process")
+            if cold {
+                XCTAssertNotEqual(process, exportProcess, "Cold Files handoff must create a different app process")
+            } else {
+                XCTAssertEqual(process, exportProcess, "Warm Files handoff must reach the same live app process")
+            }
             let content = element(app, "os-routing-content-verified")
             waitUntil("Actual registered backend content is not verified for this receipt", app: app,
                       evidenceName: "os-files-real-backend-content") {
@@ -492,14 +507,14 @@ final class FilesUITests: XCTestCase {
             evidence(files, "os-files-after-real-target")
             evidence(springboard, "os-files-after-real-target-springboard")
         }
-        // Warm EPUB remains hierarchy-only until its actual Files controls are observed.
+        // Warm EPUB reuses the observed Files controls; any EPUB-specific difference must fail visibly.
     }
 
     func testColdOsFilesZipProvisioningAndHierarchyProbe() {
         probeOsFilesHandoff(mode: "os-routing-zip", fileExtension: "zip", cold: true)
     }
 
-    func testWarmOsFilesEpubProvisioningAndHierarchyProbe() {
+    func testWarmOsFilesEpubHandoffAndBackendProof() {
         probeOsFilesHandoff(mode: "os-routing-epub", fileExtension: "epub", cold: false)
     }
 
