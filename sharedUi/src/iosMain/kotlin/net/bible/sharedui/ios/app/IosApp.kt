@@ -20,92 +20,98 @@ package net.bible.sharedui.ios.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.testTag
-import net.bible.sharedui.components.AppToastHost
-import net.bible.sharedui.ios.reading.IosNightModeObserver
-import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.CurrentPageManager
-import net.bible.service.download.FakeBookFactory
-import net.bible.service.history.HistoryManager
-import net.bible.sharedcore.ai.AgentPermissionController
-import net.bible.sharedcore.platform.UserNotifier
-import net.bible.sharedcore.ui.dialog.AppDialogController
-import net.bible.sharedui.components.AppDialogHost
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
-import net.bible.sharedui.ios.reading.ChooserTarget
-import net.bible.sharedui.ios.reading.IosReadingHost
-import net.bible.sharedui.ios.reading.IosReadingResults
-import net.bible.sharedui.ios.reading.PageManagerChooserTarget
-import net.bible.sharedui.ios.reading.IosReadingWindows
-import net.bible.sharedui.ios.reading.iosReadingNavDeps
-import net.bible.sharedui.ios.reading.rememberIosPaneIcons
-import net.bible.sharedui.ios.reading.rememberIosReadingIcons
-import net.bible.sharedui.reading.host.LocalReadingPane
-import net.bible.sharedui.reading.host.ReadingHost
-import net.bible.sharedui.reading.nav.readingNavGraph
-import net.bible.sharedui.webview.iosReadingPaneFactory
-import org.koin.core.Koin
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowLayout
+import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.history.HistoryManager
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.hasUsableBible
+import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.app.AppHosts
 import net.bible.sharedui.app.AppRoot
 import net.bible.sharedui.app.gatedReadingRoute
+import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosDebugLaunchArgs
+import net.bible.sharedui.components.AppDialogHost
+import net.bible.sharedui.components.AppToastHost
+import net.bible.sharedui.components.FailClosedLinkRouting
+import net.bible.sharedui.ios.reading.ChooserTarget
+import net.bible.sharedui.ios.reading.IosNightModeObserver
+import net.bible.sharedui.ios.reading.IosReadingHost
+import net.bible.sharedui.ios.reading.IosReadingResults
+import net.bible.sharedui.ios.reading.IosReadingWindows
+import net.bible.sharedui.ios.reading.PageManagerChooserTarget
+import net.bible.sharedui.ios.reading.iosReadingNavDeps
+import net.bible.sharedui.ios.reading.rememberIosPaneIcons
+import net.bible.sharedui.ios.reading.rememberIosReadingIcons
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.reading.LocalPinIcon
+import net.bible.sharedui.reading.host.LocalReadingPane
+import net.bible.sharedui.reading.host.ReadingHost
+import net.bible.sharedui.reading.nav.readingNavGraph
+import net.bible.sharedui.reading.session.guardedChooserTarget
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.theme.AbHostTheme
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.page.window.WorkspaceChanges
-import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedui.components.FailClosedLinkRouting
-import net.bible.sharedui.app.ports.ExternalLinks
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import kotlinx.coroutines.flow.first
+import net.bible.sharedui.webview.iosReadingPaneFactory
 import org.crosswire.jsword.book.Book
-import platform.Foundation.NSNotificationCenter
+import org.koin.core.Koin
+import org.koin.mp.KoinPlatform
 import platform.Foundation.NSNotification
+import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIApplication
-import platform.UIKit.UIApplicationWillResignActiveNotification
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
+import platform.UIKit.UIApplicationWillResignActiveNotification
 import platform.UIKit.UIBackgroundTaskInvalid
-import org.koin.mp.KoinPlatform
 
 /**
  * The start route of a cold launch: READING when a usable (unlocked) Bible is installed, else WELCOME, decided by the
@@ -257,7 +263,13 @@ private fun IosAppContent(
             document = channels.document,
             myDocumentPages = channels.myDocumentPages,
             myDocuments = channels.myDocuments,
-            targetFor = { asker -> (asker as? CurrentPageManager)?.let { iosChooserTarget(koin, table, it, scope) } },
+            // A window closed while its chooser was open is gone: the answer is dropped, never applied to its page manager.
+            targetFor = guardedChooserTarget(
+                isOpen = { asker ->
+                    koin.get<WindowControl>().windowRepository.sortedWindows
+                        .any { it.pageManager === asker && it.windowState != WindowLayout.WindowState.CLOSED }
+                },
+            ) { asker -> (asker as? CurrentPageManager)?.let { iosChooserTarget(koin, table, it, scope) } },
             activeAskerProvider = { koin.get<WindowControl>().activeWindowPageManager },
         )
     }
@@ -399,11 +411,24 @@ private fun IosReadingDestination(
     val deps = remember(host) { host.deps(icons, paneIcons) }
     val paneFactory = remember { iosReadingPaneFactory(IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, { IosReadingWindows.nightMode }, IosReadingWindows::isOpen) }
     // The host theme wraps the whole app; the reading view adds the fail-closed link routing around its HTML text.
+    MeasureReadingOffsets(host)
     FailClosedLinkRouting(koin.get<ExternalLinks>()) {
         CompositionLocalProvider(LocalReadingPane provides paneFactory) {
             ReadingHost(deps, Modifier.testTag("reading-host"))
         }
     }
+}
+
+/**
+ * Feeds the real layout into the document offsets: the bottom safe-area inset (home indicator) in dp = CSS px, read from
+ * the same `WindowInsets.navigationBars` the reading rail pads itself with. The other terms (search sheet, agent log,
+ * speak bar) are reported by the host's own slots; the host pushes `set_offsets` to every window when the sum changes.
+ */
+@Composable
+private fun MeasureReadingOffsets(host: IosReadingHost) {
+    val density = LocalDensity.current
+    val bottomPx = WindowInsets.navigationBars.getBottom(density)
+    SideEffect { host.offsets.setSystemBottomInset(bottomPx / density.density) }
 }
 
 /**

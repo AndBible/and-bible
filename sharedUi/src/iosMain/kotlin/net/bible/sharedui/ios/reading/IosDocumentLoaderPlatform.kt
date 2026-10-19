@@ -27,13 +27,14 @@ import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedlogic.platform.NightModeState
 import net.bible.sharedui.reading.session.ConfigInputs
 import net.bible.sharedui.reading.session.DocumentLoaderPlatform
+import net.bible.sharedui.reading.session.ReadingOffsets
 
 /**
  * iOS [DocumentLoaderPlatform] for one reading window.
  *
- * Offsets are 0: [net.bible.sharedui.reading.host.ReadingHost] lays the pane out below the toolbar and inside the
- * safe area, so the WebView does not extend under them (Android's BibleView does, hence its non-zero offsets).
- * [lastUpdated] stays 0, so every load starts at the page manager's current location.
+ * Offsets come from the real layout ([ReadingOffsets], CSS px): none at the top (the toolbar is an in-flow row), and at
+ * the bottom of the bottom pane the safe-area inset plus the search sheet / agent log (Android's `BibleView.topOffset` /
+ * `bottomOffset`; a pane that is not at the bottom of the split gets 0). [lastUpdated] stays 0, so every load starts at the page manager's current location.
  *
  * `themeColors` is `"null"` (BibleView's own palette): `themeColorsJson` lives in `:app`; moving it is Stream R/X.
  * Settings are read when `set_config` is built, never at construction.
@@ -45,10 +46,20 @@ class IosDocumentLoaderPlatform(
     private val settings: () -> AppSettings,
     private val nightModeState: () -> NightModeState,
     private val llmConfigured: () -> Boolean = { false },
+    private val offsets: () -> ReadingOffsets = { ReadingOffsets() },
+    private val isPortrait: () -> Boolean = ::iosIsPortrait,
 ) : DocumentLoaderPlatform {
     override val lastUpdated: Long get() = 0L
-    override val topOffset: Float get() = 0f
-    override val bottomOffset: Float get() = 0f
+    override val topOffset: Float get() = offsets().top
+    override val bottomOffset: Float get() = if (isBottomWindow) offsets().bottom else 0f
+
+    /** Android's `BibleView.isBottomWindow`: every pane counts as bottom when the split is side by side. */
+    private val isBottomWindow: Boolean
+        get() {
+            val reverse = repository.workspaceSettings.enableReverseSplitMode
+            val splitVertically = if (reverse) !isPortrait() else isPortrait()
+            return !splitVertically || repository.lastVisibleWindow == window()
+        }
 
     private val repository get() = windowControl().windowRepository
 

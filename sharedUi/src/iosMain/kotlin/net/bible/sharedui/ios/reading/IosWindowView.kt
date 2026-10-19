@@ -23,6 +23,8 @@ import org.crosswire.jsword.passage.VerseRange
 internal class IosWindowView(
     private val session: BibleWindowSession,
     private val loader: DocumentLoader,
+    /** Runs before each document load (refreshes page globals that depend on installed books). */
+    private val beforeLoad: () -> Unit = {},
 ) : WindowView {
     override var lastUpdated: Long = 0L
     override var listenEvents: Boolean = true
@@ -48,7 +50,10 @@ internal class IosWindowView(
         anchorOrdinal: OrdinalRange?,
         htmlId: String?,
         windowContentGeneration: Long?,
-    ) = loader.loadDocument(document, updateLocation, key, anchorOrdinal, htmlId, windowContentGeneration)
+    ) {
+        beforeLoad()
+        loader.loadDocument(document, updateLocation, key, anchorOrdinal, htmlId, windowContentGeneration)
+    }
 
     override fun scrollOrJumpToVerse(key: Key, forceNow: Boolean) = loader.scrollOrJumpToVerse(key, forceNow)
 

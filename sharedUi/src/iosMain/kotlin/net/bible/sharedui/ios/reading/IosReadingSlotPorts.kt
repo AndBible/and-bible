@@ -64,6 +64,9 @@ internal fun iosOpenUrl(url: String) {
 /** Whether the screen is taller than wide (the passage grid lays out differently in portrait). */
 internal fun iosIsPortrait(): Boolean = UIScreen.mainScreen.bounds.useContents { size.height >= size.width }
 
+/** The screen scale (px per dp = CSS px), Compose's density on iOS. */
+internal fun iosScreenScale(): Float = UIScreen.mainScreen.scale.toFloat()
+
 /**
  * iOS [SpeakSettingsPlatform]: iOS has no per-feature text-to-speech settings screen an app can open, so the Speak
  * sheet's "system TTS settings" row opens the app's page in the Settings app (`UIApplicationOpenSettingsURLString`),

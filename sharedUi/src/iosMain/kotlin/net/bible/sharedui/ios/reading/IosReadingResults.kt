@@ -103,6 +103,7 @@ class IosReadingResults(
     private val activeAskerProvider: () -> Any?,
     private val log: (String) -> Unit = { Log.w(TAG, it) },
 ) : ChooserRequests {
+    // Keyed by kind: a second request of the same kind replaces the first asker (as on Android).
     private val open = mutableMapOf<ChooserKind, Any?>()
 
     override fun asked(kind: ChooserKind, asker: Any?) {

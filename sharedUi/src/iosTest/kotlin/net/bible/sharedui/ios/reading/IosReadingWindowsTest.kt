@@ -38,6 +38,8 @@ import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.ios.app.IosNavigator
 import net.bible.sharedui.ios.app.IosReadingReady
 import net.bible.sharedui.webview.IosReadingWebViews
+import net.bible.sharedui.reading.session.ReadingOffsets
+import net.bible.sharedui.webview.activeLanguagesScript
 import net.bible.sharedui.webview.attachReadingPane
 import net.bible.sharedui.webview.bibleBundleUrl
 import org.koin.mp.KoinPlatform
@@ -115,6 +117,42 @@ class IosReadingWindowsTest {
     private fun attach(id: String, night: () -> Boolean = { false }) = attachReadingPane(
         id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, night, IosReadingWindows::isOpen,
     )
+
+    /** The loader platform reads the live [ReadingOffsets]: none at the top, the safe area (and sheets) at the bottom pane's foot. */
+    @Test
+    fun offsetsFollowTheToolbarAndSafeArea() = withWindows { _ ->
+        val koin = KoinPlatform.getKoin()
+        val windowControl = koin.get<WindowControl>()
+        val offsets = ReadingOffsets()
+        val platform = IosDocumentLoaderPlatform(
+            window = { windowControl.activeWindow }, windowControl = { windowControl }, settings = { koin.get() },
+            nightModeState = { FakeNight(false) }, offsets = { offsets }, isPortrait = { true },
+        )
+        assertEquals(0f, platform.topOffset)
+        assertEquals(0f, platform.bottomOffset)
+        offsets.setSystemBottomInset(34f)
+        assertEquals(0f, platform.topOffset)
+        assertEquals(34f, platform.bottomOffset)
+    }
+
+    /** The WebViews get the installed Bibles' languages (the test modules hold English and Finnish ones), not a constant. */
+    @Test
+    fun activeLanguagesFromInstalledBooks() = withWindows { _ ->
+        val languages = IosReadingWebViews.activeLanguages()
+        assertTrue("\"en\"" in languages && "\"fi\"" in languages, "languages: $languages")
+        assertEquals("window.__activeLanguages__ = '[\"en\",\"fi\"]';", activeLanguagesScript("[\"en\",\"fi\"]"))
+    }
+
+    /** The session's key actions and verse chooser are the real ones: Ctrl+W opens the workspace sheet, the chooser opens the Grid sheet. */
+    @Test
+    fun sessionKeyActionsAndVerseChooserAreWired() = withWindows { id ->
+        val session = IosReadingWindows.sessionFor(id)
+        val keys = session.keyActions
+        assertTrue(keys is IosReadingKeyActions, "key actions: $keys")
+        assertTrue(keys.showWorkspaceSheetIfHosted())
+        val chooser = session.verseChooser
+        assertTrue(chooser != null, "verse chooser installed")
+    }
 
     /** A fresh (empty) database gives exactly one visible window, like Android. */
     @Test

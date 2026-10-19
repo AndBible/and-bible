@@ -19,6 +19,7 @@
 package net.bible.sharedui.ios.reading
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -89,6 +90,7 @@ import net.bible.sharedui.reading.host.slots.ReadingHostSlots
 import net.bible.sharedui.reading.host.slots.ReadingSearchServices
 import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.sharedui.reading.nav.ReadingNavDeps
+import net.bible.sharedui.reading.session.ReadingOffsets
 import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
@@ -129,6 +131,15 @@ class IosReadingHost(
     private val windowControl: WindowControl = koin.get()
     private val settings: AppSettings = koin.get()
     private val documentControl: DocumentControl = koin.get()
+
+    /**
+     * The document offsets of every window ([ReadingOffsets]): the destination reports the safe-area inset, the slots below
+     * report the search sheet, agent log and speak bar; a change is pushed to each window as `set_offsets`.
+     */
+    internal val offsets = ReadingOffsets { IosReadingWindows.offsetsChanged() }
+
+    /** The agent log's last measured collapsed height in dp (the offsets need it while the panel is visible). */
+    private var agentLogHeightDp = 0f
 
     /** The navigator every window session and the toolbar use; shares [hostState] and the label result channel. */
     internal val navigator: IosReadingNavigator by lazy {
@@ -364,12 +375,17 @@ class IosReadingHost(
         nightMode = nightModeSource ?: mutableStateOf(nightModeState.nightMode),
         disableAnimations = { settings.resolveDisableAnimations(false) },
         agentLogSlot = { applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
-            slots.AgentLog(applyNavBarInset, maxHeightDp, collapsedDp, onCollapsedHeightMeasured)
+            slots.AgentLog(applyNavBarInset, maxHeightDp, collapsedDp) { height ->
+                agentLogHeightDp = height
+                offsets.setAgentLog(agentLog.state.value.visible, height)
+                onCollapsedHeightMeasured(height)
+            }
         },
         speakBarSlot = { applyNavBarInset -> slots.SpeakBar(applyNavBarInset) },
         agentLogVisible = {
             val agentLogState = agentLog.state.collectAsState()
             val visible = remember { derivedStateOf { agentLogState.value.visible } }
+            SideEffect { offsets.setAgentLog(visible.value, agentLogHeightDp) }
             visible.value
         },
         speakBarVisible = {
@@ -377,8 +393,10 @@ class IosReadingHost(
             val visible = remember {
                 derivedStateOf { speakBarVisible(fullScreen = false, transportVisible = speakState.value.visible) }
             }
+            SideEffect { offsets.setSpeakBarVisible(visible.value) }
             visible.value
         },
+        onSearchSheetOffsetsChanged = { visible, heightPx -> offsets.setSearchSheet(visible, heightPx, iosScreenScale()) },
         searchSheetSlot = { slots.SearchSheet() },
         searchSettingsSlot = { slots.SearchSettings() },
         textSettingsEditorSlot = { slots.TextSettingsEditor() },

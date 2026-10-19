@@ -28,23 +28,26 @@ import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
 import net.bible.sharedcore.bibleview.BibleBridge
+import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedui.app.ports.ExternalLinks
-import net.bible.sharedui.ios.IosPending
 import net.bible.sharedui.reading.bridge.ReadingBridge
-import net.bible.sharedui.reading.bridge.ReadingKeyActions
 import net.bible.sharedui.reading.session.BibleWindowSession
 import net.bible.sharedui.reading.session.DocumentLoader
 import net.bible.sharedui.reading.session.ReadingLinkHandler
 import net.bible.sharedui.reading.session.SessionEventRelay
+import net.bible.sharedui.reading.session.activeLanguagesJson
+import net.bible.sharedui.reading.session.readingVerseChooser
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.IosReadingWindowSurface
 import net.bible.sharedui.webview.WkWebViewJsHost
+import net.bible.sharedui.webview.activeLanguagesScript
 import org.koin.core.Koin
 
 /**
@@ -64,6 +67,7 @@ object IosReadingWindows {
         val relay: SessionEventRelay,
         val bridge: ReadingBridge,
         val relayPlatform: IosSessionEventRelayPlatform,
+        val platform: IosDocumentLoaderPlatform,
         @Suppress("unused") val linkHandler: ReadingLinkHandler,
     ) {
     }
@@ -80,16 +84,6 @@ object IosReadingWindows {
     private val assemblies = mutableMapOf<String, Assembly>()
     private var binding: Binding? = null
 
-    /** The pending [ReadingKeyActions]: iOS has no hardware-key reading shortcuts wired yet. */
-    private val pendingKeyActions = object : ReadingKeyActions {
-        override fun openDrawer() = IosPending.log("ReadingKeyActions.openDrawer")
-        override fun openOverflowMenu() = IosPending.log("ReadingKeyActions.openOverflowMenu")
-        override fun showWorkspaceSheetIfHosted(): Boolean { IosPending.log("ReadingKeyActions.showWorkspaceSheetIfHosted"); return false }
-        override fun copySelection() = IosPending.log("ReadingKeyActions.copySelection")
-        override fun searchIfHosted(): Boolean { IosPending.log("ReadingKeyActions.searchIfHosted"); return false }
-        override fun crashAllBibleViews() = IosPending.log("ReadingKeyActions.crashAllBibleViews")
-    }
-
     /**
      * Binds the assembly to the reading host. A second bind (a new host) drops the previous binding's window
      * subscription; sessions of the old host are released first.
@@ -98,6 +92,8 @@ object IosReadingWindows {
         unbind()
         val b = Binding(host, scope, koin, nightModeState)
         binding = b
+        // The languages of the installed Bibles (Android's `getActiveLanguages`), read when each window's WebView is created.
+        IosReadingWebViews.activeLanguages = ::installedLanguagesJson
         b.subscriptions.add(koin.get<WindowStateServiceImpl>().windowChanges.subscribe { change ->
             if (change == WindowChange.WindowsChanged) {
                 scope.launch(Dispatchers.Main) { releaseClosedWindows() }
@@ -109,6 +105,16 @@ object IosReadingWindows {
         // BibleView gets the client-ready handshake and then stays blank. Plain-model work: loadText hands the rest to IO
         // and waits for the window's view, which the pane assembly assigns.
         koin.get<WindowControl>().windowSync.reloadAllWindows(true)
+    }
+
+    private fun installedLanguagesJson(): String =
+        activeLanguagesJson(SwordDocumentFacade.bibles.map { it.bookMetaData.language.code })
+
+    /** The document offsets changed (safe area, search sheet, agent log, speak bar): re-send `set_offsets` to every window. */
+    fun offsetsChanged() {
+        for (a in assemblies.values) {
+            a.session.emit(BibleViewEvents.setOffsets(a.platform.topOffset, a.platform.bottomOffset, true, false))
+        }
     }
 
     private fun unbind() {
@@ -165,8 +171,13 @@ object IosReadingWindows {
         )
         try {
             session.hostSheets = b.host.hostState
-            session.keyActions = pendingKeyActions
-            session.verseChooser = { IosPending.log("verseChooser"); null }
+            val bridgeRef = arrayOfNulls<ReadingBridge>(1)
+            session.keyActions = IosReadingKeyActions(
+                hostState = b.host.hostState,
+                openSearch = { b.host.navigator.openSearch(null) },
+                copyCurrentSelection = { bridgeRef[0]?.copyCurrentSelection() },
+            )
+            session.verseChooser = readingVerseChooser(b.host.hostState)
             val settings = koin.get<AppSettings>()
             // Known follow-up (Stream R): a Window object re-created after a workspace restore is not re-bound here
             // (Android rebinds in BibleViewFactory.getOrCreateBibleView); this session keeps the window it was built for.
@@ -176,19 +187,25 @@ object IosReadingWindows {
                 settings = { settings },
                 nightModeState = { b.nightModeState },
                 llmConfigured = { runCatching { koin.get<PromptService>().configured.value }.getOrDefault(false) },
+                offsets = { b.host.offsets },
             )
             // The loader is the session's paging seam: it must exist before the bridge can receive a call.
             val loader = DocumentLoader(session, platform).also { session.paging = it }
             val bridge = ReadingBridge(session, viewIsCurrent = { windowControl.activeWindow.id.toString() == windowId })
-            val linkHandler = ReadingLinkHandler(session) { _, _, _, _ -> IosPending.log("openEpubLink") }
+            bridgeRef[0] = bridge
+            // The same steps Android takes (BibleView.openEpubLink): resolve the key off the main thread, then showLink.
+            val linkHandler = ReadingLinkHandler(session) { book, backend, keyStr, idStr -> bridge.openEpubLink(book, backend, keyStr, idStr) }
             val relayPlatform = IosSessionEventRelayPlatform { loader.updateConfig() }
             val relay = SessionEventRelay(session, loader, relayPlatform)
             relay.start()
             // Window.loadText delivers documents to window.bibleView; without one it times out after 5 s.
-            val view = IosWindowView(session, loader)
+            val view = IosWindowView(session, loader, beforeLoad = {
+                // Books may have been installed since the WebView was created: the page reads the global lazily.
+                host.post { host.evaluate(activeLanguagesScript(installedLanguagesJson()), null) }
+            })
             window.bibleView = view
             if (window.takeLoadPending()) window.loadText()
-            return Assembly(session, loader, relay, bridge, relayPlatform, linkHandler)
+            return Assembly(session, loader, relay, bridge, relayPlatform, platform, linkHandler)
         } catch (t: Throwable) {
             // Nothing is in the map yet: dispose what was built so no scope or WebView entry outlives the failure.
             session.dispose()

@@ -106,6 +106,31 @@ internal class ContentBridgeFamily(
     }
 
     /**
+     * Copies the current native text selection (Ctrl+C), as `BibleView.copySelectionToClipboard`: asks the page for its
+     * selection (`bibleView.querySelection()`); nothing is copied when there is none or it cannot be read.
+     */
+    fun copyCurrentSelection() {
+        if (session.isDisposed) return
+        session.scope.launch(Dispatchers.Main) {
+            val result = try {
+                session.jsChannel.evaluate("bibleView.querySelection()")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "copyCurrentSelection failed", e)
+                return@launch
+            }
+            if (result == "null" || session.isDisposed) return@launch
+            val selection = try {
+                AppJson.decodeFromString(kotlinx.serialization.serializer<Selection?>(), result)
+            } catch (e: kotlinx.serialization.SerializationException) {
+                null
+            } ?: return@launch
+            session.surface.copyText(selection.verseRange?.getName(), shareableSelectionText(selection, facade(), settings()))
+        }
+    }
+
+    /**
      * Shows a help dialog for a Vue-side view. The [scopeKey] string is resolved here to a
      * (title, message, helpUrl) triple so that the JS side cannot inject arbitrary URLs.
      */
