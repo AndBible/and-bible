@@ -19,7 +19,6 @@
 package net.bible.sharedui.ios.app
 
 import net.bible.android.control.backup.BackupHost
-import net.bible.sharedcore.platform.AppEnvironment
 import net.bible.sharedui.app.ports.HostPorts
 import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.ios.IosPending
@@ -49,9 +48,8 @@ import org.koin.core.Koin
 
 /**
  * Assembles the 22 [HostPorts] for iOS. Most ports are still pending ([IosPending] logs them); the real ones are
- * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]) and the Welcome and Download ports, which
- * are partly real (Easy start / Download via [leaveWelcomeFor], first-download `copyFile`; Import, Restore, links,
- * unlock and About stay pending). [shell] is reserved for ports that grow real behaviour.
+ * [HostPorts.backupHost] (Stream D's `IosBackupHost` taken from [koin]), Welcome (all paths) and the Download
+ * port's first-download `copyFile`. Download unlock and About stay pending.
  */
 @kotlin.native.HiddenFromObjC
 @Suppress("UNUSED_PARAMETER")
@@ -59,9 +57,9 @@ fun buildIosHostPorts(
     shell: IosHostShell,
     koin: Koin,
     table: StringTable = iosStringTable("en"),
-    leaveWelcomeFor: (String) -> Unit = { IosPending.log("WelcomeHostPlatform.leaveFor") },
+    initialiseWelcome: suspend () -> Unit = {},
 ): HostPorts {
-    val welcome = IosWelcomeHostPlatform(table, { koin.get<AppEnvironment>().isDiscrete }, leaveWelcomeFor)
+    val welcome = IosWelcomeHostPlatform(koin, shell.hostScope, table, initialiseWelcome, shell::navigate)
     val chooser = IosChooserHostPlatform()
     val bookmark = IosBookmarkHostPlatform()
     val readingPlan = IosReadingPlanHostPlatform()

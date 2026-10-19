@@ -79,9 +79,8 @@ kotlin {
             implementation(libs.androidx.core.ktx)
         }
         commonTest.dependencies {
-            // :sharedUi's first test source set (Task 3 fix round 1); kotlin("test") is enough —
-            // the covered logic (popOrExitOnFailedPop) touches no Android/Compose API.
             implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
         iosMain { kotlin.srcDir(iosStringsOutDir) }
         iosTest.dependencies {

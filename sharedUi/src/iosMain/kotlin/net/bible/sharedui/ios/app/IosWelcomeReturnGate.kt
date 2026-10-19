@@ -31,6 +31,12 @@ class IosWelcomeReturnGate(
     var awaitingReturn = false
         private set
 
+    /** A successful restore returns from an external picker without changing the navigation destination. */
+    fun afterExternalFlow() {
+        awaitingReturn = true
+        onDestination(currentRoute(), welcomeOnStack = true)
+    }
+
     /** [route] is the new current destination's route; [welcomeOnStack] whether a Welcome entry is on the back stack. */
     fun onDestination(route: String?, welcomeOnStack: Boolean) {
         if (route?.substringBefore('?') != NavRoutes.WELCOME) {

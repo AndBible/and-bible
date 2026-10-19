@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.testTag
@@ -200,8 +201,17 @@ private fun IosAppContent(
             holder.switchTo(resolveDeviceUiLanguage(koin.get<IosDeviceSettings>()))
         }
     }
-    val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
+    val ports = remember {
+        buildIosHostPorts(shell, koin, table) {
+            withContext(Dispatchers.Default) { ReadingAppInit.initialise(IosReadingAppInitPlatform(table)) }
+        }
+    }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
+    val welcome = remember { ports.welcomePlatform() as net.bible.sharedui.ios.ports.IosWelcomeHostPlatform }
+    SideEffect {
+        welcome.openImport = { appHosts.installZip.open() }
+        welcome.refreshTextIfCreated()
+    }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
     val readingHostHolder = remember { ReadingHostHolder() }
@@ -214,13 +224,14 @@ private fun IosAppContent(
             ensureReading = { IosReadingReady.ensure(table) },
             currentRoute = { navController.currentDestination?.route },
             openReading = { shell.openReading() },
-            // Android: controller.setProgress(null) + refreshInfo(); the info load is cheap and database-free on iOS.
             refreshWelcome = {
                 nsLog("IosApp: no usable Bible after the flow, staying on Welcome")
-                ports.welcomePlatform().controller.apply { setProgress(null); refresh() }
+                welcome.controller.setProgress(null)
+                scope.launch { welcome.refreshInfo() }
             },
             log = { nsLog("IosApp: $it") },
         )
+        welcome.afterRestore = gate::afterExternalFlow
         val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->
             gate.onDestination(
                 destination.route,

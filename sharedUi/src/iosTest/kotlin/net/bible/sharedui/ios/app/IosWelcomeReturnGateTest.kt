@@ -30,6 +30,24 @@ class IosWelcomeReturnGateTest {
     }
 
     @Test
+    fun externalRestoreWithUsableBibleInitialisesBeforeOpeningReading() {
+        val f = Fixture(ensureGate = CompletableDeferred())
+        f.gate.afterExternalFlow()
+        assertEquals(1, f.ensured)
+        assertEquals(0, f.opened)
+        f.ensureGate!!.complete(Unit)
+        assertEquals(1, f.opened)
+    }
+
+    @Test
+    fun externalRestoreWithoutBibleRefreshesPreviousInstallInfo() {
+        val f = Fixture(usable = false)
+        f.gate.afterExternalFlow()
+        assertEquals(1, f.refreshed)
+        assertEquals(0, f.opened + f.ensured)
+    }
+
+    @Test
     fun returnWithUsableBibleOpensReadingOnce() {
         val f = Fixture()
         f.leave(); f.back()

@@ -23,9 +23,6 @@ import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.core.net.toUri
@@ -33,23 +30,15 @@ import androidx.lifecycle.lifecycleScope
 import java.util.Locale
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
-import kotlinx.serialization.serializer
-import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.DatabaseContainer
-import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.startup.StartupWelcomeController
-import net.bible.sharedcore.startup.StartupWelcomeInfo
-import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.app.welcome.WelcomeHostPlatform
-import net.bible.sharedui.strings.LocalStrings
 
 /**
  * The first-run welcome's Android orchestration (slice 8 §4), moved from `StartupComposeActivity`
@@ -61,65 +50,41 @@ import net.bible.sharedui.strings.LocalStrings
  */
 internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHostPlatform {
 
-    // A host restored on WELCOME after process death never ran StartupActivity's DB open (fix batch 1 §2.6).
+    // A restored WELCOME host may not have passed StartupActivity's database open.
     private val docsDao get() = DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao()
-    /** Whether the repo database knows documents from an earlier install (Redownload is offered then). */
-    suspend fun previousInstallDetected(): Boolean = docsDao.getKnownInstalled().isNotEmpty()
-
-    /**
-     * The last answer of [previousInstallDetected]. [loadInfo] is synchronous (the controller computes its
-     * first state at construction), so the answer is read by [refreshInfo]: when the controller is built and
-     * on every later refresh.
-     */
-    private var previousInstall = false
-
+    private val core by lazy {
+        net.bible.sharedui.app.welcome.WelcomeFlowCore(
+            versionText = { host.getString(R.string.version_text, CommonUtils.applicationVersionName) },
+            supportedFormatsText = {
+                val zip = host.getString(R.string.format_zip, host.getString(startupWelcomeShortAppNameRes()))
+                host.getString(R.string.supported_formats,
+                    "$zip, ${host.getString(R.string.format_mybible)}, ${host.getString(R.string.format_mysword)}, ${host.getString(R.string.format_epub)}")
+            },
+            language = { Locale.getDefault().language }, isDiscrete = { CommonUtils.isDiscrete },
+            knownInstalled = { docsDao.getKnownInstalled() }, megabytesFree = { CommonUtils.megabytesFree },
+            refuseDownload = { Dialogs.showErrorMsg(host.getString(R.string.storage_space_warning)) { host.finish() } },
+            initialise = { host.initialiseLeavingWelcome() },
+            ensureSyncLoaded = {
+                org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
+                    net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java).ensureLoaded()
+            },
+            navigate = host::navigateInGraph,
+            bookLabel = { host.getString(R.string.something_with_parenthesis, it.name, it.language) },
+        )
+    }
+    suspend fun previousInstallDetected(): Boolean = core.previousInstallDetected()
+    suspend fun refreshInfo() = core.refreshInfo()
     private val controllerLazy = lazy {
-        StartupWelcomeController(::loadInfo).also {
+        core.controller.also {
             host.lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) { refreshInfo() }
         }
     }
-
-    /**
-     * Re-reads what the controller's info depends on the database for, then refreshes it. The host calls
-     * this wherever it used to call `controller.refresh()` (the answer changes after a download or restore).
-     */
-    suspend fun refreshInfo() {
-        previousInstall = previousInstallDetected()
-        controller.refresh()
-    }
-
     override val controller: StartupWelcomeController get() = controllerLazy.value
+    val controllerIfCreated: StartupWelcomeController?
+        get() = if (controllerLazy.isInitialized()) controllerLazy.value else null
 
-    /**
-     * The controller only if a WELCOME entry has built it -- for the host's `InstallZipProgress` subscription, which runs on
-     * every host and must not build one (building runs `loadInfo`, a DB read) just to show a progress line nobody sees.
-     */
-    val controllerIfCreated: StartupWelcomeController? get() = if (controllerLazy.isInitialized()) controllerLazy.value else null
-
-    /**
-     * True from the moment a flow leaves WELCOME for another destination until the graph returns. Set only by
-     * the host's destination listener, from the back stack (so it survives a recreate without being saved).
-     */
+    /** Derived by the host's back-stack listener, including after recreation. */
     var awaitingReturn: Boolean = false
-
-    private var redownloadBooks by mutableStateOf<List<SwordDocumentInfo>?>(null)
-
-    private fun loadInfo(): StartupWelcomeInfo {
-        // F62 fix round 1: both app-name substitutions are discrete-aware, like the header.
-        val zip = host.getString(R.string.format_zip, host.getString(startupWelcomeShortAppNameRes()))
-        val formats = host.getString(
-            R.string.supported_formats,
-            "$zip, ${host.getString(R.string.format_mybible)}, ${host.getString(R.string.format_mysword)}, ${host.getString(R.string.format_epub)}",
-        )
-        return StartupWelcomeInfo(
-            versionText = host.getString(R.string.version_text, CommonUtils.applicationVersionName),
-            supportedFormatsText = formats,
-            previousInstallDetected = previousInstall,
-            easyStartAvailable = Locale.getDefault().language == "en",
-            // Batch 6 A6: the Homepage / GitHub buttons open AndBible URLs.
-            homepageButtonsVisible = !CommonUtils.isDiscrete,
-        )
-    }
 
     // StartupComposeActivity had no android:label, so its window title was the application label.
     override val windowTitle: String get() = host.applicationInfo.loadLabel(host.packageManager).toString()
@@ -133,41 +98,16 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
     override fun onOpenGithub() = openUrl(R.string.github_page)
 
     @Composable
-    override fun Dialogs() = RedownloadDialog()
+    override fun Dialogs() = core.RedownloadDialog(host.lifecycleScope)
 
-    /**
-     * Leave WELCOME for [route]. The app is initialised first: these screens used to be separate Activities
-     * that initialised it in `ActivityBase.onCreate`, and this host started uninitialised (spec §3.1 rule 2).
-     * Internal for `UsableBibleGateTest`, which leaves onto a light stand-in route (Download needs a network).
-     */
     internal fun leaveFor(route: String) {
-        host.lifecycleScope.launch {
-            host.initialiseLeavingWelcome()
-            org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
-                net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java,
-            ).ensureLoaded()
-            host.navigateInGraph(route)
-        }
+        host.lifecycleScope.launch { core.leaveFor(route) }
     }
 
-    override fun onDownload() {
-        if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-            Dialogs.showErrorMsg(host.getString(R.string.storage_space_warning)) { host.finish() }
-            return
-        }
-        leaveFor(NavRoutes.download(firstDownload = true))
-    }
-
-    override fun onEasyStart() = leaveFor(NavRoutes.download(firstDownload = true, downloadRecommended = true))
-
+    override fun onDownload() { host.lifecycleScope.launch { core.onDownload() } }
+    override fun onEasyStart() { host.lifecycleScope.launch { core.onEasyStart() } }
     override fun onImport() {
-        host.lifecycleScope.launch {
-            host.initialiseLeavingWelcome()
-            org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.documents.DocumentSyncSettings>(
-                net.bible.service.cloudsync.documents.DocumentSyncSettings::class.java,
-            ).ensureLoaded()
-            host.openInstallZip()
-        }
+        host.lifecycleScope.launch { core.initialiseThen { host.openInstallZip() } }
     }
 
     override fun onRestore() {
@@ -182,11 +122,8 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
     }
 
     override fun onRedownload() {
-        host.lifecycleScope.launch { redownloadBooks = docsDao.getKnownInstalled().sortedBy { it.language } }
+        host.lifecycleScope.launch { core.onRedownload() }
     }
-
-    private fun launchRedownload(books: List<SwordDocumentInfo>) =
-        leaveFor(NavRoutes.download(firstDownload = true, documentIds = json.encodeToString(serializer(), books)))
 
     private fun openUrl(@StringRes urlRes: Int) {
         try {
@@ -194,28 +131,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) : WelcomeHo
         } catch (e: Exception) { /* no browser -- ignore, parity with a dead link */ }
     }
 
-    @Composable
-    private fun RedownloadDialog() {
-        val books = redownloadBooks ?: return
-        val strings = LocalStrings.current
-        AbMultiSelectDialog(
-            title = host.getString(R.string.redownload),
-            options = books,
-            selectedIds = books.map { it.initials },
-            idOf = { it.initials },
-            labelOf = { host.getString(R.string.something_with_parenthesis, it.name, it.language) },
-            confirmText = strings.okay,
-            dismissText = strings.no,
-            onConfirm = { selectedIds ->
-                redownloadBooks = null
-                val selected = books.filter { selectedIds.contains(it.initials) }
-                if (selected.isNotEmpty()) launchRedownload(selected)
-            },
-            onDismiss = { redownloadBooks = null },
-            selectAllText = strings.selectAll,
-            selectNoneText = strings.selectNone,
-        )
-    }
+
 }
 
 /**

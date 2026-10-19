@@ -80,9 +80,7 @@ class IosHostPortsTest {
                 override fun popBackStackTo(route: String, inclusive: Boolean) = false
             })
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin)
-            ports.welcomePlatform().onImport()
             assertTrue(ports.welcomePlatform().windowTitle.isNotEmpty())
-            ports.welcomePlatform().controller.refresh()
             ports.chooserPlatform().backupModules()
             assertEquals(emptyList(), ports.chooserPlatform().docRows(emptyList()))
             ports.bookmarkPlatform().documentsRecreation()
@@ -98,7 +96,6 @@ class IosHostPortsTest {
             assertTrue(ports.labelIcons.iconKeys.isEmpty())
             ports.cloudDocumentsPlatform()
             ports.bugReport()
-            assertTrue("WelcomeHostPlatform.onImport" in IosPending.reported)
             assertTrue("TextShare.shareText" in IosPending.reported)
         } finally {
             org.koin.core.context.stopKoin()
