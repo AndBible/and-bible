@@ -21,12 +21,25 @@ package net.bible.sharedui.ios.ports
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.sharedcore.platform.files.SaveOrShare
 import net.bible.sharedui.app.bookmark.StudyPadExportPlatform
-import net.bible.sharedui.ios.IosPending
+import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.BackupHost
+import net.bible.service.db.exportStudyPads
+import net.bible.sharedcore.platform.AppEnvironment
+import net.bible.sharedcore.platform.CoreStrings
+import org.koin.mp.KoinPlatform
 
-/** Pending (stream F). */
+/** Uses the same archive writer and save-or-share flow as Android, with the iOS backup host. */
 @kotlin.native.HiddenFromObjC
-class IosStudyPadExportPlatform : StudyPadExportPlatform {
+class IosStudyPadExportPlatform(
+    private val backupHost: () -> BackupHost = { KoinPlatform.getKoin().get() },
+    private val backupControl: () -> BackupControl = { KoinPlatform.getKoin().get() },
+    private val strings: () -> CoreStrings = { KoinPlatform.getKoin().get() },
+    private val environment: () -> AppEnvironment = { KoinPlatform.getKoin().get() },
+) : StudyPadExportPlatform {
     override suspend fun export(labels: List<BookmarkEntities.Label>, chooseDestination: suspend () -> SaveOrShare?) {
-        IosPending.log("StudyPadExportPlatform.export")
+        exportStudyPads(
+            labels = labels, host = backupHost(), strings = strings(), environment = environment(),
+            backupControl = backupControl(), chooseDestination = chooseDestination,
+        )
     }
 }
