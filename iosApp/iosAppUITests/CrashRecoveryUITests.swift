@@ -47,10 +47,22 @@ final class CrashRecoveryUITests: XCTestCase {
     }
 
     private func fatalCrash(_ app: XCUIApplication) {
+        captureFatalTap(app, phase: "before")
         let started = Date()
         element(app, "task6-crash").tap()
+        captureFatalTap(app, phase: "after")
         XCTAssertTrue(app.wait(for: .notRunning, timeout: 15), "The action must terminate, not display a caught error")
         XCTAssertGreaterThanOrEqual(Date().timeIntervalSince(started), 1.5, "Crash must be delayed by two seconds")
+    }
+
+    private func captureFatalTap(_ app: XCUIApplication, phase: String) {
+        let crash = element(app, "task6-crash")
+        print("Task6 fatal tap \(phase): crash.frame=\(crash.frame), isHittable=\(crash.isHittable), app.frame=\(app.frame)")
+        shot(app, "task6-fatal-tap-\(phase)")
+        let hierarchy = XCTAttachment(string: app.debugDescription)
+        hierarchy.name = "task6-fatal-tap-\(phase)-hierarchy"
+        hierarchy.lifetime = .keepAlways
+        add(hierarchy)
     }
 
     func testDebugErrorShowsActualLocalizedDialog() {
