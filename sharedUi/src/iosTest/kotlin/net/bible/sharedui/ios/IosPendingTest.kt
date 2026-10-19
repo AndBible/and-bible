@@ -67,6 +67,11 @@ class IosHostPortsTest {
         val koin = org.koin.core.context.startKoin {
             modules(org.koin.dsl.module {
                 single<net.bible.android.control.backup.BackupHost> { FakeBackupHost() }
+                // Document ports now use the real app-wide dialog queue and error notifier.
+                single { net.bible.sharedcore.ui.dialog.AppDialogController() }
+                single<net.bible.sharedcore.platform.UserNotifier> {
+                    net.bible.sharedlogic.platform.ios.IosUserNotifier(get())
+                }
                 single<net.bible.sharedcore.platform.AppEnvironment> {
                     net.bible.sharedcore.platform.IosAppEnvironment(net.bible.sharedui.assembly.InMemorySecretStore(), isDiscrete = { false })
                 }
