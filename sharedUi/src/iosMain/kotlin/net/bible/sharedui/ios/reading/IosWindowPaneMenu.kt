@@ -136,6 +136,17 @@ val IOS_OMITTED_PANE_MENU_ROWS: Set<String> = setOf(
     WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU,
 )
 
+/**
+ * The platform-routed rows [IosWindowPaneMenuPlatform] implements. Together with [IOS_OMITTED_PANE_MENU_ROWS] it is exactly
+ * [net.bible.android.view.activity.page.WindowPaneMenuDispatcher.PLATFORM_ROWS] (pinned by `IosWindowPaneMenuTest`).
+ */
+@kotlin.native.HiddenFromObjC
+val IOS_IMPLEMENTED_PANE_MENU_ROWS: Set<String> = setOf(
+    WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS,
+    WindowPaneMenuStateBuilder.ID_ADD_WHOLE_PAGE_BOOKMARK,
+    WindowPaneMenuStateBuilder.ID_COPY_REFERENCE,
+)
+
 /** Material stand-in for the Android drawable named [iconKey] (pane menu rows and the text option rows); null when unmapped. */
 @kotlin.native.HiddenFromObjC
 fun iosPaneMenuIcon(iconKey: String): ImageVector? = when (iconKey) {

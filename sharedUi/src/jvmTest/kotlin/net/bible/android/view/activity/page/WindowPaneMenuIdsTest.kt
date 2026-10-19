@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 /** The row ids the dispatcher switches on: dynamic ids round-trip, static ones parse as themselves, junk is refused. */
 class WindowPaneMenuIdsTest {
@@ -41,5 +42,28 @@ class WindowPaneMenuIdsTest {
 
     @Test fun anUnknownOrStaleIdIsRefused() {
         assertFailsWith<IllegalArgumentException> { WindowPaneMenuStateBuilder.parseId("nope") }
+    }
+}
+
+/** Every static row id is either run by the dispatcher itself, routed to the platform, or a submenu container. */
+class WindowPaneMenuRowCoverageTest {
+    private val containers = setOf(
+        WindowPaneMenuStateBuilder.ID_MOVE_WINDOW_SUBMENU, WindowPaneMenuStateBuilder.ID_SYNC_GROUP_SUBMENU,
+        WindowPaneMenuStateBuilder.ID_TEXT_OPTIONS_SUBMENU, WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_SUBMENU,
+    )
+    private val runByDispatcher = setOf(
+        WindowPaneMenuStateBuilder.ID_WINDOW_NEW, WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE,
+        WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE, WindowPaneMenuStateBuilder.ID_CHANGE_TO_NORMAL,
+        WindowPaneMenuStateBuilder.ID_PIN_MODE, WindowPaneMenuStateBuilder.ID_DISABLE_SYNC,
+        WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE, WindowPaneMenuStateBuilder.ID_GO_TO_REFERENCE,
+        WindowPaneMenuStateBuilder.ID_GO_TO_SPEAK, WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE,
+        WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL,
+    )
+
+    @Test fun everyStaticIdIsClassified() {
+        val classified = containers + runByDispatcher + WindowPaneMenuDispatcher.PLATFORM_ROWS
+        assertEquals(emptySet(), WindowPaneMenuStateBuilder.staticIds - classified, "static ids nobody handles")
+        assertEquals(emptySet(), classified - WindowPaneMenuStateBuilder.staticIds, "classified ids the builder does not know")
+        assertTrue((runByDispatcher intersect WindowPaneMenuDispatcher.PLATFORM_ROWS).isEmpty())
     }
 }

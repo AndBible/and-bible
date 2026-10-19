@@ -55,9 +55,11 @@ class WindowPaneMenuDispatcherTest {
         var copied: Pair<String, String>? = null
         override fun openAllTextOptions(window: Window) { calls += "allTextOptions" }
         override fun exportHtml(window: Window) { calls += "exportHtml" }
+        override fun exportStudyPad(window: Window) { calls += "exportStudyPad" }
+        override fun exportStudyPadCsv(window: Window) { calls += "exportStudyPadCsv" }
         override fun llmActions(window: Window) { calls += "llm" }
         override fun addWholePageBookmark(window: Window, bookInitials: String, osisRef: String) { calls += "bookmark:$bookInitials" }
-        override fun copyReference(label: String, url: String) { copied = label to url }
+        override fun copyReference(label: String, url: String) { copied = label to url; calls += "copyReference" }
         override fun openTextOption(window: Window, type: TextDisplaySettings.Types, item: PrefItemHandle, bundle: SettingsBundle): Boolean {
             calls += "textOption:${type.name}"
             return false
@@ -155,5 +157,15 @@ class WindowPaneMenuDispatcherTest {
         assertFalse(dispatcher.handle(second.id.toString(), WindowPaneMenuStateBuilder.ID_GO_TO_REFERENCE))
         // A Bible page keeps the chapter (the verse is the anchor), so compare book and chapter.
         assertTrue(second.pageManager.currentPage.key?.getOsisRef()?.startsWith(chapter) == true, "went to $chapter")
+    }
+
+    @Test
+    fun everyRowListedAsPlatformRoutedReachesThePlatformExactlyOnce() {
+        val id = windowRepository.activeWindow.id.toString()
+        for (row in WindowPaneMenuDispatcher.PLATFORM_ROWS) {
+            platform.calls.clear()
+            dispatcher.handle(id, row)
+            assertEquals(1, platform.calls.size, "$row reaches the platform once: ${platform.calls}")
+        }
     }
 }

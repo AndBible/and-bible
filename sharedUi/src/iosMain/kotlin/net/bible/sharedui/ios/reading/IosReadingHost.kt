@@ -240,6 +240,7 @@ class IosReadingHost(
         return books.map { mapper.toDocRow(it) }
     }
 
+    /** ONE lazy instance shared by [deps] and the pane menu dispatcher, so every window command goes through one seam. */
     private val readingViewController: ReadingViewController by lazy {
         ReadingViewController(koin.get<WindowStateService>(), koin.get<WindowCommands>())
     }

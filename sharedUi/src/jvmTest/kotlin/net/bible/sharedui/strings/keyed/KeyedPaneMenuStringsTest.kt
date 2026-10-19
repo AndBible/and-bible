@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.strings.keyed
 
+import net.bible.sharedui.strings.PaneMenuStrings
 import net.bible.sharedui.strings.lookup
 import net.bible.sharedui.strings.lookupArray
 import net.bible.sharedui.strings.lookupPlural
@@ -56,5 +57,24 @@ class KeyedPaneMenuStringsTest {
         assertEquals("Position 2 (KJV:Gen 1:1)", strings.moveWindowToPosition(2, "KJV", "Gen 1:1"))
         assertEquals("Window 3 (KJV: Gen 1:1)", strings.copySettingsToWindow(3, "KJV", "Gen 1:1"))
         assertEquals("Group 4", strings.syncGroupN(4))
+    }
+
+    @Test fun keysListsExactlyTheKeysTheMembersRead() {
+        val read = mutableSetOf<String>()
+        val recording = KeyedPaneMenuStrings(
+            StringTable("en", { read += it; it }, { k, _ -> read += k; k }, { _, _ -> "" }, { emptyList() }),
+        )
+        recording.apply {
+            newWindow; windowMaximise; windowMinimise; changeToNormal; moveWindow; windowPinMode; windowSynchronise
+            addWholePageBookmark; textOptionsWindowMenuTitle; allTextOptionsWindowMenuTitle; copySettings; copyReference
+            close; disableSync; studypad; llmActions; copySettingsToWorkspace; copySettingsToGlobal
+            referenceCopiedToClipboard
+            exportFileFormat("x"); exportSomething("x"); exportBookmarksCsv("x"); goToRef("x")
+            moveWindowToPosition(1, "a", "b"); syncGroupN(1); copySettingsToWindow(1, "a", "b")
+        }
+        assertEquals(read, KeyedPaneMenuStrings.KEYS.toSet(), "KEYS must equal the keys the members read")
+        assertEquals(KeyedPaneMenuStrings.KEYS.size, read.size, "no duplicates in KEYS")
+        // The member count is pinned too: a member added to PaneMenuStrings must be read above (and so listed).
+        assertEquals(26, PaneMenuStrings::class.java.methods.size, "PaneMenuStrings members changed: update this test and KEYS")
     }
 }

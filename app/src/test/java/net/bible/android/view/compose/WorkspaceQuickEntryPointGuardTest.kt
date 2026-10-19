@@ -167,6 +167,9 @@ class WorkspaceQuickEntryPointGuardTest {
         val callers = listOf(File("src/main"), File("../sharedUi/src"), File("../sharedLogic/src"), File("../sharedCore/src"))
             .filter { it.isDirectory }
             .flatMap { root -> root.walkTopDown().filter { it.isFile && it.extension == "kt" }.toList() }
+            // Production sources only: the shared modules' src/ also holds test source sets (commonTest, jvmTest,
+            // iosTest, ...), whose calls exercise the navigator and are not callers. Any other set stays counted.
+            .filterNot { f -> f.invariantSeparatorsPath.substringAfter("/src/", "").substringBefore('/').endsWith("Test") }
             .flatMap { f ->
                 f.readLines().filter { it.contains("openWorkspaceSelector()") && !it.contains("fun openWorkspaceSelector()") && !it.trimStart().startsWith("*") && !it.trimStart().startsWith("//") }
                     .map { f.name to it.trim() }

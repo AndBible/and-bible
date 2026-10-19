@@ -485,7 +485,8 @@ class WindowPaneMenuStateBuilder(
         private const val TEXT_OPTION_ITEM_PREFIX = "textOptionItem:"
         private const val COPY_SETTINGS_TO_WINDOW_PREFIX = "copySettingsToWindow:"
 
-        private val staticIds: Set<String> = setOf(
+        /** Every static row id (leaf rows and the submenu containers). */
+        val staticIds: Set<String> = setOf(
             ID_WINDOW_NEW, ID_WINDOW_MAXIMISE, ID_WINDOW_MINIMISE, ID_CHANGE_TO_NORMAL, ID_PIN_MODE,
             ID_DISABLE_SYNC, ID_ALL_TEXT_OPTIONS, ID_WINDOW_CLOSE, ID_COPY_REFERENCE, ID_GO_TO_REFERENCE,
             ID_GO_TO_SPEAK, ID_ADD_WHOLE_PAGE_BOOKMARK, ID_EXPORT_HTML, ID_EXPORT_STUDYPAD, ID_EXPORT_STUDYPAD_CSV,

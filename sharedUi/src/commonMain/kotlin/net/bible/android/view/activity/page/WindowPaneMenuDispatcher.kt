@@ -82,6 +82,22 @@ class WindowPaneMenuDispatcher(
     private val globalTextDisplaySettings: () -> TextDisplaySettings,
     private val platform: WindowPaneMenuPlatform,
 ) {
+    companion object {
+        /**
+         * The static row ids this dispatcher hands to its [WindowPaneMenuPlatform] (the rest it runs itself). A platform
+         * that cannot run one omits it from the builder; the tests tie this set to the behaviour and to the iOS lists.
+         */
+        val PLATFORM_ROWS: Set<String> = setOf(
+            WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS,
+            WindowPaneMenuStateBuilder.ID_EXPORT_HTML,
+            WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD,
+            WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV,
+            WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU,
+            WindowPaneMenuStateBuilder.ID_ADD_WHOLE_PAGE_BOOKMARK,
+            WindowPaneMenuStateBuilder.ID_COPY_REFERENCE,
+        )
+    }
+
     fun handle(windowId: String, id: String): Boolean {
         val window = windowRepository().getWindow(IdType(windowId)) ?: return false
         val controller = controller()

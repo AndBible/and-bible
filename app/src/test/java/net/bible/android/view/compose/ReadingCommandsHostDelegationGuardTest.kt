@@ -242,12 +242,15 @@ class ReadingCommandsHostDelegationGuardTest {
         val supplierCallSites = Regex("""(?<![.\w])windowRepository\(\)""").findAll(readingCommandsSource).count()
         assertEquals(
             24, supplierCallSites,
-            "expected every call site (R6c1's 15, the ten R6c2 added when it moved " +
-                "dummyStrongsPrefOption, showLlmPromptSelector, cycleWorkspace and " +
-                "currentWorkspaceId here, T8c's `hostActiveWindowPageManager` -- the ONE page " +
-                "manager the three activity-result arms it brought over read -- and slice 8's " +
-                "restore/sync port's `applyWorkspacesUpdatedViaSync` window lookup) to route through the " +
-                "windowRepository() supplier",
+            "expected 24 call sites of the windowRepository() supplier in ReadingCommands. History: R6c1's 15, plus " +
+                "the ten R6c2 added when it moved dummyStrongsPrefOption, showLlmPromptSelector, cycleWorkspace and " +
+                "currentWorkspaceId here, plus T8c's `hostActiveWindowPageManager` (the ONE page manager the three " +
+                "activity-result arms it brought over read), plus slice 8's `applyWorkspacesUpdatedViaSync` window " +
+                "lookup = 27. Task 4b then moved the pane menu dispatch to the common WindowPaneMenuDispatcher: the uses in the old dispatch and " +
+                "text option bundle went away and it receives the supplier once, as `windowRepository = { windowRepository() }`, " +
+                "with one more in the Android all-text-options platform row; the net change is -3, so 27 - 3 = 24. "  +
+                "Every remaining site must still go through the " +
+                "supplier, never windowControl.windowRepository",
         )
     }
 
