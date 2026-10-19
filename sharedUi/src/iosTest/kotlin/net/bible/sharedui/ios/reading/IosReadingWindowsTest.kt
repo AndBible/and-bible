@@ -193,6 +193,48 @@ class IosReadingWindowsTest {
         assertTrue(firstId.isNotEmpty())
     }
 
+    /**
+     * Three windows, close the middle one, add a window again: each window has its own session and WebView with the
+     * bridge registered once; the closed one is disposed and gone; the survivors keep their instances; the new window
+     * is a different id with a fresh pair (the Kotlin side of the XCUITest "text appears once" scenario).
+     */
+    @Test
+    fun splitThreeCloseMiddleReopenKeepsOneSessionPerWindow() = withWindows { firstId ->
+        val windowControl = KoinPlatform.getKoin().get<WindowControl>()
+        val second = windowControl.addNewWindow(windowControl.windowRepository.activeWindow)
+        val third = windowControl.addNewWindow(second)
+        val ids = listOf(firstId, second.id.toString(), third.id.toString())
+        assertEquals(3, ids.toSet().size)
+        val sessions = ids.map { id -> attach(id); IosReadingWindows.sessionFor(id) }
+        assertEquals(3, sessions.toSet().size, "one session per window")
+        assertEquals(3, ids.map { IosReadingWebViews.entry(it).webView }.toSet().size, "one WebView per window")
+        ids.forEach { assertEquals(1, IosReadingWebViews.bridgeHandlerCount(it)) }
+        val firstView = IosReadingWebViews.entry(ids[0]).webView
+        val thirdView = IosReadingWebViews.entry(ids[2]).webView
+
+        windowControl.closeWindow(second)
+        var spins = 0
+        while (IosReadingWindows.hasAssembly(ids[1]) && spins++ < 100) {
+            NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05))
+        }
+        assertFalse(IosReadingWindows.hasAssembly(ids[1]), "the closed middle window is released")
+        assertFalse(IosReadingWebViews.hasEntry(ids[1]))
+        assertTrue(sessions[1].isDisposed)
+        assertFalse(sessions[0].isDisposed || sessions[2].isDisposed, "the other windows keep their sessions")
+        assertSame(sessions[0], IosReadingWindows.sessionFor(ids[0]))
+        assertSame(sessions[2], IosReadingWindows.sessionFor(ids[2]))
+        assertSame(firstView, IosReadingWebViews.entry(ids[0]).webView)
+        assertSame(thirdView, IosReadingWebViews.entry(ids[2]).webView)
+
+        val reopened = windowControl.addNewWindow(windowControl.windowRepository.activeWindow)
+        val reopenedId = reopened.id.toString()
+        assertFalse(reopenedId in ids, "a reopened window is a new window")
+        attach(reopenedId)
+        assertEquals(1, IosReadingWebViews.bridgeHandlerCount(reopenedId))
+        assertFalse(sessions.any { it === IosReadingWindows.sessionFor(reopenedId) })
+        ids.filterNot { it == ids[1] }.forEach { assertEquals(1, IosReadingWebViews.bridgeHandlerCount(it)) }
+    }
+
     /** The passage is written only by a save: after the save hook the database row holds the changed key. */
     @Test
     fun saveNowPersistsTheActivePassage() = withWindows { id ->
