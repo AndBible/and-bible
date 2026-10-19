@@ -11,6 +11,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -71,16 +74,9 @@ fun MainViewController(): UIViewController {
     // keeps. Log it through NSLog first; the process still terminates afterwards.
     setUnhandledExceptionHook { nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}") }
     // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
-    val language = resolveDeviceUiLanguage(IosDeviceSettings())
-    // Stage 1 (main thread, quick, no database); stage 2 (databases, workspace) runs off the main thread behind the splash.
-    if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
-    val startError = try {
-        IosAppStartup.start(IosAppConfig(uiLanguage = language))
-        null
-    } catch (e: Throwable) {
-        e
-    }
-    if (startError != null) startupState.fail(startError) else startupState.launch(startupScope)
+    val settings = IosDeviceSettings()
+    val language = resolveDeviceUiLanguage(settings)
+    val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
     return ComposeUIViewController {
         val env = remember { NSProcessInfo.processInfo.environment }
         val scenario = remember { PocScenario.fromName(env["SCREENSHOT_SCENARIO"] as? String) }
@@ -91,12 +87,33 @@ fun MainViewController(): UIViewController {
             if (env["SCREENSHOT_SCENARIO"] as? String != null) dark
             else UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
         }
+        val strings = remember { iosStrings(language) }
+        // Do not start either startup stage (or show a splash) behind the disguise.
+        // Not saveable: a recreated host must pass the gate again.
+        var unlocked by remember { mutableStateOf(!requiresCalculator) }
+        if (!unlocked) {
+            CompositionLocalProvider(LocalStrings provides strings) {
+                AbTheme(darkTheme = splashDark) {
+                    IosCalculatorGate(settings) { unlocked = true }
+                }
+            }
+            return@ComposeUIViewController
+        }
+        LaunchedEffect(Unit) {
+            if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
+            val startError = try {
+                IosAppStartup.start(IosAppConfig(uiLanguage = language))
+                null
+            } catch (e: Throwable) {
+                e
+            }
+            if (startError != null) startupState.fail(startError) else startupState.launch(startupScope)
+        }
         if (scenario.shouldShowPlatformProbe(Platform.isDebugBinary, env["PLATFORM_PROBE"] as? String)) {
             PlatformProbeScreen(darkTheme = dark)
             return@ComposeUIViewController
         }
         val phase by startupState.phase.collectAsState()
-        val strings = remember { iosStrings(language) }
         when (val p = phase) {
             StartupPhase.Starting -> { StartupSplash(splashDark); return@ComposeUIViewController }
             is StartupPhase.Failed -> {
