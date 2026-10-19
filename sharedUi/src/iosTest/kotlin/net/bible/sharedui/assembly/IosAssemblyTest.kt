@@ -389,7 +389,7 @@ class IosAssemblyTest {
     }
 
     @Test
-    fun theEightHostPortsResolve() {
+    fun theHostPortsResolve() {
         startApp()
         val koin = KoinPlatform.getKoin()
         val unresolved = IOS_HOST_BINDING_TYPES.filter { type -> runCatching { koin.get<Any>(type) }.isFailure }

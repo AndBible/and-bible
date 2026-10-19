@@ -119,7 +119,9 @@ net.bible.sharedcore.search.EpubSearchService::_root_
 net.bible.sharedcore.search.SearchIndexService::_root_
 net.bible.sharedcore.search.SearchResultsCache::_root_
 net.bible.sharedcore.settings.AppSettingsService::_root_
+net.bible.sharedcore.settings.DeviceLocalPrefs::_root_
 net.bible.sharedcore.settings.ReadingProgressSettingsService::_root_
+net.bible.sharedcore.settings.SettingsPlatformFlags::_root_
 net.bible.sharedcore.settings.TextDisplaySettingsService::_root_
 net.bible.sharedcore.speak.SpeakSettingsService::_root_
 net.bible.sharedcore.speak.SpeakTransportService::_root_
@@ -128,6 +130,7 @@ net.bible.sharedcore.window.WindowCommands::_root_
 net.bible.sharedcore.window.WindowStateService::_root_
 net.bible.sharedcore.workspaces.WorkspaceService::_root_
 net.bible.sharedlogic.platform.AddonCatalog::_root_
+net.bible.sharedlogic.platform.BackgroundImageCatalog::_root_
 net.bible.sharedlogic.platform.DistributedPlanCatalog::_root_
 net.bible.sharedlogic.platform.EpubStoreEdge::_root_
 net.bible.sharedlogic.platform.FirstLoadEdge::_root_

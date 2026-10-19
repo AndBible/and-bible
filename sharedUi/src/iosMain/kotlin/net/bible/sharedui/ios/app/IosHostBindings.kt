@@ -41,7 +41,7 @@ import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-/** The eight host ports the app's Koin graph carries on Android (bound there in `:app`); see [IOS_HOST_BINDING_TYPES]. */
+/** The host ports the app's Koin graph carries on Android (bound there in `:app`); see [IOS_HOST_BINDING_TYPES]. */
 @kotlin.native.HiddenFromObjC
 fun buildIosHostBindings(): Module = module {
     single<ExternalLinks> { IosExternalLinks() }

@@ -56,6 +56,9 @@ fun buildPlatformBindings() = module {
     single<UserNotifier> { AndroidUserNotifier() }
     single<net.bible.sharedcore.platform.AppDirectories> { net.bible.android.AndroidAppDirectories() }
     single<net.bible.sharedlogic.platform.AddonCatalog> { net.bible.android.platform.AndroidAddonCatalog() }
+    single<net.bible.sharedlogic.platform.BackgroundImageCatalog> {
+        get<net.bible.sharedlogic.platform.AddonCatalog>() as net.bible.android.platform.AndroidAddonCatalog
+    }
     single<net.bible.sharedlogic.platform.PlatformLocales> { net.bible.android.platform.AndroidPlatformLocales() }
     single<net.bible.sharedlogic.platform.ReadOnlyModuleDbOpener> { net.bible.android.platform.AndroidReadOnlyModuleDbOpener() }
     single<net.bible.sharedlogic.platform.SearchIndexScheduler> { net.bible.android.platform.AndroidSearchIndexScheduler(androidContext()) }
