@@ -37,23 +37,38 @@ final class DiscreteUITests: XCTestCase {
     /// Accept the OS-owned disclosure (C6), then retain a SpringBoard image for visual icon inspection.
     func testDiscreteIconAfterUnlock() {
         let app = XCUIApplication()
-        app.launchArguments += ["-calculator_pin", "1234"]
+        // Controller also uses an English simulator for the SpringBoard-owned system disclosure.
+        app.launchArguments += ["-calculator_pin", "1234", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         XCTAssertTrue(key(app, "=").waitForExistence(timeout: 30))
         assertContentHidden(app)
         enter(app, ["1", "2", "3", "4", "="])
 
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        let alert = app.alerts.firstMatch
-        XCTAssertTrue(alert.waitForExistence(timeout: 60), "Expected the system alternate-icon disclosure")
-        shot(app, "calculator-icon-system-disclosure")
-        alert.buttons.firstMatch.tap()
+        // The OS disclosure is app-owned on iOS 18 and SpringBoard-owned on iOS 26.
+        let disclosureText = NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+                                         "You have changed the icon for", "AndBible Dev")
+        let appAlert = app.alerts.containing(disclosureText).firstMatch
+        let systemAlert = springboard.alerts.containing(disclosureText).firstMatch
+        let disclosure = NSPredicate { _, _ in appAlert.exists || systemAlert.exists }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: disclosure, object: app)], timeout: 60),
+                       .completed, "Expected the identified system alternate-icon disclosure in either owner")
+        let owner = appAlert.exists ? app : springboard
+        let alert = appAlert.exists ? appAlert : systemAlert
+        shot(owner, "calculator-icon-system-disclosure")
+        alert.buttons["OK"].tap()
+        let dismissed = NSPredicate { _, _ in !appAlert.exists && !systemAlert.exists }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: dismissed, object: app)], timeout: 10), .completed)
         let ready = NSPredicate { _, _ in
             self.element(app, "reading-host").exists || self.element(app, "welcome-screen").exists
         }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: app)], timeout: 60), .completed)
         XCUIDevice.shared.press(.home)
         XCTAssertTrue(springboard.wait(for: .runningForeground, timeout: 10))
+        let homeSettled = NSPredicate { _, _ in
+            springboard.icons["AndBible Dev"].firstMatch.isHittable && !appAlert.exists && !systemAlert.exists
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: homeSettled, object: springboard)], timeout: 10), .completed)
         shot(springboard, "home-calculator-icon")
     }
 
