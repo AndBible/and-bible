@@ -8,18 +8,26 @@ internal class AppIconRequest(
     private val schedule: (Long, () -> Unit) -> Unit,
 ) {
     private var generation = 0
+    private var desiredName: String? = null
+    private var inFlight = false
 
     fun apply(discrete: Boolean) {
+        desiredName = if (discrete) "CalculatorIcon" else null
         val request = ++generation
-        val name = if (discrete) "CalculatorIcon" else null
-        attempt(name, request, 0)
+        attempt(request, 0)
     }
 
-    private fun attempt(name: String?, request: Int, retry: Int) {
-        if (request != generation || !supportsAlternateIcons() || currentName() == name) return
+    private fun attempt(request: Int, retry: Int) {
+        if (request != generation || inFlight || !supportsAlternateIcons() || currentName() == desiredName) return
+        val name = desiredName
+        inFlight = true
         setIcon(name) { success ->
-            if (!success && retry < 3 && request == generation) {
-                schedule((retry + 1) * 1500L) { attempt(name, request, retry + 1) }
+            inFlight = false
+            if (request != generation) {
+                // A newer preference may have matched the old icon while this setter was still pending.
+                attempt(generation, 0)
+            } else if (!success && retry < 3) {
+                schedule((retry + 1) * 1500L) { attempt(request, retry + 1) }
             }
         }
     }

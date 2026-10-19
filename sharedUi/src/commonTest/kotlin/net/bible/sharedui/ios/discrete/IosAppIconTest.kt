@@ -22,6 +22,38 @@ class IosAppIconTest {
         fun retry(): Long = scheduled.removeAt(0).let { (delay, action) -> action(); delay }
     }
 
+    @Test fun disablingWhileEnablingIsInFlightRestoresPrimary() {
+        reconcilesOppositeInFlightRequest(initial = null, first = true)
+    }
+
+    @Test fun enablingWhileDisablingIsInFlightRestoresCalculator() {
+        reconcilesOppositeInFlightRequest(initial = "CalculatorIcon", first = false)
+    }
+
+    private fun reconcilesOppositeInFlightRequest(initial: String?, first: Boolean) {
+        var current = initial
+        val calls = mutableListOf<String?>()
+        val completions = mutableListOf<() -> Unit>()
+        val request = AppIconRequest(
+            supportsAlternateIcons = { true },
+            currentName = { current },
+            setIcon = { name, complete ->
+                calls += name
+                completions += { current = name; complete(true) }
+            },
+            schedule = { _, _ -> error("Successful changes must not schedule retries") },
+        )
+        request.apply(first)
+        request.apply(!first)
+        assertEquals(1, calls.size, "Only one UIKit operation may be in flight")
+        completions.removeAt(0)()
+        assertEquals(2, calls.size, "Completion must reconcile the latest preference")
+        assertEquals(initial, calls.last())
+        completions.removeAt(0)()
+        assertEquals(initial, current)
+        assertEquals(0, completions.size)
+    }
+
     @Test fun retriesThreeTimes() {
         val f = Fixture().apply { failures = 2 }
         f.request.apply(true)
