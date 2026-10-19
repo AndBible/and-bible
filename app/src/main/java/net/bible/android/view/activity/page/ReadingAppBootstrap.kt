@@ -214,12 +214,8 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
      */
     fun createWindowRepository(): WindowRepository {
         if (this::windowRepository.isInitialized) return windowRepository
-        windowRepository = WindowRepository(host.lifecycleScope)
-        // Flushes the previous owner first, so initializeAtEdge() reads a DB that has its last edit (CR-1 I1).
-        windowControl.takeWindowRepository(windowRepository)
-        windowRepository.initializeAtEdge()
-        // Process-death recreation never runs initializeAppCoroutine: the snapshot stores must be loaded before the first render reads them.
-        CommonUtils.awaitSnapshotLoadsAtEdge()
+        // Assigned before the load: it posts workspace events synchronously and their subscribers read hostWindowRepository.
+        net.bible.service.startup.ReadingAppInit.createWindowRepository(host.lifecycleScope) { windowRepository = it }
         return windowRepository
     }
 

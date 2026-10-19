@@ -135,15 +135,15 @@ object NavResultIntents {
      * cancel result at all, its Back press just `finish()`ed with the default `RESULT_CANCELED` and
      * no Intent, which is not something a [BookmarkResult] can even express.
      *
-     * **The returned object's IDENTITY is load-bearing**, which is why this is a function that
-     * returns one Intent rather than something a caller might call twice. Classic passes the SAME
-     * instance to `historyTraversal.historyManager.addHistoryItem(null, intent)` and then to
-     * `setResult` (`:188-189`), and `HistoryManager.createHistoryItem` (`:153-155`) keeps the object
-     * it is handed inside an `IntentHistoryItem`. Two structurally-equal Intents would behave
-     * identically today, but the stored one carries NO component — `IntentHistoryItem.revertTo`
-     * (`:55-63`) replays extras — so anything that later mutated the result Intent on its way out
-     * would have to mutate the stored one too, exactly as it does now. See the `bookmarkResults`
-     * channel in `NavHostComposeActivity`, which is the one caller.
+     * This is a function that returns one Intent rather than something a caller might call twice.
+     * Classic passed the SAME instance to `historyTraversal.historyManager.addHistoryItem(null, intent)`
+     * and then to `setResult`, so the stored history entry WAS the result intent. That no longer
+     * holds here: the result intent carries no component, so storing it would make
+     * `IntentHistoryItem.revertTo` throw `ActivityNotFoundException`. The history entry for a
+     * bookmark pick is a SEPARATE nav-host intent (the bookmarks list route, same label filter)
+     * built in `AndroidHistoryPlatform.routeIntentFor` (commit 55a3a11be3); the result intent
+     * itself is left untouched and is still delivered to the reading view. See the
+     * `bookmarkResults` channel in `NavHostComposeActivity`, which is the one caller.
      *
      * The two row shapes mirror classic's `when (bookmark)`: a Bible bookmark carries `"verse"`
      * alone, a generic one carries `"key"`/`"book"`/`"ordinal"` and no `"verse"` — and the ABSENCE

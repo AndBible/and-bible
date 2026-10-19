@@ -13,7 +13,7 @@ object IosPlatformBootstrap {
     /** Called before the Swift host finishes launching; the handler is a no-op until Koin has an [IosBackgroundSync]. */
     fun registerBackgroundTasks() = backgroundRefresh.register { iosBackgroundRefreshEntry() }
 
-    /** Requests the first background refresh; phase 2 calls it after startup. No-op before Koin starts. */
+    /** Requests the first background refresh; `MainViewController` calls it (off the main thread) once startup is Ready. No-op before Koin starts. */
     fun scheduleBackgroundSync() {
         KoinPlatform.getKoinOrNull()?.getOrNull<IosBackgroundSync>()?.schedule()
     }
