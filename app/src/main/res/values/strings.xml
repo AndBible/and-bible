@@ -854,6 +854,7 @@
     <string name="error_key_not_in_document2">%1$s was not found in document %2$s.</string>
     <string name="empty_list">No items to display</string>
     <string name="error_skip">Skip</string>
+    <string name="debug_test_error">Test error (debug build)</string>
     <string name="bug_report_prepare_failed">Could not prepare or share the report. You can retry, or use Backup &amp; Restore to save your data.</string>
     <string name="bug_report_email_title">Send bug report via email</string>
     <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>

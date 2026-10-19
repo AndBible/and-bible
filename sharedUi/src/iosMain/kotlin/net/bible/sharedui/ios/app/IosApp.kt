@@ -261,6 +261,23 @@ private fun IosAppContent(
         },
         overlays = {
             appHosts.Overlays()
+            if (IosDebugLaunchArgs.task6Controls()) {
+                val debug = remember { koin.get<net.bible.sharedui.app.ports.DebugActions>() }
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+                    androidx.compose.material3.Surface {
+                        androidx.compose.foundation.layout.Column {
+                            androidx.compose.material3.TextButton(
+                                onClick = { debug.crashAppDelayed() },
+                                modifier = Modifier.testTag("task6-crash"),
+                            ) { androidx.compose.material3.Text(strings.crashApp) }
+                            androidx.compose.material3.TextButton(
+                                onClick = { debug.showTestError("") },
+                                modifier = Modifier.testTag("task6-error"),
+                            ) { androidx.compose.material3.Text(strings.testErrorDialog) }
+                        }
+                    }
+                }
+            }
             val dialogs = remember { koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>() }
             val shown by dialogs.pending.collectAsState()
             val progress by dialogs.progress.collectAsState()

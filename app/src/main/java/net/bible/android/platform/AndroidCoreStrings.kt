@@ -9,6 +9,7 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val errorReport: String get() = context.getString(R.string.report_error)
     override val errorBackup: String get() = context.getString(R.string.backup_and_restore)
     override val errorSkip: String get() = context.getString(R.string.error_skip)
+    override val debugTestError: String get() = context.getString(R.string.debug_test_error)
     override val namelessTitle: String get() = context.getString(R.string.nameless)
     override fun processingEpub(title: String): String = context.getString(R.string.processing_epub, title)
     override fun creatingIndexFor(name: String): String = context.getString(R.string.creating_index_for, name)

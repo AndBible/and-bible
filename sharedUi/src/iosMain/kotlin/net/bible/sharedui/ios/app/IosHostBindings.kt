@@ -54,7 +54,7 @@ fun buildIosHostBindings(): Module = module {
     single<ExternalLinks> { IosExternalLinks() }
     single<ClipboardText> { IosClipboardText() }
     single<PlatformText> { IosPlatformText() }
-    single<DebugActions> { IosDebugActions() }
+    single<DebugActions> { IosDebugActions(get(), get<CoreStrings>()) }
     single<SettingsPlatform> { IosSettingsPlatform(get<CoreStrings>()) }
     single<TextDisplayPlatform> { IosTextDisplayPlatform() }
     single<DocumentInstallStarter> { IosDocumentInstallStarter() }

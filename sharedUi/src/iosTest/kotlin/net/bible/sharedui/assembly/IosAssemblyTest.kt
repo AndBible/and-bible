@@ -205,6 +205,21 @@ class IosAssemblyTest {
     }
 
     @Test
+    fun testErrorShowsTheDialog() {
+        startApp()
+        val koin = KoinPlatform.getKoin()
+        val dialogs = koin.get<AppDialogController>()
+        val strings = koin.get<net.bible.sharedcore.platform.CoreStrings>()
+        assertNull(dialogs.pending.value)
+        koin.get<net.bible.sharedui.app.ports.DebugActions>().showTestError("must not show this Android-only text")
+        val pending = assertNotNull(dialogs.pending.value, "DebugActions must use the actual UserNotifier dialog queue")
+        val message = kotlin.test.assertIs<net.bible.sharedcore.ui.dialog.AppDialogRequest.Message>(pending.request)
+        assertEquals(strings.debugTestError, message.message)
+        dialogs.dismiss(pending.id)
+        assertNull(dialogs.pending.value)
+    }
+
+    @Test
     fun startIsIdempotent() {
         startApp()
         val koin = KoinPlatform.getKoin()

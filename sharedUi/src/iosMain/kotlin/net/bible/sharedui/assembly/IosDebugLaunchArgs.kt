@@ -38,6 +38,17 @@ internal object IosDebugLaunchArgs {
         settings.putLong(net.bible.sharedcore.platform.CrashPreferences.TIME, kotlin.time.Clock.System.now().toEpochMilliseconds())
     }
 
+    /** X-owned debug controls, independent of the H-owned Settings implementation. */
+    fun task6Controls(): Boolean = Platform.isDebugBinary && "-task6DebugActions" in arguments
+
+    /** Explicit disposable-simulator reset, never a read-only argument-domain preference override. */
+    fun resetTask6CrashState(settings: net.bible.sharedcore.platform.IosDeviceSettings) {
+        if (!Platform.isDebugBinary || "-task6ResetCrashState" !in arguments) return
+        settings.putBoolean(net.bible.sharedcore.platform.CrashPreferences.RUNNING, false)
+        settings.putInt(net.bible.sharedcore.platform.CrashPreferences.COUNT, 0)
+        settings.putLong(net.bible.sharedcore.platform.CrashPreferences.TIME, 0L)
+    }
+
     /** True when `-resetData` was passed. */
     fun resetData(): Boolean = Platform.isDebugBinary && "-resetData" in arguments
 

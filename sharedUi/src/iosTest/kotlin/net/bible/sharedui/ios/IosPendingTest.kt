@@ -3,7 +3,6 @@ package net.bible.sharedui.ios
 import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.ios.ports.IosAppSettingsService
-import net.bible.sharedui.ios.ports.IosDebugActions
 import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
 import net.bible.sharedui.ios.ports.IosExternalLinks
 import net.bible.sharedui.ios.ports.IosPlatformText
@@ -37,7 +36,6 @@ class IosPendingTest {
     fun pendingPortReturnsNoOpValues() {
         IosExternalLinks().open("https://example.org")
         assertFalse(IosExternalLinks().askBeforeOpening)
-        IosDebugActions().showTestError("x")
         IosDocumentInstallStarter().start(emptyList<DocumentRef>(), null)
         assertEquals("1", IosPlatformText().plural(PluralKey.CLOUD_DOC_SYNC_NOW_COUNT, 1))
         assertNull(IosTextDisplayPlatform().thumbnail("t"))

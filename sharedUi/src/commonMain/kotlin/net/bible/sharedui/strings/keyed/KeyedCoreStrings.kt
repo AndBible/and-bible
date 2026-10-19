@@ -27,6 +27,7 @@ class KeyedCoreStrings(private val t: StringTable) : CoreStrings {
     override val errorReport: String get() = t.text("report_error")
     override val errorBackup: String get() = t.text("backup_and_restore")
     override val errorSkip: String get() = t.text("error_skip")
+    override val debugTestError: String get() = t.text("debug_test_error")
     override val namelessTitle: String get() = t.text("nameless")
     override fun processingEpub(title: String): String = t.fmt("processing_epub", title)
     override fun creatingIndexFor(name: String): String = t.fmt("creating_index_for", name)

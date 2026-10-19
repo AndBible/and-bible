@@ -86,6 +86,7 @@ fun MainViewController(): UIViewController {
         nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}")
         platform.posix.abort()
     }
+    IosDebugLaunchArgs.resetTask6CrashState(IosDeviceSettings())
     IosDebugLaunchArgs.seedCrashRecovery(IosDeviceSettings())
     crashTracker.onLaunch()
     IosPlatformBootstrap.registerCrashLifecycle(crashTracker)

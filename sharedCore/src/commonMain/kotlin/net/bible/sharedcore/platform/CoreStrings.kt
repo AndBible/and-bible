@@ -5,6 +5,7 @@ interface CoreStrings {
     val errorReport: String // R.string.report_error
     val errorBackup: String // R.string.backup_and_restore
     val errorSkip: String // R.string.error_skip
+    val debugTestError: String // R.string.debug_test_error
     val namelessTitle: String
     fun processingEpub(title: String): String
     fun creatingIndexFor(name: String): String
