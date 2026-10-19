@@ -167,6 +167,7 @@ fun IosApp() {
     CompositionLocalProvider(
         LocalStrings provides strings,
         LocalLiveSettingsLanguage provides true,
+        net.bible.sharedui.readingplan.LocalExplicitReadingPlanTitle provides true,
         LocalCategoryIcon provides { rememberVectorPainter(Icons.Outlined.Book) },
         LocalPinIcon provides { rememberVectorPainter(Icons.Outlined.PushPin) },
     ) {

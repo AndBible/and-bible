@@ -11,7 +11,8 @@ final class FeatureUITests: RealAppUITestCase {
         let settings = element(app, "debug-open-settings")
         XCTAssertTrue(settings.waitForExistence(timeout: 30), "Selected daily plan must load before switching language")
         shot(app, "loaded-plan-before-language")
-        let englishLoaded = english.waitForExistence(timeout: 10)
+        let englishTitle = app.buttons.matching(NSPredicate(format: "label == '1-Year through Bible'")).firstMatch
+        let englishLoaded = englishTitle.waitForExistence(timeout: 10)
         if !englishLoaded { attachTree(app, "loaded-plan-no-english-title") }
         XCTAssertTrue(englishLoaded, "The loaded plan must expose its exact English title before switching language")
         settings.tap()
@@ -43,8 +44,8 @@ final class FeatureUITests: RealAppUITestCase {
         XCTAssertEqual(retainedSwitch.value as? String, retainedValue, "Language refresh must retain the edited setting")
         shot(app, "language-fi-settings")
         element(app, "debug-feature-back").tap()
-        XCTAssertTrue(app.staticTexts["Vuodessa läpi Raamatun"].firstMatch.waitForExistence(timeout: 20), "The already loaded plan name must refresh without restarting")
-        XCTAssertFalse(app.staticTexts["1-Year through Bible"].exists)
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label == 'Vuodessa läpi Raamatun'")).firstMatch.waitForExistence(timeout: 20), "The actual loaded-plan title button must refresh without restarting")
+        XCTAssertFalse(englishTitle.exists)
         shot(app, "language-fi-loaded-plan")
     }
 
