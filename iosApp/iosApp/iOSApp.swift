@@ -11,6 +11,7 @@ struct iOSApp: App {
         WindowGroup {
             ComposeView()
                 .ignoresSafeArea()
+                .onOpenURL { IosPlatformBootstrap.shared.openIncomingFile(url: $0.absoluteString) }
         }
     }
 }

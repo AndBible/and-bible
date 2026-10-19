@@ -55,6 +55,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import net.bible.service.startup.ReadingAppInit
 import net.bible.service.sword.SwordDocumentFacade
@@ -233,6 +234,25 @@ private fun IosAppContent(
         },
         overlays = { appHosts.Overlays() },
     )
+    LaunchedEffect(appHosts, navController) {
+        // A real back-stack entry proves NavHost attached its graph, not merely that graphs() built deps.
+        navController.currentBackStackEntryFlow.first()
+        val owner = net.bible.sharedui.ios.files.IosIncomingFiles.bind(
+            open = { refs, complete ->
+                appHosts.installZip.open(
+                    action = net.bible.android.view.activity.installzip.INSTALL_ZIP_ACTION_VIEW,
+                    uris = refs,
+                    onResult = { complete() },
+                )
+            },
+            onFailure = {
+                koin.get<net.bible.sharedcore.platform.UserNotifier>()
+                    .showError(koin.get<net.bible.sharedcore.platform.CoreStrings>().errorOccurred)
+            },
+        )
+        try { kotlinx.coroutines.awaitCancellation() }
+        finally { net.bible.sharedui.ios.files.IosIncomingFiles.detach(owner) }
+    }
 }
 
 /** Holds the one [IosReadingHost] for the app's lifetime so leaving and re-entering reading keeps the sessions. */
