@@ -36,8 +36,11 @@ class IosDocumentPickerSession {
     private var dismissal: kotlinx.coroutines.CompletableDeferred<Unit>? = null
 
     suspend fun cancelPrevious() = withContext(Dispatchers.Main) {
-        active?.finish(emptyList())
-        dismissal?.await()
+        do {
+            active?.finish(emptyList())
+            dismissal?.await()
+            // Another replacement may have acquired the slot while this dismissal was suspended.
+        } while (active != null)
     }
 
     suspend fun pick(
