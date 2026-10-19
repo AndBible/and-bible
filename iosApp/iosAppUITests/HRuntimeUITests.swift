@@ -127,6 +127,15 @@ final class HRuntimeUITests: RealAppUITestCase {
         let field = app.textViews.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
         require(field.waitForExistence(timeout: 10) && field.isHittable, app, "provider-field-AX-\(label)")
         field.tap()
+        // Typing right after a focus switch (keyboard already up) dropped the first key. Wait for real focus; no retyping,
+        // so an actual first-key drop is still caught by the exact readback below.
+        let focusAttribute = NSSelectorFromString("hasKeyboardFocus")
+        if field.responds(to: focusAttribute) {
+            let focused = waitUntil(timeout: 5) { (field.value(forKey: "hasKeyboardFocus") as? Bool) == true }
+            require(focused, app, "provider-field-no-keyboard-focus-\(label)")
+        } else {
+            require(waitUntil(timeout: 5) { app.keyboards.firstMatch.exists }, app, "provider-field-no-keyboard-\(label)")
+        }
         field.typeText(value)
         require(waitUntil(timeout: 5) { (field.value as? String) == value }, app, "provider-field-readback-\(label)")
     }

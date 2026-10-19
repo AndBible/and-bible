@@ -44,8 +44,24 @@ class RealAppUITestCase: XCTestCase {
     func waitForEnabledOkAndTap(_ app: XCUIApplication, timeout: TimeInterval = 180) -> Bool {
         let ok = app.buttons.matching(NSPredicate(format: "label == 'OK'")).firstMatch
         let enabled = waitUntil(timeout: timeout) { ok.exists && ok.isEnabled }
-        if enabled { ok.tap() }
-        return enabled
+        guard enabled else { return false }
+        ok.tap()
+        // The OK press can be lost while the screen recomposes (a download-error update was observed). Progress is the
+        // OK button leaving or the real consent dialog appearing; allow exactly ONE recorded re-tap, never a loop.
+        let yes = app.buttons.matching(NSPredicate(format: "label == 'Yes'")).firstMatch
+        let progressed = { !ok.exists || yes.exists }
+        if !waitUntil(timeout: 10, progressed) {
+            shot(app, "ok-tap-lost-retapping-once")
+            attachTree(app, "ok-tap-lost-retapping-once")
+            if ok.exists && ok.isEnabled { ok.tap() }
+            if !waitUntil(timeout: 15, progressed) {
+                shot(app, "ok-tap-lost-twice")
+                attachTree(app, "ok-tap-lost-twice")
+                XCTFail("Download Documents OK produced no transition after one recorded re-tap")
+                return false
+            }
+        }
+        return true
     }
 
     /// Polls until `condition` holds or `timeout` elapses; returns the final result.
