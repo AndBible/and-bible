@@ -48,7 +48,16 @@ class AiSettingsColdRouteTest {
         DatabaseResetter.resetDatabase()
     }
 
-    @Test fun independentAiRouteLoadsPersistedStateBeforeServiceConstruction() {
+    @Test fun independentAiRouteLoadsPersistedStateBeforeServiceConstruction() = coldRoute(loadDelayMs = 0)
+
+    /**
+     * Forced interleaving of the flake seen in contended forked suites: the persisted-state read finishes only after
+     * more than the 2 simulated seconds the test used to pump. The route must still construct the service once the
+     * load completes, and the test must wait for that real-time effect rather than for simulated time.
+     */
+    @Test fun slowPersistedStateLoadStillGatesServiceConstruction() = coldRoute(loadDelayMs = 3_000)
+
+    private fun coldRoute(loadDelayMs: Long) {
         val db = DatabaseContainer.instance.aiSettingsDb
         val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "Cold provider")
         val model = LlmConfiguredModel(providerConfigId = provider.id, modelId = "cold-model")
@@ -58,7 +67,10 @@ class AiSettingsColdRouteTest {
             db.globalAiSettingsDao().set(GlobalAiSettings(aiDisclaimerAccepted = true, defaultModelId = model.id))
         }
         val env = GlobalContext.get().get<AppEnvironment>()
-        val store = AiSettingsStore({ DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao() }, launcher, scope,
+        val store = AiSettingsStore({
+            if (loadDelayMs > 0) Thread.sleep(loadDelayMs) // real time, like a contended background DB read
+            DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
+        }, launcher, scope,
             object : AppEnvironment by env { override val isDebugMode = true }, DatabaseContainer.databaseRestored, lifetime = DatabaseContainer.aiLifetime,
             invalidations = { DatabaseContainer.instance.aiSettingsDb.invalidationTracker.createFlow("GlobalAiSettings").map { Unit } })
         var construction = 0
@@ -78,10 +90,20 @@ class AiSettingsColdRouteTest {
         try {
             val activity = controller.setup().get()
             assertFalse(activity.doNotInitializeApp)
-            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
-            compose.waitForIdle()
+            // The persisted-state load and the settings gate run on real background threads and the compose rule's
+            // own dispatcher; idleFor() only advances simulated time, so wait (real time, bounded) for the actual
+            // effect instead of assuming 2 simulated seconds is enough under parallel-fork load.
+            net.bible.test.awaitHostUntil("AI route must construct AiSettingsService") {
+                compose.waitForIdle()
+                construction > 0
+            }
             assertEquals(1, construction)
             assertTrue(CommonUtils.aiSettings.aiDisclaimerAccepted)
+            // The service's snapshot is filled by its own asynchronous load, so wait for it too.
+            net.bible.test.awaitHostUntil("AiSettingsService snapshot must carry the persisted default model") {
+                compose.waitForIdle()
+                GlobalContext.get().get<AiSettingsService>().snapshot.value.defaultModelLabel == "cold-model"
+            }
             assertEquals("cold-model", GlobalContext.get().get<AiSettingsService>().snapshot.value.defaultModelLabel)
         } finally { controller.close() }
     }
