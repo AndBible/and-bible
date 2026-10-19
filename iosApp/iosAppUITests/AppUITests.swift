@@ -58,6 +58,65 @@ class RealAppUITestCase: XCTestCase {
         return condition()
     }
 
+    /// One bounded scroll nudge (roughly 20% of the screen) that stays left of the DEBUG overlay; `up` reveals lower content.
+    func nudgeList(_ app: XCUIApplication, up: Bool) {
+        let high = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.4))
+        let low = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.65))
+        (up ? low : high).press(forDuration: 0.1, thenDragTo: up ? high : low)
+        usleep(700_000)
+    }
+
+    /// Moves a lazily scrolled target fully inside the vertical band (fractions of the screen height), reversing when
+    /// it was seen and then lost (overshoot), and requires an unchanged frame on consecutive reads before returning.
+    /// Never relaxes hittability: false means the real target could not be brought to a settled, hittable position.
+    func bringIntoBand(_ app: XCUIApplication, _ target: XCUIElement, band: ClosedRange<CGFloat>, maxSteps: Int = 60) -> Bool {
+        let view = app.frame
+        let minY = view.minY + view.height * band.lowerBound
+        let maxY = view.minY + view.height * band.upperBound
+        var up = true
+        var seen = false
+        var previous = CGRect.null
+        var stable = 0
+        for _ in 0..<maxSteps {
+            guard target.exists else {
+                stable = 0; previous = .null
+                if seen { up.toggle(); seen = false }
+                nudgeList(app, up: up)
+                continue
+            }
+            seen = true
+            let frame = target.frame
+            let inside = frame.minY >= minY && frame.maxY <= maxY && frame.minX >= view.minX && frame.maxX <= view.maxX
+            if inside && target.isHittable {
+                stable = frame == previous ? stable + 1 : 0
+                previous = frame
+                if stable >= 2 { return true }
+                usleep(500_000)
+                continue
+            }
+            stable = 0; previous = .null
+            nudgeList(app, up: frame.midY > maxY || (inside && frame.midY >= minY))
+        }
+        return false
+    }
+
+    /// A target fully on screen, hittable and unchanged for three consecutive reads (for a last row that cannot reach a band).
+    func waitForStableOnScreen(_ app: XCUIApplication, _ target: XCUIElement, timeout: TimeInterval = 10) -> Bool {
+        let view = app.frame
+        var previous = CGRect.null
+        var stable = 0
+        return waitUntil(timeout: timeout) {
+            guard target.exists && target.isHittable else { stable = 0; previous = .null; return false }
+            let frame = target.frame
+            guard frame.minY >= view.minY && frame.maxY <= view.maxY && frame.minX >= view.minX && frame.maxX <= view.maxX else {
+                stable = 0; previous = .null; return false
+            }
+            stable = frame == previous ? stable + 1 : 0
+            previous = frame
+            return stable >= 3
+        }
+    }
+
     /// John 3 is shown in a web view: the chapter-opening 'Nicodemus' phrase label exists (WebKit splits the text
     /// into phrase-level StaticTexts).
     func john3Shown(_ app: XCUIApplication, timeout: TimeInterval = 60) -> Bool {

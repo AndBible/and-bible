@@ -36,18 +36,13 @@ final class FeatureUITests: RealAppUITestCase {
         let retainedSelected = keepScreen.isSelected
         XCTAssertEqual(retainedSelected, expectedSelected)
         XCTAssertNotEqual(retainedSelected, originalSelected)
-        let language = app.staticTexts["Application language"].firstMatch
-        for _ in 0..<8 where !language.isHittable { app.swipeUp() }
-        XCTAssertTrue(language.waitForExistence(timeout: 10))
         // The actual actionable AX node is the Button containing this exact child label.
         let languageRows = app.buttons.containing(.staticText, identifier: "Application language")
         let languageRow = languageRows.firstMatch
-        let languageRowReady = languageRows.count == 1 && languageRow.isHittable
-        if !languageRowReady {
-            shot(app, "settings-language-parent-not-hittable")
-            attachTree(app, "settings-language-parent-not-hittable")
-        }
-        XCTAssertTrue(languageRowReady)
+        let languageRowReady = bringIntoBand(app, languageRow, band: 0.2...0.75) && languageRows.count == 1
+        shot(app, "settings-language-before-tap")
+        attachTree(app, "settings-language-before-tap")
+        XCTAssertTrue(languageRowReady, "Application language row must be settled, unique and hittable mid-screen before tapping")
         languageRow.tap()
         // Do not scroll the underlying Settings list when the editor failed to open.
         let editorClose = app.buttons.matching(NSPredicate(format: "label == 'Close'")).firstMatch
@@ -128,12 +123,13 @@ final class FeatureUITests: RealAppUITestCase {
         }
         XCTAssertTrue(dismissed, "Language selection must dismiss the picker and filter the catalogue")
         let kjv = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'KJV '")).firstMatch
-        for _ in 0..<40 where !kjv.isHittable { app.swipeUp() }
-        if !kjv.exists || !kjv.isHittable {
+        // The long list must settle after each bounded nudge; direction reverses if the row is passed.
+        let kjvSettled = bringIntoBand(app, kjv, band: 0.2...0.8, maxSteps: 80)
+        if !kjvSettled {
             shot(app, "download-english-no-kjv")
             attachTree(app, "download-english-no-kjv")
         }
-        XCTAssertTrue(kjv.exists && kjv.isHittable, "Real repository KJV module required in the English catalogue")
+        XCTAssertTrue(kjvSettled, "Real repository KJV module required, settled and hittable in the English catalogue")
         let kjvRows = app.buttons.containing(.staticText, identifier: kjv.label)
         let kjvRow = kjvRows.firstMatch
         let kjvRowReady = kjvRows.count == 1 && kjvRow.isHittable

@@ -150,7 +150,11 @@ final class HRuntimeUITests: RealAppUITestCase {
         tapButton(app, "Add provider")
         let accept = button(app, "I accept and take full responsibility")
         if accept.waitForExistence(timeout: 3) { accept.tap() }
-        tapText(app, "Custom")
+        // The provider-type sheet row is the actual "Custom (OpenAI compatible)" Button; no scrolling is needed.
+        let customRows = app.buttons.containing(.staticText, identifier: "Custom (OpenAI compatible)")
+        let customRow = customRows.firstMatch
+        require(customRow.waitForExistence(timeout: 10) && customRows.count == 1 && customRow.isHittable, app, "custom-provider-type-row-missing")
+        customRow.tap()
         fillProviderField(app, "Provider name", value: fixtureProvider)
         fillProviderField(app, "API key", value: "not-a-real-key")
         fillProviderField(app, "API endpoint", value: "http://127.0.0.1:9")
@@ -198,14 +202,18 @@ final class HRuntimeUITests: RealAppUITestCase {
 
     private func bluetoothSwitch(_ app: XCUIApplication) -> XCUIElement {
         let toggle = app.switches.matching(NSPredicate(format: "label CONTAINS 'Enable Bluetooth media buttons'")).firstMatch
-        stableInterior(app, toggle, "bluetooth-setting")
-        require(toggle.exists && toggle.isHittable, app, "bluetooth-setting-not-hittable")
+        // It is the last settings row, so no interior band is reachable; require real full-screen geometry that is stable.
+        for _ in 0..<20 where !(toggle.exists && toggle.isHittable) { app.swipeUp() }
+        require(waitForStableOnScreen(app, toggle), app, "bluetooth-setting-not-stable-on-screen")
+        shot(app, "before-bluetooth-setting")
+        attachTree(app, "before-bluetooth-setting")
         return toggle
     }
 
     private func setBluetooth(_ app: XCUIApplication, enabled: Bool) {
         let toggle = bluetoothSwitch(app)
-        if toggle.isSelected != enabled { toggle.tap() }
+        // Tap the left row area: the thumb and the DEBUG overlay are at the right edge.
+        if toggle.isSelected != enabled { toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.5)).tap() }
         require(waitUntil(timeout: 10) { toggle.isSelected == enabled }, app, "bluetooth-setting-not-\(enabled)")
         shot(app, "bluetooth-setting-\(enabled)")
     }
