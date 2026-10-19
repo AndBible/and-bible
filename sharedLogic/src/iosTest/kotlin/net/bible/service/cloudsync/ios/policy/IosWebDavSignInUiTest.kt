@@ -13,6 +13,26 @@ import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IosWebDavSignInUiTest {
+    @Test fun certificateIdentifiersRenderLiterallyWithoutMarkupOrLinks() = runTest {
+        val dialogs = AppDialogController()
+        val strings = StubCoreStrings()
+        val host = "dav.example<a href=\"https://attacker.invalid\">link</a>"
+        val subject = "CN=<b>not bold</b>\n<!--still identity-->&amp; &lt;name&gt;"
+        val issuer = "O=<i>not italic</i><big>not big</big><small>not small</small>"
+        val ui = IosWebDavCertificatePrompt({ dialogs }, strings) { "date-$it" }
+        val answer = async { ui.confirmCertificate(DavCertificateInfo(host, "AABB", subject, issuer, 1, 2)) }
+        try {
+            runCurrent()
+            val shown = assertNotNull(dialogs.pending.value)
+            val prompt = assertIs<AppDialogRequest.Confirm>(shown.request)
+            val runs = net.bible.sharedcore.ui.dialog.parseHtmlRuns(assertNotNull(prompt.message))
+            val expected = strings.webDavUntrustedCertificateMessage(host, subject, issuer, "date-1", "date-2", "AA:BB")
+            assertEquals(expected, runs.joinToString("") { it.text }, "Trust identifiers and line breaks must survive final HTML rendering literally")
+            assertTrue(runs.all { it.href == null && !it.bold && !it.italic && it.size == net.bible.sharedcore.ui.dialog.HtmlRun.Size.Normal },
+                "Certificate fields must not introduce links or styles")
+        } finally { dialogs.cancelAll(); answer.cancel() }
+    }
+
     @Test fun certificatePromptShowsIssuerAndDates() = runTest {
         val dialogs = AppDialogController()
         val ui = IosWebDavCertificatePrompt({ dialogs }, StubCoreStrings()) { "date-$it" }

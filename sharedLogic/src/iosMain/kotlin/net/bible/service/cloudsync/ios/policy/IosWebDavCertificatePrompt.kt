@@ -18,8 +18,10 @@ internal class IosWebDavCertificatePrompt(
     override suspend fun confirmCertificate(info: DavCertificateInfo): Boolean = dialogs().await(
         AppDialogRequest.Confirm(
             title = strings.webDavUntrustedCertificateTitle,
-            message = strings.webDavUntrustedCertificateMessage(info.host, info.subject, info.issuer,
-                date(info.notBefore), date(info.notAfter), formatFingerprint(info.sha256)),
+            message = net.bible.sharedcore.ui.dialog.plainTextToHtml(
+                strings.webDavUntrustedCertificateMessage(info.host, info.subject, info.issuer,
+                    date(info.notBefore), date(info.notAfter), formatFingerprint(info.sha256)),
+            ),
             confirmText = strings.webDavTrustCertificate,
             dismissText = strings.cancel,
             cancellable = true,

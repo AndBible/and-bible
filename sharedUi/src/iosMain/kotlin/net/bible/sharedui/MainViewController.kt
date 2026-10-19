@@ -155,15 +155,13 @@ fun MainViewController(): UIViewController {
         val recoveryBackup = gates.result == StartupGateResult.OpenBackup
         var recoveryBindingsReady by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
-            val startError = try {
-                IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language))
-                null
-            } catch (e: Throwable) {
-                e
-            }
-            if (startError != null) startupState.fail(startError)
-            else if (recoveryBackup) recoveryBindingsReady = true
-            else startupState.launch(startupScope)
+            net.bible.sharedui.assembly.awaitIosUiStartup(
+                ensureStarted = { IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language)) },
+                state = startupState,
+                processScope = startupScope,
+                recoveryBackup = recoveryBackup,
+                recoveryReady = { recoveryBindingsReady = true },
+            )
         }
         if (recoveryBackup) {
             val recoveryPhase by startupState.phase.collectAsState()
