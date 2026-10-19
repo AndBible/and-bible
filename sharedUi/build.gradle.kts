@@ -14,6 +14,10 @@ plugins {
 // interface for all locales. Declared before `kotlin { }` because the iosMain srcDir references it.
 val iosStringsOutDir = layout.buildDirectory.dir("generated/iosStrings")
 
+compose.resources {
+    packageOfResClass = "net.bible.sharedui.generated.resources"
+}
+
 kotlin {
     jvmToolchain(17)
 
@@ -50,6 +54,7 @@ kotlin {
             // I2 step 0: the shared app root and reading host (I2 streams A/B) call controllers in :sharedLogic.
             implementation(project(":sharedLogic"))
             implementation(compose.runtime)
+            implementation(compose.components.resources)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
