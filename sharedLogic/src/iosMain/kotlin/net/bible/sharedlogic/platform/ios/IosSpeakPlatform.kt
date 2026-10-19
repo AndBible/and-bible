@@ -50,6 +50,8 @@ class IosSpeakPlatform(
     private val settings: AppSettings,
     private val earconFiles: Map<String, String>,
     private val now: () -> Long = { Clock.System.now().toEpochMilliseconds() },
+    /** Shows the reading screen (the app root's `openReading`); logged only when the app wires nothing. */
+    private val bringToFront: () -> Unit = { Log.w(PENDING_TAG, "IosSpeakPlatform.bringReadingToFront: nothing wired") },
 ) : SpeakPlatform, AudioFocus by audioFocus {
     override val maxSpeechInputLength: Int get() = MAX_SPEECH_INPUT_LENGTH
     override val preferredEnginePackage: String? get() = null
@@ -64,10 +66,8 @@ class IosSpeakPlatform(
 
     override fun detachMediaControls() = MediaButtonHandler.release()
 
-    /** C7 pending: phase 2 routes the reading screen to the front through the shared root. */
-    override fun bringReadingToFront() {
-        Log.w(PENDING_TAG, "IosSpeakPlatform.bringReadingToFront: no-op (phase 2: route through the shared root)")
-    }
+    /** Android starts the main activity; here the shared root pops back to (or opens) the reading destination. */
+    override fun bringReadingToFront() = bringToFront()
 
     override fun phrasesFor(languageCode: String): SpeakPhrases = phrases(languageCode)
 

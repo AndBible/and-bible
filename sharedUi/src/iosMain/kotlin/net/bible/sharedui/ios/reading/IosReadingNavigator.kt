@@ -74,7 +74,8 @@ internal fun searchRoute(indexDone: Boolean, isEpub: Boolean, isGeneralBook: Boo
  * (or is left without one, which is a cancel). The suspension belongs to the asking caller, so a result is always
  * returned to the window that asked, whichever window is active when the manager closes; requests are serialised
  * because they share the one channel. The document, key and passage choosers' answers are applied by the reading
- * destination's result collectors, not here.
+ * destination's result collectors ([IosReadingResults]); this class only records, through [chooserRequests], which
+ * window asked.
  *
  * @param hostState the reading host's sheets (kept for the sheets the navigator will open instead of routing)
  * @param links where [openExternalUrl] and [openWebLink] go
@@ -91,6 +92,8 @@ class IosReadingNavigator(
     private val fakeBooks: () -> FakeBookFactory,
     private val workspaceSettings: () -> WorkspaceEntities.WorkspaceSettings? = { null },
     private val mainContext: CoroutineContext = Dispatchers.Main,
+    /** Told which window opened a chooser, so its answer is applied to that window ([IosReadingResults]). */
+    private val chooserRequests: ChooserRequests = ChooserRequests.None,
 ) : ReadingNavigator {
     private val labelRequests = Mutex()
 
@@ -111,7 +114,14 @@ class IosReadingNavigator(
 
     override fun openWorkspaceSelector() = onMain { shell.navigate(NavRoutes.WORKSPACE_SELECTOR) }
 
-    override fun openChooseDocument(type: String?) = onMain { shell.navigate(NavRoutes.chooseDocument(type)) }
+    override fun openChooseDocument(type: String?) {
+        // The asker is the window that is active NOW, read before the screen is posted: the chooser outlives that.
+        val asker = chooserRequests.activeAsker()
+        onMain {
+            chooserRequests.asked(ChooserKind.Document, asker)
+            shell.navigate(NavRoutes.chooseDocument(type))
+        }
+    }
 
     override fun openSearch(document: Book?) = onMain {
         val route = searchRoute(
@@ -132,9 +142,18 @@ class IosReadingNavigator(
 
     override fun startKeyChooser(page: CurrentPage) {
         when (page) {
-            is CurrentBiblePage, is CurrentCommentaryPage -> onMain { shell.navigate(NavRoutes.gridChoosePassage(isScripture = true)) }
-            is CurrentDictionaryPage -> onMain { shell.navigate(NavRoutes.CHOOSE_DICTIONARY_WORD) }
-            is CurrentMapPage -> onMain { shell.navigate(NavRoutes.CHOOSE_MAP_KEY) }
+            is CurrentBiblePage, is CurrentCommentaryPage -> onMain {
+                chooserRequests.asked(ChooserKind.Passage, page.pageManager)
+                shell.navigate(NavRoutes.gridChoosePassage(isScripture = true))
+            }
+            is CurrentDictionaryPage -> onMain {
+                chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
+                shell.navigate(NavRoutes.CHOOSE_DICTIONARY_WORD)
+            }
+            is CurrentMapPage -> onMain {
+                chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
+                shell.navigate(NavRoutes.CHOOSE_MAP_KEY)
+            }
             is CurrentGeneralBookPage -> startGeneralBookChooser(page)
         }
     }
@@ -153,11 +172,18 @@ class IosReadingNavigator(
                     val result = awaitManageLabels(data) ?: return@launch
                     settings.updateFrom(ManageLabelsContract.ManageLabelsData.fromJSON(result.data))
                 }
-                doc == factory.multiDocument -> shell.navigate(NavRoutes.chooseDocument())
+                doc == factory.multiDocument -> {
+                    chooserRequests.asked(ChooserKind.Document, page.pageManager)
+                    shell.navigate(NavRoutes.chooseDocument())
+                }
                 doc?.isMyDocument == true -> doc.myDocumentId?.let { docId ->
+                    chooserRequests.asked(ChooserKind.MyDocumentPages, page.pageManager)
                     shell.navigate(NavRoutes.myDocumentPages(docId.toString(), doc.initials, doc.name))
                 }
-                else -> shell.navigate(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
+                else -> {
+                    chooserRequests.asked(ChooserKind.KeyChooser, page.pageManager)
+                    shell.navigate(NavRoutes.CHOOSE_GENERAL_BOOK_KEY)
+                }
             }
         }
     }

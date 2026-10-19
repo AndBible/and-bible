@@ -190,8 +190,11 @@ class IosReadingHostTest {
             "recentDocumentInitials" to (h.recentDocumentInitials !== defaults.recentDocumentInitials),
         )
         assertEquals(emptyList(), supplied.filterValues { !it }.keys.toList(), "hooks left at the default")
-        // INERT ALLOW-LIST (hooks): LLM sheets/regenerate (need the iOS agent start, not built), pane menu (not built: needs
-        // SpeakControl and :app-only state, see the Task 3 report), and the three optional overrides that default to the repository's own behaviour.
+        // INERT ALLOW-LIST (hooks): LLM sheets/regenerate (Task 4 left them: the agent run is started by Android's
+        // AgentForegroundService.startAgent/startRegenerate, which has no common or iOS counterpart, and the LLM dialog host is
+        // not mounted on iOS; the agent's permission prompt and question dialogs ARE real now, in IosAgentPlatform), pane menu
+        // (not built: needs SpeakControl and :app-only state, see the Task 3b report), and the three optional overrides that
+        // default to the repository's own behaviour.
         val inertHooks = mapOf(
             "dismissLlmSheets" to (h.dismissLlmSheets === defaults.dismissLlmSheets),
             "openPromptSelector" to (h.openPromptSelector === defaults.openPromptSelector),

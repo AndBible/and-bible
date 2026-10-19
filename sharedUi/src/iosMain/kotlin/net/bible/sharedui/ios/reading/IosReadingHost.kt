@@ -78,6 +78,7 @@ import net.bible.sharedui.reading.host.slots.ReadingHostSlots
 import net.bible.sharedui.reading.host.slots.ReadingSearchServices
 import net.bible.sharedui.reading.host.slots.ReadingSearchState
 import net.bible.sharedui.reading.nav.ReadingNavDeps
+import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.iosStrings
 import org.koin.core.Koin
@@ -111,6 +112,8 @@ class IosReadingHost(
     private val openUrl: (String) -> Unit = ::iosOpenUrl,
     /** The app's `manageLabels` result channel (the label chooser's answer); a private one when the host stands alone. */
     labelResults: NavResultChannel<ManageLabelsResult> = NavResultChannel { },
+    /** Applies the document, key and passage choosers' answers to the window that asked; null: answers are not applied. */
+    private val readingResults: IosReadingResults? = null,
 ) {
     private val windowControl: WindowControl = koin.get()
     private val settings: AppSettings = koin.get()
@@ -126,6 +129,7 @@ class IosReadingHost(
             downloadControl = { koin.get<DownloadControl>() },
             fakeBooks = { koin.get<FakeBookFactory>() },
             workspaceSettings = { windowControl.windowRepository.workspaceSettings },
+            chooserRequests = readingResults ?: ChooserRequests.None,
         )
     }
 
@@ -251,6 +255,9 @@ class IosReadingHost(
         currentDocumentInitials = { documentControl.currentDocument?.initials },
     )
 
+    /** Strong's find-all in the reading view's search; false: not handled, the caller falls back to its own route. */
+    fun openSearchStrongs(ref: String, documentInitials: List<String>): Boolean = searchState.openSearchStrongs(ref, documentInitials)
+
     /** Ends the slots' own background work (the search index feed); call before cancelling [scope]. */
     fun dispose() = slots.dispose()
 
@@ -314,7 +321,8 @@ class IosReadingHost(
         readingDialogSlot = { slots.ReadingDialog() },
     )
 
-    fun navDeps(content: @Composable () -> Unit): ReadingNavDeps = iosReadingNavDeps(this, shell, IosAppStartup.stringTable, content)
+    fun navDeps(content: @Composable () -> Unit): ReadingNavDeps =
+        iosReadingNavDeps(this, shell, IosAppStartup.stringTable, readingResults?.collectors() ?: emptyList(), content)
 }
 
 /** The reading destination's [ReadingNavDeps]; [hostToken] is the identity the destination registers under. */
@@ -323,6 +331,7 @@ fun iosReadingNavDeps(
     hostToken: Any,
     shell: IosHostShell,
     table: net.bible.sharedui.strings.keyed.StringTable,
+    results: List<ReadingResultCollector<*>> = emptyList(),
     content: @Composable () -> Unit,
 ): ReadingNavDeps = ReadingNavDeps(
     host = hostToken,
@@ -333,5 +342,5 @@ fun iosReadingNavDeps(
     onScreenTurnedOn = {},
     onScreenTurnedOff = {},
     setWindowTitle = shell::setWindowTitle,
-    results = emptyList(),
+    results = results,
 )

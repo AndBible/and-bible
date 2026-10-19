@@ -57,6 +57,11 @@ import net.bible.sharedcore.platform.secrets.SecretStore
 import net.bible.sharedcore.platform.speak.IosAudioFocus
 import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ai.AgentPermissionController
+import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
+import net.bible.sharedcore.log.nsLog
+import net.bible.sharedui.ios.app.IosRootLinks
 import net.bible.sharedlogic.addons.SharedAddonCatalog
 import net.bible.sharedlogic.addons.SharedAddonScanner
 import net.bible.sharedlogic.addons.SharedPromptPackSource
@@ -93,9 +98,9 @@ import net.bible.sharedlogic.platform.ios.IosSpeakPlatform
 import net.bible.sharedlogic.platform.ios.IosSpeakSettingsStore
 import net.bible.sharedlogic.platform.ios.IosUserNotifier
 import net.bible.sharedui.components.AppToasts
-import net.bible.sharedlogic.platform.ios.PendingKeyChooserLauncher
-import net.bible.sharedlogic.platform.ios.PendingLinkPlatform
-import net.bible.sharedlogic.platform.ios.PendingWindowSettingsPicker
+import net.bible.sharedlogic.platform.ios.IosKeyChooserLauncher
+import net.bible.sharedlogic.platform.ios.IosLinkPlatform
+import net.bible.sharedlogic.platform.ios.IosWindowSettingsPicker
 import net.bible.sharedlogic.search.CommonSearchHighlighter
 import net.bible.sharedlogic.settings.DatabaseAppSettings
 import net.bible.sharedlogic.settings.TextDisplayPrefItems
@@ -105,7 +110,7 @@ import net.bible.sharedui.strings.keyed.KeyedDistributedPlanCatalog
 import net.bible.sharedui.strings.keyed.KeyedLabelNameStrings
 import net.bible.sharedui.strings.keyed.KeyedLlmStrings
 import net.bible.sharedui.strings.keyed.KeyedSettingLabels
-import net.bible.sharedui.strings.keyed.PendingTextDisplayPrefItems
+import net.bible.sharedui.strings.keyed.SharedTextDisplayPrefItems
 import net.bible.sharedui.strings.keyed.keyedSpeakPhrases
 import okio.Path
 import org.crosswire.common.util.WebResource
@@ -176,7 +181,15 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
         single<LabelNameStrings> { KeyedLabelNameStrings(parts.strings) }
         single<SettingLabels> { KeyedSettingLabels(parts.strings) }
         single<DistributedPlanCatalog> { KeyedDistributedPlanCatalog(parts.strings) }
-        single<TextDisplayPrefItems> { PendingTextDisplayPrefItems(strings = { parts.strings }, contentSource = { get() }) }
+        single<TextDisplayPrefItems> {
+            SharedTextDisplayPrefItems(
+                strings = { parts.strings },
+                contentSource = { get() },
+                windowControl = { get() },
+                documentControl = { get() },
+                settings = { get() },
+            )
+        }
 
         // --- locale, calendar, text
         single<DateTimeFormats> { IosDateTimeFormats() }
@@ -224,22 +237,50 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 notifier = get(),
                 settings = get(),
                 earconFiles = IosSpeakPlatform.earconFiles(parts.bundleResourcePath),
+                bringToFront = IosRootLinks::bringReadingToFront,
             )
         }
         single<UserNotifier> { IosUserNotifier(get<AppDialogController>(), okText = { parts.strings.text("okay") }, onInfo = { message, long -> AppToasts.show(message, long) }) }
-        single<AgentPlatform> { IosAgentPlatform(get()) }
+        single<AgentPlatform> {
+            IosAgentPlatform(get(), get<AppDialogController>(), get<AgentPermissionController>(), { parts.strings.text(it) })
+        }
         single<NightModeState> { IosNightModeState(parts.deviceSettings) }
 
-        // --- reading UI ports (C7: pending implementations log and answer cancelled)
+        // --- reading UI ports: routed through the shared root ([IosRootLinks] once the app root and reading host exist)
         single<GlobalTextDisplaySettingsSource> {
             val scope = this
             object : GlobalTextDisplaySettingsSource {
                 override val current get() = scope.get<GlobalTextDisplaySettingsStore>().current
             }
         }
-        single<WindowSettingsPicker> { PendingWindowSettingsPicker() }
-        single<KeyChooserLauncher> { PendingKeyChooserLauncher() }
-        single<LinkPlatform> { PendingLinkPlatform() }
-        single<HistoryPlatform> { IosHistoryPlatform() }
+        single<WindowSettingsPicker> {
+            val scope = this
+            IosWindowSettingsPicker(
+                dialogs = get<AppDialogController>(),
+                title = { window, type ->
+                    val repository = window.windowRepository
+                    // Android's bundle for the picker rows: workspace level, the window's own settings in the workspace slot.
+                    val bundle = SettingsBundle(
+                        level = SettingsLevel.WORKSPACE,
+                        workspaceId = repository.id,
+                        workspaceName = repository.name,
+                        workspaceSettings = window.pageManager.textDisplaySettings,
+                        globalSettings = scope.get<GlobalTextDisplaySettingsStore>().current,
+                    )
+                    scope.get<TextDisplayPrefItems>().item(bundle, type).title ?: type.name
+                },
+                text = { parts.strings.text(it) },
+            )
+        }
+        single<KeyChooserLauncher> { IosKeyChooserLauncher(IosRootLinks::startKeyChooser) }
+        single<LinkPlatform> {
+            IosLinkPlatform(
+                openRoute = IosRootLinks::openRoute,
+                searchStrongs = IosRootLinks::searchStrongsInReadingView,
+                // Android mails an error report; iOS has no such flow yet, so the error is logged only.
+                reportError = { nsLog("LinkPlatform.reportJsError: no iOS error report flow yet") },
+            )
+        }
+        single<HistoryPlatform> { IosHistoryPlatform(isOnReading = IosRootLinks::isOnReadingScreen, leave = IosRootLinks::leaveCurrentScreen) }
     }
 }

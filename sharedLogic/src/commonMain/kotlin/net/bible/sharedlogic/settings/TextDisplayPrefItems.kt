@@ -58,6 +58,27 @@ interface PrefItemHandle {
 
     /** Clears the override at this level so the value is inherited again. */
     fun setNonSpecific()
+
+    /**
+     * The row title, with the current value filled in where Android's item does it (font size, margins, ...); null for
+     * an item without one. The members below default to what a plain boolean/value item answers.
+     */
+    val title: String? get() = null
+
+    /** Extra explanatory text of the row (the margin size item has one), or null. */
+    val summary: String? get() = null
+
+    /** Whether the row is a toggle (its value is a [Boolean]); Android's `isBoolean`. */
+    val isBoolean: Boolean get() = value is Boolean
+
+    /** Whether tapping the row opens an editor instead of toggling; Android's `opensDialog` (`!isBoolean`). */
+    val opensDialog: Boolean get() = !isBoolean
+
+    /** Whether the value is inherited (not set) at this item's level. */
+    val inherited: Boolean get() = false
+
+    /** Applies the change to the windows' views (Android's `OptionsMenuItemInterface.handle`); the default does nothing. */
+    fun handle() {}
 }
 
 /**

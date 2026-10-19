@@ -20,10 +20,15 @@ package net.bible.sharedlogic.platform.ios
 import kotlinx.coroutines.delay
 import net.bible.service.llm.agent.AgentPlatform
 import net.bible.service.llm.agent.ToolPermissionAnswer
+import net.bible.sharedcore.ai.AgentPermissionChoice
+import net.bible.sharedcore.ai.AgentPermissionController
+import net.bible.sharedcore.ai.AgentPermissionRequest
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
-import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSThread
 import platform.UIKit.UIApplication
@@ -40,9 +45,10 @@ import kotlin.concurrent.Volatile
  * `UIApplicationDidBecomeActive` / `UIApplicationDidEnterBackground` update, so any thread can read it
  * ([hasForegroundUi] reads the live state itself when it runs on Main).
  *
- * C7 pending (phase 2: route through the shared root): the tool-permission and question dialogs are not drawn yet.
- * [askToolPermission] answers [ToolPermissionAnswer.DENY] and [askQuestion] answers `false`, each logged with tag
- * `C7-pending`, so an agent tool that needs approval fails closed instead of running unasked.
+ * The tool-permission prompt goes through the app-wide [permissions] controller (the same one Android's
+ * `Dialogs.agentPermissionDialog` awaits; the app root draws its `pending` request) and the question through
+ * [dialogs] as a confirm dialog with the OK and Cancel texts of [text] (string resource keys `okay`, `cancel`).
+ * Neither waits for the foreground: the executor owns that wait. Dismissing either answers DENY / `false`.
  *
  * Lifetime: the notification observers are added at construction and never removed in the app (an app-wide singleton);
  * only tests call [close]. [change] emits on the thread that posts the notification (Main for UIKit's own posts), so
@@ -52,6 +58,10 @@ import kotlin.concurrent.Volatile
  */
 class IosAgentPlatform(
     private val notifier: UserNotifier,
+    private val dialogs: AppDialogController,
+    private val permissions: AgentPermissionController,
+    /** Localised text of a string resource key. */
+    private val text: (String) -> String,
     private val center: NSNotificationCenter = NSNotificationCenter.defaultCenter,
     private val liveActive: () -> Boolean = { UIApplication.sharedApplication.applicationState == UIApplicationState.UIApplicationStateActive },
 ) : AgentPlatform {
@@ -94,20 +104,23 @@ class IosAgentPlatform(
         return true
     }
 
-    override suspend fun askToolPermission(toolDisplayName: String, toolDescription: String, actionDescription: String?): ToolPermissionAnswer {
-        Log.w(PENDING_TAG, "IosAgentPlatform.askToolPermission('$toolDisplayName'): DENY (phase 2: route through the shared root)")
-        return ToolPermissionAnswer.DENY
-    }
+    override suspend fun askToolPermission(toolDisplayName: String, toolDescription: String, actionDescription: String?): ToolPermissionAnswer =
+        when (permissions.await(AgentPermissionRequest(toolDisplayName, toolDescription, actionDescription))) {
+            AgentPermissionChoice.ALLOW -> ToolPermissionAnswer.ALLOW
+            AgentPermissionChoice.ALLOW_FOR_SESSION -> ToolPermissionAnswer.ALLOW_FOR_SESSION
+            AgentPermissionChoice.ALLOW_ALL_SESSION -> ToolPermissionAnswer.ALLOW_ALL_SESSION
+            AgentPermissionChoice.ALLOW_ALWAYS -> ToolPermissionAnswer.ALLOW_ALWAYS
+            AgentPermissionChoice.DENY -> ToolPermissionAnswer.DENY
+        }
 
-    override suspend fun askQuestion(title: String?, message: String): Boolean {
-        Log.w(PENDING_TAG, "IosAgentPlatform.askQuestion('${title.orEmpty()}'): false (phase 2: route through the shared root)")
-        return false
-    }
+    override suspend fun askQuestion(title: String?, message: String): Boolean =
+        dialogs.await(
+            AppDialogRequest.Confirm(title = title, message = message, confirmText = text("okay"), dismissText = text("cancel")),
+        ) == AppDialogResult.Ok
 
     override fun showShortMessage(message: String) = notifier.showInfo(message)
 
     private companion object {
         const val POLL_MS = 500L
-        const val PENDING_TAG = "C7-pending"
     }
 }

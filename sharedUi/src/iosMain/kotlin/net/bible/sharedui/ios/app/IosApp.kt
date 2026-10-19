@@ -32,7 +32,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.testTag
 import net.bible.sharedui.components.AppToastHost
 import net.bible.sharedui.ios.reading.IosNightModeObserver
+import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.CurrentPageManager
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.history.HistoryManager
+import net.bible.sharedcore.ai.AgentPermissionController
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedui.components.AppDialogHost
+import androidx.compose.runtime.collectAsState
+import net.bible.sharedui.ios.reading.ChooserTarget
 import net.bible.sharedui.ios.reading.IosReadingHost
+import net.bible.sharedui.ios.reading.IosReadingResults
+import net.bible.sharedui.ios.reading.PageManagerChooserTarget
 import net.bible.sharedui.ios.reading.IosReadingWindows
 import net.bible.sharedui.ios.reading.iosReadingNavDeps
 import net.bible.sharedui.ios.reading.rememberIosReadingIcons
@@ -179,6 +191,9 @@ fun IosApp(strings: Strings) {
             } else {
                 Box(Modifier.fillMaxSize()) {
                     IosAppContent(strings, table, route, nightObserver)
+                    // The app-wide dialog queue (errors, confirmations, the agent's permission prompt), as Android's
+                    // AppDialogOverlay draws it; above the content, below nothing else, like the toasts.
+                    IosAppDialogs(koin)
                     AppToastHost(Modifier.align(Alignment.BottomCenter))
                 }
             }
@@ -229,12 +244,23 @@ private fun IosAppContent(
     val scope = rememberCoroutineScope()
     // App-wide, not per destination: Android saves on every destination (the repository belongs to the host).
     SaveWorkspaceOnBackground(koin)
-    val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }) }
+    val shell = remember { IosHostShell(scope, NavControllerNavigator { navController }).also(IosRootLinks::attachShell) }
     val ports = remember { buildIosHostPorts(shell, koin, table, leaveWelcomeFor(scope, shell, table)) }
     val appHosts = remember { AppHosts(koin, shell, ports, strings) }
     val channels = remember { iosResultChannels { navController } }
     val readingToken = remember { Any() }
-    val readingHostHolder = remember { ReadingHostHolder(channels.manageLabels) }
+    val readingResults = remember {
+        IosReadingResults(
+            keyChooser = channels.keyChooser,
+            passage = channels.passage,
+            document = channels.document,
+            myDocumentPages = channels.myDocumentPages,
+            myDocuments = channels.myDocuments,
+            targetFor = { asker -> (asker as? CurrentPageManager)?.let { iosChooserTarget(koin, table, it, scope) } },
+            activeAskerProvider = { koin.get<WindowControl>().activeWindowPageManager },
+        )
+    }
+    val readingHostHolder = remember { ReadingHostHolder(channels.manageLabels, readingResults) }
     val graphs = remember(navController) { appHosts.graphs(navController, channels) }
     DisposableEffect(navController) {
         val gate = IosWelcomeReturnGate(
@@ -252,6 +278,8 @@ private fun IosAppContent(
         )
         val listener = NavController.OnDestinationChangedListener { controller, destination, _ ->
             shell.routeChanged(destination.route)
+            // A chooser left without an answer (Android's cancel arm); an answer published before the pop is still pending.
+            if (destination.route?.substringBefore('?') == NavRoutes.READING) readingResults.readingReached()
             gate.onDestination(
                 destination.route,
                 controller.currentBackStack.value.any { it.destination.route?.substringBefore('?') == NavRoutes.WELCOME },
@@ -265,7 +293,7 @@ private fun IosAppContent(
         startRoute = route,
         graphs = graphs,
         readingGraph = {
-            readingNavGraph(navController, iosReadingNavDeps(readingToken, shell, table) {
+            readingNavGraph(navController, iosReadingNavDeps(readingToken, shell, table, readingResults.collectors()) {
                 IosReadingDestination(shell, table, strings, koin, nightObserver, readingHostHolder)
             })
         },
@@ -273,16 +301,55 @@ private fun IosAppContent(
     )
 }
 
+/** The [PageManagerChooserTarget] of the window whose page manager is [pageManager], over the app's Koin graph. */
+private fun iosChooserTarget(koin: Koin, table: StringTable, pageManager: CurrentPageManager, scope: CoroutineScope): ChooserTarget =
+    PageManagerChooserTarget(
+        pageManager = pageManager,
+        fakeBooks = { koin.get<FakeBookFactory>() },
+        versification = { koin.get<NavigationControl>().versification },
+        notifier = { koin.get<UserNotifier>() },
+        verseNotFoundText = { table.text("verse_not_found") },
+        history = { koin.get<HistoryManager>() },
+        scope = scope,
+    )
+
+/** Draws [AppDialogController]'s queue and the agent permission prompt (Android: `AppDialogOverlay`). */
+@Composable
+private fun IosAppDialogs(koin: Koin) {
+    val dialogs = remember { koin.get<AppDialogController>() }
+    val permissions = remember { koin.get<AgentPermissionController>() }
+    val links = remember { koin.get<ExternalLinks>() }
+    val shown by dialogs.pending.collectAsState()
+    val progress by dialogs.progress.collectAsState()
+    val permission by permissions.pending.collectAsState()
+    AppDialogHost(
+        shown = shown,
+        permission = permission,
+        onRespond = dialogs::respond,
+        onPermissionChoice = permissions::respond,
+        onPermissionDismiss = permissions::dismiss,
+        onOpenExternal = { links.open(it) },
+        progress = progress,
+        draftFor = dialogs::draft,
+        onDraftChange = dialogs::saveDraft,
+    )
+}
+
 /** Holds the one [IosReadingHost] for the app's lifetime so leaving and re-entering reading keeps the sessions. */
-private class ReadingHostHolder(private val labelResults: NavResultChannel<ManageLabelsResult>) {
+private class ReadingHostHolder(
+    private val labelResults: NavResultChannel<ManageLabelsResult>,
+    private val readingResults: IosReadingResults,
+) {
     private var host: IosReadingHost? = null
 
     fun get(shell: IosHostShell, koin: Koin, nightObserver: IosNightModeObserver, strings: Strings): IosReadingHost =
         host ?: IosReadingHost(
             IosReadingReady.scope, shell, koin, koin.get<NightModeState>(), nightObserver.dark, { strings },
             labelResults = labelResults,
+            readingResults = readingResults,
         ).also {
             host = it
+            IosRootLinks.attachReading(it.navigator, it::openSearchStrongs)
             IosReadingWindows.bind(it, IosReadingReady.scope, koin, koin.get<NightModeState>())
         }
 }
