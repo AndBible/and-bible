@@ -48,11 +48,16 @@ final class CrashRecoveryUITests: XCTestCase {
 
     private func fatalCrash(_ app: XCUIApplication) {
         captureFatalTap(app, phase: "before")
+        let crash = element(app, "task6-crash")
         let started = Date()
-        element(app, "task6-crash").tap()
-        captureFatalTap(app, phase: "after")
-        XCTAssertTrue(app.wait(for: .notRunning, timeout: 15), "The action must terminate, not display a caught error")
-        XCTAssertGreaterThanOrEqual(Date().timeIntervalSince(started), 1.5, "Crash must be delayed by two seconds")
+        crash.tap()
+        let terminated = app.wait(for: .notRunning, timeout: 15)
+        let elapsed = Date().timeIntervalSince(started)
+        if !terminated && app.state != .notRunning {
+            captureFatalTap(app, phase: "failed-after")
+        }
+        XCTAssertTrue(terminated, "The action must terminate, not display a caught error")
+        XCTAssertGreaterThanOrEqual(elapsed, 1.5, "Crash must be delayed by two seconds")
     }
 
     private func captureFatalTap(_ app: XCUIApplication, phase: String) {
