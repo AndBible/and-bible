@@ -74,6 +74,7 @@ internal class InMemorySecretStore : net.bible.sharedcore.platform.secrets.Secre
  */
 class IosAssemblyTest {
     private val files = FileSystem.SYSTEM
+    private var ownsAppGraph = false
 
     private fun config(language: String? = "en") = IosAppConfig(root = sharedRoot, uiLanguage = language, repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore())
     private val databaseDir: Path get() = sharedRoot / IosAppConfig.DATABASES_DIR
@@ -105,11 +106,21 @@ class IosAssemblyTest {
     fun tearDown() = resetEverything()
 
     private fun resetEverything() {
-        runBlocking { IosAppStartup.resetForTest() }
-        files.deleteRecursively(databaseDir)
+        try {
+            // Graph-probe tests also construct SpeakControl, whose media handler is process-wide.
+            // Only tear down the handler when this fixture started the owning graph.
+            if (ownsAppGraph) net.bible.service.device.speak.MediaButtonHandler.release()
+        } finally {
+            ownsAppGraph = false
+            runBlocking { IosAppStartup.resetForTest() }
+            files.deleteRecursively(databaseDir)
+        }
     }
 
-    private fun startApp(language: String? = "en") = IosAppStartup.start(config(language))
+    private fun startApp(language: String? = "en") {
+        ownsAppGraph = true
+        IosAppStartup.start(config(language))
+    }
 
     @Test
     fun startupResolvesTheGraphOpensDatabasesAndReadsAVerse() {
@@ -279,6 +290,55 @@ class IosAssemblyTest {
             subscription.cancel()
             // Books is process-wide: never leave the module removed for the tests that follow.
             if (Books.installed().getBook(book.initials) == null) Books.installed().addBook(book)
+        }
+    }
+
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    @Test
+    fun bluetoothPrefOffSkipsMediaControls() {
+        val center = platform.MediaPlayer.MPRemoteCommandCenter.sharedCommandCenter()
+        val info = platform.MediaPlayer.MPNowPlayingInfoCenter.defaultCenter()
+        val commands = listOf(center.playCommand, center.pauseCommand, center.stopCommand,
+            center.nextTrackCommand, center.previousTrackCommand, center.skipForwardCommand,
+            center.skipBackwardCommand, center.togglePlayPauseCommand)
+        // Do not remove another owner's targets to make this test pass.
+        assertNull(net.bible.service.device.speak.MediaButtonHandler.handler, "media handler already owned")
+        assertNull(info.nowPlayingInfo, "command center already publishing another session")
+        val enabledBefore = commands.map { it.enabled }
+        assertFalse(enabledBefore.any { it }, "command center must be idle before this test")
+        startApp()
+        openDatabasesDiagnosing()
+        val koin = KoinPlatform.getKoin()
+        val settings = koin.get<AppSettings>()
+        val enabledPrefBefore = settings.getBoolean("enable_bluetooth_pref", true)
+        try {
+            settings.setBoolean("enable_bluetooth_pref", false)
+            val control = koin.get<net.bible.android.control.speak.SpeakControl>()
+            assertNull(net.bible.service.device.speak.MediaButtonHandler.handler)
+            assertFalse(commands.any { it.enabled }, "off preference must skip real command activation")
+
+            settings.setBoolean("enable_bluetooth_pref", true)
+            val speak = koin.get<SpeakPlatform>()
+            // A preference change alone does not attach; only an explicit attach does.
+            assertFalse(commands.any { it.enabled })
+            speak.attachMediaControls(control)
+            assertNotNull(net.bible.service.device.speak.MediaButtonHandler.handler)
+            assertTrue(commands.all { it.enabled }, "on preference must activate all eight native commands")
+            settings.setBoolean("enable_bluetooth_pref", false)
+            assertTrue(commands.all { it.enabled }, "changing the preference must not detach existing controls")
+            speak.detachMediaControls()
+            assertNull(net.bible.service.device.speak.MediaButtonHandler.handler)
+            assertFalse(commands.any { it.enabled })
+            assertNull(info.nowPlayingInfo)
+        } finally {
+            // The idle-owner precondition means any handler created here belongs to this test,
+            // including an unexpected activation on the off branch.
+            try {
+                net.bible.service.device.speak.MediaButtonHandler.release()
+            } finally {
+                settings.setBoolean("enable_bluetooth_pref", enabledPrefBefore)
+                commands.zip(enabledBefore).forEach { (command, enabled) -> command.enabled = enabled }
+            }
         }
     }
 
