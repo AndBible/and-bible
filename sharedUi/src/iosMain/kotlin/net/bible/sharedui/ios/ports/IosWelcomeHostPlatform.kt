@@ -90,8 +90,13 @@ class IosWelcomeHostPlatform(
     override fun onRestore() {
         scope.launch {
             val host = koin.get<BackupHost>()
-            val source = host.pickBackupFile() ?: return@launch
-            if (koin.get<BackupControl>().restoreAppDatabaseFromSourceWithUI(host, source)) afterRestore()
+            net.bible.sharedui.app.welcome.restoreWelcomeBackup(
+                pick = { host.pickBackupFile() },
+                restore = { koin.get<BackupControl>().restoreAppDatabaseFromSourceWithUI(host, it) },
+                reportError = { message, cause -> host.showErrorReport(message, cause) },
+                fallbackError = { table.text("error_occurred") },
+                afterRestore = { afterRestore() },
+            )
         }
     }
     override fun onRedownload() { scope.launch { core.onRedownload() } }
