@@ -40,8 +40,11 @@ class FilePresentation<T>(
     fun present(from: UIViewController) {
         val sheet = controller ?: return
         (sheet as? UIDocumentPickerViewController)?.delegate = this
-        sheet.presentationController?.delegate = this
-        sheet.popoverPresentationController?.delegate = this
+        // UIAlertController owns its presentation delegate; replacing it raises an NSException.
+        if (sheet !is UIAlertController) {
+            sheet.presentationController?.delegate = this
+            sheet.popoverPresentationController?.delegate = this
+        }
         continuation?.invokeOnCancellation {
             // Cancellation may originate off-main. This independent dispatch must survive it.
             CoroutineScope(Dispatchers.Main).launch { finish(cancelled) }
@@ -53,7 +56,7 @@ class FilePresentation<T>(
         }
         try {
             from.presentViewController(sheet, animated = true, completion = null)
-            sheet.presentationController?.delegate = this
+            if (sheet !is UIAlertController) sheet.presentationController?.delegate = this
         } catch (error: Exception) {
             finish(cancelled)
             throw error
@@ -68,8 +71,10 @@ class FilePresentation<T>(
         picked = null
         (sheet as? UIDocumentPickerViewController)?.delegate = null
         (sheet as? UIActivityViewController)?.completionWithItemsHandler = null
-        sheet?.presentationController?.delegate = null
-        sheet?.popoverPresentationController?.delegate = null
+        if (sheet !is UIAlertController) {
+            sheet?.presentationController?.delegate = null
+            sheet?.popoverPresentationController?.delegate = null
+        }
         val cleanup = release
         release = null
         val completed = {

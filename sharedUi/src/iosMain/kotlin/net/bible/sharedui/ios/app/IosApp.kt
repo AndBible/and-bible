@@ -42,6 +42,7 @@ import net.bible.sharedui.webview.iosReadingPaneFactory
 import org.koin.core.Koin
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -258,7 +259,19 @@ private fun IosAppContent(
                 if (nightObserver != null) IosReadingDestination(shell, table, koin, nightObserver, readingHostHolder)
             })
         },
-        overlays = { appHosts.Overlays() },
+        overlays = {
+            appHosts.Overlays()
+            val dialogs = remember { koin.get<net.bible.sharedcore.ui.dialog.AppDialogController>() }
+            val shown by dialogs.pending.collectAsState()
+            val progress by dialogs.progress.collectAsState()
+            net.bible.sharedui.components.AppDialogHost(
+                shown = shown, progress = progress, permission = null,
+                onRespond = dialogs::respond,
+                onPermissionChoice = {}, onPermissionDismiss = {},
+                onOpenExternal = { koin.get<net.bible.sharedui.app.ports.ExternalLinks>().open(it) },
+                draftFor = dialogs::draft, onDraftChange = dialogs::saveDraft,
+            )
+        },
     )
 }
 

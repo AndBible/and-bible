@@ -72,6 +72,35 @@ class IosFilePickerTest {
         }
     }
 
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    @Test fun alertPresentationAndCancellationPreserveUIKitOwnedDelegate() = runOnMainRunLoop<Unit> {
+        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
+        val host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        try {
+            val alert = UIAlertController.alertControllerWithTitle("Test", "No report sent", UIAlertControllerStyleAlert)
+            val original = alert.presentationController?.delegate
+            var releases = 0
+            val result = suspendCancellableCoroutine { continuation ->
+                val presentation = FilePresentation(alert, continuation, false, release = { releases++ })
+                alert.addAction(UIAlertAction.actionWithTitle("Cancel", UIAlertActionStyleCancel) { presentation.finish(false) })
+                presentation.present(host)
+                platform.darwin.dispatch_async(platform.darwin.dispatch_get_main_queue()) {
+                    val transition = alert.transitionCoordinator
+                    if (transition != null) transition.animateAlongsideTransition(null) {
+                        presentation.finish(false)
+                        presentation.finish(true)
+                    } else presentation.finish(false)
+                }
+            }
+            assertEquals(false, result)
+            assertEquals(1, releases)
+            assertNull(host.presentedViewController)
+            kotlin.test.assertSame(original, alert.presentationController?.delegate)
+        } finally { window.hidden = true; window.rootViewController = null }
+    }
+
     @Test fun noPresenterCancelsPicker() = runOnMainRunLoop<Unit> {
         assertNull(IosFilePicker { null }.pickBackupFile())
     }

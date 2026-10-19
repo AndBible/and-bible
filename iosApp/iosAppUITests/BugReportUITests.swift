@@ -18,6 +18,20 @@ final class BugReportUITests: XCTestCase {
         add(attachment)
     }
 
+    private func assertShareAndClose(_ app: XCUIApplication, screenshot: String) {
+        let activity = app.descendants(matching: .any).matching(identifier: "ActivityListView").firstMatch
+        XCTAssertTrue(activity.waitForExistence(timeout: 15))
+        let container = activity.descendants(matching: .any).matching(identifier: "ShareSheet.RemoteContainerView").firstMatch
+        XCTAssertTrue(container.waitForExistence(timeout: 10))
+        XCTAssertTrue(container.cells.matching(NSPredicate(format: "label == %@", "Copy")).firstMatch.waitForExistence(timeout: 10))
+        XCTAssertTrue(container.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "app_log.txt")).firstMatch.exists)
+        shot(app, screenshot)
+        let close = container.buttons["header.closeButton"].firstMatch
+        XCTAssertTrue(close.exists)
+        close.tap()
+        XCTAssertTrue(activity.waitForNonExistence(timeout: 10))
+    }
+
     func testSettingsReportRequiresConfirmationThenOpensShare() {
         let app = app(["-task5Settings"])
         let report = app.buttons["Feedback / bug report"].firstMatch
@@ -30,11 +44,8 @@ final class BugReportUITests: XCTestCase {
         XCTAssertTrue(confirm.waitForExistence(timeout: 10))
         confirm.buttons["OK"].tap()
         // Mail is not configured on the acceptance simulator. System owns this UI, not Compose.
-        XCTAssertTrue(app.buttons["Copy"].firstMatch.waitForExistence(timeout: 15))
-        shot(app, "settings-bug-report-share")
-        // Close the share sheet without selecting a destination or sending mail.
-        let close = app.buttons["Close"].firstMatch
-        if close.exists { close.tap() } else { app.swipeDown() }
+        assertShareAndClose(app, screenshot: "settings-bug-report-share")
+        XCTAssertTrue(report.waitForExistence(timeout: 10))
     }
 
     func testErrorDialogBackupOpensActualBackupRoute() {
@@ -55,7 +66,7 @@ final class BugReportUITests: XCTestCase {
         let confirm = app.alerts["Send bug report via email"].firstMatch
         XCTAssertTrue(confirm.waitForExistence(timeout: 10))
         confirm.buttons["OK"].tap()
-        XCTAssertTrue(app.buttons["Copy"].firstMatch.waitForExistence(timeout: 15))
-        shot(app, "recovery-bug-report-share")
+        assertShareAndClose(app, screenshot: "recovery-bug-report-share")
+        XCTAssertTrue(report.waitForExistence(timeout: 10))
     }
 }

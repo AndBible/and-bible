@@ -87,6 +87,9 @@ class IosReportLifecycleTest {
         val host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
+        // Standalone UIKit does not drive these modal animation transitions to completion.
+        val animationsEnabled = UIView.areAnimationsEnabled()
+        UIView.setAnimationsEnabled(false)
         try {
             // Standalone test.kexe has no UIApplication scene for ShareSheet's remote service.
             // Only that system controller is substituted; staging and FilePresentation remain real.
@@ -98,7 +101,11 @@ class IosReportLifecycleTest {
             job.cancelAndJoin()
             assertNull(host.presentedViewController)
             assertEquals(before, staged())
-        } finally { window.hidden = true; window.rootViewController = null }
+        } finally {
+            UIView.setAnimationsEnabled(animationsEnabled)
+            window.hidden = true
+            window.rootViewController = null
+        }
     }
 
     @Test fun shareCallbackKeepsAttachmentUntilDismissalAndCleansOnce() = awaitOnMain {
@@ -109,6 +116,9 @@ class IosReportLifecycleTest {
         val host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
+        // Standalone UIKit does not drive these modal animation transitions to completion.
+        val animationsEnabled = UIView.areAnimationsEnabled()
+        UIView.setAnimationsEnabled(false)
         try {
             var terminal: (() -> Unit)? = null
             val controller = UIViewController()
@@ -137,6 +147,10 @@ class IosReportLifecycleTest {
             assertNull(host.presentedViewController)
             assertFalse(FileSystem.SYSTEM.exists(path))
             assertEquals(before, staged())
-        } finally { window.hidden = true; window.rootViewController = null }
+        } finally {
+            UIView.setAnimationsEnabled(animationsEnabled)
+            window.hidden = true
+            window.rootViewController = null
+        }
     }
 }
