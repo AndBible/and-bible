@@ -83,7 +83,7 @@ class IosDisplayModesTest {
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
                 ),
             ) }
-            runBlocking { IosAppStartup.openDatabases() }
+            awaitStartupOnMain { IosAppStartup.openDatabases() }
             awaitOnMain { IosReadingReady.ensure(IosAppStartup.stringTable) }
             val scope: CoroutineScope = IosReadingReady.scope
             val koin = KoinPlatform.getKoin()

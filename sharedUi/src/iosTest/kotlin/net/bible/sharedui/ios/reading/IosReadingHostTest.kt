@@ -116,7 +116,7 @@ class IosReadingHostTest {
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
                 ),
             ) }
-            runBlocking { IosAppStartup.openDatabases() }
+            awaitStartupOnMain { IosAppStartup.openDatabases() }
             val platform = IosReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {
                 ReadingAppInit.initialise(platform)

@@ -26,7 +26,7 @@ class IosChooserHostPlatformTest {
         awaitStartupOnMain { IosAppStartup.ensureStarted(IosAppConfig(root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
             repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore())) }
         try {
-            runBlocking { IosAppStartup.openDatabases() }
+            awaitStartupOnMain { IosAppStartup.openDatabases() }
             val koin = KoinPlatform.getKoin()
             val book = assertNotNull(Books.installed().getBook("K4RawText"))
             val books = listOf(book)

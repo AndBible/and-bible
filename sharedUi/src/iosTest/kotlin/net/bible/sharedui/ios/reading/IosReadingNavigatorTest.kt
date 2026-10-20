@@ -98,7 +98,7 @@ class IosReadingNavigatorTest {
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
                 ),
             ) }
-            runBlocking { IosAppStartup.openDatabases() }
+            awaitStartupOnMain { IosAppStartup.openDatabases() }
             val platform = net.bible.sharedui.ios.app.IosReadingAppInitPlatform(IosAppStartup.stringTable)
             runBlocking {
                 ReadingAppInit.initialise(platform)
