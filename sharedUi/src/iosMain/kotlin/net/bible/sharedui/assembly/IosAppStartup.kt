@@ -175,6 +175,7 @@ object IosAppStartup {
                 initialize = {
                     val p = selectedParts ?: IosPlatformParts(config).also { selectedParts = it }
                     if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
+                    else if (IosDebugLaunchArgs.resetDatabases()) IosDebugLaunchArgs.resetAppDatabases()
                     DatabaseContainer.installHost(IosDatabaseHost(p.environment, p.databaseRoot))
                     val localeProvider = IosLocaleProvider(localeTag = p::jswordLocaleTag)
                     SharedAppStartup.installEnvironment(p.repositories(), localeProvider)

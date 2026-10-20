@@ -1,68 +1,34 @@
 import XCTest
 
-/// Reading view VoiceOver and WebView re-parenting (I2 phase 2 R2, Task 8). Real app, seeded KJV: the tests launch with
-/// the debug-only `-openRef John.3.16` (see `IosDebugLaunchArgs.kt`) and WITHOUT `-resetData`, so they need the Bible
-/// that `AppUITests.testFreshInstallEasyStartReadsJohn3` installed (the run order is alphabetical: AppUITests first;
-/// when no Bible is installed the tests skip instead of failing).
-///
-/// Written on a Linux container without Xcode: NOT compiled and NOT run. The UI labels used to add/close a window
-/// and to open a sheet are taken from the strings the app shows ("New window", "Close", ...), which still have to be
-/// confirmed on a Mac; every helper that taps by label attaches the element tree when it cannot find its target.
-final class ReadingUITests: XCTestCase {
-    override func setUp() { continueAfterFailure = false }
+/// Reading view VoiceOver and WebView re-parenting (I2 phase 2 R2, Task 8). Real app on KJV: the tests launch with the
+/// debug-only `-openRef John.3.16` (see `IosDebugLaunchArgs.kt`) and `-resetDatabases` (fresh one-window workspace,
+/// installed modules kept), so no test inherits the windows or the document another one left. When no Bible is
+/// installed (a `-resetData` test ran before), the first launch provisions KJV through the real Easy start, as
+/// `AppUITests` does; the suite does not depend on the run order. Labels were confirmed against Mac element trees.
+final class ReadingUITests: RealAppUITestCase {
+    /// 'Nicodemus' is a phrase label three times in KJV John 3 (verses 1, 4 and 9), in every pane showing the chapter.
+    private let nicodemusPerPane = 3
 
-    // MARK: helpers (same patterns as AppUITests)
+    // MARK: helpers (launch, element, shot, attachTree, waitUntil, john3Shown, paneIds: RealAppUITestCase)
 
     private func launchReading() throws -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments += ["-openRef", "John.3.16"]
-        app.launch()
+        let arguments = ["-resetDatabases", "-openRef", "John.3.16"]
+        var app = launch(arguments)
         if element(app, "welcome-screen").waitForExistence(timeout: 3) {
-            throw XCTSkip("No installed Bible (Welcome shown): run AppUITests.testFreshInstallEasyStartReadsJohn3 first")
+            app.terminate()
+            let fresh = freshReading()
+            selectKJV(fresh)
+            sendToBackground(fresh)
+            fresh.terminate()
+            app = launch(arguments)
         }
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading host not shown")
         XCTAssertTrue(john3Shown(app), "John 3 not rendered in the first window")
         return app
     }
 
-    private func element(_ app: XCUIApplication, _ id: String) -> XCUIElement {
-        app.descendants(matching: .any).matching(identifier: id).firstMatch
-    }
-
-    private func attachTree(_ app: XCUIApplication, _ step: String) {
-        let a = XCTAttachment(string: app.debugDescription); a.name = "tree-\(step)"; a.lifetime = .keepAlways; add(a)
-    }
-
-    private func shot(_ app: XCUIApplication, _ name: String) {
-        let a = XCTAttachment(screenshot: app.screenshot()); a.name = name; a.lifetime = .keepAlways; add(a)
-    }
-
-    private func waitUntil(timeout: TimeInterval, _ condition: () -> Bool) -> Bool {
-        let deadline = Date().addingTimeInterval(timeout)
-        while Date() < deadline {
-            if condition() { return true }
-            usleep(500_000)
-        }
-        return condition()
-    }
-
-    /// The chapter-opening 'Nicodemus' phrase label exists somewhere in a web view.
-    private func john3Shown(_ app: XCUIApplication, timeout: TimeInterval = 60) -> Bool {
-        app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).firstMatch
-            .waitForExistence(timeout: timeout)
-    }
-
-    /// The distinct pane identifiers (`bible-webview-<windowId>`) among the WebView elements. XCUITest reports
-    /// several WebView-type elements per WKWebView, so only distinct identifiers count panes.
-    private func paneIds(_ app: XCUIApplication) -> [String] {
-        let ids = app.webViews.matching(NSPredicate(format: "identifier BEGINSWITH 'bible-webview-'"))
-            .allElementsBoundByIndex.map(\.identifier)
-        return Array(Set(ids)).sorted()
-    }
-
     /// All 'Nicodemus' labels in the whole app tree (every pane's web view together). The query returns each element
-    /// once, so nested WebView-type elements of one WKWebView do not inflate it. Assumption (owed Mac run): a pane that
-    /// is in the accessibility tree twice after a re-parent shows its label twice here.
+    /// once, so nested WebView-type elements of one WKWebView do not inflate it: a Mac run counted 3 per pane.
     private func nicodemusInWebViews(_ app: XCUIApplication) -> Int {
         app.webViews.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).count
     }
@@ -72,17 +38,18 @@ final class ReadingUITests: XCTestCase {
         app.staticTexts.matching(NSPredicate(format: "label == 'Nicodemus'")).count
     }
 
-    /// There are `count` distinct panes and exactly `count` 'Nicodemus' labels in the whole tree: one per pane. Fails on
-    /// 0 for a pane (count too low), and on a duplicated pane (count too high), unlike a per-pane `firstMatch` lookup.
-    /// Both counts are attached; the assertion uses the web view one (robust to the app tree holding other texts).
+    /// There are `count` distinct panes and exactly `count` x [nicodemusPerPane] 'Nicodemus' labels in the whole tree:
+    /// the chapter once per pane. Fails on a pane without text (too low) and on a duplicated pane (too high), unlike a
+    /// per-pane `firstMatch` lookup. Both counts are attached; the assertion uses the web view one.
     private func assertTextOncePerPane(_ app: XCUIApplication, panes count: Int, _ step: String) {
+        let expected = count * nicodemusPerPane
         let ok = waitUntil(timeout: 30) {
-            paneIds(app).count == count && nicodemusInWebViews(app) == count
+            paneIds(app).count == count && nicodemusInWebViews(app) == expected
         }
         let summary = "panes=\(paneIds(app)) webViewLabels=\(nicodemusInWebViews(app)) appLabels=\(nicodemusInApp(app))"
         let a = XCTAttachment(string: summary); a.name = "text-once-\(step)"; a.lifetime = .keepAlways; add(a)
         if !ok { attachTree(app, step) }
-        XCTAssertTrue(ok, "\(step): expected \(count) panes and \(count) 'Nicodemus' labels (once per pane), got \(summary)")
+        XCTAssertTrue(ok, "\(step): expected \(count) panes and \(expected) 'Nicodemus' labels (the chapter once per pane), got \(summary)")
     }
 
     /// The tab-rail buttons that stand for windows (labelled with the module, 'KJV' here).
@@ -163,31 +130,19 @@ final class ReadingUITests: XCTestCase {
         let before = paneIds(app)
         XCTAssertEqual(before.count, 2)
 
-        // A sheet reachable from the reading chrome. The labels are the toolbar's real ones (strings.xml): the search
-        // button is "Find" (it opens the search field, not a sheet), "Workspaces" opens the workspaces quick sheet,
-        // which has a "Close" button. Task 10 wired the toolbar, so "Workspaces" is expected to work now. Not compiled
-        // on Linux (no Mac): check every label with a short wait, then once with a longer one.
-        let candidates = ["Workspaces", "Find"].map { app.buttons[$0] }
-        var opener = candidates.first { $0.waitForExistence(timeout: 1) }
-        if opener == nil { opener = candidates.first { $0.waitForExistence(timeout: 10) } }
-        guard let opener else {
+        // A sheet reachable on every device: the toolbar title opens the key chooser quick sheet (the Workspaces and
+        // Find buttons only fit the toolbar on wide screens), whose header has a "Close" button.
+        guard let title = toolbarTitle(app) else {
             attachTree(app, "no-sheet-opener")
-            XCTFail("no reading control that opens a sheet (Workspaces/Find)")
+            XCTFail("no toolbar title to open the key chooser sheet from")
             return
         }
-        opener.tap()
-        // The sheet is up when the reading chrome's opener is covered or a dismiss control appears.
-        let sheetDismiss = app.buttons.matching(NSPredicate(format: "label IN {'Close', 'Cancel', 'Back'}")).firstMatch
-        let sheetUp = sheetDismiss.waitForExistence(timeout: 10)
+        title.tap()
+        let sheetUp = quickSheetShown(app, timeout: 15)
         shot(app, "sheet-open")
-        if sheetUp {
-            sheetDismiss.tap()
-        } else {
-            // No dismiss button: drag the sheet's grabber region (upper part of the sheet), never a swipe inside the web view.
-            attachTree(app, "sheet-no-dismiss-button")
-            let handle = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
-            handle.press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.98)))
-        }
+        if !sheetUp { attachTree(app, "sheet-not-open") }
+        XCTAssertTrue(sheetUp, "tapping the title did not open the key chooser sheet")
+        closeQuickSheet(app, "key chooser")
 
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 15), "reading host not back after the sheet")
         XCTAssertEqual(paneIds(app), before, "panes changed across the sheet (a pane was recreated)")
@@ -207,8 +162,7 @@ final class ReadingUITests: XCTestCase {
 
     /// The toolbar's home button ("Menu") opens the drawer; its History row opens the history quick sheet, whose "Close"
     /// button returns to the reading view with the panes unchanged. Labels from strings.xml ("history"); the drawer rows
-    /// are Compose navigation items, found as any element type. Written without a Mac: not compiled, not run; the
-    /// element type of a drawer row is a guess (the tree is attached on failure).
+    /// are Compose navigation items, found as any element type (the tree is attached on failure).
     func testDrawerOpensAndItsHistoryRowOpensTheHistorySheet() throws {
         let app = try launchReading()
         let before = paneIds(app)
@@ -257,7 +211,6 @@ final class ReadingUITests: XCTestCase {
         app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", label)).firstMatch
     }
 
-    private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
     /// A fresh process on the reading view (the previous one is terminated first), for steps that leave the toolbar in
     /// a state with no way back (the search row, the speak bar).
@@ -266,14 +219,19 @@ final class ReadingUITests: XCTestCase {
         return try launchReading()
     }
 
-    /// The quick sheet container (`ReadingQuickSheetTag`, a `testTag` on the box inside the sheet).
-    private func quickSheet(_ app: XCUIApplication) -> XCUIElement { element(app, "reading-quick-sheet") }
+    /// The open quick sheet's surface (`AbQuickSheetTag`). Not `ReadingQuickSheetTag`: that tags a zero-size box in the
+    /// main window while `ModalBottomSheet` draws in its own window, so XCUITest never sees it.
+    private func quickSheet(_ app: XCUIApplication) -> XCUIElement { element(app, "ab-quick-sheet") }
+
+    private func quickSheetShown(_ app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        quickSheet(app).waitForExistence(timeout: timeout)
+    }
 
     /// Closes the open quick sheet with the sheet header's close button (`settingsEditorClose` = "Close") and waits
     /// for the sheet to leave the tree. Returns false (tree attached) when it stays.
     @discardableResult
     private func closeQuickSheet(_ app: XCUIApplication, _ step: String) -> Bool {
-        let close = byLabel(app, "Close")
+        let close = app.buttons["Close"]
         guard close.waitForExistence(timeout: 10) else {
             attachTree(app, "\(step)-no-close-button")
             XCTFail("\(step): the sheet has no Close button")
@@ -307,12 +265,15 @@ final class ReadingUITests: XCTestCase {
     /// Each action runs in a fresh process and records its own failure (`continueAfterFailure` on), so one dead
     /// toolbar button does not hide the others.
     ///
-    /// All sixteen toolbar callbacks are wired (`IosReadingHost.callbacks()` -> `ReadingToolbarCommands`; none is a logged
-    /// pending), so every step here is expected GREEN on a Mac run. This file has NOT been compiled or run on Linux: the
-    /// element labels and identifiers are taken from strings.xml and the Compose test tags and are unverified until the
-    /// first run on a simulator; a red step is then either a wrong label or a real dead button.
+    /// The toolbar shows as many quick buttons as fit half its width (`fitToolbarButtons`, Android's budget): an iPhone
+    /// in portrait fits only Bible, Commentary and Strong's, so the iPhone runs this test in landscape, where all fit.
     func testToolbarActionsOpenTheirDestinations() throws {
         continueAfterFailure = true
+        if !isPad {
+            let device = XCUIDevice.shared
+            addTeardownBlock { device.orientation = .portrait }
+            device.orientation = .landscapeLeft
+        }
         var app = try launchReading()
 
         XCTContext.runActivity(named: "search opens the search field") { _ in
@@ -362,21 +323,23 @@ final class ReadingUITests: XCTestCase {
             guard more.waitForExistence(timeout: 10) else {
                 attachTree(app, "toolbar-no-overflow"); XCTFail("no 'More options' toolbar button"); return
             }
-            let before = app.descendants(matching: .any).count
             more.tap()
-            // The menu's item labels are built by the host and not known here: a menu is shown when the tree grows.
-            let shown = waitUntil(timeout: 10) { app.descendants(matching: .any).count > before + 1 }
+            // The rows always present in `ReadingOverflowController.build()`. Not an element-count check: the modal
+            // popup hides the reading view from the tree, so the count drops when the menu opens.
+            let shown = ["Night mode", "All text options …"].allSatisfy { app.buttons[$0].waitForExistence(timeout: 10) }
             if !shown { attachTree(app, "overflow-not-shown") }
-            XCTAssertTrue(shown, "tapping More options did not show a menu (element count stayed at \(before))")
+            XCTAssertTrue(shown, "tapping More options did not show the overflow menu (Night mode, All text options …)")
             shot(app, "toolbar-overflow")
         }
     }
 
     /// Every quick sheet that has an opener on the reading chrome opens, shows the sheet container and closes again,
     /// leaving the reading host and the pane untouched (the sheet is its own window, so no pane may be recreated).
-    /// Openers: title tap (the Grid quick sheet for a Bible page, as Android's `composeStartKeyChooser`), and the Workspaces /
-    /// Bible / Commentary toolbar buttons. History and the document sheet are opened from the drawer and the title long press;
-    /// they are not covered here. Not compiled or run on Linux (no Mac): the labels are unverified.
+    /// Openers: title tap (the Grid quick sheet for a Bible page, as Android's `composeStartKeyChooser`) and the
+    /// overflow menu's Workspaces row (the toolbar's Workspaces button only fits wide screens). The Bible / Commentary
+    /// buttons are not openers here: with one or two installed documents they switch or open the full chooser instead
+    /// (`QuickDocPicker`, covered by `QuickDocPickerTest`), which depends on the simulator's installed modules.
+    /// History and the document sheet are opened from the drawer and the title long press; they are not covered here.
     func testEachQuickSheetOpensAndCloses() throws {
         continueAfterFailure = true
         var app = try launchReading()
@@ -386,17 +349,13 @@ final class ReadingUITests: XCTestCase {
                 guard let title = self.toolbarTitle(app) else { return false }
                 title.tap(); return true
             }),
-            ("workspaces", { app in
-                let b = self.byLabel(app, "Workspaces"); guard b.waitForExistence(timeout: 10) else { return false }
-                b.tap(); return true
-            }),
-            ("bible documents", { app in
-                let b = self.byLabel(app, "Bible"); guard b.waitForExistence(timeout: 10) else { return false }
-                b.tap(); return true
-            }),
-            ("commentary documents", { app in
-                let b = self.byLabel(app, "Commentary"); guard b.waitForExistence(timeout: 10) else { return false }
-                b.tap(); return true
+            ("workspaces (overflow menu)", { app in
+                let more = app.buttons["More options"]; guard more.waitForExistence(timeout: 10) else { return false }
+                more.tap()
+                let row = app.descendants(matching: .any)
+                    .matching(NSPredicate(format: "label == 'Workspaces' OR label == 'Workspaces …'")).firstMatch
+                guard row.waitForExistence(timeout: 10) else { return false }
+                row.tap(); return true
             }),
         ]
         for opener in openers {

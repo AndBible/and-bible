@@ -24,6 +24,7 @@ import kotlin.native.Platform
  * check `Platform.isDebugBinary` first; release builds never read them.
  *
  * - `-resetData`: [resetAppData] before startup, so the app starts as a fresh install.
+ * - `-resetDatabases`: [resetAppDatabases] before startup, a fresh workspace with the installed modules kept.
  * - `-openRef <osisRef>`: [openRefOnce] navigates the active window to that reference once reading is shown.
  * - `-featureScenario <chooser|plan-settings|labels|download>`: finite real graph entry after reading is ready.
  * - `-standardTestFixture`: explicitly normalize locale and identity device defaults, independently of resetData.
@@ -94,12 +95,31 @@ internal object IosDebugLaunchArgs {
         runCatching {
             FileSystem.SYSTEM.deleteRecursively(dirs.internalFilesDir)
             FileSystem.SYSTEM.deleteRecursively(dirs.modulesDir)
-            // The Room databases and their backups live beside AndBible/ (IosAppEnvironment.databasePath / dbBackupPath),
-            // not inside it: leaving them kept the previous run's workspace (extra split windows) across -resetData.
-            FileSystem.SYSTEM.deleteRecursively("$support/databases".toPath())
-            FileSystem.SYSTEM.deleteRecursively("$support/backup".toPath())
+            deleteDatabases(support)
         }.onFailure { nsLog("-resetData failed: ${it.stackTraceToString()}") }
         nsLog("-resetData: app data deleted")
+    }
+
+    /** True when `-resetDatabases` was passed. */
+    fun resetDatabases(): Boolean = Platform.isDebugBinary && "-resetDatabases" in arguments
+
+    /**
+     * Deletes only the databases and their backups, keeping the installed modules: the app starts on reading with a
+     * fresh one-window workspace on the first installed Bible. Same timing and once-per-process guard as [resetAppData].
+     */
+    fun resetAppDatabases() {
+        if (resetDone) return
+        resetDone = true
+        val support = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true).first().toString()
+        runCatching { deleteDatabases(support) }.onFailure { nsLog("-resetDatabases failed: ${it.stackTraceToString()}") }
+        nsLog("-resetDatabases: databases deleted")
+    }
+
+    // The Room databases and their backups live beside AndBible/ (IosAppEnvironment.databasePath / dbBackupPath),
+    // not inside it: leaving them kept the previous run's workspace (extra split windows) across -resetData.
+    private fun deleteDatabases(support: String) {
+        FileSystem.SYSTEM.deleteRecursively("$support/databases".toPath())
+        FileSystem.SYSTEM.deleteRecursively("$support/backup".toPath())
     }
 
     /**
