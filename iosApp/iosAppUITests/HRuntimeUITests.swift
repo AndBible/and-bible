@@ -62,9 +62,15 @@ final class HRuntimeUITests: RealAppUITestCase {
         tapButton(app, "Set Start Date\u{2026}")
         // Material3 can start in calendar or narrow-width input mode. Only the documented mode switch is used.
         let inputMode = button(app, "Switch to text input mode")
-        if inputMode.waitForExistence(timeout: 3) { inputMode.tap() }
+        let switched = inputMode.waitForExistence(timeout: 3)
+        if switched { inputMode.tap() }
         require(app.textViews.count == 1 && app.textViews.firstMatch.isHittable,
                 app, "date-input-AX-contract-unknown")
+        if switched {
+            // Switching mode raises the keyboard by itself and slides the dialog up: let both settle before returning.
+            require(app.keyboards.firstMatch.waitForExistence(timeout: 10), app, "date-input-keyboard-not-shown")
+            require(waitForStableOnScreen(app, app.textViews.firstMatch), app, "date-input-field-not-settled")
+        }
     }
 
     func testLoadedPlanPastStartDatePersistsOnReopen() {
@@ -79,7 +85,14 @@ final class HRuntimeUITests: RealAppUITestCase {
         formatter.dateFormat = "MMddyyyy"
         let target = Calendar(identifier: .gregorian).date(byAdding: .day, value: -7, to: Date())!
         let digits = formatter.string(from: target)
-        field.tap()
+        // The dialog may have moved since openStartDate returned; a vanished dialog must fail diagnostically.
+        require(field.waitForExistence(timeout: 5) && waitForStableOnScreen(app, field), app, "date-input-field-not-settled-before-typing")
+        // A redundant tap landed on the scrim and dismissed the dialog. Tap only if the field really lacks keyboard focus
+        // (the retained AX tree prints it as "Keyboard Focused").
+        if !field.debugDescription.contains("Keyboard Focused") {
+            field.tap()
+            require(waitUntil(timeout: 5) { field.debugDescription.contains("Keyboard Focused") }, app, "date-input-no-keyboard-focus")
+        }
         field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: original.count) + digits)
         let expected = "\(digits.prefix(2))/\(digits.dropFirst(2).prefix(2))/\(digits.suffix(4))"
         require(waitUntil(timeout: 5) { (field.value as? String) == expected }, app, "date-input-format-or-value-mismatch")
