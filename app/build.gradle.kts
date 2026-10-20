@@ -320,11 +320,13 @@ android {
             all {
                 test ->
                   // The forked unit-test JVM has no explicit heap by default (independent of the
-                  // Gradle daemon's -Xmx4g and of container RAM). Running the whole Roborazzi golden
+                  // Gradle daemon's -Xmx and of container RAM). Running the whole Roborazzi golden
                   // suite (hundreds of bitmaps loaded/compared) together with the full :app unit suite
-                  // in one fork can OOM near the edge. Give the fork a real heap; the container has 32 GiB.
-                  test.maxHeapSize = "4g"
-                  // The suite runs in N JVMs: -PtestForks=N, default min(4, cores / 2) (each fork gets 4g above).
+                  // in one fork can OOM near the edge. The default heap is 4g; -PtestHeap=<size> (e.g. 2g)
+                  // overrides it. A fork's RSS is about heap + 2.7 GiB (metaspace, JVM overhead, native;
+                  // spec "Where the memory goes").
+                  test.maxHeapSize = (findProperty("testHeap") as String?) ?: "4g"
+                  // The suite runs in N JVMs: -PtestForks=N, default min(4, cores / 2) (each fork gets the heap above).
                   // -PtestForks=1 restores the old single-JVM run, e.g. to tell a global-state leak from a race.
                   test.maxParallelForks = (findProperty("testForks") as String?)?.toInt()?.coerceAtLeast(1)
                       ?: (Runtime.getRuntime().availableProcessors() / 2).coerceIn(1, 4)
