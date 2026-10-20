@@ -121,8 +121,10 @@ final class HRuntimeUITests: RealAppUITestCase {
         openSettings(app)
         let aiRows = app.buttons.containing(.staticText, identifier: "AI Settings")
         let aiRow = aiRows.firstMatch
-        // AI Settings is the last settings row: on iPad (820x1180) it sits at about 0.73-0.79 of the height with the list at
-        // its end, so a mid-screen band can never hold it. Require real full-screen geometry that is stable instead.
+        // AI Settings is a lazily composed, last-section row: it is absent from the AX tree until scrolled to, so scroll
+        // (bounded, left of the DEBUG overlay) first. A mid-screen band cannot hold it on iPad (820x1180, about 0.73-0.79 of
+        // the height with the list at its end), so the real requirement is full on-screen, hittable, stable geometry below.
+        for _ in 0..<15 where !(aiRow.exists && aiRow.isHittable) { nudgeList(app, up: true) }
         require(aiRow.waitForExistence(timeout: 10) && waitForStableOnScreen(app, aiRow), app, "ai-settings-entry-not-settled")
         shot(app, "before-ai-settings-entry")
         attachTree(app, "before-ai-settings-entry")
