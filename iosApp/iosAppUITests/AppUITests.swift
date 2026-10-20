@@ -82,6 +82,15 @@ class RealAppUITestCase: XCTestCase {
         usleep(700_000)
     }
 
+    /// Scroll nudge for a bottom sheet's list, with explicit geometry: both the start and the end stay below the sheet's
+    /// drag handle and title (about y 0.57), so a downward drag scrolls the list instead of pulling the sheet closed.
+    func nudgeSheetList(_ app: XCUIApplication, up: Bool) {
+        let high = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.62))
+        let low = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.80))
+        (up ? low : high).press(forDuration: 0.1, thenDragTo: up ? high : low)
+        usleep(700_000)
+    }
+
     /// Moves a lazily scrolled target fully inside the vertical band (fractions of the screen height), reversing when
     /// it was seen and then lost (overshoot), and requires an unchanged frame on consecutive reads before returning.
     /// Never relaxes hittability: false means the real target could not be brought to a settled, hittable position.

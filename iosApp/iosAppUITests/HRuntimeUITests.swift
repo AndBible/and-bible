@@ -188,7 +188,12 @@ final class HRuntimeUITests: RealAppUITestCase {
         require(customChoice.exists && waitForStableOnScreen(app, customChoice), app, "language-custom-choice-missing")
         // Back up to the real Finnish row before the existing selection step.
         let finnishChoice = text(app, "fi: Suomi")
-        for _ in 0..<40 where !(finnishChoice.exists && finnishChoice.isHittable) { nudgeList(app, up: false) }
+        for _ in 0..<40 where !(finnishChoice.exists && finnishChoice.isHittable) {
+            // A gesture that pulled the sheet closed must fail at once, not run on the Connection settings screen.
+            require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
+            nudgeSheetList(app, up: false)
+        }
+        require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
         require(finnishChoice.exists && waitForStableOnScreen(app, finnishChoice), app, "language-finnish-choice-not-settled")
         let wasFinnish = app.descendants(matching: .any)
             .matching(NSPredicate(format: "label == %@", "fi: Suomi"))
@@ -196,6 +201,11 @@ final class HRuntimeUITests: RealAppUITestCase {
         require(!wasFinnish, app, "language-fixture-already-finnish")
         tapText(app, "fi: Suomi")
         require(waitUntil(timeout: 10) { !text(app, "fi: Suomi").exists }, app, "language-list-not-dismissed")
+        // Summary text: AiSettingsServiceImpl.aiLanguageLabel (AiSettingsServiceImpl.kt:101-106) returns "$displayName ($tag)",
+        // with displayName from IosLocaleSupport.displayLanguage (IosLocaleSupport.kt:68-70), the language named in its own
+        // locale: "suomi (fi)", the same text the Android run read back.
+        require(text(app, "suomi (fi)").waitForExistence(timeout: 10), app, "ai-language-summary-not-suomi-fi")
+        require(button(app, "AI response language, suomi (fi)").exists, app, "ai-language-row-label-not-suomi-fi")
         tapText(app, "AI response language")
         let finnish = text(app, "fi: Suomi")
         for _ in 0..<12 where !finnish.isHittable { app.swipeUp() }
@@ -206,6 +216,16 @@ final class HRuntimeUITests: RealAppUITestCase {
         shot(app, "ai-language-finnish-retained")
         // Selecting the same exact choice closes the real list; application language remains English.
         finnish.tap()
+        require(text(app, "suomi (fi)").waitForExistence(timeout: 10), app, "ai-language-summary-lost-after-reopen")
+        // Restore the application-language default through the real first row; the summary must return to its source
+        // text "App language (English)" (aiLanguageAppDefault, AiSettingsServiceImpl.kt:102).
+        tapText(app, "AI response language")
+        let restoreRow = text(app, "App language (English)")
+        require(restoreRow.waitForExistence(timeout: 10) && waitForStableOnScreen(app, restoreRow), app, "language-restore-row-not-settled")
+        restoreRow.tap()
+        require(waitUntil(timeout: 10) { !self.button(app, "Close").exists }, app, "language-restore-sheet-not-dismissed")
+        require(button(app, "AI response language, App language (English)").waitForExistence(timeout: 10), app, "ai-language-summary-not-restored")
+        require(!text(app, "suomi (fi)").exists, app, "ai-language-finnish-summary-still-shown")
         for _ in 0..<12 where !text(app, "Providers").isHittable { app.swipeDown() }
         tapText(app, "Providers", swipes: 0)
         tapText(app, fixtureProvider)
