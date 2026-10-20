@@ -23,31 +23,6 @@ final class HRuntimeUITests: RealAppUITestCase {
         row.tap()
     }
 
-    /// A hittable edge fragment can still be moving after a swipe; require the entire actionable row inside.
-    private func stableInterior(_ app: XCUIApplication, _ target: XCUIElement, _ step: String) {
-        let viewport = app.frame
-        let interior = CGRect(x: viewport.minX, y: viewport.minY + viewport.height * 0.2,
-                              width: viewport.width, height: viewport.height * 0.5)
-        for _ in 0..<20 {
-            if target.exists && target.isHittable && interior.contains(target.frame) { break }
-            if target.exists && target.frame.midY < interior.minY { app.swipeDown() }
-            else { app.swipeUp() }
-        }
-        var previous = CGRect.null
-        var stableSamples = 0
-        let ready = waitUntil(timeout: 10) {
-            guard target.exists && target.isHittable else { stableSamples = 0; return false }
-            let frame = target.frame
-            guard interior.contains(frame) else { stableSamples = 0; return false }
-            stableSamples = frame == previous ? stableSamples + 1 : 0
-            previous = frame
-            return stableSamples >= 2
-        }
-        require(ready, app, "stable-interior-\(step)")
-        shot(app, "before-\(step)")
-        attachTree(app, "before-\(step)")
-    }
-
     private func button(_ app: XCUIApplication, _ label: String) -> XCUIElement {
         app.buttons.matching(NSPredicate(format: "label == %@", label)).firstMatch
     }
@@ -146,7 +121,11 @@ final class HRuntimeUITests: RealAppUITestCase {
         openSettings(app)
         let aiRows = app.buttons.containing(.staticText, identifier: "AI Settings")
         let aiRow = aiRows.firstMatch
-        stableInterior(app, aiRow, "ai-settings-entry")
+        // AI Settings is the last settings row: on iPad (820x1180) it sits at about 0.73-0.79 of the height with the list at
+        // its end, so a mid-screen band can never hold it. Require real full-screen geometry that is stable instead.
+        require(aiRow.waitForExistence(timeout: 10) && waitForStableOnScreen(app, aiRow), app, "ai-settings-entry-not-settled")
+        shot(app, "before-ai-settings-entry")
+        attachTree(app, "before-ai-settings-entry")
         require(aiRows.count == 1, app, "ai-settings-parent-not-unique")
         aiRow.tap()
         require(waitUntil(timeout: 15) {
@@ -190,6 +169,7 @@ final class HRuntimeUITests: RealAppUITestCase {
         let finnishChoice = text(app, "fi: Suomi")
         for _ in 0..<40 where !(finnishChoice.exists && finnishChoice.isHittable) {
             // A gesture that pulled the sheet closed must fail at once, not run on the Connection settings screen.
+            // The underlying Connection settings screen has no Close button in the observed runs, so Close means the sheet is open.
             require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
             nudgeSheetList(app, up: false)
         }
