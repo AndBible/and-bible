@@ -21,15 +21,14 @@ new:
 
 # Android Gradle builds are memory-hungry. Measured peaks with the GRADLE_OPTS
 # below: warm verify 14.7 GiB, cold compile + verify 16.1 GiB (in a scope
-# without the Claude processes). A /tmp tmpfs adds another 1.5-3.5 GiB during a
-# run. 20 GiB is the interim size; 16 GiB is the target once the disk-/tmp settings-mutex leak is
-# fixed (the container /tmp is already on disk by default), see
-# docs/superpowers/status/2026-10-20-disk-tmp-settings-mutex-leak.md.
-# No emulator during a heavy gate (about 6 GiB). Numbers: the design spec in
+# without the Claude processes), measured with /tmp on tmpfs. /tmp is on disk
+# (JailBee's default), which gives that RAM back: do NOT opt into the tmpfs /tmp,
+# it costs another 1.5-3.5 GiB during a run. No emulator during a heavy gate
+# (about 6 GiB). Numbers: the design spec in
 # docs/superpowers/specs/2026-10-20-jailbee-agent-guide-and-container-memory-design.md.
 # Lower these for your host in the local layer if needed.
 defaults:
-  memory: 20GiB
+  memory: 16GiB
   cpu: 8
   network: strict
 
