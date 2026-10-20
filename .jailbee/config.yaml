@@ -22,7 +22,9 @@ new:
 # Android Gradle builds are memory-hungry. Measured peaks with the GRADLE_OPTS
 # below: warm verify 14.7 GiB, cold compile + verify 16.1 GiB (in a scope
 # without the Claude processes). A /tmp tmpfs adds another 1.5-3.5 GiB during a
-# run. 20 GiB is the interim size; 16 GiB is the target once /tmp is on disk.
+# run. 20 GiB is the interim size; 16 GiB is the target once the disk-/tmp settings-mutex leak is
+# fixed (the container /tmp is already on disk by default), see
+# docs/superpowers/status/2026-10-20-disk-tmp-settings-mutex-leak.md.
 # No emulator during a heavy gate (about 6 GiB). Numbers: the design spec in
 # docs/superpowers/specs/2026-10-20-jailbee-agent-guide-and-container-memory-design.md.
 # Lower these for your host in the local layer if needed.
@@ -206,14 +208,15 @@ egress_allow:
 # ---------------------------------------------------------------------------
 
 # Injected via the Incus base profile, so visible in every process (shell,
-# tmux, autostart steps, the IDE). There is deliberately no ADB_SERVER_SOCKET
+# tmux, autostart steps). An IDE-run Gradle (Android Studio) does not read GRADLE_OPTS
+# and uses the project defaults (4 forks x 4g). There is deliberately no ADB_SERVER_SOCKET
 # here; see `host_ports`. ANDROID_AVD_HOME is container-local on purpose (see
 # `shared_caches`): scripts/andbible-emu.sh creates the AVD on first boot.
 #
 # GRADLE_OPTS is container-only tuning (the host keeps Gradle defaults), see
 # the design spec "Experiment results" and "Design" 4 for the numbers:
 #   testForks=2: 2 unit-test JVM forks are as fast as 4 on this 8-core box.
-#   testHeap=2g: the fork heap barely moves RSS, so a smaller heap is cheap.
+#   testHeap=2g: measured fork RSS barely moves with the heap (spec E1/E2).
 #   compiler strategy in-process: the idle Kotlin daemon held about 3.5 GiB.
 #   G1PeriodicGCInterval/MinHeapFreeRatio/MaxHeapFreeRatio: the daemon returns
 #     heap after compiling instead of keeping the peak.

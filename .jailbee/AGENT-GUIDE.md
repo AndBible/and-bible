@@ -6,7 +6,7 @@ Each rule: the instruction, then why. Background and measurements:
 
 ## Gradle
 
-- `GRADLE_OPTS` is preset by the container (2 test forks, 2g fork heap, in-process Kotlin compiler, a daemon that returns heap). Pass `-PtestForks=N` / `-PtestHeap=...` to override for one run; do not pass `-Dorg.gradle.jvmargs`.
+- `GRADLE_OPTS` is preset by the container (check `echo $GRADLE_OPTS`; empty means the container predates the config and needs `jailbee apply` + restart) (2 test forks, 2g fork heap, in-process Kotlin compiler, a daemon that returns heap). Pass `-PtestForks=N` / `-PtestHeap=...` to override for one run; do not pass `-Dorg.gradle.jvmargs`.
   Why: the preset keeps a cold compile plus full verify inside the container memory; `-Dorg.gradle.jvmargs` makes Gradle fork a second daemon.
 - Run one Gradle invocation at a time; wait for a running one instead of starting another.
   Why: a second daemon costs about 4 GiB and a minute.
