@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.ios.reading
 
+import net.bible.service.common.DisplayColorMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -145,7 +146,7 @@ class IosDisplayModesTest {
         try {
             observer.start(scope)
             assertFalse(observer.monochrome.value)
-            settings.setString("display_color_mode", "MONOCHROME")
+            settings.setString("display_color_mode", DisplayColorMode.MONOCHROME.value)
             assertTrue(observer.monochrome.value)
             assertEquals(1, changes)
             settings.setBoolean("disable_animations", true)
@@ -153,7 +154,7 @@ class IosDisplayModesTest {
             settings.setBoolean("disable_animations", true) // same value: no report
             settings.setBoolean("unrelated", true)
             assertEquals(2, changes)
-            settings.setString("display_color_mode", "NORMAL")
+            settings.setString("display_color_mode", DisplayColorMode.NORMAL.value)
             assertFalse(observer.monochrome.value)
             assertEquals(3, changes)
         } finally {

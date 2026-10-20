@@ -139,11 +139,13 @@ class IosReadingWindowsTest {
         assertEquals(34f, platform.bottomOffset)
     }
 
-    /** The WebViews get the installed Bibles' languages (the test modules hold English and Finnish ones), not a constant. */
+    /** The WebViews get the installed Bibles' languages (whatever this test's module set holds), not a constant. */
     @Test
     fun activeLanguagesFromInstalledBooks() = withWindows { _ ->
         val languages = kotlinx.serialization.json.Json.decodeFromString<List<String>>(IosReadingWebViews.activeLanguages())
-        assertEquals(setOf("en", "fi"), languages.toSet(), "languages: $languages")
+        val installed = net.bible.service.sword.SwordDocumentFacade.bibles.map { it.bookMetaData.language.code }.toSet()
+        assertTrue(installed.isNotEmpty(), "the fixture installs at least one Bible")
+        assertEquals(installed, languages.toSet(), "languages: $languages")
         assertEquals(languages.size, languages.toSet().size, "no duplicates: $languages")
         assertEquals("window.__activeLanguages__ = '[\"en\",\"fi\"]';", activeLanguagesScript("[\"en\",\"fi\"]"))
     }

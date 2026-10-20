@@ -148,7 +148,7 @@ class IosReadingResultsTest {
     }
 
     @Test fun oneCollectorPerChannel() {
-        assertEquals(7, results.collectors().size)
+        assertEquals(8, results.collectors().size)
     }
 
     private fun bookmarkOf(verse: String) = BookmarkResult(verse = verse, description = "d", labelNo = 0, listPosition = 0)
