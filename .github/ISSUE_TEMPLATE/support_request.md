@@ -2,7 +2,7 @@
 name: Support request
 about: Request help to solve your problem with AndBible
 title: ''
-labels: 'Prio: Minor, Type: Support'
+labels: 'Type: Support'
 assignees: bvahedy
 
 ---
