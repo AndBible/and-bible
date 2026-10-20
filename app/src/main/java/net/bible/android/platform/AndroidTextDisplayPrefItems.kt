@@ -45,6 +45,12 @@ class AndroidTextDisplayPrefItems : TextDisplayPrefItems {
         override val iconKey: String?
             get() = item.icon?.let { BibleApplication.application.resources.getResourceEntryName(it) }
         override fun setNonSpecific() = item.setNonSpecific()
+        override val title: String? get() = item.title
+        override val summary: String? get() = item.summary
+        override val isBoolean: Boolean get() = item.isBoolean
+        override val opensDialog: Boolean get() = item.opensDialog
+        override val inherited: Boolean get() = item.inherited
+        override fun handle() = item.handle()
     }
 
     override fun item(bundle: SettingsBundle, type: TextDisplaySettings.Types): PrefItemHandle =

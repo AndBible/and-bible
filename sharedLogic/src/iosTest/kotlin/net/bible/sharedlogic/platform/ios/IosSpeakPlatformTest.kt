@@ -71,7 +71,7 @@ class IosSpeakPlatformTest {
     private val focus = FakeFocus()
     private val requested = mutableListOf<String>()
 
-    private fun platform(now: () -> Long = { 0L }) = IosSpeakPlatform(
+    private fun platform(now: () -> Long = { 0L }, bringToFront: () -> Unit = {}) = IosSpeakPlatform(
         audioFocus = focus,
         phrases = { tag -> requested += tag; SpeakPhrases("first-$tag", "2", "3", "4", "5", "book", "chapter") },
         problemText = { "problem:$it" },
@@ -79,7 +79,14 @@ class IosSpeakPlatformTest {
         settings = settings,
         earconFiles = emptyMap(),
         now = now,
+        bringToFront = bringToFront,
     )
+
+    @Test fun bringReadingToFrontPopsToReading() {
+        var shown = 0
+        platform(bringToFront = { shown++ }).bringReadingToFront()
+        assertEquals(1, shown)
+    }
 
     @Test fun constantsOfTheIosEngine() {
         val p = platform()

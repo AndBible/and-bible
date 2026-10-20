@@ -22,6 +22,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.PageControl
+import net.bible.android.control.page.AndroidTiltSensor
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -62,7 +63,9 @@ class BibleViewFactory(
     private fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
         return windowPageTiltScrollControlMap[window] ?: synchronized(windowPageTiltScrollControlMap) {
             synchronized(windowPageTiltScrollControlMap) {
-                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl()
+                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl(AndroidTiltSensor()) {
+                    CommonUtils.windowControl.windowRepository.workspaceSettings.enableTiltToScroll
+                }
             }.also {
                 windowPageTiltScrollControlMap[window] = it
             }

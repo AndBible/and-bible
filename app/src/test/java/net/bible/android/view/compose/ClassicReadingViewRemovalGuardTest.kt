@@ -180,7 +180,7 @@ class ClassicReadingViewRemovalGuardTest {
     @Test
     fun theClipboardKeyOutlivesItsClassicHome() {
         ClassicRemovalScan.assertPathsPresent(
-            listOf("src/main/java/net/bible/android/view/activity/page/screen/ClipboardKey.kt"),
+            listOf("../sharedUi/src/commonMain/kotlin/net/bible/android/view/activity/page/screen/ClipboardKey.kt"),
             "the shared clipboardKey must have been split out before SplitBibleArea is deleted",
         )
         ClassicRemovalScan.assertPathsGone(

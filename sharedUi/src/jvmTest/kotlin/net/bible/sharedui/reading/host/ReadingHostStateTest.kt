@@ -24,13 +24,17 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.DbDate
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.page.screen.ReadingDialog
 import net.bible.service.history.HistoryItem
 import net.bible.service.history.HistoryManager
 import net.bible.service.history.HistoryPlatform
@@ -39,7 +43,7 @@ import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.reading.ShareVersesOptions
-import net.bible.android.view.activity.page.screen.ReadingDialog
+import net.bible.sharedui.reading.session.readingVerseChooser
 
 class ReadingHostStateTest {
     private class MapSettings : AppSettings {
@@ -120,6 +124,28 @@ class ReadingHostStateTest {
         assertNull(first.getCompleted())
         state.closeQuickSheet()
         assertEquals("Gen.1.1", second.getCompleted())
+    }
+
+    /**
+     * The chooser answers the asker (the JS reference chooser, which navigates itself with the verse name); the host
+     * must NOT also navigate, so the assertion is on the answer and on `applyChosenVerse` staying unused.
+     */
+    @Test
+    fun verseChooserResultNavigates() = runBlocking {
+        val applied = mutableListOf<String>()
+        val state = fixture(hooks = ReadingHostHooks(applyChosenVerse = { applied += it })).state
+        val answer = async(start = CoroutineStart.UNDISPATCHED) { readingVerseChooser(state)() }
+        state.onGridPassageChosen("Gen.1.1")
+        assertEquals("Gen.1.1", answer.await())
+        assertEquals(emptyList(), applied) // answered the asker (the JS chooser, which navigates itself); no second navigation
+    }
+
+    @Test
+    fun dismissedVerseChooserAnswersNull() = runBlocking {
+        val state = fixture().state
+        val answer = async(start = CoroutineStart.UNDISPATCHED) { readingVerseChooser(state)() }
+        state.closeQuickSheet()
+        assertNull(answer.await())
     }
 
     @Test

@@ -78,7 +78,7 @@ class WindowPaneMenuStateBuilderTest {
         windowRepository.workspaceSettings.autoPin = true
 
         val koin = GlobalContext.get()
-        builder = WindowPaneMenuStateBuilder(windowControl, koin.get<SpeakControl>())
+        builder = androidWindowPaneMenuStateBuilder(windowControl, koin.get<SpeakControl>())
     }
 
     @After
@@ -445,5 +445,27 @@ class WindowPaneMenuStateBuilderTest {
         val allIdx = submenu.indexOfFirst { it.id == WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS }
         val lastDynamicIdx = submenu.indexOfLast { it.id.startsWith("textOptionItem:") }
         assertTrue(allIdx > lastDynamicIdx, "allTextOptions must follow the dynamic rows: ${submenu.map { it.id }}")
+    }
+
+    @Test
+    fun omittedRowsAreLeftOutAtAnyDepthAndOthersRemain() {
+        val speak = GlobalContext.get().get<SpeakControl>()
+        val omitting = WindowPaneMenuStateBuilder(
+            windowControl = windowControl,
+            speakControl = speak,
+            strings = AndroidPaneMenuStrings(),
+            prefItems = net.bible.android.platform.AndroidTextDisplayPrefItems(),
+            recentDisplaySettings = { CommonUtils.lastDisplaySettingsSorted },
+            globalTextDisplaySettings = { CommonUtils.globalTextDisplaySettings },
+            omit = setOf(WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE, WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS),
+        )
+        val window = windowRepository.activeWindow
+        val built = omitting.build(window)
+        assertNull(built.firstOrNull { it.id == WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE }, "top level row omitted")
+        assertNull(findInSubmenus(built, WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS), "submenu row omitted")
+        assertTrue(built.any { it.id == WindowPaneMenuStateBuilder.ID_WINDOW_NEW }, "unrelated rows stay")
+        assertTrue(findInSubmenus(built, WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_SUBMENU) != null, "unrelated submenu rows stay")
+        // The unfiltered builder still has them (the omit list is what removed them).
+        assertTrue(items(window).any { it.id == WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE })
     }
 }

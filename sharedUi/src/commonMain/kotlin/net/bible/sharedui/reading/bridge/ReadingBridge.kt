@@ -310,6 +310,9 @@ class ReadingBridge(
     override fun updateGenericBookmarkToLabel(data: String) = bookmarks.updateGenericBookmarkToLabel(data)
     override fun shareBookmarkVerse(bookmarkId: String) = contentFamily.shareBookmarkVerse(bookmarkId)
     override fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = contentFamily.shareVerse(bookInitials, startOrdinal, endOrdinal)
+    /** Copies the page's current text selection (the hardware Ctrl+C action); see [ContentBridgeFamily.copyCurrentSelection]. */
+    fun copyCurrentSelection() = contentFamily.copyCurrentSelection()
+
     override fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) = contentFamily.copyVerse(bookInitials, startOrdinal, endOrdinal)
     override fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = bookmarks.addBookmark(bookInitials, startOrdinal, endOrdinal, addNote)
     override fun addGenericBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) = bookmarks.addGenericBookmark(bookInitials, osisRef, startOrdinal, endOrdinal, addNote)

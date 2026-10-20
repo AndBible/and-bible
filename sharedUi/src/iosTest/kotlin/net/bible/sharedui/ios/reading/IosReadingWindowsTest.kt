@@ -16,6 +16,13 @@
  */
 package net.bible.sharedui.ios.reading
 
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFails
+import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -31,14 +38,16 @@ import net.bible.android.database.IdType
 import net.bible.service.startup.ReadingAppInit
 import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedlogic.platform.NightModeState
+import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.assembly.IosAppConfig
 import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.IosAssemblyTest
-import net.bible.sharedui.assembly.InMemorySecretStore
 import net.bible.sharedui.ios.app.IosHostShell
 import net.bible.sharedui.ios.app.IosNavigator
 import net.bible.sharedui.ios.app.IosReadingReady
+import net.bible.sharedui.reading.session.ReadingOffsets
 import net.bible.sharedui.webview.IosReadingWebViews
+import net.bible.sharedui.webview.activeLanguagesScript
 import net.bible.sharedui.webview.attachReadingPane
 import net.bible.sharedui.webview.bibleBundleUrl
 import org.koin.mp.KoinPlatform
@@ -51,13 +60,6 @@ import platform.WebKit.WKScriptMessage
 import platform.WebKit.WKScriptMessageHandlerProtocol
 import platform.WebKit.WKUserContentController
 import platform.darwin.NSObject
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
-import kotlin.test.assertFalse
-import kotlin.test.assertNotSame
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 /** Per-window session assembly: caching, release (relay stop, dispose, handler removal), closed windows, night. */
 class IosReadingWindowsTest {
@@ -87,6 +89,8 @@ class IosReadingWindowsTest {
         }
     }
 
+    private var currentHost: IosReadingHost? = null
+
     private fun withWindows(night: FakeNight = FakeNight(false), body: (windowId: String) -> Unit) {
         try {
             awaitStartupOnMain { IosAppStartup.ensureStarted(
@@ -101,6 +105,7 @@ class IosReadingWindowsTest {
             val scope: CoroutineScope = IosReadingReady.scope
             val koin = KoinPlatform.getKoin()
             val host = IosReadingHost(scope, IosHostShell(scope, NoNavigator), koin, night)
+            currentHost = host
             IosReadingWindows.bind(host, scope, koin, night)
             IosReadingWebViews.bundleLoader = { _, _, _ -> }
             body(koin.get<WindowControl>().activeWindow.id.toString())
@@ -116,6 +121,52 @@ class IosReadingWindowsTest {
     private fun attach(id: String, night: () -> Boolean = { false }) = attachReadingPane(
         id, IosReadingWindows::sessionFor, IosReadingWindows::bridgeFor, night, IosReadingWindows::isOpen,
     )
+
+    /** The loader platform reads the live [ReadingOffsets]: none at the top, the safe area (and sheets) at the bottom pane's foot. */
+    @Test
+    fun offsetsFollowTheToolbarAndSafeArea() = withWindows { _ ->
+        val koin = KoinPlatform.getKoin()
+        val windowControl = koin.get<WindowControl>()
+        val offsets = ReadingOffsets()
+        val platform = IosDocumentLoaderPlatform(
+            window = { windowControl.activeWindow }, windowControl = { windowControl }, settings = { koin.get() },
+            nightModeState = { FakeNight(false) }, offsets = { offsets }, isPortrait = { true },
+        )
+        assertEquals(0f, platform.topOffset)
+        assertEquals(0f, platform.bottomOffset)
+        offsets.setSystemBottomInset(34f)
+        assertEquals(0f, platform.topOffset)
+        assertEquals(34f, platform.bottomOffset)
+    }
+
+    /** The WebViews get the installed Bibles' languages (the test modules hold English and Finnish ones), not a constant. */
+    @Test
+    fun activeLanguagesFromInstalledBooks() = withWindows { _ ->
+        val languages = kotlinx.serialization.json.Json.decodeFromString<List<String>>(IosReadingWebViews.activeLanguages())
+        assertEquals(setOf("en", "fi"), languages.toSet(), "languages: $languages")
+        assertEquals(languages.size, languages.toSet().size, "no duplicates: $languages")
+        assertEquals("window.__activeLanguages__ = '[\"en\",\"fi\"]';", activeLanguagesScript("[\"en\",\"fi\"]"))
+    }
+
+    /** The session's key actions and verse chooser are the real ones: Alt+M opens the drawer, Ctrl+W the workspace sheet, and the chooser answers through the Grid sheet. */
+    @Test
+    fun sessionKeyActionsAndVerseChooserAreWired() = withWindows { id ->
+        val session = IosReadingWindows.sessionFor(id)
+        val hostState = currentHost!!.hostState
+        val keys = session.keyActions
+        assertTrue(keys is IosReadingKeyActions, "key actions: $keys")
+        assertTrue(keys.showWorkspaceSheetIfHosted())
+        keys.openDrawer()
+        assertTrue(hostState.drawerOpen.value, "Alt+M opens the drawer")
+        val answer = awaitOnMain {
+            kotlinx.coroutines.coroutineScope {
+            val pending = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { session.verseChooser!!.invoke() }
+            hostState.onGridPassageChosen("Gen.1.1")
+            pending.await()
+            }
+        }
+        assertEquals("Gen.1.1", answer)
+    }
 
     /** A fresh (empty) database gives exactly one visible window, like Android. */
     @Test
@@ -141,6 +192,48 @@ class IosReadingWindowsTest {
         assertFalse(IosReadingWindows.hasAssembly(secondId), "closing the window must release its assembly")
         assertFalse(IosReadingWebViews.hasEntry(secondId))
         assertTrue(firstId.isNotEmpty())
+    }
+
+    /**
+     * Three windows, close the middle one, add a window again: each window has its own session and WebView with the
+     * bridge registered once; the closed one is disposed and gone; the survivors keep their instances; the new window
+     * is a different id with a fresh pair (the Kotlin side of the XCUITest "text appears once" scenario).
+     */
+    @Test
+    fun splitThreeCloseMiddleReopenKeepsOneSessionPerWindow() = withWindows { firstId ->
+        val windowControl = KoinPlatform.getKoin().get<WindowControl>()
+        val second = windowControl.addNewWindow(windowControl.windowRepository.activeWindow)
+        val third = windowControl.addNewWindow(second)
+        val ids = listOf(firstId, second.id.toString(), third.id.toString())
+        assertEquals(3, ids.toSet().size)
+        val sessions = ids.map { id -> attach(id); IosReadingWindows.sessionFor(id) }
+        assertEquals(3, sessions.toSet().size, "one session per window")
+        assertEquals(3, ids.map { IosReadingWebViews.entry(it).webView }.toSet().size, "one WebView per window")
+        ids.forEach { assertEquals(1, IosReadingWebViews.bridgeHandlerCount(it)) }
+        val firstView = IosReadingWebViews.entry(ids[0]).webView
+        val thirdView = IosReadingWebViews.entry(ids[2]).webView
+
+        windowControl.closeWindow(second)
+        var spins = 0
+        while (IosReadingWindows.hasAssembly(ids[1]) && spins++ < 100) {
+            NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05))
+        }
+        assertFalse(IosReadingWindows.hasAssembly(ids[1]), "the closed middle window is released")
+        assertFalse(IosReadingWebViews.hasEntry(ids[1]))
+        assertTrue(sessions[1].isDisposed)
+        assertFalse(sessions[0].isDisposed || sessions[2].isDisposed, "the other windows keep their sessions")
+        assertSame(sessions[0], IosReadingWindows.sessionFor(ids[0]))
+        assertSame(sessions[2], IosReadingWindows.sessionFor(ids[2]))
+        assertSame(firstView, IosReadingWebViews.entry(ids[0]).webView)
+        assertSame(thirdView, IosReadingWebViews.entry(ids[2]).webView)
+
+        val reopened = windowControl.addNewWindow(windowControl.windowRepository.activeWindow)
+        val reopenedId = reopened.id.toString()
+        assertFalse(reopenedId in ids, "a reopened window is a new window")
+        attach(reopenedId)
+        assertEquals(1, IosReadingWebViews.bridgeHandlerCount(reopenedId))
+        assertFalse(sessions.any { it === IosReadingWindows.sessionFor(reopenedId) })
+        ids.filterNot { it == ids[1] }.forEach { assertEquals(1, IosReadingWebViews.bridgeHandlerCount(it)) }
     }
 
     /** The passage is written only by a save: after the save hook the database row holds the changed key. */
@@ -280,8 +373,8 @@ class IosReadingWindowsTest {
     @Test
     fun nightObserverFollowsStateAndReportsChanges() {
         val night = FakeNight(false)
-        val changes = mutableListOf<Boolean>()
-        val observer = IosNightModeObserver(night) { changes += it }
+        var changes = 0
+        val observer = IosNightModeObserver(night) { changes++ }
         assertFalse(observer.dark.value)
         night.dark = true
         assertTrue(observer.refresh())
@@ -289,7 +382,7 @@ class IosReadingWindowsTest {
         observer.refresh() // unchanged: no second report
         night.dark = false
         observer.refresh()
-        assertEquals(listOf(true, false), changes)
+        assertEquals(2, changes)
     }
 
     /** A missing or closed window is never (re)assembled by the pane path: no session, no WebView entry. */

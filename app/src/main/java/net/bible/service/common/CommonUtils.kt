@@ -1390,23 +1390,7 @@ object CommonUtils : CommonUtilsBase() {
         docInitials: String? = null,
         v11n: String? = null,
         ordinal: Int? = null
-    ): String {
-        var url = "https://read.andbible.org/$keyStr"
-        val queryParameters = mutableListOf<String>()
-        if(docInitials != null) {
-            queryParameters.add("document=$docInitials")
-        }
-        if(v11n != null) {
-            queryParameters.add("v11n=$v11n")
-        }
-        if(ordinal != null) {
-            queryParameters.add("ordinal=${ordinal}")
-        }
-        if(queryParameters.isNotEmpty()) {
-            url += "?${queryParameters.joinToString("&")}"
-        }
-        return url
-    }
+    ): String = andBibleUrl(keyStr, docInitials, v11n, ordinal)
 
     fun copyToClipboard(clip: ClipData, toastMessage: Int = R.string.text_copied_to_clicpboard) {
         val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

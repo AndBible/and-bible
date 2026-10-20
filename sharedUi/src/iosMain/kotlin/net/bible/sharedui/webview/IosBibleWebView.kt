@@ -33,6 +33,10 @@ import platform.darwin.dispatch_get_main_queue
 
 private const val BUNDLE_DIR = "bibleview-js"
 
+/** The JS that sets `window.__activeLanguages__` (the iOS counterpart of Android's `getActiveLanguages`) to [json]. */
+internal fun activeLanguagesScript(json: String): String =
+    "window.__activeLanguages__ = '" + json.replace("\\", "\\\\").replace("'", "\\'") + "';"
+
 /** Reloads the page when WebKit kills the content process; the marker lets CI count terminations. */
 internal class IosNavDelegate(private val windowId: String) : NSObject(), WKNavigationDelegateProtocol {
     override fun webViewWebContentProcessDidTerminate(webView: WKWebView) {
@@ -55,6 +59,8 @@ internal fun createBibleWkWebView(
     windowId: String,
     navDelegate: IosNavDelegate,
     handler: IosBridgeMessageHandler?,
+    /** `window.__activeLanguages__` as a JSON list, read when the WebView is created (the real panes pass the installed Bibles' languages). */
+    activeLanguages: () -> String = { "[\"en\"]" },
     newWebView: (WKWebViewConfiguration) -> WKWebView = { WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = it) },
 ): WKWebView {
     val config = WKWebViewConfiguration()
@@ -62,7 +68,7 @@ internal fun createBibleWkWebView(
     config.userContentController.apply {
         addUserScript(
             WKUserScript(
-                source = "window.__activeLanguages__ = '[\"en\"]';",
+                source = activeLanguagesScript(activeLanguages()),
                 injectionTime = WKUserScriptInjectionTime.WKUserScriptInjectionTimeAtDocumentStart,
                 forMainFrameOnly = true,
             ),

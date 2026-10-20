@@ -19,6 +19,22 @@ class IosTextDisplayPlatformTest {
         surface.close()
     }
 
+    private class MapSettings : net.bible.sharedcore.platform.AppSettings {
+        val m = mutableMapOf<String, Any?>()
+        override fun getString(key: String, default: String?) = (m[key] as String?) ?: default
+        override fun getLong(key: String, default: Long) = (m[key] as Long?) ?: default
+        override fun getInt(key: String, default: Int) = (m[key] as Int?) ?: default
+        override fun getBoolean(key: String, default: Boolean) = (m[key] as Boolean?) ?: default
+        override fun getDouble(key: String, default: Double) = (m[key] as Double?) ?: default
+        override fun getFloat(key: String, default: Float) = (m[key] as Float?) ?: default
+        override fun setString(key: String, value: String?) { m[key] = value }
+        override fun setLong(key: String, value: Long?) { m[key] = value }
+        override fun setInt(key: String, value: Int?) { m[key] = value }
+        override fun setBoolean(key: String, value: Boolean?) { m[key] = value }
+        override fun setDouble(key: String, value: Double?) { m[key] = value }
+        override fun setFloat(key: String, value: Float?) { m[key] = value }
+    }
+
     @Test fun detachedRouteReturnsRealEditsAndResetWithoutSharingBundleState() {
         val table = net.bible.sharedui.assembly.iosStringTable("en")
         val source = object : net.bible.service.sword.ContentSource {
@@ -28,7 +44,12 @@ class IosTextDisplayPlatformTest {
         }
         org.koin.core.context.startKoin { modules(org.koin.dsl.module {
             single<net.bible.sharedlogic.settings.TextDisplayPrefItems> {
-                net.bible.sharedui.strings.keyed.BundleTextDisplayPrefItems({ table }, { source })
+                net.bible.sharedui.strings.keyed.SharedTextDisplayPrefItems(
+                    strings = { table }, contentSource = { source },
+                    windowControl = { error("a detached bundle has no window") },
+                    documentControl = { error("a detached bundle needs no document") },
+                    settings = { MapSettings() },
+                )
             }
         }) }
         try {

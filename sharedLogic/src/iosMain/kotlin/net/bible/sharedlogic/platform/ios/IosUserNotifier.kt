@@ -33,14 +33,17 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
  * before the PIN; it must not fake the installed app name. Do not reuse the in-app message as a
  * system notification payload without that check.
  *
- * C7 pending (phase 2: snackbar through the shared root): [showInfo] only logs with tag `C7-pending`.
+ * [showInfo] logs and, when [onInfo] is set (the iOS binding passes the in-app toast), shows the message.
  */
 class IosUserNotifier(
     private val dialogs: AppDialogController,
+    /** Where an info message is shown to the user (the in-app toast); null only logs. */
+    private val onInfo: ((message: String, long: Boolean) -> Unit)? = null,
     private val okText: () -> String = { "OK" },
 ) : UserNotifier {
     override fun showInfo(message: String, long: Boolean) {
-        Log.i(TAG, "info (C7-pending: snackbar in phase 2): $message")
+        Log.i(TAG, "info: $message")
+        onInfo?.invoke(message, long)
     }
 
     override fun showError(message: String, cause: Throwable?) {

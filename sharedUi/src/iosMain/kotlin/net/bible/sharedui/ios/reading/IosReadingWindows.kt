@@ -27,24 +27,29 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowLayout
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
+import net.bible.service.common.DisplayColorMode
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.bibleview.BibleBridge
+import net.bible.sharedcore.bibleview.BibleViewEvents
 import net.bible.sharedcore.bibleview.BibleViewJsChannel
 import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.log.nsLog
 import net.bible.sharedcore.platform.AppSettings
-import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedlogic.platform.NightModeState
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedui.app.ports.ExternalLinks
 import net.bible.sharedui.reading.bridge.ReadingBridge
-import net.bible.sharedui.reading.bridge.ReadingKeyActions
 import net.bible.sharedui.reading.session.BibleWindowSession
 import net.bible.sharedui.reading.session.DocumentLoader
 import net.bible.sharedui.reading.session.ReadingLinkHandler
 import net.bible.sharedui.reading.session.SessionEventRelay
+import net.bible.sharedui.reading.session.activeLanguagesJson
+import net.bible.sharedui.reading.session.readingVerseChooser
+import net.bible.sharedui.reading.session.watchSettingKeys
 import net.bible.sharedui.webview.IosReadingWebViews
 import net.bible.sharedui.webview.IosReadingWindowSurface
-import net.bible.sharedui.webview.PendingIosReadingNavigator
 import net.bible.sharedui.webview.WkWebViewJsHost
+import net.bible.sharedui.webview.activeLanguagesScript
 import org.koin.core.Koin
 
 /**
@@ -64,6 +69,7 @@ object IosReadingWindows {
         val relay: SessionEventRelay,
         val bridge: ReadingBridge,
         val relayPlatform: IosSessionEventRelayPlatform,
+        val platform: IosDocumentLoaderPlatform,
         @Suppress("unused") val linkHandler: ReadingLinkHandler,
     ) {
     }
@@ -80,16 +86,6 @@ object IosReadingWindows {
     private val assemblies = mutableMapOf<String, Assembly>()
     private var binding: Binding? = null
 
-    /** The pending [ReadingKeyActions]: iOS has no hardware-key reading shortcuts wired yet. */
-    private val pendingKeyActions = object : ReadingKeyActions {
-        override fun openDrawer() = IosPending.log("ReadingKeyActions.openDrawer")
-        override fun openOverflowMenu() = IosPending.log("ReadingKeyActions.openOverflowMenu")
-        override fun showWorkspaceSheetIfHosted(): Boolean { IosPending.log("ReadingKeyActions.showWorkspaceSheetIfHosted"); return false }
-        override fun copySelection() = IosPending.log("ReadingKeyActions.copySelection")
-        override fun searchIfHosted(): Boolean { IosPending.log("ReadingKeyActions.searchIfHosted"); return false }
-        override fun crashAllBibleViews() = IosPending.log("ReadingKeyActions.crashAllBibleViews")
-    }
-
     /**
      * Binds the assembly to the reading host. A second bind (a new host) drops the previous binding's window
      * subscription; sessions of the old host are released first.
@@ -98,9 +94,12 @@ object IosReadingWindows {
         unbind()
         val b = Binding(host, scope, koin, nightModeState)
         binding = b
+        // The languages of the installed Bibles (Android's `getActiveLanguages`), read when each window's WebView is created.
+        IosReadingWebViews.activeLanguages = ::installedLanguagesJson
         b.subscriptions.add(koin.get<WindowStateServiceImpl>().windowChanges.subscribe { change ->
             if (change == WindowChange.WindowsChanged) {
-                scope.launch(Dispatchers.Main) { releaseClosedWindows() }
+                // Minimising or restoring a window shows or hides the restore row, which is an offsets term.
+                scope.launch(Dispatchers.Main) { releaseClosedWindows(); b.host.offsets.refresh() }
             }
         })
         // The INITIAL CONTENT LOAD of the restored windows, exactly as Android runs it once when the reading host is
@@ -109,6 +108,16 @@ object IosReadingWindows {
         // BibleView gets the client-ready handshake and then stays blank. Plain-model work: loadText hands the rest to IO
         // and waits for the window's view, which the pane assembly assigns.
         koin.get<WindowControl>().windowSync.reloadAllWindows(true)
+    }
+
+    private fun installedLanguagesJson(): String =
+        activeLanguagesJson(SwordDocumentFacade.bibles.map { it.bookMetaData.language.code })
+
+    /** The document offsets changed (safe area, search sheet, agent log, speak bar): re-send `set_offsets` to every window. */
+    fun offsetsChanged() {
+        for (a in assemblies.values) {
+            a.session.emit(BibleViewEvents.setOffsets(a.platform.topOffset, a.platform.bottomOffset, true, false))
+        }
     }
 
     private fun unbind() {
@@ -140,9 +149,13 @@ object IosReadingWindows {
         return w != null && w.windowState != WindowLayout.WindowState.CLOSED
     }
 
-    /** Night mode changed: re-send `set_config` to every window. */
+    /**
+     * Night mode, colour mode or the animation setting changed: re-send `set_config` to every window through its
+     * relay platform. The page is not reloaded (no flash, scroll position kept) and nothing is loaded again; the
+     * offsets are untouched (they travel in their own `set_offsets`).
+     */
     fun nightModeChanged() {
-        for (a in assemblies.values) a.loader.updateConfig()
+        for (a in assemblies.values) a.relayPlatform.updateConfig()
     }
 
     private fun assembly(windowId: String): Assembly = assemblies.getOrPut(windowId) { assemble(windowId) }
@@ -160,13 +173,19 @@ object IosReadingWindows {
             window = window,
             jsChannel = BibleViewJsChannel(host) { nsLog("bridge[$windowId]: $it") },
             hostScope = { b.scope },
-            surface = IosReadingWindowSurface(host),
-            navigator = PendingIosReadingNavigator,
+            surface = IosReadingWindowSurface(host, links = koin.get<ExternalLinks>()),
+            navigator = b.host.navigator,
         )
         try {
             session.hostSheets = b.host.hostState
-            session.keyActions = pendingKeyActions
-            session.verseChooser = { IosPending.log("verseChooser"); null }
+            val bridgeRef = arrayOfNulls<ReadingBridge>(1)
+            session.keyActions = IosReadingKeyActions(
+                hostState = b.host.hostState,
+                openSearch = { b.host.navigator.openSearch(null) },
+                openOverflow = { b.host.toolbarHost.openOverflowMenu() },
+                copyCurrentSelection = { bridgeRef[0]?.copyCurrentSelection() },
+            )
+            session.verseChooser = readingVerseChooser(b.host.hostState)
             val settings = koin.get<AppSettings>()
             // Known follow-up (Stream R): a Window object re-created after a workspace restore is not re-bound here
             // (Android rebinds in BibleViewFactory.getOrCreateBibleView); this session keeps the window it was built for.
@@ -176,19 +195,25 @@ object IosReadingWindows {
                 settings = { settings },
                 nightModeState = { b.nightModeState },
                 llmConfigured = { runCatching { koin.get<PromptService>().configured.value }.getOrDefault(false) },
+                offsets = { b.host.offsets },
             )
             // The loader is the session's paging seam: it must exist before the bridge can receive a call.
             val loader = DocumentLoader(session, platform).also { session.paging = it }
             val bridge = ReadingBridge(session, viewIsCurrent = { windowControl.activeWindow.id.toString() == windowId })
-            val linkHandler = ReadingLinkHandler(session) { _, _, _, _ -> IosPending.log("openEpubLink") }
+            bridgeRef[0] = bridge
+            // The same steps Android takes (BibleView.openEpubLink): resolve the key off the main thread, then showLink.
+            val linkHandler = ReadingLinkHandler(session) { book, backend, keyStr, idStr -> bridge.openEpubLink(book, backend, keyStr, idStr) }
             val relayPlatform = IosSessionEventRelayPlatform { loader.updateConfig() }
             val relay = SessionEventRelay(session, loader, relayPlatform)
             relay.start()
             // Window.loadText delivers documents to window.bibleView; without one it times out after 5 s.
-            val view = IosWindowView(session, loader)
+            val view = IosWindowView(session, loader, beforeLoad = {
+                // Books may have been installed since the WebView was created: the page reads the global lazily.
+                host.post { host.evaluate(activeLanguagesScript(installedLanguagesJson()), null) }
+            })
             window.bibleView = view
             if (window.takeLoadPending()) window.loadText()
-            return Assembly(session, loader, relay, bridge, relayPlatform, linkHandler)
+            return Assembly(session, loader, relay, bridge, relayPlatform, platform, linkHandler)
         } catch (t: Throwable) {
             // Nothing is in the map yet: dispose what was built so no scope or WebView entry outlives the failure.
             session.dispose()
@@ -222,30 +247,60 @@ object IosReadingWindows {
 }
 
 /**
- * Follows [NightModeState] (a plain Boolean read from `UserDefaults`, no observable of its own): [dark] is
- * refreshed on `NSUserDefaultsDidChange` and when the app becomes active, and [onChange] fires on a real change.
+ * Follows the display modes that need a `set_config` and a theme refresh: night mode, colour mode and the animation
+ * setting. Two signals, because the sources differ: night mode is a `UserDefaults` key (`NSUserDefaultsDidChange`, plus
+ * app-active), while colour mode and animations live in the database-backed [AppSettings], whose writes post no
+ * platform notification; those arrive through [settingsChanges] (`SettingsStore.changes`). [dark] and [monochrome]
+ * are Compose state for the theme and the reading host; [onChange] fires once per real change of any of the modes.
  */
 @kotlin.native.HiddenFromObjC
-class IosNightModeObserver(private val state: NightModeState, private val onChange: (Boolean) -> Unit = {}) {
+class IosNightModeObserver(
+    private val state: NightModeState,
+    private val settings: AppSettings? = null,
+    private val settingsChanges: kotlinx.coroutines.flow.Flow<String>? = null,
+    private val onChange: () -> Unit = {},
+) {
     private val darkState = androidx.compose.runtime.mutableStateOf(state.nightMode)
+    private val monochromeState = androidx.compose.runtime.mutableStateOf(readMonochrome())
+    private var lastModes: List<Any?> = readModes()
     val dark: androidx.compose.runtime.State<Boolean> get() = darkState
-    private val observers = mutableListOf<Any>()
 
-    /** Re-reads the state; returns the current value. */
+    /** Colour mode other than NORMAL: the predicate `IosDocumentLoaderPlatform` sends as `monochromeMode`. */
+    val monochrome: androidx.compose.runtime.State<Boolean> get() = monochromeState
+    private val observers = mutableListOf<Any>()
+    private var settingsWatch: kotlinx.coroutines.Job? = null
+
+    private fun readMonochrome(): Boolean =
+        settings != null && (DisplayColorMode.fromValue(settings.getString("display_color_mode", null)) ?: DisplayColorMode.NORMAL) != DisplayColorMode.NORMAL
+
+    private fun readModes(): List<Any?> =
+        listOf(settings?.getString("display_color_mode", null), settings?.getBoolean("disable_animations", false))
+
+    /** Re-reads the modes; returns the current night value. */
     fun refresh(): Boolean {
         val now = state.nightMode
-        if (now != darkState.value) {
-            darkState.value = now
-            onChange(now)
-        }
+        val modes = readModes()
+        val changed = now != darkState.value || modes != lastModes
+        lastModes = modes
+        darkState.value = now
+        monochromeState.value = readMonochrome()
+        if (changed) onChange()
         return now
     }
 
-    fun start() {
+    /**
+     * Starts the notification observers and, when [settingsChanges] was given, the settings watch on [scope]. A settings
+     * source without a scope would silently never fire, so that combination is refused.
+     */
+    fun start(scope: kotlinx.coroutines.CoroutineScope? = null) {
+        require(scope != null || settingsChanges == null) { "IosNightModeObserver.start needs a scope when settingsChanges is given" }
         if (observers.isNotEmpty()) return
         val center = platform.Foundation.NSNotificationCenter.defaultCenter
         for (name in listOf(platform.Foundation.NSUserDefaultsDidChangeNotification, platform.UIKit.UIApplicationDidBecomeActiveNotification)) {
             observers += center.addObserverForName(name, null, platform.Foundation.NSOperationQueue.mainQueue) { refresh() }
+        }
+        if (scope != null && settingsChanges != null) {
+            settingsWatch = watchSettingKeys(settingsChanges, DISPLAY_MODE_KEYS, scope) { refresh() }
         }
     }
 
@@ -253,5 +308,12 @@ class IosNightModeObserver(private val state: NightModeState, private val onChan
         val center = platform.Foundation.NSNotificationCenter.defaultCenter
         observers.forEach { center.removeObserver(it) }
         observers.clear()
+        settingsWatch?.cancel()
+        settingsWatch = null
+    }
+
+    private companion object {
+        /** The [AppSettings] keys whose writes change a display mode. */
+        val DISPLAY_MODE_KEYS = setOf("display_color_mode", "disable_animations")
     }
 }

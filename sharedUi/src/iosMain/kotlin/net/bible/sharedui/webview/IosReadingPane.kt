@@ -72,6 +72,9 @@ internal class ReadingEntry(val webView: ReadingWkWebView, val navDelegate: IosN
 object IosReadingWebViews {
     private val entries = mutableMapOf<String, ReadingEntry>()
 
+    /** The installed Bibles' languages as a JSON list, read when a window's WebView is created (set by the reading assembly). */
+    internal var activeLanguages: () -> String = { "[\"en\"]" }
+
     /** Loads the bundle into a WebView; a test seam (the test binary has no `bibleview-js` bundle). */
     internal var bundleLoader: (WKWebView, String, Boolean) -> Unit = { webView, lang, dark -> loadBibleBundle(webView, lang, dark) }
 
@@ -104,6 +107,7 @@ object IosReadingWebViews {
     internal fun resetForTest() {
         for (id in entries.keys.toList()) release(id)
         bundleLoader = { webView, lang, dark -> loadBibleBundle(webView, lang, dark) }
+        activeLanguages = { "[\"en\"]" }
     }
 
     private fun checkMain() = check(NSThread.isMainThread) { "IosReadingWebViews is main-thread only" }
@@ -112,7 +116,7 @@ object IosReadingWebViews {
         checkMain()
         return entries.getOrPut(windowId) {
             val navDelegate = IosNavDelegate(windowId)
-            val webView = createBibleWkWebView(windowId, navDelegate, null) {
+            val webView = createBibleWkWebView(windowId, navDelegate, null, activeLanguages) {
                 ReadingWkWebView(CGRectMake(0.0, 0.0, 0.0, 0.0), it)
             } as ReadingWkWebView
             ReadingEntry(webView, navDelegate)
