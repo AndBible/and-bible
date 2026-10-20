@@ -82,6 +82,7 @@ class IosSyncBindingsTest {
             override fun showInfo(message: String, long: Boolean) {}
             override fun showError(message: String, cause: Throwable?) {}
         } }
+        single<net.bible.sharedcore.platform.CoreStrings> { StubCoreStrings() }
         single { AppDialogController() }
         single { AppCoroutineScope() }
     }

@@ -388,6 +388,9 @@ interface Strings {
     val shareVerseMenuTitle: String                      // R.string.share_verse_menu_title
     val textCopiedToClipboard: String                    // R.string.text_copied_to_clicpboard
     // --- end I2 phase 2 R1 ---
+    val crashRecoveryMessage: String
+    val crashRecoveryContinue: String
+    val crashRecoveryReport: String
     val errorOccurred: String
     val okay: String
     // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing
@@ -861,6 +864,7 @@ interface Strings {
     val rawLlmLogEmpty: String                    // R.string.raw_llm_log_empty
     val copyLabel: String                         // R.string.copy
     val shareLabel: String                        // R.string.share
+    val reportGeneralBugLabel: String             // R.string.send_bug_report_title
     val reportBugLabel: String                    // R.string.ai_bug_report_menu
     val areYouSure: String                        // R.string.are_you_sure
 

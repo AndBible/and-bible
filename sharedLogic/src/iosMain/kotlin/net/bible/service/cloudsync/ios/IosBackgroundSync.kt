@@ -8,6 +8,7 @@ import org.koin.core.Koin
 import org.koin.mp.KoinPlatform
 
 private const val TAG = "IosBackgroundSync"
+private const val DEFAULT_BACKGROUND_RETRY_SECONDS = 900L
 
 /** One BGTask run: sync if due, and always ask for the next wake-up. */
 class IosBackgroundSync(
@@ -20,6 +21,9 @@ class IosBackgroundSync(
     } finally {
         safeSchedule()
     }
+
+    /** Entry-level orchestration owns rescheduling when readiness can fail before this instance exists. */
+    internal suspend fun run(): Boolean = policy.runOnce()
 
     /** Requests the first (or next) background refresh, e.g. after startup. Failures are logged. */
     fun schedule() = safeSchedule()
@@ -37,25 +41,27 @@ class IosBackgroundSync(
 }
 
 /**
- * Handler for the registered BGTask. When Koin is not started (the OS launched the app only for the
- * task) or no [IosBackgroundSync] is bound, it returns true without touching any database; the
- * next wake-up is then requested by the normal startup path.
- * I2-pending (phase 2): decide Koin/database readiness on a background-only launch and then reschedule
- * from this path, so such a launch cannot leave no refresh scheduled. A failure inside the run is logged and
- * reported as false (the run itself has already rescheduled); cancellation is rethrown.
+ * BGTask entry. The host supplies cold-start/database readiness (no dependency on sharedUi here).
+ * Protected-data unavailability skips every startup/keychain/database operation; this entry alone
+ * owns the next refresh request, including startup failure and cancellation.
  */
-suspend fun iosBackgroundRefreshEntry(koin: Koin? = KoinPlatform.getKoinOrNull()): Boolean {
-    val sync = koin?.getOrNull<IosBackgroundSync>()
-    if (sync == null) {
-        Log.i(TAG, "background refresh: app not started")
-        return true
-    }
-    return try {
-        sync.runAndReschedule()
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        Log.e(TAG, "background refresh failed", e)
-        false
-    }
+suspend fun iosBackgroundRefreshEntry(
+    koin: Koin? = KoinPlatform.getKoinOrNull(),
+    protectedDataAvailable: suspend () -> Boolean = { platform.UIKit.UIApplication.sharedApplication.protectedDataAvailable },
+    start: suspend () -> Unit = {},
+    openDatabases: suspend () -> Unit = {},
+    refresh: BackgroundRefresh,
+): Boolean {
+    fun currentKoin() = koin ?: KoinPlatform.getKoinOrNull()
+    return runIosBackgroundRefresh(
+        protectedDataAvailable = protectedDataAvailable,
+        started = { false }, // Always join host readiness; Koin can exist before initialization completes.
+        start = start,
+        openDatabases = openDatabases,
+        sync = { currentKoin()?.getOrNull<IosBackgroundSync>()?.run() ?: true },
+        reschedule = {
+            // The host fallback works even when startup failed halfway through publishing Koin.
+            refresh.schedule(DEFAULT_BACKGROUND_RETRY_SECONDS)
+        },
+    )
 }

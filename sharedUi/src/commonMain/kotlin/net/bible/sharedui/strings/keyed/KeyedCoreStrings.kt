@@ -24,6 +24,10 @@ import net.bible.sharedcore.platform.CoreStrings
  * Misspelt keys are caught by `KeyedStringsTest` (a missing key answers itself).
  */
 class KeyedCoreStrings(private val t: StringTable) : CoreStrings {
+    override val errorReport: String get() = t.text("report_error")
+    override val errorBackup: String get() = t.text("backup_and_restore")
+    override val errorSkip: String get() = t.text("error_skip")
+    override val debugTestError: String get() = t.text("debug_test_error")
     override val namelessTitle: String get() = t.text("nameless")
     override fun processingEpub(title: String): String = t.fmt("processing_epub", title)
     override fun creatingIndexFor(name: String): String = t.fmt("creating_index_for", name)
@@ -98,6 +102,14 @@ class KeyedCoreStrings(private val t: StringTable) : CoreStrings {
     override val stop: String get() = t.text("stop")
     override val speakStatusStopped: String get() = t.text("speak_status_stopped")
     override fun sleepTimerStarted(minutes: Int): String = t.fmt("sleep_timer_started", minutes)
+    override val webDavUntrustedCertificateTitle: String get() = t.text("webdav_untrusted_certificate_title")
+    override val webDavTrustCertificate: String get() = t.text("webdav_trust_certificate")
+    override val webDavWrongCredentials: String get() = t.text("webdav_wrong_credentials")
+    override val webDavNotAFolder: String get() = t.text("webdav_not_a_folder")
+    override val webDavCertificateChanged: String get() = t.text("webdav_certificate_changed")
+    override val webDavStorageFull: String get() = t.text("webdav_storage_full")
+    override val iCloudDrive: String get() = t.text("adapters_icloud_drive")
+    override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = t.fmt("webdav_untrusted_certificate_message", host, subject, issuer, from, until, fingerprint)
     override val signInFailed: String get() = t.text("sign_in_failed")
     override val cloudSyncTitle: String get() = t.text("cloud_sync_title")
     override val cloudFetchAndRestoreInitial: String get() = t.text("cloud_fetch_and_restore_initial")

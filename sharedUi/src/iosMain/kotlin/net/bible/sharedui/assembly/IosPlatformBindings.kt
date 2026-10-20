@@ -223,6 +223,8 @@ internal fun buildIosPlatformBindings(config: IosAppConfig, parts: IosPlatformPa
                 notifier = get(),
                 settings = get(),
                 earconFiles = IosSpeakPlatform.earconFiles(parts.bundleResourcePath),
+                isDiscrete = { parts.deviceSettings.getBoolean("discrete_mode", false) },
+                neutralTitle = { parts.strings.text("app_name_calculator") },
             )
         }
         single<UserNotifier> { IosUserNotifier(get<AppDialogController>(), okText = { parts.strings.text("okay") }) }

@@ -83,8 +83,15 @@ kotlin {
         iosTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.koin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
         jvmTest {
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/report/logic")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/report/logic")
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/startup/logic")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/startup/logic")
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedui/ios/discrete/systemsurfaces")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedui/ios/discrete/systemsurfaces")
             // The generated iOS strings holder is pure Kotlin; reusing it gives JVM tests real English text.
             kotlin.srcDir(iosStringsOutDir)
             dependencies {

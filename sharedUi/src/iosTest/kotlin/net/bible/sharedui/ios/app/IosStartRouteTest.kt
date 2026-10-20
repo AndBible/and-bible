@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.ios.app
 
+import net.bible.sharedui.assembly.awaitStartupOnMain
 import kotlinx.coroutines.runBlocking
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.assembly.IosAppConfig
@@ -38,17 +39,17 @@ import kotlin.test.assertNotNull
 class IosStartRouteTest {
     @AfterTest
     fun resetStartup() {
-        runBlocking { IosAppStartup.resetForTest() }
+        awaitStartupOnMain { IosAppStartup.resetForTest() }
     }
 
     private fun fixtureBible(): Book {
         // Same process-wide sandbox as IosAssemblyTest (JSword's book list is global); start() is idempotent.
-        IosAppStartup.start(
+        awaitStartupOnMain { IosAppStartup.ensureStarted(
             IosAppConfig(
                 root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                 repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
             ),
-        )
+        ) }
         return assertNotNull(Books.installed().getBook("K4RawText"), "fixture Bible K4RawText is not installed")
     }
 

@@ -27,6 +27,7 @@ import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.sword.BookType
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
+import org.koin.dsl.onClose
 import org.koin.mp.KoinPlatform
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -83,6 +84,138 @@ class SharedAppStartupTest {
         SharedAppStartup.resetForTest()
         stopKoin()
         Dispatchers.resetMain()
+    }
+
+    @Test fun isolatedDeclarationFailureDoesNotPublishPartialKoin() {
+        val failure = IllegalStateException("declaration failed")
+        val actual = kotlin.test.assertFailsWith<IllegalStateException> {
+            SharedAppStartup.start(StartupHooks({}, { listOf(testModule) },
+                koinAppDeclaration = { throw failure }, reportJSwordError = {}, isSwordLoaded = { false }, isolateKoinPublication = true))
+        }
+        assertSame(failure, actual)
+        kotlin.test.assertNull(KoinPlatform.getKoinOrNull())
+        SharedAppStartup.start(hooks())
+        assertNotNull(KoinPlatform.getKoin().get<DownloadHttp>())
+    }
+
+    @Test fun isolatedModuleConflictDoesNotPublishPartialDefinitions() {
+        kotlin.test.assertFails {
+            SharedAppStartup.start(StartupHooks({}, {
+                listOf(module { single<String> { "first" } }, module { single<String> { "duplicate" } })
+            }, koinAppDeclaration = { allowOverride(false) }, reportJSwordError = {}, isSwordLoaded = { false }, isolateKoinPublication = true))
+        }
+        kotlin.test.assertNull(KoinPlatform.getKoinOrNull())
+        SharedAppStartup.start(hooks())
+        assertNotNull(KoinPlatform.getKoin().get<DownloadHttp>())
+    }
+
+    @Test fun isolatedEagerFailureClosesOnlyItsCandidate() {
+        var closed = 0
+        val failure = IllegalStateException("eager failed")
+        kotlin.test.assertFails {
+            SharedAppStartup.start(StartupHooks({}, { listOf(module {
+                single<String> { "owned resource" } onClose { closed++ }
+                single<Int>(createdAtStart = true) { get<String>(); throw failure }
+            }) }, reportJSwordError = {}, isSwordLoaded = { false }, isolateKoinPublication = true))
+        }
+        assertEquals(1, closed)
+        kotlin.test.assertNull(KoinPlatform.getKoinOrNull())
+    }
+
+    @Test fun isolatedCleanupFailurePreservesOriginalEagerFailure() {
+        val eagerFailure = IllegalStateException("original eager failure")
+        val cleanupFailure = IllegalArgumentException("cleanup failure")
+        var closes = 0
+        val actual = kotlin.test.assertFails {
+            SharedAppStartup.start(StartupHooks({}, { listOf(module {
+                single<String> { "owned" } onClose { closes++; throw cleanupFailure }
+                single<Int>(createdAtStart = true) { get<String>(); throw eagerFailure }
+            }) }, reportJSwordError = {}, isSwordLoaded = { false }, isolateKoinPublication = true))
+        }
+        assertEquals(1, closes)
+        assertTrue(generateSequence(actual) { it.cause }.any { it === eagerFailure })
+        assertTrue(actual.suppressedExceptions.any { it === cleanupFailure })
+        kotlin.test.assertNull(KoinPlatform.getKoinOrNull())
+    }
+
+    @Test fun isolatedPublicationConflictDoesNotCloseForeignGraph() {
+        val foreign = org.koin.dsl.koinApplication { modules(module { single<String> { "foreign" } }) }
+        var candidateCloses = 0
+        var foreignCloses = 0
+        foreign.modules(module { single<Long> { 1L } onClose { foreignCloses++ } })
+        foreign.koin.get<Long>()
+        try {
+            kotlin.test.assertFails {
+                SharedAppStartup.start(StartupHooks({}, { listOf(module {
+                    single<String> { "candidate" } onClose { candidateCloses++ }
+                    single<Int>(createdAtStart = true) {
+                        get<String>()
+                        org.koin.core.context.startKoin(foreign)
+                        1
+                    }
+                }) }, reportJSwordError = {}, isSwordLoaded = { false }, isolateKoinPublication = true))
+            }
+            assertSame(foreign.koin, KoinPlatform.getKoin())
+            assertEquals("foreign", foreign.koin.get<String>())
+            assertEquals(1, candidateCloses)
+            assertEquals(0, foreignCloses)
+        } finally { stopKoin(); foreign.close() }
+    }
+
+    @Test fun isolatedFailedEagerRetryBuildsFreshModuleAndInstance() {
+        var modules = 0
+        var eager = 0
+        var closes = 0
+        val startupHooks = StartupHooks({}, {
+            val attempt = ++modules
+            listOf(testModule, module {
+                single<String> { "resource-$attempt" } onClose { closes++ }
+                single<Int>(createdAtStart = true) {
+                    get<String>()
+                    eager++
+                    if (attempt == 1) error("first eager failed")
+                    attempt
+                }
+            })
+        }, reportJSwordError = {}, isSwordLoaded = { false }, isolateKoinPublication = true)
+        kotlin.test.assertFails { SharedAppStartup.start(startupHooks) }
+        kotlin.test.assertNull(KoinPlatform.getKoinOrNull())
+        assertEquals(1, closes)
+        SharedAppStartup.start(startupHooks)
+        assertEquals(2, modules)
+        assertEquals(2, eager)
+        assertEquals(2, KoinPlatform.getKoin().get<Int>())
+        assertEquals("resource-2", KoinPlatform.getKoin().get<String>())
+        assertEquals(1, closes)
+    }
+
+    @Test fun isolatedEagerResolvesLocallyAndIsConstructedOnlyOnce() {
+        var eager = 0
+        SharedAppStartup.start(StartupHooks({}, { listOf(testModule, module {
+            single<String> { "dependency" }
+            single<Int>(createdAtStart = true) {
+                kotlin.test.assertNull(KoinPlatform.getKoinOrNull(), "eager must finish before global publication")
+                assertEquals("dependency", get<String>()); ++eager
+            }
+        }) }, reportJSwordError = {}, isSwordLoaded = { false }, isolateKoinPublication = true))
+        assertEquals(1, eager)
+        assertEquals(1, KoinPlatform.getKoin().get<Int>())
+    }
+
+    @Test fun isolatedPostPublicationFailureRetriesHooksWithoutReloadingGraph() {
+        var modules = 0
+        val startupHooks = StartupHooks({}, { modules++; listOf(module {
+            single<DownloadHttp> { FakeHttp() }
+            single { OrderedLauncher(CoroutineScope(SupervisorJob() + Dispatchers.Default)) }
+        }) }, reportJSwordError = {}, isSwordLoaded = { false }, isolateKoinPublication = true)
+        kotlin.test.assertFails { SharedAppStartup.start(startupHooks) } // SpeakSettingsStore missing after publication.
+        val published = KoinPlatform.getKoin()
+        org.koin.core.context.loadKoinModules(module { single<SpeakSettingsStore> {
+            object : SpeakSettingsStore { override fun load(): String? = null; override fun save(json: String) {} }
+        } })
+        SharedAppStartup.start(startupHooks)
+        assertSame(published, KoinPlatform.getKoin())
+        assertEquals(1, modules)
     }
 
     @Test

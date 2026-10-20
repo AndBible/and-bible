@@ -92,8 +92,14 @@ kotlin {
             implementation(libs.koin.test)
             implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
         }
-        jvmTest.dependencies {
-            implementation(libs.androidx.sqlite.bundled.jvm)
+        jvmTest {
+            kotlin.srcDir("../sharedCore/src/iosMain/kotlin/net/bible/sharedcore/platform/sync/runner")
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/policy")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/stubs")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/policy")
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/service/cloudsync/ios/backuperror")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/service/cloudsync/ios/backuperror")
+            dependencies { implementation(libs.androidx.sqlite.bundled.jvm) }
         }
     }
 }

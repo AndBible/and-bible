@@ -20,16 +20,34 @@ package net.bible.sharedui.ios.ports
 
 import net.bible.service.llm.agent.RawLlmLog
 import net.bible.sharedui.app.ai.BugReportPlatform
-import net.bible.sharedui.ios.IosPending
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.bible.android.database.IdType
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AiBugReportRules
+import net.bible.sharedui.assembly.IosAppStartup
+import net.bible.sharedui.ios.report.IosBugReport
 
-/** Pending (stream F). */
+/** AI reports use the same confirmation and retained mail/share lifecycle as general reports. */
 @kotlin.native.HiddenFromObjC
 class IosBugReportPlatform : BugReportPlatform {
     override suspend fun reportRecord(recordId: String) {
-        IosPending.log("BugReportPlatform.reportRecord")
+        val record = withContext(Dispatchers.Default) {
+            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().getById(IdType(recordId))
+        } ?: return
+        IosBugReport(IosAppStartup.stringTable).ai(
+            "${record.promptName} (${record.modelName})",
+            "Prompt: ${record.promptName}\nDescription: ${record.promptDescription.orEmpty()}\nModel: ${record.modelName}\nProvider: ${record.providerType}\nTimestamp: ${record.timestamp}\nIterations: ${record.iterationCount}\nTokens: ${record.totalInputTokens} in / ${record.totalOutputTokens} out\nError: ${record.wasError}",
+            record.logData, AiBugReportRules.isReportAvailable(record.modelName),
+        )
     }
 
     override suspend fun reportRawLog(rawLog: RawLlmLog) {
-        IosPending.log("BugReportPlatform.reportRawLog")
+        if (rawLog.isEmpty()) return
+        val last = rawLog.usageByIteration.values.lastOrNull() ?: return
+        if (!AiBugReportRules.isReportAvailable(last.model)) return
+        val log = withContext(Dispatchers.Default) { RawLlmLog.gzipCompress(rawLog.format()) }
+        IosBugReport(IosAppStartup.stringTable).ai(last.model,
+            "Model: ${last.model}\nIterations: ${rawLog.usageByIteration.size}", log, true)
     }
 }

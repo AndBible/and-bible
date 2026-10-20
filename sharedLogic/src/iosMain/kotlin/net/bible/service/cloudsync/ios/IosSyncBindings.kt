@@ -32,6 +32,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
+import platform.Foundation.dateWithTimeIntervalSince1970
 
 /** Localized texts the iOS sync classes need; supplied by the host (`:sharedLogic` cannot see `Strings`). */
 data class IosSyncStrings(
@@ -43,6 +44,11 @@ data class IosSyncStrings(
 )
 
 private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
+
+internal fun certificateDate(epochMs: Long): String = platform.Foundation.NSDateFormatter().apply {
+    dateStyle = platform.Foundation.NSDateFormatterMediumStyle
+    timeStyle = platform.Foundation.NSDateFormatterNoStyle
+}.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
 
 /**
  * Koin bindings of the iOS sync stack (Stream D). Builds a NEW module per call (a shared top-level
@@ -69,7 +75,7 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
             deviceId = get<AppEnvironment>().deviceIdentifier,
             displayName = strings.adapterDisplayName,
             iCloudStore = { iCloudDriveStore(get<IosUbiquityContainer>()) },
-            signInUi = PendingWebDavSignInUi(strings.webDavMessage),
+            signInUi = IosWebDavSignInUi({ get<AppDialogController>() }, get()),
             tempDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY,
             awaitReady = { get<IosUbiquityContainer>().awaitReady() },
         )
@@ -90,7 +96,10 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
         )
     }
     single<BackupHost> {
-        IosBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok)
+        IosBackupHost(IosFilePicker(), IosFileDelivery(), { get<AppDialogController>() }, strings.ok,
+            { get<net.bible.sharedcore.platform.CoreStrings>().errorReport },
+            { get<net.bible.sharedcore.platform.CoreStrings>().errorBackup },
+            { get<net.bible.sharedcore.platform.CoreStrings>().errorSkip })
     }
     single {
         IosBackgroundSync(
@@ -101,11 +110,13 @@ fun buildIosSyncBindings(strings: IosSyncStrings, backgroundRefresh: BackgroundR
                 lastSynchronizedMs = { get<AppSettings>().getLong("globalLastSynchronized", 0L) },
                 nowMs = ::nowMs,
                 signedIn = { get<CloudSync>().signedIn },
-                // I2-pending: dialog-free background sign-in (phase 2). CloudSync.signIn() shows a
-                // non-cancellable dialog on failure that nobody can answer in the background, so a
-                // background refresh only syncs when CloudSync is already signed in.
-                signIn = { null },
-                startSync = { get<SyncScheduler>().startDatabaseSync() },
+                signIn = { get<CloudSync>().signIn(background = true) },
+                startSync = {
+                    (get<SyncScheduler>() as IosSyncScheduler).startBackgroundDatabaseSync {
+                        runDatabaseSyncJob(get<CloudSync>(), get<AppSettings>(), allowInteraction = false)
+                    }
+                },
+                stopSync = { result -> (get<SyncScheduler>() as IosSyncScheduler).stop(result) },
             ),
             backgroundRefresh,
         )

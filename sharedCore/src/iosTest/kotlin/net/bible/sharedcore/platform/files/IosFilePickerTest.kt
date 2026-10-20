@@ -44,36 +44,7 @@ class IosFilePickerTest {
             assertEquals(1, releases)
         }
     }
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-    @Test fun consecutiveRealPresentationsResumeOnlyAfterDismissal() {
-        runOnMainRunLoop {
-            val window = platform.UIKit.UIWindow(frame = platform.UIKit.UIScreen.mainScreen.bounds)
-            val host = UIViewController()
-            window.rootViewController = host
-            window.makeKeyAndVisible()
-            try {
-                repeat(2) {
-                    val sheet = platform.UIKit.UIDocumentPickerViewController(
-                        forOpeningContentTypes = listOf(UTTypeData), asCopy = true)
-                    val result = suspendCancellableCoroutine { continuation ->
-                        val presentation = FilePresentation(sheet, continuation, DeliveryResult.CANCELLED)
-                        presentation.present(host)
-                        // Use UIKit's actual presentation completion, not an unpresented stand-in.
-                        fun finishWhenPresented() {
-                            val transition = sheet.transitionCoordinator
-                            if (transition != null) {
-                                transition.animateAlongsideTransition(null) { presentation.finish(DeliveryResult.DELIVERED) }
-                            } else presentation.finish(DeliveryResult.DELIVERED)
-                        }
-                        platform.darwin.dispatch_async(platform.darwin.dispatch_get_main_queue()) { finishWhenPresented() }
-                    }
-                    assertEquals(DeliveryResult.DELIVERED, result)
-                    assertNull(host.presentedViewController)
-                    assertNull(sheet.presentingViewController)
-                }
-            } finally { window.hidden = true; window.rootViewController = null }
-        }
-    }
+    // Real document/alert lifecycle coverage lives in app-hosted ReportLifecycleTests.
 
     @Test fun noPresenterCancelsPicker() = runOnMainRunLoop<Unit> {
         assertNull(IosFilePicker { null }.pickBackupFile())

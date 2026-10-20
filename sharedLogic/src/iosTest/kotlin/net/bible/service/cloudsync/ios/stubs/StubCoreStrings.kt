@@ -9,6 +9,10 @@ import net.bible.sharedcore.platform.CoreStrings
  * member of [CoreStrings] needs a line here.
  */
 internal class StubCoreStrings : CoreStrings {
+    override val errorReport = "errorReport"
+    override val errorBackup = "errorBackup"
+    override val errorSkip = "errorSkip"
+    override val debugTestError = "debugTestError"
     override val namelessTitle = "namelessTitle"
     override fun processingEpub(title: String): String = "processingEpub ${title}"
     override fun creatingIndexFor(name: String): String = "creatingIndexFor ${name}"
@@ -66,6 +70,14 @@ internal class StubCoreStrings : CoreStrings {
     override val stop = "stop"
     override val speakStatusStopped = "speakStatusStopped"
     override fun sleepTimerStarted(minutes: Int): String = "sleepTimerStarted ${minutes}"
+    override val webDavUntrustedCertificateTitle = "webDavUntrustedCertificateTitle"
+    override val webDavTrustCertificate = "webDavTrustCertificate"
+    override val webDavWrongCredentials = "webDavWrongCredentials"
+    override val webDavNotAFolder = "webDavNotAFolder"
+    override val webDavCertificateChanged = "webDavCertificateChanged"
+    override val webDavStorageFull = "webDavStorageFull"
+    override val iCloudDrive = "iCloudDrive"
+    override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String) = "$host|$subject|$issuer|$from|$until|$fingerprint"
     override val signInFailed = "signInFailed"
     override val cloudSyncTitle = "cloudSyncTitle"
     override val cloudFetchAndRestoreInitial = "cloudFetchAndRestoreInitial"

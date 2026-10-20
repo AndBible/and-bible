@@ -19,11 +19,33 @@
 package net.bible.sharedui.ios.ports
 
 import net.bible.sharedui.app.ports.DebugActions
-import net.bible.sharedui.ios.IosPending
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedui.ios.startup.IosDebugActionPolicy
+import platform.darwin.DISPATCH_TIME_NOW
+import platform.darwin.dispatch_after
+import platform.darwin.dispatch_get_main_queue
+import platform.darwin.dispatch_time
+import kotlin.native.Platform
 
-/** Pending on iOS (stream X): debug tools do nothing. */
+/**
+ * Debug-only tools. The fatal callback belongs to the main dispatch queue, not a screen/coroutine scope:
+ * leaving Settings cannot cancel it and no coroutine exception handler can consume it before the app hook.
+ */
+@OptIn(kotlin.experimental.ExperimentalNativeApi::class)
 @kotlin.native.HiddenFromObjC
-class IosDebugActions : DebugActions {
-    override fun crashAppDelayed() = IosPending.log("DebugActions.crashAppDelayed")
-    override fun showTestError(message: String) = IosPending.log("DebugActions.showTestError")
+class IosDebugActions(notifier: UserNotifier, strings: CoreStrings) : DebugActions {
+    private val actions = IosDebugActionPolicy(
+        isDebug = { Platform.isDebugBinary },
+        notifier = notifier,
+        testMessage = { strings.debugTestError },
+        scheduleFatal = { milliseconds, fatal ->
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, milliseconds * 1_000_000L), dispatch_get_main_queue(), fatal)
+        },
+    )
+
+    override fun crashAppDelayed() = actions.crashAppDelayed()
+
+    // SettingsHost's legacy Android messages stay unchanged; iOS always resolves its localized resource live.
+    override fun showTestError(message: String) = actions.showTestError()
 }

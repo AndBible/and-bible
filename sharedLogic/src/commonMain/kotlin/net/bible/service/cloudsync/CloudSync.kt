@@ -74,6 +74,7 @@ class CloudSync(
     private val documentSyncStarter: net.bible.sharedcore.cloud.DocumentSyncStarter,
     private val documents: DocumentSyncProvider,
     private val documentSettings: DocumentSyncSettings,
+    private val syncNamespace: String? = null,
 ) {
     var adapterId: String
         get() = settings.getString("sync_adapter") ?: adapters.available.first()
@@ -116,13 +117,13 @@ class CloudSync(
 
     suspend fun documentsSyncFolderId(): String? {
         val adapter = _adapter ?: return null
-        val name = "${env.packageName}-sync-$DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX"
+        val name = syncFolderName(DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX)
         val existing = adapter.listFiles(name = name).firstOrNull()
         return existing?.id ?: adapter.createNewFolder(name).id
     }
 
     private val signInMutex = Mutex()
-    suspend fun signIn(): Boolean? {
+    suspend fun signIn(background: Boolean = false): Boolean? {
         if(signInMutex.isLocked) {
             Log.i(TAG, "Already signing in!")
             return null
@@ -130,9 +131,12 @@ class CloudSync(
         var errorMessage: String? = null
         var cancelledByUser = false
         val success = signInMutex.withLock {
-            _adapter = adapters.create(adapterId)
+            _adapter = if (background) adapters.createForBackground(adapterId) else adapters.create(adapterId)
             try {
                 adapter.signIn()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                _adapter = null
+                throw e
             } catch (e: CloudSyncUserCancelledException) {
                 cancelledByUser = true
                 false
@@ -143,7 +147,7 @@ class CloudSync(
         }
         if(!success) {
             _adapter = null
-            if (!cancelledByUser) dialogs.await(AppDialogRequest.Message(null, strings.signInFailed + " " + (errorMessage?:""), strings.okay, cancellable = false))
+            if (!background && !cancelledByUser) dialogs.await(AppDialogRequest.Message(null, strings.signInFailed + " " + (errorMessage?:""), strings.okay, cancellable = false))
         }
         return success
     }
@@ -207,9 +211,11 @@ class CloudSync(
         return q1
     }
 
-    private suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>) {
+    internal fun syncFolderName(category: String): String = "${syncNamespace ?: env.packageName}-sync-$category"
+
+    internal suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>, allowInteraction: Boolean = true) {
         var initialOperation: InitialOperation?= null
-        val syncFolderName = "${env.packageName}-sync-${dbDef.categoryName}"
+        val syncFolderName = syncFolderName(dbDef.categoryName)
 
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
@@ -223,6 +229,8 @@ class CloudSync(
 
         var preliminarySyncFolderId: String? = null
         if(syncFolderId == null) {
+            // An OS refresh must not decide whether to fetch, create, or disable a category.
+            if (!allowInteraction) throw CancelStartedSync()
             adapter.listFiles(name = syncFolderName)
                 .firstOrNull()?.id?.also {
                     preliminarySyncFolderId = it
@@ -419,7 +427,7 @@ class CloudSync(
         if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message ?: "", showReportButton = false)
     }
 
-    suspend fun synchronize() = withContext(Dispatchers.IO) {
+    suspend fun synchronize(allowInteraction: Boolean = true) = withContext(Dispatchers.IO) {
         documentSettings.ensureLoaded()
         if(!signedIn) {
             Log.i(TAG, "Not signed in")
@@ -441,7 +449,7 @@ class CloudSync(
                     if(!dbDef.category.isSyncEnabled(settings)) return@asyncMap
                     if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) return@asyncMap
                     try {
-                        initializeSync(dbDef)
+                        initializeSync(dbDef, allowInteraction)
                     } catch (e: CancelStartedSync) {
                         Log.e(TAG, "Sync cancelled ${dbDef.categoryName}")
                         return@asyncMap

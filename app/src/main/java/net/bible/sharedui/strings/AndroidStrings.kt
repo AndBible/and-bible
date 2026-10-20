@@ -385,6 +385,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override val shareVerseMenuTitle: String get() = context.getString(R.string.share_verse_menu_title)
     override val textCopiedToClipboard: String get() = context.getString(R.string.text_copied_to_clicpboard)
     // --- end I2 phase 2 R1 ---
+    override val crashRecoveryMessage: String get() = context.getString(R.string.error_occurred_crash_last_time)
+    override val crashRecoveryContinue: String get() = context.getString(R.string.crash_recovery_continue)
+    override val crashRecoveryReport: String get() = context.getString(R.string.report_error)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val okay: String get() = context.getString(R.string.okay)
     override val externalLink: String get() = context.getString(R.string.external_link)
@@ -800,6 +803,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val rawLlmLogEmpty: String get() = context.getString(R.string.raw_llm_log_empty)
     override val copyLabel: String get() = context.getString(R.string.copy)
     override val shareLabel: String get() = context.getString(R.string.share)
+    override val reportGeneralBugLabel: String get() = context.getString(R.string.send_bug_report_title)
     override val reportBugLabel: String get() = context.getString(R.string.ai_bug_report_menu)
     override val areYouSure: String get() = context.getString(R.string.are_you_sure)
 

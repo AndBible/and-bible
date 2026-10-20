@@ -1,8 +1,8 @@
 package net.bible.sharedui.ios
 
 import net.bible.sharedui.app.ports.DocumentRef
+import net.bible.sharedui.app.ports.NotificationPermission
 import net.bible.sharedui.ios.ports.IosAppSettingsService
-import net.bible.sharedui.ios.ports.IosDebugActions
 import net.bible.sharedui.ios.ports.IosDocumentInstallStarter
 import net.bible.sharedui.ios.ports.IosPlatformText
 import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
@@ -14,6 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class IosPendingTest {
@@ -32,7 +33,6 @@ class IosPendingTest {
 
     @Test
     fun pendingPortReturnsNoOpValues() {
-        IosDebugActions().showTestError("x")
         IosDocumentInstallStarter().start(emptyList<DocumentRef>(), null)
         assertEquals("1", IosPlatformText().plural(PluralKey.CLOUD_DOC_SYNC_NOW_COUNT, 1))
         assertNull(IosTextDisplayPlatform().thumbnail("t"))
@@ -69,9 +69,13 @@ class IosHostPortsTest {
 
     @Test
     fun everyHostPortClassIsConstructible() {
+        val permission = object : NotificationPermission {
+            override suspend fun request() = Unit
+        }
         val koin = org.koin.core.context.startKoin {
             modules(org.koin.dsl.module {
                 single<net.bible.android.control.backup.BackupHost> { FakeBackupHost() }
+                single<NotificationPermission> { permission }
                 single<net.bible.sharedcore.platform.AppEnvironment> {
                     net.bible.sharedcore.platform.IosAppEnvironment(net.bible.sharedui.assembly.InMemorySecretStore(), isDiscrete = { false })
                 }
@@ -85,6 +89,7 @@ class IosHostPortsTest {
                 override fun popBackStackTo(route: String, inclusive: Boolean) = false
             })
             val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin)
+            assertSame(permission, ports.notificationPermission)
             ports.welcomePlatform().onImport()
             assertTrue(ports.welcomePlatform().windowTitle.isNotEmpty())
             ports.welcomePlatform().controller.refresh()

@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import net.bible.sharedui.assembly.awaitStartupOnMain
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
@@ -88,13 +89,13 @@ class IosReadingWindowsTest {
 
     private fun withWindows(night: FakeNight = FakeNight(false), body: (windowId: String) -> Unit) {
         try {
-            IosAppStartup.start(
+            awaitStartupOnMain { IosAppStartup.ensureStarted(
                 IosAppConfig(
                     root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
                 ),
-            )
-            runBlocking { IosAppStartup.openDatabases() }
+            ) }
+            awaitStartupOnMain { IosAppStartup.openDatabases() }
             // The production step (initialise, prepareData, window repository), not a hand-ordered copy of it.
             awaitOnMain { IosReadingReady.ensure(IosAppStartup.stringTable) }
             val scope: CoroutineScope = IosReadingReady.scope
@@ -108,7 +109,7 @@ class IosReadingWindowsTest {
             IosReadingWebViews.resetForTest()
             IosReadingReady.resetForTest()
             ReadingAppInit.resetForTest()
-            runBlocking { IosAppStartup.resetForTest() }
+            awaitStartupOnMain { IosAppStartup.resetForTest() }
         }
     }
 
@@ -325,12 +326,12 @@ class IosReadingWindowsTest {
         val scopes = mutableListOf<CoroutineScope>()
         var failFirst = true
         try {
-            IosAppStartup.start(
+            awaitStartupOnMain { IosAppStartup.ensureStarted(
                 IosAppConfig(
                     root = IosAssemblyTest.sharedRoot, uiLanguage = "en",
                     repositories = org.crosswire.common.util.PropertyMap(), secretStore = InMemorySecretStore(),
                 ),
-            )
+            ) }
             IosReadingReady.initialise = { order += "initialise" }
             IosReadingReady.prepareData = { order += "prepareData" }
             IosReadingReady.createRepository = {
@@ -350,7 +351,7 @@ class IosReadingWindowsTest {
             assertSame(scopes[1], IosReadingReady.scope)
         } finally {
             IosReadingReady.resetForTest()
-            runBlocking { IosAppStartup.resetForTest() }
+            awaitStartupOnMain { IosAppStartup.resetForTest() }
         }
     }
 }

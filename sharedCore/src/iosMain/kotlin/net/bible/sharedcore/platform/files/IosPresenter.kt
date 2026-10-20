@@ -27,8 +27,10 @@ object IosPresenter {
     }
 }
 
-/** Owns UIKit's weak delegates until one terminal event; all state transitions run on Main. */
-internal class FilePresentation<T>(
+/** Owns UIKit's weak delegates until one terminal event; all state transitions run on Main.
+ * Public so the iOS report composer can reuse the same cancellation/dismissal owner across modules.
+ */
+class FilePresentation<T>(
     private var controller: UIViewController?,
     private var continuation: CancellableContinuation<T>?,
     private val cancelled: T,
@@ -41,8 +43,11 @@ internal class FilePresentation<T>(
     fun present(from: UIViewController) {
         val sheet = controller ?: return
         (sheet as? UIDocumentPickerViewController)?.delegate = this
-        sheet.presentationController?.delegate = this
-        sheet.popoverPresentationController?.delegate = this
+        // UIAlertController owns its presentation delegate; replacing it raises an NSException.
+        if (sheet !is UIAlertController) {
+            sheet.presentationController?.delegate = this
+            sheet.popoverPresentationController?.delegate = this
+        }
         continuation?.invokeOnCancellation {
             // Cancellation may originate off-main. This independent dispatch must survive it.
             CoroutineScope(Dispatchers.Main).launch { finish(cancelled) }
@@ -54,7 +59,7 @@ internal class FilePresentation<T>(
         }
         try {
             from.presentViewController(sheet, animated = true, completion = null)
-            sheet.presentationController?.delegate = this
+            if (sheet !is UIAlertController) sheet.presentationController?.delegate = this
         } catch (error: Exception) {
             finish(cancelled)
             throw error
@@ -69,8 +74,10 @@ internal class FilePresentation<T>(
         picked = null
         (sheet as? UIDocumentPickerViewController)?.delegate = null
         (sheet as? UIActivityViewController)?.completionWithItemsHandler = null
-        sheet?.presentationController?.delegate = null
-        sheet?.popoverPresentationController?.delegate = null
+        if (sheet !is UIAlertController) {
+            sheet?.presentationController?.delegate = null
+            sheet?.popoverPresentationController?.delegate = null
+        }
         val cleanup = release
         release = null
         val completed = {

@@ -27,6 +27,12 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
  * shared dialog host draws it, there is no activity to own it). [okText] is the confirm button label, read per call
  * so a language change is picked up; the iOS binding passes the localized "OK".
  *
+ * U7 / ADR 0007: this adapter posts NO system notifications today. [showError] is an in-app dialog,
+ * not lock-screen text, so it remains useful in discrete mode. Any future system-notification posting
+ * path must check the live device-local `discrete_mode` immediately before posting and hide content
+ * before the PIN; it must not fake the installed app name. Do not reuse the in-app message as a
+ * system notification payload without that check.
+ *
  * C7 pending (phase 2: snackbar through the shared root): [showInfo] only logs with tag `C7-pending`.
  */
 class IosUserNotifier(

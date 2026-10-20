@@ -30,6 +30,28 @@ import kotlin.native.Platform
 internal object IosDebugLaunchArgs {
     private val arguments: List<String> get() = NSProcessInfo.processInfo.arguments.map { it.toString() }
 
+    /** Seeds the persistent domain (not the read-only argument domain), before crash counting. Debug only. */
+    fun seedCrashRecovery(settings: net.bible.sharedcore.platform.IosDeviceSettings) {
+        if (!Platform.isDebugBinary || "-seedCrashRecovery" !in arguments) return
+        settings.putBoolean(net.bible.sharedcore.platform.CrashPreferences.RUNNING, false)
+        settings.putInt(net.bible.sharedcore.platform.CrashPreferences.COUNT, 2)
+        settings.putLong(net.bible.sharedcore.platform.CrashPreferences.TIME, kotlin.time.Clock.System.now().toEpochMilliseconds())
+    }
+
+    /** X-owned debug controls, independent of the H-owned Settings implementation. */
+    fun task6Controls(): Boolean = Platform.isDebugBinary && "-task6DebugActions" in arguments
+
+    /** Explicit disposable-simulator reset, never a read-only argument-domain preference override. */
+    fun resetTask6CrashState(settings: net.bible.sharedcore.platform.IosDeviceSettings) {
+        if (!Platform.isDebugBinary || "-task6ResetCrashState" !in arguments) return
+        settings.putBoolean(net.bible.sharedcore.platform.CrashPreferences.RUNNING, false)
+        settings.putInt(net.bible.sharedcore.platform.CrashPreferences.COUNT, 0)
+        settings.putLong(net.bible.sharedcore.platform.CrashPreferences.TIME, 0L)
+    }
+
+    /** Disposable cross-platform acceptance only; no persisted override or production namespace change. */
+    fun syncNamespace(): String? = net.bible.service.cloudsync.ios.task7SyncNamespace(Platform.isDebugBinary, arguments)
+
     /** True when `-resetData` was passed. */
     fun resetData(): Boolean = Platform.isDebugBinary && "-resetData" in arguments
 
@@ -49,7 +71,7 @@ internal object IosDebugLaunchArgs {
 
     /**
      * Deletes the app data (Application Support/AndBible, databases and backup; Documents/sword with the modules).
-     * Main thread, before [IosAppStartup.start]: two recursive deletes, no database or settings access.
+     * Process-owned IO startup, before [IosAppStartup.ensureStarted] side effects: two recursive deletes, no database or settings access.
      * UserDefaults are left alone.
      */
     fun resetAppData() {

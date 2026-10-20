@@ -12,6 +12,7 @@ final class AppUITests: XCTestCase {
 
     private func launch(_ arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchArguments += ["-task6ResetCrashState", "-discrete_mode", "NO", "-show_calculator", "NO"]
         app.launchArguments += arguments
         app.launch()
         return app
@@ -83,6 +84,30 @@ final class AppUITests: XCTestCase {
         sleep(3)
     }
 
+    /// Accept only the known verse-16 wording, tolerating NASB's captured cross-reference marker.
+    private func hasJohn316Text(_ labels: [String]) -> Bool {
+        guard let start = labels.firstIndex(of: "16"),
+              let end = labels[(start + 1)...].firstIndex(of: "17") else { return false }
+        let verse = labels[(start + 1)..<end].joined(separator: " ")
+        return verse.range(of: #"\bFor God\s+so\s+(?:A\s+)?loved\s+the world\b"#,
+                           options: .regularExpression) != nil
+    }
+
+    func testJohn316PhraseLabels() {
+        let nasb = ["16", "\u{201C}For God", "so", "A", "loved", "the world", ", that He", "B", "gave", "17"]
+        let kjv = ["16", "For", "God", "so", "loved", "the world", "17"]
+        XCTAssertTrue(hasJohn316Text(nasb))
+        XCTAssertTrue(hasJohn316Text(kjv))
+        XCTAssertFalse(hasJohn316Text(["1", "Nicodemus", "2", "came to Jesus"]))
+        XCTAssertFalse(hasJohn316Text(["17", "For God", "so", "A", "loved", "the world", "18"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "did not send", "the Son", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "hated", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "B", "loved", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God", "so", "deeply", "loved", "the world", "17"]))
+        XCTAssertFalse(hasJohn316Text(["16", "different text", "17", "For God so loved the world"]))
+        XCTAssertFalse(hasJohn316Text(["16", "For God so loved the world"]))
+    }
+
     func testFreshInstallEasyStartReadsJohn3() {
         let app = launch(["-resetData", "-openRef", "John.3.16"])
         let welcome = element(app, "welcome-screen")
@@ -98,17 +123,16 @@ final class AppUITests: XCTestCase {
         XCTAssertTrue(okTapped, "Download Documents OK button not enabled within 180 s (no Bible installed?)")
 
         XCTAssertTrue(element(app, "reading-host").waitForExistence(timeout: 60), "reading host not shown after OK")
-        // WebKit's accessibility tree splits the KJV text (Strong's markup) into phrase-level StaticTexts
-        // ('For' 'God' 'so' 'loved' 'the world' ...), so no single label holds the verse. Assert John 3 renders
-        // (chapter-opening 'Nicodemus') and that the phrase labels, joined in order, read John 3:16.
+        // WebKit splits verse text and cross-reference markers into separate StaticTexts.
+        // Verify the known wording inside verse 16, not an unrestricted phrase elsewhere in the chapter.
         let texts = app.webViews.staticTexts
         let found = john3Shown(app)
-        var joined = ""
+        var labels: [String] = []
         if found {
-            let labels = (0..<min(texts.count, 600)).map { texts.element(boundBy: $0).label }
-            joined = labels.joined(separator: " ").split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+            labels = (0..<min(texts.count, 600)).map { texts.element(boundBy: $0).label }
         }
-        let hasVerse = joined.contains("For God so loved the world")
+        let joined = labels.joined(separator: " ")
+        let hasVerse = hasJohn316Text(labels)
         if !hasVerse { attachTree(app, "no-john-3-16") }
         shot(app, "reading-john-3")
         XCTAssertTrue(found, "John 3 (Nicodemus) not rendered in the web view")

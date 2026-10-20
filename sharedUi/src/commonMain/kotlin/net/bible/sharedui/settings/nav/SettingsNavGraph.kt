@@ -138,6 +138,7 @@ class AppSettingsDeps(
     val onResume: () -> Unit,
     val askBeforeOpeningLink: () -> Boolean,
     val onOpenExternal: (String) -> Unit,
+    val onReportBug: (() -> Unit)? = null,
 )
 
 /**
@@ -453,6 +454,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             onDismissDialog = controller::dismissDialog,
             askBeforeOpeningLink = d.askBeforeOpeningLink(),
             onOpenExternal = d.onOpenExternal,
+            onReportBug = d.onReportBug,
         )
     }
 

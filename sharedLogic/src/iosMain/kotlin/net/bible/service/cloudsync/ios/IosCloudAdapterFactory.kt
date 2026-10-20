@@ -44,7 +44,11 @@ class IosCloudAdapterFactory(
 
     override fun displayName(id: String): String = displayName.invoke(id)
 
-    override fun create(id: String): CloudAdapter = when (id) {
+    override fun create(id: String): CloudAdapter = create(id, signInUi)
+
+    override fun createForBackground(id: String): CloudAdapter = create(id, IosBackgroundSignInUi(signInUi))
+
+    private fun create(id: String, ui: WebDavSignInUi): CloudAdapter = when (id) {
         "ICLOUD_DRIVE" -> FileTreeCloudAdapter(iCloudStore(), deviceId, tempDir, awaitReady = awaitReady)
         "NEXT_CLOUD" -> {
             val user = platform.credential("cloud_sync_username")
@@ -54,7 +58,7 @@ class IosCloudAdapterFactory(
                     user,
                     platform.credential("cloud_sync_password"),
                     platform.credential("cloud_sync_folder_path"),
-                ),
+                ), ui,
             )
         }
         "WEBDAV" -> webDav(
@@ -63,11 +67,11 @@ class IosCloudAdapterFactory(
                 platform.credential(WebDavPrefKeys.USERNAME),
                 platform.credential(WebDavPrefKeys.PASSWORD),
                 platform.credential(WebDavPrefKeys.FOLDER_PATH),
-            ),
+            ), ui,
         )
         else -> throw IllegalStateException("Unknown cloud adapter id: $id")
     }
 
-    private fun webDav(config: WebDavConfig) =
-        WebDavCloudAdapter(config, platform.webDavState, signInUi, deviceId, clientFactory)
+    private fun webDav(config: WebDavConfig, ui: WebDavSignInUi) =
+        WebDavCloudAdapter(config, platform.webDavState, ui, deviceId, clientFactory)
 }

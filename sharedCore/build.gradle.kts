@@ -35,6 +35,13 @@ kotlin {
             api(libs.ktor.client.core)       // HttpClient / HttpClientEngine appear in WebDavClient's API
             implementation(libs.xmlutil.core)
         }
+        jvmTest {
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedcore/platform/sync/runner")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedcore/platform/sync/runner")
+            // Execute the platform-free iOS publication policy on Linux as well as Native.
+            kotlin.srcDir("src/iosMain/kotlin/net/bible/sharedcore/platform/speak/systemsurfaces")
+            kotlin.srcDir("src/iosTest/kotlin/net/bible/sharedcore/platform/speak/systemsurfaces")
+        }
         // I2 step 0: Darwin engine for iOS HTTP (spec C5; streams C and D)
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

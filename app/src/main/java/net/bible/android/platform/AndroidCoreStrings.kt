@@ -6,6 +6,10 @@ import net.bible.sharedcore.platform.CoreStrings
 
 /** Reads the resource on every access so locale changes take effect. */
 class AndroidCoreStrings(private val context: Context) : CoreStrings {
+    override val errorReport: String get() = context.getString(R.string.report_error)
+    override val errorBackup: String get() = context.getString(R.string.backup_and_restore)
+    override val errorSkip: String get() = context.getString(R.string.error_skip)
+    override val debugTestError: String get() = context.getString(R.string.debug_test_error)
     override val namelessTitle: String get() = context.getString(R.string.nameless)
     override fun processingEpub(title: String): String = context.getString(R.string.processing_epub, title)
     override fun creatingIndexFor(name: String): String = context.getString(R.string.creating_index_for, name)
@@ -80,6 +84,14 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val stop: String get() = context.getString(R.string.stop)
     override val speakStatusStopped: String get() = context.getString(R.string.speak_status_stopped)
     override fun sleepTimerStarted(minutes: Int): String = context.getString(R.string.sleep_timer_started, minutes)
+    override val webDavUntrustedCertificateTitle: String get() = context.getString(R.string.webdav_untrusted_certificate_title)
+    override val webDavTrustCertificate: String get() = context.getString(R.string.webdav_trust_certificate)
+    override val webDavWrongCredentials: String get() = context.getString(R.string.webdav_wrong_credentials)
+    override val webDavNotAFolder: String get() = context.getString(R.string.webdav_not_a_folder)
+    override val webDavCertificateChanged: String get() = context.getString(R.string.webdav_certificate_changed)
+    override val webDavStorageFull: String get() = context.getString(R.string.webdav_storage_full)
+    override val iCloudDrive: String get() = context.getString(R.string.adapters_icloud_drive)
+    override fun webDavUntrustedCertificateMessage(host: String, subject: String, issuer: String, from: String, until: String, fingerprint: String): String = context.getString(R.string.webdav_untrusted_certificate_message, host, subject, issuer, from, until, fingerprint)
     override val signInFailed: String get() = context.getString(R.string.sign_in_failed)
     override val cloudSyncTitle: String get() = context.getString(R.string.cloud_sync_title)
     override val cloudFetchAndRestoreInitial: String get() = context.getString(R.string.cloud_fetch_and_restore_initial)

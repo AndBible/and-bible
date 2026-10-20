@@ -843,6 +843,7 @@
     <string name="verse_not_found">Verse not found</string>
 
     <!-- Errors -->
+    <string name="crash_recovery_continue">Continue</string>
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>
     <string name="error_occurred_crash_last_time">Last time when you used the application, it crashed. To help us with fixing the bug, we would appreciate if you send us a bug report. </string>
@@ -853,6 +854,8 @@
     <string name="error_key_not_in_document2">%1$s was not found in document %2$s.</string>
     <string name="empty_list">No items to display</string>
     <string name="error_skip">Skip</string>
+    <string name="debug_test_error">Test error (debug build)</string>
+    <string name="bug_report_prepare_failed">Could not prepare or share the report. You can retry, or use Backup &amp; Restore to save your data.</string>
     <string name="bug_report_email_title">Send bug report via email</string>
     <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
 
@@ -1384,6 +1387,7 @@
     <string name="webdav_https_required">WebDAV sync requires a secure https:// address.</string>
     <string name="webdav_certificate_title">Server certificate</string>
     <string name="webdav_forget_certificate_message">Forget the trusted server certificate? You will be asked to confirm the certificate again on the next connection.</string>
+    <string name="adapters_icloud_drive">iCloud Drive</string>
     <string name="webdav_untrusted_certificate_title">Untrusted server certificate</string>
     <string name="webdav_untrusted_certificate_message">The certificate of %1$s is not trusted by Android. Only trust it if you recognise it, for example because you set up this server yourself.\n\nSubject: %2$s\nIssuer: %3$s\nValid: %4$s – %5$s\nSHA-256: %6$s</string>
     <string name="webdav_trust_certificate">Trust this certificate</string>

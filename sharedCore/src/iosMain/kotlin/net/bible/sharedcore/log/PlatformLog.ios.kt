@@ -2,10 +2,30 @@ package net.bible.sharedcore.log
 
 import platform.Foundation.NSLog
 import platform.Foundation.NSString
+import platform.Foundation.NSLock
+
+private val recentIosLog = RecentIosLog()
+fun iosRecentLogSnapshot(): String = recentIosLog.snapshot()
+
+/** Bounded process-local diagnostics. No disk work occurs on logging threads. */
+internal class RecentIosLog(private val limit: Int = 256 * 1024) {
+    private val lock = NSLock()
+    private var text = ""
+    fun append(line: String) {
+        lock.lock()
+        try { text = (text + line + "\n").takeLast(limit) } finally { lock.unlock() }
+    }
+    fun snapshot(): String {
+        lock.lock()
+        return try { text } finally { lock.unlock() }
+    }
+}
 
 internal actual fun platformLog(level: LogLevel, tag: String, msg: String, tr: Throwable?) {
     val text = if (tr == null) msg else "$msg\n${tr.stackTraceToString()}"
-    nsLog("${level.name.first()}/$tag: $text")
+    val line = "${level.name.first()}/$tag: $text"
+    recentIosLog.append(line)
+    nsLog(line)
 }
 
 /**

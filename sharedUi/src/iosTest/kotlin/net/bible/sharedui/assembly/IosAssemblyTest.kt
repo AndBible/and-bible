@@ -18,6 +18,7 @@ package net.bible.sharedui.assembly
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
 import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.format.SaxTextPolicy
@@ -87,7 +88,7 @@ class IosAssemblyTest {
     /** Opens the databases; a failure prints its whole cause chain (it lands in the test process output). */
     private fun openDatabasesDiagnosing() {
         try {
-            runBlocking { IosAppStartup.openDatabases() }
+            awaitStartupOnMain { IosAppStartup.openDatabases() }
         } catch (e: Throwable) {
             println("openDatabases failed:\n${e.stackTraceToString()}")
             throw e
@@ -105,11 +106,73 @@ class IosAssemblyTest {
     fun tearDown() = resetEverything()
 
     private fun resetEverything() {
-        runBlocking { IosAppStartup.resetForTest() }
+        awaitStartupOnMain { IosAppStartup.resetForTest() }
         files.deleteRecursively(databaseDir)
     }
 
-    private fun startApp(language: String? = "en") = IosAppStartup.start(config(language))
+    private fun startApp(language: String? = "en") = awaitStartupOnMain { IosAppStartup.ensureStarted(config(language)) }
+
+    @Test fun concurrentForegroundAndBackgroundJoinRealStartupOffMain() {
+        val entered = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val constructions = kotlinx.atomicfu.atomic(0)
+        val onMain = kotlinx.atomicfu.atomic(false)
+        val extra = org.koin.dsl.module {
+            single<String>(createdAtStart = true) {
+                constructions.incrementAndGet()
+                onMain.value = platform.Foundation.NSThread.isMainThread
+                entered.complete(Unit)
+                kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeout(10_000) { release.await() } }
+                "started"
+            }
+        }
+        awaitStartupOnMain {
+            kotlinx.coroutines.coroutineScope {
+                val background = async { IosAppStartup.ensureStarted(config(), listOf(extra)) }
+                val foreground = async { IosAppStartup.ensureStarted(config()) }
+                try {
+                    entered.await()
+                    assertFalse(onMain.value, "eager initialization must run off Main")
+                    // This continuation is a Main heartbeat while the IO initializer is still held.
+                    assertFalse(background.isCompleted)
+                    background.cancel()
+                    release.complete(Unit)
+                    foreground.await()
+                    assertEquals(1, constructions.value)
+                    assertEquals("started", KoinPlatform.getKoin().get<String>())
+                    assertFalse(IosAppStartup.databasesOpen)
+                } finally { release.complete(Unit); background.cancel(); foreground.cancel() }
+            }
+        }
+    }
+
+    @Test
+    fun recoveryBackupBuildsRealAppGraphsAndLoadsBeforeDatabases() {
+        startApp()
+        val koin = KoinPlatform.getKoin()
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
+        try {
+            val nav = androidx.navigation.NavHostController()
+            val shell = net.bible.sharedui.ios.app.IosHostShell(scope, net.bible.sharedui.ios.app.NavControllerNavigator { nav })
+            val ports = net.bible.sharedui.ios.app.buildIosHostPorts(shell, koin, IosAppStartup.stringTable)
+            val hosts = net.bible.sharedui.app.AppHosts(koin, shell, ports, net.bible.sharedui.strings.iosStrings("en"))
+            val graphs = hosts.graphs(nav, net.bible.sharedui.ios.app.iosResultChannels { nav })
+            assertTrue(net.bible.sharedui.app.routeStartsUninitialised(net.bible.sharedcore.nav.NavRoutes.BACKUP))
+            assertFalse(koin.get<net.bible.sharedcore.platform.AppEnvironment>().isInitialized)
+            val controller = graphs.backup.controllerFor()
+            controller.setToggle(net.bible.sharedcore.backup.ToggleKind.BackupDatabase, false)
+            // Exercise the real service, not a fake controller: this reads backup files, crash info and defaults.
+            val state = kotlinx.coroutines.runBlocking {
+                net.bible.service.backup.BackupServiceImpl(
+                    ports.backupHost, koin.get(), koin.get(), koin.get(), koin.get(), koin.get(), koin.get(),
+                ).load()
+            }
+            assertTrue(state.resettableDbs.isNotEmpty())
+            assertFalse(IosAppStartup.databasesOpen)
+            assertFalse(net.bible.service.db.DatabaseContainer.ready)
+            assertFalse(files.exists(databaseDir), "Backup graph/service must not open even an empty database")
+        } finally { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
+    }
 
     @Test
     fun startupResolvesTheGraphOpensDatabasesAndReadsAVerse() {
@@ -177,6 +240,21 @@ class IosAssemblyTest {
     }
 
     @Test
+    fun testErrorShowsTheDialog() {
+        startApp()
+        val koin = KoinPlatform.getKoin()
+        val dialogs = koin.get<AppDialogController>()
+        val strings = koin.get<net.bible.sharedcore.platform.CoreStrings>()
+        assertNull(dialogs.pending.value)
+        koin.get<net.bible.sharedui.app.ports.DebugActions>().showTestError("must not show this Android-only text")
+        val pending = assertNotNull(dialogs.pending.value, "DebugActions must use the actual UserNotifier dialog queue")
+        val message = kotlin.test.assertIs<net.bible.sharedcore.ui.dialog.AppDialogRequest.Message>(pending.request)
+        assertEquals(strings.debugTestError, message.message)
+        dialogs.dismiss(pending.id)
+        assertNull(dialogs.pending.value)
+    }
+
+    @Test
     fun startIsIdempotent() {
         startApp()
         val koin = KoinPlatform.getKoin()
@@ -211,7 +289,7 @@ class IosAssemblyTest {
         // An unusable database location: a regular file where the databases directory must be.
         files.createDirectories(databaseDir.parent!!)
         files.write(databaseDir) { writeUtf8("not a directory") }
-        val failure = runCatching { runBlocking { IosAppStartup.openDatabases() } }.exceptionOrNull()
+        val failure = runCatching { awaitStartupOnMain { IosAppStartup.openDatabases() } }.exceptionOrNull()
         assertNotNull(failure, "opening with an unusable database location must fail")
         assertFalse(IosAppStartup.databasesOpen)
         assertFalse(DatabaseContainer.ready, "a failed open must not leave the databases marked ready")

@@ -8,9 +8,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import net.bible.sharedui.ios.discrete.IosAppIcon
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import net.bible.sharedui.ios.startup.*
+import net.bible.sharedui.ios.discrete.IosCalculatorGate
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -29,6 +35,10 @@ import net.bible.sharedui.assembly.resolveDeviceUiLanguage
 import net.bible.sharedui.assembly.logAssemblyProbe
 import net.bible.sharedui.theme.AbTheme
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import net.bible.sharedui.ios.report.IosBugReport
+import net.bible.sharedui.assembly.iosStringTable
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.setUnhandledExceptionHook
@@ -59,28 +69,31 @@ private val startupScope = CoroutineScope(
 
 /** One per process: the Swift host may build the view controller more than once. */
 private val startupState = IosAppStartupState()
+private val crashTracker get() = IosPlatformBootstrap.crashTracker
 
 /**
  * iOS entry point, wrapped by the Swift host (`iosApp/iosApp/iOSApp.swift`). Shows the real app ([IosApp]) once
  * startup is Ready; with `SCREENSHOT_SCENARIO` set (XCUITest) it shows the I0 PoC app instead, and `POC_DARK` picks
- * that scenario's theme.
+ * that scenario's theme. The discrete check implements U7: hide content before PIN unlock;
+ * ADR 0007 does not fake the app name.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
 fun MainViewController(): UIViewController {
     // Kotlin/Native prints an uncaught exception to stderr, which neither the unified log nor the .ips crash report
     // keeps. Log it through NSLog first; the process still terminates afterwards.
-    setUnhandledExceptionHook { nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}") }
-    // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
-    val language = resolveDeviceUiLanguage(IosDeviceSettings())
-    // Stage 1 (main thread, quick, no database); stage 2 (databases, workspace) runs off the main thread behind the splash.
-    if (IosDebugLaunchArgs.resetData()) IosDebugLaunchArgs.resetAppData()
-    val startError = try {
-        IosAppStartup.start(IosAppConfig(uiLanguage = language))
-        null
-    } catch (e: Throwable) {
-        e
+    setUnhandledExceptionHook {
+        crashTracker.recordUncaught(it)
+        nsLog("UNCAUGHT Kotlin exception: ${it.stackTraceToString()}")
+        platform.posix.abort()
     }
-    if (startError != null) startupState.fail(startError) else startupState.launch(startupScope)
+    IosDebugLaunchArgs.resetTask6CrashState(IosDeviceSettings())
+    IosDebugLaunchArgs.seedCrashRecovery(IosDeviceSettings())
+    crashTracker.onLaunch()
+    IosPlatformBootstrap.registerCrashLifecycle(crashTracker)
+    // C4: the UI language is resolved once, from locale_pref, the device languages and the languages the strings cover.
+    val settings = IosDeviceSettings()
+    val language = resolveDeviceUiLanguage(settings)
+    val requiresCalculator = settings.getBoolean("discrete_mode", false) || settings.getBoolean("show_calculator", false)
     return ComposeUIViewController {
         val env = remember { NSProcessInfo.processInfo.environment }
         val scenario = remember { PocScenario.fromName(env["SCREENSHOT_SCENARIO"] as? String) }
@@ -91,12 +104,82 @@ fun MainViewController(): UIViewController {
             if (env["SCREENSHOT_SCENARIO"] as? String != null) dark
             else UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
         }
+        val strings = remember { iosStrings(language) }
+        val reportScope = rememberCoroutineScope()
+        val reporter = remember { IosBugReport(iosStringTable(language)) }
+        var reporting by remember { mutableStateOf(false) }
+        // Do not start either startup stage (or show a splash) behind the disguise.
+        // Not saveable: a recreated host must pass the gate again.
+        val gates = remember {
+            IosStartupGates(listOf(
+                StartupGate.Calculator { requiresCalculator },
+                StartupGate.CrashRecovery { crashTracker.shouldOfferRecovery() },
+            )).apply { advance() }
+        }
+        var gateRevision by remember { mutableStateOf(0) }
+        gateRevision // changes when a gate resolves
+        val resolve: (StartupGateResult) -> Unit = { result ->
+            if (gates.current is StartupGate.CrashRecovery && result == StartupGateResult.Continue) crashTracker.continueStartup()
+            gates.advance(result)
+            gateRevision++
+        }
+        when (gates.current) {
+            is StartupGate.Calculator -> {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    AbTheme(darkTheme = splashDark) { IosCalculatorGate(settings) { resolve(StartupGateResult.Continue) } }
+                }
+                return@ComposeUIViewController
+            }
+            is StartupGate.CrashRecovery -> {
+                CompositionLocalProvider(LocalStrings provides strings) {
+                    AbTheme(darkTheme = splashDark) {
+                        CrashRecoveryScreen(
+                            onReport = {
+                                if (!reporting) {
+                                    reporting = true
+                                    reportScope.launch {
+                                        try { reporter.report() }
+                                        finally { reporting = false }
+                                    }
+                                }
+                            },
+                            onResolve = resolve,
+                        )
+                    }
+                }
+                return@ComposeUIViewController
+            }
+            null -> Unit
+        }
+        if (gates.result == StartupGateResult.Exit) return@ComposeUIViewController
+        val recoveryBackup = gates.result == StartupGateResult.OpenBackup
+        var recoveryBindingsReady by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            net.bible.sharedui.assembly.awaitIosUiStartup(
+                ensureStarted = { IosAppStartup.ensureStarted(IosAppConfig(uiLanguage = language)) },
+                state = startupState,
+                processScope = startupScope,
+                recoveryBackup = recoveryBackup,
+                recoveryReady = { recoveryBindingsReady = true },
+            )
+        }
+        if (recoveryBackup) {
+            val recoveryPhase by startupState.phase.collectAsState()
+            if (recoveryPhase is StartupPhase.Failed) StartupFailed(splashDark, strings.errorOccurred)
+            else if (!recoveryBindingsReady) StartupSplash(splashDark)
+            else CompositionLocalProvider(LocalBibleWebView provides IosBibleWebViewFactory) {
+                IosApp(strings, net.bible.sharedcore.nav.NavRoutes.BACKUP, splashDark) {
+                    gates.returnFromBackup()
+                    gateRevision++
+                }
+            }
+            return@ComposeUIViewController
+        }
         if (scenario.shouldShowPlatformProbe(Platform.isDebugBinary, env["PLATFORM_PROBE"] as? String)) {
             PlatformProbeScreen(darkTheme = dark)
             return@ComposeUIViewController
         }
         val phase by startupState.phase.collectAsState()
-        val strings = remember { iosStrings(language) }
         when (val p = phase) {
             StartupPhase.Starting -> { StartupSplash(splashDark); return@ComposeUIViewController }
             is StartupPhase.Failed -> {
@@ -105,6 +188,10 @@ fun MainViewController(): UIViewController {
                 return@ComposeUIViewController
             }
             StartupPhase.Ready -> Unit
+        }
+        DisposableEffect(Unit) {
+            val cancel = settings.observeBoolean("discrete_mode", false, IosAppIcon::apply)
+            onDispose { cancel() }
         }
         LaunchedEffect(Unit) {
             // Off main: schedule() reads AppSettings (database-backed) and resolves Koin definitions.

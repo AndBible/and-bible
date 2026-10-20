@@ -88,6 +88,15 @@ class IosHostShellTest {
     }
 
     @Test
+    fun recoveryBackupExitReturnsWithoutNavigatingToReading() {
+        var returned = 0
+        val recoveryShell = IosHostShell(CoroutineScope(EmptyCoroutineContext), nav) { returned++ }
+        recoveryShell.exitHost()
+        assertEquals(1, returned)
+        assertEquals(emptyList(), nav.calls)
+    }
+
+    @Test
     fun exitAndRecreateArePendingNotThrowing() {
         shell.exitHost()
         shell.recreateHost()

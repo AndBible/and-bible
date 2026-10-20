@@ -19,6 +19,10 @@
 package net.bible.sharedui.ios.app
 
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.IosDeviceSettings
+import net.bible.sharedui.app.ports.NotificationPermission
+import net.bible.sharedui.ios.discrete.IosDiscreteNotificationPermission
+import net.bible.sharedui.ios.ports.IosNotificationPermission
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedui.app.ports.ClipboardText
 import net.bible.sharedui.app.ports.DebugActions
@@ -38,13 +42,19 @@ import net.bible.sharedui.ios.ports.IosTextDisplayPlatform
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-/** The eight host ports the app's Koin graph carries on Android (bound there in `:app`); see [IOS_HOST_BINDING_TYPES]. */
+/** Host ports bound in Koin, including the iOS-only discrete permission policy; see [IOS_HOST_BINDING_TYPES]. */
 @kotlin.native.HiddenFromObjC
 fun buildIosHostBindings(): Module = module {
+    single<NotificationPermission> {
+        IosDiscreteNotificationPermission(
+            IosNotificationPermission(),
+            isDiscrete = { get<IosDeviceSettings>().getBoolean("discrete_mode", false) },
+        )
+    }
     single<ExternalLinks> { IosExternalLinks() }
     single<ClipboardText> { IosClipboardText() }
     single<PlatformText> { IosPlatformText() }
-    single<DebugActions> { IosDebugActions() }
+    single<DebugActions> { IosDebugActions(get(), get<CoreStrings>()) }
     single<SettingsPlatform> { IosSettingsPlatform(get<CoreStrings>()) }
     single<TextDisplayPlatform> { IosTextDisplayPlatform() }
     single<DocumentInstallStarter> { IosDocumentInstallStarter() }

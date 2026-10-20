@@ -44,6 +44,7 @@ class BackgroundSyncPolicy(
     private val signedIn: () -> Boolean,
     private val signIn: suspend () -> Boolean?,
     private val startSync: () -> Deferred<Boolean>,
+    private val stopSync: ((Deferred<Boolean>) -> Unit)? = null,
 ) {
     /**
      * Runs a sync if one is due.
@@ -62,7 +63,7 @@ class BackgroundSyncPolicy(
         } catch (e: CancellationException) {
             // The scheduler's Deferred is shared: cancelling only our wait would leave the sync running
             // after the platform expired the background task.
-            sync.cancel()
+            if (stopSync != null) stopSync.invoke(sync) else sync.cancel()
             throw e
         }
     }

@@ -79,6 +79,7 @@ class SettingsHost(
     private val syncSettingsServiceProvider: () -> SyncSettingsService,
     private val readingProgressSettingsServiceProvider: () -> ReadingProgressSettingsService,
     private val readingProgressServiceProvider: () -> ReadingProgressService,
+    private val onReportBug: (() -> Unit)? = null,
 ) {
     /** Preference reads, resolved on first use (Welcome starts uninitialised). */
     private val appSettings: AppSettings by lazy(appSettingsProvider)
@@ -158,6 +159,7 @@ class SettingsHost(
             onResume = { appSettingsService.refresh() },
             askBeforeOpeningLink = { links.askBeforeOpening },
             onOpenExternal = { links.open(it) },
+            onReportBug = onReportBug,
         ),
         syncSettings = SyncSettingsDeps(
             controller = { syncSettingsController },

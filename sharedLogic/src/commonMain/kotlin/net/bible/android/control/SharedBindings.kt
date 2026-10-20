@@ -206,7 +206,8 @@ fun buildSharedBindings() = module {
             get(), get(),
         )
     }
-    single { CloudSync(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { CloudSync(get(), get(), get(), get(), get(), get(), get(), get(), get(),
+        getOrNull<net.bible.service.cloudsync.CloudSyncNamespace>()?.value) }
     single { DocumentSync(get(), get(), get(), get(), get(), { get() }) }
     single { BookInstallWatcher(get(), get(), get(), get(), get()) }
 
