@@ -104,6 +104,7 @@ import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.strings.keyed.StringTable
 import net.bible.sharedui.theme.AbHostTheme
+import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.webview.iosReadingPaneFactory
 import org.crosswire.jsword.book.Book
 import org.koin.core.Koin

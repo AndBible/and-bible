@@ -32,7 +32,6 @@ import net.bible.sharedui.app.ports.PlatformText
 import net.bible.sharedui.app.ports.SettingsPlatform
 import net.bible.sharedui.app.ports.TextDisplayPlatform
 import net.bible.android.view.activity.settings.AppSettingsServiceImpl
-import net.bible.sharedcore.platform.IosDeviceSettings
 import net.bible.sharedcore.settings.DeviceLocalPrefs
 import net.bible.sharedcore.settings.SettingsPlatformFlags
 import net.bible.sharedui.ios.ports.IosClipboardText
