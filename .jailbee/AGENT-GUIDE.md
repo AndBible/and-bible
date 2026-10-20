@@ -23,7 +23,7 @@ Each rule: the instruction, then why. Background and measurements:
 - Never `./gradlew :app:install<Variant>`; use `adb -s <serial> install -r -d <apk>`.
   Why: the SDK adb differs from the container adb and the mismatch can kill the shared adb server.
 - In Claude Code's Bash, plain `grep` skips binary-looking files; use `grep -a` on `/proc/*/cmdline`.
-  Why: `/proc/<pid>/cmdline` looks binary, so a plain grep silently matches nothing.
+  Why: given a `/proc/<pid>/cmdline` file path directly, a plain grep treats it as binary and silently matches nothing.
 
 ### Recovery recipes (only when the failure actually happens)
 
@@ -47,16 +47,16 @@ Each rule: the instruction, then why. Background and measurements:
 ## Git and GitHub
 
 - Never push from the container; commit locally. No worktrees, no branch switching unless asked.
-  Why: the user pushes from the host (hardware key), and the container is already a per-task sandbox.
+  Why: the user pushes from the host, and the container is already a per-task sandbox.
 - `gh` is read-only; stage outward writes with the jailbee skills (issue management, PR review).
-  Why: the container has no write credentials.
+  Why: outward writes are published by a human on the host.
 
 ## Files and privileges
 
 - Hand files to the host through `.local/` (shared, gitignored).
 - `sudo -n` works for root; `pkexec` is not installed.
 - Edits to `.jailbee/config.yaml` (`container.env`, `host_mounts`, `GRADLE_OPTS`) need `jailbee apply` and a container restart on the host; `jailbee new` does not refresh the shared profile. Only `host_ports` applies at create time.
-  Why: the running container keeps the profile it was created with.
+  Why: the config only takes effect after that.
 
 ## Test Sword modules
 
