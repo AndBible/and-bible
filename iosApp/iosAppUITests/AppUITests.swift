@@ -82,14 +82,22 @@ class RealAppUITestCase: XCTestCase {
         usleep(700_000)
     }
 
-    /// Scroll nudge for a bottom sheet's list, with explicit geometry: both ends stay below the sheet's drag handle and
-    /// title (about y 0.57, measured on the iPhone run). Only upward drags (revealing lower rows) are always safe. A downward drag from inside the
-    /// list is turned into the sheet's dismiss gesture while the list is within roughly 150 pt of its top (observed on the iPhone run), so use it
-    /// only when the list is far from the top; otherwise close the sheet with its Close button.
-    func nudgeSheetList(_ app: XCUIApplication, up: Bool) {
-        let high = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.62))
-        let low = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.80))
-        (up ? low : high).press(forDuration: 0.1, thenDragTo: up ? high : low)
+    /// Upward content drag (reveals lower rows) inside a bottom sheet's list. Only upward drags are provided on purpose:
+    /// a downward drag that starts in the sheet's header band (drag handle and title/Close row) dismisses the sheet, and
+    /// near the list top a downward drag from inside the list is also turned into a dismiss drag. Both were observed on
+    /// iPhone and on iPad (a centered 640 pt modal whose list starts at y 744 of 1180). To restart from the top, close the
+    /// sheet with its Close button and reopen it. The geometry is computed from the Close button so both the start and
+    /// the end stay strictly below the header (at least 60 pt under Close's bottom edge) on every device.
+    func nudgeSheetList(_ app: XCUIApplication) {
+        let view = app.frame
+        let close = app.buttons.matching(NSPredicate(format: "label == 'Close'")).firstMatch
+        let listTop = close.exists ? close.frame.maxY + 60 : view.height * 0.62
+        let span = max(view.maxY - listTop, 120)
+        let startY = listTop + span * 0.85
+        let endY = listTop + span * 0.35
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: startY / view.height))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: endY / view.height))
+        start.press(forDuration: 0.1, thenDragTo: end)
         usleep(700_000)
     }
 

@@ -167,13 +167,19 @@ final class HRuntimeUITests: RealAppUITestCase {
         let customChoice = text(app, "Custom\u{2026}")
         for _ in 0..<40 where !customChoice.exists { nudgeList(app, up: true) }
         require(customChoice.exists && waitForStableOnScreen(app, customChoice), app, "language-custom-choice-missing")
-        // Back up to the real Finnish row before the existing selection step.
+        // No downward drags: they dismiss the sheet from its header band. Close it with the real Close button, reopen (the
+        // list restarts at the top) and reach the real Finnish row with upward content drags only.
+        let firstClose = button(app, "Close")
+        require(firstClose.exists && firstClose.isHittable, app, "language-sheet-close-missing-before-reopen")
+        firstClose.tap()
+        require(waitUntil(timeout: 10) { !self.button(app, "Close").exists && !self.text(app, "Custom\u{2026}").exists }, app, "language-sheet-not-closed-before-reopen")
+        tapText(app, "AI response language")
+        require(button(app, "Close").waitForExistence(timeout: 10), app, "language-sheet-reopen-for-finnish-missing")
         let finnishChoice = text(app, "fi: Suomi")
         for _ in 0..<40 where !(finnishChoice.exists && finnishChoice.isHittable) {
-            // A gesture that pulled the sheet closed must fail at once, not run on the Connection settings screen.
             // The underlying Connection settings screen has no Close button in the observed runs, so Close means the sheet is open.
             require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
-            nudgeSheetList(app, up: false)
+            nudgeSheetList(app)
         }
         require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
         require(finnishChoice.exists && waitForStableOnScreen(app, finnishChoice), app, "language-finnish-choice-not-settled")
@@ -195,7 +201,7 @@ final class HRuntimeUITests: RealAppUITestCase {
         let finnish = text(app, "fi: Suomi")
         for _ in 0..<40 where !(finnish.exists && finnish.isHittable) {
             require(button(app, "Close").exists, app, "language-sheet-dismissed-while-scrolling")
-            nudgeSheetList(app, up: true)
+            nudgeSheetList(app)
         }
         require(finnish.exists && waitForStableOnScreen(app, finnish), app, "language-reopen-finnish-not-settled")
         let selectedFinnish = app.descendants(matching: .any)
