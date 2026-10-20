@@ -15,6 +15,11 @@ import androidx.compose.runtime.setValue
  * (updated at once, see [edit]) and still forwards every edit. The controller's value is taken over only when it is a
  * genuine external write, a value this field never sent (paste, a validation result, a reload or a normalising save);
  * the late echo of an edit already shown is recognised and ignored, so it cannot overwrite newer input.
+ *
+ * Limitation: echoes are matched by value only (no sequence numbers). An outside write equal to a still-pending typed
+ * value is taken for that echo and ignored (pending "/r" and "/rx", an outside write "/r": the field keeps "/rx"), and
+ * an a -> '' -> a edit pattern may flicker briefly before it converges. Both are inherent and none of the bound
+ * controllers rewrites a field it just accepted.
  */
 internal class ControllerTextState(initial: String) {
     var text by mutableStateOf(initial)

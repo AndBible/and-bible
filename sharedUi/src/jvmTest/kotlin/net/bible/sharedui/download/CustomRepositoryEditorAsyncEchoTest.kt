@@ -37,6 +37,7 @@ class CustomRepositoryEditorAsyncEchoTest {
             if (asyncEcho) queue.addLast(change) else write(change)
         }
         fun release() { while (queue.isNotEmpty()) write(queue.removeFirst()) }
+        fun releaseOne() { if (queue.isNotEmpty()) write(queue.removeFirst()) }
     }
 
     private fun androidx.compose.ui.test.ComposeUiTest.show(h: Harness) = setContent {
@@ -96,5 +97,41 @@ class CustomRepositoryEditorAsyncEchoTest {
         runOnIdle { h.write { copy(packageDirectory = "/resolved") } }
         waitForIdle()
         assertEquals("/resolved", field(strings.packagesDir).editable())
+    }
+
+    @Test fun aLateEchoDeliveredAloneNeverOverwritesNewerInput() = runComposeUiTest {
+        val h = Harness(asyncEcho = true); show(h)
+        val node = field(strings.packagesDir)
+        node.performClick()
+        node.performTextInput("/")
+        waitForIdle()
+        node.performTextInput("d")
+        waitForIdle()
+        // The controller's echoes arrive one at a time, each followed by a recomposition: the first one is stale.
+        runOnIdle { h.releaseOne() }
+        waitForIdle()
+        assertEquals("/d", node.editable())
+        runOnIdle { h.releaseOne() }
+        waitForIdle()
+        assertEquals("/d", node.editable())
+        assertEquals("/d", h.shown.packageDirectory)
+    }
+
+    @Test fun anOutsideWriteArrivingWhileAnEchoIsStillHeldWinsOnceTheEchoesDrain() = runComposeUiTest {
+        val h = Harness(asyncEcho = true); show(h)
+        val node = field(strings.packagesDir)
+        node.performClick()
+        node.performTextInput("/")
+        waitForIdle()
+        node.performTextInput("d")
+        waitForIdle()
+        runOnIdle { h.releaseOne() } // "/" echoed; "/d" still held
+        waitForIdle()
+        assertEquals("/d", node.editable())
+        // Validation resolves a directory now. The controller's final value is the resolved one, so the held stale echo
+        // never reaches the screen (a StateFlow does not go backwards).
+        runOnIdle { h.queue.clear(); h.write { copy(packageDirectory = "/resolved") } }
+        waitForIdle()
+        assertEquals("/resolved", node.editable())
     }
 }

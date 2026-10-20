@@ -104,16 +104,23 @@ class AiModelsFormAsyncEchoTest {
         assertEquals("34", typeTwo(strings.llmCustomOutputPriceLabel, "3", "4", h))
     }
 
-    @Test fun editingAnotherModelReseedsTheFieldsFromTheNewState() = runComposeUiTest {
-        val h = Harness(custom.copy(id = "m1", priceInput = "1.5", priceOutput = "2.5"), asyncEcho = true); show(h)
-        // A different model replaces the dialog state (startEdit with another id), and an unrelated controller write
-        // changes a price that the user never typed.
-        runOnIdle { h.write { copy(id = "m2", priceInput = "9", priceOutput = "8") } }
+    @Test fun editingAnotherModelReseedsEvenWhenItsValueEqualsAPendingEditOfTheFirst() = runComposeUiTest {
+        val h = Harness(custom.copy(id = "m1"), asyncEcho = true); show(h)
+        // Two edits whose echoes are still held: the field shows "12" and "1" is pending.
+        typeTwoHeld(strings.llmCustomInputPriceLabel, "1", "2")
+        // Another model whose stored price is "1" replaces the state. Only the key re-seeds the field: without it the
+        // value "1" is mistaken for the late echo of the first model's edit and "12" would stay.
+        runOnIdle { h.write { copy(id = "m2", priceInput = "1") } }
         waitForIdle()
-        assertEquals("9", field(strings.llmCustomInputPriceLabel).editable())
-        assertEquals("8", field(strings.llmCustomOutputPriceLabel).editable())
-        runOnIdle { h.write { copy(priceInput = "7") } }
+        assertEquals("1", field(strings.llmCustomInputPriceLabel).editable())
+    }
+
+    private fun ComposeUiTest.typeTwoHeld(label: String, first: String, second: String) {
+        val node = field(label)
+        node.performClick()
+        node.performTextInput(first)
         waitForIdle()
-        assertEquals("7", field(strings.llmCustomInputPriceLabel).editable())
+        node.performTextInput(second)
+        waitForIdle()
     }
 }

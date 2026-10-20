@@ -111,7 +111,7 @@ class PromptEditAsyncEchoTest {
     @Test fun controllerWritesStillReachTheFields() = runComposeUiTest {
         val h = Harness(prompt, asyncEcho = true); show(h)
         typeTwo(strings.promptNameLabel, "a", "b", h)
-        // A save or copy-to-customize rewrites fields the user did not just type (a normalised name, a reloaded prompt).
+        // Synthetic: no controller writes these fields under the same prompt id today, but the helper must adopt such a write.
         runOnIdle { h.write { copy(name = "Copy of ab", description = "reloaded", template = "T") } }
         waitForIdle()
         assertEquals("Copy of ab", field(strings.promptNameLabel).editable())

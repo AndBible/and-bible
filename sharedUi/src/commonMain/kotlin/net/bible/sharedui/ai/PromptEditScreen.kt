@@ -433,8 +433,9 @@ private fun PromptTabContent(
     strings: Strings,
 ) {
     // The controller echoes a keystroke back a dispatch later (collectAsState), so each text field keeps its typed text
-    // locally and takes over the controller's value only for its own writes (save normalising, copy-to-customize,
-    // reload). Re-seeded when another prompt is shown.
+    // locally. What re-seeds it is the key: the prompt id (load() changes it from null, and a new prompt gets its id on
+    // save). No controller write to these fields under the same id exists today; if one is added, the helper adopts a
+    // value this field never sent.
     val nameText = rememberControllerText(state.name, state.id)
     val descriptionText = rememberControllerText(state.description, state.id)
     val templateText = rememberControllerText(state.template, state.id)
