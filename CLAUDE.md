@@ -4,6 +4,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## JailBee container
+
+If `$JAILBEE_BRANCH` is set or `/etc/jailbee` exists, you are in a JailBee container: read and follow
+[.jailbee/AGENT-GUIDE.md](.jailbee/AGENT-GUIDE.md) before running builds, tests, adb or git operations.
+
 ## Project Overview
 
 AndBible is a powerful offline Bible study app for Android built with Kotlin, featuring a hybrid architecture with Vue.js for Bible text rendering and JSword library for Bible data handling.
