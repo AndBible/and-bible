@@ -13,6 +13,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedui.app.installzip.InstallZipHostPlatform
 import net.bible.sharedui.app.ports.DocumentRef
 import net.bible.sharedui.app.ports.NotificationPermission
+import net.bible.sharedui.assembly.IosAppStartup
 import net.bible.sharedui.assembly.iosStringTable
 import net.bible.sharedui.installzip.InstallUiState
 import net.bible.sharedui.strings.keyed.StringTable
@@ -25,7 +26,8 @@ class IosInstallZipHostPlatform(
     private val scope: CoroutineScope = IosInstallPipeline.scope,
     private val table: StringTable = iosStringTable("en"),
     private val notificationPermission: NotificationPermission = IosNotificationPermission(),
-    private val initialise: suspend () -> Unit = { IosInstallPipeline.ensureInitialized() },
+    // "If started": before startup completes (or after a reset) there is nothing to initialise, and the table is not there to read.
+    private val initialise: suspend () -> Unit = { if (IosAppStartup.isStarted) IosInstallPipeline.ensureInitialized() },
 ) : InstallZipHostPlatform {
     override val jobs get() = controller().jobs
 

@@ -18,6 +18,8 @@ package net.bible.sharedui.assembly
 
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.cancel
@@ -156,6 +158,9 @@ object IosAppStartup {
     /** True once [openDatabases] finished; `DatabaseAppSettings` answers defaults before that. */
     val databasesOpen: Boolean get() = opened
 
+    /** True once [ensureStarted] has published the platform parts (a later [resetForTest] clears it again). */
+    internal val isStarted: Boolean get() = parts != null
+
     /** The UI-language string table of the started app (the resource-keyed lookups the hosts read). */
     internal val stringTable: StringTable get() = checkNotNull(parts) { "IosAppStartup.ensureStarted has not completed" }.strings
 
@@ -244,7 +249,14 @@ object IosAppStartup {
         previousOwner?.joinInFlight()
         // Stop the app scope first: coroutines of a finished test (store collectors, ordered launches) must not run
         // into the next test's databases.
-        runCatching { KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()?.cancel() }
+        runCatching {
+            KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()?.let { appScope ->
+                appScope.cancel()
+                // A coroutine already running on a worker thread survives cancel(); closing Koin and the databases
+                // under it races (a Native SIGSEGV, not just a ClosedScopeException), so wait for the children to end.
+                withTimeoutOrNull(1_000) { appScope.coroutineContext[Job]?.children?.toList()?.forEach { it.join() } }
+            }
+        }
         // JSword outlives Koin: detach this app's exact listener before its dependencies are closed.
         KoinPlatform.getKoinOrNull()?.getOrNull<net.bible.android.control.versification.BookInstallWatcher>()?.let {
             org.crosswire.jsword.book.Books.installed().removeBooksListener(it.listener)
